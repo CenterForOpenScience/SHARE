@@ -1,4 +1,4 @@
-SHARE and COS Data Consumption Projects
+SHARE Notification Service Components at COS
 =====
 
 Data Consumption Projects
