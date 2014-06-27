@@ -4,8 +4,11 @@ SHARE and COS Data Consumption Projects
 Data Consumption Projects
 -----
 ClinicalTrials.gov
+
 PLOS
+
 CrossRef
+
 SciTech
 
 Conflict Management
