@@ -1,5 +1,19 @@
-SHARE
+SHARE and COS Data Consumption Projects
 =====
+
+Data Consumption Projects
+-----
+ClinicalTrials.gov
+PLOS
+CrossRef
+SciTech
+
+Conflict Management
+-----
+TODO
+
+About SHARE
+-----
 
 SHARE (SHared Access Research Ecosystem) and the Center for Open Science (COS), a Charlottesville, Virginia–based nonprofit technology start-up, have agreed to form a partnership to build the SHARE Notification Service, which will provide notice that research is available to the public.
 
