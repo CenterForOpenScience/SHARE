@@ -3,9 +3,9 @@ SHARE Notification Service Components at COS
 
 Data Consumption Projects
 -----
-ClinicalTrials.gov
+<a href="https://github.com/pjfan/ClinicalTrialsParser">ClinicalTrials.gov</a>
 
-PLOS
+<a href="https://github.com/fabianvf/PLoS-API-consumer">PLOS</a>
 
 CrossRef
 
