@@ -9,7 +9,7 @@ PLOS
 
 CrossRef
 
-SciTech
+<a href="https://github.com/erinspace/pyscitech">SciTech</a>
 
 Conflict Management
 -----
