@@ -1,19 +1,30 @@
 SHARE Notification Service Components at COS
 =====
 
+Core
+-----
+
+scrapi: http://www.github.com/fabianvf/scrapi
+
 Data Consumption Projects
 -----
-<a href="https://github.com/pjfan/ClinicalTrialsParser">ClinicalTrials.gov</a>
 
-<a href="https://github.com/fabianvf/PLoS-API-consumer">PLOS</a>
+ClinicalTrials.gov: https://github.com/pjfan/ClinicalTrialsParser
 
-CrossRef
+PLOS: https://github.com/fabianvf/PLoS-API-consumer
 
-<a href="https://github.com/erinspace/pyscitech">SciTech</a>
+SciTech: https://github.com/erinspace/pyscitech
+
+Altmetric: https://github.com/geeksnglitter/altmetric-python-library
+
+ImpactStory: https://github.com/se8ea/Impact-Story
+
+Crossref: TBA
 
 Conflict Management
 -----
-TODO
+
+This component will be introduced after the core technology has been developed.
 
 About SHARE
 -----
