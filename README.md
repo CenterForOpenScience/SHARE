@@ -21,7 +21,7 @@ ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
 
 CrossRef: Evaluation of API and libraries by Xander.
 
-arXiv.org: Evaluation started by Peter.
+arXiv: Evaluation started by Peter.
 
 OAI-PMH: Evaluation being conducted by Casey.
 
