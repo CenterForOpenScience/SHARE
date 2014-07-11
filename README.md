@@ -19,12 +19,14 @@ Altmetric: https://github.com/geeksnglitter/altmetric-python-library
 
 ImpactStory: https://github.com/se8ea/Impact-Story
 
-Crossref: TBA
+Crossref: Evaluated API - Xander
+
+OAI-PM: Evaluation being conducted by Faye.
 
 Conflict Management
 -----
 
-This component will be introduced after the core technology has been developed.
+Casey and Faye evaluated and prototype conflict management with [FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy). On hold until Core is further developed.
 
 About SHARE
 -----
