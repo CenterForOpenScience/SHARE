@@ -19,7 +19,9 @@ Altmetric: https://github.com/geeksnglitter/altmetric-python-library
 
 ImpactStory: https://github.com/se8ea/Impact-Story
 
-Crossref: Evaluated API - Xander
+Crossref: Evaluated API and libraries - Xander
+
+ArXive: Evaluation started by Peter.
 
 OAI-PM: Evaluation being conducted by Faye.
 
