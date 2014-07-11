@@ -23,7 +23,7 @@ CrossRef: Evaluation of API and libraries by Xander.
 
 arXiv.org: Evaluation started by Peter.
 
-OAI-PMH: Evaluation being conducted by Faye.
+OAI-PMH: Evaluation being conducted by Casey.
 
 Conflict Management
 -----
