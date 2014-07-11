@@ -17,7 +17,7 @@ SciTech: https://github.com/erinspace/pyscitech
 
 Altmetric: https://github.com/geeksnglitter/altmetric-python-library
 
-ImpactStory: https://github.com/se8ea/Impact-Story
+ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
 
 CrossRef: Evaluation of API and libraries by Xander.
 
