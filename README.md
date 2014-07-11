@@ -19,16 +19,16 @@ Altmetric: https://github.com/geeksnglitter/altmetric-python-library
 
 ImpactStory: https://github.com/se8ea/Impact-Story
 
-Crossref: Evaluated API and libraries - Xander
+CrossRef: Evaluation of API and libraries by Xander.
 
-ArXive: Evaluation started by Peter.
+arXiv.org: Evaluation started by Peter.
 
-OAI-PM: Evaluation being conducted by Faye.
+OAI-PMH: Evaluation being conducted by Faye.
 
 Conflict Management
 -----
 
-Casey and Faye evaluated and prototype conflict management with [FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy). On hold until Core is further developed.
+Casey and Faye evaluated and prototyped conflict management with [FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy). On hold until Core is further developed.
 
 About SHARE
 -----
