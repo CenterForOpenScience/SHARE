@@ -15,7 +15,7 @@ PLOS: https://github.com/fabianvf/PLoS-API-consumer
 
 SciTech: https://github.com/erinspace/pyscitech
 
-Altmetric: https://github.com/geeksnglitter/altmetric-python-library
+Altmetric: https://github.com/CenterForOpenScience/PyAltmetric
 
 ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
 
