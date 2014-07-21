@@ -1,6 +1,6 @@
 This is an example of what the archive directory structure would look like.
 
-
+````
 Service
     |__Unique_ID
     |   |__Timestamp
@@ -16,4 +16,5 @@ Service
             |__manifest.json
             |__raw.*
             |__normalized.json
+````
 etc...
