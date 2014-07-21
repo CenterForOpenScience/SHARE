@@ -1,0 +1,42 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Not Available"
+        }
+    ], 
+    "id": "1140069", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-07-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "This document provides content for three areas of the Building America Solution Center. First, \"Insulating Closed Crawlspace Walls and Band Joist Area\" describes how to install rigid foam insulation on the interior perimeter walls and band joist area in closed crawlspace foundations of homes. Second, \"Removing Construction Debris from Flexible Ducts\" describes how to clean flexible ducts after construction or major renovation of a home to remove debris resulting from building materials, particularly airborne dust and particulates. Third, images, CAD drawings, and a case study illustrate right and wrong ways to apply polyethylene sheeting over aggregate. Similarly, a CAD drawing is included that illustrates the use of a concrete slab over polyethylene.", 
+        "doi": null, 
+        "research_org": "National Renewable Energy Laboratory (NREL), Golden, CO.", 
+        "research_sponsor": "USDOE Office of Energy Efficiency and Renewable Energy Building Technologies Office", 
+        "tags": [
+            "32 ENERGY CONSERVATION", 
+            "CONSUMPTION", 
+            "AND UTILIZATION RESIDENTIAL", 
+            "RESIDENTIAL BUILDINGS", 
+            "IBACOS", 
+            "BUILDING AMERICA", 
+            "CRAWLSPACE", 
+            "CLOSED CRAWLSPACE", 
+            "RIGID FOAM INSULATION", 
+            "BAND JOIST", 
+            "FLEXIBLE DUCTS", 
+            "HVAC SYSTEMS", 
+            "CONSTRUCTION DEBRIS IN HVAC SYSTEMS", 
+            "POLYETHYLENE SHEETING", 
+            "POLYETHYLENE SHEETING OVER AGGREGATE", 
+            "CONCRETE SLAB OVER POLYETHYLENE"
+        ], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140069"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:19.137141", 
+    "title": "Capillary Break Beneath a Slab: Polyethylene Sheeting over Aggregate; Southwestern Pennsylvania (Fact Sheet)"
+}

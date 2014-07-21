@@ -1,0 +1,29 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Phelan, James M."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Webb, Stephen W."
+        }
+    ], 
+    "id": "1139975", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2007-07-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "Computational fluid dynamics simulations for dispersal of explosive vapors in interior spaces have been performed including details of typical ventilation systems. The interior spaces investigated include an office area, a single-family house, and a warehouse store. Explosive vapor sources are defined in the various interior spaces, and contours of the vapor concentration in the interior spaces relative to the source concentration are presented for relative concentrations down to 10-5. Training protocols for detection of explosive vapors in interior spaces should include an awareness of the time to equilibrium evident in these simulations as well as the significance of ventilation zones.3", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories (SNL-NM), Albuquerque, NM (United States)", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1139975"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.428791", 
+    "title": "Training Protocols for the Detection of Explosive Vapors in Interior Spaces."
+}

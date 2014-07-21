@@ -1,0 +1,33 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Kolda, Tamara G."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Griffin, Joshua"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Lewis, Robert Michael"
+        }
+    ], 
+    "id": "1139970", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2007-04-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "We describe an asynchronous parallel derivative-free algorithm for linearly-constrained optimization. Generating set search (GSS) is the basis of ourmethod. At each iteration, a GSS algorithm computes a set of search directionsand corresponding trial points and then evaluates the objective function valueat each trial point. Asynchronous versions of the algorithm have been developedin the unconstrained and bound-constrained cases which allow the iterations tocontinue (and new trial points to be generated and evaluated) as soon as anyother trial point completes. This enables better utilization of parallel resourcesand a reduction in overall runtime, especially for problems where the objec-tive function takes minutes or hours to compute. For linearly-constrained GSS,the convergence theory requires that the set of search directions conform to the3 nearby boundary. The complexity of developing the asynchronous algorithm forthe linearly-constrained case has to do with maintaining a suitable set of searchdirections as the search progresses and is the focus of this research. We describeour implementation in detail, including how to avoid function evaluations bycaching function values and using approximate look-ups. We test our imple-mentation on every CUTEr test problem with general linear constraints and upto 1000 variables. Without tuning to individual problems, our implementationwas able to solve 95% of the test problems with 10 or fewer variables, 75%of the problems with 11-100 variables, and nearly half of the problems with100-1000 variables. To the best of our knowledge, these are the best resultsthat have ever been achieved with a derivative-free method. Our asynchronousparallel implementation is freely available as part of the APPSPACK software.4", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories (SNL-CA), Livermore, CA (United States)", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1139970"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.458775", 
+    "title": "Asynchronous parallel generating set search for linearly-constrained optimization."
+}

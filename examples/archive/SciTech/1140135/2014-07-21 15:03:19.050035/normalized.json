@@ -1,0 +1,53 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Li, Liyu"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Kim, Soowhan"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Yang, Zhenguo"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Wang, Wei"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Zhang, Jianlu"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Chen, Baowei"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Nie, Zimin"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Xia, Guanguang"
+        }
+    ], 
+    "id": "1140135", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Patent", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-07-08", 
+        "date_retrieved": "2014-07-21", 
+        "description": "A redox flow battery having a supporting solution that includes Cl.sup.- anions is characterized by an anolyte having V.sup.2+ and V.sup.3+ in the supporting solution, a catholyte having Fe.sup.2+ and Fe.sup.3+ in the supporting solution, and a membrane separating the anolyte and the catholyte. The anolyte and catholyte can have V cations and Fe cations, respectively, or the anolyte and catholyte can each contain both V and Fe cations in a mixture. Furthermore, the supporting solution can contain a mixture of SO.sub.4.sup.2- and Cl.sup.- anions.", 
+        "doi": null, 
+        "research_org": "PNNL (Pacific Northwest National Laboratory (PNNL), Richland, WA (United States))", 
+        "research_sponsor": "USDOE", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140135"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:19.050035", 
+    "title": "Fe-V redox flow batteries"
+}

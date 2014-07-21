@@ -1,0 +1,37 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Alexandreanu, B"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Chen, Y."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Natesan, K."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Shack, W.J. (Nuclear Engineering Division)"
+        }
+    ], 
+    "id": "1137188", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-07-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "Abstract not provided", 
+        "doi": null, 
+        "research_org": "Argonne National Laboratory (ANL)", 
+        "research_sponsor": "NUCLEAR REGULATORY COMMISSION", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1137188"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:19.101024", 
+    "title": "Technical Letter Report on Crack Growth Rate Testing on Alloy 600 Nozzle Sections from the Replacement Pressure Vessel Head at Davis-Besse Reactor."
+}

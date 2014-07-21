@@ -1,0 +1,33 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Romanov, Vyacheslav N."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Goodman, Angela L."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Kaur, Palwinder"
+        }
+    ], 
+    "id": "1140009", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Conference", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2011-03-27", 
+        "date_retrieved": "2014-07-21", 
+        "description": null, 
+        "doi": null, 
+        "research_org": "National Energy Technology Laboratory - In-house Research", 
+        "research_sponsor": "USDOE Office of Fossil Energy (FE)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140009"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:20.793494", 
+    "title": "CO2 storage in coal reservoirs"
+}

@@ -1,0 +1,33 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Dugger, Michael T."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Asay, David B."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Kim, Seong H."
+        }
+    ], 
+    "id": "1139979", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2008-01-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "Vapor Phase Lubrication (VPL) of silicon surfaces with pentanol has been demonstrated. Two potential show stoppers with respect to application of this approach to real MEMS devices have been investigated. Water vapor was found to reduce the effectiveness of VPL with alcohol for a given alcohol concentration, but the basic reaction mechanism observed in water-free environments is still active, and devices operated much longer in mixed alcohol and water vapor environments than with chemisorbed monolayer lubricants alone. Complex MEMS gear trains were successfully lubricated with alcohol vapors, resulting in a factor of 104 improvement in operating life without failure. Complex devices could be made to fail if operated at much higher frequencies than previously used, and there is some evidence that the observed failure is due to accumulation of reaction products at deeply buried interfaces. However, if hypothetical reaction mechanisms involving heated surfaces are valid, then the failures observed at high frequency may not be relevant to operation at normal frequencies. Therefore, this work demonstrates that VPL is a viable approach for complex MEMS devices in conventional packages. Further study of the VPL reaction mechanisms are recommended so that the vapor composition may be optimized for low friction and for different substrate materials with potential application to conventionally fabricated, metal alloy parts in weapons systems. Reaction kinetics should be studied to define effective lubrication regimes as a function of the partial pressure of the vapor phase constituent, interfacial shear rate, substrate composition, and temperature.", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories (SNL-NM), Albuquerque, NM (United States)", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1139979"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.166198", 
+    "title": "MEMS Lubrication by In-Situ Tribochemical Reactions From the Vapor Phase."
+}

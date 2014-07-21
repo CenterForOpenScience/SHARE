@@ -1,0 +1,27 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Neu, Mary"
+        }
+    ], 
+    "id": "1140136", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Conference", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2010-06-02", 
+        "date_retrieved": "2014-07-21", 
+        "description": "Mary Neu, Associate Director for Chemistry, Life and Earth Sciences at Los Alamos National Laboratory, delivers opening remarks at the \"Sequencing, Finishing, Analysis in the Future\" meeting in Santa Fe, NM", 
+        "doi": null, 
+        "research_org": "Lawrence Berkeley National Laboratory (LBNL), Berkeley, CA (United States)", 
+        "research_sponsor": "USDOE Office of Science (SC), Biological and Environmental Research (BER) (SC-23)", 
+        "tags": [
+            "59 BASIC BIOLOGICAL SCIENCES"
+        ], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140136"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.096378", 
+    "title": "Los Alamos National Laboratory Overview"
+}

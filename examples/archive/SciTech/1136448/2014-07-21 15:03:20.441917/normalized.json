@@ -1,0 +1,33 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Bai, Zhaojun"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Scalettar, Richard"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Savrasov, Sergey"
+        }
+    ], 
+    "id": "1136448", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2012-07-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "This report summarizes the accomplishments of the University of California Davis team which is part of a larger SciDAC collaboration including Mark Jarrell of Louisiana State University, Karen Tomko of the Ohio Supercomputer Center, and Eduardo F. D'Azevedo and Thomas A. Maier of Oak Ridge National Laboratory. In this report, we focus on the major UCD accomplishments. As the paper authorship list emphasizes, much of our work is the result of a tightly integrated effort; hence this compendium of UCD efforts of necessity contains some overlap with the work at our partner institutions.", 
+        "doi": null, 
+        "research_org": "University of California, Davis", 
+        "research_sponsor": "USDOE; USDOE Office of Science (SC), Basic Energy Sciences (BES) (SC-22)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1136448"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:20.441917", 
+    "title": "Final Report on DOE SciDAC project on Next Generation of Multi-Scale Quantum Simulation Software for Strongly Correlated Materials"
+}

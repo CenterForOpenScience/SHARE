@@ -1,0 +1,39 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Fiskum, Sandra K."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Smoot, Margaret R."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Schmidt, Andrew J."
+        }
+    ], 
+    "id": "1140107", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-06-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "The Pacific Northwest National Laboratory (PNNL) currently houses 88 samples (~10.5 kg) of K Basin sludge (81 wet and seven dry samples) on behalf of the Sludge Treatment Project (STP), which is managed for the U.S. Department of Energy (DOE) by the CH2M Hill Plateau Remediation Company (CHPRC). Selected samples are intended to serve, in part, as sentinels to enhance understanding of sludge properties after long-term storage, and thus enhance understanding of sludge behavior following transfer to sludge transfer and storage containers (STSCs) and storage at the Hanford 200 Area central plateau. In addition, remaining samples serve in contingency for future testing requirements. At PNNL, the samples are tracked and maintained under a prescriptive and disciplined monthly sample-monitoring program implemented by PNNL staff. This report updates the status of the K Basin archive sludge sample inventory to April 2014. The previous inventory status report, PNNL 22245 (Fiskum et al. 2013, limited distribution report), was issued in February of 2013. This update incorporates changes in the inventory related to repackaging of 17 samples under test instructions 52578 TI052, K Basin Sludge Sample Repackaging for Continued Long Term Storage, and 52578 TI053, K Basin Sludge Sample Repackaging Post-2014 Shear Strength Measurements. Note that shear strength measurement results acquired in 2014 are provided separately. Specifically, this report provides the following: \u2022 a description of the K Basin sludge sample archive program and the sample inventory \u2022 a summary and images of the samples that were repackaged in April 2014 \u2022 up-to-date images and plots of the settled density and water loss from all applicable samples in the inventory \u2022 updated sample pedigree charts, which provide a roadmap of the genesis and processing history of each sample in the inventory \u2022 occurrence and deficiency reports associated with sample storage and repackaging", 
+        "doi": null, 
+        "research_org": "Pacific Northwest National Laboratory (PNNL), Richland, WA (US)", 
+        "research_sponsor": "USDOE", 
+        "tags": [
+            "K Basin", 
+            "sludge", 
+            "Archive", 
+            "sludge treatment project", 
+            "sludge denisty"
+        ], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140107"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:19.592097", 
+    "title": "STP K Basin Sludge Sample Archive at the Pacific Northwest National Laboratory FY2014"
+}

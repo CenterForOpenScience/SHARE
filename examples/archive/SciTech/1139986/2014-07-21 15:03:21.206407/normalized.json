@@ -1,0 +1,25 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Brynildson, Mark E."
+        }
+    ], 
+    "id": "1139986", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2008-01-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "Abstract not provided.", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories (SNL-CA), Livermore, CA (United States)", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1139986"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.206407", 
+    "title": "Sandia National Laboratories California Hazardous Materials Management Program Annual Report January 2008."
+}

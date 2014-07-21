@@ -1,0 +1,49 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Guilinger, Terry R."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Gaudioso, Jennifer M."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Aceto, Donato Gonzalo"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Lowe, Kathleen M."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Tucker, Mark D"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Salerno, Reynolds M."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Souza, Caroline"
+        }
+    ], 
+    "id": "1137219", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2006-11-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "As George W. Bush recognized in November 2001, %22Infectious diseases make no distinctions among people and recognize no borders.%22 By their very nature, infectious diseases of natural or intentional (bioterrorist) origins are capable of threatening regional health systems and economies. The best mechanism for minimizing the spread and impact of infectious disease is rapid disease detection and diagnosis. For rapid diagnosis to occur, infectious substances (IS) must be transported very quickly to appropriate laboratories, sometimes located across the world. Shipment of IS is problematic since many carriers, concerned about leaking packages, refuse to ship this material. The current packaging does not have any ability to neutralize or kill leaking IS. The technology described here was developed by Sandia National Laboratories to provide a fail-safe packaging system for shipment of IS that will increase the likelihood that critical material can be shipped to appropriate laboratories following a bioterrorism event or the outbreak of an infectious disease. This safe and secure packaging method contains a novel decontaminating material that will kill or neutralize any leaking infectious organisms; this feature will decrease the risk associated with shipping IS, making transport more efficient. 3 DRAFT4", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories Unknown, Unknown; Sandia National Laboratories (SNL-NM), Albuquerque, NM (United States)", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1137219"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.577426", 
+    "title": "Development of Self-Remediating Packaging for Safe and Secure Transport of Infectious Substances."
+}

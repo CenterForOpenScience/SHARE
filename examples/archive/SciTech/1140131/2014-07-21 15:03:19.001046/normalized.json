@@ -1,0 +1,29 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Langry, Kevin C."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Farmer, Joseph C."
+        }
+    ], 
+    "id": "1140131", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Patent", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-07-08", 
+        "date_retrieved": "2014-07-21", 
+        "description": "According to one embodiment, a system includes a structure having an ionically-conductive, electrically-resistive electrolyte/separator layer covering an inner or outer surface of a carbon-containing electrically-conductive hollow fiber and a catalyst coupled to the hollow fiber, an anode extending along at least part of a length of the structure, and a cathode extending along at least part of the length of the structure, the cathode being on an opposite side of the hollow fiber as the anode. In another embodiment, a method includes acquiring a structure having an ionically-conductive, electrically-resistive electrolyte/separator layer covering an inner or outer surface of a carbon-containing electrically-conductive hollow fiber and a catalyst along one side thereof, adding an anode that extends along at least part of a length of the structure, and adding a cathode that extends along at least part of the length of the structure on an opposite side as the anode.", 
+        "doi": null, 
+        "research_org": "LLNL (Lawrence Livermore National Laboratory (LLNL), Livermore, CA (United States))", 
+        "research_sponsor": "USDOE", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140131"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:19.001046", 
+    "title": "Fuel cell components and systems having carbon-containing electrically-conductive hollow fibers"
+}

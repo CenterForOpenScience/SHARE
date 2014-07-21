@@ -1,0 +1,42 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Not Available"
+        }
+    ], 
+    "id": "1140074", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-07-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "Expanding on previous research by PARR, this study compares measure packages installed during 800 Illinois Home Performance with ENERGY STAR (IHP) residential retrofits to those recommended as cost-optimal by Building Energy Optimization (BEopt) modeling software. In previous research, cost-optimal measure packages were identified for fifteen Chicagoland single family housing archetypes, called housing groups. In the present study, 800 IHP homes are first matched to one of these fifteen housing groups, and then the average measures being installed in each housing group are modeled using BEopt to estimate energy savings. For most housing groups, the differences between recommended and installed measure packages is substantial. By comparing actual IHP retrofit measures to BEopt-recommended cost-optimal measures, missed savings opportunities are identified in some housing groups; also, valuable information is obtained regarding housing groups where IHP achieves greater savings than BEopt-modeled, cost-optimal recommendations. Additionally, a measure-level sensitivity analysis conducted for one housing group reveals which measures may be contributing the most to gas and electric savings. Overall, the study finds not only that for some housing groups, the average IHP retrofit results in more energy savings than would result from cost-optimal, BEopt-recommended measure packages, but also that linking home categorization to standardized retrofit measure packages provides an opportunity to streamline the process for single family home energy retrofits and maximize both energy savings and cost-effectiveness.", 
+        "doi": null, 
+        "research_org": "National Renewable Energy Laboratory (NREL), Golden, CO.", 
+        "research_sponsor": "USDOE Office of Energy Efficiency and Renewable Energy Building Technologies Office", 
+        "tags": [
+            "32 ENERGY CONSERVATION", 
+            "CONSUMPTION", 
+            "AND UTILIZATION RESIDENTIAL", 
+            "RESIDENTIAL BUILDINGS", 
+            "PARR", 
+            "BUILDING AMERICA", 
+            "HOME PERFORMANCE WITH ENERGY STAR", 
+            "ILLINOIS", 
+            "WEATHERIZATION", 
+            "BEOPT", 
+            "AIR SEALING", 
+            "INSULATION", 
+            "COST-EFFECTIVENESS", 
+            "CHICAGO", 
+            "UTILITY-PROGRAM", 
+            "COLD CLIMATE"
+        ], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140074"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:19.189227", 
+    "title": "Evaluation of Missed Energy Saving Opportunity Based on Illinois Home Performance Program Field Data: Homeowner Selected Upgrades vs. Cost-Optimized Solutions; Chicago, Illinois (Fact Sheet)"
+}

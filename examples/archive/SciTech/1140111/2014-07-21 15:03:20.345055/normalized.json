@@ -1,0 +1,48 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Khangaonkar, Tarang"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Sackmann, Brandon S."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Long, Wen"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Mohamedali, Teizeen"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Roberts, Mindy"
+        }
+    ], 
+    "id": "1140111", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2012-10-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "The Salish Sea, including Puget Sound, is a large estuarine system bounded by over seven thousand miles of complex shorelines, consists of several subbasins and many large inlets with distinct properties of their own. Pacific Ocean water enters Puget Sound through the Strait of Juan de Fuca at depth over the Admiralty Inlet sill. Ocean water mixed with freshwater discharges from runoff, rivers, and wastewater outfalls exits Puget Sound through the brackish surface outflow layer. Nutrient pollution is considered one of the largest threats to Puget Sound. There is considerable interest in understanding the effect of nutrient loads on the water quality and ecological health of Puget Sound in particular and the Salish Sea as a whole. The Washington State Department of Ecology (Ecology) contracted with Pacific Northwest National Laboratory (PNNL) to develop a coupled hydrodynamic and water quality model. The water quality model simulates algae growth, dissolved oxygen, (DO) and nutrient dynamics in Puget Sound to inform potential Puget Sound-wide nutrient management strategies. Specifically, the project is expected to help determine 1) if current and potential future nitrogen loadings from point and non-point sources are significantly impairing water quality at a large scale and 2) what level of nutrient reductions are necessary to reduce or control human impacts to DO levels in the sensitive areas. The project did not include any additional data collection but instead relied on currently available information. This report describes model development effort conducted during the period 2009 to 2012 under a U.S. Environmental Protection Agency (EPA) cooperative agreement with PNNL, Ecology, and the University of Washington awarded under the National Estuary Program", 
+        "doi": null, 
+        "research_org": "Pacific Northwest National Laboratory (PNNL), Richland, WA (US)", 
+        "research_sponsor": "USDOE", 
+        "tags": [
+            "water quality", 
+            "puget sound", 
+            "dissolved oxygen", 
+            "algae", 
+            "nutrients", 
+            "circulation"
+        ], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140111"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:20.345055", 
+    "title": "Puget Sound Dissolved Oxygen Modeling Study: Development of an Intermediate Scale Water Quality Model"
+}

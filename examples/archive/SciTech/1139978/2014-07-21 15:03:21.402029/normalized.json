@@ -1,0 +1,29 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Davidson, George S."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Brown, William Michael"
+        }
+    ], 
+    "id": "1139978", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2007-09-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "Techniques for high throughput determinations of interactomes, together with high resolution protein collocalizations maps within organelles and through membranes will soon create a vast resource. With these data, biological descriptions, akin to the high dimensional phase spaces familiar to physicists, will become possible. These descriptions will capture sufficient information to make possible realistic, system-level models of cells. The descriptions and the computational models they enable will require powerful computing techniques. This report is offered as a call to the computational biology community to begin thinking at this scale and as a challenge to develop the required algorithms and codes to make use of the new data.3", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories (SNL-NM), Albuquerque, NM (United States)", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1139978"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.402029", 
+    "title": "Interactomes to Biological Phase Space: a call to begin thinking at a new level in computational biology."
+}

@@ -1,0 +1,45 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Nyman, May D."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Anderson, Travis Mark"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Alam, Todd M."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Rodriguez, Mark Andrew"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Joel N. Bixler"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Francois Bonhomme"
+        }
+    ], 
+    "id": "1139977", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2007-10-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "Tantalate materials play a vital role in our high technology society: tantalum capacitors are found in virtually every cell phone. Furthermore, electronic characteristics and the incredibly inert nature of tantalates renders them ideal for applications such as biomedical implants, nuclear waste forms, ferroelectrics, piezoelectrics, photocatalysts and optical coatings. The inert and insoluble nature of tantalates is not fundamentally understood; and furthermore poor solubility renders fabrication of novel or optimized tantalates very difficult. We have developed a soft chemical route to water-soluble tantalum oxide clusters that can serve as both precursors for novel tantalate materials and ideal models for experimental and computational approaches to understanding the unusually inert behavior of tantalates. The water soluble cluster, [Ta6O19]8- is small, highly symmetric, and contains the representative oxygen types of a metal oxide surface, and thus ideally mimics a complex tantalate surface in a simplistic form that can be studied unambiguously. Furthermore; in aqueous solution, these highly charged and super-basic clusters orchestrate surprising acid-base behavior that most likely plays an important role in the inertness of related oxide surfaces. Our unique synthetic approach to the [Ta6O19]8- cluster allowed for unprecedented enrichment with isotopic labels (17O), enabling detailed kinetic and mechanistic studies of the behavior of cluster oxygens, as well as their acid-base behavior. This SAND report is a collection of two publications that resulted from these efforts.", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories Albuquerque, NM; Sandia National Laboratories", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1139977"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.343851", 
+    "title": "An aqueous route to [Ta6O19]8- and solid-state studies of isostructural niobium and tantalum oxide complexes."
+}

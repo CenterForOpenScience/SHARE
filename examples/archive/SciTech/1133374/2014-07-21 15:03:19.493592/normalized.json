@@ -1,0 +1,25 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Veeraraghavan, Malathi"
+        }
+    ], 
+    "id": "1133374", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-06-07", 
+        "date_retrieved": "2014-07-21", 
+        "description": null, 
+        "doi": null, 
+        "research_org": "University of Virginia", 
+        "research_sponsor": "USDOE", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1133374"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:19.493592", 
+    "title": "Final Technical Report for DE-SC0002350"
+}

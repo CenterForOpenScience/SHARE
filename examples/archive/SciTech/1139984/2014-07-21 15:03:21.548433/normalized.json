@@ -1,0 +1,25 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Larsen, Barbara L."
+        }
+    ], 
+    "id": "1139984", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2007-04-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "The Sandia National Laboratories, California (SNL/CA) Environmental Management System (EMS) Program Manual documents the elements of the site EMS Program. The SNL/CA EMS Program conforms to the International Standard on Environmental Management Systems, ISO 14001:2004. Elements of the ISO standard overlap with those of Department of Energy (DOE) Order 450.1, thus SNL/CA's EMS program also meets the DOE requirements.", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories (SNL-CA), Livermore, CA (United States)", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1139984"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.548433", 
+    "title": "SNL/CA Environmental Management System Program Manual."
+}

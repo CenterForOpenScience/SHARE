@@ -1,0 +1,25 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Spodsberg, Nikolaj"
+        }
+    ], 
+    "id": "1140124", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Patent", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-07-08", 
+        "date_retrieved": "2014-07-21", 
+        "description": "The present invention relates to isolated polypeptides having cellobiohydrolase activity and polynucleotides encoding the polypeptides. The invention also relates to nucleic acid constructs, vectors, and host cells comprising the polynucleotides as well as methods of producing and using the polypeptides.", 
+        "doi": null, 
+        "research_org": "Novozymes Inc., Davis, CA (USA).", 
+        "research_sponsor": "USDOE", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140124"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:18.701898", 
+    "title": "Polypeptides having cellobiohydrolase activity and polynucleotides encoding same"
+}

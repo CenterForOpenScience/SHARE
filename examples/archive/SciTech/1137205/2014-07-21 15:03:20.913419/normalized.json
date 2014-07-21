@@ -1,0 +1,47 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Hu, Rongxiang"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Gao, Michael C."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Dogan, Oemer N."
+        }, 
+        {
+            "email": null, 
+            "full_name": "King, Paul"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Widom, Michael"
+        }
+    ], 
+    "id": "1137205", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Journal Article", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2010-09-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": null, 
+        "doi": "10.1016/j.calphad.2010.07.002", 
+        "research_org": "National Energy Technology Laboratory - In-house Research; National Energy Technology Laboratory (NETL), Pittsburgh, PA, and Morgantown, WV (United States)", 
+        "research_sponsor": "USDOE Office of Fossil Energy (FE)", 
+        "tags": [
+            "CALPHAD", 
+            "Pd\u2013S", 
+            "Phase diagram", 
+            "Sulfur poisoning", 
+            "Hydrogen separation"
+        ], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1137205"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:20.913419", 
+    "title": "Thermodynamic modeling of the Pd-S system supported by first-principles calculations"
+}

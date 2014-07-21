@@ -1,0 +1,25 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Larsen, Barbara L."
+        }
+    ], 
+    "id": "1139980", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2008-01-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "The annual program report provides detailed information about all aspects of the Sandia National Laboratories, California (SNL/CA) Environmental Planning and Ecology Program for a given calendar year. It functions as supporting documentation to the SNL/CA Environmental Management System Program Manual. The program report describes the activities undertaken during the past year, and activities planned in future years to implement the Planning and Ecology Program, one of six programs that supports environmental management at SNL/CA.", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories (SNL-CA), Livermore, CA (United States)", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1139980"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.187342", 
+    "title": "Environmental Planning and Ecology Program Annual Report."
+}

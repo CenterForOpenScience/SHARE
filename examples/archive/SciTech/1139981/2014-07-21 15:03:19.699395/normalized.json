@@ -1,0 +1,37 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Askin, Amanda Christine"
+        }, 
+        {
+            "email": null, 
+            "full_name": "Barter, Garrett"
+        }, 
+        {
+            "email": null, 
+            "full_name": "West, Todd H."
+        }, 
+        {
+            "email": null, 
+            "full_name": "Manley, Dawn Kataoka"
+        }
+    ], 
+    "id": "1139981", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Technical Report", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-05-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "This report describes work performed for an Early Career Research and Development project. This project developed a heavy-duty vehicle (HDV) sector model to assess the factors influencing alternative fuel and efficiency technology adoption. This model builds on a Sandia light duty vehicle sector model and provides a platform for assessing potential impacts of technological advancements developed at the Combustion Research Facility. Alternative fuel and technology adoption modeling is typically developed around a small set of scenarios. This HDV sector model segments the HDV sector and parameterizes input values, such as fuel prices, efficiencies, and vehicle costs. This parameterization enables sensitivity and trade space analyses to identify the inputs that are most associated with outputs of interest, such as diesel consumption and greenhouse gas emissions. Thus this analysis tool enables identification of the most significant HDV sector drivers that can be used to support energy security and climate change goals.", 
+        "doi": null, 
+        "research_org": "Sandia National Laboratories (SNL-CA), Livermore, CA (United States)", 
+        "research_sponsor": "USDOE National Nuclear Security Administration (NNSA)", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1139981"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:19.699395", 
+    "title": "Heavy Duty Vehicle Futures Analysis."
+}

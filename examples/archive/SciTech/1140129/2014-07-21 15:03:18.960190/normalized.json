@@ -1,0 +1,29 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Andersen, Gary L."
+        }, 
+        {
+            "email": null, 
+            "full_name": "DeSantis, Todd D."
+        }
+    ], 
+    "id": "1140129", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Patent", 
+        "date_entered": "2014-07-21", 
+        "date_published": "2014-07-08", 
+        "date_retrieved": "2014-07-21", 
+        "description": "The present embodiments relate to an array system for detecting and identifying biomolecules and organisms. More specifically, the present embodiments relate to an array system comprising a microarray configured to simultaneously detect a plurality of organisms in a sample at a high confidence level.", 
+        "doi": null, 
+        "research_org": "University of California, Oakland, CA (USA).", 
+        "research_sponsor": "USDOE", 
+        "tags": [], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1140129"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:18.960190", 
+    "title": "Array for detecting microbes"
+}

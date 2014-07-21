@@ -1,0 +1,32 @@
+{
+    "contributors": [
+        {
+            "email": null, 
+            "full_name": "Corliss, William R."
+        }
+    ], 
+    "id": "1132526", 
+    "meta": {}, 
+    "properties": {
+        "article_type": "Book", 
+        "date_entered": "2014-07-21", 
+        "date_published": "1966-01-01", 
+        "date_retrieved": "2014-07-21", 
+        "description": "This booklet describes the principles of nuclear-reactor space power plants and shows how they will contribute to the exploration and use of space. It compares them with chemical fuels, solar cells, and systems using energy from radioisotopes. The SNAP (Systems for Nuclear Auxiliary Power) Program, begun in 1955, is described.", 
+        "doi": null, 
+        "research_org": "US Atomic Energy Commission (AEC)", 
+        "research_sponsor": "US Atomic Energy Commission (AEC)", 
+        "tags": [
+            "21 SPECIFIC NUCLEAR REACTORS AND ASSOCIATED PLANTS Understanding the Atom Series", 
+            "NESDPS Office of Nuclear Energy Space and Defense Power Systems", 
+            "SNAP (Systems for Nuclear Auxiliary Program) Program", 
+            "SNAP reactors", 
+            "space reactor power", 
+            "operation"
+        ], 
+        "url": "http://www.osti.gov/scitech/servlets/purl/1132526"
+    }, 
+    "source": "SciTech", 
+    "timestamp": "2014-07-21 15:03:21.641050", 
+    "title": "SNAP Nuclear Space Reactors"
+}
