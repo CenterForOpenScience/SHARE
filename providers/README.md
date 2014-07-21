@@ -1,0 +1,1 @@
+This directory contains documentation about the content providers from which we are harvesting research release events for the SHARE Notification Service. These are our sources. Please remember that these are SHARE notes and do not necessarily accurately reflect the policy of these institutions.
