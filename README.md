@@ -6,6 +6,8 @@ Core
 
 scrapi: http://www.github.com/fabianvf/scrapi
 
+Prototype demo can be found [here](http://share.webhop.org)
+
 Data Consumption Projects
 -----
 
