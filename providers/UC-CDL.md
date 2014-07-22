@@ -1,4 +1,4 @@
-University of California
+University of California, CDL, eScholarship
 ====
 
 The content in the California Digital Library (CDL) eScholarship system is primarily original scholarly works (articles, monographs, etc.), postprints (previously published articles), grey literature (e.g. working papers) and Electronic Theses and Dissertations (ETDs). Also a small amount of streaming media and images, both as supplemental material and as the primary object.
