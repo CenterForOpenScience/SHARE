@@ -1,0 +1,32 @@
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.openarchives.org/OAI/2.0/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+ <dc:title>Calculation of prompt diphoton production cross sections at Tevatron and
+  LHC energies</dc:title>
+ <dc:creator>Bal&#225;zs, C.</dc:creator>
+ <dc:creator>Berger, E. L.</dc:creator>
+ <dc:creator>Nadolsky, P. M.</dc:creator>
+ <dc:creator>Yuan, C. -P.</dc:creator>
+ <dc:subject>High Energy Physics - Phenomenology</dc:subject>
+ <dc:description>  A fully differential calculation in perturbative quantum chromodynamics is
+presented for the production of massive photon pairs at hadron colliders. All
+next-to-leading order perturbative contributions from quark-antiquark,
+gluon-(anti)quark, and gluon-gluon subprocesses are included, as well as
+all-orders resummation of initial-state gluon radiation valid at
+next-to-next-to-leading logarithmic accuracy. The region of phase space is
+specified in which the calculation is most reliable. Good agreement is
+demonstrated with data from the Fermilab Tevatron, and predictions are made for
+more detailed tests with CDF and DO data. Predictions are shown for
+distributions of diphoton pairs produced at the energy of the Large Hadron
+Collider (LHC). Distributions of the diphoton pairs from the decay of a Higgs
+boson are contrasted with those produced from QCD processes at the LHC, showing
+that enhanced sensitivity to the signal can be obtained with judicious
+selection of events.
+</dc:description>
+ <dc:description>Comment: 37 pages, 15 figures; published version</dc:description>
+ <dc:date>2007-04-02</dc:date>
+ <dc:date>2007-07-24</dc:date>
+ <dc:type>text</dc:type>
+ <dc:identifier>http://arxiv.org/abs/0704.0001</dc:identifier>
+ <dc:identifier>Phys.Rev.D76:013009,2007</dc:identifier>
+ <dc:identifier>doi:10.1103/PhysRevD.76.013009</dc:identifier>
+ </oai_dc:dc>
+

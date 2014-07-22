@@ -1,0 +1,17 @@
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.openarchives.org/OAI/2.0/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+ <dc:title>A determinant of Stirling cycle numbers counts unlabeled acyclic
+  single-source automata</dc:title>
+ <dc:creator>Callan, David</dc:creator>
+ <dc:subject>Mathematics - Combinatorics</dc:subject>
+ <dc:subject>05A15</dc:subject>
+ <dc:description>  We show that a determinant of Stirling cycle numbers counts unlabeled acyclic
+single-source automata. The proof involves a bijection from these automata to
+certain marked lattice paths and a sign-reversing involution to evaluate the
+determinant.
+</dc:description>
+ <dc:description>Comment: 11 pages</dc:description>
+ <dc:date>2007-03-30</dc:date>
+ <dc:type>text</dc:type>
+ <dc:identifier>http://arxiv.org/abs/0704.0004</dc:identifier>
+ </oai_dc:dc>
+

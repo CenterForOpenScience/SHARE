@@ -1,0 +1,17 @@
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.openarchives.org/OAI/2.0/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+ <dc:title>From dyadic $\Lambda_{\alpha}$ to $\Lambda_{\alpha}$</dc:title>
+ <dc:creator>Abu-Shammala, Wael</dc:creator>
+ <dc:creator>Torchinsky, Alberto</dc:creator>
+ <dc:subject>Mathematics - Classical Analysis and ODEs</dc:subject>
+ <dc:subject>Mathematics - Functional Analysis</dc:subject>
+ <dc:subject>42B30, 42B35</dc:subject>
+ <dc:description>  In this paper we show how to compute the $\Lambda_{\alpha}$ norm, $\alpha\ge
+0$, using the dyadic grid. This result is a consequence of the description of
+the Hardy spaces $H^p(R^N)$ in terms of dyadic and special atoms.
+</dc:description>
+ <dc:date>2007-04-02</dc:date>
+ <dc:type>text</dc:type>
+ <dc:identifier>http://arxiv.org/abs/0704.0005</dc:identifier>
+ <dc:identifier>Illinois J. Math. 52 (2008) no.2, 681-689</dc:identifier>
+ </oai_dc:dc>
+
