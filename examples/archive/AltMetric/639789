@@ -1,0 +1,29 @@
+cited_by_feeds_count: 1
+last_updated: 1405936928
+is_oa: False
+cited_by_posts_count: 7
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=15&types=bttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=15&types=bttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=15&types=bttttttt'}
+altmetric_id: 639789
+subjects: [u'socialsciences', u'historyofmedicine']
+published_on: 1009843200
+issns: [u'1460-3659']
+title: The Third Wave of Science Studies Studies of Expertise and Experience
+cited_by_tweeters_count: 6
+scopus_subjects: [u'Social Sciences', u'Arts and Humanities']
+tq: [u'At thought-provoking talk by Collins and Evans on expertise, democracy and the 3rd wave of #sts. Relevant paper', u'@nngrey helpful, thx! I also read (media health risks mmr) and (about expertise)']
+score: 14.448
+altmetric_jid: 4f6fa4df3cf058f610001fab
+nlmid: 7506743
+schema: 1.5.4
+cohorts: {u'doc': 1, u'sci': 1, u'pub': 4}
+readers_count: 422
+journal: Social Studies of Science (Sage Publications, Ltd.)
+publisher_subjects: [{u'scheme': u'era', u'name': u'History And Philosophy Of Specific Fields'}]
+details_url: http://www.altmetric.com/details.php?citation_id=639789
+doi: 10.1177/0306312702032002003
+url: http://dx.doi.org/10.1177/0306312702032002003
+readers: {u'mendeley': 409, u'citeulike': 13, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 7, u'higher_than': 6, u'pct': 85, u'rank': 1, u'mean': 0.89166666666667}, u'all': {u'count': 2289651, u'higher_than': 2163769, u'pct': 94, u'rank': 126113, u'mean': 4.8082975694997}, u'similar_age_3m': {u'count': 70295, u'higher_than': 67032, u'pct': 95, u'rank': 3263, u'mean': 3.9035758101687}, u'journal': {u'count': 248, u'higher_than': 231, u'pct': 93, u'rank': 17, u'mean': 5.2884453441296}}
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 14.448, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1331218305
+cited_by_accounts_count: 7

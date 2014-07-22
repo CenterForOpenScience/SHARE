@@ -1,0 +1,30 @@
+last_updated: 1405910674
+is_oa: False
+cited_by_posts_count: 2
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=1&types=ffffffff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=1&types=ffffffff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=1&types=ffffffff'}
+altmetric_id: 891332
+subjects: [u'reproductivemedicine']
+published_on: 1199145600
+title: Human semen quality and sperm DNA damage in relation to urinary metabolites of pyrethroid insecticides.
+scopus_subjects: [u'Health Sciences', u'Medicine']
+issns: [u'1460-2350']
+score: 0.5
+altmetric_jid: 4f6fa6173cf058f6100072ea
+pmid: 18579513
+abstract: Exposure to synthetic pyrethroid insecticides is widespread, and is expected to increase among the general population due to the need to replace other common insecticides following regulatory use restrictions. On the basis of limited studies, there is animal and human evidence for altered reproductive or endocrine function following pyrethroid exposure.
+schema: 1.5.4
+cohorts: []
+readers_count: 1
+journal: ESHRE Monographs
+publisher_subjects: [{u'scheme': u'era', u'name': u'Studies In Human Society'}, {u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=891332
+doi: 10.1093/humrep/den242
+abstract_source: pubmed
+url: http://dx.doi.org/10.1093/humrep/den242
+readers: {u'mendeley': 1, u'citeulike': 0, u'connotea': 0}
+nlmid: 8701199
+context: {u'similar_age_journal_3m': {u'count': 31, u'higher_than': 4, u'pct': 12, u'rank': 27, u'mean': 4.2133333333333}, u'all': {u'count': 2289180, u'higher_than': 507527, u'pct': 22, u'rank': 1654322, u'mean': 4.8073992309055}, u'similar_age_3m': {u'count': 69024, u'higher_than': 18612, u'pct': 26, u'rank': 45111, u'mean': 4.9718676383234}, u'journal': {u'count': 1129, u'higher_than': 182, u'pct': 16, u'rank': 902, u'mean': 5.0255425531915}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 0.5, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1345160020
+cited_by_accounts_count: 2

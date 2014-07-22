@@ -1,0 +1,29 @@
+last_updated: 1405930031
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 2
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=7&types=mmmmtttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=7&types=mmmmtttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=7&types=mmmmtttt'}
+altmetric_id: 870599
+published_on: 1343862000
+title: Role of zinc in severe pneumonia: a randomized double bind placebo controlled study.
+cited_by_tweeters_count: 1
+scopus_subjects: [u'Health Sciences', u'Medicine']
+issns: []
+score: 6.25
+altmetric_jid: 4f6fa4d03cf058f610000842
+pmid: 22856593
+abstract: Pneumonia is a leading cause of morbidity and mortality in children.
+schema: 1.5.4
+cohorts: {u'pub': 1}
+readers_count: 4
+journal: Italian Journal of Pediatrics
+publisher_subjects: [{u'scheme': u'springer', u'name': u'Maternal and Child Health'}, {u'scheme': u'springer', u'name': u'Medicine & Public Health'}, {u'scheme': u'springer', u'name': u'Pediatrics'}, {u'scheme': u'era', u'name': u'Paediatrics And Reproductive Medicine'}]
+details_url: http://www.altmetric.com/details.php?citation_id=870599
+doi: 10.1186/1824-7288-38-36
+abstract_source: pubmed
+url: http://dx.doi.org/10.1186/1824-7288-38-36
+readers: {u'mendeley': 4, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 15, u'higher_than': 12, u'pct': 80, u'rank': 3, u'mean': 4.1488571428571}, u'all': {u'count': 2289179, u'higher_than': 1938119, u'pct': 84, u'rank': 349789, u'mean': 4.8077290197638}, u'similar_age_3m': {u'count': 68120, u'higher_than': 59039, u'pct': 86, u'rank': 9039, u'mean': 4.8933306419647}, u'journal': {u'count': 182, u'higher_than': 168, u'pct': 92, u'rank': 14, u'mean': 2.9447403314917}}
+history: {u'6d': 4, u'1w': 4, u'1y': 4, u'1m': 4, u'6m': 4, u'2d': 4, u'at': 6.25, u'3m': 4, u'5d': 4, u'4d': 4, u'1d': 4, u'3d': 4}
+added_on: 1343954039
+cited_by_accounts_count: 2

@@ -1,0 +1,30 @@
+last_updated: 1405910316
+is_oa: False
+cited_by_posts_count: 12
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=10&types=ttttttfg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=10&types=ttttttfg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=10&types=ttttttfg'}
+altmetric_id: 831150
+subjects: []
+published_on: 1324080000
+issns: [u'1939-8425', u'1939-8433']
+title: Identification of a Major Genetic Determinant of Glycaemic Index in Rice
+cited_by_tweeters_count: 10
+scopus_subjects: []
+tq: [u'New testing of rice varieties shows some good low moderate options. In Aus our best choices basmati Doongara.', u'Did you know? Most rice is low or medium GI. #GLNC', u'@joannanutrition: rice tests show low mod GI options. In Aus best choice basmati Doongara. #sunrice brand of course!', u'Study isolates gene that governs glycemic index of rice: Would you eat genetically-modified low-glycemic rice?']
+score: 9.75
+altmetric_jid: 4f6fa6373cf058f610008825
+cited_by_gplus_count: 1
+nlmid: 101503136
+schema: 1.5.4
+cohorts: {u'doc': 1, u'pub': 9}
+readers_count: 18
+journal: Rice
+publisher_subjects: [{u'scheme': u'springer', u'name': u'Agriculture'}, {u'scheme': u'springer', u'name': u'Life Sciences'}, {u'scheme': u'springer', u'name': u'Plant Breeding/Biotechnology'}, {u'scheme': u'springer', u'name': u'Plant Ecology'}, {u'scheme': u'springer', u'name': u'Plant Genetics & Genomics'}, {u'scheme': u'springer', u'name': u'Plant Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=831150
+doi: 10.1007/s12284-011-9073-z
+url: http://dx.doi.org/10.1007/s12284-011-9073-z
+readers: {u'mendeley': 18, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 2, u'higher_than': 1, u'pct': 50, u'rank': 1, u'mean': 0.25}, u'all': {u'count': 2289179, u'higher_than': 2083262, u'pct': 91, u'rank': 205314, u'mean': 4.8073831366564}, u'similar_age_3m': {u'count': 68637, u'higher_than': 62675, u'pct': 91, u'rank': 5948, u'mean': 4.5644113001922}, u'journal': {u'count': 29, u'higher_than': 26, u'pct': 89, u'rank': 3, u'mean': 1.8183571428571}}
+cited_by_fbwalls_count: 1
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 9.75, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1341939053
+cited_by_accounts_count: 12

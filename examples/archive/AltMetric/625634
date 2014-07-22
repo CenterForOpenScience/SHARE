@@ -1,0 +1,33 @@
+cited_by_feeds_count: 2
+last_updated: 1406012930
+is_oa: False
+cited_by_posts_count: 22
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=23&types=bttttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=23&types=bttttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=23&types=bttttttf'}
+altmetric_id: 625634
+subjects: [u'medicine']
+published_on: 1009843200
+title: Hospital Nurse Staffing and Patient Mortality, Nurse Burnout, and Job Dissatisfaction
+cited_by_tweeters_count: 15
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'@Trished Why it is folly to attribute surgical outcomes entirely to the surgeon. Nurse staffing matters!', u"In 2003 California mandated nurse:patient ratios this study looks at patient outcomes nurses' burnout #safestaffing", u'Hospital Nurse Staffing and Patient Mortality, Nurse Burnout, and Job Dissatisfaction @LindaAiken_Penn 2002', u'Hospitals w high patient:nurse ratios, patients exp. higher risk-adj. 30-day mortality failure-to-rescue rates']
+score: 22.742
+altmetric_jid: 4f6fa4ee3cf058f610002c38
+pmid: 12387650
+abstract: The worsening hospital nurse shortage and recent California legislation mandating minimum hospital patient-to-nurse ratios demand an understanding of how nurse staffing levels affect patient outcomes and nurse retention in hospital practice.
+schema: 1.5.4
+cohorts: {u'doc': 5, u'sci': 2, u'com': 1, u'pub': 7}
+readers_count: 120
+journal: JAMA: Journal of the American Medical Association
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=625634
+doi: 10.1001/jama.288.16.1987
+abstract_source: pubmed
+url: http://dx.doi.org/10.1001/jama.288.16.1987
+readers: {u'mendeley': 114, u'citeulike': 4, u'connotea': 2}
+nlmid: 7501160
+history: {u'6d': 1.5, u'1w': 1.5, u'1y': 12.82, u'1m': 1.75, u'6m': 3.7, u'2d': 1.5, u'at': 22.742, u'3m': 2.85, u'5d': 1.5, u'4d': 1.5, u'1d': 1.5, u'3d': 1.5}
+context: {u'similar_age_journal_3m': {u'count': 110, u'higher_than': 93, u'pct': 84, u'rank': 17, u'mean': 12.520972477064}, u'all': {u'count': 2291817, u'higher_than': 2216457, u'pct': 96, u'rank': 75359, u'mean': 4.8102441033682}, u'similar_age_3m': {u'count': 71575, u'higher_than': 69631, u'pct': 97, u'rank': 1944, u'mean': 3.8591775505071}, u'journal': {u'count': 6749, u'higher_than': 5489, u'pct': 81, u'rank': 1260, u'mean': 19.399457024304}}
+cited_by_fbwalls_count: 1
+issns: [u'1538-3598', u'0098-7484']
+added_on: 1330457860
+cited_by_accounts_count: 18

@@ -1,0 +1,30 @@
+last_updated: 1405973054
+is_oa: False
+cited_by_posts_count: 5
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=4&types=tttttfff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=4&types=tttttfff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=4&types=tttttfff'}
+altmetric_id: 896449
+published_on: 1333234800
+issns: []
+title: Effects of fatigue on trunk stability in elite gymnasts.
+cited_by_tweeters_count: 3
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'@Perfect10PT Effect of fatigue on core stability in elite female gymnasts']
+score: 3.5
+altmetric_jid: 4f6fa6173cf058f61000733b
+pmid: 21789479
+abstract: The aim of the present study was to test the hypothesis that fatigue due to exercises performed in training leads to a decrement of trunk stability in elite, female gymnasts. Nine female gymnasts participated in the study. To fatigue trunk muscles, four series of five dump handstands on the uneven bar were performed. Before and after the fatigue protocol, participants performed three trials of a balancing task while sitting on a seat fixed over a hemisphere to create an unstable surface. A force plate tracked the location of the center of pressure (CoP). In addition, nine trials were performed in which the seat was backward inclined over a set angle and suddenly released after which the subject had to regain balance. Sway amplitude and frequency in unperturbed sitting were determined from the CoP time series and averaged over trials. The maximum displacement and rate of recovery of the CoP location after the sudden release were determined and averaged over trials. After the fatigue protocol, sway amplitude in the fore-aft direction was significantly increased (p = 0.03), while sway frequency was decreased (p = 0.005). In addition, the maximum displacement after the sudden release was increased (p = 0.009), while the rate of recovery after the perturbation was decreased (p = 0.05). Fatigue induced by series of exercises representing a realistic training load caused a measurable decrement in dynamic stability of the trunk in elite gymnasts.
+schema: 1.5.4
+cohorts: {u'pub': 3}
+readers_count: 24
+journal: European Journal of Applied Physiology and Occupational Physiology
+publisher_subjects: [{u'scheme': u'springer', u'name': u'Biomedicine'}, {u'scheme': u'springer', u'name': u'Human Physiology'}, {u'scheme': u'springer', u'name': u'Occupational Medicine/Industrial Medicine'}, {u'scheme': u'springer', u'name': u'Sports Medicine'}, {u'scheme': u'era', u'name': u'Human Movement And Sports Science'}]
+details_url: http://www.altmetric.com/details.php?citation_id=896449
+doi: 10.1007/s00421-011-2082-1
+abstract_source: pubmed
+url: http://dx.doi.org/10.1007/s00421-011-2082-1
+readers: {u'mendeley': 24, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 33, u'higher_than': 16, u'pct': 48, u'rank': 17, u'mean': 8.52375}, u'all': {u'count': 2291553, u'higher_than': 1772170, u'pct': 77, u'rank': 514425, u'mean': 4.8097282601507}, u'similar_age_3m': {u'count': 70225, u'higher_than': 56560, u'pct': 80, u'rank': 13499, u'mean': 4.9433974139894}, u'journal': {u'count': 925, u'higher_than': 615, u'pct': 66, u'rank': 307, u'mean': 6.2129978354978}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 2.5, u'1w': 2.5, u'1y': 2.5, u'1m': 2.5, u'6m': 2.5, u'2d': 2.25, u'at': 3.5, u'3m': 2.5, u'5d': 2.5, u'4d': 2.25, u'1d': 2.25, u'3d': 2.25}
+added_on: 1345519261
+cited_by_accounts_count: 5

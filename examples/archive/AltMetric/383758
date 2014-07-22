@@ -1,0 +1,33 @@
+cited_by_feeds_count: 4
+last_updated: 1405987266
+is_oa: False
+cited_by_posts_count: 89
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=60&types=bttttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=60&types=bttttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=60&types=bttttttf'}
+altmetric_id: 383758
+subjects: [u'science', u'medicine']
+published_on: 1316646000
+title: Persistence and Availability of Web Services in Computational Biology
+cited_by_tweeters_count: 66
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Biochemistry, Genetics and Molecular Biology', u'Life Sciences', u'Agricultural and Biological Sciences']
+tq: [u'We agree on this: \xabMaintaining a Web service is still undervalued, unpaid rarely appreciated\xbb ;) /', u'Persistence and Availability of Web Services in Computational Biology, Schultheis, et al, PLoS One.', u'Your favorite website is no longer reachable? No wonder: 50% of scientific web services change their URL in 5 years', u'RE my last tweet - found it: Persistence and Availability of Web Services in Computational Biology @myen']
+score: 59.274
+altmetric_jid: 4f6fa5313cf058f6100043e3
+pmid: 21966383
+abstract: We have conducted a study on the long-term availability of bioinformatics Web services: an observation of 927 Web services published in the annual Nucleic Acids Research Web Server Issues between 2003 and 2009. We found that 72% of Web sites are still available at the published addresses, only 9% of services are completely unavailable. Older addresses often redirect to new pages. We checked the functionality of all available services: for 33%, we could not test functionality because there was no example data or a related problem; 13% were truly no longer working as expected; we could positively confirm functionality only for 45% of all services. Additionally, we conducted a survey among 872 Web Server Issue corresponding authors; 274 replied. 78% of all respondents indicate their services have been developed solely by students and researchers without a permanent position. Consequently, these services are in danger of falling into disrepair after the original developers move to another institution, and indeed, for 24% of services, there is no plan for maintenance, according to the respondents. We introduce a Web service quality scoring system that correlates with the number of citations: services with a high score are cited 1.8 times more often than low-scoring services. We have identified key characteristics that are predictive of a service's survival, providing reviewers, editors, and Web service developers with the means to assess or improve Web services. A Web service conforming to these criteria receives more citations and provides more reliable service for its users. The most effective way of ensuring continued access to a service is a persistent Web address, offered either by the publishing journal, or created on the authors' own initiative, for example at http://bioweb.me. The community would benefit the most from a policy requiring any source code needed to reproduce results to be deposited in a public repository.
+schema: 1.5.4
+cohorts: {u'com': 3, u'sci': 37, u'pub': 26}
+readers_count: 56
+journal: PLoS ONE
+publisher_subjects: [{u'scheme': u'era', u'name': u'Multidisciplinary'}]
+details_url: http://www.altmetric.com/details.php?citation_id=383758
+doi: 10.1371/journal.pone.0024914
+abstract_source: pubmed
+url: http://dx.doi.org/10.1371/journal.pone.0024914
+readers: {u'mendeley': 39, u'citeulike': 17, u'connotea': 0}
+nlmid: 101285081
+history: {u'6d': 2.2, u'1w': 2.2, u'1y': 2.7, u'1m': 2.6, u'6m': 2.7, u'2d': 2.2, u'at': 59.274, u'3m': 2.6, u'5d': 2.2, u'4d': 2.2, u'1d': 2.2, u'3d': 2.2}
+context: {u'similar_age_journal_3m': {u'count': 1773, u'higher_than': 1737, u'pct': 97, u'rank': 36, u'mean': 5.4674255079007}, u'all': {u'count': 2291817, u'higher_than': 2266920, u'pct': 98, u'rank': 24896, u'mean': 4.8104580263009}, u'similar_age_3m': {u'count': 58740, u'higher_than': 58212, u'pct': 99, u'rank': 528, u'mean': 3.9713197364613}, u'journal': {u'count': 49186, u'higher_than': 47893, u'pct': 97, u'rank': 1293, u'mean': 7.8683828809596}}
+cited_by_fbwalls_count: 1
+issns: [u'1932-6203']
+added_on: 1317095003
+cited_by_accounts_count: 71

@@ -1,0 +1,33 @@
+cited_by_feeds_count: 1
+last_updated: 1405956706
+is_oa: False
+cited_by_posts_count: 273
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=187&types=bttttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=187&types=bttttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=187&types=bttttttf'}
+altmetric_id: 838498
+subjects: []
+published_on: 1341529200
+title: Sleep or swim? Early-morning training severely restricts the amount of sleep obtained by elite swimmers.
+cited_by_tweeters_count: 240
+scopus_subjects: [u'Health Sciences', u'Medicine', u'Health Professions']
+tq: [u'Early-morning training sessions severely restrict the amount of sleep obtained by elite athletes', u'Sleep or Train? - European Journal of Sport Science - Volume 14, Issue sup1', u'athletes get to bed early! Sleep or Swim? Early morning training results in significant sleep decrements', u'Elite swimmers are constantly in chronic sleep deprivation @swimmingscience']
+score: 186.766
+altmetric_jid: 4f6fa4d73cf058f6100012cd
+pmid: 24444223
+abstract: Good sleep is essential for optimal performance, yet few studies have examined the sleep/wake behaviour of elite athletes. The aim of this study was to assess the impact of early-morning training on the amount of sleep obtained by world-class swimmers. A squad of seven swimmers from the Australian Institute of Sport participated in this study during 14 days of high-intensity training in preparation for the 2008 Olympic Games. During these 14 days, participants had 12 training days, each starting with a session at 06:00 h, and 2 rest days. For each day, the amount of sleep obtained by participants was determined using self-report sleep diaries and wrist-worn activity monitors. On nights that preceded training days, participants went to bed at 22:05 h (s=00:52), arose at 05:48 h (s=00:24) and obtained 5.4 h (s=1.3) of sleep. On nights that preceded rest days, participants went to bed at 00:32 h (s=01:29), arose at 09:47 h (s=01:47) and obtained 7.1 h (s=1.2) of sleep. Mixed model analyses revealed that on nights prior to training days, bedtimes and get-up times were significantly earlier (p<0.001), time spent in bed was significantly shorter (p<0.001) and the amount of sleep obtained was significantly less (p<0.001), than on nights prior to rest days. These results indicate that early-morning training sessions severely restrict the amount of sleep obtained by elite athletes. Given that chronic sleep restriction of <6 h per night can impair psychological and physiological functioning, it is possible that early-morning schedules actually limit the effectiveness of training.
+schema: 1.5.4
+cohorts: {u'com': 5, u'sci': 38, u'pub': 171, u'doc': 26}
+readers_count: 15
+journal: European Journal of Sport Science
+publisher_subjects: [{u'scheme': u'era', u'name': u'Human Movement And Sports Science'}, {u'scheme': u'era', u'name': u'Mechanical Engineering'}]
+details_url: http://www.altmetric.com/details.php?citation_id=838498
+doi: 10.1080/17461391.2012.696711
+abstract_source: pubmed
+url: http://dx.doi.org/10.1080/17461391.2012.696711
+readers: {u'mendeley': 15, u'citeulike': 0, u'connotea': 0}
+nlmid: na
+history: {u'6d': 8.85, u'1w': 8.85, u'1y': 138.566, u'1m': 11.25, u'6m': 134.416, u'2d': 8.2, u'at': 186.766, u'3m': 37.016, u'5d': 8.85, u'4d': 8.85, u'1d': 4.9, u'3d': 8.85}
+context: {u'similar_age_journal_3m': {u'count': 20, u'higher_than': 19, u'pct': 95, u'rank': 1, u'mean': 14.315789473684}, u'all': {u'count': 2290870, u'higher_than': 2286679, u'pct': 99, u'rank': 4303, u'mean': 4.8086070386412}, u'similar_age_3m': {u'count': 68599, u'higher_than': 68444, u'pct': 99, u'rank': 155, u'mean': 4.5966996122335}, u'journal': {u'count': 262, u'higher_than': 261, u'pct': 99, u'rank': 1, u'mean': 10.35798467433}}
+cited_by_fbwalls_count: 5
+issns: [u'1746-1391', u'1536-7290']
+added_on: 1342176155
+cited_by_accounts_count: 246

@@ -1,0 +1,33 @@
+last_updated: 1405963809
+is_oa: False
+cited_by_posts_count: 11
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=7&types=ptttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=7&types=ptttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=7&types=ptttttff'}
+altmetric_id: 865079
+subjects: [u'geriatrics']
+published_on: 1341097200
+title: Ingestion of BioCell Collagen(®), a novel hydrolyzed chicken sternal cartilage extract; enhanced blood microcirculation and reduced facial aging signs.
+cited_by_tweeters_count: 6
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Ingestion of BioCell Collagen; enhanced blood microcirculation and reduced facial aging signs', u'The Proof is in the Results: BioCell Collagen has been clinically tested to reduce wrinkles and fine lines #natural', u'PUBLISHED STUDY REPORTS BIOCELL COLLAGEN\xae SUPPLEMENT REDUCES WRINKLES AND IMPROVES SKIN HYDRATION']
+score: 6.75
+altmetric_jid: 4f6fa6113cf058f610006f02
+pmid: 22956862
+abstract: Skin aging and its clinical manifestation is associated with altered molecular metabolism in the extracellular matrix of the dermis. In a pilot open-label study, we investigated the effect of a dietary supplement, BioCell Collagen(®) (BCC), which contains a naturally occurring matrix of hydrolyzed collagen type II and low-molecular-weight hyaluronic acid and chondroitin sulfate, in 26 healthy females who displayed visible signs of natural and photoaging in the face. Daily supplementation with 1 g of BCC for 12 weeks led to a significant reduction of skin dryness/scaling (76%, P = 0.002) and global lines/wrinkles (13.2%, P = 0.028) as measured by visual/tactile score. Additionally, a significant increase in the content of hemoglobin (17.7%, P = 0.018) and collagen (6.3%, P = 0.002) in the skin dermis was observed after 6 weeks of supplementation. At the end of the study, the increase in hemoglobin remained significant (15%, P = 0.008), while the increase in collagen content was maintained, but the difference from baseline was not significant (3.5%, P = 0.134). This study provides preliminary data suggesting that dietary supplementation with BCC elicits several physiological events which can be harnessed to counteract natural photoaging processes to reduce visible aging signs in the human face. A controlled study is necessary to verify these observations.
+schema: 1.5.4
+cohorts: {u'sci': 1, u'pub': 5}
+readers_count: 6
+journal: Clinical Interventions in Aging
+publisher_subjects: [{u'scheme': u'era', u'name': u'Clinical Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=865079
+doi: 10.2147/cia.s32836
+abstract_source: pubmed
+url: http://dx.doi.org/10.2147/cia.s32836
+readers: {u'mendeley': 6, u'citeulike': 0, u'connotea': 0}
+nlmid: 101273480
+history: {u'6d': 1, u'1w': 1, u'1y': 2, u'1m': 2, u'6m': 2, u'2d': 1, u'at': 6.75, u'3m': 2, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+cited_by_pinners_count: 1
+context: {u'similar_age_journal_3m': {u'count': 19, u'higher_than': 17, u'pct': 89, u'rank': 2, u'mean': 2.4817777777778}, u'all': {u'count': 2291166, u'higher_than': 1957721, u'pct': 85, u'rank': 332730, u'mean': 4.8092683992663}, u'similar_age_3m': {u'count': 67971, u'higher_than': 59319, u'pct': 87, u'rank': 8619, u'mean': 4.869886832426}, u'journal': {u'count': 403, u'higher_than': 369, u'pct': 91, u'rank': 34, u'mean': 2.9139303482587}}
+cited_by_fbwalls_count: 2
+issns: [u'1178-1998']
+added_on: 1343723913
+cited_by_accounts_count: 9

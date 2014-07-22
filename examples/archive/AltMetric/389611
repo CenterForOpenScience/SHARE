@@ -1,0 +1,35 @@
+last_updated: 1405981049
+is_oa: False
+cited_by_msm_count: 2
+cited_by_posts_count: 48
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=40&types=mvtttrff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=40&types=mvtttrff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=40&types=mvtttrff'}
+altmetric_id: 389611
+subjects: [u'medicine']
+cited_by_videos_count: 1
+published_on: 1136073600
+cited_by_rdts_count: 2
+title: Rapid recovery from major depression using magnesium treatment.
+cited_by_tweeters_count: 17
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Rapid recovery from major depression using magnesium treatment: #depression #magnesium #mdd', u'#latelateshow #Fluoride which is added to #irishwater inhibits magnesium absorption and causes depression', u'@ftapia27 this is an interesting study/article about depression', u"Feeling down? Trouble sleeping? Check out Mapleton Pharmacy's Magnesium Glycinate."]
+score: 39.55
+altmetric_jid: 4f6fa62c3cf058f610008126
+pmid: 16542786
+abstract: Major depression is a mood disorder characterized by a sense of inadequacy, despondency, decreased activity, pessimism, anhedonia and sadness where these symptoms severely disrupt and adversely affect the person's life, sometimes to such an extent that suicide is attempted or results. Antidepressant drugs are not always effective and some have been accused of causing an increased number of suicides particularly in young people. Magnesium deficiency is well known to produce neuropathologies. Only 16% of the magnesium found in whole wheat remains in refined flour, and magnesium has been removed from most drinking water supplies, setting a stage for human magnesium deficiency. Magnesium ions regulate calcium ion flow in neuronal calcium channels, helping to regulate neuronal nitric oxide production. In magnesium deficiency, neuronal requirements for magnesium may not be met, causing neuronal damage which could manifest as depression. Magnesium treatment is hypothesized to be effective in treating major depression resulting from intraneuronal magnesium deficits. These magnesium ion neuronal deficits may be induced by stress hormones, excessive dietary calcium as well as dietary deficiencies of magnesium. Case histories are presented showing rapid recovery (less than 7 days) from major depression using 125-300 mg of magnesium (as glycinate and taurinate) with each meal and at bedtime. Magnesium was found usually effective for treatment of depression in general use. Related and accompanying mental illnesses in these case histories including traumatic brain injury, headache, suicidal ideation, anxiety, irritability, insomnia, postpartum depression, cocaine, alcohol and tobacco abuse, hypersensitivity to calcium, short-term memory loss and IQ loss were also benefited. Dietary deficiencies of magnesium, coupled with excess calcium and stress may cause many cases of other related symptoms including agitation, anxiety, irritability, confusion, asthenia, sleeplessness, headache, delirium, hallucinations and hyperexcitability, with each of these having been previously documented. The possibility that magnesium deficiency is the cause of most major depression and related mental health problems including IQ loss and addiction is enormously important to public health and is recommended for immediate further study. Fortifying refined grain and drinking water with biologically available magnesium to pre-twentieth century levels is recommended.
+schema: 1.5.4
+cohorts: {u'doc': 3, u'sci': 1, u'pub': 13}
+readers_count: 69
+journal: Medical Hypotheses
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=389611
+doi: 10.1016/j.mehy.2006.01.047
+abstract_source: pubmed
+url: http://dx.doi.org/10.1016/j.mehy.2006.01.047
+readers: {u'mendeley': 67, u'citeulike': 1, u'connotea': 1}
+nlmid: 7505668
+history: {u'6d': 1, u'1w': 1, u'1y': 17, u'1m': 1, u'6m': 16.35, u'2d': 1, u'at': 39.55, u'3m': 4.35, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+context: {u'similar_age_journal_3m': {u'count': 31, u'higher_than': 30, u'pct': 96, u'rank': 1, u'mean': 3.6086}, u'all': {u'count': 2291717, u'higher_than': 2250644, u'pct': 98, u'rank': 41073, u'mean': 4.810214137356}, u'similar_age_3m': {u'count': 59677, u'higher_than': 58797, u'pct': 98, u'rank': 880, u'mean': 3.942925229573}, u'journal': {u'count': 1033, u'higher_than': 1021, u'pct': 98, u'rank': 12, u'mean': 4.424226744186}}
+cited_by_fbwalls_count: 14
+issns: [u'0306-9877']
+added_on: 1317636558
+cited_by_accounts_count: 36

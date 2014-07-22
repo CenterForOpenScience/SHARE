@@ -1,0 +1,32 @@
+cited_by_feeds_count: 2
+last_updated: 1405951200
+is_oa: False
+cited_by_posts_count: 6
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=20&types=bbbttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=20&types=bbbttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=20&types=bbbttttt'}
+altmetric_id: 391763
+subjects: [u'medicine']
+published_on: 872118000
+issns: [u'0028-4793', u'1533-4406']
+title: Discrepancies between Meta-Analyses and Subsequent Large Randomized, Controlled Trials
+cited_by_tweeters_count: 3
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Science is not about dodgy meta-analysis, it is about rigorous collection of data and rigorous analysis. #homeopathy']
+score: 19.08
+altmetric_jid: 4f6fa50e3cf058f6100031c4
+pmid: 9262498
+abstract: Meta-analyses are now widely used to provide evidence to support clinical strategies. However, large randomized, controlled trials are considered the gold standard in evaluating the efficacy of clinical interventions.
+schema: 1.5.4
+cohorts: {u'pub': 3}
+readers_count: 120
+journal: New England Journal of Medicine
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=391763
+doi: 10.1056/nejm199708213370806
+abstract_source: pubmed
+url: http://dx.doi.org/10.1056/nejm199708213370806
+readers: {u'mendeley': 119, u'citeulike': 1, u'connotea': 0}
+nlmid: 0255562
+context: {u'similar_age_journal_3m': {u'count': 317, u'higher_than': 180, u'pct': 56, u'rank': 137, u'mean': 25.778936708861}, u'all': {u'count': 2291010, u'higher_than': 2199469, u'pct': 96, u'rank': 91572, u'mean': 4.8089510482084}, u'similar_age_3m': {u'count': 59847, u'higher_than': 57643, u'pct': 96, u'rank': 2203, u'mean': 3.9365779834909}, u'journal': {u'count': 9227, u'higher_than': 6620, u'pct': 71, u'rank': 2607, u'mean': 26.829412529807}}
+history: {u'6d': 5.08, u'1w': 5.08, u'1y': 5.08, u'1m': 5.08, u'6m': 5.08, u'2d': 5.08, u'at': 19.08, u'3m': 5.08, u'5d': 5.08, u'4d': 5.08, u'1d': 5.08, u'3d': 5.08}
+added_on: 1317744117
+cited_by_accounts_count: 5

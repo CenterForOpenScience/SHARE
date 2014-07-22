@@ -1,0 +1,29 @@
+last_updated: 1405965292
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 8
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=17&types=mtttttrg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=17&types=mtttttrg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=17&types=mtttttrg'}
+altmetric_id: 628500
+published_on: 1328054400
+issns: [u'03054403']
+cited_by_rdts_count: 1
+title: Early seafaring activity in the southern Ionian Islands, Mediterranean Sea
+cited_by_tweeters_count: 5
+scopus_subjects: [u'Social Sciences', u'Arts and Humanities']
+tq: [u'A couple of papers on the sailing abilities of Neanderthals', u'Were Neanderthals sea-faring people long before mondern humans? New research suggetst first sailors were very long ago-']
+score: 16.6
+altmetric_jid: 4f6fa4ef3cf058f610002ca6
+cited_by_gplus_count: 1
+schema: 1.5.4
+cohorts: {u'com': 1, u'sci': 2, u'pub': 2}
+readers_count: 30
+journal: Journal of Archaeological Science
+publisher_subjects: [{u'scheme': u'era', u'name': u'Archaeology'}, {u'scheme': u'era', u'name': u'Geochemistry'}]
+details_url: http://www.altmetric.com/details.php?citation_id=628500
+doi: 10.1016/j.jas.2012.01.032
+url: http://dx.doi.org/10.1016/j.jas.2012.01.032
+readers: {u'mendeley': 29, u'citeulike': 1, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 26, u'higher_than': 23, u'pct': 88, u'rank': 3, u'mean': 4.21032}, u'all': {u'count': 2291340, u'higher_than': 2183167, u'pct': 95, u'rank': 108022, u'mean': 4.8093387377446}, u'similar_age_3m': {u'count': 71165, u'higher_than': 68329, u'pct': 96, u'rank': 2829, u'mean': 3.8714478668989}, u'journal': {u'count': 791, u'higher_than': 722, u'pct': 91, u'rank': 69, u'mean': 6.5172886075949}}
+history: {u'6d': 2.1, u'1w': 2.1, u'1y': 2.1, u'1m': 2.1, u'6m': 2.1, u'2d': 2.1, u'at': 16.6, u'3m': 2.1, u'5d': 2.1, u'4d': 2.1, u'1d': 2.1, u'3d': 2.1}
+added_on: 1330609638
+cited_by_accounts_count: 8

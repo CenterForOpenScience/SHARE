@@ -1,0 +1,35 @@
+cited_by_feeds_count: 1
+last_updated: 1406023688
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 6
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=24&types=mbttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=24&types=mbttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=24&types=mbttttff'}
+altmetric_id: 628501
+subjects: [u'science']
+published_on: 1268784000
+title: Hominins on Flores, Indonesia, by one million years ago
+cited_by_tweeters_count: 3
+scopus_subjects: [u'General']
+tq: [u"So'a Basin has yielded stone tools at ~1 Ma indicating that early hominins crossed the Wallace Line", u"While my colleagues search for that elusive hominin , I'll be on the lookout for (big) bird remains."]
+score: 23.6
+altmetric_jid: 4f6fa50a3cf058f610003160
+pmid: 20237472
+abstract: Previous excavations at Mata Menge and Boa Lesa in the Soa Basin of Flores, Indonesia, recovered stone artefacts in association with fossilized remains of the large-bodied Stegodon florensis florensis. Zircon fission-track ages from these sites indicated that hominins had colonized the island by 0.88 +/- 0.07 million years (Myr) ago. Here we describe the contents, context and age of Wolo Sege, a recently discovered archaeological site in the Soa Basin that has in situ stone artefacts and that lies stratigraphically below Mata Menge and immediately above the basement breccias of the basin. We show using (40)Ar/(39)Ar dating that an ignimbrite overlying the artefact layers at Wolo Sege was erupted 1.02 +/- 0.02 Myr ago, providing a new minimum age for hominins on Flores. This predates the disappearance from the Soa Basin of 'pygmy' Stegodon sondaari and Geochelone spp. (giant tortoise), as evident at the nearby site of Tangi Talo, which has been dated to 0.90 +/- 0.07 Myr ago. It now seems that this extirpation or possible extinction event and the associated faunal turnover were the result of natural processes rather than the arrival of hominins. It also appears that the volcanic and fluvio-lacustrine deposits infilling the Soa Basin may not be old enough to register the initial arrival of hominins on the island.
+schema: 1.5.4
+cohorts: {u'sci': 1, u'pub': 2}
+readers_count: 100
+journal: Nature
+publisher_subjects: []
+details_url: http://www.altmetric.com/details.php?citation_id=628501
+doi: 10.1038/nature08844
+abstract_source: pubmed
+ads_id: 2010natur.464..748b
+readers: {u'mendeley': 95, u'citeulike': 5, u'connotea': 0}
+nlmid: 0410462
+url: http://dx.doi.org/10.1038/nature08844
+history: {u'6d': 1.35, u'1w': 1.35, u'1y': 2.6, u'1m': 1.35, u'6m': 1.6, u'2d': 1.35, u'at': 23.6, u'3m': 1.35, u'5d': 1.35, u'4d': 1.35, u'1d': 1.35, u'3d': 1.35}
+context: {u'similar_age_journal_3m': {u'count': 832, u'higher_than': 500, u'pct': 60, u'rank': 332, u'mean': 45.881682310469}, u'all': {u'count': 2293141, u'higher_than': 2220867, u'pct': 96, u'rank': 72324, u'mean': 4.8102278046717}, u'similar_age_3m': {u'count': 71166, u'higher_than': 69298, u'pct': 97, u'rank': 1864, u'mean': 3.87195764772}, u'journal': {u'count': 25814, u'higher_than': 18634, u'pct': 72, u'rank': 7178, u'mean': 39.487371556967}}
+cited_by_fbwalls_count: 1
+issns: [u'0028-0836', u'1476-4687']
+added_on: 1330609639
+cited_by_accounts_count: 6

@@ -1,0 +1,30 @@
+last_updated: 1405970328
+is_oa: False
+cited_by_posts_count: 13
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=8&types=tttttfff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=8&types=tttttfff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=8&types=tttttfff'}
+altmetric_id: 821344
+subjects: [u'cardiology']
+published_on: 1199145600
+issns: [u'1524-4539']
+title: Postural Tachycardia Syndrome
+cited_by_tweeters_count: 8
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Great but DWP should warn that tricyclic antidepressants can worsen #PoTS . See: #mecfs #NeuroME', u'@AureliaCotta Forgot the link... middle of the page.', u'@MEAssociation Great but DWP should warn that tricyclic antidepressants can worsen #PoTS . See: #mecfs #NeuroME']
+score: 7.55
+altmetric_jid: 4f6fa5e63cf058f6100057f2
+pmid: 18506020
+nlmid: 0147763
+schema: 1.5.4
+cohorts: {u'doc': 2, u'pub': 6}
+readers_count: 1
+journal: Circulation
+publisher_subjects: [{u'scheme': u'era', u'name': u'Clinical Sciences'}, {u'scheme': u'era', u'name': u'Cardiovascular Medicine And Haematology'}, {u'scheme': u'era', u'name': u'Public Health And Health Services'}]
+details_url: http://www.altmetric.com/details.php?citation_id=821344
+doi: 10.1161/circulationaha.107.761643
+url: http://dx.doi.org/10.1161/circulationaha.107.761643
+readers: {u'mendeley': 1, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 38, u'higher_than': 35, u'pct': 92, u'rank': 3, u'mean': 2.5008108108108}, u'all': {u'count': 2291452, u'higher_than': 1993116, u'pct': 86, u'rank': 297877, u'mean': 4.8095140851822}, u'similar_age_3m': {u'count': 68653, u'higher_than': 60862, u'pct': 88, u'rank': 7770, u'mean': 4.526202907417}, u'journal': {u'count': 4189, u'higher_than': 3368, u'pct': 80, u'rank': 820, u'mean': 6.7566556829035}}
+cited_by_fbwalls_count: 5
+history: {u'6d': 1, u'1w': 1, u'1y': 3.75, u'1m': 1, u'6m': 2, u'2d': 1, u'at': 7.55, u'3m': 2, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+added_on: 1341351454
+cited_by_accounts_count: 13

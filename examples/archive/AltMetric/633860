@@ -1,0 +1,34 @@
+cited_by_feeds_count: 2
+last_updated: 1405978033
+is_oa: False
+cited_by_posts_count: 14
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=27&types=1btttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=27&types=1btttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=27&types=1btttttf'}
+altmetric_id: 633860
+subjects: [u'medicine']
+published_on: 1298505600
+cited_by_rh_count: 1
+title: Whole-Genome Sequencing and Social-Network Analysis of a Tuberculosis Outbreak
+cited_by_tweeters_count: 10
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'.@jennifergardy highlights three early genomic epidemiology papers', u'Social-Network Analysis of a Tuberculosis Outbreak via \u201c@jgarrow']
+score: 26.3
+altmetric_jid: 4f6fa50e3cf058f6100031c4
+pmid: 21345102
+abstract: An outbreak of tuberculosis occurred over a 3-year period in a medium-size community in British Columbia, Canada. The results of mycobacterial interspersed repetitive unit-variable-number tandem-repeat (MIRU-VNTR) genotyping suggested the outbreak was clonal. Traditional contact tracing did not identify a source. We used whole-genome sequencing and social-network analysis in an effort to describe the outbreak dynamics at a higher resolution.
+schema: 1.5.4
+cohorts: {u'doc': 1, u'sci': 8, u'pub': 1}
+readers_count: 247
+journal: New England Journal of Medicine
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=633860
+doi: 10.1056/nejmoa1003176
+abstract_source: pubmed
+url: http://dx.doi.org/10.1056/nejmoa1003176
+readers: {u'mendeley': 244, u'citeulike': 3, u'connotea': 0}
+nlmid: 0255562
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 2.6, u'1m': 0.25, u'6m': 1.5, u'2d': 0.25, u'at': 26.3, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+context: {u'similar_age_journal_3m': {u'count': 278, u'higher_than': 167, u'pct': 60, u'rank': 110, u'mean': 34.536664259928}, u'all': {u'count': 2291641, u'higher_than': 2227413, u'pct': 97, u'rank': 64240, u'mean': 4.8100375408026}, u'similar_age_3m': {u'count': 70960, u'higher_than': 69319, u'pct': 97, u'rank': 1639, u'mean': 3.9200911794134}, u'journal': {u'count': 9228, u'higher_than': 7135, u'pct': 77, u'rank': 2091, u'mean': 26.837766988187}}
+cited_by_fbwalls_count: 1
+issns: [u'0028-4793', u'1533-4406']
+added_on: 1330935007
+cited_by_accounts_count: 14

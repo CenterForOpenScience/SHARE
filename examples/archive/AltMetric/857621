@@ -1,0 +1,33 @@
+last_updated: 1405979407
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 41
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=32&types=mttttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=32&types=mttttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=32&types=mttttttf'}
+altmetric_id: 857621
+subjects: [u'education']
+published_on: 1241823600
+title: Generational changes and their impact in the classroom: teaching Generation Me.
+cited_by_tweeters_count: 27
+scopus_subjects: [u'Social Sciences', u'Health Sciences', u'Medicine']
+tq: [u'Generational changes and their impact in #MedEd : teaching Generation Me. #PA13 #ICRE2013', u'Generational changes and their impact in the classroom #meded #icre2014', u'Interesting papers by Twenge on this - Generation Me seems less resilient :(', u'Generational changes and their impact in #MedEd! #CMHE13']
+score: 31.25
+altmetric_jid: 4f6fa5023cf058f610003094
+pmid: 19422486
+abstract: Many faculty members believe that students today differ from those in the past. This paper reviews the empirical evidence for generational changes among students and makes recommendations for classroom teaching based on these changes. Generational changes are rooted in shifts in culture and should be viewed as reflections of changes in society.
+schema: 1.5.4
+cohorts: {u'doc': 6, u'sci': 2, u'pub': 19}
+readers_count: 84
+journal: Medical Education
+publisher_subjects: [{u'scheme': u'era', u'name': u'Education'}, {u'scheme': u'era', u'name': u'Medical And Health Sciences'}, {u'scheme': u'era', u'name': u'Psychology And Cognitive Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=857621
+doi: 10.1111/j.1365-2923.2009.03310.x
+abstract_source: pubmed
+url: http://dx.doi.org/10.1111/j.1365-2923.2009.03310.x
+readers: {u'mendeley': 83, u'citeulike': 1, u'connotea': 0}
+nlmid: 7605655
+history: {u'6d': 5.4, u'1w': 5.4, u'1y': 21.55, u'1m': 5.4, u'6m': 17.4, u'2d': 2.7, u'at': 31.25, u'3m': 17.4, u'5d': 5.4, u'4d': 5.4, u'1d': 1, u'3d': 2.7}
+context: {u'similar_age_journal_3m': {u'count': 18, u'higher_than': 17, u'pct': 94, u'rank': 1, u'mean': 3.6694117647059}, u'all': {u'count': 2291717, u'higher_than': 2238466, u'pct': 97, u'rank': 53156, u'mean': 4.810214137356}, u'similar_age_3m': {u'count': 68041, u'higher_than': 66436, u'pct': 97, u'rank': 1603, u'mean': 4.7975894473838}, u'journal': {u'count': 599, u'higher_than': 593, u'pct': 98, u'rank': 6, u'mean': 3.2884180602007}}
+cited_by_fbwalls_count: 1
+issns: []
+added_on: 1343305305
+cited_by_accounts_count: 29

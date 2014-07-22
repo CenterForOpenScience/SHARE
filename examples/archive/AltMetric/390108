@@ -1,0 +1,31 @@
+cited_by_feeds_count: 2
+last_updated: 1405907220
+is_oa: False
+cited_by_posts_count: 3
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=17&types=bbbbbttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=17&types=bbbbbttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=17&types=bbbbbttt'}
+altmetric_id: 390108
+subjects: []
+published_on: 1262304000
+title: The Epidemiology of Dengue in the Americas Over the Last Three Decades: A Worrisome Reality
+cited_by_tweeters_count: 1
+scopus_subjects: [u'Medicine', u'Immunology and Microbiology', u'Health Sciences', u'Life Sciences']
+issns: [u'1476-1645']
+score: 16.33
+altmetric_jid: 4f6fa60b3cf058f610006990
+pmid: 20065008
+abstract: We have reported the epidemic patterns of dengue disease in the Region of the Americas from 1980 through 2007. Dengue cases reported to the Pan American Health Organization were analyzed from three periods: 1980-1989 (80s), 1990-1999 (90s), and 2000-2007 (2000-7). Age distribution data were examined from Brazil, Venezuela, Honduras, and Mexico. Cases increased over time: 1,033,417 (80s) to 2,725,405 (90s) to 4,759,007 (2000-7). The highest concentrations were reported in the Hispanic Caribbean (39.1%) in the 80s shifting to the Southern Cone in the 90s (55%) and 2000-7 (62.9%). From 1980 through 1987, 242 deaths were reported compared with 1,391 during 2000-7. The most frequently isolated serotypes were DENV-1 and DENV-2 (90s) and DENV-2 and DENV-3 (2000-7). The highest incidence was observed among adolescents and young adults; dengue hemorrhagic fever incidence was highest among infants in Venezuela. Increasing dengue morbidity/mortality was observed in the Americas in recent decades.
+schema: 1.5.4
+cohorts: {u'pub': 1}
+readers_count: 144
+journal: The American Journal of Tropical Medicine and Hygiene
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=390108
+doi: 10.4269/ajtmh.2010.09-0346
+abstract_source: pubmed
+url: http://dx.doi.org/10.4269/ajtmh.2010.09-0346
+readers: {u'mendeley': 142, u'citeulike': 2, u'connotea': 0}
+nlmid: 0370507
+context: {u'similar_age_journal_3m': {u'count': 13, u'higher_than': 12, u'pct': 92, u'rank': 1, u'mean': 1.898}, u'all': {u'count': 2289179, u'higher_than': 2179419, u'pct': 95, u'rank': 109696, u'mean': 4.8073915239466}, u'similar_age_3m': {u'count': 59670, u'higher_than': 57059, u'pct': 95, u'rank': 2609, u'mean': 3.9422015451909}, u'journal': {u'count': 828, u'higher_than': 791, u'pct': 95, u'rank': 36, u'mean': 3.9727085852479}}
+history: {u'6d': 5.08, u'1w': 5.08, u'1y': 14.08, u'1m': 5.08, u'6m': 14.08, u'2d': 5.08, u'at': 16.33, u'3m': 5.08, u'5d': 5.08, u'4d': 5.08, u'1d': 5.08, u'3d': 5.08}
+added_on: 1317648950
+cited_by_accounts_count: 3

@@ -1,0 +1,32 @@
+last_updated: 1405945968
+abstract: A test-retest design was used.
+cited_by_posts_count: 7
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=5&types=ttttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=5&types=ttttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=5&types=ttttttff'}
+altmetric_id: 602273
+subjects: [u'orthopedics']
+downloads: []
+published_on: 1018825200
+title: Interexaminer reliability of low back pain assessment using the McKenzie method.
+cited_by_tweeters_count: 5
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'@_RaulFerrer pues aqu\xed parece decir lo contrario']
+score: 4.55
+altmetric_jid: 4f6fa5143cf058f6100035a7
+pmid: 11935120
+is_oa: False
+schema: 1.5.4
+cohorts: {u'pub': 5}
+readers_count: 84
+journal: Spine
+publisher_subjects: [{u'scheme': u'era', u'name': u'Biomedical Engineering'}, {u'scheme': u'era', u'name': u'Clinical Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=602273
+issns: [u'1528-1159']
+abstract_source: pubmed
+url: http://www.ncbi.nlm.nih.gov/pubmed/11935120
+readers: {u'mendeley': 83, u'citeulike': 1, u'connotea': 0}
+nlmid: 7610646
+context: {u'similar_age_journal_3m': {u'count': 172, u'higher_than': 161, u'pct': 93, u'rank': 11, u'mean': 1.8666666666667}, u'all': {u'count': 2290422, u'higher_than': 1829018, u'pct': 79, u'rank': 459173, u'mean': 4.8084373781086}, u'similar_age_3m': {u'count': 224412, u'higher_than': 190442, u'pct': 84, u'rank': 33788, u'mean': 3.7908122863854}, u'journal': {u'count': 2140, u'higher_than': 1750, u'pct': 81, u'rank': 388, u'mean': 4.1270995792426}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 4.05, u'1w': 4.05, u'1y': 4.05, u'1m': 4.05, u'6m': 4.05, u'2d': 0.5, u'at': 4.55, u'3m': 4.05, u'5d': 4.05, u'4d': 4.05, u'1d': 0.5, u'3d': 0.5}
+added_on: 1329183069
+cited_by_accounts_count: 7

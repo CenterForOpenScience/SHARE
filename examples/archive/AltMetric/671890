@@ -1,0 +1,32 @@
+last_updated: 1405976879
+is_oa: False
+cited_by_posts_count: 51
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=31&types=tttttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=31&types=tttttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=31&types=tttttttf'}
+altmetric_id: 671890
+subjects: [u'nutritionalsciences']
+published_on: 1323129600
+issns: []
+title: Protein intake and bone health.
+cited_by_tweeters_count: 42
+scopus_subjects: [u'Health Sciences', u'Nursing', u'Medicine']
+tq: [u'Estudio demuestra no haber relaci\xf3n entre deterioro de huesos y dietas \u2191Proteinas', u'There is no evidence that high protein intake per se would be detrimental for bone mass and strength', u'En (2011) se pudo relacionar una mayor densidad \xf3sea entre las personas que com\xedan m\xe1s prote\xedna.', u'No hay evidencia que indique que una dieta alta en prote\xednas sea da\xf1ina para la masa \xf3sea']
+score: 30.5
+altmetric_jid: 4f6fa61c3cf058f6100077fd
+pmid: 22139564
+abstract: Adequate nutrition plays an important role in the development and maintenance of bone structures resistant to usual mechanical stresses. In addition to calcium in the presence of an adequate supply of vitamin D, dietary proteins represent key nutrients for bone health and thereby function in the prevention of osteoporosis. Several studies point to a positive effect of high protein intake on bone mineral density or content. This fact is associated with a significant reduction in hip fracture incidence, as recorded in a large prospective study carried out in a homogeneous cohort of postmenopausal women. Low protein intake (< 0.8 g/kg body weight/day) is often observed in patients with hip fractures and an intervention study indicates that following orthopedic management, protein supplementation attenuates post-fracture bone loss, tends to increase muscle strength, and reduces medical complications and rehabilitation hospital stay. There is no evidence that high protein intake per se would be detrimental for bone mass and strength. Nevertheless, it appears reasonable to avoid very high protein diets (i. e. more than 2.0 g/kg body weight/day) when associated with low calcium intake (i. e. less than 600 mg/day). In the elderly, taking into account the attenuated anabolic response to dietary protein with ageing, there is concern that the current dietary protein recommended allowance (RDA), as set at 0.8 g/kg body weight/day, might be too low for the primary and secondary prevention of fragility fractures.
+schema: 1.5.4
+cohorts: {u'com': 2, u'sci': 2, u'pub': 32, u'doc': 6}
+readers_count: 5
+journal: International Journal for Vitamin and Nutrition Research
+publisher_subjects: [{u'scheme': u'era', u'name': u'Nutrition And Dietetics'}]
+details_url: http://www.altmetric.com/details.php?citation_id=671890
+doi: 10.1024/0300-9831/a000063
+abstract_source: pubmed
+url: http://dx.doi.org/10.1024/0300-9831/a000063
+readers: {u'mendeley': 4, u'citeulike': 1, u'connotea': 0}
+nlmid: 1273304
+context: {u'similar_age_journal_3m': {u'count': 2, u'higher_than': 1, u'pct': 50, u'rank': 1, u'mean': 2.2}, u'all': {u'count': 2291793, u'higher_than': 2237052, u'pct': 97, u'rank': 54696, u'mean': 4.8104679970979}, u'similar_age_3m': {u'count': 69449, u'higher_than': 68091, u'pct': 98, u'rank': 1355, u'mean': 3.9595312176016}, u'journal': {u'count': 82, u'higher_than': 80, u'pct': 97, u'rank': 2, u'mean': 2.8403950617284}}
+cited_by_fbwalls_count: 1
+history: {u'6d': 1, u'1w': 1, u'1y': 22.85, u'1m': 1.85, u'6m': 15.9, u'2d': 1, u'at': 30.5, u'3m': 15.9, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+added_on: 1333008963
+cited_by_accounts_count: 43

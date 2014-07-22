@@ -1,0 +1,33 @@
+cited_by_feeds_count: 8
+last_updated: 1405997913
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 98
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=101&types=mbttttfg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=101&types=mbttttfg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=101&types=mbttttfg'}
+altmetric_id: 657962
+subjects: [u'medicine']
+published_on: 1325376000
+title: Physician Violations of Online Professionalism and Disciplinary Actions: A National Survey of State Medical Boards
+cited_by_tweeters_count: 56
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Docs rapped 4social media abuse Esp prescribing &patients JAMA @clarercgp @amcunningham @silv24', u'This debate is far from over. Docs rapped 4social media abuse JAMA', u'Physician Violations of Online Professionalism and Disciplinary Actions: A National Survey of State.', u'Online doc professionalism violations.']
+score: 100.706
+altmetric_jid: 4f6fa4ee3cf058f610002c38
+pmid: 22436951
+cited_by_gplus_count: 3
+nlmid: 7501160
+schema: 1.5.4
+cohorts: {u'doc': 23, u'sci': 9, u'pub': 24}
+readers_count: 20
+journal: JAMA: Journal of the American Medical Association
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=657962
+doi: 10.1001/jama.2012.330
+url: http://dx.doi.org/10.1001/jama.2012.330
+readers: {u'mendeley': 18, u'citeulike': 2, u'connotea': 0}
+history: {u'6d': 2.25, u'1w': 2.25, u'1y': 20.86, u'1m': 2.25, u'6m': 11.58, u'2d': 2.25, u'at': 100.706, u'3m': 9.33, u'5d': 2.25, u'4d': 2.25, u'1d': 2.25, u'3d': 2.25}
+context: {u'similar_age_journal_3m': {u'count': 95, u'higher_than': 93, u'pct': 97, u'rank': 2, u'mean': 9.7525957446808}, u'all': {u'count': 2291817, u'higher_than': 2280135, u'pct': 99, u'rank': 11682, u'mean': 4.8101889418718}, u'similar_age_3m': {u'count': 69310, u'higher_than': 69001, u'pct': 99, u'rank': 309, u'mean': 3.9081877678223}, u'journal': {u'count': 6749, u'higher_than': 6493, u'pct': 96, u'rank': 256, u'mean': 19.387785714286}}
+cited_by_fbwalls_count: 1
+issns: [u'1538-3598', u'0098-7484']
+added_on: 1332278469
+cited_by_accounts_count: 69

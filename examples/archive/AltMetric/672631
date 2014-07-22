@@ -1,0 +1,34 @@
+cited_by_feeds_count: 2
+last_updated: 1405959452
+is_oa: False
+cited_by_msm_count: 4
+cited_by_posts_count: 23
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=68&types=mbtttttg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=68&types=mbtttttg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=68&types=mbtttttg'}
+altmetric_id: 672631
+subjects: [u'psychophysiology']
+published_on: 1243810800
+title: Benefits of napping in healthy adults: impact of nap length, time of day, age, and experience with napping
+cited_by_tweeters_count: 13
+scopus_subjects: [u'Neuroscience', u'Medicine', u'Health Sciences', u'Life Sciences']
+tq: [u'#Naps of 10 to 20 min show the same cognitive benefits as longer naps but w/out the grogginess of longer naps.', u'Studie zu #Powernapping: Wie lange, wie oft, zu welcher Tageszeit ?', u"@acys_youthinfo awwwgh a tired poppet - apparently 'napping is a cross-cultural phenomenon' this will bore you to nap", u'Benefits of napping (...) impact of nap length, time of day, age, and experience with napping.']
+score: 67.95
+altmetric_jid: 4f6fa4f63cf058f610002f19
+pmid: 19645971
+cited_by_gplus_count: 1
+abstract: Napping is a cross-cultural phenomenon which occurs across the lifespan. People vary widely in the frequency with which they nap as well as the improvements in alertness and well-being experienced. The systematic study of daytime napping is important to understand the benefits in alertness and performance that may be accrued from napping. This review paper investigates factors that affect the benefits of napping such as duration and temporal placement of the nap. In addition, the influence of subject characteristics such as age and experience with napping is examined. The focus of the review is on benefits for healthy individuals with regular sleep/wake schedules rather than for people with sleep or medical disorders. The goal of the review is to summarize the type of performance improvements that result from napping, critique the existing studies, and make recommendations for future research.
+schema: 1.5.4
+cohorts: {u'sci': 2, u'pub': 11}
+readers_count: 65
+journal: Journal of Sleep Research
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}, {u'scheme': u'era', u'name': u'Psychology And Cognitive Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=672631
+doi: 10.1111/j.1365-2869.2008.00718.x
+abstract_source: pubmed
+url: http://dx.doi.org/10.1111/j.1365-2869.2008.00718.x
+readers: {u'mendeley': 65, u'citeulike': 0, u'connotea': 0}
+nlmid: 9214441
+history: {u'6d': 13, u'1w': 13, u'1y': 51.25, u'1m': 21, u'6m': 49.85, u'2d': 13, u'at': 67.95, u'3m': 31, u'5d': 13, u'4d': 13, u'1d': 1, u'3d': 13}
+context: {u'similar_age_journal_3m': {u'count': 8, u'higher_than': 7, u'pct': 87, u'rank': 1, u'mean': 1.3214285714286}, u'all': {u'count': 2291010, u'higher_than': 2270370, u'pct': 99, u'rank': 20701, u'mean': 4.8089510482084}, u'similar_age_3m': {u'count': 69448, u'higher_than': 68923, u'pct': 99, u'rank': 525, u'mean': 3.9593575820409}, u'journal': {u'count': 351, u'higher_than': 347, u'pct': 98, u'rank': 4, u'mean': 4.30848}}
+issns: [u'1365-2869']
+added_on: 1333054013
+cited_by_accounts_count: 20

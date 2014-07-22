@@ -1,0 +1,30 @@
+last_updated: 1406005794
+is_oa: False
+cited_by_posts_count: 180
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=63&types=tttttfff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=63&types=tttttfff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=63&types=tttttfff'}
+altmetric_id: 378531
+subjects: [u'sportsmedicine']
+published_on: 1316646000
+issns: [u'14730480']
+title: Cold water immersion and recovery from strenuous exercise: a meta-analysis
+cited_by_tweeters_count: 80
+scopus_subjects: [u'Health Sciences', u'Medicine', u'Health Professions']
+tq: [u'Ice baths help more with high intensity exercise than eccentric exercise, like weight training: \xa0', u'Media love to cherry pick papers for big headline This is a more informative review @Joffyleeder', u'Further to my previous post, links to articles on ice baths and performance #placebo?', u'@BJSM_BMJ CWI meta-analysis']
+score: 62.6
+altmetric_jid: 4f6fa4e93cf058f610002456
+pmid: 21947816
+nlmid: 0432520
+schema: 1.5.4
+cohorts: {u'doc': 8, u'sci': 9, u'com': 2, u'pub': 61}
+readers_count: 79
+journal: British Journal of Sports Medicine
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}, {u'scheme': u'era', u'name': u'Engineering'}, {u'scheme': u'era', u'name': u'Education'}]
+details_url: http://www.altmetric.com/details.php?citation_id=378531
+doi: 10.1136/bjsports-2011-090061
+url: http://dx.doi.org/10.1136/bjsports-2011-090061
+readers: {u'mendeley': 79, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 79, u'higher_than': 76, u'pct': 96, u'rank': 3, u'mean': 15.273692307692}, u'all': {u'count': 2291817, u'higher_than': 2268673, u'pct': 98, u'rank': 23134, u'mean': 4.8105154916472}, u'similar_age_3m': {u'count': 58494, u'higher_than': 57988, u'pct': 99, u'rank': 506, u'mean': 4.0444821773545}, u'journal': {u'count': 2210, u'higher_than': 2105, u'pct': 95, u'rank': 105, u'mean': 15.124412856496}}
+cited_by_fbwalls_count: 1
+history: {u'6d': 3.25, u'1w': 3.25, u'1y': 25.7, u'1m': 9, u'6m': 22, u'2d': 2.5, u'at': 62.6, u'3m': 21.45, u'5d': 3, u'4d': 3, u'1d': 2.5, u'3d': 2.5}
+added_on: 1316683843
+cited_by_accounts_count: 81

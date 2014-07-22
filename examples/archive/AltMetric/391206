@@ -1,0 +1,31 @@
+last_updated: 1405935304
+is_oa: False
+cited_by_posts_count: 12
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=7&types=tttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=7&types=tttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=7&types=tttttttt'}
+altmetric_id: 391206
+subjects: [u'neurology', u'psychiatry', u'neurosurgery']
+published_on: 1317164400
+issns: [u'1468-330X']
+title: Obsessive compulsive disorder and psychopathic behaviour in Babylon.
+cited_by_tweeters_count: 12
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u"Ancient Babylonian psychiatry - what we'd call OCD, phobia psychopathy, they likened to someone who'd sworn an oath", u'OCD & psychopathic behaviour in Babylon (free abstract; full text costs): #OCD #psychopathology #Babylon', u'#OCD and psychopathic behaviour in #Babylon. #PSY #neuro']
+score: 7
+altmetric_jid: 4f6fa5163cf058f6100037a5
+pmid: 21965523
+abstract: The history of obsessive compulsive, phobic and psychopathic behaviour can be traced to the 17th century AD.
+schema: 1.5.4
+cohorts: {u'doc': 1, u'com': 2, u'pub': 9}
+readers_count: 5
+journal: Journal of Neurology, Neurosurgery & Psychiatry
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}, {u'scheme': u'era', u'name': u'Psychology And Cognitive Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=391206
+doi: 10.1136/jnnp-2011-300455
+abstract_source: pubmed
+url: http://dx.doi.org/10.1136/jnnp-2011-300455
+readers: {u'mendeley': 5, u'citeulike': 0, u'connotea': 0}
+nlmid: 2985191R
+context: {u'similar_age_journal_3m': {u'count': 64, u'higher_than': 54, u'pct': 84, u'rank': 10, u'mean': 2.2722222222222}, u'all': {u'count': 2289179, u'higher_than': 1963067, u'pct': 85, u'rank': 314067, u'mean': 4.8077290197638}, u'similar_age_3m': {u'count': 59842, u'higher_than': 52673, u'pct': 88, u'rank': 6988, u'mean': 3.9363495596664}, u'journal': {u'count': 1744, u'higher_than': 1490, u'pct': 85, u'rank': 250, u'mean': 3.4816683878371}}
+history: {u'6d': 1.85, u'1w': 1.85, u'1y': 1.85, u'1m': 1.85, u'6m': 1.85, u'2d': 1.85, u'at': 7, u'3m': 1.85, u'5d': 1.85, u'4d': 1.85, u'1d': 1.85, u'3d': 1.85}
+added_on: 1317715562
+cited_by_accounts_count: 12

@@ -1,0 +1,31 @@
+cited_by_feeds_count: 1
+last_updated: 1406037900
+is_oa: False
+cited_by_posts_count: 52
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=36&types=1btttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=36&types=1btttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=36&types=1btttttf'}
+altmetric_id: 820511
+subjects: [u'internalmedicine']
+published_on: 1325376000
+cited_by_rh_count: 1
+issns: [u'0003-4819']
+title: Effect of a Pharmacist Intervention on Clinically Important Medication Errors After Hospital Discharge: A Randomized Trial
+cited_by_tweeters_count: 44
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Effect of a Pharmacist Intervention on Clinically Important Medication Errors After Hospital Discharge', u'RCT Altas hospitalarias: 50% tienen de errores de medicaci\xf3n. La intervenci\xf3n del farma no logra mejor\xeda #datosdemiedo', u"Cardiologia: met\xe0 dei pazienti dimessi sbaglia coi farmaci, il 23% degli errori \xe8 grave, l'1,8% \xe8 a rischio per la vita", u'Clinically important medication errors were present in 50% patients were not significantly reduced by intervention.']
+score: 35.4
+altmetric_jid: 4f6fa4e83cf058f61000227a
+nlmid: 0372351
+schema: 1.5.4
+cohorts: {u'doc': 9, u'sci': 2, u'pub': 33}
+readers_count: 48
+journal: Annals of Internal Medicine
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=820511
+doi: 10.7326/0003-4819-157-1-201207030-00003
+url: http://dx.doi.org/10.7326/0003-4819-157-1-201207030-00003
+readers: {u'mendeley': 48, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 49, u'higher_than': 48, u'pct': 97, u'rank': 1, u'mean': 5.2739166666667}, u'all': {u'count': 2294079, u'higher_than': 2247726, u'pct': 97, u'rank': 46371, u'mean': 4.8097805837486}, u'similar_age_3m': {u'count': 68663, u'higher_than': 67368, u'pct': 98, u'rank': 1294, u'mean': 4.5264583321196}, u'journal': {u'count': 2768, u'higher_than': 2502, u'pct': 90, u'rank': 266, u'mean': 16.484587640043}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 1.1, u'1m': 1.1, u'6m': 1.1, u'2d': 0.25, u'at': 35.4, u'3m': 1.1, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1341315776
+cited_by_accounts_count: 48

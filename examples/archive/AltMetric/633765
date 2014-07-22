@@ -1,0 +1,34 @@
+cited_by_feeds_count: 1
+last_updated: 1405981049
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 16
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=25&types=mbttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=25&types=mbttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=25&types=mbttttff'}
+altmetric_id: 633765
+subjects: [u'medicine']
+published_on: 1262304000
+title: Magnesium for treatment-resistant depression: a review and hypothesis.
+cited_by_tweeters_count: 6
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Admin. of magnesium led to anti-depressant-like effects that were comparable to those of strong anti-dep drugs.\xa0', u'@nytimes Magnesium is important for preventing miscarriage and treating depression', u'@AndreaTantaros Grt rtcl abt dprsn 1 abt th mprtnc f Crts frms n gnrl Albion s mst sfefctv.', u'Magnesium deficiency can cause nerve injury neuron dysfunction, which can create symptoms of major depression']
+score: 24.85
+altmetric_jid: 4f6fa62c3cf058f610008126
+pmid: 19944540
+abstract: Sixty percent of cases of clinical depression are considered to be treatment-resistant depression (TRD). Magnesium-deficiency causes N-methyl-d-aspartate (NMDA) coupled calcium channels to be biased towards opening, causing neuronal injury and neurological dysfunction, which may appear to humans as major depression. Oral administration of magnesium to animals led to anti-depressant-like effects that were comparable to those of strong anti-depressant drugs. Cerebral spinal fluid (CSF) magnesium has been found low in treatment-resistant suicidal depression and in patients that have attempted suicide. Brain magnesium has been found low in TRD using phosphorous nuclear magnetic resonance spectroscopy, an accurate means for measuring brain magnesium. Blood and CSF magnesium do not appear well correlated with major depression. Although the first report of magnesium treatment for agitated depression was published in 1921 showing success in 220 out of 250 cases, and there are modern case reports showing rapid terminating of TRD, only a few modern clinical trials were found. A 2008 randomized clinical trial showed that magnesium was as effective as the tricyclic anti-depressant imipramine in treating depression in diabetics and without any of the side effects of imipramine. Intravenous and oral magnesium in specific protocols have been reported to rapidly terminate TRD safely and without side effects. Magnesium has been largely removed from processed foods, potentially harming the brain. Calcium, glutamate and aspartate are common food additives that may worsen affective disorders. We hypothesize that - when taken together - there is more than sufficient evidence to implicate inadequate dietary magnesium as the main cause of TRD, and that physicians should prescribe magnesium for TRD. Since inadequate brain magnesium appears to reduce serotonin levels, and since anti-depressants have been shown to have the action of raising brain magnesium, we further hypothesize that magnesium treatment will be found beneficial for nearly all depressives, not only TRD.
+schema: 1.5.4
+cohorts: {u'sci': 1, u'pub': 5}
+readers_count: 65
+journal: Medical Hypotheses
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=633765
+doi: 10.1016/j.mehy.2009.10.051
+abstract_source: pubmed
+url: http://dx.doi.org/10.1016/j.mehy.2009.10.051
+readers: {u'mendeley': 65, u'citeulike': 0, u'connotea': 0}
+nlmid: 7505668
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 15.5, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 24.85, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+context: {u'similar_age_journal_3m': {u'count': 34, u'higher_than': 31, u'pct': 91, u'rank': 3, u'mean': 4.5745454545455}, u'all': {u'count': 2291717, u'higher_than': 2223399, u'pct': 97, u'rank': 68262, u'mean': 4.810214137356}, u'similar_age_3m': {u'count': 70960, u'higher_than': 69202, u'pct': 97, u'rank': 1752, u'mean': 3.92011513691}, u'journal': {u'count': 1033, u'higher_than': 1003, u'pct': 97, u'rank': 30, u'mean': 4.424226744186}}
+cited_by_fbwalls_count: 1
+issns: [u'0306-9877']
+added_on: 1330924898
+cited_by_accounts_count: 9

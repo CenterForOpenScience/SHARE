@@ -1,0 +1,37 @@
+cited_by_feeds_count: 3
+last_updated: 1405951175
+cited_by_accounts_count: 108
+is_oa: False
+cited_by_msm_count: 9
+cited_by_posts_count: 128
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=161&types=1mbttrfg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=161&types=1mbttrfg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=161&types=1mbttrfg'}
+altmetric_id: 648835
+subjects: [u'endocrinology']
+published_on: 1325376000
+cited_by_rh_count: 1
+cited_by_rdts_count: 1
+title: Hormones and Endocrine-Disrupting Chemicals: Low-Dose Effects and Nonmonotonic Dose Responses
+cited_by_tweeters_count: 73
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Life Sciences', u'Biochemistry, Genetics and Molecular Biology']
+tq: [u'scientific review of effects of low-dose endocrine disrupters: not so reassuring.', u'Why current risk assessment methods for chemicals / #pesticides cannot work', u'BPA is in most canned food except', u'Why current risk assessment of everyday chemicals fails to spot risks']
+score: 160.206
+altmetric_jid: 4f6fa6163cf058f61000727e
+pmid: 22419778
+cited_by_gplus_count: 8
+abstract: For decades, studies of endocrine-disrupting chemicals (EDCs) have challenged traditional concepts in toxicology, in particular the dogma of "the dose makes the poison," because EDCs can have effects at low doses that are not predicted by effects at higher doses. Here, we review two major concepts in EDC studies: low dose and nonmonotonicity. Low-dose effects were defined by the National Toxicology Program as those that occur in the range of human exposures or effects observed at doses below those used for traditional toxicological studies. We review the mechanistic data for low-dose effects and use a weight-of-evidence approach to analyze five examples from the EDC literature. Additionally, we explore nonmonotonic dose-response curves, defined as a nonlinear relationship between dose and effect where the slope of the curve changes sign somewhere within the range of doses examined. We provide a detailed discussion of the mechanisms responsible for generating these phenomena, plus hundreds of examples from the cell culture, animal, and epidemiology literature. We illustrate that nonmonotonic responses and low-dose effects are remarkably common in studies of natural hormones and EDCs. Whether low doses of EDCs influence certain human disorders is no longer conjecture, because epidemiological studies show that environmental exposures to EDCs are associated with human diseases and disabilities. We conclude that when nonmonotonic dose-response curves occur, the effects of low doses cannot be predicted by the effects observed at high doses. Thus, fundamental changes in chemical testing and safety determination are needed to protect human health.
+schema: 1.5.4
+cohorts: {u'doc': 10, u'sci': 14, u'com': 1, u'pub': 48}
+readers_count: 205
+journal: Endocrine Reviews
+publisher_subjects: [{u'scheme': u'era', u'name': u'Clinical Sciences'}, {u'scheme': u'era', u'name': u'Paediatrics And Reproductive Medicine'}, {u'scheme': u'era', u'name': u'Biochemistry And Cell Biology'}]
+details_url: http://www.altmetric.com/details.php?citation_id=648835
+doi: 10.1210/er.2011-1050
+url: http://dx.doi.org/10.1210/er.2011-1050
+readers: {u'mendeley': 205, u'citeulike': 0, u'connotea': 0}
+nlmid: 8006258
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 57.83, u'1m': 9.5, u'6m': 49.83, u'2d': 0.25, u'at': 160.206, u'3m': 41.58, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+context: {u'similar_age_journal_3m': {u'count': 2, u'higher_than': 1, u'pct': 50, u'rank': 1, u'mean': 1}, u'all': {u'count': 2291010, u'higher_than': 2285557, u'pct': 99, u'rank': 5607, u'mean': 4.8089510482084}, u'similar_age_3m': {u'count': 70137, u'higher_than': 69988, u'pct': 99, u'rank': 149, u'mean': 3.8999204117714}, u'journal': {u'count': 140, u'higher_than': 139, u'pct': 99, u'rank': 1, u'mean': 3.8079136690647}}
+cited_by_fbwalls_count: 13
+issns: [u'1945-7189']
+added_on: 1331742350
+abstract_source: pubmed

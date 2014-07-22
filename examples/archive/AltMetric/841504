@@ -1,0 +1,32 @@
+last_updated: 1405946472
+is_oa: False
+cited_by_posts_count: 11
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=4&types=ttttffff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=4&types=ttttffff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=4&types=ttttffff'}
+altmetric_id: 841504
+subjects: [u'cellbiology', u'physiology']
+published_on: 1324080000
+issns: []
+title: Artichoke polyphenols induce apoptosis and decrease the invasive potential of the human breast cancer cell line MDA-MB231.
+cited_by_tweeters_count: 5
+scopus_subjects: [u'Biochemistry, Genetics and Molecular Biology', u'Life Sciences']
+tq: [u'Artichoke extract kills breast cancer cells and remarkably inhibits their motility and invasion abilities.', u'Artichokes were found to remarkably inhibit invasive ER- breast cancer. For more info see our facebook page.']
+score: 3.6
+altmetric_jid: 4f6fa52a3cf058f610003f93
+pmid: 22170094
+abstract: The human breast cancer cell line, estrogen receptor negative, MDA-MB231, was used to evaluate the antitumor effect of polyphenolic extracts from the edible part of artichokes (AEs). Treatment of cancer cells reduced cell viability and inhibited cell growth in a dose-dependent manner. Importantly, AEs did not have any effect on normal breast epithelial cell line, MCF10A. Chlorogenic acid (ChA), the most representative component of the polyphenolic fraction of artichoke, had no prominent effects on the cell death rate of MDA-MB231 cells. The addition of AEs to the cells, rather than ChA, triggered apoptosis via a mitochondrial and a death-receptor pathway, as shown by the activation of caspase-9 and caspase-8, respectively. Furthermore, an increase of the Bax:Bcl2 ratio and up-regulation of cyclin-dependent kinase inhibitor, p21(WAF1), crucial apoptotic players, were documented. According to our data on activation of caspase-9, a loss of mitochondrial transmembrane potential (Ψ(m)) was shown. Cell motility and invasion capabilities were remarkably inhibited by AEs-treatment in highly invasive MDA-MB231 cells. In addition, a significant decrease of proteolytic activity of metalloproteinase-2 protein (MMP-2), involved in degrading components of the extracellular matrix, was detected. Our findings indicate that AEs reduced cell viability, inhibited cell growth, triggered apoptotic mechanisms, and showed inhibitory properties against the invasive behavior of MDA-MB231 cancer cell line. Altogether, these data indicate the potential chemopreventive activity of artichoke polyphenolic extracts.
+schema: 1.5.4
+cohorts: {u'pub': 5}
+readers_count: 1
+journal: J Cell Physiol
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical Physiology'}]
+details_url: http://www.altmetric.com/details.php?citation_id=841504
+doi: 10.1002/jcp.24029
+abstract_source: pubmed
+url: http://dx.doi.org/10.1002/jcp.24029
+readers: {u'mendeley': 1, u'citeulike': 0, u'connotea': 0}
+nlmid: 0050222
+context: {u'similar_age_journal_3m': {u'count': 15, u'higher_than': 14, u'pct': 93, u'rank': 1, u'mean': 0.64285714285714}, u'all': {u'count': 2290422, u'higher_than': 1779644, u'pct': 77, u'rank': 506992, u'mean': 4.8084373781086}, u'similar_age_3m': {u'count': 68587, u'higher_than': 55848, u'pct': 81, u'rank': 12579, u'mean': 4.6488358265534}, u'journal': {u'count': 554, u'higher_than': 510, u'pct': 92, u'rank': 44, u'mean': 1.4891681735986}}
+cited_by_fbwalls_count: 4
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 3.6, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1342421571
+cited_by_accounts_count: 9

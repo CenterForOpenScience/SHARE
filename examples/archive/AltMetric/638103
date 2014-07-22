@@ -1,0 +1,37 @@
+cited_by_feeds_count: 6
+last_updated: 1405936892
+cited_by_accounts_count: 47
+is_oa: False
+cited_by_msm_count: 2
+cited_by_posts_count: 47
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=86&types=mpbtttfg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=86&types=mpbtttfg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=86&types=mpbtttfg'}
+altmetric_id: 638103
+subjects: [u'science', u'medicine']
+published_on: 1283295600
+title: Fruit and Soil Quality of Organic and Conventional Strawberry Agroecosystems
+cited_by_tweeters_count: 27
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Biochemistry, Genetics and Molecular Biology', u'Life Sciences', u'Agricultural and Biological Sciences']
+tq: [u'#Organic produce IS more nutritious. Stanford is a paid #biotech tool didnt even LOOK at #GMOs', u'Choose #organic it is better and better for our #environment #science #healthy #healthyliving #strawberries #farmers', u'#Organic strawberry farms produced higher quality fruit', u'art\xedculo al respecto en ingl\xe9s: y el link al paper']
+score: 85.346
+altmetric_jid: 4f6fa5313cf058f6100043e3
+pmid: 20824185
+cited_by_gplus_count: 1
+abstract: Sale of organic foods is one of the fastest growing market segments within the global food industry. People often buy organic food because they believe organic farms produce more nutritious and better tasting food from healthier soils. Here we tested if there are significant differences in fruit and soil quality from 13 pairs of commercial organic and conventional strawberry agroecosystems in California.
+schema: 1.5.4
+cohorts: {u'doc': 3, u'sci': 1, u'com': 1, u'pub': 22}
+readers_count: 124
+journal: PLoS ONE
+publisher_subjects: [{u'scheme': u'era', u'name': u'Multidisciplinary'}]
+details_url: http://www.altmetric.com/details.php?citation_id=638103
+doi: 10.1371/journal.pone.0012346
+ads_id: 2010ploso...512346r
+readers: {u'mendeley': 122, u'citeulike': 2, u'connotea': 0}
+nlmid: 101285081
+url: http://dx.doi.org/10.1371/journal.pone.0012346
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 36.858, u'1m': 17.298, u'6m': 29.208, u'2d': 0.25, u'at': 85.346, u'3m': 18.048, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+cited_by_pinners_count: 1
+context: {u'similar_age_journal_3m': {u'count': 2725, u'higher_than': 2701, u'pct': 99, u'rank': 24, u'mean': 5.231033773862}, u'all': {u'count': 2289651, u'higher_than': 2275035, u'pct': 99, u'rank': 14844, u'mean': 4.8082975694997}, u'similar_age_3m': {u'count': 70424, u'higher_than': 70034, u'pct': 99, u'rank': 390, u'mean': 3.911691208838}, u'journal': {u'count': 49164, u'higher_than': 48375, u'pct': 98, u'rank': 795, u'mean': 7.8476561641884}}
+cited_by_fbwalls_count: 10
+issns: [u'1932-6203']
+added_on: 1331141221
+abstract_source: pubmed

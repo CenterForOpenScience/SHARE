@@ -1,0 +1,32 @@
+cited_by_feeds_count: 1
+last_updated: 1405977625
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 6
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=24&types=mbttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=24&types=mbttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=24&types=mbttttff'}
+altmetric_id: 873710
+published_on: False
+title: Projections of the Cost of Cancer Care in the United States: 2010–2020
+cited_by_tweeters_count: 3
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Life Sciences', u'Biochemistry, Genetics and Molecular Biology']
+tq: [u'Projected costs of cancer care in US. Alarmingly high!']
+score: 23.35
+altmetric_jid: 4f6fa4ee3cf058f610002c44
+pmid: 21228314
+abstract: Current estimates of the costs of cancer care in the United States are based on data from 2003 and earlier. However, incidence, survival, and practice patterns have been changing for the majority of cancers.
+schema: 1.5.4
+cohorts: {u'sci': 1, u'pub': 2}
+readers_count: 95
+journal: JNCI: Journal of the National Cancer Institute
+publisher_subjects: [{u'scheme': u'era', u'name': u'Oncology And Carcinogenesis'}]
+details_url: http://www.altmetric.com/details.php?citation_id=873710
+doi: 10.1093/jnci/djq495
+abstract_source: pubmed
+url: http://dx.doi.org/10.1093/jnci/djq495
+readers: {u'mendeley': 95, u'citeulike': 0, u'connotea': 0}
+history: {u'6d': 10, u'1w': 10, u'1y': 19, u'1m': 19, u'6m': 19, u'2d': 10, u'at': 23.35, u'3m': 19, u'5d': 10, u'4d': 10, u'1d': 10, u'3d': 10}
+context: {u'similar_age_journal_3m': {u'count': 13, u'higher_than': 12, u'pct': 92, u'rank': 1, u'mean': 2.8086666666667}, u'all': {u'count': 2291717, u'higher_than': 2218588, u'pct': 96, u'rank': 73079, u'mean': 4.810214137356}, u'similar_age_3m': {u'count': 68304, u'higher_than': 66015, u'pct': 96, u'rank': 2286, u'mean': 4.9158966956062}, u'journal': {u'count': 1911, u'higher_than': 1774, u'pct': 92, u'rank': 136, u'mean': 8.0048910994764}}
+cited_by_fbwalls_count: 1
+issns: []
+added_on: 1344171463
+cited_by_accounts_count: 6

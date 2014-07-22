@@ -1,0 +1,31 @@
+last_updated: 1405904026
+is_oa: False
+cited_by_posts_count: 5
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=3&types=ttttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=3&types=ttttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=3&types=ttttttff'}
+altmetric_id: 883412
+subjects: [u'orthopedics']
+published_on: 1344466800
+title: Predicting the Risk of Adjacent Segment Pathology After Lumbar Fusion: A Systematic Review
+cited_by_tweeters_count: 3
+scopus_subjects: [u'Health Sciences', u'Medicine']
+issns: [u'0362-2436']
+score: 2.5
+altmetric_jid: 4f6fa5143cf058f6100035a7
+pmid: 22885827
+abstract: Systematic review.
+schema: 1.5.4
+cohorts: {u'pub': 3}
+readers_count: 19
+journal: Spine
+publisher_subjects: [{u'scheme': u'era', u'name': u'Biomedical Engineering'}, {u'scheme': u'era', u'name': u'Clinical Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=883412
+doi: 10.1097/brs.0b013e31826d60d8
+abstract_source: pubmed
+url: http://dx.doi.org/10.1097/brs.0b013e31826d60d8
+readers: {u'mendeley': 19, u'citeulike': 0, u'connotea': 0}
+nlmid: 7610646
+context: {u'similar_age_journal_3m': {u'count': 117, u'higher_than': 90, u'pct': 76, u'rank': 27, u'mean': 3.2422413793103}, u'all': {u'count': 2289179, u'higher_than': 1659659, u'pct': 72, u'rank': 611079, u'mean': 4.8072910075166}, u'similar_age_3m': {u'count': 68799, u'higher_than': 51857, u'pct': 75, u'rank': 16416, u'mean': 4.9665045495508}, u'journal': {u'count': 2138, u'higher_than': 1554, u'pct': 72, u'rank': 570, u'mean': 4.1299560131025}}
+cited_by_fbwalls_count: 1
+history: {u'6d': 1, u'1w': 1, u'1y': 1, u'1m': 1, u'6m': 1, u'2d': 1, u'at': 2.5, u'3m': 1, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+added_on: 1344701176
+cited_by_accounts_count: 4

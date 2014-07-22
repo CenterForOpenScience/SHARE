@@ -1,0 +1,33 @@
+cited_by_feeds_count: 1
+last_updated: 1406035790
+is_oa: False
+cited_by_posts_count: 8
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=14&types=bttttfff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=14&types=bttttfff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=14&types=bttttfff'}
+altmetric_id: 610383
+subjects: [u'ophthalmology']
+published_on: 1356998400
+title: Blindness of Johann Sebastian Bach
+cited_by_tweeters_count: 4
+scopus_subjects: []
+tq: [u'@FILIPSTOJANOVlC jadda cataract couching kan nesten sammenlignes m phaco. :-P #\xf8yekirurgikomplikasjoner', u'Historisk artikkel - setter dagbladoppslag om \xf8yekirurgi i perspektiv Blindness of Johann Sebastian Bach', u'La ceguera d Johann Sebastian Bach']
+score: 13.85
+altmetric_jid: 4f6fa4e73cf058f61000215d
+pmid: 22339937
+abstract: Johann Sebastian Bach (1685-1750) was one of the greatest composers of all time. Apart from performing as a brilliant organist, he composed over 1.100 works in almost every musical genre. He was known as a hardworking, deeply Christian person, who had to support his family of 20 children and many students staying at his home. At the age of 64 years, his vision started to decline. Old biographies claim that it was the result of overstressing his vision in poor illumination. By persuasion of his friends, he had his both eyes operated by a travelling British eye surgeon. A cataract couching was performed. After surgery, Bach was totally blind and unable to play an organ, compose or direct choirs and orchestras. He was confined to bed and suffering from immense pain of the eyes and the body. He died <4 months after surgery. In this paper, as the plausible diagnosis, intractable glaucoma because of pupillary block or secondary to phacoanaphylactic endophthalmitis is suggested.
+schema: 1.5.4
+cohorts: {u'doc': 1, u'pub': 3}
+readers_count: 1
+journal: Acta Ophthalmologica (1755375X)
+publisher_subjects: [{u'scheme': u'era', u'name': u'Clinical Sciences'}, {u'scheme': u'era', u'name': u'Neurosciences'}, {u'scheme': u'era', u'name': u'Ophthalmology And Optometry'}]
+details_url: http://www.altmetric.com/details.php?citation_id=610383
+doi: 10.1111/j.1755-3768.2011.02366.x
+abstract_source: pubmed
+url: http://dx.doi.org/10.1111/j.1755-3768.2011.02366.x
+readers: {u'mendeley': 1, u'citeulike': 0, u'connotea': 0}
+nlmid: 101468102
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 13.85, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+context: {u'similar_age_journal_3m': {u'count': 14, u'higher_than': 13, u'pct': 92, u'rank': 1, u'mean': 0.79615384615385}, u'all': {u'count': 2293887, u'higher_than': 2159763, u'pct': 94, u'rank': 133793, u'mean': 4.8097213418648}, u'similar_age_3m': {u'count': 72900, u'higher_than': 69313, u'pct': 95, u'rank': 3576, u'mean': 3.9329341691929}, u'journal': {u'count': 239, u'higher_than': 235, u'pct': 98, u'rank': 4, u'mean': 1.2693781512605}}
+cited_by_fbwalls_count: 2
+issns: [u'1755-3768']
+added_on: 1329518338
+cited_by_accounts_count: 7

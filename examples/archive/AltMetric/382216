@@ -1,0 +1,31 @@
+last_updated: 1406026013
+is_oa: False
+cited_by_posts_count: 149
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=42&types=tttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=42&types=tttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=42&types=tttttttt'}
+altmetric_id: 382216
+subjects: [u'physiology']
+published_on: 1314831600
+issns: [u'1533-4287']
+title: The effect of muscular endurance on running economy.
+cited_by_tweeters_count: 48
+scopus_subjects: [u'Health Sciences', u'Medicine', u'Health Professions']
+tq: [u'Weight training as simple as slowly lowered leg extensions leg curls can make u better runner: \xa0', u'Including simple exercises like slowly lowered leg extensions leg curls can make u better runner: #fitfam #fittips', u'The Effect of Muscular #Endurance on #Running Economy : The Journal of Strength Conditioning Research #training']
+score: 42
+altmetric_jid: 4f6fa52c3cf058f6100040e2
+pmid: 21691229
+abstract: The purpose of this study was to examine the relationship between fatigue-induced changes in running economy (RE) and muscular strength endurance (MSE). Ten well-trained male runners completed 2 runs of the same energy expenditure at 20%Δ VO(2) below LT. In the middle of the experimental condition (high intensity exercise [HIE]), there was a 4-minute block at sVO(2)max. The aim of the 4-minute block was to increase RE through fatigue, without inducing exhaustion. The MSE of hip extensors (HEs) and knee flexors (KFs) was assessed by 2 20-second eccentric bouts on an isokinetic dynamometer at 180°·s(-1). The RE increased after HIE compared to the control condition. Partial correlations found the increase in RE was strongly related with KF MSE (r = -0.709-0.798; p = 0.03-0.01). Greater MSE appeared to confer a fatigue resistant effect, resulting in a smaller increase in RE. The underlying mechanism of the fatigue resistant effect remains to be elucidated. Conditioning work focusing on augmenting eccentric muscular endurance of the legs may offer beneficial adaptations that promote fatigue resistance.
+schema: 1.5.4
+cohorts: {u'doc': 6, u'sci': 1, u'pub': 41}
+readers_count: 21
+journal: Journal of strength and conditioning research / National Strength & Conditioning Association
+publisher_subjects: [{u'scheme': u'era', u'name': u'Human Movement And Sports Science'}]
+details_url: http://www.altmetric.com/details.php?citation_id=382216
+doi: 10.1519/jsc.0b013e3181fb4284
+abstract_source: pubmed
+url: http://dx.doi.org/10.1519/jsc.0b013e3181fb4284
+readers: {u'mendeley': 21, u'citeulike': 0, u'connotea': 0}
+nlmid: 9415084
+context: {u'similar_age_journal_3m': {u'count': 134, u'higher_than': 121, u'pct': 90, u'rank': 13, u'mean': 12.303067669173}, u'all': {u'count': 2293141, u'higher_than': 2255057, u'pct': 98, u'rank': 38347, u'mean': 4.8102278046717}, u'similar_age_3m': {u'count': 58485, u'higher_than': 57664, u'pct': 98, u'rank': 820, u'mean': 3.9857875316326}, u'journal': {u'count': 1908, u'higher_than': 1790, u'pct': 93, u'rank': 118, u'mean': 12.11949868904}}
+history: {u'6d': 3.5, u'1w': 4.5, u'1y': 29.6, u'1m': 8, u'6m': 26.6, u'2d': 2, u'at': 42, u'3m': 25.6, u'5d': 3.5, u'4d': 2.5, u'1d': 2, u'3d': 2.5}
+added_on: 1317055391
+cited_by_accounts_count: 48

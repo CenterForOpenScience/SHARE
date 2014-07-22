@@ -1,0 +1,34 @@
+cited_by_feeds_count: 3
+last_updated: 1405971110
+is_oa: False
+cited_by_posts_count: 90
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=65&types=bttrffff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=65&types=bttrffff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=65&types=bttrffff'}
+altmetric_id: 657268
+subjects: [u'communicablediseases']
+published_on: 1325376000
+cited_by_rdts_count: 1
+title: Unexpectedly Limited Durability of Immunity Following Acellular Pertussis Vaccination in Preadolescents in a North American Outbreak
+cited_by_tweeters_count: 32
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u"Another 'settled science' looking a little unsettled. #vaccines cc @chrislbecker", u'Unexpectedly limited durability of immunity ... [Clin Infect Dis. 2012] - PubMed - NCBI', u'Unexpectedly Limited Durability of Immunity Following Acellular Pertussis Vaccination in Pre-Adolescents #vaxfax', u'@CassTete1 Yes, it does exist... Attack rates: Severity']
+score: 64.408
+altmetric_jid: 4f6fa4ea3cf058f61000255e
+pmid: 22423127
+abstract: Despite widespread childhood vaccination against Bordetella pertussis, disease remains prevalent. It has been suggested that acellular vaccine may be less effective than previously believed. During a large outbreak, we examined the incidence of pertussis and effectiveness of vaccination in a well-vaccinated, well-defined community.
+schema: 1.5.4
+cohorts: {u'doc': 1, u'sci': 2, u'pub': 29}
+readers_count: 39
+journal: Clinical Infectious Diseases
+publisher_subjects: [{u'scheme': u'era', u'name': u'Biological Sciences'}, {u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=657268
+doi: 10.1093/cid/cis287
+abstract_source: pubmed
+url: http://dx.doi.org/10.1093/cid/cis287
+readers: {u'mendeley': 39, u'citeulike': 0, u'connotea': 0}
+nlmid: 9203213
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 13.7, u'1m': 1.25, u'6m': 4.5, u'2d': 0.25, u'at': 64.408, u'3m': 2.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+context: {u'similar_age_journal_3m': {u'count': 61, u'higher_than': 60, u'pct': 98, u'rank': 1, u'mean': 2.5807}, u'all': {u'count': 2291452, u'higher_than': 2269287, u'pct': 99, u'rank': 22246, u'mean': 4.8095140851822}, u'similar_age_3m': {u'count': 69310, u'higher_than': 68773, u'pct': 99, u'rank': 537, u'mean': 3.9081019203855}, u'journal': {u'count': 3177, u'higher_than': 3145, u'pct': 98, u'rank': 32, u'mean': 4.6717204030227}}
+cited_by_fbwalls_count: 44
+issns: [u'1537-6591']
+added_on: 1332254029
+cited_by_accounts_count: 80
