@@ -1,4 +1,4 @@
-University of California, CDL, eScholarship
+University of California, CDL, DMPTool
 ====
 
 The DMPTool is used by roughly 800 institutions and 10,000 users to generate data management plans. Once grants have been awarded, researchers are encouraged to make their DMP public. Public DMPs are a legitimate research release event, giving a very early warning of research to be done and intentions around data set preparation and release. While the plans are fuzzy enough to make teasing out individual promises about data sets difficult, even the report of the full DMP can be helpful as a notification.
