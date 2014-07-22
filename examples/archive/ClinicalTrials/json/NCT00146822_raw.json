@@ -1,0 +1,84 @@
+{
+    "clinical_study": {
+        "@rank": "37160", 
+        "brief_summary": {
+            "textblock": "The REFLEx Study will evaluate if ENDOTAK RELIANCE G defibrillation leads with GORE\n      ePTFE-covered coils are as good as or better than other comparative commercially available\n      defibrillation leads with respect to electrical performance and termination efficacy in\n      spontaneous tachyarrhythmic episodes."
+        }, 
+        "brief_title": "REFLEx Study (ENDOTAK RELIANCE G Evaluation of Handling and Electrical Performance", 
+        "completion_date": "March 2006", 
+        "condition": "Arrhythmia", 
+        "condition_browse": {
+            "mesh_term": "Arrhythmias, Cardiac"
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Patients who meet current ICD or CRT-D indications\n\n          -  Patients who are going to be implanted with one of the aforementioned ICD or CRT-D\n             devices\n\n          -  Patients who are going to be implanted with active-fixation, dual-coil, endocardial\n             defibrillation leads with compatible connectors (i.e., ENDOTAK RELIANCE G or\n             study-comparative ICD leads)\n\n          -  Patients who sign and date a Patient Informed Consent form prior to device implant\n\n          -  Patients who remain in the clinical care of the enrolling physician in approved\n             centers\n\n          -  Patients who are at least 18 years old\n\n        Exclusion Criteria:\n\n          -  Patients who have a preexisting transvenous lead system that is not completely\n             explanted\n\n          -  Patients who are hypersensitive to a single dose of approximately 1.0 mg of\n             dexamethasone acetate\n\n          -  Patients who are expected to receive a heart transplant during the duration of the\n             study\n\n          -  Patients whose estimated life expectancy is less than 12 months due to other medical\n             conditions\n\n          -  Patients who currently have or who are likely to receive a tricuspid valve prosthesis\n\n          -  Patients who are likely to have an open-chest surgery in the next three months\n\n          -  Patients who are currently enrolled in another investigational study that would\n             directly impact the treatment or outcome of the REFLEx study.\n\n          -  Patients who are mentally incompetent and cannot sign a Patient Informed Consent form\n             or comply with the study\n\n          -  Patients who are pregnant"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": "1500", 
+        "firstreceived_date": "September 2, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00146822", 
+            "org_study_id": "CR-CA-022504-L"
+        }, 
+        "intervention": {
+            "intervention_name": "ENDOTAK RELIANCE G lead", 
+            "intervention_type": "Device"
+        }, 
+        "lastchanged_date": "November 13, 2006", 
+        "official_title": "ENDOTAK RELIANCE\uf0e2 G Evaluation of Handling and Electrical Performance Study", 
+        "overall_official": {
+            "affiliation": "Wake Heart Associates", 
+            "last_name": "Randolph Cooper, MD", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Institutional Review Board"
+        }, 
+        "phase": "Phase 4", 
+        "primary_outcome": [
+            {
+                "measure": "Lead electrical properties"
+            }, 
+            {
+                "measure": "First shock conversion success rate for spontaneous fast ventricular tachycardia or ventricular fibrillation"
+            }
+        ], 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00146822"
+        }, 
+        "secondary_outcome": [
+            {
+                "measure": "Lead handling characteristics"
+            }, 
+            {
+                "measure": "Lead migration/dislodgment rates"
+            }, 
+            {
+                "measure": "Characterize the current ICD/CRT-D population"
+            }, 
+            {
+                "measure": "Effects of ischemia and revascularization and previous lead extraction on the lead\u2019s electrical performance"
+            }
+        ], 
+        "source": "Boston Scientific Corporation", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Boston Scientific Corporation", 
+                "agency_class": "Industry"
+            }
+        }, 
+        "start_date": "February 2004", 
+        "study_design": "Allocation: Randomized, Intervention Model: Parallel Assignment, Masking: Single Blind", 
+        "study_type": "Interventional", 
+        "verification_date": "April 2006"
+    }
+}

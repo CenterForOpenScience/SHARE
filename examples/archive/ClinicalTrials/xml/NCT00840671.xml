@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00840671</url>
+  </required_header>
+  <id_info>
+    <org_study_id>CR040301</org_study_id>
+    <secondary_id>EudraCT-number: 2004-001729-11</secondary_id>
+    <nct_id>NCT00840671</nct_id>
+  </id_info>
+  <brief_title>Combined Treatment With Alteplase (Rt-PA) and Cerebrolysin® in Acute Ischemic Hemispheric Stroke</brief_title>
+  <acronym>CERE-LYSE-1</acronym>
+  <official_title>A Prospective, Randomised, Placebo Controlled, Double Blind Trial About Safety and Efficacy of Combined Treatment With Alteplase (Rt-PA) and Cerebrolysin® in Acute Ischemic Hemispheric Stroke</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Ever Neuro Pharma GmbH</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+    <collaborator>
+      <agency>JSW-Research Forschungslabor GmbH, Parkring 12, 8074 Grambach</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+  </sponsors>
+  <source>Ever Neuro Pharma GmbH</source>
+  <oversight_info>
+    <authority>Austria: Agency for Health and Food Safety</authority>
+    <authority>Slovakia: State Institute for Drug Control</authority>
+    <authority>Slovenia: Agency for Medicinal Products - Ministry of Health</authority>
+    <authority>Czech Republic: State Institute for Drug Control</authority>
+    <authority>Croatia: Agency for Medicinal Product and Medical Devices</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      It should be shown that Cerebrolysin in combination with Alteplase, the medication that
+      should recover the blood flow through the brain, is an effective and save medication to
+      treat ischeamic stroke.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      The current trial should evaluate a combined treatment using Cerebrolysin immediately after
+      thrombolysis to guarantee that the neurotrophic components are able to reach the endangered
+      brain areas efficiently. An early start of treatment should guarantee rescue of most of the
+      neurons reducing the overall damage.The study follows the design of pure thrombolytic trials
+      to investigate, if the early neuroprotective treatment with Cerebrolysin is able to improve
+      the overall outcome of patients at the day 90 evaluation visit. Due to the initial findings
+      special emphasis will be also put on analysing the speed of recovery.
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>October 2005</start_date>
+  <completion_date type="Actual">July 2008</completion_date>
+  <primary_completion_date type="Actual">March 2008</primary_completion_date>
+  <phase>Phase 3</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double Blind (Subject, Caregiver, Investigator, Outcomes Assessor), Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Modified Rankin Scale score at day 90 (or earlier in the event of patient withdrawal).</measure>
+    <time_frame>Day 90</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>NIH Stroke Scale Score 90 days after start of treatment (or earlier in the event of patient withdrawal). Actual score or change from baseline score analysed.</measure>
+    <time_frame>90 days after start of treatment</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Glasgow Outcome Score 90 days after start of treatment (or earlier in the event of patient withdrawal). Actual score or change from baseline score analysed.</measure>
+    <time_frame>90 days after start of treatment</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Barthel Index Score 90 days after start of treatment (or earlier in the event of patient withdrawal). Actual score or change from baseline score analysed.</measure>
+    <time_frame>90 days after start of treatment</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Responders classified according to Barthel Index Score ≥95, Glasgow Outcome Score 0-1, NIHSS change from baseline score, 8 point improvement or total score 0-1 or NIHSS Distal Motor Function Score 0-1. Responder rates across each scale analysed.</measure>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">119</enrollment>
+  <condition>Stroke</condition>
+  <arm_group>
+    <arm_group_label>Cerebrolysin</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Cerebrolysin, 30 ml/day as intravenous infusion, first infusion after completion of thrombolytic therapy. Daily infusion for 10 consecutive days.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>0.9% Saline Solution</arm_group_label>
+    <arm_group_type>Placebo Comparator</arm_group_type>
+    <description>0.9% Saline Solution, 30 ml/day as intravenous infusion, first infusion after completion of thrombolytic therapy. Daily infusion for 10 consecutive days.</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Cerebrolysin</intervention_name>
+    <description>Cerebrolysin, 30 ml/day as intravenous infusion, first infusion after completion of thrombolytic therapy. Daily infusion for 10 consecutive days.</description>
+    <arm_group_label>Cerebrolysin</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>0.9% Saline Solution</intervention_name>
+    <description>0.9% Saline Solution, 30 ml/day as intravenous infusion, first infusion after completion of thrombolytic therapy. Daily infusion for 10 consecutive days.</description>
+    <arm_group_label>0.9% Saline Solution</arm_group_label>
+    <other_name>NaCl</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Female or male inpatients.
+
+          -  Age: 18-80 years.
+
+          -  If female, patient must not be pregnant
+
+          -  Clinical diagnosis of ischemic stroke causing a measurable neurological deficit
+             defined as impairment of language, motor function, cognition and/or gaze,vision or
+             neglect. Ischemic stroke is defined as an event characterized by the sudden onset of
+             an acute focal neurologic deficit presumed to be due to cerebral ischemia after CT
+             scan excludes haemorrhage.
+
+          -  Onset of symptoms within 3 hours prior to initiation of rt-PA administration.
+
+          -  Stroke symptoms are to be present for at least 30 minutes and have not significantly
+             improved before treatment. Symptoms must be distinguishable from an episode of
+             generalized ischemia (i.e. syncope), seizure or migraine disorder.
+
+          -  Patient is willing to participate voluntarily and to sign a written patient informed
+             consent. Informed consent will be obtained from each patient or the subject's legally
+             authorized representative or relatives, or deferred where applicable, according to
+             the regulatory and legal requirements of the participating country.
+
+          -  Patients who are unable to sign but who are able to understand the meaning of
+             participation in the study may give an oral witnessed informed consent. These
+             patients have to make clear undoubtful that they are willing to participate
+             voluntarily and must be able to understand an explanation of the contents of the
+             information sheet. A written consent has to be obtained as soon as possible.
+
+          -  Willingness and ability to comply with the protocol.
+
+        Exclusion Criteria:
+
+          -  Evidence of intracranial haemorrhage (ICH) on the CT-scan
+
+          -  Violation of inclusion criteria not approved by clinical study director or study
+             safety officer
+
+          -  Failure to perform or to evaluate screening or baseline examinations
+
+          -  Hospitalisation (except for study purposes) or change of concomitant medication 4
+             weeks prior to screening or during screening period
+
+          -  Participation in another therapeutic clinical trial 3 months before baseline
+
+          -  Patients with any history of prior stroke and concomitant diabetes
+
+          -  Prior stroke within the last 3 months
+
+          -  Platelet count of below 100x103/mm3
+
+          -  Blood glucose &lt;50 or &gt;400 mg/dl (&lt;2.77 or &gt;22.15 mmol/L)
+
+          -  Known haemorrhagic diathesis
+
+          -  Manifest or recent severe or dangerous bleeding
+
+          -  Known bacterial endocarditis, pericarditis
+
+          -  Acute pancreatitis
+
+          -  Documented ulcerative gastrointestinal disease during the last 3 months, oesophageal
+             varices, arterial-aneurysm, arterial/venous malformation
+
+          -  Neoplasm with increased bleeding risk
+
+          -  Severe liver disease, including hepatic failure, cirrhosis, portal hypertension,
+             oesaphageal varices) and active hepatitis
+
+          -  Major surgery or significant trauma in past 3 months
+
+          -  Lab values seriously abnormal, and/or more than 2 lab values abnormal not approved by
+             clinical study director or study safety officer
+
+          -  Serious drug allergies
+
+          -  Hypersensitivity to one of the components of the drug
+
+          -  Severe renal impairment
+
+          -  Systolic blood pressure &gt;185 mmHg or diastolic blood pressure &gt;110 mmHg, or
+             aggressive management (IV medication) necessary to reduce BP to these limits
+
+          -  Recent (less than 10 days) traumatic external heart massage, obstetrical delivery,
+             recent puncture of a non-compressible blood-vessel (e.g. subclavian or jugular vein
+             puncture)
+
+          -  Chronic intoxication or chronic substance use disorder with pharmaceuticals, drugs,
+             alcohol or industrial poisons
+
+          -  Symptoms of ischemic attack began more than 3 hours prior to start of thrombolytic
+             therapy or if time of symptom onset is unknown
+
+          -  Minor neurological deficit or symptoms rapidly improving before start of infusion
+
+          -  Severe stroke as assessed clinically (e.g. NIHSS &gt;25) and/or by appropriate imaging
+             techniques
+
+          -  Epilepsy or epileptic seizure at onset of stroke
+
+          -  Symptoms suggestive of subarachnoid haemorrhage, even if the CT-scan is normal
+
+          -  Known history of or suspected intracranial haemorrhage
+
+          -  Suspected subarachnoid haemorrhage or condition after subarachnoid hemorrhage from
+             aneurysm
+
+          -  Any history of central nervous system damage (i.e. neoplasm, aneurysm, intracranial
+             or spinal surgery)
+
+          -  Haemorrhagic retinopathy, e.g. in diabetes (vision disturbances may indicate
+             haemorrhagic retinopathy)
+
+          -  Administration of heparin within the previous 48 hours and a thromboplastin time
+             exceeding the upper limit of normal for laboratory
+
+          -  Patients receiving oral anticoagulants, e.g. warfarin sodium
+
+          -  Special attention should be given to possible additive effects when used in
+             conjunction with anti-depressants or MAO-inhibitors
+
+          -  Cerebrolysin should not be mixed with balanced amino acid solutions in an infusion
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>80 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Manfred Windisch, PhD</last_name>
+    <role>Study Director</role>
+    <affiliation>JSW Research Forschungslabor GmbH</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>Wilfried Lang, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Krankenhaus der Barmherzigen Brüder, 1020 Wien</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Universitätsklinik Innsbruck, Dept. of Neurology</name>
+      <address>
+        <city>Innsbruck</city>
+        <zip>6020</zip>
+        <country>Austria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>LKH Klagenfurt, Abteilung für Neurologie</name>
+      <address>
+        <city>Klagenfurt</city>
+        <zip>9020</zip>
+        <country>Austria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>AKH Linz, Abteilung Neurologie &amp; Psychiatrie</name>
+      <address>
+        <city>Linz</city>
+        <zip>4021</zip>
+        <country>Austria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Außenstelle Landesklinikum Donauregion Gugging</name>
+      <address>
+        <city>Maria Gugging</city>
+        <zip>3400</zip>
+        <country>Austria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Krankenhaus der Barmherzigen Brüder/Abteilung für Neurologie</name>
+      <address>
+        <city>Wien</city>
+        <zip>1020</zip>
+        <country>Austria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Klinicka Bolnicki Centar, Klinika za Nevrologiju</name>
+      <address>
+        <city>Rijeka</city>
+        <zip>51000</zip>
+        <country>Croatia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Clinical Hospital Split, Dept. of Neurology</name>
+      <address>
+        <city>Split</city>
+        <zip>21000</zip>
+        <country>Croatia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>University Hospital Sorrores Misericoridae</name>
+      <address>
+        <city>Zagreb</city>
+        <zip>10000</zip>
+        <country>Croatia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Medical School of Zagreb</name>
+      <address>
+        <city>Zagreb</city>
+        <zip>10000</zip>
+        <country>Croatia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>St. Ann's Hospital, Dept. of Neurology</name>
+      <address>
+        <city>Brno</city>
+        <zip>65691</zip>
+        <country>Czech Republic</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Clinic of Neurology, Faculty Hospital Ostrava</name>
+      <address>
+        <city>Ostrava</city>
+        <zip>70852</zip>
+        <country>Czech Republic</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Blessed Mary Anthony Hospital, Dept. of Neurology</name>
+      <address>
+        <city>Ostrava Vitkovice</city>
+        <zip>70384</zip>
+        <country>Czech Republic</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>University Hospital Plzen</name>
+      <address>
+        <city>Plzen</city>
+        <zip>30460</zip>
+        <country>Czech Republic</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>University Hospital, Comenius University, Dept. of Neurology</name>
+      <address>
+        <city>Bratislava</city>
+        <zip>81369</zip>
+        <country>Slovakia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Clinical Hospital Centre Ljubljana</name>
+      <address>
+        <city>Ljubljana</city>
+        <zip>1525</zip>
+        <country>Slovenia</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>Austria</country>
+    <country>Croatia</country>
+    <country>Czech Republic</country>
+    <country>Slovakia</country>
+    <country>Slovenia</country>
+  </location_countries>
+  <verification_date>December 2010</verification_date>
+  <lastchanged_date>December 27, 2010</lastchanged_date>
+  <firstreceived_date>February 9, 2009</firstreceived_date>
+  <responsible_party>
+    <name_title>Dr. Philipp Novak</name_title>
+    <organization>EBEWE Neuro Pharma GmbH</organization>
+  </responsible_party>
+  <keyword>Cerebrolysin</keyword>
+  <keyword>Alteplase</keyword>
+  <keyword>Ischemic Stroke</keyword>
+  <keyword>Modified Rankin Scale</keyword>
+  <keyword>NIH Stroke Scale</keyword>
+  <keyword>Barthel Index</keyword>
+  <keyword>Glasgow Outcome Score</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Stroke</mesh_term>
+    <mesh_term>Cerebral Infarction</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Tissue Plasminogen Activator</mesh_term>
+    <mesh_term>Cerebrolysin</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

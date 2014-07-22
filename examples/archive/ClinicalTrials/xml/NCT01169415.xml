@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01169415</url>
+  </required_header>
+  <id_info>
+    <org_study_id>Pro00024406</org_study_id>
+    <nct_id>NCT01169415</nct_id>
+  </id_info>
+  <brief_title>Effects of Steroid Tapering on Functional Capacity and Neurocognition</brief_title>
+  <official_title>Effects of Dexamethasone Tapering Schedules on Functional Capacity and Neurocognition in Patients With Newly Diagnosed Glioblastoma Multiforme</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Duke University</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Duke University</source>
+  <oversight_info>
+    <authority>United States: Institutional Review Board</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      Purpose and Objective:
+
+        1. To compare the effects of either an abbreviated or protracted taper of dexamethasone on
+           functional capacity in newly diagnosed glioblastoma multiforme (GBM) patients.
+
+        2. To compare neurocognitive function in newly diagnosed GBM patients receiving either an
+           abbreviated or protracted taper of dexamethasone.
+
+        3. To compare skeletal muscle strength in newly diagnosed GBM patients receiving either an
+           abbreviated or protracted taper of dexamethasone.
+
+        4. To examine the association between functional capacity and neurocognitive function and
+           patient-reported measures (i.e. quality of life, fatigue, etc.) in newly diagnosed GBM
+           patient on either an abbreviated or protracted taper of dexamethasone.
+
+        5. To examine the association between functional capacity and neurocognitive function and
+           body composition measures (body-mass index, etc.) in newly diagnosed GBM patient on
+           either an abbreviated or protracted taper of dexamethasone.
+
+        6. To examine the association between functional capacity and neurocognitive function and
+           biochemical metabolic measurements in newly diagnosed GBM patient on either an
+           abbreviated or protracted taper of dexamethasone.
+
+      All study endpoints will be assessed at three timepoints as follows: (1) initial assessment
+      after surgery in the hospital, (2) second assessment at initial clinical visit at the
+      Preston Robert Tisch Brain Tumor Center (PRT-BTC) at Duke, approximately 1 week
+      post-operatively, and (3) third assessment at second clinical visit in the PRT-BTC at Duke,
+      approximately 10 weeks post-operatively and after completion of radiotherapy.  An additional
+      fourth assessment will be obtained at 4 weeks post-operatively if the subject is undergoing
+      radiotherapy here at Duke.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      The proposed study is a randomized controlled trial.   After obtaining written informed
+      consent, all participants will be randomized to either an abbreviated (14 days) or
+      protracted (30 days) course of dexamethasone post-operatively.
+    </textblock>
+  </detailed_description>
+  <overall_status>Withdrawn</overall_status>
+  <why_stopped>
+    Funding not obtained
+  </why_stopped>
+  <start_date>June 2010</start_date>
+  <completion_date type="Actual">May 2014</completion_date>
+  <primary_completion_date type="Actual">May 2014</primary_completion_date>
+  <phase>N/A</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Functional Capacity (6-minute walk test)</measure>
+    <time_frame>10 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>The exercise test is designed to determine how far you can walk in six minutes.  This test will take place at the PRT-BTC at Duke University Medical Center and/or Duke University Medical Center inpatient unit on 4100 or 4300 with appropriate medical supervision.</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Neurocognitive Function</measure>
+    <time_frame>10 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>A computerized neurocognitive test battery called CNS Vital Signs® including verbal memory test, visual memory test, finger tapping test, symbol digit coding, Stroop test, shifting attention test, continuous performance test.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Skeletal Muscle Strength</measure>
+    <time_frame>10 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Isokinetic muscle strength for bilateral grip and bilateral quadriceps.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Patient-Reported Outcomes (PROs)</measure>
+    <time_frame>10 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Assessed by standardized and validated questionnaires including: Depression (Beck Depression Inventory); Quality of Life (Functional Assessment of Cancer Therapy-Brain); Fatigue (Functional Assessment of Cancer Therapy-Fatigue); Cognition (Functional Assessment of Cancer Therapy-Cognition), Symptomalogy Index (Phone Questionnarie/Survery), Computerized Battery from CNS Vital Signs (Medical Outcomes Survey, Epworth Sleepiness Scale, Pittsburgh Sleep Quality Index, Zung Self-Rating Depression Scale).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Body composition</measure>
+    <time_frame>10 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Body-mass index, weight, height, and circumference of the abdomen, hips, and quadriceps.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Biochemical metabolic measurements</measure>
+    <time_frame>10 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Hematocrit (%), albumin (g/mL), fasting blood glucose (mg/dL), fasting insulin (micro IU/mL), insulin like growth facto binding protein 1 (IGFBP-1) (ng/mL), cystatin C (mg/dL), and retinol binding protein 4 (RBP-4).</description>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">0</enrollment>
+  <condition>Glioblastoma Multiforme</condition>
+  <arm_group>
+    <arm_group_label>Protracted (30 days), Dexamethasone</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Participants will receive a protracted course (30 days) of dexamethasone after surgery.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Abbreviated (14 days), dexamethasone</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Participants will receive an abbreviated (14 days) course of dexamethasone after surgery.</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Dexamethasone acetate</intervention_name>
+    <description>Participants will receive a protracted (30 days) course of dexamethasone after surgery.</description>
+    <arm_group_label>Protracted (30 days), Dexamethasone</arm_group_label>
+    <other_name>Decadron</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Dexamethasone</intervention_name>
+    <description>Participants will receive a protracted (14 days) course of dexamethasone after surgery.</description>
+    <arm_group_label>Abbreviated (14 days), dexamethasone</arm_group_label>
+    <other_name>Decadron</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          1. written informed consent prior to beginning specific protocol procedures,
+
+          2. histologically proven GBM,
+
+          3. status-post gross total resection or subtotal resection as indicated by &lt; 2 cm of
+             residual enhancing disease (subjects with unresectable, multifocal, and /or bulky
+             disease will be excluded),
+
+          4. &gt;18 years and &lt;70 years of age,
+
+          5. Karnofsky performance index &gt;70%,
+
+          6. no documented cardiac, neurodegenerative, neuromuscular, or pulmonary disease,
+
+          7. no contraindications to a 6-minute walk test,
+
+          8. no contraindications to neurocognitive testing,
+
+          9. primary treating physician approval, and
+
+         10. no complications operatively or postoperatively that requires modification of
+             dexamethasone dosing.
+
+         11. receiving dexamethasone as standard of care.
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>70 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Katherine B Peters, MD, PhD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Duke University Health System</affiliation>
+  </overall_official>
+  <verification_date>May 2014</verification_date>
+  <lastchanged_date>May 15, 2014</lastchanged_date>
+  <firstreceived_date>June 25, 2010</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>Randomized</keyword>
+  <keyword>Dexamethasone</keyword>
+  <keyword>Abbreviated</keyword>
+  <keyword>Protracted</keyword>
+  <keyword>Post-operatively</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Glioblastoma</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Dexamethasone acetate</mesh_term>
+    <mesh_term>Dexamethasone</mesh_term>
+    <mesh_term>Dexamethasone 21-phosphate</mesh_term>
+    <mesh_term>BB 1101</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

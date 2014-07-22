@@ -1,0 +1,992 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00004500</url>
+  </required_header>
+  <id_info>
+    <org_study_id>KL4-MAS-03</org_study_id>
+    <secondary_id>FD-R-001938</secondary_id>
+    <nct_id>NCT00004500</nct_id>
+  </id_info>
+  <brief_title>Phase III Randomized Study of Lucinactant in Full Term Newborn Infants With Meconium Aspiration Syndrome</brief_title>
+  <official_title>A Multicenter, Randomized, Controlled Trial Comparing the Safety and Effectiveness of Bronchoalveolar Lavage With Lucinactant to Standard Care for the Treatment of the Meconium Aspriation Syndrome (MAS) in Newborn Infants</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Discovery Laboratories, Inc.</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Discovery Laboratories, Inc.</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      OBJECTIVES:
+
+      Evaluate the safety and efficacy of lucinactant administered by bronchoalveolar lavage (BAL)
+      in the treatment of meconium aspiration syndrome (MAS) in newborn infants.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      PROTOCOL OUTLINE:
+
+      This is a randomized, multicenter study. Patients are randomized to one of two treatment
+      arms.
+
+      Arm I: Patients receive lucinactant by bronchoalveolar lavage, into the right and left lung,
+      followed by lung drainage. Treatment repeats when patient stabilizes or every 15 minutes for
+      2 courses.
+
+      Arm II: Patients receive standard treatment including oxygen, conventional mechanical
+      ventilation, sedation, paralysis, vasopressors, and alkalinization.
+
+      Patients are followed for 12 months.
+    </textblock>
+  </detailed_description>
+  <overall_status>Terminated</overall_status>
+  <why_stopped>
+    Slow enrollment and administrative reasons
+  </why_stopped>
+  <start_date>March 2000</start_date>
+  <completion_date type="Actual">November 2004</completion_date>
+  <primary_completion_date type="Actual">November 2002</primary_completion_date>
+  <phase>Phase 3</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Number of Days Receiving Mechanical Ventilation (MV)</measure>
+    <time_frame>28 days</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>A patient is not receiving MV if he/she is removed from the mechanical ventilator for ≥ 24 hours. If a patient subsequently requires intubation and MV, the additional time will count as days receiving MV.</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Incidence of Death</measure>
+    <time_frame>28 days</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Number of Participants With Air Leaks</measure>
+    <time_frame>28 days</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Includes pulmonary interstitial emphysema (PIE), Pneumothorax, Pneumomediastinium, and Pneumopericardium</description>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">69</enrollment>
+  <condition>Meconium Aspiration</condition>
+  <arm_group>
+    <arm_group_label>Lucinactant</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Lucinactant via bronchoaveolar lavage</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Standard Care</arm_group_label>
+    <arm_group_type>Other</arm_group_type>
+    <description>Standard Care included the use of oxygen, CMV, sedation, paralysis, vasopressors, and/or alkalinization</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Lucinactant</intervention_name>
+    <description>Lucinactant suspension was administered as 10 mg total phospholipid (TPL)/mL, by bronchoalveolar lavage within 90 minutes of randomization. The dose was determined based on the infant's body weight such that the total dose was 16 mL/kg for each of the 2 lavage procedures and 32 mL/kg overall. Infants received 2 doses of lucinactant. Each dose consisted of separate lavage procedures for each lung within 15 minutes (up to 60 minutes) of each other.</description>
+    <arm_group_label>Lucinactant</arm_group_label>
+    <other_name>Surfactant</other_name>
+    <other_name>KL₄Surfactant</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Other</intervention_type>
+    <intervention_name>Standard Care</intervention_name>
+    <description>The Standard Care (SC) group received therapies including, but not limited to, the use of oxygen, controlled mechanical ventilation (CMV), sedation, paralysis, vasopressors, and/or alkalinization. The use of adjunctive therapies (namely: high frequency oscillatory ventilation, high frequency jet ventilation, bolus surfactant, inhaled nitric oxide, extra-corporeal membrane oxygenation, or systemic corticosteroids) were not included in SC</description>
+    <arm_group_label>Standard Care</arm_group_label>
+    <other_name>Negative Control</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Diagnosis of meconium aspiration syndrome (MAS)
+
+          -  Continuous mechanical ventilation (CMV) at time of entry
+
+          -  Enrollment within 48 hours of birth
+
+          -  Gestational age of ≥ 37 weeks
+
+          -  Oxygenation index of ≥ 5 and ≤ 30
+
+          -  Written informed consent signed and dated by the infant's parent(s) or legal
+             guardian(s)
+
+        Exclusion Criteria:
+
+          -  Congenital anomalies likely to affect any primary or secondary endpoints
+
+          -  Uncontrollable air leaks
+
+          -  Hydrops fetalis
+
+          -  Rupture ≥ 3 weeks of the fetal membranes
+
+          -  Evidence of overwhelming bacterial infection at time of randomization
+
+          -  Markedly labile persistent pulmonary hypertension at time of randomization
+
+          -  Profound neurologic manifestations
+
+          -  Sustained postductal SpO₂of &lt; 87% for ≥ 15 minutes at an FiO₂of 1.00
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>N/A</minimum_age>
+    <maximum_age>48 Hours</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Thomas E Wiswell</last_name>
+    <role>Study Chair</role>
+    <affiliation>Discovery Laboratories, Inc.</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Discovery Laboratories, Inc.</name>
+      <address>
+        <city>Warrington</city>
+        <state>Pennsylvania</state>
+        <zip>18976</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <verification_date>May 2012</verification_date>
+  <lastchanged_date>May 1, 2012</lastchanged_date>
+  <firstreceived_date>October 18, 1999</firstreceived_date>
+  <firstreceived_results_date>April 2, 2012</firstreceived_results_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>cardiovascular and respiratory diseases</keyword>
+  <keyword>meconium aspiration syndrome</keyword>
+  <keyword>rare disease</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Meconium Aspiration Syndrome</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Pulmonary Surfactants</mesh_term>
+  </intervention_browse>
+
+  <clinical_results>
+
+    <participant_flow>
+      <recruitment_details>Recruitment occurred between March 2000 and October 2002. Infants were enrolled from neonatal intensive care units and were randomized to open-label study treatment.</recruitment_details>
+      <group_list>
+        <group group_id="P1">
+          <title>Lucinactant</title>
+          <description>Lucinactant via bronchoaveolar lavage</description>
+        </group>
+        <group group_id="P2">
+          <title>Standard Care</title>
+          <description>Standard Care included the use of oxygen, CMV, sedation, paralysis, vasopressors, and/or alkalinization</description>
+        </group>
+      </group_list>
+      <period_list>
+        <period>
+          <title>Overall Study</title>
+          <milestone_list>
+            <milestone>
+              <title>STARTED</title>
+              <participants_list>
+                <participants group_id="P1" count="38"/>
+                <participants group_id="P2" count="31"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>1 Year Follow-Up</title>
+              <participants_list>
+                <participants group_id="P1" count="24"/>
+                <participants group_id="P2" count="24"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="38"/>
+                <participants group_id="P2" count="31"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>NOT COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="0"/>
+                <participants group_id="P2" count="0"/>
+              </participants_list>
+            </milestone>
+          </milestone_list>
+        </period>
+      </period_list>
+    </participant_flow>
+
+    <baseline>
+      <group_list>
+        <group group_id="B1">
+          <title>Lucinactant</title>
+          <description>Lucinactant via bronchoaveolar lavage</description>
+        </group>
+        <group group_id="B2">
+          <title>Standard Care</title>
+          <description>Standard Care included the use of oxygen, CMV, sedation, paralysis, vasopressors, and/or alkalinization</description>
+        </group>
+        <group group_id="B3">
+          <title>Total</title>
+          <description>Total of all reporting groups</description>
+        </group>
+      </group_list>
+      <measure_list>
+        <measure>
+          <title>Number of Participants</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="38"/>
+                <measurement group_id="B2" value="31"/>
+                <measurement group_id="B3" value="69"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Age</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>&lt;=18 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="38"/>
+                <measurement group_id="B2" value="31"/>
+                <measurement group_id="B3" value="69"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Between 18 and 65 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>&gt;=65 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Gender</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Female</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="16"/>
+                <measurement group_id="B2" value="15"/>
+                <measurement group_id="B3" value="31"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Male</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="22"/>
+                <measurement group_id="B2" value="16"/>
+                <measurement group_id="B3" value="38"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Region of Enrollment</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>United States</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="38"/>
+                <measurement group_id="B2" value="31"/>
+                <measurement group_id="B3" value="69"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Gestational Age</title>
+          <units>weeks</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="40.0" spread="1.30"/>
+                <measurement group_id="B2" value="39.7" spread="1.09"/>
+                <measurement group_id="B3" value="39.9" spread="1.21"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+      </measure_list>
+    </baseline>
+
+    <outcome_list>
+      <outcome>
+        <type>Primary</type>
+        <title>Number of Days Receiving Mechanical Ventilation (MV)</title>
+        <description>A patient is not receiving MV if he/she is removed from the mechanical ventilator for ≥ 24 hours. If a patient subsequently requires intubation and MV, the additional time will count as days receiving MV.</description>
+        <time_frame>28 days</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Data from the initial Phase 1/2 trial were used to estimate the number of subjects required for testing the null hypothesis of no difference between treatment groups. A sample size of 100 subjects per group is required to test the hypothesis at a significance level of 0.05 with a power of 80%.
+All enrolled infants were analyzed (intent-to-treat).</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Lucinactant</title>
+            <description>Lucinactant via bronchoaveolar lavage</description>
+          </group>
+          <group group_id="O2">
+            <title>Standard Care</title>
+            <description>Standard Care included the use of oxygen, CMV, sedation, paralysis, vasopressors, and/or alkalinization</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="38"/>
+                  <measurement group_id="O2" value="31"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Number of Days Receiving Mechanical Ventilation (MV)</title>
+            <description>A patient is not receiving MV if he/she is removed from the mechanical ventilator for ≥ 24 hours. If a patient subsequently requires intubation and MV, the additional time will count as days receiving MV.</description>
+            <units>days</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="10.2" spread="9.96"/>
+                  <measurement group_id="O2" value="8.1" spread="8.52"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Incidence of Death</title>
+        <time_frame>28 days</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Data from the initial Phase 1/2 trial were used to estimate the number of subjects required for testing the null hypothesis of no difference between treatment groups. A sample size of 100 subjects per group is required to test the hypothesis at a significance level of 0.05 with a power of 80%.
+All enrolled infants were analyzed (intent-to-treat).</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Lucinactant</title>
+            <description>Lucinactant via bronchoaveolar lavage</description>
+          </group>
+          <group group_id="O2">
+            <title>Standard Care</title>
+            <description>Standard Care included the use of oxygen, CMV, sedation, paralysis, vasopressors, and/or alkalinization</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="38"/>
+                  <measurement group_id="O2" value="31"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Incidence of Death</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Number of Participants With Air Leaks</title>
+        <description>Includes pulmonary interstitial emphysema (PIE), Pneumothorax, Pneumomediastinium, and Pneumopericardium</description>
+        <time_frame>28 days</time_frame>
+        <safety_issue>Yes</safety_issue>
+        <population>Data from the initial Phase 1/2 trial were used to estimate the number of subjects required for testing the null hypothesis of no difference between treatment groups. A sample size of 100 subjects per group is required to test the hypothesis at a significance level of 0.05 with a power of 80%.
+All enrolled infants were analyzed (intent-to-treat).</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Lucinactant</title>
+            <description>Lucinactant via bronchoaveolar lavage</description>
+          </group>
+          <group group_id="O2">
+            <title>Standard Care</title>
+            <description>Standard Care included the use of oxygen, CMV, sedation, paralysis, vasopressors, and/or alkalinization</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="38"/>
+                  <measurement group_id="O2" value="31"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Number of Participants With Air Leaks</title>
+            <description>Includes pulmonary interstitial emphysema (PIE), Pneumothorax, Pneumomediastinium, and Pneumopericardium</description>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="2"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+    </outcome_list>
+
+    <reported_events>
+      <time_frame>28 Days</time_frame>
+      <desc>AEs followed until resolution or stable condition</desc>
+      <group_list>
+        <group group_id="E1">
+          <title>Lucinactant</title>
+          <description>Lucinactant via bronchoaveolar lavage</description>
+        </group>
+        <group group_id="E2">
+          <title>Standard Care</title>
+          <description>Standard Care included the use of oxygen, CMV, sedation, paralysis, vasopressors, and/or alkalinization</description>
+        </group>
+      </group_list>
+      <serious_events>
+        <default_vocab>MedDRA</default_vocab>
+        <default_assessment>Systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, serious adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="23" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="14" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Cardiac disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Bradycardia NOS</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Cardiac arrest</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Cardiac tamponade</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Cardiomyopathy NOS</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Dysphagia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Drug withdrawal syndrome</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Pyrexia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Investigations</title>
+            <event_list>
+              <event>
+                <sub_title>Oxygen saturation decreased</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Metabolism and nutrition disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Acid-base balance disorder mixed</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Feeding Disorder NOS</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Food intolerance NOS</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Renal and urinary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Renal impariment NOS</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Renal infarct</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Bronchopulmonary dysplasia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Hypoxia</sub_title>
+                <counts group_id="E1" subjects_affected="11" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="6" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Meconium aspiration</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Pneumothorax NOS</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Pulmonary Haemorrhage</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Respiratory failure (exc neonatal)</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Stridor</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hypertension NOS</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Hypotension NOS</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="7" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Intraventricular haemorrhage NOS</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Pulmonary hypertension NOS</sub_title>
+                <counts group_id="E1" subjects_affected="11" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="10" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </serious_events>
+      <other_events>
+        <frequency_threshold>5</frequency_threshold>
+        <default_vocab>MedDRA</default_vocab>
+        <default_assessment>Systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, other adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="36" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="25" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Blood and lymphatic system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Anemia NOS</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="5" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Disseminated intravascular coagulation</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Thrombocyptopenia</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Cardiac disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Bradycardia NOS</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Cardiomegaly NOS</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Pulmonary edema NOS</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Tachycardia NOS</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Tricuspid valve incompetence</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Congenital, familial and genetic disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Patent ductus arteriosus</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="3" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Drug withdrawn syndrome</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Oedema NOS</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Pyrexia</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Hepatobiliary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Jaundice NOS</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Pneumonia NOS</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Sepsis NOS</sub_title>
+                <counts group_id="E1" subjects_affected="9" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="3" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Investigations</title>
+            <event_list>
+              <event>
+                <sub_title>Blood magnesium decreased</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Oxygen saturation decreased</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Metabolism and nutrition disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Feeding disorder NOS</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Hypocalcemia</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Hypoglycemia NOS</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Hypokalemia</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="5" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Hyponatremia</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="4" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Nervous system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hypertonia</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Hypotonia</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Renal and urinary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Oliguria</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Renal impairment NOS</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Atlectasis</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="4" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Bronchopulmonary dysplasia</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Hypoxia</sub_title>
+                <counts group_id="E1" subjects_affected="19" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="11" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Pneumothorax NOS</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Pulmonary haemorrhage</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Respiratory failure (exc neonatal)</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="4" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Stridor</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="3" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Tachypnea</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="3" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Skin and subcutaneous tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Rash erythematous</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Surgical and medical procedures</title>
+            <event_list>
+              <event>
+                <sub_title>Procedural site reaction</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hypertension NOS</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Hypotension NOS</sub_title>
+                <counts group_id="E1" subjects_affected="20" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="13" subjects_at_risk="31"/>
+              </event>
+              <event>
+                <sub_title>Pulmonary hypertension NOS</sub_title>
+                <counts group_id="E1" subjects_affected="15" subjects_at_risk="38"/>
+                <counts group_id="E2" subjects_affected="11" subjects_at_risk="31"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </other_events>
+    </reported_events>
+
+    <certain_agreements>
+      <pi_employee>Principal Investigators are NOT employed by the organization sponsoring the study.</pi_employee>
+      <restrictive_agreement>The only disclosure restriction on the PI is that the sponsor can review results communications prior to public release and can embargo communications regarding trial results for a period that is more than 60 days but less than or equal to 180 days. The sponsor cannot require changes to the communication and cannot extend the embargo.</restrictive_agreement>
+    </certain_agreements>
+    <limitations_and_caveats>Early termination led to a small number of subjects analyzed. Results should be interpreted with caution.</limitations_and_caveats>
+    <point_of_contact>
+      <name_or_title>Dr. Robert Segal</name_or_title>
+      <organization>Discovery Laboratories, Inc.</organization>
+      <phone>215-488-9300</phone>
+      <email>rsegal@discoverylabs.com</email>
+    </point_of_contact>
+  </clinical_results>
+</clinical_study>

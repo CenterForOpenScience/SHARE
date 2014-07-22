@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00308100</url>
+  </required_header>
+  <id_info>
+    <org_study_id>BFP502</org_study_id>
+    <nct_id>NCT00308100</nct_id>
+  </id_info>
+  <brief_title>Hydroxyethyl Starch (130/0.4) for Intravascular Volume Therapy in Liver Transplantation</brief_title>
+  <official_title>A Multicenter, Randomized, Open-Label, Parallel-Group, Albumin-Controlled Phase IV Study to Evaluate the Efficacy and Safety of Hydroxyethyl Starch (130/0.4) for Intravascular Volume Therapy in Patients Undergoing Liver Transplantation</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Fresenius Kabi</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Fresenius Kabi</source>
+  <oversight_info>
+    <authority>China: Food and Drug Administration</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      There are no standardized plasma volume replacement protocols during liver transplantation
+      surgery. The current study is designed to compare efficacy, safety, and costs of
+      perioperative volume replacement with Voluven (Hydroxyethyl starch 130/0.4) and albumin in
+      patients undergoing liver transplantation.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      End-stage liver disease is one of the major diseases leading to death. With advancement of
+      transplantation surgery and perioperative anesthesia management, liver transplantation has
+      become an effective method to recover patients' liver function, thus saving their lives and
+      improving their quality of life. Serious disorders of fluid balance, such as blood
+      coagulation dysfunction, electrolyte disequilibrium, hypoalbuminaemia, low hematocrit, low
+      hemoglobin and acid-base imbalance etc. exist in end stage cirrhosis patients with liver
+      transplantation. Such abnormalities in the internal milieu could cause or worsen
+      cardiovascular and pulmonary dysfunction, thus making perioperative management more
+      difficult.
+
+      Albumin and blood plasma are conventionally used as plasma volume expanders in clinical
+      practice. At the same time, the level of albumin concentration is also used as an important
+      criterion of prognosis. When the level of albumin concentration in serum is below 35 g/L,
+      postoperative mortality rates and complications will increase significantly. In fact, it has
+      been the focus of debate for many years whether albumin should be used for volume
+      replacement in critically ill patients. Boldt and his colleagues demonstrated that albumin
+      has little positive influence on the prognosis of critically ill patients. However, Shwe
+      deemed albumin beneficial to critically ill patients. Simon suggested that albumin is given
+      mainly for treating hypovolemia instead of increasing the level of albumin concentration in
+      serum. However, at the same time, he admitted there is no advantages of albumin in
+      comparison to other colloid solutions and, furthermore, it is more expensive.
+
+      Voluven (130/0.4) is a medium molecular weight hydroxyethyl starch (HES) produced by Beijing
+      Fresenius Kabi Pharmaceutical Co., Ltd. It is a novel HES preparation with optimized
+      molecular weight and molecule distribution, has a lower degree of substitution (DS) (0.4),
+      and a narrower molecular distribution profile (C2/C6) than other available HES
+      specifications which make it more suitable for volume replacement therapy. Some studies have
+      revealed that Voluven (130/0.4) has a comparable efficacy with HAES-steril (average
+      molecular weight 200.000 dalton, degree of substitution 0.5). Because of its improved
+      pharmacological profile, Voluven (130/0.4) is used to avoid capillary vessel leakage and
+      improve oxygenation of tissues. In addition, Voluven (130/0.4) does not accumulate in plasma
+      or tissues even after multiple dosing (maximal dose 50 ml/kg), and has an improved HES
+      safety profile in terms of coagulation and kidney function.
+
+      The current study is designed to assess the efficacy, safety, and pharmaceutical economics
+      characteristic of perioperative volume replacement with Voluven (130/0.4) in patients
+      undergoing liver transplantation compared with patients who received volume therapy with
+      albumin. The objective of this study is to supply appropriate regimens for patients
+      undergoing liver transplantation, considering clinical efficacy, safety, and costs.
+    </textblock>
+  </detailed_description>
+  <overall_status>Terminated</overall_status>
+  <why_stopped>
+    Study is prematurely ended due to poor patient recruitment rate.
+  </why_stopped>
+  <start_date>October 2005</start_date>
+  <completion_date type="Actual">July 2008</completion_date>
+  <primary_completion_date type="Actual">July 2008</primary_completion_date>
+  <phase>Phase 4</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Hemodynamics</measure>
+    <time_frame>From pre-operative period till discharged from hospital</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Child-Turcotte-Pugh (CTP) score</measure>
+    <time_frame>From pre-operative period till discharged from hospital</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Model for End-Stage Liver Disease (MELD) score</measure>
+    <time_frame>From pre-operative period till discharged from hospital</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">53</enrollment>
+  <condition>Intraoperative Complications</condition>
+  <arm_group>
+    <arm_group_label>1</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>2</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Hydroxyethylstarch 130/0.4</intervention_name>
+    <description>HES 130/0.4, administered intra- and perioperatively, max. daily dose: 33ml/kg BW; if needed, additionally albumin is administered (ratio crystalloid to colloid= 1:1)</description>
+    <arm_group_label>1</arm_group_label>
+    <other_name>HES 130/0.4</other_name>
+    <other_name>Hydroxyethyl starch 130/0.4</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>5% Albumin</intervention_name>
+    <description>5% albumin, administered intra- and perioperatively</description>
+    <arm_group_label>2</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Aged 18-65 years, male or female
+
+          -  Elective liver transplantation
+
+          -  United Network for Organ Sharing (UNOS) Level 2A/B or 3
+
+          -  Serum albumin ≥ 30 g/L
+
+          -  Comprehend all the procedures of this study
+
+          -  Willing and able to give informed consent
+
+        Exclusion Criteria:
+
+          -  Uncontrolled exo-hepatic malignant carcinomas
+
+          -  Uncontrollable infections (including HIV infection)
+
+          -  Need support of artificial liver or kidney, ventilator-dependant, coma or    unstable
+             hemodynamically
+
+          -  Patients with a history of hypersensitivity to hydroxyethyl starch or albumin
+
+          -  Urinary output less than 500 ml within 24 hours after operation
+
+          -  Patients with intracranial bleeding
+
+          -  Patients with other colloids for treating hypovolemia
+
+          -  Patients with pulmonary edema
+
+          -  Pregnant women or females of childbearing potential and lactating mothers
+
+          -  Patients who are participating in other drug studies or who receive other
+             investigational drugs within 30 days prior to the present study
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>65 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Xisheng Leng, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>People's University of Peking University</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>People's Hospital of Peking University</name>
+      <address>
+        <city>Beijing</city>
+        <zip>100044</zip>
+        <country>China</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>China</country>
+  </location_countries>
+  <verification_date>January 2009</verification_date>
+  <lastchanged_date>January 14, 2009</lastchanged_date>
+  <firstreceived_date>March 28, 2006</firstreceived_date>
+  <responsible_party>
+    <name_title>Professor Leng Xisheng</name_title>
+    <organization>Beijing Renmin Hospital</organization>
+  </responsible_party>
+  <keyword>Liver Transplantation</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Intraoperative Complications</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Hetastarch</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

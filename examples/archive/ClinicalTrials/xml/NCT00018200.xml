@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00018200</url>
+  </required_header>
+  <id_info>
+    <org_study_id>ADRD-018-98F</org_study_id>
+    <nct_id>NCT00018200</nct_id>
+  </id_info>
+  <brief_title>Effect of Antidepressants on Back Pain</brief_title>
+  <official_title>Efficacy of Antidepressants in Chronic Back Pain</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Department of Veterans Affairs</agency>
+      <agency_class>U.S. Fed</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Department of Veterans Affairs</source>
+  <oversight_info>
+    <authority>United States: Federal Government</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The purpose of this study is to determine whether different types of antidepressant
+      medicines relieve back pain that has lasted at least six months on a daily basis.  Study
+      participants will be assigned to treatment with either a antidepressant acting on the
+      serotonin system in the brain (fluoxetine), one acting on the noradrenaline system
+      (desipramine, or to a control medication not expected to relieve pain (benztropine).  Each
+      participant will be seen at least nine times during their 12 weeks on medication.  This is a
+      phase 2/3, outpatient study.
+    </textblock>
+  </brief_summary>
+  <overall_status>Completed</overall_status>
+  <start_date>April 1999</start_date>
+  <completion_date type="Actual">March 2004</completion_date>
+  <primary_completion_date type="Actual">December 2003</primary_completion_date>
+  <phase>Phase 2</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double Blind (Subject, Caregiver, Investigator, Outcomes Assessor), Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Descriptor Differential Scale Pain Intensity</measure>
+    <time_frame>12 weeks post baseline</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <number_of_arms>3</number_of_arms>
+  <enrollment type="Actual">130</enrollment>
+  <condition>Back Pain</condition>
+  <condition>Sciatica</condition>
+  <arm_group>
+    <arm_group_label>Arm 1</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Desipramine, low, middle or high exposure</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Arm 2</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Fluoxetine, low, middle, or high exposure</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Arm 3</arm_group_label>
+    <arm_group_type>Placebo Comparator</arm_group_type>
+    <description>Benztropine .125-.5mg daily</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Desipramine</intervention_name>
+    <description>Low exposure (40-70 ng/mL), Middle exposure (70-130 ng/mL), High exposure (130-200 ng/mL)</description>
+    <arm_group_label>Arm 1</arm_group_label>
+    <other_name>Anafranil</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Fluoxetine</intervention_name>
+    <description>Low exposure (200-399 ng/mL), Middle exposure (400-499 ng/mL), High exposure (500-700ng/mL)</description>
+    <arm_group_label>Arm 2</arm_group_label>
+    <other_name>Prozac</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Benztropine</intervention_name>
+    <description>Daily dose 0.125 to 0.5mg</description>
+    <arm_group_label>Arm 3</arm_group_label>
+    <other_name>Cogentin</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Chronic back pain (pain on a daily basis for  six months or longer)
+
+          -  Age 18-65
+
+          -  No major medical illness
+
+        Exclusion Criteria:
+
+          -  medical contraindication to tricyclic antidepressants
+
+          -  recent alcohol or substance use disorder
+
+          -  bipolar disorder
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>21 Years</minimum_age>
+    <maximum_age>65 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Joseph H. Atkinson, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>VA San Diego Healthcare System, San Diego</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>VA San Diego Healthcare System, San Diego</name>
+      <address>
+        <city>San Diego</city>
+        <state>California</state>
+        <zip>92161</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <results_reference>
+    <citation>Atkinson JH, Slater MA, Capparelli EV, Wallace MS, Zisook S, Abramson I, Matthews SC, Garfin SR. Efficacy of noradrenergic and serotonergic antidepressants in chronic back pain: a preliminary concentration-controlled trial. J Clin Psychopharmacol. 2007 Apr;27(2):135-42.</citation>
+    <PMID>17414235</PMID>
+  </results_reference>
+  <verification_date>June 2012</verification_date>
+  <lastchanged_date>June 4, 2012</lastchanged_date>
+  <firstreceived_date>July 3, 2001</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>analgesia</keyword>
+  <keyword>Back pain</keyword>
+  <keyword>sciatica</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Back Pain</mesh_term>
+    <mesh_term>Sciatica</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Antidepressive Agents</mesh_term>
+    <mesh_term>Desipramine</mesh_term>
+    <mesh_term>Fluoxetine</mesh_term>
+    <mesh_term>Benztropine</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

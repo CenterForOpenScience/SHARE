@@ -1,0 +1,125 @@
+{
+    "clinical_study": {
+        "@rank": "11866", 
+        "brief_summary": {
+            "textblock": "A clinical study to determine the efficacy and safety of MK0869 in the treatment of\n      depression"
+        }, 
+        "brief_title": "Treatment of Patients With Major Depressive Disorder With MK0869", 
+        "condition": "Major Depressive Disorder", 
+        "condition_browse": {
+            "mesh_term": [
+                "Depressive Disorder", 
+                "Depression", 
+                "Depressive Disorder, Major"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "The duration of treatment is 8 weeks."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Patients with Major Depressive Disorder"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": {
+            "#text": "600", 
+            "@type": "Actual"
+        }, 
+        "firstreceived_date": "November 4, 2002", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00048607", 
+            "org_study_id": "2006_408", 
+            "secondary_id": [
+                "Formally-65MBS4W", 
+                "MK0869-062"
+            ]
+        }, 
+        "intervention": [
+            {
+                "intervention_name": "aprepitant", 
+                "intervention_type": "Drug", 
+                "other_name": "MK0869"
+            }, 
+            {
+                "intervention_name": "Comparator: paroxetine HCL", 
+                "intervention_type": "Drug"
+            }, 
+            {
+                "intervention_name": "Comparator: Placebo (Unspecified)", 
+                "intervention_type": "Drug"
+            }
+        ], 
+        "intervention_browse": {
+            "mesh_term": [
+                "Paroxetine", 
+                "Aprepitant"
+            ]
+        }, 
+        "is_fda_regulated": "Yes", 
+        "is_section_801": "Yes", 
+        "lastchanged_date": "May 7, 2009", 
+        "official_title": "A Double-Blind, Multicenter, Placebo and Active-Controlled, Acute Extension Study of 2 Doses of MK-0869 in the Treatment of Patients With Major Depressive Disorder", 
+        "overall_official": {
+            "affiliation": "Merck Sharp & Dohme Corp.", 
+            "last_name": "Medical Monitor", 
+            "role": "Study Director"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Food and Drug Administration"
+        }, 
+        "phase": "Phase 3", 
+        "primary_completion_date": {
+            "#text": "January 2004", 
+            "@type": "Actual"
+        }, 
+        "primary_outcome": {
+            "measure": "HAMD-17 total score at week 8. Tolerability.", 
+            "safety_issue": "No", 
+            "time_frame": "at week 8"
+        }, 
+        "reference": [
+            {
+                "PMID": "16248986", 
+                "citation": "Keller M, Montgomery S, Ball W, Morrison M, Snavely D, Liu G, Hargreaves R, Hietala J, Lines C, Beebe K, Reines S. Lack of Efficacy of the Substance P (Neurokinin(1) Receptor) Antagonist Aprepitant in the Treatment of Major Depressive Disorder. Biol Psychiatry. 2005 Oct 21; [Epub ahead of print]"
+            }, 
+            {
+                "PMID": "17825841", 
+                "citation": "Liu KS, Snavely DB, Ball WA, Lines CR, Reines SA, Potter WZ. Is bigger better for depression trials? J Psychiatr Res. 2008 Jul;42(8):622-30. Epub 2007 Sep 7."
+            }
+        ], 
+        "removed_countries": {
+            "country": "United States"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00048607"
+        }, 
+        "responsible_party": {
+            "name_title": "Executive Vice President, Clinical and Quantitative Sciences", 
+            "organization": "Merck & Co., Inc."
+        }, 
+        "secondary_outcome": {
+            "measure": "CGI-I Scale score at week 8 and Sheehan Disability Scale at week 8", 
+            "safety_issue": "No", 
+            "time_frame": "at week 8"
+        }, 
+        "source": "Merck Sharp & Dohme Corp.", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Merck Sharp & Dohme Corp.", 
+                "agency_class": "Industry"
+            }
+        }, 
+        "start_date": "January 2002", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double Blind (Subject, Investigator), Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "May 2009"
+    }
+}

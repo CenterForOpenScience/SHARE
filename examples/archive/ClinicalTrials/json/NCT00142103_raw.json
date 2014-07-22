@@ -1,0 +1,320 @@
+{
+    "clinical_study": {
+        "@rank": "5201", 
+        "arm_group": [
+            {
+                "arm_group_label": "CPG10101", 
+                "arm_group_type": "Experimental"
+            }, 
+            {
+                "arm_group_label": "CPG10101 + pegylated interferon", 
+                "arm_group_type": "Experimental"
+            }, 
+            {
+                "arm_group_label": "CPG10101 + ribavirin", 
+                "arm_group_type": "Experimental"
+            }, 
+            {
+                "arm_group_label": "CPG10101 + pegylated interferon + ribavirin", 
+                "arm_group_type": "Experimental"
+            }, 
+            {
+                "arm_group_label": "Pegylated inteferon + ribavirin", 
+                "arm_group_type": "Active Comparator"
+            }, 
+            {
+                "arm_group_label": "CPG10101 + pegylated interferon + ribavirin (rollover)", 
+                "arm_group_type": "Experimental"
+            }
+        ], 
+        "brief_summary": {
+            "textblock": "1. To characterize the tolerability profile of subcutaneous (SC) CPG 10101 alone, with\n           pegylated interferon, ribavirin or both pegylated interferon and ribavirin when\n           administered weekly for twelve weeks in relapsed HCV positive subjects.\n\n        2. To assess the effect of subcutaneous (SC) CPG 10101 alone, with pegylated interferon,\n           ribavirin or both pegylated interferon and ribavirin on serum Hepatitis C Virus (HCV)\n           RNA concentrations"
+        }, 
+        "brief_title": "CPG10101 Combination Therapy For The Treatment Of Hepatitis C In Relapsed Hepatitis C Virus (HCV) Subjects", 
+        "completion_date": {
+            "#text": "February 2007", 
+            "@type": "Actual"
+        }, 
+        "condition": "Hepatitis, Chronic Active", 
+        "condition_browse": {
+            "mesh_term": [
+                "Hepatitis", 
+                "Hepatitis A", 
+                "Hepatitis, Chronic", 
+                "Hepatitis C"
+            ]
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n        HCV positive subjects documented by serum HCV RNA concentration greater than 1000 IU/mL\n        within 21 days of first study treatment.\n\n        Receipt of adequate pegylated IFN plus RVN based therapy for a minimum of 24 weeks\n        (pegylated interferon doses of > 180 \u03bcg weekly or > 1.0 \u03bcg/kg pegylated interferon weekly\n        and at least 800 mg RVN daily) resulting in undetectable HCV RNA concentrations while on\n        treatment with subsequent relapse (HCV RNA concentration detected) within six months of\n        stopping therapy.\n\n        HCV genotype 1. Adults, 18 + years old. Written Informed Consent. Liver biopsy documenting\n        changes of Hepatitis C within 5 years of the first dose of study drug.\n\n        Adequate bone marrow, liver, and renal function demonstrated by:\n\n          -  hemoglobin > 12 g/dL for females and > 13 g/dL for males\n\n          -  WBC > 3,000/mm3\n\n          -  Neutrophils > 1,500/mm3\n\n          -  Platelets > 80,000/mm3\n\n          -  Total bilirubin < 1.6 mg/dL.\n\n          -  Direct bilirubin < 1.5 upper limit of normal. If indirect bilirubin is elevated,\n             Gilbert's disease must be documented in chart and substantiated.\n\n          -  Albumin within normal limits (per central laboratory)\n\n          -  Serum creatinine < upper limit normal per central laboratory or calculated creatinine\n             clearance > 100 mL/min (by Cockroft-Gault formula).\n\n        Negative pregnancy test in women of child bearing potential Females of childbearing\n        potential and males who have partners of childbearing potential must use two forms of\n        effective contraception during treatment and during the 6 months after treatment has been\n        concluded.\n\n        Exclusion Criteria:\n\n        Treatment with IFN based therapies and/or antiviral therapies within 90 days of the first\n        dose of study drug.\n\n        Child-Pugh Class B or C. History of psychiatric conditions including, but not limited to,\n        psychosis, suicidal ideations, or major depression. Subjects with mild to moderate\n        depression in the past who have a normal to mild Beck Depression Inventory Score and no\n        prior history of suicidal gestures or attempts may be enrolled if, in the Investigator's\n        opinion, they are suitable for treatment.\n\n        Significant cardiovascular disease (e.g., NYHA class 3 congestive heart failure;\n        myocardial infarction within the past 6 months; unstable angina; coronary angioplasty\n        within the past 6 months; uncontrolled atrial or ventricular cardiac arrhythmias).\n\n        History of immunodeficiency, autoimmune disease, autoimmune hepatitis, allogeneic\n        transplant, or pre-existing autoimmune or antibody-mediated disease including but not\n        limited to: systemic lupus erythematosus, rheumatoid arthritis, multiple sclerosis,\n        Sjogren's syndrome, autoimmune thrombocytopenia.\n\n        Other serious medical conditions including, but not limited to:\n\n          -  HIV-1,\n\n          -  Hepatitis B (positive HBsAg),\n\n          -  Cancer,\n\n          -  Pregnant, partners of pregnant women, or nursing women, and/or\n\n          -  Alcohol or drug misuse within 90 days of screening Use of immunosuppressive doses of\n             steroids or any antimetabolite therapies within 3 months of entry into the study\n             (inhaled and topical corticosteroids are permitted).\n\n        Receipt of any vaccine or immunoglobulin within 30 days before the first dose of study\n        drug Prior administration of oligodeoxynucleotides (including study medication CPG 10101),\n        ribozymes, or any known allergy to CPG 10101, interferon, ribavirin or their excipients\n        Receipt of any investigational drug therapy within 30 days before the first dose of study\n        drug Any other condition that, in the opinion of the Investigator, may compromise the\n        safety or compliance of the subject or would preclude the subject from successful\n        completion of the study."
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": {
+            "#text": "91", 
+            "@type": "Actual"
+        }, 
+        "firstreceived_date": "August 31, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00142103", 
+            "org_study_id": "B1211001", 
+            "secondary_id": "CPG10101-003"
+        }, 
+        "intervention": [
+            {
+                "arm_group_label": "CPG10101", 
+                "description": "CPG10101 subcutaneous, 0.20mg/kg, weekly, 12wks", 
+                "intervention_name": "CPG10101", 
+                "intervention_type": "Drug"
+            }, 
+            {
+                "arm_group_label": "CPG10101 + pegylated interferon", 
+                "description": "CPG10101, subcutaneous, 0.20mg/kg, weekly, 12wks Pegylated Interferon alfa-2b, subcutaneous, 1.5ug/kg, weekly, 12wks", 
+                "intervention_name": "CPG10101", 
+                "intervention_type": "Drug"
+            }, 
+            {
+                "arm_group_label": "CPG10101 + ribavirin", 
+                "description": "CPG10101, subcutaneous, 0.20mg/kg, weekly, 12wks Ribavirin, oral, 800-1400mg, daily, 12wks", 
+                "intervention_name": "CPG10101", 
+                "intervention_type": "Drug"
+            }, 
+            {
+                "arm_group_label": "CPG10101 + pegylated interferon + ribavirin", 
+                "description": "CPG10101, subcutaneous, 0.20mg/kg, weekly, 12wks Pegylated Interferon alfa-2b, subcutaneous, 1.5ug/kg, weekly, 12wks Ribavirin, oral, 800-1400mg (weight-based), daily, 12wks", 
+                "intervention_name": "CPG10101", 
+                "intervention_type": "Drug"
+            }, 
+            {
+                "arm_group_label": "Pegylated inteferon + ribavirin", 
+                "description": "Pegylated Interferon alfa-2b, subcutaneous, 1.5ug/kg, weekly, 12wks Ribavirin, oral, 800-1400mg (weight-based), daily, 12wks", 
+                "intervention_name": "Control", 
+                "intervention_type": "Drug"
+            }, 
+            {
+                "arm_group_label": "CPG10101 + pegylated interferon + ribavirin (rollover)", 
+                "description": "CPG10101, subcutaneous, 0.20mg/kg, weekly, 12wks Pegylated Interferon alfa-2b, subcutaneous, 1.5ug/kg, weekly, 12wks Ribavirin, oral, 800-1400mg (weight-based), daily, 12wks", 
+                "intervention_name": "CPG10101", 
+                "intervention_type": "Drug"
+            }
+        ], 
+        "intervention_browse": {
+            "mesh_term": [
+                "Interferons", 
+                "Ribavirin", 
+                "Peginterferon alfa-2b"
+            ]
+        }, 
+        "is_fda_regulated": "Yes", 
+        "is_section_801": "Yes", 
+        "keyword": [
+            "Hepatitis c virus", 
+            "HCV", 
+            "Liver"
+        ], 
+        "lastchanged_date": "May 13, 2011", 
+        "link": {
+            "description": "To obtain contact information for a study center near you, click here.", 
+            "url": "https://trialinfoemail.pfizer.com/pages/landing.aspx?StudyID=B1211001&StudyName=CPG10101%20Combination%20Therapy%20For%20The%20Treatment%20Of%20Hepatitis%20C%20In%20Relapsed%20HCV%20Subjects"
+        }, 
+        "location": [
+            {
+                "facility": {
+                    "address": {
+                        "city": "Miami", 
+                        "country": "United States", 
+                        "state": "Florida", 
+                        "zip": "33136"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Chicago", 
+                        "country": "United States", 
+                        "state": "Illinois", 
+                        "zip": "60611"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Indianapolis", 
+                        "country": "United States", 
+                        "state": "Indiana", 
+                        "zip": "46202"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Detroit", 
+                        "country": "United States", 
+                        "state": "Michigan", 
+                        "zip": "48202-2689"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Kansas City", 
+                        "country": "United States", 
+                        "state": "Missouri", 
+                        "zip": "64131"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "New York", 
+                        "country": "United States", 
+                        "state": "New York", 
+                        "zip": "10021"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Cleveland", 
+                        "country": "United States", 
+                        "state": "Ohio", 
+                        "zip": "44195"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Hershey", 
+                        "country": "United States", 
+                        "state": "Pennsylvania", 
+                        "zip": "17033"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Charleston", 
+                        "country": "United States", 
+                        "state": "South Carolina", 
+                        "zip": "29425"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Jackson", 
+                        "country": "United States", 
+                        "state": "Tennessee", 
+                        "zip": "38305-2071"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Dallas", 
+                        "country": "United States", 
+                        "state": "Texas", 
+                        "zip": "75208"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "San Antonio", 
+                        "country": "United States", 
+                        "state": "Texas", 
+                        "zip": "78215"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Richmond", 
+                        "country": "United States", 
+                        "state": "Virginia", 
+                        "zip": "23249"
+                    }, 
+                    "name": "Pfizer Investigational Site"
+                }
+            }
+        ], 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "number_of_arms": "6", 
+        "official_title": "CPG10101 Combination Therapy For The Treatment Of Hepatitis C: A Phase 1b Open Label Randomized Trial Of CPG10101 Alone, With Interferon, Ribavirin, Or Interferon And Ribavirin In The Treatment Of Relapsed Hepatitis C Virus (HCV) Subjects", 
+        "overall_official": {
+            "affiliation": "Pfizer", 
+            "last_name": "Pfizer CT.gov Call Center", 
+            "role": "Study Director"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Food and Drug Administration", 
+            "has_dmc": "Yes"
+        }, 
+        "phase": "Phase 1", 
+        "primary_completion_date": {
+            "#text": "February 2007", 
+            "@type": "Actual"
+        }, 
+        "primary_outcome": {
+            "measure": "Adverse events, vital signs, clinical and laboratory parameters, physical exam, ECG", 
+            "safety_issue": "Yes", 
+            "time_frame": "16wks"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00142103"
+        }, 
+        "responsible_party": {
+            "name_title": "Director, Clinical Trial Disclosure Group", 
+            "organization": "Pfizer, Inc."
+        }, 
+        "secondary_outcome": {
+            "measure": "Serum HCV RNA concentrations: Serum HCV concentrations over time to baseline", 
+            "safety_issue": "No", 
+            "time_frame": "12wks"
+        }, 
+        "source": "Pfizer", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Pfizer", 
+                "agency_class": "Industry"
+            }
+        }, 
+        "start_date": "September 2005", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "May 2011"
+    }
+}

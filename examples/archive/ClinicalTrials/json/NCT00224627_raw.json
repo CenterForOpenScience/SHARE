@@ -1,0 +1,103 @@
+{
+    "clinical_study": {
+        "@rank": "45630", 
+        "brief_summary": {
+            "textblock": "Capsule endoscopy (CE) is a safe and effective tool for the assessment of obscure\n      gastrointestinal bleeding (OGIB). However, its real efficacy and its position in the\n      diagnostic algorithm of OGIB vs. push enteroscopy (PE) remain unknown since in previous\n      studies both techniques were performed in all included patients The purpose of this protocol\n      is to conduct a randomized prospective controlled trial in patients with OGIB comparing a\n      strategy based on CE or PE followed by the alternative exploration only when the first line\n      exploration was negative. The main outpoint of this study concerns the diagnostic yield of\n      the two explorations. Second endpoint concerns the clinical relevance of the two strategies\n      tested (CE \u00b1 PE vs. CE \u00b1 PE) in terms of diagnostic yield, clinical outcome, therapeutic\n      impact and added explorations"
+        }, 
+        "brief_title": "Capsule Endoscopy vs. Push Enteroscopy in Occult Gastrointestinal Bleeding OGIB", 
+        "completion_date": {
+            "#text": "June 2005", 
+            "@type": "Actual"
+        }, 
+        "condition": "Occult Gastrointestinal Bleeding", 
+        "condition_browse": {
+            "mesh_term": [
+                "Gastrointestinal Hemorrhage", 
+                "Hemorrhage"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "This was a prospective randomized multicentric study. After the screening visit, eligible\n      subjects were randomly assigned to be explored by CE or PE (first line exploration). The\n      alternative exploration was only performed if no diagnosis was evidenced by the examination\n      assigned by randomization. An independent staff member assigned subjects in 1:1 ratio\n      between CE and PE strategies with stratification for overt and occult bleeding and centers\n      according to consecutive number that were kept in serialized sealed opaque envelopes. After\n      the completion of these explorations, the patients returned at month 3, 6 and 12 thereafter.\n      At each visit, clinical evaluation and laboratory tests were performed and patients were\n      managed according to published recommendations2 (AGA medical position). The first line\n      exploration as well as the alternative exploration could be done during the one year\n      follow-up period only in case of severe relapse of OGIB or necessity to perform biopsies or\n      a therapeutic procedure."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Patients may suffer from episodes of active bleeding within the last 6 months or\n             chronic iron-deficiency anemia (hemoglobin < 10 g/dl).\n\n          -  A gynecologic or proctologic bleeding source had to be excluded.\n\n          -  All patients had to have negative workup including upper gastrointestinal endoscopy,\n             colonoscopy and small-bowel barium series or computed tomography enteroclysis.\n\n          -  Medical reports and/or the imaging documents were available and reviewed in all\n             patients. Usually these investigations were repeated several times before inclusion.\n\n          -  Abdominal angiography was only performed when there were signs of active bleeding\n             during the diagnostic work-up (n = 3). Meckel scintigraphy was usually carried out in\n             patients under 30 years of age (n = 14).\n\n        Exclusion Criteria:\n\n          -  Patient presenting a digestive bleeding with an echo hemodynamic major and\\or\n             requiring urgent therapeutic measures\n\n          -  Wait presenting a gynaecological cause or a cause proctology of sure imputability or\n             syndrome of malabsorption or deficiency of contribution not formally excluded\n\n          -  Patient presenting an occlusive syndrome or a hurt of stenosis hail objectivized by a\n             radiological exploration\n\n          -  Surrounding wall(Speaker) or in age waits to procreate without effective\n             contraception\n\n          -  The mental or physical state of the patient not allowing a maid compliance in the\n             conditions of the try(essay) and or in the correct use of the device Patient carrier\n             of a pacemaker or another electromechanical implant\n\n          -  Patient that must undergo an examination by MRI before having been able to eliminate\n             the capsule\n\n          -  Enteroscopy or video capsule prerequisite technically satisfactory and in touch with\n             same pathological episode or dating at least less than 6 months Patient participating\n             at present in another clinical trial without direct profit which can directly or\n             indirectly influence the results(profits) of the present study"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": "45", 
+        "firstreceived_date": "September 16, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00224627", 
+            "org_study_id": "P040101", 
+            "secondary_id": "CDT03002"
+        }, 
+        "intervention": {
+            "intervention_name": "Capsule GIVEN IMAGING LTD", 
+            "intervention_type": "Procedure"
+        }, 
+        "keyword": [
+            "Randomized study", 
+            "Capsule endoscopy", 
+            "Push enteroscopy", 
+            "Occult gastrointestinal bleeding", 
+            "Endoscopy"
+        ], 
+        "lastchanged_date": "March 23, 2007", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Paris", 
+                    "country": "France", 
+                    "zip": "75015"
+                }, 
+                "name": "Hopital Europeen Georges Pompidou"
+            }
+        }, 
+        "location_countries": {
+            "country": "France"
+        }, 
+        "official_title": "Efficiency of Capsule Endoscopy and Push Enteroscopy in Obscure Gastrointestinal Bleeding. A Prospective Randomized Study.", 
+        "overall_official": {
+            "affiliation": "Assistance Publique - H\u00f4pitaux de Paris", 
+            "last_name": "Raymond JIAN, MD", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "France: Ministry of Health", 
+            "has_dmc": "Yes"
+        }, 
+        "phase": "Phase 3", 
+        "primary_outcome": {
+            "measure": "The primary end point was the diagnostic yield of CE and PE (first line exploration allocated by randomization) for the identification of a definitive source of bleeding."
+        }, 
+        "reference": {
+            "PMID": "15044884", 
+            "citation": "Adler DG, Knipschield M, Gostout C. A prospective comparison of capsule endoscopy and push enteroscopy in patients with GI bleeding of obscure origin. Gastrointest Endosc. 2004 Apr;59(4):492-8."
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00224627"
+        }, 
+        "secondary_outcome": {
+            "measure": "Secondary end points were evaluated at the end of the follow up period and concerned the clinical relevance of the two strategies (PE \u00b1 CE vs. CE \u00b1 PE). They included: (1) the diagnostic yield of the two strategies for the identification of a definitive"
+        }, 
+        "source": "Assistance Publique - H\u00f4pitaux de Paris", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Assistance Publique - H\u00f4pitaux de Paris", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "March 2002", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Diagnostic", 
+        "study_type": "Interventional", 
+        "verification_date": "March 2007"
+    }
+}

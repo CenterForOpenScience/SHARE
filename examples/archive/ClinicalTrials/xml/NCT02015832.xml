@@ -1,0 +1,965 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT02015832</url>
+  </required_header>
+  <id_info>
+    <org_study_id>ECRI-002</org_study_id>
+    <nct_id>NCT02015832</nct_id>
+  </id_info>
+  <brief_title>A Trial to Evaluate a New Strategy in the Functional Assessment of 3-vessel Disease Using the SYNTAX II Score in Patients Treated With PCI</brief_title>
+  <official_title>A Single-arm Trial to Evaluate the Effectiveness of PCI of de Novo 3-vessel Disease Applying the SYNTAX Score II With Pressure Wire Functional Assessment and IVUS Guidance, Using an Everolimus-eluting Stent With Biodegradable Abluminal Coating</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>ECRI bv</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+    <collaborator>
+      <agency>Boston Scientific Corporation</agency>
+      <agency_class>Industry</agency_class>
+    </collaborator>
+    <collaborator>
+      <agency>Volcano Corporation</agency>
+      <agency_class>Industry</agency_class>
+    </collaborator>
+  </sponsors>
+  <source>ECRI bv</source>
+  <oversight_info>
+    <authority>Netherlands: Medical Ethics Review Committee (METC)</authority>
+    <authority>Spain: Ethics Committee</authority>
+    <authority>Switzerland: Ethikkommission</authority>
+    <authority>United Kingdom: Research Ethics Committee</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      Clinical study that aims to evaluate a new strategy using the SYNTAX II Score calculator in
+      the functional assessment of patients with new coronary 3-vessel-disease who undergo
+      percutaneous coronary intervention (PCI)
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      The purpose of the SYNTAX II Trial is to investigate the management of de-novo
+      3-vessel-disease in order to prospectively assess which patients would have at least
+      comparable short and long term clinical outcomes between coronary artery bypass graft and
+      percutaneous coronary intervention (PCI), using contemporary PCI practice. In SYNTAX II the
+      effectiveness of a contemporary stent (designed with thinner struts, biocompatible and
+      biodegradable polymer, and a limus based drug), the use of pressure wire assessment of
+      lesions to allow for ischemia-driven revascularisation, intravascular ultrasound (IVUS)
+      guidance to optimise drug eluting stent deployment, and the treatment of (chronic) total
+      occlusion lesions with contemporary techniques, will be compared against PCI practice in the
+      original SYNTAX trial. The proposed study would involve the SYNTAX Score II to prospectively
+      recruit subjects on the grounds of patient safety
+    </textblock>
+  </detailed_description>
+  <overall_status>Recruiting</overall_status>
+  <start_date>December 2013</start_date>
+  <completion_date type="Anticipated">December 2018</completion_date>
+  <primary_completion_date type="Anticipated">December 2015</primary_completion_date>
+  <phase>N/A</phase>
+  <study_type>Observational [Patient Registry]</study_type>
+  <study_design>Observational Model: Case-Only, Time Perspective: Prospective</study_design>
+  <target_duration>5 Years</target_duration>
+  <primary_outcome>
+    <measure>Composite of major adverse cardiac and cerebrovascular events (MACCE) rate compared to PCI arm of SYNTAX I</measure>
+    <time_frame>1 year</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>MACCE is defined as: all-cause death; cerebrovascular event (stroke); documented myocardial infarction or all-cause revascularization</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Composite of all-cause death, cerebrovascular event (stroke), documented myocardial infarction compared to the PCI arm of SYNTAX I</measure>
+    <time_frame>1 Year</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Composite of cardiovascular death, documented target-vessel myocardial infarction and repeat target lesion revascularization at 1 year follow-up compared to the  PCI arm of SYNTAX I</measure>
+    <time_frame>1 Year</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Rates of individual components of MACCE at 1 year</measure>
+    <time_frame>1 Year</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>MACCE is defined as: all-cause death; cerebrovascular event (stroke); documented myocardial infarction or all-cause revascularization.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>The composite of MACCE and its individual components of 2-5 years period of follow-up (patient reported)</measure>
+    <time_frame>2-5 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>MACCE is defined as: all-cause death; cerebrovascular event (stroke); documented myocardial infarction or all-cause revascularization</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Myocardial Infarction (MI) - according to Universal MI definition 2012</measure>
+    <time_frame>1 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Stent Thrombosis - according to ARC definitions</measure>
+    <time_frame>1 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Myocardial Infarction - according to Universal MI definition 2012</measure>
+    <time_frame>2 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Myocardial Infarction - according to Universal MI definition 2012</measure>
+    <time_frame>3 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Myocardial Infarction - according to Universal MI definition 2012</measure>
+    <time_frame>4 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Myocardial Infarction - according to Universal MI definition 2012</measure>
+    <time_frame>5 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Stent Thrombosis - according to ARC definitions</measure>
+    <time_frame>2 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Stent Thrombosis - according to ARC definitions</measure>
+    <time_frame>3 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Stent Thrombosis - according to ARC definitions</measure>
+    <time_frame>4 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Stent Thrombosis - according to ARC definitions</measure>
+    <time_frame>5 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <other_outcome>
+    <measure>Composite of MACCE at 5 years follow-up compared to coronary artery bypass graft (CABG) arm of the SYNTAX I Trial</measure>
+    <time_frame>5 years</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Exploratory endpoint. MACCE is defined as: all-cause death; cerebrovascular event (stroke); documented myocardial infarction or all-cause revascularization</description>
+  </other_outcome>
+  <number_of_groups>1</number_of_groups>
+  <enrollment type="Anticipated">450</enrollment>
+  <condition>Heart Diseases</condition>
+  <condition>Cardiovascular Diseases</condition>
+  <condition>3 Vessel Coronary Artery Disease</condition>
+  <arm_group>
+    <arm_group_label>Percutaneous Coronary Intervention</arm_group_label>
+    <description>All patients (single arm study) will be receiving the SYNERGY™ Everolimus eluting stent (EES)</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Device</intervention_type>
+    <intervention_name>Coronary stent</intervention_name>
+    <arm_group_label>Percutaneous Coronary Intervention</arm_group_label>
+    <other_name>SYNERGY™ EES</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Radiation</intervention_type>
+    <intervention_name>Multi Slice Computed Tomography</intervention_name>
+    <description>A coronary non-invasive Multi Slice Computed Tomography will be performed in patients</description>
+    <arm_group_label>Percutaneous Coronary Intervention</arm_group_label>
+    <other_name>MSCT</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Device</intervention_type>
+    <intervention_name>instantaneous wave-free ratio</intervention_name>
+    <description>Pressure-derived, adenosine-free index on physiological assessment of stenosis severity</description>
+    <arm_group_label>Percutaneous Coronary Intervention</arm_group_label>
+    <other_name>iFR</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Device</intervention_type>
+    <intervention_name>Fractional flow reserve</intervention_name>
+    <description>Pressure-derived index on physiological assessment of stenosis severity</description>
+    <arm_group_label>Percutaneous Coronary Intervention</arm_group_label>
+    <other_name>FFR</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Device</intervention_type>
+    <intervention_name>Intravascular Ultrasound</intervention_name>
+    <description>Allows the application of ultrasound technology to see from inside blood vessels out through the surrounding blood column, visualizing the inner wall of blood vessels</description>
+    <arm_group_label>Percutaneous Coronary Intervention</arm_group_label>
+    <other_name>IVUS</other_name>
+  </intervention>
+  <eligibility>
+    <study_pop>
+      <textblock>
+        Patients with de novo 3 vessel disease
+      </textblock>
+    </study_pop>
+    <sampling_method>Non-Probability Sample</sampling_method>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  At least 1 stenosis, angiographic, visually determined de novo lesions with more than
+             50 percent diameter stenosis in all 3 major epicardial territories. These are left
+             descending coronary artery (LAD) and or side branch, proximal circumflex coronary
+             artery (LCX) and or side branch, right descending coronary artery (RCA) and or side
+             branch which are supplying viable myocardium without left main involvement. Patients
+             with ostial LAD or ostial CX  Medina 0,0,1 or Medina 0,1,0 may be enrolled
+
+          -  Patients with hypoplastic RCA with absence of descending posterior and presence of a
+             lesion in the LAD and CX territories may be included in the trial as a 3 vessel
+             disease equivalent
+
+          -  Vessel size should be at least 1.5 mm in diameter as visually assessed in diagnostic
+             angiogram
+
+          -  Patients with
+
+               1. stable (Canadian Cardiovascular Society Class 1, 2, 3 or 4) angina pectoris
+
+               2. or unstable (Braunwald class) angina pectoris and ischemia
+
+               3. or patients with atypical chest pain or those who are asymptomatic provided they
+                  have myocardial ischemia, for example treadmill exercise test, radionuclide
+                  scintigraphy, stress echocardiography
+
+          -  All anatomical SYNTAX Scores are eligible for initial screening with the SYNTAX Score
+             II
+
+          -  Patient has been informed of the nature of the study and agrees to its provisions and
+             has provided written informed consent as approved by the Ethical Committee of the
+             respective clinical site
+
+          -  Signed Heart Team Decision Form between local cardiologist and surgeon that the
+             selected case meets all of the inclusion and exclusion criteria
+
+        Exclusion Criteria:
+
+          -  Under the age of 21 years
+
+          -  Known pregnancy at time of enrolment. Female of childbearing potential, and last
+             menstruation within the last 12 months, who are not taking adequate contraceptives.
+             Female who is breastfeeding at time of enrolment
+
+          -  Prior PCI or CABG
+
+          -  Ongoing acute myocardial infarction and enzymes (CKMB) more than 2x upper limit of
+             normal
+
+          -  Concomitant cardiac valve disease requiring surgical therapy, reconstruction or
+             replacement
+
+          -  Single or two-vessel disease at time of Heart Team consensus
+
+          -  Participation or planned participation in another cardiovascular clinical study
+             before one year follow up is completed
+
+          -  Mental condition, psychiatric or organ cerebral disease, rendering the subject unable
+             to understand the nature, scope, and possible consequences of the study or mental
+             retardation or language barrier such that the patient is unable to give informed
+             consent and potential for non-compliance towards the requirement in the study
+             protocol
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>21 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Patrick Serruys, Prof. MD.</last_name>
+    <role>Study Chair</role>
+    <affiliation>Thoraxcenter, Erasmus, The Netherlands</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>Javier Escaned, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Hospital San Carlos Madrid, Spain</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>Adrian Banning, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>John Radcliffe Hospital, Oxford, United Kingdom</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>Gerrit-Anne van Es</last_name>
+    <role>Study Director</role>
+    <affiliation>ECRI, The Netherlands</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>Arie-Pieter Kappetein, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Thorax center, Erasmus, The Netherlands</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>David Taggart, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>John Radcliffe Hospital, Oxford. United Kingdom</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>Vasim Farooq, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Manchester Royal Infirmary, United Kingdom</affiliation>
+  </overall_official>
+  <overall_contact>
+    <last_name>Eliane Lopes Dos Santos</last_name>
+    <phone>+31102402409</phone>
+    <email>elopes@cardialysis.nl</email>
+  </overall_contact>
+  <overall_contact_backup>
+    <last_name>Rob Schneijdenberg</last_name>
+    <phone>+31102062828</phone>
+    <email>rschneijdenberg@cardialysis.nl</email>
+  </overall_contact_backup>
+  <location>
+    <facility>
+      <name>Medical Center Leeuwarden</name>
+      <address>
+        <city>Leeuwarden</city>
+        <state>Friesland</state>
+        <zip>8934 AD</zip>
+        <country>Netherlands</country>
+      </address>
+    </facility>
+    <status>Withdrawn</status>
+  </location>
+  <location>
+    <facility>
+      <name>Academisch Medisch Centrum</name>
+      <address>
+        <city>Amsterdam</city>
+        <state>Noord Holland</state>
+        <zip>1105 AZ</zip>
+        <country>Netherlands</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>J.J. Piek, MD</last_name>
+      <phone>+31 (0) 20 566 9111</phone>
+      <email>'j.j.piek@amc.uva.nl'</email>
+    </contact>
+    <investigator>
+      <last_name>J.J. Piek, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Sint-Antonius Hospital</name>
+      <address>
+        <city>Nieuwegein</city>
+        <state>Utrecht</state>
+        <zip>3430 EM</zip>
+        <country>Netherlands</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Maarten Jan Suttorp, MD</last_name>
+      <phone>+31 (0)30 609 22 78</phone>
+      <email>m.suttorp@antoniusziekenhuis.nl</email>
+    </contact>
+    <investigator>
+      <last_name>Maarten-Jan Suttorp, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>ErasmusMC</name>
+      <address>
+        <city>Rotterdam</city>
+        <state>Zuid-Holland</state>
+        <zip>3015 GD</zip>
+        <country>Netherlands</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Mattie Lenzen</last_name>
+      <phone>+31 (0)10 703 28 91</phone>
+      <email>m.lenzen@erasmusmc.nl;</email>
+    </contact>
+    <contact_backup>
+      <last_name>Robert Jan van Geuns, MD</last_name>
+      <phone>+31 (0) 10 703 28 91</phone>
+      <email>r.vangeuns@erasmusmc.nl</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Robert Jan van Geuns, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>American Heart of Poland</name>
+      <address>
+        <city>Bielsko-Biała</city>
+        <zip>43-316</zip>
+        <country>Poland</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Anna Turek</last_name>
+      <phone>+33 517-262-414</phone>
+      <email>a.turek@klinikiserca.pl</email>
+    </contact>
+    <contact_backup>
+      <last_name>Pawel Buszman, MD</last_name>
+      <phone>+33 517-262-414</phone>
+      <email>pbuszman@ka.onet.pl</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Pawel Buszman, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Szpital Kliniczny</name>
+      <address>
+        <city>Poznan</city>
+        <zip>60583</zip>
+        <country>Poland</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Katarzyna Stanislawska</last_name>
+      <phone>0048 606 837 107</phone>
+      <email>kasia.stanislawska@onet.eu</email>
+    </contact>
+    <contact_backup>
+      <last_name>Maciej Lesiak, MD</last_name>
+      <phone>0048 606 837 107</phone>
+      <email>maciej.lesiak@skpp.edu.pl</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Maciej Lesiak, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Hospital Marques de Valdecilla</name>
+      <address>
+        <city>Santander</city>
+        <state>Cantabria</state>
+        <zip>39008</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Javier Zueco, MD</last_name>
+      <phone>0034 9422 027 44</phone>
+      <email>jzueco@humv.es</email>
+    </contact>
+    <investigator>
+      <last_name>Javier Zueco, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Complejo Asistencial Universitario de León</name>
+      <address>
+        <city>Leon</city>
+        <state>Castilla y Leon</state>
+        <zip>24071</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Olga Larrode</last_name>
+      <phone>0034 987 237 683</phone>
+      <email>olarrode@yahoo.es</email>
+    </contact>
+    <contact_backup>
+      <last_name>Amando Perez, MD</last_name>
+      <phone>0034 987 237 683</phone>
+      <email>aperez@secardiologia.es</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Amando Perez de Prado, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Hospital Clinico Y Provincial</name>
+      <address>
+        <city>Barcelona</city>
+        <state>Cataluna</state>
+        <zip>8025</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Eva Trelliso, researchcoordinator</last_name>
+      <phone>0034 9322 793 05</phone>
+      <email>etrellis@clinic.ub.es</email>
+    </contact>
+    <contact_backup>
+      <last_name>Manel Sabate, MD</last_name>
+      <phone>0034 9322 793 05</phone>
+      <email>MASABATE@clinic.ub.es</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Manel Sabate, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Hospital Universitario La Paz</name>
+      <address>
+        <city>Madrid</city>
+        <state>Comunidad Autonoma de Madrid</state>
+        <zip>28046</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Raul Moreno, MD</last_name>
+      <phone>+34 91 727 70 00</phone>
+      <phone_ext>47355</phone_ext>
+      <email>raulmorenog@hotmail.com</email>
+    </contact>
+    <investigator>
+      <last_name>Raul Moreno, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Hospital Clinico San Carlos</name>
+      <address>
+        <city>Madrid</city>
+        <state>Comunidad Autonoma de Madrid</state>
+        <zip>28040</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Javier Escaned, MD</last_name>
+      <phone>0034 6658 79 441</phone>
+      <email>escaned@secardiologia.es</email>
+    </contact>
+    <investigator>
+      <last_name>Javier Escaned, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Hospital Puerta de Hierro</name>
+      <address>
+        <city>Madrid</city>
+        <state>Comunidad Autonoma de Madrid</state>
+        <zip>28222</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Jose Antonio Fernandez Diaz</last_name>
+      <phone>0034 9119 174 08</phone>
+      <email>joseantoniofer@gmail.com</email>
+    </contact>
+    <contact_backup>
+      <last_name>Javier Goicolea, MD</last_name>
+      <phone>0034 9119 174 08</phone>
+      <email>j_goicolea@hotmail.com</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Javier Goicolea, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Meixoeiro Hospital</name>
+      <address>
+        <city>Vigo</city>
+        <state>Galicia</state>
+        <zip>36214</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Seila Diaz Costas</last_name>
+      <phone>0034 9868 111 63</phone>
+      <email>investigacion.cardioloxia.vigo@gmail.com</email>
+    </contact>
+    <contact_backup>
+      <last_name>Andres Iniguez, MD</last_name>
+      <phone>0034 9868 111 63</phone>
+      <email>andres.iniguez.romo@sergas.es;</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Andres Iniguez, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Arrixaca University Hospital Murcia</name>
+      <address>
+        <city>Murcia</city>
+        <state>Region de Murcia</state>
+        <zip>30120</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Mariano Valdes, MD</last_name>
+      <phone>0034 6296 567 31</phone>
+      <email>mvch@valdeschavarri.e.telefonica.net</email>
+    </contact>
+    <investigator>
+      <last_name>Mariano Valdes, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Hospital Clinico Salamanca</name>
+      <address>
+        <city>Salamanca</city>
+        <zip>37007</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Ignacio Cruz Gonzalez, MD</last_name>
+      <phone>0034 6874 256 95</phone>
+      <phone_ext>55369</phone_ext>
+      <email>cruzgonzalez.ignacio@gmail.com</email>
+    </contact>
+    <investigator>
+      <last_name>Ignacio Cruz, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>CHUV</name>
+      <address>
+        <city>Lausanne</city>
+        <zip>CH-1011</zip>
+        <country>Switzerland</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Nathalie Lauriers</last_name>
+      <phone>+41 79 55 60 618</phone>
+      <email>nathalie.lauriers@chuv.nl</email>
+    </contact>
+    <contact_backup>
+      <last_name>Erik Eeckhout, MD</last_name>
+      <phone>+41 79 55 60 618</phone>
+      <email>Eric.Eeckhout@chuv.ch</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Erik Eeckhout, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Belfast Health &amp; Social Care Trust</name>
+      <address>
+        <city>Belfast</city>
+        <state>County Antrim</state>
+        <zip>BT13 1FD</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Bernie Smith</last_name>
+      <phone>0044 28 9063 2221</phone>
+      <email>bernie.smith@belfasttrust.hscni.net</email>
+    </contact>
+    <contact_backup>
+      <last_name>Simon Walsh, MD</last_name>
+      <phone>0044 28 9063 2221</phone>
+      <email>simon.walsh@belfasttrust.hscni.net</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Simon Walsh, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>John Radcliffe Infirmary Oxford II</name>
+      <address>
+        <city>Oxford</city>
+        <state>Oxfordshire</state>
+        <zip>OX3 9DU</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Bernadette Moreby, study coordinator</last_name>
+      <phone>+44 (0) 1865</phone>
+      <email>bernadette.moreby@ouh.nhs.uk</email>
+    </contact>
+    <contact_backup>
+      <last_name>Adrian Banning, MD</last_name>
+      <phone>+44 1865 22 89 34</phone>
+      <email>adrian.banning@ouh.nhs.uk</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Adrian Banning, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Papworth Hospital, Papworth Hospital</name>
+      <address>
+        <city>Cambridge</city>
+        <zip>CB23 3RE</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Sallyanne Meakins</last_name>
+      <phone>+44 01480 364980</phone>
+      <email>Sallyanne.meakins@papworth.nhs.uk</email>
+    </contact>
+    <contact_backup>
+      <last_name>Nick West, MD</last_name>
+      <phone>+44 01480 364504</phone>
+      <email>Nick.West@papworth.nhs.uk</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Nick West, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Royal Infirmary of Edinburgh</name>
+      <address>
+        <city>Edinburgh</city>
+        <zip>EH16 4SA</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Belinda Rif, study coordinator</last_name>
+      <phone>+44  0131 242 1886</phone>
+      <email>belinda.rif@nhslothian.scot.nhs.uk</email>
+    </contact>
+    <contact_backup>
+      <last_name>Neal Uren, MD</last_name>
+      <phone>+44  0131 242 1046</phone>
+      <email>neal.uren@nhslothian.scot.nhs.uk</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Neal Uren, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Liverpool Heart and Chest Hospital</name>
+      <address>
+        <city>Liverpool</city>
+        <zip>L14 3PE</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Clare Appleby, MD</last_name>
+      <phone>+44 01510600 1887</phone>
+      <email>Clare.Appleby@lhch.nhs.uk</email>
+    </contact>
+    <investigator>
+      <last_name>Clare Appleby, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Imperial College Healthcare NHS Trust</name>
+      <address>
+        <city>London</city>
+        <zip>W12 OHS</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Rasha Al-Lamee</last_name>
+      <phone>0044 797 183 1328</phone>
+      <email>&quot;Rasha.Al-Lamee@imperial.nhs.uk</email>
+    </contact>
+    <contact_backup>
+      <last_name>Justin Davies, MD</last_name>
+      <phone>0044 797 183 1328</phone>
+      <email>justindavies@heart123.com</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Justin Davies, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>St Thomas Hospital</name>
+      <address>
+        <city>London</city>
+        <zip>SE5 9RS</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Jayne Damm</last_name>
+      <phone>+44 20 7188 9484</phone>
+      <email>jayne.damm@gsstt.nhs.uk</email>
+    </contact>
+    <contact_backup>
+      <last_name>Simon Redwood, MD</last_name>
+      <phone>+44 0207 1888 6271</phone>
+      <email>simon.redwood@gstt.nhs.uk</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Simon Redwood, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>The London Chest Hospital</name>
+      <address>
+        <city>London</city>
+        <zip>E2 9JX</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Jessry Veerapen</last_name>
+      <phone>+44 (0)208 983 2213</phone>
+      <email>dj.veerapen@bartshealth.nhs.uk</email>
+    </contact>
+    <contact_backup>
+      <last_name>Charles Knight, MD</last_name>
+      <phone>+44 (0)208 983 2213</phone>
+      <email>charles.knight@bartsandthelondon.nhs.uk</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Charles Knight, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Manchester Royal Infirmary</name>
+      <address>
+        <city>Manchester</city>
+        <zip>M13 9WL</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Sarah Evans</last_name>
+      <phone>+44 (0) 161 276 3336</phone>
+      <email>Sarah.evansmhc@cmft.nhs.uk</email>
+    </contact>
+    <contact_backup>
+      <last_name>Faz Fath Ordoubadi, MD</last_name>
+      <phone>+44 (0) 161 276 5770</phone>
+      <email>Farzin.Fath-ordoubadi@cmft.nhs.uk</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Faz Fath Ordoubadi, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location>
+    <facility>
+      <name>Freeman Hospital</name>
+      <address>
+        <city>Newcastle upon Tyne</city>
+        <zip>NE7 7DN</zip>
+        <country>United Kingdom</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+    <contact>
+      <last_name>Samantha Jones</last_name>
+      <phone>+44 (0)191 2138272</phone>
+      <email>samantha.jones@nuth.nhs.uk</email>
+    </contact>
+    <contact_backup>
+      <last_name>Azfar Zaman, MD</last_name>
+      <phone>+44 (0)191 213 72 77</phone>
+      <email>azfar.zaman@nuth.nhs.uk</email>
+    </contact_backup>
+    <investigator>
+      <last_name>Azfar Zaman, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location_countries>
+    <country>Netherlands</country>
+    <country>Poland</country>
+    <country>Spain</country>
+    <country>Switzerland</country>
+    <country>United Kingdom</country>
+  </location_countries>
+  <verification_date>April 2014</verification_date>
+  <lastchanged_date>April 17, 2014</lastchanged_date>
+  <firstreceived_date>December 13, 2013</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>SYNTAX II Score</keyword>
+  <keyword>Pressure wires</keyword>
+  <keyword>instantaneous wave-free ratio</keyword>
+  <keyword>fractional flow reserve</keyword>
+  <keyword>intravascular ultrasound</keyword>
+  <keyword>Drug eluting stents</keyword>
+  <keyword>Stents</keyword>
+  <keyword>Angioplasty</keyword>
+  <keyword>multi slice computed tomography</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Cardiovascular Diseases</mesh_term>
+    <mesh_term>Coronary Artery Disease</mesh_term>
+    <mesh_term>Myocardial Ischemia</mesh_term>
+    <mesh_term>Coronary Disease</mesh_term>
+    <mesh_term>Heart Diseases</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

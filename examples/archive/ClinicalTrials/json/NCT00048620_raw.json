@@ -1,0 +1,83 @@
+{
+    "clinical_study": {
+        "@rank": "33733", 
+        "brief_summary": {
+            "textblock": "The purpose of the study is to evaluate the safety, efficacy and pharmacokinetics of two\n      dose levels of weekly intravenous infusions of recombinant human N-acetylgalactosamine\n      4-sulfatase (rhASB) for a minimum of 24 weeks in patients diagnosed with MPS VI."
+        }, 
+        "brief_title": "Study of Recombinant Human N-Acetylgalactosamine 4-Sulfatase in Patients With MPS VI", 
+        "completion_date": "November 2005", 
+        "condition": "Mucopolysaccharidosis VI", 
+        "condition_browse": {
+            "mesh_term": [
+                "Mucopolysaccharidoses", 
+                "Mucopolysaccharidosis VI"
+            ]
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Patient consent\n\n          -  Patient must be five years of age or older\n\n          -  Patient must have documented diagnosis of  MPS VI, confirmed at screening by\n             measurable clinical signs and symptoms of MPS VI\n\n          -  Leukocyte ASB enzyme activity level less than 20% of the normal range\n\n          -  Clinical evidence of significant MPS VI disease that provides adequate opportunity to\n             achieve quantitative, short-term therapeutic benefit in three or more of the\n             following parameters: endurance (as measured by a six-minute walk test), forced vital\n             capacity (as measured by spirometry), joint range of motion, urinary\n             glycosaminoglycans, and hepatomegaly.\n\n          -  Ability to perform all protocol tests\n\n          -  Ability to stand independently for six minutes\n\n          -  Sexually active subjects must agree to use an adequate form of contraception\n\n        Exclusion Criteria:\n\n          -  History of bone marrow transplantation\n\n          -  Pregnant or lactating patient\n\n          -  Use of an investigational drug or device within 30 days prior to study participation.\n\n          -  A medical condition, serious intercurrent illness, or other extenuating circumstances\n             that may significantly decrease study compliance including prescribed follow-up\n\n          -  Known hypersensitivity to rhASB or to components of the study drug\n\n          -  History of cancer (except low grade and fully resolved skin malignancy)"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "N/A"
+        }, 
+        "firstreceived_date": "November 4, 2002", 
+        "id_info": {
+            "nct_id": "NCT00048620", 
+            "org_study_id": "ASB-00-01"
+        }, 
+        "intervention": {
+            "intervention_name": "N-acetylgalactosamine 4-sulfatase", 
+            "intervention_type": "Drug"
+        }, 
+        "lastchanged_date": "November 2, 2006", 
+        "link": {
+            "url": "http://www.bmrn.com"
+        }, 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Novato", 
+                    "country": "United States", 
+                    "state": "California", 
+                    "zip": "94949"
+                }, 
+                "name": "BioMarin Pharmaceutical Inc."
+            }
+        }, 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "official_title": "Double-Blind,2 Dose Group Study of Recombinant Human N-Acetylgalactosamine 4-Sulfatase in Patients With MPS VI", 
+        "overall_official": {
+            "affiliation": "BioMarin Pharmaceutical", 
+            "last_name": "Stuart J Swiedler, MD, Ph.D.", 
+            "role": "Study Director"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Food and Drug Administration"
+        }, 
+        "phase": "Phase 1", 
+        "primary_outcome": {
+            "measure": "Lysosomal storage disease"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00048620"
+        }, 
+        "source": "BioMarin Pharmaceutical", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "BioMarin Pharmaceutical", 
+                "agency_class": "Industry"
+            }
+        }, 
+        "start_date": "September 2000", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "November 2006"
+    }
+}

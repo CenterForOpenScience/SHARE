@@ -1,0 +1,197 @@
+{
+    "clinical_study": {
+        "@rank": "121419", 
+        "arm_group": [
+            {
+                "arm_group_label": "1 - PTHrP Group", 
+                "arm_group_type": "Active Comparator", 
+                "description": "Group receiving study drug: PTHrP(1-36)"
+            }, 
+            {
+                "arm_group_label": "2 - Single Blind Placebo Group", 
+                "arm_group_type": "Placebo Comparator", 
+                "description": "Receives placebo injections daily via subcutaneous injection"
+            }
+        ], 
+        "brief_summary": {
+            "textblock": "The main purpose of this study is to determine the safety and effectiveness of three week\n      daily subcutaneous injections of Parathyroid Hormone-related Protein (1-36).  Previous\n      studies indicated that PTHrP has a skeletal 'anabolic' or bone-building effect, and has\n      shown to increase bone mineral density in postmenopausal women with osteoporosis.  Safety of\n      PTHrP will be determined by measurements of blood pressure and pulse, serum blood calcium\n      levels and subjective symptoms.  Effectiveness will be measured by changes in measurements\n      of blood and urine markers of bone turnover."
+        }, 
+        "brief_title": "3-Week Parathyroid Hormone-related Protein (PTHrP) Dose Escalation Study in Post-Menopausal Women", 
+        "completion_date": {
+            "#text": "September 2008", 
+            "@type": "Actual"
+        }, 
+        "condition": [
+            "Osteoporosis", 
+            "Osteoporosis, Postmenopausal"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Osteoporosis", 
+                "Osteoporosis, Postmenopausal"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "Parathyroid Hormone-related Protein (1-36) or PTHrP is a neuroendocrine peptide which shares\n      significant homology with the only currently FDA approved anabolic agent for the treatment\n      of osteoporosis: parathyroid hormone(1-34) or PTH.  PTH, when given alone, has shown to\n      increase lumbar spine bone mass by 12-15% over a 2-3 year period.\n\n      Previous studies indicate PTHrP may have a pure anabolic effect on bone.  Postmenopausal\n      women taking estrogen with osteoporosis who received daily subcutaneous PTHrP for 3 months\n      exhibited a 4.7% increase in bone mineral density compared to those taking placebo.  There\n      were no side effects associated with PTHrP, despite the fact that the doses given were 20\n      times the usual doses of PTH.  In another study, young healthy volunteers received a single,\n      one-time subcutaneous doses of PTHrP in amounts up to 2 mg without any dose limiting\n      toxicities.\n\n      This study will directly compare the effect of placebo and escalating doses of PTHrP given\n      subcutaneously to postmenopausal women for three weeks.  Each subject will have four\n      outpatient visits and one inpatient 24-hour visit on the last day.  20 women in phase I will\n      receive either placebo or 500 micrograms/day of PTHrP.  500 micrograms/day was selected as\n      the lowest dose because it is similar to the dose used in our previous 3 month placebo\n      controlled study.  In Phase II, the doses of PTHrP will be increased in increments of\n      approximately 30% for each successive group, i.e., 750, 1000, 1250, and 1500 micrograms.\n      After the first group of 10 successfully receives 500 micrograms/day for 21 days, increased\n      doses will be given to groups of three subjects until evidence of dose limiting toxicity\n      (DLT) occurs, or a maximum dose of 1,500 micrograms is reached.  Dose limiting toxicities\n      are specified in the protocol and comprise either one major criteria: hypotension,\n      orthostatic hypotension, tachycardia, hypertension, hypercalcemia or hypophosphatemia; or\n      two minor criteria: flushing, nausea/vomiting, abdominal or muscle cramps,\n      dizziness/lightheadedness, palpitations, or any other unpleasant subjective symptom.\n\n      If a particular dose of PTHrP causes a dose-limiting toxicity, the immediately preceding\n      lower dose will be defined as the maximum safely tolerated dose.  Once the maximum safely\n      tolerated dose is determined, it will be given to a total of ten healthy subjects to ensure\n      that is is safe and well tolerated.\n\n      Study methods include outpatient visits on days 1, 5, 10, 15, and an in-patient visit on day\n      21 for lab collection and patient examination.  Blood and urine safety labs consist of serum\n      ionized calcium, total calcium, creatinine, phosphorus and albumin.  Efficacy labs consist\n      of urine and blood measurements of 25-hydroxy vitamin D, 1,25 vitamin D, PTH, osteocalcin,\n      bone specific alkaline phosphatase, procollagen peptide-1, C-telopeptide (CTx),\n      N-telopeptide (NTx), Insulin-like growth factors (IgF) and serum free deoxypyridinoline\n      (DPD).\n\n      Subject population includes up to 48 healthy 50-75 year old postmenopausal women who are\n      Caucasian, Asian, and Hispanic.  African-Americans are excluded from the study since it is\n      well documented that African-Americans have clear quantitative differences in bone density\n      and sensitivity to parathyroid hormone.  No bone densitometry scans are done during this\n      study."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Women\n\n          -  Caucasian\n\n          -  Hispanic\n\n          -  Asian\n\n          -  One year past onset of menopause\n\n          -  Weigh between 50 and 90 kilograms\n\n        Exclusion Criteria:\n\n          -  Taking bisphosphonates in the last 2 years\n\n          -  Estrogen replacement hormones in last year\n\n          -  SERMS in last year\n\n          -  One weeks worth of PTHrP, PTH or an analog of PTH in past year\n\n          -  Recent non-traumatic bone fracture within last year\n\n          -  Significant uncontrolled cardiac, vascular, renal, pulmonary, endocrine or\n             rheumatologic disease\n\n          -  History of malignancy\n\n          -  Anemia\n\n          -  Significant alcohol or drug abuse\n\n          -  Receiving any investigational drug within past 90 days\n\n          -  Medications that interfere with metabolism or renal clearance of study drug, oral or\n             systemic glucocorticoids of > 5 mg/day prednisone (or equivalent) over the past year\n\n          -  Thiazide-type diuretics\n\n          -  Abnormal screening labs (calcium, vit D and PTH, CBC)"
+            }, 
+            "gender": "Female", 
+            "healthy_volunteers": "Accepts Healthy Volunteers", 
+            "maximum_age": "75 Years", 
+            "minimum_age": "50 Years"
+        }, 
+        "enrollment": {
+            "#text": "61", 
+            "@type": "Actual"
+        }, 
+        "firstreceived_date": "September 9, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00222872", 
+            "org_study_id": "IRB # 0503166", 
+            "secondary_id": "NIH RO - DK 51081"
+        }, 
+        "intervention": [
+            {
+                "arm_group_label": "1 - PTHrP Group", 
+                "description": "PTHrP(1-36) starting at 500 micrograms, then increasing by 125 micrograms up to a maximum of 1,500 micrograms.", 
+                "intervention_name": "Parathyroid Hormone-related Protein", 
+                "intervention_type": "Drug", 
+                "other_name": "study drug"
+            }, 
+            {
+                "arm_group_label": "2 - Single Blind Placebo Group", 
+                "description": "Placebo drug via subcutaneous injection in single blinded fashion daily for 3 weeks", 
+                "intervention_name": "Placebo", 
+                "intervention_type": "Drug", 
+                "other_name": "Placebo group"
+            }
+        ], 
+        "intervention_browse": {
+            "mesh_term": "Hormones"
+        }, 
+        "is_fda_regulated": "Yes", 
+        "is_section_801": "Yes", 
+        "keyword": [
+            "Endocrine System Diseases", 
+            "MusculoSkeletal System Diseases", 
+            "Hormone", 
+            "Postmenopausal Women"
+        ], 
+        "lastchanged_date": "April 25, 2014", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Pittsburgh", 
+                    "country": "United States", 
+                    "state": "Pennsylvania", 
+                    "zip": "15213"
+                }, 
+                "name": "University of Pittsburgh Medical Center"
+            }
+        }, 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "number_of_arms": "2", 
+        "official_title": "A Three Week Dose Escalation Study of PTHrP(1-36) in Postmenopausal Women", 
+        "overall_official": {
+            "affiliation": "University of Pittsburgh", 
+            "last_name": "Mara J. Horwitz, M.D.", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Food and Drug Administration", 
+            "has_dmc": "Yes"
+        }, 
+        "phase": "Phase 1", 
+        "primary_completion_date": {
+            "#text": "September 2008", 
+            "@type": "Actual"
+        }, 
+        "primary_outcome": {
+            "measure": "Subjects will receive PTHrP without Dose Limiting Toxicity Events as established by safety parameters consisting of one major criteria or two minor criteria.", 
+            "safety_issue": "Yes", 
+            "time_frame": "3 weeks"
+        }, 
+        "reference": [
+            {
+                "PMID": "11297578", 
+                "citation": "Syed MA, Horwitz MJ, Tedesco MB, Garcia-Ocana A, Wisniewski SR, Stewart AF. Parathyroid hormone-related protein-(1--36) stimulates renal tubular calcium reabsorption in normal human volunteers: implications for the pathogenesis of humoral hypercalcemia of malignancy. J Clin Endocrinol Metab. 2001 Apr;86(4):1525-31."
+            }, 
+            {
+                "PMID": "12574182", 
+                "citation": "Horwitz MJ, Tedesco MB, Gundberg C, Garcia-Ocana A, Stewart AF. Short-term, high-dose parathyroid hormone-related protein as a skeletal anabolic agent for the treatment of postmenopausal osteoporosis. J Clin Endocrinol Metab. 2003 Feb;88(2):569-75."
+            }, 
+            {
+                "PMID": "12679445", 
+                "citation": "Horwitz MJ, Tedesco MB, Sereika SM, Hollis BW, Garcia-Ocana A, Stewart AF. Direct comparison of sustained infusion of human parathyroid hormone-related protein-(1-36) [hPTHrP-(1-36)] versus hPTH-(1-34) on serum calcium, plasma 1,25-dihydroxyvitamin D concentrations, and fractional calcium excretion in healthy human volunteers. J Clin Endocrinol Metab. 2003 Apr;88(4):1603-9."
+            }, 
+            {
+                "PMID": "8550752", 
+                "citation": "Everhart-Caye M, Inzucchi SE, Guinness-Henry J, Mitnick MA, Stewart AF. Parathyroid hormone (PTH)-related protein(1-36) is equipotent to PTH(1-34) in humans. J Clin Endocrinol Metab. 1996 Jan;81(1):199-208."
+            }, 
+            {
+                "PMID": "9062504", 
+                "citation": "Henry JG, Mitnick M, Dann PR, Stewart AF. Parathyroid hormone-related protein-(1-36) is biologically active when administered subcutaneously to humans. J Clin Endocrinol Metab. 1997 Mar;82(3):900-6."
+            }, 
+            {
+                "PMID": "9709948", 
+                "citation": "Plotkin H, Gundberg C, Mitnick M, Stewart AF. Dissociation of bone formation from resorption during 2-week treatment with human parathyroid hormone-related peptide-(1-36) in humans: potential as an anabolic therapy for osteoporosis. J Clin Endocrinol Metab. 1998 Aug;83(8):2786-91."
+            }, 
+            {
+                "PMID": "15265822", 
+                "citation": "Bisello A, Horwitz MJ, Stewart AF. Parathyroid hormone-related protein: an essential physiological regulator of adult bone mass. Endocrinology. 2004 Aug;145(8):3551-3. No abstract available."
+            }, 
+            {
+                "PMID": "16160737", 
+                "citation": "Horwitz MJ, Tedesco MB, Sereika SM, Syed MA, Garcia-Ocana A, Bisello A, Hollis BW, Rosen CJ, Wysolmerski JJ, Dann P, Gundberg C, Stewart AF. Continuous PTH and PTHrP Infusion Causes Suppression of Bone Formation and Discordant Effects on 1,25(OH)(2)Vitamin D. J Bone Miner Res. 2005 Oct;20(10):1792-803. Epub 2005 Jun 6."
+            }, 
+            {
+                "PMID": "16151606", 
+                "citation": "Horwitz MJ, Tedesco MB, Sereika SM, Garcia-Ocana A, Bisello A, Hollis BW, Gundberg C, Stewart AF. Safety and tolerability of subcutaneous PTHrP(1-36) in healthy human volunteers: a dose escalation study. Osteoporos Int. 2005 Sep 7; [Epub ahead of print]"
+            }
+        ], 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00222872"
+        }, 
+        "responsible_party": {
+            "investigator_affiliation": "University of Pittsburgh", 
+            "investigator_full_name": "Mara Horwitz", 
+            "investigator_title": "Associate Professor of Medicne", 
+            "responsible_party_type": "Principal Investigator"
+        }, 
+        "secondary_outcome": {
+            "measure": "Efficacy measurements including (but not limited to): measurements of 25-hydroxy vitamin D, 1,25 (OH)2 vitamin D, PTH, PTHrP, osteocalcin, bone specific alkaline phosphatase, procollagen peptide-1, CTx, NTx, IgF and serum DPD.", 
+            "safety_issue": "No", 
+            "time_frame": "3 week"
+        }, 
+        "source": "University of Pittsburgh", 
+        "sponsors": {
+            "collaborator": [
+                {
+                    "agency": "National Institutes of Health (NIH)", 
+                    "agency_class": "NIH"
+                }, 
+                {
+                    "agency": "Department of Health and Human Services", 
+                    "agency_class": "U.S. Fed"
+                }
+            ], 
+            "lead_sponsor": {
+                "agency": "University of Pittsburgh", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "July 2005", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Single Blind (Subject), Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "April 2014"
+    }
+}

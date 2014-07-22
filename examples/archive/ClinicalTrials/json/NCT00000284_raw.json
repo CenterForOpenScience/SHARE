@@ -1,0 +1,98 @@
+{
+    "clinical_study": {
+        "@rank": "141427", 
+        "brief_summary": {
+            "textblock": "The purpose of this study is to determine the effects of cotinine with or without a\n      transdermal nicotine replacement on tobacco withdrawal symptoms."
+        }, 
+        "brief_title": "Role of Metabolites in Nicotine Dependence (1) - 1", 
+        "completion_date": "December 2001", 
+        "condition": "Tobacco Use Disorder", 
+        "condition_browse": {
+            "mesh_term": "Tobacco Use Disorder"
+        }, 
+        "detailed_description": {
+            "textblock": "The purpose of this study was to determine the effects of a metabolite of nicotine,\n      cotinine, on tobacco withdrawal symptoms. Cotinine has been shown to have psychoactive\n      effects that are similar as well as different from those of nicotine, however, little\n      research has been conducted examining the role cotinine plays in nicotine addiction. This\n      study compared the effects of cotinine with the nicotine patch, and a combination thereof on\n      tobacco withdrawal symptoms. The results showed that cotinine antagonizes the beneficial\n      effects of the nicotine patch in reducing withdrawal symptoms."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n        Male or female subjects, aged 21-45 yrs inclusive, with a smoking history of at least 1\n        pack of cigarettes daily for at least 1 year. Subject must be in good health as verified\n        by medical history, screening exam, and screening laboratory tests. Subject must provide\n        written informed consent to participate in the study and be motivated to stop smoking for\n        a short term.\n\n        Exclusion Criteria:\n\n        History of myocardial infarction, angina pectoris, sustained or episodic cardiac\n        arrhythmias, symptomatic peripheral vascular disease, peptic ulcer disease or any other\n        medical condition which the physician or investigator deems inappropriate for\n        participation, insulin-dependent diabetes; pregnant or lactating or not using adequate\n        birth control methods; requirement of any form of regular psychotropic medication\n        (antidepressants, antipsychotics, or anxiolytics) and recent psychiatric history; chronic\n        use of systemic steroids or antihistamines; skin sensitivity which would preclude use of a\n        transdermal system; abuse of alcohol or any other recreational or prescription drug; use\n        of any other tobacco products, including smokeless tobacco and nicotine products; previous\n        use of transdermal nicotine system; inability to fulfill all scheduled visits and\n        examination procedures throughout the study period."
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "45 Years", 
+            "minimum_age": "21 Years"
+        }, 
+        "enrollment": "0", 
+        "firstreceived_date": "September 20, 1999", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00000284", 
+            "org_study_id": "NIDA-09259-1", 
+            "secondary_id": "P50-09259-1"
+        }, 
+        "intervention": {
+            "intervention_name": "Cotinine fumarate", 
+            "intervention_type": "Drug"
+        }, 
+        "intervention_browse": {
+            "mesh_term": "Nicotine"
+        }, 
+        "lastchanged_date": "November 3, 2005", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Minneapolis", 
+                    "country": "United States", 
+                    "state": "Minnesota", 
+                    "zip": "55455"
+                }, 
+                "name": "University of Minnesota"
+            }
+        }, 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "official_title": "Role of Metabolites in Nicotine Dependence (1)", 
+        "overall_official": {
+            "affiliation": "University of Minnesota - Clinical and Translational Science Institute", 
+            "last_name": "Dorothy Hatsukami, Ph.D.", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Federal Government"
+        }, 
+        "phase": "Phase 2", 
+        "primary_outcome": [
+            {
+                "measure": "Subjective effects"
+            }, 
+            {
+                "measure": "Physiological effects"
+            }, 
+            {
+                "measure": "Performance effects"
+            }
+        ], 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00000284"
+        }, 
+        "source": "National Institute on Drug Abuse (NIDA)", 
+        "sponsors": {
+            "collaborator": {
+                "agency": "University of Minnesota - Clinical and Translational Science Institute", 
+                "agency_class": "Other"
+            }, 
+            "lead_sponsor": {
+                "agency": "National Institute on Drug Abuse (NIDA)", 
+                "agency_class": "NIH"
+            }
+        }, 
+        "start_date": "February 1995", 
+        "study_design": "Allocation: Randomized, Masking: Double-Blind, Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "March 1996"
+    }
+}

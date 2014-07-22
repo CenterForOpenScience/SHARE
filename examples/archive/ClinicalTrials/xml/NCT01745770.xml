@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01745770</url>
+  </required_header>
+  <id_info>
+    <org_study_id>SAT-25/UCA</org_study_id>
+    <nct_id>NCT01745770</nct_id>
+  </id_info>
+  <brief_title>TID 1000 mg Mesalazine Versus TID 2x500 mg Mesalazine in Active Ulcerative Colitis (UC)</brief_title>
+  <official_title>Double-blind, Double-dummy, Randomised, Multi-centre, Comparative Phase III Clinical Study on the Efficacy and Tolerability of an 8 Week Oral Treatment With Three Times Daily 1000 mg Mesalazine Versus Three Times Daily 2x500 mg Mesalazine in Patients With Active Ulcerative Colitis</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Dr. Falk Pharma GmbH</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Dr. Falk Pharma GmbH</source>
+  <oversight_info>
+    <authority>Germany: Federal Institute for Drugs and Medical Devices</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The purpose of the trial is to proof whether TID 1000 mg mesalazine is non-inferior to TID
+      2x 500 mg mesalazine in the treatment of patients with acute ulcerative colitis
+    </textblock>
+  </brief_summary>
+  <overall_status>Recruiting</overall_status>
+  <start_date>January 2013</start_date>
+  <completion_date type="Anticipated">June 2014</completion_date>
+  <primary_completion_date type="Anticipated">March 2014</primary_completion_date>
+  <phase>Phase 3</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double Blind (Subject, Caregiver, Investigator, Outcomes Assessor), Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Rate of clinical remission</measure>
+    <time_frame>8 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Proportion of patients with clinical remission at week 8 compared to baseline. Clinical remission includes normalisation of stool frequency and absence of blood in stools</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Number of stools per week</measure>
+    <time_frame>8 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Number of bloody stools per week</measure>
+    <time_frame>8 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Time to first resolution of clinical symptoms</measure>
+    <time_frame>8 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Times to first resolution of symptoms defined as the periods from the day of first administration of trial medication , until the
+First of at least 3 consecutive days each with =&lt; 3 stools/day
+First of at least 3 consecutive days each with no bloody stools/day,
+First of at least 3 consecutive days each with =&lt; 3 stools/day, all without blood</description>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Anticipated">400</enrollment>
+  <condition>Active Ulcerative Colitis</condition>
+  <arm_group>
+    <arm_group_label>A</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>B</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Mesalazine - TID 1000 mg</intervention_name>
+    <arm_group_label>A</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Mesalazine - TID 2x 500 mg</intervention_name>
+    <arm_group_label>B</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Signed informed consent
+
+          -  Men or women aged 18 to 75 years
+
+          -  Active ulcerative colitis, except proctitis limited to 15 cm ab ano,   confirmed by
+             endoscopy and histology
+
+        Exclusion Criteria:
+
+          -  Crohn's disease, indeterminate colitis, ischemic colitis, radiation colitis,
+             diverticular disease associated colitis, microscopic colitis (i.e., collagenous
+             colitis and lymphocytic colitis)
+
+          -  Toxic megacolon
+
+          -  Screening stool positive for germs causing bowel disease
+
+          -  Malabsorption syndromes
+
+          -  Celiac disease
+
+          -  Other inflammatory or bleeding disorders of the colon and intestine, or diseases that
+             may cause diarrhoea or gastrointestinal bleeding
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>75 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_contact>
+    <last_name>Tanju Nacak, Dr.</last_name>
+    <phone>+49 (0)761 1514</phone>
+    <phone_ext>187</phone_ext>
+    <email>nacak@drfalkpharma.de</email>
+  </overall_contact>
+  <overall_contact_backup>
+    <last_name>Axel Dignaß, Prof. Dr.</last_name>
+    <phone>+49 (0)69 953322</phone>
+    <phone_ext>01</phone_ext>
+    <email>axel.dignass@fdk.info</email>
+  </overall_contact_backup>
+  <location>
+    <facility>
+      <name>Med. Klinik 1 - Markus-Krankenhaus</name>
+      <address>
+        <city>Frankfurt</city>
+        <state>Hessen</state>
+        <zip>60431</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Axel Dignaß, Prof. Dr.</last_name>
+      <phone>+49 (0)69 953322</phone>
+      <phone_ext>01</phone_ext>
+      <email>axel.dignass@fdk.info</email>
+    </contact>
+    <investigator>
+      <last_name>Axel Dignaß, Prof. Dr.</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location_countries>
+    <country>Germany</country>
+  </location_countries>
+  <verification_date>November 2013</verification_date>
+  <lastchanged_date>November 5, 2013</lastchanged_date>
+  <firstreceived_date>December 5, 2012</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Colitis</mesh_term>
+    <mesh_term>Colitis, Ulcerative</mesh_term>
+    <mesh_term>Ulcer</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Mesalamine</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

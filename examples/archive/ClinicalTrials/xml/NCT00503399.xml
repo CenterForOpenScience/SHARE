@@ -1,0 +1,1746 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00503399</url>
+  </required_header>
+  <id_info>
+    <org_study_id>11716</org_study_id>
+    <secondary_id>B3D-EW-GHDH</secondary_id>
+    <nct_id>NCT00503399</nct_id>
+  </id_info>
+  <brief_title>Comparison of the Effects of 2 Drugs on Lumbar Spine Volumetric BMD in Men With Glucocorticoid-Induced Osteoporosis</brief_title>
+  <acronym>EuroGIOPS</acronym>
+  <official_title>Comparison of the Effects of Teriparatide With Those of Risedronate on Lumbar Spine vBMD in Glucocorticoid-Induced Osteoporosis in Men</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Eli Lilly and Company</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Eli Lilly and Company</source>
+  <oversight_info>
+    <authority>Germany: Federal Institute for Drugs and Medical Devices</authority>
+    <authority>Greece: National Organization of Medicines</authority>
+    <authority>Italy: Ethics Committee</authority>
+    <authority>Spain: Spanish Agency of Medicines</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The objective of this study is to test the hypothesis that teriparatide is superior to the
+      active comparator in the change from baseline to 18 months of lumbar spine volumetric
+      trabecular bone mineral density (BMD) in males with glucocorticoid-induced osteoporosis.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      This study is a multinational, European, multicenter, randomized, open-label, active
+      comparator controlled study with 2 study periods: a screening phase of up to 6 weeks, and an
+      open-label treatment phase of 18 months. Approximately 100 adult men with osteoporosis
+      associated with sustained glucocorticoid therapy will be enrolled into the study.
+      Approximately one-half of the participants (at all investigational sites) will be randomized
+      to teriparatide 20 micrograms/day (ug/day given as a subcutaneous (sc) injection), and the
+      other half randomized to risedronate 35 milligrams (mg) once weekly (QW) oral (po) tablet.
+      All participants will receive approximately 1000 mg/day elemental calcium and 800 to 1200
+      international units per day (IU/day) of vitamin D.
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>July 2007</start_date>
+  <completion_date type="Actual">October 2010</completion_date>
+  <primary_completion_date type="Actual">October 2010</primary_completion_date>
+  <phase>Phase 3</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Change From Baseline in Lumbar Spine Volumetric Trabecular Bone Mineral Density (BMD) by Quantitative Computerized Tomography (QCT) at 18 Months</measure>
+    <time_frame>Baseline, 18 months</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Least Squares (LS) Means were adjusted for age, baseline serum aminoterminal propeptide of Type I procollagen (P1NP), fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Change From Baseline in Lumbar Spine Volumetric Trabecular Bone Mineral Density (BMD) by Quantitative Computerized Technology (QCT) at 6 Months</measure>
+    <time_frame>Baseline, 6 months</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Least Squares (LS) Means were adjusted for age, baseline propeptide of Type I procollagen (P1NP), fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change From Baseline in High Resolution Quantitative Computerized Technology (HR-QCT) of Integral and Trabecular Bone Mineral Density (BMD) of the 12th Thoracic Vertebra (T12) at 6 Months and 18 Months</measure>
+    <time_frame>Baseline, 6  months, 18 months</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Three-dimensional (3-D) microstructure variables of T12 were assessed by HR-QCT. In contrast with regular QCT that assessed 3 millimeter (mm) slide thickness, HR-QCT used segmentation of 1 single vertebra with approximately 100 consecutive slides reconstructed at 300-400 micrometer (µm) slice increments covering the complete vertebral body. Least Squares (LS) Means were adjusted for age, baseline P1NP, fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change From Baseline in Anterior Bending and Axial Torsion by Finite Element Analysis in the 12th Thoracic Vertebra (T12) at 6 Months and 18 Months: Stiffness and Strength</measure>
+    <time_frame>Baseline, 6 months, 18 months</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Anterior bending and axial torsion were measured using HR-QCT-based finite element analysis to determine stiffness and strength of T12. Stiffness evaluated strength of the vertebral body, defined as the slope of the initial step of the force-displacement curve. Strength of the vertebral body was evaluated under compressive loading conditions using computer simulation. LS Means were adjusted for age, baseline P1NP, fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change From Baseline in Axial Compression by Finite Element Analysis in the 12th Thoracic Vertebra (T12) at 6 Months and 18 Months: Stiffness and Strength</measure>
+    <time_frame>Baseline, 6 months, 18 months</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Axial compression was measured using HR-QCT-based finite element analysis to determine stiffness and strength of T12. Stiffness evaluated the strength of the vertebral body, defined as the slope of the initial step of the force-displacement curve. Strength of the vertebral body was evaluated under compressive loading conditions using computer simulation. LS Means were adjusted for age, baseline P1NP, fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change From Baseline in Areal Bone Mineral Density (BMD) at Lumbar Spine, Femoral Neck, and Total Hip at 18 Months</measure>
+    <time_frame>Baseline, 18 months</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Dual x-ray absorptiometry (DXA) techniques  validated this measurement at skeletal sites that are at risk of osteoporotic fracture, such as lumbar spine, femoral neck, and hip.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change From Baseline in Serum Aminoterminal Propeptide of Type I Procollagen (P1NP) at 3 Months, 6 Months, and 18 Months</measure>
+    <time_frame>Baseline, 3 months, 6 months, 18 months</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>P1NP was used as a serum biochemical marker of collagen synthesis, reflecting the formation of new osteoid.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change From Baseline in Serum Type I Collagen Degradation Fragments (β-CTx) at 3 Months, 6 Months, and 18 Months</measure>
+    <time_frame>3, 6, 18 months</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>β-CTx was used as a biochemical marker of bone turnover/resorption, reflecting collagen breakdown of the bone matrix.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Number of Participants With Adverse Events (AEs)</measure>
+    <time_frame>Baseline up to 18 months</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Summary tables of serious AEs (SAEs) and all other non-serious AEs are located in the Reported Adverse Event Module. Fractures that occurred during the study were collected separately as an additional safety variable. The number of participants experiencing hypercalcemia was summarized for each treatment arm. Hypercalcemia was defined as a serum calcium level corrected for albumin of &gt;2.7 millimole per liter (mmol/L) (10.8 milligram per deciliter [mg/dL]).</description>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">92</enrollment>
+  <condition>Osteoporosis</condition>
+  <arm_group>
+    <arm_group_label>Teriparatide</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD).</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Risedronate</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+    <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Teriparatide</intervention_name>
+    <description>20 µg/day sc for 18 months</description>
+    <arm_group_label>Teriparatide</arm_group_label>
+    <other_name>LY333334</other_name>
+    <other_name>Forteo</other_name>
+    <other_name>Forsteo</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Risedronate</intervention_name>
+    <description>35 mg/week po for 18 months</description>
+    <arm_group_label>Risedronate</arm_group_label>
+    <other_name>Actonel</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Ambulatory men 25 years of age and older presenting to Visit 1 with a bone mineral
+             density (BMD) of at least 1.5 standard deviation (SD) below the corresponding normal
+             young adult men average BMD (T score of -1.5 or lower), as determined from the
+             manufacturer's database at any of the following regions of interest:  total hip,
+             femoral neck, or lumbar spine
+
+          -  Have received glucocorticoid therapy at an average dose of at least 5.0 milligrams
+             (mg) per day of prednisone or its equivalent for a minimum of 3 consecutive months
+             immediately preceding screening (Visit 1), as determined by medical history.
+
+          -  A minimum of 2 lumbar vertebrae (L) in the L-1 through L-3 region must be evaluable
+             by quantitative computerized tomography.
+
+          -  Normal or clinically insignificant abnormal laboratory values (as determined by the
+             investigator) including serum calcium, parathyroid hormone (PTH) (1 84), and 25
+             hydroxyvitamin D concentrations, and alkaline phosphatase activity.
+
+        Exclusion Criteria:
+
+          -  Presence of a mild, moderate, or severe spinal fracture in both the twelfth thoracic
+             vertebra (T-12) and first lumbar vertebra (L-1), as determined by the central reading
+             facility using the semiquantitative technique.
+
+          -  Abnormal albumin-corrected serum calcium levels
+
+          -  History of unresolved skeletal diseases that affect bone metabolism other than
+             glucocorticoid-induced osteoporosis
+
+          -  History of malignant neoplasms in the 5 years prior to Visit 2, with the exception of
+             superficial basal cell or squamous cell carcinomas of the skin that have been
+             definitively treated. Increased baseline risk of osteosarcoma; this includes patients
+             with Paget's disease of the bone, previous primary skeletal malignancy, or skeletal
+             exposure to therapeutic irradiation.
+
+          -  Abnormal thyroid function not corrected by therapy
+
+          -  Past and/or current treatment with certain medications.
+      </textblock>
+    </criteria>
+    <gender>Male</gender>
+    <minimum_age>25 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Call 1-877-CTLILLY (1-877-285-4559) or 1-317-615-4559 Mon - Fri 9 AM - 5 PM Eastern time (UTC/GMT - 5 hours, EST)</last_name>
+    <role>Study Director</role>
+    <affiliation>Eli Lilly and Company</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Bad Nauheim</city>
+        <zip>61231</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Frankfurt</city>
+        <zip>60528</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Hamburg</city>
+        <zip>22415</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Heinsberg</city>
+        <zip>52525</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Leverkusen</city>
+        <zip>51375</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Magdeburg</city>
+        <zip>39110</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Potsdam</city>
+        <zip>14469</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Kifissia</city>
+        <zip>14561</zip>
+        <country>Greece</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Thessaloniki</city>
+        <zip>56429</zip>
+        <country>Greece</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Rome</city>
+        <zip>00161</zip>
+        <country>Italy</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Siena</city>
+        <zip>53100</zip>
+        <country>Italy</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Barcelona</city>
+        <zip>08907</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>For additional information regarding investigative sites for this trial, contact 1-877-CTLILLY (1-877-285-4559, 1-317-615-4559) Mon - Fri from 9 AM to 5 PM Eastern Time (UTC/GMT - 5 hours, EST), or speak with your personal physician.</name>
+      <address>
+        <city>Madrid</city>
+        <zip>28046</zip>
+        <country>Spain</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>Germany</country>
+    <country>Greece</country>
+    <country>Italy</country>
+    <country>Spain</country>
+  </location_countries>
+  <link>
+    <url>http://www.lillytrials.com</url>
+    <description>Lilly Clinical Trial Registry</description>
+  </link>
+  <verification_date>October 2011</verification_date>
+  <lastchanged_date>March 12, 2012</lastchanged_date>
+  <firstreceived_date>July 16, 2007</firstreceived_date>
+  <firstreceived_results_date>October 4, 2011</firstreceived_results_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>Glucocorticoid Induced</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Osteoporosis</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Glucocorticoids</mesh_term>
+    <mesh_term>Risedronic acid</mesh_term>
+    <mesh_term>Teriparatide</mesh_term>
+  </intervention_browse>
+
+  <clinical_results>
+
+    <participant_flow>
+      <pre_assignment_details>Of the 174 participants who were enrolled into the study, 92 were eligible and randomly assigned to the treatment arms.</pre_assignment_details>
+      <group_list>
+        <group group_id="P1">
+          <title>Teriparatide</title>
+          <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+        </group>
+        <group group_id="P2">
+          <title>Risedronate</title>
+          <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+        </group>
+      </group_list>
+      <period_list>
+        <period>
+          <title>Overall Study</title>
+          <milestone_list>
+            <milestone>
+              <title>STARTED</title>
+              <participants_list>
+                <participants group_id="P1" count="45"/>
+                <participants group_id="P2" count="47"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="38"/>
+                <participants group_id="P2" count="39"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>NOT COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="7"/>
+                <participants group_id="P2" count="8"/>
+              </participants_list>
+            </milestone>
+          </milestone_list>
+          <drop_withdraw_reason_list>
+            <drop_withdraw_reason>
+              <title>Death</title>
+              <participants_list>
+                <participants group_id="P1" count="2"/>
+                <participants group_id="P2" count="1"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Protocol Violation</title>
+              <participants_list>
+                <participants group_id="P1" count="1"/>
+                <participants group_id="P2" count="0"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Withdrawal by Subject</title>
+              <participants_list>
+                <participants group_id="P1" count="4"/>
+                <participants group_id="P2" count="2"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Adverse Event</title>
+              <participants_list>
+                <participants group_id="P1" count="0"/>
+                <participants group_id="P2" count="3"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Lost to Follow-up</title>
+              <participants_list>
+                <participants group_id="P1" count="0"/>
+                <participants group_id="P2" count="2"/>
+              </participants_list>
+            </drop_withdraw_reason>
+          </drop_withdraw_reason_list>
+        </period>
+      </period_list>
+    </participant_flow>
+
+    <baseline>
+      <group_list>
+        <group group_id="B1">
+          <title>Teriparatide</title>
+          <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+        </group>
+        <group group_id="B2">
+          <title>Risedronate</title>
+          <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+        </group>
+        <group group_id="B3">
+          <title>Total</title>
+          <description>Total of all reporting groups</description>
+        </group>
+      </group_list>
+      <measure_list>
+        <measure>
+          <title>Number of Participants</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="45"/>
+                <measurement group_id="B2" value="47"/>
+                <measurement group_id="B3" value="92"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Age</title>
+          <units>years</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="57.5" spread="12.80"/>
+                <measurement group_id="B2" value="55.1" spread="15.54"/>
+                <measurement group_id="B3" value="56.3" spread="14.24"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Gender</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Female</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Male</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="45"/>
+                <measurement group_id="B2" value="47"/>
+                <measurement group_id="B3" value="92"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Race/Ethnicity, Customized</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Caucasian</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="44"/>
+                <measurement group_id="B2" value="46"/>
+                <measurement group_id="B3" value="90"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Hispanic</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="1"/>
+                <measurement group_id="B3" value="1"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>East Asian</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="1"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="1"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Region of Enrollment</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Germany</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="19"/>
+                <measurement group_id="B2" value="21"/>
+                <measurement group_id="B3" value="40"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Greece</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="6"/>
+                <measurement group_id="B2" value="6"/>
+                <measurement group_id="B3" value="12"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Italy</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="5"/>
+                <measurement group_id="B2" value="8"/>
+                <measurement group_id="B3" value="13"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Spain</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="15"/>
+                <measurement group_id="B2" value="12"/>
+                <measurement group_id="B3" value="27"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Number of participants with fractures before study</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>With fractures</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="19"/>
+                <measurement group_id="B2" value="17"/>
+                <measurement group_id="B3" value="36"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Without fractures</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="26"/>
+                <measurement group_id="B2" value="30"/>
+                <measurement group_id="B3" value="56"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+      </measure_list>
+    </baseline>
+
+    <outcome_list>
+      <outcome>
+        <type>Primary</type>
+        <title>Change From Baseline in Lumbar Spine Volumetric Trabecular Bone Mineral Density (BMD) by Quantitative Computerized Tomography (QCT) at 18 Months</title>
+        <description>Least Squares (LS) Means were adjusted for age, baseline serum aminoterminal propeptide of Type I procollagen (P1NP), fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+        <time_frame>Baseline, 18 months</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>The analysis population was the primary efficacy population, which included all randomized participants who received at least 1 dose of study medication (full analysis set) and had a lumbar spine volumetric trabecular BMD measurement at baseline and at ≥1 post-baseline visit.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Teriparatide</title>
+            <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+          </group>
+          <group group_id="O2">
+            <title>Risedronate</title>
+            <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="39"/>
+                  <measurement group_id="O2" value="40"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change From Baseline in Lumbar Spine Volumetric Trabecular Bone Mineral Density (BMD) by Quantitative Computerized Tomography (QCT) at 18 Months</title>
+            <description>Least Squares (LS) Means were adjusted for age, baseline serum aminoterminal propeptide of Type I procollagen (P1NP), fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+            <units>milligram per cubic centimeter (mg/cm^3)</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="12.28" spread="3.16"/>
+                  <measurement group_id="O2" value="2.94" spread="3.14"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change From Baseline in Lumbar Spine Volumetric Trabecular Bone Mineral Density (BMD) by Quantitative Computerized Technology (QCT) at 6 Months</title>
+        <description>Least Squares (LS) Means were adjusted for age, baseline propeptide of Type I procollagen (P1NP), fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+        <time_frame>Baseline, 6 months</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>The analysis population was the primary efficacy population, which included all randomized participants who received at least 1 dose of study medication (full analysis set) and had a lumbar spine volumetric trabecular BMD measurement at baseline and at ≥1 post-baseline visit.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Teriparatide</title>
+            <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+          </group>
+          <group group_id="O2">
+            <title>Risedronate</title>
+            <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="39"/>
+                  <measurement group_id="O2" value="40"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change From Baseline in Lumbar Spine Volumetric Trabecular Bone Mineral Density (BMD) by Quantitative Computerized Technology (QCT) at 6 Months</title>
+            <description>Least Squares (LS) Means were adjusted for age, baseline propeptide of Type I procollagen (P1NP), fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+            <units>milligram per cubic centimeter (mg/cm^3)</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="4.31" spread="3.15"/>
+                  <measurement group_id="O2" value="2.52" spread="3.16"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change From Baseline in High Resolution Quantitative Computerized Technology (HR-QCT) of Integral and Trabecular Bone Mineral Density (BMD) of the 12th Thoracic Vertebra (T12) at 6 Months and 18 Months</title>
+        <description>Three-dimensional (3-D) microstructure variables of T12 were assessed by HR-QCT. In contrast with regular QCT that assessed 3 millimeter (mm) slide thickness, HR-QCT used segmentation of 1 single vertebra with approximately 100 consecutive slides reconstructed at 300-400 micrometer (µm) slice increments covering the complete vertebral body. Least Squares (LS) Means were adjusted for age, baseline P1NP, fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+        <time_frame>Baseline, 6  months, 18 months</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>The analysis population was the full analysis set (FAS), which included all randomized participants who received at least 1 dose of study medication.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Teriparatide</title>
+            <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+          </group>
+          <group group_id="O2">
+            <title>Risedronate</title>
+            <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="39"/>
+                  <measurement group_id="O2" value="40"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change From Baseline in High Resolution Quantitative Computerized Technology (HR-QCT) of Integral and Trabecular Bone Mineral Density (BMD) of the 12th Thoracic Vertebra (T12) at 6 Months and 18 Months</title>
+            <description>Three-dimensional (3-D) microstructure variables of T12 were assessed by HR-QCT. In contrast with regular QCT that assessed 3 millimeter (mm) slide thickness, HR-QCT used segmentation of 1 single vertebra with approximately 100 consecutive slides reconstructed at 300-400 micrometer (µm) slice increments covering the complete vertebral body. Least Squares (LS) Means were adjusted for age, baseline P1NP, fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+            <units>milligram per cubic centimeter (mg/cm^3)</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <sub_title>Integral BMD at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="-0.42" spread="6.42"/>
+                  <measurement group_id="O2" value="-1.91" spread="7.11"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Integral BMD at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="10.72" spread="6.22"/>
+                  <measurement group_id="O2" value="0.68" spread="7.08"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Trabecular BMD at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="-0.70" spread="5.26"/>
+                  <measurement group_id="O2" value="-0.87" spread="5.85"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Trabecular BMD at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="9.53" spread="5.09"/>
+                  <measurement group_id="O2" value="0.22" spread="5.82"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change From Baseline in Anterior Bending and Axial Torsion by Finite Element Analysis in the 12th Thoracic Vertebra (T12) at 6 Months and 18 Months: Stiffness and Strength</title>
+        <description>Anterior bending and axial torsion were measured using HR-QCT-based finite element analysis to determine stiffness and strength of T12. Stiffness evaluated strength of the vertebral body, defined as the slope of the initial step of the force-displacement curve. Strength of the vertebral body was evaluated under compressive loading conditions using computer simulation. LS Means were adjusted for age, baseline P1NP, fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+        <time_frame>Baseline, 6 months, 18 months</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>The analysis population was the full analysis set (FAS), which included all randomized participants who received at least 1 dose of study medication.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Teriparatide</title>
+            <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+          </group>
+          <group group_id="O2">
+            <title>Risedronate</title>
+            <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="39"/>
+                  <measurement group_id="O2" value="40"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change From Baseline in Anterior Bending and Axial Torsion by Finite Element Analysis in the 12th Thoracic Vertebra (T12) at 6 Months and 18 Months: Stiffness and Strength</title>
+            <description>Anterior bending and axial torsion were measured using HR-QCT-based finite element analysis to determine stiffness and strength of T12. Stiffness evaluated strength of the vertebral body, defined as the slope of the initial step of the force-displacement curve. Strength of the vertebral body was evaluated under compressive loading conditions using computer simulation. LS Means were adjusted for age, baseline P1NP, fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+            <units>Newton/millimeter/radian (N/mm/rad)</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <sub_title>Anterior bending stiffness at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="664969.0" spread="317684.0"/>
+                  <measurement group_id="O2" value="415705.0" spread="323135.0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Anterior bending stiffness at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1209225.0" spread="300977.0"/>
+                  <measurement group_id="O2" value="233283.0" spread="322829.0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Axial torsion stiffness at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="142902.9" spread="71714.2"/>
+                  <measurement group_id="O2" value="77830.7" spread="72947.9"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Axial torsion stiffness at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="279392.8" spread="68284.5"/>
+                  <measurement group_id="O2" value="56639.3" spread="72946.9"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Anterior bending strength at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="12490.9" spread="8405.0"/>
+                  <measurement group_id="O2" value="8827.2" spread="8741.0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Anterior bending strength at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="26046.4" spread="8304.1"/>
+                  <measurement group_id="O2" value="4822.0" spread="8686.6"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Axial torsion strength at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="6127.7" spread="4132.3"/>
+                  <measurement group_id="O2" value="3664.0" spread="4233.5"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Axial torsion strength at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="14181.3" spread="3954.4"/>
+                  <measurement group_id="O2" value="2545.8" spread="4228.7"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change From Baseline in Axial Compression by Finite Element Analysis in the 12th Thoracic Vertebra (T12) at 6 Months and 18 Months: Stiffness and Strength</title>
+        <description>Axial compression was measured using HR-QCT-based finite element analysis to determine stiffness and strength of T12. Stiffness evaluated the strength of the vertebral body, defined as the slope of the initial step of the force-displacement curve. Strength of the vertebral body was evaluated under compressive loading conditions using computer simulation. LS Means were adjusted for age, baseline P1NP, fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+        <time_frame>Baseline, 6 months, 18 months</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>The analysis population was the full analysis set (FAS), which included all randomized participants who received at least 1 dose of study medication.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Teriparatide</title>
+            <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+          </group>
+          <group group_id="O2">
+            <title>Risedronate</title>
+            <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="39"/>
+                  <measurement group_id="O2" value="40"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change From Baseline in Axial Compression by Finite Element Analysis in the 12th Thoracic Vertebra (T12) at 6 Months and 18 Months: Stiffness and Strength</title>
+            <description>Axial compression was measured using HR-QCT-based finite element analysis to determine stiffness and strength of T12. Stiffness evaluated the strength of the vertebral body, defined as the slope of the initial step of the force-displacement curve. Strength of the vertebral body was evaluated under compressive loading conditions using computer simulation. LS Means were adjusted for age, baseline P1NP, fracture less than 12 months before study start, duration of prior bisphosphonate use, screening glucocorticoid dose, and cumulative glucocorticoid dose before and during the trial.</description>
+            <units>Newton per millimeter (N/mm)</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <sub_title>Axial compression stiffness at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="890.7" spread="596.6"/>
+                  <measurement group_id="O2" value="407.6" spread="607.6"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Axial compression stiffness at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1973.9" spread="569.0"/>
+                  <measurement group_id="O2" value="363.7" spread="605.9"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Axial compression strength at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="580.7" spread="444.6"/>
+                  <measurement group_id="O2" value="313.6" spread="457.0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Axial compression strength at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1287.5" spread="424.0"/>
+                  <measurement group_id="O2" value="209.4" spread="455.5"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change From Baseline in Areal Bone Mineral Density (BMD) at Lumbar Spine, Femoral Neck, and Total Hip at 18 Months</title>
+        <description>Dual x-ray absorptiometry (DXA) techniques  validated this measurement at skeletal sites that are at risk of osteoporotic fracture, such as lumbar spine, femoral neck, and hip.</description>
+        <time_frame>Baseline, 18 months</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>The analysis population was the full analysis set (FAS), which included all randomized participants who received at least 1 dose of study medication.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Teriparatide</title>
+            <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+          </group>
+          <group group_id="O2">
+            <title>Risedronate</title>
+            <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="45"/>
+                  <measurement group_id="O2" value="47"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change From Baseline in Areal Bone Mineral Density (BMD) at Lumbar Spine, Femoral Neck, and Total Hip at 18 Months</title>
+            <description>Dual x-ray absorptiometry (DXA) techniques  validated this measurement at skeletal sites that are at risk of osteoporotic fracture, such as lumbar spine, femoral neck, and hip.</description>
+            <units>grams per square centimeter (g/cm^2)</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <sub_title>Lumbar spine (n=38; n=39)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0.068" spread="0.0685"/>
+                  <measurement group_id="O2" value="0.037" spread="0.0493"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Hip (n=38; n=37)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0.014" spread="0.0319"/>
+                  <measurement group_id="O2" value="0.007" spread="0.0320"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Femoral neck (n=38; n=37)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0.014" spread="0.0446"/>
+                  <measurement group_id="O2" value="-0.007" spread="0.0333"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change From Baseline in Serum Aminoterminal Propeptide of Type I Procollagen (P1NP) at 3 Months, 6 Months, and 18 Months</title>
+        <description>P1NP was used as a serum biochemical marker of collagen synthesis, reflecting the formation of new osteoid.</description>
+        <time_frame>Baseline, 3 months, 6 months, 18 months</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>The analysis population was the full analysis set (FAS), which included all randomized participants who received at least 1 dose of study medication.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Teriparatide</title>
+            <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+          </group>
+          <group group_id="O2">
+            <title>Risedronate</title>
+            <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="45"/>
+                  <measurement group_id="O2" value="47"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change From Baseline in Serum Aminoterminal Propeptide of Type I Procollagen (P1NP) at 3 Months, 6 Months, and 18 Months</title>
+            <description>P1NP was used as a serum biochemical marker of collagen synthesis, reflecting the formation of new osteoid.</description>
+            <units>micrograms per deciliter (μg/dL)</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <sub_title>P1NP at 3 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="27.33" spread="8.32"/>
+                  <measurement group_id="O2" value="-16.09" spread="7.82"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>P1NP at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="52.55" spread="8.27"/>
+                  <measurement group_id="O2" value="-16.50" spread="7.95"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>P1NP at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="28.48" spread="8.74"/>
+                  <measurement group_id="O2" value="-15.58" spread="8.58"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change From Baseline in Serum Type I Collagen Degradation Fragments (β-CTx) at 3 Months, 6 Months, and 18 Months</title>
+        <description>β-CTx was used as a biochemical marker of bone turnover/resorption, reflecting collagen breakdown of the bone matrix.</description>
+        <time_frame>3, 6, 18 months</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>The analysis population was the full analysis set (FAS), which included all randomized participants who received at least 1 dose of study medication.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Teriparatide</title>
+            <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+          </group>
+          <group group_id="O2">
+            <title>Risedronate</title>
+            <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="45"/>
+                  <measurement group_id="O2" value="47"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change From Baseline in Serum Type I Collagen Degradation Fragments (β-CTx) at 3 Months, 6 Months, and 18 Months</title>
+            <description>β-CTx was used as a biochemical marker of bone turnover/resorption, reflecting collagen breakdown of the bone matrix.</description>
+            <units>nanograms per deciliter (ng/dL)</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <sub_title>β-CTx at 3 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0.12" spread="0.07"/>
+                  <measurement group_id="O2" value="-0.15" spread="0.07"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>β-CTx at 6 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0.25" spread="0.07"/>
+                  <measurement group_id="O2" value="-0.14" spread="0.07"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>β-CTx at 18 months</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0.03" spread="0.08"/>
+                  <measurement group_id="O2" value="-0.11" spread="0.07"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Number of Participants With Adverse Events (AEs)</title>
+        <description>Summary tables of serious AEs (SAEs) and all other non-serious AEs are located in the Reported Adverse Event Module. Fractures that occurred during the study were collected separately as an additional safety variable. The number of participants experiencing hypercalcemia was summarized for each treatment arm. Hypercalcemia was defined as a serum calcium level corrected for albumin of &gt;2.7 millimole per liter (mmol/L) (10.8 milligram per deciliter [mg/dL]).</description>
+        <time_frame>Baseline up to 18 months</time_frame>
+        <safety_issue>Yes</safety_issue>
+        <population>The safety analysis set included all participants who received study treatment.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Teriparatide</title>
+            <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+          </group>
+          <group group_id="O2">
+            <title>Risedronate</title>
+            <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="45"/>
+                  <measurement group_id="O2" value="47"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Number of Participants With Adverse Events (AEs)</title>
+            <description>Summary tables of serious AEs (SAEs) and all other non-serious AEs are located in the Reported Adverse Event Module. Fractures that occurred during the study were collected separately as an additional safety variable. The number of participants experiencing hypercalcemia was summarized for each treatment arm. Hypercalcemia was defined as a serum calcium level corrected for albumin of &gt;2.7 millimole per liter (mmol/L) (10.8 milligram per deciliter [mg/dL]).</description>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <sub_title>Serious Adverse Events (SAEs)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="13"/>
+                  <measurement group_id="O2" value="22"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Other Non-serious AEs</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="22"/>
+                  <measurement group_id="O2" value="30"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Fractures</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="5"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Hypercalcemia</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+    </outcome_list>
+
+    <reported_events>
+      <group_list>
+        <group group_id="E1">
+          <title>Teriparatide</title>
+          <description>Teriparatide 20 microgram (µg) subcutaneous (sc) injection once daily (QD)</description>
+        </group>
+        <group group_id="E2">
+          <title>Risedronate</title>
+          <description>Risedronate 35 milligrams (mg) oral (po) tablet once weekly (QW)</description>
+        </group>
+      </group_list>
+      <serious_events>
+        <default_vocab>MEDDRA (12.0)</default_vocab>
+        <default_assessment>Systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, serious adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="13" subjects_at_risk="45"/>
+                <counts group_id="E2" subjects_affected="22" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Blood and lymphatic system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Anaemia</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Cardiac disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Angina pectoris</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Aortic valve incompetence</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Atrial fibrillation</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Cardiac failure</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Ear and labyrinth disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Sudden hearing loss</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Eye disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Cataract</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Anal fistula</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Crohn's disease</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Gastrointestinal haemorrhage</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Pancreatitis acute</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Chest pain</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Sudden death</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Hepatobiliary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Cholecystitis</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Anal abscess</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Cytomegalovirus infection</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Intervertebral discitis</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Postoperative abscess</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Injury, poisoning and procedural complications</title>
+            <event_list>
+              <event>
+                <sub_title>Ankle fracture</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Fall</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Femoral neck fracture</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Head injury</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Procedural pain</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Radius fracture</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Rib fracture</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="4" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Musculoskeletal and connective tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Intervertebral disc protrusion</sub_title>
+                <counts group_id="E1" events="3" subjects_affected="3" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Osteoarthritis</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Rheumatoid arthritis</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Neoplasms benign, malignant and unspecified (incl cysts and polyps)</title>
+            <event_list>
+              <event>
+                <sub_title>Intestinal adenocarcinoma</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Prostatic adenoma</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Seminoma</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Nervous system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Cognitive disorder</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Renal and urinary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Nephrolithiasis</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Acute respiratory failure</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Asthma</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Chronic obstructive pulmonary disease</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="2" subjects_at_risk="45"/>
+                <counts group_id="E2" events="3" subjects_affected="3" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Dyspnoea</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Epistaxis</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Skin and subcutaneous tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Leukoplakia</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Scar</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Skin ulcer</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Femoral artery occlusion</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Hypertensive crisis</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="3" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </serious_events>
+      <other_events>
+        <frequency_threshold>4</frequency_threshold>
+        <default_vocab>MEDDRA (12.0)</default_vocab>
+        <default_assessment>Systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, other adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="22" subjects_at_risk="45"/>
+                <counts group_id="E2" subjects_affected="30" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Abdominal pain upper</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Constipation</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Nausea</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="3" subjects_affected="3" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Reflux oesophagitis</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Oedema peripheral</sub_title>
+                <counts group_id="E1" events="4" subjects_affected="3" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Hepatobiliary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Cholelithiasis</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="2" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Influenza</sub_title>
+                <counts group_id="E1" events="4" subjects_affected="4" subjects_at_risk="45"/>
+                <counts group_id="E2" events="4" subjects_affected="3" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Lung infection</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Nasopharyngitis</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="2" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Injury, poisoning and procedural complications</title>
+            <event_list>
+              <event>
+                <sub_title>Rib fracture</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="4" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Investigations</title>
+            <event_list>
+              <event>
+                <sub_title>Blood cholesterol increased</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Weight decreased</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Weight increased</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="3" subjects_affected="3" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Metabolism and nutrition disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Obesity</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="2" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Musculoskeletal and connective tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Arthralgia</sub_title>
+                <counts group_id="E1" events="4" subjects_affected="4" subjects_at_risk="45"/>
+                <counts group_id="E2" events="4" subjects_affected="3" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Back pain</sub_title>
+                <counts group_id="E1" events="3" subjects_affected="3" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Pain in extremity</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Nervous system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Headache</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="45"/>
+                <counts group_id="E2" events="3" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Paraesthesia</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="2" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Psychiatric disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Insomnia</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="2" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Dyspnoea</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="3" subjects_affected="3" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Skin and subcutaneous tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Erythema</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="2" subjects_at_risk="45"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="47"/>
+              </event>
+              <event>
+                <sub_title>Urticaria</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Surgical and medical procedures</title>
+            <event_list>
+              <event>
+                <sub_title>Cataract operation</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="2" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="1" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Haematoma</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="45"/>
+                <counts group_id="E2" events="2" subjects_affected="2" subjects_at_risk="47"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </other_events>
+    </reported_events>
+
+    <certain_agreements>
+      <pi_employee>Principal Investigators are NOT employed by the organization sponsoring the study.</pi_employee>
+      <restrictive_agreement>The only disclosure restriction on the PI is that the sponsor can review results communications prior to public release and can embargo communications regarding trial results for a period that is more than 60 days but less than or equal to 180 days. The sponsor cannot require changes to the communication and cannot extend the embargo.</restrictive_agreement>
+    </certain_agreements>
+    <point_of_contact>
+      <name_or_title>Chief Medical Officer</name_or_title>
+      <organization>Eli Lilly and Company</organization>
+      <phone>800-545-5979</phone>
+    </point_of_contact>
+  </clinical_results>
+</clinical_study>

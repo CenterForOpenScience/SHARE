@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT02045212</url>
+  </required_header>
+  <id_info>
+    <org_study_id>RGN-ON-001</org_study_id>
+    <nct_id>NCT02045212</nct_id>
+  </id_info>
+  <brief_title>Safety and Efficacy Study of RPh201 Treatment of Ischemic Optic Neuropathy (ION).</brief_title>
+  <official_title>A Preliminary Double Blind Clinical Study, Efficacy Study of RPh201 Treatment of Ischemic Optic Neuropathy (ION).</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Regenera Pharma Ltd</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Regenera Pharma Ltd</source>
+  <oversight_info>
+    <authority>Israel: Ethics Commission</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The study objectives are to assess any changes in visual acuity and visual field observed
+      following the administration of RPh201 during an overall treatment period of at least 13
+      consecutive weeks with an option to extended the treatment phase to another 13 weeks (26
+      weeks total), and at the follow-up visit at 3 month after end of treatment in patients with
+      optic nerve neuropathy.
+    </textblock>
+  </brief_summary>
+  <overall_status>Recruiting</overall_status>
+  <start_date>February 2014</start_date>
+  <completion_date type="Anticipated">December 2015</completion_date>
+  <primary_completion_date type="Anticipated">June 2015</primary_completion_date>
+  <phase>Phase 2</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double Blind (Subject, Caregiver, Investigator), Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>To assess any changes in visual acuity and visual field observed following the treatment</measure>
+    <time_frame>26/39 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>The primary endpoints of this study are to assess any changes in visual acuity and visual field observed following the subcutaneous (SC) administration of RPh201 an overall treatment period of up to 13/26 weeks and at the follow-up visit at 3 month after end of treatment:
+To assess any changes in visual acuity and visual field observed following the SC administration of RPh201
+To assess any changes in Visual Evoked Potential observed following the SC administration of RPh201
+To assess any changes in Optical Coherence Tomography (OCT) observed following the SC administration of RPh201</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>To demonstrate safety and tolerability of multiple SC doses of RPh201</measure>
+    <time_frame>26/39 weeks</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Safety and tolerability multiple ascending SC doses as assessed by adverse events, vital signs, clinical laboratory and physical exam</description>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Anticipated">20</enrollment>
+  <condition>Non-arteritic Ischemic Optic Neuropathy</condition>
+  <condition>Optic Nerve Injuries</condition>
+  <arm_group>
+    <arm_group_label>RPh201</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>3/6 month treatment schedule, consisting of bi-weekly SC administration of the RPh201</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Placebo</arm_group_label>
+    <arm_group_type>Placebo Comparator</arm_group_type>
+    <description>3/6 month treatment schedule, consisting of bi-weekly SC administration of the Placebo</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>RPh201</intervention_name>
+    <description>SC injection twice a week during 13/26 weeks</description>
+    <arm_group_label>RPh201</arm_group_label>
+    <other_name>RPh201</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Placebo</intervention_name>
+    <description>SC injection twice a week during 13/26 weeks</description>
+    <arm_group_label>Placebo</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          1. Participants, either men or women are ≥ 18 years of age.
+
+          2. Diagnosis of ischemic optic neuropathy unilateral or bilateral:
+
+               1. Traumatic Neuropathy
+
+               2. Ischemic optic neuropathy - Non Arteritic Ischemic Neuropathy (NAION)
+
+          3. Corrected Visual acuity equal or worse than 6/60 or visual field of less than 15
+             degrees or both.
+
+          4. Field of view with a reduction from 10 degrees to one quarter situations functions.
+
+          5. Participant understands the nature of the procedure and provides written informed
+             consent prior to any study procedure.
+
+          6. Women of child bearing potential must use adequate birth-control precautions.
+
+        Exclusion Criteria:
+
+          1. Glaucoma
+
+          2. Neuropathy caused by tumors.
+
+          3. Neuropathy caused by infections
+
+          4. Mitochondrial optic neuropathies
+
+          5. Nutritional, Radiation, Toxic optic neuropathies
+
+          6. Retinal diabetic complications
+
+          7. Hereditary optic neuropathies
+
+          8. Patients with complete SCOTOMA beyond three quarters.
+
+          9. Clinical evidence for presence of infection.
+
+         10. Patient is receiving, or has received within one month prior to enrollment
+             corticosteroids, immunosuppressive drugs, cytotoxic agents, radiation therapy and
+             chemotherapy.
+
+         11. Patient has a history of alcohol or drug abuse within the last two years.
+
+         12. Female patients who are pregnant or nursing, or of childbearing potential and are not
+             using adequate contraception.
+
+         13. Participation in another clinical trial within 60 days prior to the Screening Visit
+             or during this study.
+
+         14. Clinically significant and/or uncontrolled condition or other significant medical
+             disease
+
+         15. Clinically significant uncontrolled retinal disease (AMD)
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Zvi Segal,, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Head of the Ophthalmology Department, Western Galilee-Nahariya Medical Center Nahariya, Israel</affiliation>
+  </overall_official>
+  <overall_contact>
+    <last_name>Segal Zvi, MD</last_name>
+    <phone>04-9107522</phone>
+    <email>zvi.segal@naharia.health.gov.il</email>
+  </overall_contact>
+  <location>
+    <facility>
+      <name>Ophthalmology Department, Western Galilee-Nahariya Medical Center</name>
+      <address>
+        <city>Nahariya</city>
+        <country>Israel</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>‪Reut Peled, BA</last_name>
+      <phone>054-6230889</phone>
+      <email>peledrm@gmail.com</email>
+    </contact>
+    <investigator>
+      <last_name>Zvi Segal, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+    <investigator>
+      <last_name>Eytan Z Rath, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location_countries>
+    <country>Israel</country>
+  </location_countries>
+  <verification_date>April 2014</verification_date>
+  <lastchanged_date>April 27, 2014</lastchanged_date>
+  <firstreceived_date>January 21, 2014</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>Ischemic Optic Neuropathy</keyword>
+  <keyword>Traumatic Neuropathy</keyword>
+  <keyword>Non Arteritic Ischemic Neuropathy (NAION)</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Ischemia</mesh_term>
+    <mesh_term>Optic Nerve Diseases</mesh_term>
+    <mesh_term>Optic Neuropathy, Ischemic</mesh_term>
+    <mesh_term>Optic Nerve Injuries</mesh_term>
+    <mesh_term>Demyelinating Diseases</mesh_term>
+    <mesh_term>Polyneuropathies</mesh_term>
+    <mesh_term>Nerve Compression Syndromes</mesh_term>
+    <mesh_term>Neurologic Manifestations</mesh_term>
+    <mesh_term>Neurotoxicity Syndromes</mesh_term>
+    <mesh_term>Wounds and Injuries</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

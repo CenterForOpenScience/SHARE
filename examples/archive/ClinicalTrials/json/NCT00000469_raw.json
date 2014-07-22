@@ -1,0 +1,137 @@
+{
+    "clinical_study": {
+        "@rank": "116184", 
+        "brief_summary": {
+            "textblock": "To determine whether warfarin or lovastatin alone or in combination retarded the progression\n      of atherosclerotic plaques in the carotid arteries of high risk individuals with\n      asymptomatic carotid stenosis.  Also, to determine if a full scale trial was feasible."
+        }, 
+        "brief_title": "Asymptomatic Carotid Artery Plaque Study (ACAPS)", 
+        "completion_date": "August 1998", 
+        "condition": [
+            "Cardiovascular Diseases", 
+            "Carotid Stenosis", 
+            "Cerebral Arteriosclerosis", 
+            "Cerebrovascular Disorders", 
+            "Heart Diseases", 
+            "Vascular Diseases"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Arteriosclerosis", 
+                "Cardiovascular Diseases", 
+                "Carotid Stenosis", 
+                "Cerebrovascular Disorders", 
+                "Heart Diseases", 
+                "Vascular Diseases", 
+                "Intracranial Arteriosclerosis"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "BACKGROUND:\n\n      At the present time, atherosclerosis of the major extracranial arteries to the brain is\n      considered the cause of most strokes.  Early intervention and stroke prevention utilized\n      anti-coagulants such as coumadin and heparin.  Results were largely equivocal due to the\n      diverse nature of the underlying pathogenesis and due to problems that offset potential\n      benefit.  Emphasis gradually switched to aspirin and to other platelet anti-aggregant drugs\n      because of mounting evidence that micro-emboli were a major element in transient ischemic\n      attacks.  Several studies have examined the potential benefit of aspirin in stroke\n      prevention.  The exact dose of aspirin that was maximally beneficial with minimal side\n      effects was not completely established.  There was evidence that low dose aspirin was as\n      effective as higher doses.  The American College of Chest Physicians (ACCP) made\n      recommendations that if aspirin were issued as a primary anti-thrombotic agent, the dose\n      should be 325 mg daily, except in patients with cerebrovascular disease in whom the lowest\n      beneficial dose appeared to be one gram per day.  The ACCP also pointed out that the risk of\n      bleeding was substantially greater in patients with ischemic cerebrovascular disease and\n      venous thromboembolism than in other high risk groups requiring anticoagulation.  It advised\n      that anticoagulant therapy was not needed, but that aspirin might be given at 325 mg per\n      day.\n\n      Lovastatin is a fungal metabolite that inhibits 3-hydroxy, 3-methyl glutaryl coenzyme A\n      reductase, the rate-limiting enzyme of cholesterol biosynthesis in human cells including the\n      liver.  Inhibition of this pathway causes the cells to increase their low density\n      lipoprotein receptor numbers to compensate, causing a reduction in circulating low density\n      lipoprotein levels with a consequent drop in circulating plasma cholesterol levels.  The\n      drug also raises high density lipoprotein levels significantly.  A favorable outcome of the\n      trial will have major public health implications for the prevention and control of\n      atherosclerosis and its complications.\n\n      DESIGN NARRATIVE:\n\n      Randomized, double-blind, factorial design.  In this multicenter study, patients were\n      assigned to one of four drug combination groups:  active lovastatin/active warfarin, active\n      lovastatin/warfarin placebo, lovastatin placebo/active warfarin, and lovastatin\n      placebo/warfarin placebo.  Daily aspirin was recommended for everyone.  Ultrasound was\n      performed for screening, at baseline and semiannually thereafter.  Lipid profiles were\n      obtained at screening, at baseline, monthly for the first three months, at six months, and\n      annually thereafter, with beta quantification at baseline.  Recruitment began in the tenth\n      month of the trial and continued for one year, ending in September 1990.  Treatment\n      continued through the 51st month.  Average treatment period was 2.7 years.  Subjects were\n      offered a dietary regimen for three months prior to receiving any drug therapy.  Only those\n      individuals whose lipid levels did not fall below a certain point continued in dietary\n      intervention.  The primary outcome measure was the three year change in mean maximum\n      intimal-medial thickness (IMT) in twelve walls of the carotid arteries.  Secondary outcomes\n      included change in single maximum IMT and incidence of major cardiovascular events.\n\n      In 1995, an R03 was awarded to Mark Espeland to extend analyses of the carotid B-mode\n      ultrasound data through August, 1998."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Men and women with early carotid atherosclerosis and moderately elevated LDL cholesterol\n        between the 60th and 90th percentiles."
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "79 Years", 
+            "minimum_age": "40 Years"
+        }, 
+        "firstreceived_date": "October 27, 1999", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00000469", 
+            "org_study_id": "58"
+        }, 
+        "intervention": [
+            {
+                "intervention_name": "aspirin", 
+                "intervention_type": "Drug"
+            }, 
+            {
+                "intervention_name": "lovastatin", 
+                "intervention_type": "Drug"
+            }
+        ], 
+        "intervention_browse": {
+            "mesh_term": [
+                "Aspirin", 
+                "Lovastatin"
+            ]
+        }, 
+        "lastchanged_date": "June 23, 2005", 
+        "overall_official": [
+            {
+                "affiliation": "Bowman Gray School of Medicine", 
+                "last_name": "Mark Espeland"
+            }, 
+            {
+                "affiliation": "Bowman Gray School of Medicine", 
+                "last_name": "Curt Furberg"
+            }
+        ], 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Federal Government"
+        }, 
+        "phase": "Phase 2", 
+        "reference": [
+            {
+                "PMID": "8610317", 
+                "citation": "Espeland MA, Craven TE, Riley WA, Corson J, Romont A, Furberg CD. Reliability of longitudinal ultrasonographic measurements of carotid intimal-medial thicknesses. Asymptomatic Carotid Artery Progression Study Research Group. Stroke. 1996 Mar;27(3):480-5."
+            }, 
+            {
+                "PMID": "1330434", 
+                "citation": "Rationale and design for the Asymptomatic Carotid Artery Plaque Study (ACAPS). The ACAPS Group. Control Clin Trials. 1992 Aug;13(4):293-314."
+            }, 
+            {
+                "PMID": "1496192", 
+                "citation": "Espeland MA, Byington RP, Hire D, Davis VG, Hartwell T, Probstfield J. Analysis strategies for serial multivariate ultrasonographic data that are incomplete. Stat Med. 1992 Jun 15;11(8):1041-56."
+            }, 
+            {
+                "PMID": "1636178", 
+                "citation": "Riley WA, Barnes RW, Applegate WB, Dempsey R, Hartwell T, Davis VG, Bond MG, Furberg CD. Reproducibility of noninvasive ultrasonic measurement of carotid atherosclerosis. The Asymptomatic Carotid Artery Plaque Study. Stroke. 1992 Aug;23(8):1062-8."
+            }, 
+            {
+                "PMID": "8073462", 
+                "citation": "Espeland MA, Hoen H, Byington R, Howard G, Riley WA, Furberg CD. Spatial distribution of carotid intimal-medial thickness as measured by B-mode ultrasonography. Stroke. 1994 Sep;25(9):1812-9."
+            }, 
+            {
+                "PMID": "7734010", 
+                "citation": "Furberg CD, Adams HP Jr, Applegate WB, Byington RP, Espeland MA, Hartwell T, Hunninghake DB, Lefkowitz DS, Probstfield J, Riley WA, et al. Effect of lovastatin on early carotid atherosclerosis and cardiovascular events. Asymptomatic Carotid Artery Progression Study (ACAPS) Research Group. Circulation. 1994 Oct;90(4):1679-87."
+            }, 
+            {
+                "PMID": "7572686", 
+                "citation": "Probstfield JL, Margitic SE, Byington RP, Espeland MA, Furberg CD. Results of the primary outcome measure and clinical events from the Asymptomatic Carotid Artery Progression Study. Am J Cardiol. 1995 Sep 28;76(9):47C-53C."
+            }, 
+            {
+                "PMID": "7485045", 
+                "citation": "Espeland MA, Applegate W, Furberg CD, Lefkowitz D, Rice L, Hunninghake D. Estrogen replacement therapy and progression of intimal-medial thickness in the carotid arteries of postmenopausal women. ACAPS Investigators. Asymptomatic Carotid Atherosclerosis Progression Study. Am J Epidemiol. 1995 Nov 15;142(10):1011-9."
+            }, 
+            {
+                "PMID": "8795167", 
+                "citation": "Riley WA, Craven T, Romont A, Furberg CD. Assessment of temporal bias in longitudinal measurements of carotid intimal-medial thickness in the Asymptomatic Carotid Artery Progression Study (ACAPS). ACAPS Research Group. Ultrasound Med Biol. 1996;22(4):405-11."
+            }, 
+            {
+                "PMID": "10411862", 
+                "citation": "Byington RP, Evans GW, Espeland MA, Applegate WB, Hunninghake DB, Probstfield J, Furberg CD. Effects of lovastatin and warfarin on early carotid atherosclerosis: sex-specific analyses. Asymptomatic Carotid Artery Progression Study (ACAPS) Research Group. Circulation. 1999 Jul 20;100(3):e14-7."
+            }
+        ], 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00000469"
+        }, 
+        "source": "National Heart, Lung, and Blood Institute (NHLBI)", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "National Heart, Lung, and Blood Institute (NHLBI)", 
+                "agency_class": "NIH"
+            }
+        }, 
+        "start_date": "May 1988", 
+        "study_design": "Allocation: Randomized, Masking: Double-Blind, Primary Purpose: Prevention", 
+        "study_type": "Interventional", 
+        "verification_date": "April 2000"
+    }
+}

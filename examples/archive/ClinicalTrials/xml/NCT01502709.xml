@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01502709</url>
+  </required_header>
+  <id_info>
+    <org_study_id>CVS-TMD-001</org_study_id>
+    <nct_id>NCT01502709</nct_id>
+  </id_info>
+  <brief_title>Neurostimulation in Temporomandibular Disorders (TMD) Patients</brief_title>
+  <acronym>CVS</acronym>
+  <official_title>Randomized Blinded Placebo-Controlled Clinical Trial of Caloric Vestibular Neurostimulation in Patients With Chronic TMD</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>University of North Carolina, Chapel Hill</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>University of North Carolina, Chapel Hill</source>
+  <oversight_info>
+    <authority>United States: Institutional Review Board</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The investigators propose to conduct a randomized blinded placebo-controlled clinical trial
+      in patients with chronic TMD (N=20). Patients will be randomly assigned to receive either
+      active treatment (caloric vestibular neurostimulation) or placebo for 3 visits. Data will be
+      collected prior to and after treatment on thermal and mechanical pain thresholds, clinical
+      signs and symptoms of TMD, and any adverse events.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      Temporomandibular disorders (TMD) are musculoskeletal pain conditions characterized by pain
+      in the temporomandibular joint and/or the masticatory muscles.  TMD are amongst the most
+      common chronic musculoskeletal conditions affecting 6 to 12% of the general population yet
+      there are no medicines approved specifically for its treatment. TMD cause substantial
+      suffering and TMD pain is the most common symptom that compels patients to seek therapy. One
+      study found average ratings of pain intensity due to TMD of 4.3 on a 10-point scale, similar
+      to the averages reported for chest pain and back pain.  Studies consistently find that TMD
+      has a pronounced impact on quality of life. Thus, a new successful approach to TMD therapy
+      would have a significant clinical and economic impact.
+
+      Caloric vestibular stimulation (CVS) is a routine diagnostic test for the assessment of
+      vestibular function and CNS pathology. It is usually conducted by instilling cold or warm
+      water into the external ear canal and has been shown to activate anterior cingulate,
+      temporoparietal and insular cortices. In addition to its use as a diagnostic test, CVS has
+      also been shown to reduce pain in several chronic conditions including migraine, phantom
+      limb pain, spinal cord injury, thalamic pain, and complex regional pain syndrome.
+
+      Central sensitization is a common feature of the pain conditions shown to be alleviated by
+      CVS. It is a dysfunctional state of the central nervous system in which pain is no longer
+      coupled to a noxious peripheral stimulus. In the presence of central sensitization the
+      response to a noxious stimulus is exaggerated and prolonged (hyperalgesia) and may involve
+      areas outside the site of injury (secondary hyperalgesia).  Pain can also arise
+      spontaneously and can be elicited by innocuous stimuli (allodynia). While the neural
+      mechanisms underlying the development of TMD are poorly understood, there is accumulating
+      evidence that central sensitization plays a critical role in TMD pathogenesis. It has been
+      proposed that there is a cyclical process in which TMD pain results in central sensitization
+      that in turn predisposes patients to more pain. Thus any treatment that reverses central
+      sensitization should in turn result in a decrease in pain.
+
+      Caloric vestibular stimulation (CVS) is a safe and effective procedure used for the
+      diagnosis of brainstem injury and for balance assessment.  As noted already, there have been
+      intriguing observations in the literature suggesting that caloric vestibular stimulation can
+      lead to the abatement of pain.  When a caloric stimulation (warm or cool relative to body
+      temperature) is applied to the ear canal, conduction (primarily via dense bone) to the inner
+      ear, and in particular the prominence of the lateral semicircular canal (SCC), sets up
+      convection currents in the endolymph. The resultant deformation of the cupula (membrane
+      spanning the ampula of the SCC) leads to a phasic change in the tonic firing rate of hair
+      cells at the base of the cupula, thereby altering the firing rate of the afferents of the
+      vestibular nerve (thus a device delivering CVS may be viewed as a class of neurostimulator).
+      The afferents map to nuclei in the brainstem (as well as some phylogenetically ancient,
+      direct connections, e.g. to the thalamus and hippocampus) and then to the fastigial nuclei
+      in the cerebellum. It is hypothesized that the method of action of CVS on pain relates to
+      alteration of the phasic firing rate in the vestibular nerve afferents, which in turn alters
+      the activation of the receiving areas (brainstem and cerebellum).
+
+      The primary impediment to therapeutic applications of CVS has been the lack of a clinical
+      device that provides controlled, prolonged, and repeatable caloric stimulation.  The use of
+      &quot;ice water&quot; irrigation using syringes or even the water/air irrigators used in balance
+      studies are not practical for treatment regimens that extend up to 10 minutes.  Further, the
+      applicants believe that a controlled, time-varying thermal waveform is essential to avoid
+      the effects of adaptation of the cupula, which then attenuates control of the phasic firing
+      rate of the hair cells.
+    </textblock>
+  </detailed_description>
+  <overall_status>Enrolling by invitation</overall_status>
+  <start_date>December 2011</start_date>
+  <completion_date type="Anticipated">May 2012</completion_date>
+  <primary_completion_date type="Anticipated">April 2012</primary_completion_date>
+  <phase>N/A</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double Blind (Subject, Outcomes Assessor), Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>pain intensity as reported on the VAS</measure>
+    <time_frame>4 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Change in composite pain index</measure>
+    <time_frame>Baseline, weeks 1,2,3,4</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change in signs and symptoms of TMD based on outcomes of RDC exam</measure>
+    <time_frame>Baseline, weeks 1,2,3,4</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Adverse events</measure>
+    <time_frame>4 weeks</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Anticipated">20</enrollment>
+  <condition>Chronic Temporomandibular Disorders</condition>
+  <arm_group>
+    <arm_group_label>Caloric Vestibular Neurostimulation</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Placebo</arm_group_label>
+    <arm_group_type>Placebo Comparator</arm_group_type>
+  </arm_group>
+  <intervention>
+    <intervention_type>Device</intervention_type>
+    <intervention_name>Scion Neurostim, LLC, Caloric Vestibular Neurostimulation Device</intervention_name>
+    <description>3 treatments over 1week, caloric vestibular neurostimulation for 7.5 minutes in the right ear</description>
+    <arm_group_label>Caloric Vestibular Neurostimulation</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Device</intervention_type>
+    <intervention_name>Placebo</intervention_name>
+    <description>placebo</description>
+    <arm_group_label>Placebo</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Aged 18-65 years
+
+          -  English speaking
+
+          -  Females with chronic TMD
+
+        Exclusion Criteria:
+
+          -  History of any of the following: Terminal, progressive and /or unstable medical
+             illness; Previous head or neck surgery for neoplasm; current chemotherapy or
+             radiation therapy; facial trauma or orofacial surgery within the last 6 weeks;
+             seizures, history of drug or alcohol abuse; Otologic  disorders including chronic
+             vertigo, chronic tinnitus, otitis external, otitis media, mastoiditis and tympanic
+             membrane perforation; Stroke, transient ischemia attacks or Arnold- Chiari
+             malformation; significant cardiac or respiratory disease; epilepsy or neurological
+             disorders such as dementia, brain injury, and brain tumor
+
+          -  Subjects who score ≥31 on the Becks depression inventory (performed at first
+             appointment)
+
+          -  History of or current destructive nerve therapies, defibrillator, pacemakers, deep
+             brain stimulator, or Implantable nerve stimulators
+
+          -  Utilization of other alternative or complementary therapies during the study period
+
+          -  Participation in a clinical trial involving the use of a clinical devise in the last
+             30 days
+
+          -  Women who are currently pregnant or nursing.
+
+          -  Patients who are left handed.
+
+          -  Current orthodontic treatment.
+
+          -  Use of an opiate in the 48 hour period preceding the baseline study visit
+
+          -  The use of anti-histamines 6 hours before, during or immediately after the treatment
+             period
+
+          -  The use of anti-nausea or anti-vertigo drugs 6 hours before or during the treatment
+             period
+      </textblock>
+    </criteria>
+    <gender>Female</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>65 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Asma Khan, BDS, PhD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>University of North Carolina, Chapel Hill</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>University of North Carolina at Chapel Hill School of Dentistry</name>
+      <address>
+        <city>Chapel Hill</city>
+        <state>North Carolina</state>
+        <zip>27599</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <verification_date>January 2012</verification_date>
+  <lastchanged_date>January 3, 2012</lastchanged_date>
+  <firstreceived_date>December 6, 2011</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Principal Investigator</responsible_party_type>
+    <investigator_affiliation>University of North Carolina, Chapel Hill</investigator_affiliation>
+    <investigator_full_name>Asma Khan, BDS, PhD</investigator_full_name>
+    <investigator_title>Assistant Professor UNC School of Dentistry</investigator_title>
+  </responsible_party>
+  <keyword>Single blind</keyword>
+  <keyword>Randomized</keyword>
+  <keyword>Controlled clinical trial</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Temporomandibular Joint Disorders</mesh_term>
+    <mesh_term>Temporomandibular Joint Dysfunction Syndrome</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

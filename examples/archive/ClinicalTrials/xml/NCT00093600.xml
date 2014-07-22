@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00093600</url>
+  </required_header>
+  <id_info>
+    <org_study_id>NOVARTIS-CPKC412A2106</org_study_id>
+    <secondary_id>UCLA-0308139-01</secondary_id>
+    <secondary_id>CDR0000389242</secondary_id>
+    <nct_id>NCT00093600</nct_id>
+  </id_info>
+  <brief_title>PKC412, Daunorubicin, and Cytarabine in Treating Patients With Newly Diagnosed Acute Myeloid Leukemia</brief_title>
+  <official_title>A Phase IB, Open-Label Study to Determine the Safety and Pharmacokinetics of Twice Daily Oral Dosing of PKC412 Administered in Combinations Sequentially and Concomitantly With Daunorubicin and Cytarabine for Standard Induction Therapy, and High Dose Cytarabine for Consolidation in Patients With Acute Myeloid Leukemia (AML)</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Novartis Pharmaceuticals</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Novartis</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      RATIONALE: PKC412 may stop the growth of cancer cells by blocking the enzymes necessary for
+      their growth. It may also increase the effectiveness of daunorubicin and cytarabine by
+      making cancer cells more sensitive to the drugs. Drugs used in chemotherapy, such as
+      daunorubicin and cytarabine, work in different ways to stop cancer cells from dividing so
+      they stop growing or die. Combining PKC412 with chemotherapy may kill more cancer cells.
+
+      PURPOSE: This phase I trial is studying the side effects and best way to give PKC412 when
+      given either after or together with daunorubicin and cytarabine in treating patients with
+      newly diagnosed acute myeloid leukemia.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      OBJECTIVES:
+
+      Primary
+
+        -  Determine the safety and tolerability of PKC412 administered sequentially or
+           concurrently with induction chemotherapy comprising daunorubicin and cytarabine
+           followed by consolidation therapy comprising high-dose cytarabine in patients with
+           newly diagnosed acute myeloid leukemia.
+
+        -  Compare the pharmacokinetics of these regimens in these patients.
+
+      Secondary
+
+        -  Determine the efficacy of these regimens, in terms of response rate, disease-free
+           survival, and overall survival, in these patients.
+
+        -  Correlate genetic variation in drug metabolism genes, leukemia genes, and drug target
+           genes with response in patients treated with these regimens.
+
+      OUTLINE: This is an open-label, multicenter study. Patients are alternately assigned to 1 of
+      2 induction treatment groups.
+
+        -  Induction therapy:
+
+             -  Group I (sequential therapy): Patients receive daunorubicin IV over 30 minutes on
+                days 1-3, cytarabine IV continuously on days 1-7, and oral PKC412 twice daily on
+                days 8-21 in the absence of disease progression or unacceptable toxicity.
+
+             -  Group II (concurrent therapy): Patients receive daunorubicin and cytarabine as in
+                group I and oral PKC412 twice daily on days 1-7 and 15-21 in the absence of
+                disease progression or unacceptable toxicity.
+
+      In both groups, patients are evaluated on day 28. Patients with persistent disease receive a
+      second induction course comprising daunorubicin IV over 30 minutes on days 1 and 2,
+      cytarabine IV continuously on days 1-5, and oral PKC412 on the same schedule as their
+      assigned treatment group. Patients with a complete response after course 1 or course 2
+      proceed to consolidation therapy.
+
+        -  Consolidation therapy: Patients in both groups receive high-dose cytarabine IV over 3
+           hours twice daily on days 1, 3, and 5 and oral PKC412 on the same schedule as their
+           assigned treatment group. Treatment repeats every 28-42 days for 3 courses in the
+           absence of disease progression or unacceptable toxicity.
+
+      After completion of consolidation therapy, patients in both groups continue to receive
+      PKC412 alone, according to their assigned treatment group, every 28-42 days for up to 3
+      years in the absence of disease progression or unacceptable toxicity.
+
+      Patients are followed every 3 months.
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>February 2004</start_date>
+  <completion_date type="Actual">June 2011</completion_date>
+  <primary_completion_date type="Actual">June 2011</primary_completion_date>
+  <phase>Phase 1</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Non-Randomized, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">69</enrollment>
+  <condition>Acute Myeloid Leukemia (AML)</condition>
+  <arm_group>
+    <arm_group_label>PKC412 administered sequentially</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>twice daily oral dosing of PKC412 administered sequentially</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>PKC412 administered concomitantly</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>PKC412 administered concomitantly with standard induction daunorubicin and cytarabine therapy followed by high-dose consolidation therapy with cytarabine</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>cytarabine</intervention_name>
+    <arm_group_label>PKC412 administered concomitantly</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>daunorubicin hydrochloride</intervention_name>
+    <arm_group_label>PKC412 administered concomitantly</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>midostaurin</intervention_name>
+    <arm_group_label>PKC412 administered sequentially</arm_group_label>
+    <arm_group_label>PKC412 administered concomitantly</arm_group_label>
+    <other_name>PKC412</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        DISEASE CHARACTERISTICS:
+
+          -  Histologically confirmed acute myeloid leukemia (AML)
+
+               -  Newly diagnosed disease
+
+          -  No history of or newly diagnosed myelodysplastic syndromes, history of
+             myeloproliferative disease, or secondary AML
+
+          -  No CNS malignancy
+
+        PATIENT CHARACTERISTICS:
+
+        Age
+
+          -  18 to 60
+
+        Performance status
+
+          -  Karnofsky 70-100%
+
+        Life expectancy
+
+          -  Not specified
+
+        Hematopoietic
+
+          -  Not specified
+
+        Hepatic
+
+          -  AST and ALT ≤ 1.5 times upper limit of normal (ULN)
+
+          -  Bilirubin ≤ 1.5 times ULN
+
+          -  No active viral hepatitis
+
+        Renal
+
+          -  Creatinine ≤ 1.5 times ULN
+
+          -  No chronic renal disease
+
+        Cardiovascular
+
+          -  Ejection fraction ≥ 50% by MUGA or echocardiogram
+
+          -  No congestive heart failure
+
+          -  No myocardial infarction within the past 6 months
+
+          -  No poorly controlled hypertension
+
+          -  No other cardiovascular disease
+
+        Pulmonary
+
+          -  No pulmonary infiltrate, including those suspected to be infectious
+
+               -  Patients with pulmonary infection whose clinical symptoms have resolved are
+                  eligible provided there are no residual pulmonary infiltrates on chest x-ray
+
+        Other
+
+          -  No gastrointestinal impairment or disease that would preclude absorption of study
+             drugs
+
+          -  No uncontrolled diabetes
+
+          -  No active uncontrolled infection
+
+          -  No other disease, except carcinoma in situ, that would preclude study participation
+
+          -  No other severe or uncontrolled medical condition that would preclude study
+             participation
+
+          -  HIV negative
+
+          -  Not pregnant or nursing
+
+          -  Negative pregnancy test
+
+          -  Fertile patients must use effective barrier contraception during and for 3 months
+             after study participation
+
+        PRIOR CONCURRENT THERAPY:
+
+        Biologic therapy
+
+          -  At least 5 days since prior growth factors
+
+          -  No concurrent biological response modifiers
+
+        Chemotherapy
+
+          -  No prior chemotherapy
+
+          -  No other concurrent chemotherapy
+
+        Endocrine therapy
+
+          -  Not specified
+
+        Radiotherapy
+
+          -  No prior radiotherapy except radiation castration
+
+          -  No concurrent radiotherapy
+
+        Surgery
+
+          -  More than 14 days since prior surgical procedure except central venous catheter
+             placement or other minor procedure (e.g., skin biopsy)
+
+        Other
+
+          -  More than 30 days since prior investigational agents
+
+          -  No other concurrent anticancer agents
+
+          -  No other concurrent investigational drugs
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>60 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Ronald Paquette, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Jonsson Comprehensive Cancer Center</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Jonsson Comprehensive Cancer Center at UCLA</name>
+      <address>
+        <city>Los Angeles</city>
+        <state>California</state>
+        <zip>90095-1781</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Dana Faber Cancer Institute</name>
+      <address>
+        <city>Boston</city>
+        <state>Massachusetts</state>
+        <zip>02115</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Wayne State University/Karmanos Cancer Institute</name>
+      <address>
+        <city>Detroit</city>
+        <state>Michigan</state>
+        <zip>48201-2014</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>MD Anderson Cancer Center/University of Texas</name>
+      <address>
+        <city>Houston</city>
+        <state>Texas</state>
+        <zip>77030</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Novartis Investigative Site</name>
+      <address>
+        <city>Dresden</city>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Novartis Investigative Site</name>
+      <address>
+        <city>Mainz</city>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+    <country>Germany</country>
+  </location_countries>
+  <link>
+    <url>http://cancer.gov/clinicaltrials/UCLA-0308139-01</url>
+    <description>Clinical trial summary from the National Cancer Institute's PDQ® database</description>
+  </link>
+  <results_reference>
+    <citation>Stone RM, Fischer T, Paquette R, Schiller G, Schiffer CA, Ehninger G, Cortes J, Kantarjian HM, Deangelo DJ, Huntsman-Labed A, Dutreix C, Del Corral A, Giles F. Phase IB study of the FLT3 kinase inhibitor midostaurin with chemotherapy in younger newly diagnosed adult patients with acute myeloid leukemia. Leukemia. 2012 Apr 27. doi: 10.1038/leu.2012.115. [Epub ahead of print]</citation>
+    <PMID>22627678</PMID>
+  </results_reference>
+  <verification_date>June 2013</verification_date>
+  <lastchanged_date>June 11, 2013</lastchanged_date>
+  <firstreceived_date>October 6, 2004</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>adult acute myeloid leukemia with 11q23 (MLL) abnormalities</keyword>
+  <keyword>adult acute myeloid leukemia with inv(16)(p13;q22)</keyword>
+  <keyword>adult acute myeloid leukemia with t(15;17)(q22;q12)</keyword>
+  <keyword>adult acute myeloid leukemia with t(16;16)(p13;q22)</keyword>
+  <keyword>adult acute myeloid leukemia with t(8;21)(q22;q22)</keyword>
+  <keyword>untreated adult acute myeloid leukemia</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>No</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Leukemia</mesh_term>
+    <mesh_term>Leukemia, Myeloid, Acute</mesh_term>
+    <mesh_term>Leukemia, Myeloid</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Cytarabine</mesh_term>
+    <mesh_term>4'-N-benzoylstaurosporine</mesh_term>
+    <mesh_term>Daunorubicin</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

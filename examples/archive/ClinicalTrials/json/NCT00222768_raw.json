@@ -1,0 +1,99 @@
+{
+    "clinical_study": {
+        "@rank": "114716", 
+        "brief_summary": {
+            "textblock": "The purpose of this research study is to use a relatively new technology, called Positron\n      Emission Tomography (PET), to study how insulin works on sugar in your body's fatty tissue.\n      PET imaging is a way of obtaining a \"metabolic image\" of your internal organs.  It does not\n      involve surgery and is not a high risk process.  It has been used successfully to study\n      brain, heart and more recently, skeletal muscle.  In this research study, we will use PET in\n      combination with Magnetic Resonance Imaging (MRI), to study fatty tissues in healthy people\n      who do not have diabetes.  In the future, we plan to do similar PET/MRI studies in\n      individuals with type 2 diabetes mellitus (T2DM) and in individuals who are likely to\n      develop T2DM.\n\n      Fat tissue might have a lot to do with developing type 2 diabetes.  First, it is well\n      recognized that excess fatty tissues, especially the kind in your belly, increases risk for\n      the development of T2DM, as well as affecting other ways the body uses insulin.  Second,\n      fatty tissue is a classic target tissue for the action of insulin, which regulates the use\n      of sugar by fat cells and also regulates the release of fatty acids from fatty tissues.\n      Third, studies in mice that lack fatty tissue, indicate that severe insulin resistance (lack\n      of a normal response to insulin) can result.  Other types of studies have shown that fatty\n      tissues make proteins that affect your body's insulin and your appetite in good and bad\n      ways.  Yet despite this importance, we still lack techniques for the study of fatty tissue\n      metabolism in humans."
+        }, 
+        "brief_title": "PET Imaging of Regional Variation in Insulin Sensitivity of Adipose Tissue in Humans", 
+        "completion_date": {
+            "#text": "December 2006", 
+            "@type": "Actual"
+        }, 
+        "condition": [
+            "Diabetes", 
+            "Obesity"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Obesity", 
+                "Insulin Resistance"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "The association of adiposity with insulin resistance (IR) is modulated by regional fat\n      deposition. For example, visceral (intra-abdominal) adipose tissue (VAT) is generally\n      regarded as more strongly correlated with IR, than subcutaneous adiposity of the thigh\n      (ThiSAT) or abdomen (AbdSAT), even though these latter depots are larger than VAT.  Perhaps\n      these differences are due to regional variation in AT metabolism.  A limitation of body\n      composition methods is that these assess amount rather than metabolism of adipose tissue\n      (AT).  Our aim is to use positron emission tomography (PET) imaging with [F-18]\n      fluorodeoxyglucose (FDG) for the in vivo investigation of AT metabolism and use this in\n      conjunction with regional body composition imaging so that both the amount of AT and\n      metabolism of AT can be determined.  Hopefully, such an approach will give new insight as to\n      how AT influences skeletal muscle and hepatic IR.  The current project seeks to develop this\n      approach, generating preliminary data to lay a foundation for subsequent projects.\n\n      The first specific aim is conduct dose-responsive measurement of insulin-stimulated glucose\n      uptake (i.e. insulin sensitivity) of AT in humans using PET imaging in healthy volunteers.\n      We will examine the effects of insulin infusion rates at 0, 20, and 80 mU/min-m2 body\n      surface area.\n\n      The second specific aim is to assess regional variation in insulin-stimulated glucose uptake\n      in AT, comparing VAT, AbdSAT and ThiSAT in volunteers without IR. We will test the\n      hypothesis that insulin sensitivity (IS) follows the rank order of ThiSAT IS > AbdSAT IS >\n      VAT IS.\n\n      At any given body mass index, fat mass constitutes a higher percentage of body weight in\n      women than men. The third specific aim is to assess potential gender-differences in AT\n      metabolism, testing the hypothesis that AT IS is greater in women than men."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  A thorough medical examination will be done at the screening examination. To be\n             eligible for these studies,          volunteers must be free of clinical evidence of\n             cardiac, renal, hepatic, and vascular disease, or other major    medical problems\n             that would endanger the volunteers or compromise the scientific validity of the\n             studies.\n\n        We will recruit 20 volunteers (10 men and 10 women), non-obese (BMI 20 to 27 kg/m2),\n        glucose tolerant, healthy volunteers, who are between the ages of 25 and 45 years old.\n        Volunteers for this study must have a fasting glucose < 100 mg/dl; HbA1c < 5.7%; Hct > 34;\n        fasting plasma insulin level < 12 \u00b5U/ml; ALT < 60; AST < 60; Alk phos < 150; TSH < 6; Trig\n        < 150 mg/dl; Chol < 250; systolic BP < 140; diastolic BP < 90; negative family history\n        (first-degree relatives) for type 2 DM; be in good health and not be taking any chronic\n        medications known to affect adipose tissue metabolism or insulin sensitivity (e.g.\n        glucocorticoids, thiazide diuretics).\n\n        Exclusion Criteria:\n\n          -  Pregnant women and women who are currently breast-feeding will be excluded from study\n             participation.  Women will be checked for pregnancy (using a urine pregnancy test) at\n             screening, within 24 hours prior to the DEXA scan and within 24 hours prior to each\n             PET and MRI study. Previous difficulty with xylocaine or claustrophobia will exclude."
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "Accepts Healthy Volunteers", 
+            "maximum_age": "45 Years", 
+            "minimum_age": "25 Years"
+        }, 
+        "enrollment": "20", 
+        "firstreceived_date": "September 19, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00222768", 
+            "org_study_id": "0502008", 
+            "secondary_id": "R01 DK 060555"
+        }, 
+        "keyword": [
+            "Adipose tissue", 
+            "PET imaging"
+        ], 
+        "lastchanged_date": "February 15, 2008", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Pittsburgh", 
+                    "country": "United States", 
+                    "state": "Pennsylvania", 
+                    "zip": "15213"
+                }, 
+                "name": "University of Pittsburgh"
+            }
+        }, 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "official_title": "Three-Tracer PET Quantitation of Insulin Action in Muscle", 
+        "overall_official": {
+            "affiliation": "University of Pittsburgh", 
+            "last_name": "David E. Kelley, MD", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Federal Government"
+        }, 
+        "phase": "N/A", 
+        "primary_outcome": {
+            "measure": "Method development of dose-responsive measurement of insulin-stimulated glucose uptake of adipose tissue using 18-FDG and Positron Emission Tomography"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00222768"
+        }, 
+        "secondary_outcome": {
+            "measure": "To assess regional variation in insulin-stimulated glucose uptake in adipose tissue."
+        }, 
+        "source": "University of Pittsburgh", 
+        "sponsors": {
+            "collaborator": {
+                "agency": "National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)", 
+                "agency_class": "NIH"
+            }, 
+            "lead_sponsor": {
+                "agency": "University of Pittsburgh", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "April 2005", 
+        "study_design": "Time Perspective: Prospective", 
+        "study_type": "Observational", 
+        "verification_date": "February 2008"
+    }
+}

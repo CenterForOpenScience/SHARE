@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00201331</url>
+  </required_header>
+  <id_info>
+    <org_study_id>T1202</org_study_id>
+    <nct_id>NCT00201331</nct_id>
+  </id_info>
+  <brief_title>Prospective Phase II Randomized Trial of Postoperative Adjuvant Chemotherapy in Patients With High Risk Colon Cancer</brief_title>
+  <official_title>Prospective Phase II Randomized Trial of Postoperative Adjuvant Chemotherapy in Patients With High Risk Colon Cancer</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>National Health Research Institutes, Taiwan</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+    <collaborator>
+      <agency>Chang Gung Memorial Hospital</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+    <collaborator>
+      <agency>Changhua Christian Hospital</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+    <collaborator>
+      <agency>China Medical University Hospital</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+    <collaborator>
+      <agency>Mackay Memorial Hospital</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+    <collaborator>
+      <agency>Chi Mei Medical Hospital</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+    <collaborator>
+      <agency>Kaohsiung Veterans General Hospital.</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+    <collaborator>
+      <agency>National Cheng-Kung University Hospital</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+    <collaborator>
+      <agency>Taichung Veterans General Hospital</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+  </sponsors>
+  <source>National Health Research Institutes, Taiwan</source>
+  <oversight_info>
+    <authority>Taiwan: Department of Health</authority>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      Based on the astonishing high response rate in metastatic colorectal cancer in weekly high
+      dose 5-FU and leucovorin, we will conduct a clinical trial to clarify the activity of this
+      regimen in the adjuvant setting. The regimen of 5-FU and high dose leucovorin administered
+      as the schedule of INT-0089 will be chosen as the controlled arm which was proven as
+      effective as standard 5-FU plus levamisole regimen with short duration of treatment.21 In
+      this study, continuous infusion of 5-FU (HDFL, Arm B) and bolus injection of 5-FU (Arm A)
+      will be administered to the high risk colon cancer(N2 disease) patients. The role of TS
+      level and inhibition of TS as a predictor of adjuvant chemotherapy with 5-FU based treatment
+      will be clearly defined prospectively.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      Approximately 75% of all patients with colon carcinoma present at a stage when all gross
+      tumor can be surgically resected. Despite that high resectability rate, about 50% of all
+      colon adenocarcinoma patients die of subsequent metastatic disease not apparent at surgery.
+      These individuals could benefit from adjuvant local or systemic chemotherapy.
+
+      Based on the encouraging antitumor activity of 5-FU plus leucovorin(LV) in patients with
+      metastatic colon carcinoma6,7, several investigators reported their results using this
+      combination in the adjuvant setting. Results of an NSABP C-038 suggested that postoperative
+      5-FU plus leucovorin reduces the risk of colon cancer recurrence by 30% and the associated
+      mortality by 32% compared with MOF(semustine, vincristine, and 5-FU). Recently,
+      investigators from the IMPACT group9 analyzed the role of adjuvant 5-FU plus high dose
+      leucovorin given 5 days every 28 days for a total of six courses versus no treatment in
+      patients with stage II or III colon cancer. The treatment arm showed a significant reduction
+      (by 22%) in mortality (P=0.029) and a 35% reduction in relapse rate (P=0.0001). Preliminary
+      results from other studies have also suggested benefits of 5-FU plus leucovorin as adjuvant
+      treatment of colon cancer10,11,12. Those studies had employed chemotherapy with 5-FU plus
+      leucovorin, although there were differences in duration of treatment and drug dose among
+      those trials, it is striking that all revealed a similar magnitude of benefit for adjuvant
+      chemotherapy with 5-FU and leucovorin in node positive patients. At the present time, both
+      5-FU plus levamisole and 5-FU plus leucovorin can be considered acceptable adjuvant
+      chemotherapy regimens for patients with node positive disease.
+
+      Thymidylate synthase(TS) is a critical therapeutic target for the fluoropyrimidine cytotoxic
+      drugs that are the mainstay of the treatment for patients with advanced colorectal cancer.
+      TS provide the sole de nono source of thymidylate for DNA synthesis. The clinical importance
+      of TS in determining fluoropyrimidine cytotoxicity has been established in both clinical and
+      preclinical study. Increased expression of TS protein due to underlying gene amplification
+      has been described in cell lines selected for drug resistance by exposure to 5-FU.22,23
+      Several investigators have also demonstrated that intratumoral TS activity are predictive
+      for response to 5-FU.24-26 High TS activity was associated with no response, whereas a low
+      TS activity was associated with good response to 5-FU.
+    </textblock>
+  </detailed_description>
+  <overall_status>Recruiting</overall_status>
+  <start_date>April 2002</start_date>
+  <completion_date>October 2012</completion_date>
+  <phase>Phase 2</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>To compare the DFS and OS of HDFL vs. weekly bolus 5-FU plus high dose LV as adjuvant chemotherapy for N2 colon cancer</measure>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>1. To evaluate safety and toxicity of both arm</measure>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>2. To assess the impact of TS overexpression on patients with resectable N2  colon carcinoma.</measure>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>3. To assess the disease-free survival of patients with high or low TS level of N2  colon cancer, when adjuvant chemotherapy of 5-FU was administered by  bolus or continuous infusion .</measure>
+  </secondary_outcome>
+  <enrollment>162</enrollment>
+  <condition>Colonic Diseases</condition>
+  <condition>Adenocarcinoma</condition>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>leucovorin+5-FU</intervention_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+        Signed written informed consent. Curative resection of colon cancer and upper rectal
+        cancer, which is not planned for radiotherapy. Histologically proved adenocarcinoma of the
+        colon. Stages: T1-4N2M0 (LN ≧4) Age less or equal to 70 years old. Performance status: 0
+        to 1 (ECOG) Adequate liver function (Bil. &lt; 2 mg/dl, GOT, GPT&lt; 3x normal limit) Adequate
+        renal function (Cr &lt; 2.0 mg/dl) Adequate bone marrow function(WBC ≧3500/mm3, Platelet
+        ≧100000/mm3) Individual regular follow-up possible. 3.320 Patient who can receive adjuvant
+        chemotherapy within 6 weeks after operation.
+
+        Patient who can receive a &quot;indwelling catheter&quot; surgery.
+
+        Exclusion Criteria:
+
+        Uncontrolled intercurrent illness, e.g. active infection or concurrent major systemic
+        disease (e.g. psychosis, ESRD, heart failure [NYHA class III], liver cirrhosis [Child
+        B&amp;C], or AIDS). Intestinal obstruction or occlusion postoperation. Pregnant or lactating
+        woman. Allergy to 5-Fluorouracil or leucovorin. Other primary cancer except skin squamous
+        or basal cell carcinoma or cured in-situ cancer of the cervix.
+
+        Previous treatment of chemotherapy or radiotherapy.
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>70 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Cheng-Yi Wang, PHD</last_name>
+    <role>Study Chair</role>
+    <affiliation>Chang Gung Memorial Hospital</affiliation>
+  </overall_official>
+  <overall_contact>
+    <last_name>Chiou Mei Liu</last_name>
+    <phone>886-2-26534401</phone>
+    <phone_ext>25158</phone_ext>
+    <email>michelle@nhri.org.tw</email>
+  </overall_contact>
+  <location>
+    <facility>
+      <name>Chang Gung Memorial Hospital</name>
+      <address>
+        <city>Tao-Yuan</city>
+        <zip>333</zip>
+        <country>Taiwan</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Tsai-Sheng Yang, MD</last_name>
+      <phone>886-3-3281200</phone>
+      <phone_ext>2114</phone_ext>
+      <email>a481124@adm.cgmh.org.tw</email>
+    </contact>
+  </location>
+  <location_countries>
+    <country>Taiwan</country>
+  </location_countries>
+  <link>
+    <url>http://www.nhri.org.tw</url>
+  </link>
+  <verification_date>December 2005</verification_date>
+  <lastchanged_date>December 15, 2005</lastchanged_date>
+  <firstreceived_date>September 13, 2005</firstreceived_date>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Adenocarcinoma</mesh_term>
+    <mesh_term>Colonic Neoplasms</mesh_term>
+    <mesh_term>Colonic Diseases</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Leucovorin</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>
