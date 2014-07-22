@@ -1,0 +1,42 @@
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.openarchives.org/OAI/2.0/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+ <dc:title>The Spitzer c2d Survey of Large, Nearby, Insterstellar Clouds. IX. The
+  Serpens YSO Population As Observed With IRAC and MIPS</dc:title>
+ <dc:creator>Harvey, Paul</dc:creator>
+ <dc:creator>Merin, Bruno</dc:creator>
+ <dc:creator>Huard, Tracy L.</dc:creator>
+ <dc:creator>Rebull, Luisa M.</dc:creator>
+ <dc:creator>Chapman, Nicholas</dc:creator>
+ <dc:creator>Evans II, Neal J.</dc:creator>
+ <dc:creator>Myers, Philip C.</dc:creator>
+ <dc:subject>Astrophysics</dc:subject>
+ <dc:description>  We discuss the results from the combined IRAC and MIPS c2d Spitzer Legacy
+observations of the Serpens star-forming region. In particular we present a set
+of criteria for isolating bona fide young stellar objects, YSO's, from the
+extensive background contamination by extra-galactic objects. We then discuss
+the properties of the resulting high confidence set of YSO's. We find 235 such
+objects in the 0.85 deg^2 field that was covered with both IRAC and MIPS. An
+additional set of 51 lower confidence YSO's outside this area is identified
+from the MIPS data combined with 2MASS photometry. We describe two sets of
+results, color-color diagrams to compare our observed source properties with
+those of theoretical models for star/disk/envelope systems and our own modeling
+of the subset of our objects that appear to be star+disks. These objects
+exhibit a very wide range of disk properties, from many that can be fit with
+actively accreting disks to some with both passive disks and even possibly
+debris disks. We find that the luminosity function of YSO's in Serpens extends
+down to at least a few x .001 Lsun or lower for an assumed distance of 260 pc.
+The lower limit may be set by our inability to distinguish YSO's from
+extra-galactic sources more than by the lack of YSO's at very low luminosities.
+A spatial clustering analysis shows that the nominally less-evolved YSO's are
+more highly clustered than the later stages and that the background
+extra-galactic population can be fit by the same two-point correlation function
+as seen in other extra-galactic studies. We also present a table of matches
+between several previous infrared and X-ray studies of the Serpens YSO
+population and our Spitzer data set.
+</dc:description>
+ <dc:date>2007-04-02</dc:date>
+ <dc:type>text</dc:type>
+ <dc:identifier>http://arxiv.org/abs/0704.0009</dc:identifier>
+ <dc:identifier>Astrophys.J.663:1149-1173,2007</dc:identifier>
+ <dc:identifier>doi:10.1086/518646</dc:identifier>
+ </oai_dc:dc>
+

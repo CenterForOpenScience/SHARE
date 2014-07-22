@@ -1,0 +1,30 @@
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.openarchives.org/OAI/2.0/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+ <dc:title>Polymer Quantum Mechanics and its Continuum Limit</dc:title>
+ <dc:creator>Corichi, Alejandro</dc:creator>
+ <dc:creator>Vukasinac, Tatjana</dc:creator>
+ <dc:creator>Zapata, Jose A.</dc:creator>
+ <dc:subject>General Relativity and Quantum Cosmology</dc:subject>
+ <dc:description>  A rather non-standard quantum representation of the canonical commutation
+relations of quantum mechanics systems, known as the polymer representation has
+gained some attention in recent years, due to its possible relation with Planck
+scale physics. In particular, this approach has been followed in a symmetric
+sector of loop quantum gravity known as loop quantum cosmology. Here we explore
+different aspects of the relation between the ordinary Schroedinger theory and
+the polymer description. The paper has two parts. In the first one, we derive
+the polymer quantum mechanics starting from the ordinary Schroedinger theory
+and show that the polymer description arises as an appropriate limit. In the
+second part we consider the continuum limit of this theory, namely, the reverse
+process in which one starts from the discrete theory and tries to recover back
+the ordinary Schroedinger quantum mechanics. We consider several examples of
+interest, including the harmonic oscillator, the free particle and a simple
+cosmological model.
+</dc:description>
+ <dc:description>Comment: 16 pages, no figures. Typos corrected to match published version</dc:description>
+ <dc:date>2007-03-31</dc:date>
+ <dc:date>2007-08-22</dc:date>
+ <dc:type>text</dc:type>
+ <dc:identifier>http://arxiv.org/abs/0704.0007</dc:identifier>
+ <dc:identifier>Phys.Rev.D76:044016,2007</dc:identifier>
+ <dc:identifier>doi:10.1103/PhysRevD.76.044016</dc:identifier>
+ </oai_dc:dc>
+
