@@ -15,6 +15,10 @@ This will be a ResourceSync harvest.
 
 Note that while ResourceSync does include a push protocol (code related to that may be what you saw Herbert announce recently), the arXiv implementation is of the pull protocol more analogous to OAI-PMH. I do believe we may want to consider implementing the push version to distribute data from the SHARE notification service, but with regard to arXiv we are looking at a harvest via ResourceSync. Simeon has some test server with a pointer to beta documentation available at http://resync.library.cornell.edu. Code for his simulator is available at https://github.com/resync/simulator.
 
+There are no arXiv docs on ResourceSync support yet, Simeon is still working on getting this going (as of 7/22/2014). Current data is available from http://resync.library.cornell.edu with the Capability List for arXIv data at http://resync.library.cornell.edu/arxiv-all/capabilitylist.xml. This includes the full Resource List and a daily Change List. At present only the internal metadata format is available (e.g. http://resync.library.cornell.edu/arxiv/ftp/arxiv/papers/0711/0711.0198.abs) but he can perhaps make the same formats as are available via OAI-PMH available (see: http://arxiv.org/help/oa). It would be good to discuss what is most useful though.
+
+Simeon notes that the arXiv API (http://arxiv.org/help/api) is not intended to full harvesting so that should not be considered.
+
 Metadata Sharing Questions
 ----
 
