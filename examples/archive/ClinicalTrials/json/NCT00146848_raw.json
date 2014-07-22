@@ -1,0 +1,1137 @@
+{
+    "clinical_study": {
+        "@rank": "80966", 
+        "acronym": "PEGASUS CRT", 
+        "arm_group": [
+            {
+                "arm_group_label": "DDD-40", 
+                "arm_group_type": "Active Comparator", 
+                "description": "DDD-40 for this trial is the comparator arm.  Even though patients are receiving a CRT-D device, atrial support pacing in this arm will be limited as the device will not pace unless the rate falls below 40 bpm."
+            }, 
+            {
+                "arm_group_label": "DDDR-40", 
+                "arm_group_type": "Active Comparator", 
+                "description": "DDDR-40 programming will initiate atrial support pacing if the rate falls below 40 bpm or if atrial support is needed in response to increased activity."
+            }, 
+            {
+                "arm_group_label": "DDD-70", 
+                "arm_group_type": "Active Comparator", 
+                "description": "Atrial support pacing in this arm will be delivered when the rate falls below 70 bpm."
+            }
+        ], 
+        "brief_summary": {
+            "textblock": "This study will look at different pacing modes (how a device is programmed to pace one's\n      heart), and how these modes may assist in one's daily activities and how one is feeling."
+        }, 
+        "brief_title": "PEGASUS CRT Study: Atrial Support Study in Cardiac Resynchronization Therapy", 
+        "clinical_results": {
+            "baseline": {
+                "group_list": {
+                    "group": [
+                        {
+                            "@group_id": "B1", 
+                            "description": "Atrial Tracking (atrial rate support above 40 bpm)", 
+                            "title": "DDD-40"
+                        }, 
+                        {
+                            "@group_id": "B2", 
+                            "description": "Atrial Rate Support (atrial rate support above 70 bpm)", 
+                            "title": "DDD-70"
+                        }, 
+                        {
+                            "@group_id": "B3", 
+                            "description": "Rate Adaptive Pacing (atrial rate support above 40 bpm with rate responsive pacing)", 
+                            "title": "DDDR-40"
+                        }, 
+                        {
+                            "@group_id": "B4", 
+                            "description": "Total of all reporting groups", 
+                            "title": "Total"
+                        }
+                    ]
+                }, 
+                "measure_list": {
+                    "measure": [
+                        {
+                            "category_list": {
+                                "category": {
+                                    "measurement_list": {
+                                        "measurement": [
+                                            {
+                                                "@group_id": "B1", 
+                                                "@value": "475"
+                                            }, 
+                                            {
+                                                "@group_id": "B2", 
+                                                "@value": "488"
+                                            }, 
+                                            {
+                                                "@group_id": "B3", 
+                                                "@value": "470"
+                                            }, 
+                                            {
+                                                "@group_id": "B4", 
+                                                "@value": "1433"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }, 
+                            "param": "Number", 
+                            "title": "Number of Participants", 
+                            "units": "participants"
+                        }, 
+                        {
+                            "category_list": {
+                                "category": {
+                                    "measurement_list": {
+                                        "measurement": [
+                                            {
+                                                "@group_id": "B1", 
+                                                "@spread": "11.4", 
+                                                "@value": "67.3"
+                                            }, 
+                                            {
+                                                "@group_id": "B2", 
+                                                "@spread": "10.4", 
+                                                "@value": "67.5"
+                                            }, 
+                                            {
+                                                "@group_id": "B3", 
+                                                "@spread": "11.6", 
+                                                "@value": "66.7"
+                                            }, 
+                                            {
+                                                "@group_id": "B4", 
+                                                "@spread": "11.1", 
+                                                "@value": "67.2"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }, 
+                            "dispersion": "Standard Deviation", 
+                            "param": "Mean", 
+                            "title": "Age", 
+                            "units": "years"
+                        }, 
+                        {
+                            "category_list": {
+                                "category": [
+                                    {
+                                        "measurement_list": {
+                                            "measurement": [
+                                                {
+                                                    "@group_id": "B1", 
+                                                    "@value": "165"
+                                                }, 
+                                                {
+                                                    "@group_id": "B2", 
+                                                    "@value": "156"
+                                                }, 
+                                                {
+                                                    "@group_id": "B3", 
+                                                    "@value": "165"
+                                                }, 
+                                                {
+                                                    "@group_id": "B4", 
+                                                    "@value": "486"
+                                                }
+                                            ]
+                                        }, 
+                                        "sub_title": "Female"
+                                    }, 
+                                    {
+                                        "measurement_list": {
+                                            "measurement": [
+                                                {
+                                                    "@group_id": "B1", 
+                                                    "@value": "310"
+                                                }, 
+                                                {
+                                                    "@group_id": "B2", 
+                                                    "@value": "332"
+                                                }, 
+                                                {
+                                                    "@group_id": "B3", 
+                                                    "@value": "305"
+                                                }, 
+                                                {
+                                                    "@group_id": "B4", 
+                                                    "@value": "947"
+                                                }
+                                            ]
+                                        }, 
+                                        "sub_title": "Male"
+                                    }
+                                ]
+                            }, 
+                            "param": "Number", 
+                            "title": "Gender", 
+                            "units": "participants"
+                        }
+                    ]
+                }
+            }, 
+            "certain_agreements": {
+                "pi_employee": "Principal Investigators are NOT employed by the organization sponsoring the study.", 
+                "restrictive_agreement": "The only disclosure restriction on the PI is that the sponsor can review results communications prior to public release and can embargo communications regarding trial results for a period that is less than or equal to 30 days from the time submitted to the sponsor for review."
+            }, 
+            "limitations_and_caveats": "Lack of longer-term follow-up.  Single blind design where investigator could be aware of treatment assignment. Two conservative atrial support pacing modes; results should not be extended to substantially more atrial pacing and higher heart rates.", 
+            "outcome_list": {
+                "outcome": [
+                    {
+                        "analysis_list": {
+                            "analysis": [
+                                {
+                                    "ci_lower_limit": "-3.14", 
+                                    "ci_n_sides": "2-Sided", 
+                                    "ci_percent": "95", 
+                                    "ci_upper_limit": "3.74", 
+                                    "dispersion_type": "Standard Error of the mean", 
+                                    "dispersion_value": "1.75", 
+                                    "group_id_list": {
+                                        "group_id": [
+                                            "O1", 
+                                            "O2"
+                                        ]
+                                    }, 
+                                    "groups_desc": "The changes in quality of life were compared between groups using two-sided t-tests.", 
+                                    "method": "t-test, 2 sided", 
+                                    "non_inferiority": "No", 
+                                    "p_value": "0.86", 
+                                    "param_type": "Mean Difference (Final Values)", 
+                                    "param_value": "0.30"
+                                }, 
+                                {
+                                    "ci_lower_limit": "-2.18", 
+                                    "ci_n_sides": "2-Sided", 
+                                    "ci_percent": "95", 
+                                    "ci_upper_limit": "5.16", 
+                                    "dispersion_type": "Standard Error of the mean", 
+                                    "dispersion_value": "1.87", 
+                                    "group_id_list": {
+                                        "group_id": [
+                                            "O1", 
+                                            "O3"
+                                        ]
+                                    }, 
+                                    "groups_desc": "The difference in changes in quality of life between groups were compared using a t-test.", 
+                                    "method": "t-test, 2 sided", 
+                                    "non_inferiority": "No", 
+                                    "p_value": "0.43", 
+                                    "param_type": "Mean Difference (Final Values)", 
+                                    "param_value": "1.49"
+                                }
+                            ]
+                        }, 
+                        "description": "Quality of Life as assessed by the Minnesota Living with Heart Failure Questionniare for those patients with paired data at 6 weeks and 12 months. This score is on a scale of 0(best)- 105(worst). A negative change denotes improvement.", 
+                        "group_list": {
+                            "group": [
+                                {
+                                    "@group_id": "O1", 
+                                    "description": "Atrial Tracking (atrial rate support above 40 bpm)", 
+                                    "title": "DDD-40"
+                                }, 
+                                {
+                                    "@group_id": "O2", 
+                                    "description": "Atrial Rate Support (atrial rate support above 70 bpm)", 
+                                    "title": "DDD-70"
+                                }, 
+                                {
+                                    "@group_id": "O3", 
+                                    "description": "Rate Adaptive Pacing (atrial rate support above 40 bpm with rate responsive pacing)", 
+                                    "title": "DDDR-40"
+                                }
+                            ]
+                        }, 
+                        "measure_list": {
+                            "measure": [
+                                {
+                                    "category_list": {
+                                        "category": {
+                                            "measurement_list": {
+                                                "measurement": [
+                                                    {
+                                                        "@group_id": "O1", 
+                                                        "@value": "348"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O2", 
+                                                        "@value": "370"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O3", 
+                                                        "@value": "357"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }, 
+                                    "param": "Number", 
+                                    "title": "Number of Participants", 
+                                    "units": "participants"
+                                }, 
+                                {
+                                    "category_list": {
+                                        "category": {
+                                            "measurement_list": {
+                                                "measurement": [
+                                                    {
+                                                        "@group_id": "O1", 
+                                                        "@spread": "24.18", 
+                                                        "@value": "-2.97"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O2", 
+                                                        "@spread": "22.77", 
+                                                        "@value": "-3.27"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O3", 
+                                                        "@spread": "25.43", 
+                                                        "@value": "-4.46"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }, 
+                                    "description": "Quality of Life as assessed by the Minnesota Living with Heart Failure Questionniare for those patients with paired data at 6 weeks and 12 months. This score is on a scale of 0(best)- 105(worst). A negative change denotes improvement.", 
+                                    "dispersion": "Standard Deviation", 
+                                    "param": "Mean", 
+                                    "title": "Change in Quality of Life", 
+                                    "units": "units on a scale"
+                                }
+                            ]
+                        }, 
+                        "population": "Quality of Life was analyzed for those patients with paired data available at the 6 week and 12 month visit. Patients were analyzed in their randomized groups.", 
+                        "safety_issue": "No", 
+                        "time_frame": "From randomization (6-weeks) through 12-month visit", 
+                        "title": "Change in Quality of Life", 
+                        "type": "Secondary"
+                    }, 
+                    {
+                        "analysis_list": {
+                            "analysis": [
+                                {
+                                    "group_id_list": {
+                                        "group_id": [
+                                            "O1", 
+                                            "O2"
+                                        ]
+                                    }, 
+                                    "groups_desc": "One sided test testing for shift towards improvement in either atrial support pacing treatment arm compared to the DDD-40 arm.", 
+                                    "method": "Cochran-Armitage test for trend", 
+                                    "non_inferiority": "No", 
+                                    "p_value": "0.55"
+                                }, 
+                                {
+                                    "group_id_list": {
+                                        "group_id": [
+                                            "O1", 
+                                            "O3"
+                                        ]
+                                    }, 
+                                    "method": "Cochran-Armitage test for trend", 
+                                    "non_inferiority": "No", 
+                                    "p_value": "0.80"
+                                }
+                            ]
+                        }, 
+                        "description": "The primary outcome measure classified patients as improved, unchanged or worsened, based on a 4 components clinical composite score using the following four components: death, heart failure hospitalization, New York Heart Association [NYHA] class, patient's Global Assessment rating. Best value is improved, whereas worst value is worsened.", 
+                        "group_list": {
+                            "group": [
+                                {
+                                    "@group_id": "O1", 
+                                    "description": "Atrial Tracking (atrial rate support above 40 bpm)", 
+                                    "title": "DDD-40"
+                                }, 
+                                {
+                                    "@group_id": "O2", 
+                                    "description": "Atrial Rate Support (atrial rate support above 70 bpm)", 
+                                    "title": "DDD-70"
+                                }, 
+                                {
+                                    "@group_id": "O3", 
+                                    "description": "Rate Adaptive Pacing (atrial rate support above 40 bpm with rate responsive pacing)", 
+                                    "title": "DDDR-40"
+                                }
+                            ]
+                        }, 
+                        "measure_list": {
+                            "measure": [
+                                {
+                                    "category_list": {
+                                        "category": {
+                                            "measurement_list": {
+                                                "measurement": [
+                                                    {
+                                                        "@group_id": "O1", 
+                                                        "@value": "437"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O2", 
+                                                        "@value": "441"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O3", 
+                                                        "@value": "431"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }, 
+                                    "param": "Number", 
+                                    "title": "Number of Participants", 
+                                    "units": "participants"
+                                }, 
+                                {
+                                    "category_list": {
+                                        "category": [
+                                            {
+                                                "measurement_list": {
+                                                    "measurement": [
+                                                        {
+                                                            "@group_id": "O1", 
+                                                            "@value": "230"
+                                                        }, 
+                                                        {
+                                                            "@group_id": "O2", 
+                                                            "@value": "235"
+                                                        }, 
+                                                        {
+                                                            "@group_id": "O3", 
+                                                            "@value": "229"
+                                                        }
+                                                    ]
+                                                }, 
+                                                "sub_title": "Improved"
+                                            }, 
+                                            {
+                                                "measurement_list": {
+                                                    "measurement": [
+                                                        {
+                                                            "@group_id": "O1", 
+                                                            "@value": "84"
+                                                        }, 
+                                                        {
+                                                            "@group_id": "O2", 
+                                                            "@value": "94"
+                                                        }, 
+                                                        {
+                                                            "@group_id": "O3", 
+                                                            "@value": "85"
+                                                        }
+                                                    ]
+                                                }, 
+                                                "sub_title": "Unchanged"
+                                            }, 
+                                            {
+                                                "measurement_list": {
+                                                    "measurement": [
+                                                        {
+                                                            "@group_id": "O1", 
+                                                            "@value": "123"
+                                                        }, 
+                                                        {
+                                                            "@group_id": "O2", 
+                                                            "@value": "112"
+                                                        }, 
+                                                        {
+                                                            "@group_id": "O3", 
+                                                            "@value": "117"
+                                                        }
+                                                    ]
+                                                }, 
+                                                "sub_title": "Worsened"
+                                            }
+                                        ]
+                                    }, 
+                                    "description": "The primary outcome measure classified patients as improved, unchanged or worsened, based on a 4 components clinical composite score using the following four components: death, heart failure hospitalization, New York Heart Association [NYHA] class, patient's Global Assessment rating. Best value is improved, whereas worst value is worsened.", 
+                                    "param": "Number", 
+                                    "title": "Clinical Composite Score", 
+                                    "units": "participants"
+                                }
+                            ]
+                        }, 
+                        "population": "This analysis is intention to treat (ITT) in terms of patient's being analyzed according to their randomized group.  Last observation carried forward (LOCF) method was used for missing NYHA and global assessment measures at 12 months.", 
+                        "safety_issue": "No", 
+                        "time_frame": "From randomization (6-weeks) through 12-month visit", 
+                        "title": "Clinical Composite Score", 
+                        "type": "Primary"
+                    }, 
+                    {
+                        "analysis_list": {
+                            "analysis": [
+                                {
+                                    "ci_lower_limit": "-22.65", 
+                                    "ci_n_sides": "2-Sided", 
+                                    "ci_percent": "95", 
+                                    "ci_upper_limit": "2.30", 
+                                    "dispersion_type": "Standard Error of the mean", 
+                                    "dispersion_value": "6.35", 
+                                    "group_id_list": {
+                                        "group_id": [
+                                            "O1", 
+                                            "O2"
+                                        ]
+                                    }, 
+                                    "groups_desc": "Compare the difference in the changes in physical activity scores between groups using a t-test.", 
+                                    "method": "t-test, 2 sided", 
+                                    "non_inferiority": "No", 
+                                    "p_value": "0.11", 
+                                    "param_type": "Mean Difference (Final Values)", 
+                                    "param_value": "-10.17"
+                                }, 
+                                {
+                                    "ci_lower_limit": "-26.11", 
+                                    "ci_n_sides": "2-Sided", 
+                                    "ci_percent": "95", 
+                                    "ci_upper_limit": "-0.37", 
+                                    "dispersion_type": "Standard Error of the mean", 
+                                    "dispersion_value": "6.55", 
+                                    "group_id_list": {
+                                        "group_id": [
+                                            "O1", 
+                                            "O3"
+                                        ]
+                                    }, 
+                                    "groups_desc": "Compare the difference in the changes in physical activity scores between groups using a t-test.\nTo adjust for multiple comparisons, an alpha level of 0.025 should be used to deem significance.", 
+                                    "method": "t-test, 2 sided", 
+                                    "non_inferiority": "No", 
+                                    "p_value": "0.04", 
+                                    "param_type": "Mean Difference (Final Values)", 
+                                    "param_value": "-13.24"
+                                }
+                            ]
+                        }, 
+                        "description": "Physical activity was assessed using the Physical Activity Scale of the Elderly (PASE) questionnaire for those patients with paired data available at the 6 week and 12 month visits. The PASE is designed to assess physical activity in older persons. The total PASE score was computed by multiplying the amount of time spent in each activity (hours/week) or participation (yes/no) in an activity by empirically derived item weights and summing over all activities. PASE scores for this study ranged from 0 to 756 with higher scores indicating more physical activity.", 
+                        "group_list": {
+                            "group": [
+                                {
+                                    "@group_id": "O1", 
+                                    "description": "Atrial Tracking (atrial rate support above 40 bpm)", 
+                                    "title": "DDD-40"
+                                }, 
+                                {
+                                    "@group_id": "O2", 
+                                    "description": "Atrial Rate Support (atrial rate support above 70 bpm)", 
+                                    "title": "DDD-70"
+                                }, 
+                                {
+                                    "@group_id": "O3", 
+                                    "description": "Rate Adaptive Pacing (atrial rate support above 40 bpm with rate responsive pacing)", 
+                                    "title": "DDDR-40"
+                                }
+                            ]
+                        }, 
+                        "measure_list": {
+                            "measure": [
+                                {
+                                    "category_list": {
+                                        "category": {
+                                            "measurement_list": {
+                                                "measurement": [
+                                                    {
+                                                        "@group_id": "O1", 
+                                                        "@value": "339"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O2", 
+                                                        "@value": "362"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O3", 
+                                                        "@value": "348"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }, 
+                                    "param": "Number", 
+                                    "title": "Number of Participants", 
+                                    "units": "participants"
+                                }, 
+                                {
+                                    "category_list": {
+                                        "category": {
+                                            "measurement_list": {
+                                                "measurement": [
+                                                    {
+                                                        "@group_id": "O1", 
+                                                        "@spread": "78.62", 
+                                                        "@value": "12.45"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O2", 
+                                                        "@spread": "88.86", 
+                                                        "@value": "22.62"
+                                                    }, 
+                                                    {
+                                                        "@group_id": "O3", 
+                                                        "@spread": "92.41", 
+                                                        "@value": "25.69"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }, 
+                                    "description": "Physical activity was assessed using the Physical Activity Scale of the Elderly (PASE) questionnaire for those patients with paired data available at the 6 week and 12 month visits. The PASE is designed to assess physical activity in older persons. The total PASE score was computed by multiplying the amount of time spent in each activity (hours/week) or participation (yes/no) in an activity by empirically derived item weights and summing over all activities. PASE scores for this study ranged from 0 to 756 with higher scores indicating more physical activity.", 
+                                    "dispersion": "Standard Deviation", 
+                                    "param": "Mean", 
+                                    "title": "Change in Self Assessed Physical Activity", 
+                                    "units": "units on a scale"
+                                }
+                            ]
+                        }, 
+                        "population": "Physical activity was assessed using the Physical Activity Scale for the Elderly and was analyzed for those patients with paired data available at the 6 week and 12 month visit. Patients were analyzed in their randomized groups. Postive values for changes denote improvements.", 
+                        "safety_issue": "No", 
+                        "time_frame": "From randomization (6-weeks) through 12-month visit", 
+                        "title": "Change in Self Assessed Physical Activity", 
+                        "type": "Secondary"
+                    }
+                ]
+            }, 
+            "participant_flow": {
+                "group_list": {
+                    "group": [
+                        {
+                            "@group_id": "P1", 
+                            "description": "Atrial Tracking (atrial rate support above 40 bpm)", 
+                            "title": "DDD-40"
+                        }, 
+                        {
+                            "@group_id": "P2", 
+                            "description": "Atrial Rate Support (atrial rate support above 70 bpm)", 
+                            "title": "DDD-70"
+                        }, 
+                        {
+                            "@group_id": "P3", 
+                            "description": "Rate Adaptive Pacing (atrial rate support above 40 bpm with rate responsive pacing)", 
+                            "title": "DDDR-40"
+                        }
+                    ]
+                }, 
+                "period_list": {
+                    "period": [
+                        {
+                            "drop_withdraw_reason_list": {
+                                "drop_withdraw_reason": [
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "19", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "Death"
+                                    }, 
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "70", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "Lost to Follow-up"
+                                    }, 
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "8", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "Physician Decision"
+                                    }, 
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "172", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "Protocol Violation"
+                                    }, 
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "40", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "Withdrawal by Subject"
+                                    }
+                                ]
+                            }, 
+                            "milestone_list": {
+                                "milestone": [
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "#text": "Registered", 
+                                                    "@count": "1742", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "STARTED"
+                                    }, 
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "#text": "Reached 6-week visit and were randomized", 
+                                                    "@count": "1433", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "COMPLETED"
+                                    }, 
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "309", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "0", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "NOT COMPLETED"
+                                    }
+                                ]
+                            }, 
+                            "title": "Pre-randomization"
+                        }, 
+                        {
+                            "drop_withdraw_reason_list": {
+                                "drop_withdraw_reason": [
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "12", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "15", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "12", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "Lost to Follow-up"
+                                    }, 
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "26", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "32", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "27", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "Withdrawn"
+                                    }
+                                ]
+                            }, 
+                            "milestone_list": {
+                                "milestone": [
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "475", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "488", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "470", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "STARTED"
+                                    }, 
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "437", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "441", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "431", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "COMPLETED"
+                                    }, 
+                                    {
+                                        "participants_list": {
+                                            "participants": [
+                                                {
+                                                    "@count": "38", 
+                                                    "@group_id": "P1"
+                                                }, 
+                                                {
+                                                    "@count": "47", 
+                                                    "@group_id": "P2"
+                                                }, 
+                                                {
+                                                    "@count": "39", 
+                                                    "@group_id": "P3"
+                                                }
+                                            ]
+                                        }, 
+                                        "title": "NOT COMPLETED"
+                                    }
+                                ]
+                            }, 
+                            "title": "Post-randomization"
+                        }
+                    ]
+                }, 
+                "pre_assignment_details": "All patients with successful system implants were programmed to DDD-40 (atrial rate support above 40 bpm; limited atrial pacing) for the first 6-weeks of the trial. Randomization (1:1:1 allocation) occurred after patients had reached the 6-week visit and continued to meet all of the eligibility criteria for the trial.", 
+                "recruitment_details": "Enrollment began on November 8, 2004, was completed on December 21, 2007, with study follow-up commencing January 30, 2009. This trial was conducted at institutional settings throughout the United States and Australia."
+            }, 
+            "point_of_contact": {
+                "email": "cshd@bsci.com", 
+                "name_or_title": "Kira Stolen", 
+                "organization": "Clinical Affairs", 
+                "phone": "1 800 CARDIAC"
+            }, 
+            "reported_events": {
+                "desc": "Source vocabulary for AE coding was not used in this trial. Serious adverse events were not collected in this trial per trial design.", 
+                "group_list": {
+                    "group": [
+                        {
+                            "@group_id": "E1", 
+                            "description": "Atrial Tracking (atrial rate support above 40 bpm)", 
+                            "title": "DDD-40"
+                        }, 
+                        {
+                            "@group_id": "E2", 
+                            "description": "Atrial Rate Support (atrial rate support above 70 bpm)", 
+                            "title": "DDD-70"
+                        }, 
+                        {
+                            "@group_id": "E3", 
+                            "description": "Rate Adaptive Pacing (atrial rate support above 40 bpm with rate responsive pacing)", 
+                            "title": "DDDR-40"
+                        }
+                    ]
+                }, 
+                "other_events": {
+                    "category_list": {
+                        "category": [
+                            {
+                                "event_list": {
+                                    "event": {
+                                        "counts": [
+                                            {
+                                                "@group_id": "E1", 
+                                                "@subjects_affected": "129", 
+                                                "@subjects_at_risk": "475"
+                                            }, 
+                                            {
+                                                "@group_id": "E2", 
+                                                "@subjects_affected": "119", 
+                                                "@subjects_at_risk": "488"
+                                            }, 
+                                            {
+                                                "@group_id": "E3", 
+                                                "@subjects_affected": "112", 
+                                                "@subjects_at_risk": "470"
+                                            }
+                                        ], 
+                                        "sub_title": "Total, other adverse events"
+                                    }
+                                }, 
+                                "title": "Total"
+                            }, 
+                            {
+                                "event_list": {
+                                    "event": {
+                                        "counts": [
+                                            {
+                                                "@events": "124", 
+                                                "@group_id": "E1", 
+                                                "@subjects_affected": "80", 
+                                                "@subjects_at_risk": "475"
+                                            }, 
+                                            {
+                                                "@events": "125", 
+                                                "@group_id": "E2", 
+                                                "@subjects_affected": "89", 
+                                                "@subjects_at_risk": "488"
+                                            }, 
+                                            {
+                                                "@events": "117", 
+                                                "@group_id": "E3", 
+                                                "@subjects_affected": "76", 
+                                                "@subjects_at_risk": "470"
+                                            }
+                                        ], 
+                                        "sub_title": "Cardiovascular related"
+                                    }
+                                }, 
+                                "title": "Cardiac disorders"
+                            }, 
+                            {
+                                "event_list": {
+                                    "event": {
+                                        "counts": [
+                                            {
+                                                "@events": "82", 
+                                                "@group_id": "E1", 
+                                                "@subjects_affected": "64", 
+                                                "@subjects_at_risk": "475"
+                                            }, 
+                                            {
+                                                "@events": "58", 
+                                                "@group_id": "E2", 
+                                                "@subjects_affected": "43", 
+                                                "@subjects_at_risk": "488"
+                                            }, 
+                                            {
+                                                "@events": "54", 
+                                                "@group_id": "E3", 
+                                                "@subjects_affected": "45", 
+                                                "@subjects_at_risk": "470"
+                                            }
+                                        ], 
+                                        "sub_title": "Non-device, non-lead, non-procedure or non-cardiovascular related AE \"other\""
+                                    }
+                                }, 
+                                "title": "General disorders"
+                            }
+                        ]
+                    }, 
+                    "default_assessment": "Systematic Assessment", 
+                    "frequency_threshold": "5"
+                }, 
+                "time_frame": "Adverse event data were collected from randomization (6-weeks) through the 12-month follow-up visit. Per trial design, serious adverse events were not collected in this trial."
+            }
+        }, 
+        "completion_date": {
+            "#text": "February 2009", 
+            "@type": "Actual"
+        }, 
+        "condition": "Heart Failure", 
+        "condition_browse": {
+            "mesh_term": "Heart Failure"
+        }, 
+        "detailed_description": {
+            "textblock": "PEGASUS CRT is a multicenter trial that will assess the effect of a cardiac\n      resynchronization therapy defibrillator (CRT-D) device programmed to DDD-70 or DDDR-40\n      compared to a CRT device programmed to DDD-40 in heart failure patients.  The effect of\n      atrial support pacing in heart failure patients will be assessed using a clinical composite\n      rating.  A sub-study will evaluate the effect pacing mode has on exercise capacity in this\n      heart failure population."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Patients who meet current indications for the CONTAK RENEWAL\u00ae family of cardiac\n             resynchronization therapy defibrillator (CRT-D) devices or future Food and Drug\n             Administration (FDA) approved Guidant CRT-D devices\n\n          -  Patients who sign and date a Patient Informed Consent at, or prior to, the implant\n             visit\n\n          -  Patients who are in sinus rhythm at the time of implant\n\n          -  Patients who remain in the clinical care of the enrolling physician in approved\n             centers\n\n          -  Patients who are on optimal pharmacologic therapy or who have developed a recent\n             implantable cardioverter defibrillator (ICD) indication that necessitates ICD therapy\n             concurrent with the optimization of pharmacologic therapy\n\n        Exclusion Criteria:\n\n          -  Patients whose medical condition is expected to preclude the use of the\n             protocol-required pacing mode (dual chamber pacing [DDD or DDDR]) and respective\n             lower rate limits\n\n          -  Patients with permanent atrial fibrillation or atrial flutter\n\n          -  Patients who are in complete heart block\n\n          -  Patients who have previously had a pacemaker, ICD, or CRT device\n\n          -  Patients whose life expectancy is less than 12 months due to other medical conditions\n\n          -  Patients who are expected to receive a heart transplant during the duration of the\n             study\n\n          -  Patients who have other cardiac surgeries or procedures planned but not yet performed\n\n          -  Patients who currently have or who are likely to receive a tricuspid valve prosthesis\n\n          -  Patients who are currently enrolled in another investigational study or registry that\n             would directly impact the treatment or outcome of the current study.\n\n          -  Patients who are younger than 18 years of age\n\n          -  Patients who are mentally incompetent and cannot sign a Patient Informed Consent form\n             or comply with the study\n\n          -  Patients who are or become pregnant"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": {
+            "#text": "1742", 
+            "@type": "Actual"
+        }, 
+        "firstreceived_date": "September 2, 2005", 
+        "firstreceived_results_date": "February 28, 2010", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00146848", 
+            "org_study_id": "CR-CA-100604-H", 
+            "secondary_id": "PEGASUS"
+        }, 
+        "intervention": {
+            "arm_group_label": [
+                "DDD-40", 
+                "DDDR-40", 
+                "DDD-70"
+            ], 
+            "description": "All subjects in this trial receive the same device.  For the purpose of this trial, \"intervention\" is programming mode and lower rate limit to deliver atrial support pacing in the two treatment arms, while the control arm will receive programming where limited atrial support pacing is delivered. DDD-70 and DDDR-40 are the treatment arms programmed to receive atrial support pacing and will be compared to the DDD-40 arm.", 
+            "intervention_name": "Atrial support pacing through cardiac resynchronization therapy.  Device: RENEWAL family of CRT-D devices", 
+            "intervention_type": "Device"
+        }, 
+        "is_fda_regulated": "No", 
+        "lastchanged_date": "December 20, 2011", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Cleveland", 
+                    "country": "United States", 
+                    "state": "Ohio", 
+                    "zip": "44195"
+                }, 
+                "name": "The Cleveland Clinic Hospital"
+            }
+        }, 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "number_of_arms": "3", 
+        "official_title": "Pacing Evaluation - Atrial Support Study in Cardiac Resynchronization Therapy", 
+        "overall_official": [
+            {
+                "affiliation": "The Cleveland Clinic", 
+                "last_name": "David O. Martin, MD, MPH", 
+                "role": "Principal Investigator"
+            }, 
+            {
+                "affiliation": "Utah Heart Clinic, LDS Hospital", 
+                "last_name": "John Day", 
+                "role": "Principal Investigator"
+            }
+        ], 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Institutional Review Board", 
+            "has_dmc": "Yes"
+        }, 
+        "phase": "Phase 4", 
+        "primary_completion_date": {
+            "#text": "January 2009", 
+            "@type": "Actual"
+        }, 
+        "primary_outcome": {
+            "description": "The primary outcome measure classified patients as improved, unchanged or worsened, based on a 4 components clinical composite score using the following four components: death, heart failure hospitalization, New York Heart Association [NYHA] class, patient's Global Assessment rating. Best value is improved, whereas worst value is worsened.", 
+            "measure": "Clinical Composite Score", 
+            "safety_issue": "No", 
+            "time_frame": "From randomization (6-weeks) through 12-month visit"
+        }, 
+        "reference": {
+            "PMID": "17174627", 
+            "citation": "Martin DO, Stolen KQ, Brown S, Yu Y, Christie C, Doshi SK, Smith JM, Gold MR, Day JD. Pacing Evaluation-Atrial SUpport Study in Cardiac Resynchronization Therapy (PEGASUS CRT): design and rationale. Am Heart J. 2007 Jan;153(1):7-13."
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00146848"
+        }, 
+        "responsible_party": {
+            "responsible_party_type": "Sponsor"
+        }, 
+        "secondary_outcome": [
+            {
+                "description": "Quality of Life as assessed by the Minnesota Living with Heart Failure Questionniare for those patients with paired data at 6 weeks and 12 months. This score is on a scale of 0(best)- 105(worst). A negative change denotes improvement.", 
+                "measure": "Change in Quality of Life", 
+                "safety_issue": "No", 
+                "time_frame": "From randomization (6-weeks) through 12-month visit"
+            }, 
+            {
+                "description": "Physical activity was assessed using the Physical Activity Scale of the Elderly (PASE) questionnaire for those patients with paired data available at the 6 week and 12 month visits. The PASE is designed to assess physical activity in older persons. The total PASE score was computed by multiplying the amount of time spent in each activity (hours/week) or participation (yes/no) in an activity by empirically derived item weights and summing over all activities. PASE scores for this study ranged from 0 to 756 with higher scores indicating more physical activity.", 
+                "measure": "Change in Self Assessed Physical Activity", 
+                "safety_issue": "No", 
+                "time_frame": "From randomization (6-weeks) through 12-month visit"
+            }
+        ], 
+        "source": "Boston Scientific Corporation", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Boston Scientific Corporation", 
+                "agency_class": "Industry"
+            }
+        }, 
+        "start_date": "December 2004", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Parallel Assignment, Masking: Single Blind (Subject), Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "December 2011"
+    }
+}

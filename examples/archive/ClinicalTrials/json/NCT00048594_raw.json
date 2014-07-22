@@ -1,0 +1,108 @@
+{
+    "clinical_study": {
+        "@rank": "158352", 
+        "brief_summary": {
+            "textblock": "A clinical study to determine the efficacy and safety of an investigational medication\n      (MK0869) in the treatment of depression."
+        }, 
+        "brief_title": "Long Term Treatment of Patients With Major Depressive Disorder With MK0869", 
+        "completion_date": {
+            "#text": "March 2004", 
+            "@type": "Actual"
+        }, 
+        "condition": "Major Depressive Disorder", 
+        "condition_browse": {
+            "mesh_term": [
+                "Depressive Disorder", 
+                "Depression", 
+                "Depressive Disorder, Major"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "The duration of treatment is 20 months."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Patients with Major Depressive Disorder"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": {
+            "#text": "800", 
+            "@type": "Actual"
+        }, 
+        "firstreceived_date": "November 4, 2002", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00048594", 
+            "org_study_id": "2006_405", 
+            "secondary_id": [
+                "Formally-35MRB2", 
+                "MK0869-065"
+            ]
+        }, 
+        "intervention": [
+            {
+                "intervention_name": "aprepitant", 
+                "intervention_type": "Drug", 
+                "other_name": "MK0869"
+            }, 
+            {
+                "intervention_name": "Comparator: placebo (unspecified)", 
+                "intervention_type": "Drug"
+            }
+        ], 
+        "intervention_browse": {
+            "mesh_term": "Aprepitant"
+        }, 
+        "is_fda_regulated": "Yes", 
+        "is_section_801": "Yes", 
+        "lastchanged_date": "July 30, 2008", 
+        "official_title": "A Double-Blind, Placebo-Controlled, Multicenter Study of the Long-Term Efficacy of MK0869 in the Maintenance of Antidepressant Effect in Patients With Major Depressive Disorder", 
+        "overall_official": {
+            "affiliation": "Merck Sharp & Dohme Corp.", 
+            "last_name": "Medical Monitor", 
+            "role": "Study Director"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Food and Drug Administration"
+        }, 
+        "phase": "Phase 3", 
+        "primary_outcome": {
+            "measure": "Total HAMD-17 score </=  10 after 10 weeks of treatment, time to relapse of depression over 6-10 months", 
+            "safety_issue": "No", 
+            "time_frame": "after 10 weeks of treatment and over 6-10 months"
+        }, 
+        "removed_countries": {
+            "country": "United States"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00048594"
+        }, 
+        "responsible_party": {
+            "name_title": "Executive Vice President, Clinical and Quantitative Sciences", 
+            "organization": "Merck & Co., Inc."
+        }, 
+        "secondary_outcome": {
+            "measure": "CGI-S score change from Week 10 at Month 6; HAMD-17 total score change from Week 10 at Month 6; an HAMA total score change from week 10 at Month 6.", 
+            "safety_issue": "No", 
+            "time_frame": "Week 10 at Month 6"
+        }, 
+        "source": "Merck Sharp & Dohme Corp.", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Merck Sharp & Dohme Corp.", 
+                "agency_class": "Industry"
+            }
+        }, 
+        "start_date": "May 2002", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double Blind (Subject, Investigator), Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "July 2008"
+    }
+}

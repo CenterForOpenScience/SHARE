@@ -1,0 +1,877 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00299000</url>
+  </required_header>
+  <id_info>
+    <org_study_id>ASB-008</org_study_id>
+    <nct_id>NCT00299000</nct_id>
+  </id_info>
+  <brief_title>A Phase 4 Two Dose Level Study of Naglazyme(TM) (Galsulfase) in Infants With MPS VI</brief_title>
+  <official_title>A Phase 4 Multi-center, Multi-national, Open-label, Randomized, Two Dose Level Study of Naglazyme(TM) (Galsulfase) in Infants With Maroteaux-Lamy Syndrome (MPS VI)</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>BioMarin Pharmaceutical</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>BioMarin Pharmaceutical</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The purpose of the study is to evaluate the safety and efficacy of two dose levels of
+      Naglazyme in infants under the age of one year who have MPS VI by monitoring physical
+      appearance, x-ray of the skeletal system and growth.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      The primary objective of the study was to evaluate the efficacy of two dose levels of
+      Naglazyme in preventing the progression of skeletal dysplasia in infants under the age of
+      one year who have MPS VI by monitoring physical appearance, x-ray of the skeletal system and
+      growth.
+
+      The secondary objective of the study was to evaluate the efficacy of the two dose levels of
+      Naglazyme in preventing several measures of disease progression in infants under the age of
+      one year who have MPS VI by monitoring urinary GAGs, gross and fine motor function, cardiac
+      function, vision, hearing, and use of health resources.
+
+      The safety objective of the study was to evaluate the safety of two dose levels of Naglazyme
+      in infants under the age of one year who have MPS VI.
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>May 2006</start_date>
+  <completion_date type="Actual">April 2009</completion_date>
+  <primary_completion_date type="Actual">April 2009</primary_completion_date>
+  <phase>Phase 4</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Prevention</study_design>
+  <primary_outcome>
+    <measure>Change in Height</measure>
+    <time_frame>52 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <primary_outcome>
+    <measure>Change in Weight</measure>
+    <time_frame>52 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <primary_outcome>
+    <measure>Change in Haed Circumference</measure>
+    <time_frame>52 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Change in Urinary Glycosaminoglycan Levels</measure>
+    <time_frame>minimum 52 weeks of dosing</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Change in urinary GAG levels was calculated from baseline to week 52 of treatment.</description>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">4</enrollment>
+  <condition>Mucopolysaccharidosis VI</condition>
+  <condition>Maroteaux-Lamy Syndrome</condition>
+  <arm_group>
+    <arm_group_label>Naglazyme, 1.0 mg/kg</arm_group_label>
+    <arm_group_type>Other</arm_group_type>
+    <description>Dose comparison</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Naglazyme, 2.0 mg/kg</arm_group_label>
+    <arm_group_type>Other</arm_group_type>
+    <description>Dose Comparison</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Naglazyme</intervention_name>
+    <description>Weekly infusion for minimum of 52 weeks. Naglazyme is diluted in sterile 0.9% sodium chloride solution</description>
+    <arm_group_label>Naglazyme, 1.0 mg/kg</arm_group_label>
+    <arm_group_label>Naglazyme, 2.0 mg/kg</arm_group_label>
+    <other_name>recombinant human N-acetylgalactosamine 4-sulfatase</other_name>
+    <other_name>rh-arylsulfatase B</other_name>
+    <other_name>rhASB</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Signed informed consent by a parent or legal guardian
+
+          -  Parent or legal guardian willing and able to comply with all study procedures
+
+          -  Equal to or greater than 36 weeks estimated gestational age by physical exam at birth
+
+          -  Has a diagnosis of MPS VI based on a documented prenatal diagnosis or fibroblast or
+             leukocyte N-acetylgalactosamine 4-sulfatase (ASB) enzyme activity level of less than
+             10% of the lower limit of the normal range of the measuring laboratory
+
+          -  Is less than one year of age
+
+          -  Has no evidence of skeletal dysplasia based on physical exam
+
+        Exclusion Criteria:
+
+          -  Parent of legal guardian perceived to be unreliable or unavailable for study
+             participation
+
+          -  Use of any investigational drug within 30 days prior to screening, or requirement for
+             any investigational agent prior to completion of all scheduled study assessments
+
+          -  Has concurrent disease or condition that would interfere with study participation or
+             safety (i.e., has previously undergone hematopoietic stem cell transplantation such
+             as bone marrow or cord blood transplantation, or major organ transplantation)
+
+          -  Any condition that, in the view of the principle investigator, renders the subject at
+             high risk from treatment compliance and/or completing the study
+
+          -  Has known hypersensitivity to Naglazyme
+
+          -  Has previously received Naglazyme
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>N/A</minimum_age>
+    <maximum_age>1 Year</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Celeste Decker, MD</last_name>
+    <role>Study Director</role>
+    <affiliation>BioMarin Pharmaceutical</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Children's Hospital Los Angeles</name>
+      <address>
+        <city>Los Angeles</city>
+        <state>California</state>
+        <zip>90027</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Children's Hospital Oakland</name>
+      <address>
+        <city>Oakland</city>
+        <state>California</state>
+        <zip>94609</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Hospital Femme Mere Enfant Centre</name>
+      <address>
+        <city>Lyon</city>
+        <zip>69677</zip>
+        <country>France</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Hospital PediAtrico de Coimbra</name>
+      <address>
+        <city>Coimbra</city>
+        <zip>3000-076</zip>
+        <country>Portugal</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+    <country>France</country>
+    <country>Portugal</country>
+  </location_countries>
+  <link>
+    <url>http://www.BRMN.com</url>
+    <description>BioMarin Pharmaceutical Inc Website</description>
+  </link>
+  <verification_date>July 2011</verification_date>
+  <lastchanged_date>July 19, 2011</lastchanged_date>
+  <firstreceived_date>March 2, 2006</firstreceived_date>
+  <firstreceived_results_date>May 7, 2010</firstreceived_results_date>
+  <responsible_party>
+    <name_title>Celeste Decker, MD</name_title>
+    <organization>BioMarin Pharmaceutical Inc.</organization>
+  </responsible_party>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Mucopolysaccharidoses</mesh_term>
+    <mesh_term>Mucopolysaccharidosis VI</mesh_term>
+  </condition_browse>
+
+  <clinical_results>
+
+    <participant_flow>
+      <recruitment_details>Global study sites were hospitals.
+First Enrollment:  08MAY2006
+Last Dose: 30APR2009</recruitment_details>
+      <group_list>
+        <group group_id="P1">
+          <title>Naglazyme, 1.0 mg/kg</title>
+          <description>weekly infusions for minimum of 52 weeks</description>
+        </group>
+        <group group_id="P2">
+          <title>Naglazyme, 2.0 mg/kg</title>
+          <description>weekly infusions for minimum of 52 weeks</description>
+        </group>
+      </group_list>
+      <period_list>
+        <period>
+          <title>Overall Study</title>
+          <milestone_list>
+            <milestone>
+              <title>STARTED</title>
+              <participants_list>
+                <participants group_id="P1" count="2"/>
+                <participants group_id="P2" count="2"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="2"/>
+                <participants group_id="P2" count="2"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>NOT COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="0"/>
+                <participants group_id="P2" count="0"/>
+              </participants_list>
+            </milestone>
+          </milestone_list>
+        </period>
+      </period_list>
+    </participant_flow>
+
+    <baseline>
+      <group_list>
+        <group group_id="B1">
+          <title>Naglazyme, 1.0 mg/kg</title>
+          <description>weekly infusions for minimum of 52 weeks</description>
+        </group>
+        <group group_id="B2">
+          <title>Naglazyme, 2.0 mg/kg</title>
+          <description>weekly infusions for minimum of 52 weeks</description>
+        </group>
+        <group group_id="B3">
+          <title>Total</title>
+          <description>Total of all reporting groups</description>
+        </group>
+      </group_list>
+      <measure_list>
+        <measure>
+          <title>Number of Participants</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="2"/>
+                <measurement group_id="B2" value="2"/>
+                <measurement group_id="B3" value="4"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Age</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>&lt;=18 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="2"/>
+                <measurement group_id="B2" value="2"/>
+                <measurement group_id="B3" value="4"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Between 18 and 65 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>&gt;=65 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Age</title>
+          <units>months</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="6.05" spread="3.89"/>
+                <measurement group_id="B2" value="12.4" spread="0.42"/>
+                <measurement group_id="B3" value="9.23" spread="4.31"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Gender</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Female</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Male</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="2"/>
+                <measurement group_id="B2" value="2"/>
+                <measurement group_id="B3" value="4"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Race/Ethnicity, Customized</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>White, non-Hispanic</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="1"/>
+                <measurement group_id="B2" value="1"/>
+                <measurement group_id="B3" value="2"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Hispanic/Latino</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="1"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="1"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Other</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="1"/>
+                <measurement group_id="B3" value="1"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Region of Enrollment</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>United States</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="2"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="2"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>France</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="1"/>
+                <measurement group_id="B3" value="1"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Portugal</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="1"/>
+                <measurement group_id="B3" value="1"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+      </measure_list>
+    </baseline>
+
+    <outcome_list>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change in Urinary Glycosaminoglycan Levels</title>
+        <description>Change in urinary GAG levels was calculated from baseline to week 52 of treatment.</description>
+        <time_frame>minimum 52 weeks of dosing</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Intention to treat.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Naglazyme, 1.0 mg/kg</title>
+            <description>weekly infusions for minimum of 52 weeks</description>
+          </group>
+          <group group_id="O2">
+            <title>Naglazyme, 2.0 mg/kg</title>
+            <description>weekly infusions for minimum of 52 weeks</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="2"/>
+                  <measurement group_id="O2" value="2"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change in Urinary Glycosaminoglycan Levels</title>
+            <description>Change in urinary GAG levels was calculated from baseline to week 52 of treatment.</description>
+            <units>ug/mg creatinine</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <sub_title>Baseline</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1041.87" spread="86.32"/>
+                  <measurement group_id="O2" value="698.95" spread="142.34"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Week 52</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="261.15" spread="54.38"/>
+                  <measurement group_id="O2" value="178.10" spread="42.43"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Change from Baseline to Week 52</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="-780.72" spread="140.69"/>
+                  <measurement group_id="O2" value="-520.85" spread="99.91"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Primary</type>
+        <title>Change in Height</title>
+        <time_frame>52 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Intention to treat.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Naglazyme, 1.0 mg/kg</title>
+            <description>weekly infusions for minimum of 52 weeks</description>
+          </group>
+          <group group_id="O2">
+            <title>Naglazyme, 2.0 mg/kg</title>
+            <description>weekly infusions for minimum of 52 weeks</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="2"/>
+                  <measurement group_id="O2" value="2"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change in Height</title>
+            <units>centimeters</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <sub_title>Height at baseline</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="67.3" spread="5.1"/>
+                  <measurement group_id="O2" value="80.3" spread="1.8"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Height at week 52</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="81.9" spread="1.8"/>
+                  <measurement group_id="O2" value="91.3" spread="5.2"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Change in height</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="14.6" spread="6.9"/>
+                  <measurement group_id="O2" value="11.0" spread="7.0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Primary</type>
+        <title>Change in Weight</title>
+        <time_frame>52 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <group_list>
+          <group group_id="O1">
+            <title>Naglazyme, 1.0 mg/kg</title>
+            <description>weekly infusions for minimum of 52 weeks</description>
+          </group>
+          <group group_id="O2">
+            <title>Naglazyme, 2.0 mg/kg</title>
+            <description>weekly infusions for minimum of 52 weeks</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="2"/>
+                  <measurement group_id="O2" value="2"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change in Weight</title>
+            <units>kilograms</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <sub_title>weight at baseline</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="7.1" spread=".3"/>
+                  <measurement group_id="O2" value="10.2" spread=".6"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>weight at week 52</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="11.3" spread=".3"/>
+                  <measurement group_id="O2" value="13.3" spread="1.0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>change in weight</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="4.2" spread=".6"/>
+                  <measurement group_id="O2" value="3.1" spread="1.6"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Primary</type>
+        <title>Change in Haed Circumference</title>
+        <time_frame>52 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <group_list>
+          <group group_id="O1">
+            <title>Naglazyme, 1.0 mg/kg</title>
+            <description>weekly infusions for minimum of 52 weeks</description>
+          </group>
+          <group group_id="O2">
+            <title>Naglazyme, 2.0 mg/kg</title>
+            <description>weekly infusions for minimum of 52 weeks</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="2"/>
+                  <measurement group_id="O2" value="2"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change in Haed Circumference</title>
+            <units>centimeter</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <sub_title>head circumference at baseline</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="43.5" spread="3.0"/>
+                  <measurement group_id="O2" value="49.1" spread=".5"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>head circumference at 52 weeks</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="48.5" spread="1.0"/>
+                  <measurement group_id="O2" value="51.8" spread=".8"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Change in head circumference</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="5.0" spread="4.0"/>
+                  <measurement group_id="O2" value="2.7" spread="1.3"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+    </outcome_list>
+
+    <reported_events>
+      <time_frame>All patients received weekly infusions of Nagalzyme for a minimum of 52 weeks.  The range in time of exposure to Naglazyme for the duration of the study was 52.9 to 153.30 weeks.</time_frame>
+      <group_list>
+        <group group_id="E1">
+          <title>Naglazyme, 1.0 mg/kg</title>
+          <description>weekly infusions for minimum of 52 weeks</description>
+        </group>
+        <group group_id="E2">
+          <title>Naglazyme, 2.0 mg/kg</title>
+          <description>weekly infusions for minimum of 52 weeks</description>
+        </group>
+      </group_list>
+      <serious_events>
+        <default_vocab>MedDRA (12.0)</default_vocab>
+        <default_assessment>Systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, serious adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="2"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Umbilical hernia</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="2"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Pneumonia</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="2"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="2"/>
+              </event>
+              <event>
+                <sub_title>Tonsillitis</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="2"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Musculoskeletal and connective tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Scoliosis</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="2"/>
+                <counts group_id="E2" events="3" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Nervous system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Febrile convulsion</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="2"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Adenoidal hypertrophy</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="2"/>
+                <counts group_id="E2" events="2" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+              <event>
+                <sub_title>Respiratory distress</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="2"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Surgical and medical procedures</title>
+            <event_list>
+              <event>
+                <sub_title>Cast application</sub_title>
+                <counts group_id="E1" events="0" subjects_affected="0" subjects_at_risk="2"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Poor venous access</sub_title>
+                <counts group_id="E1" events="1" subjects_affected="1" subjects_at_risk="2"/>
+                <counts group_id="E2" events="0" subjects_affected="0" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </serious_events>
+      <other_events>
+        <frequency_threshold>5</frequency_threshold>
+        <default_vocab>MedDRA (12.0)</default_vocab>
+        <default_assessment>Systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, other adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="2"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Diarrhea</sub_title>
+                <counts group_id="E1" events="4" subjects_affected="2" subjects_at_risk="2"/>
+                <counts group_id="E2" events="3" subjects_affected="2" subjects_at_risk="2"/>
+              </event>
+              <event>
+                <sub_title>Umbilical hernia</sub_title>
+                <counts group_id="E1" events="3" subjects_affected="2" subjects_at_risk="2"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+              <event>
+                <sub_title>Vomiting</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="1" subjects_at_risk="2"/>
+                <counts group_id="E2" events="3" subjects_affected="2" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Pyrexia</sub_title>
+                <counts group_id="E1" events="8" subjects_affected="2" subjects_at_risk="2"/>
+                <counts group_id="E2" events="31" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Ear infection</sub_title>
+                <counts group_id="E1" events="2" subjects_affected="2" subjects_at_risk="2"/>
+                <counts group_id="E2" events="4" subjects_affected="2" subjects_at_risk="2"/>
+              </event>
+              <event>
+                <sub_title>Rhinitis</sub_title>
+                <counts group_id="E1" events="3" subjects_affected="1" subjects_at_risk="2"/>
+                <counts group_id="E2" events="3" subjects_affected="2" subjects_at_risk="2"/>
+              </event>
+              <event>
+                <sub_title>Upper respiratory tract infections</sub_title>
+                <counts group_id="E1" events="9" subjects_affected="2" subjects_at_risk="2"/>
+                <counts group_id="E2" events="3" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Nasal congestion</sub_title>
+                <counts group_id="E1" events="15" subjects_affected="2" subjects_at_risk="2"/>
+                <counts group_id="E2" events="1" subjects_affected="1" subjects_at_risk="2"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </other_events>
+    </reported_events>
+
+    <certain_agreements>
+      <pi_employee>Principal Investigators are NOT employed by the organization sponsoring the study.</pi_employee>
+      <restrictive_agreement>The first publication of the results shall be made by the Sponsor in a joint publication. If such a multicenter publication is not submitted within 12 months after conclusion of the study, the PI may publish the results from site individually, subject however to comply with the other terms of the agreement.</restrictive_agreement>
+    </certain_agreements>
+    <limitations_and_caveats>Given the small number of patients (4) represented in this study, the outcomes observed in this study may not reflect or predict outcomes observed by physicians in clinical practice.</limitations_and_caveats>
+    <point_of_contact>
+      <name_or_title>Medical Information Services</name_or_title>
+      <organization>BioMarin Pharmaceutical Inc.</organization>
+      <phone>800-983-4587</phone>
+      <email>medinfo@bmrn.com</email>
+    </point_of_contact>
+  </clinical_results>
+</clinical_study>

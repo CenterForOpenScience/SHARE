@@ -1,0 +1,153 @@
+{
+    "clinical_study": {
+        "@rank": "11994", 
+        "biospec_descr": {
+            "textblock": "blood samples are collected, stored at minus 70 degree C and analyzed in batches."
+        }, 
+        "biospec_retention": "Samples Without DNA", 
+        "brief_summary": {
+            "textblock": "This preliminary study aims to investigate the mechanism of higher rates of type 2 diabetes\n      mellitus in patients with schizophrenia.  As part of the study, we collect\n      neuroendocrine-immune data on patients with first episode, treatment naive psychosis,\n      patients with newly diagnosed schizophrenia and normal healthy controls.\n\n      Regardless the treatment status, we collect the same neuroendocrine-immune data on the\n      participants after 2 months."
+        }, 
+        "brief_title": "Schizophrenia, Antipsychotic Treatment and the Risk for Diabetes Mellitus", 
+        "completion_date": {
+            "#text": "June 2014", 
+            "@type": "Anticipated"
+        }, 
+        "condition": [
+            "Schizophrenia", 
+            "Schizoaffective Disorder", 
+            "Delusional Disorder"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Schizophrenia, Paranoid", 
+                "Delusions", 
+                "Diabetes Mellitus", 
+                "Psychotic Disorders", 
+                "Schizophrenia"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "This preliminary study aims to investigate the mechanism of higher rates of type 2 diabetes\n      mellitus in patients with schizophrenia.  As part of the study, we collect\n      neuroendocrine-immune data on patients with first episode, treatment naive psychosis,\n      patients with newly diagnosed schizophrenia and normal healthy controls.\n\n      Regardless the treatment status, we collect the same neuroendocrine-immune on the\n      participants (patients and controls) after 2 months.  Thus, our study does not control\n      treatment.  Patients take treatment in consultation with their physician.  Some of them even\n      decide not to take any medications.  At the 2nd visit, we do ask them about the the\n      medications they are taking if any."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Psychotic disorder as per DSM-IV criteria of the American Psychiatric Association\n\n        Exclusion Criteria:\n\n          -  Diabetes, type 1 or 2\n\n          -  Prominent substance abuse (i.e. psychotic symptoms attributable entirely to substance\n             use)\n\n          -  Age above 50 or age below 14"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "Accepts Healthy Volunteers", 
+            "maximum_age": "50 Years", 
+            "minimum_age": "14 Years", 
+            "sampling_method": "Probability Sample", 
+            "study_pop": {
+                "textblock": "Patients with psychosis"
+            }
+        }, 
+        "enrollment": {
+            "#text": "200", 
+            "@type": "Anticipated"
+        }, 
+        "firstreceived_date": "September 13, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00222807", 
+            "org_study_id": "0306110"
+        }, 
+        "intervention_browse": {
+            "mesh_term": "Antipsychotic Agents"
+        }, 
+        "is_fda_regulated": "No", 
+        "keyword": "schizophrenia, psychosis, type 2 diabetes mellitus", 
+        "lastchanged_date": "February 16, 2011", 
+        "location": {
+            "contact": {
+                "email": "guidrs@upmc.edu", 
+                "last_name": "Richard S Guido, MD", 
+                "phone": "412-383-1480"
+            }, 
+            "facility": {
+                "address": {
+                    "city": "Pittsburgh", 
+                    "country": "United States", 
+                    "state": "Pennsylvania", 
+                    "zip": "15213"
+                }, 
+                "name": "University of Pittsburgh"
+            }, 
+            "investigator": [
+                {
+                    "last_name": "Ripu D Jindal, MD", 
+                    "role": "Principal Investigator"
+                }, 
+                {
+                    "last_name": "Matcheri S Keshavan, MD", 
+                    "role": "Sub-Investigator"
+                }, 
+                {
+                    "last_name": "Kevin Eklund, BSN", 
+                    "role": "Sub-Investigator"
+                }, 
+                {
+                    "last_name": "Alicia A Thomas, BS", 
+                    "role": "Sub-Investigator"
+                }
+            ], 
+            "status": "Recruiting"
+        }, 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "number_of_groups": "1", 
+        "official_title": "Schizophrenia, Antipsychotic Treatment and the Risk for Diabetes Mellitus", 
+        "overall_contact": {
+            "email": "jindalr@upmc.edu", 
+            "last_name": "Ripu D Jindal, MD", 
+            "phone": "412 512 9516"
+        }, 
+        "overall_official": {
+            "affiliation": "University of Pittsburgh", 
+            "last_name": "Ripu D Jindal, MD", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Recruiting", 
+        "oversight_info": {
+            "authority": "United States: Food and Drug Administration", 
+            "has_dmc": "Yes"
+        }, 
+        "phase": "N/A", 
+        "primary_completion_date": {
+            "#text": "December 2013", 
+            "@type": "Anticipated"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00222807"
+        }, 
+        "responsible_party": {
+            "name_title": "Ripu Jindal, MD Clinical Assistant Professor", 
+            "organization": "University of Pittsburgh"
+        }, 
+        "source": "University of Pittsburgh", 
+        "sponsors": {
+            "collaborator": [
+                {
+                    "agency": "American Association for Geriatric Psychiatry", 
+                    "agency_class": "Other"
+                }, 
+                {
+                    "agency": "Janssen Pharmaceuticals", 
+                    "agency_class": "Industry"
+                }
+            ], 
+            "lead_sponsor": {
+                "agency": "University of Pittsburgh", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "August 2003", 
+        "study_design": "Observational Model: Case Control, Time Perspective: Prospective", 
+        "study_type": "Observational", 
+        "verification_date": "February 2011"
+    }
+}

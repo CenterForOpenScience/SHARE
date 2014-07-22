@@ -1,0 +1,225 @@
+{
+    "clinical_study": {
+        "@rank": "117875", 
+        "brief_summary": {
+            "textblock": "To compare the influence of two surgical anesthetic techniques, hypothermia with circulatory\n      arrest or hypothermia with low-flow bypass perfusion, on neurologic functioning in infants\n      undergoing heart surgery."
+        }, 
+        "brief_title": "Infant Heart Surgery: Central Nervous System Sequelae of Circulatory Arrest", 
+        "completion_date": "December 2002", 
+        "condition": [
+            "Cardiovascular Diseases", 
+            "Cerebral Anoxia", 
+            "Cerebrovascular Disorders", 
+            "Defect, Congenital Heart", 
+            "Heart Diseases", 
+            "Transposition of Great Vessels", 
+            "Heart Septal Defects, Ventricular"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Congenital Abnormalities", 
+                "Anoxia", 
+                "Cardiovascular Diseases", 
+                "Cerebrovascular Disorders", 
+                "Heart Defects, Congenital", 
+                "Heart Diseases", 
+                "Heart Septal Defects", 
+                "Heart Septal Defects, Ventricular", 
+                "Transposition of Great Vessels", 
+                "Hypoxia, Brain"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "BACKGROUND:\n\n      The pediatric medical community has long been concerned about the increased incidence of\n      cerebral dysfunction among newborns with severe cyanotic congenital heart disease.  There\n      has been concern about a great number of potential predisposing factors including the\n      effects of hypoxemia and acidosis, trauma during cardiac catheterization, and the duration\n      of prolonged decreased arterial oxygen saturation.  Many infants undoubtedly undergo\n      significant brain damage prior to surgery, but may be subject to further insult in the\n      peri-operative period.  The proposed trial studied circulatory arrest versus low-flow bypass\n      methods of surgical support in a homogeneous group of patients who were managed in identical\n      fashion in all other aspects of their treatment.  Major factors, such as the influence of\n      cardiac catheterization and presurgical status were specifically incorporated into the\n      primary statistical analysis.  This was important in order to identify significant\n      predisposing causes of brain injury beyond the surgical techniques being compared, and to\n      increase the power of the comparison.\n\n      DESIGN NARRATIVE:\n\n      Randomized, partially blinded.  Infants were assigned to deep hypothermia and either\n      circulatory arrest or low-flow bypass support during arterial switch surgical repair of\n      transposition of the great arteries.  Randomization was stratified by diagnosis (with or\n      without septal defect) and by specific surgeon of three, thus yielding six strata within\n      each treatment group.  Randomization was also blocked to minimize imbalances in treatment\n      assignment between strata.  The study was partially blinded, in that outcome data were\n      obtained by investigators who were unaware of management, surgical care, and intensive care\n      were standardized.  Hemodynamic assessment was made early in the post-operative period.  The\n      outcomes of primary interest (magnetic resonance imaging, neurologic examination, and\n      psychometric testing) were reviewed at the one-year evaluation, to maximize relevance to the\n      long-term prognosis.  Pre-operative and seven-to-ten day post-operative neurologic\n      examination was also carried out.  Developmental status at one year was measured by the\n      Bayley developmental scales and the Fagan test of infant intelligence.  Brain function was\n      assessed by neurologic examination at one year.  The recruitment period extended from April\n      1988 to February 1992.\n\n      The trial was extended through December 1997 to allow four years of follow-up.  The\n      follow-up allowed the assessment of a primary outcome variable in the neurologic domain and\n      a primary outcome variable in the developmental domain.  The primary outcome variable of the\n      neurologic examination resulted in an ordered classification of three categories of  normal,\n      minor, and major dysfunction, such as apraxia or cerebral palsy.  Development was assessed\n      using standardized measures of cognition, behavior, language, attention, and motor skills.\n      The primary outome variable for the developmental evaluation was the intelligence quotient\n      on the Wechsler Preschool and Primary Scale of Intelligence (WPPSI-R).  Secondary outcome\n      variables included measurements of behavior and performance in specific domains of speech\n      and language, visual motor integration, attention, motor function, and temperament.\n\n      Beginning in January 1998, the study was extended for an additional four years through\n      December 2001 to compare the effects of the two intraoperative methods with respect to\n      developmental and neurologic status at eight years of age.  Developmental status was\n      assessed by the Wechsler Individual Achievement Test (primary outcome) and by the presence\n      of learning disabilities and performance in specific neuropsychologic domains (secondary\n      outcomes). Neurologic status was determined by neurologic exam (primary outcome) and by\n      specific types of dysfunction such as motor problems.  The study  also compared the academic\n      and intellectual performance of the cohort at age eight years to population norms and used\n      the data to identify correlates of the children's eight year outcomes, as well as their\n      development between ages one and eight."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Boy and girl infants, up to three months of age, with transposition of the great arteries\n        with or without septal defect."
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "1 Year", 
+            "minimum_age": "N/A"
+        }, 
+        "firstreceived_date": "October 27, 1999", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00000470", 
+            "org_study_id": "59"
+        }, 
+        "intervention": [
+            {
+                "intervention_name": "cardiac surgical procedures", 
+                "intervention_type": "Procedure"
+            }, 
+            {
+                "intervention_name": "cardiopulmonary bypass", 
+                "intervention_type": "Procedure"
+            }
+        ], 
+        "lastchanged_date": "June 23, 2005", 
+        "overall_official": {
+            "affiliation": "Children's Hospital Medical Center, Cincinnati", 
+            "last_name": "Jane Newburger"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Federal Government"
+        }, 
+        "phase": "Phase 3", 
+        "reference": [
+            {
+                "PMID": "8634389", 
+                "citation": "Jonas RA. Hypothermia, circulatory arrest, and the pediatric brain. J Cardiothorac Vasc Anesth. 1996 Jan;10(1):66-74. Review."
+            }, 
+            {
+                "PMID": "7554206", 
+                "citation": "Wernovsky G, Wypij D, Jonas RA, Mayer JE Jr, Hanley FL, Hickey PR, Walsh AZ, Chang AC, Casta\u00f1eda AR, Newburger JW, et al. Postoperative course and hemodynamic profile after the arterial switch operation in neonates and infants. A comparison of low-flow cardiopulmonary bypass and circulatory arrest. Circulation. 1995 Oct 15;92(8):2226-35."
+            }, 
+            {
+                "PMID": "2229800", 
+                "citation": "Wernovsky G, Jonas RA, Colan SD, Sanders SP, Wessel DL, Castan\u00f1eda AR, Mayer JE Jr. Results of the arterial switch operation in patients with transposition of the great arteries and abnormalities of the mitral valve or left ventricular outflow tract. J Am Coll Cardiol. 1990 Nov;16(6):1446-54."
+            }, 
+            {
+                "PMID": "1951094", 
+                "citation": "Chang AC, Wernovsky G, Kulik TJ, Jonas RA, Wessel DL. Management of the neonate with transposition of the great arteries and persistent pulmonary hypertension. Am J Cardiol. 1991 Nov 1;68(11):1253-5."
+            }, 
+            {
+                "PMID": "1718628", 
+                "citation": "Jenkins KJ, Hanley FL, Colan SD, Mayer JE Jr, Casta\u00f1eda AR, Wernovsky G. Function of the anatomic pulmonary valve in the systemic circulation. Circulation. 1991 Nov;84(5 Suppl):III173-9."
+            }, 
+            {
+                "PMID": "2020517", 
+                "citation": "Bellinger DC, Wernovsky G, Rappaport LA, Mayer JE Jr, Castaneda AR, Farrell DM, Wessel DL, Lang P, Hickey PR, Jonas RA, et al. Cognitive development of children following early repair of transposition of the great arteries using deep hypothermic circulatory arrest. Pediatrics. 1991 May;87(5):701-7."
+            }, 
+            {
+                "PMID": "1385008", 
+                "citation": "Wernovsky G, Giglia TM, Jonas RA, Mone SM, Colan SD, Wessel DL. Course in the intensive care unit after 'preparatory' pulmonary artery banding and aortopulmonary shunt placement for transposition of the great arteries with low left ventricular pressure. Circulation. 1992 Nov;86(5 Suppl):II133-9."
+            }, 
+            {
+                "PMID": "8426012", 
+                "citation": "Wernovsky G, Bridges ND, Mandell VS, Casta\u00f1eda AR, Perry SB. Enlarged bronchial arteries after early repair of transposition of the great arteries. J Am Coll Cardiol. 1993 Feb;21(2):465-70."
+            }, 
+            {
+                "PMID": "8371727", 
+                "citation": "Newburger JW, Jonas RA, Wernovsky G, Wypij D, Hickey PR, Kuban KC, Farrell DM, Holmes GL, Helmers SL, Constantinou J, et al. A comparison of the perioperative neurologic effects of hypothermic circulatory arrest versus low-flow cardiopulmonary bypass in infant heart surgery. N Engl J Med. 1993 Oct 7;329(15):1057-64."
+            }, 
+            {
+                "PMID": "8341077", 
+                "citation": "Jonas RA, Bellinger DC, Rappaport LA, Wernovsky G, Hickey PR, Farrell DM, Newburger JW. Relation of pH strategy and developmental outcome after hypothermic circulatory arrest. J Thorac Cardiovasc Surg. 1993 Aug;106(2):362-8."
+            }, 
+            {
+                "PMID": "7838188", 
+                "citation": "Bellinger DC, Jonas RA, Rappaport LA, Wypij D, Wernovsky G, Kuban KC, Barnes PD, Holmes GL, Hickey PR, Strand RD, et al. Developmental and neurologic status of children after heart surgery with hypothermic circulatory arrest or low-flow cardiopulmonary bypass. N Engl J Med. 1995 Mar 2;332(9):549-55."
+            }, 
+            {
+                "PMID": "7853882", 
+                "citation": "Wernovsky G, Mayer JE Jr, Jonas RA, Hanley FL, Blackstone EH, Kirklin JW, Casta\u00f1eda AR. Factors influencing early and late outcome of the arterial switch operation for transposition of the great arteries. J Thorac Cardiovasc Surg. 1995 Feb;109(2):289-301; discussion 301-2."
+            }, 
+            {
+                "PMID": "7853883", 
+                "citation": "Rhodes LA, Wernovsky G, Keane JF, Mayer JE Jr, Shuren A, Dindy C, Colan SD, Walsh EP. Arrhythmias and intracardiac conduction after the arterial switch operation. J Thorac Cardiovasc Surg. 1995 Feb;109(2):303-10."
+            }, 
+            {
+                "PMID": "8294697", 
+                "citation": "Weindling SN, Wernovsky G, Colan SD, Parker JA, Boutin C, Mone SM, Costello J, Casta\u00f1eda AR, Treves ST. Myocardial perfusion, function and exercise tolerance after the arterial switch operation. J Am Coll Cardiol. 1994 Feb;23(2):424-33."
+            }, 
+            {
+                "PMID": "8379738", 
+                "citation": "Kupferschmid JP, Burns SA, Jonas RA, Keane JF, Spevak PJ, Wernovsky G. Repair of double aortic arch associated with D-transposition of the great arteries. Ann Thorac Surg. 1993 Sep;56(3):570-2."
+            }, 
+            {
+                "PMID": "7693365", 
+                "citation": "Chang AC, Hanley FL, Wernovsky G, Rosenfeld HM, Wessel DL, Jonas RA, Mayer JE Jr, Lock JE, Castaneda AR. Early bidirectional cavopulmonary shunt in young infants. Postoperative course and early results. Circulation. 1993 Nov;88(5 Pt 2):II149-58."
+            }, 
+            {
+                "PMID": "8269206", 
+                "citation": "Wernovsky G, Sanders SP. Coronary artery anatomy and transposition of the great arteries. Coron Artery Dis. 1993 Feb;4(2):148-57. Review."
+            }, 
+            {
+                "PMID": "8339425", 
+                "citation": "Hourihan M, Colan SD, Wernovsky G, Maheswari U, Mayer JE Jr, Sanders SP. Growth of the aortic anastomosis, annulus, and root after the arterial switch procedure performed in infancy. Circulation. 1993 Aug;88(2):615-20."
+            }, 
+            {
+                "PMID": "8353875", 
+                "citation": "Pasquini L, Parness IA, Colan SD, Wernovsky G, Mayer JE, Sanders SP. Diagnosis of intramural coronary artery in transposition of the great arteries using two-dimensional echocardiography. Circulation. 1993 Sep;88(3):1136-41."
+            }, 
+            {
+                "PMID": "9113587", 
+                "citation": "Bellinger DC, Rappaport LA, Wypij D, Wernovsky G, Newburger JW. Patterns of developmental dysfunction after surgery during infancy to correct transposition of the great arteries. J Dev Behav Pediatr. 1997 Apr;18(2):75-83."
+            }, 
+            {
+                "PMID": "9060852", 
+                "citation": "Helmers SL, Wypij D, Constantinou JE, Newburger JW, Hickey PR, Carrazana EJ, Barlow JK, Kuban KC, Holmes GL. Perioperative electroencephalographic seizures in infants undergoing repair of complex congenital cardiac defects. Electroencephalogr Clin Neurophysiol. 1997 Jan;102(1):27-36."
+            }, 
+            {
+                "PMID": "9338645", 
+                "citation": "Zimmerman AA, Burrows FA, Jonas RA, Hickey PR. The limits of detectable cerebral perfusion by transcranial Doppler sonography in neonates undergoing deep hypothermic low-flow cardiopulmonary bypass. J Thorac Cardiovasc Surg. 1997 Oct;114(4):594-600."
+            }, 
+            {
+                "PMID": "9498541", 
+                "citation": "Rappaport LA, Wypij D, Bellinger DC, Helmers SL, Holmes GL, Barnes PD, Wernovsky G, Kuban KC, Jonas RA, Newburger JW. Relation of seizures after cardiac surgery in early infancy to neurodevelopmental outcome. Boston Circulatory Arrest Study Group. Circulation. 1998 Mar 3;97(8):773-9."
+            }, 
+            {
+                "PMID": "10430767", 
+                "citation": "Bellinger DC, Wypij D, Kuban KC, Rappaport LA, Hickey PR, Wernovsky G, Jonas RA, Newburger JW. Developmental and neurological status of children at 4 years of age after heart surgery with hypothermic circulatory arrest or low-flow cardiopulmonary bypass. Circulation. 1999 Aug 3;100(5):526-32."
+            }, 
+            {
+                "PMID": "11174744", 
+                "citation": "Bellinger DC, Wypij D, du Plessis AJ, Rappaport LA, Riviello J, Jonas RA, Newburger JW. Developmental and neurologic effects of alpha-stat versus pH-stat strategies for deep hypothermic cardiopulmonary bypass in infants. J Thorac Cardiovasc Surg. 2001 Feb;121(2):374-83."
+            }, 
+            {
+                "PMID": "10392870", 
+                "citation": "Kumar RK, Newburger JW, Gauvreau K, Kamenir SA, Hornberger LK. Comparison of outcome when hypoplastic left heart syndrome and transposition of the great arteries are diagnosed prenatally versus when diagnosis of these two conditions is made only postnatally. Am J Cardiol. 1999 Jun 15;83(12):1649-53."
+            }, 
+            {
+                "PMID": "11568045", 
+                "citation": "Dunbar-Masterson C, Wypij D, Bellinger DC, Rappaport LA, Baker AL, Jonas RA, Newburger JW. General health status of children with D-transposition of the great arteries after the arterial switch operation. Circulation. 2001 Sep 18;104(12 Suppl 1):I138-42."
+            }, 
+            {
+                "PMID": "12160967", 
+                "citation": "du Plessis AJ, Bellinger DC, Gauvreau K, Plumb C, Newburger JW, Jonas RA, Wessel DL. Neurologic outcome of choreoathetoid encephalopathy after cardiac surgery. Pediatr Neurol. 2002 Jul;27(1):9-17."
+            }, 
+            {
+                "PMID": "12394519", 
+                "citation": "Visconti KJ, Saudino KJ, Rappaport LA, Newburger JW, Bellinger DC. Influence of parental stress and social support on the behavioral adjustment of children with transposition of the great arteries. J Dev Behav Pediatr. 2002 Oct;23(5):314-21."
+            }, 
+            {
+                "PMID": "14666011", 
+                "citation": "Wypij D, Newburger JW, Rappaport LA, duPlessis AJ, Jonas RA, Wernovsky G, Lin M, Bellinger DC. The effect of duration of deep hypothermic circulatory arrest in infant heart surgery on late neurodevelopment: the Boston Circulatory Arrest Trial. J Thorac Cardiovasc Surg. 2003 Nov;126(5):1397-403."
+            }, 
+            {
+                "PMID": "14666010", 
+                "citation": "Bellinger DC, Wypij D, duDuplessis AJ, Rappaport LA, Jonas RA, Wernovsky G, Newburger JW. Neurodevelopmental status at eight years in children with dextro-transposition of the great arteries: the Boston Circulatory Arrest Trial. J Thorac Cardiovasc Surg. 2003 Nov;126(5):1385-96."
+            }, 
+            {
+                "PMID": "14726036", 
+                "citation": "Cottrell SM, Morris KP, Davies P, Bellinger DC, Jonas RA, Newburger JW. Early postoperative body temperature and developmental outcome after open heart surgery in infants. Ann Thorac Surg. 2004 Jan;77(1):66-71; discussion 71."
+            }, 
+            {
+                "PMID": "12915826", 
+                "citation": "Newburger JW, Wypij D, Bellinger DC, du Plessis AJ, Kuban KC, Rappaport LA, Almirall D, Wessel DL, Jonas RA, Wernovsky G. Length of stay after infant heart surgery is related to cognitive outcome at age 8 years. J Pediatr. 2003 Jul;143(1):67-73."
+            }, 
+            {
+                "PMID": "15166552", 
+                "citation": "de Ferranti S, Gauvreau K, Hickey PR, Jonas RA, Wypij D, du Plessis A, Bellinger DC, Kuban K, Newburger JW, Laussen PC. Intraoperative hyperglycemia during infant cardiac surgery is not associated with adverse neurodevelopmental outcomes at 1, 4, and 8 years. Anesthesiology. 2004 Jun;100(6):1345-52."
+            }
+        ], 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00000470"
+        }, 
+        "source": "National Heart, Lung, and Blood Institute (NHLBI)", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "National Heart, Lung, and Blood Institute (NHLBI)", 
+                "agency_class": "NIH"
+            }
+        }, 
+        "start_date": "December 1988", 
+        "study_design": "Allocation: Randomized, Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "March 2005"
+    }
+}

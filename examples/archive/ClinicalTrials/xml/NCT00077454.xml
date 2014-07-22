@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00077454</url>
+  </required_header>
+  <id_info>
+    <org_study_id>NCI-2012-01808</org_study_id>
+    <secondary_id>ADVL0214</secondary_id>
+    <secondary_id>CDR0000350336</secondary_id>
+    <secondary_id>COG-ADVL0214</secondary_id>
+    <secondary_id>NCI-04-C-0256</secondary_id>
+    <secondary_id>U01CA097452</secondary_id>
+    <nct_id>NCT00077454</nct_id>
+    <nct_alias>NCT00089934</nct_alias>
+  </id_info>
+  <brief_title>Erlotinib and Temozolomide in Treating Young Patients With Recurrent or Refractory Solid Tumors</brief_title>
+  <official_title>A Phase I Study of Single Agent OSI-774 (Tarceva) (NSC# 718781, IND# 63383) Followed by OSI-774 With Temozolomide for Patients With Selected Recurrent/Refractory Solid Tumors, Including Brain Tumors</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>National Cancer Institute (NCI)</agency>
+      <agency_class>NIH</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>National Cancer Institute (NCI)</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      This phase I trial is studying the side effects and best dose of erlotinib when given with
+      temozolomide in treating young patients with recurrent or refractory solid tumors. Erlotinib
+      may stop the growth of tumor cells by blocking the enzymes necessary for their growth. Drugs
+      used in chemotherapy, such as temozolomide, work in different ways to stop tumor cells from
+      dividing so they stop growing or die. Giving erlotinib with temozolomide may kill more tumor
+      cells.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      PRIMARY OBJECTIVES:
+
+      I. Determine the maximum tolerated dose of erlotinib in children with recurrent or
+      refractory solid tumors.
+
+      II. Determine the dose-limiting toxic effects of this drug alone and with temozolomide in
+      these patients.
+
+      III. Determine the tolerability of this regimen in these patients. IV. Determine the
+      pharmacokinetics of this regimen in these patients.
+
+      SECONDARY OBJECTIVES:
+
+      I. Determine, preliminarily, the antitumor activity of this regimen in these patients.
+
+      OUTLINE: This is a 2-part, multicenter, dose-escalation study of erlotinib. Patients are
+      stratified according to pretreatment (heavily pretreated [received more than 2 prior
+      multiagent myelosuppressive chemotherapy regimens OR received prior craniospinal or pelvic
+      radiotherapy or bone marrow transplantation OR has bone marrow involvement] vs less heavily
+      pretreated).Part 1:
+
+      Patients receive oral erlotinib once daily on days 1-28. Beginning with course 2, patients
+      also receive oral temozolomide once daily on days 1-5. Treatment repeats every 28 days for
+      up to 23 courses in the absence of disease progression or unacceptable toxicity.
+
+      Cohorts of 3-6 patients receive escalating doses of erlotinib during course 1 only until the
+      maximum tolerated dose (MTD) is determined. The MTD is defined as the dose preceding that at
+      which 2 of 3 or 2 of 6 patients experience dose-limiting toxicity.
+
+      Part 2: Patients receive erlotinib (at the MTD) and temozolomide as in part 1.
+
+      PROJECTED ACCRUAL: A total of 9-45 patients (9-24 for part 1 and up to 21 for part 2) will
+      be accrued for this study.
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>February 2004</start_date>
+  <primary_completion_date type="Actual">September 2007</primary_completion_date>
+  <phase>Phase 1</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Endpoint Classification: Safety Study, Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Dose-limiting toxicity (DLT) as assessed by the National Cancer Institute (NCI) Common Terminology Criteria for Adverse Events (CTCAE) version 3.0</measure>
+    <time_frame>56 days (2 courses)</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </primary_outcome>
+  <primary_outcome>
+    <measure>Maximum-tolerated dose (MTD) based on the incidence of DLT as assessed by NCI CTCAE version 3.0</measure>
+    <time_frame>56 days (2 courses)</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </primary_outcome>
+  <primary_outcome>
+    <measure>Pharmacokinetics of erlotinib hydrochloride</measure>
+    <time_frame>At baseline and at 0.5, 1, 2, 4, 6, 8, and 24 hours of course 1</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <number_of_arms>1</number_of_arms>
+  <enrollment type="Actual">95</enrollment>
+  <condition>Previously Treated Childhood Rhabdomyosarcoma</condition>
+  <condition>Recurrent Childhood Brain Tumor</condition>
+  <condition>Recurrent Childhood Cerebellar Astrocytoma</condition>
+  <condition>Recurrent Childhood Cerebral Astrocytoma</condition>
+  <condition>Recurrent Childhood Ependymoma</condition>
+  <condition>Recurrent Childhood Malignant Germ Cell Tumor</condition>
+  <condition>Recurrent Childhood Medulloblastoma</condition>
+  <condition>Recurrent Childhood Rhabdomyosarcoma</condition>
+  <condition>Recurrent Childhood Soft Tissue Sarcoma</condition>
+  <condition>Recurrent Childhood Supratentorial Primitive Neuroectodermal Tumor</condition>
+  <condition>Recurrent Neuroblastoma</condition>
+  <condition>Recurrent Osteosarcoma</condition>
+  <arm_group>
+    <arm_group_label>Treatment (erlotinib hydrochloride, temozolomide)</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Patients receive oral erlotinib once daily on days 1-28. Beginning with course 2, patients also receive oral temozolomide once daily on days 1-5. Treatment repeats every 28 days for up to 23 courses in the absence of disease progression or unacceptable toxicity.</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>erlotinib hydrochloride</intervention_name>
+    <description>Given orally (PO)</description>
+    <arm_group_label>Treatment (erlotinib hydrochloride, temozolomide)</arm_group_label>
+    <other_name>CP-358,774</other_name>
+    <other_name>erlotinib</other_name>
+    <other_name>OSI-774</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>temozolomide</intervention_name>
+    <description>Given PO</description>
+    <arm_group_label>Treatment (erlotinib hydrochloride, temozolomide)</arm_group_label>
+    <other_name>SCH 52365</other_name>
+    <other_name>Temodal</other_name>
+    <other_name>Temodar</other_name>
+    <other_name>TMZ</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Other</intervention_type>
+    <intervention_name>pharmacological study</intervention_name>
+    <description>Correlative studies</description>
+    <arm_group_label>Treatment (erlotinib hydrochloride, temozolomide)</arm_group_label>
+    <other_name>pharmacological studies</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Other</intervention_type>
+    <intervention_name>laboratory biomarker analysis</intervention_name>
+    <description>Correlative studies</description>
+    <arm_group_label>Treatment (erlotinib hydrochloride, temozolomide)</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  One of the following histologically confirmed solid tumors:
+
+               -  Brain tumors
+
+               -  Osteogenic sarcoma
+
+               -  Rhabdomyosarcoma
+
+               -  Soft tissue sarcoma (excluding Ewing's sarcoma)
+
+               -  Neuroblastoma
+
+               -  Germ cell tumors
+
+          -  Recurrent or refractory disease
+
+          -  No known curative therapy exists
+
+          -  Performance status - Karnofsky 50-100% (for patients age 11 to 21)
+
+          -  Performance status - Lansky 50-100% (for patients age 10 and under)
+
+          -  At least 8 weeks
+
+          -  Absolute neutrophil count &gt; 1,000/mm^3
+
+          -  Platelet count &gt; 100,000/mm^3 (transfusion independent*)
+
+          -  Hemoglobin &gt; 8.0 g/dL (transfusion allowed)
+
+          -  Bilirubin &lt; 1.5 times upper limit of normal (ULN)
+
+          -  ALT &lt; 2.5 times ULN
+
+          -  Albumin ≥ 2 g/dL
+
+          -  Creatinine clearance or radioisotope glomerular filtration rate at least 70 mL/min
+
+          -  Creatinine based on age as follows:
+
+               -  ≤ 0.8 mg/dL for patients age 5 and under
+
+               -  ≤ 1.0 mg/dL for patients 6 to 10
+
+               -  ≤ 1.2 mg/dL for patients 11 to 15
+
+               -  ≤ 1.5 mg/dL for patients age 15 to 21
+
+          -  Not pregnant or nursing
+
+          -  Negative pregnancy test
+
+          -  Fertile patients must use effective contraception
+
+          -  Able to swallow tablets (for patients in part 2 only)
+
+          -  No uncontrolled infection
+
+          -  Recovered from all prior immunotherapy
+
+          -  At least 7 days since prior biologic therapy
+
+          -  At least 3 months since prior stem cell transplantation and no evidence of active
+             graft-versus-host disease
+
+          -  More than 1 week since prior growth factors
+
+          -  No concurrent prophylactic growth factor therapy
+
+          -  No concurrent immunotherapy
+
+          -  No concurrent biologic therapy
+
+          -  More than 2 weeks since prior myelosuppressive chemotherapy (4 weeks for
+             nitrosoureas) and recovered
+
+          -  No other concurrent chemotherapy
+
+          -  No concurrent systemic corticosteroids except for treatment of increased intracranial
+             pressure or symptomatic tumor edema in patients with CNS tumors
+
+               -  No concurrent steroids as an antiemetic
+
+          -  Concurrent dexamethasone for patients with CNS tumors allowed provided patient has
+             been on a stable or decreasing dose for at least 1 week before study entry
+
+          -  Recovered from all prior radiotherapy
+
+          -  At least 2 weeks since prior local palliative radiotherapy (small port)
+
+          -  At least 6 weeks since prior substantial bone marrow irradiation
+
+          -  At least 6 months since prior craniospinal radiotherapy
+
+          -  At least 6 months since prior radiotherapy to 50% or more of the pelvis
+
+          -  At least 8 weeks since prior standard-fraction radiotherapy for patients with
+             recurrent brain tumors unless there is biopsy proof of recurrent tumor
+
+          -  Prior radiosurgery within the past 9 months allowed provided there is documentation
+             of progressive disease by biopsy, positron-emission tomography (PET) scan, or MR
+             spectroscopy
+
+          -  No concurrent radiotherapy
+
+          -  More than 1 week since prior CYP3A4 inhibitors
+
+          -  More than 4 weeks since prior CYP3A4 inducers
+
+          -  More than 5 days since prior proton-pump inhibitors
+
+          -  More than 2 days since prior H_2 blockers
+
+          -  No prior erlotinib
+
+          -  No concurrent enzyme-inducing anticonvulsants
+
+          -  No concurrent proton-pump inhibitors
+
+          -  No concurrent H2 blockers
+
+          -  No other concurrent investigational agents
+
+          -  Concurrent antacids allowed provided the antacid is not administered 2 hours before,
+             during, and 2 hours after erlotinib administration
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>N/A</minimum_age>
+    <maximum_age>21 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Regina Jakacki</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>COG Phase I Consortium</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>COG Phase I Consortium</name>
+      <address>
+        <city>Arcadia</city>
+        <state>California</state>
+        <zip>91006-3776</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <removed_countries>
+    <country>Canada</country>
+  </removed_countries>
+  <verification_date>June 2013</verification_date>
+  <lastchanged_date>June 4, 2013</lastchanged_date>
+  <firstreceived_date>February 10, 2004</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>No</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Astrocytoma</mesh_term>
+    <mesh_term>Brain Neoplasms</mesh_term>
+    <mesh_term>Ependymoma</mesh_term>
+    <mesh_term>Medulloblastoma</mesh_term>
+    <mesh_term>Neuroblastoma</mesh_term>
+    <mesh_term>Osteosarcoma</mesh_term>
+    <mesh_term>Rhabdomyosarcoma</mesh_term>
+    <mesh_term>Neoplasms, Germ Cell and Embryonal</mesh_term>
+    <mesh_term>Neuroectodermal Tumors</mesh_term>
+    <mesh_term>Neuroectodermal Tumors, Primitive</mesh_term>
+    <mesh_term>Rhabdomyosarcoma, Embryonal</mesh_term>
+    <mesh_term>Sarcoma</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Temozolomide</mesh_term>
+    <mesh_term>Dacarbazine</mesh_term>
+    <mesh_term>Erlotinib</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

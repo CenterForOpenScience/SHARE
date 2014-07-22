@@ -1,0 +1,1328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00101400</url>
+  </required_header>
+  <id_info>
+    <org_study_id>100555</org_study_id>
+    <nct_id>NCT00101400</nct_id>
+  </id_info>
+  <brief_title>BAY43-9006 - Phase II in Advanced Breast Cancer</brief_title>
+  <official_title>A Phase II Multicenter Uncontrolled Trial of BAY43-9006 in Subjects With Metastatic Breast Cancer.</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Bayer</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Bayer</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The purpose of this study is to evaluate the anti-cancer activity and safety of BAY43-9006
+      (Sorafenib) in patients, who suffer from an advanced breast tumour, which has spread to
+      other organs of body despite treatment that the patient has received so far.
+    </textblock>
+  </brief_summary>
+  <overall_status>Completed</overall_status>
+  <start_date>February 2004</start_date>
+  <completion_date type="Actual">January 2008</completion_date>
+  <primary_completion_date type="Actual">January 2006</primary_completion_date>
+  <phase>Phase 2</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Non-Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Number of Subjects With Response (Complete or Partial)</measure>
+    <time_frame>Until 30 days after termination of active therapy</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Number of subjects with metastatic breast cancer treated with single agent BAY43-9006 who had best overall response assessed as complete response (CR) or partial response (PR) as per Modified World Health Organization (WHO) Tumor Response Criteria.</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Time to Progression</measure>
+    <time_frame>Until progression occurs</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Time from start of treatment until progression was first documented.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Time to Objective Response</measure>
+    <time_frame>Until objective response occurs</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Defined only for subjects achieving objective tumor response from start of treatment to the date when confirmed PR or CR was first documented according to the Modified WHO Tumor Response Criteria.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Overall Response Duration</measure>
+    <time_frame>Time from  PR or CR  to progression</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Overall response duration was defined only for subjects achieving confirmed objective response (PR or CR). It was measured from start of treatment to the date when progressive disease was first objectively documented.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Survival Time</measure>
+    <time_frame>Start of treatment to death</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>After the end of treatment visit (30 days after the last dose), the subjects were monitored every 3 months for survival (visits/phone calls).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Number of Subjects With Stable Disease up to Cycle 4</measure>
+    <time_frame>Until 30 days after termination of active therapy</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Number of subjects who had not responded to treatment but had stable disease up to cycle 4.</description>
+  </secondary_outcome>
+  <number_of_arms>1</number_of_arms>
+  <enrollment type="Actual">54</enrollment>
+  <condition>Breast Neoplasms</condition>
+  <condition>Breast Cancer</condition>
+  <arm_group>
+    <arm_group_label>Sorafenib (Nexavar, BAY43-9006)</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Sorafenib (Nexavar, BAY43-9006)</intervention_name>
+    <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+    <arm_group_label>Sorafenib (Nexavar, BAY43-9006)</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Age &gt; 18 years
+
+          -  Women with prior histologically documented diagnosis of breast cancer
+
+          -  Subjects with metastatic disease who have already received and failed at least one
+             chemotherapy regimen for metastatic disease and, if ER/PgR +ve, have failed on at
+             least adjuvant hormonal therapy
+
+          -  Subjects for whom trastuzumab treatment is not indicated, no longer effective or
+             refused by the subjects
+
+          -  Four weeks since the last cytotoxic chemotherapy or clear evidence of progression on
+             hormonal therapy
+
+          -  Subjects who have at least one measurable lesion by CT (Computed Tomography) scan or
+             MRI (Magnetic Resonance Imaging) according to modified WHO Tumour Response Criteria
+
+          -  Subjects who have an Eastern Co-operative Oncology Group (ECOG) performance status of
+             0, 1 or 2
+
+          -  Adequate bone marrow, liver and renal function as assessed by the following
+             laboratory evaluations:
+
+               -  Hemoglobin &gt; 9.0 g/dl
+
+               -  Absolute neutrophil count (ANC) &gt; 1,500/mm3
+
+               -  Platelet count = 100,000/µl
+
+               -  Total bilirubin =1.5 x the upper limit of normal.
+
+               -  Alanine aminotransferase (ALT) and Aspartate aminotransferase (AST) = 2.5 x
+                  upper limit of normal (=5 x upper limit of normal for subjects with liver
+                  involvement of their cancer)
+
+               -  Amylase and lipase = 1.5 x the upper limit of normal
+
+               -  Serum creatinine = 3.0 x the upper limit of normal
+
+               -  Prothrombin Time (PT) or International Normalized Ratio (INR) and Partial
+                  Thromboplastin Time (PTT) &lt; 1.5 x upper limit of normal (subjects who receive
+                  anti-coagulation treatment with an agent such as warfarin or heparin will be
+                  allowed to participate provided that no evidence of underlying abnormality in
+                  these parameters exists)
+
+          -  Subjects who give written informed consent prior to any study specific screening
+             procedures with the understanding that the subject has the right to withdraw from the
+             study at any time, without prejudice
+
+          -  Life expectancy of at least 12 weeks
+
+          -  Signed informed consent must be obtained prior to any study specific procedures
+
+        Exclusion Criteria:
+
+          -  Previous malignancy (except for cervical carcinoma in situ, adequately treated basal
+             cell carcinoma, or superficial bladder tumours [Ta, Tis and T1] or other malignancies
+             curatively treated &gt; 2 years prior to entry)
+
+          -  Congestive heart failure &gt; New York Heart Association (NYHA) Class II
+
+          -  Cardiac arrhythmia requiring anti-arrhythmic (excluding beta blockers or digoxin)
+
+          -  Active coronary artery disease or ischaemia
+
+          -  Active clinically serious bacterial or fungal infections (&gt; grade 2 National Cancer
+             Institute - Common Terminology Criteria for Adverse Events (NCI-CTCAE), Version 3)
+
+          -  Known History of Human Immunodeficiency Virus (HIV) infection or chronic hepatitis B
+             or C
+
+          -  Metastatic brain or meningeal tumors unless the subject is &gt; 6 months from definitive
+             therapy, has a negative imaging study within 4 weeks of study entry and is clinically
+             stable with respect to the tumor at the time of study entry. Also the patient must
+             not be undergoing acute steroid therapy or taper (chronic steroid therapy is
+             acceptable provided that the dose is stable for 1 month prior to and following
+             screening radiographic study)
+
+          -  Subjects with seizure disorders requiring medication (such as steroid or
+             anti-epileptics)
+
+          -  History of organ allograft
+
+          -  Substance abuse, medical, psychological or social conditions that may interfere with
+             the subject's participation in the study or evaluation of the study results
+
+          -  Known or suspected allergy to the investigational agent
+
+          -  Any condition that is unstable or which could jeopardize the safety of the subject
+             and his/her compliance in the study. Pregnant or breast-feeding subjects. Women of
+             childbearing potential must have a negative pregnancy test performed within seven
+             days prior to the start of study drug. Women enrolled in this trial must use adequate
+             barrier birth control measures during the course of the trial.
+
+        Excluded therapies include:
+
+          -  Anti-cancer chemotherapy, hormonal therapy or immunotherapy during the study or
+             within 4 weeks of study entry. Mytomicin or nitroureas should not be given within 6
+             weeks of study entry
+
+          -  Significant surgery within 4 weeks prior to the start of study drug
+
+          -  Any bone marrow transplant or stem cell rescue within 4 months of the start of study
+             drug
+
+          -  Radiotherapy during the study or within 3 weeks of the start of drug
+
+          -  Use of biologic response modifiers, such as Granulocyte-Colony Stimulating Factor
+             (G-CSF), within 3 weeks of study entry
+
+          -  Investigational drug therapy outside of this trial during or within 30 days prior to
+             start of the study drug
+
+          -  Concomitant treatment with ketoconazole, itraconazole, ritonavir, or use of
+             grapefruit juice
+
+          -  Prior use of Raf-Kinase Inhibitors (RKI), Methyl Ethyl Ketone (MEK) or farnesyl
+             transferase inhibitors
+
+          -  Concomitant treatment or use of St. John's Wort
+
+          -  Prior use of bevacizumab and all other drugs that target Vascular Endothelial Growth
+             Factor (VEGF)/VEGF receptors
+      </textblock>
+    </criteria>
+    <gender>Female</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Bayer Study Director</last_name>
+    <role>Study Director</role>
+    <affiliation>Bayer</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <address>
+        <city>Stuttgart</city>
+        <state>Baden-Württemberg</state>
+        <zip>70199</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>München</city>
+        <state>Bayern</state>
+        <zip>80637</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Frankfurt</city>
+        <state>Hessen</state>
+        <zip>60590</zip>
+        <country>Germany</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Bologna</city>
+        <zip>40138</zip>
+        <country>Italy</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Milano</city>
+        <zip>20162</zip>
+        <country>Italy</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Milano</city>
+        <zip>20133</zip>
+        <country>Italy</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Parma</city>
+        <zip>43100</zip>
+        <country>Italy</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>Germany</country>
+    <country>Italy</country>
+  </location_countries>
+  <link>
+    <url>http://www.fda.gov/cder/drug/DrugSafety/DrugIndex.htm</url>
+    <description>Click here and search for drug information provided by the FDA.</description>
+  </link>
+  <link>
+    <url>http://www.fda.gov/medwatch/safety.htm</url>
+    <description>Click here and search for information on any recalls, market or product safety alerts by the FDA which might have occurred with this product.</description>
+  </link>
+  <link>
+    <url>http://healthcare.bayer.com/scripts/pages/en/research_development/clinical_trials/trial_finder/index.php</url>
+    <description>Click here to find results for studies related to Bayer Healthcare products.</description>
+  </link>
+  <results_reference>
+    <citation>Bianchi G, Loibl S, Zamagni C, Salvagni S, Raab G, Siena S, Laferriere N, Peña C, Lathia C, Bergamini L, Gianni L. Phase II multicenter, uncontrolled trial of sorafenib in patients with metastatic breast cancer. Anticancer Drugs. 2009 Aug;20(7):616-24.</citation>
+    <PMID>19739318</PMID>
+  </results_reference>
+  <verification_date>November 2013</verification_date>
+  <lastchanged_date>November 19, 2013</lastchanged_date>
+  <firstreceived_date>January 10, 2005</firstreceived_date>
+  <firstreceived_results_date>January 30, 2009</firstreceived_results_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>Cancer</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>No</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Breast Neoplasms</mesh_term>
+    <mesh_term>Neoplasms</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Sorafenib</mesh_term>
+  </intervention_browse>
+
+  <clinical_results>
+
+    <participant_flow>
+      <recruitment_details>Subjects were enrolled from 03 Feb 2004 to 29 Jul 2004 by 3 centers in Germany and 4 centers in Italy.</recruitment_details>
+      <pre_assignment_details>2 subjects were excluded during screening phase: 1 withdrawal of consent and 1 protocol violation.</pre_assignment_details>
+      <group_list>
+        <group group_id="P1">
+          <title>Sorafenib (Nexavar, BAY43-9006)</title>
+          <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+        </group>
+      </group_list>
+      <period_list>
+        <period>
+          <title>Treatment</title>
+          <milestone_list>
+            <milestone>
+              <title>STARTED</title>
+              <participants_list>
+                <participants group_id="P1" count="54">Treated until disease progression, unacceptable sorafenib-related toxicity or withdrawal of consent.</participants>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="54">Reasons for treatment termination: 4 Adverse Events, 3 Deaths, 46 Progression, 1 Withdrawal.</participants>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>NOT COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="0"/>
+              </participants_list>
+            </milestone>
+          </milestone_list>
+        </period>
+        <period>
+          <title>Survival Follow-Up</title>
+          <milestone_list>
+            <milestone>
+              <title>STARTED</title>
+              <participants_list>
+                <participants group_id="P1" count="51">3 subjects died during previous period (completion as defined in protocol)</participants>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="44">44 subjects reached endpoint (death); 7 subjects were still alive</participants>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>NOT COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="7"/>
+              </participants_list>
+            </milestone>
+          </milestone_list>
+          <drop_withdraw_reason_list>
+            <drop_withdraw_reason>
+              <title>Alive</title>
+              <participants_list>
+                <participants group_id="P1" count="7"/>
+              </participants_list>
+            </drop_withdraw_reason>
+          </drop_withdraw_reason_list>
+        </period>
+      </period_list>
+    </participant_flow>
+
+    <baseline>
+      <group_list>
+        <group group_id="B1">
+          <title>Sorafenib (Nexavar, BAY43-9006)</title>
+          <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+        </group>
+      </group_list>
+      <measure_list>
+        <measure>
+          <title>Number of Participants</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="54"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Age</title>
+          <units>years</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="55.4" spread="10.8"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Gender</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Female</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="54"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Male</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Eastern Cooperative Oncology Group (ECOG) performance status</title>
+          <description>5-point, ordinal scale specifying patient's ability to perform activities from 0 (fully active) to 4 (completely disabled, no self-care)</description>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Grade 0: fully active</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="30"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Grade 1: Restricted strenous activity, ambulatory</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="22"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Grade 2: Ambulatory, difficulty in walking</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="2"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Grade 3: Limited self-care, partly confined to bed</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Grade 4: Completely disabled, no self-care</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Stage of disease at study entry (Tumor, Nodules, Metastasis (TNM) classification)</title>
+          <description>Categorized information on tumor size, lymph node involvement and metastases. Overall cancer staging (I – IV) is based on the TNM categories. The higher the overall stage, the more advanced the cancer is.</description>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Stage I</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage II</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage III</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage IV -most advanced</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="54"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+      </measure_list>
+    </baseline>
+
+    <outcome_list>
+      <outcome>
+        <type>Primary</type>
+        <title>Number of Subjects With Response (Complete or Partial)</title>
+        <description>Number of subjects with metastatic breast cancer treated with single agent BAY43-9006 who had best overall response assessed as complete response (CR) or partial response (PR) as per Modified World Health Organization (WHO) Tumor Response Criteria.</description>
+        <time_frame>Until 30 days after termination of active therapy</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Intent to treat population consisted of subjects who received at least 1 dose of sorafenib.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Sorafenib (Nexavar, BAY43-9006)</title>
+            <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="54"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Number of Subjects With Response (Complete or Partial)</title>
+            <description>Number of subjects with metastatic breast cancer treated with single agent BAY43-9006 who had best overall response assessed as complete response (CR) or partial response (PR) as per Modified World Health Organization (WHO) Tumor Response Criteria.</description>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <sub_title>Complete response (CR)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Partial response (PR)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stable disease (SD)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="20"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Progressive disease (PD)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="31"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Not evaluated</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="2"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Time to Progression</title>
+        <description>Time from start of treatment until progression was first documented.</description>
+        <time_frame>Until progression occurs</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Of the intent to treat population, 4 subjects died before assessment of progression; for 1 subject the progression date not available; and 1 subject was lost to follow-up.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Sorafenib (Nexavar, BAY43-9006)</title>
+            <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="48"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Time to Progression</title>
+            <description>Time from start of treatment until progression was first documented.</description>
+            <units>days</units>
+            <param>Median</param>
+            <dispersion>95% Confidence Interval</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="58" lower_limit="52" upper_limit="112"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Time to Objective Response</title>
+        <description>Defined only for subjects achieving objective tumor response from start of treatment to the date when confirmed PR or CR was first documented according to the Modified WHO Tumor Response Criteria.</description>
+        <time_frame>Until objective response occurs</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>1 subject out of 54 achieved PR.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Sorafenib (Nexavar, BAY43-9006)</title>
+            <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="1"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Time to Objective Response</title>
+            <description>Defined only for subjects achieving objective tumor response from start of treatment to the date when confirmed PR or CR was first documented according to the Modified WHO Tumor Response Criteria.</description>
+            <units>days</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="145"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Overall Response Duration</title>
+        <description>Overall response duration was defined only for subjects achieving confirmed objective response (PR or CR). It was measured from start of treatment to the date when progressive disease was first objectively documented.</description>
+        <time_frame>Time from  PR or CR  to progression</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>1 subject out of 54 achieved PR.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Sorafenib (Nexavar, BAY43-9006)</title>
+            <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="1"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Overall Response Duration</title>
+            <description>Overall response duration was defined only for subjects achieving confirmed objective response (PR or CR). It was measured from start of treatment to the date when progressive disease was first objectively documented.</description>
+            <units>days</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="256"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Survival Time</title>
+        <description>After the end of treatment visit (30 days after the last dose), the subjects were monitored every 3 months for survival (visits/phone calls).</description>
+        <time_frame>Start of treatment to death</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Intent to treat population consisting of subjects who received at least 1 dose of sorafenib.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Sorafenib (Nexavar, BAY43-9006)</title>
+            <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="54"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Survival Time</title>
+            <description>After the end of treatment visit (30 days after the last dose), the subjects were monitored every 3 months for survival (visits/phone calls).</description>
+            <units>days</units>
+            <param>Median</param>
+            <dispersion>95% Confidence Interval</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="259" lower_limit="177" upper_limit="323"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Number of Subjects With Stable Disease up to Cycle 4</title>
+        <description>Number of subjects who had not responded to treatment but had stable disease up to cycle 4.</description>
+        <time_frame>Until 30 days after termination of active therapy</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Intent to treat population consisting of subjects who received at least 1 dose of sorafenib.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Sorafenib (Nexavar, BAY43-9006)</title>
+            <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="54"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Number of Subjects With Stable Disease up to Cycle 4</title>
+            <description>Number of subjects who had not responded to treatment but had stable disease up to cycle 4.</description>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="12"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+    </outcome_list>
+
+    <reported_events>
+      <desc>Acronyms used: Gastrointestinal (GI), Common Terminology Criteria for Adverse Events (CTCAE), Not Otherwise Specified (NOS), Central nervous system (CNS), Alanine aminotransferase (ALT), Aspartate aminotransferase (AST), Gammaglutamyltransferase (GGT).</desc>
+      <group_list>
+        <group group_id="E1">
+          <title>Sorafenib (Nexavar, BAY43-9006)</title>
+          <description>Sorafenib 400 mg administered twice daily (b.i.d.)</description>
+        </group>
+      </group_list>
+      <serious_events>
+        <default_vocab>NCI-CTCAE v. 3.0</default_vocab>
+        <default_assessment>Non-systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, serious adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="22" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Blood and lymphatic system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hemoglobin</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Coagulation - Other</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Cardiac disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Supraventricular Arrhythmia, Supraventricular Tachycardia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Cardiac General - Other</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Anorexia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Ascites</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Nausea</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Perforation, GI, Colon</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Vomiting</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Death Not Associated With CTCAE Term, Disease Progression NOS</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Fever</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Fatigue</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Back</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Chest/Thorax NOS</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Abdomen NOS</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Head/Headache</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Hepatobiliary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Liver Dysfunction</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Hepatobiliary - Other</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Metabolism and nutrition disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Bilirubin (Hyperbilirubinemia)</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Hypercalcemia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Hyperkalemia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Nervous system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Dizziness</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Neuropathy: Motor</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>CNS Necrosis</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Neurology - Other</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Renal and urinary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Renal Failure</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Pleural Effusion</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Hypoxia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pulmonary - Other</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Dyspnea (Shortness Of Breath)</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Skin and subcutaneous tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Erythema Multiforme</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </serious_events>
+      <other_events>
+        <frequency_threshold>5</frequency_threshold>
+        <default_vocab>NCI-CTCAE v. 3.0</default_vocab>
+        <default_assessment>Non-systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, other adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="54" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Blood and lymphatic system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Neutrophils</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Hemoglobin</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Platelets</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Leukocytes</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Dermal Change</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Edema: Limb</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Cardiac disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hypertension</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Cardiac General - Other</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Anorexia</sub_title>
+                <counts group_id="E1" subjects_affected="29" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Constipation</sub_title>
+                <counts group_id="E1" subjects_affected="13" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Diarrhea</sub_title>
+                <counts group_id="E1" subjects_affected="14" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Dysphagia</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Gastritis</sub_title>
+                <counts group_id="E1" subjects_affected="9" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Mucositis (Clinical Exam), Oral Cavity</sub_title>
+                <counts group_id="E1" subjects_affected="8" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Nausea</sub_title>
+                <counts group_id="E1" subjects_affected="19" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Vomiting</sub_title>
+                <counts group_id="E1" subjects_affected="11" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Fever</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Insomnia</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Fatigue</sub_title>
+                <counts group_id="E1" subjects_affected="27" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Weight Loss</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Constitutional Symptoms - Other</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Back</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Extremity - Limb</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Abdomen NOS</sub_title>
+                <counts group_id="E1" subjects_affected="9" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Head/Headache</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Joint</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Bone</sub_title>
+                <counts group_id="E1" subjects_affected="9" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Other</sub_title>
+                <counts group_id="E1" subjects_affected="16" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Liver</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pain, Stomach</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Hepatobiliary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hepatobiliary - Other</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Infection - Other</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Metabolism and nutrition disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Alkaline Phosphatase</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>ALT</sub_title>
+                <counts group_id="E1" subjects_affected="10" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>AST</sub_title>
+                <counts group_id="E1" subjects_affected="8" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>GGT</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Bilirubin (Hyperbilirubinemia)</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Hypokalemia</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Hyponatremia</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Metabolic/Lab - Other</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Nervous system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Mood Alteration, Anxiety</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Confusion</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Dizziness</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Neurology - Other</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Neuropathy: Sensory</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Somnolence</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Cough</sub_title>
+                <counts group_id="E1" subjects_affected="11" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pleural Effusion</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pulmonary - Other</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Dyspnea (Shortness Of Breath)</sub_title>
+                <counts group_id="E1" subjects_affected="14" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Skin and subcutaneous tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Alopecia</sub_title>
+                <counts group_id="E1" subjects_affected="9" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Dry Skin</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Hand-Foot Skin Reaction</sub_title>
+                <counts group_id="E1" subjects_affected="13" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Nail Changes</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Dermatology - Other</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Pruritus</sub_title>
+                <counts group_id="E1" subjects_affected="15" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Rash/Desquamation</sub_title>
+                <counts group_id="E1" subjects_affected="21" subjects_at_risk="54"/>
+              </event>
+              <event>
+                <sub_title>Flushing</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hemorrhage Pulmonary, Nose</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="54"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </other_events>
+    </reported_events>
+
+    <certain_agreements>
+      <pi_employee>Principal Investigators are NOT employed by the organization sponsoring the study.</pi_employee>
+      <restrictive_agreement>The only disclosure restriction on the PI is that the sponsor can review results communications prior to public release and can embargo communications regarding trial results for a period that is more than 60 days but less than or equal to 180 days. The sponsor cannot require changes to the communication and cannot extend the embargo.</restrictive_agreement>
+    </certain_agreements>
+    <limitations_and_caveats>Subjects had advanced disease and were heavily pretreated.  Not all adverse events mentioned were assessed as drug-related. NCI-CTCAE was translated to Medical Dictionary for Regulatory Activities (MedDRA) for System Organ Classes (SOCs) only.</limitations_and_caveats>
+    <point_of_contact>
+      <name_or_title>Therapeutic Area Head</name_or_title>
+      <organization>BAYER</organization>
+      <email>clinical-trials-contact@bayerhealthcare.com</email>
+    </point_of_contact>
+  </clinical_results>
+</clinical_study>

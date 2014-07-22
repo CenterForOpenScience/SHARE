@@ -1,0 +1,137 @@
+{
+    "clinical_study": {
+        "@rank": "64111", 
+        "brief_summary": {
+            "textblock": "Up to date there is no worldwide accepted standard chemotherapy for the 1st-line treatment\n      of advanced or metastatic gastric cancer.A combination of epirubicin, cisplatin and 5-FU\n      (ECF) is the best examined combination and widely used. Recent studies (Thuss-Patience et\n      al, J. Clin. Oncol. 2005) could show that a combination of docetaxel and 5-FU might be\n      similarly effective as ECF. 5-FU and docetaxel +/- cisplatin combinations are investigated\n      by many groups and may be a future reference treatment. Many data suggest that 5-FU infusion\n      can be replaced by oral capecitabine with equal efficacy.\n\n      As docetaxel/5-FU is probably similarly effective as epirubicin/cisplatin/5-FU and a\n      replacement of 5-FU infusion by capecitabine makes the chemotherapy more comfortable for the\n      patient we investigate in this study a chemotherapy of docetaxel and capecitabine as\n      1st-line therapy for metastatic or advanced gastric cancer."
+        }, 
+        "brief_title": "Docetaxel and Capecitabine in Advanced Gastric Cancer", 
+        "completion_date": "December 2007", 
+        "condition": [
+            "Stomach Neoplasm", 
+            "Neoplasm Metastasis"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Neoplasms", 
+                "Stomach Neoplasms", 
+                "Neoplasm Metastasis"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "Patients with locally advanced or metastatic gastric adenocarcinoma who did not receive any\n      prior chemotherapy for advanced disease can be enrolled in the study.\n\n      Patients are treated with oral capecitabine 1000mg/sqm twice per day on the days 1-14 and\n      docetaxel 75 mg/sqm on day 1 as a 1 hour i.v. infusion. chemotherapy is repeated every 21\n      days. Staging by imaging is performed every 2 cycles.\n\n      After 40 included patients an amendment was done and the starting of chemotherapy has been\n      reduced to further improve tolerability. Starting dose of docetaxel was amended to 60\n      mg/sqm, d1, and starting dose of capecitabine reduced to 800 mg/sqm twice per day, d1-14.\n      The patient number to be included was increased to 70 pts.\n\n      Therapy is continued up to tumor progression to a maximum of 10 cycles. Therapy is stopped\n      in case of severe side effects, tumor progression or withdrawal of consent.\n\n      This investigator initiated study is supported by Hoffmann-La Roche and by Sanofi-Aventis."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Patients with histologically proven adenocarcinoma of the stomach or the GE-junction.\n\n          -  Patients with distant metastases or patients with locally advanced disease who are\n             not curatively operable proven by laparoscopy or patients with a recurrence after\n             gastrectomy.\n\n          -  Patients who did not receive any prior palliative chemotherapy. An adjuvant\n             chemotherapy is allowed.\n\n          -  Age between 18 and 75 years.\n\n          -  Sufficient bone marrow function defined as leucocytes > 3.0 Gpt/l, thrombocytes > 100\n             Gpt/l\n\n          -  Sufficient liver function defined as bilirubin < 1.5 mg/dl (1.5 x ULN), ALT and AST <\n             3 x ULN.\n\n          -  Sufficient renal function defined as serum creatinine < 1.25 x ULN, or creatinine\n             clearance > 60 ml/min calculated according to Cockroft-Gault\n\n          -  Contraception in patients with reproductive potential.\n\n          -  Karnofsky-performance-index at least 60%\n\n          -  Measurable tumor lesions.\n\n          -  Written informed consent of the patient.\n\n        Exclusion Criteria:\n\n          -  Karnofsky-performance-index less or equal 50%.\n\n          -  Patients who already received a palliative first-line chemotherapy.\n\n          -  Prior second malignancy, except basal cell carcinoma of the skin or curatively\n             treated carcinoma in situ of the cervix.\n\n          -  Parallel radiation therapy\n\n          -  Uncontrolled infection.\n\n          -  CNS-metastasis\n\n          -  Other severe medical disease\n\n          -  Prior major surgery for less than 2 weeks\n\n          -  Parallel treatment with other experimental therapies.\n\n          -  Parallel treatment with any other therapy aiming against the tumor.\n\n          -  Chronic diarrhea, subileus.\n\n          -  Chronic inflammatory bowel disease or intestinal obstruction.\n\n          -  Unable to take oral medication.\n\n          -  Pregnancy or breast feeding."
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "75 Years", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": "80", 
+        "firstreceived_date": "September 1, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00142038", 
+            "org_study_id": "AGST-Magen-CapDoc-04"
+        }, 
+        "intervention": [
+            {
+                "intervention_name": "Docetaxel", 
+                "intervention_type": "Drug"
+            }, 
+            {
+                "intervention_name": "Capecitabine", 
+                "intervention_type": "Drug"
+            }
+        ], 
+        "intervention_browse": {
+            "mesh_term": [
+                "Docetaxel", 
+                "Capecitabine", 
+                "Fluorouracil"
+            ]
+        }, 
+        "keyword": [
+            "gastric cancer", 
+            "metastatic", 
+            "locally advanced", 
+            "docetaxel", 
+            "capecitabine"
+        ], 
+        "lastchanged_date": "April 17, 2007", 
+        "link": {
+            "description": "Charit\u00e9 University Clinic, Berlin", 
+            "url": "http://www.charite.de"
+        }, 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Berlin", 
+                    "country": "Germany", 
+                    "zip": "13353"
+                }, 
+                "name": "Charit\u00e9, Universit\u00e4tsmedizin Berlin, Campus Virchow-Klinikum, Dept. of Hematology and Oncology"
+            }
+        }, 
+        "location_countries": {
+            "country": "Germany"
+        }, 
+        "official_title": "Phase II Study of Docetaxel and Capecitabine as 1st Line Therapy for Patients With Locally Advanced or Metastatic Gastric Cancer", 
+        "overall_official": [
+            {
+                "affiliation": "Charit\u00e9, University, Campus-Virchow-Klinikum, Dept. of Hematology and Oncology, Berlin,", 
+                "last_name": "P Reichardt, MD, PhD", 
+                "role": "Principal Investigator"
+            }, 
+            {
+                "affiliation": "Charit\u00e9, University, Campus Virchow-Klinikum, Dept. of Hematology and Oncology", 
+                "last_name": "P C Thuss-Patience, MD, PhD, Msc", 
+                "role": "Principal Investigator"
+            }
+        ], 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "Germany: Federal Institute for Drugs and Medical Devices"
+        }, 
+        "phase": "Phase 2", 
+        "primary_outcome": {
+            "measure": "Response Rate"
+        }, 
+        "reference": {
+            "PMID": "15659494", 
+            "citation": "Thuss-Patience PC, Kretzschmar A, Repp M, Kingreen D, Hennesser D, Micheel S, Pink D, Scholz C, Dorken B, Reichardt P. Docetaxel and continuous-infusion fluorouracil versus epirubicin, cisplatin, and fluorouracil for advanced gastric adenocarcinoma: a randomized phase II study. J Clin Oncol. 2005 Jan 20;23(3):494-501."
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00142038"
+        }, 
+        "secondary_outcome": [
+            {
+                "measure": "Median Survival"
+            }, 
+            {
+                "measure": "Time to Tumor Progression"
+            }, 
+            {
+                "measure": "Toxicity"
+            }, 
+            {
+                "measure": "Quality of Life"
+            }
+        ], 
+        "source": "Charite University, Berlin, Germany", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Charite University, Berlin, Germany", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "March 2004", 
+        "study_design": "Allocation: Non-Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "April 2007"
+    }
+}

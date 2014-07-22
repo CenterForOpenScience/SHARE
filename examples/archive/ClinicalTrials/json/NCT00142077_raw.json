@@ -1,0 +1,142 @@
+{
+    "clinical_study": {
+        "@rank": "129775", 
+        "brief_summary": {
+            "textblock": "The purpose of this study is to determine whether personally controlled electronic health\n      records can be used for health promotion in a workplace setting."
+        }, 
+        "brief_title": "Electronic Health Records for Health Promotion", 
+        "completion_date": {
+            "#text": "May 2006", 
+            "@type": "Actual"
+        }, 
+        "condition": "Influenza", 
+        "condition_browse": {
+            "mesh_term": "Influenza, Human"
+        }, 
+        "detailed_description": {
+            "textblock": "In response to the call for research of the new Health Protection Research Initiative at the\n      Centers for Disease Control and Prevention (CDC), we propose to adapt newly mature\n      informatics technology to shift the paradigm for health alerting and health promotion in the\n      workplace.  The goal is to firmly ground these activities on real time information collected\n      from and delivered to employees, in an interactive, secure, electronic environment.  We will\n      study influenza prevention and control, an archetype of public health practice requiring\n      surveillance, communication, and timely influence of health-related behaviors.  Complex\n      information gleaned from surveillance will be processed, translated and provided to\n      employees.  The goal is to provide employees with timely, individualized health promotion\n      messages to improve their knowledge, attitudes and beliefs regarding influenza and to\n      increase the rate of seasonal influenza immunization for them and their household members.\n      The approach will be evaluated in a group randomized design at several worksites of a major\n      corporation."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          1. The subject is a part-time or full-time employee at a major corporation.\n\n          2. The subject is eighteen years of age or older.\n\n          3. The subject is comfortable reading and writing in English.\n\n          4. The subject has reliable internet access at home, at school, or at work.\n\n          5. The subject uses email regularly (i.e. at least once every 2 days)\n\n          6. The subject does not have a known allergy to chicken eggs or a history of a severe\n             reaction to an influenza vaccination in the past.\n\n        Exclusion Criteria:\n\n        -"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": "700", 
+        "firstreceived_date": "August 31, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00142077", 
+            "org_study_id": "1 R01 CDC 000065-01"
+        }, 
+        "intervention": {
+            "intervention_name": "Electronic health record and messaging system", 
+            "intervention_type": "Device"
+        }, 
+        "keyword": [
+            "Influenza", 
+            "Electronic health record", 
+            "Behavior modification"
+        ], 
+        "lastchanged_date": "April 4, 2007", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Boston", 
+                    "country": "United States", 
+                    "state": "Massachusetts", 
+                    "zip": "02116"
+                }, 
+                "name": "Children's Hospital Boston"
+            }
+        }, 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "official_title": "Health Promotion in the Workplace Using Personally Controlled Health Records", 
+        "overall_official": {
+            "affiliation": "Children's Hospital Boston", 
+            "last_name": "Kenneth D Mandl, MD, MPH", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Institutional Review Board"
+        }, 
+        "phase": "N/A", 
+        "primary_outcome": {
+            "measure": "- Rate of influenza immunization among subjects"
+        }, 
+        "reference": [
+            {
+                "PMID": "11231710", 
+                "citation": "Nichol KL. Cost-benefit analysis of a strategy to vaccinate healthy working adults against influenza. Arch Intern Med. 2001 Mar 12;161(5):749-59."
+            }, 
+            {
+                "PMID": "9614766", 
+                "citation": "Keech M, Scott AJ, Ryan PJ. The impact of influenza and influenza-like illness on productivity and healthcare resource utilization in a working population. Occup Med (Lond). 1998 Feb;48(2):85-90."
+            }, 
+            {
+                "PMID": "16086456", 
+                "citation": "Harper SA, Fukuda K, Uyeki TM, Cox NJ, Bridges CB; Advisory Committee on Immunization Practices (ACIP), Centers for Disease Control and Prevention (CDC). Prevention and control of influenza. Recommendations of the Advisory Committee on Immunization Practices (ACIP). MMWR Recomm Rep. 2005 Jul 29;54(RR-8):1-40. Erratum in: MMWR Morb Mortal Wkly Rep. 2005 Aug 5;54(30):750."
+            }, 
+            {
+                "PMID": "11015795", 
+                "citation": "Bridges CB, Thompson WW, Meltzer MI, Reeve GR, Talamonti WJ, Cox NJ, Lilac HA, Hall H, Klimov A, Fukuda K. Effectiveness and cost-benefit of influenza vaccination of healthy working adults: A randomized controlled trial. JAMA. 2000 Oct 4;284(13):1655-63."
+            }, 
+            {
+                "PMID": "11157533", 
+                "citation": "Mandl KD, Szolovits P, Kohane IS. Public standards and patients' control: how to keep electronic medical records accessible but private. BMJ. 2001 Feb 3;322(7281):283-7. No abstract available."
+            }, 
+            {
+                "PMID": "11340004", 
+                "citation": "Riva A, Mandl KD, Oh DH, Nigrin DJ, Butte A, Szolovits P, Kohane IS. The personal internetworked notary and guardian. Int J Med Inform. 2001 Jun;62(1):27-40."
+            }, 
+            {
+                "PMID": "14633933", 
+                "citation": "Mandl KD, Overhage JM, Wagner MM, Lober WB, Sebastiani P, Mostashari F, Pavlin JA, Gesteland PH, Treadwell T, Koski E, Hutwagner L, Buckeridge DL, Aller RD, Grannis S. Implementing syndromic surveillance: a practical guide informed by the early experience. J Am Med Inform Assoc. 2004 Mar-Apr;11(2):141-50. Epub 2003 Nov 21."
+            }, 
+            {
+                "PMID": "15200820", 
+                "citation": "Heffernan R, Mostashari F, Das D, Karpati A, Kulldorff M, Weiss D. Syndromic surveillance in public health practice, New York City. Emerg Infect Dis. 2004 May;10(5):858-64."
+            }
+        ], 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00142077"
+        }, 
+        "secondary_outcome": [
+            {
+                "measure": "Change in knowledge, attitutes, and beliefs regarding influenza and influenza immunization."
+            }, 
+            {
+                "measure": "Changes in health behaviors around influenza (e.g. hand washing and cough etiquette)."
+            }, 
+            {
+                "measure": "General health outcomes related to respiratory illnesses (e.g. number of influenza-like illnesses, number of physician visits, number of missed work days)."
+            }, 
+            {
+                "measure": "Rate of influenza immunization among subject household members."
+            }
+        ], 
+        "source": "Children's Hospital Boston", 
+        "sponsors": {
+            "collaborator": {
+                "agency": "Centers for Disease Control and Prevention", 
+                "agency_class": "U.S. Fed"
+            }, 
+            "lead_sponsor": {
+                "agency": "Children's Hospital Boston", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "October 2005", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Parallel Assignment, Masking: Single Blind, Primary Purpose: Prevention", 
+        "study_type": "Interventional", 
+        "verification_date": "January 2006"
+    }
+}

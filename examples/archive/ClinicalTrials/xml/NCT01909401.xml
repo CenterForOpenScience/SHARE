@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01909401</url>
+  </required_header>
+  <id_info>
+    <org_study_id>1301010500</org_study_id>
+    <nct_id>NCT01909401</nct_id>
+  </id_info>
+  <brief_title>Pilot Study With Peginterferon, Ribavirin, and Boceprevir Prior to Transplantation to Clear Virus in Hepatitis C Genotype 1 Infected Individuals Undergoing Orthotopic Liver Transplantation</brief_title>
+  <official_title>Pilot Study With Peginterferon, Ribavirin, and Boceprevir Prior to Transplantation to Clear Virus in Hepatitis C Genotype 1 Infected Individuals Undergoing Orthotopic Liver Transplantation</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Indiana University</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+    <collaborator>
+      <agency>Merck Sharp &amp; Dohme Corp.</agency>
+      <agency_class>Industry</agency_class>
+    </collaborator>
+  </sponsors>
+  <source>Indiana University</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      Currently, there is no treatment standard for use of anti-HCV (hepatitic C virus)
+      medications for those preparing for a liver transplant. The purpose of this study is to
+      determine whether those individuals who require liver transplantation for Hepatitis C,
+      genotype I, who are undergoing liver transplantation may successfully get rid of their virus
+      before the transplant by taking three medicines, peginterferon, ribavirin, and boceprevir,
+      up until the time of the liver transplant surgery.  If successful, the Hepatitis C virus
+      will not re-infect the new liver that they receive and they will not require therapy for
+      Hepatitis C after liver transplantation.  This study involves the use of peginterferon
+      alfa-2b, ribavirin, and boceprevir, all of which are approved for the treatment of genotype
+      I Hepatitis C.
+
+      Hypothesis: The addition of boceprevir to peginterferon alfa-2b and ribavirin in patients
+      with Hepatitis C genotype 1 with or without hepatocellular carcinoma undergoing orthotopic
+      liver transplantation will lead to rapid HCV RNA clearance of genotype I infected
+      individuals.  Transplantation with anhepatic boceprevir will prevent reinfection of the new
+      transplanted graft and prevent graft infection posttransplantation.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      Subject Patient Inclusion Criteria: Men and women age 18 to 70 inclusive, patients with
+      genotype I Hepatitis C who are listed for orthotopic liver transplantation (OLT) will be
+      enrolled.  Those with hepatocellular carcinoma with or without treatment of hepatoma may
+      also be included.  The MELD score for enrollment will be capped at 16.  Patients must have
+      medically controlled ascites and those who have moderate or poorly controlled ascites will
+      be excluded.
+
+      Treatment Plan: Fifteen patients with chronic genotype I Hepatitis C will be enrolled.  All
+      patients will begin with peginterferon and ribavirin for 4 weeks with the addition of
+      boceprevir after Week 4 until orthotopic liver transplantation. The dose of interferon will
+      be  peginterferon 1.0 mcg/kg with weight-based ribavirin (600-1200 mg) with boceprevir 800
+      mg TID (three times per day) until OLT.  All patients will be listed for orthotopic liver
+      transplantation.  HCV RNA will be measured monthly.  When they are called in for transplant,
+      they will take their last dose of ribavirin just prior to going to operating room. Patients
+      will undergo orthotopic liver transplantation under standard protocol by Indiana University.
+       They will receive by Dobhoff boceprevir 800 tid for 3 doses post transplantation.
+      Virologic failure will be HCV RNA &gt; 100 I.U. at Week 12.
+    </textblock>
+  </detailed_description>
+  <overall_status>Enrolling by invitation</overall_status>
+  <start_date>June 2013</start_date>
+  <completion_date type="Anticipated">September 2014</completion_date>
+  <primary_completion_date type="Anticipated">May 2014</primary_completion_date>
+  <phase>Phase 0</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Endpoint Classification: Safety/Efficacy Study, Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Number of individuals who can remain HCV RNA undetected 6 months post orthotopic liver transplant after receiving peginterferon, ribavirin, and boceprevir.</measure>
+    <time_frame>6 months post orthotopic liver transplant</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>The primary objective is to determine the number of individuals who can remain HCV RNA undetected 6 months post orthotopic liver transplant after receiving peginterferon, ribavirin, and boceprevir.  The primary safety objective is to determine the safety and efficacy of peginterferon, ribavirin, and boceprevir in Hepatitis C, genotype I individuals undergoing orthotopic liver transplantation.</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Safety and efficacy of peginterferon, ribavirin, and boceprevir in patients with genotype I undergoing orthotopic liver transplant for cirrhosis and/or hepatocellular carcinoma.</measure>
+    <time_frame>6 months post orthotopic liver transplant</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>To determine the safety and efficacy of peginterferon, ribavirin, and boceprevir in patients with genotype I undergoing orthotopic liver transplant for cirrhosis and/or hepatocellular carcinoma as defined by incidence of severe infections (SBP, bacteremia) and new onset ascites and or encephalopahty.</description>
+  </secondary_outcome>
+  <number_of_arms>1</number_of_arms>
+  <enrollment type="Anticipated">20</enrollment>
+  <condition>Liver Transplantation</condition>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>boceprevir</intervention_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Men and women age 18-70
+
+          -  Patients must be genotype I HCV-infected individuals with cirrhosis undergoing
+             orthotopic liver transplantation.
+
+          -  Those with hepatocellular carcinoma with or without treatment of hepatoma may also be
+             included.
+
+          -  The MELD score for enrollment will be capped at 16.
+
+          -  Patients must have medically controlled ascites and those who have moderate or poorly
+             controlled ascites will be excluded.
+
+        Inclusion Laboratory Values
+
+        ALT (alanine aminotransferase) &lt; 250 IU/L, AST (Aspartate aminotransferase ) &lt; 250 IU/L,
+        total bilirubin &lt; 3 mg/dl, creatinine clearance &gt; 45 ml by MDRD (Modification of Diet in
+        Renal Disease), albumin &gt; 2.8 g/dl, hemoglobin &gt; 11, white count &gt; 2.0 X103, absolute
+        neutrophil count 1.5 X103, platelet count &gt; 50,000.
+
+        Women of childbearing potential and male patients with sexual female partner who is of
+        childbearing potential should use two acceptable methods of contraception.
+
+        Exclusion Criteria:
+
+        -
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>70 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Paul Y Kwo, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Indiana University</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Indiana University School of Medicine - IUHealth-University Hospital</name>
+      <address>
+        <city>Indianapolis</city>
+        <state>Indiana</state>
+        <zip>46202</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <verification_date>June 2013</verification_date>
+  <lastchanged_date>October 7, 2013</lastchanged_date>
+  <firstreceived_date>June 13, 2013</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>Liver Transplantation</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Hepatitis</mesh_term>
+    <mesh_term>Hepatitis A</mesh_term>
+    <mesh_term>Hepatitis C</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Ribavirin</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

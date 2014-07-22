@@ -1,0 +1,92 @@
+{
+    "clinical_study": {
+        "@rank": "74226", 
+        "brief_summary": {
+            "textblock": "Bone marrow consists of a complex hematopoietic cellular component.When the blood progenitor\n      cells differentiate to mature cells, they will exit unassisted to peripheral blood. On the\n      other hand, the immature cells trapped by marrow-blood barrier. However, malignant\n      transformation of the hematopoietic progenitor cells in AML and CML results in a blockade of\n      their ability to terminally differentiate, causing a rapid accumulation of immature\n      cells.Chemokines have been shown to direct the movement of cells between intravascular and\n      extravascular compartments.The CXC chemokine CXCL12, the ligand of CXCR4, activates distinct\n      signaling pathways that may mediate cell migration.In the preliminary research, we analyze\n      the CXCR4 expression and the chemotactic response of CXCL12 and peripheral plasma in six\n      leukemia cell lines (HL-60, HL-CZ, K562, U937, Raji and Jurkat) and found that three\n      categories among them could be suggested: one is CXCR4 (-) and CXCL12 response (-), such as\n      HL-CZ and K562 cells; the other is CXCR4 (+) and CXCL12 response (-), such as HL-60 and Raji\n      cells; the rest is CXCR4 (+) and CXCL12 response (+), such as Jurkat and U937 cells. These\n      results make us wonder that the leukemic cells could egress to PB from BM is due to\n      destruction of homing process or the activation of mobilization process through CXCR4-CXCL12\n      axis dysfunction. Therefore,we will focus on evaluating the mechanism of CXCR4-CXCL12 axis\n      dysfunction in the various leukemic cell lines and primary leukemic cells."
+        }, 
+        "brief_title": "Studies on the Significance of CXCR4-CXCL12 on Leukemic Cells Passing Through\"Marrow-Blood Barrier\"", 
+        "completion_date": "July 2004", 
+        "condition": [
+            "Acute Myelocytic Leukemia", 
+            "Acute Lymphocytic Leukemia"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Leukemia", 
+                "Leukemia, Lymphoid", 
+                "Precursor Cell Lymphoblastic Leukemia-Lymphoma", 
+                "Leukemia, Myeloid, Acute", 
+                "Leukemia, Myeloid"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "Bone marrow consists of a complex hematopoietic cellular component that continuously goes\n      through self-replication and/or differentiation processes. When the blood progenitor cells\n      differentiate to mature cells, they will exit unassisted to peripheral blood. On the other\n      hand, the immature cells trapped by marrow-blood barrier. However, malignant transformation\n      of the hematopoietic progenitor cells in AML and CML results in a blockade of their ability\n      to terminally differentiate, causing a rapid accumulation of immature cells.Chemokines have\n      been shown to direct the movement of cells between intravascular and extravascular\n      compartments.The CXC chemokine CXCL12, the ligand of CXCR4, activates distinct signaling\n      pathways that may mediate cell migration. Recent reports demonstrated that the migration of\n      HPC after transplantation from PB to BM via concentration gradients created by CXCL12,\n      produced by marrow stromal cells, has been proposed as integral to the homing process. The\n      mirror image of homing is mobilization of HPC from the BM to PB, which in a clinical setting\n      is induced by administration of various stimuli including hematopoietic growth factors. The\n      CXCR4-CXCL12 axis is reported to be very important in retaining the immature cells in the\n      appropriate bone marrow compartment. In the preliminary research, we analyze the CXCR4\n      expression and the chemotactic response of CXCL12 and peripheral plasma in six leukemia cell\n      lines (HL-60, HL-CZ, K562, U937, Raji and Jurkat) by flow cytometry and two-chamber\n      migration assay, respectively. Three categories among them could be suggested: one is CXCR4\n      (-) and CXCL12 response (-), such as HL-CZ and K562 cells; the other is CXCR4 (+) and CXCL12\n      response (-), such as HL-60 and Raji cells; the rest is CXCR4 (+) and CXCL12 response (+),\n      such as Jurkat and U937 cells. These results make us wonder that the leukemic cells could\n      egress to PB from BM is due to destruction of homing process or the activation of\n      mobilization process through CXCR4-CXCL12 axis dysfunction. Therefore,we will focus on\n      evaluating the mechanism of CXCR4-CXCL12 axis dysfunction in the various leukemic cell lines\n      and primary leukemic cells from several aspects: 1). Evaluate the CXCR4 expression and the\n      CXCL12 response of leukemic cells from patients with acute leukemia;2). Study on the\n      molecular mechanism for the blockade of CXCR4-CXCL12 signaling in CXCR4 (+) and SDF response\n      (-) cells;3). Evaluate the marrow plasma and peripheral plasma to find out plasma factors\n      that interfering the migration behavior of leukemic CXCR4 (+) but CXCL12 response (-) cells"
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  acute leukemia\n\n        Exclusion Criteria:\n\n          -  nil"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "Accepts Healthy Volunteers", 
+            "maximum_age": "N/A", 
+            "minimum_age": "N/A"
+        }, 
+        "enrollment": "30", 
+        "firstreceived_date": "September 9, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00155844", 
+            "org_study_id": "9200200606"
+        }, 
+        "lastchanged_date": "September 9, 2005", 
+        "location": {
+            "contact": {
+                "email": "lilin@ha.mc.ntu.edu.tw", 
+                "last_name": "Liang-In Lin, PhD", 
+                "phone": "886-2-23810611"
+            }, 
+            "facility": {
+                "address": {
+                    "city": "Taipei", 
+                    "country": "Taiwan"
+                }, 
+                "name": "Liang-In Lin"
+            }, 
+            "status": "Recruiting"
+        }, 
+        "location_countries": {
+            "country": "Taiwan"
+        }, 
+        "overall_contact": {
+            "email": "lilin@ha.mc.ntu.edu.tw", 
+            "last_name": "Liang-In Lin, PhD", 
+            "phone": "886-2-23810611"
+        }, 
+        "overall_official": {
+            "affiliation": "Department of Clinical Laboratory Sciences and Medical Biotechnology, National Taiwan University", 
+            "last_name": "Liang-In Lin, PhD", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Recruiting", 
+        "oversight_info": {
+            "authority": "Taiwan: Department of Health"
+        }, 
+        "phase": "N/A", 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00155844"
+        }, 
+        "source": "National Taiwan University Hospital", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "National Taiwan University Hospital", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "February 2003", 
+        "study_design": "Observational Model: Case Control, Primary Purpose: Screening, Time Perspective: Cross-Sectional", 
+        "study_type": "Observational", 
+        "verification_date": "January 2003"
+    }
+}

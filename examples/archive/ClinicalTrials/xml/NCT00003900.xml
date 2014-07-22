@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00003900</url>
+  </required_header>
+  <id_info>
+    <org_study_id>CDR0000067071</org_study_id>
+    <secondary_id>NCCTG-982453</secondary_id>
+    <nct_id>NCT00003900</nct_id>
+  </id_info>
+  <brief_title>Irinotecan With Docetaxel in Treating Patients With Recurrent or Metastatic Non-Small Cell Lung Cancer</brief_title>
+  <official_title>A Phase II Study of Irinotecan (CPT-11) and Docetaxel (Taxotere) in Patients With Recurrent Non-Small Cell Lung Cancer</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>North Central Cancer Treatment Group</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+    <collaborator>
+      <agency>National Cancer Institute (NCI)</agency>
+      <agency_class>NIH</agency_class>
+    </collaborator>
+  </sponsors>
+  <source>National Cancer Institute (NCI)</source>
+  <oversight_info>
+    <authority>United States: Federal Government</authority>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      RATIONALE: Drugs used in chemotherapy use different ways to stop tumor cells from dividing
+      so they stop growing or die. Combining more than one drug may kill more tumor cells.
+
+      PURPOSE: Phase II trial to study the effectiveness of combining irinotecan and docetaxel in
+      treating patients who have recurrent or metastatic non-small cell lung cancer.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      OBJECTIVES: I. Evaluate the response rate of previously treated patients with recurrent
+      non-small cell lung cancer after treatment with irinotecan and docetaxel. II. Determine the
+      toxicity of this regimen in these patients. III. Determine the overall survival in this
+      patient population.
+
+      OUTLINE: Patients receive irinotecan IV over 90 minutes immediately followed by docetaxel IV
+      over 60 minutes on day 1. Treatment is repeated every 3 weeks for 6 courses in the absence
+      of disease progression or unacceptable toxicity. Patients are followed every 3 months for 5
+      years or until death.
+
+      PROJECTED ACCRUAL: A total of 44 patients will be accrued for this study within 24 months.
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>October 1999</start_date>
+  <phase>Phase 2</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Primary Purpose: Treatment</study_design>
+  <condition>Lung Cancer</condition>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>docetaxel</intervention_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>irinotecan hydrochloride</intervention_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        DISEASE CHARACTERISTICS: Histologically or cytologically confirmed non-small cell lung
+        cancer (NSCLC) Reconfirmation of NSCLC required only if complete response for greater than
+        1 year Measurable or evaluable disease Tumor shrinkage or stability for at least 4 weeks
+        on initial chemotherapy CNS metastases allowed, if symptoms controlled for greater than 8
+        weeks after surgery or radiotherapy
+
+        PATIENT CHARACTERISTICS: Age: 18 and over Performance status: 0-1 Life expectancy: At
+        least 12 weeks Hematopoietic: Absolute neutrophil count at least 1,500/mm3 Platelet count
+        at least 100,000/mm3 Hepatic: Bilirubin normal AST no greater than 2 times upper limit of
+        normal (ULN) Renal: Creatinine no greater than 2.5 times ULN Cardiovascular: No New York
+        Heart Association class III or IV heart disease Other: No active infection At least 5
+        years since any other prior malignancy except curatively treated basal or squamous cell
+        skin cancer, carcinoma in situ, or other cancers No grade 2 or worse peripheral neuropathy
+        No uncontrolled diabetes mellitus No other serious underlying disease Not pregnant or
+        nursing Fertile patients must use effective contraception
+
+        PRIOR CONCURRENT THERAPY: Biologic therapy: Not specified Chemotherapy: See Disease
+        Characteristics No greater than 1 prior NSCLC chemotherapy regimen, excluding low dose
+        cisplatin as a radiosensitizer No prior irinotecan or docetaxel At least 4 weeks since
+        prior chemotherapy Endocrine therapy: Not specified Radiotherapy: See Disease
+        Characteristics At least 4 weeks since prior radiotherapy No prior radiotherapy to greater
+        than 25% of bone marrow Surgery: See Disease Characteristics Other: No concurrent
+        phenytoin, phenobarbital, or other anticonvulsants
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Alex A. Adjei, MD, PhD</last_name>
+    <role>Study Chair</role>
+    <affiliation>Mayo Clinic</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>CCOP - Scottsdale Oncology Program</name>
+      <address>
+        <city>Scottsdale</city>
+        <state>Arizona</state>
+        <zip>85259-5404</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Illinois Oncology Research Association</name>
+      <address>
+        <city>Peoria</city>
+        <state>Illinois</state>
+        <zip>61602</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Carle Cancer Center</name>
+      <address>
+        <city>Urbana</city>
+        <state>Illinois</state>
+        <zip>61801</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Cedar Rapids Oncology Project</name>
+      <address>
+        <city>Cedar Rapids</city>
+        <state>Iowa</state>
+        <zip>52403-1206</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Iowa Oncology Research Association</name>
+      <address>
+        <city>Des Moines</city>
+        <state>Iowa</state>
+        <zip>50309-1016</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Siouxland Hematology-Oncology</name>
+      <address>
+        <city>Sioux City</city>
+        <state>Iowa</state>
+        <zip>51101-1733</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Wichita</name>
+      <address>
+        <city>Wichita</city>
+        <state>Kansas</state>
+        <zip>67214-3882</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Duluth</name>
+      <address>
+        <city>Duluth</city>
+        <state>Minnesota</state>
+        <zip>55805</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Mayo Clinic Cancer Center</name>
+      <address>
+        <city>Rochester</city>
+        <state>Minnesota</state>
+        <zip>55905</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CentraCare Clinic</name>
+      <address>
+        <city>Saint Cloud</city>
+        <state>Minnesota</state>
+        <zip>56303</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Metro-Minnesota</name>
+      <address>
+        <city>Saint Louis Park</city>
+        <state>Minnesota</state>
+        <zip>55416</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Missouri Valley Cancer Consortium</name>
+      <address>
+        <city>Omaha</city>
+        <state>Nebraska</state>
+        <zip>68131</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Quain &amp; Ramstad Clinic, P.C.</name>
+      <address>
+        <city>Bismarck</city>
+        <state>North Dakota</state>
+        <zip>58501</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Merit Care Hospital</name>
+      <address>
+        <city>Fargo</city>
+        <state>North Dakota</state>
+        <zip>58122</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Altru Health Systems</name>
+      <address>
+        <city>Grand Forks</city>
+        <state>North Dakota</state>
+        <zip>58201</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Toledo Community Hospital Oncology Program</name>
+      <address>
+        <city>Toledo</city>
+        <state>Ohio</state>
+        <zip>43623-3456</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Rapid City Regional Hospital</name>
+      <address>
+        <city>Rapid City</city>
+        <state>South Dakota</state>
+        <zip>57709</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>CCOP - Sioux Community Cancer Consortium</name>
+      <address>
+        <city>Sioux Falls</city>
+        <state>South Dakota</state>
+        <zip>57105-1080</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Saskatchewan Cancer Agency</name>
+      <address>
+        <city>Regina</city>
+        <state>Saskatchewan</state>
+        <zip>S4S 6X3</zip>
+        <country>Canada</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+    <country>Canada</country>
+  </location_countries>
+  <link>
+    <url>http://cancer.gov/clinicaltrials/NCCTG-982453</url>
+    <description>Clinical trial summary from the National Cancer Institute's PDQ® database</description>
+  </link>
+  <results_reference>
+    <citation>Molina JR, Nikcevich D, Hillman S, Geyer S, Drevyanko T, Jett J, Verdirame J, Tazelaar H, Rowland K, Wos E, Kutteh L, Nair S, Fitch T, Flynn P, Stella P, Adjei AA. A Phase II NCCTG study of irinotecan and docetaxel in previously treated patients with non-small cell lung cancer. Cancer Invest. 2006 Jun-Jul;24(4):382-9.</citation>
+    <PMID>16777690</PMID>
+  </results_reference>
+  <verification_date>July 2006</verification_date>
+  <lastchanged_date>July 23, 2008</lastchanged_date>
+  <firstreceived_date>November 1, 1999</firstreceived_date>
+  <keyword>recurrent non-small cell lung cancer</keyword>
+  <keyword>stage IV non-small cell lung cancer</keyword>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Carcinoma, Non-Small-Cell Lung</mesh_term>
+    <mesh_term>Lung Neoplasms</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Irinotecan</mesh_term>
+    <mesh_term>Camptothecin</mesh_term>
+    <mesh_term>Docetaxel</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

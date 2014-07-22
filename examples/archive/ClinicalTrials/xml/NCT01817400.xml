@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01817400</url>
+  </required_header>
+  <id_info>
+    <org_study_id>12-1414</org_study_id>
+    <secondary_id>U54HD058155</secondary_id>
+    <nct_id>NCT01817400</nct_id>
+  </id_info>
+  <brief_title>Mediators of Abnormal Reproductive Function in Obesity (MARO)</brief_title>
+  <acronym>MARO</acronym>
+  <official_title>Mediators of Abnormal Reproductive Function in Obesity</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>University of Colorado, Denver</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+    <collaborator>
+      <agency>Eunice Kennedy Shriver National Institute of Child Health and Human Development (NICHD)</agency>
+      <agency_class>NIH</agency_class>
+    </collaborator>
+  </sponsors>
+  <source>University of Colorado, Denver</source>
+  <oversight_info>
+    <authority>United States: Institutional Review Board</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The study is seeking to understand how being overweight and obese makes women less fertile.
+      The studies the investigators have done so far indicate that there is a hormone or other
+      substance produced by fat that goes into the blood and reduces reproductive hormones in
+      women who are overweight and obese.  The present study will try to find the most promising
+      substances by studying small numbers of women and trying to remove the substances that are
+      causing the problem.
+
+      Hypothesis:  A circulating factor or factors, either hormonal, inflammatory or metabolic,
+      causes relative pituitary hypofunction and correction of this reproductive deficit will
+      allow obese women with infertility who have failed to reduce their body weight to normal to
+      conceive, and may also prevent the horizontal passage of an adverse metabolic phenotype to
+      the offspring.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      Specific Aim 1: To determine whether aromatase activity is measurable in adipose tissue
+      using the 'compound' (see appendix) as a precursor and whether aromatase is decreased in the
+      adipose tissue of obese women, and whether this varies by regional fat location.  The
+      investigators will accomplish this by examining precursor/product ratios of hormones infused
+      through microdialysis using the 'compound' as a substrate.
+
+      Hypothesis for specific aim 1: Aromatase activity will be measurable in adipose tissue using
+      testosterone as a precursor.  Estradiol, but not estrone production from androgen precursors
+      will be decreased in obese women relative to those of normal weight.
+
+      Specific Aim 2: To determine whether nonspecific, systemic suppression of inflammation will
+      lead to improved reproductive hormonal profiles of luteinizing hormone (LH), follicle
+      stimulating hormone(FSH), Estrone conjugates (E1c) and pregnandiol glucuronide (Pdg) in
+      obese women who undergo two menstrual cycles of study: one off treatment and one on
+      treatment.  This aim shall be accomplished by performing daily urinary hormone monitoring of
+      two menstrual cycles, one prior to and one during treatment with low-dose aspirin and
+      polyunsaturated fatty acids (PUFAs).
+
+      Hypothesis for specific aim 2: A nonspecific, systemic inflammatory suppression therapy will
+      result in improved urinary profiles of LH, FSH, E1c and Pdg.
+
+      Specific Aim 3: To determine whether 4 weeks of reduction of circulating insulin will result
+      in improved reproductive hormonal profiles of LH, FSH, Estrone conjugates (E1c) and
+      pregnandiol glucuronide (Pdg) in obese women who undergo two menstrual cycles of study: one
+      off treatment and one on treatment.  This aim shall be accomplished by performing daily
+      urinary hormone monitoring of two menstrual cycles, one prior to and one during treatment
+      with pioglitazone.
+
+      Hypothesis for specific aim 3: Chronic lowering of insulin with pioglitazone treatment of
+      obese women will result in improved urinary profiles of LH, FSH, E1c and Pdg.
+    </textblock>
+  </detailed_description>
+  <overall_status>Recruiting</overall_status>
+  <start_date>March 2013</start_date>
+  <completion_date type="Anticipated">March 2017</completion_date>
+  <primary_completion_date type="Anticipated">March 2015</primary_completion_date>
+  <phase>Phase 0</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Non-Randomized, Endpoint Classification: Pharmacokinetics Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Basic Science</study_design>
+  <primary_outcome>
+    <measure>Area under curve (AUC)- urinary pregnandiol glucuronide (Pdg)</measure>
+    <time_frame>Two menstrual cycles</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Estradiol</measure>
+    <time_frame>3 hours</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Luteinizing hormone (LH)</measure>
+    <time_frame>two menstrual cycles</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Estrone conjugates (E1c)</measure>
+    <time_frame>two menstrual cycles</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <other_outcome>
+    <measure>Follicle stimulating hormone (FSH)</measure>
+    <time_frame>two menstrual cycles</time_frame>
+    <safety_issue>No</safety_issue>
+  </other_outcome>
+  <number_of_arms>3</number_of_arms>
+  <enrollment type="Anticipated">27</enrollment>
+  <condition>Infertility, Female</condition>
+  <condition>Obesity</condition>
+  <arm_group>
+    <arm_group_label>Microdialysis</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Microdialysis probes will be inserted into the abdominal and femoral subcutaneous adipose tissue. Two &quot;control&quot; probes at each site will be perfused at 2.0 µL/min with Ringer's solution to measure basal interstitial testosterone and estradiol levels. One &quot;experimental&quot; probe at each site will be perfused with the 'compound' 20ug/dl at 2.0 µL/min to assess the interstitial conversion of androstenedione to estrone and estradiol.  The 'compound' will be infused. Either one or the other hormone (androstenedione OR testosterone) will be used per experiment. The second &quot;control&quot; probe will be positioned at each site to ensure acquisition of data in the event that one of the other probes becomes dysfunctional. We will then collect microdialysis samples every 60 min over the next 120 min.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Anti-inflammatory treatment</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>We will perform a control cycle of daily, first-morning voided urine, as previously reported by our group to assess the hormonal features of the menstrual cycle of each of the five participants in this arm.  Upon completion of the control cycle, the participant will initiate therapy with aspirin 81mg per day, plus Vascepa - Fish Oil 30mg daily. Participants will collect urine for a second menstrual cycle while on treatment, using methods that we have previously employed. At the completion of the second cycle of urine collection, the medications will be stopped and the study will be completed.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Insulin-lowering therapy</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>We will perform a control cycle of daily, first morning voided urine as previously reported by our group, to assess the hormonal features of the menstrual cycle of each of the five participants.  Upon completion of the control cycle, the participant will initiate therapy with pioglitazone, 45 mg daily, a dose that has previously been shown to result in a 30% reduction in fasting insulin.  She will take the pioglitazone without any monitoring for a second menstrual cycle and then collect urinary hormones for the third menstrual cycle, continuing the pioglitazone until the third menstrual cycle is completed.</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Other</intervention_type>
+    <intervention_name>Microdialysis</intervention_name>
+    <description>Microdialysis probes will be inserted into the abdominal and femoral subcutaneous adipose tissue. Two &quot;control&quot; probes at each site will be perfused at 2.0 µL/min with Ringer's solution to measure basal interstitial testosterone and estradiol levels. One &quot;experimental&quot; probe at each site will be perfused with the 'compound' 20ug/dl at 2.0 µL/min to assess the interstitial conversion of androstenedione to estrone and estradiol. The 'compound' will be infused. Either one or the other hormone (androstenedione OR testosterone) will be used per experiment. The second &quot;control&quot; probe will be positioned at each site to ensure acquisition of data in the event that one of the other probes becomes dysfunctional. We will then collect microdialysis samples every 60 min over the next 120 min.</description>
+    <arm_group_label>Microdialysis</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Dietary Supplement</intervention_type>
+    <intervention_name>Vascepa - Fish Oil</intervention_name>
+    <description>We will perform a control cycle of daily, first-morning voided urine, as previously reported by our group to assess the hormonal features of the menstrual cycle of each of the five participants in this arm. Upon completion of the control cycle, the participant will initiate therapy with aspirin 81mg per day, plus Vascepa 30mg daily. Participants will collect urine for a second menstrual cycle while on treatment, using methods that we have previously employed. At the completion of the second cycle of urine collection, the medications will be stopped and the study will be completed.</description>
+    <arm_group_label>Anti-inflammatory treatment</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Aspirin</intervention_name>
+    <arm_group_label>Anti-inflammatory treatment</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Pioglitazone</intervention_name>
+    <description>e will perform a control cycle of daily, first morning voided urine as previously reported by our group, to assess the hormonal features of the menstrual cycle of each of the five participants. Upon completion of the control cycle, the participant will initiate therapy with pioglitazone, 45 mg daily, a dose that has previously been shown to result in a 30% reduction in fasting insulin. She will take the pioglitazone without any monitoring for a second menstrual cycle and then collect urinary hormones for the third menstrual cycle, continuing the pioglitazone until the third menstrual cycle is completed.</description>
+    <arm_group_label>Insulin-lowering therapy</arm_group_label>
+    <other_name>Actos</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+        Women aged 18-39* who meet the following criteria will be enrolled:
+
+        *Women age 40-60 can be enrolled in Group A
+
+          -  BMI at least 30 kg/m2 (Groups B and C only)
+
+          -  No history of chronic disease affecting hormone production, metabolism or clearance
+
+          -  No use of medications known to alter or interact with reproductive hormones or
+             insulin metabolism (e.g. thiazolidinediones, metformin)
+
+          -  No use of reproductive hormones within 3 months of enrollment
+
+          -  No medical conditions that are known to affect urinary hormone excretion or that may
+             interfere with urinary hormone measurement (Groups B and C only)
+
+          -  No history of or active bladder cancer (Group C only, since pioglitazone is
+             contraindicated in individuals with bladder cancer)
+
+          -  Normal prolactin and thyroid stimulating hormone levels at screening
+
+          -  History of regular menstrual cycles every 25-40 days
+
+          -  Use of a reliable method of contraception (female or male partner sterilization;
+             intrauterine device (IUD); abstinence; diaphragm)
+
+          -  Hemoglobin A1c &lt;6%
+
+        Exclusion Criteria:
+
+        Women aged 18-39* who meet the following criteria will be enrolled:
+
+        *Women age 40-60 can be enrolled in Group A
+
+          -  BMI at least 30 kg/m2 (Groups B and C only)
+
+          -  No history of chronic disease affecting hormone production, metabolism or clearance
+
+          -  No use of medications known to alter or interact with reproductive hormones or
+             insulin metabolism (e.g. thiazolidinediones, metformin)
+
+          -  No use of reproductive hormones within 3 months of enrollment
+
+          -  No medical conditions that are known to affect urinary hormone excretion or that may
+             interfere with urinary hormone measurement (Groups B and C only)
+
+          -  No history of or active bladder cancer (Group C only, since pioglitazone is
+             contraindicated in individuals with bladder cancer)
+
+          -  Normal prolactin and thyroid stimulating hormone levels at screening
+
+          -  History of regular menstrual cycles every 25-40 days
+
+          -  Use of a reliable method of contraception (female or male partner sterilization; IUD;
+             abstinence; diaphragm)
+
+          -  Hemoglobin A1c &lt;6%
+      </textblock>
+    </criteria>
+    <gender>Female</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>60 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Nanette Santoro, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>University of Colorado, Denver</affiliation>
+  </overall_official>
+  <overall_contact>
+    <last_name>Celeste Robledo</last_name>
+    <phone>303-724-2046</phone>
+    <email>celeste.robledo@ucdenver.edu</email>
+  </overall_contact>
+  <location>
+    <facility>
+      <name>University of Colorado Denver Anschutz Medical Campus</name>
+      <address>
+        <city>Aurora</city>
+        <state>Colorado</state>
+        <zip>80045</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <investigator>
+      <last_name>Nanette Santoro, MD</last_name>
+      <role>Principal Investigator</role>
+    </investigator>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <verification_date>January 2014</verification_date>
+  <lastchanged_date>January 24, 2014</lastchanged_date>
+  <firstreceived_date>March 15, 2013</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Infertility</mesh_term>
+    <mesh_term>Infertility, Female</mesh_term>
+    <mesh_term>Obesity</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Testosterone</mesh_term>
+    <mesh_term>Aspirin</mesh_term>
+    <mesh_term>Eicosapentaenoic acid ethyl ester</mesh_term>
+    <mesh_term>Pioglitazone</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

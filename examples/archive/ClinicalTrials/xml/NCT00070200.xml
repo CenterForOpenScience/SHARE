@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00070200</url>
+  </required_header>
+  <id_info>
+    <org_study_id>ANBL02P1</org_study_id>
+    <secondary_id>CDR0000330140</secondary_id>
+    <secondary_id>COG-ANBL02P1</secondary_id>
+    <nct_id>NCT00070200</nct_id>
+  </id_info>
+  <brief_title>Induction Chemotherapy Using Cyclophosphamide and Topotecan in Treating Patients Who Are Undergoing Autologous Peripheral Stem Cell Transplantation for Newly Diagnosed or Progressive Neuroblastoma</brief_title>
+  <official_title>A Pilot Induction Regimen Incorporating Topotecan for Treatment of Newly Diagnosed High Risk Neuroblastoma</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Children's Oncology Group</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+    <collaborator>
+      <agency>National Cancer Institute (NCI)</agency>
+      <agency_class>NIH</agency_class>
+    </collaborator>
+  </sponsors>
+  <source>Children's Oncology Group</source>
+  <oversight_info>
+    <authority>United States: Federal Government</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      RATIONALE: Drugs used in chemotherapy, such as topotecan and cyclophosphamide, use different
+      ways to stop tumor cells from dividing so they stop growing or die. Combining chemotherapy
+      with autologous stem cell transplantation may allow the doctor to give higher doses of
+      chemotherapy drugs and kill more tumor cells.
+
+      PURPOSE: This phase I trial is studying the side effects of induction chemotherapy using
+      cyclophosphamide and topotecan in treating patients who are undergoing surgery and
+      autologous stem cell transplantation followed by radiation therapy for newly diagnosed or
+      progressive neuroblastoma.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      OBJECTIVES:
+
+      Primary
+
+        -  Determine the toxicity and feasibility of adding cyclophosphamide and topotecan to
+           induction therapy in patients with newly diagnosed or progressive high-risk
+           neuroblastoma undergoing autologous peripheral blood stem cell (PBSC) transplantation.
+
+        -  Determine the feasibility of PBSC mobilization and in vivo PBSC tumor purging in these
+           patients after treatment with this regimen.
+
+      Secondary
+
+        -  Determine tumor response rate in patients treated with this regimen.
+
+        -  Determine the pharmacokinetics of this regimen in these patients.
+
+        -  Determine whether topotecan affects cyclophosphamide pharmacokinetics in these
+           patients.
+
+        -  Correlate host DNA with toxicity and cyclophosphamide and topotecan pharmacokinetics in
+           patients treated with this regimen.
+
+        -  Determine toxicity in patients treated with this regimen.
+
+      OUTLINE: This is a pilot, multicenter study. Patients are stratified according to diagnosis
+      (newly diagnosed vs initially stage 1, 2, or 4S that progressed to stage 4 without interval
+      chemotherapy).
+
+        -  Induction therapy: Patients receive 6 courses of induction therapy.
+
+             -  Courses 1 and 2: Patients receive cyclophosphamide IV over 30 minutes and
+                topotecan IV over 30 minutes on days 1-5 and filgrastim (G-CSF) subcutaneously
+                (SC) or IV beginning on day 6 and continuing until blood counts recover.
+
+             -  Course 3: Patients receive etoposide IV over 2 hours on days 1-3, cisplatin IV
+                over 1 hour on days 1-4, and G-CSF SC or IV beginning on day 5 and continuing
+                until blood counts recover.
+
+             -  Course 4: Patients receive cyclophosphamide IV over 6 hours on day 1 and
+                doxorubicin IV and vincristine IV continuously over 24 hours on days 1-3. Patients
+                also receive G-CSF SC or IV beginning on day 4 and continuing until blood counts
+                recover.
+
+             -  Course 5: Patients receive etoposide, cisplatin, and G-CSF as in course 3.
+
+             -  Course 6: Patients receive cyclophosphamide, doxorubicin, vincristine, and G-CSF
+                as in course 4.
+
+      Treatment repeats every 21 days for a total of 6 courses in the absence of disease
+      progression or unacceptable toxicity.
+
+        -  Consolidation therapy: Within 4-6 weeks after completing induction therapy, patients
+           receive melphalan IV on days -7 to -5 and etoposide IV and carboplatin IV continuously
+           over 24 hours on days -7 to -4.
+
+        -  Stem cell transplantation: Peripheral blood stem cells are collected after course 2 of
+           induction therapy and infused on day 0. Patients receive G-CSF IV beginning on day 0
+           and continuing until blood counts recover.
+
+        -  Surgery: After course 5 of induction therapy, patients undergo surgery.
+
+        -  Radiotherapy: Beginning 28-42 days after transplantation, patients receive 12 fractions
+           of local radiotherapy to all areas of residual soft tissue disease and the primary
+           tumor site, even if completely resected.
+
+        -  Maintenance therapy: Beginning 66 days after transplantation, patients receive oral
+           isotretinoin twice daily on days 1-14. Treatment repeats every 28 days for a total of 6
+           courses.
+
+      Patients are followed every 3 months for 1 year, every 6 months for 4 years, and then
+      annually thereafter.
+
+      PROJECTED ACCRUAL: A total of 10-29 patients will be accrued for this study within 2 years.
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>March 2004</start_date>
+  <completion_date type="Actual">December 2013</completion_date>
+  <primary_completion_date type="Actual">September 2006</primary_completion_date>
+  <phase>Phase 1</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Endpoint Classification: Safety/Efficacy Study, Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Proportion of patients who are classified as a &quot;success&quot;</measure>
+    <time_frame>Length of study</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Given that the documented delivered dose intensity of chemotherapy in current induction regimens is 75-85% of the intended dose intensity,5,78 we shall consider an individual patient as a &quot;success&quot; in terms of feasibility if the patient is able to receive 75% or more of the intended chemotherapy doses of known active agents.</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Number of toxic deaths</measure>
+    <time_frame>Length of study</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Proportion of patients with dose limiting toxicities during induction cycle 1 and 2</measure>
+    <time_frame>Length of study</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Dose limiting toxicities during induction cycle 1 and 2 will be used to modify the topotecan dosage if necessary and to address Primary Aim 1 in a descriptive fashion.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Tumor contamination of PBSCs</measure>
+    <time_frame>Length of study</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Tumor contamination of PBSCs as measured by immunohistochemical analysis following cycle 2 induction;</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Inability to adequately mobilize PBSCs</measure>
+    <time_frame>Length of study</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Inability to adequately mobilize PBSCs, defined as a harvest of &lt; 1.5 x 10 6 CD 34 cells/kg. A patient will be designated a PBSCs &quot;failure&quot; if either a) or b) is the case.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Assessment of response</measure>
+    <time_frame>Length of study</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>After completion of induction therapy. Response will be determined using the International Response Criteria defined elsewhere in the protocol. The tumor response rate will be defined as the proportion of patients who achieve a CR, VGPR, or PR after completion of induction therapy.</description>
+  </secondary_outcome>
+  <number_of_arms>1</number_of_arms>
+  <enrollment type="Actual">31</enrollment>
+  <condition>Neuroblastoma</condition>
+  <arm_group>
+    <arm_group_label>All patients</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Induction Cycles 1 and 2 (CT) (21 days each), Cyclophosphamide (Days 1 thru 5) weight based dosage (&gt; 12 kg 400 mg/m2/day,  &lt; 12 kg 13.3 mg/kg/day,  &lt; 2 years old  N/A.  Topotecan (Days 1 thru 5)  weight based dosage (&gt; 12 kg 1.2 mg/m2/day,  &lt; 12 kg 0.04 mg/kg/day, &lt; 2 years old 0.04 mg/kg/day).  Filgrastim (Days 6 →) weight based dosage (&gt; 12 kg 5 micrograms/kg, &lt; 12 kg 5 micrograms /kg, &lt; 2 years old  5 micrograms /kg.</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Biological</intervention_type>
+    <intervention_name>filgrastim</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>cisplatin</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>cyclophosphamide</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>doxorubicin hydrochloride</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>etoposide</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>isotretinoin</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>melphalan</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>topotecan hydrochloride</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>vincristine sulfate</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Procedure</intervention_type>
+    <intervention_name>conventional surgery</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Procedure</intervention_type>
+    <intervention_name>peripheral blood stem cell transplantation</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Radiation</intervention_type>
+    <intervention_name>radiation therapy</intervention_name>
+    <arm_group_label>All patients</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        DISEASE CHARACTERISTICS:
+
+          -  Histologically or cytologically confirmed neuroblastoma or ganglioneuroblastoma
+             meeting 1 of the following staging criteria:
+
+               -  Newly diagnosed disease, at least 1 year of age, and meets criteria for 1 of the
+                  following:
+
+                    -  International Neuroblastoma Staging System (INSS) stage 2a/2b with MYCN
+                       amplification (greater than 10) AND unfavorable pathology
+
+                    -  INSS stage 3 with MYCN amplification OR unfavorable pathology
+
+               -  Newly diagnosed INSS stage 4 disease meeting criteria for 1 of the following:
+
+                    -  Over 18 months of age
+
+                    -  Age 12 to 18 months with any unfavorable biologic feature (MYCN
+                       amplification, unfavorable pathology, and/or DNA index=1) or any biologic
+                       feature that is indeterminant, unsatisfactory, or unknown
+
+                         -  No INSS stage 4 disease and age 12 to 18 months with all 3 favorable
+                            biologic features (i.e., nonamplified MYCN, favorable pathology, and
+                            DNA index greater than 1)
+
+               -  Newly diagnosed INSS stage 3, 4, or 4S disease AND under 1 year of age with MYCN
+                  amplification
+
+               -  At least 1 year of age and initially diagnosed with INSS stage 1, 2, or 4S
+                  disease that progressed to stage 4 without interval chemotherapy
+
+                    -  Must have been enrolled on COG-ANBL00B1 at initial diagnosis
+
+        PATIENT CHARACTERISTICS:
+
+        Age
+
+          -  30 and under at initial diagnosis
+
+        Performance status
+
+          -  Not specified
+
+        Life expectancy
+
+          -  Not specified
+
+        Hematopoietic
+
+          -  Absolute neutrophil count at least 1,000/mm^3*
+
+          -  Platelet count at least 100,000/mm^3* (transfusion independent)
+
+          -  Hemoglobin at least 10.0 g/dL* (red blood cell transfusions allowed) NOTE:
+             *Granulocytopenia, anemia, and/or thrombocytopenia allowed for patients with tumor
+             metastatic to the bone marrow
+
+        Hepatic
+
+          -  Bilirubin no greater than 1.5 mg/dL
+
+          -  ALT less than 300 IU/L
+
+        Renal
+
+          -  Creatinine no greater than 1.5 mg/dL
+
+          -  Creatinine clearance or radioisotope glomerular filtration rate at least 60 mL/min
+
+        Cardiovascular
+
+          -  ECG normal
+
+          -  Shortening fraction at least 27% by echocardiogram OR
+
+          -  Ejection fraction at least 50% by MUGA
+
+        Other
+
+          -  Not pregnant or nursing
+
+          -  Negative pregnancy test
+
+          -  Fertile patients must use effective contraception
+
+          -  HIV negative
+
+        PRIOR CONCURRENT THERAPY:
+
+        Biologic therapy
+
+          -  Not specified
+
+        Chemotherapy
+
+          -  See Disease Characteristics
+
+          -  No more than 1 prior chemotherapy course on the low- or intermediate-risk
+             neuroblastoma studies (COG-P9641, COG-A3961) prior to determination of MYCN
+             amplification and Shimada histology
+
+        Endocrine therapy
+
+          -  Not specified
+
+        Radiotherapy
+
+          -  Prior localized emergency radiotherapy to sites of life-threatening or
+             function-threatening disease allowed
+
+        Surgery
+
+          -  Not specified
+
+        Other
+
+          -  No other prior systemic therapy
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>N/A</minimum_age>
+    <maximum_age>30 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Julie R. Park, MD</last_name>
+    <role>Study Chair</role>
+    <affiliation>Seattle Children's Hospital</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>UCSF Comprehensive Cancer Center</name>
+      <address>
+        <city>San Francisco</city>
+        <state>California</state>
+        <zip>94143-0106</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Children's Memorial Hospital - Chicago</name>
+      <address>
+        <city>Chicago</city>
+        <state>Illinois</state>
+        <zip>60614</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>St. Jude Children's Research Hospital</name>
+      <address>
+        <city>Memphis</city>
+        <state>Tennessee</state>
+        <zip>38105</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Children's Hospital and Regional Medical Center - Seattle</name>
+      <address>
+        <city>Seattle</city>
+        <state>Washington</state>
+        <zip>98105</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Mary Bridge Children's Hospital and Health Center - Tacoma</name>
+      <address>
+        <city>Tacoma</city>
+        <state>Washington</state>
+        <zip>98405</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Westmead Hospital</name>
+      <address>
+        <city>Westmead</city>
+        <state>New South Wales</state>
+        <zip>2145</zip>
+        <country>Australia</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+    <country>Australia</country>
+  </location_countries>
+  <link>
+    <url>http://cancer.gov/clinicaltrials/COG-ANBL02P1</url>
+    <description>Clinical trial summary from the National Cancer Institute's PDQ® database</description>
+  </link>
+  <results_reference>
+    <citation>Park JR, Scott JR, Stewart CF, London WB, Naranjo A, Santana VM, Shaw PJ, Cohn SL, Matthay KK. Pilot induction regimen incorporating pharmacokinetically guided topotecan for treatment of newly diagnosed high-risk neuroblastoma: a Children's Oncology Group study. J Clin Oncol. 2011 Nov 20;29(33):4351-7. doi: 10.1200/JCO.2010.34.3293. Epub 2011 Oct 17.</citation>
+    <PMID>22010014</PMID>
+  </results_reference>
+  <verification_date>February 2014</verification_date>
+  <lastchanged_date>February 12, 2014</lastchanged_date>
+  <firstreceived_date>October 3, 2003</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>recurrent neuroblastoma</keyword>
+  <keyword>stage 4S neuroblastoma</keyword>
+  <keyword>localized unresectable neuroblastoma</keyword>
+  <keyword>localized resectable neuroblastoma</keyword>
+  <keyword>regional neuroblastoma</keyword>
+  <keyword>disseminated neuroblastoma</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>No</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Neuroblastoma</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Cisplatin</mesh_term>
+    <mesh_term>Cyclophosphamide</mesh_term>
+    <mesh_term>Doxorubicin</mesh_term>
+    <mesh_term>Etoposide</mesh_term>
+    <mesh_term>Melphalan</mesh_term>
+    <mesh_term>Vincristine</mesh_term>
+    <mesh_term>Topotecan</mesh_term>
+    <mesh_term>Lenograstim</mesh_term>
+    <mesh_term>Isotretinoin</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>
