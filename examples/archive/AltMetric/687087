@@ -1,0 +1,28 @@
+cited_by_feeds_count: 1
+last_updated: 1404212980
+is_oa: False
+cited_by_posts_count: 1
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=6&types=bbbbbbbb', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=6&types=bbbbbbbb', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=6&types=bbbbbbbb'}
+altmetric_id: 687087
+downloads: []
+published_on: 2054442496
+score: 5.72
+title: The impulses produced by sensory nerve-endings Part II. The response of a Single End-Organ
+scopus_subjects: [u'Biochemistry, Genetics and Molecular Biology', u'Life Sciences']
+subjects: [u'physiology']
+altmetric_jid: 4f6fa6293cf058f610007df5
+pmid: 16993780
+nlmid: 0266262
+schema: 1.5.4
+cohorts: []
+readers_count: 15
+journal: The Journal of Physiology
+publisher_subjects: [{u'scheme': u'era', u'name': u'Biological Sciences'}, {u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=687087
+issns: [u'1469-7793']
+url: http://jp.physoc.org/content/61/2/151.full.pdf
+readers: {u'mendeley': 13, u'citeulike': 2, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 26, u'higher_than': 24, u'pct': 92, u'rank': 2, u'mean': 2.194}, u'all': {u'count': 2078968, u'higher_than': 1738918, u'pct': 83, u'rank': 340035, u'mean': 4.6792353096538}, u'similar_age_3m': {u'count': 69556, u'higher_than': 61218, u'pct': 88, u'rank': 8337, u'mean': 3.8994219538494}, u'journal': {u'count': 1354, u'higher_than': 1166, u'pct': 86, u'rank': 187, u'mean': 4.960051736881}}
+history: {u'6d': 5.72, u'1w': 5.72, u'1y': 5.72, u'1m': 5.72, u'6m': 5.72, u'2d': 5.72, u'at': 5.72, u'3m': 5.72, u'5d': 5.72, u'4d': 5.72, u'1d': 5.72, u'3d': 5.72}
+added_on: 1333828687
+cited_by_accounts_count: 1

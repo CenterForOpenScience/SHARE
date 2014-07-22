@@ -1,0 +1,27 @@
+cited_by_feeds_count: 3
+last_updated: 1406033407
+is_oa: False
+ssrn: 2002636
+cited_by_posts_count: 13
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=30&types=bbtttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=30&types=bbtttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=30&types=bbtttttf'}
+altmetric_id: 680770
+title: Political Diversity in Social and Personality Psychology
+cited_by_tweeters_count: 7
+scopus_subjects: []
+tq: [u'So what if personality and social psychologists were ultra conservative/liberal? luckily we have the scientific method', u'Yes, the GOP is wrong about the whole NSF thing but Science is already pretty heavily politicised', u"If LizInjun is Harvard's Cherokee, then no one dares speak up against affirmative action. harvard cess pool of trivial", u'This seems very problematic to me']
+score: 29.364
+altmetric_jid: ssrn
+schema: 1.5.4
+cohorts: {u'sci': 1, u'pub': 6}
+readers_count: 0
+downloads: []
+publisher_subjects: []
+details_url: http://www.altmetric.com/details.php?citation_id=680770
+issns: []
+url: http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2002636
+readers: {u'mendeley': 0, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 181, u'higher_than': 180, u'pct': 99, u'rank': 1, u'mean': 3.3393888888889}, u'all': {u'count': 2293887, u'higher_than': 2236827, u'pct': 97, u'rank': 57070, u'mean': 4.8097213418648}, u'similar_age_3m': {u'count': 69964, u'higher_than': 68502, u'pct': 97, u'rank': 1462, u'mean': 3.9853158097851}, u'journal': {u'count': 33527, u'higher_than': 32857, u'pct': 98, u'rank': 670, u'mean': 5.3087733699218}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 1, u'1w': 1, u'1y': 1, u'1m': 1, u'6m': 1, u'2d': 1, u'at': 29.364, u'3m': 1, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+added_on: 1333502149
+cited_by_accounts_count: 12

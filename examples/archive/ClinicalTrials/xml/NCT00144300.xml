@@ -1,0 +1,2842 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00144300</url>
+  </required_header>
+  <id_info>
+    <org_study_id>248.538</org_study_id>
+    <nct_id>NCT00144300</nct_id>
+  </id_info>
+  <brief_title>Ophthalmologic Safety Study of Pramipexole Immediate Release (IR) Versus Ropinirole in Early Parkinson's Disease (PD) Patients</brief_title>
+  <official_title>A Two Year Open Label, Randomized, Parallel Group, Blinded Assessment Ophthalmologic Safety Study of Pramipexole IR Versus Ropinirole in Early Parkinson's Disease Patients</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Boehringer Ingelheim</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Boehringer Ingelheim</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      To determine if there is any difference in the presence of retinal deterioration in PD
+      patients treated with pramipexole IR versus ropinirole as monitored by comprehensive
+      ophthalmologic assessments from baseline to the end of study at two years.
+    </textblock>
+  </brief_summary>
+  <overall_status>Completed</overall_status>
+  <start_date>January 2005</start_date>
+  <primary_completion_date type="Actual">September 2010</primary_completion_date>
+  <phase>Phase 4</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Diagnostic</study_design>
+  <primary_outcome>
+    <measure>Expert Panel Overall Assessment Following 2 Years on Drug</measure>
+    <time_frame>up to 2 years</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Expert panel of ophthalmologists assessed retinal deterioration by a review of the components of the comprehensive ophthalmology assessments</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Expert Panel Overall Assessment Following 1 Year on Drug</measure>
+    <time_frame>up to 1 years</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Expert panel of ophthalmologists assessed retinal deterioration by a review of the components of the comprehensive ophthalmology assessments</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Hoehn and Yahr Scale at Baseline</measure>
+    <time_frame>Baseline</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Hoehn and Yahr Scale at 1 Year</measure>
+    <time_frame>Up to 1 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Hoehn and Yahr Scale at 2 Years</measure>
+    <time_frame>Up to 2 years</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Total Score at Baseline</measure>
+    <time_frame>Baseline</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Total Score at 1 Year</measure>
+    <time_frame>1 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Change From Baseline in Total Score at 1 Year</measure>
+    <time_frame>Baseline, 1 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Total Score at 2 Years</measure>
+    <time_frame>2 years</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Change From Baseline in Total Score at 2 Years</measure>
+    <time_frame>Baseline, 2 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Total Score at Baseline</measure>
+    <time_frame>Baseline</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Total Score at 1 Year</measure>
+    <time_frame>1 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Change From Baseline in Total Score at 1 Year</measure>
+    <time_frame>Baseline, 1 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Total Score at 2 Years</measure>
+    <time_frame>2 years</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Change From Baseline in Total Score at 2 Years</measure>
+    <time_frame>Baseline, 2 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Total Score at Baseline</measure>
+    <time_frame>Baseline</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Total Score at 1 Year</measure>
+    <time_frame>1 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Change From Baseline in Total Score at 1 Year</measure>
+    <time_frame>Baseline, 1 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Total Score at 2 Years</measure>
+    <time_frame>2 years</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Change From Baseline in Total Score at 2 Years</measure>
+    <time_frame>Baseline, 2 year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Clinical Abnormal Findings: Clinical Laboratory Evaluations (Biochemistry and Haematology)and Vital Signs</measure>
+    <time_frame>Screen (Baseline) and final visit (24 months)</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Clinical relevant abnormalities for clinical laboratory evaluations Biochemistry and Haematology) and Vital Signs. New abnormal findings or worsening of baseline conditions were reported.</description>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">246</enrollment>
+  <condition>Parkinson Disease</condition>
+  <arm_group>
+    <arm_group_label>Mirapex</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+    <description>Mirapex tablets three times daily (TID) dosing according to manufacturer's guidelines</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Requip</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+    <description>Requip tablets three times daily (TID) dosing according to manufacturer's guidelines</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Mirapex</intervention_name>
+    <description>Standard marketed product dispensed according to manufacturer's guidelines</description>
+    <arm_group_label>Mirapex</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Requip</intervention_name>
+    <description>Standard marketed product dispensed according to manufacturer's guidelines</description>
+    <arm_group_label>Requip</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion criteria
+
+        Diagnosis and main criteria for inclusion.  Patients must meet all of the following
+        inclusion criteria to be eligible for enrollment into the study:
+
+          1. Patients with idiopathic Parkinson's disease of less than 7 years characterized as
+             Stage I-III by the Modified Hoehn and Yahr Scale and with a maximum of 6 months
+             cumulative lifetime exposure to levodopa and/or dopamine agonist.  Patients on
+             current dopamine agonist therapy would require 14-day washout.
+
+          2. Age at least 30 years.
+
+          3. Women of childbearing potential must have a negative serum beta-HCG pregnancy test at
+             the Screen (Baseline) visit and the patient must use adequate contraceptive methods.
+
+          4. Evidence of a personally signed and dated informed consent document indicating that
+             the patient (or a legally acceptable representative) has been informed of  all
+             pertinent aspects of the study.
+
+          5. Patients who are willing and able to comply with scheduled visits, treatment plan,
+             and other study procedures.
+
+        Exclusion criteria
+
+        Main criteria for exclusion. The presence of any of the following would make a patient
+        ineligible for enrollment into the study:
+
+          1. Previous history of allergic response or complications with any dopaminergic agonist
+             drug
+
+          2. Atypical PD syndromes
+
+          3. History of stereotactic brain surgery
+
+          4. Positive hepatitis B (surface antigen) or hepatitis C (antibody)
+
+          5. Surgery within 180 days of randomization which would negatively impact participation
+
+          6. Folstein's Mini Mental State Examination (MMSE) score of 24 or less
+
+          7. History of active epilepsy (seizure) in the past 1 year
+
+          8. Third degree AV block or sick sinus syndrome
+
+          9. Congestive heart failure, Class III or IV
+
+         10. Unstable heart disease such as unstable angina, dysrhythmia, or myocardial infarction
+             in prior 6 months
+
+         11. Symptomatic orthostatic hypotension
+
+         12. Clinically significant liver disease or renal disease
+
+         13. Malignant melanoma or history of previously treated malignant melanoma.
+
+         14. Prohibited medications taken (including any drug known to have potential retino-toxic
+             effects taken in the prior 12 months; neuroleptics taken within prior 6 months, MAO
+             inhibitors except rasagiline or selegiline taken within prior 3 months, beta-blockers
+             taken to treat Parkinson's disease in the prior 30 days, and Coenzyme Q10 taken
+             within 14 days)
+
+         15. Albinism/Albinoidism of any degree, type or syndrome
+
+         16. History of glaucoma with or without treatment
+
+         17. Inherited or acquired retinopathy such as age-related macular degeneration with
+             visual loss
+
+         18. Sarcoidosis
+
+         19. Diabetes mellitus of any degree even if diet or insulin controlled
+
+         20. Best corrected visual acuity (BCVA) of less than 20/40 by ETDRS
+
+         21. Refractive error of greater than minus-6 diopters
+
+         22. Abnormal electroretinogram (ERG)
+
+         23. Unable to dilate pupils
+
+         24. History of severe eye trauma that might affect the outcome of the study
+
+         25. History of psychosis
+
+         26. Participation in other investigational drug studies or use of investigational drugs
+             within prior 30 days
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>30 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Boehringer Ingelheim</last_name>
+    <role>Study Chair</role>
+    <affiliation>Boehringer Ingelheim</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>248.538.00007 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Birmingham</city>
+        <state>Alabama</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00008 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Little Rock</city>
+        <state>Arkansas</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00021 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Fountain Valley</city>
+        <state>California</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00022 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Los Angeles</city>
+        <state>California</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00001 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>New Haven</city>
+        <state>Connecticut</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00002 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Miami</city>
+        <state>Florida</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00016 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Tampa</city>
+        <state>Florida</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00023 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Tampa</city>
+        <state>Florida</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00013 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Atlanta</city>
+        <state>Georgia</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00009 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Augusta</city>
+        <state>Georgia</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00011 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Chicago</city>
+        <state>Illinois</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00005 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Baltimore</city>
+        <state>Maryland</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00014 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Southfield</city>
+        <state>Michigan</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00020 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>New York</city>
+        <state>New York</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00015 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>New York</city>
+        <state>New York</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00010 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>New York</city>
+        <state>New York</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00012 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Charlotte</city>
+        <state>North Carolina</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00006 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Philadelphia</city>
+        <state>Pennsylvania</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00004 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Memphis</city>
+        <state>Tennessee</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00003 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Houston</city>
+        <state>Texas</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>248.538.00017 Boehringer Ingelheim Investigational Site</name>
+      <address>
+        <city>Morgantown</city>
+        <state>West Virginia</state>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <link>
+    <url>http://trials.boehringer-ingelheim.com/content/dam/internet/opu/clinicaltrial/com_EN/results/248/248.538_U11-3426.pdf</url>
+  </link>
+  <link>
+    <url>http://trials.boehringer-ingelheim.com/content/dam/internet/opu/clinicaltrial/com_EN/results/248/248.538_literature.pdf</url>
+  </link>
+  <verification_date>February 2014</verification_date>
+  <lastchanged_date>February 17, 2014</lastchanged_date>
+  <firstreceived_date>September 2, 2005</firstreceived_date>
+  <firstreceived_results_date>September 16, 2011</firstreceived_results_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Parkinson Disease</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Pramipexol</mesh_term>
+    <mesh_term>Ropinirole</mesh_term>
+  </intervention_browse>
+
+  <clinical_results>
+
+    <participant_flow>
+      <group_list>
+        <group group_id="P1">
+          <title>Pramipexole</title>
+          <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+        </group>
+        <group group_id="P2">
+          <title>Ropinirole</title>
+          <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+        </group>
+      </group_list>
+      <period_list>
+        <period>
+          <title>Overall Study</title>
+          <milestone_list>
+            <milestone>
+              <title>STARTED</title>
+              <participants_list>
+                <participants group_id="P1" count="121"/>
+                <participants group_id="P2" count="125"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="92"/>
+                <participants group_id="P2" count="97"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>NOT COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="29"/>
+                <participants group_id="P2" count="28"/>
+              </participants_list>
+            </milestone>
+          </milestone_list>
+          <drop_withdraw_reason_list>
+            <drop_withdraw_reason>
+              <title>Adverse Event</title>
+              <participants_list>
+                <participants group_id="P1" count="18"/>
+                <participants group_id="P2" count="16"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Protocol Violation</title>
+              <participants_list>
+                <participants group_id="P1" count="1"/>
+                <participants group_id="P2" count="3"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Lost to Follow-up</title>
+              <participants_list>
+                <participants group_id="P1" count="3"/>
+                <participants group_id="P2" count="0"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Withdrawal by Subject</title>
+              <participants_list>
+                <participants group_id="P1" count="6"/>
+                <participants group_id="P2" count="6"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Other reason (not specified)</title>
+              <participants_list>
+                <participants group_id="P1" count="1"/>
+                <participants group_id="P2" count="3"/>
+              </participants_list>
+            </drop_withdraw_reason>
+          </drop_withdraw_reason_list>
+        </period>
+      </period_list>
+    </participant_flow>
+
+    <baseline>
+      <group_list>
+        <group group_id="B1">
+          <title>Pramipexole</title>
+          <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+        </group>
+        <group group_id="B2">
+          <title>Ropinirole</title>
+          <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+        </group>
+        <group group_id="B3">
+          <title>Total</title>
+          <description>Total of all reporting groups</description>
+        </group>
+      </group_list>
+      <measure_list>
+        <measure>
+          <title>Number of Participants</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="121"/>
+                <measurement group_id="B2" value="125"/>
+                <measurement group_id="B3" value="246"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Age</title>
+          <units>years</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="57.5" spread="9.3"/>
+                <measurement group_id="B2" value="59.1" spread="8.7"/>
+                <measurement group_id="B3" value="58.3" spread="9.0"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Age, Customized</title>
+          <units>Participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>&lt; 50 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="23"/>
+                <measurement group_id="B2" value="17"/>
+                <measurement group_id="B3" value="40"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>50 to &lt; 65 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="71"/>
+                <measurement group_id="B2" value="74"/>
+                <measurement group_id="B3" value="145"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>65 to &lt; 75 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="21"/>
+                <measurement group_id="B2" value="30"/>
+                <measurement group_id="B3" value="51"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>&gt;= 75 years</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="6"/>
+                <measurement group_id="B2" value="4"/>
+                <measurement group_id="B3" value="10"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Gender</title>
+          <units>Participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Female</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="42"/>
+                <measurement group_id="B2" value="47"/>
+                <measurement group_id="B3" value="89"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Male</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="79"/>
+                <measurement group_id="B2" value="78"/>
+                <measurement group_id="B3" value="157"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Race/Ethnicity, Customized</title>
+          <units>Participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Asian</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="1"/>
+                <measurement group_id="B2" value="1"/>
+                <measurement group_id="B3" value="2"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Black</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="7"/>
+                <measurement group_id="B2" value="3"/>
+                <measurement group_id="B3" value="10"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>White</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="113"/>
+                <measurement group_id="B2" value="121"/>
+                <measurement group_id="B3" value="234"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Height</title>
+          <description>Measurements collected for 120, 125 participants in Pramipexole, Ropinirole respectively</description>
+          <units>centimeters</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="171.3" spread="9.2"/>
+                <measurement group_id="B2" value="171.6" spread="12.4"/>
+                <measurement group_id="B3" value="171.5" spread="10.9"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Weight</title>
+          <description>Measurements collected for 119, 122 participants in Pramipexole, Ropinirole respectively</description>
+          <units>kilograms</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="81.32" spread="17.64"/>
+                <measurement group_id="B2" value="82.80" spread="18.39"/>
+                <measurement group_id="B3" value="82.07" spread="18.00"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Duration of Parkinson's disease diagnosis</title>
+          <units>years</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="0.97" spread="1.15"/>
+                <measurement group_id="B2" value="1.29" spread="1.70"/>
+                <measurement group_id="B3" value="1.13" spread="1.46"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Hoehn and Yahr stage</title>
+          <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+          <units>Participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Stage 0</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage 1</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="28"/>
+                <measurement group_id="B2" value="23"/>
+                <measurement group_id="B3" value="51"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage 1.5</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="11"/>
+                <measurement group_id="B2" value="19"/>
+                <measurement group_id="B3" value="30"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage 2</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="71"/>
+                <measurement group_id="B2" value="71"/>
+                <measurement group_id="B3" value="142"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage 2.5</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="8"/>
+                <measurement group_id="B2" value="5"/>
+                <measurement group_id="B3" value="13"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage 3</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="3"/>
+                <measurement group_id="B2" value="7"/>
+                <measurement group_id="B3" value="10"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage 4</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Stage 5</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Alcohol history</title>
+          <units>Participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Does not drink</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="46"/>
+                <measurement group_id="B2" value="49"/>
+                <measurement group_id="B3" value="95"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Has an average consumption</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="75"/>
+                <measurement group_id="B2" value="76"/>
+                <measurement group_id="B3" value="151"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Fulfills criteria for Abuse/Dependence</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="0"/>
+                <measurement group_id="B2" value="0"/>
+                <measurement group_id="B3" value="0"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+      </measure_list>
+    </baseline>
+
+    <outcome_list>
+      <outcome>
+        <type>Primary</type>
+        <title>Expert Panel Overall Assessment Following 2 Years on Drug</title>
+        <description>Expert panel of ophthalmologists assessed retinal deterioration by a review of the components of the comprehensive ophthalmology assessments</description>
+        <time_frame>up to 2 years</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>FAS LOCF - full analysis set with last observation carry forward</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="115"/>
+                  <measurement group_id="O2" value="119"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Expert Panel Overall Assessment Following 2 Years on Drug</title>
+            <description>Expert panel of ophthalmologists assessed retinal deterioration by a review of the components of the comprehensive ophthalmology assessments</description>
+            <units>Participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <sub_title>Have retinal deterioration</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="34"/>
+                  <measurement group_id="O2" value="33"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Have no retinal deterioration</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="81"/>
+                  <measurement group_id="O2" value="86"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+        <analysis_list>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <non_inferiority>No</non_inferiority>
+            <param_type>Risk Ratio (RR)</param_type>
+            <param_value>1.07</param_value>
+            <ci_percent>95</ci_percent>
+            <ci_lower_limit>0.71</ci_lower_limit>
+            <ci_upper_limit>1.60</ci_upper_limit>
+          </analysis>
+        </analysis_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Expert Panel Overall Assessment Following 1 Year on Drug</title>
+        <description>Expert panel of ophthalmologists assessed retinal deterioration by a review of the components of the comprehensive ophthalmology assessments</description>
+        <time_frame>up to 1 years</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>FAS LOCF - full analysis set with last observation carry forward</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="115"/>
+                  <measurement group_id="O2" value="119"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Expert Panel Overall Assessment Following 1 Year on Drug</title>
+            <description>Expert panel of ophthalmologists assessed retinal deterioration by a review of the components of the comprehensive ophthalmology assessments</description>
+            <units>Participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <sub_title>Have retinal deterioration</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="28"/>
+                  <measurement group_id="O2" value="21"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Have no retinal deterioration</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="87"/>
+                  <measurement group_id="O2" value="98"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Hoehn and Yahr Scale at Baseline</title>
+        <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+        <time_frame>Baseline</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Hoehn and Yahr Scale at Baseline</title>
+            <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+            <units>Participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <sub_title>Stage 0</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0" spread="0"/>
+                  <measurement group_id="O2" value="0" spread="0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 1</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="28"/>
+                  <measurement group_id="O2" value="23"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 1.5</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="11"/>
+                  <measurement group_id="O2" value="19"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 2</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="71"/>
+                  <measurement group_id="O2" value="71"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 2.5</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="8"/>
+                  <measurement group_id="O2" value="5"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 3</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="3"/>
+                  <measurement group_id="O2" value="7"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 4</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 5</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Hoehn and Yahr Scale at 1 Year</title>
+        <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+        <time_frame>Up to 1 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Hoehn and Yahr Scale at 1 Year</title>
+            <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+            <units>Participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <sub_title>Stage 0</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1" spread="1"/>
+                  <measurement group_id="O2" value="1" spread="1"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 1</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="33"/>
+                  <measurement group_id="O2" value="22"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 1.5</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="9"/>
+                  <measurement group_id="O2" value="16"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 2</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="70"/>
+                  <measurement group_id="O2" value="72"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 2.5</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="8"/>
+                  <measurement group_id="O2" value="8"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 3</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="6"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 4</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 5</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Hoehn and Yahr Scale at 2 Years</title>
+        <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+        <time_frame>Up to 2 years</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Hoehn and Yahr Scale at 2 Years</title>
+            <description>This scale is an investigator-completed assessment of the degree of complications arising from Parkinson's disease. The scale ranges from 0 (No signs) to 5 (Bedridden)</description>
+            <units>Participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <sub_title>Stage 0</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1" spread="1"/>
+                  <measurement group_id="O2" value="0" spread="0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 1</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="27"/>
+                  <measurement group_id="O2" value="23"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 1.5</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="6"/>
+                  <measurement group_id="O2" value="12"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 2</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="74"/>
+                  <measurement group_id="O2" value="73"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 2.5</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="10"/>
+                  <measurement group_id="O2" value="10"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 3</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="3"/>
+                  <measurement group_id="O2" value="7"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 4</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Stage 5</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Total Score at Baseline</title>
+        <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+        <time_frame>Baseline</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Total Score at Baseline</title>
+            <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="8.0" spread="3.8"/>
+                  <measurement group_id="O2" value="9.5" spread="4.7"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Total Score at 1 Year</title>
+        <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+        <time_frame>1 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Total Score at 1 Year</title>
+            <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="7.0" spread="4.3"/>
+                  <measurement group_id="O2" value="8.4" spread="5.0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Change From Baseline in Total Score at 1 Year</title>
+        <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+        <time_frame>Baseline, 1 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Change From Baseline in Total Score at 1 Year</title>
+            <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="-1.1" spread="3.4"/>
+                  <measurement group_id="O2" value="-1.1" spread="3.6"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Total Score at 2 Years</title>
+        <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+        <time_frame>2 years</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Total Score at 2 Years</title>
+            <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="8.4" spread="4.6"/>
+                  <measurement group_id="O2" value="9.3" spread="5.2"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Change From Baseline in Total Score at 2 Years</title>
+        <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+        <time_frame>Baseline, 2 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part II, Change From Baseline in Total Score at 2 Years</title>
+            <description>Part II of the UPDRS collected retrospective information on patient functioning in various activities of daily living. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 52.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="0.4" spread="3.7"/>
+                  <measurement group_id="O2" value="-0.2" spread="4.0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Total Score at Baseline</title>
+        <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+        <time_frame>Baseline</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Total Score at Baseline</title>
+            <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="20.7" spread="9.3"/>
+                  <measurement group_id="O2" value="22.4" spread="10.2"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Total Score at 1 Year</title>
+        <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+        <time_frame>1 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Total Score at 1 Year</title>
+            <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="17.7" spread="9.3"/>
+                  <measurement group_id="O2" value="19.8" spread="10.9"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Change From Baseline in Total Score at 1 Year</title>
+        <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+        <time_frame>Baseline, 1 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Change From Baseline in Total Score at 1 Year</title>
+            <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="-3.0" spread="7.2"/>
+                  <measurement group_id="O2" value="-2.6" spread="6.1"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Total Score at 2 Years</title>
+        <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+        <time_frame>2 years</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Total Score at 2 Years</title>
+            <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="19.7" spread="9.9"/>
+                  <measurement group_id="O2" value="20.9" spread="10.3"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Change From Baseline in Total Score at 2 Years</title>
+        <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+        <time_frame>Baseline, 2 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Part III, Change From Baseline in Total Score at 2 Years</title>
+            <description>Part III of the UPDRS contained the clinician-scored motor evaluation. Individual items scored from 0 (Normal) to 4 (Extreme dysfunction). The total score ranged from 0 to 56.</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="-1.0" spread="7.9"/>
+                  <measurement group_id="O2" value="-1.5" spread="7.7"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Total Score at Baseline</title>
+        <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+        <time_frame>Baseline</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Total Score at Baseline</title>
+            <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="28.8" spread="11.6"/>
+                  <measurement group_id="O2" value="31.9" spread="13.4"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Total Score at 1 Year</title>
+        <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+        <time_frame>1 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Total Score at 1 Year</title>
+            <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="24.7" spread="11.8"/>
+                  <measurement group_id="O2" value="28.2" spread="14.5"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Change From Baseline in Total Score at 1 Year</title>
+        <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+        <time_frame>Baseline, 1 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Change From Baseline in Total Score at 1 Year</title>
+            <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="-4.1" spread="8.9"/>
+                  <measurement group_id="O2" value="-3.7" spread="8.2"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Total Score at 2 Years</title>
+        <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+        <time_frame>2 years</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Total Score at 2 Years</title>
+            <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="28.1" spread="12.9"/>
+                  <measurement group_id="O2" value="30.2" spread="14.1"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Change From Baseline in Total Score at 2 Years</title>
+        <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+        <time_frame>Baseline, 2 year</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>TS - treated set</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="121"/>
+                  <measurement group_id="O2" value="125"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Unified Parkinson's Disease Rating Scale (UPDRS), Parts II and III, Change From Baseline in Total Score at 2 Years</title>
+            <description>This is the sum of Part II and Part III of the UPDRS. The total score ranged from 0 (Normal) to 108 (Extreme dysfunction).</description>
+            <units>Score on a scale</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="-0.7" spread="10.1"/>
+                  <measurement group_id="O2" value="-1.7" spread="10.5"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Clinical Abnormal Findings: Clinical Laboratory Evaluations (Biochemistry and Haematology)and Vital Signs</title>
+        <description>Clinical relevant abnormalities for clinical laboratory evaluations Biochemistry and Haematology) and Vital Signs. New abnormal findings or worsening of baseline conditions were reported.</description>
+        <time_frame>Screen (Baseline) and final visit (24 months)</time_frame>
+        <safety_issue>Yes</safety_issue>
+        <population>TSlab - treated set with non-missing laboratory evaluations</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Pramipexole</title>
+            <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+          </group>
+          <group group_id="O2">
+            <title>Ropinirole</title>
+            <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="109"/>
+                  <measurement group_id="O2" value="110"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Clinical Abnormal Findings: Clinical Laboratory Evaluations (Biochemistry and Haematology)and Vital Signs</title>
+            <description>Clinical relevant abnormalities for clinical laboratory evaluations Biochemistry and Haematology) and Vital Signs. New abnormal findings or worsening of baseline conditions were reported.</description>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <sub_title>Haematocrit - Decrease</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1"/>
+                  <measurement group_id="O2" value="2"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Haemoglobin - Decrease</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="8"/>
+                  <measurement group_id="O2" value="5"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Eosinophils - Increase</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="4"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Phosphate - Decrease</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0"/>
+                  <measurement group_id="O2" value="2"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Calcium - Increase</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Glucose - Decrease</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="4"/>
+                  <measurement group_id="O2" value="0"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+    </outcome_list>
+
+    <reported_events>
+      <time_frame>up to 24 months</time_frame>
+      <group_list>
+        <group group_id="E1">
+          <title>Pramipexole</title>
+          <description>Flexible: 0.125 mg 3 times daily up to maximum tolerated</description>
+        </group>
+        <group group_id="E2">
+          <title>Ropinirole</title>
+          <description>Flexible: 0.25 mg 3 times daily up to maximum tolerated</description>
+        </group>
+      </group_list>
+      <serious_events>
+        <default_vocab>MedDRA Version 13.1</default_vocab>
+        <default_assessment>Systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, serious adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="22" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="21" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Blood and lymphatic system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Anaemia</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Haemorrhagic anaemia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Cardiac disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Acute myocardial infarction</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Atrial fibrillation</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Bradycardia</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Cardiac failure congestive</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Coronary artery occlusion</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Abdominal pain lower</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Colitis ischaemic</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Rectal haemorrhage</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Small intestinal obstruction</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Chest discomfort</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Hepatobiliary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Biliary colic</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Biliary dyskinesia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Cholelithiasis</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Immune system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hypersensitivity</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Appendicitis</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Enterocolitis infectious</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Injury, poisoning and procedural complications</title>
+            <event_list>
+              <event>
+                <sub_title>Fall</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Femur fracture</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Hand fracture</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Hip fracture</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Incisional hernia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Jaw fracture</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Lower limb fracture</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Post procedural haemorrhage</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Pubis fracture</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Rib fracture</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Road traffic accident</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Stab wound</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Tibia fracture</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Metabolism and nutrition disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Fluid overload</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Musculoskeletal and connective tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Arthralgia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Arthritis</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Back pain</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Groin pain</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Lumbar spinal stenosis</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Osteoarthritis</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Neoplasms benign, malignant and unspecified (incl cysts and polyps)</title>
+            <event_list>
+              <event>
+                <sub_title>Basal cell carcinoma</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Malignant melanoma</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Malignant melanoma in situ</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Ovarian granulosa-theca cell tumour</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Prostate cancer</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Small cell lung cancer stage unspecified</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Squamous cell carcinoma</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Squamous cell carcinoma of skin</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Transitional cell carcinoma</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Uterine leiomyoma</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Nervous system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Brain mass</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Loss of consciousness</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Syncope</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Transient global amnesia</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Psychiatric disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Delirium</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Delusion</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Hallucination, visual</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Psychotic disorder</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Renal and urinary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Urinary incontinence</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Reproductive system and breast disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Cystocele</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Endometrial hyperplasia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Hyperthecosis</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Prostatomegaly</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Uterine haemorrhage</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Uterine polyp</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Pulmonary embolism</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Thrombosis</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </serious_events>
+      <other_events>
+        <frequency_threshold>5</frequency_threshold>
+        <default_vocab>MedDRA Version 13.1</default_vocab>
+        <default_assessment>Systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, other adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="97" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="101" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Eye disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Vision blurred</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="4" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Abdominal pain upper</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="7" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Constipation</sub_title>
+                <counts group_id="E1" subjects_affected="18" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="26" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Diarrhoea</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="9" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Dry mouth</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="7" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Dyspepsia</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="7" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Dysphagia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="8" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Nausea</sub_title>
+                <counts group_id="E1" subjects_affected="31" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="59" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Vomiting</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="12" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Chest pain</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="7" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Fatigue</sub_title>
+                <counts group_id="E1" subjects_affected="27" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="25" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Oedema peripheral</sub_title>
+                <counts group_id="E1" subjects_affected="22" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="18" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Nasopharyngitis</sub_title>
+                <counts group_id="E1" subjects_affected="17" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="16" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Sinusitis</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="7" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Upper respiratory tract infection</sub_title>
+                <counts group_id="E1" subjects_affected="12" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="13" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Urinary tract infection</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="4" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Musculoskeletal and connective tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Arthralgia</sub_title>
+                <counts group_id="E1" subjects_affected="9" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="12" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Back pain</sub_title>
+                <counts group_id="E1" subjects_affected="17" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="9" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Muscle spasms</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="9" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Musculoskeletal pain</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="7" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Myalgia</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="8" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Pain in extremity</sub_title>
+                <counts group_id="E1" subjects_affected="12" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="13" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Nervous system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Dizziness</sub_title>
+                <counts group_id="E1" subjects_affected="27" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="35" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Dizziness postural</sub_title>
+                <counts group_id="E1" subjects_affected="9" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="9" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Headache</sub_title>
+                <counts group_id="E1" subjects_affected="15" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="27" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Hypoaesthesia</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="9" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Paraesthesia</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="10" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Somnolence</sub_title>
+                <counts group_id="E1" subjects_affected="53" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="71" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Sudden onset of sleep</sub_title>
+                <counts group_id="E1" subjects_affected="11" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="16" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Psychiatric disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Abnormal dreams</sub_title>
+                <counts group_id="E1" subjects_affected="8" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="7" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Anxiety</sub_title>
+                <counts group_id="E1" subjects_affected="10" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="14" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Depression</sub_title>
+                <counts group_id="E1" subjects_affected="8" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="15" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Insomnia</sub_title>
+                <counts group_id="E1" subjects_affected="19" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="27" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Sleep disorder</sub_title>
+                <counts group_id="E1" subjects_affected="9" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="10" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Reproductive system and breast disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Erectile dysfunction</sub_title>
+                <counts group_id="E1" subjects_affected="7" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="4" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Respiratory, thoracic and mediastinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Cough</sub_title>
+                <counts group_id="E1" subjects_affected="8" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="7" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Skin and subcutaneous tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Rash</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="10" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hypertension</sub_title>
+                <counts group_id="E1" subjects_affected="9" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="10" subjects_at_risk="125"/>
+              </event>
+              <event>
+                <sub_title>Orthostatic hypotension</sub_title>
+                <counts group_id="E1" subjects_affected="10" subjects_at_risk="121"/>
+                <counts group_id="E2" subjects_affected="14" subjects_at_risk="125"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </other_events>
+    </reported_events>
+
+    <certain_agreements>
+      <pi_employee>Principal Investigators are NOT employed by the organization sponsoring the study.</pi_employee>
+      <restrictive_agreement>Other - Any publication of the result of this trial must be consistent with the Boehringer Ingelheim publication policy. The rights of the investigator and of the sponsor with regard to publication of the results of this trial are described in the investigator contract.</restrictive_agreement>
+    </certain_agreements>
+    <point_of_contact>
+      <name_or_title>Boehringer Ingelheim Call Center</name_or_title>
+      <organization>Boehringer Ingelheim Pharmaceuticals</organization>
+      <phone>1-800-243-0127</phone>
+      <email>clintriage.rdg@boehringer-ingelheim.com</email>
+    </point_of_contact>
+  </clinical_results>
+</clinical_study>

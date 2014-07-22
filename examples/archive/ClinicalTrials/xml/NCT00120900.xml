@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00120900</url>
+  </required_header>
+  <id_info>
+    <org_study_id>CXA30007</org_study_id>
+    <nct_id>NCT00120900</nct_id>
+  </id_info>
+  <brief_title>Evaluation of GW406381 in Treating Adults With Osteoarthritis Of The Knee</brief_title>
+  <official_title>See Detailed Description</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>GlaxoSmithKline</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>GlaxoSmithKline</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      This study was designed to evaluate the effectiveness of GW406381 (a COX-2 inhibitor) in
+      treating the signs and symptoms of osteoarthritis of the knee.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      A Phase III, 12-week, Multicentre, Double-blind, Double-dummy, Randomised, Placebo- and
+      Active Comparator-Controlled, Parallel Group study to investigate the Efficacy and Safety of
+      GW406381 1mg, 5mg, 10mg, 25mg and 50mg administered orally once daily, in adults with
+      Osteoarthritis of the knee (CXA30007).
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>May 2005</start_date>
+  <phase>Phase 3</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Change in OA symptoms at week 12 as measured by scores on subject-completed questionnaires on pain, daily activities and global assessment</measure>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Change in OA symptoms as measured by subject and physician-completed questionnaires at each scheduled visit.  Percentage of responders, subjects discontinuing due to lack of efficacy, use of rescue medication and health-related quality of life.</measure>
+  </secondary_outcome>
+  <enrollment>1113</enrollment>
+  <condition>Osteoarthritis, Knee</condition>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>GW406381</intervention_name>
+    <other_name>GW406381</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion criteria:
+
+          -  Subjects have a primary diagnosis of osteoarthritis of the knee with symptom duration
+             of at least 3 months.
+
+          -  Use pain medication, such as a COX-2 inhibitor or NSAID (non-steroidal
+             anti-inflammatory drug) at least 5 days per week.
+
+        Exclusion criteria:
+
+          -  History of hypersensitivity or intolerance to pain medications.
+
+          -  History of gastroduodenal perforations and/or obstructions.
+
+          -  History of upper GI (gastrointestinal) ulceration within the previous 6 months.
+
+          -  History of upper or lower GI bleeding within the previous year.
+
+          -  History of inflammatory bowel disease.
+
+          -  Currently take sucralfate or misoprostol.
+
+          -  Currently taking aspirin daily for the heart.
+
+          -  Other restrictions around the use medications apply and would need to be discussed.
+
+          -  History of coronary artery disease, (angina, MI) or surgery.
+
+          -  History of congestive heart failure or renal artery stenosis.
+
+          -  History of stroke or transient ischemic attack.
+
+          -  History of uncontrolled hypertension.
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>40 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>GSK Clinical Trials</last_name>
+    <role>Study Director</role>
+    <affiliation>GlaxoSmithKline</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Ishoj</city>
+        <zip>2635</zip>
+        <country>Denmark</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Anyang-Si</city>
+        <zip>431-070</zip>
+        <country>Korea, Republic of</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Daegu</city>
+        <zip>705-718</zip>
+        <country>Korea, Republic of</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Seoul</city>
+        <country>Korea, Republic of</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Seoul</city>
+        <zip>133-792</zip>
+        <country>Korea, Republic of</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Seoul</city>
+        <zip>138-736</zip>
+        <country>Korea, Republic of</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Seoul</city>
+        <zip>110-744</zip>
+        <country>Korea, Republic of</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Seoul</city>
+        <zip>135-710</zip>
+        <country>Korea, Republic of</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Seoul</city>
+        <zip>120-752</zip>
+        <country>Korea, Republic of</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>De Bilt</city>
+        <zip>3731 DN</zip>
+        <country>Netherlands</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Ewijk</city>
+        <zip>6644 CL</zip>
+        <country>Netherlands</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Heerlen</city>
+        <zip>6416 EG</zip>
+        <country>Netherlands</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Bergen</city>
+        <zip>N-5068</zip>
+        <country>Norway</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Hamar</city>
+        <zip>2317</zip>
+        <country>Norway</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Hønefoss</city>
+        <zip>N-3515</zip>
+        <country>Norway</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Lier</city>
+        <zip>3400</zip>
+        <country>Norway</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Oslo</city>
+        <zip>N-0370</zip>
+        <country>Norway</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>San Juan</city>
+        <country>Spain</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>GSK Investigational Site</name>
+      <address>
+        <city>Helsingborg</city>
+        <zip>SE-252 78</zip>
+        <country>Sweden</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>Denmark</country>
+    <country>Korea, Republic of</country>
+    <country>Netherlands</country>
+    <country>Norway</country>
+    <country>Spain</country>
+    <country>Sweden</country>
+  </location_countries>
+  <removed_countries>
+    <country>United States</country>
+    <country>Australia</country>
+    <country>Belgium</country>
+    <country>Canada</country>
+    <country>Germany</country>
+    <country>Hungary</country>
+    <country>New Zealand</country>
+    <country>Peru</country>
+    <country>Puerto Rico</country>
+    <country>Argentina</country>
+    <country>Bulgaria</country>
+    <country>Mexico</country>
+    <country>Poland</country>
+    <country>Romania</country>
+  </removed_countries>
+  <verification_date>June 2013</verification_date>
+  <lastchanged_date>July 11, 2013</lastchanged_date>
+  <firstreceived_date>June 30, 2005</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>COX-2 inhibitor</keyword>
+  <keyword>Knee osteoarthritis</keyword>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Osteoarthritis</mesh_term>
+    <mesh_term>Osteoarthritis, Knee</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

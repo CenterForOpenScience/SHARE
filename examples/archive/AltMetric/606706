@@ -1,0 +1,31 @@
+last_updated: 1405966693
+is_oa: False
+cited_by_posts_count: 5
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=4&types=tttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=4&types=tttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=4&types=tttttttt'}
+altmetric_id: 606706
+subjects: []
+published_on: 1322697600
+issns: [u'00917435']
+title: Cyclists' experiences of harassment from motorists: Findings from a survey of cyclists in Queensland, Australia 
+cited_by_tweeters_count: 5
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u"Cyclists' experiences of harassment from motorists: Findings #Queensland, Australia #sdoh #bike", u'Studys abstract says no gender corollation in cycling abuse suspect @DawnHFoster may have something interesting re this']
+score: 3.45
+altmetric_jid: 4f6fa5123cf058f610003383
+pmid: 22001076
+abstract: Harassment from motorists is a major constraint on cycling that has been under-researched. We examined incidence and correlates of harassment of cyclists.
+schema: 1.5.4
+cohorts: {u'pub': 5}
+readers_count: 11
+journal: Preventive Medicine
+publisher_subjects: [{u'scheme': u'era', u'name': u'Human Movement And Sports Science'}, {u'scheme': u'era', u'name': u'Public Health And Health Services'}, {u'scheme': u'era', u'name': u'Curriculum And Pedagogy'}]
+details_url: http://www.altmetric.com/details.php?citation_id=606706
+doi: 10.1016/j.ypmed.2011.09.015
+abstract_source: pubmed
+url: http://dx.doi.org/10.1016/j.ypmed.2011.09.015
+readers: {u'mendeley': 10, u'citeulike': 1, u'connotea': 0}
+nlmid: na
+context: {u'similar_age_journal_3m': {u'count': 29, u'higher_than': 22, u'pct': 75, u'rank': 7, u'mean': 2.35}, u'all': {u'count': 2291340, u'higher_than': 1768786, u'pct': 77, u'rank': 519331, u'mean': 4.8093387377446}, u'similar_age_3m': {u'count': 224515, u'higher_than': 184366, u'pct': 82, u'rank': 39802, u'mean': 3.7926124785093}, u'journal': {u'count': 690, u'higher_than': 444, u'pct': 64, u'rank': 245, u'mean': 6.3479419448476}}
+history: {u'6d': 0.75, u'1w': 0.75, u'1y': 0.75, u'1m': 0.75, u'6m': 0.75, u'2d': 0.25, u'at': 3.45, u'3m': 0.75, u'5d': 0.75, u'4d': 0.75, u'1d': 0.25, u'3d': 0.75}
+added_on: 1329346342
+cited_by_accounts_count: 5

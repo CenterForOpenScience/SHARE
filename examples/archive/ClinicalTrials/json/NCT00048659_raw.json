@@ -1,0 +1,571 @@
+{
+    "clinical_study": {
+        "@rank": "99417", 
+        "brief_summary": {
+            "textblock": "The purpose of this study is to determine if patients who take YM598 in addition to\n      mitoxantrone and prednisone (standard therapy) experience improvement in the pain associated\n      with prostate cancer metastases in the bone."
+        }, 
+        "brief_title": "YM598 Added to Mitoxantrone/Prednisone to Control Pain in Metastatic Prostate Cancer Patients No Longer Responding to Hormone Therapy", 
+        "completion_date": {
+            "#text": "June 2004", 
+            "@type": "Actual"
+        }, 
+        "condition": [
+            "Hormone-Refractory Prostate Cancer", 
+            "Prostatic Neoplasms"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Neoplasms", 
+                "Prostatic Neoplasms"
+            ]
+        }, 
+        "eligibility": {
+            "gender": "Male", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "18 Years"
+        }, 
+        "firstreceived_date": "November 4, 2002", 
+        "id_info": {
+            "nct_id": "NCT00048659", 
+            "org_study_id": "598-CL-008"
+        }, 
+        "intervention": {
+            "intervention_name": "YM598", 
+            "intervention_type": "Drug"
+        }, 
+        "keyword": "Androgen-independent prostate cancer", 
+        "lastchanged_date": "June 6, 2012", 
+        "location": [
+            {
+                "facility": {
+                    "address": {
+                        "city": "Anchorage", 
+                        "country": "United States", 
+                        "state": "Alaska"
+                    }, 
+                    "name": "Alaska Clinical Research Center, LLC"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "San Bernardino", 
+                        "country": "United States", 
+                        "state": "California"
+                    }, 
+                    "name": "San Bernardino Urological Associates"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Torrance", 
+                        "country": "United States", 
+                        "state": "California"
+                    }, 
+                    "name": "Western Clinical Research, Inc."
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Gainesville", 
+                        "country": "United States", 
+                        "state": "Florida"
+                    }, 
+                    "name": "Shands Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Miami", 
+                        "country": "United States", 
+                        "state": "Florida"
+                    }, 
+                    "name": "Sylvester Comprehensive Cancer Center"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Atlanta", 
+                        "country": "United States", 
+                        "state": "Georgia"
+                    }, 
+                    "name": "Georgia Urology,PA Research Institute"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Chicago", 
+                        "country": "United States", 
+                        "state": "Illinois"
+                    }, 
+                    "name": "University of Illinois, Department of Urology"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Chicago", 
+                        "country": "United States", 
+                        "state": "Illinois"
+                    }, 
+                    "name": "University of Chicago, Section of Hematology/Oncology"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "South Bend", 
+                        "country": "United States", 
+                        "state": "Indiana"
+                    }, 
+                    "name": "Michiana Hematology/Oncology"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Gretna", 
+                        "country": "United States", 
+                        "state": "Louisiana"
+                    }, 
+                    "name": "The Urologic Institute of New Orleans"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Detroit", 
+                        "country": "United States", 
+                        "state": "Michigan"
+                    }, 
+                    "name": "Henry Ford Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "St. Louis", 
+                        "country": "United States", 
+                        "state": "Missouri"
+                    }, 
+                    "name": "Washington University School of Medicine"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Memphis", 
+                        "country": "United States", 
+                        "state": "Tennessee"
+                    }, 
+                    "name": "Memphis Cancer Center"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Seattle", 
+                        "country": "United States", 
+                        "state": "Washington"
+                    }, 
+                    "name": "Virginia Mason Medical Center"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Canberra", 
+                        "country": "Australia"
+                    }, 
+                    "name": "Department of Medical Oncology, The Canberra Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Concord", 
+                        "country": "Australia"
+                    }, 
+                    "name": "Department of Medical Oncology, Concord Hospital Medical Centre"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Herston", 
+                        "country": "Australia"
+                    }, 
+                    "name": "Division of Oncology Ward, Royal Brisbane Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "St Leonards", 
+                        "country": "Australia"
+                    }, 
+                    "name": "Department of Clinical Oncology, Royal North Shore Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Sydney", 
+                        "country": "Australia"
+                    }, 
+                    "name": "Cancer Care Centre, St. George Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Waratah", 
+                        "country": "Australia"
+                    }, 
+                    "name": "Department of Medical Oncology, Newcastle Mater Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Wollongong", 
+                        "country": "Australia"
+                    }, 
+                    "name": "Southern Medical Day Care Centre"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Woodville", 
+                        "country": "Australia"
+                    }, 
+                    "name": "Queen Elizabeth Hospital, Clinical Hematology & Oncology"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Bruxelles", 
+                        "country": "Belgium"
+                    }, 
+                    "name": "Cliniques Universitaires St-Luc, Service d'Urologie"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Charleroi", 
+                        "country": "Belgium"
+                    }, 
+                    "name": "Centre Hospitalier Notre Dame et Reine Fabiola, Service d'oncologie"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Angers", 
+                        "country": "France"
+                    }, 
+                    "name": "Centre Paul Papin"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Creteil", 
+                        "country": "France"
+                    }, 
+                    "name": "Service d'Urologie, H\u00f4pital Henri Mondor"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Lyon", 
+                        "country": "France"
+                    }, 
+                    "name": "Pavillon V, Service d'Urologie et de transplatation, H\u00f4pital Edouard Herriot"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Paris", 
+                        "country": "France"
+                    }, 
+                    "name": "Service d' Urologie CHU, Hopital Bichat"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Berlin", 
+                        "country": "Germany"
+                    }, 
+                    "name": "Krankenhause am Urban, Urologie Dieffenfachstr"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Essen", 
+                        "country": "Germany"
+                    }, 
+                    "name": "Dept Urology University of Essen"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Hannover", 
+                        "country": "Germany"
+                    }, 
+                    "name": "Urologische Klinik der MHH"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Mannheim", 
+                        "country": "Germany"
+                    }, 
+                    "name": "Klinikum Mannheim Urology"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Dublin", 
+                        "country": "Ireland"
+                    }, 
+                    "name": "Mater Misericordiae Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Utrecht", 
+                        "country": "Netherlands"
+                    }, 
+                    "name": "Universitair Medisch Centrum Utrecht, Dienst Medische Oncologie"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Krakow", 
+                        "country": "Poland"
+                    }, 
+                    "name": "Oddzial Chemioterapii"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Krakow", 
+                        "country": "Poland"
+                    }, 
+                    "name": "Kilinika Chemioterapii, Centrum Onkologii Instytut im M sklodowskiej Curie"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Lodz", 
+                        "country": "Poland"
+                    }, 
+                    "name": "Klinika Chemioterapii AM"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Opole", 
+                        "country": "Poland"
+                    }, 
+                    "name": "Samodzielny Publiczny Zaklad Opieki zdrowotnej, Wojewodzki Osrodek Onkologii"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Tarnow", 
+                        "country": "Poland"
+                    }, 
+                    "name": "Szpital Wojewodzki im Sw Lukasza SP ZOZ Tarnow"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Warsaw", 
+                        "country": "Poland"
+                    }, 
+                    "name": "Szpital CSK WAMl, Klinika Okologii"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Warszawa", 
+                        "country": "Poland"
+                    }, 
+                    "name": "Klinika Nowotworow Ukladu"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Barcelona", 
+                        "country": "Spain"
+                    }, 
+                    "name": "Hospital Clinic i Provincial, Servicio de Oncologia"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Barcelona", 
+                        "country": "Spain"
+                    }, 
+                    "name": "Hospital General Vall d'Hebron, Servicio de Oncolog\u00eda"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Getafe (Madrid)", 
+                        "country": "Spain"
+                    }, 
+                    "name": "Hospital Universitario de Getafe, Servicio de Urologia, Crta"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Madrid", 
+                        "country": "Spain"
+                    }, 
+                    "name": "Hospital Universitario Pr\u00edncipe de Asturias, Servicio de Urolog\u00eda"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Valencia", 
+                        "country": "Spain"
+                    }, 
+                    "name": "Instituto Valenciano de Oncologia, Servicio de Oncologia"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Devon", 
+                        "country": "United Kingdom"
+                    }, 
+                    "name": "Department of Urological Research, Derriford Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "London", 
+                        "country": "United Kingdom"
+                    }, 
+                    "name": "Department of Urology, St Bartholomew's Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "London", 
+                        "country": "United Kingdom"
+                    }, 
+                    "name": "Clinical Research Centre, St George's Hospital, Urology Division"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "London", 
+                        "country": "United Kingdom"
+                    }, 
+                    "name": "Imperial College School of Medicine, Dept Cancer Medicine"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Surrey", 
+                        "country": "United Kingdom"
+                    }, 
+                    "name": "Department of Urology, East Surrey Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "Surrey", 
+                        "country": "United Kingdom"
+                    }, 
+                    "name": "Royal Surrey County Hospital"
+                }
+            }, 
+            {
+                "facility": {
+                    "address": {
+                        "city": "West Sussex", 
+                        "country": "United Kingdom"
+                    }, 
+                    "name": "St Richard's Hospital"
+                }
+            }
+        ], 
+        "location_countries": {
+            "country": [
+                "United States", 
+                "Australia", 
+                "Belgium", 
+                "France", 
+                "Germany", 
+                "Ireland", 
+                "Netherlands", 
+                "Poland", 
+                "Spain", 
+                "United Kingdom"
+            ]
+        }, 
+        "overall_status": "Terminated", 
+        "oversight_info": {
+            "authority": "United States: Food and Drug Administration"
+        }, 
+        "phase": "Phase 2", 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00048659"
+        }, 
+        "source": "Astellas Pharma Inc", 
+        "sponsors": {
+            "collaborator": {
+                "agency": "Astellas Pharma US, Inc.", 
+                "agency_class": "Industry"
+            }, 
+            "lead_sponsor": {
+                "agency": "Astellas Pharma Inc", 
+                "agency_class": "Industry"
+            }
+        }, 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "June 2012"
+    }
+}

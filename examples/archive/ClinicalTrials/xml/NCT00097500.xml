@@ -1,0 +1,1389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00097500</url>
+  </required_header>
+  <id_info>
+    <org_study_id>2993-114</org_study_id>
+    <nct_id>NCT00097500</nct_id>
+  </id_info>
+  <brief_title>Effects of Exenatide and Insulin Glargine in Subjects With Type 2 Diabetes</brief_title>
+  <official_title>A Phase 3, Randomized, Open Label, Comparator-Controlled, Parallel Group, Multicenter Study to Compare the Effects of Exenatide and Insulin Glargine on Beta Cell Function and Cardiovascular Risk Markers in Subjects With Type 2 Diabetes Treated With Metformin Who Have Not Achieved Target HbA1c</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>AstraZeneca</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+    <collaborator>
+      <agency>Eli Lilly and Company</agency>
+      <agency_class>Industry</agency_class>
+    </collaborator>
+  </sponsors>
+  <source>AstraZeneca</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <authority>Finland: Finnish Medicines Agency</authority>
+    <authority>Netherlands: Medicines Evaluation Board (MEB)</authority>
+    <authority>Sweden: Medical Products Agency</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      This Phase 3, open-label, multicenter study is designed to compare the effects of exenatide
+      and insulin glargine (Lantus® injection) on beta-cell function in patients with type 2
+      diabetes mellitus using metformin.
+    </textblock>
+  </brief_summary>
+  <overall_status>Completed</overall_status>
+  <start_date>September 2004</start_date>
+  <completion_date type="Actual">December 2009</completion_date>
+  <primary_completion_date type="Actual">December 2009</primary_completion_date>
+  <phase>Phase 3</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Beta-cell Function After 52 Weeks of Therapy</measure>
+    <time_frame>Baseline (week -2) and 52 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Treatment effect on beta-cell function as measured by the ratio of Week 52 arginine-stimulated insulin secretion during a hyperglycemic clamp(specifically, the incremental AUC of insulin with respect to basal value over a 10 min period [i.e., clamp time 290 min to 300 min]) to that at baseline (i.e., the ratio is calculated as arginine-stimulated insulin secretion at week 52 divided by arginine-stimulated insulin secretion at baseline [week -2]).</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Beta-cell Function 4 Weeks After Cessation of Therapy</measure>
+    <time_frame>Baseline (week -2) and 56 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Treatment effect on beta-cell function as measured by the ratio of Week 56 arginine-stimulated insulin secretion during a hyperglycemic clamp(specifically, the incremental AUC of insulin with respect to basal value over a 10 min period [i.e., clamp time 290 min to 300 min]) to that at baseline (i.e., the ratio is calculated as arginine-stimulated insulin secretion at week 56 divided by arginine-stimulated insulin secretion at baseline [week -2]).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change in First Phase C-peptide Release</measure>
+    <time_frame>baseline (week -2), 52 weeks, and 56 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Ratio of first phase C-peptide response to glucose at 52 weeks (end of on-drug period) and 56 weeks (during off-drug period) compared to first phase C-peptide response to glucose at baseline (i.e., C-peptide response to glucose at week 52 or week 56 divided by C-peptide response to glucose at baseline [week -2]).  C-peptide is measured as a surrogate marker of insulin secretion.  First phase C-peptide/insulin release is measured during the first ten minutes of glucose infusion during a hyperglycemic clamp procedure.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change in Second Phase C-peptide Release</measure>
+    <time_frame>baseline (-2 weeks), 52 weeks, and 56 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Ratio of second phase C-peptide response to glucose at 52 weeks (end of on-drug period) and 56 weeks (during off-drug period) compared to second phase C-peptide response to glucose at baseline (i.e., C-peptide response to glucose at week 52 or week 56 divided by C-peptide response to glucose at baseline [week -2]).  C-peptide is measured as a surrogate marker of insulin secretion.  Second phase C-peptide/insulin release is measured from time=10 minutes to time=80 minutes of glucose infusion during a hyperglycemic clamp procedure.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change in Glycosylated Hemoglobin (HbA1c)</measure>
+    <time_frame>Week 0 and week 52</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Change in HbA1c from week 0 to week 52 (i.e., HbA1c at week 52 minus HbA1c at week 0).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change in Fasting Plasma Glucose</measure>
+    <time_frame>0 weeks and 52 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Change in fasting plasma glucose from week 0 to week 52 (i.e., fasting plasma glucose at week 52 minus fasting plasma glucose at week 0).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Seven Point Self Monitored Blood Glucose (SMBG) Measurements</measure>
+    <time_frame>0 weeks and 52 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>SMBG measured at 7 time points (before and after breakfast, before and after lunch, before and after dinner, at bedtime).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Change in Body Weight</measure>
+    <time_frame>0 weeks and 52 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Change in body weight from week 0 to week 52 (i.e., body weight at week 52 minus body weight at week 0).</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>M-value at Baseline, Week 52 and Week 56</measure>
+    <time_frame>baseline (week -2), 52 weeks, and 56 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>M-value at baseline (week -2), week 52 (end of on-drug period), and week 56 (during off-drug period).  Insulin sensitivity was assessed during the euglycemic/hyperglycemic clamp test at baseline (week -2), week 52, and week 56.  Insulin-mediated glucose uptake (M-value) was calculated as the mean glucose requirement during the 90-120 minute interval of the clamp.</description>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">69</enrollment>
+  <condition>Type 2 Diabetes Mellitus</condition>
+  <arm_group>
+    <arm_group_label>Exenatide Arm</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Exenatide and Metformin</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Insulin Glargine Arm</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+    <description>Insulin Glargine and Metformin</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>exenatide</intervention_name>
+    <description>subcutaneous injection, titrated up to a maximum of 20mcg three times a day in order to meet defined blood glucose targets</description>
+    <arm_group_label>Exenatide Arm</arm_group_label>
+    <other_name>Byetta</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Insulin glargine</intervention_name>
+    <description>subcutaneous injection, once a day, titrated as necessary in order to meet defined blood glucose targets</description>
+    <arm_group_label>Insulin Glargine Arm</arm_group_label>
+    <other_name>Lantus</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Metformin</intervention_name>
+    <description>Patients usual dosage</description>
+    <arm_group_label>Exenatide Arm</arm_group_label>
+    <arm_group_label>Insulin Glargine Arm</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Diagnosis of type 2 diabetes, but otherwise healthy
+
+          -  HbA1c between 6.6% and 9.5%, inclusive.
+
+          -  Body mass index (BMI) of 25 kg/m2 to 40 kg/m2, inclusive.
+
+          -  Treated with a stable dose of metformin for at least 2 months prior to screening.
+
+        Exclusion Criteria:
+
+          -  Patients previously in a study using exenatide.
+
+          -  Treated with oral anti-diabetic medications other than metformin within 2 months of
+             screening (thiazolidinediones within 5 months of screening).
+
+          -  Treated with insulin within 3 months of screening.
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>30 Years</minimum_age>
+    <maximum_age>75 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Vice President, Research and Development, MD</last_name>
+    <role>Study Director</role>
+    <affiliation>Amylin Pharmaceuticals, LLC.</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Research Site</name>
+      <address>
+        <city>Helsinki</city>
+        <country>Finland</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Research Site</name>
+      <address>
+        <city>Amsterdam</city>
+        <country>Netherlands</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Research Site</name>
+      <address>
+        <city>Goteborg</city>
+        <country>Sweden</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>Finland</country>
+    <country>Netherlands</country>
+    <country>Sweden</country>
+  </location_countries>
+  <verification_date>June 2014</verification_date>
+  <lastchanged_date>June 4, 2014</lastchanged_date>
+  <firstreceived_date>November 24, 2004</firstreceived_date>
+  <firstreceived_results_date>December 24, 2010</firstreceived_results_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>diabetes</keyword>
+  <keyword>exenatide</keyword>
+  <keyword>exendin-4</keyword>
+  <keyword>Amylin</keyword>
+  <keyword>Lilly</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Diabetes Mellitus</mesh_term>
+    <mesh_term>Diabetes Mellitus, Type 2</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Exenatide</mesh_term>
+    <mesh_term>Glargine</mesh_term>
+    <mesh_term>Insulin</mesh_term>
+    <mesh_term>Metformin</mesh_term>
+    <mesh_term>Insulin, Long-Acting</mesh_term>
+  </intervention_browse>
+
+  <clinical_results>
+
+    <participant_flow>
+      <group_list>
+        <group group_id="P1">
+          <title>Exenatide Arm</title>
+          <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+        </group>
+        <group group_id="P2">
+          <title>Insulin Glargine Arm</title>
+          <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+        </group>
+      </group_list>
+      <period_list>
+        <period>
+          <title>On-drug Period (Week 0 to Week 52)</title>
+          <milestone_list>
+            <milestone>
+              <title>STARTED</title>
+              <participants_list>
+                <participants group_id="P1" count="36"/>
+                <participants group_id="P2" count="33"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="30">Subjects experiencing loss of glucose control after Week 52 are considered to have completed study.</participants>
+                <participants group_id="P2" count="30">Subjects experiencing loss of glucose control after Week 52 are considered to have completed study.</participants>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>NOT COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="6"/>
+                <participants group_id="P2" count="3"/>
+              </participants_list>
+            </milestone>
+          </milestone_list>
+          <drop_withdraw_reason_list>
+            <drop_withdraw_reason>
+              <title>Withdrawal of consent</title>
+              <participants_list>
+                <participants group_id="P1" count="1"/>
+                <participants group_id="P2" count="1"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Adverse Event</title>
+              <participants_list>
+                <participants group_id="P1" count="5"/>
+                <participants group_id="P2" count="0"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Physician Decision</title>
+              <participants_list>
+                <participants group_id="P1" count="0"/>
+                <participants group_id="P2" count="1"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Lost to Follow-up</title>
+              <participants_list>
+                <participants group_id="P1" count="0"/>
+                <participants group_id="P2" count="1"/>
+              </participants_list>
+            </drop_withdraw_reason>
+          </drop_withdraw_reason_list>
+        </period>
+        <period>
+          <title>Off-drug Period (Week 52 to Week 64)</title>
+          <milestone_list>
+            <milestone>
+              <title>STARTED</title>
+              <participants_list>
+                <participants group_id="P1" count="30">Exenatide is discontinued, metformin is continued</participants>
+                <participants group_id="P2" count="30">Insulin Glargine is discontinued, metformin is continued</participants>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="25"/>
+                <participants group_id="P2" count="26"/>
+              </participants_list>
+            </milestone>
+            <milestone>
+              <title>NOT COMPLETED</title>
+              <participants_list>
+                <participants group_id="P1" count="5"/>
+                <participants group_id="P2" count="4"/>
+              </participants_list>
+            </milestone>
+          </milestone_list>
+          <drop_withdraw_reason_list>
+            <drop_withdraw_reason>
+              <title>Withdrawal of consent</title>
+              <participants_list>
+                <participants group_id="P1" count="2"/>
+                <participants group_id="P2" count="1"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Physician Decision</title>
+              <participants_list>
+                <participants group_id="P1" count="0"/>
+                <participants group_id="P2" count="1"/>
+              </participants_list>
+            </drop_withdraw_reason>
+            <drop_withdraw_reason>
+              <title>Loss of glucose control</title>
+              <participants_list>
+                <participants group_id="P1" count="3"/>
+                <participants group_id="P2" count="2"/>
+              </participants_list>
+            </drop_withdraw_reason>
+          </drop_withdraw_reason_list>
+        </period>
+      </period_list>
+    </participant_flow>
+
+    <baseline>
+      <group_list>
+        <group group_id="B1">
+          <title>Exenatide Arm</title>
+          <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+        </group>
+        <group group_id="B2">
+          <title>Insulin Glargine Arm</title>
+          <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+        </group>
+        <group group_id="B3">
+          <title>Total</title>
+          <description>Total of all reporting groups</description>
+        </group>
+      </group_list>
+      <measure_list>
+        <measure>
+          <title>Number of Participants</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="36"/>
+                <measurement group_id="B2" value="33"/>
+                <measurement group_id="B3" value="69"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Age</title>
+          <units>years</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="58.4" spread="8.4"/>
+                <measurement group_id="B2" value="58.3" spread="7.3"/>
+                <measurement group_id="B3" value="58.4" spread="7.8"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Gender</title>
+          <units>participants</units>
+          <param>Number</param>
+          <category_list>
+            <category>
+              <sub_title>Female</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="13"/>
+                <measurement group_id="B2" value="11"/>
+                <measurement group_id="B3" value="24"/>
+              </measurement_list>
+            </category>
+            <category>
+              <sub_title>Male</sub_title>
+              <measurement_list>
+                <measurement group_id="B1" value="23"/>
+                <measurement group_id="B2" value="22"/>
+                <measurement group_id="B3" value="45"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Body Mass Index (BMI)</title>
+          <units>kg/m^2</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="30.87" spread="4.15"/>
+                <measurement group_id="B2" value="30.13" spread="3.49"/>
+                <measurement group_id="B3" value="30.52" spread="3.84"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Body weight</title>
+          <units>kg</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="90.56" spread="12.66"/>
+                <measurement group_id="B2" value="92.39" spread="13.56"/>
+                <measurement group_id="B3" value="91.44" spread="13.03"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Glycosylated hemoglobin (HbA1c)</title>
+          <units>percentage</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="7.58" spread="0.89"/>
+                <measurement group_id="B2" value="7.41" spread="0.81"/>
+                <measurement group_id="B3" value="7.50" spread="0.85"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+        <measure>
+          <title>Duration of diabetes</title>
+          <units>years</units>
+          <param>Mean</param>
+          <dispersion>Standard Deviation</dispersion>
+          <category_list>
+            <category>
+              <measurement_list>
+                <measurement group_id="B1" value="5.72" spread="4.70"/>
+                <measurement group_id="B2" value="3.97" spread="3.62"/>
+                <measurement group_id="B3" value="4.88" spread="4.28"/>
+              </measurement_list>
+            </category>
+          </category_list>
+        </measure>
+      </measure_list>
+    </baseline>
+
+    <outcome_list>
+      <outcome>
+        <type>Primary</type>
+        <title>Beta-cell Function After 52 Weeks of Therapy</title>
+        <description>Treatment effect on beta-cell function as measured by the ratio of Week 52 arginine-stimulated insulin secretion during a hyperglycemic clamp(specifically, the incremental AUC of insulin with respect to basal value over a 10 min period [i.e., clamp time 290 min to 300 min]) to that at baseline (i.e., the ratio is calculated as arginine-stimulated insulin secretion at week 52 divided by arginine-stimulated insulin secretion at baseline [week -2]).</description>
+        <time_frame>Baseline (week -2) and 52 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Evaluable population</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Exenatide Arm</title>
+            <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+          </group>
+          <group group_id="O2">
+            <title>Insulin Glargine Arm</title>
+            <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="30"/>
+                  <measurement group_id="O2" value="30"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Beta-cell Function After 52 Weeks of Therapy</title>
+            <description>Treatment effect on beta-cell function as measured by the ratio of Week 52 arginine-stimulated insulin secretion during a hyperglycemic clamp(specifically, the incremental AUC of insulin with respect to basal value over a 10 min period [i.e., clamp time 290 min to 300 min]) to that at baseline (i.e., the ratio is calculated as arginine-stimulated insulin secretion at week 52 divided by arginine-stimulated insulin secretion at baseline [week -2]).</description>
+            <units>ratio</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="2.89" spread="0.27"/>
+                  <measurement group_id="O2" value="1.15" spread="0.11"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+        <analysis_list>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <non_inferiority>No</non_inferiority>
+            <p_value>0.0001</p_value>
+            <method>ANCOVA</method>
+          </analysis>
+        </analysis_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Beta-cell Function 4 Weeks After Cessation of Therapy</title>
+        <description>Treatment effect on beta-cell function as measured by the ratio of Week 56 arginine-stimulated insulin secretion during a hyperglycemic clamp(specifically, the incremental AUC of insulin with respect to basal value over a 10 min period [i.e., clamp time 290 min to 300 min]) to that at baseline (i.e., the ratio is calculated as arginine-stimulated insulin secretion at week 56 divided by arginine-stimulated insulin secretion at baseline [week -2]).</description>
+        <time_frame>Baseline (week -2) and 56 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Evaluable population</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Exenatide Arm</title>
+            <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+          </group>
+          <group group_id="O2">
+            <title>Insulin Glargine Arm</title>
+            <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="30"/>
+                  <measurement group_id="O2" value="30"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Beta-cell Function 4 Weeks After Cessation of Therapy</title>
+            <description>Treatment effect on beta-cell function as measured by the ratio of Week 56 arginine-stimulated insulin secretion during a hyperglycemic clamp(specifically, the incremental AUC of insulin with respect to basal value over a 10 min period [i.e., clamp time 290 min to 300 min]) to that at baseline (i.e., the ratio is calculated as arginine-stimulated insulin secretion at week 56 divided by arginine-stimulated insulin secretion at baseline [week -2]).</description>
+            <units>ratio</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="1.02" spread="0.06"/>
+                  <measurement group_id="O2" value="1.08" spread="0.07"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+        <analysis_list>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <non_inferiority>No</non_inferiority>
+            <p_value>0.4185</p_value>
+            <method>ANCOVA</method>
+          </analysis>
+        </analysis_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change in First Phase C-peptide Release</title>
+        <description>Ratio of first phase C-peptide response to glucose at 52 weeks (end of on-drug period) and 56 weeks (during off-drug period) compared to first phase C-peptide response to glucose at baseline (i.e., C-peptide response to glucose at week 52 or week 56 divided by C-peptide response to glucose at baseline [week -2]).  C-peptide is measured as a surrogate marker of insulin secretion.  First phase C-peptide/insulin release is measured during the first ten minutes of glucose infusion during a hyperglycemic clamp procedure.</description>
+        <time_frame>baseline (week -2), 52 weeks, and 56 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Evaluable population.  Last observation carried forward.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Exenatide Arm</title>
+            <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+          </group>
+          <group group_id="O2">
+            <title>Insulin Glargine Arm</title>
+            <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="29"/>
+                  <measurement group_id="O2" value="30"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change in First Phase C-peptide Release</title>
+            <description>Ratio of first phase C-peptide response to glucose at 52 weeks (end of on-drug period) and 56 weeks (during off-drug period) compared to first phase C-peptide response to glucose at baseline (i.e., C-peptide response to glucose at week 52 or week 56 divided by C-peptide response to glucose at baseline [week -2]).  C-peptide is measured as a surrogate marker of insulin secretion.  First phase C-peptide/insulin release is measured during the first ten minutes of glucose infusion during a hyperglycemic clamp procedure.</description>
+            <units>ratio</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <sub_title>52 weeks</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1.72" spread="0.11"/>
+                  <measurement group_id="O2" value="1.13" spread="0.07"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>56 weeks</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="0.95" spread="0.05"/>
+                  <measurement group_id="O2" value="1.06" spread="0.06"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+        <analysis_list>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <groups_desc>Statistical analysis at week 52.</groups_desc>
+            <non_inferiority>No</non_inferiority>
+            <p_value>&lt;0.0001</p_value>
+            <method>ANCOVA</method>
+          </analysis>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <groups_desc>Statistical analysis at week 56.</groups_desc>
+            <non_inferiority>No</non_inferiority>
+            <p_value>0.1188</p_value>
+            <method>ANCOVA</method>
+          </analysis>
+        </analysis_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change in Second Phase C-peptide Release</title>
+        <description>Ratio of second phase C-peptide response to glucose at 52 weeks (end of on-drug period) and 56 weeks (during off-drug period) compared to second phase C-peptide response to glucose at baseline (i.e., C-peptide response to glucose at week 52 or week 56 divided by C-peptide response to glucose at baseline [week -2]).  C-peptide is measured as a surrogate marker of insulin secretion.  Second phase C-peptide/insulin release is measured from time=10 minutes to time=80 minutes of glucose infusion during a hyperglycemic clamp procedure.</description>
+        <time_frame>baseline (-2 weeks), 52 weeks, and 56 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Evaluable population.  Last observation carried forward.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Exenatide Arm</title>
+            <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+          </group>
+          <group group_id="O2">
+            <title>Insulin Glargine Arm</title>
+            <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="30"/>
+                  <measurement group_id="O2" value="30"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change in Second Phase C-peptide Release</title>
+            <description>Ratio of second phase C-peptide response to glucose at 52 weeks (end of on-drug period) and 56 weeks (during off-drug period) compared to second phase C-peptide response to glucose at baseline (i.e., C-peptide response to glucose at week 52 or week 56 divided by C-peptide response to glucose at baseline [week -2]).  C-peptide is measured as a surrogate marker of insulin secretion.  Second phase C-peptide/insulin release is measured from time=10 minutes to time=80 minutes of glucose infusion during a hyperglycemic clamp procedure.</description>
+            <units>ratio</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <sub_title>52 weeks</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="2.88" spread="0.18"/>
+                  <measurement group_id="O2" value="1.01" spread="0.07"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>56 weeks</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="1.00" spread="0.05"/>
+                  <measurement group_id="O2" value="1.08" spread="0.06"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+        <analysis_list>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <groups_desc>Statistical analysis at week 52.</groups_desc>
+            <non_inferiority>No</non_inferiority>
+            <p_value>&lt;0.0001</p_value>
+            <method>ANCOVA</method>
+          </analysis>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <groups_desc>Statistical analysis at week 56.</groups_desc>
+            <non_inferiority>No</non_inferiority>
+            <p_value>0.1996</p_value>
+            <method>ANCOVA</method>
+          </analysis>
+        </analysis_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change in Glycosylated Hemoglobin (HbA1c)</title>
+        <description>Change in HbA1c from week 0 to week 52 (i.e., HbA1c at week 52 minus HbA1c at week 0).</description>
+        <time_frame>Week 0 and week 52</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Intent to treat population.  Last observation carried forward.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Exenatide Arm</title>
+            <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+          </group>
+          <group group_id="O2">
+            <title>Insulin Glargine Arm</title>
+            <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="36"/>
+                  <measurement group_id="O2" value="33"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change in Glycosylated Hemoglobin (HbA1c)</title>
+            <description>Change in HbA1c from week 0 to week 52 (i.e., HbA1c at week 52 minus HbA1c at week 0).</description>
+            <units>percent</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="-0.97" spread="0.14"/>
+                  <measurement group_id="O2" value="-0.87" spread="0.15"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+        <analysis_list>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <non_inferiority>No</non_inferiority>
+            <p_value>0.5522</p_value>
+            <method>ANCOVA</method>
+          </analysis>
+        </analysis_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change in Fasting Plasma Glucose</title>
+        <description>Change in fasting plasma glucose from week 0 to week 52 (i.e., fasting plasma glucose at week 52 minus fasting plasma glucose at week 0).</description>
+        <time_frame>0 weeks and 52 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Intent to treat population.  Last observation carried forward.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Exenatide Arm</title>
+            <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+          </group>
+          <group group_id="O2">
+            <title>Insulin Glargine Arm</title>
+            <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="36"/>
+                  <measurement group_id="O2" value="33"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change in Fasting Plasma Glucose</title>
+            <description>Change in fasting plasma glucose from week 0 to week 52 (i.e., fasting plasma glucose at week 52 minus fasting plasma glucose at week 0).</description>
+            <units>mmol/L</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="-1.53" spread="0.25"/>
+                  <measurement group_id="O2" value="-3.10" spread="0.27"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+        <analysis_list>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <non_inferiority>No</non_inferiority>
+            <p_value>&lt;0.0001</p_value>
+            <method>ANCOVA</method>
+          </analysis>
+        </analysis_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Seven Point Self Monitored Blood Glucose (SMBG) Measurements</title>
+        <description>SMBG measured at 7 time points (before and after breakfast, before and after lunch, before and after dinner, at bedtime).</description>
+        <time_frame>0 weeks and 52 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Intent to treat population.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Exenatide Arm</title>
+            <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+          </group>
+          <group group_id="O2">
+            <title>Insulin Glargine Arm</title>
+            <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="36"/>
+                  <measurement group_id="O2" value="33"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Seven Point Self Monitored Blood Glucose (SMBG) Measurements</title>
+            <description>SMBG measured at 7 time points (before and after breakfast, before and after lunch, before and after dinner, at bedtime).</description>
+            <units>mmol/L</units>
+            <param>Mean</param>
+            <dispersion>Standard Deviation</dispersion>
+            <category_list>
+              <category>
+                <sub_title>Pre-breakfast measurement (week 0)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="8.92" spread="1.80"/>
+                  <measurement group_id="O2" value="8.38" spread="1.91"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Pre-breakfast measurement (week 52)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="7.27" spread="1.63"/>
+                  <measurement group_id="O2" value="5.63" spread="0.85"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>2-hour post-breakfast measurement (week 0)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="11.00" spread="2.58"/>
+                  <measurement group_id="O2" value="11.17" spread="3.30"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>2-hour post-breakfast measurement (week 52)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="6.98" spread="2.42"/>
+                  <measurement group_id="O2" value="7.53" spread="2.16"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Pre-lunch measurement (week 0)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="8.14" spread="2.25"/>
+                  <measurement group_id="O2" value="8.54" spread="2.51"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Pre-lunch measurement (week 52)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="6.52" spread="1.52"/>
+                  <measurement group_id="O2" value="6.24" spread="1.66"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>2-hour post-lunch measurement (week 0)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="9.90" spread="2.54"/>
+                  <measurement group_id="O2" value="10.52" spread="2.96"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>2-hour post-lunch measurement (week 52)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="7.97" spread="2.01"/>
+                  <measurement group_id="O2" value="8.15" spread="1.77"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Pre-dinner measurement (week 0)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="8.38" spread="2.40"/>
+                  <measurement group_id="O2" value="8.07" spread="2.48"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Pre-dinner measurement (week 52)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="7.53" spread="2.63"/>
+                  <measurement group_id="O2" value="6.98" spread="2.04"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>2-hour post-dinner measurement (week 0)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="10.42" spread="2.42"/>
+                  <measurement group_id="O2" value="10.26" spread="2.82"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>2-hour post-dinner measurement (week 52)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="6.98" spread="2.25"/>
+                  <measurement group_id="O2" value="8.81" spread="2.03"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Bedtime measurement (week 0)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="9.76" spread="2.44"/>
+                  <measurement group_id="O2" value="9.85" spread="3.09"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>Bedtime measurement (week 52)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="7.61" spread="2.11"/>
+                  <measurement group_id="O2" value="8.03" spread="2.82"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>Change in Body Weight</title>
+        <description>Change in body weight from week 0 to week 52 (i.e., body weight at week 52 minus body weight at week 0).</description>
+        <time_frame>0 weeks and 52 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Intent to treat population.  Last observation carried forward.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Exenatide Arm</title>
+            <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+          </group>
+          <group group_id="O2">
+            <title>Insulin Glargine Arm</title>
+            <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="36"/>
+                  <measurement group_id="O2" value="33"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>Change in Body Weight</title>
+            <description>Change in body weight from week 0 to week 52 (i.e., body weight at week 52 minus body weight at week 0).</description>
+            <units>kg</units>
+            <param>Least Squares Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="-3.80" spread="0.87"/>
+                  <measurement group_id="O2" value="0.75" spread="0.95"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+        <analysis_list>
+          <analysis>
+            <group_id_list>
+              <group_id>O1</group_id>
+              <group_id>O2</group_id>
+            </group_id_list>
+            <non_inferiority>No</non_inferiority>
+            <p_value>&lt;0.0001</p_value>
+            <method>ANCOVA</method>
+          </analysis>
+        </analysis_list>
+      </outcome>
+      <outcome>
+        <type>Secondary</type>
+        <title>M-value at Baseline, Week 52 and Week 56</title>
+        <description>M-value at baseline (week -2), week 52 (end of on-drug period), and week 56 (during off-drug period).  Insulin sensitivity was assessed during the euglycemic/hyperglycemic clamp test at baseline (week -2), week 52, and week 56.  Insulin-mediated glucose uptake (M-value) was calculated as the mean glucose requirement during the 90-120 minute interval of the clamp.</description>
+        <time_frame>baseline (week -2), 52 weeks, and 56 weeks</time_frame>
+        <safety_issue>No</safety_issue>
+        <population>Evaluable population.</population>
+        <group_list>
+          <group group_id="O1">
+            <title>Exenatide Arm</title>
+            <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+          </group>
+          <group group_id="O2">
+            <title>Insulin Glargine Arm</title>
+            <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+          </group>
+        </group_list>
+        <measure_list>
+          <measure>
+            <title>Number of Participants</title>
+            <units>participants</units>
+            <param>Number</param>
+            <category_list>
+              <category>
+                <measurement_list>
+                  <measurement group_id="O1" value="30"/>
+                  <measurement group_id="O2" value="30"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+          <measure>
+            <title>M-value at Baseline, Week 52 and Week 56</title>
+            <description>M-value at baseline (week -2), week 52 (end of on-drug period), and week 56 (during off-drug period).  Insulin sensitivity was assessed during the euglycemic/hyperglycemic clamp test at baseline (week -2), week 52, and week 56.  Insulin-mediated glucose uptake (M-value) was calculated as the mean glucose requirement during the 90-120 minute interval of the clamp.</description>
+            <units>mg/min/kg</units>
+            <param>Mean</param>
+            <dispersion>Standard Error</dispersion>
+            <category_list>
+              <category>
+                <sub_title>baseline (week -2)</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="2.24" spread="0.39"/>
+                  <measurement group_id="O2" value="2.79" spread="0.26"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>week 52</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="3.18" spread="0.42"/>
+                  <measurement group_id="O2" value="3.85" spread="0.32"/>
+                </measurement_list>
+              </category>
+              <category>
+                <sub_title>week 56</sub_title>
+                <measurement_list>
+                  <measurement group_id="O1" value="3.19" spread="0.44"/>
+                  <measurement group_id="O2" value="2.81" spread="0.29"/>
+                </measurement_list>
+              </category>
+            </category_list>
+          </measure>
+        </measure_list>
+      </outcome>
+    </outcome_list>
+
+    <reported_events>
+      <time_frame>Total reporting period for adverse events is 64 weeks: a 52-week on-drug period followed by a 12-week off-drug period.</time_frame>
+      <group_list>
+        <group group_id="E1">
+          <title>Exenatide Arm</title>
+          <description>5 mcg twice a day for 4 weeks, followed by 10 mcg twice a day for 8 weeks.  After 12 weeks, exenatide is titrated (up to a maximum of 20 mcg three times a day) based on periodic glycosylated hemoglobin (HbA1c) measurements and tolerability.</description>
+        </group>
+        <group group_id="E2">
+          <title>Insulin Glargine Arm</title>
+          <description>Dosing starts at 10 IU/day, and is then titrated, based on daily fasting blood glucose measurements.</description>
+        </group>
+      </group_list>
+      <serious_events>
+        <default_vocab>MedDRA 6.1</default_vocab>
+        <default_assessment>Non-systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, serious adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Cardiac disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Coronary Artery Stenosis</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Pancreatitis</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Diverticulitis</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Thrombophlebitis Superficial</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </serious_events>
+      <other_events>
+        <frequency_threshold>5</frequency_threshold>
+        <default_vocab>MedDRA 6.1</default_vocab>
+        <default_assessment>Non-systematic Assessment</default_assessment>
+        <category_list>
+          <category>
+            <title>Total</title>
+            <event_list>
+              <event>
+                <sub_title>Total, other adverse events</sub_title>
+                <counts group_id="E1" subjects_affected="32" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="31" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Blood and lymphatic system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Anemia</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="4" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Gastrointestinal disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Abdominal Distension</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Diarrhea</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Dyspepsia</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Flatulence</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Nausea</sub_title>
+                <counts group_id="E1" subjects_affected="18" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Vomiting</sub_title>
+                <counts group_id="E1" subjects_affected="4" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>General disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Injection Site Rash</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Edema Peripheral</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Infections and infestations</title>
+            <event_list>
+              <event>
+                <sub_title>Gastroenteritis</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="4" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Influenza</sub_title>
+                <counts group_id="E1" subjects_affected="5" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="9" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Laryngitis</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="1" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Tooth Infection</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Urinary Tract Infection</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Metabolism and nutrition disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Decreased Appetite</sub_title>
+                <counts group_id="E1" subjects_affected="3" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Hyperlipidemia</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="3" subjects_at_risk="33"/>
+              </event>
+              <event>
+                <sub_title>Hypoglycemia</sub_title>
+                <counts group_id="E1" subjects_affected="6" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="10" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Musculoskeletal and connective tissue disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Arthralgia</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="4" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Nervous system disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Headache</sub_title>
+                <counts group_id="E1" subjects_affected="1" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Renal and urinary disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Proteinuria</sub_title>
+                <counts group_id="E1" subjects_affected="2" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="0" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+          <category>
+            <title>Vascular disorders</title>
+            <event_list>
+              <event>
+                <sub_title>Hypertension</sub_title>
+                <counts group_id="E1" subjects_affected="0" subjects_at_risk="36"/>
+                <counts group_id="E2" subjects_affected="2" subjects_at_risk="33"/>
+              </event>
+            </event_list>
+          </category>
+        </category_list>
+      </other_events>
+    </reported_events>
+
+    <certain_agreements>
+      <pi_employee>Principal Investigators are NOT employed by the organization sponsoring the study.</pi_employee>
+      <restrictive_agreement>The only disclosure restriction on the PI is that the sponsor can review results communications prior to public release and can embargo communications regarding trial results for a period that is more than 60 days but less than or equal to 180 days. The sponsor cannot require changes to the communication and cannot extend the embargo.</restrictive_agreement>
+    </certain_agreements>
+    <point_of_contact>
+      <name_or_title>Bristol-Myers Squibb Study Director</name_or_title>
+      <organization>Bristol-Myers Squibb</organization>
+      <email>Clinical.Trials@bms.com</email>
+    </point_of_contact>
+  </clinical_results>
+</clinical_study>

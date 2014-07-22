@@ -1,0 +1,32 @@
+cited_by_feeds_count: 6
+last_updated: 1406020130
+is_oa: False
+cited_by_msm_count: 5
+cited_by_posts_count: 28
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=104&types=mmbbtttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=104&types=mmbbtttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=104&types=mmbbtttf'}
+altmetric_id: 808499
+published_on: 1340578800
+title: Lead poisoning and the deceptive recovery of the critically endangered California condor
+cited_by_tweeters_count: 12
+scopus_subjects: []
+tq: [u'Ahist\xe1n sus esfuerzos por salvar especies casi extintas, pinches greenpeacistas de g\xfceva. Pinches ignorantes', u'#Lead #poisoning:88% of all #California #Condors now in the wild have detectable levels of lead in their bodies #earth', u'#condor recovery tied to intensive management. only hope for true recovery depends on reduction of lead poisoning.', u'Featured image: #endangered California condor in central CA courtesy Daniel George.']
+score: 103.294
+altmetric_jid: ads
+pmid: 22733770
+abstract: Endangered species recovery programs seek to restore populations to self-sustaining levels. Nonetheless, many recovering species require continuing management to compensate for persistent threats in their environment. Judging true recovery in the face of this management is often difficult, impeding thorough analysis of the success of conservation programs. We illustrate these challenges with a multidisciplinary study of one of the world's rarest birds-the California condor (Gymnogyps californianus). California condors were brought to the brink of extinction, in part, because of lead poisoning, and lead poisoning remains a significant threat today. We evaluated individual lead-related health effects, the efficacy of current efforts to prevent lead-caused deaths, and the consequences of any reduction in currently intensive management actions. Our results show that condors in California remain chronically exposed to harmful levels of lead; 30% of the annual blood samples collected from condors indicate lead exposure (blood lead ≥ 200 ng/mL) that causes significant subclinical health effects, measured as >60% inhibition of the heme biosynthetic enzyme δ-aminolevulinic acid dehydratase. Furthermore, each year, ∼20% of free-flying birds have blood lead levels (≥450 ng/mL) that indicate the need for clinical intervention to avert morbidity and mortality. Lead isotopic analysis shows that lead-based ammunition is the principle source of lead poisoning in condors. Finally, population models based on condor demographic data show that the condor's apparent recovery is solely because of intensive ongoing management, with the only hope of achieving true recovery dependent on the elimination or substantial reduction of lead poisoning rates.
+schema: 1.5.4
+cohorts: {u'sci': 3, u'com': 1, u'pub': 8}
+readers_count: 41
+journal: Proceedings of the National Academy of Sciences
+details_url: http://www.altmetric.com/details.php?citation_id=808499
+doi: 10.1073/pnas.1203141109
+abstract_source: pubmed
+ads_id: 2012pnas..10911449f
+readers: {u'mendeley': 41, u'citeulike': 0, u'connotea': 0}
+url: http://dx.doi.org/10.1073/pnas.1203141109
+history: {u'6d': 0.85, u'1w': 0.85, u'1y': 0.85, u'1m': 0.85, u'6m': 0.85, u'2d': 0.85, u'at': 103.294, u'3m': 0.85, u'5d': 0.85, u'4d': 0.85, u'1d': 0.85, u'3d': 0.85}
+context: {u'similar_age_journal_3m': {u'count': 56, u'higher_than': 54, u'pct': 96, u'rank': 2, u'mean': 11.764254545455}, u'all': {u'count': 2292740, u'higher_than': 2281861, u'pct': 99, u'rank': 11219, u'mean': 4.8103940875978}, u'similar_age_3m': {u'count': 68693, u'higher_than': 68350, u'pct': 99, u'rank': 343, u'mean': 4.4964369650031}, u'journal': {u'count': 2404, u'higher_than': 2386, u'pct': 99, u'rank': 18, u'mean': 7.6746475239284}}
+cited_by_fbwalls_count: 1
+issns: []
+added_on: 1340662771
+cited_by_accounts_count: 24

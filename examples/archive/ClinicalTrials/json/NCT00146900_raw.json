@@ -1,0 +1,189 @@
+{
+    "clinical_study": {
+        "@rank": "152", 
+        "arm_group": [
+            {
+                "arm_group_label": "Prolonged Exposure (CBT)", 
+                "arm_group_type": "Experimental", 
+                "description": "Twelve 1.5 hours weekly sessions of Prolonged Exposure cognitive behavioral therapy"
+            }, 
+            {
+                "arm_group_label": "Cognitive Therapy", 
+                "arm_group_type": "Active Comparator", 
+                "description": "Twelve 1.5 hours weekly sessions of Cognitive Therapy without exposure to traumatic reminders."
+            }, 
+            {
+                "arm_group_label": "SSRI (escitalopram)", 
+                "arm_group_type": "Experimental", 
+                "description": "Twenty milligrams daily of escitalopram (blinded capsules)"
+            }, 
+            {
+                "arm_group_label": "Placebo", 
+                "arm_group_type": "Placebo Comparator", 
+                "description": "Two concealed placebo pills resembling 10mg escitalopram tablets"
+            }, 
+            {
+                "arm_group_label": "Waiting List", 
+                "arm_group_type": "No Intervention", 
+                "description": "Twelve weeks of waiting list no intervention group"
+            }
+        ], 
+        "brief_summary": {
+            "textblock": "To prospectively evaluate the effect of early treatment (cognitive therapy (CT),\n      cognitive-behavioral therapy (CBT) and escitalopram (SSRI) in preventing the occurrence of\n      post-traumatic stress disorder in recent survivors of traumatic events."
+        }, 
+        "brief_title": "Prevention of Post Traumatic Stress Disorder by Early Treatment", 
+        "completion_date": {
+            "#text": "January 2008", 
+            "@type": "Actual"
+        }, 
+        "condition": "Post-traumatic Stress Disorder", 
+        "condition_browse": {
+            "mesh_term": [
+                "Stress Disorders, Post-Traumatic", 
+                "Stress Disorders, Traumatic"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "Consecutive civilian trauma survivors will be contacted, by phone, within five days of\n      admission to Hadassah University Hospital in Jerusalem and asked about their early\n      psychological responses to the event. A short telephone interview will be administered to\n      consenting subjects, to evaluate the presence of acute stress disorder (ASD). Subjects with\n      ASD (full or partial) and those who so desire will be invited to clinical assessment, which\n      will take place within the next two weeks. Survivors with significant symptoms of\n      post-traumatic stress disorder will be randomized to five arms of twelve-week long\n      treatment: CBT, CT, SSRI/placebo and waiting list (WL) and start treatment immediately.\n      Subjects will be allowed to decline one form of therapy. WL subjects will start therapy 12\n      weeks later. All subjects who had clinical interview will be interviewed again at four and\n      seven months - and 14 months following trauma (phone interview)."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Adults survivors of traumatic events\n\n        Exclusion Criteria:\n\n          -  Traumatic brain injury\n\n          -  Lifetime psychosis\n\n          -  Life time (prior) PTSD\n\n          -  Medical conditions forbidding SSRIs"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "65 Years", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": {
+            "#text": "298", 
+            "@type": "Actual"
+        }, 
+        "firstreceived_date": "September 4, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00146900", 
+            "org_study_id": "21-27.06.03-HMO-CTIL", 
+            "secondary_id": "MH-"
+        }, 
+        "intervention": [
+            {
+                "arm_group_label": "Prolonged Exposure (CBT)", 
+                "intervention_name": "Cognitive Behavioral Therapy", 
+                "intervention_type": "Procedure"
+            }, 
+            {
+                "arm_group_label": "Cognitive Therapy", 
+                "intervention_name": "Cognitive Therapy", 
+                "intervention_type": "Procedure"
+            }, 
+            {
+                "arm_group_label": "SSRI (escitalopram)", 
+                "intervention_name": "Escitalopram", 
+                "intervention_type": "Drug"
+            }
+        ], 
+        "intervention_browse": {
+            "mesh_term": [
+                "Dexetimide", 
+                "Citalopram"
+            ]
+        }, 
+        "is_fda_regulated": "No", 
+        "keyword": [
+            "Traumatic Events", 
+            "Post-traumatic Stress Disorder", 
+            "Treatment (psychological)", 
+            "Treatment (pharmacological)", 
+            "Prevention", 
+            "SSRIs"
+        ], 
+        "lastchanged_date": "February 19, 2014", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Jerusalem", 
+                    "country": "Israel", 
+                    "zip": "91120"
+                }, 
+                "name": "Hadassah Medical Organization Jerusalem Israel"
+            }
+        }, 
+        "location_countries": {
+            "country": "Israel"
+        }, 
+        "number_of_arms": "5", 
+        "official_title": "Prevention of Post Traumatic Stress Disorder by Early Treatment", 
+        "overall_official": [
+            {
+                "affiliation": "Hadassah Medical Organization", 
+                "last_name": "Arieh Y Shalev, M.D.", 
+                "role": "Principal Investigator"
+            }, 
+            {
+                "affiliation": "Hadassah Medical Organization", 
+                "last_name": "Yossi Israeli - Shalev, M.A.", 
+                "role": "Study Director"
+            }
+        ], 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "Israel: Israeli Health Ministry Pharmaceutical Administration", 
+            "has_dmc": "No"
+        }, 
+        "phase": "N/A", 
+        "primary_completion_date": {
+            "#text": "January 2008", 
+            "@type": "Actual"
+        }, 
+        "primary_outcome": {
+            "measure": "Post-traumatic Stress Disorder (chronic) by CAPS scores.", 
+            "safety_issue": "No", 
+            "time_frame": "Four months, seven months, 14 moths, two years"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00146900"
+        }, 
+        "responsible_party": {
+            "investigator_affiliation": "Hadassah Medical Organization", 
+            "investigator_full_name": "Aria Shalev", 
+            "investigator_title": "Emeritus Professor of Psychiatry", 
+            "responsible_party_type": "Principal Investigator"
+        }, 
+        "results_reference": [
+            {
+                "PMID": "21724790", 
+                "citation": "Shalev AY, Ankri YL, Peleg T, Israeli-Shalev Y, Freedman S. Barriers to receiving early care for PTSD: results from the Jerusalem trauma outreach and prevention study. Psychiatr Serv. 2011 Jul;62(7):765-73. doi: 10.1176/appi.ps.62.7.765."
+            }, 
+            {
+                "PMID": "21969418", 
+                "citation": "Shalev AY, Ankri Y, Israeli-Shalev Y, Peleg T, Adessky R, Freedman S. Prevention of posttraumatic stress disorder by early treatment: results from the Jerusalem Trauma Outreach And Prevention study. Arch Gen Psychiatry. 2012 Feb;69(2):166-76. doi: 10.1001/archgenpsychiatry.2011.127. Epub 2011 Oct 3."
+            }
+        ], 
+        "secondary_outcome": [
+            {
+                "measure": "Symptoms of post-traumatic Stress Disorder per PSS-SR (questionnaire) and CAPS (structured interview)", 
+                "safety_issue": "No", 
+                "time_frame": "Four months, seven months, 14 moths, two years"
+            }, 
+            {
+                "measure": "Symptoms of depression as per the Beck Depression Inventory (BDI)", 
+                "safety_issue": "No", 
+                "time_frame": "Four months, seven months, 14 moths, two years"
+            }
+        ], 
+        "source": "Hadassah Medical Organization", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Hadassah Medical Organization", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "August 2004", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Parallel Assignment, Masking: Single Blind (Outcomes Assessor), Primary Purpose: Prevention", 
+        "study_type": "Interventional", 
+        "verification_date": "February 2014"
+    }
+}

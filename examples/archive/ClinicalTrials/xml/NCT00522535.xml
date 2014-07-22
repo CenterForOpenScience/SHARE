@@ -1,0 +1,627 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00522535</url>
+  </required_header>
+  <id_info>
+    <org_study_id>PYTHAGORAS</org_study_id>
+    <nct_id>NCT00522535</nct_id>
+  </id_info>
+  <brief_title>Prospective Aneurysm Trial: High Angle Aorfix™ Bifurcated Stent Graft</brief_title>
+  <acronym>PYTHAGORAS</acronym>
+  <official_title>Prospective Aneurysm Trial: High Angle Aorfix™ Bifurcated Stent Graft</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Lombard Medical</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Lombard Medical</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      Purpose of this study:  The purpose of the study is to evaluate the safety and effectiveness
+      of the Lombard Medical endovascular Aorfix™ AAA bifurcated stent graft in the treatment of
+      abdominal aortic, aorto-iliac and common iliac aneurysms with  anatomies including angled
+      aorta, angled aneurysmal body, or both, between 0° and 90°.
+
+      Study hypothesis:  The primary efficacy hypothesis is the proportion of grafts remaining
+      free from endoleak, migration, and fracture at 12 months.
+
+      Efficacy:  The 12 month, all cause mortality rate in the Aorfix™ group will be non-inferior
+      to the 12 month, all cause mortality rate in the Open Control group.
+
+      Safety:  The rates of early serious adverse events between 0 and 30 days post-operative in
+      the Aorfix™ groups will be non-inferior to the early serious adverse event rates between 0
+      and 30 days post-operative in the Open Control group.
+    </textblock>
+  </brief_summary>
+  <overall_status>Active, not recruiting</overall_status>
+  <start_date>April 2006</start_date>
+  <completion_date type="Anticipated">January 2018</completion_date>
+  <primary_completion_date type="Actual">September 2011</primary_completion_date>
+  <phase>N/A</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Non-Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>The 12 month, all cause mortality rate in the Aorfix™ group  compared to all cause mortality rate in the Open Control group.</measure>
+    <time_frame>1 year</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>The rates of early serious adverse events between 0 and 30 days post-operative in the Aorfix™ groups compared to the early serious adverse event rates between 0 and 30 days post-operative in the Open Control group.</measure>
+    <time_frame>30 days</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <number_of_arms>3</number_of_arms>
+  <enrollment type="Anticipated">210</enrollment>
+  <condition>Abdominal Aortic Aneurysms</condition>
+  <arm_group>
+    <arm_group_label>Open Surgical Repair</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+    <description>Open surgical repair of abdominal aortic aneurysm. All patient enrollment and 2-year follow-ups completed.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Endovascular Repair</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Endovascular treatment arm of 160 patients having suitable anatomy for the Aorfix™ AAA Flexible Stent Graft System.  Use of stent grafts in aortic angles greater than 60° has not been approved for other devices available in the US.  As a result, a minimum of 120 patients in this arm will have an aortic angle between 60° and 90°.
+Patient recruitment completed; 5-year follow-up evaluations continue.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Continued Access</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Endovascular treatment arm of 50 patients maximum having suitable anatomy for the Aorfix™ AAA Flexible Stent Graft System.  This Arm will provide active sites with ongoing device access while FDA reviews the PMA.
+Patient recruitment completed; 5-year patient follow-ups continue.</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Procedure</intervention_type>
+    <intervention_name>Open surgical repair</intervention_name>
+    <description>Open surgical repair of abdominal aortic aneurysm</description>
+    <arm_group_label>Open Surgical Repair</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Device</intervention_type>
+    <intervention_name>Stent Graft</intervention_name>
+    <description>Endovascular repair of abdominal aortic aneurysm (EVAR)</description>
+    <arm_group_label>Endovascular Repair</arm_group_label>
+    <arm_group_label>Continued Access</arm_group_label>
+    <other_name>Aorfix™ stent graft</other_name>
+    <other_name>Aorfix™ AAA stent graft</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Diagnosed abdominal aortic aneurysm &gt; 4.5 cm in diameter, OR 4.0 cm or larger in
+             diameter if symptomatic (i.e. pain, embolization), OR documented AAA growth of more
+             than 5 mm within the previous 6 months, and/or including extension into common iliac
+             artery (ies), and/or
+
+          -  Iliac aneurysm greater than, or equal to 3.5 cm in maximum diameter.
+
+        Exclusion Criteria:
+
+          -  Less than 21 years of age,
+
+          -  Life expectancy less than 2 years,
+
+          -  Pregnant,
+
+          -  Religious cultural or other objection to the receipt of blood or blood products,
+
+          -  Unwilling to comply with follow-up schedule,
+
+          -  Unwillingness or inability to provide informed consent to both trial and procedure.
+
+          -  Patients not expected to live more than 2 years from enrollment
+
+          -  Patient has a ruptured aneurysm
+
+          -  Aneurysm extends above renal arteries
+
+          -  Proximal neck of aneurysm has significant loose thrombus associated with it
+
+          -  Patient with an acute or chronic aortic dissection or mycotic aneurysm
+
+          -  Patient has current non-localized infection (may be recruited following   remission
+             of the infection)
+
+          -  Patient is allergic to device materials
+
+          -  Patient is allergic to or intolerant of use of contrast media and cannot be exposed
+             to suitable remedial treatment such as steroids and/or benadryl
+
+          -  Patient is clinically and morbidly obese such that imaging would be severely
+             adversely affected
+
+          -  Patient has renal failure (serum creatinine &gt; 2.5 mg/dL)
+
+          -  Patient has an uncorrectable bleeding abnormality
+
+          -  Patient has unstable angina
+
+          -  Patient is receiving dialysis:
+
+          -  Inflammatory aneurysm
+
+          -  MI in last 6 months
+
+          -  End stage COPD
+
+          -  Patient has connective tissue disease (eg Marfan syndrome, Ehlers-Danlos syndrome)
+
+          -  Significant (&gt;80%) renal artery stenosis which cannot be readily treated
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>21 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Mark Fillinger, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Dartmouth-Hitchcock Medical Center</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>UAB Vascular Surgery</name>
+      <address>
+        <city>Birmingham</city>
+        <state>Alabama</state>
+        <zip>35294</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>University of Arizona, Department of Surgery</name>
+      <address>
+        <city>Tucson</city>
+        <state>Arizona</state>
+        <zip>85724</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Long Beach VA Healthcare System</name>
+      <address>
+        <city>Long Beach</city>
+        <state>California</state>
+        <zip>90822</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>UCSF Division of Vascular Surgery</name>
+      <address>
+        <city>San Francisco</city>
+        <state>California</state>
+        <zip>94143</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Stanford University Medical Center</name>
+      <address>
+        <city>Stanford</city>
+        <state>California</state>
+        <zip>94305</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Harbor-UCLA Medical Center</name>
+      <address>
+        <city>Torrance</city>
+        <state>California</state>
+        <zip>90502</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Yale University School of Medicine</name>
+      <address>
+        <city>New Haven</city>
+        <state>Connecticut</state>
+        <zip>06510</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Christiana Hospital</name>
+      <address>
+        <city>Newark</city>
+        <state>Delaware</state>
+        <zip>19718</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Holy Cross Hospital, Jim Moran Heart &amp; Vascular Research Institute</name>
+      <address>
+        <city>Ft. Lauderdale</city>
+        <state>Florida</state>
+        <zip>33308</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>University of Florida</name>
+      <address>
+        <city>Gainesville</city>
+        <state>Florida</state>
+        <zip>32610-0128</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Baptist Hospital of Miami, Cardiac &amp; Vascular Institute</name>
+      <address>
+        <city>Miami</city>
+        <state>Florida</state>
+        <zip>33176</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Macon Cardiovascular Institute</name>
+      <address>
+        <city>Macon</city>
+        <state>Georgia</state>
+        <zip>31201</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Methodist Heart Lung &amp; Vascular Institute</name>
+      <address>
+        <city>Peoria</city>
+        <state>Illinois</state>
+        <zip>61606</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Springfield Memorial Hospital</name>
+      <address>
+        <city>Springfield</city>
+        <state>Illinois</state>
+        <zip>62702</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>John Hopkins Bayview Medical Center</name>
+      <address>
+        <city>Baltimore</city>
+        <state>Maryland</state>
+        <zip>21224</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Brigham and Women's Hospital</name>
+      <address>
+        <city>Boston</city>
+        <state>Massachusetts</state>
+        <zip>02115</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>University of Michigan, Department of Vascular Surgery</name>
+      <address>
+        <city>Ann Arbor</city>
+        <state>Michigan</state>
+        <zip>48109</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Michigan Vascular Group</name>
+      <address>
+        <city>Flint</city>
+        <state>Michigan</state>
+        <zip>48507</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Abbott Northwestern / MHIF</name>
+      <address>
+        <city>Minneapolis</city>
+        <state>Minnesota</state>
+        <zip>55407</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Washington University</name>
+      <address>
+        <city>St Louis</city>
+        <state>Missouri</state>
+        <zip>63110</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Dartmouth - Hitchcock Medical</name>
+      <address>
+        <city>Lebanon</city>
+        <state>New Hampshire</state>
+        <zip>03756</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Englewood Hospital &amp; Medical Center</name>
+      <address>
+        <city>Englewood</city>
+        <state>New Jersey</state>
+        <zip>07631</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Newark-Beth Israel Medical Center</name>
+      <address>
+        <city>Newark</city>
+        <state>New Jersey</state>
+        <zip>07112</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Albany Medical Center</name>
+      <address>
+        <city>Albany</city>
+        <state>New York</state>
+        <zip>12208</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>New York Presbyterian-Columbia University Medical Center Division of Vascular Surgery</name>
+      <address>
+        <city>New York</city>
+        <state>New York</state>
+        <zip>10032</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Jobst Vascular Center</name>
+      <address>
+        <city>Toledo</city>
+        <state>Ohio</state>
+        <zip>43606</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Oregon Health &amp; Science University</name>
+      <address>
+        <city>Portland</city>
+        <state>Oregon</state>
+        <zip>97239</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Geisinger Medical Center</name>
+      <address>
+        <city>Danville</city>
+        <state>Pennsylvania</state>
+        <zip>17822</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Pinnacle Health Hospitals</name>
+      <address>
+        <city>Harrisburg</city>
+        <state>Pennsylvania</state>
+        <zip>17110</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>University of Pittsburgh</name>
+      <address>
+        <city>Pittsburgh</city>
+        <state>Pennsylvania</state>
+        <zip>15232</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Moffitt Heart and Vascular Group</name>
+      <address>
+        <city>Wormleysburg</city>
+        <state>Pennsylvania</state>
+        <zip>17043</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Sanford Clinic Clinical Research</name>
+      <address>
+        <city>Sioux Falls</city>
+        <state>South Dakota</state>
+        <zip>57117</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>University of Tennessee</name>
+      <address>
+        <city>Chattanooga</city>
+        <state>Tennessee</state>
+        <zip>37403</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>DeBakey Heart Center, Methodist Hospital</name>
+      <address>
+        <city>Houston</city>
+        <state>Texas</state>
+        <zip>77030</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Sentara Heart Hospital - Vascular &amp; Transplant Specialists</name>
+      <address>
+        <city>Norfolk</city>
+        <state>Virginia</state>
+        <zip>23507</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Swedish Medical Center</name>
+      <address>
+        <city>Seattle</city>
+        <state>Washington</state>
+        <zip>98122</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Sacred Heart Medical Center</name>
+      <address>
+        <city>Spokane</city>
+        <state>Washington</state>
+        <zip>99204</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>University of Wisconsin School of Medicine &amp; Public Health</name>
+      <address>
+        <city>Madison</city>
+        <state>Wisconsin</state>
+        <zip>53792</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <link>
+    <url>http://www.lombardmedical.com</url>
+    <description>Lombard Medical Technologies Inc. Homepage</description>
+  </link>
+  <verification_date>March 2014</verification_date>
+  <lastchanged_date>March 17, 2014</lastchanged_date>
+  <firstreceived_date>August 27, 2007</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>AAA</keyword>
+  <keyword>Abdominal Aortic Aneurysms</keyword>
+  <keyword>Endovascular</keyword>
+  <keyword>EVAR</keyword>
+  <keyword>Aorta</keyword>
+  <keyword>Stent Graft</keyword>
+  <keyword>Stent</keyword>
+  <keyword>Tortuous</keyword>
+  <keyword>High Angle</keyword>
+  <keyword>Angled Necks</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Aneurysm</mesh_term>
+    <mesh_term>Aortic Aneurysm</mesh_term>
+    <mesh_term>Aortic Aneurysm, Abdominal</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

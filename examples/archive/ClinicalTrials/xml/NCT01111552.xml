@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01111552</url>
+  </required_header>
+  <id_info>
+    <org_study_id>31-08-256</org_study_id>
+    <nct_id>NCT01111552</nct_id>
+  </id_info>
+  <brief_title>Study to Evaluate the Efficacy, Safety and Tolerability of an Oral Aripiprazole/Escitalopram Combination Therapy in Patients With Major Depressive Disorder (MDD)</brief_title>
+  <acronym>ACES 256</acronym>
+  <official_title>A Multicenter, Randomized, Double-blind Study to Evaluate the Efficacy, Safety and Tolerability of an Oral Aripiprazole/Escitalopram Combination Therapy in Patients With Major Depressive Disorder</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Otsuka Pharmaceutical Development &amp; Commercialization, Inc.</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Otsuka Pharmaceutical Development &amp; Commercialization, Inc.</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      This will be a multicenter, randomized, double-blind study designed to assess the efficacy,
+      safety and tolerability of an oral Aripiprazole/Escitalopram combination therapy in subjects
+      with MDD who have demonstrated an incomplete response to a prospective trial of
+      Escitalopram, and report a treatment history for the current MDD episode of an inadequate
+      response to at least one and no more than three adequate trials of an approved
+      antidepressant other than Escitalopram. An inadequate response is defined as less than a 50%
+      reduction in depressive symptom severity as assessed by the subject's self-report on the
+      Massachusetts General Hospital Antidepressant Treatment Response Questionnaire (ATRQ) and
+      evaluated by the investigator as part of the subject's medical and psychiatric history. An
+      adequate trial is defined as an antidepressant treatment for at least 6 weeks duration (or
+      at least 3 weeks for combination treatments) at an approved dose as specified in the ATRQ.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      The study will be organized as follows:
+
+        -  Screening Phase
+
+        -  Single-blind Prospective Treatment Phase
+
+        -  Single-blind Continuation Phase (Responder) or Double-blind Randomization Phase
+           (non-Responder)
+
+        -  30 day Post Treatment Follow-up
+
+      Assigned Interventions:
+
+        -  Escitalopram monotherapy
+
+        -  Aripiprazole/Escitalopram combination therapy
+
+        -  Aripiprazole monotherapy
+    </textblock>
+  </detailed_description>
+  <overall_status>Terminated</overall_status>
+  <start_date>July 2010</start_date>
+  <completion_date type="Actual">December 2011</completion_date>
+  <primary_completion_date type="Actual">July 2011</primary_completion_date>
+  <phase>Phase 3</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Double Blind (Subject, Investigator), Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Mean change in the Montgomery-Asberg Depression Rating Scale (MADRS) Total Score</measure>
+    <time_frame>from Week 8 to Week 14</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>The primary efficacy endpoint is the mean change from the end of Week 8 Visit to the end of Week 14 Visit in the Montgomery-Asberg Depression Rating Scale (MADRS) Total Score.</description>
+  </primary_outcome>
+  <number_of_arms>3</number_of_arms>
+  <enrollment type="Actual">66</enrollment>
+  <condition>Major Depressive Disorder (MDD)</condition>
+  <arm_group>
+    <arm_group_label>Escitalopram monotherapy</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Aripiprazole monotherapy</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Aripiprazole/Escitalopram combination therapy</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Escitalopram</intervention_name>
+    <description>Escitalopram monotherapy</description>
+    <arm_group_label>Escitalopram monotherapy</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Aripiprazole</intervention_name>
+    <description>Aripiprazole monotherapy</description>
+    <arm_group_label>Aripiprazole monotherapy</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Aripiprazole/Escitalopram combination</intervention_name>
+    <description>Aripiprazole/Escitalopram combination therapy</description>
+    <arm_group_label>Aripiprazole/Escitalopram combination therapy</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Subjects with a current diagnosis of a major depressive episode. The current
+             depressive episode must be ≥ 8 weeks in duration
+
+          -  Subjects willing to discontinue all prohibited psychotropic medication starting from
+             the time of signing the informed consent and during the study period
+
+          -  Subjects with a HAM-D17 Total Score ≥ 18 at the Baseline Visit for the Prospective
+             Treatment Phase
+
+        Exclusion Criteria:
+
+          -  Lack of prior treatment with an antidepressant during the current depressive episode
+
+          -  Subjects who report treatment with adjunctive or monotherapy antipsychotic treatment
+             during the current depressive episode.
+
+          -  Subjects experiencing hallucinations, delusions or any psychotic symptomatology in
+             the current depressive episode
+
+          -  Subjects with epilepsy or significant history of seizure disorders
+
+          -  Subjects with a clinically significant current diagnosis of borderline, antisocial,
+             paranoid, schizoid, schizotypal or histrionic personality disorder
+
+          -  Subjects who have received electroconvulsive therapy (ECT) in the last 10 years
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>65 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <location>
+    <facility>
+      <address>
+        <city>Birmingham</city>
+        <state>Alabama</state>
+        <zip>35216</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Little Rock</city>
+        <state>Arkansas</state>
+        <zip>72223</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Carson</city>
+        <state>California</state>
+        <zip>90746</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Garden Grove</city>
+        <state>California</state>
+        <zip>95231</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Imperial</city>
+        <state>California</state>
+        <zip>92251</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Mission Viejo</city>
+        <state>California</state>
+        <zip>92691</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Redlands</city>
+        <state>California</state>
+        <zip>92374</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>San Diego</city>
+        <state>California</state>
+        <zip>92128</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Atlanta</city>
+        <state>Georgia</state>
+        <zip>30308</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Atlanta</city>
+        <state>Georgia</state>
+        <zip>30328</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Hoffman Estates</city>
+        <state>Illinois</state>
+        <zip>60169</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Terre Haute</city>
+        <state>Indiana</state>
+        <zip>47802</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Overland Park</city>
+        <state>Kansas</state>
+        <zip>66211</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Prairie Village</city>
+        <state>Kansas</state>
+        <zip>66206</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Wichita</city>
+        <state>Kansas</state>
+        <zip>67207</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Baltimore</city>
+        <state>Maryland</state>
+        <zip>21204</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>New York</city>
+        <state>New York</state>
+        <zip>10021</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Toledo</city>
+        <state>Ohio</state>
+        <zip>43623</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Bartlett</city>
+        <state>Tennessee</state>
+        <zip>38134</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Wichita Falls</city>
+        <state>Texas</state>
+        <zip>76309</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Brisbane</city>
+        <state>Queensland</state>
+        <zip>4000</zip>
+        <country>Australia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Everton Park</city>
+        <state>Queensland</state>
+        <zip>4053</zip>
+        <country>Australia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Malvern</city>
+        <state>Victoria</state>
+        <zip>3144</zip>
+        <country>Australia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Melbourne</city>
+        <state>Victoria</state>
+        <zip>3004</zip>
+        <country>Australia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Fremantle</city>
+        <state>Western Australia</state>
+        <zip>6959</zip>
+        <country>Australia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Bourgas</city>
+        <zip>8000</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Lovech</city>
+        <zip>5500</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Novi Iskar</city>
+        <zip>1282</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Pleven</city>
+        <zip>5800</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Plovdiv</city>
+        <zip>4000</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Rousse</city>
+        <zip>7003</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Sofia</city>
+        <zip>1431</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Sofia</city>
+        <zip>1113</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Sofia</city>
+        <zip>1606</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Tsarev Brod</city>
+        <zip>9747</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Tserova Koriya</city>
+        <zip>5047</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Varna</city>
+        <zip>9000</zip>
+        <country>Bulgaria</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Tirupati</city>
+        <state>Andhra Pradesh</state>
+        <zip>517507</zip>
+        <country>India</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Vijaywada</city>
+        <state>Andhra Pradesh</state>
+        <zip>500072</zip>
+        <country>India</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Manipal</city>
+        <state>Karnataka</state>
+        <zip>576104</zip>
+        <country>India</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Pune</city>
+        <state>Maharashtra</state>
+        <zip>411004</zip>
+        <country>India</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Ludhiana</city>
+        <state>Punjab</state>
+        <zip>141001</zip>
+        <country>India</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Chennai</city>
+        <state>Tamil Nadu</state>
+        <zip>600003</zip>
+        <country>India</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Kanpur</city>
+        <state>Uttar Pradesh</state>
+        <zip>208005</zip>
+        <country>India</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Quezon City</city>
+        <state>NCR</state>
+        <zip>1102</zip>
+        <country>Philippines</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Quezon City</city>
+        <state>NCR</state>
+        <zip>1101</zip>
+        <country>Philippines</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Study Site 1</name>
+      <address>
+        <city>Bucuresti</city>
+        <zip>041914</zip>
+        <country>Romania</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Bucuresti</city>
+        <zip>010825</zip>
+        <country>Romania</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Bucuresti</city>
+        <zip>030455</zip>
+        <country>Romania</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <name>Study Site 2</name>
+      <address>
+        <city>Bucuresti</city>
+        <zip>041914</zip>
+        <country>Romania</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Craiova</city>
+        <zip>540139</zip>
+        <country>Romania</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Craiova</city>
+        <zip>200620</zip>
+        <country>Romania</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Iasi</city>
+        <zip>700282</zip>
+        <country>Romania</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Targoviste</city>
+        <zip>130081</zip>
+        <country>Romania</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Targu Mures</city>
+        <zip>540139</zip>
+        <country>Romania</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Michalovce</city>
+        <zip>07101</zip>
+        <country>Slovakia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Rimavska Sobota</city>
+        <zip>97901</zip>
+        <country>Slovakia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Svidnik</city>
+        <zip>8901</zip>
+        <country>Slovakia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Trencin</city>
+        <zip>91101</zip>
+        <country>Slovakia</country>
+      </address>
+    </facility>
+  </location>
+  <location>
+    <facility>
+      <address>
+        <city>Zlate Moravce</city>
+        <zip>95301</zip>
+        <country>Slovakia</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+    <country>Australia</country>
+    <country>Bulgaria</country>
+    <country>India</country>
+    <country>Philippines</country>
+    <country>Romania</country>
+    <country>Slovakia</country>
+  </location_countries>
+  <verification_date>August 2012</verification_date>
+  <lastchanged_date>August 24, 2012</lastchanged_date>
+  <firstreceived_date>April 22, 2010</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>Major Depressive Disorder</keyword>
+  <keyword>MDD</keyword>
+  <keyword>Depression</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Depressive Disorder</mesh_term>
+    <mesh_term>Depression</mesh_term>
+    <mesh_term>Depressive Disorder, Major</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Dexetimide</mesh_term>
+    <mesh_term>Citalopram</mesh_term>
+    <mesh_term>Aripiprazole</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

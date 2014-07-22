@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT02145806</url>
+  </required_header>
+  <id_info>
+    <org_study_id>CMC_UI_2014</org_study_id>
+    <nct_id>NCT02145806</nct_id>
+  </id_info>
+  <brief_title>Validation of Korean Version of ICIQ-SF</brief_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>The Catholic University of Korea</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+    <collaborator>
+      <agency>National Cancer Center, Korea</agency>
+      <agency_class>Other</agency_class>
+    </collaborator>
+  </sponsors>
+  <source>The Catholic University of Korea</source>
+  <oversight_info>
+    <authority>South Korea: Institutional Review Board</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      1. Validation of the Korean version of the ICIQ-UI SF for pregnant and postpartum women
+
+        2. Evaluation the effect of urinary incontinence in pregnant and postpartum women.
+    </textblock>
+  </brief_summary>
+  <overall_status>Not yet recruiting</overall_status>
+  <start_date>June 2014</start_date>
+  <primary_completion_date type="Anticipated">May 2015</primary_completion_date>
+  <phase>N/A</phase>
+  <study_type>Observational [Patient Registry]</study_type>
+  <study_design>Observational Model: Cohort, Time Perspective: Cross-Sectional</study_design>
+  <target_duration>1 Week</target_duration>
+  <primary_outcome>
+    <measure>Urinary incontinence</measure>
+    <time_frame>1-2 weeks</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <number_of_groups>1</number_of_groups>
+  <enrollment type="Anticipated">130</enrollment>
+  <condition>Urinary Incontinence</condition>
+  <eligibility>
+    <study_pop>
+      <textblock>
+        130
+      </textblock>
+    </study_pop>
+    <sampling_method>Non-Probability Sample</sampling_method>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Being pregnant or postpartum ≤ 3 weeks
+
+          -  Able to read and understand Korean
+
+          -  At least 18 years of age
+
+        Exclusion Criteria:
+
+          -  Refuse to participate in the study
+
+          -  Pelvic inflammatory disease
+
+          -  Psychiatric disease
+
+          -  Needed to be treated in the 7 days
+      </textblock>
+    </criteria>
+    <gender>Female</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_contact>
+    <last_name>Yeon Hee Kim</last_name>
+    <email>yoni@catholic.ac.kr</email>
+  </overall_contact>
+  <overall_contact_backup>
+    <last_name>Myong Cheol Lim</last_name>
+    <email>gynlim@gmail.com</email>
+  </overall_contact_backup>
+  <verification_date>May 2014</verification_date>
+  <lastchanged_date>May 21, 2014</lastchanged_date>
+  <firstreceived_date>May 21, 2014</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Principal Investigator</responsible_party_type>
+    <investigator_affiliation>The Catholic University of Korea</investigator_affiliation>
+    <investigator_full_name>Yeon Hee Kim</investigator_full_name>
+    <investigator_title>Assistant professor</investigator_title>
+  </responsible_party>
+  <keyword>Urinary incontinence</keyword>
+  <keyword>Validation study</keyword>
+  <keyword>Pregnant women</keyword>
+  <keyword>Postpartum period</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Urinary Incontinence</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

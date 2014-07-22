@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00915616</url>
+  </required_header>
+  <id_info>
+    <org_study_id>Melatonin and reflux</org_study_id>
+    <nct_id>NCT00915616</nct_id>
+  </id_info>
+  <brief_title>The Potential Therapeutic Effect of Melatonin in Gastro-Esophageal Reflux Disease</brief_title>
+  <official_title>The Potential Therapeutic Effect of Melatonin in Gastro-Esophageal Reflux Disease</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Mansoura University</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Mansoura University</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      Gastro-Esophageal Reflux Disease was defined as a condition that develops when the reflux of
+      stomach contents causes troublesome symptoms and/or complications. Many drugs used for the
+      treatment of GERD such as omeprazole (a proton pump inhibitor) which is widely used
+      anti-ulcer drug and has been demonstrated to protect against esophageal mucosal injury.
+      Melatonin has been found to protect the gastrointestinal mucosa from oxidative damage caused
+      by reactive oxygen species in different experimental ulcer models. The aim of this study is
+      to evaluate the role of exogenous melatonin in the treatment of reflux disease in human
+      either alone and in combination with omeprazole therapy.
+    </textblock>
+  </brief_summary>
+  <overall_status>Withdrawn</overall_status>
+  <phase>Phase 3</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Primary Purpose: Treatment</study_design>
+  <number_of_arms>4</number_of_arms>
+  <condition>Gastroesophageal Reflux Disease</condition>
+  <arm_group>
+    <arm_group_label>control</arm_group_label>
+    <arm_group_type>No Intervention</arm_group_type>
+    <description>9 healthy normal subjects.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Group II</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+    <description>Included 9 patients suffering from GERD; receiving melatonin alone for treatment of GERD in a dose of 3 mg once daily at the bed time.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Group III, combined group</arm_group_label>
+    <arm_group_type>No Intervention</arm_group_type>
+    <description>Included 9 patients suffering from GERD; receiving omeprazole alone for treatment of GERD in a dose of 20 mg twice daily.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Group IV</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+    <description>Included 9 patients suffering from GERD receiving omeprazole and melatonin for treatment of GERD in the same dose of each of them.</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Melatonin</intervention_name>
+    <arm_group_label>Group II</arm_group_label>
+    <arm_group_label>Group IV</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  patient with GERD ranged from 42 to 56 years
+
+        Exclusion Criteria:
+
+          -  patients with cardiac disease
+
+          -  patients with renal affection
+
+          -  patients with liver diseases (due to drug induced, autoimmune disease and viral
+             hepatitis)
+
+          -  patients on the drugs known to affect the GIT motility
+                                                                                 (phenothiazines,
+             anticholinergics, nitrates or calcium channel blockers) were excluded during the time
+             of conduction of the study or the preceding two weeks
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>42 Years</minimum_age>
+    <maximum_age>56 Years</maximum_age>
+    <healthy_volunteers>Accepts Healthy Volunteers</healthy_volunteers>
+  </eligibility>
+  <verification_date>June 2009</verification_date>
+  <lastchanged_date>June 5, 2009</lastchanged_date>
+  <firstreceived_date>June 1, 2009</firstreceived_date>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Gastroesophageal Reflux</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Melatonin</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

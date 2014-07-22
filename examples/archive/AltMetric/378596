@@ -1,0 +1,32 @@
+cited_by_feeds_count: 1
+last_updated: 1406001628
+is_oa: False
+cited_by_posts_count: 153
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=53&types=bbbbtttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=53&types=bbbbtttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=53&types=bbbbtttt'}
+altmetric_id: 378596
+subjects: [u'sportsmedicine']
+published_on: 1312153200
+issns: [u'1466-447X']
+title: The Talk Test and its relationship with the ventilatory and lactate thresholds.
+cited_by_tweeters_count: 53
+scopus_subjects: [u'Health Sciences', u'Medicine', u'Health Professions']
+tq: [u'If you\x92re trying to get fitter and you can \x93talk\x94 while exercising, you may want to go harder: \xa0', u"Paper: 'Talk test' closely relates to lactate threshold.Could prove a val way for athletes to gauge training intensity?"]
+score: 52.518
+altmetric_jid: 4f6fa4d93cf058f61000150d
+pmid: 21774751
+abstract: In this study, we wished to determine the relationship between the Talk Test physiological and perceptual indicators and variables measured at the ventilatory and lactate thresholds, and if the Talk Test indicators were associated with a typical exercise prescription. Fifteen participants (13 males and 2 females; age 18-35 years) underwent a treadmill lactate threshold test followed by a VO2max (maximal oxygen consumption) test in which the ventilatory threshold was determined. On a separate day, a Talk Test was administered in which participants read a passage during exercise and rated speaking comfort: "comfortable" (+Talk Test), "not sure" (+/-Talk Test), or "not able to speak comfortably" (-Talk Test). Exercise prescriptions based on 65% and 80% of heart rate reserve and VO2 reserve were determined. Lactate threshold values were significantly higher than those at the ventilatory threshold (P < 0.05). The heart rate, VO2, and %VO2max recorded at all levels of the Talk Test were significantly higher than similar measurements recorded at the ventilatory threshold (P < 0.05). Lactate threshold measurements were similar to the +Talk Test and +/-Talk Test. Participants were exercising at 64 ± 5% VO2max, 82 ± 7% maximal heart rate, and 12 ± 2% RPE (rating of perceived exertion) at the +Talk Test, and 71 ± 6% VO2max, 90 ± 6% maximal heart rate, and 15 ± 2% RPE at the +/-Talk Test, with all values being within ACSM exercise intensity guidelines. Therefore, the Talk Test can be used in this population to prescribe exercise, and Talk Test data are more strongly related to physiological and perceptual variables corresponding to the lactate threshold than to the ventilatory threshold.
+schema: 1.5.4
+cohorts: {u'doc': 6, u'pub': 47}
+readers_count: 16
+journal: Journal of sports sciences
+publisher_subjects: [{u'scheme': u'era', u'name': u'Human Movement And Sports Science'}, {u'scheme': u'era', u'name': u'Curriculum And Pedagogy'}]
+details_url: http://www.altmetric.com/details.php?citation_id=378596
+doi: 10.1080/02640414.2011.585165
+abstract_source: pubmed
+url: http://dx.doi.org/10.1080/02640414.2011.585165
+readers: {u'mendeley': 16, u'citeulike': 0, u'connotea': 0}
+nlmid: 8405364
+context: {u'similar_age_journal_3m': {u'count': 20, u'higher_than': 17, u'pct': 85, u'rank': 3, u'mean': 18.090842105263}, u'all': {u'count': 2291818, u'higher_than': 2262616, u'pct': 98, u'rank': 29201, u'mean': 4.8104964061288}, u'similar_age_3m': {u'count': 58495, u'higher_than': 57869, u'pct': 98, u'rank': 626, u'mean': 4.0454686976442}, u'journal': {u'count': 881, u'higher_than': 864, u'pct': 98, u'rank': 17, u'mean': 7.411975}}
+history: {u'6d': 2.5, u'1w': 2.5, u'1y': 29.5, u'1m': 8.5, u'6m': 26.5, u'2d': 2, u'at': 52.518, u'3m': 26.5, u'5d': 2, u'4d': 2, u'1d': 1, u'3d': 2}
+added_on: 1316689384
+cited_by_accounts_count: 54

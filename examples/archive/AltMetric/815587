@@ -1,0 +1,30 @@
+last_updated: 1405947740
+is_oa: False
+cited_by_posts_count: 2
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=2&types=tttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=2&types=tttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=2&types=tttttttt'}
+altmetric_id: 815587
+subjects: [u'allergyandimmunology']
+published_on: 1325376000
+title: Virologically Suppressed HIV Patients Show Activation of NK Cells and Persistent Innate Immune Activation.
+cited_by_tweeters_count: 2
+scopus_subjects: [u'Health Sciences', u'Medicine']
+issns: [u'1550-6606']
+score: 1.25
+altmetric_jid: 4f6fa6283cf058f610007cc7
+pmid: 22745371
+abstract: FcRγ is an ITAM-containing adaptor required for CD16 signaling and function in NK cells. We have previously shown that NK cells from HIV patients receiving combination antiretroviral therapy (cART) have decreased FcRγ expression, but the factors causing this are unknown. We conducted a cross-sectional study of cART-naive viremic patients (ART(-)), virologically suppressed patients receiving cART (ART(+)), and HIV-uninfected controls. CD8(+) T cells were activated, as assessed by CD38(+)HLA-DR(+) expression, in ART(-) patients (p < 0.0001), which was significantly reduced in ART(+) patients (p = 0.0005). In contrast, CD38(+)HLA-DR(+) NK cells were elevated in ART(-) patients (p = 0.0001) but did not decrease in ART(+) patients (p = 0.88). NK cells from both ART(-) and ART(+) patients showed high levels of spontaneous degranulation in ex vivo whole blood assays as well as decreased CD16 expression (p = 0.0001 and p = 0.0025, respectively), FcRγ mRNA (p < 0.0001 for both groups), FcRγ protein expression (p = 0.0016 and p < 0.0001, respectively), and CD16-dependent Syk phosphorylation (p = 0.0001 and p = 0.003, respectively). HIV-infected subjects showed alterations in NK activation, degranulation, CD16 expression and signaling, and elevated plasma markers of inflammation and macrophage activation, that is, neopterin and sCD14, which remained elevated in ART(+) patients. Alterations in NK cell measures did not correlate with viral load or CD4 counts. These data show that in HIV patients who achieve viral suppression following cART, NK cell activation persists. This suggests that NK cells respond to factors different from those driving T cell activation, but which are associated with inflammation in HIV patients.
+schema: 1.5.4
+cohorts: {u'pub': 2}
+readers_count: 10
+journal: The Journal of Immunology
+publisher_subjects: [{u'scheme': u'era', u'name': u'Immunology'}]
+details_url: http://www.altmetric.com/details.php?citation_id=815587
+doi: 10.4049/jimmunol.1200458
+abstract_source: pubmed
+url: http://dx.doi.org/10.4049/jimmunol.1200458
+readers: {u'mendeley': 10, u'citeulike': 0, u'connotea': 0}
+nlmid: 2985117R
+context: {u'similar_age_journal_3m': {u'count': 65, u'higher_than': 48, u'pct': 73, u'rank': 9, u'mean': 0.9374375}, u'all': {u'count': 2290540, u'higher_than': 1264873, u'pct': 55, u'rank': 902092, u'mean': 4.8085397437044}, u'similar_age_3m': {u'count': 68589, u'higher_than': 39158, u'pct': 57, u'rank': 25085, u'mean': 4.519954598472}, u'journal': {u'count': 3326, u'higher_than': 2734, u'pct': 82, u'rank': 423, u'mean': 1.513984962406}}
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 1.25, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1340965011
+cited_by_accounts_count: 2

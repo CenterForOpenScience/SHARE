@@ -1,0 +1,35 @@
+cited_by_feeds_count: 1
+last_updated: 1405980883
+is_oa: False
+cited_by_msm_count: 3
+cited_by_posts_count: 143
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=118&types=mvbttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=118&types=mvbttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=118&types=mvbttttf'}
+altmetric_id: 889116
+subjects: [u'endocrinology']
+cited_by_videos_count: 1
+published_on: 1344898800
+title: Sedentary time in adults and the association with diabetes, cardiovascular disease and death: systematic review and meta-analysis
+cited_by_tweeters_count: 112
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Yet another systematic review links sedentary behaviour to big increase in risk of CVD, diabetes mortality', u'New meta-analysis on sedentary behaviour and health outcomes', u'Sedentary time associated with 2-fold increase in lifestyle-related disease and mortality - systematic review', u'Lots of media interest to follow on our new meta-analysis on sedentary behaviour and health outcomes: \u2026']
+score: 117.986
+altmetric_jid: 4f6fa6143cf058f610007106
+pmid: 22890825
+abstract: Sedentary (sitting) behaviours are ubiquitous in modern society. We conducted a systematic review and meta-analysis to examine the association of sedentary time with diabetes, cardiovascular disease and cardiovascular and all-cause mortality.
+schema: 1.5.4
+cohorts: {u'doc': 14, u'sci': 18, u'com': 1, u'pub': 79}
+readers_count: 87
+journal: Diabetologia
+publisher_subjects: [{u'scheme': u'springer', u'name': u'Human Physiology'}, {u'scheme': u'springer', u'name': u'Internal Medicine'}, {u'scheme': u'springer', u'name': u'Medicine & Public Health'}, {u'scheme': u'springer', u'name': u'Metabolic Diseases'}, {u'scheme': u'era', u'name': u'Clinical Sciences'}, {u'scheme': u'era', u'name': u'Paediatrics And Reproductive Medicine'}, {u'scheme': u'era', u'name': u'Public Health And Health Services'}]
+details_url: http://www.altmetric.com/details.php?citation_id=889116
+doi: 10.1007/s00125-012-2677-z
+abstract_source: pubmed
+url: http://dx.doi.org/10.1007/s00125-012-2677-z
+readers: {u'mendeley': 83, u'citeulike': 4, u'connotea': 0}
+nlmid: 0006777
+history: {u'6d': 0.75, u'1w': 0.75, u'1y': 23.636, u'1m': 10.75, u'6m': 12.25, u'2d': 0.75, u'at': 117.986, u'3m': 11.25, u'5d': 0.75, u'4d': 0.75, u'1d': 0.75, u'3d': 0.75}
+context: {u'similar_age_journal_3m': {u'count': 59, u'higher_than': 58, u'pct': 98, u'rank': 1, u'mean': 1.9801724137931}, u'all': {u'count': 2291817, u'higher_than': 2282750, u'pct': 99, u'rank': 9067, u'mean': 4.8104639822764}, u'similar_age_3m': {u'count': 68215, u'higher_than': 67854, u'pct': 99, u'rank': 361, u'mean': 5.0263503386401}, u'journal': {u'count': 712, u'higher_than': 707, u'pct': 99, u'rank': 5, u'mean': 7.1795105485232}}
+cited_by_fbwalls_count: 13
+issns: [u'1432-0428']
+added_on: 1345045077
+cited_by_accounts_count: 130

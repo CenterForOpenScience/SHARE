@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01780454</url>
+  </required_header>
+  <id_info>
+    <org_study_id>2013P000822</org_study_id>
+    <nct_id>NCT01780454</nct_id>
+  </id_info>
+  <brief_title>Renal Allograft Tolerance Through Mixed Chimerism</brief_title>
+  <official_title>Renal Allograft Tolerance Through Mixed Chimerism</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Massachusetts General Hospital</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Massachusetts General Hospital</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      This study will examine the safety and effectiveness of a combination kidney and bone marrow
+      transplant from a haplo-identical related donor. An investigational medication and other
+      treatments will be given prior to and after the transplant to help protect the transplanted
+      kidney from being attacked by the body's immune system
+    </textblock>
+  </brief_summary>
+  <overall_status>Recruiting</overall_status>
+  <start_date>March 2013</start_date>
+  <primary_completion_date type="Anticipated">October 2018</primary_completion_date>
+  <phase>Phase 1/Phase 2</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Successful withdrawal of immunosuppressive therapy</measure>
+    <time_frame>5 years</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>The primary endpoint is induction of transient mixed chimerism and renal allograft tolerance without &quot;engraftment syndrome&quot; or &quot;acute kidney injury&quot;</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Incidence of Engraftment Syndrome</measure>
+    <time_frame>5 Years</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </secondary_outcome>
+  <number_of_arms>1</number_of_arms>
+  <enrollment type="Anticipated">2</enrollment>
+  <condition>End Stage Renal Disease</condition>
+  <arm_group>
+    <arm_group_label>Combined Bone Marrow and Kidney Transplantation</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Conditioning regimen consisting of Rituximab, MEDI-507, Total Body Irradiation, Thymic Irradiation followed by simultaneous bone marrow and kidney transplantation</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>MEDI-507</intervention_name>
+    <description>T-Cell Depleting Agent</description>
+    <arm_group_label>Combined Bone Marrow and Kidney Transplantation</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Rituximab</intervention_name>
+    <description>B-Cell Depleting Agent</description>
+    <arm_group_label>Combined Bone Marrow and Kidney Transplantation</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Radiation</intervention_type>
+    <intervention_name>Total Body Irradiation</intervention_name>
+    <description>Bone Marrow Depletion</description>
+    <arm_group_label>Combined Bone Marrow and Kidney Transplantation</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Radiation</intervention_type>
+    <intervention_name>Thymic Irradiation</intervention_name>
+    <arm_group_label>Combined Bone Marrow and Kidney Transplantation</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Key Inclusion Criteria:
+
+          -  Male or female 18-60 years of age
+
+          -  Candidate for a living-donor renal allograft with a one haplotype identical donor
+             identified.
+
+          -  First or second transplant with either a living donor or cadaveric transplant as the
+             first transplant.
+
+          -  Positive serologic testing for EBV indicating past exposure.
+
+        Key Exclusion Criteria:
+
+          -  ABO blood group-incompatible renal allograft.
+
+          -  Evidence of anti-HLA antibody within 60 days prior to transplant as assessed by
+             routine methodology (AHG and/or ELISA)
+
+          -  Positive testing for: HIV, hepatitis B core antigen, or hepatitis C virus or
+             positivity for hepatitis B surface antigen.
+
+          -  Cardiac ejection fraction &lt; 40% or clinical evidence of insufficiency.
+
+          -  History of cancer other than basal cell carcinoma of the skin or carcinoma in situ of
+             the cervix.
+
+          -  Underlying renal disease etiology with a high risk of disease recurrence in the
+             transplanted kidney (such as focal segmental glomerulosclerosis, type I or II
+             nonproliferative glomerulonephritis).
+
+          -  Prior dose-limiting radiation therapy.
+
+          -  Abnormal (&gt;2 times lab normal) values for (a) liver function chemistries (ALT, AST,
+             AP), (b) bilirubin, (c) coagulation studies (PT, PTT).
+
+          -  The presence of any medical condition that the investigator deems incompatible with
+             participation in the trial.
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>65 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>A. Benedict Cosimi, M.D.</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Massachusetts General Hospital</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>David Sachs, M.D.</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Massachusetts General Hospital</affiliation>
+  </overall_official>
+  <overall_contact>
+    <last_name>Kerry Crisalli, RN</last_name>
+    <phone>617-643-4087</phone>
+    <email>kcrisalli@mgh.harvard.edu</email>
+  </overall_contact>
+  <location>
+    <facility>
+      <name>Massachusetts General Hospital</name>
+      <address>
+        <city>Boston</city>
+        <state>Massachusetts</state>
+        <zip>02114</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <reference>
+    <citation>Kawai T, Cosimi AB, Sachs DH. Preclinical and clinical studies on the induction of renal allograft tolerance through transient mixed chimerism. Curr Opin Organ Transplant. 2011 Aug;16(4):366-71. doi: 10.1097/MOT.0b013e3283484b2c. Review.</citation>
+    <PMID>21666482</PMID>
+  </reference>
+  <reference>
+    <citation>Sachs DH, Sykes M, Kawai T, Cosimi AB. Immuno-intervention for the induction of transplantation tolerance through mixed chimerism. Semin Immunol. 2011 Jun;23(3):165-73. doi: 10.1016/j.smim.2011.07.001. Epub 2011 Aug 11. Review.</citation>
+    <PMID>21839648</PMID>
+  </reference>
+  <reference>
+    <citation>Kawai T, Cosimi AB, Spitzer TR, Tolkoff-Rubin N, Suthanthiran M, Saidman SL, Shaffer J, Preffer FI, Ding R, Sharma V, Fishman JA, Dey B, Ko DS, Hertl M, Goes NB, Wong W, Williams WW Jr, Colvin RB, Sykes M, Sachs DH. HLA-mismatched renal transplantation without maintenance immunosuppression. N Engl J Med. 2008 Jan 24;358(4):353-61.</citation>
+    <PMID>18216355</PMID>
+  </reference>
+  <verification_date>December 2013</verification_date>
+  <lastchanged_date>December 12, 2013</lastchanged_date>
+  <firstreceived_date>January 29, 2013</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Principal Investigator</responsible_party_type>
+    <investigator_affiliation>Massachusetts General Hospital</investigator_affiliation>
+    <investigator_full_name>David Sachs M.D.</investigator_full_name>
+    <investigator_title>Director, Transplantation Biology Research Center</investigator_title>
+  </responsible_party>
+  <keyword>End Stage Renal Disease</keyword>
+  <keyword>Renal Transplant</keyword>
+  <keyword>Bone Marrow Transplant</keyword>
+  <keyword>Tolerance</keyword>
+  <keyword>Chimerism</keyword>
+  <keyword>ESRD</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Kidney Diseases</mesh_term>
+    <mesh_term>Kidney Failure, Chronic</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Rituximab</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

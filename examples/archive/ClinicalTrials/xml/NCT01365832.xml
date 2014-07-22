@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01365832</url>
+  </required_header>
+  <id_info>
+    <org_study_id>OSACRP-02</org_study_id>
+    <nct_id>NCT01365832</nct_id>
+  </id_info>
+  <brief_title>Change in C-reactive Protein (CRP) in Men and Women With Sleep Apnea After Continuous Positive Airway Pressure (CPAP)</brief_title>
+  <official_title>CRP Evolution Pattern in CPAP Treated Obstructive Sleep Apnea Patients. Does Gender Play a Role?</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>University of Crete</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>University of Crete</source>
+  <oversight_info>
+    <authority>Greece: Ethics Committee</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      C-reactive protein (CRP) is directly implicated in atherogenesis and associated
+      cardiovascular morbidity in patients with obstructive sleep apnea (OSA). Effective
+      Continuous Positive Airway Pressure (CPAP) treatment has been shown to gradually decrease
+      CRP levels and thus  consequently improve disease-related cardiovascular morbidity. However,
+      the influence of gender on the CRP evolution pattern has never been assessed before. The aim
+      of our study was to investigate possible gender differences in CRP evolution in OSA patients
+      3 and 6 months after the start of effective CPAP treatment.
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      OSA is an independent risk factor for a number of cardiovascular diseases. One important
+      possible mechanism underlying cardiovascular disease in patients with OSA is systemic
+      inflammation. CRP, an acute phase reactant secreted by the liver, is one of the most
+      actively studied biomarkers of low-grade inflammation, and numerous studies have shown that
+      higher CRP levels are associated with high mortality and morbidity due to cardiovascular
+      disease in men and women. In patients with OSA, the question as to whether or not CRP levels
+      are elevated is still under debate. Although continuous positive airway pressure (CPAP) is
+      effective in the management of OSA, conflicting data also exist regarding the effects of
+      CPAP on CRP levels. However, none of the existing studies assessed the influence of gender
+      on the CRP evolution pattern. Therefore, the aim of this study was to investigate possible
+      gender differences in CRP evolution in patients with moderate to severe OSA, free of medical
+      comorbidities, 3 and 6 months after the start of effective CPAP treatment.
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>January 2007</start_date>
+  <completion_date type="Actual">June 2009</completion_date>
+  <primary_completion_date type="Actual">June 2009</primary_completion_date>
+  <phase>N/A</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Change in CRP in OSA patients, according to gender, 3 and 6 months after the start of effective CPAP treatment.</measure>
+    <time_frame>Day 1, Month 3 and Month 6  post treatment</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <number_of_arms>1</number_of_arms>
+  <enrollment type="Actual">436</enrollment>
+  <condition>Obstructive Sleep Apnea</condition>
+  <arm_group>
+    <arm_group_label>Sleep apnea</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Participants with Obstructive Sleep Apnea (OSA).This arm will undergo a pre-treatment blood draw, six months of Continuous Positive Airway Pressure (CPAP) to treat OSA, and a post-treatment blood draw 3 and 6 months later.
+Intervention: Procedure: Continuous Positive Airway Pressure (CPAP)</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Procedure</intervention_type>
+    <intervention_name>Continuous Positive Airway Pressure (CPAP)</intervention_name>
+    <description>Continuous positive airway pressure (CPAP) is the gold standard for Obstructive Sleep Apnea (OSA) management. Subjects with OSA  will be trained in the use of CPAP and will be instructed to use CPAP every night for 6 months. These subjects will then return for a post-treatment blood draw 3 and 6 months after the start of effective CPAP treatment</description>
+    <arm_group_label>Sleep apnea</arm_group_label>
+    <other_name>positive pressure ventilation</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Patients with apnoea-hypopnoea index &gt;15/h
+
+        Exclusion Criteria:
+
+          -  chronic obstructive pulmonary disease
+
+          -  diabetes mellitus
+
+          -  coronary artery disease
+
+          -  congestive heart failure
+
+          -  chronic renal failure
+
+          -  known dyslipidemia
+
+          -  smoking history
+
+          -  hypothyroidism
+
+          -  chronic or recent infectious or inflammatory disease
+
+          -  use of anti-inflammatory or antibiotic drugs, or statins.
+
+          -  postmenopausal females on estrogen replacement therapy.
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>65 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Sophia E Schiza, MD, PhD</last_name>
+    <role>Study Chair</role>
+    <affiliation>University of Crete</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>Charalampos Mermigkis, MD</last_name>
+    <role>Study Director</role>
+    <affiliation>Sleep Disorders Center, Pulmonary Department, 401 General Army Hospital, Athens, Greece</affiliation>
+  </overall_official>
+  <overall_official>
+    <last_name>Izolde Bouloukaki, MD, PhD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>University of Crete</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Sleep Disorders Unit, Department of Thoracic Medicine, Medical School, University of Crete</name>
+      <address>
+        <city>Heraklion</city>
+        <state>Crete</state>
+        <zip>71110</zip>
+        <country>Greece</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>Greece</country>
+  </location_countries>
+  <verification_date>April 2011</verification_date>
+  <lastchanged_date>June 3, 2011</lastchanged_date>
+  <firstreceived_date>May 17, 2011</firstreceived_date>
+  <responsible_party>
+    <name_title>Sophia Schiza</name_title>
+    <organization>University of Crete</organization>
+  </responsible_party>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Apnea</mesh_term>
+    <mesh_term>Sleep Apnea Syndromes</mesh_term>
+    <mesh_term>Sleep Apnea, Obstructive</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

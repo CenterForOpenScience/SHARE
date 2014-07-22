@@ -1,0 +1,33 @@
+last_updated: 1405934400
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 11
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=12&types=mtttffff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=12&types=mtttffff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=12&types=mtttffff'}
+altmetric_id: 896464
+subjects: [u'epidemiology']
+published_on: 1167609600
+title: Methylenetetrahydrofolate Reductase (MTHFR) Genetic Polymorphisms and Psychiatric Disorders: A HuGE Review
+cited_by_tweeters_count: 4
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'#folate #5MTHF #MTHFR Methylenetetrahydrofolate Reductase (MTHFR) Genetic Polymorphisms and Psychiatric Disorders', u'#MTHFR Genetic Polymorphisms and Psychiatric Disorders: A HuGE Review #psych #psychiatry', u'Methylenetetrahydrofolate reductase (MTHFR) genetic polymorphisms and psychiatric disorders #MTHFR', u'Could your depression have an organic cause? MTHFR gene psychiatric disorders - a']
+score: 12
+altmetric_jid: 4f6fa4e83cf058f6100021f7
+pmid: 17074966
+abstract: The authors performed a meta-analysis of studies examining the association between polymorphisms in the 5,10-methylenetetrahydrofolate reductase (MTHFR) gene, including MTHFR C677T and A1298C, and common psychiatric disorders, including unipolar depression, anxiety disorders, bipolar disorder, and schizophrenia. The primary comparison was between homozygote variants and the wild type for MTHFR C677T and A1298C. For unipolar depression and the MTHFR C677T polymorphism, the fixed-effects odds ratio for homozygote variants (TT) versus the wild type (CC) was 1.36 (95% confidence interval (CI): 1.11, 1.67), with no residual between-study heterogeneity (I(2) = 0%)--based on 1,280 cases and 10,429 controls. For schizophrenia and MTHFR C677T, the fixed-effects odds ratio for TT versus CC was 1.44 (95% CI: 1.21, 1.70), with low heterogeneity (I(2) = 42%)--based on 2,762 cases and 3,363 controls. For bipolar disorder and MTHFR C677T, the fixed-effects odds ratio for TT versus CC was 1.82 (95% CI: 1.22, 2.70), with low heterogeneity (I(2) = 42%)-based on 550 cases and 1,098 controls. These results were robust to various sensitively analyses. This meta-analysis demonstrates an association between the MTHFR C677T variant and depression, schizophrenia, and bipolar disorder, raising the possibility of the use of folate in treatment and prevention.
+schema: 1.5.4
+cohorts: {u'pub': 4}
+readers_count: 44
+journal: American Journal of Epidemiology
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}, {u'scheme': u'era', u'name': u'Mathematical Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=896464
+doi: 10.1093/aje/kwj347
+abstract_source: pubmed
+url: http://dx.doi.org/10.1093/aje/kwj347
+readers: {u'mendeley': 42, u'citeulike': 0, u'connotea': 2}
+nlmid: 7910653
+history: {u'6d': 7, u'1w': 7, u'1y': 7.5, u'1m': 7, u'6m': 7.25, u'2d': 7, u'at': 12, u'3m': 7, u'5d': 7, u'4d': 7, u'1d': 7, u'3d': 7}
+context: {u'similar_age_journal_3m': {u'count': 21, u'higher_than': 18, u'pct': 85, u'rank': 3, u'mean': 3.2446}, u'all': {u'count': 2289651, u'higher_than': 2129951, u'pct': 93, u'rank': 156872, u'mean': 4.8082975694997}, u'similar_age_3m': {u'count': 70222, u'higher_than': 65204, u'pct': 92, u'rank': 4949, u'mean': 4.9429269306902}, u'journal': {u'count': 1614, u'higher_than': 1439, u'pct': 89, u'rank': 172, u'mean': 6.5680818350899}}
+cited_by_fbwalls_count: 5
+issns: [u'1476-6256']
+added_on: 1345547364
+cited_by_accounts_count: 10

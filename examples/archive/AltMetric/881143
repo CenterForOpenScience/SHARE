@@ -1,0 +1,28 @@
+cited_by_feeds_count: 1
+last_updated: 1405949940
+is_oa: False
+cited_by_posts_count: 2
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=12&types=bbbbtttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=12&types=bbbbtttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=12&types=bbbbtttt'}
+altmetric_id: 881143
+subjects: []
+published_on: 1325376000
+title: The toxic effect of silver ions and silver nanoparticles towards bacteria and human cells occurs in the same concentration range
+cited_by_tweeters_count: 1
+scopus_subjects: []
+issns: [u'2046-2069']
+score: 12
+altmetric_jid: 4f6fa6373cf058f610008853
+nlmid: na
+schema: 1.5.4
+cohorts: {u'sci': 1}
+readers_count: 14
+journal: RSC Advances
+publisher_subjects: []
+details_url: http://www.altmetric.com/details.php?citation_id=881143
+doi: 10.1039/c2ra20684f
+url: http://dx.doi.org/10.1039/c2ra20684f
+readers: {u'mendeley': 13, u'citeulike': 1, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 2, u'higher_than': 1, u'pct': 50, u'rank': 1, u'mean': 0.25}, u'all': {u'count': 2291340, u'higher_than': 2130910, u'pct': 92, u'rank': 157003, u'mean': 4.8093387377446}, u'similar_age_3m': {u'count': 68670, u'higher_than': 63720, u'pct': 92, u'rank': 4882, u'mean': 4.97659578558}, u'journal': {u'count': 366, u'higher_than': 356, u'pct': 97, u'rank': 10, u'mean': 2.5100493150685}}
+history: {u'6d': 9, u'1w': 9, u'1y': 9, u'1m': 9, u'6m': 9, u'2d': 9, u'at': 12, u'3m': 9, u'5d': 9, u'4d': 9, u'1d': 9, u'3d': 9}
+added_on: 1344570723
+cited_by_accounts_count: 2

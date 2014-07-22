@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01985282</url>
+  </required_header>
+  <id_info>
+    <org_study_id>12.33.NRC</org_study_id>
+    <nct_id>NCT01985282</nct_id>
+  </id_info>
+  <brief_title>Feasibility Clinical Study of NLA Tool</brief_title>
+  <official_title>Evaluate the Feasibility of the NLA Tool, a Combined Assessment of Nutritional and Physical Functional Status, to Provide Personalized Advice for the Independence and Mobility of Elderly.</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Nestlé</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Nestlé</source>
+  <oversight_info>
+    <authority>Japan: Ministry of Health, Labor and Welfare</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The study is to evaluate the feasibility of the NLA tool, a combined assessment of
+      nutritional and physical functional status, to provide personalized advice for the
+      independence and mobility of elderly.
+    </textblock>
+  </brief_summary>
+  <overall_status>Completed</overall_status>
+  <start_date>March 2013</start_date>
+  <completion_date type="Actual">June 2013</completion_date>
+  <primary_completion_date type="Actual">June 2013</primary_completion_date>
+  <phase>N/A</phase>
+  <study_type>Observational</study_type>
+  <study_design>Time Perspective: Cross-Sectional</study_design>
+  <primary_outcome>
+    <measure>NLA Feasibility</measure>
+    <time_frame>Day 1 of Study</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Determining the proportion of elderly subjects (by statistical approach) who, according to the NLA result, would qualify for a personalized program to improve their nutritional and physical status</description>
+  </primary_outcome>
+  <primary_outcome>
+    <measure>The Segmentation of Target Population</measure>
+    <time_frame>Day 1 of Study</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Determining the segmentation (defined by cut-off criteria) of these elderly subjects stratified into 3 NLA subgroups according to strength (By measuring upper and lower extremity strength) and endurance performance (By measuring 6 minutes walking distantce) (33% +/- 10% of target group)</description>
+  </primary_outcome>
+  <number_of_groups>1</number_of_groups>
+  <enrollment type="Actual">250</enrollment>
+  <condition>Healthy Elder People</condition>
+  <arm_group>
+    <arm_group_label>Nutrition Status and Physical Function</arm_group_label>
+    <description>Nutrition questionnaire will be administered Physical functional status will be tested</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Behavioral</intervention_type>
+    <intervention_name>Nutrition Status Questionnaires and Physicial Function Test</intervention_name>
+    <description>Nutrition status questionnaires will be administered, Physical functional status will be tested</description>
+    <arm_group_label>Nutrition Status and Physical Function</arm_group_label>
+  </intervention>
+  <eligibility>
+    <study_pop>
+      <textblock>
+        Free-living or institutionalized elderly (65-90years)
+      </textblock>
+    </study_pop>
+    <sampling_method>Non-Probability Sample</sampling_method>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          1. aged between 65 and 90 years,
+
+          2. able to walk with or without walking aid,
+
+          3. having obtained the subject's written informed consent
+
+          4. free of cognitive impairment,
+
+        Exclusion Criteria:
+
+          1. restricted by a doctor to exercise.
+
+          2. unable to carry out performance tests and questionnaires correctly,
+
+          3. lower or upper extremity surgery or fracture in the last 3 months
+
+          4. having history of neurological disease (e.g., Parkinson disease, stroke) with
+             residual impairment
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>65 Years</minimum_age>
+    <maximum_age>90 Years</maximum_age>
+    <healthy_volunteers>Accepts Healthy Volunteers</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Kiyoji Tanaka, PhD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Graduate School of Comprehensive Human Sciences, Tsukuba University</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Graduate School of Comprehensive Human Sciences, Tsukuba University</name>
+      <address>
+        <city>Tsukuba</city>
+        <state>Ibaraki</state>
+        <country>Japan</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>Japan</country>
+  </location_countries>
+  <verification_date>November 2013</verification_date>
+  <lastchanged_date>November 8, 2013</lastchanged_date>
+  <firstreceived_date>April 22, 2013</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01035515</url>
+  </required_header>
+  <id_info>
+    <org_study_id>204HV102</org_study_id>
+    <nct_id>NCT01035515</nct_id>
+  </id_info>
+  <brief_title>BIIB014 Cardiovascular Monitoring Study</brief_title>
+  <official_title>A Single-Center, Randomized, Placebo-Controlled, Double-Blind, Crossover Study to Evaluate the Cardiovascular Effects of Single Doses of Oral BIIB014 in Healthy Volunteers</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Biogen Idec</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Biogen Idec</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The study will examine the effects of a single dose of BIIB014 on blood pressure and
+      haemodynamic variables in healthy volunteers over 24 hours.
+    </textblock>
+  </brief_summary>
+  <overall_status>Completed</overall_status>
+  <start_date>December 2009</start_date>
+  <completion_date type="Actual">April 2010</completion_date>
+  <primary_completion_date type="Actual">April 2010</primary_completion_date>
+  <phase>Phase 1</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety Study, Intervention Model: Crossover Assignment, Masking: Double Blind (Subject, Investigator)</study_design>
+  <primary_outcome>
+    <measure>Supine Blood pressure</measure>
+    <time_frame>24 hours</time_frame>
+    <safety_issue>Yes</safety_issue>
+  </primary_outcome>
+  <number_of_arms>6</number_of_arms>
+  <enrollment type="Actual">24</enrollment>
+  <condition>Healthy</condition>
+  <arm_group>
+    <arm_group_label>Arm One</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Arm 1 of 6 cross-over arms</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Arm Two</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Arm 2 of 6 cross-over arms</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Arm Three</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Arm 3 of 6 cross-over arms</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Arm Four</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Arm 4 of 6 cross-over arms</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Arm Five</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Arm 5 of 6 cross-over arms</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Arm Six</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Arm 1 of 6 cross-over arms</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Placebo</intervention_name>
+    <description>Single dose oral capsule placebo comparator</description>
+    <arm_group_label>Arm Six</arm_group_label>
+    <arm_group_label>Arm Two</arm_group_label>
+    <arm_group_label>Arm Four</arm_group_label>
+    <arm_group_label>Arm Three</arm_group_label>
+    <arm_group_label>Arm Five</arm_group_label>
+    <arm_group_label>Arm One</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>BIIB014 50mg</intervention_name>
+    <description>Single dose oral capsule 50mg BIIB014</description>
+    <arm_group_label>Arm Six</arm_group_label>
+    <arm_group_label>Arm Two</arm_group_label>
+    <arm_group_label>Arm Four</arm_group_label>
+    <arm_group_label>Arm Three</arm_group_label>
+    <arm_group_label>Arm Five</arm_group_label>
+    <arm_group_label>Arm One</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>BIIB014 100mg</intervention_name>
+    <description>Single dose oral capsule 100mg BIIB014</description>
+    <arm_group_label>Arm Six</arm_group_label>
+    <arm_group_label>Arm Two</arm_group_label>
+    <arm_group_label>Arm Four</arm_group_label>
+    <arm_group_label>Arm Three</arm_group_label>
+    <arm_group_label>Arm Five</arm_group_label>
+    <arm_group_label>Arm One</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Healthy male or female subjects
+
+          -  Between the ages of 18 and 50, inclusive.
+
+          -  Must have a body mass index (BMI) between 19 kg/m2 and 30 kg/m2, inclusive
+
+        Exclusion Criteria:
+
+          -  Clinically significant abnormalities (as determined by the Investigator)
+
+          -  Other unspecified reason that would make the subject unsuitable for enrollment (as
+             determined by the Investigator)
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>50 Years</maximum_age>
+    <healthy_volunteers>Accepts Healthy Volunteers</healthy_volunteers>
+  </eligibility>
+  <location>
+    <facility>
+      <name>Quintiles Inc</name>
+      <address>
+        <city>Overland Park</city>
+        <state>Kansas</state>
+        <zip>66211</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <verification_date>June 2010</verification_date>
+  <lastchanged_date>June 17, 2010</lastchanged_date>
+  <firstreceived_date>December 17, 2009</firstreceived_date>
+  <responsible_party>
+    <name_title>Biogen Idec Study MD</name_title>
+    <organization>Biogen Idec</organization>
+  </responsible_party>
+  <keyword>Healthy subjects</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>No</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

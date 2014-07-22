@@ -1,0 +1,31 @@
+cited_by_feeds_count: 2
+last_updated: 1405901383
+is_oa: False
+cited_by_posts_count: 382
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=228&types=bttttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=228&types=bttttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=228&types=bttttttf'}
+altmetric_id: 874464
+subjects: []
+published_on: 1343775600
+issns: [u'14730480']
+title: Investments that Work for Physical Activity.
+cited_by_tweeters_count: 288
+scopus_subjects: [u'Health Sciences', u'Medicine', u'Health Professions']
+tq: [u'Please share. OUTSTANDING and evidence based article on what works in getting people active @RichardFoggo @Fosowska', u"Free! (archive) - How to roll out #physical activity? 7 'best investments' (proven) link works", u"Here's the link to free 'umbrella plan' for physical activity #FIMS2014", u'Link worth sharing? What works to get people active. here is the international blueprint.']
+score: 227.19
+altmetric_jid: 4f6fa4e93cf058f610002456
+pmid: 22869788
+nlmid: na
+schema: 1.5.4
+cohorts: {u'doc': 47, u'sci': 34, u'com': 8, u'pub': 199}
+readers_count: 17
+journal: British Journal of Sports Medicine
+publisher_subjects: [{u'scheme': u'bmj', u'name': u"Editor's choice"}, {u'scheme': u'bmj', u'name': u'Health education'}, {u'scheme': u'bmj', u'name': u'Obesity (nutrition)'}, {u'scheme': u'bmj', u'name': u'Obesity (public health)'}, {u'scheme': u'era', u'name': u'Medical And Health Sciences'}, {u'scheme': u'era', u'name': u'Engineering'}, {u'scheme': u'era', u'name': u'Education'}]
+details_url: http://www.altmetric.com/details.php?citation_id=874464
+doi: 10.1136/bjsm.2012.091485
+url: http://dx.doi.org/10.1136/bjsm.2012.091485
+readers: {u'mendeley': 17, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 88, u'higher_than': 87, u'pct': 98, u'rank': 1, u'mean': 18.299632183908}, u'all': {u'count': 2289179, u'higher_than': 2286117, u'pct': 99, u'rank': 3062, u'mean': 4.8072910075166}, u'similar_age_3m': {u'count': 68442, u'higher_than': 68309, u'pct': 99, u'rank': 133, u'mean': 4.9356093861865}, u'journal': {u'count': 2210, u'higher_than': 2189, u'pct': 99, u'rank': 21, u'mean': 15.089767315527}}
+cited_by_fbwalls_count: 9
+history: {u'6d': 13.05, u'1w': 13.05, u'1y': 147.4, u'1m': 19.65, u'6m': 45.1, u'2d': 8.35, u'at': 227.19, u'3m': 39.8, u'5d': 13.05, u'4d': 13.05, u'1d': 2.7, u'3d': 13.05}
+added_on: 1344247440
+cited_by_accounts_count: 299

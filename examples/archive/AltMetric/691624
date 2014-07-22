@@ -1,0 +1,28 @@
+cited_by_feeds_count: 1
+last_updated: 1404212970
+is_oa: False
+cited_by_posts_count: 1
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=6&types=bbbbbbbb', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=6&types=bbbbbbbb', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=6&types=bbbbbbbb'}
+altmetric_id: 691624
+downloads: []
+published_on: 562723200
+title: The distribution of sodium and potassium channels in single demyelinated axons of the frog.
+scopus_subjects: [u'Biochemistry, Genetics and Molecular Biology', u'Life Sciences']
+score: 5.72
+altmetric_jid: 4f6fa6293cf058f610007df5
+pmid: 2451731
+abstract: 1. Frog sciatic nerves were focally demyelinated by intraneural injection of lysolecithin. Fibres were examined 1-8 days later. At early times axons contained zones just a few micrometers long that were covered by myelin debris. These zones lengthened and the debris was cleared over the next several days. 2. The loose patch clamp technique was used to measure ionic currents in the demyelinated axolemma in both internodal and paranodal regions. 3. Transient inward currents that have been identified as Na+ currents on the basis of voltage dependence and sensitivity to tetrodotoxin were recorded at all stages tested. There was no significant increase in internodal peak Na+ current with time over the first 8 days after injection. 4. Peak inward currents varied relatively little with distance along the internode at 1 day post-injection. However, sharp gradients were detected at demyelinated paranodal and nodal membranes. 5. By combining the patch clamp with external stimulation proximal to the patch site it has been possible to record membrane current responses to propagating signals invading the demyelinated zone. With demyelination only in the distal heminode the extent of Na+ channel activation is similar to that predicted for normal nodes of Ranvier by Frankenhaeuser & Huxley (1964). 6. The ratio of K+ conductance to Na+ conductance is much higher in demyelinated internodes than in normal nodes of Ranvier. 7. It is concluded that Na+ channels are likely to be present in normal internodes. The total number of these internodal channels may be about 40 times the total number at nodes. Steep gradients of Na+ channel density remain at nodal regions at least up to 6 days following demyelination.
+schema: 1.5.4
+cohorts: []
+readers_count: 8
+journal: The Journal of Physiology
+publisher_subjects: [{u'scheme': u'era', u'name': u'Biological Sciences'}, {u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=691624
+issns: []
+abstract_source: pubmed
+url: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1192322/pdf/jphysiol00522-0586.pdf
+readers: {u'mendeley': 8, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 26, u'higher_than': 24, u'pct': 92, u'rank': 2, u'mean': 2.194}, u'all': {u'count': 2204624, u'higher_than': 1842861, u'pct': 83, u'rank': 361503, u'mean': 4.7842806312029}, u'similar_age_3m': {u'count': 69914, u'higher_than': 61394, u'pct': 87, u'rank': 8519, u'mean': 3.9592700356156}, u'journal': {u'count': 1399, u'higher_than': 1191, u'pct': 85, u'rank': 207, u'mean': 5.0951373390558}}
+history: {u'6d': 5.72, u'1w': 5.72, u'1y': 5.72, u'1m': 5.72, u'6m': 5.72, u'2d': 5.72, u'at': 5.72, u'3m': 5.72, u'5d': 5.72, u'4d': 5.72, u'1d': 5.72, u'3d': 5.72}
+added_on: 1334132884
+cited_by_accounts_count: 1

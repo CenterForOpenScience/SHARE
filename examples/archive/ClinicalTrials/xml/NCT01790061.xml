@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01790061</url>
+  </required_header>
+  <id_info>
+    <org_study_id>FMT-CN-121123</org_study_id>
+    <nct_id>NCT01790061</nct_id>
+  </id_info>
+  <brief_title>Standardized Fecal Microbiota Transplantation for Ulcerative Colitis</brief_title>
+  <official_title>Efficacy, Durability and Safety of Standardized Fecal Microbiota Transplantation in Patients With Moderate to Severe Ulcerative Colitis</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>The Second Hospital of Nanjing Medical University</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>The Second Hospital of Nanjing Medical University</source>
+  <oversight_info>
+    <authority>China: Ministry of Health</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The gut microbiota is considered to constitute a &quot;microbial organ&quot; which has pivotal roles
+      in the intestinal diseases and body's metabolism. Evidence from animal and human studies
+      strongly supports the link between intestinal bacteria and inflammatory bowel diseases
+      (IBD). Dozens of studies reported its efficacy in treatment of severe Clostridium difficile
+      colitis. Preliminary studies using FMT for Ulcerative Colitis (UC), Crohn's diseases,
+      irritable bowel syndrome (IBS) and constipation have also met with some success. This is an
+      initial step into investigating the potential efficacy of standardized fecal bacteriotherapy
+      through mid-gut (at least below duodenal papilla) for UC, the investigators propose to
+      determine the efficiency and safety of FMT in a series of 60 patients with moderate to
+      severe UC (Montreal classification).
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      The present clinical trial aims to re-establish a gut functionality state of intestinal
+      flora through FMT as a therapy for UC. Investigators established a standard bacteria
+      isolation from donated fresh stool in lab. Then the bacteria is transplanted to mid-gut
+      through regular gastroscope. Patients in this study will assigned to receive FMT only once
+      or traditional treatments according to associated guidelines and follow-up for at least one
+      year. Blood tests , endoscopy and questionnaire will be used to assess participants at study
+      start and at study completion.
+    </textblock>
+  </detailed_description>
+  <overall_status>Recruiting</overall_status>
+  <start_date>November 2012</start_date>
+  <completion_date type="Anticipated">December 2014</completion_date>
+  <primary_completion_date type="Anticipated">October 2014</primary_completion_date>
+  <phase>Phase 2/Phase 3</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>durability of clinical remission</measure>
+    <time_frame>One month</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>The durability of clinical remission (days) after Fecal Microbiota Transplantation procedure.Defined as Montreal score S0 (clinical remission)</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Patients with worsened disease</measure>
+    <time_frame>one year</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Number of patients with worsened disease. Increase in Montreal score S1, S2 and S3.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Adverse events</measure>
+    <time_frame>one year</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Number of adverse events.</description>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Anticipated">60</enrollment>
+  <condition>Bacteria</condition>
+  <condition>Flora</condition>
+  <condition>Fecal Microbiota Transplantation</condition>
+  <condition>Inflammatory Bowel Disease</condition>
+  <condition>Ulcerative Colitis</condition>
+  <arm_group>
+    <arm_group_label>Standardized Fecal Microbiota Transplantation</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Standardized Fecal Microbiota Transplantation, once.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Traditional treatments</arm_group_label>
+    <arm_group_type>Sham Comparator</arm_group_type>
+    <description>Traditional treatments according to associated guidelines</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Procedure</intervention_type>
+    <intervention_name>Standardized Fecal Microbiota Transplantation</intervention_name>
+    <description>Fecal microbiota transplantation by gastroscopy administration of fresh or frozen bacteria from healthy donor to the mid-gut (below the second part of duodenum).</description>
+    <arm_group_label>Standardized Fecal Microbiota Transplantation</arm_group_label>
+    <other_name>Fecal Microbiota Transplantation</other_name>
+    <other_name>Fecal Microbiota Therapy</other_name>
+    <other_name>fecal transplantation</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Traditional treatments according to associated guidelines</intervention_name>
+    <description>Traditional treatments according to associated guidelines</description>
+    <arm_group_label>Traditional treatments</arm_group_label>
+    <other_name>Traditional treatments according to associated guidelines</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+        Mild to moderate UC (Montreal classification)
+
+        Exclusion Criteria:
+
+        Diagnosed as UC first time. No history of using Biologic,immunomodulatory therapy or
+        corticosteroid therapy.
+
+        With contraindication of endoscopy.
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>70 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_contact>
+    <last_name>Faming Zhang, MD,PhD</last_name>
+    <phone>086-25-58509883</phone>
+    <email>fzhang@njmu.edu.cn</email>
+  </overall_contact>
+  <location>
+    <facility>
+      <name>Medical Center for Digestive Diseases, The Second Affiliated Hospital of Nanjing Medical University</name>
+      <address>
+        <city>Nanjing</city>
+        <state>Jiangsu</state>
+        <zip>210011</zip>
+        <country>China</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Faming Zhang, MD, PhD</last_name>
+      <phone>086-25-58509883</phone>
+      <email>fzhang@njmu.edu.cn</email>
+    </contact>
+  </location>
+  <location_countries>
+    <country>China</country>
+  </location_countries>
+  <link>
+    <url>http://www.ncbi.nlm.nih.gov/pubmed</url>
+    <description>Fecal microbiota transplantation</description>
+  </link>
+  <reference>
+    <citation>Borody TJ, Khoruts A. Fecal microbiota transplantation and emerging applications. Nat Rev Gastroenterol Hepatol. 2011 Dec 20;9(2):88-96. doi: 10.1038/nrgastro.2011.244. Review.</citation>
+    <PMID>22183182</PMID>
+  </reference>
+  <reference>
+    <citation>Aroniadis OC, Brandt LJ. Fecal microbiota transplantation: past, present and future. Curr Opin Gastroenterol. 2013 Jan;29(1):79-84. doi: 10.1097/MOG.0b013e32835a4b3e.</citation>
+    <PMID>23041678</PMID>
+  </reference>
+  <reference>
+    <citation>Zhang F, Luo W, Shi Y, Fan Z, Ji G. Should we standardize the 1,700-year-old fecal microbiota transplantation? Am J Gastroenterol. 2012 Nov;107(11):1755; author reply p.1755-6. doi: 10.1038/ajg.2012.251.</citation>
+    <PMID>23160295</PMID>
+  </reference>
+  <reference>
+    <citation>Bennet JD, Brinkman M. Treatment of ulcerative colitis by implantation of normal colonic flora. Lancet. 1989 Jan 21;1(8630):164.</citation>
+    <PMID>2563083</PMID>
+  </reference>
+  <verification_date>December 2013</verification_date>
+  <lastchanged_date>December 15, 2013</lastchanged_date>
+  <firstreceived_date>February 9, 2013</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Principal Investigator</responsible_party_type>
+    <investigator_affiliation>The Second Hospital of Nanjing Medical University</investigator_affiliation>
+    <investigator_full_name>Faming Zhang</investigator_full_name>
+    <investigator_title>Associate professor, Gastroenterology</investigator_title>
+  </responsible_party>
+  <keyword>Gut bacteria</keyword>
+  <keyword>Gut flora</keyword>
+  <keyword>Bacteriotherapy</keyword>
+  <keyword>Fecal Microbiota Transplantation</keyword>
+  <keyword>Inflammatory bowel disease</keyword>
+  <keyword>Ulcerative colitis</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Colitis</mesh_term>
+    <mesh_term>Colitis, Ulcerative</mesh_term>
+    <mesh_term>Inflammatory Bowel Diseases</mesh_term>
+    <mesh_term>Intestinal Diseases</mesh_term>
+    <mesh_term>Ulcer</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

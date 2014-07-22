@@ -1,0 +1,102 @@
+{
+    "clinical_study": {
+        "@rank": "118012", 
+        "brief_summary": {
+            "textblock": "Laparoscopic assisted vaginal hysterectomy (LAVH)has become the most prevalent operation\n      method in woman suffering from uterine myoma or adenomyosis nowadays. The operation\n      decisions for these women are always due to symptoms such as pain, anemia and mass effect.\n      However, there is a lack of measurement for these symptoms and therefore highlight the need\n      to validate these symptom by health-related quality of life (QOL) assessments. Patients\n      usually recovered better by LAVH comparing to traditional open surgeries. However, LAVH was\n      restricted to cases with small size uteri and most QOL reported neglected uterine weight or\n      were based on small uteri size. We recently intervened a new surgical procedure called RULU\n      during LAVH and thus released this limitation. This will give a more unbiased study on the\n      effect of QOL in patients receiving LAVH. In this study, we plan to use two questionnaires:\n      the disease specific UFS-QOL and the WHO-QOL Taiwan version questionnaires for patients\n      receiving LAVH. Assessment will be performed before operation; and 3 days, 7 days, 3 months\n      and 18 months after operation. From these assessments, we plan to determine which QOL\n      variables will be useful as operation guidelines for patients suffering from leiomyoma or\n      adenomyosis, and for the assessment of appropriates and outcomes of LAVH."
+        }, 
+        "brief_title": "Health-Related QoL Among Women Receiving Hysterectomy in NTUH", 
+        "completion_date": "June 2005", 
+        "condition": [
+            "Leiomyoma", 
+            "Adenomyosis"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Leiomyoma", 
+                "Myofibroma"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "Hysterectomy is the most common non-pregnancy-related surgical procedure performed in women\n      in Taiwan. There are three surgical approaches to hysterectomy: abdominal, vaginal and\n      laparoscopic assisted vaginal hysterectomy (LAVH) and LAVH has become the most prevalent\n      operation method in woman suffering from uterine myoma or adenomyosis nowadays. The\n      operation decisions for these women are always due to symptoms such as pain, anemia and mass\n      effect. However, there is a lack of measurement for these symptoms and therefore highlight\n      the need to validate these symptom by health-related quality of life (QOL) assessments.\n      Patients usually recovered better by LAVH comparing to traditional open surgeries. However,\n      LAVH was restricted to cases with small size uteri and most QOL reported neglected uterine\n      weight or were based on small uteri size. We recently intervened a new surgical procedure\n      called RULU during LAVH and thus released this limitation. This will give a more unbiased\n      study on the effect of QOL in patients receiving LAVH. In this study, we plan to use two\n      questionnaires: the disease specific UFS-QOL and the WHO-QOL Taiwan version questionnaires\n      for patients receiving LAVH. Assessment will be performed before operation; and 3 days, 7\n      days, 3 months and 18 months after operation. From these assessments, we plan to determine\n      which QOL variables will be useful as operation guidelines for patients suffering from\n      leiomyoma or adenomyosis, and for the assessment of appropriates and outcomes of LAVH."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n        laparoscopic assisted vaginal hysterectomy leiomyoma adenomyosis-\n\n        Exclusion Criteria:\n\n        other types of operations other types of gynecological disease-"
+            }, 
+            "gender": "Female", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "80 Years", 
+            "minimum_age": "21 Years"
+        }, 
+        "enrollment": "80", 
+        "firstreceived_date": "September 9, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00155870", 
+            "org_study_id": "9200201773"
+        }, 
+        "intervention": {
+            "intervention_name": "questionnaires", 
+            "intervention_type": "Behavioral"
+        }, 
+        "keyword": [
+            "laparoscopic assisted vaginal hysterectomy leiomyoma", 
+            "adenomyosis", 
+            "quality of life"
+        ], 
+        "lastchanged_date": "December 19, 2005", 
+        "location": {
+            "contact": {
+                "email": "pltorng@ha.mc.ntu.edu.tw", 
+                "last_name": "Torng Pao-Ling, MD, PhD", 
+                "phone": "886223123456", 
+                "phone_ext": "7039"
+            }, 
+            "facility": {
+                "address": {
+                    "city": "Taipei", 
+                    "country": "Taiwan", 
+                    "zip": "10020"
+                }, 
+                "name": "National Taiwan University Hospital"
+            }, 
+            "status": "Recruiting"
+        }, 
+        "location_countries": {
+            "country": "Taiwan"
+        }, 
+        "official_title": "Health-Related Quality of Life Among Women Receiving Hysterectomy in National Taiwan University Hospital", 
+        "overall_contact": {
+            "email": "pltorng@ha.mc.ntu.edu.tw", 
+            "last_name": "Torng Pao-Ling, MD, PhD", 
+            "phone": "886223123456", 
+            "phone_ext": "7039"
+        }, 
+        "overall_official": {
+            "affiliation": "Department of Obstetric and Gynecology, National Taiwan University Hospital", 
+            "last_name": "Torng Pao-Ling, MD, PhD", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Recruiting", 
+        "oversight_info": {
+            "authority": "Taiwan: Department of Health"
+        }, 
+        "phase": "N/A", 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00155870"
+        }, 
+        "source": "National Taiwan University Hospital", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "National Taiwan University Hospital", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "June 2005", 
+        "study_design": "Observational Model: Defined Population, Time Perspective: Longitudinal", 
+        "study_type": "Observational", 
+        "verification_date": "June 2005"
+    }
+}

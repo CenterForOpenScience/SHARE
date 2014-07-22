@@ -1,0 +1,27 @@
+last_updated: 1405958740
+is_oa: False
+cited_by_posts_count: 6
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=3&types=tttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=3&types=tttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=3&types=tttttttt'}
+altmetric_id: 838032
+subjects: [u'publichealth']
+published_on: 1341010800
+title: Inequalities of health indicators for policy makers: six hints
+cited_by_tweeters_count: 4
+scopus_subjects: [u'Social Sciences', u'Health Sciences', u'Medicine']
+issns: [u'1661-8556', u'1661-8564']
+score: 2.95
+altmetric_jid: 4f6fa61e3cf058f6100079a1
+nlmid: 101304551
+schema: 1.5.4
+cohorts: {u'doc': 1, u'com': 2, u'pub': 1}
+readers_count: 3
+journal: International Journal of Public Health
+publisher_subjects: [{u'scheme': u'springer', u'name': u'Environmental Health'}, {u'scheme': u'springer', u'name': u'Medicine & Public Health'}, {u'scheme': u'springer', u'name': u'Occupational Medicine/Industrial Medicine'}, {u'scheme': u'springer', u'name': u'Public Health/Gesundheitswesen'}, {u'scheme': u'era', u'name': u'Public Health And Health Services'}]
+details_url: http://www.altmetric.com/details.php?citation_id=838032
+doi: 10.1007/s00038-012-0386-5
+url: http://dx.doi.org/10.1007/s00038-012-0386-5
+readers: {u'mendeley': 3, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 24, u'higher_than': 14, u'pct': 58, u'rank': 10, u'mean': 4.095652173913}, u'all': {u'count': 2291010, u'higher_than': 1717652, u'pct': 74, u'rank': 566788, u'mean': 4.8089510482084}, u'similar_age_3m': {u'count': 68599, u'higher_than': 53946, u'pct': 78, u'rank': 14438, u'mean': 4.5993916149158}, u'journal': {u'count': 337, u'higher_than': 222, u'pct': 65, u'rank': 110, u'mean': 3.460505952381}}
+history: {u'6d': 2.1, u'1w': 2.1, u'1y': 2.1, u'1m': 2.1, u'6m': 2.1, u'2d': 2.1, u'at': 2.95, u'3m': 2.1, u'5d': 2.1, u'4d': 2.1, u'1d': 2.1, u'3d': 2.1}
+added_on: 1342159757
+cited_by_accounts_count: 4

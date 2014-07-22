@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01521767</url>
+  </required_header>
+  <id_info>
+    <org_study_id>A6121196</org_study_id>
+    <nct_id>NCT01521767</nct_id>
+  </id_info>
+  <brief_title>Pharmacokinetics and Relative Bioavailability Study</brief_title>
+  <official_title>A Single-Dose Pharmacokinetics And Relative Bioavailability Study Of Tolterodine From Two Microspheres In Powder Blend Extended Release Formulations Compared To The Commercial Extended Release Capsules</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Pfizer</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Pfizer</source>
+  <oversight_info>
+    <authority>United States: Food and Drug Administration</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      A Single-Dose Pharmacokinetics And Relative Bioavailability Study Of Tolterodine From Two
+      Microspheres In Powder Blend Extended Release Formulations Compared To The Commercial
+      Extended Release Capsules
+    </textblock>
+  </brief_summary>
+  <detailed_description>
+    <textblock>
+      Pharmacokinetics And Relative Bioavailability Study Of Tolterodine From Two Microspheres In
+      Powder Blend Extended Release Formulations Compared To The Commercial Extended Release
+      Capsules
+    </textblock>
+  </detailed_description>
+  <overall_status>Completed</overall_status>
+  <start_date>October 2011</start_date>
+  <completion_date type="Actual">November 2011</completion_date>
+  <primary_completion_date type="Actual">November 2011</primary_completion_date>
+  <phase>Phase 1</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Bio-availability Study, Intervention Model: Crossover Assignment, Masking: Open Label</study_design>
+  <primary_outcome>
+    <measure>Area Under the Curve From Time Zero to Last Quantifiable Concentration (AUClast) of tolterodine</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <primary_outcome>
+    <measure>Maximum Observed Plasma Concentration (Cmax) of tolterodine</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Area Under the Curve From Time Zero to Extrapolated Infinite Time [AUC (0 - ∞)] of tolterodine.</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Area Under the Curve From Time Zero to Last Quantifiable Concentration (AUClast) of 5-HMT</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Area Under the Curve From Time Zero to Extrapolated Infinite Time [AUC (0 - ∞)] of 5-HMT</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Maximum Observed Plasma Concentration (Cmax)  of 5-HMT</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Time to Reach Maximum Observed Plasma Concentration (Tmax) of tolterodine</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Time to Reach Maximum Observed Plasma Concentration (Tmax) of 5-HMT</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Plasma Decay Half-Life (t1/2) of tolterodine</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Plasma Decay Half-Life (t1/2) of 5-HMT</measure>
+    <time_frame>0, 0.5, 1, 1.5, 2, 3, 4, 6, 9, 12, 16, 24, 30, 36 hours post-dose</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <number_of_arms>5</number_of_arms>
+  <enrollment type="Actual">16</enrollment>
+  <condition>Urinary Bladder, Overactive</condition>
+  <arm_group>
+    <arm_group_label>A</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>4 mg tolterodine extended release capsules, administered with water and under fasting condition.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>B</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>4 mg microspheres in powder blend release rate 2 (MPB-RR2), administered without water and under fasting condition.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>C</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>4 mg microspheres in powder blend release rate 1 (MPB-RR1), administered without water and under fasting condition.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>D</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>4 mg MPB-RR1, administered without water and under fed condition.</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>E</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>4 mg MPB-RR1, administered with water and under fasting condition.</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>tolterodine tartrate</intervention_name>
+    <description>4 mg single dose of extended release capsules</description>
+    <arm_group_label>A</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>tolterodine tartrate</intervention_name>
+    <description>4 mg single dose of microspheres in powder blend</description>
+    <arm_group_label>B</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>tolterodine tartrate</intervention_name>
+    <description>4 mg single dose of microspheres in powder blend</description>
+    <arm_group_label>C</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>tolterodine tartrate</intervention_name>
+    <description>4 mg single dose of microspheres in powder blend</description>
+    <arm_group_label>D</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>tolterodine tartrate</intervention_name>
+    <description>4 mg single dose of microspheres in powder blend</description>
+    <arm_group_label>E</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Healthy male and/or female subjects between the ages of 21 and 55 years, inclusive
+
+        Exclusion Criteria:
+
+          -  Evidence or history of clinically significant diseases
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>21 Years</minimum_age>
+    <maximum_age>55 Years</maximum_age>
+    <healthy_volunteers>Accepts Healthy Volunteers</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Pfizer CT.gov Call Center</last_name>
+    <role>Study Director</role>
+    <affiliation>Pfizer</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Pfizer Investigational Site</name>
+      <address>
+        <city>Singapore</city>
+        <zip>188770</zip>
+        <country>Singapore</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>Singapore</country>
+  </location_countries>
+  <link>
+    <url>https://trialinfoemail.pfizer.com/pages/landing.aspx?StudyID=A6121196&amp;StudyName=Pharmacokinetics%20and%20Relative%20Bioavailability%20Study%20</url>
+    <description>To obtain contact information for a study center near you, click here.</description>
+  </link>
+  <verification_date>January 2012</verification_date>
+  <lastchanged_date>January 26, 2012</lastchanged_date>
+  <firstreceived_date>January 17, 2012</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>pharmacokinetics</keyword>
+  <keyword>relative bioavailability</keyword>
+  <keyword>tolterodine microspheres in powder blend</keyword>
+  <keyword>Overactive Urinary Bladder</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>No</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Urinary Bladder, Overactive</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Tolterodine</mesh_term>
+    <mesh_term>Phenylpropanolamine</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

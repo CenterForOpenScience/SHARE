@@ -1,0 +1,36 @@
+cited_by_feeds_count: 2
+last_updated: 1405941187
+cited_by_accounts_count: 18
+is_oa: False
+cited_by_posts_count: 19
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=30&types=e1btttfg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=30&types=e1btttfg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=30&types=e1btttfg'}
+altmetric_id: 889276
+subjects: [u'science']
+published_on: 1344985200
+cited_by_rh_count: 1
+title: Passenger Deletions Generate Therapeutic Vulnerabilities in Cancer
+cited_by_tweeters_count: 12
+scopus_subjects: [u'General']
+tq: [u'clever - passenger alterations in cancer create weaknesses in non-cancer pathways that can exploited therapeutically', u'last paper v similar to Passenger deletions generate therapeutic vulnerabilities in cancer idea', u"Not new but a beautifully clever example of how to exploit a cancer cell's vulnerability", u'Interesting paper on genomic deletions and their passenger genes as therapeutic targets in cancer.']
+score: 29.85
+altmetric_jid: 4f6fa50a3cf058f610003160
+pmid: 22895339
+cited_by_gplus_count: 1
+abstract: Inactivation of tumour-suppressor genes by homozygous deletion is a prototypic event in the cancer genome, yet such deletions often encompass neighbouring genes. We propose that homozygous deletions in such passenger genes can expose cancer-specific therapeutic vulnerabilities when the collaterally deleted gene is a member of a functionally redundant family of genes carrying out an essential function. The glycolytic gene enolase 1 (ENO1) in the 1p36 locus is deleted in glioblastoma (GBM), which is tolerated by the expression of ENO2. Here we show that short-hairpin-RNA-mediated silencing of ENO2 selectively inhibits growth, survival and the tumorigenic potential of ENO1-deleted GBM cells, and that the enolase inhibitor phosphonoacetohydroxamate is selectively toxic to ENO1-deleted GBM cells relative to ENO1-intact GBM cells or normal astrocytes. The principle of collateral vulnerability should be applicable to other passenger-deleted genes encoding functionally redundant essential activities and provide an effective treatment strategy for cancers containing such genomic events.
+schema: 1.5.4
+cohorts: {u'doc': 1, u'sci': 8, u'pub': 3}
+readers_count: 193
+journal: Nature
+details_url: http://www.altmetric.com/details.php?citation_id=889276
+cited_by_peer_review_sites_count: 1
+doi: 10.1038/nature11331
+ads_id: 2012natur.488..337m
+readers: {u'mendeley': 189, u'citeulike': 4, u'connotea': 0}
+nlmid: 0410462
+url: http://dx.doi.org/10.1038/nature11331
+history: {u'6d': 1, u'1w': 1, u'1y': 1.75, u'1m': 1.25, u'6m': 1.25, u'2d': 1, u'at': 29.85, u'3m': 1.25, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+context: {u'similar_age_journal_3m': {u'count': 941, u'higher_than': 509, u'pct': 54, u'rank': 432, u'mean': 74.81174893617}, u'all': {u'count': 2290306, u'higher_than': 2234339, u'pct': 97, u'rank': 55951, u'mean': 4.8083730865561}, u'similar_age_3m': {u'count': 68209, u'higher_than': 66439, u'pct': 97, u'rank': 1769, u'mean': 5.0272157224958}, u'journal': {u'count': 25803, u'higher_than': 19503, u'pct': 75, u'rank': 6299, u'mean': 39.457407177738}}
+cited_by_fbwalls_count: 1
+issns: [u'0028-0836']
+added_on: 1345051629
+abstract_source: pubmed

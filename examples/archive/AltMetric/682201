@@ -1,0 +1,36 @@
+cited_by_feeds_count: 1
+last_updated: 1405919055
+cited_by_accounts_count: 30
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 32
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=33&types=mbttttfg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=33&types=mbttttfg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=33&types=mbttttfg'}
+altmetric_id: 682201
+subjects: [u'science', u'medicine']
+published_on: 1333494000
+title: CSF-Biomarkers in Olympic Boxing: Diagnosis and Effects of Repetitive Head Trauma.
+cited_by_tweeters_count: 24
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Biochemistry, Genetics and Molecular Biology', u'Life Sciences', u'Agricultural and Biological Sciences']
+tq: [u'#ATPC Former boxer Dr Sanna Neselius her boxer study: CSF markers = CNS damage #concussion', u'De reden dat je #boksen alleen serieus moet beoefenen met niets minder dan 100% inzet en goede begeleiding.', u'Increased levels of #biomarkers of brain damage in #CSF of Olympic boxers. #cerebrospinal #neurology #liquor', u'Amat\xf8rboksere har klare tegn p\xe5 p\xe5g\xe5ende hjerneskade selv 14 dager etter siste kamp']
+score: 32.084
+altmetric_jid: 4f6fa5313cf058f6100043e3
+pmid: 22496755
+cited_by_gplus_count: 1
+abstract: Sports-related head trauma is common but still there is no established laboratory test used in the diagnostics of minimal or mild traumatic brain injuries. Further the effects of recurrent head trauma on brain injury markers are unknown. The purpose of this study was to investigate the relationship between Olympic (amateur) boxing and cerebrospinal fluid (CSF) brain injury biomarkers.
+schema: 1.5.4
+cohorts: {u'doc': 1, u'sci': 1, u'com': 1, u'pub': 21}
+readers_count: 41
+journal: PLoS ONE
+publisher_subjects: [{u'scheme': u'era', u'name': u'Multidisciplinary'}]
+details_url: http://www.altmetric.com/details.php?citation_id=682201
+doi: 10.1371/journal.pone.0033606
+ads_id: 2012ploso...7e3606n
+readers: {u'mendeley': 39, u'citeulike': 2, u'connotea': 0}
+nlmid: 101285081
+url: http://dx.doi.org/10.1371/journal.pone.0033606
+history: {u'6d': 7, u'1w': 7, u'1y': 7.25, u'1m': 7, u'6m': 7.25, u'2d': 7, u'at': 32.084, u'3m': 7, u'5d': 7, u'4d': 7, u'1d': 7, u'3d': 7}
+context: {u'similar_age_journal_3m': {u'count': 2979, u'higher_than': 2877, u'pct': 96, u'rank': 102, u'mean': 5.3124949630625}, u'all': {u'count': 2289179, u'higher_than': 2237616, u'pct': 97, u'rank': 51562, u'mean': 4.8076370898222}, u'similar_age_3m': {u'count': 69952, u'higher_than': 68658, u'pct': 98, u'rank': 1294, u'mean': 3.9848392160226}, u'journal': {u'count': 49164, u'higher_than': 46761, u'pct': 95, u'rank': 2403, u'mean': 7.8582242743526}}
+cited_by_fbwalls_count: 3
+issns: [u'1932-6203']
+added_on: 1333560459
+abstract_source: pubmed

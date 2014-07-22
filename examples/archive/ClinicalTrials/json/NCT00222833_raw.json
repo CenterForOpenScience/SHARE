@@ -1,0 +1,138 @@
+{
+    "clinical_study": {
+        "@rank": "55746", 
+        "brief_summary": {
+            "textblock": "This is a 2-year study proposing to examine the effects of aripiprazole on heart health\n      factors such as serum lipids, serum leptin, fasting blood sugar, body weight and blood\n      pressure. This study also examines the safety of switching to aripiprazole with respect to\n      changes in the clinical state, preexisting or emergent side-effects, how the brain processes\n      information and changes in social functioning and quality of life."
+        }, 
+        "brief_title": "The Effect of Switching to Aripiprazole on Heart Health in Overweight and Obese Patients With Schizophrenia", 
+        "completion_date": {
+            "#text": "December 2005", 
+            "@type": "Actual"
+        }, 
+        "condition": [
+            "Overweight", 
+            "Hyperlipidemia", 
+            "Cardiovascular Diseases"
+        ], 
+        "condition_browse": {
+            "mesh_term": [
+                "Cardiovascular Diseases", 
+                "Hyperlipidemias", 
+                "Schizophrenia", 
+                "Overweight"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "This is a 2-yr study proposing to examine the effects of switching subjects from\n      conventional and atypical antipsychotic agents to Aripiprazole on cardiovascular health\n      indices in overweight and obese patients with Schizophrenia or Schizoaffective disorder.\n      Thirty partially remitted patients with Positive and Negative Syndrome Scale (PANSS) score\n      of less than 100, who have body mass index (BMI) of 26 or higher will be switched from their\n      existing antipsychotic to aripiprazole over 2-3 weeks period using a clinician determined\n      cross-tapering approach.The objective of the study is to examine cardiovascular health\n      indices such as serum lipids, serum leptin, fasting blood sugar, body weight and blood\n      pressure. This study also examines the safety of switching to Aripiprazole with respect to\n      changes in clinical state, preexisting or emergent side-effects, how brain processes\n      information and changes in social functioning and quality of life."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Male and female subjects ages 18-65 years\n\n          -  Outpatients and stable partial hospital patients\n\n          -  Diagnostic and Statistical Manual of Mental Disorders, Fourth Edition, Text Revision\n             (DSM-IV-TR) diagnosis of schizophrenia or schizoaffective disorder\n\n          -  No psychiatric hospitalization in 30 days prior to study start\n\n          -  Partially remitted patients with a PANSS score below 100 at screening\n\n          -  Currently on a stable dose of only one antipsychotic for at least 30 days prior to\n             study start\n\n          -  Currently receiving a stable dose of all other psychotropic medications for at least\n             30 days prior to study start\n\n          -  BMI greater than 26\n\n          -  Female patients of childbearing age must be using an acceptable method of birth\n             control for at least 1 month prior to participation in the research study and\n             continue for at least 4 weeks after the final study visit.\n\n          -  Ability to provide informed consent.\n\n        Exclusion Criteria:\n\n          -  Mental retardation\n\n          -  Current treatment with clozapine\n\n          -  Currently enrolled in a weight management program or receiving pharmacological\n             treatment for weight reduction\n\n          -  Serious or unstable medical illness\n\n          -  Female patients who are pregnant, lactating, or plan to become pregnant during the\n             study period\n\n          -  Concurrently receiving treatment with ketoconazole, quinidine, carbamazepine."
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "65 Years", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": "30", 
+        "firstreceived_date": "September 7, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00222833", 
+            "org_study_id": "0312010", 
+            "secondary_id": "PITT#02 90599"
+        }, 
+        "intervention": {
+            "intervention_name": "Aripiprazole", 
+            "intervention_type": "Drug"
+        }, 
+        "intervention_browse": {
+            "mesh_term": "Aripiprazole"
+        }, 
+        "keyword": [
+            "Schizophrenia", 
+            "Schizoaffective disorder", 
+            "Aripiprazole", 
+            "Obese", 
+            "Overweight", 
+            "Heart Health", 
+            "Antipsychotic", 
+            "Heart Health Factors", 
+            "Cardiovascular Health Indices", 
+            "Cardiovascular health"
+        ], 
+        "lastchanged_date": "January 8, 2008", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Pittsburgh", 
+                    "country": "United States", 
+                    "state": "Pennsylvania", 
+                    "zip": "15213"
+                }, 
+                "name": "Western Psychiatric Institute and Clinic of UPMC"
+            }
+        }, 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "official_title": "The Effect of Switching to Aripiprazole on Indices of Cardiovascular Health in Overweight and Obese Patients With Schizophrenia", 
+        "overall_official": {
+            "affiliation": "University of Pittsburgh", 
+            "last_name": "Rohan Ganguli, MD", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Institutional Review Board"
+        }, 
+        "phase": "Phase 4", 
+        "primary_completion_date": {
+            "#text": "December 2005", 
+            "@type": "Actual"
+        }, 
+        "primary_outcome": {
+            "measure": "To examine heart health factors: serum lipids, serum leptin, fasting blood glucose, body weight, and blood pressure"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00222833"
+        }, 
+        "secondary_outcome": [
+            {
+                "measure": "Changes in clinical state"
+            }, 
+            {
+                "measure": "Pre-existing or emergent side effects"
+            }, 
+            {
+                "measure": "Cognition and insight"
+            }, 
+            {
+                "measure": "Attitude towards medication"
+            }, 
+            {
+                "measure": "Social functioning"
+            }, 
+            {
+                "measure": "Quality of life"
+            }
+        ], 
+        "source": "University of Pittsburgh", 
+        "sponsors": {
+            "collaborator": {
+                "agency": "Bristol-Myers Squibb", 
+                "agency_class": "Industry"
+            }, 
+            "lead_sponsor": {
+                "agency": "University of Pittsburgh", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "October 2004", 
+        "study_design": "Allocation: Non-Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "January 2008"
+    }
+}

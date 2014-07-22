@@ -1,0 +1,152 @@
+{
+    "clinical_study": {
+        "@rank": "77516", 
+        "arm_group": [
+            {
+                "arm_group_label": "placebo", 
+                "arm_group_type": "Placebo Comparator", 
+                "description": "placebo"
+            }, 
+            {
+                "arm_group_label": "IV progesterone", 
+                "arm_group_type": "Experimental", 
+                "description": "IV progesterone"
+            }
+        ], 
+        "brief_summary": {
+            "textblock": "The purpose of this study is to determine if progesterone treatment safely reduces brain\n      swelling and damage after injury."
+        }, 
+        "brief_title": "Progesterone Treatment of Blunt Traumatic Brain Injury", 
+        "completion_date": {
+            "#text": "September 2013", 
+            "@type": "Actual"
+        }, 
+        "condition": "Traumatic Brain Injury", 
+        "condition_browse": {
+            "mesh_term": [
+                "Brain Injuries", 
+                "Wounds and Injuries"
+            ]
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Blunt head trauma occuring within 11 hours\n\n          -  Ages 18 years and older (or Tanner Score of 5)\n\n          -  Index GCS between 4 and 12\n\n        Exclusion Criteria:\n\n          -  Spinal cord injury\n\n          -  Penetrating head trauma\n\n          -  Cardiopulmonary arrest upon ECC arrival\n\n          -  Status Epilepticus upon ECC arrival\n\n          -  Systolic BP < 90mmHG upon ECC arrival\n\n          -  Pulse Ox of < 90 (or pO2 < 60)\n\n          -  Prisoners or incarcerated individuals\n\n          -  Past Hx of significant intercranial pathology\n\n          -  Pregnant females\n\n          -  Blood alcohol level > 250 mg/dl\n\n          -  Non-English speakers (a Spanish version of the ICF is currently being developed)\n\n          -  Allergy(s) to soy, egg, or progesterone\n\n          -  Active breast or reproductive organ cancer(s)\n\n          -  Previous head injury or stroke within the past 6 weeks"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "N/A", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": {
+            "#text": "100", 
+            "@type": "Actual"
+        }, 
+        "firstreceived_date": "November 4, 2002", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00048646", 
+            "org_study_id": "0433-2001", 
+            "secondary_id": "1 R01 NS-39097-01A1"
+        }, 
+        "intervention": {
+            "arm_group_label": [
+                "placebo", 
+                "IV progesterone"
+            ], 
+            "intervention_name": "IV Progesterone", 
+            "intervention_type": "Drug"
+        }, 
+        "intervention_browse": {
+            "mesh_term": "Progesterone"
+        }, 
+        "is_fda_regulated": "Yes", 
+        "is_section_801": "Yes", 
+        "keyword": [
+            "TBI", 
+            "ProTECT"
+        ], 
+        "lastchanged_date": "September 4, 2013", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Atlanta", 
+                    "country": "United States", 
+                    "state": "Georgia", 
+                    "zip": "30322"
+                }, 
+                "name": "Emory University School of Medicine - Dept. of Emergency Medicine"
+            }
+        }, 
+        "location_countries": {
+            "country": "United States"
+        }, 
+        "number_of_arms": "2", 
+        "official_title": "ProTECT: Single Center, Phase II (Pilot), Double Blind, 4:1 Randomized, Placebo Controlled Clinical Trial for Progesterone Treatment of Moderate and Severe Blunt TBI", 
+        "overall_official": {
+            "affiliation": "Chairman - Emory University Dept. of Emergency Medicine", 
+            "last_name": "Arthur L Kellermann, MD, MPH", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": [
+                "United States: Food and Drug Administration", 
+                "United States: Data and Safety Monitoring Board", 
+                "United States: Federal Government", 
+                "United States: Institutional Review Board"
+            ], 
+            "has_dmc": "Yes"
+        }, 
+        "phase": "Phase 1/Phase 2", 
+        "primary_completion_date": {
+            "#text": "September 2013", 
+            "@type": "Actual"
+        }, 
+        "primary_outcome": {
+            "description": "GOS, DRS, and GOAT", 
+            "measure": "neurological outcome", 
+            "safety_issue": "No", 
+            "time_frame": "30 days"
+        }, 
+        "reference": {
+            "PMID": "17933428", 
+            "citation": "Wright DW, Clark PL, Pentz RD, Hertzberg V, Kellermann AL. Enrolling subjects by exception from consent versus proxy consent in trauma care research. Ann Emerg Med. 2008 Apr;51(4):355-60, 360.e1-3. Epub 2007 Oct 15."
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00048646"
+        }, 
+        "responsible_party": {
+            "investigator_affiliation": "Emory University", 
+            "investigator_full_name": "David Wright", 
+            "investigator_title": "Co-Investigator, Project Lead", 
+            "responsible_party_type": "Sponsor-Investigator"
+        }, 
+        "results_reference": [
+            {
+                "PMID": "17011666", 
+                "citation": "Wright DW, Kellermann AL, Hertzberg VS, Clark PL, Frankel M, Goldstein FC, Salomone JP, Dent LL, Harris OA, Ander DS, Lowery DW, Patel MM, Denson DD, Gordon AB, Wald MM, Gupta S, Hoffman SW, Stein DG. ProTECT: a randomized clinical trial of progesterone for acute traumatic brain injury. Ann Emerg Med. 2007 Apr;49(4):391-402, 402.e1-2. Epub 2006 Sep 29."
+            }, 
+            {
+                "PMID": "15901745", 
+                "citation": "Wright DW, Ritchie JC, Mullins RE, Kellermann AL, Denson DD. Steady-state serum concentrations of progesterone following continuous intravenous infusion in patients with acute moderate to severe traumatic brain injury. J Clin Pharmacol. 2005 Jun;45(6):640-8."
+            }
+        ], 
+        "source": "Emory University", 
+        "sponsors": {
+            "collaborator": {
+                "agency": "National Institute of Neurological Disorders and Stroke (NINDS)", 
+                "agency_class": "NIH"
+            }, 
+            "lead_sponsor": {
+                "agency": "David Wright", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "May 2002", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Safety Study, Intervention Model: Single Group Assignment, Masking: Double Blind (Subject, Caregiver, Investigator, Outcomes Assessor), Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "September 2013"
+    }
+}

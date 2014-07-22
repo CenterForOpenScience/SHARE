@@ -1,0 +1,110 @@
+{
+    "clinical_study": {
+        "@rank": "23785", 
+        "brief_summary": {
+            "textblock": "The allograft of marrow in its technique of reference (my\u00e9lo-ablative (MA) condition by\n      cyclophosphamide and total body irradiation (TBI) with strong amounts) therapeutic is\n      recognized acute myeloid leukaemia (AML) of the adult for the patients of less than 55\n      years, because it offers chances of cure higher than chemotherapy or the auto-graft.\n      However, mortality related to the traditional graft is approximately 30% to 1 year.  The\n      recent use of the non-my\u00e9lo-ablative graft (NMA), in which the anti-leukaemia effect rests\n      exclusively on the allogenic effect \"graft-versus-leukaemia\" makes it possible to obtain\n      among patients of more than 55 years in complete reemission (CR), survivals without relapses\n      comparable with the traditional allograft among patients of more than 35 years.  The major\n      interest of NMA graft is to reduce early mortality related to the graft.  This reduction\n      should be all the more significant as the patient is younger, and thus bring to a better\n      survival.  There is not, at the present hour, of prospective comparative study of the two\n      procedures of graft.  Taking into account the results observed after NMA graft among\n      patients of more than 55 years, and taking into account the toxicity of the standard graft\n      between 35 and 55 years, it is essential to now compare the 2 approaches among patients who\n      do not have a counter-indication for one or the other, in the age bracket where the toxicity\n      of the traditional graft is highest."
+        }, 
+        "brief_title": "Randomised Prospective Comparison of the NMA Allograft and the Traditional Allograft in Acute Myeloid Leukaemia", 
+        "completion_date": "July 2009", 
+        "condition": "Leukemia, Myeloid, Acute", 
+        "condition_browse": {
+            "mesh_term": [
+                "Leukemia", 
+                "Leukemia, Myeloid, Acute", 
+                "Leukemia, Myeloid"
+            ]
+        }, 
+        "detailed_description": {
+            "textblock": "Will not be included in CR1 nor the patients with good forecast under chemotherapy, (Inv 16;\n       t(8;21)), nor patients at the very high risk of relapse (anomalies complex cytogenetics).\n      The conditioning of MA graft will be Cyclophosphamide and ICT with strong amounts. NMA graft\n      will be made according to the protocol Seattle (fludarabine 30 mg/m2/j X 3 and ICT of 2 Gy).\n       The study will be undertaken in 12 French centers of allograft taking part in the protocols\n      ESPARTO or EORTC."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          1. Age:  from 35 to 55 years completed\n\n          2. de novo Acute Myeloid Leukaemia (AML) in Complete remission (CR)1, requiring an\n             allograft according to the therapeutic protocol in which (or according to which) the\n             patient is treated or secondary AML with a myelodysplasy or a chemotherapy in CR1 or\n             de novo AML or secondary to a myelodysplasy or a chemotherapy, in CR2.\n\n          3. having an g\u00e9no-identical fraternal donor\n\n          4. having received, since obtaining the remission (1 or 2) a consolidation comprising at\n             least 6 bolus of Aracytine (> 500 mg/m2 for each amount) and at least 1 day of\n             anthracycline to the usual amounts (Idarubicin:  12 mg/m2 or Daunorubicin 50 to 80\n             mg/m2)\n\n          5. Signed assent of receiver\n\n          6. Signed assent of the donor\n\n        Exclusion Criteria:\n\n          1. If  CR1:  AML with T 8,21 or inv 16 or LAM3, or AML with complex anomalies\n             cytogenetics (= 5 anomalies without relation between them)\n\n          2. If  CR2:  duration of CR1 < 4 months\n\n          3. Acute transformation of a myeloproliferative syndrome\n\n          4. Former autograft or allogreffe\n\n          5. Karnofsky < 50%\n\n          6. Clearance of creatinin < 40 ml/min\n\n          7. Transaminases > 8 N\n\n          8. Any situation contra-indicating a traditional conditioning of allograft, in\n             particular:  serious cardiopathy, chronic respiratory insufficiency cutting down the\n             pulmonary functions by at least 30%, fibrose hepatic.\n\n          9. Donor having a counter-indication with the administration of growth promoters or a\n             general anaesthesia."
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "Accepts Healthy Volunteers", 
+            "maximum_age": "55 Years", 
+            "minimum_age": "35 Years"
+        }, 
+        "enrollment": "100", 
+        "firstreceived_date": "September 16, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00224614", 
+            "org_study_id": "P040420", 
+            "secondary_id": "AOM04088"
+        }, 
+        "intervention": {
+            "intervention_name": "Allogenic transplantation", 
+            "intervention_type": "Procedure"
+        }, 
+        "keyword": [
+            "stem cell transplantation", 
+            "reduced-intensity conditioning regimen", 
+            "acute myeloid leukemia"
+        ], 
+        "lastchanged_date": "December 13, 2005", 
+        "location": {
+            "contact": {
+                "email": "carlcord@club-internet.fr", 
+                "last_name": "CORDONNIER Catherine, professor", 
+                "phone": "+33 1 49 81 20 57"
+            }, 
+            "facility": {
+                "address": {
+                    "city": "Cr\u00e9teil", 
+                    "country": "France", 
+                    "state": "Val de Marne", 
+                    "zip": "94010"
+                }, 
+                "name": "Henri Mondor Hospital"
+            }, 
+            "status": "Recruiting"
+        }, 
+        "location_countries": {
+            "country": "France"
+        }, 
+        "official_title": "Randomised Prospective Comparison of the nonmy\u00e9lo-Ablative Allograft and the Traditional Allograft in Acute Myeloid Leukaemia in Complete Remission of the Adult", 
+        "overall_contact": {
+            "email": "carlcord@club-internet.fr", 
+            "last_name": "CORDONNIER Catherine, Professor", 
+            "phone": "+33 1 49 81 20 57"
+        }, 
+        "overall_official": {
+            "affiliation": "AP-HP", 
+            "last_name": "CORDONNIER Catherine, Professor", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Recruiting", 
+        "oversight_info": {
+            "authority": "France: Afssaps - Agence fran\u00e7aise de s\u00e9curit\u00e9 sanitaire des produits de sant\u00e9 (Saint-Denis)"
+        }, 
+        "phase": "Phase 3", 
+        "primary_outcome": {
+            "measure": "To show that NMA graft reduces mortality related to the procedure to 10%, compared to 30% waited in the arm of reference (\u03b1 :  5%;  p: 80%;  bilateral formulation), 50 patients will be included in each arm"
+        }, 
+        "reference": {
+            "PMID": "16151426", 
+            "citation": "Gratwohl A, Brand R, Frassoni F, Rocha V, Niederwieser D, Reusser P, Einsele H, Cordonnier C. Cause of death after allogeneic haematopoietic stem cell transplantation (HSCT) in early leukaemias: an EBMT analysis of lethal infectious complications and changes over calendar time. Bone Marrow Transplant. 2005 Sep 5; [Epub ahead of print]"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00224614"
+        }, 
+        "secondary_outcome": {
+            "measure": "1- global survival, without relapse, and the various complications of the graft at 2 years 2- quality of life 3- the cost. 4- kinetics of the chimerism donor/receiver and his predictive value of the relapse and the reaction of the graft against the host."
+        }, 
+        "source": "Assistance Publique - H\u00f4pitaux de Paris", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Assistance Publique - H\u00f4pitaux de Paris", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "July 2005", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Diagnostic", 
+        "study_type": "Interventional", 
+        "verification_date": "June 2005"
+    }
+}

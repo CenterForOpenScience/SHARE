@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT02147561</url>
+  </required_header>
+  <id_info>
+    <org_study_id>191622-148</org_study_id>
+    <nct_id>NCT02147561</nct_id>
+  </id_info>
+  <brief_title>A Safety and Efficacy Study of BOTOX® in Korean Adults With Chronic Migraine</brief_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Allergan</agency>
+      <agency_class>Industry</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Allergan</source>
+  <oversight_info>
+    <authority>South Korea: Korea Food and Drug Administration (KFDA)</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      This study will evaluate the safety and efficacy of BOTOX® treatment in Korean adults with
+      chronic migraine.
+    </textblock>
+  </brief_summary>
+  <overall_status>Not yet recruiting</overall_status>
+  <start_date>June 2014</start_date>
+  <completion_date type="Anticipated">January 2015</completion_date>
+  <primary_completion_date type="Anticipated">January 2015</primary_completion_date>
+  <phase>Phase 4</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Endpoint Classification: Safety/Efficacy Study, Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Percentage of Patients with Adverse Events</measure>
+    <time_frame>28 Days</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Change from Baseline in Headache Impact Test-6 (HIT-6) Total Score</measure>
+    <time_frame>Baseline, Day 28</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Physician Global Assessment of Outcome on a 3-Point Scale</measure>
+    <time_frame>Day 28</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <number_of_arms>1</number_of_arms>
+  <enrollment type="Anticipated">200</enrollment>
+  <condition>Migraine Disorders</condition>
+  <arm_group>
+    <arm_group_label>botulinum toxin Type A</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Botulinum toxin Type A injected across specific head and neck muscles on Day 0.</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Biological</intervention_type>
+    <intervention_name>botulinum toxin Type A</intervention_name>
+    <description>Botulinum toxin Type A injected across specific head and neck muscles on Day 0.</description>
+    <arm_group_label>botulinum toxin Type A</arm_group_label>
+    <other_name>BOTOX®</other_name>
+    <other_name>onabotulinumtoxinA</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Ethnically Korean with a diagnosis of chronic migraine
+
+        Exclusion Criteria:
+
+          -  Anticipated need for botulinum toxin treatment for any reason other than chronic
+             migraine during the study
+
+          -  Diagnosis of myasthenia gravis, Eaton-Lambert syndrome, or amyotrophic lateral
+             sclerosis
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>N/A</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Medical Director</last_name>
+    <role>Study Director</role>
+    <affiliation>Allergan</affiliation>
+  </overall_official>
+  <overall_contact>
+    <last_name>Allergan Inc.</last_name>
+    <email>clinicaltrials@allergan.com</email>
+  </overall_contact>
+  <location>
+    <facility>
+      <address>
+        <city>Seoul</city>
+        <country>Korea, Republic of</country>
+      </address>
+    </facility>
+    <status>Not yet recruiting</status>
+  </location>
+  <location_countries>
+    <country>Korea, Republic of</country>
+  </location_countries>
+  <verification_date>May 2014</verification_date>
+  <lastchanged_date>May 22, 2014</lastchanged_date>
+  <firstreceived_date>May 22, 2014</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>Yes</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Migraine Disorders</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Botulinum Toxins, Type A</mesh_term>
+    <mesh_term>Botulinum Toxins</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

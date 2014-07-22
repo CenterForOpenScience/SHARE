@@ -1,0 +1,32 @@
+last_updated: 1406029018
+is_oa: False
+cited_by_posts_count: 5
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=2&types=ttttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=2&types=ttttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=2&types=ttttttff'}
+altmetric_id: 645922
+subjects: [u'chemistryclinical', u'clinicallaboratorytechniques']
+published_on: 1266969600
+issns: []
+title: The underestimated problem of using serum magnesium measurements to exclude magnesium deficiency in adults; a health warning is needed for "normal" results.
+cited_by_tweeters_count: 3
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Life Sciences', u'Biochemistry, Genetics and Molecular Biology']
+tq: [u"Having normal serum magnesium levels doesn't automatically mean that you're not #magnesium deficient."]
+score: 1.6
+altmetric_jid: 4f6fa4ea3cf058f610002551
+pmid: 20170394
+abstract: A major use of serum magnesium measurements in clinical practice is to identify patients with deficiency. However, numerous studies have shown that magnesium deficiency is common and may be present in over 10% of hospitalized patients, as well as in the general population. An important cause for under diagnosis of deficiency is that serum magnesium, the most commonly used test, can be normal despite negative body stores. This article focuses on the limitations of "normal" magnesium results and highlights the importance of lifestyle or "modus vivendi" as a pragmatic means of identifying those individuals potentially at risk for negative body magnesium stores.
+schema: 1.5.4
+cohorts: {u'pub': 3}
+readers_count: 6
+journal: Clin Chem Lab Med
+publisher_subjects: [{u'scheme': u'era', u'name': u'Clinical Sciences'}, {u'scheme': u'era', u'name': u'Cognitive Science'}]
+details_url: http://www.altmetric.com/details.php?citation_id=645922
+doi: 10.1515/cclm.2010.077
+abstract_source: pubmed
+url: http://dx.doi.org/10.1515/cclm.2010.077
+readers: {u'mendeley': 6, u'citeulike': 0, u'connotea': 0}
+nlmid: 9806306
+context: {u'similar_age_journal_3m': {u'count': 6, u'higher_than': 4, u'pct': 66, u'rank': 2, u'mean': 1.05}, u'all': {u'count': 2293523, u'higher_than': 1452102, u'pct': 63, u'rank': 833901, u'mean': 4.8097677319009}, u'similar_age_3m': {u'count': 70170, u'higher_than': 49710, u'pct': 70, u'rank': 20189, u'mean': 3.9085902606564}, u'journal': {u'count': 515, u'higher_than': 481, u'pct': 93, u'rank': 33, u'mean': 0.7615953307393}}
+cited_by_fbwalls_count: 1
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.75, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 1.6, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1331598328
+cited_by_accounts_count: 4

@@ -1,0 +1,32 @@
+cited_by_feeds_count: 2
+last_updated: 1406009739
+is_oa: False
+cited_by_posts_count: 176
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=131&types=btttttrf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=131&types=btttttrf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=131&types=btttttrf'}
+altmetric_id: 670570
+subjects: [u'science']
+published_on: 1332975600
+issns: [u'0028-0836', u'1744-7933']
+cited_by_rdts_count: 5
+title: African agriculture: Dirt poor
+cited_by_tweeters_count: 145
+scopus_subjects: []
+tq: [u'For the reading list: Natasha Gilbert', u'Agroforestry: African agriculture: Dirt poor : Nature News', u'The key to tackling hunger in Africa is enriching its soil. The big debate is about how to do it.', u'African agriculture: Dirt poor: The key to tackling hunger in Africa is enriching its soil. .']
+score: 130.078
+altmetric_jid: 4f6fa62f3cf058f6100082d3
+pmid: 22460878
+nlmid: 0410462
+schema: 1.5.4
+cohorts: {u'sci': 23, u'com': 13, u'pub': 107, u'doc': 2}
+readers_count: 47
+journal: Nature
+details_url: http://www.altmetric.com/details.php?citation_id=670570
+doi: 10.1038/483525a
+ads_id: 2012natur.483..525g
+readers: {u'mendeley': 47, u'citeulike': 0, u'connotea': 0}
+url: http://dx.doi.org/10.1038/483525a
+context: {u'similar_age_journal_3m': {u'count': 116, u'higher_than': 87, u'pct': 75, u'rank': 29, u'mean': 99.411008695652}, u'all': {u'count': 2291817, u'higher_than': 2284037, u'pct': 99, u'rank': 7780, u'mean': 4.8105041539133}, u'similar_age_3m': {u'count': 69433, u'higher_than': 69233, u'pct': 99, u'rank': 200, u'mean': 3.9487882532549}, u'journal': {u'count': 237, u'higher_than': 189, u'pct': 79, u'rank': 48, u'mean': 88.809440677966}}
+cited_by_fbwalls_count: 9
+history: {u'6d': 1, u'1w': 1, u'1y': 8.08, u'1m': 1, u'6m': 8.08, u'2d': 1, u'at': 130.078, u'3m': 1, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+added_on: 1332941012
+cited_by_accounts_count: 161

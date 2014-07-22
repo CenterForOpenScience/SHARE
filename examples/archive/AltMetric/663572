@@ -1,0 +1,33 @@
+cited_by_feeds_count: 1
+last_updated: 1405981117
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 5
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=21&types=mbbtttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=21&types=mbbtttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=21&types=mbbtttff'}
+altmetric_id: 663572
+subjects: [u'psychology', u'psychiatry']
+published_on: 1136073600
+title: Presentation of depression in autism and Asperger syndrome: a review.
+cited_by_tweeters_count: 2
+scopus_subjects: [u'Social Sciences', u'Psychology']
+score: 20.25
+altmetric_jid: 4f6fa4e93cf058f61000237d
+pmid: 16522713
+abstract: Depression is common in autism and Asperger syndrome, but despite this, there has been little research into this issue. This review considers the current literature on the prevalence, presentation, treatment and assessment of depression in autism and Asperger syndrome. There are diagnostic difficulties when considering depression in autism and Asperger syndrome, as the characteristics of these disorders, such as social withdrawal and appetite and sleep disturbance, are also core symptoms of depression. Impaired verbal and non-verbal communication can mask the symptoms of depression. Symptoms associated with autism and Asperger syndrome such as obsessionality and self-injury may be increased during an episode of depression. There is a clear need to develop specific tools both for diagnostic purposes and for measurement of depression in autism and Asperger syndrome in order to help alleviate the distress caused by this treatable illness.
+schema: 1.5.4
+cohorts: {u'pub': 2}
+readers_count: 47
+journal: Autism: The International Journal of Research & Practice
+publisher_subjects: [{u'scheme': u'era', u'name': u'Specialist Studies In Education'}, {u'scheme': u'era', u'name': u'Psychology'}, {u'scheme': u'era', u'name': u'Cognitive Science'}]
+details_url: http://www.altmetric.com/details.php?citation_id=663572
+doi: 10.1177/1362361306062013
+abstract_source: pubmed
+url: http://dx.doi.org/10.1177/1362361306062013
+readers: {u'mendeley': 46, u'citeulike': 1, u'connotea': 0}
+nlmid: 9713494
+history: {u'6d': 10, u'1w': 10, u'1y': 10, u'1m': 10, u'6m': 10, u'2d': 1, u'at': 20.25, u'3m': 10, u'5d': 10, u'4d': 10, u'1d': 1, u'3d': 10}
+context: {u'similar_age_journal_3m': {u'count': 6, u'higher_than': 4, u'pct': 66, u'rank': 2, u'mean': 5.224}, u'all': {u'count': 2291717, u'higher_than': 2205981, u'pct': 96, u'rank': 85438, u'mean': 4.810214137356}, u'similar_age_3m': {u'count': 69834, u'higher_than': 67638, u'pct': 96, u'rank': 2188, u'mean': 3.9306102558962}, u'journal': {u'count': 407, u'higher_than': 370, u'pct': 90, u'rank': 37, u'mean': 8.0738965517241}}
+cited_by_fbwalls_count: 1
+issns: [u'1461-7005']
+added_on: 1332545304
+cited_by_accounts_count: 5

@@ -1,0 +1,32 @@
+cited_by_feeds_count: 1
+last_updated: 1405953263
+is_oa: False
+cited_by_posts_count: 3
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=9&types=bbbttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=9&types=bbbttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=9&types=bbbttttt'}
+altmetric_id: 806687
+subjects: [u'science']
+published_on: 1297468800
+title: Tomography of Reaction-Diffusion Microemulsions Reveals Three-Dimensional Turing Patterns
+cited_by_tweeters_count: 2
+scopus_subjects: [u'General']
+issns: [u'1095-9203']
+score: 8.004
+altmetric_jid: 4f6fa4df3cf058f610001f6b
+pmid: 21310963
+abstract: Spatially periodic, temporally stationary patterns that emerge from instability of a homogeneous steady state were proposed by Alan Turing in 1952 as a mechanism for morphogenesis in living systems and have attracted increasing attention in biology, chemistry, and physics. Patterns found to date have been confined to one or two spatial dimensions. We used tomography to study the Belousov-Zhabotinsky reaction in a microemulsion in which the polar reactants are confined to aqueous nanodroplets much smaller than the scale of the stationary patterns. We demonstrate the existence of Turing patterns that can exist only in three dimensions, including curved surfaces, hexagonally packed cylinders, spots, and labyrinthine and lamellar patterns.
+schema: 1.5.4
+cohorts: {u'pub': 2}
+readers_count: 67
+journal: Science
+publisher_subjects: []
+details_url: http://www.altmetric.com/details.php?citation_id=806687
+doi: 10.1126/science.1200815
+abstract_source: pubmed
+ads_id: 2011sci...331.1309b
+readers: {u'mendeley': 57, u'citeulike': 10, u'connotea': 0}
+nlmid: 0404511
+url: http://dx.doi.org/10.1126/science.1200815
+context: {u'similar_age_journal_3m': {u'count': 715, u'higher_than': 322, u'pct': 45, u'rank': 393, u'mean': 21.82074789916}, u'all': {u'count': 2290730, u'higher_than': 2008985, u'pct': 87, u'rank': 281849, u'mean': 4.8085762855427}, u'similar_age_3m': {u'count': 69032, u'higher_than': 61620, u'pct': 89, u'rank': 7412, u'mean': 4.4604605467108}, u'journal': {u'count': 19248, u'higher_than': 10727, u'pct': 55, u'rank': 8521, u'mean': 21.322630435912}}
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 8.004, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1340533053
+cited_by_accounts_count: 3

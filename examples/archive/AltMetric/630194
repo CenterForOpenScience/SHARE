@@ -1,0 +1,34 @@
+cited_by_feeds_count: 3
+last_updated: 1406027816
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 21
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=48&types=mbtttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=48&types=mbtttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=48&types=mbtttttf'}
+altmetric_id: 630194
+subjects: [u'neurology', u'psychophysiology']
+published_on: 1203465600
+title: Chiropractic: A Critical Evaluation
+cited_by_tweeters_count: 13
+scopus_subjects: [u'Health Sciences', u'Nursing', u'Medicine']
+tq: [u'A critical look at chiropractic', u"Ooh ooh ooh! Look what I found! I love this one. Can't believe I haven't got it bookmarked... :(", u"@StNimbus It's somewhat worse than that, but definitely.", u'@harepusverden Nei, jeg har ingen forutsetninger for \xe5 si noe s\xe5nt. Men denne professoren med relevant fagomr\xe5de har']
+score: 47.856
+altmetric_jid: 4f6fa4f53cf058f610002ea6
+pmid: 18280103
+abstract: Chiropractic was defined by D.D. Palmer as "a science of healing without drugs." About 60,000 chiropractors currently practice in North America, and, worldwide, billions are spent each year for their services. This article attempts to critically evaluate chiropractic. The specific topics include the history of chiropractic; the internal conflicts within the profession; the concepts of chiropractic, particularly those of subluxation and spinal manipulation; chiropractic practice and research; and the efficacy, safety, and cost of chiropractic. A narrative review of selected articles from the published chiropractic literature was performed. For the assessment of efficacy, safety, and cost, the evaluation relied on previously published systematic reviews. Chiropractic is rooted in mystical concepts. This led to an internal conflict within the chiropractic profession, which continues today. Currently, there are two types of chiropractors: those religiously adhering to the gospel of its founding fathers and those open to change. The core concepts of chiropractic, subluxation and spinal manipulation, are not based on sound science. Back and neck pain are the domains of chiropractic but many chiropractors treat conditions other than musculoskeletal problems. With the possible exception of back pain, chiropractic spinal manipulation has not been shown to be effective for any medical condition. Manipulation is associated with frequent mild adverse effects and with serious complications of unknown incidence. Its cost-effectiveness has not been demonstrated beyond reasonable doubt. The concepts of chiropractic are not based on solid science and its therapeutic value has not been demonstrated beyond reasonable doubt.
+schema: 1.5.4
+cohorts: {u'doc': 1, u'sci': 2, u'pub': 10}
+readers_count: 64
+journal: Journal of Pain & Symptom Management
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=630194
+doi: 10.1016/j.jpainsymman.2007.07.004
+abstract_source: pubmed
+url: http://dx.doi.org/10.1016/j.jpainsymman.2007.07.004
+readers: {u'mendeley': 63, u'citeulike': 1, u'connotea': 0}
+nlmid: 8605836
+history: {u'6d': 1.25, u'1w': 1.5, u'1y': 35.932, u'1m': 1.5, u'6m': 17.5, u'2d': 1, u'at': 47.856, u'3m': 15.5, u'5d': 1.25, u'4d': 1, u'1d': 1, u'3d': 1}
+context: {u'similar_age_journal_3m': {u'count': 8, u'higher_than': 7, u'pct': 87, u'rank': 1, u'mean': 6.6485714285714}, u'all': {u'count': 2293523, u'higher_than': 2260812, u'pct': 98, u'rank': 32797, u'mean': 4.8097677319009}, u'similar_age_3m': {u'count': 71271, u'higher_than': 70472, u'pct': 98, u'rank': 799, u'mean': 3.8702486880875}, u'journal': {u'count': 456, u'higher_than': 454, u'pct': 99, u'rank': 2, u'mean': 3.1801758241758}}
+cited_by_fbwalls_count: 1
+issns: [u'0885-3924']
+added_on: 1330682216
+cited_by_accounts_count: 18

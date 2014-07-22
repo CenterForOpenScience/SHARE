@@ -1,0 +1,28 @@
+last_updated: 1406019959
+is_oa: False
+cited_by_posts_count: 7
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=2&types=tttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=2&types=tttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=2&types=tttttttt'}
+altmetric_id: 865648
+subjects: []
+published_on: 1346454000
+issns: [u'01448609']
+title: Impact of depuration of earthy-musty off-flavors on fillet quality of Atlantic salmon, Salmo salar, cultured in a recirculating aquaculture system 
+cited_by_tweeters_count: 2
+scopus_subjects: [u'Life Sciences', u'Agricultural and Biological Sciences']
+tq: [u"Flavor, texture lipid level in closed containment produced #salmon of concern; 10-15 days fresjwater depuration req'd"]
+score: 1.25
+altmetric_jid: 4f6fa4e83cf058f6100022ea
+nlmid: na
+schema: 1.5.4
+cohorts: {u'pub': 2}
+readers_count: 12
+journal: Aquacultural Engineering
+publisher_subjects: [{u'scheme': u'era', u'name': u'Fisheries Sciences'}, {u'scheme': u'era', u'name': u'Maritime Engineering'}]
+details_url: http://www.altmetric.com/details.php?citation_id=865648
+doi: 10.1016/j.aquaeng.2012.03.002
+url: http://dx.doi.org/10.1016/j.aquaeng.2012.03.002
+readers: {u'mendeley': 12, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 4, u'higher_than': 1, u'pct': 25, u'rank': 2, u'mean': 1.2}, u'all': {u'count': 2292740, u'higher_than': 1265956, u'pct': 55, u'rank': 903245, u'mean': 4.8103940875978}, u'similar_age_3m': {u'count': 67976, u'higher_than': 38570, u'pct': 56, u'rank': 25201, u'mean': 4.87039464509}, u'journal': {u'count': 159, u'higher_than': 128, u'pct': 80, u'rank': 25, u'mean': 0.79496202531646}}
+history: {u'6d': 1, u'1w': 1, u'1y': 1, u'1m': 1, u'6m': 1, u'2d': 1, u'at': 1.25, u'3m': 1, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+added_on: 1343741610
+cited_by_accounts_count: 2

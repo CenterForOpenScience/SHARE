@@ -1,0 +1,90 @@
+{
+    "clinical_study": {
+        "@rank": "20353", 
+        "brief_summary": {
+            "textblock": "The overarching goal of this initiative is to reduce the prevalence and occurrence of\n      obesity and increase the remission of obesity in children and adolescents through\n      implementation of a Comprehensive School Nutrition Policy designed to promote changes in the\n      school environment that will reinforce students\u2019 development of healthy eating and physical\n      activity patterns inside and outside of school."
+        }, 
+        "brief_title": "School-Based Obesity Prevention Program", 
+        "completion_date": "June 2005", 
+        "condition": "Obesity", 
+        "condition_browse": {
+            "mesh_term": "Obesity"
+        }, 
+        "detailed_description": {
+            "textblock": "The proposed research aims to evaluate the effects of a school-based nutrition policy\n      initiative on prevalence, incidence and remission of overweight (BMI > 95th percentile). It\n      is a partnership between the Food Trust, the School District of Philadelphia and the\n      University of Pennsylvania. Participants are approximately 1500 students from ten schools in\n      grades four through eight. Half of the schools were randomized to a comprehensive School\n      Nutrition Policy Initiative (SNPI) based on CDC's Guidelines to Promote Lifelong Healthy\n      Eating. The SNPI is a community-based intervention administered by the Comprehensive School\n      Nutrition Policy Task Force that is comprised of 40 individuals representing the public and\n      private sectors. The goal of the SNPI is to change the school environment to: support\n      healthy eating, increase physical activity, and decrease the prevalence of childhood\n      overweight and diet-related diseases. The remaining study participants are in five control\n      schools, matched for ethnicity, SES, and type of food service. Most students are African\n      American and qualify for free and reduced meals at school (household income < 185% of the\n      poverty level adjusted for household size). Assessments of weight, height, intake, activity,\n      inactivity and eating disorder symptomatology are being conducted at baseline and 1 and 2\n      years."
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Any child in 4th, 5th, 6th grades in study site schools\n\n        Exclusion Criteria:\n\n          -  Any child not in 4th, 5th, 6th in study site schools"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "14 Years", 
+            "minimum_age": "8 Years"
+        }, 
+        "enrollment": "1500", 
+        "firstreceived_date": "August 31, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00142012", 
+            "org_study_id": "CDC-OPHR-321534"
+        }, 
+        "intervention": {
+            "intervention_name": "Nutrition Intervention", 
+            "intervention_type": "Behavioral"
+        }, 
+        "keyword": [
+            "School-based", 
+            "Obesity", 
+            "Prevention"
+        ], 
+        "lastchanged_date": "November 16, 2005", 
+        "official_title": "School-Based Obesity Prevention Program", 
+        "overall_official": {
+            "affiliation": "U. of Pennsylvania", 
+            "last_name": "Gary D. Foster, PhD", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "United States: Federal Government"
+        }, 
+        "phase": "N/A", 
+        "primary_outcome": [
+            {
+                "measure": "Weightloss"
+            }, 
+            {
+                "measure": "Weight maintenance"
+            }
+        ], 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00142012"
+        }, 
+        "secondary_outcome": [
+            {
+                "measure": "Risk for overweight status (BMI 85th to 95th percentile)"
+            }, 
+            {
+                "measure": "BMI z-scores, calculated for a given age and gender, will show a greater decline in intervention subjects versus controls"
+            }
+        ], 
+        "source": "Centers for Disease Control and Prevention", 
+        "sponsors": {
+            "collaborator": {
+                "agency": "University of Pennsylvania", 
+                "agency_class": "Other"
+            }, 
+            "lead_sponsor": {
+                "agency": "Centers for Disease Control and Prevention", 
+                "agency_class": "U.S. Fed"
+            }
+        }, 
+        "start_date": "October 2002", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Single Group Assignment, Masking: Open Label, Primary Purpose: Prevention", 
+        "study_type": "Interventional", 
+        "verification_date": "September 2005"
+    }
+}

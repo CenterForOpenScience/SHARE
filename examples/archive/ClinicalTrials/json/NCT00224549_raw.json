@@ -1,0 +1,185 @@
+{
+    "clinical_study": {
+        "@rank": "82711", 
+        "brief_summary": {
+            "textblock": "The purpose of this study is to assess the efficacy of two different treatment regimens for\n      treating resistant hypertension previously uncontrolled with at least 3 antihypertensive\n      treatments. The study hypothesis is that these two regimens (one based on increasing\n      diuretics and the other based on increasing renin angiotensin system blockage) may not\n      differ in terms of efficacy."
+        }, 
+        "brief_title": "PHARES Study: Management of Resistant Hypertension", 
+        "completion_date": {
+            "#text": "August 2009", 
+            "@type": "Actual"
+        }, 
+        "condition": "Hypertension", 
+        "condition_browse": {
+            "mesh_term": "Hypertension"
+        }, 
+        "detailed_description": {
+            "textblock": "Tested hypothesis: For essential resistant hypertension, a new regimen based on intensive\n      RAS blockage is non inferior to the recommended regimen based on intensive sodium depletion.\n\n      Primary objective: To demonstrate non-inferiority (i.e difference between the two regimen\n      less than 5 mmHg for the mean day-time SBP at week 12)\n\n        -  One treatment arm including irbesartan 300 mg, hydrochlorothiazide (HCTZ) 12.5mg,\n           amlodipine 5 mg, ramipril 10mg and bisoprolol 10 mg\n\n        -  One treatment arm including irbesartan 300 mg, HCTZ 12.5mg, amlodipine 5 mg,\n           spironolactone 25 mg, furosemide 40 mg and amiloride 5 mg.\n\n      Secondary objectives:\n\n        -  To assess clinical and biological safety and efficacy of these regimen\n\n        -  To evaluate predicted factors of controlled or uncontrolled BP\n\n        -  To evaluate compliance to treatment\n\n        -  To compare the cost of the different strategies\n\n        -  To compare the two strategies in terms of endothelial function and left ventricular\n           diastolic filling\n\n      Study design:\n\n        -  Period 1 from week-4 to week 0 : 4-week treatment for all patients with irbesartan 300\n           mg, HCTZ 12.5mg, amlodipine 5 mg. At the end of this period, an ABPM will be performed:\n           only patients with a mean day time SBP>135 and/or DBP>85 mmHg will be randomized for a\n           further 3 months treatment\n\n        -  Period 2 from week 0 to week 4: patients will be randomized in two groups, the first\n           one receiving spironolactone 25mg and the second one receiving ramipril 5 mg as add-on\n           therapy (on top of the previous tri-therapy).\n\n        -  Period 3 from week 4 to week 8: Patients with BP controlled at week 4 (i.e mean home\n           blood pressure measurement (HBPM) <135/85 mmHg at week 4) remain on the same treatment.\n           For those uncontrolled (i.e. mean HBPM >135/85 mmHg at week 4), furosemide 20 mg will\n           be added in the first group and ramipril will be titrated to 10 mg in the second group\n\n        -  Period 4 from week 8 to week 10: Patients with BP controlled at week 8 (i.e. mean HBPM\n           <135/85 mmHg at week 8) remain on the same treatment. For those uncontrolled (i.e. mean\n           HBPM >135/85 mmHg at week 8), furosemide will be titrated to 40 mg in the first group\n           and bisoprolol 5 mg will be added in the second group.\n\n        -  Period 5 from week 10 to week 12 (end of the study): Patients with BP controlled at\n           week 10 (i.e mean HBPM <135/85 mmHg at week 10) remain on the same treatment. For those\n           uncontrolled (i.e mean HBPM > 135/85 mmHg at week 10), amiloride 5 mg will be added to\n           the previous treatment in the first group and bisoprolol will be titrated to 10 mg in\n           the second group.\n\n      Reasons for treatment discontinuation:\n\n        -  Patient decision\n\n        -  Informed consent withdrawal\n\n        -  SBP>180 mmHg or <100 mmHg (HBPM) whatever the time during the trial\n\n        -  Adverse events related to treatment or not"
+        }, 
+        "eligibility": {
+            "criteria": {
+                "textblock": "Inclusion Criteria:\n\n          -  Primary hypertension\n\n          -  Resistant hypertension defined by mean day-time SBP > 135 mmHg and DBP > 85 mmHg\n             (determined with ABPM device) after a standardized 4-week regimen including\n             irbesartan, amlodipine and HCTZ.\n\n        Exclusion Criteria:\n\n          -  Secondary hypertension\n\n          -  Unstable angina, history of stroke or coronary heart disease (coronary by-pass or\n             angioplasty) in the previous 3 months\n\n          -  History of cough with ACEi or gynecomastia with antialdosterones\n\n          -  Heart failure (New York Heart Association [NYHA] III-IV)\n\n          -  Contraindication to beta blockers because of bronchopathy or auriculoventricular\n             block\n\n          -  Diabetes mellitus (type 1 or 2) with HbA1C > 8%\n\n          -  Renal failure with creatinine clearance < 40ml/min (COCKROFT evaluation)\n\n          -  Arm circumference > 42 cm"
+            }, 
+            "gender": "Both", 
+            "healthy_volunteers": "No", 
+            "maximum_age": "75 Years", 
+            "minimum_age": "18 Years"
+        }, 
+        "enrollment": {
+            "#text": "180", 
+            "@type": "Actual"
+        }, 
+        "firstreceived_date": "September 16, 2005", 
+        "has_expanded_access": "No", 
+        "id_info": {
+            "nct_id": "NCT00224549", 
+            "org_study_id": "P040407"
+        }, 
+        "intervention": {
+            "description": "irbesartan, amlodipine  and hydrochlorothiazide", 
+            "intervention_name": "irbesartan, amlodipine  and hydrochlorothiazide", 
+            "intervention_type": "Drug", 
+            "other_name": "irbesartan, amlodipine  and hydrochlorothiazide"
+        }, 
+        "intervention_browse": {
+            "mesh_term": [
+                "Irbesartan", 
+                "Antihypertensive Agents", 
+                "Hydrochlorothiazide", 
+                "Amlodipine"
+            ]
+        }, 
+        "is_fda_regulated": "No", 
+        "keyword": [
+            "Resistant hypertension", 
+            "Combined diuretic therapy", 
+            "Combined RAS blockers"
+        ], 
+        "lastchanged_date": "February 25, 2011", 
+        "location": {
+            "facility": {
+                "address": {
+                    "city": "Paris", 
+                    "country": "France", 
+                    "state": "Ile de France", 
+                    "zip": "75015"
+                }, 
+                "name": "Investigation Clinical Center European Georges Pompidou Hospital"
+            }
+        }, 
+        "location_countries": {
+            "country": "France"
+        }, 
+        "number_of_arms": "1", 
+        "official_title": "Management of Resistant Hypertension -Pharmacokinetic Assessment of Different Antihypertensive Regimen -Comparison of Two Treatment Strategies: Increase Sodium Depletion or Combined Blockage of Renin-angiotensin System (RAS)", 
+        "overall_official": {
+            "affiliation": "Assistance Publique - H\u00f4pitaux de Paris", 
+            "last_name": "Guillaume BOBRIE, MD", 
+            "role": "Principal Investigator"
+        }, 
+        "overall_status": "Completed", 
+        "oversight_info": {
+            "authority": "France: Afssaps - Agence fran\u00e7aise de s\u00e9curit\u00e9 sanitaire des produits de sant\u00e9 (Saint-Denis)", 
+            "has_dmc": "Yes"
+        }, 
+        "phase": "Phase 4", 
+        "primary_completion_date": {
+            "#text": "August 2009", 
+            "@type": "Actual"
+        }, 
+        "primary_outcome": {
+            "description": "Mean day-time systolic blood pressure (SBP) at week 12, measured with an average blood pressure measurement (ABPM) device", 
+            "measure": "Mean day-time systolic blood pressure (SBP) at week 12, measured with an average blood pressure measurement (ABPM) device", 
+            "safety_issue": "Yes", 
+            "time_frame": "at week 12"
+        }, 
+        "required_header": {
+            "download_date": "ClinicalTrials.gov processed this data on June 04, 2014", 
+            "link_text": "Link to the current ClinicalTrials.gov record.", 
+            "url": "http://clinicaltrials.gov/show/NCT00224549"
+        }, 
+        "responsible_party": {
+            "name_title": "Zakia IDIR", 
+            "organization": "Department of Clinical Research of developpement"
+        }, 
+        "secondary_outcome": [
+            {
+                "description": "hours SBP and DBP at week 12 measured with an ABPM device", 
+                "measure": "Efficacy: mean day-time diastolic blood pressure (DBP) at week 12, mean 24 hours SBP and DBP at week 12 measured with an ABPM device", 
+                "safety_issue": "Yes", 
+                "time_frame": "at week 12,"
+            }, 
+            {
+                "description": "Safety and tolerability:", 
+                "measure": "Safety and tolerability:", 
+                "safety_issue": "Yes", 
+                "time_frame": "during the study"
+            }, 
+            {
+                "description": "During the study BP will be evaluated every 4 weeks by home blood pressure measurement [HBPM] in order to detect hypotension)", 
+                "measure": "During the study BP will be evaluated every 4 weeks by home blood pressure measurement [HBPM] in order to detect hypotension)", 
+                "safety_issue": "Yes", 
+                "time_frame": "every 4 weeks"
+            }, 
+            {
+                "description": "Biological examinations:", 
+                "measure": "Biological examinations:", 
+                "safety_issue": "Yes", 
+                "time_frame": "during the study"
+            }, 
+            {
+                "description": "blood and urinary electrolytes with creatinemia at week 0, 4, 8, 10 and 12", 
+                "measure": "blood and urinary electrolytes with creatinemia at week 0, 4, 8, 10 and 12", 
+                "safety_issue": "Yes", 
+                "time_frame": "at week 0, 4, 8, 10 and 12"
+            }, 
+            {
+                "description": "brain natriuretic peptide (BNP), active renin, aldosterone at week 0 and 12", 
+                "measure": "brain natriuretic peptide (BNP), active renin, aldosterone at week 0 and 12", 
+                "safety_issue": "Yes", 
+                "time_frame": "at week 0 and 12"
+            }, 
+            {
+                "description": "Other explorations:", 
+                "measure": "Other explorations:", 
+                "safety_issue": "Yes", 
+                "time_frame": "during"
+            }, 
+            {
+                "description": "Treatment compliance (study drug accounting, N-acetyl-seryl-aspartyl-lysyl-proline [Ac SDKP] for angiotensin converting enzyme inhibitor [ACEi])", 
+                "measure": "Treatment compliance (study drug accounting, N-acetyl-seryl-aspartyl-lysyl-proline [Ac SDKP] for angiotensin converting enzyme inhibitor [ACEi])", 
+                "safety_issue": "Yes", 
+                "time_frame": "during the study"
+            }, 
+            {
+                "description": "Echocardiography (week 0 and 12)", 
+                "measure": "Echocardiography (week 0 and 12)", 
+                "safety_issue": "Yes", 
+                "time_frame": "week 0 and 12"
+            }, 
+            {
+                "description": "Endothelial function (week 0 and 12)", 
+                "measure": "Endothelial function (week 0 and 12)", 
+                "safety_issue": "Yes", 
+                "time_frame": "week 0 and 12"
+            }, 
+            {
+                "description": "Pharmacokinetics of drugs (week 0 and 12)", 
+                "measure": "Pharmacokinetics of drugs (week 0 and 12)", 
+                "safety_issue": "Yes", 
+                "time_frame": "week 0 and 12"
+            }
+        ], 
+        "source": "Assistance Publique - H\u00f4pitaux de Paris", 
+        "sponsors": {
+            "lead_sponsor": {
+                "agency": "Assistance Publique - H\u00f4pitaux de Paris", 
+                "agency_class": "Other"
+            }
+        }, 
+        "start_date": "April 2005", 
+        "study_design": "Allocation: Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment", 
+        "study_type": "Interventional", 
+        "verification_date": "March 2007"
+    }
+}

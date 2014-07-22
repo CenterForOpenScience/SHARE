@@ -1,0 +1,36 @@
+{
+    "arxiv:comment": {
+        "#text": "6 pages, 2 figures", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "arxiv:primary_category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "hep-th", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "author": {
+        "name": "I. F. Ginzburg"
+    }, 
+    "category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "hep-th"
+    }, 
+    "id": "http://arxiv.org/abs/0910.4732v1", 
+    "link": [
+        {
+            "@href": "http://arxiv.org/abs/0910.4732v1", 
+            "@rel": "alternate", 
+            "@type": "text/html"
+        }, 
+        {
+            "@href": "http://arxiv.org/pdf/0910.4732v1", 
+            "@rel": "related", 
+            "@title": "pdf", 
+            "@type": "application/pdf"
+        }
+    ], 
+    "published": "2009-10-25T13:30:36Z", 
+    "summary": "Some features of old results in the total summation of all logarithmic\ncontributions of all diagrams in Yukawa theory are presented. We discuss some\nlessons from this picture for the description of Pomeron, odderon, etc. in QCD.", 
+    "title": "Lessons from All Logs Summation in Yukawa Theories", 
+    "updated": "2009-10-25T13:30:36Z"
+}

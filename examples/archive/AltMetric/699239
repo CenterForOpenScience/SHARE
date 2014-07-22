@@ -1,0 +1,34 @@
+last_updated: 1405973903
+is_oa: False
+cited_by_posts_count: 18
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=12&types=vvtttfgg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=12&types=vvtttfgg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=12&types=vvtttfgg'}
+altmetric_id: 699239
+subjects: [u'genetics']
+cited_by_videos_count: 5
+published_on: 1093993200
+title: Evidence for Gradients of Human Genetic Diversity Within and Among Continents
+cited_by_tweeters_count: 6
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Life Sciences', u'Biochemistry, Genetics and Molecular Biology']
+tq: [u'@razibkhan Its suggestion of a clinal not clade-based distribution is valuable though; good SerreP\xe4\xe4bo criticism', u"The genetics of human 'races' is absolutely fascinating. Clines NOT clades! @genomeresearch", u'@hamadmj here is no reason to assume that major genetic discontinuities exist between different continents or \u201craces.\u201d']
+score: 11.85
+altmetric_jid: 4f6fa4ec3cf058f610002944
+pmid: 15342553
+cited_by_gplus_count: 5
+abstract: Genetic variation in humans is sometimes described as being discontinuous among continents or among groups of individuals, and by some this has been interpreted as genetic support for "races." A recent study in which >350 microsatellites were studied in a global sample of humans showed that they could be grouped according to their continental origin, and this was widely interpreted as evidence for a discrete distribution of human genetic diversity. Here, we investigate how study design can influence such conclusions. Our results show that when individuals are sampled homogeneously from around the globe, the pattern seen is one of gradients of allele frequencies that extend over the entire world, rather than discrete clusters. Therefore, there is no reason to assume that major genetic discontinuities exist between different continents or "races."
+schema: 1.5.4
+cohorts: {u'sci': 1, u'pub': 5}
+readers_count: 165
+journal: Genome Research
+publisher_subjects: [{u'scheme': u'era', u'name': u'Biological Sciences'}, {u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=699239
+doi: 10.1101/gr.2529604
+abstract_source: pubmed
+url: http://dx.doi.org/10.1101/gr.2529604
+readers: {u'mendeley': 162, u'citeulike': 2, u'connotea': 1}
+nlmid: 9518021
+history: {u'6d': 1, u'1w': 1, u'1y': 4.85, u'1m': 1, u'6m': 4.35, u'2d': 1, u'at': 11.85, u'3m': 3.5, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+context: {u'similar_age_journal_3m': {u'count': 2, u'higher_than': 1, u'pct': 50, u'rank': 1, u'mean': 3.85}, u'all': {u'count': 2291553, u'higher_than': 2129514, u'pct': 92, u'rank': 161691, u'mean': 4.8097282601507}, u'similar_age_3m': {u'count': 62485, u'higher_than': 58372, u'pct': 93, u'rank': 4100, u'mean': 4.166120382818}, u'journal': {u'count': 1318, u'higher_than': 1064, u'pct': 80, u'rank': 253, u'mean': 8.5272361427487}}
+cited_by_fbwalls_count: 1
+issns: [u'1088-9051', u'1549-5469']
+added_on: 1334590373
+cited_by_accounts_count: 17

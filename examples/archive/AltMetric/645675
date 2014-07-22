@@ -1,0 +1,29 @@
+cited_by_feeds_count: 1
+last_updated: 1405918740
+is_oa: False
+cited_by_posts_count: 16
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=16&types=bttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=16&types=bttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=16&types=bttttttt'}
+altmetric_id: 645675
+published_on: 841532400
+issns: []
+title: Enamel matrix derivative (Emdogain®) for periodontal tissue regeneration in intrabony defects
+cited_by_tweeters_count: 13
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Is enamel matrix derivative the best way to regenerate tissue to treat chronic periodontitis? Read #Cochrane review', u'#Cochrane summary: Is enamel matrix derivative (#Emdogain) effective in regenerating tissue lost through gum disease?', u"Regenerating the gum tissue that supports teeth when it's lost to gum disease. Can Emdogain help? #Cochrane review", u'How effective is enamel matrix derivative for rebuilding tissue in people with #periodontitis? #Cochrane evidence']
+score: 15.43
+altmetric_jid: 4f6fa9123cf058f61000cc8c
+pmid: 19821315
+abstract: Periodontitis is a chronic infective disease of the gums caused by bacteria present in dental plaque. This condition induces the breakdown of the tooth supporting apparatus until teeth are lost. Surgery may be indicated to arrest disease progression and regenerate lost tissues. Several surgical techniques have been developed to regenerate periodontal tissues including guided tissue regeneration (GTR), bone grafting (BG) and the use of enamel matrix derivative (EMD). EMD is an extract of enamel matrix and contains amelogenins of various molecular weights. Amelogenins are involved in the formation of enamel and periodontal attachment formation during tooth development.
+schema: 1.5.4
+cohorts: {u'doc': 4, u'sci': 1, u'com': 1, u'pub': 7}
+readers_count: 6
+journal: Cochrane database of systematic reviews Online
+details_url: http://www.altmetric.com/details.php?citation_id=645675
+doi: 10.1002/14651858.cd003875.pub3
+abstract_source: pubmed
+url: http://dx.doi.org/10.1002/14651858.cd003875.pub3
+readers: {u'mendeley': 6, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 109, u'higher_than': 104, u'pct': 95, u'rank': 5, u'mean': 3.4975740740741}, u'all': {u'count': 2289179, u'higher_than': 2172308, u'pct': 94, u'rank': 116850, u'mean': 4.8077290197638}, u'similar_age_3m': {u'count': 70131, u'higher_than': 67095, u'pct': 95, u'rank': 3035, u'mean': 3.901973306716}, u'journal': {u'count': 4035, u'higher_than': 3444, u'pct': 85, u'rank': 591, u'mean': 9.318381259296}}
+history: {u'6d': 5.08, u'1w': 5.08, u'1y': 9.43, u'1m': 5.08, u'6m': 8.33, u'2d': 5.08, u'at': 15.43, u'3m': 7.93, u'5d': 5.08, u'4d': 5.08, u'1d': 5.08, u'3d': 5.08}
+added_on: 1331586130
+cited_by_accounts_count: 14

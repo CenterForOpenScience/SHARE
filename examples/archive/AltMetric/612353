@@ -1,0 +1,30 @@
+cited_by_feeds_count: 2
+last_updated: 1406008317
+is_oa: False
+cited_by_posts_count: 6
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=17&types=bbbttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=17&types=bbbttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=17&types=bbbttttt'}
+altmetric_id: 612353
+subjects: [u'psychology']
+published_on: 1217545200
+issns: [u'1468-960X']
+title: Do antidepressants work? A commentary on “Initial severity and antidepressant benefits: a meta-analysis of data submitted to the Food and Drug Administration” by Kirsch et al
+cited_by_tweeters_count: 3
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Do #antidepressants work? A commentary on \u201cInitial severity antidepressant benefits #mentalhealth #evidence', u"But Kirsch et al's review (on which this claim was based) \u2026 drew dubious (biased?) conclusions", u'Know someone on #antidepressants - On #60minutes now. Placebo Study Program at Harvard University. #IrvineKirsch']
+score: 16.288
+altmetric_jid: 4f6fa4eb3cf058f610002880
+pmid: 18669671
+nlmid: 100883413
+schema: 1.5.4
+cohorts: {u'pub': 3}
+readers_count: 9
+journal: Evidence Based Mental Health
+publisher_subjects: [{u'scheme': u'era', u'name': u'Public Health And Health Services'}]
+details_url: http://www.altmetric.com/details.php?citation_id=612353
+doi: 10.1136/ebmh.11.3.66
+url: http://dx.doi.org/10.1136/ebmh.11.3.66
+readers: {u'mendeley': 9, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 9, u'higher_than': 7, u'pct': 77, u'rank': 2, u'mean': 4.38125}, u'all': {u'count': 2291817, u'higher_than': 2181540, u'pct': 95, u'rank': 110267, u'mean': 4.8105041539133}, u'similar_age_3m': {u'count': 72842, u'higher_than': 69829, u'pct': 95, u'rank': 3013, u'mean': 3.9264701473071}, u'journal': {u'count': 284, u'higher_than': 278, u'pct': 97, u'rank': 6, u'mean': 2.6021060070671}}
+history: {u'6d': 1, u'1w': 1, u'1y': 8.08, u'1m': 8.08, u'6m': 8.08, u'2d': 1, u'at': 16.288, u'3m': 8.08, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+added_on: 1329709489
+cited_by_accounts_count: 5

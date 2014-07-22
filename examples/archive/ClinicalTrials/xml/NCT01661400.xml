@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 22, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT01661400</url>
+  </required_header>
+  <id_info>
+    <org_study_id>201209088</org_study_id>
+    <nct_id>NCT01661400</nct_id>
+  </id_info>
+  <brief_title>Anti-Angiogenic Therapy Post Transplant (ASCR) for Relapsed and Refractory Pediatric Solid Tumors</brief_title>
+  <acronym>ASCR</acronym>
+  <official_title>Anti-Angiogenic Therapy After Autologous Stem Cell Rescue (ASCR) for Relapsed and Refractory Pediatric Solid Tumors</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Washington University School of Medicine</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Washington University School of Medicine</source>
+  <oversight_info>
+    <authority>United States: Institutional Review Board</authority>
+    <has_dmc>No</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The purpose of this research study is to determine whether taking either of two low dose
+      drugs that would prevent new blood vessels from growing after stem cell transplant is
+      feasible, and what the side effects of taking each of these drugs after autologous
+      transplant might be.  The reason the investigators are looking at these drugs is because one
+      of the things that allows tumors to grow quickly is their ability to stimulate the growth of
+      new blood vessels.  By suppressing the growth of new blood vessels after stem cell
+      transplant, the investigators hope to prevent the tumors from coming back or continuing to
+      grow.
+    </textblock>
+  </brief_summary>
+  <overall_status>Recruiting</overall_status>
+  <start_date>October 2012</start_date>
+  <completion_date type="Anticipated">February 2020</completion_date>
+  <primary_completion_date type="Anticipated">February 2015</primary_completion_date>
+  <phase>Phase 0</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Non-Randomized, Endpoint Classification: Safety/Efficacy Study, Intervention Model: Parallel Assignment, Masking: Open Label, Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>Safety</measure>
+    <time_frame>Minimum of 2 years after inititation of study treatment</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Measured by absence of grade 4 or 5 non-hematological or grade 5 hematological toxicity</description>
+  </primary_outcome>
+  <primary_outcome>
+    <measure>Toxicity</measure>
+    <time_frame>Minimum of 2 years after inititation of study treatment</time_frame>
+    <safety_issue>Yes</safety_issue>
+    <description>Measured by absence of grade 4 or 5 non-hematological or grade 5 hematological toxicity from baseline to Day +30</description>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>Radiographic marker of neovascularization</measure>
+    <time_frame>86 days</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Measurement of anti-angiogenic activity in the treatment of solid tumors from baseline to Day +86.</description>
+  </secondary_outcome>
+  <secondary_outcome>
+    <measure>Best overall response</measure>
+    <time_frame>86 days</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Assessed by Response Evaluation Criteria in Solid Tumors (RECIST) guideline version 1.1.</description>
+  </secondary_outcome>
+  <number_of_arms>3</number_of_arms>
+  <enrollment type="Anticipated">12</enrollment>
+  <condition>Glioma</condition>
+  <condition>Neuroectodermal Tumors, Primitive</condition>
+  <condition>Wilms Tumor</condition>
+  <condition>Rhabdomyosarcoma</condition>
+  <condition>Sarcoma, Ewing</condition>
+  <condition>Osteosarcoma</condition>
+  <condition>Retinoblastoma</condition>
+  <arm_group>
+    <arm_group_label>Control</arm_group_label>
+    <arm_group_type>No Intervention</arm_group_type>
+    <description>No intervention</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Metronomic Cyclophosphamide</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Cyclophosphamide will be given PO once daily at 2.5 mg/kg/day for children &lt; 40kg or 100 mg daily for children &gt; 40kg beginning Day + 30 (30 days post transplant) and continue until at least Day +86</description>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>Thalidomide</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+    <description>Thalidomide will be initiated at 3mg/kg PO daily beginning Day + 30 (30 days post transplant) and continue until Day +86</description>
+  </arm_group>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Metronomic Cyclophosphamide</intervention_name>
+    <arm_group_label>Metronomic Cyclophosphamide</arm_group_label>
+    <other_name>Cytoxan®</other_name>
+    <other_name>CPM</other_name>
+  </intervention>
+  <intervention>
+    <intervention_type>Drug</intervention_type>
+    <intervention_name>Thalidomide</intervention_name>
+    <arm_group_label>Thalidomide</arm_group_label>
+    <other_name>Thalomid®</other_name>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  Patient must have an original diagnosis, benefited by autologous transplantation,
+             confirmed by biopsy* of high-grade glial tumor, low-grade glial tumor, ependymoma,
+             medulloblastoma, primitive neuro-ectodermal tumor (PNET), Wilms' tumor,
+             rhabdomyosarcoma, Ewing's sarcoma, retinoblastoma, or miscellaneous poor-prognosis
+             solid tumors.  Lymphomas and other lymphoid malignancies will not be studied in this
+             protocol.
+
+             * Brain stem glioma patients who have progressed after radiation therapy do not
+             require histologic confirmation. Brain stem gliomas are defined as intrinsic tumors
+             of the pons causing diffuse enlargement.  These patients are diagnosed on clinical
+             and radiographic appearance of the lesion and the biopsy requirement will be waived
+             for this group.
+
+          -  Patient must be ≥ 1 years of age and ≤ 21 years of age at the time of study entry.
+
+          -  Patient must have a Karnofsky performance status or Lansky* play status ≥ 50
+
+             * For purpose of determining performance scores, wheelchair-bound patients will be
+             considered ambulatory.
+
+          -  Patient must have an adequate supply of stem cells for transplant harvested prior to
+             study enrollment, with adequate supply defined as 3 x 106 CD34+ cells/kg for
+             peripheral blood stem cells (PBSC).  Cell mobilization method will be left up to the
+             treating physician's discretion and may include mobilization growth factor alone or
+             mobilization after chemotherapy.  If patient is unable to mobilize the proper amount
+             of peripheral stem cells, bone marrow may be harvested as the source of hematopoietic
+             stem cells.  In this instance, 3 x 108 mononuclear cells/kg will be considered
+             adequate.  If necessary, a combination of peripheral stem cells and bone marrow can
+             be used.
+
+          -  Prior radiation therapy and/or chemotherapy, including cyclophosphamide, are
+             permitted.
+
+          -  Prior anti-angiogenic therapy, including thalidomide and oral cyclophosphamide, is
+             permitted.
+
+          -  If on corticosteroids for mass effect and/or edema related to the tumor, patient must
+             be on a stable dose for at least 2 weeks prior to study entry.
+
+          -  Patient must have a life expectancy &gt; 2 months.
+
+          -  Patient must have an adequate bone marrow reserve as defined by:
+
+               -  Hemoglobin ≥ 9.0 g/dl and
+
+               -  Platelet count ≥ 30,000/ mm3 (transfusion independent) and
+
+               -  Peripheral absolute neutrophil count (ANC) ≥ 750/mm3
+
+          -  Patient must have adequate cardiac function tested within 4 weeks of study enrollment
+             as defined by:
+
+               -  Shortening fraction of ≥ 27% by echocardiogram or
+
+               -  Ejection fraction of ≥ 50% by radionuclide angiogram
+
+          -  Patient must have adequate pulmonary function tested within 4 weeks of study
+             enrollment as defined by:
+
+               -  Pulse oximetry &gt; 94% on room air or O2 by nasal cannula and
+
+               -  No evidence of dyspnea at rest.
+
+          -  Patient must have adequate hepatic function as defined by:
+
+               -  Total bilirubin ≤ 1.5x upper limit of normal (ULN) for age and
+
+               -  SGOT (AST) or SGPT (ALT) ≤ 2.5 x ULN (SGOT ≤ 4x ULN if on Zantac)
+
+          -  Patient must have adequate renal function as defined by:
+
+               -  Serum creatinine &lt; 1.5 mg/dl
+
+               -  Glomerular filtration rate (GFR), calculated via I-125 iothalamate clearance,
+                  24-hour creatinine clearance, or Schwartz formula*, ≥ 70 mL/min and ≥ 50
+                  mL/min/1.73 m2 done within 4 weeks of study entry
+
+               -  The Schwartz formula is an estimated glomerular filtration rate in children
+                  based upon serum creatinine and height.  Height (Ht) should be measured in cm
+                  and serum creatinine (Cr) in mg/dL.  Proportionality constant (k) is 0.55 for
+                  children and adolescent girls and 0.7 for adolescent boys aged 13-21.  This
+                  constant is based upon a series of evaluations performed by Schwartz.   Formula:
+                   GFR= (k x Ht)/Cr
+
+          -  If female of childbearing potential (defined as menstruating or amenorrheic from
+             previous medical treatments), the following guidelines must be adhered to:
+
+               -  If enrolled in Arm III of this study, patient must be registered at the Celgene
+                  S.T.E.P.S. ® Program.
+
+               -  If enrolled in Arm III of this study, patient must be willing to practice birth
+                  control as outlined in the S.T.E.P.S. Program from the beginning of the study
+                  until at least 4 weeks following discontinuation of thalidomide therapy.  Two
+                  reliable forms of contraception must be used simultaneously unless continuous
+                  abstinence from heterosexual sexual contact is chosen.  Contraceptive methods
+                  must include at least one highly effective method (e.g. oral contraceptive
+                  pills, injections, hormonal patches, IUD, or implants), AND one additional
+                  effective barrier method (e.g. latex condom, diaphragm, cervical cap).  If
+                  hormonal or IUD contraception is medically contraindicated, another highly
+                  effective method or two barrier methods must be used at the same time.
+
+          -  Pregnancy surveillance:
+
+               -  Patient must have a negative in office pregnancy test sensitive to within 50
+                  mIU/mL (serum or urine) within 24 hours of beginning thalidomide even if
+                  continuous abstinence is the preferred method of birth control.
+
+               -  A pregnancy test must be performed weekly during the first 4 weeks of therapy
+                  and repeated monthly for patients with regular menses or every 2 weeks for
+                  patients with irregular menses
+
+               -  Negative pregnancy tests are valid for only 7 days.
+
+               -  If irregular bleeding or skipped menses, pregnancy test should be performed and
+                  pregnancy counseling given.
+
+               -  If pregnancy occurs during treatment, thalidomide must be immediately
+                  discontinued.  Any suspected lethal exposure must be reported immediately to
+                  Celgene Customer Care Center at 1-888-423-5346, and the patient referred to an
+                  OB/GYN experienced in reproductive toxicity for further evaluation and
+                  counseling.
+
+          -  Patient (or legally authorized representative) must be able to understand and willing
+             to sign a written informed consent document.
+
+        Exclusion Criteria:
+
+          -  Patient must not have any active, uncontrolled cardiac, hepatic, renal, or
+             psychiatric disease defined as ≥ grade 3 based on NCI Common Terminology Criteria for
+             Adverse Events v4.0 (CTCAE).
+
+          -  Patient must not be receiving any other investigational agents.
+
+          -  Patient must not have any active infection or concurrent illness obscuring toxicity
+             or dangerously altering drug metabolism.
+
+          -  Patient must not have any thromboembolic event (deep vein thrombosis or pulmonary
+             embolism) less than 3 weeks prior to enrollment.
+
+          -  Patient must not have a history of allergic reactions attributed to compounds of
+             similar chemical or biologic composition to any of the agents used in the study.
+
+          -  Patient must not be pregnant or breastfeeding.
+
+        Inclusion of Women and Minorities
+
+        -Both men and women and members of all races and ethnic groups are eligible for this
+        trial.
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>1 Year</minimum_age>
+    <maximum_age>21 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Lisa Madden, M.D.</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Washington University School of Medicine</affiliation>
+  </overall_official>
+  <overall_contact>
+    <last_name>Lisa Madden, M.D.</last_name>
+    <phone>314-454-6018</phone>
+    <email>madden_l@kids.wustl.edu</email>
+  </overall_contact>
+  <location>
+    <facility>
+      <name>Washington University School of Medicine</name>
+      <address>
+        <city>St. Louis</city>
+        <state>Missouri</state>
+        <zip>63122</zip>
+        <country>United States</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Lisa Madden, M.D.</last_name>
+      <phone>314-454-6018</phone>
+      <email>madden_l@kids.wustl.edu</email>
+    </contact>
+    <investigator>
+      <last_name>Robert Hayashi, M.D.</last_name>
+      <role>Sub-Investigator</role>
+    </investigator>
+    <investigator>
+      <last_name>Shalini Shenoy, M.D.</last_name>
+      <role>Sub-Investigator</role>
+    </investigator>
+    <investigator>
+      <last_name>Jeffrey Bednarski, M.D.</last_name>
+      <role>Sub-Investigator</role>
+    </investigator>
+    <investigator>
+      <last_name>Monica Hente, ARNP</last_name>
+      <role>Sub-Investigator</role>
+    </investigator>
+    <investigator>
+      <last_name>Geetika Khanna, M.D.</last_name>
+      <role>Sub-Investigator</role>
+    </investigator>
+    <investigator>
+      <last_name>Joshua Shimony, Ph.D.</last_name>
+      <role>Sub-Investigator</role>
+    </investigator>
+  </location>
+  <location_countries>
+    <country>United States</country>
+  </location_countries>
+  <link>
+    <url>http://www.siteman.wustl.edu</url>
+    <description>Alvin J. Siteman Cancer Center at Barnes-Jewish Hospital and Washington University School of Medicine</description>
+  </link>
+  <verification_date>April 2014</verification_date>
+  <lastchanged_date>April 16, 2014</lastchanged_date>
+  <firstreceived_date>July 30, 2012</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>Glioma includes ependymoma and medulloblastoma</keyword>
+  <is_fda_regulated>Yes</is_fda_regulated>
+  <is_section_801>No</is_section_801>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Glioma</mesh_term>
+    <mesh_term>Wilms Tumor</mesh_term>
+    <mesh_term>Osteosarcoma</mesh_term>
+    <mesh_term>Retinoblastoma</mesh_term>
+    <mesh_term>Rhabdomyosarcoma</mesh_term>
+    <mesh_term>Neuroectodermal Tumors</mesh_term>
+    <mesh_term>Neuroectodermal Tumors, Primitive</mesh_term>
+    <mesh_term>Sarcoma, Ewing's</mesh_term>
+    <mesh_term>Sarcoma</mesh_term>
+  </condition_browse>
+  <intervention_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Cyclophosphamide</mesh_term>
+    <mesh_term>Thalidomide</mesh_term>
+    <mesh_term>Angiogenesis Inhibitors</mesh_term>
+  </intervention_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>

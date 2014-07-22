@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study rank="1">
+  <!-- This xml conforms to an XML Schema at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    http://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 19, 2014</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>http://clinicaltrials.gov/show/NCT00629694</url>
+  </required_header>
+  <id_info>
+    <org_study_id>12-01-07</org_study_id>
+    <nct_id>NCT00629694</nct_id>
+  </id_info>
+  <brief_title>Adenoidectomy, Myringotomy and Tubes' Insertion vs Adenoidectomy and Myringotomy Alone in Children With Otitis Media With Effusion and Adenoid Hypertrophy</brief_title>
+  <official_title>Adenoidectomy, Myringotomy and Tubes' Insertion vs Adenoidectomy and Myringotomy Alone in Children With Otitis Media With Effusion and Adenoid Hypertrophy</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>Aghia Sophia Children's Hospital of Athens</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>Aghia Sophia Children's Hospital of Athens</source>
+  <oversight_info>
+    <authority>Greece: Ministry of Health and Welfare</authority>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      It is not unusual for several children operated for severe adenoid hyperthrophy causing
+      breathing problems to have otitis media with effusion simultaneously. It is unknown whether
+      adenoidectomy, myringotomy and tubes insertion is superior to adenoidectomy and myringotomy
+      alone in terms of otitis media related quality of life and recurrence of otitis media
+      several months after the operation. For this purpose a randomized trial is conducted
+      including children operated for adenoid hyperthrophy and whose otitis media with effusion
+      had caused minimal or no symptoms so far
+    </textblock>
+  </brief_summary>
+  <overall_status>Completed</overall_status>
+  <start_date>September 2007</start_date>
+  <completion_date type="Actual">May 2009</completion_date>
+  <primary_completion_date type="Actual">May 2009</primary_completion_date>
+  <phase>Phase 2</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Allocation: Randomized, Endpoint Classification: Efficacy Study, Intervention Model: Parallel Assignment, Masking: Single Blind (Outcomes Assessor), Primary Purpose: Treatment</study_design>
+  <primary_outcome>
+    <measure>OM-6</measure>
+    <time_frame>one year post operative</time_frame>
+    <safety_issue>No</safety_issue>
+  </primary_outcome>
+  <secondary_outcome>
+    <measure>tympanogram type B</measure>
+    <time_frame>one year</time_frame>
+    <safety_issue>No</safety_issue>
+  </secondary_outcome>
+  <number_of_arms>2</number_of_arms>
+  <enrollment type="Actual">52</enrollment>
+  <condition>Otitis Media With Effusion</condition>
+  <arm_group>
+    <arm_group_label>A-T</arm_group_label>
+    <arm_group_type>Active Comparator</arm_group_type>
+  </arm_group>
+  <arm_group>
+    <arm_group_label>A-M</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+  </arm_group>
+  <intervention>
+    <intervention_type>Procedure</intervention_type>
+    <intervention_name>adenoidectomy, myringotomy, tubes insertion</intervention_name>
+    <description>adenoidectomy, myringotomy and tubes insertion (A-T)against adenoidectomy and myringotomy alone (A-M)</description>
+    <arm_group_label>A-T</arm_group_label>
+  </intervention>
+  <intervention>
+    <intervention_type>Procedure</intervention_type>
+    <intervention_name>A-M</intervention_name>
+    <description>adenoidectomy and myringotomy alone</description>
+    <arm_group_label>A-M</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  children operated for their adenoid hyperthrophy with an adenoid size of 3 (measured
+             in a scale of 1-3 intraoperatively or from lateral neck x-ray) and otitis media with
+             effusion causing an average air-bone gap of greater than 20db. Children should be
+             otherwise healthy with an ASA score of I and between 3-12 years old of age
+
+        Exclusion Criteria:
+
+          -  other health problems especially related with the condition eg cleft palate
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>3 Years</minimum_age>
+    <maximum_age>12 Years</maximum_age>
+    <healthy_volunteers>No</healthy_volunteers>
+  </eligibility>
+  <overall_official>
+    <last_name>Ioannis M Vlastos, MD</last_name>
+    <role>Principal Investigator</role>
+    <affiliation>Aghia Sophia Children's Hospital of Athens</affiliation>
+  </overall_official>
+  <location>
+    <facility>
+      <name>Department of Otolaryngology-Head and Neck Surgery, Aghia Sophia Children's Hospital of Athens</name>
+      <address>
+        <city>Athens</city>
+        <country>Greece</country>
+      </address>
+    </facility>
+  </location>
+  <location_countries>
+    <country>Greece</country>
+  </location_countries>
+  <verification_date>January 2012</verification_date>
+  <lastchanged_date>January 20, 2012</lastchanged_date>
+  <firstreceived_date>February 27, 2008</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Principal Investigator</responsible_party_type>
+    <investigator_affiliation>Aghia Sophia Children's Hospital of Athens</investigator_affiliation>
+    <investigator_full_name>Ioannis Vlastos</investigator_full_name>
+    <investigator_title>MD</investigator_title>
+  </responsible_party>
+  <keyword>adenoidectomy, myringotomy, tubes insertion, otitis media, adenoid hyperthophy</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Hypertrophy</mesh_term>
+    <mesh_term>Otitis</mesh_term>
+    <mesh_term>Otitis Media</mesh_term>
+    <mesh_term>Otitis Media with Effusion</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>
