@@ -1,0 +1,32 @@
+last_updated: 1405949734
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 35
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=32&types=mttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=32&types=mttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=32&types=mttttttt'}
+altmetric_id: 674295
+subjects: [u'gynecology', u'reproductivemedicine']
+published_on: 1325376000
+issns: [u'1743-6109']
+title: Unfaithful Individuals are Less Likely to Practice Safer Sex Than Openly Nonmonogamous Individuals
+cited_by_tweeters_count: 28
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Unfaithful Individuals Less Likely to Practice Safer Sex than Openly Nonmonogamous Individuals', u'#Unfaithful Individuals are Less Likely to Practice #Safer #Sex Than Openly #Nonmonogamous / T. Conley, PhD [US; JSM]', u'Cheaters less likely to use protection against STDs than swingers.', u'Unfaithful Individuals are Less Likely to Practice Safer Sex Than Openly\u2026 #health']
+score: 31.45
+altmetric_jid: 4f6fa52c3cf058f6100040d4
+pmid: 22463058
+abstract: Given the prevalence and harm of sexually transmitted infections (STIs), there is a need to examine safer sex strategies in the context of romantic relationships and extradyadic sexual encounters. Sexual infidelity is associated with a variety of detrimental psychosocial outcomes; however, little research has addressed the sexual health ramifications of sexually unfaithful partners and members of other high-risk nonmonogamous lifestyles.
+schema: 1.5.4
+cohorts: {u'doc': 2, u'sci': 5, u'com': 4, u'pub': 17}
+readers_count: 14
+journal: The Journal of Sexual Medicine
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}, {u'scheme': u'era', u'name': u'Psychology And Cognitive Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=674295
+doi: 10.1111/j.1743-6109.2012.02712.x
+abstract_source: pubmed
+url: http://dx.doi.org/10.1111/j.1743-6109.2012.02712.x
+readers: {u'mendeley': 13, u'citeulike': 1, u'connotea': 0}
+nlmid: 101230693
+context: {u'similar_age_journal_3m': {u'count': 25, u'higher_than': 23, u'pct': 92, u'rank': 2, u'mean': 6.184}, u'all': {u'count': 2290870, u'higher_than': 2238109, u'pct': 97, u'rank': 52785, u'mean': 4.8086070386412}, u'similar_age_3m': {u'count': 69573, u'higher_than': 68267, u'pct': 98, u'rank': 1306, u'mean': 3.9526713907893}, u'journal': {u'count': 1012, u'higher_than': 959, u'pct': 94, u'rank': 53, u'mean': 7.9367042532146}}
+history: {u'6d': 10, u'1w': 10, u'1y': 10, u'1m': 10, u'6m': 10, u'2d': 10, u'at': 31.45, u'3m': 10, u'5d': 10, u'4d': 10, u'1d': 10, u'3d': 10}
+added_on: 1333142564
+cited_by_accounts_count: 29

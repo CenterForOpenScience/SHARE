@@ -1,0 +1,33 @@
+cited_by_feeds_count: 1
+last_updated: 1406031692
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 204
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=83&types=mbbttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=83&types=mbbttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=83&types=mbbttttt'}
+altmetric_id: 398725
+subjects: [u'physiology']
+published_on: 1317769200
+title: Aging and Factors Related to Running Economy.
+cited_by_tweeters_count: 78
+scopus_subjects: [u'Health Sciences', u'Medicine', u'Health Professions']
+tq: [u'Yet another reasons for runners to lift weights as they age: \xa0', u'Older runners get slower from declining cardiovascular measures, and strength, not from loss of running economy', u"Aging's effect on Running Economy", u'Older runners lack upper body strength, reducing thr running power. Strength training is critical for ALL runners']
+score: 82.85
+altmetric_jid: 4f6fa52c3cf058f6100040e2
+pmid: 21982960
+abstract: The purpose of this study was to investigate the relationship that age has on factors affecting running economy (RE) in competitive distance runners. Fifty-one male and female subelite distance runners (Young [Y]: 18-39 years [n = 18]; Master [M]: 40-59 years [n = 22]; and Older [O]: 60-older [n = 11]) were measured for RE, step rate, lactate threshold (LT), VO2max, muscle strength and endurance, flexibility, power, and body composition. An RE test was conducted at 4 different velocities (161, 188, 215, and 241 m·min(-1)), with subjects running for 5 minutes at each velocity. The steady-state VO2max during the last minute of each stage was recorded and plotted vs. speed, and a regression equation was formulated. A 1 × 3 analysis of variance revealed no differences in the slopes of the RE regression lines among age groups (y = 0.1827x - 0.2974; R2 = 0.9511 [Y]; y = 0.1988x - 1.0416; R2 = 0.9697 [M]; y = 0.1727x + 3.0252; R2 = 0.9618 [O]). The VO2max was significantly lower in the O group compared to in the Y and M groups (Y = 64.1 ± 3.2; M = 56.8 ± 2.7; O = 44.4 ± 1.7 mlO2·kg(-1)·min(-1)). The maximal heart rate and velocity @ LT were significantly different among all age groups (Y = 197 ± 4; M = 183 ± 2; O = 170 ± 6 b·min(-1) and Y = 289.7 ± 27.0; M = 251.5 ± 32.9; O = 212.3 ± 24.6 m·min(-1), respectively). The VO2max @ LT was significantly lower in the O group compared to in the Y and M groups (Y = 50.3 ± 2.0; M = 48.8 ± 2.9; O = 34.9 ± 3.2 mlO2·kg(-1)·min(-1)). The O group was significantly lower than in the Y and M groups in flexibility, power, and upper body strength. Multiple regression analyses showed that strength and power were significantly related to running velocity. The results from this cross-sectional analysis suggest that age-related declines in running performance are associated with declines in maximal and submaximal cardiorespiratory variables and declines in strength and power, not because of declines in running economy.
+schema: 1.5.4
+cohorts: {u'doc': 7, u'sci': 6, u'com': 3, u'pub': 62}
+readers_count: 17
+journal: Journal of strength and conditioning research / National Strength & Conditioning Association
+publisher_subjects: [{u'scheme': u'era', u'name': u'Human Movement And Sports Science'}]
+details_url: http://www.altmetric.com/details.php?citation_id=398725
+doi: 10.1519/jsc.0b013e318212dd0e
+abstract_source: pubmed
+url: http://dx.doi.org/10.1519/jsc.0b013e318212dd0e
+readers: {u'mendeley': 17, u'citeulike': 0, u'connotea': 0}
+nlmid: 9415084
+history: {u'6d': 4.25, u'1w': 4.25, u'1y': 42.7, u'1m': 10.5, u'6m': 27.5, u'2d': 3.25, u'at': 82.85, u'3m': 27.5, u'5d': 4.25, u'4d': 4.25, u'1d': 1.25, u'3d': 3.25}
+context: {u'similar_age_journal_3m': {u'count': 155, u'higher_than': 151, u'pct': 97, u'rank': 4, u'mean': 12.468207792208}, u'all': {u'count': 2293685, u'higher_than': 2278185, u'pct': 99, u'rank': 15590, u'mean': 4.8097365574355}, u'similar_age_3m': {u'count': 60923, u'higher_than': 60610, u'pct': 99, u'rank': 313, u'mean': 3.8400879813532}, u'journal': {u'count': 1908, u'higher_than': 1871, u'pct': 98, u'rank': 37, u'mean': 12.144328264289}}
+issns: [u'1533-4287']
+added_on: 1318331710
+cited_by_accounts_count: 80

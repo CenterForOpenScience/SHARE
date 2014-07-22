@@ -1,0 +1,28 @@
+last_updated: 1406012412
+is_oa: False
+cited_by_posts_count: 3
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=2&types=tttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=2&types=tttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=2&types=tttttttt'}
+altmetric_id: 895662
+published_on: 1325376000
+score: 1.25
+title: Re: Helicobacter Pylori Infection and Colorectal Cancer Risk: Evidence From a Large Population-Based Case-Control Study in Germany
+cited_by_tweeters_count: 2
+scopus_subjects: [u'Health Sciences', u'Medicine']
+issns: [u'1476-6256']
+subjects: [u'epidemiology']
+altmetric_jid: 4f6fa4e83cf058f6100021f7
+pmid: 22908208
+nlmid: 7910653
+schema: 1.5.4
+cohorts: {u'doc': 1, u'pub': 1}
+readers_count: 2
+journal: American Journal of Epidemiology
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}, {u'scheme': u'era', u'name': u'Mathematical Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=895662
+doi: 10.1093/aje/kws302
+url: http://dx.doi.org/10.1093/aje/kws302
+readers: {u'mendeley': 2, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 21, u'higher_than': 10, u'pct': 47, u'rank': 10, u'mean': 3.2446}, u'all': {u'count': 2291817, u'higher_than': 1265368, u'pct': 55, u'rank': 902749, u'mean': 4.8102441033682}, u'similar_age_3m': {u'count': 70155, u'higher_than': 39777, u'pct': 56, u'rank': 26060, u'mean': 4.9562409841206}, u'journal': {u'count': 1614, u'higher_than': 761, u'pct': 47, u'rank': 779, u'mean': 6.5748394296342}}
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 1.25, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1345480650
+cited_by_accounts_count: 2

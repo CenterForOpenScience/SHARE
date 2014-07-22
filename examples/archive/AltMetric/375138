@@ -1,0 +1,29 @@
+cited_by_feeds_count: 2
+last_updated: 1405949940
+is_oa: False
+cited_by_posts_count: 3
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=18&types=bbbbbttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=18&types=bbbbbttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=18&types=bbbbbttt'}
+altmetric_id: 375138
+subjects: [u'biotechnology']
+published_on: 946684800
+issns: [u'1087-0156', u'1546-1696']
+title: Engineering Deinococcus radiodurans for metal remediation in radioactive mixed waste environments
+cited_by_tweeters_count: 1
+scopus_subjects: [u'Chemical Engineering', u'Physical Sciences', u'Immunology and Microbiology', u'Engineering', u'Biochemistry, Genetics and Molecular Biology', u'Life Sciences']
+tq: [u'nuclear weapons production stimulated the development of bioremediation strategies using Deinococcus radiodurans,']
+score: 17.448
+altmetric_jid: 4f6fa50a3cf058f610003162
+nlmid: 9604648
+schema: 1.5.4
+cohorts: {u'pub': 1}
+readers_count: 101
+journal: Nature Biotechnology
+publisher_subjects: [{u'scheme': u'era', u'name': u'Multidisciplinary'}]
+details_url: http://www.altmetric.com/details.php?citation_id=375138
+doi: 10.1038/71986
+url: http://dx.doi.org/10.1038/71986
+readers: {u'mendeley': 99, u'citeulike': 0, u'connotea': 2}
+context: {u'similar_age_journal_3m': {u'count': 89, u'higher_than': 78, u'pct': 87, u'rank': 11, u'mean': 8.0422272727273}, u'all': {u'count': 2291340, u'higher_than': 2189416, u'pct': 95, u'rank': 101941, u'mean': 4.8093387377446}, u'similar_age_3m': {u'count': 58180, u'higher_than': 55723, u'pct': 95, u'rank': 2457, u'mean': 4.0780299076986}, u'journal': {u'count': 2069, u'higher_than': 1771, u'pct': 85, u'rank': 298, u'mean': 11.576813346228}}
+history: {u'6d': 9, u'1w': 9, u'1y': 12, u'1m': 9, u'6m': 9, u'2d': 9, u'at': 17.448, u'3m': 9, u'5d': 9, u'4d': 9, u'1d': 9, u'3d': 9}
+added_on: 1316379575
+cited_by_accounts_count: 3

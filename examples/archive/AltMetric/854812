@@ -1,0 +1,32 @@
+last_updated: 1406028269
+is_oa: False
+cited_by_posts_count: 9
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=5&types=tttttfff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=5&types=tttttfff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=5&types=tttttfff'}
+altmetric_id: 854812
+subjects: [u'psychology']
+published_on: 1271286000
+issns: []
+title: Evidence-based hypnotherapy for depression.
+cited_by_tweeters_count: 4
+scopus_subjects: [u'Health Sciences', u'Social Sciences', u'Psychology', u'Health Professions']
+tq: [u'Evidence-Based Cognitive Behavioural Hypnotherapy for Depression', u'Information on evidence-based #hypnotherapy as treatment for depression #health #yyc', u'Hypnosis for depression: provides a powerful vehicle for expanding awareness and amplifying positive experiences.', u'Hypnosis provides a powerful vehicle for expanding awareness and amplifying positive experiences']
+score: 4.2
+altmetric_jid: 4f6fa4d73cf058f6100012a0
+pmid: 20390689
+abstract: Cognitive hypnotherapy (CH) is a comprehensive evidence-based hypnotherapy for clinical depression. This article describes the major components of CH, which integrate hypnosis with cognitive-behavior therapy as the latter provides an effective host theory for the assimilation of empirically supported treatment techniques derived from various theoretical models of psychotherapy and psychopathology. CH meets criteria for an assimilative model of psychotherapy, which is considered to be an efficacious model of psychotherapy integration. The major components of CH for depression are described in sufficient detail to allow replication, verification, and validation of the techniques delineated. CH for depression provides a template that clinicians and investigators can utilize to study the additive effects of hypnosis in the management of other psychological or medical disorders. Evidence-based hypnotherapy and research are encouraged; such a movement is necessary if clinical hypnosis is to integrate into mainstream psychotherapy.
+schema: 1.5.4
+cohorts: {u'pub': 4}
+readers_count: 20
+journal: International Journal of Clinical and Experimental Hypnosis
+publisher_subjects: [{u'scheme': u'era', u'name': u'Psychology'}]
+details_url: http://www.altmetric.com/details.php?citation_id=854812
+doi: 10.1080/00207140903523194
+abstract_source: pubmed
+url: http://dx.doi.org/10.1080/00207140903523194
+readers: {u'mendeley': 19, u'citeulike': 0, u'connotea': 1}
+nlmid: 0376166
+context: {u'similar_age_journal_3m': {u'count': 8, u'higher_than': 7, u'pct': 87, u'rank': 1, u'mean': 0.53571428571429}, u'all': {u'count': 2293523, u'higher_than': 1816011, u'pct': 79, u'rank': 474524, u'mean': 4.8097677319009}, u'similar_age_3m': {u'count': 68345, u'higher_than': 56576, u'pct': 82, u'rank': 11665, u'mean': 4.7731864391899}, u'journal': {u'count': 118, u'higher_than': 92, u'pct': 77, u'rank': 26, u'mean': 3.495811965812}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 1.85, u'1w': 1.85, u'1y': 1.85, u'1m': 1.85, u'6m': 1.85, u'2d': 0.85, u'at': 4.2, u'3m': 1.85, u'5d': 1.85, u'4d': 1.85, u'1d': 0.85, u'3d': 0.85}
+added_on: 1343166126
+cited_by_accounts_count: 6

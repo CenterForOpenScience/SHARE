@@ -1,0 +1,35 @@
+cited_by_feeds_count: 16
+last_updated: 1405993566
+is_oa: False
+cited_by_msm_count: 7
+cited_by_posts_count: 1373
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=1070&types=mpbttrfg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=1070&types=mpbttrfg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=1070&types=mpbttrfg'}
+altmetric_id: 868048
+subjects: [u'science']
+published_on: 1343775600
+cited_by_rdts_count: 15
+title: Human cycles: History as science.
+cited_by_tweeters_count: 1063
+scopus_subjects: [u'General']
+tq: [u'The science of history: can non-linear mathematics predict the next revolution? #longreads', u'Human cycles: History as science making math models of history', u'Popular on our site right now: A two year old feature on cliodynamics, applying mathematical models to human history', u'History adheres to no general laws, no discernible patterns. Why are huge databases being used to predict the future?']
+score: 1069.13
+altmetric_jid: 4f6fa50a3cf058f610003160
+pmid: 22859185
+cited_by_gplus_count: 52
+nlmid: 0410462
+schema: 1.5.4
+cohorts: {u'com': 58, u'sci': 138, u'pub': 854, u'doc': 13}
+readers_count: 13
+journal: Nature
+details_url: http://www.altmetric.com/details.php?citation_id=868048
+doi: 10.1038/488024a
+ads_id: 2012natur.488...24s
+readers: {u'mendeley': 11, u'citeulike': 2, u'connotea': 0}
+url: http://dx.doi.org/10.1038/488024a
+history: {u'6d': 8, u'1w': 8, u'1y': 119.564, u'1m': 30.45, u'6m': 36.65, u'2d': 8, u'at': 1069.13, u'3m': 30.7, u'5d': 8, u'4d': 8, u'1d': 8, u'3d': 8}
+cited_by_pinners_count: 14
+context: {u'similar_age_journal_3m': {u'count': 922, u'higher_than': 918, u'pct': 99, u'rank': 4, u'mean': 70.69342888165}, u'all': {u'count': 2291817, u'higher_than': 2291690, u'pct': 99, u'rank': 127, u'mean': 4.8104597192816}, u'similar_age_3m': {u'count': 68033, u'higher_than': 68026, u'pct': 99, u'rank': 7, u'mean': 4.8552977716368}, u'journal': {u'count': 25811, u'higher_than': 25767, u'pct': 99, u'rank': 44, u'mean': 39.463484618365}}
+cited_by_fbwalls_count: 122
+issns: [u'0028-0836', u'1476-4687']
+added_on: 1343841489
+cited_by_accounts_count: 1289

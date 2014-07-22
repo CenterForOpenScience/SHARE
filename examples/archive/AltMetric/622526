@@ -1,0 +1,32 @@
+cited_by_feeds_count: 1
+last_updated: 1405951838
+is_oa: False
+cited_by_posts_count: 11
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=16&types=btttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=16&types=btttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=16&types=btttttff'}
+altmetric_id: 622526
+subjects: [u'publichealth']
+published_on: 1138752000
+title: The Role of Vitamin D in Cancer Prevention
+cited_by_tweeters_count: 6
+scopus_subjects: [u'Health Sciences', u'Medicine']
+issns: [u'0090-0036', u'1541-0048']
+score: 15.09
+altmetric_jid: 4f6fa4e83cf058f61000221a
+pmid: 16380576
+abstract: Vitamin D status differs by latitude and race, with residents of the northeastern United States and individuals with more skin pigmentation being at increased risk of deficiency. A PubMed database search yielded 63 observational studies of vitamin D status in relation to cancer risk, including 30 of colon, 13 of breast, 26 of prostate, and 7 of ovarian cancer, and several that assessed the association of vitamin D receptor genotype with cancer risk. The majority of studies found a protective relationship between sufficient vitamin D status and lower risk of cancer. The evidence suggests that efforts to improve vitamin D status, for example by vitamin D supplementation, could reduce cancer incidence and mortality at low cost, with few or no adverse effects.
+schema: 1.5.4
+cohorts: {u'pub': 6}
+readers_count: 95
+journal: American Journal of Public Health
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=622526
+doi: 10.2105/ajph.2004.045260
+abstract_source: pubmed
+url: http://dx.doi.org/10.2105/ajph.2004.045260
+readers: {u'mendeley': 93, u'citeulike': 1, u'connotea': 1}
+nlmid: 1254074
+context: {u'similar_age_journal_3m': {u'count': 83, u'higher_than': 78, u'pct': 93, u'rank': 5, u'mean': 3.7959024390244}, u'all': {u'count': 2290730, u'higher_than': 2171079, u'pct': 94, u'rank': 119719, u'mean': 4.8085762855427}, u'similar_age_3m': {u'count': 71592, u'higher_than': 68444, u'pct': 95, u'rank': 3148, u'mean': 3.8703824782444}, u'journal': {u'count': 2571, u'higher_than': 2254, u'pct': 87, u'rank': 317, u'mean': 8.3925431906615}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 3, u'1m': 0.25, u'6m': 0.75, u'2d': 0.25, u'at': 15.09, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1330313143
+cited_by_accounts_count: 9

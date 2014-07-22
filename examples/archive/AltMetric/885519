@@ -1,0 +1,32 @@
+cited_by_feeds_count: 1
+last_updated: 1405974180
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 4
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=13&types=mmbbffff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=13&types=mmbbffff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=13&types=mmbbffff'}
+altmetric_id: 885519
+subjects: [u'hematology']
+published_on: 1317337200
+title: ABO Research in the Modern Era of Genomics.
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Life Sciences', u'Biochemistry, Genetics and Molecular Biology']
+issns: []
+score: 12.58
+altmetric_jid: 4f6fa5eb3cf058f610005d25
+pmid: 21945157
+abstract: Research on ABO has advanced significantly in recent years. A database was established to manage the sequence information of an increasing number of novel alleles. Genome sequencings have identified ABO orthologues and paralogues in various organisms and enhanced the knowledge on the evolution of the ABO and related genes. The most prominent advancements include clarification of the association between ABO and different disease processes. For instance, ABO status affects the infectivity of certain strains of Helicobacter pylori and Noroviruses as well as the sequestration and rosetting of red blood cells infected with Plasmodium falciparum. Genome-wide association studies have conclusively linked the ABO locus to pancreatic cancer, venous thromboembolism, and myocardial infarction in the presence of coronary atherosclerosis. These findings suggest ABO's important role in determining an individual's susceptibility to such diseases. Furthermore, our understanding of the structures of A and B transferases and their enzymology has been dramatically improved. ABO has also become a research subject in neurobiology and the preparation of artificial/universal blood and became a topic in the pseudoscience of "blood type diets." With such new progress, it has become evident that ABO is a critical player in the modern era of genomic medicine. This article provides the most up-to-date information regarding ABO genomics.
+schema: 1.5.4
+cohorts: []
+readers_count: 13
+journal: Transfus Med Rev
+publisher_subjects: [{u'scheme': u'era', u'name': u'Clinical Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=885519
+doi: 10.1016/j.tmrv.2011.08.002
+abstract_source: pubmed
+url: http://dx.doi.org/10.1016/j.tmrv.2011.08.002
+readers: {u'mendeley': 13, u'citeulike': 0, u'connotea': 0}
+nlmid: 8709027
+context: {u'similar_age_journal_3m': {u'count': 1, u'higher_than': 0, u'pct': 1, u'rank': 1, u'mean': 0}, u'all': {u'count': 2291817, u'higher_than': 2143253, u'pct': 93, u'rank': 148540, u'mean': 4.8104580263009}, u'similar_age_3m': {u'count': 68481, u'higher_than': 63857, u'pct': 93, u'rank': 4624, u'mean': 5.0073867406541}, u'journal': {u'count': 25, u'higher_than': 23, u'pct': 92, u'rank': 2, u'mean': 1.8020833333333}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 5.08, u'1w': 12.08, u'1y': 12.08, u'1m': 12.08, u'6m': 12.08, u'2d': 5.08, u'at': 12.58, u'3m': 12.08, u'5d': 5.08, u'4d': 5.08, u'1d': 5.08, u'3d': 5.08}
+added_on: 1344876843
+cited_by_accounts_count: 4

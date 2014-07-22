@@ -1,0 +1,36 @@
+cited_by_feeds_count: 1
+last_updated: 1406026800
+cited_by_accounts_count: 20
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 20
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=32&types=qmvbtttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=32&types=qmvbtttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=32&types=qmvbtttf'}
+altmetric_id: 697715
+subjects: [u'neoplasms']
+cited_by_videos_count: 1
+published_on: 978307200
+title: Night Shift Work, Light at Night, and Risk of Breast Cancer
+cited_by_tweeters_count: 15
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Life Sciences', u'Biochemistry, Genetics and Molecular Biology']
+tq: [u'valid research. light at night increase cancer risks. kalau tdor bukak lampu pun risky.', u'@TylerLee83 Found it!', u'Valid research. light at night increase cancer risks. kalau tidur buka lampu pun risky. \u2026', u'Night shift work may be linked to a higher risk of breast cancer']
+score: 31.836
+altmetric_jid: 4f6fa4ee3cf058f610002c44
+pmid: 11604479
+abstract: Exposure to light at night may increase the risk of breast cancer by suppressing the normal nocturnal production of melatonin by the pineal gland, which, in turn, could increase the release of estrogen by the ovaries. This study investigated whether such exposure is associated with an increased risk of breast cancer in women.
+schema: 1.5.4
+cohorts: {u'com': 1, u'pub': 14}
+cited_by_qna_count: 1
+readers_count: 18
+journal: Journal of the National Cancer Institute
+publisher_subjects: [{u'scheme': u'era', u'name': u'Oncology And Carcinogenesis'}]
+details_url: http://www.altmetric.com/details.php?citation_id=697715
+doi: 10.1093/jnci/93.20.1557
+url: http://dx.doi.org/10.1093/jnci/93.20.1557
+readers: {u'mendeley': 15, u'citeulike': 2, u'connotea': 1}
+nlmid: 7503089
+history: {u'6d': 7, u'1w': 7, u'1y': 10.25, u'1m': 7, u'6m': 7.25, u'2d': 7, u'at': 31.836, u'3m': 7.25, u'5d': 7, u'4d': 7, u'1d': 7, u'3d': 7}
+context: {u'similar_age_journal_3m': {u'count': 20, u'higher_than': 19, u'pct': 95, u'rank': 1, u'mean': 1.9548421052632}, u'all': {u'count': 2293685, u'higher_than': 2241534, u'pct': 97, u'rank': 52214, u'mean': 4.8097365574355}, u'similar_age_3m': {u'count': 70689, u'higher_than': 69397, u'pct': 98, u'rank': 1292, u'mean': 3.9416888580805}, u'journal': {u'count': 1911, u'higher_than': 1810, u'pct': 94, u'rank': 101, u'mean': 8.0103884816754}}
+cited_by_fbwalls_count: 1
+issns: [u'1460-2105']
+added_on: 1334466559
+abstract_source: pubmed

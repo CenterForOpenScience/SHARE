@@ -1,0 +1,31 @@
+last_updated: 1405970409
+is_oa: False
+cited_by_posts_count: 2
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=2&types=tttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=2&types=tttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=2&types=tttttttt'}
+altmetric_id: 819352
+subjects: [u'neurology']
+published_on: 1317423600
+issns: []
+title: Childhood leukodystrophies: a clinical perspective.
+cited_by_tweeters_count: 2
+scopus_subjects: [u'Neuroscience', u'Medicine', u'Health Sciences', u'Life Sciences']
+tq: [u"Hey can someone 'splain me why this OA review came up as $ by IngentaConnect? #openaccess"]
+score: 2
+altmetric_jid: 4f6fa6173cf058f6100073d5
+pmid: 21955203
+abstract: Leukodystrophies are white matter disorders that are genetic in nature. In the young, they represent an important cause of progressive neurological disability. They are frequently recognized on MRI, but their identification remains a challenge. Their diagnosis is important for prognostication, palliative and experimental treatment, as well as family screening. The diagnostic strategy rests upon clinical clues and MRI patterns, complemented by appropriately selected electrophysiological and laboratory testing. Considerable overlap exists between white and gray matter disease, as neuronal degeneration will result in myelin loss. An understanding of the pathophysiology and natural disease evolution is necessary to understand the risks and benefits of experimental and palliative treatments.
+schema: 1.5.4
+cohorts: {u'pub': 2}
+readers_count: 25
+journal: Expert Review of Neurotherapeutics
+publisher_subjects: [{u'scheme': u'era', u'name': u'Neurosciences'}, {u'scheme': u'era', u'name': u'Pharmacology And Pharmaceutical Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=819352
+doi: 10.1586/ern.11.135
+abstract_source: pubmed
+url: http://dx.doi.org/10.1586/ern.11.135
+readers: {u'mendeley': 25, u'citeulike': 0, u'connotea': 0}
+nlmid: 101129944
+context: {u'similar_age_journal_3m': {u'count': 14, u'higher_than': 10, u'pct': 71, u'rank': 4, u'mean': 2.1423076923077}, u'all': {u'count': 2291452, u'higher_than': 1521701, u'pct': 66, u'rank': 699723, u'mean': 4.8095140851822}, u'similar_age_3m': {u'count': 68642, u'higher_than': 48410, u'pct': 70, u'rank': 18807, u'mean': 4.5314790285688}, u'journal': {u'count': 207, u'higher_than': 134, u'pct': 64, u'rank': 64, u'mean': 2.8322621359223}}
+history: {u'6d': 1, u'1w': 1, u'1y': 1, u'1m': 1, u'6m': 1, u'2d': 1, u'at': 2, u'3m': 1, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+added_on: 1341253949
+cited_by_accounts_count: 2

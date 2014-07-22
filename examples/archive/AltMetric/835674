@@ -1,0 +1,34 @@
+last_updated: 1405991834
+is_oa: False
+cited_by_posts_count: 206
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=85&types=vtttfffg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=85&types=vtttfffg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=85&types=vtttfffg'}
+altmetric_id: 835674
+subjects: [u'neoplasms', u'antineoplasticagents']
+cited_by_videos_count: 3
+published_on: 1341615600
+title: Cannabinoids: A new hope for breast cancer therapy?
+cited_by_tweeters_count: 82
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'17. #GANJAmedis untuk Kanker Payudara.', u'Cannabinoids: a new hope for breast cancer ... [Cancer Treat Rev. 2012] - PubMed - NCBI', u'Cannabinoids: A could be the new hope for breast cancer therapy #cannabis #cancer leading edge treatments #cdnpoli', u'Want to stop breast cancer? == Cannabinoids: a new hope for breast cancer therapy?']
+score: 84.9
+altmetric_jid: 4f6fa6103cf058f610006dd8
+pmid: 22776349
+cited_by_gplus_count: 1
+abstract: Breast cancer is a very common disease that affects approximately 1 in 10 women at some point in their lives. Importantly, breast cancer cannot be considered a single disease as it is characterized by distinct pathological and molecular subtypes that are treated with different therapies and have diverse clinical outcomes. Although some highly successful treatments have been developed, certain breast tumors are resistant to conventional therapies and a considerable number of them relapse. Therefore, new strategies are urgently needed, and the challenge for the future will most likely be the development of individualized therapies that specifically target each patient's tumor. Experimental evidence accumulated during the last decade supports that cannabinoids, the active components of Cannabis sativa and their derivatives, possess anticancer activity. Thus, these compounds exert anti-proliferative, pro-apoptotic, anti-migratory and anti-invasive actions in a wide spectrum of cancer cells in culture. Moreover, tumor growth, angiogenesis and metastasis are hampered by cannabinoids in xenograft-based and genetically-engineered mouse models of cancer. This review summarizes our current knowledge on the anti-tumor potential of cannabinoids in breast cancer, which suggests that cannabinoid-based medicines may be useful for the treatment of most breast tumor subtypes.
+schema: 1.5.4
+cohorts: {u'doc': 7, u'sci': 2, u'com': 1, u'pub': 72}
+readers_count: 11
+journal: Cancer treatment reviews
+publisher_subjects: [{u'scheme': u'era', u'name': u'Oncology And Carcinogenesis'}]
+details_url: http://www.altmetric.com/details.php?citation_id=835674
+doi: 10.1016/j.ctrv.2012.06.005
+abstract_source: pubmed
+url: http://dx.doi.org/10.1016/j.ctrv.2012.06.005
+readers: {u'mendeley': 11, u'citeulike': 0, u'connotea': 0}
+nlmid: 7502030
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 45.9, u'1m': 0.25, u'6m': 28, u'2d': 0.25, u'at': 84.9, u'3m': 23.2, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+context: {u'similar_age_journal_3m': {u'count': 15, u'higher_than': 14, u'pct': 93, u'rank': 1, u'mean': 1.3464285714286}, u'all': {u'count': 2291817, u'higher_than': 2276790, u'pct': 99, u'rank': 15019, u'mean': 4.8104580263009}, u'similar_age_3m': {u'count': 68544, u'higher_than': 68078, u'pct': 99, u'rank': 466, u'mean': 4.5684736880497}, u'journal': {u'count': 157, u'higher_than': 156, u'pct': 99, u'rank': 1, u'mean': 1.5973974358974}}
+cited_by_fbwalls_count: 68
+issns: [u'1532-1967']
+added_on: 1342038501
+cited_by_accounts_count: 154

@@ -1,0 +1,34 @@
+cited_by_feeds_count: 1
+last_updated: 1405904110
+is_oa: False
+cited_by_posts_count: 156
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=86&types=btttfffg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=86&types=btttfffg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=86&types=btttfffg'}
+altmetric_id: 379885
+subjects: [u'biochemistry']
+published_on: 1314054000
+title: Do aluminum vaccine adjuvants contribute to the rising prevalence of autism? 
+cited_by_tweeters_count: 55
+scopus_subjects: [u'Chemistry', u'Physical Sciences', u'Life Sciences', u'Biochemistry, Genetics and Molecular Biology']
+tq: [u'The data indicates that the correlation between Aluminum in VACCINES and AUTISM may be CAUSAL.', u'Officials distracted the public w/ the thimerosal controversy while the greater threat, aluminum, slid under the radar', u'N\xe4r det g\xe4ller HPV-vacciner \xe4r detta vaccinmotst\xe5ndarnas favoritartikel. Tomljenovic, 2011.', u'@nogracias_eu Para reflexionar sobre las vacunas (todas)']
+score: 85.52
+altmetric_jid: 4f6fa4f53cf058f610002dfb
+pmid: 22099159
+cited_by_gplus_count: 19
+abstract: Autism spectrum disorders (ASD) are serious multisystem developmental disorders and an urgent global public health concern. Dysfunctional immunity and impaired brain function are core deficits in ASD. Aluminum (Al), the most commonly used vaccine adjuvant, is a demonstrated neurotoxin and a strong immune stimulator. Hence, adjuvant Al has the potential to induce neuroimmune disorders. When assessing adjuvant toxicity in children, two key points ought to be considered: (i) children should not be viewed as "small adults" as their unique physiology makes them much more vulnerable to toxic insults; and (ii) if exposure to Al from only few vaccines can lead to cognitive impairment and autoimmunity in adults, is it unreasonable to question whether the current pediatric schedules, often containing 18 Al adjuvanted vaccines, are safe for children? By applying Hill's criteria for establishing causality between exposure and outcome we investigated whether exposure to Al from vaccines could be contributing to the rise in ASD prevalence in the Western world. Our results show that: (i) children from countries with the highest ASD prevalence appear to have the highest exposure to Al from vaccines; (ii) the increase in exposure to Al adjuvants significantly correlates with the increase in ASD prevalence in the United States observed over the last two decades (Pearson r=0.92, p<0.0001); and (iii) a significant correlation exists between the amounts of Al administered to preschool children and the current prevalence of ASD in seven Western countries, particularly at 3-4 months of age (Pearson r=0.89-0.94, p=0.0018-0.0248). The application of the Hill's criteria to these data indicates that the correlation between Al in vaccines and ASD may be causal. Because children represent a fraction of the population most at risk for complications following exposure to Al, a more rigorous evaluation of Al adjuvant safety seems warranted.
+schema: 1.5.4
+cohorts: {u'doc': 4, u'sci': 4, u'com': 2, u'pub': 45}
+readers_count: 27
+journal: Journal of Inorganic Biochemistry
+publisher_subjects: [{u'scheme': u'era', u'name': u'Inorganic Chemistry'}]
+details_url: http://www.altmetric.com/details.php?citation_id=379885
+doi: 10.1016/j.jinorgbio.2011.08.008
+abstract_source: pubmed
+url: http://dx.doi.org/10.1016/j.jinorgbio.2011.08.008
+readers: {u'mendeley': 27, u'citeulike': 0, u'connotea': 0}
+nlmid: 7905788
+history: {u'6d': 0.5, u'1w': 0.5, u'1y': 35.85, u'1m': 0.5, u'6m': 24.75, u'2d': 0.5, u'at': 85.52, u'3m': 1.25, u'5d': 0.5, u'4d': 0.5, u'1d': 0.5, u'3d': 0.5}
+context: {u'similar_age_journal_3m': {u'count': 4, u'higher_than': 3, u'pct': 75, u'rank': 1, u'mean': 1.6166666666667}, u'all': {u'count': 2289179, u'higher_than': 2274391, u'pct': 99, u'rank': 14788, u'mean': 4.8072910075166}, u'similar_age_3m': {u'count': 58705, u'higher_than': 58390, u'pct': 99, u'rank': 315, u'mean': 3.9996784546198}, u'journal': {u'count': 105, u'higher_than': 104, u'pct': 99, u'rank': 1, u'mean': 2.2288653846154}}
+cited_by_fbwalls_count: 53
+issns: [u'01620134']
+added_on: 1316832802
+cited_by_accounts_count: 128

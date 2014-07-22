@@ -1,0 +1,35 @@
+cited_by_feeds_count: 6
+last_updated: 1405999353
+is_oa: False
+cited_by_msm_count: 25
+cited_by_posts_count: 67
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=269&types=1mmmbttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=269&types=1mmmbttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=269&types=1mmmbttf'}
+altmetric_id: 857095
+subjects: [u'neurology']
+published_on: 1325376000
+cited_by_rh_count: 1
+title: Photochemical Restoration of Visual Responses in Blind Mice 
+cited_by_tweeters_count: 24
+scopus_subjects: [u'Neuroscience', u'Life Sciences']
+tq: [u"@haloefekti Here's a link to the scholarly article in Neuron: #CureForBlindness #Important", u'Blind rats that after a treatment with a new drug made of AAQ, are able to recover , partially, the vision!', u"@hrhsar Here's a link to the scholarly article in Neuron: #CureForBlindness #Important", u"@LesHugTX Here's a link to the scholarly article in Neuron: #CureForBlindness #Important"]
+score: 268.984
+altmetric_jid: 4f6fa50d3cf058f61000319c
+pmid: 22841312
+abstract: Retinitis pigmentosa (RP) and age-related macular degeneration (AMD) are degenerative blinding diseases caused by the death of rods and cones, leaving the remainder of the visual system intact but largely unable to respond to light. Here, we show that AAQ, a synthetic small molecule photoswitch, can restore light sensitivity to the retina and behavioral responses in vivo in mouse models of RP, without exogenous gene delivery. Brief application of AAQ bestows prolonged light sensitivity on multiple types of retinal neurons, resulting in synaptically amplified responses and center-surround antagonism in arrays of retinal ganglion cells (RGCs). Intraocular injection of AAQ restores the pupillary light reflex and locomotory light avoidance behavior in mice lacking retinal photoreceptors, indicating reconstitution of light signaling to brain circuits. AAQ and related photoswitch molecules present a potential drug strategy for restoring retinal function in degenerative blinding diseases.
+schema: 1.5.4
+cohorts: {u'com': 2, u'sci': 6, u'pub': 16}
+readers_count: 113
+journal: Neuron
+publisher_subjects: [{u'scheme': u'era', u'name': u'Neurosciences'}, {u'scheme': u'era', u'name': u'Cognitive Science'}]
+details_url: http://www.altmetric.com/details.php?citation_id=857095
+doi: 10.1016/j.neuron.2012.05.022
+abstract_source: pubmed
+url: http://dx.doi.org/10.1016/j.neuron.2012.05.022
+readers: {u'mendeley': 113, u'citeulike': 0, u'connotea': 0}
+nlmid: 8809320
+history: {u'6d': 25, u'1w': 25, u'1y': 44, u'1m': 25, u'6m': 44, u'2d': 25, u'at': 268.984, u'3m': 25, u'5d': 25, u'4d': 25, u'1d': 25, u'3d': 25}
+context: {u'similar_age_journal_3m': {u'count': 8, u'higher_than': 7, u'pct': 87, u'rank': 1, u'mean': 4.5022857142857}, u'all': {u'count': 2278076, u'higher_than': 2275978, u'pct': 99, u'rank': 2234, u'mean': 4.800002137772}, u'similar_age_3m': {u'count': 68008, u'higher_than': 67921, u'pct': 99, u'rank': 87, u'mean': 4.7947654506153}, u'journal': {u'count': 2792, u'higher_than': 2786, u'pct': 99, u'rank': 6, u'mean': 8.8508971694733}}
+cited_by_fbwalls_count: 1
+issns: [u'0896-6273', u'08966273']
+added_on: 1343282524
+cited_by_accounts_count: 57

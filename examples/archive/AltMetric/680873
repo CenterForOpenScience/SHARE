@@ -1,0 +1,26 @@
+cited_by_feeds_count: 3
+last_updated: 1405920943
+is_oa: False
+ssrn: 1791769
+cited_by_posts_count: 37
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=48&types=bbtttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=48&types=bbtttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=48&types=bbtttttt'}
+altmetric_id: 680873
+title: Stateless Income
+cited_by_tweeters_count: 22
+scopus_subjects: []
+tq: [u'Tax Minimization paper for Corps', u'That amazing line was from this otherwise very dense paper', u'Firms themselves are not greatly disadvantaged by the current U.S. tax system, but shareholders are.', u'Research paper on Stateless Income by Edward Kleinbard describes the tax problems arising from the Intangible Economy']
+score: 48
+altmetric_jid: ssrn
+schema: 1.5.4
+cohorts: {u'com': 3, u'pub': 19}
+readers_count: 0
+downloads: []
+publisher_subjects: []
+details_url: http://www.altmetric.com/details.php?citation_id=680873
+issns: []
+url: http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1791769
+readers: {u'mendeley': 0, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 181, u'higher_than': 180, u'pct': 99, u'rank': 1, u'mean': 3.3393888888889}, u'all': {u'count': 2289179, u'higher_than': 2256566, u'pct': 98, u'rank': 32555, u'mean': 4.8075960427738}, u'similar_age_3m': {u'count': 69953, u'higher_than': 69152, u'pct': 98, u'rank': 801, u'mean': 3.9851408394327}, u'journal': {u'count': 33454, u'higher_than': 33158, u'pct': 99, u'rank': 296, u'mean': 5.3122431471019}}
+history: {u'6d': 0.85, u'1w': 0.85, u'1y': 42, u'1m': 11.85, u'6m': 33.5, u'2d': 0.85, u'at': 48, u'3m': 11.85, u'5d': 0.85, u'4d': 0.85, u'1d': 0.85, u'3d': 0.85}
+added_on: 1333502389
+cited_by_accounts_count: 25

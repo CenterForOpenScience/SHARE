@@ -1,0 +1,33 @@
+last_updated: 1405948508
+abstract: Evidence from cross-sectional studies shows that sleep is associated with cognitive function. This study examines change in sleep duration as a determinant of cognitive function.
+cited_by_msm_count: 1
+cited_by_posts_count: 94
+pmc: PMC3079935
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=87&types=mttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=87&types=mttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=87&types=mttttttt'}
+altmetric_id: 878427
+subjects: [u'psychophysiology']
+downloads: []
+published_on: 1304463600
+title: Change in Sleep Duration and Cognitive Function: Findings from the Whitehall II Study
+cited_by_tweeters_count: 93
+scopus_subjects: [u'Health Sciences', u'Medicine']
+tq: [u'Change in Sleep Duration and Cognitive Function: Findings from the Whitehall II']
+score: 86.05
+altmetric_jid: 4f6fa6383cf058f61000894a
+pmid: 21532949
+is_oa: False
+schema: 1.5.4
+cohorts: {u'doc': 2, u'sci': 1, u'pub': 90}
+readers_count: 37
+journal: Sleep
+publisher_subjects: [{u'scheme': u'era', u'name': u'Biological Sciences'}, {u'scheme': u'era', u'name': u'Medical And Health Sciences'}, {u'scheme': u'era', u'name': u'Psychology And Cognitive Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=878427
+issns: []
+abstract_source: pubmed
+url: http://www.ncbi.nlm.nih.gov/pubmed/21532949
+readers: {u'mendeley': 35, u'citeulike': 1, u'connotea': 1}
+nlmid: 7809084
+context: {u'similar_age_journal_3m': {u'count': 17, u'higher_than': 16, u'pct': 94, u'rank': 1, u'mean': 2.05475}, u'all': {u'count': 2290730, u'higher_than': 2276107, u'pct': 99, u'rank': 14690, u'mean': 4.8085762855427}, u'similar_age_3m': {u'count': 68769, u'higher_than': 68239, u'pct': 99, u'rank': 530, u'mean': 4.9524272045136}, u'journal': {u'count': 567, u'higher_than': 553, u'pct': 97, u'rank': 14, u'mean': 7.6402084805654}}
+cited_by_accounts_count: 94
+added_on: 1344431749
+history: {u'6d': 10, u'1w': 10, u'1y': 12.25, u'1m': 10, u'6m': 12.25, u'2d': 10, u'at': 86.05, u'3m': 12.25, u'5d': 10, u'4d': 10, u'1d': 10, u'3d': 10}

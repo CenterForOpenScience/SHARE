@@ -1,0 +1,28 @@
+last_updated: 1406021863
+is_oa: False
+cited_by_posts_count: 10
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=3&types=ttttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=3&types=ttttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=3&types=ttttttff'}
+altmetric_id: 820693
+published_on: 1325376000
+issns: []
+title: Echoes in correlated neural systems
+cited_by_tweeters_count: 6
+arxiv_id: 1207.0298
+tq: [u'@NJPhysics - Echoes in correlated neural systems: Correlations are employed in modern physics to explai... #physics', u'#brain #research #Neurons events in neural systems reading']
+score: 2.6
+altmetric_jid: arxiv
+schema: 1.5.4
+cohorts: {u'com': 1, u'sci': 4, u'pub': 1}
+readers_count: 19
+journal: Arxiv preprint arXiv12070298
+details_url: http://www.altmetric.com/details.php?citation_id=820693
+doi: 10.1088/1367-2630/15/2/023002
+ads_id: 2012arxiv1207.0298h
+readers: {u'mendeley': 19, u'citeulike': 0, u'connotea': 0}
+scopus_subjects: []
+url: http://dx.doi.org/10.1088/1367-2630/15/2/023002
+context: {u'similar_age_journal_3m': {u'count': 5, u'higher_than': 3, u'pct': 60, u'rank': 2, u'mean': 4.4375}, u'all': {u'count': 2292740, u'higher_than': 1681126, u'pct': 73, u'rank': 605089, u'mean': 4.8103940875978}, u'similar_age_3m': {u'count': 68660, u'higher_than': 52749, u'pct': 76, u'rank': 15601, u'mean': 4.5263575350645}, u'journal': {u'count': 165767, u'higher_than': 137882, u'pct': 83, u'rank': 27373, u'mean': 2.6148192512337}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 0.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 2.6, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1341323365
+cited_by_accounts_count: 8

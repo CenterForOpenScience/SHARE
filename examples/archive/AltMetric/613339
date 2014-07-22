@@ -1,0 +1,29 @@
+cited_by_feeds_count: 2
+last_updated: 1406004600
+is_oa: False
+cited_by_posts_count: 5
+scopus_subjects: []
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=19&types=bbbttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=19&types=bbbttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=19&types=bbbttttt'}
+altmetric_id: 613339
+published_on: 1325376000
+title: Sublinear Time Algorithm for PageRank Computations and Related
+  Applications
+cited_by_tweeters_count: 3
+arxiv_id: 1202.2771
+tq: [u'A Sublinear Time Algorithm for PageRank Computations']
+score: 18.766
+altmetric_jid: arxiv
+downloads: []
+schema: 1.5.4
+cohorts: {u'pub': 3}
+readers_count: 0
+journal: Time
+details_url: http://www.altmetric.com/details.php?citation_id=613339
+issns: []
+ads_id: 2012arxiv1202.2771b
+readers: {u'mendeley': 0, u'citeulike': 0, u'connotea': 0}
+url: http://arxiv.org/abs/1202.2771
+context: {u'similar_age_journal_3m': {u'count': 4, u'higher_than': 3, u'pct': 75, u'rank': 1, u'mean': 0.83333333333333}, u'all': {u'count': 2291817, u'higher_than': 2198203, u'pct': 95, u'rank': 93612, u'mean': 4.8105041539133}, u'similar_age_3m': {u'count': 72700, u'higher_than': 70188, u'pct': 96, u'rank': 2512, u'mean': 3.9137018941113}, u'journal': {u'count': 165288, u'higher_than': 163093, u'pct': 98, u'rank': 2194, u'mean': 2.6170377464653}}
+history: {u'6d': 9, u'1w': 9, u'1y': 9, u'1m': 9, u'6m': 9, u'2d': 9, u'at': 18.766, u'3m': 9, u'5d': 9, u'4d': 9, u'1d': 9, u'3d': 9}
+added_on: 1329786796
+cited_by_accounts_count: 5

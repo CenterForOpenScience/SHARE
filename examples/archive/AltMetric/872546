@@ -1,0 +1,32 @@
+last_updated: 1405960364
+is_oa: False
+cited_by_posts_count: 5
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=3&types=ttttttff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=3&types=ttttttff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=3&types=ttttttff'}
+altmetric_id: 872546
+subjects: [u'allergyandimmunology', u'medicine']
+published_on: 1343862000
+issns: []
+title: Heterozygous TBK1 mutations impair TLR3 immunity and underlie herpes simplex encephalitis of childhood.
+cited_by_tweeters_count: 4
+scopus_subjects: [u'Medicine', u'Immunology and Microbiology', u'Health Sciences', u'Life Sciences']
+tq: [u'Banner week for the Casanova lab: AD partial TBK1 mutations linked to childhood HSV encephalitis #immunodeficiency']
+score: 3
+altmetric_jid: 4f6fa6233cf058f610007c77
+pmid: 22851595
+abstract: Childhood herpes simplex virus-1 (HSV-1) encephalitis (HSE) may result from single-gene inborn errors of TLR3 immunity. TLR3-dependent induction of IFN-α/β or IFN-λ is crucial for protective immunity against primary HSV-1 infection in the central nervous system (CNS). We describe here two unrelated children with HSE carrying different heterozygous mutations (D50A and G159A) in TBK1, the gene encoding TANK-binding kinase 1, a kinase at the crossroads of multiple IFN-inducing signaling pathways. Both mutant TBK1 alleles are loss-of-function but through different mechanisms: protein instability (D50A) or a loss of kinase activity (G159A). Both are also associated with an autosomal-dominant (AD) trait but by different mechanisms: haplotype insufficiency (D50A) or negative dominance (G159A). A defect in polyinosinic-polycytidylic acid-induced TLR3 responses can be detected in fibroblasts heterozygous for G159A but not for D50A TBK1. Nevertheless, viral replication and cell death rates caused by two TLR3-dependent viruses (HSV-1 and vesicular stomatitis virus) were high in fibroblasts from both patients, and particularly so in G159A TBK1 fibroblasts. These phenotypes were rescued equally well by IFN-α2b. Moreover, the IFN responses to the TLR3-independent agonists and viruses tested were maintained in both patients' peripheral blood mononuclear cells and fibroblasts. The narrow, partial cellular phenotype thus accounts for the clinical phenotype of these patients being limited to HSE. These data identify AD partial TBK1 deficiency as a new genetic etiology of childhood HSE, indicating that TBK1 is essential for the TLR3- and IFN-dependent control of HSV-1 in the CNS.
+schema: 1.5.4
+cohorts: {u'doc': 1, u'sci': 2, u'pub': 1}
+readers_count: 28
+journal: J Exp Med
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=872546
+doi: 10.1084/jem.20111316
+abstract_source: pubmed
+url: http://dx.doi.org/10.1084/jem.20111316
+readers: {u'mendeley': 28, u'citeulike': 0, u'connotea': 0}
+nlmid: 2985109R
+context: {u'similar_age_journal_3m': {u'count': 10, u'higher_than': 9, u'pct': 90, u'rank': 1, u'mean': 1.3444444444444}, u'all': {u'count': 2291010, u'higher_than': 1724319, u'pct': 75, u'rank': 552210, u'mean': 4.8089510482084}, u'similar_age_3m': {u'count': 68243, u'higher_than': 53513, u'pct': 78, u'rank': 14416, u'mean': 4.8903035960258}, u'journal': {u'count': 1822, u'higher_than': 1559, u'pct': 85, u'rank': 259, u'mean': 2.8063602416255}}
+cited_by_fbwalls_count: 1
+history: {u'6d': 1, u'1w': 1, u'1y': 1, u'1m': 1, u'6m': 1, u'2d': 1, u'at': 3, u'3m': 1, u'5d': 1, u'4d': 1, u'1d': 1, u'3d': 1}
+added_on: 1344055538
+cited_by_accounts_count: 5

@@ -1,0 +1,30 @@
+last_updated: 1406016947
+is_oa: False
+cited_by_posts_count: 2
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=2&types=tttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=2&types=tttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=2&types=tttttttt'}
+altmetric_id: 875491
+subjects: [u'science', u'medicine']
+published_on: 1343948400
+title: Exercise training prevents oxidative stress and ubiquitin-proteasome system overactivity and reverse skeletal muscle atrophy in heart failure.
+cited_by_tweeters_count: 2
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Biochemistry, Genetics and Molecular Biology', u'Life Sciences', u'Agricultural and Biological Sciences']
+issns: [u'1932-6203']
+score: 1.5
+altmetric_jid: 4f6fa5313cf058f6100043e3
+pmid: 22870245
+abstract: Heart failure (HF) is known to lead to skeletal muscle atrophy and dysfunction. However, intracellular mechanisms underlying HF-induced myopathy are not fully understood. We hypothesized that HF would increase oxidative stress and ubiquitin-proteasome system (UPS) activation in skeletal muscle of sympathetic hyperactivity mouse model. We also tested the hypothesis that aerobic exercise training (AET) would reestablish UPS activation in mice and human HF.
+schema: 1.5.4
+cohorts: {u'doc': 1, u'pub': 1}
+readers_count: 23
+journal: PLoS ONE
+publisher_subjects: [{u'scheme': u'era', u'name': u'Multidisciplinary'}]
+details_url: http://www.altmetric.com/details.php?citation_id=875491
+doi: 10.1371/journal.pone.0041701
+abstract_source: pubmed
+url: http://dx.doi.org/10.1371/journal.pone.0041701
+readers: {u'mendeley': 23, u'citeulike': 0, u'connotea': 0}
+nlmid: 101285081
+context: {u'similar_age_journal_3m': {u'count': 3305, u'higher_than': 1920, u'pct': 58, u'rank': 1259, u'mean': 5.5998099273608}, u'all': {u'count': 2291818, u'higher_than': 1404059, u'pct': 61, u'rank': 840910, u'mean': 4.8105653898216}, u'similar_age_3m': {u'count': 68580, u'higher_than': 43737, u'pct': 63, u'rank': 23041, u'mean': 4.9585052275477}, u'journal': {u'count': 49186, u'higher_than': 27302, u'pct': 55, u'rank': 20473, u'mean': 7.8685838771982}}
+history: {u'6d': 0.5, u'1w': 0.5, u'1y': 0.5, u'1m': 0.5, u'6m': 0.5, u'2d': 0.5, u'at': 1.5, u'3m': 0.5, u'5d': 0.5, u'4d': 0.5, u'1d': 0.5, u'3d': 0.5}
+added_on: 1344295665
+cited_by_accounts_count: 2

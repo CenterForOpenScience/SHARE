@@ -1,0 +1,28 @@
+last_updated: 1405971364
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 29
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=33&types=mttttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=33&types=mttttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=33&types=mttttttf'}
+altmetric_id: 380955
+published_on: 1266451200
+issns: [u'01602896']
+title: The reproduction of intelligence
+cited_by_tweeters_count: 25
+scopus_subjects: [u'Social Sciences', u'Psychology']
+tq: [u'Intelligence is negatively related to number of children, which reduces avg US IQ .8 points per generation.', u'Scientific study proves: the higher the IQ, the fewer the children.', u'Intelligence is negatively related to the number of children (mientras m\xe1s inteligente, menos hijos tienes)', u'How much do the male/female coefficients change under different assortive mating patterns?']
+score: 32.7
+altmetric_jid: 4f6fa4c93cf058f610000036
+schema: 1.5.4
+cohorts: {u'com': 1, u'pub': 24}
+readers_count: 17
+journal: Intelligence
+publisher_subjects: [{u'scheme': u'era', u'name': u'Psychology'}, {u'scheme': u'era', u'name': u'Cognitive Science'}]
+details_url: http://www.altmetric.com/details.php?citation_id=380955
+doi: 10.1016/j.intell.2010.01.003
+url: http://dx.doi.org/10.1016/j.intell.2010.01.003
+readers: {u'mendeley': 17, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 6, u'higher_than': 4, u'pct': 66, u'rank': 2, u'mean': 20.426}, u'all': {u'count': 2291452, u'higher_than': 2240944, u'pct': 97, u'rank': 50555, u'mean': 4.8095140851822}, u'similar_age_3m': {u'count': 58660, u'higher_than': 57525, u'pct': 98, u'rank': 1135, u'mean': 3.987673195929}, u'journal': {u'count': 295, u'higher_than': 277, u'pct': 93, u'rank': 18, u'mean': 9.7324693877551}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 10.7, u'1m': 8.7, u'6m': 8.7, u'2d': 0.25, u'at': 32.7, u'3m': 8.7, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+added_on: 1316949330
+cited_by_accounts_count: 28

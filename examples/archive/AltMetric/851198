@@ -1,0 +1,27 @@
+last_updated: 1405969531
+is_oa: False
+cited_by_msm_count: 2
+cited_by_posts_count: 4
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=17&types=mmmmffff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=17&types=mmmmffff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=17&types=mmmmffff'}
+altmetric_id: 851198
+subjects: [u'dentistry']
+published_on: 1041379200
+title: Fluoride toothpaste prevents caries
+scopus_subjects: [u'Health Sciences', u'Dentistry']
+issns: [u'1462-0049', u'1476-5446']
+score: 16.5
+altmetric_jid: 4f6fa5fc3cf058f610005f40
+nlmid: 100883603
+schema: 1.5.4
+cohorts: []
+readers_count: 1
+journal: Evidence-Based Dentistry
+details_url: http://www.altmetric.com/details.php?citation_id=851198
+doi: 10.1038/sj.ebd.6400176
+url: http://dx.doi.org/10.1038/sj.ebd.6400176
+readers: {u'mendeley': 1, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 15, u'higher_than': 14, u'pct': 93, u'rank': 1, u'mean': 3.4571428571429}, u'all': {u'count': 2291553, u'higher_than': 2182714, u'pct': 95, u'rank': 108639, u'mean': 4.8097282601507}, u'similar_age_3m': {u'count': 68074, u'higher_than': 64750, u'pct': 95, u'rank': 3317, u'mean': 4.7549024723458}, u'journal': {u'count': 243, u'higher_than': 230, u'pct': 94, u'rank': 13, u'mean': 4.9622231404959}}
+cited_by_fbwalls_count: 2
+history: {u'6d': 16, u'1w': 16, u'1y': 16, u'1m': 16, u'6m': 16, u'2d': 16, u'at': 16.5, u'3m': 16, u'5d': 16, u'4d': 16, u'1d': 16, u'3d': 16}
+added_on: 1342967179
+cited_by_accounts_count: 4

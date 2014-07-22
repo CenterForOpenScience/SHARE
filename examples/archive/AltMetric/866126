@@ -1,0 +1,33 @@
+cited_by_feeds_count: 2
+last_updated: 1405928213
+is_oa: False
+cited_by_posts_count: 12
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=28&types=qvbttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=28&types=qvbttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=28&types=qvbttttf'}
+altmetric_id: 866126
+subjects: [u'physiology']
+cited_by_videos_count: 1
+published_on: 1292716800
+title: Blue light from light-emitting diodes elicits a dose-dependent suppression of melatonin in humans.
+cited_by_tweeters_count: 6
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Life Sciences', u'Biochemistry, Genetics and Molecular Biology']
+score: 27.9
+altmetric_jid: 4f6fa61f3cf058f610007b71
+pmid: 21164152
+abstract: Light suppresses melatonin in humans, with the strongest response occurring in the short-wavelength portion of the spectrum between 446 and 477 nm that appears blue. Blue monochromatic light has also been shown to be more effective than longer-wavelength light for enhancing alertness. Disturbed circadian rhythms and sleep loss have been described as risk factors for astronauts and NASA ground control workers, as well as civilians. Such disturbances can result in impaired alertness and diminished performance. Prior to exposing subjects to short-wavelength light from light-emitting diodes (LEDs) (peak λ = 469 nm; 1/2 peak bandwidth = 26 nm), the ocular safety exposure to the blue LED light was confirmed by an independent hazard analysis using the American Conference of Governmental Industrial Hygienists exposure limits. Subsequently, a fluence-response curve was developed for plasma melatonin suppression in healthy subjects (n = 8; mean age of 23.9 ± 0.5 years) exposed to a range of irradiances of blue LED light. Subjects with freely reactive pupils were exposed to light between 2:00 and 3:30 AM. Blood samples were collected before and after light exposures and quantified for melatonin. The results demonstrate that increasing irradiances of narrowband blue-appearing light can elicit increasing plasma melatonin suppression in healthy subjects (P < 0.0001). The data were fit to a sigmoidal fluence-response curve (R(2) = 0.99; ED(50) = 14.19 μW/cm(2)). A comparison of mean melatonin suppression with 40 μW/cm(2) from 4,000 K broadband white fluorescent light, currently used in most general lighting fixtures, suggests that narrow bandwidth blue LED light may be stronger than 4,000 K white fluorescent light for suppressing melatonin.
+schema: 1.5.4
+cohorts: {u'sci': 1, u'pub': 5}
+cited_by_qna_count: 1
+readers_count: 47
+journal: J Appl Physiol
+details_url: http://www.altmetric.com/details.php?citation_id=866126
+doi: 10.1152/japplphysiol.01413.2009
+abstract_source: pubmed
+url: http://dx.doi.org/10.1152/japplphysiol.01413.2009
+readers: {u'mendeley': 47, u'citeulike': 0, u'connotea': 0}
+nlmid: 8502536
+history: {u'6d': 0.25, u'1w': 0.25, u'1y': 9.25, u'1m': 0.25, u'6m': 0.25, u'2d': 0.25, u'at': 27.9, u'3m': 0.25, u'5d': 0.25, u'4d': 0.25, u'1d': 0.25, u'3d': 0.25}
+context: {u'similar_age_journal_3m': {u'count': 9, u'higher_than': 8, u'pct': 88, u'rank': 1, u'mean': 2.4375}, u'all': {u'count': 2289180, u'higher_than': 2228815, u'pct': 97, u'rank': 60315, u'mean': 4.807646759823}, u'similar_age_3m': {u'count': 67967, u'higher_than': 66108, u'pct': 97, u'rank': 1855, u'mean': 4.8694538151428}, u'journal': {u'count': 1322, u'higher_than': 1248, u'pct': 94, u'rank': 74, u'mean': 6.5664769114307}}
+cited_by_fbwalls_count: 2
+issns: []
+added_on: 1343756684
+cited_by_accounts_count: 12

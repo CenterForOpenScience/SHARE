@@ -1,0 +1,34 @@
+cited_by_feeds_count: 2
+last_updated: 1406025309
+is_oa: False
+cited_by_posts_count: 195
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=108&types=pbtttrfg', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=108&types=pbtttrfg', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=108&types=pbtttrfg'}
+altmetric_id: 649475
+downloads: []
+published_on: False
+cited_by_rdts_count: 4
+title: Long-term effects of a ketogenic diet in obese patients
+cited_by_tweeters_count: 106
+scopus_subjects: [u'Medicine', u'Health Sciences', u'Life Sciences', u'Biochemistry, Genetics and Molecular Biology']
+tq: [u'Y aqu\xed el estudio estrella. Las dietas cetog\xe9nicas mejoran tu colesterol, glucosa y peso sin efectos 2\xba a largo plazo', u'very interesting ketogenic (high fat, low carb) study #keto #diet #losefat', u'Dietas cetogenicas disminuyen riesgo de infarto,problemas cardiovasculares, diabetes u obesidad(Obesos 24semanas)', u'Sin efectos secundarios en dietas cetog\xe9nicas a largo plazo. Mejora de peso y perfil metab\xf3lico.']
+score: 107.004
+altmetric_jid: 4f6fa6173cf058f6100073b3
+pmid: 19641727
+cited_by_gplus_count: 3
+abstract: Although various studies have examined the short-term effects of a ketogenic diet in reducing weight in obese patients, its long-term effects on various physical and biochemical parameters are not known.
+schema: 1.5.4
+cohorts: {u'doc': 16, u'sci': 7, u'com': 2, u'pub': 81}
+readers_count: 23
+journal: Experimental & Clinical Cardiology
+publisher_subjects: [{u'scheme': u'era', u'name': u'Clinical Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=649475
+abstract_source: pubmed
+url: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2716748/
+readers: {u'mendeley': 23, u'citeulike': 0, u'connotea': 0}
+history: {u'6d': 15.7, u'1w': 15.7, u'1y': 91.454, u'1m': 15.7, u'6m': 53.28, u'2d': 15.7, u'at': 107.004, u'3m': 29.88, u'5d': 15.7, u'4d': 15.7, u'1d': 15.7, u'3d': 15.7}
+cited_by_pinners_count: 1
+context: {u'similar_age_journal_3m': {u'count': 1, u'higher_than': 0, u'pct': 1, u'rank': 1, u'mean': 0}, u'all': {u'count': 2293141, u'higher_than': 2282807, u'pct': 99, u'rank': 10644, u'mean': 4.8102278046717}, u'similar_age_3m': {u'count': 70442, u'higher_than': 70161, u'pct': 99, u'rank': 281, u'mean': 3.9031967178205}, u'journal': {u'count': 36, u'higher_than': 35, u'pct': 97, u'rank': 1, u'mean': 1.8028}}
+cited_by_fbwalls_count: 42
+issns: []
+added_on: 1331768975
+cited_by_accounts_count: 158

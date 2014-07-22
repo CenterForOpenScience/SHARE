@@ -1,0 +1,31 @@
+last_updated: 1405992976
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 2
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=10&types=mmmmtttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=10&types=mmmmtttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=10&types=mmmmtttt'}
+altmetric_id: 811340
+subjects: [u'neurology']
+published_on: 1325376000
+title: Revisiting The Multiple Sclerosis Functional Composite: proceedings from the National Multiple Sclerosis Society (NMSS) Task Force on Clinical Disability Measures.
+cited_by_tweeters_count: 1
+scopus_subjects: [u'Neuroscience', u'Medicine', u'Health Sciences', u'Life Sciences']
+issns: [u'1477-0970']
+score: 10
+altmetric_jid: 4f6fa5083cf058f61000312e
+pmid: 22740488
+abstract: This article describes proceedings from a meeting of the National Multiple Sclerosis Society (NMSS) Task Force on Clinical Disability Measures (the TF). The TF was appointed by the NMSS Research Programs Advisory Committee with the goal of pooling and analyzing existing datasets to explore the utility of novel disability outcome measures based on the Multiple Sclerosis Functional Composite (MSFC) approach. The TF seeks to determine the suitability of the MSFC approach as a primary clinical outcome measure for registration trials in MS. The TF met in Washington, DC, Dec. 14 and 15, 2011, and provided unanimous support for a collaborative approach involving representatives from academic medicine, the pharmaceutical industry, regulatory agencies, the NMSS and the Critical Path Institute. There was also unanimous agreement that analysis of existing datasets would be useful in making progress toward the objective. The TF placed high value on determining the clinical meaning of individual component measures for the MSFC, and in establishing optimal analysis methods for MSFC so that scores would be more interpretable than the originally recommended z-score method. The background for a collaborative project aimed at developing an improved disability outcome measure is described in this paper.
+schema: 1.5.4
+cohorts: {u'pub': 1}
+readers_count: 10
+journal: Multiple Sclerosis (13524585)
+publisher_subjects: [{u'scheme': u'era', u'name': u'Clinical Sciences'}, {u'scheme': u'era', u'name': u'Neurosciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=811340
+doi: 10.1177/1352458512451512
+abstract_source: pubmed
+url: http://dx.doi.org/10.1177/1352458512451512
+readers: {u'mendeley': 10, u'citeulike': 0, u'connotea': 0}
+nlmid: 9509185
+context: {u'similar_age_journal_3m': {u'count': 9, u'higher_than': 7, u'pct': 77, u'rank': 2, u'mean': 4.2}, u'all': {u'count': 2291817, u'higher_than': 2089249, u'pct': 91, u'rank': 193081, u'mean': 4.8105154916472}, u'similar_age_3m': {u'count': 68668, u'higher_than': 62854, u'pct': 91, u'rank': 5622, u'mean': 4.5051837418264}, u'journal': {u'count': 821, u'higher_than': 714, u'pct': 86, u'rank': 106, u'mean': 4.0594585365854}}
+history: {u'6d': 7, u'1w': 7, u'1y': 7, u'1m': 7, u'6m': 7, u'2d': 7, u'at': 10, u'3m': 7, u'5d': 7, u'4d': 7, u'1d': 7, u'3d': 7}
+added_on: 1340793226
+cited_by_accounts_count: 2

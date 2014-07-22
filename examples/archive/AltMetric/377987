@@ -1,0 +1,32 @@
+last_updated: 1406003232
+is_oa: False
+cited_by_posts_count: 6
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=4&types=tttttttf', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=4&types=tttttttf', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=4&types=tttttttf'}
+altmetric_id: 377987
+subjects: [u'endocrinology']
+published_on: 1316127600
+issns: [u'1935-5548']
+title: Sleep Disturbances and Their Relationship to Glucose Tolerance in Pregnancy
+cited_by_tweeters_count: 5
+scopus_subjects: [u'Health Sciences', u'Nursing', u'Medicine']
+tq: [u'#Sleep, #Pregnancy and #GestationalDiabetes #paleo', u'Considering i am 9 wks also have a 9 mo old- im so screwed. RT robbwolf: #Sleep, #Pregnancy and #GestationalDiabetes', u'hey ladies - bad sleep ups your risk for gestational diabetes. #diabetes #sleep', u'Sleep Disturbances and Their Relationship to Glucose Tolerance in Pregnancy. - #snoring #fivewaysdental']
+score: 4
+altmetric_jid: 4f6fa4eb3cf058f6100026f8
+pmid: 21926292
+abstract: To explore relationships among sleep disturbances, glucose tolerance, and pregnancy outcomes.
+schema: 1.5.4
+cohorts: {u'doc': 3, u'sci': 1, u'pub': 1}
+readers_count: 10
+journal: Diabetes Care
+publisher_subjects: [{u'scheme': u'era', u'name': u'Medical And Health Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=377987
+doi: 10.2337/dc11-0780
+abstract_source: pubmed
+url: http://dx.doi.org/10.2337/dc11-0780
+readers: {u'mendeley': 10, u'citeulike': 0, u'connotea': 0}
+nlmid: 7805975
+context: {u'similar_age_journal_3m': {u'count': 27, u'higher_than': 17, u'pct': 62, u'rank': 10, u'mean': 5.0396923076923}, u'all': {u'count': 2291818, u'higher_than': 1804099, u'pct': 78, u'rank': 483498, u'mean': 4.8104964061288}, u'similar_age_3m': {u'count': 58412, u'higher_than': 48656, u'pct': 83, u'rank': 9607, u'mean': 4.0472496961188}, u'journal': {u'count': 2793, u'higher_than': 1896, u'pct': 67, u'rank': 878, u'mean': 6.4013252148997}}
+cited_by_fbwalls_count: 1
+history: {u'6d': 0.5, u'1w': 0.5, u'1y': 0.5, u'1m': 0.5, u'6m': 0.5, u'2d': 0.5, u'at': 4, u'3m': 0.5, u'5d': 0.5, u'4d': 0.5, u'1d': 0.5, u'3d': 0.5}
+added_on: 1316626192
+cited_by_accounts_count: 6

@@ -1,0 +1,32 @@
+cited_by_feeds_count: 1
+last_updated: 1405926089
+is_oa: False
+cited_by_posts_count: 106
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=60&types=bttttttt', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=60&types=bttttttt', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=60&types=bttttttt'}
+altmetric_id: 834586
+subjects: []
+published_on: 1341615600
+issns: [u'2044-5423']
+title: Preventable deaths due to problems in care in English acute hospitals: a retrospective case record review study
+cited_by_tweeters_count: 77
+scopus_subjects: []
+tq: [u"Anyone wanting to understand 'preventable' deaths should read this excellent", u'Useful to see detailed research on preventable deaths in hospitals. Looks like we may have been overestimating #d', u'UK patient safety study: only 5% of hospital deaths probably preventable? Study: Press release', u"See = 50% chance ~12,000 adult preventable deaths English hosps. Poor monitoring, Dx drug/fluid m'g'nt @NHSWatch"]
+score: 59.732
+altmetric_jid: 4f6fa5e63cf058f610005781
+pmid: 22773890
+abstract: INTRODUCTION: Monitoring hospital mortality rates is widely recommended. However, the number of preventable deaths remains uncertain with estimates in England ranging from 840 to 40 000 per year, these being derived from studies that identified adverse events but not whether events contributed to death or shortened life expectancy of those affected. METHODS: Retrospective case record reviews of 1000 adults who died in 2009 in 10 acute hospitals in England were undertaken. Trained physician reviewers estimated life expectancy on admission, to identified problems in care contributing to death and judged if deaths were preventable taking into account patients' overall condition at that time. RESULTS: Reviewers judged 5.2% (95% CI 3.8% to 6.6%) of deaths as having a 50% or greater chance of being preventable. The principal problems associated with preventable deaths were poor clinical monitoring (31.3%; 95% CI 23.9 to 39.7), diagnostic errors (29.7%; 95% CI 22.5% to 38.1%), and inadequate drug or fluid management (21.1%; 95% CI 14.9 to 29.0). Extrapolating from these figures suggests there would have been 11 859 (95% CI 8712 to 14 983) adult preventable deaths in hospitals in England. Most preventable deaths (60%) occurred in elderly, frail patients with multiple comorbidities judged to have had less than 1 year of life left to live. CONCLUSIONS: The incidence of preventable hospital deaths is much lower than previous estimates. The burden of harm from preventable problems in care is still substantial. A focus on deaths may not be the most efficient approach to identify opportunities for improvement given the low proportion of deaths due to problems with healthcare.
+schema: 1.5.4
+cohorts: {u'doc': 18, u'sci': 8, u'com': 4, u'pub': 47}
+readers_count: 26
+journal: BMJ Quality & Safety
+publisher_subjects: [{u'scheme': u'bmj', u'name': u'Unlocked'}]
+details_url: http://www.altmetric.com/details.php?citation_id=834586
+doi: 10.1136/bmjqs-2012-001159
+abstract_source: pubmed
+url: http://dx.doi.org/10.1136/bmjqs-2012-001159
+readers: {u'mendeley': 26, u'citeulike': 0, u'connotea': 0}
+nlmid: 101546984
+context: {u'similar_age_journal_3m': {u'count': 33, u'higher_than': 32, u'pct': 96, u'rank': 1, u'mean': 9.1943125}, u'all': {u'count': 2289180, u'higher_than': 2264585, u'pct': 98, u'rank': 24593, u'mean': 4.807646759823}, u'similar_age_3m': {u'count': 68535, u'higher_than': 67822, u'pct': 98, u'rank': 713, u'mean': 4.5682506784953}, u'journal': {u'count': 490, u'higher_than': 465, u'pct': 94, u'rank': 25, u'mean': 14.573987730061}}
+history: {u'6d': 4.9, u'1w': 4.9, u'1y': 35.432, u'1m': 4.9, u'6m': 29.382, u'2d': 4.05, u'at': 59.732, u'3m': 25.282, u'5d': 4.9, u'4d': 4.05, u'1d': 4.05, u'3d': 4.05}
+added_on: 1342000761
+cited_by_accounts_count: 78

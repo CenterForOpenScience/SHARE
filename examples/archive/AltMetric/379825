@@ -1,0 +1,32 @@
+last_updated: 1405916442
+is_oa: False
+cited_by_posts_count: 255
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=47&types=tttrrrrr', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=47&types=tttrrrrr', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=47&types=tttrrrrr'}
+altmetric_id: 379825
+subjects: [u'physiology']
+published_on: 1315436400
+issns: [u'1533-4287']
+cited_by_rdts_count: 1
+title: Strongmen Sport is Associated with Larger Absolute Heart Size and Impaired Cardiac Relaxation.
+cited_by_tweeters_count: 53
+scopus_subjects: [u'Health Sciences', u'Medicine', u'Health Professions']
+tq: [u'Attention marathoners: adjusted for body size, your heart is as big strong as a Strongman competitor', u"Dear marathoners: you're all heart, kid (and so are strongmen, apparently)", u'Interesting study in #strongmen', u'Marathon runners: adjusted for body size, your heart is as big strong as a Strongman competitor #maltatrainer']
+score: 46.4
+altmetric_jid: 4f6fa52c3cf058f6100040e2
+pmid: 21912280
+abstract: This study was carried out to compare cardiac structure and function and blood lipids among Strongmen, sedentary controls, and marathoners. Echocardiography was performed, and endothelial function, blood lipids and maximal oxygen uptake were measured in 27 Caucasian adult men (8 Strongmen, 10 marathoners, 9 controls). Absolute cardiac size parameters such as left ventricular (LV) diameter and wall thickness of Strongmen were higher (p < 0.05), but relative (body surface area indexed) parameters were not different between controls and Strongmen. In Strongmen, the relative LV diameter (p < 0.05), wall thickness (p < 0.001), and LV mass index (p < 0.01) were lower than in marathoners. The absolute but not relative right ventricular diameter was larger in Strongmen as compared with controls, whereas all of the measured relative cardiac size parameters were higher in marathoners as opposed to in controls. The endothelial function and the ratio of wall thickness to chamber diameter were similar among the groups (p > 0.05). Maximal oxygen uptake of Strongmen was lower than in controls (p < 0.05) and marathoners (p < 0.001). Global diastolic LV function of Strongmen was impaired in comparison to controls (p < 0.05) and marathoners (p < 0.05). Plasma lipids were not different between Strongmen and sedentary controls, but in comparison to runners, Strongmen had higher low-density lipoprotein-cholesterol (p < 0.05) and lower high-density lipoprotein cholesterol (p < 0.01). Participation in Strongmen sport is associated with higher absolute but not relative cardiac size parameters, impaired myocardial relaxation, and low cardiorespiratory fitness. Therefore, Strongmen may demand greater attention as an extreme group of athletes with regard to cardiovascular risk.
+schema: 1.5.4
+cohorts: {u'doc': 4, u'sci': 2, u'pub': 47}
+readers_count: 5
+journal: Journal of strength and conditioning research / National Strength & Conditioning Association
+publisher_subjects: [{u'scheme': u'era', u'name': u'Human Movement And Sports Science'}]
+details_url: http://www.altmetric.com/details.php?citation_id=379825
+doi: 10.1519/jsc.0b013e31820f50ef
+abstract_source: pubmed
+url: http://dx.doi.org/10.1519/jsc.0b013e31820f50ef
+readers: {u'mendeley': 5, u'citeulike': 0, u'connotea': 0}
+nlmid: 9415084
+context: {u'similar_age_journal_3m': {u'count': 125, u'higher_than': 115, u'pct': 92, u'rank': 10, u'mean': 12.669419354839}, u'all': {u'count': 2289179, u'higher_than': 2255251, u'pct': 98, u'rank': 33913, u'mean': 4.8073915239466}, u'similar_age_3m': {u'count': 58635, u'higher_than': 57901, u'pct': 98, u'rank': 734, u'mean': 4.0326815499539}, u'journal': {u'count': 1907, u'higher_than': 1804, u'pct': 94, u'rank': 102, u'mean': 12.125647429171}}
+history: {u'6d': 3, u'1w': 3, u'1y': 31.25, u'1m': 17, u'6m': 27.5, u'2d': 1, u'at': 46.4, u'3m': 27.5, u'5d': 3, u'4d': 2, u'1d': 1, u'3d': 2}
+added_on: 1316815997
+cited_by_accounts_count: 54

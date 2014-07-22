@@ -1,0 +1,30 @@
+cited_by_feeds_count: 1
+last_updated: 1405967662
+is_oa: False
+cited_by_msm_count: 1
+cited_by_posts_count: 7
+images: {u'small': u'https://altmetric-badges.a.ssl.fastly.net/?size=64&score=17&types=mbttffff', u'large': u'https://altmetric-badges.a.ssl.fastly.net/?size=180&score=17&types=mbttffff', u'medium': u'https://altmetric-badges.a.ssl.fastly.net/?size=100&score=17&types=mbttffff'}
+altmetric_id: 828661
+subjects: []
+published_on: 1225497600
+title: Effects of gender and parental status on knowledge and attitudes of dog owners regarding dog aggression toward children
+cited_by_tweeters_count: 2
+scopus_subjects: [u'Health Sciences', u'Veterinary']
+issns: [u'0003-1488']
+score: 16.68
+altmetric_jid: 4f6fa4f63cf058f610002f5e
+nlmid: 7503067
+schema: 1.5.4
+cohorts: {u'pub': 2}
+readers_count: 20
+journal: Journal of the American Veterinary Medical Association
+publisher_subjects: [{u'scheme': u'era', u'name': u'Veterinary Sciences'}]
+details_url: http://www.altmetric.com/details.php?citation_id=828661
+doi: 10.2460/javma.233.9.1412
+url: http://dx.doi.org/10.2460/javma.233.9.1412
+readers: {u'mendeley': 20, u'citeulike': 0, u'connotea': 0}
+context: {u'similar_age_journal_3m': {u'count': 40, u'higher_than': 39, u'pct': 97, u'rank': 1, u'mean': 2.5181538461538}, u'all': {u'count': 2291340, u'higher_than': 2183706, u'pct': 95, u'rank': 107684, u'mean': 4.8093387377446}, u'similar_age_3m': {u'count': 68667, u'higher_than': 65469, u'pct': 95, u'rank': 3196, u'mean': 4.5544427809978}, u'journal': {u'count': 684, u'higher_than': 668, u'pct': 97, u'rank': 16, u'mean': 3.3613938506589}}
+cited_by_fbwalls_count: 3
+history: {u'6d': 12.08, u'1w': 12.08, u'1y': 12.08, u'1m': 12.08, u'6m': 12.08, u'2d': 12.08, u'at': 16.68, u'3m': 12.08, u'5d': 12.08, u'4d': 12.08, u'1d': 12.08, u'3d': 12.08}
+added_on: 1341821550
+cited_by_accounts_count: 7
