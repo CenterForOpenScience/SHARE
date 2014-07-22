@@ -36,18 +36,15 @@ Casey and Faye evaluated and prototyped conflict management with [FuzzyWuzzy](ht
 Using the issue tracker
 -----
 
-These conventions are used when making issues:
+Please include one of these tags at the beginning of your issue title.
 
-[core] ... = An issue regarding SHARE core, also known as scrAPI.
+[core]:  An issue regarding SHARE core, also known as scrAPI.
 
-[schema] ... = An issue regarding the defined representations of document types, such as what information might be required for a submission to be considered an article, citation, or dataset, or what types of information should be searchable.
+[schema]: An issue regarding the defined representations of document types, such as what information might be required for a submission to be considered an article, citation, or dataset, or what types of information should be searchable.
 
-[New content provider] ... = Information about a new service that may have an API that should be consumed and added to scrAPI. Once evaluation is completed, a new issue with the tag [consumer] should be created, and the [New content provider] issue should be closed with a link to the new issue.
+[New content provider]: Information about a new service that may have an API that should be consumed and added to scrAPI. Once evaluation is completed, a new issue with the tag [consumer] should be created, and the [New content provider] issue should be closed with a link to the new issue.
 
-[consumer] ... = An issue regarding a consumer that is currently being developed. These issues should include a link the the github repo where development is happening. Consumer in this content means an application which accesses a service via API, consumes the content, and normalizes it for inclusion in the search engine in scrAPI.
-
-
-Please include these tags at the beginning of your issue title.
+[consumer]: An issue regarding a consumer that is currently being developed. These issues should include a link to the primary github repo for the consumer. Consumer in this content means an application which accesses a service via API, consumes the content, and normalizes it for inclusion in the search engine in scrAPI.
 
 
 About SHARE
