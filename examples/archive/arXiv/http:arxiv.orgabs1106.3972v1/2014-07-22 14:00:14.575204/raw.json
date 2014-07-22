@@ -1,0 +1,36 @@
+{
+    "arxiv:comment": {
+        "#text": "2 pages", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "arxiv:primary_category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "hep-th", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "author": {
+        "name": "Andrei Gruzinov"
+    }, 
+    "category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "hep-th"
+    }, 
+    "id": "http://arxiv.org/abs/1106.3972v1", 
+    "link": [
+        {
+            "@href": "http://arxiv.org/abs/1106.3972v1", 
+            "@rel": "alternate", 
+            "@type": "text/html"
+        }, 
+        {
+            "@href": "http://arxiv.org/pdf/1106.3972v1", 
+            "@rel": "related", 
+            "@title": "pdf", 
+            "@type": "application/pdf"
+        }
+    ], 
+    "published": "2011-06-20T17:35:28Z", 
+    "summary": "We show that all non-linear completions of the Fierz-Pauli massive gravity\nare ruled out, because all theories which might be ghost-free have superluminal\nmodes.", 
+    "title": "All Fierz-Paulian massive gravity theories have ghosts or superluminal\n  modes", 
+    "updated": "2011-06-20T17:35:28Z"
+}

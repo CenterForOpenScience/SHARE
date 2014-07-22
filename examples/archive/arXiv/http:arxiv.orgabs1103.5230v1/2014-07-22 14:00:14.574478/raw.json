@@ -1,0 +1,36 @@
+{
+    "arxiv:comment": {
+        "#text": "14 pages", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "arxiv:primary_category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "cs.FL", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "author": {
+        "name": "Roman Kolpakov"
+    }, 
+    "category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "cs.FL"
+    }, 
+    "id": "http://arxiv.org/abs/1103.5230v1", 
+    "link": [
+        {
+            "@href": "http://arxiv.org/abs/1103.5230v1", 
+            "@rel": "alternate", 
+            "@type": "text/html"
+        }, 
+        {
+            "@href": "http://arxiv.org/pdf/1103.5230v1", 
+            "@rel": "related", 
+            "@title": "pdf", 
+            "@type": "application/pdf"
+        }
+    ], 
+    "published": "2011-03-27T16:17:11Z", 
+    "summary": "Combinatorial properties of maximal repetitions (runs) in formal words are\nstudied. We classify all maximal repetitions in a word as primary and secondary\nwhere the set of all primary repetitions determines all the other repetitons in\nthe word. Essential combinatorial properties of primary repetitions are\nestablished.", 
+    "title": "On primary and secondary repetitions in words", 
+    "updated": "2011-03-27T16:17:11Z"
+}

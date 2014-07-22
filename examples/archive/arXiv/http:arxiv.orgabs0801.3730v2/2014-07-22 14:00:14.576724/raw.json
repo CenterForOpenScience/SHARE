@@ -1,0 +1,48 @@
+{
+    "arxiv:comment": {
+        "#text": "4 pages,3 figures", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "arxiv:journal_ref": {
+        "#text": "Optics Letters, 35(3) 321-323(2010)", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "arxiv:primary_category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "physics.optics", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "author": [
+        {
+            "name": "Qiongtao Xie"
+        }, 
+        {
+            "name": "Xiaobing Luo"
+        }, 
+        {
+            "name": "Biao Wu"
+        }
+    ], 
+    "category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "physics.optics"
+    }, 
+    "id": "http://arxiv.org/abs/0801.3730v2", 
+    "link": [
+        {
+            "@href": "http://arxiv.org/abs/0801.3730v2", 
+            "@rel": "alternate", 
+            "@type": "text/html"
+        }, 
+        {
+            "@href": "http://arxiv.org/pdf/0801.3730v2", 
+            "@rel": "related", 
+            "@title": "pdf", 
+            "@type": "application/pdf"
+        }
+    ], 
+    "published": "2008-01-24T14:55:35Z", 
+    "summary": "We propose a type of all-optical switch which consists of two periodically\ncurved nonlinear optical waveguides placed in parallel. Compared to the\nall-optical switch based on the traditional nonlinear directional coupler with\nstraight waveguides, this all-optical switch has much lower switching threshold\npower and sharper switching width.", 
+    "title": "All-optical switch with two periodically curved nonlinear waveguides", 
+    "updated": "2008-02-21T01:24:50Z"
+}

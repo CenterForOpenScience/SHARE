@@ -1,0 +1,42 @@
+{
+    "arxiv:comment": {
+        "#text": "accepted for publication in Acta Math. Hungar", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "arxiv:primary_category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "math.NT", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "author": {
+        "name": "Karin Halupczok"
+    }, 
+    "category": [
+        {
+            "@scheme": "http://arxiv.org/schemas/atom", 
+            "@term": "math.NT"
+        }, 
+        {
+            "@scheme": "http://arxiv.org/schemas/atom", 
+            "@term": "11P32, 11P55, 11N36"
+        }
+    ], 
+    "id": "http://arxiv.org/abs/0803.0831v1", 
+    "link": [
+        {
+            "@href": "http://arxiv.org/abs/0803.0831v1", 
+            "@rel": "alternate", 
+            "@type": "text/html"
+        }, 
+        {
+            "@href": "http://arxiv.org/pdf/0803.0831v1", 
+            "@rel": "related", 
+            "@title": "pdf", 
+            "@type": "application/pdf"
+        }
+    ], 
+    "published": "2008-03-06T10:55:33Z", 
+    "summary": "We show that for every fixed $A>0$ and $\\theta>0$ there is a\n  $\\vartheta=\\vartheta(A,\\theta)>0$ with the following property.\n  Let $n$ be odd and sufficiently large, and let\n  $Q_{1}=Q_{2}:=n^{\\h}(\\log n)^{-\\vartheta}$ and $Q_{3}:=(\\log n)^{\\theta}$.\nThen for all $q_{3}\\leq Q_{3}$, all reduced residues $a_{3}$ mod $q_{3}$,\nalmost all $q_{2}\\leq Q_{2}$, all admissible residues $a_{2}$ mod $q_{2}$,\nalmost all $q_{1}\\leq Q_{1}$ and all admissible residues $a_{1}$ mod $q_{1}$,\nthere exists a representation $n=p_{1}+p_{2}+p_{3}$ with primes $p_{i}\\equiv\na_{i} (q_{i})$, $i=1,2,3$.", 
+    "title": "On the ternary Goldbach problem with primes in independent arithmetic\n  progressions", 
+    "updated": "2008-03-06T10:55:33Z"
+}

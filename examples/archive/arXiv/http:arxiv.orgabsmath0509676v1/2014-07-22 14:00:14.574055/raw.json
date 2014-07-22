@@ -1,0 +1,55 @@
+{
+    "arxiv:comment": {
+        "#text": "13 pages", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "arxiv:doi": {
+        "#text": "10.1063/1.531560", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "arxiv:journal_ref": {
+        "#text": "J. Math. Phys. 37, No.7, 3131-3140 (1996)", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "arxiv:primary_category": {
+        "@scheme": "http://arxiv.org/schemas/atom", 
+        "@term": "math.QA", 
+        "@xmlns:arxiv": "http://arxiv.org/schemas/atom"
+    }, 
+    "author": {
+        "name": "Frank Leitenberger"
+    }, 
+    "category": [
+        {
+            "@scheme": "http://arxiv.org/schemas/atom", 
+            "@term": "math.QA"
+        }, 
+        {
+            "@scheme": "http://arxiv.org/schemas/atom", 
+            "@term": "17B37"
+        }
+    ], 
+    "id": "http://arxiv.org/abs/math/0509676v1", 
+    "link": [
+        {
+            "@href": "http://dx.doi.org/10.1063/1.531560", 
+            "@rel": "related", 
+            "@title": "doi"
+        }, 
+        {
+            "@href": "http://arxiv.org/abs/math/0509676v1", 
+            "@rel": "alternate", 
+            "@type": "text/html"
+        }, 
+        {
+            "@href": "http://arxiv.org/pdf/math/0509676v1", 
+            "@rel": "related", 
+            "@title": "pdf", 
+            "@type": "application/pdf"
+        }
+    ], 
+    "published": "2005-09-28T18:51:33Z", 
+    "summary": "We classify all SL(2,R)-covariant Poisson structures on the Lobachevsky plane\nwith respect to all multiplicative Poisson structures on SL(2,R) and describe\nQuantisations for all these Poisson structures.", 
+    "title": "Quantum Lobachevsky Planes", 
+    "updated": "2005-09-28T18:51:33Z"
+}
