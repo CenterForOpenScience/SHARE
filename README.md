@@ -32,6 +32,24 @@ Conflict Management
 
 Casey and Faye evaluated and prototyped conflict management with [FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy). On hold until Core is further developed.
 
+
+Using the issue tracker
+-----
+
+These conventions are used when making issues:
+
+[core] ... = An issue regarding SHARE core, also known as scrAPI.
+
+[schema] ... = An issue regarding the defined representations of document types, such as what information might be required for a submission to be considered an article, citation, or dataset, or what types of information should be searchable.
+
+[New content provider] ... = Information about a new service that may have an API that should be consumed and added to scrAPI. Once evaluation is completed, a new issue with the tag [consumer] should be created, and the [New content provider] issue should be closed with a link to the new issue.
+
+[consumer] ... = An issue regarding a consumer that is currently being developed. These issues should include a link the the github repo where development is happening. Consumer in this content means an application which accesses a service via API, consumes the content, and normalizes it for inclusion in the search engine in scrAPI.
+
+
+Please include these tags at the beginning of your issue title.
+
+
 About SHARE
 -----
 
