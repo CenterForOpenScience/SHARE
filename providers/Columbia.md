@@ -17,7 +17,7 @@ The OAI interface for Academic Commons is available at:
 
 http://academiccommons.columbia.edu/catalog/oai
 
-In general the Academic Commons is research output. So you can take it all. But these include posters, presentations, and the like. They do have a “type” that would distinguish between the these kinds of items. You would see these types in our interface, but not exporting them via OAI-PMH. In OAI-PMH the “resource type” will be mostly “text”, though this may become more semantically rich in a few months.
+In general the Academic Commons is research output. So you can take it all. But these include posters, presentations, and the like. They do have a "type" that would distinguish between the these kinds of items. You would see these types in our interface, but not exporting them via OAI-PMH. In OAI-PMH the "resource type" will be mostly "text", though this may become more semantically rich in a few months.
 
 Metadata Sharing Questions
 ----
@@ -36,7 +36,7 @@ No.
 
 _Does our sharing your metadata violate your Privacy Policy?_
 
-Don’t think so, but want to double check.
+DonÔøΩt think so, but want to double check.
 
 _What is the license of the metadata (e.g., CC Zero)? Does that license extend to those beyond the group that gathered it? If unlicensed, will you explicitly license the content?_
 
