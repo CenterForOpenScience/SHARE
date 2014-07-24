@@ -42,7 +42,7 @@ Please include one of these tags at the beginning of your issue title.
 
 [schema]: An issue regarding the defined representations of document types, such as what information might be required for a submission to be considered an article, citation, or dataset, or what types of information should be searchable.
 
-[New content provider]: Information about a new service that may have an API that should be consumed and added to scrAPI. Once evaluation is completed, a new issue with the tag [consumer] should be created, and the [New content provider] issue should be closed with a link to the new issue.
+[content provider]: Information about a new service to be added to scrAPI that (1) is on the SHARE priority list and has been vetted and met required SHARE criteria or (2) may be a priority for other reasons and has an API. Once technical evaluation is completed, a new issue with the tag [consumer] should be created, and the [content provider] issue should be closed with a link to the new issue.  
 
 [consumer]: An issue regarding a consumer that is currently being developed. These issues should include a link to the primary github repo for the consumer. Consumer in this context means an application which accesses a service via API, consumes the content, and normalizes it for inclusion in the search engine in scrAPI. Note that this is distinct from "consumer" in the context of the [SHARE Notification Service Architectural Overview](http://www.arl.org/storage/documents/publications/SHARE-notification-service-architectural-overview-14apr2014.pdf) where "consumer" refers to the subscriber to notifications.
 
