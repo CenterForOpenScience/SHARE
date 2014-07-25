@@ -7,7 +7,6 @@ Core
 scrapi: http://www.github.com/fabianvf/scrapi
 
 Prototype demo can be found [here](http://173.255.232.219/).
-NOTE: Tech demo is currently down as a result of rearchitecting. It should be back up shortly.
 
 Data Consumption Projects
 -----
