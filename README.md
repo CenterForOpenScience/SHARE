@@ -11,7 +11,7 @@ Prototype demo can be found at http://173.255.232.219/, and the current director
 Data Consumption Projects
 -----
 
-ClinicalTrials.gov: https://github.com/pjfan/ClinicalTrialsParser
+ClinicalTrials.gov: https://github.com/erinspace/ClinicalTrials-consumer
 
 PLOS: https://github.com/fabianvf/PLoS-API-consumer
 
