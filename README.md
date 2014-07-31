@@ -23,6 +23,8 @@ ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
 
 CrossRef: Evaluation of API and libraries by Xander.
 
+eScholarship - University of California: https://github.com/erinspace/eScholarship/
+
 arXiv: Evaluation started by Peter.
 
 OAI-PMH: Evaluation being conducted by Casey.
