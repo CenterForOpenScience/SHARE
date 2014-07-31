@@ -6,12 +6,12 @@ Core
 
 scrapi: http://www.github.com/fabianvf/scrapi
 
-Prototype demo can be found [here](http://173.255.232.219/).
+Prototype demo can be found at http://173.255.232.219/, and the current directory structure can be viewed at http://173.255.232.219/archive.
 
 Data Consumption Projects
 -----
 
-ClinicalTrials.gov: https://github.com/pjfan/ClinicalTrialsParser
+ClinicalTrials.gov: https://github.com/erinspace/ClinicalTrials-consumer
 
 PLOS: https://github.com/fabianvf/PLoS-API-consumer
 
@@ -22,6 +22,8 @@ Altmetric: https://github.com/CenterForOpenScience/PyAltmetric
 ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
 
 CrossRef: Evaluation of API and libraries by Xander.
+
+eScholarship - University of California: https://github.com/erinspace/eScholarship/
 
 arXiv: Evaluation started by Peter.
 
