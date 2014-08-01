@@ -27,6 +27,8 @@ eScholarship - University of California: https://github.com/erinspace/eScholarsh
 
 DigitalCommons - Wayne State University: https://github.com/erinspace/DigitalCommonsWayneState
 
+Virginia Tech VTechWorks - https://github.com/erinspace/VT-consumer -- Originally at https://github.com/webkunoichi/VT-consumer
+
 arXiv: Evaluation started by Peter.
 
 OAI-PMH: Evaluation being conducted by Casey.
