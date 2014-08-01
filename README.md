@@ -25,6 +25,8 @@ CrossRef: Evaluation of API and libraries by Xander.
 
 eScholarship - University of California: https://github.com/erinspace/eScholarship/
 
+DigitalCommons - Wayne State University: https://github.com/erinspace/DigitalCommonsWayneState
+
 arXiv: Evaluation started by Peter.
 
 OAI-PMH: Evaluation being conducted by Casey.
