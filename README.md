@@ -105,20 +105,17 @@ Example from PLoS:
         {
             "email": "loudonj@ecu.edu", 
             "full_name": "James E. Loudon",
-            "id" : {
-                "ORCID": "add-orcid-here", 
-                "other-id": "add-other-id-here"
-            }
+            "ORCID": "add-orcid-here"
         }, 
     ], 
     "id": {
         "url": "http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0100758", 
-        "DOI": "10.1371/journal.pone.0100758"
+        "doi": "10.1371/journal.pone.0100758"
     },
     "meta": {"OSF specific metadata"}, 
     "properties": {
         "PDF": "http://dx.plos.org/10.1371/journal.pone.0100758.pdf", 
-        "figures": ["http://www.plosone.org/article/fetchObject.action?  uri=info:doi/10.1371/journal.pone.0100758.g001&representation=PNG_M"], 
+        "figures": ["http://www.plosone.org/article/fetchObject.action?uri=info:doi/10.1371/journal.pone.0100758.g001&representation=PNG_M"], 
         }, 
     "description": "This study seeks to understand how humans impact the dietary patterns of eight free-ranging vervet monkey (Chlorocebus pygerythrus) groups in South Africa using stable isotope analysis.", 
     "tags": [
