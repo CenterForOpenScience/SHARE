@@ -93,7 +93,8 @@ Here's the specification of we have so far:
 * **description** - an abstract or general description of the resource
 * **tags** - a list of tags or keywords identified in the resource itself
 * **source** - a string identifying where the resource came from
-* **timestamp** - string indicating when the article was accessed by scrAPI. YYYY-MM-DD h:m:s
+* **timestamp** - string indicating when the article was accessed by scrAPI using the format YYYY-MM-DD h:m:s
+* **date_created** - string indicating when the article was first created or published using the format YYYY-MM-DD
 * **title**- string representing title of the article or study
 
 
@@ -127,6 +128,7 @@ Example from PLoS:
     ,
     "source": "PLoS", 
     "timestamp": "2014-07-11 10:31:33.168456", 
+    "date_created": "2014-07-10"
     "title": "PLOS ONE: Using Stable Carbon and Nitrogen Isotope Compositions"
 }
 ```
