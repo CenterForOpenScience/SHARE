@@ -76,3 +76,58 @@ AAU executive vice president John Vaughn said, “We are delighted that SHARE ha
 “We are very pleased that the SHARE Notification Service is moving forward and are excited to have the Center for Open Science as a partner,” APLU vice president and chief academic officer Michael Tanner said. “Working with COS will help us ensure that university research findings are easily accessible to the public and can be used to advance society and develop new breakthroughs.”
 
 SHARE (SHared Access Research Ecosystem) is a higher education and research community initiative to ensure the preservation of, access to, and reuse of research outputs. SHARE will develop solutions that capitalize on the compelling interest shared by researchers, libraries, universities, funding agencies, and other key stakeholders to maximize research impact, today and in the future. SHARE aims to make the inventory of research assets more discoverable and more accessible, and to enable the research community to build upon these assets in creative and productive ways. The Association of Research Libraries (ARL), the Association of American Universities (AAU), and the Association of Public and Land-grant Universities (APLU) have partnered to develop SHARE with significant input from the three associations’ member institutions and their broader communities.
+
+
+Current Metadata Schema
+-----
+
+Here is the current state of our schema for resources consumed for SHARE - this schema
+will be updated as the SHARE service matures. 
+
+Here's the specification of we have so far: 
+
+* **contributors** - a list of dictionaries containing email, full name, and ORCIDs of contributors.
+* **id** - a dictionary of unique IDs given to the article based on the particular publication we’re accessing. Should include an entry for a URL that links right to the original resource, a DOI, and other entries as needed that include more unique IDs available in the original document. 
+* **meta** -  metadata necessary for importing to the OSF (to be further clarified later...)
+* **properties** - a dictionary containing elements of the article/study itself, sometimes within lists.  Can include figures, PDFs, or any other study data made readily available by the source API. Not all resources will have this information. 
+* **description** - an abstract or general description of the resource
+* **tags** - a list of tags or keywords identified in the resource itself
+* **source** - a string identifying where the resource came from
+* **timestamp** - string indicating when the article was accessed by scrAPI. YYYY-MM-DD h:m:s
+* **title**- string representing title of the article or study
+
+
+Example from PLoS:
+
+```json
+{
+    "contributors": [
+        {
+            "email": "loudonj@ecu.edu", 
+            "full_name": "James E. Loudon",
+            "id" : {
+                "ORCID": "add-orcid-here", 
+                "other-id": "add-other-id-here"
+            }
+        }, 
+    ], 
+    "id": {
+        "url": "http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0100758", 
+        "DOI": "10.1371/journal.pone.0100758"
+    },
+    "meta": {"OSF specific metadata"}, 
+    "properties": {
+        "PDF": "http://dx.plos.org/10.1371/journal.pone.0100758.pdf", 
+        "figures": ["http://www.plosone.org/article/fetchObject.action?  uri=info:doi/10.1371/journal.pone.0100758.g001&representation=PNG_M"], 
+        }, 
+    "description": "This study seeks to understand how humans impact the dietary patterns of eight free-ranging vervet monkey (Chlorocebus pygerythrus) groups in South Africa using stable isotope analysis.", 
+    "tags": [
+        "Behavior"
+    ]
+    ,
+    "source": "PLoS", 
+    "timestamp": "2014-07-11 10:31:33.168456", 
+    "title": "PLOS ONE: Using Stable Carbon and Nitrogen Isotope Compositions"
+}
+```
+
