@@ -106,8 +106,8 @@ Example from PLoS:
 {
     "contributors": [
         {
-            "email": "jloudon@example.com", 
-            "full_name": "James E. Loudon",
+            "email": "jperson@example.com", 
+            "full_name": "James Person",
             "ORCID": "add-orcid-here"
         }, 
     ], 
