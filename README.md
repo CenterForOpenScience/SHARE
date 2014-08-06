@@ -104,7 +104,7 @@ Example from PLoS:
 {
     "contributors": [
         {
-            "email": "loudonj@ecu.edu", 
+            "email": "jloudon@example.com", 
             "full_name": "James E. Loudon",
             "ORCID": "add-orcid-here"
         }, 
@@ -125,7 +125,7 @@ Example from PLoS:
     ,
     "source": "PLoS", 
     "timestamp": "2014-07-11 10:31:33.168456", 
-    "date_created": "2014-07-10"
+    "date_created": "2014-07-10",
     "title": "PLOS ONE: Using Stable Carbon and Nitrogen Isotope Compositions"
 }
 ```
