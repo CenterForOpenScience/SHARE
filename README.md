@@ -88,7 +88,7 @@ will be updated as the SHARE service matures.
 
 Here's the specification of we have so far: 
 
-* **contributors** - a list of dictionaries containing email, full name, and ORCIDs of contributors.
+* **contributors** - a list of dictionaries containing email, full name, and (optional) ORCIDs of contributors.
 * **id** - a dictionary of unique IDs given to the article based on the particular publication we’re accessing. Should include an entry for a URL that links right to the original resource, a DOI, and other entries as needed that include more unique IDs available in the original document. 
 * **meta** -  metadata necessary for importing to the OSF (to be further clarified later...)
 * **properties** - a dictionary containing elements of the article/study itself, sometimes within lists.  Can include figures, PDFs, or any other study data made readily available by the source API. Not all resources will have this information. 
