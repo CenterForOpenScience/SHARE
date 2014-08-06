@@ -6,7 +6,7 @@ Core
 
 scrapi: http://www.github.com/fabianvf/scrapi
 
-Prototype demo can be found at http://173.255.232.219/, and the current directory structure can be viewed at http://173.255.232.219/archive.
+Prototype demo can be found at http://173.255.232.219/, and the current directory structure can be viewed at http://173.255.232.219/archive. Note: the demo will be down for about an hour starting at 4:00PM (Eastern).
 
 Data Consumption Projects
 -----
@@ -106,7 +106,7 @@ Example from PLoS:
 {
     "contributors": [
         {
-            "email": "loudonj@ecu.edu", 
+            "email": "jloudon@example.com", 
             "full_name": "James E. Loudon",
             "ORCID": "add-orcid-here"
         }, 
@@ -127,7 +127,7 @@ Example from PLoS:
     ,
     "source": "PLoS", 
     "timestamp": "2014-07-11 10:31:33.168456", 
-    "date_created": "2014-07-10"
+    "date_created": "2014-07-10",
     "title": "PLOS ONE: Using Stable Carbon and Nitrogen Isotope Compositions"
 }
 ```
