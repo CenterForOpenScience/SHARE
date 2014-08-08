@@ -91,7 +91,7 @@ will be updated as the SHARE service matures.
 Here's the specification of we have so far: 
 
 * **contributors** - a list of dictionaries containing email, full name, and (optional) ORCIDs of contributors.
-* **id** - a dictionary of unique IDs given to the article based on the particular publication we’re accessing. Should include an entry for a URL that links right to the original resource, a DOI, and other entries as needed that include more unique IDs available in the original document. 
+* **id** - a dictionary of unique IDs given to the article based on the particular publication we’re accessing. Should include an entry for a URL that links right to the original resource, a DOI, and other entries as needed that include more unique IDs available in the original document under the service_id field
 * **meta** -  metadata necessary for importing to the OSF (to be further clarified later...)
 * **properties** - a dictionary containing elements of the article/study itself, sometimes within lists.  Can include figures, PDFs, or any other study data made readily available by the source API. Not all resources will have this information. 
 * **description** - an abstract or general description of the resource
@@ -115,7 +115,8 @@ Example from PLoS:
     ], 
     "id": {
         "url": "http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0100758", 
-        "doi": "10.1371/journal.pone.0100758"
+        "doi": "10.1371/journal.pone.0100758",
+        "service_id": "PLoS-specific-id"
     },
     "meta": {"OSF specific metadata"}, 
     "properties": {
