@@ -54,6 +54,8 @@ Please include one of these tags at the beginning of your issue title.
 
 [consumer]: An issue regarding a consumer that is currently being developed. These issues should include a link to the primary github repo for the consumer. Consumer in this context means an application which accesses a service via API, consumes the content, and normalizes it for inclusion in the search engine in scrAPI. Note that this is distinct from "consumer" in the context of the [SHARE Notification Service Architectural Overview](http://www.arl.org/storage/documents/publications/SHARE-notification-service-architectural-overview-14apr2014.pdf) where "consumer" refers to the subscriber to notifications.
 
+[documentation]: An issue regarding the documentation of the project, tools, or consumers. 
+
 About SHARE
 -----
 
