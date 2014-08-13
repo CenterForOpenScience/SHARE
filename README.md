@@ -29,6 +29,8 @@ DigitalCommons - Wayne State University: https://github.com/erinspace/DigitalCom
 
 Virginia Tech VTechWorks - https://github.com/erinspace/VT-consumer -- Originally at https://github.com/webkunoichi/VT-consumer
 
+PubMed Central - https://github.com/erinspace/PubMedCentral
+
 DataONE: https://github.com/erinspace/DataONE
 
 arXiv: Evaluation started by Peter.
