@@ -43,10 +43,11 @@ Conflict Management
 Casey and Faye evaluated and prototyped conflict management with [FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy). On hold until Core is further developed.
 
 
-**More information available in the [Github Wiki](https://github.com/CenterForOpenScience/SHARE/wiki)**
+More information available in the [Github Wiki](https://github.com/CenterForOpenScience/SHARE/wiki)
 -----
 
 On the github wiki page you'll find detailed information about...
-* [information about the SHARE project](https://github.com/CenterForOpenScience/SHARE/wiki)
-* the [current SHARE schema for the consumers](https://github.com/CenterForOpenScience/SHARE/wiki/Current-SHARE-schema)* [how to use the issue tracker](https://github.com/CenterForOpenScience/SHARE/wiki/Using-the-Issue-Tracker)
-* a guide to [building new consumers using scrapi-tools](https://github.com/CenterForOpenScience/SHARE/wiki/Creating-a-consumer-using-scrapi-tools)
+* [the SHARE project](https://github.com/CenterForOpenScience/SHARE/wiki)
+* [the current SHARE schema for the consumers](https://github.com/CenterForOpenScience/SHARE/wiki/Current-SHARE-schema)
+* [how to use the issue tracker](https://github.com/CenterForOpenScience/SHARE/wiki/Using-the-Issue-Tracker)
+* [building new consumers using scrapi-tools](https://github.com/CenterForOpenScience/SHARE/wiki/Creating-a-consumer-using-scrapi-tools)
