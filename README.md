@@ -33,6 +33,8 @@ PubMed Central - https://github.com/erinspace/PubMedCentral
 
 DataONE: https://github.com/erinspace/DataONE
 
+Columbia Academic Commons: http://github.com/erinspace/academiccommons
+
 arXiv: Evaluation started by Peter.
 
 OAI-PMH: Evaluation being conducted by Casey.
