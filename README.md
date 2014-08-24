@@ -20,33 +20,35 @@ Prototype demo can be found at http://173.255.232.219/, and the current director
 Data Consumption Projects
 -----
 
-ClinicalTrials.gov: https://github.com/erinspace/ClinicalTrials-consumer
-
-PLOS: https://github.com/fabianvf/PLoS-API-consumer
-
-SciTech: https://github.com/erinspace/pyscitech
+arXiv: Evaluation started by Peter.
 
 Altmetric: https://github.com/CenterForOpenScience/PyAltmetric
 
-ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
-
-CrossRef: Evaluation of API and libraries by Xander.
-
-eScholarship - University of California: https://github.com/erinspace/eScholarship/
-
-DigitalCommons - Wayne State University: https://github.com/erinspace/DigitalCommonsWayneState
-
-Virginia Tech VTechWorks - https://github.com/erinspace/VT-consumer -- Originally at https://github.com/webkunoichi/VT-consumer
-
-PubMed Central - https://github.com/erinspace/PubMedCentral
-
-DataONE: https://github.com/erinspace/DataONE
+ClinicalTrials.gov: https://github.com/erinspace/ClinicalTrials-consumer
 
 Columbia Academic Commons: http://github.com/erinspace/academiccommons
 
-arXiv: Evaluation started by Peter.
+CrossRef: https://github.com/erinspace/CrossRef
+
+DataONE: https://github.com/erinspace/DataONE
+
+DigitalCommons - Wayne State University: https://github.com/erinspace/DigitalCommonsWayneState
+
+eScholarship - University of California: https://github.com/erinspace/eScholarship/
+
+ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
 
 OAI-PMH: Evaluation being conducted by Casey.
+
+PLOS: https://github.com/fabianvf/PLoS-API-consumer
+
+PubMed Central - https://github.com/erinspace/PubMedCentral
+
+SciTech: https://github.com/erinspace/pyscitech
+
+Virginia Tech VTechWorks - https://github.com/erinspace/VT-consumer -- Originally at https://github.com/webkunoichi/VT-consumer
+
+
 
 Conflict Management
 -----
