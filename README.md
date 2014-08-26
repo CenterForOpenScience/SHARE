@@ -34,6 +34,8 @@ DataONE: https://github.com/erinspace/DataONE
 
 DigitalCommons - Wayne State University: https://github.com/erinspace/DigitalCommonsWayneState
 
+Department of Energt Pages: https://github.com/erinspace/DOEPages
+
 eScholarship - University of California: https://github.com/erinspace/eScholarship/
 
 ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
