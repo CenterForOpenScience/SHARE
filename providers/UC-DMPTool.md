@@ -11,9 +11,8 @@ Patricia Cruse
 Technical Resources
 ----
 
-These will be harvested via the DMPTool API.
+These will be harvested via the [DMPTool API](https://github.com/CDLUC3/dmptool/wiki/API) (still under active development).
 
-Trisha will send API documentation soon.
 
 Metadata Sharing Questions
 ----
