@@ -20,7 +20,7 @@ Prototype demo can be found at http://173.255.232.219/, and the current director
 Data Consumption Projects
 -----
 
-arXiv: Evaluation started by Peter.
+arXiv: https://github.com/erinspace/arxiv
 
 Altmetric: https://github.com/CenterForOpenScience/PyAltmetric
 
