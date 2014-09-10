@@ -44,11 +44,13 @@ OAI-PMH: Evaluation being conducted by Casey.
 
 PLOS: https://github.com/fabianvf/PLoS-API-consumer
 
-PubMed Central - https://github.com/erinspace/PubMedCentral
+PubMed Central OAI: https://github.com/csheldonhess/PubMedCentralOAI
+
+PubMed Central PMC: 
 
 SciTech: https://github.com/erinspace/pyscitech
 
-Virginia Tech VTechWorks - https://github.com/erinspace/VT-consumer -- Originally at https://github.com/webkunoichi/VT-consumer
+Virginia Tech VTechWorks - https://github.com/erinspace/VT-consumer -- Originally at https://github.com/csheldonhess/VT-consumer
 
 
 
