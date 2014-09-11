@@ -46,7 +46,7 @@ PLOS: https://github.com/fabianvf/PLoS-API-consumer
 
 PubMed Central OAI: https://github.com/csheldonhess/PubMedCentralOAI
 
-PubMed Central PMC: 
+PubMed Central PMC: https://github.com/huangginny/PubMedCentralPMC
 
 SciTech: https://github.com/erinspace/pyscitech
 
