@@ -13,7 +13,7 @@ Technical Resources
 
 This will be an OAI-PMH harvest.
 
-Base URL: http://www.escholarship.org/uc/oai
+    http://www.escholarship.org/uc/oai
 
 Overview of our OAI-PMH interface: http://www.escholarship.org/help_oaipmh.html
 

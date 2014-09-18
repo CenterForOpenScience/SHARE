@@ -15,15 +15,15 @@ This harvest will utilize the CrossRef API.
 
 You don't need a member account. Make sure you are using the REST API documented here:
 
-http://api.crossref.org
+    http://api.crossref.org
 
 You might also be interested in this description of using the API:
 
-http://crosstech.crossref.org/2014/04/%E2%99%AB-researchers-just-wanna-have-funds-%E2%99%AB.html
+    http://crosstech.crossref.org/2014/04/%E2%99%AB-researchers-just-wanna-have-funds-%E2%99%AB.html
 
 Also note that you can simply query the metadata for any DOI using content negotiation. As per:
 
-http://www.crosscite.org/cn/
+    http://www.crosscite.org/cn/
 
 Metadata Sharing Questions
 ----

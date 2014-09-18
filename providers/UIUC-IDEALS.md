@@ -13,7 +13,7 @@ Technical Resources
 
 The OAI PMH interface is here:
  
-http://www.ideals.illinois.edu/dspace-oai/request?verb=Identify
+    http://www.ideals.illinois.edu/dspace-oai/request?verb=Identify
 
 
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
