@@ -1,7 +1,7 @@
 Saint Cloud State University
 ====
 
-The content of the SCSU repository is primarily faculty and student research, thought there are some collections that are of a campus records nature. Since the material types are varied, we will have to only harvest from specific sets of records, rather than capture the whole repository. SCSU will provide a list of "series names" from which we should harvest.
+The content of the SCSU repository is primarily faculty and student research, though there are some collections that are of a campus records nature. Since the material types are varied, we will have to only harvest from specific sets of records, rather than capture the whole repository. SCSU will provide a list of "series names" from which we should harvest.
 
 Contact
 ----
