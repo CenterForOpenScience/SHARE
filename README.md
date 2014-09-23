@@ -42,6 +42,8 @@ ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
 
 OAI-PMH: Evaluation being conducted by Casey.
 
+OpenSIUC API at Southern Illinois University: https://github.com/erinspace/OpenSIUC.git
+
 PLOS: https://github.com/fabianvf/PLoS-API-consumer
 
 PubMed Central OAI: https://github.com/csheldonhess/PubMedCentralOAI
