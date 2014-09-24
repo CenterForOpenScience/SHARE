@@ -40,6 +40,8 @@ eScholarship - University of California: https://github.com/erinspace/eScholarsh
 
 ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
 
+MIT: https://github.com/csheldonhess/MIT-consumer
+
 OAI-PMH: Evaluation being conducted by Casey.
 
 OpenSIUC API at Southern Illinois University: https://github.com/erinspace/OpenSIUC.git
@@ -51,6 +53,10 @@ PubMed Central OAI: https://github.com/csheldonhess/PubMedCentralOAI
 PubMed Central PMC: https://github.com/huangginny/PubMedCentralPMC
 
 SciTech: https://github.com/erinspace/pyscitech
+
+University of Illinois at Urbana-Champaign IDEALS - https://github.com/vpnagraj/uiuc-ideals-consumer
+
+University of Pennsylvania Scholarly Commons - https://github.com/csheldonhess/UPenn-consumer
 
 Virginia Tech VTechWorks - https://github.com/erinspace/VT-consumer -- Originally at https://github.com/csheldonhess/VT-consumer
 
