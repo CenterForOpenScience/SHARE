@@ -1,7 +1,7 @@
 Saint Cloud State University
 ====
 
-The content of the SCSU repository is primarily faculty and student research, though there are some collections that are of a campus records nature. Since the material types are varied, we will have to only harvest from specific sets of records, rather than capture the whole repository. SCSU will provide a list of "series names" from which we should harvest.
+The content of the SCSU repository is primarily faculty and student research, though there are some collections that are of a campus records nature. Since the material types are varied, we will have to only harvest from specific sets of records, rather than capture the whole repository. SCSU has provided a list of "series names" from which we should harvest.
 
 Contact
 ----
@@ -33,9 +33,28 @@ The template for requests would be:
      
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
 
-Keith will provide a list of sets to retrieve during the week of 9/22/14, Eric will follow up to get it. This will be a list very similar to the [Wayne State](WayneState.md) list.
+Keith has provided a list of series to include, very similar to the [Wayne State](WayneState.md) list.
 
-They have stretched the definition of the "article" document type, so that is not a good guide. ETDs are included in SCSU collections.
+    ews_facpubs/
+    ews_wps/
+    hist_facwp/
+    comm_facpubs/
+    anth_facpubs/
+    soc_facpubs/
+    soc_ug_research/
+    chem_facpubs/
+    phys_present/
+    lrs_facpubs/
+    cfs_facpubs/
+    hurl_facpubs
+    ed_facpubs
+    cpcf_gradresearch/
+    econ_facpubs
+    econ_wps
+    econ_seminars
+    stcloud_ling
+
+They have stretched the definition of the "article" document type, so that is not a good guide. Keith also notes, "We are in the process of implementing ETDs, but there are none available at this time (still working on process and buy-in from faculty). All of the ETDs will be in series with department rubric followed by '_etds.'  In addition, there will be a 'virtual' collection of all ETDs in the grad_etds series (no actual content, just a bib citation pointing to the document in the departmental series."
  
 Metadata Sharing Questions
 ----
