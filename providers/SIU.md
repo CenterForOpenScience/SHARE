@@ -1,12 +1,12 @@
-Southern Illinois University
+Southern Illinois University Carbondale
 ====
 
-The content of the OpenSIUC is primarily research, though there are some collections that are of a campus records nature. Since the material types are varied, we will have to only harvest from specific sets of records, rather than capture the whole repository. SIU will provide a list of "series names" from which we should harvest.
+The content of the OpenSIUC is primarily research, though there are some collections that are of a campus records nature. Since the material types are varied, we will have to only harvest from specific sets of records, rather than capture the whole repository. SIU Carbondale will provide a list of "series names" from which we should harvest.
 
 Contact
 ----
 
-Jonathan Nabe of SIU, regarding content
+Jonathan Nabe of SIU Carbondale, regarding content
 
 Robert Allen at bepress, regarding issues with the OAI feed itself
 
