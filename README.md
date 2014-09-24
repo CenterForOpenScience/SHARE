@@ -52,6 +52,8 @@ PubMed Central PMC: https://github.com/huangginny/PubMedCentralPMC
 
 SciTech: https://github.com/erinspace/pyscitech
 
+University of Illinois at Urbana-Champaign IDEALS - https://github.com/vpnagraj/uiuc-ideals-consumer
+
 Virginia Tech VTechWorks - https://github.com/erinspace/VT-consumer -- Originally at https://github.com/csheldonhess/VT-consumer
 
 
