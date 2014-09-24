@@ -56,6 +56,8 @@ SciTech: https://github.com/erinspace/pyscitech
 
 University of Illinois at Urbana-Champaign IDEALS - https://github.com/vpnagraj/uiuc-ideals-consumer
 
+University of Pennsylvania Scholarly Commons - https://github.com/csheldonhess/UPenn-consumer
+
 Virginia Tech VTechWorks - https://github.com/erinspace/VT-consumer -- Originally at https://github.com/csheldonhess/VT-consumer
 
 
