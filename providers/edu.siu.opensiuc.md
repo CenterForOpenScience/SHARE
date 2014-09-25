@@ -30,7 +30,7 @@ To retrieve a specific set use:
 The template for requests would be:
 
     http://opensiuc.lib.siu.edu/do/oai/?verb=[OAI-PHMVerb]&metadataPrefix=[oai_dc|qualified-dublin-core]&set=publication:[series_name]
-     
+ 
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
 
 Jonathan provided a list of sets to retrieve on 9/22/14. This is a list very similar to the [Wayne State](WayneState.md) list.
@@ -174,8 +174,7 @@ _Does our sharing the metadata we gather from you violate your policies?_
 No.
 
 
-
-_What is the license of the metadata (for example, CC Zero)?
+_What is the license of the metadata (for example, CC Zero)?_
 
 
 No.
