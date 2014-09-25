@@ -21,7 +21,6 @@ Responses provided by Trisha Cruse and Carly Strasser on 7/22/2014.
 
 _The SHARE Notification Service will gather together research release event reports from the metadata you provide. Since we will be reusing your metadata and then retransmitting it to others as notifications, we need to be sure the rights to use that metadata are not encumbered._
 
-
 _Does metadata gathering violate your Terms of Service?_
 
 
