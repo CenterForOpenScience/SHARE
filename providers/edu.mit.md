@@ -1,7 +1,7 @@
 MIT
 ====
 
-[DSpace@MIT](http://dspace.mit.edu) is a growing collection of MIT’s research that includes peer-reviewed articles, technical reports, working papers, theses and more. There are a few collections in DSpace that would not be considered research, so a list of sets to harvest will be provided.
+[DSpace@MIT](http://dspace.mit.edu) is a growing collection of MIT's research that includes peer-reviewed articles, technical reports, working papers, theses and more. There are a few collections in DSpace that would not be considered research, so a list of sets to harvest will be provided.
 
 Contact
 ----
@@ -28,7 +28,7 @@ To retrieve a specific set use:
 The template for requests would be:
 
     http://dspace.mit.edu/oai/request/?verb=[OAI-PHMVerb]&metadataPrefix=[oai_dc|qualified-dublin-core]&set=[set_identifier]
-     
+ 
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
 
 Richard will provide a list of the sets to include.
@@ -58,4 +58,4 @@ On content some. On metadata no.
 
 _If unlicensed, will you explicitly license the content?_
 
-On the roadmap of what’s hopeful. We are taking a broader look at some of these licensing issues. 
+On the roadmap of what√ïs hopeful. We are taking a broader look at some of these licensing issues. 
