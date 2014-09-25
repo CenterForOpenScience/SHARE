@@ -30,7 +30,7 @@ To retrieve a specific set use:
 The template for requests would be:
 
     http://repository.stcloudstate.edu/do/oai/?verb=[OAI-PHMVerb]&metadataPrefix=[oai_dc|qualified-dublin-core]&set=publication:[series_name]
-     
+ 
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
 
 Keith has provided a list of series to include, very similar to the [Wayne State](WayneState.md) list.
