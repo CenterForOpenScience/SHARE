@@ -1,7 +1,7 @@
 University of Illinois at Urbana-Champaign, IDEALS
 ====
 
-The content in the IDEALS at UIUC is primarily research and scholarship of faculty, staff, and students. Faculty, staff, and graduate students can deposit their research and scholarship—unpublished and, in many cases, published—directly into IDEALS. Departments can use IDEALS to distribute their working papers, technical reports, or other research material. All theses and dissertations deposited from Fall 2010 onward are available in IDEALS.
+The content in the IDEALS at UIUC is primarily research and scholarship of faculty, staff, and students. Faculty, staff, and graduate students can deposit their research and scholarship√ëunpublished and, in many cases, published√ëdirectly into IDEALS. Departments can use IDEALS to distribute their working papers, technical reports, or other research material. All theses and dissertations deposited from Fall 2010 onward are available in IDEALS.
 
 Contact
 ----
