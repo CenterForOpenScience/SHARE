@@ -26,7 +26,7 @@ To see all the sets available use:
 The template for requests would be:
 
     http://repository.upenn.edu/do/oai/?verb=[OAI-PHMVerb]&metadataPrefix=[oai_dc|qualified-dublin-core]&set=publication:[series_name]
-     
+ 
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
 
 This collection is entirely scholarly, so SHARE can harvest anything emerging from it.
