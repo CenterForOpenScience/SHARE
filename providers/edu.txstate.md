@@ -28,10 +28,10 @@ To retrieve a specific set use:
 The template for requests would be:
 
     http://opensiuc.lib.siu.edu/do/oai/?verb=[OAI-PHMVerb]&metadataPrefix=[oai_dc|qualified-dublin-core]&set=[set_identifier]
-     
+ 
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
 
-Sets are present for both communities (Òcom_10877_Ó) and for collections (Òcol_10877_Ó). Todd will provide a list of set identifiers. They will be something like this (though this is NOT the complete list, yet).
+Sets are present for both communities (`com_10877_`) and for collections (`col_10877_`). Todd will provide a list of set identifiers. They will be something like this (though this is NOT the complete list, yet).
 
     com_10877_1
     com_10877_136
@@ -55,7 +55,7 @@ _Does our sharing the metadata we gather from you violate your policies?_
 
 No.
 
-_What is the license of the metadata (for example, CC Zero)?
+_What is the license of the metadata (for example, CC Zero)?_
 
 No.
 
