@@ -1,7 +1,7 @@
 Saint Cloud State University
 ====
 
-The content of the SCSU repository is primarily faculty and student research, though there are some collections that are of a campus records nature. Since the material types are varied, we will have to only harvest from specific sets of records, rather than capture the whole repository. SCSU has provided a list of "series names" from which we should harvest.
+The content of the [SCSU repository](http://repository.stcloudstate.edu/communities.html) is primarily faculty and student research, though there are some collections that are of a campus records nature. Since the material types are varied, we will have to only harvest from specific sets of records, rather than capture the whole repository. SCSU has provided a list of "series names" from which we should harvest.
 
 Contact
 ----
@@ -21,7 +21,7 @@ The OAI-PMH interface is here:
 
 To see all the sets available use:
 
-    http://repository.stcloudstate.edu/do/oai/?verb=ListSets&metadataPrefix=dcq
+    http://repository.stcloudstate.edu/do/oai/?verb=ListSets
 
 To retrieve a specific set use:
 
