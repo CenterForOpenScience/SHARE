@@ -7,6 +7,7 @@ Contact
 ----
 
 Colleen Lyon, Scholarly Communications Librarian
+
 Ladd Hanson, Assistant Director, IT Architecture and Strategy
 
 Technical Resources
