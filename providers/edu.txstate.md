@@ -33,8 +33,7 @@ _Provide any distinguishing characteristics of research outputs in your reposito
 
 Sets are present for both communities (`com_10877_`) and for collections (`col_10877_`). Todd will provide a list of set identifiers. They will be something like this (though this is NOT the complete list, yet).
 
-    com_10877_1
-    com_10877_136
+    ...WAIT FOR THIS LIST BEFORE ADDING THIS PROVIDER...
  
 Metadata Sharing Questions
 ----
