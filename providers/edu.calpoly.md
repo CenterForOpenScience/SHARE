@@ -1,4 +1,4 @@
-Cal Poly, San Luis Obispo
+California Polytechnic State University, San Luis Obispo
 ====
 
 The [DigitalCommons@CalPoly](http://digitalcommons.calpoly.edu) shares and preserves the community's research, scholarship and campus publications. Since the material types are varied, we will have to only harvest from specific sets of records, rather than capture the whole repository. Cal Poly has provided a list of "series names" from which we should harvest.
@@ -163,7 +163,7 @@ _The SHARE Notification Service will gather together research release event repo
 
 _Does metadata gathering violate your terms of service?_
 
-No. We’ve worked with other groups who harvest our data.
+No. We√ïve worked with other groups who harvest our data.
 
 _Does metadata gathering violate your privacy policy?_
 
@@ -171,7 +171,7 @@ No.
 
 _Does our sharing the metadata we gather from you violate your policies?_
 
-No. The whole IR is open access, all our metadata is openly available. Occasionally we do have students who ask us to remove their student projects. Sometimes the abstract has too much information and that’s what we have to remove. 
+No. The whole IR is open access, all our metadata is openly available. Occasionally we do have students who ask us to remove their student projects. Sometimes the abstract has too much information and that√ïs what we have to remove. 
 
 _What is the license of the metadata (for example, CC Zero)?
 
