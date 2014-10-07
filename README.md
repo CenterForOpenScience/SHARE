@@ -20,45 +20,51 @@ Prototype demo can be found at http://173.255.232.219/, and the current director
 Data Consumption Projects
 -----
 
-arXiv: https://github.com/erinspace/arxiv
+arXiv - https://github.com/erinspace/arxiv
 
-Altmetric: https://github.com/CenterForOpenScience/PyAltmetric
+CalPoly Digital Commons - https://github.com/erinspace/CalPoly
 
-ClinicalTrials.gov: https://github.com/erinspace/ClinicalTrials-consumer
+ClinicalTrials.gov - https://github.com/erinspace/ClinicalTrials-consumer
 
-Columbia Academic Commons: http://github.com/erinspace/academiccommons
+Columbia Academic Commons - http://github.com/erinspace/academiccommons
 
-CrossRef: https://github.com/erinspace/CrossRef
+CrossRef - https://github.com/erinspace/CrossRef
 
-DataONE: https://github.com/erinspace/DataONE
+DataONE - https://github.com/erinspace/DataONE
 
-DigitalCommons - Wayne State University: https://github.com/erinspace/DigitalCommonsWayneState
+Department of Energy Pages - https://github.com/erinspace/DOEPages
 
-Department of Energy Pages: https://github.com/erinspace/DOEPages
+ImpactStory - https://github.com/CenterForOpenScience/PyImpactStory
 
-eScholarship - University of California: https://github.com/erinspace/eScholarship/
+MIT - https://github.com/csheldonhess/MIT-consumer
 
-ImpactStory: https://github.com/CenterForOpenScience/PyImpactStory
+OpenSIUC API at Southern Illinois University - https://github.com/erinspace/OpenSIUC.git
 
-MIT: https://github.com/csheldonhess/MIT-consumer
+Public Library of Science (PLoS) - https://github.com/fabianvf/PLoS-API-consumer
 
-OAI-PMH: Evaluation being conducted by Casey.
+PubMed Central OAI - https://github.com/csheldonhess/PubMedCentralOAI
 
-OpenSIUC API at Southern Illinois University: https://github.com/erinspace/OpenSIUC.git
+PubMed Central PMC - https://github.com/huangginny/PubMedCentralPMC
 
-PLOS: https://github.com/fabianvf/PLoS-API-consumer
+SciTech - https://github.com/erinspace/pyscitech
 
-PubMed Central OAI: https://github.com/csheldonhess/PubMedCentralOAI
+Southern Illinois University Carbondale OpenSIUC - https://github.com/erinspace/OpenSIUC
 
-PubMed Central PMC: https://github.com/huangginny/PubMedCentralPMC
+St. Cloud State University theRepository - https://github.com/csheldonhess/StCloudState
 
-SciTech: https://github.com/erinspace/pyscitech
+University of California eScholarship - https://github.com/erinspace/eScholarship/
 
 University of Illinois at Urbana-Champaign IDEALS - https://github.com/vpnagraj/uiuc-ideals-consumer
 
 University of Pennsylvania Scholarly Commons - https://github.com/csheldonhess/UPenn-consumer
 
+University of Texas Austin Digital Repository - https://github.com/erinspace/UTexasAustin
+
+University of Washington ResearchWorks - https://github.com/csheldonhess/UW-consumer
+
 Virginia Tech VTechWorks - https://github.com/csheldonhess/VT-consumer
+
+Wayne State University DigitalCommons - https://github.com/erinspace/DigitalCommonsWayneState
 
 
 
