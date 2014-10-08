@@ -2,7 +2,12 @@
 Changelog
 *********
 
-0.0.1 (2014-10-13)
+2014-10-8
 ==================
 
-- 
+- Added search
+- Converted timestamps into ISO 8601 format
+- Changed consumers:
+	- Unicode output, for better internationalization 
+	- Updated [schema](https://github.com/CenterForOpenScience/SHARE/wiki/Current-SHARE-schema), for improved consistency
+	- Added new consumers
