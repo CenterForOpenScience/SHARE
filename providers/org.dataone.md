@@ -34,7 +34,7 @@ No, DataONE is making a point of avoiding domains that require strict privacy ma
 
 _Does our sharing your metadata violate your Privacy Policy?_
 
-I don’t think this violates any kind of policy. We would like you to try to provide referrals back to the origin of the data sets. Most important thing is that when a user goes to retrieve the content they are are redirected back to the holding repository. If presenting a list of recent content, then those links should point to the content at the source. Pointing users to our resolve endpoint or view service would be sufficient for these purposes.
+I don√ït think this violates any kind of policy. We would like you to try to provide referrals back to the origin of the data sets. Most important thing is that when a user goes to retrieve the content they are are redirected back to the holding repository. If presenting a list of recent content, then those links should point to the content at the source. Pointing users to our resolve endpoint or view service would be sufficient for these purposes.
 
 _What is the license of the metadata (e.g., CC Zero)? Does that license extend to those beyond the group that gathered it? If unlicensed, will you explicitly license the content?_
 

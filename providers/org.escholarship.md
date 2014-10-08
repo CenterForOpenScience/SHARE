@@ -13,7 +13,7 @@ Technical Resources
 
 This will be an OAI-PMH harvest.
 
-Base URL: http://www.escholarship.org/uc/oai
+    http://www.escholarship.org/uc/oai
 
 Overview of our OAI-PMH interface: http://www.escholarship.org/help_oaipmh.html
 
@@ -34,11 +34,11 @@ No.
 
 _Does our sharing your metadata violate your Privacy Policy?_
 
-No. It depends on the CC license you choose. Abstracts probably can’t be CC Zero.
+No. It depends on the CC license you choose. Abstracts probably can't be CC Zero.
 
 _What is the license of the metadata (e.g., CC Zero)?_
 
-We don’t have one (at the moment).
+We don't have one (at the moment).
 
 _Does that license extend to those beyond the group that gathered it?_
 
@@ -46,5 +46,5 @@ N/A
 
 _If unlicensed, will you explicitly license the content?_
 
-Yes, except the abstracts.  We can share the abstracts, we just can’t allow the application of a CC Zero license to them.
+Yes, except the abstracts.  We can share the abstracts, we just can't allow the application of a CC Zero license to them.
 

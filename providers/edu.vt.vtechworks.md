@@ -11,7 +11,7 @@ Technical Resources
 
 The OAI-PMH base URI is:
 
-http://vtechworks.lib.vt.edu/oai/request
+    http://vtechworks.lib.vt.edu/oai/request
 
 The ETD set is rather active and is getting new items almost every day, which I guess would be a good candidate for SHARE testing. 
 
