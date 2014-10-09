@@ -5,9 +5,21 @@ Changelog
 2014-10-8
 ==================
 
-- Added search
+- Added new search interface
 - Converted timestamps into ISO 8601 format
 - Changed consumers:
 	- Unicode output, for better internationalization 
 	- Updated [schema](https://github.com/CenterForOpenScience/SHARE/wiki/Current-SHARE-schema), for improved consistency
+    - Standard functions between consumers for improved testing
 	- Added new consumers
+    - Created sandardized OAI-PMH consumer creator
+    - Created a test consumer for testing
+    - Preliminary collision detection for aggregating metadata
+- Extensive logging
+    - Sentry
+    - Kibana
+    - Fluentd
+- Output formats
+    - RSS feeds
+    - ResourceSync
+    - PubSubHubbub
