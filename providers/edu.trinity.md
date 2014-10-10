@@ -33,7 +33,7 @@ The template for requests would be:
  
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
 
-Should student work be included? Yes, for now. Since the commons at Trinity includes cultural heritage and administrative items, Jane provided a list of the appropriate “series” for the notification service (10/9), very similar to the [Wayne State](WayneState.md) list.
+Should student work be included? Yes, for now. Since the commons at Trinity includes cultural heritage and administrative items, Jane provided a list of the appropriate "series" for the notification service (10/9), very similar to the [Wayne State](WayneState.md) list.
 
     engine_faculty
     env_studocs
@@ -98,4 +98,4 @@ No. On some of our articles have cc licenses. We place those license URLs in the
 
 _If unlicensed, will you explicitly license the metadata?_
 
-No, we have not, but that brings me back to OCLC’s copyright issues.
+No, we have not, but that brings me back to OCLC's copyright issues.
