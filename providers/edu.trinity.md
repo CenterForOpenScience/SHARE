@@ -33,9 +33,45 @@ The template for requests would be:
  
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
 
-Should student work be included? Yes, for now. Since the commons at Trinity includes cultural heritage and administrative items, Jane will provide a list of the appropriate “series” for the notification service, very similar to the [Wayne State](WayneState.md) list.
+Should student work be included? Yes, for now. Since the commons at Trinity includes cultural heritage and administrative items, Jane provided a list of the appropriate “series” for the notification service (10/9), very similar to the [Wayne State](WayneState.md) list.
 
-    ... WAIT FOR THIS LIST BEFORE ADDING TRINITY ...
+    engine_faculty
+    env_studocs
+    geo_faculty
+    geo_honors
+    geo_studocs
+    global-awareness
+    hca_faculty
+    hct_honors
+    hist_faculty
+    hist_honors
+    infolit_qep
+    infolit_usra
+    lib_digitalcommons
+    lib_docs
+    lib_faculty
+    math_faculty
+    math_honors
+    mll_faculty
+    mll_honors
+    mono
+    music_honors
+    oaweek
+    phil_faculty
+    phil_honors
+    physics_faculty
+    physics_honors
+    polysci_faculty
+    polysci_studocs
+    psych_faculty
+    psych_honors
+    relig_faculty
+    socanthro_faculty
+    socanthro_honors
+    socanthro_studocs
+    speechdrama_honors
+    urban_studocs
+    written-communication
  
 Metadata Sharing Questions
 ----
