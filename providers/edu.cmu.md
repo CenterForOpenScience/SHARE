@@ -1,7 +1,7 @@
 Carnegie Mellon University
 ====
 
-The content of the [Research Showcase @ CMU](http://repository.cmu.edu) is Carnegie Mellon University’s institutional repository, preserving and providing online open access to work produced by CMU faculty and students. Journal articles, conference papers and presentations, books and book chapters, technical reports, Ph.D. dissertations, Master's theses, and selected undergraduate student works authored by members of the Carnegie Mellon community are available through the repository. Since the whole repository is comprised of research and scholarship, we can harvest it all for research release event reports.
+The content of the [Research Showcase @ CMU](http://repository.cmu.edu) is Carnegie Mellon University's institutional repository, preserving and providing online open access to work produced by CMU faculty and students. Journal articles, conference papers and presentations, books and book chapters, technical reports, Ph.D. dissertations, Master's theses, and selected undergraduate student works authored by members of the Carnegie Mellon community are available through the repository. Since the whole repository is comprised of research and scholarship, we can harvest it all for research release event reports.
 
 Contact
 ----
@@ -33,7 +33,7 @@ The template for requests would be:
  
 _Provide any distinguishing characteristics of research outputs in your repository or sets that represent research outputs (as distinct from cultural heritage materials)._
 
-Basically what’s in the IR is scholarly research. Special collections and other material is in a different system. We can consider anything in this repository suitable for SHARE's mission.
+Basically what's in the IR is scholarly research. Special collections and other material is in a different system. We can consider anything in this repository suitable for SHARE's mission.
  
 Metadata Sharing Questions
 ----
@@ -52,12 +52,12 @@ No.
 
 _Does our sharing the metadata we gather from you violate your policies?_
 
-No.
+No. Don't think abstracts is an issue.
 
 _What is the license of the metadata (for example, CC Zero)?
 
-No. On some of our articles have cc licenses. We place those license URLs in the metadata. But no license on the metadata itself.
+Not to my knowledge, no.
 
 _If unlicensed, will you explicitly license the metadata?_
 
-No, we have not, but that brings me back to OCLC's copyright issues.
+Not to my knowledge, no. We want everything to be open, we are making this public for a reason. 
