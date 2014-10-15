@@ -17,7 +17,7 @@ scrapi: http://www.github.com/chrisseto/scrapi
 
 Prototype demo can be found at http://173.255.232.219/, and the current directory structure can be viewed at http://173.255.232.219/archive.
 
-Data Consumption Projects
+Harvester Projects
 -----
 
 arXiv - https://github.com/erinspace/arxiv
