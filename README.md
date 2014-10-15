@@ -52,7 +52,7 @@ Southern Illinois University Carbondale OpenSIUC - https://github.com/erinspace/
 
 St. Cloud State University theRepository - https://github.com/csheldonhess/StCloudState
 
-Texas State Univeristy - https://github.com/vpnagraj/trinity-consumer
+Texas State University - https://github.com/vpnagraj/trinity-consumer
 
 Trinity University DigitalCommons - https://github.com/vpnagraj/texas-state-consumer
 
