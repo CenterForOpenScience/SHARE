@@ -6,7 +6,9 @@ The [Scholars Portal Dataverse network](http://dataverse.scholarsportal.info/dvn
 Contact
 ----
 
-Steve Marks, works on preservation and technical aspects of the Scholars Portal, which hosts this Dataverse instance. Note that Steve will be on parental leave from October through December 2014.
+Steve Marks, works on preservation and technical aspects of the Scholars Portal, which hosts this Dataverse instance. Note that Steve will be on parental leave from October through December 2014. In his absence, Leanne Trimble at the University of Toronto has agreed to be our contact. 
+
+Also, Eleni Castro at Harvard knows the technical side of DataVerse and is happy to serve as a resource.
 
 Technical Resources
 ----
@@ -19,11 +21,11 @@ Dataverse provides an OAI-PMH endpoint through which we can harvest research rel
 
 _Provide any distinguishing characteristics of research outputs in your repository (as distinct from cultural heritage materials). Often this is a list of OAI-PMH "sets" or "series" encompassing research output that we should harvest from your repository._
 
-Consider everything in the repository research related. Scholars Portal is generally a place for space for data associated with an article. Sometimes it is a space for data in progress for teams that don’t want to use, for example, Dropbox. Some stuff may creep in that is not research generated data. From time to time there is government generated data. Some use dataverse as a repository for older data getting rebased every year. These are "corner cases."
+Consider everything in the repository research related. Scholars Portal is generally a place for space for data associated with an article. Sometimes it is a space for data in progress for teams that don√ït want to use, for example, Dropbox. Some stuff may creep in that is not research generated data. From time to time there is government generated data. Some use dataverse as a repository for older data getting rebased every year. These are "corner cases."
 
 _Do you include reports of updates to records via your API (if this is an OAI-PMH feed, are updates included)?_
 
-Dataverse does allow versioning and fallback. Largely once things go in they don’t change that much. Allows for a pretty granular level of access, including to specific user accounts. You can close the metadata as well, or have open metadata with closed data. Closed metadata will take you to a landing page.
+Dataverse does allow versioning and fallback. Largely once things go in they don√ït change that much. Allows for a pretty granular level of access, including to specific user accounts. You can close the metadata as well, or have open metadata with closed data. Closed metadata will take you to a landing page.
 
 Metadata Sharing Questions
 ----
