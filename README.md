@@ -13,11 +13,11 @@ On the github wiki page you'll find detailed information about...
 Core
 -----
 
-scrapi: http://www.github.com/fabianvf/scrapi
+scrapi: http://www.github.com/chrisseto/scrapi
 
 Prototype demo can be found at http://173.255.232.219/, and the current directory structure can be viewed at http://173.255.232.219/archive.
 
-Data Consumption Projects
+Harvester Projects
 -----
 
 arXiv - https://github.com/erinspace/arxiv
@@ -51,6 +51,10 @@ SciTech - https://github.com/erinspace/pyscitech
 Southern Illinois University Carbondale OpenSIUC - https://github.com/erinspace/OpenSIUC
 
 St. Cloud State University theRepository - https://github.com/csheldonhess/StCloudState
+
+Texas State University - https://github.com/vpnagraj/texas-state-consumer
+
+Trinity University DigitalCommons - https://github.com/vpnagraj/trinity-consumer
 
 University of California eScholarship - https://github.com/erinspace/eScholarship/
 
