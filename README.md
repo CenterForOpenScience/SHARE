@@ -22,7 +22,11 @@ Harvester Projects
 
 arXiv - https://github.com/erinspace/arxiv
 
+California Digital Library eScholarship System - https://github.com/erinspace/eScholarship
+
 CalPoly Digital Commons - https://github.com/erinspace/CalPoly
+
+Carnegie Mellon University Research Showcase - https://github.com/csheldonhess/CMU-harvester
 
 ClinicalTrials.gov - https://github.com/erinspace/ClinicalTrials-consumer
 
@@ -33,6 +37,8 @@ CrossRef - https://github.com/erinspace/CrossRef
 DataONE - https://github.com/erinspace/DataONE
 
 Department of Energy Pages - https://github.com/erinspace/DOEPages
+
+Digital Commons@Trinity - https://github.com/vpnagraj/trinity-consumer.git
 
 ImpactStory - https://github.com/CenterForOpenScience/PyImpactStory
 
