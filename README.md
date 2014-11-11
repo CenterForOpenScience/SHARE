@@ -54,6 +54,8 @@ PubMed Central PMC - https://github.com/huangginny/PubMedCentralPMC
 
 SciTech - https://github.com/erinspace/pyscitech
 
+Scholars Portal Dataverse - https://github.com/erinspace/ScholarsPortalDataverse
+
 Southern Illinois University Carbondale OpenSIUC - https://github.com/erinspace/OpenSIUC
 
 St. Cloud State University theRepository - https://github.com/csheldonhess/StCloudState
