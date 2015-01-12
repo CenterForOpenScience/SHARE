@@ -25,7 +25,7 @@ To see all the sets available use:
 
 To retrieve a specific set use:
 
-    http://scholar.valpo.edu/do/oai/?verb=ListRecords&metadataPrefix=dcq&set=publication:bio_fac_presentations
+    http://scholar.valpo.edu/do/oai/?verb=ListRecords&metadataPrefix=dcq&set=publication:cc_fac_pub
 
 The template for requests would be:
 
@@ -33,14 +33,49 @@ The template for requests would be:
  
 _Provide any distinguishing characteristics of research outputs in your repository (as distinct from cultural heritage materials). Often this is a list of OAI-PMH "sets" or "series" encompassing research output that we should harvest from your repository._
 
-Jon plans to provide a list of series. DO NOT PROCEED WITH THIS PROVIDER UNTIL WE HAVE THIS LIST.
+Jon provided a list of series on 10/26/2014:
+
+    cc_fac_pub
+    it_pubs
+    ccls_fac_pub
+    journaloftolkienresearch
+    art_fac_pub
+    bio_fac_pub
+    chem_fac_pub
+    comm_fac_pubs
+    econ_fac_pub
+    ed_fac_pubs
+    eng_fac_pub
+    vfr
+    german_fac_pub
+    spanish_fac_pub
+    geomet_fac_pub
+    history_fac_pub
+    kin_fac_pubs
+    mcs_fac_pubs
+    phys_astro_fac_pub
+    poli_sci_fac_pubs
+    psych_fac_pub
+    sociology_fac_pub
+    theatre_fac_pubs
+    theo_fac_pubs
+    cba_fac_pub
+    jvbl
+    engineering_fac_pub
+    ebpr
+    msn_theses
+    nursing_fac_pubs
+    grad_student_pubs
+    vulr
+    law_fac_pubs
+    ils_papers
 
 Jon wants to include articles from their journals. Note these journals appear much like other series in the OAI feed.
 
 Metadata Sharing Questions
 ----
 
-Responses provided by [name] on [date].
+Responses provided by Jonathan Bull on 9/30/2014.
 
 _The SHARE Notification Service will gather together research release event reports from the metadata you provide. Since we will be reusing your metadata and then retransmitting it to others as notifications, we need to be sure the rights to use that metadata are not encumbered._
 
