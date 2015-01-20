@@ -20,7 +20,7 @@ Prototype demo can be found at http://173.255.232.219/, and the current director
 Harvester Projects
 -----
 
-arXiv - https://github.com/erinspace/arxiv
+arXiv - https://github.com/erinspace/arxiv  
 arXiv OAI implementation - https://github.com/erinspace/arxiv_oai
 
 California Digital Library eScholarship System - https://github.com/erinspace/eScholarship
