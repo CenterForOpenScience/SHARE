@@ -79,6 +79,7 @@ Virginia Tech VTechWorks - https://github.com/csheldonhess/VT-consumer
 
 Wayne State University DigitalCommons - https://github.com/erinspace/DigitalCommonsWayneState
 
+Valparaiso University - https://github.com/erinspace/ValpoScholar.git
 
 
 Conflict Management
