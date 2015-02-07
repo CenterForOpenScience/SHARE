@@ -41,6 +41,8 @@ Department of Energy Pages - https://github.com/erinspace/DOEPages
 
 Digital Commons@Trinity - https://github.com/vpnagraj/trinity-consumer.git
 
+figshare - https://github.com/erinspace/figshare
+
 ImpactStory - https://github.com/CenterForOpenScience/PyImpactStory
 
 MIT - https://github.com/csheldonhess/MIT-consumer
