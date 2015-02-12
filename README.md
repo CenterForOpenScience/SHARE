@@ -19,6 +19,8 @@ Prototype demo can be found at https://share-dev.osf.io/. There are a variety of
 
 JSON: https://share-dev.osf.io/api/v1/app/6qajn
 
+Atom: https://share-dev.osf.io/api/v1/app/6qajn/atom
+
 RSS: https://share-dev.osf.io/api/v1/app/6qajn/rss
 
 Resourcesync: https://share-dev.osf.io/api/v1/app/6qajn/resync/resourcelist/
