@@ -15,7 +15,13 @@ Core
 
 scrapi: http://www.github.com/fabianvf/scrapi
 
-Prototype demo can be found at http://173.255.232.219/, and the current directory structure can be viewed at http://173.255.232.219/archive.
+Prototype demo can be found at https://share-dev.osf.io/. There are a variety of output formats provided by the API, the links are listed below:
+
+JSON: https://share-dev.osf.io/api/v1/app/6qajn
+
+RSS: https://share-dev.osf.io/api/v1/app/6qajn/rss
+
+Resourcesync: https://share-dev.osf.io/api/v1/app/6qajn/resync/resourcelist/
 
 Harvester Projects
 -----
