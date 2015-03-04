@@ -1,7 +1,7 @@
 The Digital Archaeological Record
 ====
 
-[The Digital Archaeological Record (tDAR)](http://core.tdar.org) is an international digital repository for the digital records of archaeological investigations. tDARÕs use, development, and maintenance are governed by [Digital Antiquity](http://www.digitalantiquity.org), an organization dedicated to ensuring the long-term preservation of irreplaceable archaeological data and to broadening the access to these data.
+[The Digital Archaeological Record (tDAR)](http://core.tdar.org) is an international digital repository for the digital records of archaeological investigations. tDARâ€™s use, development, and maintenance are governed by [Digital Antiquity](http://www.digitalantiquity.org), an organization dedicated to ensuring the long-term preservation of irreplaceable archaeological data and to broadening the access to these data.
 
 Contact
 ----
@@ -52,7 +52,7 @@ Metadata gathering does not violate our privacy policy.
 
 _Does our sharing the metadata we gather from you violate your policies?_
 
-No, it does not violate our policies. We would prefer that (a) any metadata pages are hidden behind a robots.txt such that they donÕt compete with our own metadata pages in search engine results, (b) are include proper citation and (c) link back to our canonical record.
+No, it does not violate our policies. We would prefer that (a) any metadata pages are hidden behind a robots.txt such that they don't compete with our own metadata pages in search engine results, (b) are include proper citation and (c) link back to our canonical record.
 
 _What is the license of the metadata (for example, CC Zero)?_
 
