@@ -1,7 +1,7 @@
 ASU Digital Repository
 ====
 
-[ASU Digital Repository](http://repository.asu.edu) provides a central place to collect, preserve, and discover the creative and scholarly output from ASU faculty, research partners, staff and students. It provides free, online access to ASU scholarship benefits our local community, encourages transdisciplinary research, and engages scholars and researchers worldwide, increasing impact globally through the rapid dissemination of knowledge.
+[Arizona State University Digital Repository](http://repository.asu.edu) provides a central place to collect, preserve, and discover the creative and scholarly output from ASU faculty, research partners, staff and students. It provides free, online access to ASU scholarship benefits our local community, encourages transdisciplinary research, and engages scholars and researchers worldwide, increasing impact globally through the rapid dissemination of knowledge.
 
 Contact
 ----
