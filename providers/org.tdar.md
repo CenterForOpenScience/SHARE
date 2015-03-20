@@ -54,6 +54,13 @@ _Does our sharing the metadata we gather from you violate your policies?_
 
 No, it does not violate our policies. We would prefer that (a) any metadata pages are hidden behind a robots.txt such that they don't compete with our own metadata pages in search engine results, (b) are include proper citation and (c) link back to our canonical record.
 
+Further response from Adam on this point, 20150309:
+
+I definitely agree that this is a "fixable" issue.  I think my concerns here can be summed up and solved pretty easily by the following:
+
+1. One item missing from your questionnaire as I remember was how do you link between a OAI-PMH record and tDAR.  There is no standard OAI-PMH method for this, but we will be exposing a URL as an identifier in both the MODS and DC records starting tomorrow that you could point to.
+2. I think that there is a pretty easy way to solve the other issue of making sure that search engines don't confuse the records harvested from tDAR from the canonical record at tDAR, which would be to make sure that there's a rel=canonical link  ( https://support.google.com/webmasters/answer/139066?hl=en)  on your metadata pages that point back to the tDAR page. 
+
 _What is the license of the metadata (for example, CC Zero)?_
 
 Our metadata does not have an explicit license. 
