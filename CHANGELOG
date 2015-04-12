@@ -2,6 +2,31 @@
 Changelog
 *********
 
+2015-04-12
+==================
+- API documentation added at osf.io/share/docs
+- Developer documentation added at osf.io/wur56/wiki/
+- Search interface updated and moved to the Open Science Framework (osf.io/share)
+- Created classes to encapsulate all harvester logic (now handle the logic for transforming schemas)
+- Moved normalization logic to schema transformation system
+- Now use jsonschema for data validation and schema specification
+- All instances of the word 'consumer' have been changed to 'harvester'
+- Now use the SHARE metadata specification (github.com/jeffspies/SHARE-schema)
+- Added a Cassandra backend for raw and normalized metadata documents
+- Added an Elasticsearch backend for normalized metadata documents
+- Now save all requests and responses to Cassandra
+- Overhauled logging system to automatically capture logs of all tasks
+- Output formats
+    - Removed pubsubhubbub output format
+    - Removed RSS output format
+    - Removed resourcesync output format
+    - Atom feed updated and moved to osf.io/share/atom/
+    - JSON api updated and moved to osf.io/api/v1/share/search/
+        - Access to data in the old metadata format is still possible at osf.io/api/v1/share/search/?v=1
+- SHARE registration
+    - SHARE registration page added at osf.io/share/registration
+    - PUSH API endpoint added at osf.io/api/v1/share/data
+
 2014-10-8
 ==================
 
