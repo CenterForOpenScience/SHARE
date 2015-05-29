@@ -6,8 +6,6 @@ Here, you can post issues related to SHARE, SHARE Notify, or the [beta applicati
 
 More information available in the [SHARE Development Documentation](https://osf.io/wur56/wiki/home/)
 
-More information about SHARE available on the [SHARE Homepage]() or the [main SHARE Documentation on the OSF]()
-
 
 Core
 -----
