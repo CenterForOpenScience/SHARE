@@ -1,3 +1,7 @@
+SHARE
+=====
+SHARE is creating a free, open dataset of research (meta)data.
+
 SHARE Notification Service Components at COS
 =====
 
