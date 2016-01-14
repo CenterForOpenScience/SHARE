@@ -6,7 +6,7 @@ The content in the IDEALS at UIUC is primarily research and scholarship of facul
 Contact
 ----
 
-IDEALS Team: ideals-gen@illinois.edu
+IDEALS Team: ideals-gen [at] illinois [dot] edu
 
 Technical Resources
 ----
