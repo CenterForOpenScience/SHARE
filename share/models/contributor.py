@@ -1,24 +1,28 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
-# Create your models here.
 
 class Organization(models.Model):
     name = models.CharField(max_length=200)
-    parent = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
+    #parent = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
 
 
 class Email(models.Model):
-    is_primary = models.Boo
+    is_primary = models.BooleanField()
     email = models.EmailField()
 
     def __str__(self):
         return self.email
 
+
 class Affiliation(models.Model):
+
     start_date = models.DateField()
     end_date = models.DateField()
     organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return self.organization.name
 
 class Contributor(models.Model):
     family_name = models.CharField(max_length=200) # last
@@ -32,7 +36,7 @@ class Contributor(models.Model):
     # suffix
     # non-dropping-particle
     # dropping-particle
-
-class Manuscript(models.Model):
-    title = models.CharField(max_length=200)
-    doi = models.URLField()
+#
+# class Manuscript(models.Model):
+#     title = models.CharField(max_length=200)
+#     doi = models.URLField()

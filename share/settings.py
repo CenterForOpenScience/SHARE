@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'guardian',
+    'share',
 #    'raw.apps.RawConfig',
     'django.contrib.admin',
     'django.contrib.auth',
