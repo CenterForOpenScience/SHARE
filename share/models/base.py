@@ -30,19 +30,20 @@ class ShareCurrent(models.Model):
 
 class ShareConcrete(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
 
     # TODO Tag w/ user
-    @transaction.atomic
-    def save(self):
-        data = {field.attname: getattr(self, field.attname) for field in self._meta.fields}
-        data['persistant_id'] = data.pop('id')
-        version = self.__class__.Version(**data)
-        version.save()
-        self.__class__.Current(id=self.id, version=version).save()
-        return super().save()
+    # @transaction.atomic
+    # def save(self):
+    #     data = {field.attname: getattr(self, field.attname) for field in self._meta.fields}
+    #     data['persistant_id'] = data.pop('id')
+    #     version = self.__class__.Version(**data)
+    #     version.save()
+    #     self.__class__.Current(id=self.id, version=version).save()
+    #     return super().save()
 
 
 class ShareMeta(ModelBase):
@@ -71,7 +72,7 @@ class ShareMeta(ModelBase):
 
         concrete.Current = type(
             name + 'Current',
-            (ShareCurrent, abstract),
+            (ShareCurrent, ),
             {
                 '__module__': module,
                 'version': models.ForeignKey(concrete.Version),
