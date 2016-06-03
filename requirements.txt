@@ -1,3 +1,5 @@
-django
+django==1.9.6
 django-guardian
 feedparser
+django_extensions
+psycopg2
