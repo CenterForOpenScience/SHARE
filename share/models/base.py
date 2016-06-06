@@ -58,7 +58,7 @@ class ShareAbstract:
 class ShareVersion(models.Model):
     id = models.AutoField(primary_key=True)
     source_data = models.ForeignKey(RawData, blank=True, null=True)  # NULL/None indicates a user submitted change
-    source = models.ForeignKey(settings.AUTH_USER_MODEL)
+    source = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="%(app_label)s_%(class)s_related")
     created_at = models.DateTimeField(auto_now=True)
     persistant_id = models.UUIDField()  # TODO Maybe make this a foreign Key
 
@@ -76,7 +76,7 @@ class ShareCurrent(models.Model):
 class ShareConcrete(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source_data = models.ForeignKey(RawData, blank=True, null=True)  # NULL/None indicates a user submitted change
-    source = models.ForeignKey(settings.AUTH_USER_MODEL)
+    source = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="%(app_label)s_%(class)s_related")
     created_at = models.DateTimeField(auto_now=True)
 
     class Meta:
