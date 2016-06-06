@@ -2,18 +2,18 @@ import zlib
 import base64
 
 from django.db import models
-from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import User
 
 from share.models.util import ZipField
 
 __all__ = ('ShareUser', 'RawData')
 
 
-class ShareUser(AbstractBaseUser):
-    USERNAME_FIELD = 'short_id'
-    REQUIRED_FIELDS = ('full_name', 'is_entity')
 
-    short_id = models.CharField(max_length=50, unique=True)
+class ShareUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    # short_id = models.CharField(max_length=50, unique=True)
     full_name = models.CharField(max_length=50, null=True)
     is_entity = models.BooleanField(default=False)
 
