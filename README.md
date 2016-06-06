@@ -14,7 +14,7 @@ https://osf.io/sdxvj/
     createuser share
     psql
         CREATE DATABASE share;
-    python manage.py makemigrations share
+    python manage.py makemigrations
     python manage.py migrate
     python manage.py createsuperuser
     python manage.py runserver

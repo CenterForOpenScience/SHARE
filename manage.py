@@ -9,5 +9,4 @@ if __name__ == "__main__":
 
     execute_from_command_line(sys.argv)
 
-# python manage.py makemigrations polls
 # python manage.py sqlmigrate polls 0001

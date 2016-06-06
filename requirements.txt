@@ -1,3 +1,5 @@
 django
 django-guardian
 feedparser
+django[bcrypt]
+celery
