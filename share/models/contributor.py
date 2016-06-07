@@ -1,17 +1,16 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.db.models import Model as ShareObject
 
-from share.models.base import ShareModel
+from share.models.base import ShareObject
 from share.models.base import ShareManyToMany
 from share.models.base import ShareForeignKey
 
 class Organization(models.Model):
     name = models.CharField(max_length=200)
-    #parent = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
+    # parent = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
 
 
-
-class Email(ShareModel):
+class Email(ShareObject):
     is_primary = models.BooleanField()
     email = models.EmailField()
 
@@ -19,7 +18,7 @@ class Email(ShareModel):
         return self.email
 
 
-class Affiliation(ShareModel):
+class Affiliation(ShareObject):
 
     start_date = models.DateField()
     end_date = models.DateField()
@@ -29,14 +28,12 @@ class Affiliation(ShareModel):
         return self.organization.name
 
 
-class Contributor(ShareModel):
+class Person(ShareObject):
     family_name = models.CharField(max_length=200)  # last
     given_name = models.CharField(max_length=200)  # first
-    additional_name = models.CharField(max_length=200)  # can be used for middle
-    suffix = models.CharField(max_length=50)
-    # emails = ShareManyToManyField(Email)
-    # emails = models.ManyToManyField(Email, through='ContributorEmail')
-    emails = ShareManyToMany(Email, 'ContributorEmail')
+    additional_name = models.CharField(max_length=200, blank=True)  # can be used for middle
+    suffix = models.CharField(max_length=50, blank=True)
+    emails = models.ManyToManyField(Email, through='PersonEmail')
 
     # current_affiliation =
     # other_properties = models.JSONField()
@@ -45,11 +42,9 @@ class Contributor(ShareModel):
     # dropping-particle
 
 
-class ContributorEmail(ShareModel):
-    # emails_id = models.ForeignKey(Email)
-    # contributor_id = models.ForeignKey(Contributor)
-    emails_id = ShareForeignKey(Email)
-    contributor_id = ShareForeignKey(Contributor)
+class PersonEmail(ShareObject):
+    email = ShareForeignKey(Email)
+    person = ShareForeignKey(Person)
 
 # class Manuscript(models.Model):
 #     title = models.CharField(max_length=200)
