@@ -31,6 +31,8 @@ class Command(BaseCommand):
     '''
 
     TRIGGER = '''
+        DROP TRIGGER IF EXISTS {concrete}_change ON {concrete};
+
         CREATE TRIGGER {concrete}_change
         BEFORE INSERT OR UPDATE ON {concrete}
         FOR EACH ROW
@@ -41,44 +43,54 @@ class Command(BaseCommand):
         DROP TRIGGER {concrete}_change
     '''
 
+    def collect_fields(self, model):
+        concrete_fields = ['NEW.' + f.column for f in model._meta.fields]
+        version_fields = [f.column for f in model.VersionModel._meta.fields]
+
+        version_fields.remove('id')
+        version_fields.remove('action')
+        version_fields.remove('persistant_id')
+        concrete_fields.remove('NEW.id')
+        concrete_fields.remove('NEW.version_id')
+
+        assert len(version_fields) == len(concrete_fields)
+
+        return concrete_fields, version_fields
+
+    def build_operations(self, model):
+        concrete_fields, version_fields = self.collect_fields(model)
+
+        params = {
+            'concrete': model._meta.db_table,
+            'version': model.VersionModel._meta.db_table,
+            'columns': ', '.join(['persistant_id', 'action'] + sorted(version_fields)),
+            'new_columns': ', '.join(['NEW.id', 'TG_OP'] + sorted(concrete_fields)),
+        }
+
+        return [
+            operations.RunSQL(self.PROCEDURE.format(**params).strip(), reverse_sql=self.PROCEDURE_REVERSE.format(**params).strip()),
+            operations.RunSQL(self.TRIGGER.format(**params).strip(), reverse_sql=self.TRIGGER_REVERSE.format(**params).strip()),
+        ]
+
+    def write_migration(self, migration):
+        loader = MigrationLoader(None, ignore_no_migrations=True)
+        autodetector = MigrationAutodetector(loader.project_state(), ProjectState.from_apps(apps),)
+        changes = autodetector.arrange_for_graph(changes={'share': [migration]}, graph=loader.graph,)
+
+        for m in changes['share']:
+            writer = MigrationWriter(m)
+            with open(writer.path, 'wb') as fp:
+                fp.write(writer.as_string())
+
     def handle(self, *args, **options):
         ops = []
 
         for model in apps.get_models(include_auto_created=True):
             if not issubclass(model, ShareObject):
                 continue
-
-            concrete_fields = ['NEW.' + f.column for f in model._meta.fields]
-            version_fields = [f.column for f in model.VersionModel._meta.fields]
-
-            version_fields.remove('id')
-            version_fields.remove('action')
-            version_fields.remove('persistant_id')
-            concrete_fields.remove('NEW.id')
-            concrete_fields.remove('NEW.version_id')
-
-            assert len(version_fields) == len(concrete_fields)
-
-            params = {
-                'concrete': model._meta.db_table,
-                'version': model.VersionModel._meta.db_table,
-                'columns': ', '.join(['persistant_id', 'action'] + sorted(version_fields)),
-                'new_columns': ', '.join(['NEW.id', 'TG_OP'] + sorted(concrete_fields)),
-            }
-
-            ops.extend([
-                operations.RunSQL(self.PROCEDURE.format(**params).strip(), reverse_sql=self.PROCEDURE_REVERSE.format(**params).strip()),
-                operations.RunSQL(self.TRIGGER.format(**params).strip(), reverse_sql=self.TRIGGER_REVERSE.format(**params).strip()),
-            ])
+            ops.extend(self.build_operations(model))
 
         m = Migration('create_triggers_views', 'share')
         m.operations = ops
 
-        loader = MigrationLoader(None, ignore_no_migrations=True)
-        autodetector = MigrationAutodetector(loader.project_state(), ProjectState.from_apps(apps),)
-        changes = autodetector.arrange_for_graph(changes={'share': [m]}, graph=loader.graph,)
-
-        for migration in changes['share']:
-            writer = MigrationWriter(migration)
-            with open(writer.path, 'wb') as fp:
-                fp.write(writer.as_string())
+        self.write_migration(m)
