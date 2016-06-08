@@ -1,14 +1,10 @@
-import uuid
 import inspect
 
 from django.db import models
-from django.conf import settings
-from django.db import transaction
 from django.db.models.base import ModelBase
-from django.db.models.fields.related import lazy_related_operation
 
-from share.models.core import RawData
 from share.models.core import ShareUser
+from share.models.core import ChangeRequest
 
 
 class AbstractShareObject(models.Model):

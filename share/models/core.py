@@ -1,13 +1,16 @@
-import zlib
-import base64
+import enum
+
+import jsonpatch
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 from share.models.util import ZipField
 
-__all__ = ('ShareUser', 'RawData')
-
+__all__ = ('ShareUser', 'RawData', 'ChangeRequest', 'ChangeStatus')
 
 
 class ShareUser(models.Model):

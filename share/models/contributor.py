@@ -1,9 +1,8 @@
 from django.db import models
-from django.db.models import Model as ShareObject
 
 from share.models.base import ShareObject
-from share.models.base import ShareManyToMany
 from share.models.base import ShareForeignKey
+
 
 class Organization(models.Model):
     name = models.CharField(max_length=200)
@@ -45,7 +44,3 @@ class Person(ShareObject):
 class PersonEmail(ShareObject):
     email = ShareForeignKey(Email)
     person = ShareForeignKey(Person)
-
-# class Manuscript(models.Model):
-#     title = models.CharField(max_length=200)
-#     doi = models.URLField()
