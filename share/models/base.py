@@ -11,22 +11,23 @@ class AbstractShareObject(models.Model):
     # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     source = models.ForeignKey(ShareUser)
-    source_data = models.ForeignKey(RawData, blank=True, null=True)  # NULL/None indicates a user submitted change
+    change = models.ForeignKey(ChangeRequest)
+    # source_data = models.ForeignKey(RawData, blank=True, null=True)  # NULL/None indicates a user submitted change
 
-    changed_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         abstract = True
 
 
 class ShareObjectVersion(models.Model):
-    action = models.CharField(max_length=10);
+    action = models.CharField(max_length=10)
     persistant_id = models.PositiveIntegerField()  # Must match the id of ShareObject
 
     class Meta:
         abstract = True
-        ordering = ('-changed_at', )
+        ordering = ('-date_modified', )
 
 
 class ShareForeignKey(models.ForeignKey):
@@ -42,6 +43,7 @@ class ShareForeignKey(models.ForeignKey):
         self.__kwargs['editable'] = False
         version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
         version.contribute_to_class(cls, name + '_version', **kwargs)
+
 
 class ShareManyToMany(models.ManyToManyField):
 
@@ -83,7 +85,7 @@ class ShareObjectMeta(ModelBase):
         concrete = super(ShareObjectMeta, cls).__new__(cls, name, (abstract, ShareObject), {
             '__module__': module,
             'VersionModel': version,
-            'version': models.OneToOneField(version, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version')
+            'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version')
         })
 
         inspect.stack()[1].frame.f_globals.update({concrete.VersionModel.__name__: concrete.VersionModel})
@@ -101,6 +103,7 @@ class VersionManagerDescriptor:
             return VersionManager(self.model, instance)
         return VersionManager(self.model, instance)
 
+
 class VersionManager(models.Manager):
 
     def __init__(self, model=None, instance=None):
@@ -109,7 +112,7 @@ class VersionManager(models.Manager):
         self.instance = instance
 
     def get_queryset(self):
-        qs = self._queryset_class(model=self.model.VersionModel, using=self._db, hints=self._hints).order_by('-changed_at')
+        qs = self._queryset_class(model=self.model.VersionModel, using=self._db, hints=self._hints).order_by('-date_modified')
         if self.instance:
             return qs.filter(persistant_id=self.instance.id)
         return qs
