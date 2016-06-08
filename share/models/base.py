@@ -18,7 +18,7 @@ class AbstractShareObject(models.Model):
     source_data = models.ForeignKey(RawData, blank=True, null=True)  # NULL/None indicates a user submitted change
 
     changed_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         abstract = True
@@ -30,6 +30,7 @@ class ShareObjectVersion(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ('-changed_at', )
 
 
 class ShareForeignKey(models.ForeignKey):
@@ -85,18 +86,48 @@ class ShareObjectMeta(ModelBase):
 
         concrete = super(ShareObjectMeta, cls).__new__(cls, name, (abstract, ShareObject), {
             '__module__': module,
+            'VersionModel': version,
             'version': models.OneToOneField(version, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version')
         })
-
-        concrete.VersionModel = version
 
         inspect.stack()[1].frame.f_globals.update({concrete.VersionModel.__name__: concrete.VersionModel})
 
         return concrete
 
 
+class VersionManagerDescriptor:
+
+    def __init__(self, model):
+        self.model = model
+
+    def __get__(self, instance, type=None):
+        if instance is not None:
+            return VersionManager(self.model, instance)
+        return VersionManager(self.model, instance)
+
+class VersionManager(models.Manager):
+
+    def __init__(self, model=None, instance=None):
+        super().__init__()
+        self.model = model
+        self.instance = instance
+
+    def get_queryset(self):
+        qs = self._queryset_class(model=self.model.VersionModel, using=self._db, hints=self._hints).order_by('-changed_at')
+        if self.instance:
+            return qs.filter(persistant_id=self.instance.id)
+        return qs
+
+    def contribute_to_class(self, model, name):
+        super().contribute_to_class(model, name)
+        if not model._meta.abstract:
+            setattr(model, name, VersionManagerDescriptor(model))
+
+
 class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
+    objects = models.Manager()
+    versions = VersionManager()
 
     class Meta:
         abstract = True
