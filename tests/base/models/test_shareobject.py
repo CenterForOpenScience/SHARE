@@ -30,16 +30,16 @@ def test_timestamping(share_user):
     p = Person(given_name='John', family_name='Doe', source=share_user)
     p.save()
 
-    now = datetime.utcnow().replace(tzinfo=p.changed_at.tzinfo)
-    created, changed = p.created_at, p.changed_at
+    now = datetime.utcnow().replace(tzinfo=p.date_modified.tzinfo)
+    created, modified = p.date_created, p.date_modified
 
-    assert (p.created_at - p.changed_at).total_seconds() < 1
+    assert (p.date_created - p.date_modified).total_seconds() < 1
 
     p.given_name = 'Jane'
     p.save()
 
-    assert changed < p.changed_at
-    assert created == p.created_at
+    assert modified < p.date_modified
+    assert created == p.date_created
 
 
 @pytest.mark.django_db
