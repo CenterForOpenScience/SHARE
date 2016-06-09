@@ -5,3 +5,8 @@ django_extensions
 psycopg2
 django[bcrypt]
 celery
+django-celery
+jsonpatch
+bcrypt
+requests
+flower
