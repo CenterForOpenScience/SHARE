@@ -4,6 +4,7 @@ RUN apk add --no-cache \
       ca-certificates \
       postgresql-dev \
       python3-dev \
+      libffi-dev \
       musl-dev \
       python3 \
       gcc \
