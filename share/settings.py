@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs+^0l%=bt_dst0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.environ.get('DEBUG', True))
 
 ALLOWED_HOSTS = []
 
@@ -31,11 +31,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'providers.org_arxiv_api',
-    'providers',
+    # 'providers.org_arxiv_api',
+    # 'providers',
     'guardian',
     'share',
-#    'raw.apps.RawConfig',
+    'djcelery',
+    'django_extensions',
+    'harvesters.org.example',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -83,7 +85,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'share',
-        'USER': 'share',
+        'USER': 'postgres',
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': '',
+    },
+    'test': {
+        'USER': 'postgres',
         'HOST': 'localhost',
         'PORT': '',
     }
@@ -109,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend', # this is default
+    'django.contrib.auth.backends.ModelBackend',  # this is default
     'guardian.backends.ObjectPermissionBackend',
 )
 
@@ -142,3 +149,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Celery Settings
+
+BROKER_URL = os.environ.get('BROKER_URL', 'amqp://'),
+
+CELERY_TIMEZONE = 'UTC'
+CELERYBEAT_SCHEDULE = {}
+
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
+CELERY_RESULT_PERSISTENT = False
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
