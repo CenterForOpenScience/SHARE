@@ -14,10 +14,18 @@ class TestChange:
         p = Person(given_name='John', family_name='Doe', source=share_user)
         change = ChangeRequest.objects.create_object(p, share_user)
         change.save()
+
+        assert change.version == p.versions.first()
+        assert ChangeStatus(change.status) == ChangeStatus.PENDING
+
         p = change.accept()
+
+        assert ChangeStatus(change.status) == ChangeStatus.ACCEPTED
 
         p.given_name = 'Jane'
         request = ChangeRequest.objects.update_object(p, share_user)
+
+        assert ChangeStatus(request.status) == ChangeStatus.PENDING
 
         request.save()
         request.accept()
@@ -25,6 +33,8 @@ class TestChange:
         p.refresh_from_db()
 
         assert p.given_name == 'Jane'
+        assert p.version != change.version
+        assert ChangeStatus(request.status) == ChangeStatus.ACCEPTED
         assert p.versions.all()[1].given_name == 'John'
 
     def test_update_requires_saved(self, share_user):
@@ -60,12 +70,12 @@ class TestChange:
 
         assert isinstance(patch, jsonpatch.JsonPatch)
         assert len(patch.patch) == 2
-        assert patch.patch == [{
-            'op': 'replace',
-            'path': '/given_name',
-            'value': 'Jane',
-        }, {
+        assert sorted(patch.patch, key=lambda x: x['path']) == [{
             'op': 'replace',
             'path': '/family_name',
             'value': 'Dough',
+        }, {
+            'op': 'replace',
+            'path': '/given_name',
+            'value': 'Jane',
         }]
