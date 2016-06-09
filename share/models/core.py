@@ -56,7 +56,8 @@ class ChangeManager(models.Manager):
             changes=changes.patch,
             submitted_by=submitter,
             status=ChangeStatus.PENDING.value,
-            content_type=ContentType.objects.get_for_model(obj.__class__)
+            content_type=ContentType.objects.get_for_model(obj.__class__),
+            version_content_type=ContentType.objects.get_for_model(obj.__class__.VersionModel),
         )
 
     @classmethod
@@ -67,6 +68,7 @@ class ChangeManager(models.Manager):
 
         return ChangeRequest(
             target=clean,
+            version=clean.version,
             changes=changes.patch,
             submitted_by=submitter,
             status=ChangeStatus.PENDING.value,
@@ -87,18 +89,26 @@ class ChangeRequest(models.Model):
 
     changes = JSONField()  # TODO Validator for jsonpatch or OTs
 
+    raw = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)  # Null mean users submitted
+
     # All fields required for a generic foreign key
     # Points to any ShareObject
     object_id = models.PositiveIntegerField(null=True)
     target = GenericForeignKey('content_type', 'object_id')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
 
+    # Points to any ShareObjectVersion
+    version_id = models.PositiveIntegerField(null=True)
+    version = GenericForeignKey('version_content_type', 'version_id')
+    version_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,  related_name='%(app_label)s_%(class)s_version')
+
     objects = ChangeManager()
 
-    def rejected(self):
+    def reject(self):
         self.status = ChangeStatus.REJECTED.value
 
-    def accept(self):
+    def accept(self, force=False):
+        assert force or self.status == ChangeStatus.PENDING.value
         self.status = ChangeStatus.ACCEPTED.value
         if self.target:
             return self.apply_change()
@@ -115,4 +125,5 @@ class ChangeRequest(models.Model):
         inst.change = self
         inst.save()
         self.target = inst
+        self.version = inst.versions.first()
         return inst
