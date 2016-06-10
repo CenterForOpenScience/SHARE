@@ -45,7 +45,7 @@ class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
     source = models.ForeignKey(ShareUser)
-    doc_id = models.CharField(max_length=256)
+    provider_doc_id = models.CharField(max_length=256)
 
     data = ZipField(blank=False)
     sha256 = models.CharField(max_length=64)
