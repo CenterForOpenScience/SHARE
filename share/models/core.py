@@ -1,4 +1,6 @@
 import enum
+import logging
+from hashlib import sha256
 
 import jsonpatch
 
@@ -10,21 +12,57 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 
 from share.models.util import ZipField
 
+logger = logging.getLogger(__name__)
 __all__ = ('ShareUser', 'RawData', 'ChangeRequest', 'ChangeStatus')
 
 
 class ShareUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    # short_id = models.CharField(max_length=50, unique=True)
-    full_name = models.CharField(max_length=50, null=True)
     is_entity = models.BooleanField(default=False)
+
+
+class RawDataManager(models.Manager):
+
+    def store_data(self, doc_id, data, source):
+        rd, created = self.get_or_create(
+            source=source,
+            doc_id=doc_id,
+            sha256=sha256(data).hexdigest(),
+            defaults={'data': data},
+        )
+
+        if created:
+            logger.info('Newly created RawData for document {} from {}'.format(doc_id, source))
+        else:
+            logger.info('Saw exact copy of document {} from {}'.format(doc_id, source))
+
+        rd.save()  # Force timestamps to update
+        return rd
 
 
 class RawData(models.Model):
     id = models.AutoField(primary_key=True)
-    data = ZipField(blank=False)
+
     source = models.ForeignKey(ShareUser)
+    doc_id = models.CharField(max_length=256)
+
+    data = ZipField(blank=False)
+    sha256 = models.CharField(max_length=64)
+
+    date_processed = models.DateTimeField(null=True)
+
+    date_seen = models.DateTimeField(auto_now=True)
+    date_harvested = models.DateTimeField(auto_now_add=True)
+
+    objects = RawDataManager()
+
+    @property
+    def processsed(self):
+        return self.date_processed is not None
+
+    class Meta:
+        unique_together = (('doc_id', 'source', 'sha256'),)
 
 
 class ChangeStatus(enum.Enum):
@@ -33,7 +71,7 @@ class ChangeStatus(enum.Enum):
     REJECTED = 'R'
 
 
-class ChangeManager(models.Manager):
+class ChangeRequestManager(models.Manager):
 
     @classmethod
     def make_patch(cls, clean, dirty):
@@ -102,7 +140,7 @@ class ChangeRequest(models.Model):
     version = GenericForeignKey('version_content_type', 'version_id')
     version_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,  related_name='%(app_label)s_%(class)s_version')
 
-    objects = ChangeManager()
+    objects = ChangeRequestManager()
 
     def reject(self):
         self.status = ChangeStatus.REJECTED.value
