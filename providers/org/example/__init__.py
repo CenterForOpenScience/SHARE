@@ -1,1 +1,1 @@
-default_app_config = 'harvesters.org.example.apps.ExampleConfig'
+default_app_config = 'providers.org.example.apps.ExampleConfig'

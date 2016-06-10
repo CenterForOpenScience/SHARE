@@ -8,6 +8,6 @@ class ExampleHarvester(Harvester):
 
 
 class ExampleConfig(AppConfig):
-    name = 'harvesters.org.example'
+    name = 'providers.org.example'
     HARVESTER = ExampleHarvester
-    TITLE = 'Example Harvester'
+    TITLE = 'Example Provider'

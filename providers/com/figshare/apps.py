@@ -43,7 +43,7 @@ class FigshareHarvester(Harvester):
 
 
 class FigshareConfig(AppConfig):
-    name = 'harvesters.com.figshare'
+    name = 'providers.com.figshare'
     HARVESTER = FigshareHarvester
     TITLE = 'figshare'
     HOME_PAGE = 'https://figshare.com/'
