@@ -31,13 +31,15 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'harvesters.org.example',
+    'harvesters.com.figshare',
+
     # 'providers.org_arxiv_api',
     # 'providers',
-    'guardian',
     'share',
+    'guardian',
     'djcelery',
     'django_extensions',
-    'harvesters.org.example',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -166,3 +168,5 @@ CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 CELERY_RESULT_PERSISTENT = False
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+
+CELERY_TRACK_STARTED = True
