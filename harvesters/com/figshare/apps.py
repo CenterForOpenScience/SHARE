@@ -37,11 +37,6 @@ class FigshareHarvester(Harvester):
 
         return records
 
-    def encode_json(self, data):
-        return json.dumps(OrderedDict(sorted([
-            (key, value) for key, value in data.items()
-            ], key=lambda x: x[0]))).encode()
-
 
 # class FigshareNormalizer(Normalizer):
 #     pass
