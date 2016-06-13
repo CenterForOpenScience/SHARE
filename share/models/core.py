@@ -52,13 +52,14 @@ class RawDataManager(models.Manager):
     def store_data(self, doc_id, data, source):
         rd, created = self.get_or_create(
             source=source,
-            doc_id=doc_id,
+            provider_doc_id=doc_id,
             sha256=sha256(data).hexdigest(),
             defaults={'data': data},
         )
 
         if created:
             logger.info('Newly created RawData for document {} from {}'.format(doc_id, source))
+            NormalizationQueue(data=rd).save()
         else:
             logger.info('Saw exact copy of document {} from {}'.format(doc_id, source))
 
@@ -88,6 +89,16 @@ class RawData(models.Model):
 
     class Meta:
         unique_together = (('provider_doc_id', 'source', 'sha256'),)
+
+
+class Normalization(models.Model):
+    id = models.AutoField(primary_key=True)
+    data = models.ForeignKey(RawData)
+    date = models.DateTimeField(auto_now_add=True)
+
+
+class NormalizationQueue(models.Model):
+    data = models.OneToOneField(RawData, primary_key=True)
 
 
 class ChangeStatus(enum.Enum):
