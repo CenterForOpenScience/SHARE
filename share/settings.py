@@ -31,8 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'harvesters.org.example',
-    'harvesters.com.figshare',
+    'providers.org.example',
+    'providers.com.figshare',
 
     # 'providers.org_arxiv_api',
     # 'providers',
@@ -164,9 +164,9 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
-
-CELERY_RESULT_PERSISTENT = False
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-
 CELERY_TRACK_STARTED = True
+CELERY_RESULT_PERSISTENT = True
+CELERY_SEND_TASK_SENT_EVENT = True
+CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'

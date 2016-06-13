@@ -2,12 +2,10 @@ from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.db.migrations import Migration
 from django.db.migrations import operations
-from django.db.migrations.autodetector import MigrationAutodetector
-from django.db.migrations.loader import MigrationLoader
-from django.db.migrations.state import ProjectState
 from django.db.migrations.writer import MigrationWriter
 
 from share.models.base import ShareObject
+
 
 # Triggers are Faster and will run in any insert/update situation
 # Model based logic will not run in certain scenarios. IE Bulk operations
