@@ -1,13 +1,21 @@
 import json
 import logging
 import datetime
+from collections import OrderedDict
 
 import requests
 
+from django.apps import apps
+from django.db import migrations
 from django.db import transaction
+from django.apps import AppConfig
 from django.utils.functional import cached_property
 
 logger = logging.getLogger(__name__)
+
+
+class ProviderAppConfig(AppConfig):
+    pass
 
 
 # NOTE: Have to use relative imports here because Django hates fun
@@ -44,12 +52,20 @@ class Harvester:
 
         assert start_date < end_date, 'start_date must be before end_date {} < {}'.format(start_date, end_date)
 
+        if callable(self.config.transpose_time_window):
+            start_date, end_date = self.config.transpose_time_window(start_date, end_date)
+            assert isinstance(start_date, datetime.datetime) and isinstance(start_date, datetime.datetime), 'transpose_time_window must return a tuple of 2 datetimes'
+            assert start_date < end_date, 'start_date must be before end_date {} < {}'.format(start_date, end_date)
+
         stored = []
         with transaction.atomic():
             rawdata = self.do_harvest(start_date, end_date)
 
-            # assert isinstance(rawdata, (list, tuple)), 'Expected self.do_harvest to return a list or tuple. Got {}'.format(rawdata)
             for doc_id, datum in rawdata:
+                if isinstance(datum, dict):
+                    datum = self.encode_json(datum)
+                elif isinstance(datum, str):
+                    datum = datum.encode()
                 assert isinstance(datum, bytes), 'Found non-bytes item {} in results of self.do_harvest'.format(datum)
                 stored.append(RawData.objects.store_data(doc_id, datum, self.share_user))
 
@@ -64,34 +80,88 @@ class Harvester:
         return json.dumps(order_json(data)).encode()
 
 
-class CreateHarvesterUser:
+
+
+class ProviderMigration:
 
     def __init__(self, app_config):
-        self.app_config = app_config
+        self.config = app_config
+
+    def ops(self):
+        return [
+            migrations.RunPython(
+                ProviderSourceMigration(self.config.label),
+                # ProviderSourceMigration(self.config.label).reverse,
+            ),
+            migrations.RunPython(
+                HarvesterScheduleMigration(self.config.label),
+                # HarvesterScheduleMigration(self.config.label).reverse,
+            ),
+        ]
+
+    def dependencies(self):
+        return [
+            ('share', '0001_initial'),
+        ]
+
+    def migration(self):
+        m = migrations.Migration('0001_initial', self.config.label)
+        m.operations = self.ops()
+        m.dependencies = self.dependencies()
+        return m
+
+
+class HarvesterScheduleMigration:
+
+    def __init__(self, label):
+        self.config = apps.get_app_config(label)
 
     def __call__(self, apps, schema_editor):
-        from share.models import ShareUser
-        from django.contrib.auth.models import User
+        from djcelery.models import PeriodicTask
+        from djcelery.models import CrontabSchedule
+        tab = crontab=CrontabSchedule.from_schedule(self.config.SCHEDULE)
+        tab.save()
+        PeriodicTask(
+            name='{} harvester task'.format(self.config.TITLE),
+            task='share.tasks.run_harvester',
+            description='TODO',
+            args=json.dumps([self.config.name]),
+            crontab=tab,
+        ).save()
 
-        user = User.objects.create_user(
-            self.app_config.TITLE,
-            email=None,
-            password=None,
-        )
+    def reverse(self, apps, schema_editor):
+        from djcelery.models import PeriodicTask
+        try:
+            PeriodicTask.get(
+                name='{} harvester task'.format(self.config.TITLE),
+                task='share.tasks.run_harvester',
+                args=json.dumps([self.config.name]),
+            ).delete()
+        except PeriodicTask.DoesNotExist:
+            pass
 
-        user.save()
-
-        share_user = ShareUser(user=user, is_entity=True)
-        share_user.save()
-
-        return share_user
+    def deconstruct(self):
+        return ('{}.{}'.format(__name__, self.__class__.__name__), (self.label, ), {})
 
 
-class RemoveHarvesterUser:
+class ProviderSourceMigration:
 
-    def __init__(self, app_config):
-        self.app_config = app_config
+    def __init__(self, label):
+        self.config = apps.get_app_config(label)
 
     def __call__(self, apps, schema_editor):
-        from django.contrib.auth.models import User
-        User.objects.get(username=self.app_config.TITLE).delete()
+        from share.models import ShareSource
+        ShareSource.objects.get_or_create(
+            name=self.config.name,
+            # self.app_config.TITLE,
+        )[0].save()
+
+    def reverse(self, apps, schema_editor):
+        from share.models import ShareSource
+        try:
+            ShareSource.objects.get(name=self.config.name).delete()
+        except ShareSource.DoesNotExist:
+            pass
+
+    def deconstruct(self):
+        return ('{}.{}'.format(__name__, self.__class__.__name__), (self.label, ), {})
