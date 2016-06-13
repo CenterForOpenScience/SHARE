@@ -3,14 +3,14 @@ import inspect
 from django.db import models
 from django.db.models.base import ModelBase
 
-from share.models.core import ShareUser
+from share.models.core import ShareSource
 from share.models.core import ChangeRequest
 
 
 class AbstractShareObject(models.Model):
     # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    source = models.ForeignKey(ShareUser)
+    source = models.ForeignKey(ShareSource)
     change = models.ForeignKey(ChangeRequest)
     # source_data = models.ForeignKey(RawData, blank=True, null=True)  # NULL/None indicates a user submitted change
 

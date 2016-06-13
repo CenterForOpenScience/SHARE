@@ -13,13 +13,38 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from share.models.util import ZipField
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'RawData', 'ChangeRequest', 'ChangeStatus')
+__all__ = ('ShareSource', 'RawData', 'ChangeRequest', 'ChangeStatus')
 
 
-class ShareUser(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+# class ShareTask(models.Model):
+#     id = models.UUIDField()
 
-    is_entity = models.BooleanField(default=False)
+#     args = models.CharField()
+#     kwargs = models.JSONField()
+
+#     task = models.CharField(max_length=64)
+#     hostname = models.CharField(max_length=128)
+#     status = models.IntField(default=0, choices=(
+#         (0, 'Scheduled'),
+#         (1, 'Accepted'),
+#         (2, 'Started'),
+#         (3, 'Succeeded'),
+#     ))
+
+
+class ShareSource(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=256)
+    # Nullable as actual providers will not have users
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+
+    @property
+    def is_entity(self):
+        return self.user is None
+
+    @property
+    def is_user(self):
+        return self.user is not None
 
 
 class RawDataManager(models.Manager):
@@ -44,13 +69,13 @@ class RawDataManager(models.Manager):
 class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
-    source = models.ForeignKey(ShareUser)
+    source = models.ForeignKey(ShareSource)
     provider_doc_id = models.CharField(max_length=256)
 
     data = ZipField(blank=False)
     sha256 = models.CharField(max_length=64)
 
-    date_processed = models.DateTimeField(null=True)
+    # date_processed = models.DateTimeField(null=True)
 
     date_seen = models.DateTimeField(auto_now=True)
     date_harvested = models.DateTimeField(auto_now_add=True)
@@ -62,7 +87,7 @@ class RawData(models.Model):
         return self.date_processed is not None
 
     class Meta:
-        unique_together = (('doc_id', 'source', 'sha256'),)
+        unique_together = (('provider_doc_id', 'source', 'sha256'),)
 
 
 class ChangeStatus(enum.Enum):
@@ -122,7 +147,7 @@ class ChangeRequest(models.Model):
         default=ChangeStatus.PENDING.value
     )
 
-    submitted_by = models.ForeignKey(ShareUser)
+    submitted_by = models.ForeignKey(ShareSource)
     submitted_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     changes = JSONField()  # TODO Validator for jsonpatch or OTs
