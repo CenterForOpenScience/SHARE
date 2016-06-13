@@ -1,14 +1,18 @@
-import json
 from datetime import timedelta
-from collections import OrderedDict
 
-from django.apps import AppConfig
+from celery.schedules import crontab
 
 from share.core import Harvester
+from share.core import ProviderAppConfig
 # from share.core import Normalizer
 
 
 class FigshareHarvester(Harvester):
+
+    URL = 'https://api.figshare.com/v1/articles/search?search_for=*&from_date={}&to_date={}'
+
+    def shift_range(self, start_date, end_date):
+        return (start_date - timedelta(days=1)), (end_date - timedelta(days=1))
 
     def do_harvest(self, start_date, end_date):
         """ Figshare should always have a 24 hour delay because they
@@ -17,12 +21,10 @@ class FigshareHarvester(Harvester):
         So, we will shift everything back a day with harvesting to ensure
         nothing is harvested on the day of.
         """
-        end_date -= timedelta(days=1)
-        start_date -= timedelta(days=1)
         end_date = end_date.date()
         start_date = start_date.date()
 
-        return self.fetch_records(self.config.URL.format(start_date.isoformat(), end_date.isoformat()))
+        return self.fetch_records(self.URL.format(start_date.isoformat(), end_date.isoformat()))
 
     def fetch_records(self, url):
         page = 1
@@ -42,9 +44,10 @@ class FigshareHarvester(Harvester):
 #     pass
 
 
-class FigshareConfig(AppConfig):
+class FigshareConfig(ProviderAppConfig):
     name = 'providers.com.figshare'
     HARVESTER = FigshareHarvester
     TITLE = 'figshare'
     HOME_PAGE = 'https://figshare.com/'
-    URL = 'https://api.figshare.com/v1/articles/search?search_for=*&from_date={}&to_date={}'
+
+    SCHEDULE = crontab(minute=0, hour=0)
