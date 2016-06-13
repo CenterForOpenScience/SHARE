@@ -73,14 +73,9 @@ class Command(BaseCommand):
         ]
 
     def write_migration(self, migration):
-        loader = MigrationLoader(None, ignore_no_migrations=True)
-        autodetector = MigrationAutodetector(loader.project_state(), ProjectState.from_apps(apps),)
-        changes = autodetector.arrange_for_graph(changes={'share': [migration]}, graph=loader.graph,)
-
-        for m in changes['share']:
-            writer = MigrationWriter(m)
-            with open(writer.path, 'wb') as fp:
-                fp.write(writer.as_string())
+        writer = MigrationWriter(migration)
+        with open(writer.path, 'wb') as fp:
+            fp.write(writer.as_string())
 
     def handle(self, *args, **options):
         ops = []
@@ -90,7 +85,8 @@ class Command(BaseCommand):
                 continue
             ops.extend(self.build_operations(model))
 
-        m = Migration('create_triggers_views', 'share')
+        m = Migration('0002_triggers', 'share')
         m.operations = ops
+        m.dependencies = [('share', '0001_initial')]
 
         self.write_migration(m)
