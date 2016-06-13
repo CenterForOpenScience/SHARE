@@ -14,12 +14,12 @@ from django.utils.functional import cached_property
 logger = logging.getLogger(__name__)
 
 
-class ProviderAppConfig(AppConfig):
-    pass
-
-
 # NOTE: Have to use relative imports here because Django hates fun
 class Harvester:
+
+    # Callable that takes (start_date, end_date) and returns a tuple (start_date, end_date)
+    # For providers that should be collecting data at an offset. See figshare
+    shift_range = None
 
     @property
     def requests(self):
@@ -38,7 +38,7 @@ class Harvester:
     def __init__(self, app_config):
         self.config = app_config
 
-    def harvest(self, start_date=None, end_date=None):
+    def harvest(self, start_date=None, end_date=None, shift_range=True):
         from share.models import RawData
         assert not (bool(start_date) ^ bool(end_date)), 'Must specify both a start and end date or neither'
         assert isinstance(start_date, (datetime.timedelta, datetime.datetime)) and isinstance(start_date, (datetime.timedelta, datetime.datetime)), 'start_date and end_date must be either datetimes or timedeltas'
@@ -56,6 +56,11 @@ class Harvester:
             start_date, end_date = self.config.transpose_time_window(start_date, end_date)
             assert isinstance(start_date, datetime.datetime) and isinstance(start_date, datetime.datetime), 'transpose_time_window must return a tuple of 2 datetimes'
             assert start_date < end_date, 'start_date must be before end_date {} < {}'.format(start_date, end_date)
+
+        if shift_range and callable(self.shift_range):
+            og_start, og_end = start_date, end_date
+            start_date, end_date = self.shift_range(start_date, end_date)
+            logger.warning('Date shifted from {} - {} to {} - {}. Disable shifting by passing shift_range=False'.format(og_start, og_end, start_date, end_date))
 
         stored = []
         with transaction.atomic():
@@ -80,6 +85,8 @@ class Harvester:
         return json.dumps(order_json(data)).encode()
 
 
+class ProviderAppConfig(AppConfig):
+    pass
 
 
 class ProviderMigration:
