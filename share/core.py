@@ -126,7 +126,7 @@ class HarvesterScheduleMigration:
     def __call__(self, apps, schema_editor):
         from djcelery.models import PeriodicTask
         from djcelery.models import CrontabSchedule
-        tab = crontab=CrontabSchedule.from_schedule(self.config.SCHEDULE)
+        tab = CrontabSchedule.from_schedule(self.config.SCHEDULE)
         tab.save()
         PeriodicTask(
             name='{} harvester task'.format(self.config.TITLE),
