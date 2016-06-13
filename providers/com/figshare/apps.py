@@ -51,3 +51,30 @@ class FigshareConfig(ProviderAppConfig):
     HOME_PAGE = 'https://figshare.com/'
 
     SCHEDULE = crontab(minute=0, hour=0)
+
+
+# from share.parsers import *
+
+
+# class Person(AbstractPerson):
+
+#     given_name = ParseName(ctx.author_name).given_name
+#     family_name = ParseName(ctx.author_name).family_name
+
+
+# class Paper(AbstractPaper):
+
+#     doi = ctx.DOI
+#     published = ParseDate(ctx.published_date)
+
+#     contributors = ctx.authors['*']
+
+
+# class Preprint(AbstractPreprint):
+#     contributors = ctx.author['*']
+
+
+# class Person(AbstractPerson):
+#     given_name = ParseName(ctx.name).given_name
+#     family_name = ParseName(ctx.name).family_name
+#     affiliation = ctx('arxiv:affiliation').text()
