@@ -123,16 +123,26 @@ class ChangeRequestManager(models.Manager):
 
     @classmethod
     def create_object(cls, obj, submitter):
+        from share.models.base import ShareObject  # Circular import
         assert obj.pk is None, 'Create object requires an unsaved object'
         changes = cls.make_patch(None, obj)
 
-        return ChangeRequest(
+        change = ChangeRequest(
             changes=changes.patch,
             submitted_by=submitter,
             status=ChangeStatus.PENDING.value,
             content_type=ContentType.objects.get_for_model(obj.__class__),
             version_content_type=ContentType.objects.get_for_model(obj.__class__.VersionModel),
         )
+
+        change.save()
+        obj.change = change
+
+        for field in obj._meta.fields:
+            if field.editable and field.is_relation and issubclass(field.related_model, ShareObject) and getattr(obj, field.name) and getattr(obj, field.name).pk is None:
+                ChangeRequirement.objects.from_field(obj, field).save()
+
+        return change
 
     @classmethod
     def update_object(cls, updated, submitter):
@@ -157,6 +167,8 @@ class ChangeRequest(models.Model):
         choices=tuple((opt.name.capitalize(), opt.value) for opt in ChangeStatus.__members__.values()),
         default=ChangeStatus.PENDING.value
     )
+
+    requires = models.ManyToManyField('ChangeRequest', through='ChangeRequirement')
 
     submitted_by = models.ForeignKey(ShareSource)
     submitted_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -183,6 +195,7 @@ class ChangeRequest(models.Model):
 
     def accept(self, force=False):
         assert force or self.status == ChangeStatus.PENDING.value
+        assert self.depends_on.exclude(requirement__status=ChangeStatus.ACCEPTED.value).count() == 0, 'Not all dependancies have been accepted'
         self.status = ChangeStatus.ACCEPTED.value
         if self.target:
             return self.apply_change()
@@ -191,13 +204,43 @@ class ChangeRequest(models.Model):
     def apply_change(self):
         jsonpatch.apply_patch(self.target.__dict__, self.changes, in_place=True)
         self.target.save()
+        self.save()
         return self.target
 
     def create_object(self):
         inst = self.content_type.model_class()()
+        for req in self.depends_on.all():  # TODO Avoid N+1 selects
+            next(c for c in self.changes if c['path'] == '/' + req.field)['value'] = req.requirement.object_id
+            self.changes.append({
+                'op': 'replace',
+                'path': '/' + req.version_field,
+                'value': req.requirement.version_id
+            })
+
         jsonpatch.apply_patch(inst.__dict__, self.changes, in_place=True)
         inst.change = self
         inst.save()
         self.target = inst
         self.version = inst.versions.first()
+        self.save()
         return inst
+
+
+class ChangeRequirementManager(models.Manager):
+
+    def from_field(self, obj, field):
+        return ChangeRequirement(
+            change=obj.change,
+            field=field.column,
+            version_field=field._share_version_field.column,
+            requirement=getattr(obj, field.name).change,
+        )
+
+
+class ChangeRequirement(models.Model):
+    field = models.CharField(max_length=128)
+    version_field = models.CharField(max_length=128)
+    change = models.ForeignKey(ChangeRequest, related_name='depends_on')
+    requirement = models.ForeignKey(ChangeRequest, related_name='required_by')
+
+    objects = ChangeRequirementManager()
