@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     # 'providers.org_arxiv_api',
     # 'providers',
     'share',
-    'providers.com.figshare.apps.FigshareConfig',
+    'providers.com.figshare',
 ]
 
 MIDDLEWARE_CLASSES = [
