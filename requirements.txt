@@ -10,3 +10,4 @@ jsonpatch
 bcrypt
 requests
 flower
+nameparser
