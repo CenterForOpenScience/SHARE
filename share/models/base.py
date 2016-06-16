@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.base import ModelBase
 
 from share.models.core import ShareSource
-from share.models.core import ChangeRequest
+from share.models.change import ChangeRequest
 
 
 class AbstractShareObject(models.Model):

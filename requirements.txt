@@ -11,3 +11,4 @@ bcrypt
 requests
 flower
 nameparser
+django-enumfield

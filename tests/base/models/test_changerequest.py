@@ -5,8 +5,7 @@ import jsonpatch
 from share.models import Email
 from share.models import Person
 from share.models import PersonEmail
-from share.models.core import ChangeStatus
-from share.models.core import ChangeRequest
+from share.models import ChangeRequest
 
 
 @pytest.mark.django_db
@@ -18,16 +17,16 @@ class TestChange:
         change.save()
 
         assert change.version == p.versions.first()
-        assert ChangeStatus(change.status) == ChangeStatus.PENDING
+        assert change.status == ChangeRequest.Status.PENDING
 
         p = change.accept()
 
-        assert ChangeStatus(change.status) == ChangeStatus.ACCEPTED
+        assert change.status == ChangeRequest.Status.ACCEPTED
 
         p.given_name = 'Jane'
         request = ChangeRequest.objects.update_object(p, share_source)
 
-        assert ChangeStatus(request.status) == ChangeStatus.PENDING
+        assert request.status == ChangeRequest.Status.PENDING
 
         request.save()
         request.accept()
@@ -36,7 +35,7 @@ class TestChange:
 
         assert p.given_name == 'Jane'
         assert p.version != change.version
-        assert ChangeStatus(request.status) == ChangeStatus.ACCEPTED
+        assert request.status == ChangeRequest.Status.ACCEPTED
         assert p.versions.all()[1].given_name == 'John'
 
     def test_update_requires_saved(self, share_source):
@@ -156,3 +155,20 @@ class TestChange:
 
         assert change.depends_on.count() == 1
         assert change.depends_on.first().requirement == e_change
+
+    def test_recurse(self, share_source):
+        p = Person(given_name='Jane', family_name='Doe', source=share_source)
+        ChangeRequest.objects.create_object(p, share_source)
+
+        e = Email(email='example@example.com', is_primary=True, source=share_source)
+        ChangeRequest.objects.create_object(e, share_source)
+
+        pe = PersonEmail(email=e, person=p, source=share_source)
+        change = ChangeRequest.objects.create_object(pe, share_source)
+
+        pe = change.accept(recurse=True)
+
+        pe.refresh_from_db()
+
+        assert pe.person.given_name == 'Jane'
+        assert pe.email.email == 'example@example.com'
