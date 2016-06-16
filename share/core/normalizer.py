@@ -23,6 +23,6 @@ class Normalizer:
 
     def blocks(self, size=50):
         from share.models import NormalizationQueue
-        ids = NormalizationQueue.objects.values_list('data.id', flat=True).filter(data__source=self.config.as_source(), )
+        ids = NormalizationQueue.objects.values_list('data_id', flat=True).filter(data__source=self.config.as_source(), )
         for i in range(0, len(ids), size):
             yield ids[i:i+50]
