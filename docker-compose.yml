@@ -30,7 +30,7 @@ services:
 
   worker:
     build: .
-    command: python3 manage.py celery worker -l DEBUG
+    command: python3 manage.py celery worker --autoreload -l DEBUG
     depends_on:
       - postgres
       - rabbitmq
