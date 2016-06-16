@@ -15,6 +15,11 @@ https://osf.io/sdxvj/
     psql
         CREATE DATABASE share;
     python manage.py makemigrations
+    python manage.py makemigrations share
+    python manage.py maketriggermigrations
+    python manage.py makeprovidermigrations
     python manage.py migrate
     python manage.py createsuperuser
     python manage.py runserver
+    python manage.py monitor
+    python manage.py celery worker --autoreload -l DEBUG
