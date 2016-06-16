@@ -44,6 +44,8 @@ class ShareForeignKey(models.ForeignKey):
         version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
+        actual._share_version_field = version
+
 
 class ShareManyToMany(models.ManyToManyField):
 
@@ -60,6 +62,8 @@ class ShareManyToMany(models.ManyToManyField):
 
         version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
+
+        actual._share_version_field = version
 
 
 class ShareObjectMeta(ModelBase):
