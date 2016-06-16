@@ -6,5 +6,5 @@ from share.monitor import ShareMonitor
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        from share.celery import app
+        from project.celery import app
         ShareMonitor(app).listen()

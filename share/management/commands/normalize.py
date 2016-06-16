@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from share.tasks import run_normalizer
+from project.tasks import run_normalizer
 
 
 class Command(BaseCommand):
