@@ -13,7 +13,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from share.models.util import ZipField
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareSource', 'RawData', 'ChangeRequest', 'ChangeStatus')
+# __all__ = ('ShareSource', 'RawData', 'ChangeRequest', 'ChangeStatus')
 
 
 # class ShareTask(models.Model):

@@ -31,21 +31,22 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'providers.org.example',
-    'providers.com.figshare',
-
-    # 'providers.org_arxiv_api',
-    # 'providers',
-    'share',
-    'guardian',
-    'djcelery',
-    'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'guardian',
+    'djcelery',
+
+    'django_extensions',
+    # 'providers.org.example',
+    # 'providers.org_arxiv_api',
+    # 'providers',
+    'share',
+    'providers.com.figshare',
 ]
 
 MIDDLEWARE_CLASSES = [
