@@ -1,1 +1,1 @@
-default_app_config = 'providers.com.figshare.apps.FigshareConfig'
+# default_app_config = 'providers.com.figshare.apps.FigshareConfig'

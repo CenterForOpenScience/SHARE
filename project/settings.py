@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     # 'providers.org_arxiv_api',
     # 'providers',
     'share',
-    'providers.com.figshare',
+    'providers.com.figshare.apps.FigshareConfig',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -60,7 +60,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'share.urls'
+ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
     {
@@ -78,7 +78,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'share.wsgi.application'
+WSGI_APPLICATION = 'project.wsgi.application'
 
 
 # Database
