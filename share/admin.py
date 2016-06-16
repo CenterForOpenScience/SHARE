@@ -2,7 +2,6 @@
 #
 # from .models import Contributor, Organization, Affiliation, Email, Manuscript
 # from providers.org.arxiv_api.models import ArxivManuscripts
-#
 # admin.site.register(Contributor)
 # admin.site.register(Organization)
 # admin.site.register(Affiliation)
