@@ -1,3 +1,5 @@
+import os
+
 from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.db.migrations import Migration
@@ -72,6 +74,7 @@ class Command(BaseCommand):
 
     def write_migration(self, migration):
         writer = MigrationWriter(migration)
+        os.makedirs(os.path.dirname(writer.path), exist_ok=True)
         with open(writer.path, 'wb') as fp:
             fp.write(writer.as_string())
 
