@@ -7,16 +7,16 @@ from share.models import RawData
 
 
 @pytest.mark.django_db
-def test_doesnt_mangle_data(share_user):
-    rd = RawData(source=share_user, data=b'This is just some data')
+def test_doesnt_mangle_data(share_source):
+    rd = RawData(source=share_source, data=b'This is just some data')
     rd.save()
 
     assert RawData.objects.first().data == b'This is just some data'
 
 
 @pytest.mark.django_db
-def test_must_have_data(share_user):
-    rd = RawData(source=share_user)
+def test_must_have_data(share_source):
+    rd = RawData(source=share_source)
 
     with pytest.raises(exceptions.ValidationError) as e:
         rd.save()

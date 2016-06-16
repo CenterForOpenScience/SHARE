@@ -1,12 +1,9 @@
 import pytest
 from datetime import datetime
 
-from django.db import models
-from django.db import connection
-
 from share.models import Person
 from share.models.base import ShareObject
-from share.management.commands.build_triggers import Command
+from share.management.commands.maketriggermigrations import Command
 
 
 @pytest.mark.django_db
@@ -26,8 +23,8 @@ def test_build_trigger():
 
 
 @pytest.mark.django_db
-def test_timestamping(share_user):
-    p = Person(given_name='John', family_name='Doe', source=share_user)
+def test_timestamping(share_source):
+    p = Person(given_name='John', family_name='Doe', source=share_source)
     p.save()
 
     now = datetime.utcnow().replace(tzinfo=p.date_modified.tzinfo)
@@ -43,8 +40,8 @@ def test_timestamping(share_user):
 
 
 @pytest.mark.django_db
-def test_create_version(share_user):
-    p = Person(given_name='John', family_name='Doe', source=share_user)
+def test_create_version(share_source):
+    p = Person(given_name='John', family_name='Doe', source=share_source)
     p.save()
     p.refresh_from_db()
 
@@ -52,8 +49,8 @@ def test_create_version(share_user):
 
 
 @pytest.mark.django_db
-def test_versioning(share_user):
-    p = Person(given_name='John', family_name='Doe', source=share_user)
+def test_versioning(share_source):
+    p = Person(given_name='John', family_name='Doe', source=share_source)
     p.save()
 
     p.given_name = 'Jane'
