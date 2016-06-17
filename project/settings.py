@@ -46,12 +46,18 @@ INSTALLED_APPS = [
     'djcelery',
 
     'django_extensions',
-    # 'providers.org.example',
-    # 'providers.org_arxiv_api',
-    # 'providers',
+    'rest_framework',
+    'oauth2_provider',
+
     'share',
     'providers.com.figshare',
+    # 'providers.org_arxiv_api',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'PAGE_SIZE': 10
+}
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -91,16 +97,11 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'share',
-        'USER': 'postgres',
-        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-        'PORT': '',
+        'NAME': os.environ.get('DATABASE_NAME', 'share'),
+        'USER': os.environ.get('DATABASE_USER', 'postgres'),
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+        'PORT': os.environ.get('DATABASE_PORT', '5432'),
     },
-    'test': {
-        'USER': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
 }
 
 
