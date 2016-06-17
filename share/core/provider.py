@@ -62,6 +62,7 @@ class ProviderMigration:
     def dependencies(self):
         return [
             ('share', '0001_initial'),
+            ('djcelery', '0001_initial'),
         ]
 
     def migration(self):
