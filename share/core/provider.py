@@ -132,9 +132,6 @@ class NormalizerScheduleMigration(AbstractProviderMigration):
 
 class ProviderSourceMigration(AbstractProviderMigration):
 
-    def __init__(self, label):
-        self.config = apps.get_app_config(label)
-
     def __call__(self, apps, schema_editor):
         from share.models import ShareSource
         ShareSource.objects.get_or_create(
