@@ -12,14 +12,28 @@ class Normalizer:
         self.config = app_config
 
     def normalize(self, raw_data):
-        from share.models import Normalization
+        # from share.models import Normalization
         from share.models import NormalizationQueue
         with transaction.atomic():
             try:
-                NormalizationQueue(data=raw_data).delete()
-            except NormalizationQueue.NotFound:
+                models = self.do_normalize(raw_data)
+                # NormalizationQueue(data=raw_data).delete()
+            except NormalizationQueue.DoesNotExist:
                 pass
-            Normalization(data=raw_data).save()
+
+        print(raw_data)
+        while models:
+            x = models.pop(0)
+            x.source = self.config.as_source()
+            for field in x._meta.fields:
+                if 'version' not in field.name:
+                    setattr(x, field.name, getattr(x, field.name))
+            try:
+                x.save()
+            except Exception as e:
+                print(e)
+                models.append(x)
+            # Normalization(data=raw_data).save()
 
     def blocks(self, size=50):
         from share.models import NormalizationQueue
