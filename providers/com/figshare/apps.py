@@ -1,3 +1,5 @@
+from celery.schedules import crontab
+
 from share.core import ProviderAppConfig
 
 from .harvester import FigshareHarvester
@@ -12,3 +14,5 @@ class FigshareConfig(ProviderAppConfig):
 
     harvester = FigshareHarvester
     normalizer = FigshareNormalizer
+
+    schedule = crontab(minute=0, hour=0)

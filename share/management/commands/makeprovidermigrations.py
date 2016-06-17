@@ -36,7 +36,7 @@ class Command(BaseCommand):
                 os.makedirs(os.path.dirname(writer.path), exist_ok=True)
 
                 with open(os.path.join(os.path.dirname(writer.path), '__init__.py'), 'wb') as fp:
-                    fp.write(writer.as_string())
+                    fp.write(b'')
 
                 with open(writer.path, 'wb') as fp:
                     fp.write(writer.as_string())

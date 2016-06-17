@@ -1,14 +1,11 @@
 from datetime import timedelta
 
-from celery.schedules import crontab
-
 from share.core import Harvester
 
 
 class FigshareHarvester(Harvester):
 
     url = 'https://api.figshare.com/v1/articles/search?search_for=*&from_date={}&to_date={}'
-    schedule = crontab(minute=0, hour=0)
 
     def shift_range(self, start_date, end_date):
         """ Figshare should always have a 24 hour delay because they

@@ -29,6 +29,10 @@ class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
     def normalizer(self):
         raise NotImplementedError
 
+    @abc.abstractproperty
+    def schedule(self):
+        raise NotImplementedError
+
     def as_source(self):
         from share.models import ShareSource
         return ShareSource.objects.get(name=self.name)
