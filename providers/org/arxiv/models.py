@@ -1,5 +1,5 @@
-from django.db import models
-from share.models.manuscripts import Manuscript
+# from django.db import models
+# from share.models.manuscripts import Manuscript
 
 # Create your models here.
 # class HarvesterOrgArxivApi():
@@ -10,5 +10,5 @@ from share.models.manuscripts import Manuscript
 # Migrate(Manuscripts, new="arxiv_cat:charfield")
 
 
-class ArxivManuscripts(Manuscript):
-    arxiv_category = models.CharField(max_length=200)
+# class ArxivManuscripts(Manuscript):
+#     arxiv_category = models.CharField(max_length=200)
