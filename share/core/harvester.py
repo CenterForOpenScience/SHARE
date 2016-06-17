@@ -18,10 +18,6 @@ class Harvester(metaclass=abc.ABCMeta):
 
     rate_limit = (5, 1)  # Rate limit in requests per_second
 
-    @abc.abstractproperty
-    def schedule(self):
-        raise NotImplementedError
-
     @property
     def requests(self):
         if self.allowance < 1:
@@ -92,7 +88,7 @@ class Harvester(metaclass=abc.ABCMeta):
                 assert isinstance(datum, bytes), 'Found non-bytes item {} in results of self.do_harvest'.format(datum)
                 stored.append(RawData.objects.store_data(doc_id, datum, self.source))
 
-        logger.info('Collected {} data blobs from {}'.format(len(stored), self.config.TITLE))
+        logger.info('Collected {} data blobs from {}'.format(len(stored), self.config.title))
 
     def encode_json(self, data):
         def order_json(data):

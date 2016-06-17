@@ -17,7 +17,7 @@ def run_harvester(app_label, started_by=None):
 @celery.task
 def run_normalizer(app_label, started_by=None):
     config = apps.get_app_config(app_label)
-    normalizer = config.normalizer()
+    normalizer = config.normalizer(config)
 
     for block in normalizer.blocks(size=50):
         normalize_block(app_label, block, started_by=started_by)
@@ -26,7 +26,7 @@ def run_normalizer(app_label, started_by=None):
 @celery.task
 def normalize_block(app_label, block, started_by=None):
     config = apps.get_app_config(app_label)
-    normalizer = config.normalizer()
+    normalizer = config.normalizer(config)
 
     for raw in RawData.objects.filter(id__in=block):
         normalizer.normalize(raw)
