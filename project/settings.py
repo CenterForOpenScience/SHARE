@@ -42,21 +42,33 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'guardian',
     'djcelery',
-
+    'guardian',
     'django_extensions',
-    'rest_framework',
     'oauth2_provider',
+    'rest_framework',
 
     'share',
     'providers.org.arxiv.apps.ArxivConfig',
     'providers.com.figshare.apps.FigshareConfig',
+    'api'
 ]
 
+OAUTH2_PROVIDER = {
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'}
+}
+
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
-    'PAGE_SIZE': 10
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
+    'DEFAULT_AUTHENTICATION_CLASSES': ('oauth2_provider.ext.rest_framework.OAuth2Authentication',),
+    'PAGE_SIZE': 10,
+    'DEFAULT_PARSER_CLASSES': (
+        'api.parsers.JSONLDParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'api.renderers.JSONLDRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
 }
 
 MIDDLEWARE_CLASSES = [
