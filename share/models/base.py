@@ -11,7 +11,7 @@ class AbstractShareObject(models.Model):
     # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     source = models.ForeignKey(ShareSource)
-    change = models.ForeignKey(ChangeRequest)
+    change = models.ForeignKey(ChangeRequest, null=True)
     # source_data = models.ForeignKey(RawData, blank=True, null=True)  # NULL/None indicates a user submitted change
 
     date_modified = models.DateTimeField(auto_now=True)
