@@ -1,3 +1,4 @@
+import abc
 import json
 import time
 import logging
@@ -13,13 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 # NOTE: Have to use relative imports here because Django hates fun
-class Harvester:
-
-    # Callable that takes (start_date, end_date) and returns a tuple (start_date, end_date)
-    # For providers that should be collecting data at an offset. See figshare
-    shift_range = None
+class Harvester(metaclass=abc.ABCMeta):
 
     rate_limit = (5, 1)  # Rate limit in requests per_second
+
+    @abc.abstractproperty
+    def schedule(self):
+        raise NotImplementedError
 
     @property
     def requests(self):
@@ -41,6 +42,19 @@ class Harvester:
         self.last_call = 0
         self.config = app_config
         self.allowance = self.rate_limit[0]
+
+    @abc.abstractmethod
+    def do_harvest(self, start_date, end_date):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def fetch_records(self, url):
+        raise NotImplementedError
+
+    # Callable that takes (start_date, end_date) and returns a tuple (start_date, end_date)
+    # For providers that should be collecting data at an offset. See figshare
+    def shift_range(self, start_date, end_date):
+        return start_date, end_date
 
     def harvest(self, start_date=None, end_date=None, shift_range=True):
         from share.models import RawData

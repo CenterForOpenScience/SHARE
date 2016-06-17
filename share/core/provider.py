@@ -1,3 +1,4 @@
+import abc
 import json
 import logging
 
@@ -10,10 +11,23 @@ from celery.schedules import crontab
 logger = logging.getLogger(__name__)
 
 
-class ProviderAppConfig(AppConfig):
+class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
 
-    def as_normalizer(self):
-        return self.NORMALIZER(self)
+    @abc.abstractproperty
+    def title(self):
+        raise NotImplementedError
+
+    @abc.abstractproperty
+    def home_page(self):
+        raise NotImplementedError
+
+    @abc.abstractproperty
+    def harvester(self):
+        raise NotImplementedError
+
+    @abc.abstractproperty
+    def normalizer(self):
+        raise NotImplementedError
 
     def as_source(self):
         from share.models import ShareSource
@@ -67,10 +81,10 @@ class HarvesterScheduleMigration(AbstractProviderMigration):
     def __call__(self, apps, schema_editor):
         from djcelery.models import PeriodicTask
         from djcelery.models import CrontabSchedule
-        tab = CrontabSchedule.from_schedule(self.config.SCHEDULE)
+        tab = CrontabSchedule.from_schedule(self.config.schedule)
         tab.save()
         PeriodicTask(
-            name='{} harvester task'.format(self.config.TITLE),
+            name='{} harvester task'.format(self.config.title),
             task='share.tasks.run_harvester',
             description='TODO',
             args=json.dumps([self.config.name]),
@@ -90,15 +104,15 @@ class HarvesterScheduleMigration(AbstractProviderMigration):
 
 class NormalizerScheduleMigration(AbstractProviderMigration):
 
-    SCHEDULE = crontab(hour='*')  # Once an hour
+    schedule = crontab(hour='*')  # Once an hour
 
     def __call__(self, apps, schema_editor):
         from djcelery.models import PeriodicTask
         from djcelery.models import CrontabSchedule
-        tab = CrontabSchedule.from_schedule(self.SCHEDULE)
+        tab = CrontabSchedule.from_schedule(self.schedule)
         tab.save()
         PeriodicTask(
-            name='{} normalizer task'.format(self.config.TITLE),
+            name='{} normalizer task'.format(self.config.title),
             task='share.tasks.run_normalizer',
             description='TODO',
             args=json.dumps([self.config.name]),
@@ -125,7 +139,7 @@ class ProviderSourceMigration(AbstractProviderMigration):
         from share.models import ShareSource
         ShareSource.objects.get_or_create(
             name=self.config.name,
-            # self.app_config.TITLE,
+            # self.app_config.title,
         )[0].save()
 
     def reverse(self, apps, schema_editor):
