@@ -12,10 +12,13 @@ import share.models
 
 __all__ = (
     'ctx',
+    'Concat',
     'ParseName',
     'AbstractPerson',
     'AbstractEmail',
-    'AbstractPreprint',
+    'AbstractManuscript',
+    'AbstractOrganization',
+    'AbstractAffiliation',
     'AbstractContributor',
 )
 
@@ -106,6 +109,11 @@ class NameParserLink(AbstractLink):
         return HumanName(obj)
 
 
+class ConcatLink(AbstractLink):
+    def execute(self, obj):
+        return '\n'.join(obj)
+
+
 class IteratorLink(AbstractLink):
     def __init__(self):
         super().__init__()
@@ -176,6 +184,10 @@ def ParseName(chain):
     return chain + NameParserLink()
 
 
+def Concat(chain):
+    return chain + ConcatLink()
+
+
 class AbstractParser(metaclass=ParserMeta):
     target = None
     subparsers = {}
@@ -189,26 +201,56 @@ class AbstractParser(metaclass=ParserMeta):
             for key, chain in self.parsers.items()
         }
 
-        inst['@type'] = self.__class__.__name__
-        inst['@id'] = '_:' + uuid.uuid4().hex
-        ctx.graph.append(inst)
+        m2m = {}
 
-        return {'@id': inst['@id'], '@type': inst['@type']}
+        for key in self.subparsers:
+            if self.subparsers[key]._is_list:
+                m2m[key] = inst.pop(key, [])
+
+        new = self.target(**inst)
+
+        for key in m2m:
+            for val in m2m[key]:
+                setattr(val, self.__class__.__name__.lower(), new)
+            # if m2m[key]:
+            #     getattr(new, key).add(*m2m[key])
+
+        ctx.graph.append(new)
+        return new
+
+        # inst['@type'] = self.__class__.__name__
+        # inst['@id'] = '_:' + uuid.uuid4().hex
+        # ctx.graph.append(inst)
+
+        # return {'@id': inst['@id'], '@type': inst['@type']}
+
+
+class AbstractOrganization(AbstractParser):
+    target = share.models.Organization
+
+
+class AbstractAffiliation(AbstractParser):
+    target = share.models.Affiliation
+    subparsers = {'organization': Subparser('Organization')}
 
 
 class AbstractEmail(AbstractParser):
-    pass
+    target = share.models.Email
 
 
 class AbstractPerson(AbstractParser):
-    subparsers = {'emails': Subparser('Email', is_list=True)}
+    target = share.models.Person
+    subparsers = {'affiliations': Subparser('Affiliation', is_list=True)}
+    # subparsers = {'emails': Subparser('Email', is_list=True)}
 
 
-class AbstractPreprint(AbstractParser):
+class AbstractManuscript(AbstractParser):
+    target = share.models.Manuscript
     subparsers = {'contributors': Subparser('Contributor', is_list=True)}
 
 
 class AbstractContributor(AbstractParser):
+    target = share.models.Contributor
     subparsers = {'person': Subparser('Person')}
 
 #### /Public API ####

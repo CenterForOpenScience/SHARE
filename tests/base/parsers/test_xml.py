@@ -58,7 +58,7 @@ factor, to within chemical accuracy, for CI calculations.
 '''
 
 
-class Preprint(AbstractPreprint):
+class Manuscript(AbstractManuscript):
     title = ctx.title[0].text()
     description = ctx.summary[0].text()
     contributors = ctx.author['*']
@@ -71,11 +71,19 @@ class Contributor(AbstractContributor):
 class Person(AbstractPerson):
     given_name = ParseName(ctx.name[0].text()).first
     family_name = ParseName(ctx.name[0].text()).last
-    # affiliation = ctx('arxiv:affiliation')[0].text()
+    affiliations = ctx('arxiv:affiliation')[0].text()['*']
+
+
+class Affiliation(AbstractAffiliation):
+    organization = ctx
+
+
+class Organization(AbstractOrganization):
+    name = ctx
 
 
 class TestParser:
 
     def test_preprint_parser(self):
-        parsed = Preprint(etree.fromstring(EXAMPLE)).parse()
+        parsed = Manuscript(etree.fromstring(EXAMPLE)).parse()
         import ipdb; ipdb.set_trace()
