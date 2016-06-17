@@ -128,7 +128,7 @@ class PathLink(AbstractLink):
 
     def execute(self, obj):
         if isinstance(obj, etree._Element):
-            return obj.xpath('./{}'.format(self._segment), namespaces={'arxiv': 'http://arxiv.org/schemas/atom'})
+            return obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
         return obj[self._segment]
 
 
