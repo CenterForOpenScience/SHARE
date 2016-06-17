@@ -50,8 +50,8 @@ INSTALLED_APPS = [
     'oauth2_provider',
 
     'share',
-    'providers.com.figshare',
-    # 'providers.org_arxiv_api',
+    'providers.org.arxiv.apps.ArxivConfig',
+    'providers.com.figshare.apps.FigshareConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -179,3 +179,33 @@ CELERY_SEND_TASK_SENT_EVENT = True
 CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            '()': 'colorlog.ColoredFormatter',
+            'format': '%(cyan)s[%(asctime)s]%(log_color)s[%(levelname)s][%(name)s]: %(reset)s%(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'formatter': 'console'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False
+        }
+    },
+    'root': {
+        'level': 'INFO',
+        'handlers': ['console']
+    }
+}
