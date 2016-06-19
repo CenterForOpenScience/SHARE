@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 class ArxivHarvester(Harvester):
 
+    rate_limit = (1, 3)  # Rate limit in requests per_second
+
     URL = 'http://export.arxiv.org/oai2?verb=ListRecords&metadataPrefix=oai_dc&from={}&until={}'
     URL_ = 'http://export.arxiv.org/oai2'
 

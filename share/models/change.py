@@ -1,3 +1,4 @@
+import copy
 import logging
 
 import jsonpatch
@@ -71,13 +72,15 @@ class ChangeRequestManager(models.Manager):
         clean = updated.__class__.objects.get(pk=updated.pk)
         changes = cls.make_patch(clean, updated)
 
-        return ChangeRequest(
+        ret = ChangeRequest(
             target=clean,
             version=clean.version,
             changes=changes.patch,
             submitted_by=submitter,
             status=ChangeRequest.Status.PENDING,
         )
+        ret.save()
+        return ret
 
 
 class Status(Enum):
@@ -137,6 +140,7 @@ class ChangeRequest(models.Model):
 
     def apply_change(self):
         jsonpatch.apply_patch(self.target.__dict__, self.changes, in_place=True)
+        self.target.source == self.submitted_by
         self.target.save()
         self.save()
         return self.target
@@ -153,6 +157,7 @@ class ChangeRequest(models.Model):
 
         jsonpatch.apply_patch(inst.__dict__, self.changes, in_place=True)
         inst.change = self
+        inst.source = self.submitted_by
         inst.save()
         self.target = inst
         self.version = inst.versions.first()
