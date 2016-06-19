@@ -16,3 +16,4 @@ jsonschema==2.5.1
 nameparser==0.4.0
 psycopg2==2.6.1
 requests==2.10.0
+dateparser==0.4.0

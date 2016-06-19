@@ -3,6 +3,8 @@ import threading
 from functools import reduce
 from collections import deque
 
+import dateparser
+
 from lxml import etree
 
 from nameparser import HumanName
@@ -13,6 +15,7 @@ import share.models
 __all__ = (
     'ctx',
     'Concat',
+    'ParseDate',
     'ParseName',
     'AbstractPerson',
     'AbstractEmail',
@@ -21,6 +24,28 @@ __all__ = (
     'AbstractAffiliation',
     'AbstractContributor',
 )
+
+
+class DictHashingDict:
+
+    def __init__(self):
+        self.__inner = {}
+
+    def get(self, key, *args):
+        return self.__inner.get((self._hash(key[0]), key[1]), *args)
+
+    def __getitem__(self, key):
+        return self.__inner[(self._hash(key[0]), key[1])]
+
+    def __setitem__(self, key, value):
+        self.__inner[(self._hash(key[0]), key[1])] = value
+
+    def _hash(self, val):
+        if isinstance(val, dict):
+            val = tuple((k, self._hash(v)) for k, v in val.items())
+        if isinstance(val, list):
+            val = tuple(self._hash(v) for v in val)
+        return val
 
 
 class AbstractLink:
@@ -52,6 +77,8 @@ class AbstractLink:
     def __getitem__(self, name):
         if name == '*':
             return self + IteratorLink()
+        if name == 'parent':
+            return self + ParentLink()
         if isinstance(name, int):
             return self + IndexLink(name)
         raise Exception
@@ -87,6 +114,18 @@ class Context(AnchorLink):
         return Context.__CONTEXT.graph
 
     @property
+    def pool(self):
+        return Context.__CONTEXT.pool
+
+    @property
+    def parent(self):
+        return Context.__CONTEXT.parent
+
+    @parent.setter
+    def parent(self, value):
+        Context.__CONTEXT.parent = value
+
+    @property
     def jsonld(self):
         return {
             '@graph': self.graph,
@@ -94,11 +133,13 @@ class Context(AnchorLink):
         }
 
     def __init__(self):
+        Context.__CONTEXT.pool = DictHashingDict()
         Context.__CONTEXT.graph = []
+        Context.__CONTEXT.parent = None
         super().__init__(split=True)
 
     def clear(self):
-        Context.__CONTEXT.graph = []
+        self.__init__()
 
 
 ctx = Context()
@@ -109,9 +150,19 @@ class NameParserLink(AbstractLink):
         return HumanName(obj)
 
 
+class DateParserLink(AbstractLink):
+    def execute(self, obj):
+        return dateparser.parse(obj)
+
+
 class ConcatLink(AbstractLink):
     def execute(self, obj):
         return '\n'.join(obj)
+
+
+class ParentLink(AbstractLink):
+    def execute(self, obj):
+        return ctx.parent
 
 
 class IteratorLink(AbstractLink):
@@ -157,7 +208,7 @@ class TextLink(AbstractLink):
 class ParserMeta(type):
 
     def __new__(cls, name, bases, attrs):
-        parsers = {}
+        parsers = {**bases[0].parsers} if bases else {}
         for key, value in tuple(attrs.items()):
             if isinstance(value, AbstractLink):
                 parsers[key] = attrs.pop(key).chain()[0]
@@ -172,13 +223,47 @@ class Subparser:
         self._is_list = is_list
 
     def resolve(self, parent, value):
+        prev, ctx.parent = ctx.parent, parent.context
         klass = getattr(__import__(parent.__module__, fromlist=(self._name,)), self._name)
         if self._is_list:
-            return [klass(v).parse() for v in value]
-        return klass(value).parse()
+            ret = [klass(v).parse() for v in value]
+        else:
+            ret = klass(value).parse()
+        ctx.parent = prev
+        return ret
+
+
+class AbstractParser(metaclass=ParserMeta):
+    target = None
+    subparsers = {}
+
+    def __init__(self, context):
+        self.context = context
+        self._value = ctx.pool.get((context, self.__class__.__name__))
+
+    def parse(self):
+        if self._value:
+            return self._value
+
+        inst = {'@id': '_:' + uuid.uuid4().hex, '@type': self.__class__.__name__}
+
+        ctx.pool[(self.context, inst['@type'])] = inst
+
+        inst = {**inst, **{
+            key: (key in self.subparsers and self.subparsers[key].resolve(self, chain.execute(self.context))) or chain.execute(self.context)
+            for key, chain in self.parsers.items()
+        }}
+
+        ctx.graph.append(inst)
+
+        return {'@id': inst['@id'], '@type': inst['@type']}
 
 
 #### Public API ####
+
+def ParseDate(chain):
+    return chain + DateParserLink()
+
 
 def ParseName(chain):
     return chain + NameParserLink()
@@ -188,50 +273,14 @@ def Concat(chain):
     return chain + ConcatLink()
 
 
-class AbstractParser(metaclass=ParserMeta):
-    target = None
-    subparsers = {}
-
-    def __init__(self, context):
-        self.context = context
-
-    def parse(self):
-        inst = {
-            key: (key in self.subparsers and self.subparsers[key].resolve(self, chain.execute(self.context))) or chain.execute(self.context)
-            for key, chain in self.parsers.items()
-        }
-
-        m2m = {}
-
-        for key in self.subparsers:
-            if self.subparsers[key]._is_list:
-                m2m[key] = inst.pop(key, [])
-
-        new = self.target(**inst)
-
-        for key in m2m:
-            for val in m2m[key]:
-                setattr(val, self.__class__.__name__.lower(), new)
-            # if m2m[key]:
-            #     getattr(new, key).add(*m2m[key])
-
-        ctx.graph.append(new)
-        return new
-
-        # inst['@type'] = self.__class__.__name__
-        # inst['@id'] = '_:' + uuid.uuid4().hex
-        # ctx.graph.append(inst)
-
-        # return {'@id': inst['@id'], '@type': inst['@type']}
-
-
 class AbstractOrganization(AbstractParser):
     target = share.models.Organization
 
 
 class AbstractAffiliation(AbstractParser):
     target = share.models.Affiliation
-    subparsers = {'organization': Subparser('Organization')}
+    person = ctx['parent']
+    subparsers = {'organization': Subparser('Organization'), 'person': Subparser('Person')}
 
 
 class AbstractEmail(AbstractParser):
@@ -251,6 +300,7 @@ class AbstractManuscript(AbstractParser):
 
 class AbstractContributor(AbstractParser):
     target = share.models.Contributor
-    subparsers = {'person': Subparser('Person')}
+    manuscript = ctx['parent']
+    subparsers = {'person': Subparser('Person'), 'manuscript': Subparser('Manuscript')}
 
 #### /Public API ####
