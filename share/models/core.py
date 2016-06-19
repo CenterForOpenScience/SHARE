@@ -24,6 +24,9 @@ class ShareSource(models.Model):
     def is_user(self):
         return self.user is not None
 
+    def __str__(self):
+        return '{}'.format(self.name)
+
 
 class RawDataManager(models.Manager):
 
@@ -59,12 +62,16 @@ class RawData(models.Model):
 
     objects = RawDataManager()
 
+    def __str__(self):
+        return '({}) {} {}'.format(self.id, self.source, self.provider_doc_id)
+
     @property
     def processsed(self):
         return self.date_processed is not None  # TODO: this field doesn't exist...
 
     class Meta:
         unique_together = (('provider_doc_id', 'source', 'sha256'),)
+        verbose_name_plural = 'Raw data'
 
 
 class Normalization(models.Model):

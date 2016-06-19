@@ -60,7 +60,7 @@ OAUTH2_PROVIDER = {
         'write': 'Write scope',
         'groups': 'Access to your groups',
         'upload_normalized_manuscript': 'Upload Normalized Manuscript',
-        'upload_raw_manuscript': 'Upload Raw Manuscript'
+        'upload_raw_data': 'Upload Raw Data'
     }
 }
 
