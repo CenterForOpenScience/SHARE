@@ -69,9 +69,9 @@ class Contributor(AbstractContributor):
 
 
 class Person(AbstractPerson):
+    affiliations = ctx.affiliation[0].text()['*']
     given_name = ParseName(ctx.name[0].text()).first
     family_name = ParseName(ctx.name[0].text()).last
-    affiliations = ctx('arxiv:affiliation')[0].text()['*']
 
 
 class Affiliation(AbstractAffiliation):
@@ -86,4 +86,5 @@ class TestParser:
 
     def test_preprint_parser(self):
         parsed = Manuscript(etree.fromstring(EXAMPLE)).parse()
-        import ipdb; ipdb.set_trace()
+        assert isinstance(parsed, dict)
+        assert parsed['@type'] == 'Manuscript'
