@@ -6,8 +6,8 @@ from share.models.base import ShareForeignKey
 __all__ = ('Person', 'Email', 'PersonEmail', 'Contributor', 'Manuscript', 'Affiliation', 'Organization')
 
 
-ShareObject = models.Model
-ShareForeignKey = models.ForeignKey
+# ShareObject = models.Model
+# ShareForeignKey = models.ForeignKey
 
 class Organization(ShareObject):
     name = models.CharField(max_length=200)

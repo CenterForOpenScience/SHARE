@@ -17,7 +17,7 @@ class Normalizer:
         with transaction.atomic():
             try:
                 models = self.do_normalize(raw_data)
-                # NormalizationQueue(data=raw_data).delete()
+                NormalizationQueue(data=raw_data).delete()
             except NormalizationQueue.DoesNotExist:
                 pass
 
