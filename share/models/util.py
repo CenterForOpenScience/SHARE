@@ -30,10 +30,10 @@ class ZipField(models.Field):
         assert value
         if value is None or isinstance(value, ZipField):
             return value
-        # TODO: Not sure if this is necessary or just solving a temporary error
         try:
-            base64.decodestring(bytes(value, 'utf8'))
+            base64.decodebytes(bytes(value, 'utf8'))
         except binascii.Error:
-            value = base64.b64encode(zlib.compress(bytes(value, 'utf8')))
-        # END TODO
+            # it's not base64, return it.
+            return value
+
         return zlib.decompress(base64.b64decode(value))
