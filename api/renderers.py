@@ -38,9 +38,10 @@ class JSONLDRenderer(JSONRenderer):
             separators = INDENT_SEPARATORS
 
         ret = ujson.dumps(  #  UJSON is faster
-            data, cls=self.encoder_class,
-            indent=indent, ensure_ascii=self.ensure_ascii,
-            separators=separators
+            data
+            # , cls=self.encoder_class,
+            # indent=indent, ensure_ascii=self.ensure_ascii,
+            # separators=separators
         )
 
         # On python 2.x json.dumps() returns bytestrings if ensure_ascii=True,

@@ -55,7 +55,13 @@ INSTALLED_APPS = [
 ]
 
 OAUTH2_PROVIDER = {
-    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'}
+    'SCOPES': {
+        'read': 'Read scope',
+        'write': 'Write scope',
+        'groups': 'Access to your groups',
+        'upload_normalized_manuscript': 'Upload Normalized Manuscript',
+        'upload_raw_manuscript': 'Upload Raw Manuscript'
+    }
 }
 
 REST_FRAMEWORK = {

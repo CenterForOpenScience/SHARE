@@ -61,7 +61,7 @@ class RawData(models.Model):
 
     @property
     def processsed(self):
-        return self.date_processed is not None
+        return self.date_processed is not None  # TODO: this field doesn't exist...
 
     class Meta:
         unique_together = (('provider_doc_id', 'source', 'sha256'),)
