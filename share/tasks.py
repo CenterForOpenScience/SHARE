@@ -8,10 +8,12 @@ from share.models import RawData
 
 
 @celery.task
-def run_harvester(app_label, started_by=None):
+def run_harvester(app_label, start=None, end=None, started_by=None):
+    if not start and not end:
+        start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
     config = apps.get_app_config(app_label)
     harvester = config.harvester(config)
-    harvester.harvest(datetime.timedelta(days=-1), datetime.datetime.utcnow())
+    harvester.harvest(start, end)
 
 
 @celery.task
