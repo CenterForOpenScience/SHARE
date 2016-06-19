@@ -22,6 +22,7 @@ class GraphNode:
 
     @property
     def is_blank(self):
+        # JSON-LD Blank Node ids start with "_:"
         return self.id.startswith('_:')
 
     @property
@@ -44,7 +45,9 @@ class GraphNode:
         self.id = node.pop('@id')
         self.type = node.pop('@type')
 
+        # JSON-LD variables are all prefixed with '@'s
         self._context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
+        # Any nested data type is a relation in the current JSON-LD schema
         self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, (dict, list, tuple))}
 
         self.attrs = node
@@ -66,12 +69,15 @@ class ChangeGraph:
         for obj in self._graph:
             node = GraphNode(obj)
             self._nodes[(node.id, node.type)] = node
+            # NOTE: lists and tuples are ignored here as many to many|one relations are handled by a different model
+            # Actual many to many|one results in circular dependancies
             self._relations[node] = [x for x in node.relations.values() if not isinstance(x, (tuple, list))]
 
     def changes(self, submitter):
         ordered, to_order = [], list(self._nodes.values())
         relations = {k: {(n['@id'], n['@type']) for n in v} for k, v in self._relations.items()}
 
+        # Topologicallly sort graph nodes so relations can be properly built
         while to_order:
             node = to_order.pop(0)
             if relations.get(node):
@@ -84,7 +90,9 @@ class ChangeGraph:
         changes = []
         for node in ordered:
             for k, v in node.relations.items():
+                # See earlier note about ignoreing many to many|one
                 if not isinstance(v, (tuple, list)):
+                    # Attach all relations here so a proper change request can be generated
                     setattr(node.instance, k, self._nodes[(v['@id'], v['@type'])].instance)
             changes.append(node.change(submitter))
         return changes

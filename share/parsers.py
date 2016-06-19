@@ -26,6 +26,7 @@ __all__ = (
 )
 
 
+# A wrapper around dicts that can have dicts as keys
 class DictHashingDict:
 
     def __init__(self):
@@ -48,12 +49,19 @@ class DictHashingDict:
         return val
 
 
+# BaseClass for all links
+# Links are a single step of the parsing process
+# Links may not mutate the object passed into them
+# A chain is any number of links added together
 class AbstractLink:
 
     def __init__(self, _next=None, _prev=None):
+        # next and prev are generally set by the __add__ method
         self._next = _next
         self._prev = _prev
 
+    # Build the entire chain this link is a part of
+    # NOTE: This results in the entire chain rather than starting from the current link
     def chain(self):
         first = self
         while first._prev:
@@ -63,17 +71,22 @@ class AbstractLink:
             deq.append(deq[-1]._next)
         return tuple(deq)
 
+    # Transformation logic goes here
     def execute(self, obj):
         raise NotImplemented
 
+    # Short cut method(s) for specific tranforms
     def text(self):
         return self + TextLink()
 
+    # Add a link into an existing chain
     def __add__(self, step):
         self._next = step
         step._prev = self
         return step
 
+    # Reserved for special cases
+    # Any other use is an error
     def __getitem__(self, name):
         if name == '*':
             return self + IteratorLink()
@@ -83,13 +96,23 @@ class AbstractLink:
             return self + IndexLink(name)
         raise Exception
 
+    # For handling paths that are not valid python
+    # or are already used. IE text, execute, oai:title
+    # ctx('oai:title')
     def __call__(self, name):
         return self + PathLink(name)
 
+    # The preferred way of building paths.
+    # Can express either json paths or xpaths
+    # ctx.root.nextelement[0].first_item_attribute
     def __getattr__(self, name):
         return self + PathLink(name)
 
 
+# The begining link for all chains
+# Contains logic for executing a chain against an object
+# Adding another link to an anchor will result in a copy of the
+# original anchor
 class AnchorLink(AbstractLink):
 
     def __init__(self, split=True):
@@ -142,6 +165,10 @@ class Context(AnchorLink):
         self.__init__()
 
 
+# Context singleton to be used for parser definitions
+# Class SHOULD be thread safe
+# Accessing subattribtues will result in a new copy of the context
+# to avoid leaking data between chains
 ctx = Context()
 
 
@@ -171,6 +198,7 @@ class IteratorLink(AbstractLink):
         self.__anchor = AnchorLink(split=False)
 
     def __add__(self, step):
+        # Attach all new links to the "subchain"
         self.__anchor.chain()[-1] + step
         return self
 
@@ -187,6 +215,9 @@ class PathLink(AbstractLink):
 
     def execute(self, obj):
         if isinstance(obj, etree._Element):
+            # Dirty hack to avoid namespaces with xpath
+            # Anything name "<namespace>:<node>" will be accessed as <node>
+            # IE: oai:title -> title
             return obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
         return obj[self._segment]
 
@@ -208,9 +239,11 @@ class TextLink(AbstractLink):
 class ParserMeta(type):
 
     def __new__(cls, name, bases, attrs):
+        # Enabled inheirtence in parsers.
         parsers = {**bases[0].parsers} if bases else {}
         for key, value in tuple(attrs.items()):
             if isinstance(value, AbstractLink):
+                # Only need the AnchorLink to call the parser
                 parsers[key] = attrs.pop(key).chain()[0]
         attrs['parsers'] = parsers
 
@@ -224,11 +257,15 @@ class Subparser:
 
     def resolve(self, parent, value):
         prev, ctx.parent = ctx.parent, parent.context
+        # Peak into the module where all the parsers are being importted from
+        # and look for one matching out name
+        # TODO Add a way to explictly declare the parser to be used. For more generic formats
         klass = getattr(__import__(parent.__module__, fromlist=(self._name,)), self._name)
         if self._is_list:
             ret = [klass(v).parse() for v in value]
         else:
             ret = klass(value).parse()
+        # Reset the parent to avoid leaking into other parsers
         ctx.parent = prev
         return ret
 
@@ -249,6 +286,7 @@ class AbstractParser(metaclass=ParserMeta):
 
         ctx.pool[(self.context, inst['@type'])] = inst
 
+        # Splats result in a new dict; the instance in ctx.pool will not be mutated
         inst = {**inst, **{
             key: (key in self.subparsers and self.subparsers[key].resolve(self, chain.execute(self.context))) or chain.execute(self.context)
             for key, chain in self.parsers.items()
@@ -256,10 +294,13 @@ class AbstractParser(metaclass=ParserMeta):
 
         ctx.graph.append(inst)
 
+        # Return only a reference to the parsed object to avoid circular data structures
         return {'@id': inst['@id'], '@type': inst['@type']}
 
 
 #### Public API ####
+
+## Links ##
 
 def ParseDate(chain):
     return chain + DateParserLink()
@@ -272,6 +313,8 @@ def ParseName(chain):
 def Concat(chain):
     return chain + ConcatLink()
 
+
+## Parser Bases ##
 
 class AbstractOrganization(AbstractParser):
     target = share.models.Organization
@@ -290,7 +333,6 @@ class AbstractEmail(AbstractParser):
 class AbstractPerson(AbstractParser):
     target = share.models.Person
     subparsers = {'affiliations': Subparser('Affiliation', is_list=True)}
-    # subparsers = {'emails': Subparser('Email', is_list=True)}
 
 
 class AbstractManuscript(AbstractParser):

@@ -66,12 +66,16 @@ class ShareManyToMany(models.ManyToManyField):
         actual._share_version_field = version
 
 
+# Generates 3 class from the original definition of the model
+# An abstract class, Abstract<classname>
+# A concrete class, <classname>
+# And a version class, <classname>Version
 class ShareObjectMeta(ModelBase):
 
     def __new__(cls, name, bases, attrs):
         if models.Model in bases or len(bases) > 1:
             return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
-        module = attrs['__module__']
+        module = attrs['__module__']  # Django pops __module__ off for some reason
 
         if not attrs.get('Meta'):
             attrs['Meta'] = type('Meta', (object, ), {})
@@ -92,6 +96,8 @@ class ShareObjectMeta(ModelBase):
             'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version')
         })
 
+        # Inject <classname>Version into the module of the original class defintion
+        # Makes shell_plus work
         inspect.stack()[1].frame.f_globals.update({concrete.VersionModel.__name__: concrete.VersionModel})
 
         return concrete

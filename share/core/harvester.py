@@ -64,17 +64,14 @@ class Harvester(metaclass=abc.ABCMeta):
         if isinstance(end_date, datetime.timedelta):
             end_date = start_date + end_date
 
-        assert start_date < end_date, 'start_date must be before end_date {} < {}'.format(start_date, end_date)
+        og_start, og_end = start_date, end_date
+        start_date, end_date = self.shift_range(start_date, end_date)
+        assert isinstance(start_date, datetime.datetime) and isinstance(start_date, datetime.datetime), 'transpose_time_window must return a tuple of 2 datetimes'
 
-        if callable(self.shift_range):
-            start_date, end_date = self.shift_range(start_date, end_date)
-            assert isinstance(start_date, datetime.datetime) and isinstance(start_date, datetime.datetime), 'transpose_time_window must return a tuple of 2 datetimes'
-            assert start_date < end_date, 'start_date must be before end_date {} < {}'.format(start_date, end_date)
-
-        if shift_range and callable(self.shift_range):
-            og_start, og_end = start_date, end_date
-            start_date, end_date = self.shift_range(start_date, end_date)
+        if (og_start, og_end) != (start_date, end_date):
             logger.warning('Date shifted from {} - {} to {} - {}. Disable shifting by passing shift_range=False'.format(og_start, og_end, start_date, end_date))
+
+        assert start_date < end_date, 'start_date must be before end_date {} < {}'.format(start_date, end_date)
 
         stored = []
         with transaction.atomic():
@@ -90,6 +87,8 @@ class Harvester(metaclass=abc.ABCMeta):
 
         logger.info('Collected {} data blobs from {}'.format(len(stored), self.config.title))
 
+    # Orders a python dict recursively so it will always hash to the
+    # same value. Used for Dedupping harvest results
     def encode_json(self, data):
         def order_json(data):
             return OrderedDict(sorted([
