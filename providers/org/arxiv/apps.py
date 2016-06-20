@@ -1,12 +1,7 @@
-from celery.schedules import crontab
-
-from share.core import ProviderAppConfig
-
-# from .harvester import ArxivHarvester
-# from .normalizer import ArxivNormalizer
+from share.core import OAIProviderAppConfig
 
 
-class ArxivConfig(ProviderAppConfig):
+class ArxivConfig(OAIProviderAppConfig):
     name = 'providers.org.arxiv'
 
     title = 'arxiv'
@@ -16,13 +11,3 @@ class ArxivConfig(ProviderAppConfig):
     def harvester(self):
         from .harvester import ArxivHarvester
         return ArxivHarvester
-
-    @property
-    def normalizer(self):
-        from .normalizer import ArxivNormalizer
-        return ArxivNormalizer
-
-    # harvester = ArxivHarvester
-    # normalizer = ArxivNormalizer
-
-    schedule = crontab(minute=0, hour=0)
