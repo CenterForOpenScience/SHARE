@@ -79,28 +79,14 @@ JSONField.register_lookup(lookups.HasKeys)
 JSONField.register_lookup(lookups.HasAnyKeys)
 
 
-class JSONValidator(object):
-    message = _('Enter valid JSON.')
-    code = 'invalid'
+def is_valid_jsonld(value):
+    try:
+        json_value = ujson.loads(value)
+    except:
+        raise ValidationError(message='Enter valid JSON.', code='invalid')
 
-    def __call__(self, value):
-        try:
-            ujson.loads(value)
-            return
-        except:
-            raise ValidationError(message=self.message, code=self.code)
+    module_path = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(module_path, "jsonld-schema.json")) as file:
+        schema = ujson.load(file)
 
-
-class JSONLDValidator(JSONValidator):
-    message = _('Enter valid JSON-LD.')
-    code = 'invalid'
-
-    def __call__(self, value):
-        # check if it's json
-        super(JSONLDValidator, self).__call__(value)
-
-        module_path = os.path.dirname(os.path.abspath(__file__))
-        schema = ujson.load(os.path.join(module_path, 'jsonld-schema.json'))
-
-        # this will raise a validation error.
-        validate(value, schema)
+    validate(json_value, schema)

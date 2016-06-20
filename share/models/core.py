@@ -4,7 +4,7 @@ from hashlib import sha256
 from django.db import models
 from django.contrib.auth.models import User
 
-from share.models.util import ZipField, DatetimeAwareJSONField, JSONLDValidator
+from share.models.util import ZipField, DatetimeAwareJSONField, is_valid_jsonld
 
 logger = logging.getLogger(__name__)
 __all__ = ('ShareSource', 'RawData', 'NormalizedManuscript', 'NormalizationQueue', 'Normalization')
@@ -78,9 +78,10 @@ class NormalizedManuscript(models.Model):
     id = models.AutoField(primary_key=True)
     raw_data = models.ForeignKey(RawData)
     processed_at = models.DateTimeField(null=True)
-    normalized_data = DatetimeAwareJSONField(default={}, validators=[JSONLDValidator,])
-    sha256 = models.CharField(max_length=64)
+    normalized_data = DatetimeAwareJSONField(default={}, validators=[is_valid_jsonld,])
 
+    def __str__(self):
+        return '{} processed at {}'.format(self.raw_data.source.name, self.processed_at)
 
 class Normalization(models.Model):
     id = models.AutoField(primary_key=True)
