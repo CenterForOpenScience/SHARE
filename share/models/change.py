@@ -14,7 +14,7 @@ from enumfields import EnumField
 from share.models.core import ShareSource
 
 
-__all__ = ('ChangeRequest', )
+__all__ = ('ChangeSet', 'ChangeRequest', )
 logger = logging.getLogger(__name__)
 
 
@@ -44,14 +44,14 @@ class ChangeRequestManager(models.Manager):
         })
 
     @classmethod
-    def create_object(cls, obj, submitter):
+    def create_object(cls, obj, change_set):
         from share.models.base import ShareObject  # Circular import
         assert obj.pk is None, 'Create object requires an unsaved object'
         changes = cls.make_patch(None, obj)
 
         change = ChangeRequest(
             changes=changes.patch,
-            submitted_by=submitter,
+            change_set=change_set,
             status=ChangeRequest.Status.PENDING,
             content_type=ContentType.objects.get_for_model(obj.__class__),
             version_content_type=ContentType.objects.get_for_model(obj.__class__.VersionModel),
@@ -67,7 +67,7 @@ class ChangeRequestManager(models.Manager):
         return change
 
     @classmethod
-    def update_object(cls, updated, submitter):
+    def update_object(cls, updated, change_set):
         assert updated.pk, 'Update objects requires a saved object'
         clean = updated.__class__.objects.get(pk=updated.pk)
         changes = cls.make_patch(clean, updated)
@@ -76,7 +76,7 @@ class ChangeRequestManager(models.Manager):
             target=clean,
             version=clean.version,
             changes=changes.patch,
-            submitted_by=submitter,
+            change_set=change_set,
             status=ChangeRequest.Status.PENDING,
         )
         ret.save()
@@ -89,23 +89,28 @@ class Status(Enum):
     REJECTED = 'R'
 
 
-class ChangeRequest(models.Model):
-    Status = Status
-
+class ChangeSet(models.Model):
     id = models.AutoField(primary_key=True)
-
-    status = EnumField(Status, max_length=1, default=Status.PENDING)
-
-    requires = models.ManyToManyField('ChangeRequest', through='ChangeRequirement')
-
     submitted_by = models.ForeignKey(ShareSource)
     submitted_at = models.DateTimeField(auto_now_add=True, editable=False)
-
-    changes = JSONField()  # TODO Validator for jsonpatch or OTs
 
     # Null mean users submitted
     # raw = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
     # normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
+
+
+class ChangeRequest(models.Model):
+    Status = Status
+
+    objects = ChangeRequestManager()
+
+    id = models.AutoField(primary_key=True)
+    change_set = models.ForeignKey(ChangeSet, related_name='changes')
+    status = EnumField(Status, max_length=1, default=Status.PENDING)
+
+    requires = models.ManyToManyField('ChangeRequest', through='ChangeRequirement')
+
+    changes = JSONField()  # TODO Validator for jsonpatch or OTs
 
     # All fields required for a generic foreign key
     # Points to any ShareObject
@@ -117,8 +122,6 @@ class ChangeRequest(models.Model):
     version_id = models.PositiveIntegerField(null=True)
     version = GenericForeignKey('version_content_type', 'version_id')
     version_content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT,  related_name='%(app_label)s_%(class)s_version')
-
-    objects = ChangeRequestManager()
 
     def reject(self):
         self.status = ChangeRequest.Status.REJECTED
@@ -140,7 +143,7 @@ class ChangeRequest(models.Model):
 
     def apply_change(self):
         jsonpatch.apply_patch(self.target.__dict__, self.changes, in_place=True)
-        self.target.source == self.submitted_by
+        self.target.source == self.change_set.submitted_by
         self.target.save()
         self.save()
         return self.target
@@ -157,7 +160,7 @@ class ChangeRequest(models.Model):
 
         jsonpatch.apply_patch(inst.__dict__, self.changes, in_place=True)
         inst.change = self
-        inst.source = self.submitted_by
+        inst.source = self.change_set.submitted_by
         inst.save()
         self.target = inst
         self.version = inst.versions.first()

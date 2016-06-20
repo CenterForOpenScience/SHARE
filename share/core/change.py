@@ -23,7 +23,7 @@ class GraphNode:
     @property
     def is_blank(self):
         # JSON-LD Blank Node ids start with "_:"
-        return self.id.startswith('_:')
+        return isinstance(self.id, str) and self.id.startswith('_:')
 
     @property
     def model(self):
@@ -33,13 +33,13 @@ class GraphNode:
     def instance(self):
         model = Disambiguator(self.id, self.attrs, self.model).find()
         if model:
-            self._found = False
+            self._found = True
             return model
         return self.model(**self.attrs)
 
     def __init__(self, node):
         self._raw = node
-        self._found = True
+        self._found = False
         node = copy.deepcopy(self._raw)
 
         self.id = node.pop('@id')
@@ -52,10 +52,11 @@ class GraphNode:
 
         self.attrs = node
 
-    def change(self, submitter):
+    def change(self, change_set):
+        self.instance  # noqa
         if self._found:
-            return share.models.ChangeRequest.objects.create_object(self.instance, submitter)
-        return share.models.ChangeRequest.objects.update(self.instance, submitter)
+            return share.models.ChangeRequest.objects.update_object(self.instance, change_set)
+        return share.models.ChangeRequest.objects.create_object(self.instance, change_set)
 
 
 class ChangeGraph:
@@ -65,6 +66,8 @@ class ChangeGraph:
         self._graph = self._raw['@graph']
         self._nodes = {}
         self._relations = {}
+        self.__changes = None
+        self.__change_set = None
 
         for obj in self._graph:
             node = GraphNode(obj)
@@ -73,7 +76,10 @@ class ChangeGraph:
             # Actual many to many|one results in circular dependancies
             self._relations[node] = [x for x in node.relations.values() if not isinstance(x, (tuple, list))]
 
-    def changes(self, submitter):
+    def changes(self, change_set):
+        if self.__changes is not None:
+            return self.__changes
+
         ordered, to_order = [], list(self._nodes.values())
         relations = {k: {(n['@id'], n['@type']) for n in v} for k, v in self._relations.items()}
 
@@ -94,5 +100,17 @@ class ChangeGraph:
                 if not isinstance(v, (tuple, list)):
                     # Attach all relations here so a proper change request can be generated
                     setattr(node.instance, k, self._nodes[(v['@id'], v['@type'])].instance)
-            changes.append(node.change(submitter))
+            changes.append(node.change(change_set))
+        self.__changes = changes
         return changes
+
+    def change_set(self, submitter):
+        if self.__change_set is not None:
+            return self.__change_set
+
+        self.__change_set = share.models.ChangeSet(submitted_by=submitter)
+        self.__change_set.save()
+
+        self.changes(self.__change_set)
+
+        return self.__change_set

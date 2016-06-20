@@ -186,16 +186,35 @@ class TestChange:
 class TestChangeGraph:
     def test_parse_graph(self, ld_graph, share_source):
         graph = ChangeGraph(ld_graph)
-        changes = graph.changes(share_source)
-        for change in changes:
+        change_set = graph.change_set(share_source)
+        for change in change_set.changes.all():
             assert isinstance(change, ChangeRequest)
 
     def test_changes(self, ld_graph, share_source):
         graph = ChangeGraph(ld_graph)
-        changes = graph.changes(share_source)
-        for change in changes:
+        change_set = graph.change_set(share_source)
+        for change in change_set.changes.all():
             change.accept()
 
         assert Person.objects.count() == 5
         assert Contributor.objects.count() == 5
         assert Manuscript.objects.count() == 1
+
+    def test_change_existing(self, share_source, jane_doe):
+        change_set = ChangeGraph({
+            '@graph': [{
+                '@id': jane_doe.pk,
+                '@type': 'Person',
+                'given_name': 'John'
+            }]
+        }).change_set(share_source)
+
+        assert change_set.changes.first().target == jane_doe
+
+        assert jane_doe.given_name == 'Jane'
+
+        change_set.changes.first().accept()
+
+        jane_doe.refresh_from_db()
+
+        assert jane_doe.given_name == 'Jane'

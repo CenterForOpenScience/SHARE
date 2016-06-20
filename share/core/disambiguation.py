@@ -16,7 +16,7 @@ class _Disambiguator:
         self.id = id
         self.attrs = attrs
         self.model = model
-        self.is_blank = id.startswith('_:')
+        self.is_blank = isinstance(id, str) and id.startswith('_:')
 
     def find(self):
         if self.id and not self.is_blank:
