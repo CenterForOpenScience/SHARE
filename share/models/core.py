@@ -4,10 +4,10 @@ from hashlib import sha256
 from django.db import models
 from django.contrib.auth.models import User
 
-from share.models.util import ZipField
+from share.models.util import ZipField, DatetimeAwareJSONField, JSONLDValidator
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareSource', 'RawData', 'NormalizationQueue', 'Normalization')
+__all__ = ('ShareSource', 'RawData', 'NormalizedManuscript', 'NormalizationQueue', 'Normalization')
 
 
 class ShareSource(models.Model):
@@ -72,6 +72,14 @@ class RawData(models.Model):
     class Meta:
         unique_together = (('provider_doc_id', 'source', 'sha256'),)
         verbose_name_plural = 'Raw data'
+
+
+class NormalizedManuscript(models.Model):
+    id = models.AutoField(primary_key=True)
+    raw_data = models.ForeignKey(RawData)
+    processed_at = models.DateTimeField(null=True)
+    normalized_data = DatetimeAwareJSONField(default={}, validators=[JSONLDValidator,])
+    sha256 = models.CharField(max_length=64)
 
 
 class Normalization(models.Model):
