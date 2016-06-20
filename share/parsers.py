@@ -10,6 +10,7 @@ from lxml import etree
 from nameparser import HumanName
 
 import share.models
+from share.core import Normalizer
 
 
 __all__ = (
@@ -187,6 +188,11 @@ class ConcatLink(AbstractLink):
         return '\n'.join(obj)
 
 
+class TrimLink(AbstractLink):
+    def execute(self, obj):
+        return obj.strip()
+
+
 class ParentLink(AbstractLink):
     def execute(self, obj):
         return ctx.parent
@@ -260,7 +266,7 @@ class Subparser:
         # Peak into the module where all the parsers are being importted from
         # and look for one matching out name
         # TODO Add a way to explictly declare the parser to be used. For more generic formats
-        klass = getattr(__import__(parent.__module__, fromlist=(self._name,)), self._name)
+        klass = getattr(parent.__class__, self._name, None) or getattr(__import__(parent.__module__, fromlist=(self._name,)), self._name)
         if self._is_list:
             ret = [klass(v).parse() for v in value]
         else:
@@ -310,8 +316,12 @@ def ParseName(chain):
     return chain + NameParserLink()
 
 
+def Trim(chain):
+    return chain + TrimLink()
+
+
 def Concat(chain):
-    return chain + ConcatLink()
+    return AbstractLink.__add__(chain, ConcatLink())
 
 
 ## Parser Bases ##
@@ -346,3 +356,29 @@ class AbstractContributor(AbstractParser):
     subparsers = {'person': Subparser('Person'), 'manuscript': Subparser('Manuscript')}
 
 #### /Public API ####
+
+
+class OAIPerson(AbstractPerson):
+    given_name = ParseName(ctx.text()).first
+    family_name = ParseName(ctx.text()).last
+
+
+class OAIContributor(AbstractContributor):
+    person = ctx
+    Person = OAIPerson
+
+
+class OAIManuscript(AbstractManuscript):
+    Contributor = OAIContributor
+
+    title = Trim(ctx.metadata[0].dc[0].title[0].text())
+    contributors = ctx.metadata[0].dc[0].creator['*']
+    description = Trim(Concat(ctx.metadata[0].dc[0].description['*'].text()))
+
+
+# TODO Fix me
+OAIContributor.Manuscript = OAIManuscript
+
+
+class OAINormalizer(Normalizer):
+    root_parser = OAIManuscript

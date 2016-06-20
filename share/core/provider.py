@@ -8,10 +8,14 @@ from django.apps import AppConfig
 
 from celery.schedules import crontab
 
+from share.core.normalizer import Normalizer
+
 logger = logging.getLogger(__name__)
 
 
 class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
+
+    schedule = crontab(minute=0, hour=0)
 
     @abc.abstractproperty
     def title(self):
@@ -25,17 +29,21 @@ class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
     def harvester(self):
         raise NotImplementedError
 
-    @abc.abstractproperty
+    @property
     def normalizer(self):
-        raise NotImplementedError
-
-    @abc.abstractproperty
-    def schedule(self):
-        raise NotImplementedError
+        return Normalizer
 
     def as_source(self):
         from share.models import ShareSource
         return ShareSource.objects.get(name=self.name)
+
+
+class OAIProviderAppConfig(ProviderAppConfig, metaclass=abc.ABCMeta):
+
+    @property
+    def normalizer(self):
+        from share.parsers import OAINormalizer
+        return OAINormalizer
 
 
 class ProviderMigration:
