@@ -1,39 +1,24 @@
-import logging
-
-from django.db import transaction
+import abc
 
 
-logger = logging.getLogger(__name__)
-
-
-class Normalizer:
+class Normalizer(metaclass=abc.ABCMeta):
 
     def __init__(self, app_config):
         self.config = app_config
 
-    def normalize(self, raw_data):
-        # from share.models import Normalization
-        from share.models import NormalizationQueue
-        with transaction.atomic():
-            try:
-                models = self.do_normalize(raw_data)
-                NormalizationQueue(data=raw_data).delete()
-            except NormalizationQueue.DoesNotExist:
-                pass
+    @abc.abstractmethod
+    def do_normalize(self, raw_data):
+        raise NotImplementedError
 
-        print(raw_data)
-        while models:
-            x = models.pop(0)
-            x.source = self.config.as_source()
-            for field in x._meta.fields:
-                if 'version' not in field.name:
-                    setattr(x, field.name, getattr(x, field.name))
-            try:
-                x.save()
-            except Exception as e:
-                print(e)
-                models.append(x)
-            # Normalization(data=raw_data).save()
+    def normalize(self, raw_data):
+        from share.parsers import ctx  # TODO Fix circular import
+
+        # Parsed data will be loaded into ctx
+        self.do_normalize(raw_data)
+        jsonld = ctx.jsonld
+        ctx.clear()
+
+        return jsonld
 
     def blocks(self, size=50):
         from share.models import NormalizationQueue

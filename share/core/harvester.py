@@ -85,7 +85,7 @@ class Harvester(metaclass=abc.ABCMeta):
                 assert isinstance(datum, bytes), 'Found non-bytes item {} in results of self.do_harvest'.format(datum)
                 stored.append(RawData.objects.store_data(doc_id, datum, self.source))
 
-        logger.info('Collected {} data blobs from {}'.format(len(stored), self.config.title))
+        return stored
 
     # Orders a python dict recursively so it will always hash to the
     # same value. Used for Dedupping harvest results
