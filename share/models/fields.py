@@ -1,17 +1,13 @@
-import zlib
 import base64
 import binascii
-import ujson
-import os
+import zlib
 
-from django.core.exceptions import ValidationError
-from django.db import models
-from django.core import exceptions
-from django.contrib.postgres.fields.jsonb import JSONField
+import ujson
 from django.contrib.postgres import lookups
+from django.contrib.postgres.fields.jsonb import JSONField
+from django.core import exceptions
+from django.db import models
 from psycopg2.extras import Json
-from django.utils.translation import ugettext_lazy as _
-from jsonschema import validate
 
 
 class ZipField(models.Field):
@@ -79,14 +75,3 @@ JSONField.register_lookup(lookups.HasKeys)
 JSONField.register_lookup(lookups.HasAnyKeys)
 
 
-def is_valid_jsonld(value):
-    try:
-        json_value = ujson.loads(value)
-    except:
-        raise ValidationError(message='Enter valid JSON.', code='invalid')
-
-    module_path = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(module_path, "jsonld-schema.json")) as file:
-        schema = ujson.load(file)
-
-    validate(json_value, schema)

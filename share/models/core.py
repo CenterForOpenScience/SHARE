@@ -4,7 +4,8 @@ from hashlib import sha256
 from django.db import models
 from django.contrib.auth.models import User
 
-from share.models.util import ZipField, DatetimeAwareJSONField, is_valid_jsonld
+from share.models.fields import ZipField, DatetimeAwareJSONField
+from share.models.validators import is_valid_jsonld
 
 logger = logging.getLogger(__name__)
 __all__ = ('ShareSource', 'RawData', 'NormalizedManuscript', 'NormalizationQueue', 'Normalization')
