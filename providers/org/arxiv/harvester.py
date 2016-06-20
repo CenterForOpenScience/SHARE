@@ -31,7 +31,7 @@ class ArxivHarvester(Harvester):
         records = []
         _records, token = self.fetch_page(url, token=None)
 
-        while token:
+        while True:
             records.extend([
                 (
                     x.xpath('ns0:header/ns0:identifier', namespaces=self.NAMESPACES)[0].text,
@@ -40,6 +40,9 @@ class ArxivHarvester(Harvester):
                 for x in _records
             ])
             _records, token = self.fetch_page(self.URL_, token=token)
+
+            if not token or not _records:
+                break
 
         return records
 
