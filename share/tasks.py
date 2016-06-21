@@ -6,9 +6,8 @@ from time import sleep
 import celery
 
 from django.apps import apps
-from django.contrib.auth.models import User
 
-from share.models import RawData, NormalizedManuscript
+from share.models import RawData, NormalizedManuscript, ShareUser
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +49,7 @@ def make_json_patches(normalized_id, started_by_id=None):
     started_by = None
     normalized = NormalizedManuscript.objects.get(pk=normalized_id)
     if started_by_id:
-        started_by = User.objects.get(pk=started_by_id)
+        started_by = ShareUser.objects.get(pk=started_by_id)
     logger.info('{} started make JSON patches for {} at {}'.format(started_by, normalized, datetime.datetime.utcnow().isoformat()))
     sleep(10)
     logger.info('Finished make JSON patches for {} by {} at {}'.format(normalized, started_by, datetime.datetime.utcnow().isoformat()))

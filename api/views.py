@@ -19,7 +19,7 @@ class NormalizedManuscriptViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         prelim_data = request.data
-        prelim_data['source'] = request.user.sharesource.id
+        prelim_data['user'] = request.user.id
         serializer = NormalizedManuscriptSerializer(data=prelim_data)
         if serializer.is_valid():
             nm_instance = serializer.save()

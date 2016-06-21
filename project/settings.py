@@ -31,6 +31,7 @@ DEBUG = bool(os.environ.get('DEBUG', True))
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'share.ShareUser'
 
 # Application definition
 
@@ -121,7 +122,6 @@ DATABASES = {
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
     },
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators

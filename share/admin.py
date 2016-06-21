@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Organization, Affiliation, Email, Manuscript, RawData, ShareSource, NormalizedManuscript
+from .models import Organization, Affiliation, Email, Manuscript, RawData, ShareSource, NormalizedManuscript, ShareUser
 
 # from providers.org.arxiv_api.models import ArxivManuscripts
 
@@ -10,5 +10,6 @@ admin.site.register(Email)
 admin.site.register(Manuscript)
 admin.site.register(RawData)
 admin.site.register(ShareSource)
+admin.site.register(ShareUser)
 admin.site.register(NormalizedManuscript)
 # admin.site.register(ArxivManuscripts)
