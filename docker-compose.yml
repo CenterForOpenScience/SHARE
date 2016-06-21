@@ -25,22 +25,24 @@ services:
     volumes:
       - ./:/code
     environment:
-      POSTGRES_HOST: postgres
+      DATABASE_HOST: postgres
       BROKER_URL: amqp://guest:guest@rabbitmq:5672/
 
   worker:
     build: .
-    command: python3 manage.py celery worker --autoreload -l DEBUG
+    command: python3 manage.py celery worker -l DEBUG
     depends_on:
       - postgres
       - rabbitmq
+      - web
     links:
       - rabbitmq
       - postgres
+      - web
     volumes:
       - ./:/code
     environment:
-      POSTGRES_HOST: postgres
+      DATABASE_HOST: postgres
       BROKER_URL: amqp://guest:guest@rabbitmq:5672/
       API_URL: 'http://web:8000/'
 
@@ -56,7 +58,7 @@ services:
       - rabbitmq
       - postgres
     environment:
-      POSTGRES_HOST: postgres
+      DATABASE_HOST: postgres
       BROKER_URL: amqp://guest:guest@rabbitmq:5672/
 
   monitor:
@@ -75,16 +77,17 @@ services:
 
   web:
     build: .
-    command: python3 manage.py runserver 0.0.0.0:8000
+    command: python3 manage.py runserver --noreload 0.0.0.0:8000
     ports:
       - 8000:8000
-      - 2378:2378
     depends_on:
       - postgres
+      - rabbitmq
     links:
       - postgres
+      - rabbitmq
     volumes:
       - ./:/code
     environment:
-      POSTGRES_HOST: postgres
+      DATABASE_HOST: postgres
       BROKER_URL: amqp://guest:guest@rabbitmq:5672/
