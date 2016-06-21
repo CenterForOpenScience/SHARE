@@ -7,8 +7,8 @@ from django.db.migrations.loader import MigrationLoader
 from django.db.migrations.writer import MigrationWriter
 from django.db.migrations.autodetector import MigrationAutodetector
 
-from share.core import ProviderAppConfig
-from share.core import ProviderMigration
+from share.provider import ProviderAppConfig
+from share.provider import ProviderMigration
 
 
 class Command(BaseCommand):
