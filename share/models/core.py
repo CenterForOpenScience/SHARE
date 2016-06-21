@@ -146,10 +146,10 @@ class RawDataManager(models.Manager):
         )
 
         if created:
-            logger.info('Newly created RawData for document {} from {}'.format(doc_id, source))
+            logger.debug('Newly created RawData for document {} from {}'.format(doc_id, source))
             NormalizationQueue(data=rd).save()
         else:
-            logger.info('Saw exact copy of document {} from {}'.format(doc_id, source))
+            logger.debug('Saw exact copy of document {} from {}'.format(doc_id, source))
 
         rd.save()  # Force timestamps to update
         return rd
@@ -180,6 +180,9 @@ class RawData(models.Model):
         unique_together = (('provider_doc_id', 'source', 'sha256'),)
         verbose_name_plural = 'Raw data'
 
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.source, self.provider_doc_id)
+
 
 class NormalizedManuscript(models.Model):
     id = models.AutoField(primary_key=True)
@@ -189,6 +192,7 @@ class NormalizedManuscript(models.Model):
 
     def __str__(self):
         return '{} created at {}'.format(self.source.name, self.created_at)
+
 
 class Normalization(models.Model):
     id = models.AutoField(primary_key=True)

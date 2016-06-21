@@ -4,8 +4,10 @@ import datetime
 from time import sleep
 
 import celery
+import requests
 
 from django.apps import apps
+from django.conf import settings
 
 from share.models import RawData, NormalizedManuscript, ShareUser
 
@@ -37,12 +39,26 @@ def run_normalizer(self, app_label, raw_id, started_by=None):
     config = apps.get_app_config(app_label)
     normalizer = config.normalizer(config)
 
+    logger.info('Starting normalization for {} by {}'.format(raw, normalizer))
+
     try:
-        logger.info('Starting normalization for {} by {}'.format(raw, normalizer))
         graph = normalizer.normalize(raw)
-        logger.debug('Parsed {} into {}'.format(raw, json.dumps(graph, indent=2)))
     except Exception as e:
         raise self.retry(countdown=10, exc=e)
+
+    logger.debug('Parsed {} into {}'.format(raw, json.dumps(graph, indent=2)))
+    resp = requests.post(settings.API_URL + 'api/normalized/', json={
+        'created_at': datetime.datetime.utcnow().isoformat(),
+        'normalized_data': graph,
+    }, headers={'Authorization': config.authorization()})
+
+    if (resp.status_code // 100) != 2:
+        raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Recieved {!r}'.format(resp)))
+
+    logger.info('Successfully submitted change for {!r}'.format(raw))
+
+    return resp.json()
+
 
 @celery.task()
 def make_json_patches(normalized_id, started_by_id=None):
