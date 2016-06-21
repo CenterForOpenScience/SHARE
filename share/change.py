@@ -4,7 +4,7 @@ import logging
 from django.utils.functional import cached_property
 
 import share.models
-from share.core.disambiguation import Disambiguator
+from share.disambiguation import disambiguate
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class GraphNode:
 
     @cached_property
     def instance(self):
-        model = Disambiguator(self.id, self.attrs, self.model).find()
+        model = disambiguate(self.id, self.attrs, self.model)
         if model:
             self._found = True
             return model

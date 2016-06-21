@@ -1,7 +1,7 @@
 import pytest
 
 from share.models import ShareSource
-from share.core.change import ChangeGraph
+from share.change import ChangeGraph
 
 
 @pytest.fixture

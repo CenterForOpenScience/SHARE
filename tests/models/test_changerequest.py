@@ -8,7 +8,7 @@ from share.models import Manuscript
 from share.models import Contributor
 from share.models import PersonEmail
 from share.models import ChangeRequest
-from share.core.change import ChangeGraph
+from share.change import ChangeGraph
 
 
 @pytest.fixture
