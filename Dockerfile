@@ -3,6 +3,8 @@ FROM alpine:3.4
 RUN apk add --no-cache \
       ca-certificates \
       postgresql-dev \
+      libxml2-dev \
+      libxslt-dev \
       python3-dev \
       libffi-dev \
       musl-dev \
