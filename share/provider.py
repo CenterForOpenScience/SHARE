@@ -41,6 +41,9 @@ class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
         from share.models import ShareSource
         return ShareSource.objects.get(name=self.name)
 
+    def authorization(self):
+        return 'Bearer ' + self.as_source().user.accesstoken_set.first().token
+
 
 class OAIProviderAppConfig(ProviderAppConfig, metaclass=abc.ABCMeta):
 
@@ -71,10 +74,6 @@ class ProviderMigration:
             migrations.RunPython(
                 HarvesterScheduleMigration(self.config.label),
                 # HarvesterScheduleMigration(self.config.label).reverse,
-            ),
-            migrations.RunPython(
-                NormalizerScheduleMigration(self.config.label),
-                # NormalizerScheduleMigration(self.config.label).reverse,
             ),
         ]
 
@@ -146,34 +145,6 @@ class HarvesterScheduleMigration(AbstractProviderMigration):
         PeriodicTask(
             name='{} harvester task'.format(self.config.title),
             task='share.tasks.run_harvester',
-            description='TODO',
-            args=json.dumps([self.config.name]),
-            crontab=tab,
-        ).save()
-
-    def reverse(self, apps, schema_editor):
-        from djcelery.models import PeriodicTask
-        try:
-            PeriodicTask.get(
-                task='share.tasks.run_harvester',
-                args=json.dumps([self.config.name]),
-            ).delete()
-        except PeriodicTask.DoesNotExist:
-            pass
-
-
-class NormalizerScheduleMigration(AbstractProviderMigration):
-
-    schedule = crontab(hour='*')  # Once an hour
-
-    def __call__(self, apps, schema_editor):
-        from djcelery.models import PeriodicTask
-        from djcelery.models import CrontabSchedule
-        tab = CrontabSchedule.from_schedule(self.schedule)
-        tab.save()
-        PeriodicTask(
-            name='{} normalizer task'.format(self.config.title),
-            task='share.tasks.run_normalizer',
             description='TODO',
             args=json.dumps([self.config.name]),
             crontab=tab,
