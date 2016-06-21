@@ -8,7 +8,8 @@ from django.apps import AppConfig
 
 from celery.schedules import crontab
 
-from share.core.normalizer import Normalizer
+from share.normalize import Normalizer
+from share.normalize.oai import OAINormalizer
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,6 @@ class OAIProviderAppConfig(ProviderAppConfig, metaclass=abc.ABCMeta):
 
     @property
     def normalizer(self):
-        from share.parsers import OAINormalizer
         return OAINormalizer
 
 

@@ -1,4 +1,4 @@
-from share.parsers import *  # noqa
+from share.normalize import *  # noqa
 
 
 class Person(AbstractPerson):

@@ -1,6 +1,6 @@
 from lxml import etree
 
-from share.parsers import *  # noqa
+from share.normalize import *  # noqa
 
 
 EXAMPLE = '''

@@ -1,7 +1,6 @@
 from lxml import etree
 
-from share.parsers import *  # noqa
-from share.core.normalizer import Normalizer
+from share.normalize import *  # noqa
 
 
 class Manuscript(AbstractManuscript):

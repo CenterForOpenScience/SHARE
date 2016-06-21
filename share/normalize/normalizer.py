@@ -3,6 +3,13 @@ import json
 
 from lxml import etree
 
+from share.normalize.links import Context
+
+
+# NOTE: Context is a thread local singleton
+# It is asigned to ctx here just to keep a family interface
+ctx = Context()
+
 
 class Normalizer(metaclass=abc.ABCMeta):
 
@@ -33,8 +40,6 @@ class Normalizer(metaclass=abc.ABCMeta):
         return parser(parsed).parse()
 
     def normalize(self, raw_data):
-        from share.parsers import ctx  # TODO Fix circular import
-
         ctx.clear()  # Just incase
         # Parsed data will be loaded into ctx
         self.do_normalize(raw_data)
