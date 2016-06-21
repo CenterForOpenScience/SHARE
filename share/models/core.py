@@ -77,12 +77,12 @@ class RawData(models.Model):
 
 class NormalizedManuscript(models.Model):
     id = models.AutoField(primary_key=True)
-    raw_data = models.ForeignKey(RawData)
-    processed_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(null=True)
     normalized_data = DatetimeAwareJSONField(default={}, validators=[is_valid_jsonld,])
+    source = models.ForeignKey(ShareSource)
 
     def __str__(self):
-        return '{} processed at {}'.format(self.raw_data.source.name, self.processed_at)
+        return '{} created at {}'.format(self.source.name, self.created_at)
 
 class Normalization(models.Model):
     id = models.AutoField(primary_key=True)

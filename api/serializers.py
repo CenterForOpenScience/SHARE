@@ -12,4 +12,4 @@ class RawDataSerializer(serializers.ModelSerializer):
 class NormalizedManuscriptSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.NormalizedManuscript
-        fields = ('raw_data', 'processed_at', 'normalized_data')
+        fields = ('created_at', 'normalized_data', 'source')
