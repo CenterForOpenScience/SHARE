@@ -2,7 +2,7 @@ import logging
 
 from lxml import etree
 
-from share.core import Harvester
+from share import Harvester
 
 
 logger = logging.getLogger(__name__)

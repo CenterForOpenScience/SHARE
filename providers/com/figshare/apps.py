@@ -1,13 +1,11 @@
-from share.core import ProviderAppConfig
+from share import ProviderAppConfig
+
+from providers.com.figshare.harvester import FigshareHarvester
 
 
 class FigshareConfig(ProviderAppConfig):
     name = 'providers.com.figshare'
 
     title = 'figshare'
+    harvester = FigshareHarvester
     home_page = 'https://figshare.com/'
-
-    @property
-    def harvester(self):
-        from .harvester import FigshareHarvester
-        return FigshareHarvester

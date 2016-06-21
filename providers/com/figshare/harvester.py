@@ -1,11 +1,13 @@
 from datetime import timedelta
 
-from share.core import Harvester
+from furl import furl
+
+from share import Harvester
 
 
 class FigshareHarvester(Harvester):
 
-    url = 'https://api.figshare.com/v1/articles/search?search_for=*&from_date={}&to_date={}'
+    url = 'https://api.figshare.com/v1/articles/search'
 
     def shift_range(self, start_date, end_date):
         """ Figshare should always have a 24 hour delay because they
@@ -20,7 +22,11 @@ class FigshareHarvester(Harvester):
         end_date = end_date.date()
         start_date = start_date.date()
 
-        return self.fetch_records(self.url.format(start_date.isoformat(), end_date.isoformat()))
+        return self.fetch_records(furl(self.url).set(query_params={
+            'search_for': '*',
+            'to_date': end_date.isoformat(),
+            'from_date': start_date.isoformat(),
+        }).url)
 
     def fetch_records(self, url):
         page = 1
@@ -30,7 +36,7 @@ class FigshareHarvester(Harvester):
 
         while len(records) < total:
             page += 1
-            resp = self.requests.get(url + '&page={}'.format(page))
+            resp = self.requests.get(furl(url).add(query_params={page: page}).url)
             records.extend((item['article_id'], self.encode_json(item)) for item in resp.json()['items'])
 
         return records

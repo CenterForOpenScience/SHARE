@@ -1,13 +1,11 @@
-from share.core import OAIProviderAppConfig
+from share.provider import OAIProviderAppConfig
+
+from providers.org.arxiv.harvester import ArxivHarvester
 
 
 class ArxivConfig(OAIProviderAppConfig):
     name = 'providers.org.arxiv'
 
     title = 'arxiv'
-    home_page = ''
-
-    @property
-    def harvester(self):
-        from .harvester import ArxivHarvester
-        return ArxivHarvester
+    harvester = ArxivHarvester
+    home_page = 'https://arxiv.org'
