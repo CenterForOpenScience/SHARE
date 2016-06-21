@@ -48,13 +48,13 @@ class AbstractParser(metaclass=ParserMeta):
 
     def __init__(self, context):
         self.context = context
-        self._value = ctx.pool.get((context, self.__class__.__name__))
+        self._value = ctx.pool.get((context, self.schema))
 
     def parse(self):
         if self._value:
             return self._value
 
-        inst = {'@id': '_:' + uuid.uuid4().hex, '@type': self.__class__.__name__}
+        inst = {'@id': '_:' + uuid.uuid4().hex, '@type': self.schema}
 
         ctx.pool[(self.context, inst['@type'])] = inst
 
@@ -71,26 +71,30 @@ class AbstractParser(metaclass=ParserMeta):
 
 
 class AbstractOrganization(AbstractParser):
-    pass
+    schema = 'Organization'
 
 
 class AbstractAffiliation(AbstractParser):
+    schema = 'Affiliation'
     person = ctx['parent']
     subparsers = {'organization': Subparser('Organization'), 'person': Subparser('Person')}
 
 
 class AbstractEmail(AbstractParser):
-    pass
+    schema = 'Email'
 
 
 class AbstractPerson(AbstractParser):
+    schema = 'Person'
     subparsers = {'affiliations': Subparser('Affiliation', is_list=True)}
 
 
 class AbstractManuscript(AbstractParser):
+    schema = 'Manuscript'
     subparsers = {'contributors': Subparser('Contributor', is_list=True)}
 
 
 class AbstractContributor(AbstractParser):
+    schema = 'Contributor'
     manuscript = ctx['parent']
     subparsers = {'person': Subparser('Person'), 'manuscript': Subparser('Manuscript')}
