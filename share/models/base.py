@@ -68,7 +68,7 @@ class ShareObjectMeta(ModelBase):
             'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version')
         })
 
-        # Inject <classname>Version into the module of the original class defintion
+        # Inject <classname>Version into the module of the original class definition
         # Makes shell_plus work
         inspect.stack()[1].frame.f_globals.update({concrete.VersionModel.__name__: concrete.VersionModel})
 
