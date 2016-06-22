@@ -1,7 +1,8 @@
 #!/bin/bash
 
-rm -f share/migrations/00*.py
-rm -f providers/*/*/migrations/0*.py
+# rm -f share/migrations/00*.py
+# rm -f providers/*/*/migrations/0*.py
+git clean -f
 
 python manage.py reset_db --noinput
 

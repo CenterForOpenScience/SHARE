@@ -6,12 +6,15 @@ from django.db import migrations
 from django.conf import settings
 
 def create_application(apps, schema_editor):
+    from oauth2_provider.models import Application as ActualApplication
     Application = apps.get_model('oauth2_provider', 'Application')
     ShareUser = apps.get_model('share', 'ShareUser')
     share_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+    # import ipdb
+    # ipdb.set_trace()
     fields = dict(
-        client_type=Application.CLIENT_TYPES.CLIENT_CONFIDENTIAL,
-        authorization_grant_type=Application.GRANT_TYPES.GRANT_PASSWORD,
+        client_type=str(ActualApplication.CLIENT_TYPES[0][1]),
+        authorization_grant_type=str(ActualApplication.GRANT_TYPES[2][1]),
         name='Harvester API',
         user=share_user
     )
