@@ -86,8 +86,8 @@ class Command(BaseCommand):
                 continue
             ops.extend(self.build_operations(model))
 
-        m = Migration('0002_triggers', 'share')
+        m = Migration('0003_triggers', 'share')
         m.operations = ops
-        m.dependencies = [('share', '0001_initial')]
+        m.dependencies = [('share', '0001_initial'), ('share', '0002_create_share_user')]
 
         self.write_migration(m)
