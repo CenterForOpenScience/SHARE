@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('oauth2_provider', '0002_08_updates'),
-        ('share', '0003_create_share_user'),
+        ('share', '0002_create_share_user'),
     ]
 
     operations = [
