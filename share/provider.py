@@ -1,6 +1,9 @@
 import abc
+import datetime
 import json
 import logging
+import random
+import string
 
 from django.apps import apps
 from django.db import migrations
@@ -58,6 +61,14 @@ class ProviderMigration:
                 # ProviderSourceMigration(self.config.label).reverse,
             ),
             migrations.RunPython(
+                HarvesterUserMigration(self.config.label),
+                # HarvesterUserMigration(self.config.label).reverse,
+            ),
+            migrations.RunPython(
+                HarvesterOauthTokenMigration(self.config.label),
+                # HarvesterOauthTokenMigration(self.config.label).reverse,
+            ),
+            migrations.RunPython(
                 HarvesterScheduleMigration(self.config.label),
                 # HarvesterScheduleMigration(self.config.label).reverse,
             ),
@@ -88,6 +99,42 @@ class AbstractProviderMigration:
     def deconstruct(self):
         return ('{}.{}'.format(__name__, self.__class__.__name__), (self.config.label, ), {})
 
+
+class HarvesterUserMigration(AbstractProviderMigration):
+    def __call__(self, apps, schema_editor):
+        from share.models import ShareUser
+        user = ShareUser.objects.create_harvester_user(self.config.name, self.config.name)
+
+    def reverse(self, apps, schema_editor):
+        from share.models import ShareUser
+        try:
+            ShareUser.objects.get(username=self.config.name, harvester=self.config.name).delete()
+        except ShareUser.DoesNotExist:
+            pass
+
+
+
+class HarvesterOauthTokenMigration(AbstractProviderMigration):
+    def __call__(self, apps, schema_editor):
+        ShareUser = apps.get_model('share', 'ShareUser')
+        Application = apps.get_model('oauth2_provider', 'Application')
+        AccessToken = apps.get_model('oauth2_provider', 'AccessToken')
+        from django.conf import settings
+        migration_user = ShareUser.objects.get(username=self.config.name, harvester=self.config.name)
+        application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+        application = Application.objects.get(user=application_user)
+        client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
+        token = AccessToken.objects.create(
+            user=migration_user,
+            application=application,
+            expires=(datetime.datetime.utcnow() + datetime.timedelta(years=20)),
+            scope='{} {}'.format(settings.OAUTH2_PROVIDER['SCOPES'][3], settings.OAUTH2_PROVIDER['SCOPES'][4]),
+            token=client_secret
+        )
+
+
+    def reverse(self, apps, schema_editor):
+        pass
 
 class HarvesterScheduleMigration(AbstractProviderMigration):
 

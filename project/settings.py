@@ -65,6 +65,8 @@ OAUTH2_PROVIDER = {
     }
 }
 
+APPLICATION_USERNAME = 'share_oauth2_application_user'
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
     'DEFAULT_AUTHENTICATION_CLASSES': ('oauth2_provider.ext.rest_framework.OAuth2Authentication',),
