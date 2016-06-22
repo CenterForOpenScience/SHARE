@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 # NOTE: Have to use relative imports here because Django hates fun
 class Harvester(metaclass=abc.ABCMeta):
 
+    # TODO Make this apply across threads
     rate_limit = (5, 1)  # Rate limit in requests per_second
 
     @property
@@ -41,15 +42,38 @@ class Harvester(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def do_harvest(self, start_date, end_date):
+        """Fetch date from this provider inside of the given date range.
+
+        Any HTTP[S] requests MUST be sent using the self.requests client.
+        It will automatically in force rate limits
+
+        Args:
+            start_date (datetime):
+            end_date (datetime):
+
+        Returns:
+            List<Tuple<str, str|dict|bytes>>: The fetched data paired with
+            the unique ID that this provider uses.
+
+            [
+                ('1', {'my': 'doc'}),
+                ('2', {'your': 'doc'}),
+            ]
+        """
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def fetch_records(self, url):
-        raise NotImplementedError
-
-    # Callable that takes (start_date, end_date) and returns a tuple (start_date, end_date)
-    # For providers that should be collecting data at an offset. See figshare
     def shift_range(self, start_date, end_date):
+        """Most providers will not need this method.
+
+        For providers that should be collecting data at an offset, see figshare.
+
+        Args:
+            start_date (datetime):
+            end_date (datetime):
+
+        Returns:
+            (datetime, datetime): The shifted date range
+        """
         return start_date, end_date
 
     def harvest(self, start_date=None, end_date=None, shift_range=True):
@@ -87,9 +111,15 @@ class Harvester(metaclass=abc.ABCMeta):
 
         return stored
 
-    # Orders a python dict recursively so it will always hash to the
-    # same value. Used for Dedupping harvest results
     def encode_json(self, data):
+        """Orders a python dict recursively so it will always hash to the
+        same value. Used for Dedupping harvest results
+        Args:
+            data (dict):
+
+        Returns:
+            str: json.dumpsed ordered dictionary
+        """
         def order_json(data):
             return OrderedDict(sorted([
                 (key, order_json(value) if isinstance(value, dict) else value)

@@ -38,8 +38,8 @@ class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
         return Normalizer
 
     def as_source(self):
-        from share.models import ShareSource
-        return ShareSource.objects.get(name=self.name)
+        from share.models import ShareUser
+        return ShareUser.objects.get(harvester=self.name)
 
     def authorization(self):
         return 'Bearer ' + self.as_source().user.accesstoken_set.first().token
