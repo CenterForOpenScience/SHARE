@@ -17,7 +17,6 @@ class AbstractShareObject(models.Model):
 
     date_modified = models.DateTimeField(auto_now=True)
     date_created = models.DateTimeField(auto_now_add=True)
-    extra = models.OneToOneField('ExtraData')
 
     class Meta:
         abstract = True
