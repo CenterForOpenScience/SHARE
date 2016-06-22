@@ -81,6 +81,9 @@ class ShareObjectMeta(ModelBase):
             attrs['Meta'] = type('Meta', (object, ), {})
         attrs['Meta'].abstract = True
 
+        if hasattr(attrs['Meta'], 'db_table'):
+            delattr(attrs['Meta'], 'db_table')
+
         attrs['__qualname__'] = 'Abstract' + attrs['__qualname__']
         abstract = super(ShareObjectMeta, cls).__new__(cls, 'Abstract' + name, (AbstractShareObject, ), attrs)
 
