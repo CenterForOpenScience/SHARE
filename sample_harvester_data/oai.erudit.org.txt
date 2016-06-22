@@ -1,0 +1,1352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+                             http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2016-06-22T21:08:24Z</responseDate>
+  <request verb="ListRecords" metadataPrefix="oai_dc">http://oai.erudit.org/oaiproviderpublic/request</request>
+<ListRecords>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000031ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Managing the Multinationals: An International Study of Control Mechanisms by Anne-Wil KatheHarzing, Cheltenham: Edward Elgar, 1999, 425 pp., ISBN 1-84064-052-9. </dc:title>
+   <dc:creator>Rees, Chris</dc:creator>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000031ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000031ar</dc:identifier>
+   <dc:language>en</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000032ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Charette-Lavoie, Diane. Contes et légendes à frissons. Adaptés par Diane Charette-Lavoie. Sudbury, Centre Fora, 2003, Version 1, 60 p. Version 2, 60 p. + DC. ISBN 2-8956-7027-7 </dc:title>
+   <dc:creator>Thériault, Gisèle</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000032ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000032ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000033ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>[Collectif]. 10 ans, ça conte ! Le rendez-vous des grandes gueules. Montréal, Planète rebelle, « Paroles », 2007, 138-[1] p. + deux DC. ISBN 978-2-922528-74-9 </dc:title>
+   <dc:creator>Boivin, Aurélien</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000033ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000033ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000034ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Collectif Littorale (sous la direction du). L’Art du conte en dix leçons. Présentation de Christian-Marie Pons. Montréal, Planète Rebelle, « Regards », 2007, 262 p. ISBN 978-2-922528-75-6 </dc:title>
+   <dc:creator>Long, Daniel</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000034ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000034ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000035ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Dévost, Godefroy-C. Les Deux Allégeances d’Anselme Chiasson : sa vie et son oeuvre. Moncton, Centre d’études acadiennes, 2006, 387 p. ISBN 0-9780730-0-2 </dc:title>
+   <dc:creator>Robichaud, Lise</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000035ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000035ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000036ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>El Yamani, Myriame et Jacques Pasquet (sous la direction de), Nadia Baribault, Dominique Breau, Myriame El Yamani, Alfred Leger, Nelson Michaud, Yvettte Pitre, Robert Richard. Parlures d’Acadie. Montréal, Planète rebelle, « Paroles », 2007, 92 p. + CD. ISBN 978-2-922528-76-3 </dc:title>
+   <dc:creator>Lamothe, Maurice</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000036ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000036ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000037ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Enckell, Pierre. Dictionnaire des jurons. Préface de Jacques Réda. Ouvrage publié avec le concours du Centre national du livre. [Paris], Presses universitaires de France, [2004], 801 p. ISBN 2-13-053933-5 </dc:title>
+   <dc:creator>Pichette, Jean-Pierre</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000037ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000037ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000038ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Fontaine, Jean-Louis. Croyances et rituels chez les Innus 1603-1650. L’univers religieux traditionnel des Tsjaf∂nnut. Préface de Denys Delâge. [Québec], Les Éditions GID, [2006], 149 p. ISBN 2-922668-75-4 </dc:title>
+   <dc:creator>Muise, Grégoire</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000038ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000038ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000039ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Gauthier, Serge. Charlevoix ou la création d’une région folklorique. Québec, Les Presses de l’Université Laval, 2006, xiii-208 p. ISBN 2-7637-8370-8 </dc:title>
+   <dc:creator>Bergeron, Bertrand</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000039ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000039ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000040ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Gauthier, Serge. Louis le Magnétiseur. Récit. [Chicoutimi], Les Éditons JCL, [2005], 103 p. ISBN 2-89431-333-0 </dc:title>
+   <dc:creator>LeBlanc, Matthieu</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000040ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000040ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000041ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Publications récentes</dc:title>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000041ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000041ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000042ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Gauthier, Serge. Les Ramancheurs Boily au Québec (De Charlevoix au Saguenay jusqu’à Montréal). La Malbaie, Les Éditions Charlevoix, 2007, 80 p. ISBN : 978-2-922420-05-0 </dc:title>
+   <dc:creator>Bergeron, Bertrand</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000042ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000042ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000043ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Germain, Georges-Hébert. Un musée dans la ville, une histoire du Musée des beaux-arts de Montréal. Montréal, Mbam, 2007, 270 p. ISBN 978-89192-317-7 </dc:title>
+   <dc:creator>Dubé, Philippe</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000043ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000043ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000044ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Hahn, Waltraud. Un objet religieux et sa pratique. Le chemin de croix « portatif » aux xixe et xxe siècles en France. Traduit par Laurent Knepfler et Dominique Lerch. Paris, Les Éditions du Cerf, « Images et Beaux Livres », 2007, 309 p. ISBN 978-2-204-07797-2 </dc:title>
+   <dc:creator>Simard, Jean</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000044ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000044ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000045ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Landry, Madeleine et Robert Derome. L’Art sacré en Amérique française. Le trésor de la Côte-de-Beaupré. Préface de Jacques Mathieu. Québec, Septentrion [en coédition avec Nouveau Monde éditions, Paris], 2005, 207 p. ISBN 2-89448-428-3 Louise-Andrée Laliberté et Daniel Tremblay, avec la collaboration de Denyse Légaré. Art sacré, actes créateurs. Préface de Marc Ouellet. Québec, Commission de la capitale nationale du Québec et Éditions Sylvain Harvey, 2008, 173 p. ISBN 978-2-921703-82-6 </dc:title>
+   <dc:creator>Simard, Jean</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000045ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000045ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000046ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Lépine, Germain. Le Carré Lépine, 130 ans de services funéraires. Québec, Éditions du Belvédère, 2006, 80 p. ISBN 2-9809237-1-0 Hébert, Yves et Alain Franck. La Mort au fil du temps. La famille Normand, un siècle de pratique funéraire suivi de Rites d’autrefois. Montmagny, Productions Laurent Normand, 2002, 71 p. ISBN 2-9807552-06 </dc:title>
+   <dc:creator>Janson, Rébecca</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000046ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000046ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000047ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Litalien, Raymonde, Jean-François Palomino et Denis Vaugeois. La Mesure d’un continent. Atlas historique de l’Amérique du Nord, 1492-1814. Sillery, Les éditions du Septentrion, 2008, 298 p. ISBN 2-89448-519-0 </dc:title>
+   <dc:creator>LeBlanc, Ronnie-Gilles</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000047ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000047ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000048ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Mercier, Louis, avec la collaboration d’Hélène Cajolet-Laganière (dir.). Français du Canada-Français de France vi. Actes du sixième colloque international d’Orford, Québec, du 26 au 29 septembre 2000. Tübingen, Max Niemeyer Verlag, « Canadiana Romanica » 18, 2004, vi-365 p. ISBN 978-3-484-56018-5 </dc:title>
+   <dc:creator>De Surmont, Jean-Nicolas</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000048ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000048ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000049ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Pichette, Jean-Pierre [dir.]. Le Patrimoine religieux de la Nouvelle-Écosse. Signes et paradoxes en Acadie. Actes du colloque national organisé les 19 et 20 juin 2006 à l’Université Sainte-Anne. [Cahier de] Port Acadie. Revue interdisciplinaire en études acadiennes, nos 10, 11 et 12 (automne 2006, printemps 2007, automne 2007), 305 p. ISSN 1498-7651 </dc:title>
+   <dc:creator>Rocher, Marie-Claude</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000049ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000049ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000050ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Trois positions dans le débat sur le modèle québécois</dc:title>
+   <dc:creator> Lévesque, Benoît</dc:creator>
+   <dc:creator>Bourque, Gilles L.</dc:creator>
+   <dc:creator>Vaillancourt, Yves</dc:creator>
+   <dc:date>1999</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 12 no. 2 (1999)</dc:relation>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000050ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000050ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits de reproduction, de traduction et d'adaptation réservés © Presses de l'Université du Québec (PUQ), 1999</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000001ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Travailler le social : pour une redéfinition</dc:title>
+   <dc:creator>Carette, Jean</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000001ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000001ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>      Tous droits de reproduction, de traduction et d'adaptation réservés ©      Presses de l'Université du Québec (PUQ), 2000    </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000002ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Nouveau regard sur la réalité complexe des enfants de la rue en Amérique latine : Entrevue avec Riccardo Lucchini, Sociologue, Université de Fribourg        (Suisse)</dc:title>
+   <dc:creator>Parazelli, Michel</dc:creator>
+   <dc:creator>Poirier, Mario</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000002ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000002ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000003ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Le travail social : nouveaux enjeux, nouvelles pratiques</dc:title>
+   <dc:creator>Mercier, Clément</dc:creator>
+   <dc:creator>Mathieu, Réjean</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000003ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000003ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000004ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Le travail social au Québec (1960-2000) : 40 ans de transformation d'une        profession</dc:title>
+   <dc:creator>Favreau, Louis</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr"> En nous centrant sur des pratiques plus « généralistes » du travail social qui ont        souvent émergé à sa périphérie (organisateurs communautaires de CLSC, agents de relations        humaines, employés dans les organisations communautaires de santé et de services sociaux,        etc.), nous souhaitons prolonger la réflexion amorcée dans la revue Nouvelles pratiques sociales voulant que le travail social        ne soit pas à la remorque du changement social mais participe plutôt, avec d'autres, au        renouvellement des pratiques (Mathieu, 1999). L'exemple du travail social pratiqué dans les        champs de l'entraide économique, de l'insertion par le travail, du développement local et de        l'économie sociale servira de démonstration. Cette démonstration sera précédée d'une analyse        du travail social et de ses transformations depuis 40 ans (1960-2000), analyse qui nous        amènera à conclure à la capacité de rebondir de la profession lors des crises successives        (d'identité et de légitimité) que cette dernière a vécues et non à son repli identitaire.      </dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000004ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000004ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000005ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Lorsque des pratiques différentes se heurtent : les relations entre les travailleurs de        rue et les autres intervenants</dc:title>
+   <dc:creator>Duval, Michelle</dc:creator>
+   <dc:creator>Fontaine, Annie</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr">De plus en plus sollicités pour établir un pont entre le monde institutionnel et les        jeunes exclus, les travailleurs de rue ont avec les autres intervenants des relations qui        sont souvent tendues. Des entrevues menées auprès de travailleurs de rue et d'intervenants        de différents secteurs (policier, scolaire, services sociaux et de santé, hébergement        communautaire) révèlent que ces tensions trouvent leur origine dans la méconnaissance du        travail de rue ainsi que dans la difficulté à reconnaître la spécificité (formes, finalités,        lecture de la réalité des jeunes marginalisés sur laquelle elle s'appuie) et la pertinence        de cette pratique d'intervention.</dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000005ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000005ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000006ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title> La construction de savoirs d'expérience chez des intervenantes d'organismes        communautaires pour femmes sans-abri : un processus participatif, collectif et non planifié</dc:title>
+   <dc:creator>Racine, Guylaine</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr">Cet article présente les résultats d'une étude portant sur la description du processus        d'apprentissage expérientiel d'intervenantes oeuvrant dans des organismes communautaires        pour femmes sans-abri. L'analyse des données révèle que les savoirs d'expérience de ces        intervenantes se construisent progressivement, à travers un processus de réflexion sur        l'action suscité par des situations problématiques qui surgissent de la pratique. L'analyse        met également en relief le rôle central du collectif d'intervenantes dans la construction de        ces savoirs. Ces résultats permettent de revitaliser le concept d'apprentissage        expérientiel : plutôt qu'un processus individuel de production de savoirs, il est possible        de l'envisager sous l'angle d'une co-construction de savoirs à laquelle participent des        actrices concernées par un même objet.</dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000006ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000006ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000007ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title> Intervention en soutien à l'empowerment.    Dans Naître égaux – Grandir en santé   </dc:title>
+   <dc:creator>Ouellet, Francine</dc:creator>
+   <dc:creator>René, Jean-François</dc:creator>
+   <dc:creator>Durand, Danielle</dc:creator>
+   <dc:creator>Dufour, Renée</dc:creator>
+   <dc:creator>Garon, Suzanne</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr"> Cet article s'intéresse au rôle joué par l'intervention dans le processus d'empowerment de personnes en situation d'extrême    pauvreté. Il se fonde sur une étude de cas d'une vingtaine de familles rejointes par le    programme de santé publique Naître égaux – Grandir en santé (NÉ – GS). Il identifie d'abord    les principales composantes qui se dégagent des processus d'empowerment observés. Par la suite, et c'est là le coeur de notre propos,    l'article fait ressortir un certain nombre d'éléments pour qualifier l'intervention    individuelle réalisée dans un tel contexte : une intervention à un moment clé de la vie ;    une forte relation de confiance ; une intervention qui part du ou des projets des parents ;    enfin, un accompagnement vers les services et ressources de la communauté en procurant le    sentiment de posséder du pouvoir. </dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000007ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000007ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©    Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000008ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Agriculture urbaine et développement : l'expérience mexicaine</dc:title>
+   <dc:creator>Boulianne, Manon</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr">Dans les pays du Sud, depuis le début des années 1970, l'agriculture urbaine fait        l'objet d'un nombre croissant d'interventions de la part d'agences publiques et d'organismes        non gouvernementaux (ONG). Ces interventions s'inscrivent, en général, dans des projets de        développement social pour des populations pauvres identifiées comme bénéficiaires. Certaines        initiatives sont toutefois portées par des organisations populaires issues des mouvements        sociaux urbains. Associées à une économie sociale, elles s'insèrent dans une dynamique de        développement économique communautaire. C'est ce que nous avons observé à l'occasion d'une        recherche réalisée auprès de différentes organisations mexicaines.</dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000008ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000008ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000009ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Les défis posés au travail social à l'ère des technologies de l'information</dc:title>
+   <dc:creator>Bouchard, Louise</dc:creator>
+   <dc:creator>Ducharme, Marie-Noëlle</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr">Cet article rend compte des enjeux relatifs à l'implantation des nouvelles        technologies de l'information et des communications (NTIC) à travers les phases successives        de leur apparition dans les champs d'intérêts du travail social. La première partie du texte        situe l'émergence des NTIC dans le cadre plus large des théories de la société de        l'information. La seconde partie décrit les différentes étapes qui ont présidé à        l'implantation des NTIC dans les champs d'action du travail social au Québec et ailleurs.        Dans la dernière partie, les travailleurs sociaux sont conviés à réexaminer attentivement        les nouveaux effets d'exclusion de la société de l'information. Ils sont par ailleurs        invités à dépasser (notamment avec l'avènement du numérique) leurs résistances initiales à        l'endroit des NTIC et à les considérer comme des outils susceptibles d'aider les        travailleurs sociaux et peut-être plusieurs groupes de personnes défavorisées.</dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000009ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000009ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000010ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title> L'inflation réflexive dans le courant praxéologique : indice de la reconstruction de        l'idéologie professionnaliste        </dc:title>
+   <dc:creator>Couturier, Yves</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr">S'appuyant sur un travail similaire réalisé en Belgique pour le secteur du management        (Eraly, 1994), le présent article analyse un corpus de textes issus du courant dit        praxéologique. Ce courant d'analyse des pratiques professionnelles, dont l'audience est        relativement forte chez les praticiens et praticiennes, pose la capacité réflexive au coeur        d'une méthode pour augmenter l'efficacité des pratiques professionnelles. Notre analyse        considère cette inflation réflexive sous un angle sociologique et élucide ses fondements et        sa portée comme indice de la reconstruction de l'idéologie professionnaliste.</dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000010ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000010ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000011ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Aspects sociopolitiques de la prévention du VIH auprès des personnes consommant des        drogues par injection</dc:title>
+   <dc:creator>Laberge, Luc</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr">Le rapport toxicomanie-sida soulève des questions sociétales complexes et profondes        venant éprouver notre degré de maturité sociale et de respect de l'autre. L'expertise        biomédicale et épidémiologique sert actuellement de référence pour baliser des orientations        et stratégies de prévention du VIH auprès des personnes consommant des drogues. Cette façon        de voir et de faire a pour effet de subordonner presque exclusivement le champ des        interventions préventives au plan individuel et dans les dimensions sanitaires.L'auteur relate des paradoxes, obstacles et égarements dans l'application des        programmes de prévention du VIH et propose un renouvellement des pratiques sociales en        traitant d'enjeux plus globaux de société visant à la réduction des inégalités sociales et        économiques et en renvoyant à la reconnaissance de l'émergence de la personne en tant que        sujet de sa vie et au respect de la dignité de la personne humaine.</dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000011ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000011ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000012ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Sexualité et handicap : de l'angélisation à la sexualisation de la personne handicapée        physique</dc:title>
+   <dc:creator>Dupras, André</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr">Ce texte présente une analyse des représentations sociales de la sexualité de la        personne handicapée physique. Des témoignages puisés dans des biographies ou des films        permettent de constater que la société demande aux personnes handicapées de s'identifier à        une image angélique et lui promet le bonheur en échange. Elle exige le sacrifice de leur        sexualité pour leur faire adopter la figure d'êtres asexués qui symbolisent la pureté et la        lutte contre le mal. Des personnes handicapées refusent l'état angélique qui les avilit ;        elles s'opposent à un monde qui les exclut dans leur identité sexuelle ; elles revendiquent        le droit à une vie sexuelle épanouissante. Ces considérations ouvrent des perspectives        susceptibles de renouveler la pratique sociale auprès des personnes handicapées.</dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000012ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000012ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000013ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Les techniques de travail social : un programme révisé, le rôle du travail social        revisité</dc:title>
+   <dc:creator>Daigneault, Dominique</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr">Les départements de techniques de travail social de tous les cégeps du Québec sont        présentement en processus de révision de programme et cette révision semble susciter des        craintes chez certains universitaires, notamment à l'Ordre professionnel des travailleurs        sociaux du Québec. Les départements de techniques de travail social, eux-mêmes, ont émis        plusieurs réserves face à cette révision obligatoire. Certaines de ces réserves portaient        sur le processus en tant que tel et d'autres sur les fondements théoriques de ce processus.        Comme nous ne désirions pas être embrigadés pour les 10 prochaines années dans un programme        qui ne nous convient pas, nous avons décidé collectivement d'utiliser toutes les marges de        manoeuvre dont nous disposions afin de mettre sur pied un nouveau programme qui permet de        répondre adéquatement aux besoins de formation de notre clientèle étudiante.</dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000013ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000013ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000014ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>L'approche globale s'adressant aux usagers de drogues illégales en Suisse et aux        Pays-Bas : nouvelles pratiques sociales</dc:title>
+   <dc:creator>Caloen, Benoît Van</dc:creator>
+   <dc:creator>Gervasoni, Jean-Pierre</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:description xml:lang="fr">Au cours des 10 dernières années, les approches classiques s'adressant aux usagers de        drogues illégales se sont révélées impuissantes à enrayer ce phénomène. La pandémie du sida        n'a fait que rendre plus urgent encore le développement d'approches novatrices. Plusieurs        pays européens ont développé une approche globale, comportant une multitude de ressources de        type bas-seuil, appelée « aide à la survie ».Cet article présente le contexte de développement de ces ressources ainsi que la        campagne de sensibilisation auprès de la population générale qui l'a accompagné en Suisse.        Enfin, les auteurs décrivent brièvement plusieurs ressources présentes en Suisse et aux        Pays-Bas.</dc:description>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000014ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000014ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000015ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Les dérives de la démocratie : questions à la société civile québécoise. Henri Lamoureux. Montréal, VLB Éditeur, 1999, 158 p. </dc:title>
+   <dc:creator>Lachapelle, René</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000015ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000015ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>      Tous droits de reproduction, de traduction et d'adaptation réservés ©      Presses de l'Université du Québec (PUQ), 2000    </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000016ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title> L'intervention clinique communautaire. Les familles en détresse. Jérôme          Guay. Montréal, Presses de l'Université de        Montréal 1998, 263 p. </dc:title>
+   <dc:creator>Fréchette, Lucie</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000016ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000016ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000017ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title> Pauvreté et santé mentale au féminin. L'étrangère à nos portes. Louise Blais. Ottawa, Presses de l'Université d'Ottawa        Collection «  Études des femmes  » 1998,169 p.  </dc:title>
+   <dc:creator>Gagné, Jean</dc:creator>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000017ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000017ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000018ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.nps</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Erratum</dc:title>
+   <dc:date>2000</dc:date>
+   <dc:relation>Nouvelles pratiques sociales ; vol. 13 no. 1 (2000)</dc:relation>
+   <dc:publisher>Les Presses de l'Université du Québec</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000018ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000018ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights> Tous droits de reproduction, de traduction et d'adaptation réservés ©        Presses de l'Université du Québec (PUQ), 2000 </dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000019ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Bergeron, Bertrand. Contes, légendes et récits du Saguenay–Lac-Saint-Jean. Notre-Dame-des-Neiges, Éditions Trois-Pistoles, « Contes, légendes et récits du Québec et d’ailleurs », 2004, cii-275 p. ISBN 2-89583-087-8 </dc:title>
+   <dc:creator> Boivin, Aurélien</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000019ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000019ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000020ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Blais, Sylvie et Pierre Lahoud. La Fête de Noël au Québec. Histoire - Tradition - Légendes - Décorations. Montréal, Les Éditions de l’Homme, 2007, 504 p. ISBN 782761923224 </dc:title>
+   <dc:creator>Arsenault, Georges</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000020ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000020ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000021ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Castonguay, Jacques. La Saga de la navigation à Québec et sur le Saint-Laurent. Sillery, Éditions du Septentrion, 2007, 118 p. incluant un glossaire. ISBN 2-89448-526-3 </dc:title>
+   <dc:creator>Kirouac, André</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000021ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000021ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000022ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Local Unions and Workplace Restructuring: Introduction</dc:title>
+   <dc:creator>Murray, Gregor</dc:creator>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000022ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000022ar</dc:identifier>
+   <dc:language>en</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000023ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Syndicats locaux et restructuration des milieux de travail : introduction</dc:title>
+   <dc:creator>Murray, Gregor</dc:creator>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000023ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000023ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000024ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Partenariat, avec ou sans démocratie</dc:title>
+   <dc:creator>Lapointe, Paul-André</dc:creator>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:description xml:lang="fr">Cet article traite des rapports entre le partenariat et la démocratie au travail. Sur la base d’une recherche longitudinale effectuée dans six usines de pâtes et papiers au Québec, nous dressons d’abord un portrait des innovations organisationnelles et de la participation syndicale à la gestion. Nous en dégageons différents cas de figure, incarnant la participation et la démocratie à des degrés très variables. La prise en compte de la dynamique des relations entre acteurs sociaux nous permet ensuite de construire une trajectoire de la participation syndicale à la gestion et de mettre en évidence deux configurations opposées au sein du partenariat, se distinguant selon le caractère de la démocratie salariale et l’évolution du pouvoir syndical.</dc:description>
+   <dc:description xml:lang="en">This article draws on the results of a qualitative, longitudinal study of six pulp and paper plants in Quebec conducted between 1992 and 1998 to analyse the relationship between labour-management partnerships and workplace democracy. Our central hypothesis is that participation and democracy are the key issues involved in labour-management partnerships and that the outcome of partnership depends on both the local circumstances and the dynamics of the relationships between the actors in the firm. Partnership can therefore exist with or without democracy.In the context of the same technical-productive paradigm, the social form through which organizational participation is implemented in quality improvement groups and in work teams varies according to workers’ power. The plants that we studied can thus be divided into two groups in terms of organizational participation : at one extreme lies a cluster of plants where participation occurs without power, whereas at the other extreme lie those plants where participation with power represents a form of direct democracy. On the one hand, “consultative” quality improvement groups (i.e., participation without power) that operate in the context of a centralized and hierarchical organizational setting go hand-in-hand with “elementary” work teams (i.e., those that are primarily based on cooperation and mutual assistance and which reproduce the previous hierarchical structure). On the other hand, “substantive” quality improvement groups (i.e., participation with power) operating in a parity-based coordinating structure are found in those plants with work teams, thus giving workers more autonomous responsibilities.The form of union participation in management also varied among the plants studied. We observed a shift of union action at the strategic level and on local tactical issues as regards the introduction of organizational innovations and technological changes. However, this increase in participation did not necessarily bring about workplace democracy or an increase in union power. In fact, this is only one of the orientations that can be chosen by local unions that get involved in union participation in management. Union participation fosters a number of tensions around the legitimacy of the new union role and also some dissatisfaction among workers, particularly over the issues of work intensification and the day-to-day problems that occur in the wake of organizational innovations. Depending on the way in which these tensions are resolved and worker dissatisfaction is dealt with, three possible patterns emerge: (1) the union terminates its participation and opposes organizational innovations because of the seriousness of the tensions and dissatisfactions generated by its participation and by the innovations; (2) the union continues to participate on an instrumental basis, legitimized solely by the protection of jobs; or (3) the union helps to redefine participation by taking into account workers’ concerns, thereby initiating a process of workplace democratization. Unlike the second pattern, the third initiates a process through which the union is strengthened. However, this pattern is only possible if the local union is characterized by a number of features, such as enjoying access to significant external and internal resources as well as the existence of a lively climate of internal democracy.Lastly, by combining the changes in union power with worker participation in work organization and union participation in management, it is possible to construct two contrasting patterns. In the worker democracy pattern, we observe the simultaneous presence of democratic participation in management, organizational participation with power, and a strengthening of the union. On the other hand, the pseudo-democracy pattern is characterized by instrumental participation, organizational participation without power, and a weakening of the union. The dimensions that make up a pattern are closely interrelated and mutually consistent. In the case of worker democracy, union participation in management has a democratic nature, which makes it possible for the union leaders to take better account of the day-to-day problems (work overload, favouritism, pressures, etc.) that workers encounter in the context of innovations and to make sure that organizational decisions respond to these problems. In so doing, they help to redefine organizational-level participative mechanisms to give more power to workers so that they can make the mechanisms work to their advantage. In this process, the local union makes itself stronger by heightening its legitimacy. The dynamics of the pseudo-democracy pattern are entirely different. Union leaders, concerned with protecting jobs, consider that day-to-day problems are the price to be paid for saving jobs. Their involvement in joint management bodies is focused on the single question of jobs and they leave aside the area of organizational innovations and the participative mechanisms at the organizational level. These innovations and mechanisms are therefore usually introduced unilaterally by management and give little power to workers. Workers do not have the backing of the union to redefine these innovations and mechanisms by strengthening the degree of autonomy and democracy. Further, the inability of the union leaders to respond to their members’ demands contributes to a delegitimization of the union torn by deep tensions and divisions.To summarize, we reject the overly uniform and harmonious conceptions of labour-management partnerships and of “high-performance work systems” in which all possible “best practices” come together in a virtuous circle, a vision that ignores tensions, paradoxes and contradictions. Partnership, by its very name, clearly signifies that the participation and involvement of all of the partners is a requirement of the production system, but it does not imply what the actual pattern of participation and involvement will be. Depending on the circumstances and the strategies of the social actors, different and conflicting orientations are possible and have in fact been observed.</dc:description>
+   <dc:description xml:lang="es">Este artículo aborda las relaciones entre la cooperación-asociación y la democracia en el trabajo. Sobre la base de una investigación longitudinal efectuada en seis fabricas de pasta y papel en Quebec, establecemos en primera instancia un retrato de las innovaciones organizacionales y de la participación sindical a la gestión. De ello se desprenden diferentes casos-tipo, que encarnan la participación y la democracia en grados muy variables. Tomar en cuenta la dinamica de las relaciones entre actores sociales nos permite construir enseguida una trayectoria de la participación sindical en la gestión y poner así en evidencia dos configuraciones opuestas al interior de la cooperación-asociación, que se distinguen entre ellas según el caracter de la democracia salarial y la evolución del poder sindical.</dc:description>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000024ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000024ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000025ar</identifier>
+    <datestamp>2012-11-28T19:35:35Z</datestamp>
+    <setSpec>erudit.revue.rabaska</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Champagne, Juliette-Marthe. De la Bretagne aux plaines de l’Ouest canadien. Lettres d’un défricheur franco-albertain, Alexandre Mahé (1880-1968). Québec, Presses de l’Université Laval, « Intercultures », 2003, 317 p. ISBN 2-7637-7924-7 </dc:title>
+   <dc:creator>Frenette, Yves</dc:creator>
+   <dc:date>2008</dc:date>
+   <dc:relation>Rabaska : Revue d'ethnologie de l'Amérique française ; vol. 6 (2008)</dc:relation>
+   <dc:publisher>Société québécoise d’ethnologie</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000025ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000025ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Société québécoise d’ethnologie, 2008</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000026ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Labour Markets, Flexible Specialization and the New Microcorporatism The Case of Canada’s Major Appliance Industry</dc:title>
+   <dc:creator>Wells, Don</dc:creator>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:description xml:lang="en">“High performance” management systems in unionized workplaces have the potential to create a more microcorporatist industrial relations system in Canada. Increasing interfirm and intrafirm competitiveness, combined with restratification of internal and external labour markets, promote a deepening of “core” workforce dependency on employers. Microcorporatist tendencies reflect more active worker cooperation in achieving management productivity, quality and flexibility goals. Analysis of development of these tendencies in the major appliance industry suggests that microcorporatism has contradictory implications. In one direction lies the displacement of both “social movement” unionism and social democratic labour politics by a local-centred unionism that is increasingly captured by the logic of market competition. In a second direction lies a logic of greater worker resistance related to increased worker control of labour processes.</dc:description>
+   <dc:description xml:lang="fr">Dans le contexte particulier des organisations syndiquées, les change- ments apportés au processus de production et associés à la haute performance ainsi qu’aux systèmes de gestion participatifs ont le potentiel de créer des relations industrielles microcorporatistes apparentées à celles qui étaient en vigueur au début du 20e siècle au Canada, aux États-Unis et ailleurs. Ce microcorporatisme se manifeste notamment dans le syndicalisme japonais d’entreprise. Dans la mesure où ce potentiel est réalisé, ces formes de microcorporatisme pourtant en marge des systèmes de relations industrielles canadiens dans le passé, deviennent beaucoup plus centrales. Les changements de structures du marché du travail contribuent particulièrement à changer le système de relations industrielles. En effet, la reconfiguration des marchés interne et externe du travail autour de formes contingentes de travail augmente la dépendance des travailleurs pour des employeurs et des lieux de travail particuliers. Cette dépendance est de plus conditionnée par l’accroissement de la compétitivité inter et intra-entreprise. Au Canada, particulièrement dans le secteur manufacturier, ces formes de compétitivité se sont accrues suite à l’entrée en vigueur l’Accord de libre-échange entre le Canada et les États-Unis (ALE) et de l’Accord de libre-échange nord-américain (ALENA). Face à de nouvelles pressions concurrentielles et de nouvelles technologies de production, plusieurs dirigeants d’entreprises ont saisi l’occasion de promouvoir ces nouvelles tendances microcorporatistes. Par exemple, dans les organisations qui introduisent de nouvelles technologies de production et qui poursuivent des objectifs de qualité, de flexibilité et de productivité, des stratégies de développement et de maintien du noyau de main-d’oeuvre qui coopère davantage dans le processus de restructuration des lieux de travail sont mises en oeuvre.Ces liens entre les marchés du travail restratifiés, l’augmentation des pressions concurrentielles et les nouveaux processus de production, d’une part, et les nouvelles tendances microcorporatistes d’autre part, sont illustrés dans une étude de cas d’une usine de production d’appareils électro- ménagers qui a dû faire face à une rationalisation importante dans les dix dernières années. Cette rationalisation s’inscrit dans le cadre d’une restructuration continentale de l’industrie des appareils électroménagers au cours de laquelle des pertes d’emplois massives ont eu lieu ainsi que la disparition de la plupart des grandes entreprises de cette industrie au Canada. L’étude de cas suggère que les tendances microcorporatistes ne viennent pas de la construction d’une hégémonie profonde des valeurs managériales, ni du leadership syndical ou du noyau de main-d’oeuvre. Elles semblent davantage refléter les adaptations pragmatiques des travailleurs à leur vulnérabilité croissante au chômage et au sous-emploi causée par les nouvelles réalités compétitives.Finalement, il faut aborder la question de l’impact potentiel des tendances microcorporatistes sur le système des relations industrielles et sur l’avenir politique du mouvement ouvrier. En fait, ces tendances ont des implications contradictoires et contingentes. Elles impliquent tout d’abord la mise en place d’un syndicalisme local plus fragmenté intériorisant davantage la logique de compétitivité du marché au profit de l’érosion du syndicalisme en tant que mouvement social et des politiques de travail social-démocrates. Puisque ces tendances vers le microcorporatisme sont contingentes à la fois des conditions externes et intérieurement contradictoires, le mouvement ouvrier et le système de relations industrielles peuvent prendre une toute autre direction. En effet, ils peuvent se tourner vers les nouvelles formes de résistance des travailleurs, en particulier celles qui se concentrent sur un meilleur contrôle ouvrier du processus de production.</dc:description>
+   <dc:description xml:lang="es">Los sistemas de gestión a alto rendimiento en los centros de trabajo sindicalizados tienen el potencial de crear un sistema más micro-corporatista de relaciones industriales. El incremento de la competencia entre las firmas y al interior de ellas, combinado con la re-estratificación de los mercados interno y externo de trabajo, promueve la intensificación de la dependencia de la fuerza de trabajo central respecto a los empleadores. Las tendencias micro-corporatistas reflejan la mas activa cooperación de los trabajadores para alcanzar los objetivos gerenciales de productividad, calidad y flexibilidad. El analisis del desarrollo de estas tendencias en la más grande industria de electro-domesticos sugiere que el micro-corporatismo tiene implicaciones contradictorias. Por un lado lleva al remplazo del sindicalismo « movimiento social : y de las políticas obreras social-democratas por un sindicalismo localista que está cada vez más cautivado por la logica de la competencia de mercado. Por otro lado conduce a una lógica de mayor resistencia por parte de los trabajadores como reflejo del mayor control que los trabajadores ejercen sobre el proceso de trabajo.</dc:description>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000026ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000026ar</dc:identifier>
+   <dc:language>en</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000027ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Creating and Sustaining Local Union Capabilities The Role of the National Union</dc:title>
+   <dc:creator>Frost, Ann C.</dc:creator>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:description xml:lang="en">Drawing on case study evidence from the automotive, steel, and glass making industries, this article examines the role played by the national union in shaping local unions’ abilities to develop and sustain the capabilities critical to managing on-going workplace restructuring. The author presents evidence suggesting the importance of five national union characteristics. These characteristics are the breadth of the national union’s representational coverage; the extent of its education and training focus on new workplace issues; the resources it devotes to research on the implications of new workplace practices; the presence of multiple communication channels; and its structuring of local union representation.</dc:description>
+   <dc:description xml:lang="fr">Les changements et les restructurations qui surviennent actuellement sur les lieux de travail ont créé le besoin pour les syndicats d’agir et de répondre différemment à ces nouveaux défis. Des recherches récentes suggèrent que les syndicats locaux, en particulier, doivent posséder un ensemble de compétences afin d’interagir efficacement avec la direction sur les lieux même de travail. Des travaux récents se sont concentrés sur l’identification de ces compétences et ils expliquent pourquoi certains syndicats locaux les possèdent, alors que d’autres ne les possèdent pas.À partir de ces travaux, cette étude vise à comprendre le rôle du syndicat national dans la création et le soutien des compétences de ses syndicats locaux. Suivant les travaux de Frost (2000), l’attention sera portée sur quatre compétences du syndicat local qui semblent jouer un rôle important dans le processus de négociation des changements sur les lieux de travail que sont les capacités d’avoir accès à l’information, d’éduquer et de mobiliser ses membres, d’avoir accès au processus décisionnel sur différents sujets et de gérer l’équilibre entre la coopération et le conflit.Afin de conceptualiser le rôle du syndicat national dans la création et le soutien des compétences de ses syndicats locaux, les expériences de trois syndicats ont été analysées : les Travailleurs canadiens de l’automobile (TCA), les Métallurgistes unis d’Amérique (MUA) et l’American Flint Glass Workers Union (AFGWU). Cette étude a été menée au niveau du plancher de production et dans les bureaux des syndicats locaux durant les périodes de négociation de la restructuration des lieux de travail. Les informateurs, dans chaque cas, étaient les contremaîtres, les directeurs de production, les gestionnaires de ressources humaines, les dirigeants des syndicats nationaux, les représentants régionaux des syndicats, les membres de l’exécutif des syndicats locaux, les représentants d’atelier et les membres des syndicats.L’étude de cas suggère cinq caractéristiques importantes pour établir une distinction entre les syndicats nationaux dont les syndicats locaux sont en mesure de s’engager avec succès dans la démarche de changement avec la direction (comme les TCA et les MUA) et les syndicats nationaux dont les syndicats locaux ne peuvent faire plus que de suivre les initiatives de la direction (comme l’AFGWU). Voici ces cinq caractéristiques.La première caractéristique importante est l’étendue de la représentation du syndicat national, c’est-à-dire la gamme des industries et des employeurs à travers lesquels le syndicat national représente des travailleurs. Un syndicat national qui doit superviser des syndicats locaux étendus dans plusieurs industries et dans plusieurs types d’entreprises (grandes et petites, faisant face à différents défis de compétitivité) a l’occasion d’apprendre d’un plus grand nombre d’expériences. Il peut alors utiliser ces connaissances pour soutenir ses syndicats locaux confrontés à des défis semblables.La deuxième caractéristique concerne le rôle du service de recherche du syndicat national. Dans ses efforts pour soutenir ses syndicats locaux, le syndicat national doit conduire des recherches sur les lieux de travail, notamment sur les nouvelles formes d’organisation du travail, les nouvelles technologies et les nouvelles formes de gestion paritaires afin de répondre à tous les nouveaux besoins exprimés par la base. Ainsi, le syndicat national crée un corpus de connaissances à la fois accessibles et pouvant être diffusées auprès de ses syndicats locaux.La troisième caractéristique englobe les fonction d’éducation et de formation que doit assumer le syndicat national. La formation et l’éducation permettent aux membres des syndicats locaux d’apprendre à mieux gérer les demandes patronales lors des négociations en matière de changements sur les lieux de travail. Elles aident également à structurer les attentes des membres quant à la gamme de comportements et d’activités qui peuvent être acceptables.La quatrième caractéristique concerne l’efficacité des canaux de communication mis en place par le syndicat national. Ces canaux lui permettent de superviser les activités de ses syndicats locaux en l’aidant à détecter les transgressions et à identifier les syndicats locaux qui ont besoin d’assistance ou ceux qui peuvent être une source d’apprentissage. De plus, ils facilitent la transmission des connaissances du syndicat national ainsi que la communication entre les syndicats locaux, permettant ainsi à ces derniers d’apprendre les uns des autres.Finalement, il faut tenir compte de la structure qu’impose le syndicat national à ses syndicats locaux. Deux dimensions semblent particulièrement importantes, à savoir si le syndicat local représente des travailleurs à un lieu de travail unique ou à travers plusieurs ou encore si le syndicat local peut compter sur la participation active d’un réseau de représentants d’atelier. Les dirigeants des syndicats locaux auront plus de difficultés à superviser les changements si les travailleurs qu’ils représentent sont dispersés dans plusieurs lieux de travail. En fait, plus le nombre de lieux de travail est grand et plus leur nature est disparate, plus les difficultés sont grandes pour le syndicat local. Pour surmonter ces difficultés, le syndicat national doit structurer la représentation locale de façon à inclure une représentation d’atelier dense et responsable permettant au syndicat local de bien évaluer ses besoins et de mettre en application ce qu’il a appris.</dc:description>
+   <dc:description xml:lang="es">Basado en las evidencias de un estudio de caso en las industrias del automobil, del acero y de la producción de vidrio, este artículo examina el rol que juega el sindicato nacional en la configuración de las capacidades de los sindicatos locales para desarrolar y sostener aptitudes criticas al momento de conducir una restructuración en curso. El autor presenta las evidencias que sugieren la importancia de cinco caracteristicas por parte de los sindicatos nacionales. Estas caracteristicas son el alcance de la cobertura representativa del sindicato nacional, la relevancia de su actividad de educación y de adiestramiento enfocando los nuevos problemas en el centro de trabajo ; los recursos que él dedica a la investigación sobre las implicaciones de las nuevas practicas en el centro de trabajo; la presencia de multiples canales de comunicación; y su estructura de representación sindical a nivel local.</dc:description>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000027ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000027ar</dc:identifier>
+   <dc:language>en</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000028ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Restructuration industrielle et action syndicale locale : Le cas de l’industrie du papier au Québec</dc:title>
+   <dc:creator>Bourque, Reynald</dc:creator>
+   <dc:creator>Rioux, Claude</dc:creator>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:description xml:lang="fr">La restructuration de l’industrie du papier au Québec a eu un impact majeur sur l’action syndicale. Cet article présente les changements intervenus dans les pratiques syndicales de la Fédération des travailleurs du papier et de la forêt (FTPF-CSN) et de ses syndicats affiliés, notamment en ce qui a trait à la demande de nouveaux services découlant de l’implication syndicale dans la réorganisation du travail. Nous analysons également les effets de ces changements sur les relations entre la FTPF et ses syndicats locaux, ainsi que les problèmes et les défis inhérents au renouvellement des pratiques syndicales.</dc:description>
+   <dc:description xml:lang="en">Over the last decade, many unions affiliated to the Fédération des travailleurs du papier et de la forêt (FTPF-CSN), which represents about 25% of unionized workers in this industry in Quebec, have become involved in the management of work organization and the modernization of their plants. In 1993, the FTPF put forward an action program that encouraged active union and worker participation in work reorganization so long as the autonomy of union action was guaranteed through the use of formal agreements establishing joint committees to implement organizational change. Work reorganization leads unions to focus their activity on the workplace level, which in turn modifies the relationship between local unions and the federation. This shift in the strategic level of union activity alters the traditional sources of union power by reducing the ability of unions to neutralize wage competition between establishments within the same industrial sector. Several researchers (Betcherman 1991; Heckscher 1988; Katz 1993; Lapointe and Bélanger 1996) argue that new forms of work organization that rely on the active involvement of workers in the management of their work, on improved technical skills, and on team work, represent a new source of power for unions, allowing them to participate in the implementation of organizational change in the interests of their members. Lapointe and Bélanger (1996) identify two factors that can help strengthen union power through participation in the management of work organization: the democratic character of the union; and the union’s ability to define and defend an autonomous and independent point of view.The involvement of local unions in the management of work leads to a demand for new services and a redefinition of the responsibilities of appointed union representatives from the industry federation and of elected local union officers. For the FTPF, the coordination of local collective bargaining is a strategically important activity in terms of setting the overall bargaining objectives and priorities for all of the unions in the paper industry. This coordination also makes it possible to reconcile local demands with common priorities, thereby providing a framework for local negotiations. However, over the last decade, the FTPF’s ability to coordinate local negotiations has declined as a result of increasingly decentralized bargaining in response to union participation in work reorganization and job insecurity in a number of establishments.The involvement of local unions in work reorganization has had a significant impact on the nature of the tasks and responsibilities assumed by the FTPF’s union representatives, for this involvement has often gone hand in hand with new negotiating practices at the local level, practices that combine integrative and continuous bargaining (Deschênes et al. 1998). Under these new negotiating approaches, elected representatives from the local union play a larger role and federation representatives need to have a wider array of technical skills than in the past. In many ways, the work of a union representative now more closely resembles that of an organizational consultant providing advice to local unions. Local union officials seek the advice of the representative on a range of questions related to the organization of work and the management of the firm.The increased involvement of the FTPF’s affiliates in work organization and plant modernization over the last decade has sparked a renewal of union action at the local level. Officials and stewards have had to get involved in new areas linked to the management of organizational change, like process reengineering, the organization of production, quality assurance, and problem-solving techniques. In many of the paper mills organized by the FTPF, bargaining over work reorganization has given birth to partnerships that have substantially changed the approach to negotiating and the conduct of union-management relations. Collective bargaining has become more integrative and continuous so as to allow the gradual implementation of organizational changes. Local unions’ internal structures and activities, as well as the role and responsibilities of their leaders, stewards and members have been redefined in order to support union and worker involvement in the organization of work.An analysis of the experience with work reorganization and technological modernization involving two local unions affiliated to the FTPF  —in the Clermont and Donnacona mills—highlights the interaction between the economic context and union action. First, it should be emphasized that the two unions involved successfully fought, each in its own way, to have their mill modernized. To support their actions, they turned to the CSN’s Research Department for studies of technological and organizational change, and, with the support of the FTPF, they led campaigns to raise public awareness of the need to secure investments in their mills. Each of the two unions has a core of active stewards who meet regularly to discuss problems and decide what action to take. Since 1995, they have held regular discussion meetings with union stewards and other union members with the purpose of assessing the role of the union in the mill and the members’ perceptions of local union activities. However, the two unions have adopted different approaches to the issue of the modernization of their mills. Since the early 1980s, the Clermont union has adopted a proactive approach, whereas the involvement of the Donnacona local in the management of the mill is the result of a management plan to reduce production costs, which led to a union-management partnership agreement in 1991 aimed at reviving the mill.A number of scholars (Katz 1993; Voos 1994; Walton, Cutcher-Gershenfeld, McKersie 1994) link the decentralization of bargaining to a decline in union power. Fiorito, Gramm and Hendricks (1991) argue that it can also reflect a union preference for greater internal democracy, or for an “efficiency strategy” based upon the union’s contribution to the improvement of organizational performance. The FTPF’s experience corroborates these ideas in many respects because, parallel to the decline in the federation’s influence over industry-wide coordination of local bargaining, it is possible to observe an intensification of its efforts to help local unions improve the organizational efficiency and competitiveness of their mills. As a result of these efforts, the officials and members of the local unions get more involved in the management of the firm, as demonstrated by the two case studies.The changing relationship between the FTPF and its affiliated unions reflects a shift in power towards the local level rather than an overall weakening of bargaining power of the FTPF. As Fiorito, Gramm and Hendricks (1991) stress, union structures and strategies are dependent on the objectives that unions seek to attain. In this respect, they distinguish between two fundamental objectives. In the workplace, unions have to work to improve working conditions and job security, whereas at the societal level union action focuses on the quality of life of all workers. In periods of economic insecurity and industrial restructuring, these two objectives are difficult to achieve, and it is often through the search for practical solutions to them that other aspects of union action surface, like the democratization of the workplace. For local unions, bolstering the competitiveness of their plant can therefore be seen as a necessary condition to protecting working conditions and jobs, as the two case studies clearly show.</dc:description>
+   <dc:description xml:lang="es">La restructuración de la industria papelera en Quebec ha tenido un impacto mayor sobre la acción sindical. Este artículo presenta los cambios acontecidos en las practicas sindicales de la Fédération des travailleurs du papier et de la forêt (Federación de trabajadores papeleros y forestales, FTPF-CSN) y de sus sindicatos afiliados, especialmente en lo que se refiere a la demanda de nuevos servicios que conlleva la implicación sindical en la reorganización del trabajo. Analizamos igualmente los efectos de dichos cambios respecto a las relaciones entre la FTPF y sus sindicatos locales así como los problemas y los desafíos inherentes a la renovación de las practicas sindicales.</dc:description>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000028ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000028ar</dc:identifier>
+   <dc:language>fr</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000029ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>Reasonable Notice for Wrongful Dismissal : Court versus Human Resource Decisions</dc:title>
+   <dc:creator>Lam, Helen</dc:creator>
+   <dc:creator>Devine, Kay</dc:creator>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:description xml:lang="en">This study identifies and compares the severance compensation determinants of legal and human resource (HR) professionals, using court cases and a policy-capturing HR survey. Results confirmed that HR practitioners not only considered the factors critical in court decisions, which were length of service, age, employment status, and labour market conditions, but also had economic and social justice concerns as revealed by significant factors such as a company’s financial situation and reason for dismissal. Certain HR decision-makers’ characteristics were also found to influence the decisions. Overall, HR notices were shorter than court notices in similar situations. Implications of such findings are discussed.</dc:description>
+   <dc:description xml:lang="fr">Au Canada, une plainte pour congédiement injuste est un recours de droit commun pour des employés non syndiqués qui cherchent à être compensés lorsqu’ils ont été congédiés sans cause juste. De tels congédiements peuvent survenir dans plusieurs situations, allant du congédiement attribuable aux performances de l’employé au congédiement attribuable à des motifs économiques. Dans de telles situations, l’employeur doit payer une indemnité de fin d’emploi dont la composante principale correspond au délai de préavis raisonnable ou encore à l’indemnité qui le remplace. L’indemnité de fin d’emploi est un sujet qui prend beaucoup d’importance, surtout pour les organisations qui cherchent à être plus compétitives en réduisant leurs effectifs et en procédant à des restructurations majeures. La détermination du délai de préavis raisonnable est importante à la fois pour les employeurs, les conseillers juridiques, les praticiens de ressources humaines et les employés. Pourtant, peu de recherches ont été effectuées sur le sujet. Cette étude vise donc à pousser plus loin la réflexion dans ce domaine en identifiant les déterminants du délai de préavis raisonnable pour deux groupes de décideurs, à savoir les juristes et les professionnels de ressources humaines.Bien que la plupart des décisions portant sur l’indemnité de fin d’emploi ne fassent pas l’objet d’un litige, les décisions juridiques rendues doivent recevoir une attention particulière car elles influencent nécessairement les décisions des professionnels de ressources humaines. L’analyse de cette jurisprudence forme la première partie de l’étude. La deuxième partie se concentre plutôt sur les décisions des professionnels de ressources humaines. Afin d’analyser ces décisions complexes, un cadre de référence multidisciplinaire a été nécessaire puisque dans le domaine du travail, plusieurs forces exercent simultanément leurs influences, notamment les considérations juridiques, économiques et sociales. La dernière partie de l’étude fait une comparaison entre les perspectives juridiques et des ressources humaines afin de mettre en évidence leurs différences ou leurs similitudes.Pour effectuer l’analyse de la perspective juridique, un total de 132 cas de congédiements injustes provenant de l’Alberta entre 1970 et 1996 ont été analysés. Les facteurs examinés sont la durée de service continu, l’âge, le niveau professionnel, le salaire, le sexe, la situation du marché du travail, le rendement du salarié, le rendement organisationnel, les efforts de réduction du personnel, les circonstances spéciales d’embauche, les spécificités des industries et l’année où la décision a été rendue. Les résultats ont confirmé que la durée de service continu, l’âge, le salaire, le niveau professionnel et la situation du marché du travail étaient des facteurs significatifs. Contrairement aux études précédentes, l’année de la décision ne constituait pas un facteur critique. Quelques évidences se sont également manifestées à partir des différences observées entre les industries, particulièrement pour l’industrie de la construction et pour les organisations gouvernementales ou quasi-gouvernementales, mais d’autres corroborations seraient nécessaires.Afin d’analyser la perspective des ressources humaines, quatre approches théoriques ont été utilisées pour établir les hypothèses concernant les déterminants du délai de préavis raisonnable, à savoir les processus décisionnels juridique, économique et financier, social, et individuel. Il est important de souligner que les théories appartenant à chacune des approches ne sont pas mutuellement exclusives. Des entretiens semi-dirigés ont été menés auprès d’un échantillon représentatif de praticiens en ressources humaines et l’information qualitative recueillie a notamment été utilisée pour formuler des hypothèses et pour concevoir l’enquête visant à comprendre les politiques organisationnelles. Cette enquête a mis en scène trente scénarios combinant les valeurs de onze facteurs susceptibles d’exercer une influence. Parmi ces onze facteurs, se retrouvent les cinq facteurs significatifs identifiés au cours de l’analyse de la perspective juridique (la durée de service continu, l’âge, le niveau professionnel, le salaire et la situation du marché du travail) et six autres facteurs, à savoir (1) le risque de litige avec l’employé que comporte la décision, (2) la situation financière de l’entreprise, (3) les motifs du congédiement (relié au rendement de l’employé ou non), (4) l’intérêt que l’entreprise témoigne à ses employés, (5) le préjudice subi par l’employé et (6) le sexe des employés. Les participants à l’étude sont des membres de deux associations professionnelles en ressources humaines de l’Alberta. Ces derniers ont été invités à rendre une décision pour chacun des trente scénarios et à fournir quelques informations personnelles et organisationnelles ayant guidées leur analyse. Des régressions multiples ont été effectuées sur les 149 réponses reçues.Les déterminants dans la fixation du délai de préavis raisonnable identifiés par les professionnels de ressources humaines sont la durée de service continu, le niveau professionnel (salaire), l’âge, la situation du marché du travail, la situation financière de l’entreprise et les motifs du congédiement. Le sexe n’a pas été identifié comme étant un facteur significatif. Parmi les caractéristiques des répondants, la décision d’offrir une indemnité de préavis a été positivement associée à l’expérience en ressources humaines, à la taille de l’organisation et à l’objectif principal d’éviter un litige. Le déterminant auquel les professionnels en ressources humaines accordaient le plus d’importance était la durée de service continu. Les résultats confirment donc la complexité des décisions de ressources humaines puisqu’ils démontrent que plusieurs perspectives théoriques, les perspectives juridique, économique et financière ainsi que sociale, influencent les décideurs de ressources humaines dans la détermination du délai de préavis raisonnable.La comparaison entre les perspectives juridique et des ressources humaines met en valeur quelques découvertes intéressantes. Bien que la durée du service continu, l’âge, la situation du marché du travail et le statut d’emploi, en termes de salaire ou de niveau professionnel, se sont avérés significatifs dans les deux modèles, seule la perspective des ressources humaines a jugé que des facteurs comme la performance des entreprises et les motifs du congédiement sont déterminants. Cela confirme que des enjeux financiers et de justice sociale sont pris en considération par les professionnels de ressources humaines, en plus des considérations juridiques. De plus, la combinaison des deux bases de données a indiqué que pour un cas moyen, les décisions des professionnels de ressources humaines sur le délai de préavis étaient environ 4,3 mois inférieur aux délais octroyés par le tribunal. Il s’agit d’un appui important à l’hypothèse voulant que les praticiens de ressources humaines essaient de réduire au minimum les coûts de transaction et payent moins les salariés congédiés que ce que le tribunal accorderait, sachant que le temps et l’argent que le salarié perdrait seraient considérables si le litige se poursuivait. Si la différence entre les deux modèles n’est attribuable qu’à l’ignorance des règles générales de droit commun, cette étude peut donc fournir une bonne référence aux praticiens. De plus, les deux groupes de professionnels doivent être en mesure de justifier leurs décisions et être cohérents dans l’application de leurs critères de décision. Ils doivent également s’inspirer des décisions de chacun afin de déterminer si une différence doit exister et être conscient des implications de ces différences. Cette étude, en comparant les deux modèles de décision, est le premier pas effectué dans ce domaine. D’autres recherches sont nécessaires à long terme pour comprendre ces différences et déterminer si les deux modèles de décisions convergent ou divergent dans le temps.</dc:description>
+   <dc:description xml:lang="es">Este estudio identifica y compara los factores que determinan la compensación por despido según que sea elaboradas por los profesionales legales o por los responsables de recursos humanos (RH), usando, para ello, casos de la corte y una encuesta sobre las políticas de RH. Los resultados confirmaron que los profesionales de RH consideraron no solo los factores cruciales presentes en las decisiones de la corte, que son, tiempo de servicios, edad, categoría de empleo y condiciones del mercado de trabajo, pero tambien tuvieron en cuenta criterios economicos y de justicia social que se traducen por factores significativos como la situación finaciera de la compañia y la razón del despido. Tambien fué confirmado que ciertas caracteristicas de los decidores de RH influencian tales decisiones. En su conjunto, las notificaciones de RH son mas cortas que las notificaciones de la corte en situaciones semejantes. Las implicaciones de estos resultados son discutidas.</dc:description>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000029ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000029ar</dc:identifier>
+   <dc:language>en</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<record>
+  <header>
+    <identifier>oai:erudit.org:000030ar</identifier>
+    <datestamp>2013-06-20T16:57:44Z</datestamp>
+    <setSpec>erudit.revue.ri</setSpec>
+  </header>
+  <metadata>
+<oai_dc:dc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:sch="http://www.erudit.org/xsd/article"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+   <dc:title>What Kind of Commitment Does a Final-Earnings Pension Plan Elicit?</dc:title>
+   <dc:creator>Luchak, Andrew A.</dc:creator>
+   <dc:creator>Gellatly, Ian R.</dc:creator>
+   <dc:date>2001</dc:date>
+   <dc:relation>Relations industrielles ; vol. 56 no. 2 (2001)</dc:relation>
+   <dc:description xml:lang="en">In a sample of 427 employees in a large, unionized public utility company, we examined the incentive effects of a final-earnings pension plan on employees’ commitment to the organization. Two types of organizational commitment, affective and continuance commitment were measured using scales described by Meyer and Allen (1997). We found evidence that higher accruals under the pension plan increased continuance commitment but reduced affective commitment. Organizational commitment was also found to vary by job satisfaction, specific training, seniority, wage premia, and the perceived effectiveness of alternative dispute resolution methods. Implications for pension theory, research, and policy are discussed.</dc:description>
+   <dc:description xml:lang="fr">La forme la plus commune de régime de retraite professionnel, le régime selon les gains terminaux, fournit des prestations de retraite basées sur une formule qui multiplie le salaire gagné au moment de la retraite par les années de service accumulées et une constante. Dans ce type de régime, le gain anticipé de l’augmentation des prestations en demeurant dans l’entreprise, ou encore les pertes prévisibles en n’y demeurant pas, s’intensifie durant la carrière de l’employé, atteignant son niveau maximum durant l’année où l’employé devient éligible à une pleine pension et diminue par la suite selon une pente négative. Plusieurs recherches empiriques s’attardent à comprendre pourquoi les régimes de retraite selon les gains terminaux sont structurés de cette façon, néanmoins, plusieurs questions significatives à propos de ces structures demeurent sans réponse. En particulier, les implications les plus cruciales de ce type de régime, à savoir si les employés désirent s’engager à long terme dans l’organisation et dans quelle mesure ils veulent le faire, sont encore très peu explorées.La littérature concernant les régimes de retraite n’a jamais permis d’évaluer les formes d’engagement qu’ils peuvent générer. Il faut donc pousser plus loin la réflexion à ce sujet puisqu’une quantité substantielle de recherches concernant les comportements organisationnels soutiennent que l’engagement n’est pas un construit monolithique et que la nature de l’engagement des employés influence les résultats organisationnels. Bien qu’il existe plusieurs définitions de l’engagement dans la littérature sur les comportements organisationnels, deux dimensions de l’engagement se dégagent. Le premier type, l’engagement affectif, réfère à l’attachement émotionnel de l’individu, à son identification aux buts et aux valeurs de l’organisation de même qu’à son degré d’implication. Le second type, l’engagement rationnel, réfère davantage à l’évaluation par l’employé des coûts et des bénéfices associés au fait de quitter ou de demeurer dans l’organisation. Il est important de distinguer ces deux types d’engagement puisqu’il a été démontré que l’engagement affectif est associé positivement au rendement au travail, aux comportements d’assiduité et de citoyenneté organisationnelle, tandis que l’engagement rationnel est négativement ou faiblement associé à ces mêmes critères.Cette étude vise à comprendre comment l’augmentation des prestations sous un régime de retraite selon les gains terminaux peut influencer l’engagement affectif et l’engagement rationnel. Différents modèles présentant le rôle et les fonctions de ce type de régime guideront l’analyse et serviront de base pour la formulation des hypothèses concernant l’influence potentielle des prestations de retraite sur l’engagement du travailleur. Par exemple, si le régime de retraite ne représente qu’une façon d’économiser en vue de la retraite et que ces économies ne sont pas affectées par les particularités du régime, il ne devrait donc y avoir aucune relation entre l’augmentation des prestations attendue et l’engagement organisationnel. De même, si le régime de retraite assume uniquement une fonction d’assurance, l’augmentation des prestations devrait être positivement associée à l’engagement affectif et à l’engagement rationnel parce que les employés vont s’identifier davantage à leur employeur et l’augmentation de leur sécurité d’emploi et de leur caisse de retraite sera grandement appréciée. De plus, si le régime de retraite constitue une priorité syndicale et que les relations du travail sont tendues au sein de l’organisation, l’augmentation des prestations de retraite devrait être négativement et positivement liée aux deux types d’engagement. Aussi, si le régime de retraite est une composante clé d’un contrat implicite, alors il ne devrait y avoir aucune relation entre l’augmentation des prestations de retraite et l’engagement affectif, mais une relation positive avec l’engagement rationnel. Cette relation s’explique par la conception du lien d’emploi comme un échange non émotif et purement économique. Finalement, si les employeurs utilisent ce type de régime de façon opportuniste pour récompenser les meilleurs employés au profit des salariés des statuts inférieurs, alors il ne devrait y avoir aucune relation pour cette dernière catégorie de travailleurs entre l’augmentation des prestations de retraite et les deux types d’engagement, puisque seule l’élite est tenue au courant des incitatifs du régime.Notre analyse est basée sur des données recueillies par une enquête administrée en 1997 à un échantillon aléatoire d’environ 1 250 employés réguliers, à plein temps dans une grande entreprise syndiquée de services publics de l’Ontario. En tout, 427 questionnaires utilisables ont été retournés, pour un taux de réponse se chiffrant approximativement à 35 %. Nos variables dépendantes, l’engagement affectif et l’engagement rationnel, ont été mesurées par les échelles de Meyer et Allen (1997). Ces variables ont été séparément soumises à des régressions utilisant une gamme de variables indépendantes, incluant une mesure de l’augmentation des prestations, des pratiques de travail alternatives qui pourraient également influencer les perceptions d’engagement et diverses autres caractéristiques démographiques et de travail. Nous avons démontré que l’accroissement plus élevé des prestations augmente l’engagement rationnel, mais réduit l’engagement affectif. L’engagement organisationnel varie avec la satisfaction au travail, la formation spécifique, l’ancienneté, le salaire majoré et l’efficacité perçue des méthodes alternatives de résolution des litiges.Nos résultats sont partiellement compatibles avec plusieurs modèles de régimes de retraite, mais ils ne sont pas entièrement compatibles avec aucun modèle. En gardant à l’esprit les limites de la généralisation de nos résultats, en particulier le contexte spécifique dans lequel les relations du travail sont tendues, nous suggérons que plutôt que d’exercer une seule fonction, le contrat de retraite est probablement défini par les nombreuses conceptions des dépositaires qui peuvent provoquer des résultats désirables ou non selon les asymétries contenues dans l’information qui circule et de l’emprise que chacun des dépositaires possède sur le marché. Cela suggère une limite aux performances du régime de retraite selon les gains terminaux, du moins à travers le mécanisme d’engagement, et aide à expliquer l’incapacité des recherches précédentes à établir un lien fort, s’il en existe un, entres les régimes de retraite et la performance organisationnelle. Des coûts de main-d’oeuvre moins élevés, obtenus par la diminution du roulement du personnel et par le régime de retraite, peuvent être neutralisés par des niveaux moins élevés de rendement des employés et de comportement de citoyenneté parmi ceux qui demeurent dans l’organisation.</dc:description>
+   <dc:description xml:lang="es">À partir de una muestra de 427 empleados en un gran compañia sindicalizada de servicios públicos, examinamos de qué manera el Régimen de pensión basado en la última remuneración incentiva el compromiso de los empleados hacia la organización. Dos tipos de compromiso organizacional, compromiso afectivo y compromiso durable fueron medidos usando escalas descritas por Meyer y Allen (1997). Encontramos evidencia fundadas que la mas alta acumulación bajo el plan de pensión incrementa el compromiso durable pero reduce el compromiso afectivo. Se comprobó también que el compromiso organizacional varía con la satisfacción en el trabajo, la formación especifica, el tiempo de servicios, la prima de salario y la percepción de la eficacia de los metodos alternativos de resolución de conflictos. Son discutidas las implicaciones respecto a la teoría de pensiones, la investigación y las políticas.</dc:description>
+   <dc:publisher>Département des relations industrielles de l’Université Laval</dc:publisher>
+   <dc:publisher>Érudit</dc:publisher>
+   <dc:identifier>http://id.erudit.org/iderudit/000030ar</dc:identifier>
+   <dc:identifier>doi:10.7202/000030ar</dc:identifier>
+   <dc:language>en</dc:language>
+   <dc:type>text</dc:type>
+   <dc:rights>Tous droits réservés © Département des relations industrielles de l’Université Laval, 2001</dc:rights>
+</oai_dc:dc>
+  </metadata>
+</record>
+<resumptionToken cursor="0">X383568018/1</resumptionToken>
+</ListRecords>
+</OAI-PMH>

@@ -1,0 +1,9 @@
+{
+  "response" : {
+    "serviceNotification" : [ {
+      "notificationType" : "ERROR",
+      "notificationCode" : "AwardAPI-001",
+      "notificationMessage" : "At a minimum, one parametric key needs to be requested for the search results."
+    } ]
+  }
+}

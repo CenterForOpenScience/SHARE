@@ -1,0 +1,3520 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH
+	xmlns="http://www.openarchives.org/OAI/2.0/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+		http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+	<responseDate>2016-06-22T21:08:18Z</responseDate>
+	<request verb="ListRecords" metadataPrefix="oai_dc" >http://dh.howard.edu/do/oai/</request>
+	
+	<ListRecords>
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1092</identifier>
+		<datestamp>2015-03-02T20:01:09Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>NIKH: 1914</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1914-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/93</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1092&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1092/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1180</identifier>
+		<datestamp>2015-03-03T14:27:57Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2011: Part 1</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2011-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/181</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1180&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1180/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1181</identifier>
+		<datestamp>2015-03-03T14:28:05Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2011: Part 2</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2011-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/182</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1181&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1181/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1182</identifier>
+		<datestamp>2015-03-03T14:28:39Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2011: Part 3</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2011-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/183</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1182&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1182/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1183</identifier>
+		<datestamp>2015-03-03T14:29:31Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2011: Part 4</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2011-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/184</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1183&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1183/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1178</identifier>
+		<datestamp>2015-03-03T14:36:58Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2009</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2009-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/179</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1178&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1178/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1179</identifier>
+		<datestamp>2015-03-03T14:37:55Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2010</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2010-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/180</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1179&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1179/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1176</identifier>
+		<datestamp>2015-03-03T14:38:52Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2007</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2007-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/177</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1176&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1176/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1175</identifier>
+		<datestamp>2015-03-03T14:38:54Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2006</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2006-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/176</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1175&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1175/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1177</identifier>
+		<datestamp>2015-03-03T14:39:13Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2008</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2008-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/178</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1177&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1177/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1172</identifier>
+		<datestamp>2015-03-03T14:49:37Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2003</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2003-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/173</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1172&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1172/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1171</identifier>
+		<datestamp>2015-03-03T14:50:00Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2002</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2002-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/172</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1171&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1171/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1170</identifier>
+		<datestamp>2015-03-03T14:50:12Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2001</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2001-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/171</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1170&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1170/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1118</identifier>
+		<datestamp>2015-03-03T14:50:20Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1950</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1950-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/119</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1118&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1118/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1169</identifier>
+		<datestamp>2015-03-03T14:50:24Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 2000</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>2000-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/170</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1169&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1169/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1168</identifier>
+		<datestamp>2015-03-03T14:54:38Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1999</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1999-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/169</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1168&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1168/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1166</identifier>
+		<datestamp>2015-03-03T14:54:50Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1997</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1997-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/167</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1166&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1166/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1167</identifier>
+		<datestamp>2015-03-03T14:54:56Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1998</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1998-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/168</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1167&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1167/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1165</identifier>
+		<datestamp>2015-03-03T14:55:39Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1996</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1996-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/166</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1165&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1165/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1164</identifier>
+		<datestamp>2015-03-03T14:55:58Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1995</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1995-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/165</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1164&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1164/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1119</identifier>
+		<datestamp>2015-03-03T14:56:23Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1951</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1951-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/120</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1119&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1119/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1120</identifier>
+		<datestamp>2015-03-03T15:00:30Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1952</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1952-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/121</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1120&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1120/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1121</identifier>
+		<datestamp>2015-03-03T15:03:53Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1953</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1953-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/122</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1121&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1121/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1162</identifier>
+		<datestamp>2015-03-03T15:06:24Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1993</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1993-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/163</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1162&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1162/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1163</identifier>
+		<datestamp>2015-03-03T15:06:41Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1994</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1994-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/164</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1163&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1163/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1161</identifier>
+		<datestamp>2015-03-03T15:06:48Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1992</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1992-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/162</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1161&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1161/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1160</identifier>
+		<datestamp>2015-03-03T15:07:07Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1991</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1991-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/161</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1160&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1160/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1122</identifier>
+		<datestamp>2015-03-03T15:07:11Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1954</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1954-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/123</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1122&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1122/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1159</identifier>
+		<datestamp>2015-03-03T15:07:52Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1990</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1990-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/160</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1159&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1159/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1123</identifier>
+		<datestamp>2015-03-03T15:10:36Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1955</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1955-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/124</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1123&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1123/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1158</identifier>
+		<datestamp>2015-03-03T15:13:27Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1989</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1989-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/159</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1158&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1158/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1156</identifier>
+		<datestamp>2015-03-03T15:13:34Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1987</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1987-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/157</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1156&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1156/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1157</identifier>
+		<datestamp>2015-03-03T15:13:41Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1988</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1988-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/158</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1157&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1157/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1154</identifier>
+		<datestamp>2015-03-03T15:13:50Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1985</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1985-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/155</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1154&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1154/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1155</identifier>
+		<datestamp>2015-03-03T15:14:13Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1986</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1986-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/156</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1155&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1155/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1125</identifier>
+		<datestamp>2015-03-03T15:16:45Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1957</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1957-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/126</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1125&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1125/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1150</identifier>
+		<datestamp>2015-03-03T15:18:55Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1981</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1981-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/151</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1150&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1150/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1151</identifier>
+		<datestamp>2015-03-03T15:19:13Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1982</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1982-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/152</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1151&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1151/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1153</identifier>
+		<datestamp>2015-03-03T15:19:13Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1984</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1984-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/154</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1153&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1153/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1152</identifier>
+		<datestamp>2015-03-03T15:19:32Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1983</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1983-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/153</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1152&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1152/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1149</identifier>
+		<datestamp>2015-03-03T15:20:14Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1980</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1980-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/150</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1149&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1149/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1126</identifier>
+		<datestamp>2015-03-03T15:21:18Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1958</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1958-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/127</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1126&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1126/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1147</identifier>
+		<datestamp>2015-03-03T15:23:32Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1978</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1978-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/148</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1147&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1147/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1148</identifier>
+		<datestamp>2015-03-03T15:24:05Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1979</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1979-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/149</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1148&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1148/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1146</identifier>
+		<datestamp>2015-03-03T15:25:12Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1977</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1977-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/147</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1146&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1146/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1145</identifier>
+		<datestamp>2015-03-03T15:25:21Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1976</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1976-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/146</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1145&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1145/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1127</identifier>
+		<datestamp>2015-03-03T15:25:32Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1959</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1959-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/128</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1127&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1127/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1144</identifier>
+		<datestamp>2015-03-03T15:25:55Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1975</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1975-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/145</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1144&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1144/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1143</identifier>
+		<datestamp>2015-03-03T15:31:59Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1974</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1974-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/144</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1143&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1143/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1139</identifier>
+		<datestamp>2015-03-03T15:33:36Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1971</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1971-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/140</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1139&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1139/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1138</identifier>
+		<datestamp>2015-03-03T15:33:47Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1970</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1970-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/139</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1138&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1138/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1140</identifier>
+		<datestamp>2015-03-03T15:34:09Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1972</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1972-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/141</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1140&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1140/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1141</identifier>
+		<datestamp>2015-03-03T15:34:28Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1973 Vol. 1</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1973-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/142</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1141&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1141/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1142</identifier>
+		<datestamp>2015-03-03T15:37:28Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1973 Vol. 2</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1973-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/143</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1142&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1142/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1137</identifier>
+		<datestamp>2015-03-03T15:45:39Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1969</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1969-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/138</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1137&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1137/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1134</identifier>
+		<datestamp>2015-03-03T15:49:40Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1966</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1966-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/135</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1134&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1134/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1135</identifier>
+		<datestamp>2015-03-03T15:49:43Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1967</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1967-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/136</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1135&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1135/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1133</identifier>
+		<datestamp>2015-03-03T15:49:48Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1965</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1965-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/134</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1133&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1133/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1136</identifier>
+		<datestamp>2015-03-03T15:53:43Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1968</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1968-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/137</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1136&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1136/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1128</identifier>
+		<datestamp>2015-03-03T15:57:14Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1960</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1960-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/129</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1128&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1128/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1132</identifier>
+		<datestamp>2015-03-03T15:57:28Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1964</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1964-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/133</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1132&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1132/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1130</identifier>
+		<datestamp>2015-03-03T15:57:29Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1962</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1962-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/131</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1130&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1130/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1129</identifier>
+		<datestamp>2015-03-03T15:57:30Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1961</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1961-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/130</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1129&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1129/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1131</identifier>
+		<datestamp>2015-03-03T15:58:55Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1963</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1963-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/132</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1131&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1131/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1124</identifier>
+		<datestamp>2015-03-03T19:25:54Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1956</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1956-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/125</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1124&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1124/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:bison_yearbooks-1105</identifier>
+		<datestamp>2015-03-03T19:29:22Z</datestamp>
+				<setSpec>publication:bison_yearbooks</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Bison: 1925</dc:title>
+<dc:creator>Howard University</dc:creator>
+<dc:description>This digital object was funded in part through a grant from the Andrew W. Mellon Foundation. The digitalization of this object was part of a collaborative effort with the Washington Research Library Consortium and George Washington University.</dc:description>
+<dc:date>1925-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/bison_yearbooks/106</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1105&#38;amp;context=bison_yearbooks</dc:identifier>
+<dc:rights>Re-print of publication may be restricted; Privacy and publicity rights may also apply. Rights assessment is your responsibility. For copies of images please contact images@howard.edu.</dc:rights>
+<dc:source>Howard University Yearbooks</dc:source>
+<dc:language>English</dc:language>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>university yearbooks</dc:subject>
+<dc:subject>college yearbooks</dc:subject>
+<dc:subject>Howard University</dc:subject>
+<dc:subject>student life</dc:subject>
+<dc:subject>homecoming</dc:subject>
+<dc:subject>fraternities</dc:subject>
+<dc:subject>sororities</dc:subject>
+<dc:subject>Education</dc:subject>
+<dc:subject>Higher Education</dc:subject>
+<dc:subject>Organizational Communication</dc:subject>
+<dc:subject>Public Relations and Advertising</dc:subject>
+<dc:description>http://dh.howard.edu/bison_yearbooks/1105/thumbnail.jpg</dc:description>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1028</identifier>
+		<datestamp>2015-03-04T14:19:13Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Negro Survival</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1938-10-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/29</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1028&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>anatomy</dc:subject>
+<dc:subject>birth rates</dc:subject>
+<dc:subject>diseases</dc:subject>
+<dc:subject>racism</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1023</identifier>
+		<datestamp>2015-03-04T14:22:32Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Municipal History From Anatomical Records</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1935-02-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/24</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1023&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>municipal history</dc:subject>
+<dc:subject>anatomical records</dc:subject>
+<dc:subject>anatomy</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1009</identifier>
+		<datestamp>2015-03-04T14:24:38Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Implications Of The Findings Of Research In College-level Science Education</dc:title>
+<dc:creator>Branson, Herman</dc:creator>
+<dc:date>1959-11-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/10</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1009&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>science education</dc:subject>
+<dc:subject>Education</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1024</identifier>
+		<datestamp>2015-03-04T14:24:47Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Ossa Supraternalia In Whites And American Negroes And The Form Of The Superior Border Of The Manubrium Sterni</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1937-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/25</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1024&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>Anatomy</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1000</identifier>
+		<datestamp>2015-03-04T14:26:07Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Delayed Absorption And Diffusion In Colloidal Media</dc:title>
+<dc:creator>Branson, Herman</dc:creator>
+<dc:date>1942-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/1</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1000&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>chemicals and drugs</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1001</identifier>
+		<datestamp>2015-03-04T14:26:23Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Diffusion As A Function Of Aggregation I Colloidal Media</dc:title>
+<dc:creator>Branson, Herman</dc:creator>
+<dc:date>1942-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/2</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1001&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>chemicals and drugs</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1002</identifier>
+		<datestamp>2015-03-04T14:26:32Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Order Of Utilization of Phosphate Compounds In The Egg By The Chick Embryo</dc:title>
+<dc:creator>Branson, Herman.</dc:creator>
+<dc:creator>Brooks, Martin, Howard University</dc:creator>
+<dc:date>1950-09-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/3</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1002&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>chemicals and drugs</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1003</identifier>
+		<datestamp>2015-03-04T14:27:00Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Some Membrane Phenomena From The Point Of View Of Information Theory</dc:title>
+<dc:creator>Branson, Herman.</dc:creator>
+<dc:date>1958-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/4</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1003&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>biology</dc:subject>
+<dc:subject>Life Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1004</identifier>
+		<datestamp>2015-03-04T14:27:49Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Turnover Time Of Phosphorus In Normal Sickle Cell Trait And Sickle Cell Anemia Blood in Vitro as Measured With P32</dc:title>
+<dc:creator>Branson, Herman.</dc:creator>
+<dc:creator>Banks, L. Otto, Howard University</dc:creator>
+<dc:date>1952-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/5</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1004&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>cell biology</dc:subject>
+<dc:subject>Life Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1005</identifier>
+		<datestamp>2015-03-04T14:28:53Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Analysis Of Career Opportunities In Scientific Libraries For The Science Student</dc:title>
+<dc:creator>Tuggle, Bernice M.</dc:creator>
+<dc:date>1948-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/6</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1005&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>library and information science</dc:subject>
+<dc:subject>Social and Behavioral Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1006</identifier>
+		<datestamp>2015-03-04T14:29:10Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>A Study of Biological Variability: The Distribution Of P32 In The Phosphorus Compounds Of The 8-Day Chick Embryo</dc:title>
+<dc:creator>Kelly, E. K.</dc:creator>
+<dc:creator>Branson, Herman, Howard University</dc:creator>
+<dc:date>1952-05-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/7</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1006&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>poultry and avian science</dc:subject>
+<dc:subject>Life Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1007</identifier>
+		<datestamp>2015-03-04T14:29:23Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Kinetics Of Reactions In Biological Systems</dc:title>
+<dc:creator>Branson, Herman</dc:creator>
+<dc:date>1952-03-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/8</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1007&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>biochemistry</dc:subject>
+<dc:subject>Life Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1008</identifier>
+		<datestamp>2015-03-04T14:30:03Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Negro And Scientific Research</dc:title>
+<dc:creator>Branson, Herman</dc:creator>
+<dc:date>1952-04-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/9</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1008&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>research</dc:subject>
+<dc:subject>Life Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1010</identifier>
+		<datestamp>2015-03-04T14:30:24Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Studies Of Sickle Cell Anemia</dc:title>
+<dc:creator>Branson, Herman</dc:creator>
+<dc:date>1958-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/11</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1010&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>sickle cell anemia studies</dc:subject>
+<dc:subject>sickle cell</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1011</identifier>
+		<datestamp>2015-03-04T14:31:00Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Irua Ceremony Among The Kikuyu Of Kiambu District, Kenya</dc:title>
+<dc:creator>Bunche, Ralph J.</dc:creator>
+<dc:date>1941-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/12</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1011&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>irua</dc:subject>
+<dc:subject>ceremony</dc:subject>
+<dc:subject>kenya</dc:subject>
+<dc:subject>kikuyu district</dc:subject>
+<dc:subject>Social and Behavioral Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1012</identifier>
+		<datestamp>2015-03-04T14:31:21Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Artistic Canons In The Teaching Of Anatomy</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1944-01-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/13</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1012&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>teaching anatomy</dc:subject>
+<dc:subject>anatomoy</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1015</identifier>
+		<datestamp>2015-03-04T14:33:14Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Apical Pericardial Adhesion Resembling The Reptilian Gubernaculum Cordis</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1944-05-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/16</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1015&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>apical pericardial adhesion</dc:subject>
+<dc:subject>reptiles</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1013</identifier>
+		<datestamp>2015-03-04T14:33:46Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Bony Gauges Of Growth, Age And Disease</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1934-08-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/14</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1013&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>bone disease</dc:subject>
+<dc:subject>growth</dc:subject>
+<dc:subject>age</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1017</identifier>
+		<datestamp>2015-03-04T14:34:01Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Human Materials In American Institutions Available For Anthropology Study</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1933-04-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/18</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1017&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>anthropology</dc:subject>
+<dc:subject>higher education</dc:subject>
+<dc:subject>Social and Behavioral Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1014</identifier>
+		<datestamp>2015-03-04T14:34:15Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Cranio-facial Union In Man</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1940-03-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/15</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1014&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>cranio-facial anatomy</dc:subject>
+<dc:subject>man</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1022</identifier>
+		<datestamp>2015-03-04T14:34:35Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>A Graphic Approach To A Compleat Anatomy</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1946-09-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/23</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1022&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>anatomy</dc:subject>
+<dc:subject>graphic</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1019</identifier>
+		<datestamp>2015-03-04T14:34:43Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Discriminatory Patterns In Community Health Services</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1948-06-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/20</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1019&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>health</dc:subject>
+<dc:subject>community health</dc:subject>
+<dc:subject>hospital</dc:subject>
+<dc:subject>discrimination</dc:subject>
+<dc:subject>Social and Behavioral Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1018</identifier>
+		<datestamp>2015-03-04T14:34:44Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The Dentition Of The Walrus (Odoberus Obesus)</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1933-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/19</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1018&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>walrus</dc:subject>
+<dc:subject>odoberus obesus</dc:subject>
+<dc:subject>dentition</dc:subject>
+<dc:subject>Life Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1020</identifier>
+		<datestamp>2015-03-04T14:34:46Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Education: Priority Number One</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1943-01-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/21</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1020&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>education</dc:subject>
+<dc:subject>Education</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1016</identifier>
+		<datestamp>2015-03-04T14:34:47Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Education In Human Biology: An Essential For The Present And Future</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1943-04-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/17</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1016&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>human biology education</dc:subject>
+<dc:subject>Education</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1021</identifier>
+		<datestamp>2015-03-04T14:34:52Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Gummatous Destruction Of The Nose Osteitis, And Permanent Dislocation Of the Jaw In Laboratory Cadaver</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1934-06-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/22</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1021&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>gummatous desctruction</dc:subject>
+<dc:subject>nose</dc:subject>
+<dc:subject>jaw</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1025</identifier>
+		<datestamp>2015-03-04T14:36:04Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>New Frontiers In Anthropology</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1938-10-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/26</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1025&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>anthropology</dc:subject>
+<dc:subject>Social and Behavioral Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1026</identifier>
+		<datestamp>2015-03-04T14:36:21Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>The 1939 Scientific Exhibit Of The HU School Of Medicine</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1940-09-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/27</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1026&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>medicine</dc:subject>
+<dc:subject>education</dc:subject>
+<dc:subject>syphillis</dc:subject>
+<dc:subject>gall bladder</dc:subject>
+<dc:subject>medical education</dc:subject>
+<dc:subject>medical school</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1027</identifier>
+		<datestamp>2015-03-04T14:37:24Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Numa P. G. Adams, M.D. 1885-1940</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1951-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/28</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1027&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>medicine</dc:subject>
+<dc:subject>medical education</dc:subject>
+<dc:subject>doctors</dc:subject>
+<dc:subject>biography</dc:subject>
+<dc:subject>doctor</dc:subject>
+<dc:subject>hospital administration</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1058</identifier>
+		<datestamp>2015-03-04T16:22:22Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Master Keys To Anatomy: Preliminary Notes</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1943-05-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/59</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1058&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>cranial nerves</dc:subject>
+<dc:subject>vertebra</dc:subject>
+<dc:subject>cerebral cortex</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1060</identifier>
+		<datestamp>2015-03-04T16:22:28Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Medico-Chi And The National Selective Service</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1945-11-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/61</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1060&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>military</dc:subject>
+<dc:subject>racial policy</dc:subject>
+<dc:subject>segregation</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1059</identifier>
+		<datestamp>2015-03-04T16:22:58Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Race And Runners</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1936-01-01T08:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/60</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1059&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>sports medicine</dc:subject>
+<dc:subject>olympics</dc:subject>
+<dc:subject>track and field</dc:subject>
+<dc:subject>sports</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1061</identifier>
+		<datestamp>2015-03-04T16:22:59Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Medico-Chi Whence And Whither?</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1945-05-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/62</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1061&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>Segregation</dc:subject>
+<dc:subject>social justice</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+			
+<record>
+	<header>
+		<identifier>oai:dh.howard.edu:reprints-1064</identifier>
+		<datestamp>2015-03-04T16:23:48Z</datestamp>
+				<setSpec>publication:reprints</setSpec>
+			</header>
+	<metadata>
+		<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+			<dc:title>Physical Anthropology And The Negro In The Present Crisis</dc:title>
+<dc:creator>Cobb, W. Montague</dc:creator>
+<dc:date>1942-09-01T07:00:00Z</dc:date>
+<dc:type>text</dc:type>
+<dc:format>application/pdf</dc:format>
+<dc:identifier >http://dh.howard.edu/reprints/65</dc:identifier>
+<dc:identifier>http://dh.howard.edu/cgi/viewcontent.cgi?article=1064&#38;amp;context=reprints</dc:identifier>
+<dc:source>Faculty Reprints</dc:source>
+<dc:publisher>Digital Howard @ Howard University</dc:publisher>
+
+<dc:subject>primates</dc:subject>
+<dc:subject>origins</dc:subject>
+<dc:subject>race</dc:subject>
+<dc:subject>human biology</dc:subject>
+<dc:subject>Medicine and Health Sciences</dc:subject>
+
+		</oai_dc:dc>
+	</metadata>
+</record>
+
+				
+			<resumptionToken completeListSize="2548" cursor="0">4339039/oai_dc/100//</resumptionToken>
+		
+		</ListRecords>
+</OAI-PMH>

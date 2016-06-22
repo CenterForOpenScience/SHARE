@@ -1,0 +1,2379 @@
+<OAI-PMH
+xmlns="http://www.openarchives.org/OAI/2.0/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<responseDate>2016-06-22T21:06:03Z</responseDate>
+<request verb="ListRecords" metadataPrefix="oai_dc" from="2015-02-01">
+http://www.biodiversitylibrary.org/oai
+</request>
+<ListRecords>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/7</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Examen classis dioeciae.</dc:title>
+<dc:creator>Thunberg, Carl Peter,      1743-1828</dc:creator>
+<dc:creator>Kjellenberg, Fredrik Ulrik,      1795-1862</dc:creator>
+<dc:creator>Söderberg, Christopher,      1804-1833</dc:creator>
+<dc:subject>(Nathaniel),</dc:subject>
+<dc:subject>1786-1854</dc:subject>
+<dc:subject>Australia</dc:subject>
+<dc:subject>Bogor</dc:subject>
+<dc:subject>China</dc:subject>
+<dc:subject>Dimorphism (Plants)</dc:subject>
+<dc:subject>Forests and forestry</dc:subject>
+<dc:subject>Herbarium</dc:subject>
+<dc:subject>India</dc:subject>
+<dc:subject>Indonesia</dc:subject>
+<dc:subject>Musci</dc:subject>
+<dc:subject>New Guinea</dc:subject>
+<dc:subject>Papau New Guinea</dc:subject>
+<dc:subject>Papua New Guinea</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Wallich, N</dc:subject>
+<dc:description>v. 1 [series pt. 5]</dc:description>
+<dc:publisher>Upsali&#230; :excudebant Palmblad et c.,1825.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1900-1902</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/7</dc:identifier>
+<dc:language>Dutch</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/8</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Examen classis dioeciae.</dc:title>
+<dc:creator>Thunberg, Carl Peter,      1743-1828</dc:creator>
+<dc:creator>Kjellenberg, Fredrik Ulrik,      1795-1862</dc:creator>
+<dc:creator>Söderberg, Christopher,      1804-1833</dc:creator>
+<dc:subject>(Nathaniel),</dc:subject>
+<dc:subject>1786-1854</dc:subject>
+<dc:subject>Australia</dc:subject>
+<dc:subject>Bogor</dc:subject>
+<dc:subject>China</dc:subject>
+<dc:subject>Dimorphism (Plants)</dc:subject>
+<dc:subject>Forests and forestry</dc:subject>
+<dc:subject>Herbarium</dc:subject>
+<dc:subject>India</dc:subject>
+<dc:subject>Indonesia</dc:subject>
+<dc:subject>Musci</dc:subject>
+<dc:subject>New Guinea</dc:subject>
+<dc:subject>Papau New Guinea</dc:subject>
+<dc:subject>Papua New Guinea</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Wallich, N</dc:subject>
+<dc:description>v. 2 [series pt. 5]</dc:description>
+<dc:publisher>Upsali&#230; :excudebant Palmblad et c.,1825.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1902-1904</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/8</dc:identifier>
+<dc:language>Dutch</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/9</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Examen classis dioeciae.</dc:title>
+<dc:creator>Thunberg, Carl Peter,      1743-1828</dc:creator>
+<dc:creator>Kjellenberg, Fredrik Ulrik,      1795-1862</dc:creator>
+<dc:creator>Söderberg, Christopher,      1804-1833</dc:creator>
+<dc:subject>(Nathaniel),</dc:subject>
+<dc:subject>1786-1854</dc:subject>
+<dc:subject>Australia</dc:subject>
+<dc:subject>Bogor</dc:subject>
+<dc:subject>China</dc:subject>
+<dc:subject>Dimorphism (Plants)</dc:subject>
+<dc:subject>Forests and forestry</dc:subject>
+<dc:subject>Herbarium</dc:subject>
+<dc:subject>India</dc:subject>
+<dc:subject>Indonesia</dc:subject>
+<dc:subject>Musci</dc:subject>
+<dc:subject>New Guinea</dc:subject>
+<dc:subject>Papau New Guinea</dc:subject>
+<dc:subject>Papua New Guinea</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Wallich, N</dc:subject>
+<dc:description>v. 3 [series pt. 5]</dc:description>
+<dc:publisher>Upsali&#230; :excudebant Palmblad et c.,1825.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1906-1908</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/9</dc:identifier>
+<dc:language>Dutch</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/10</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Examen classis dioeciae.</dc:title>
+<dc:creator>Thunberg, Carl Peter,      1743-1828</dc:creator>
+<dc:creator>Kjellenberg, Fredrik Ulrik,      1795-1862</dc:creator>
+<dc:creator>Söderberg, Christopher,      1804-1833</dc:creator>
+<dc:subject>(Nathaniel),</dc:subject>
+<dc:subject>1786-1854</dc:subject>
+<dc:subject>Australia</dc:subject>
+<dc:subject>Bogor</dc:subject>
+<dc:subject>China</dc:subject>
+<dc:subject>Dimorphism (Plants)</dc:subject>
+<dc:subject>Forests and forestry</dc:subject>
+<dc:subject>Herbarium</dc:subject>
+<dc:subject>India</dc:subject>
+<dc:subject>Indonesia</dc:subject>
+<dc:subject>Musci</dc:subject>
+<dc:subject>New Guinea</dc:subject>
+<dc:subject>Papau New Guinea</dc:subject>
+<dc:subject>Papua New Guinea</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Wallich, N</dc:subject>
+<dc:description>v. 4 [series pt. 5]</dc:description>
+<dc:publisher>Upsali&#230; :excudebant Palmblad et c.,1825.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1915-1922</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/10</dc:identifier>
+<dc:language>Dutch</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/12</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>The anatomy of plants :by Nehemiah Grew ...</dc:title>
+<dc:creator>Grew, Nehemiah,      1641-1712</dc:creator>
+<dc:subject>1682</dc:subject>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Early works to 1800</dc:subject>
+<dc:subject>England</dc:subject>
+<dc:subject>Engravings</dc:subject>
+<dc:subject>Plants anatomy</dc:subject>
+<dc:subject>Pre-Linnean works</dc:subject>
+<dc:subject>Uncolored</dc:subject>
+<dc:description></dc:description>
+<dc:publisher>[London] : Printed by W. Rawlins, for the author, 1682.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1682</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/12</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/13</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Genera of European and Northamerican Bryineae (Mosses) /synoptically disposed by N. C. Kindberg.</dc:title>
+<dc:creator>Kindberg, N. C.     (Nils Conrad), 1832-1910</dc:creator>
+<dc:subject>Europe</dc:subject>
+<dc:subject>Musci</dc:subject>
+<dc:subject>North America</dc:subject>
+<dc:description></dc:description>
+<dc:publisher>Linkoeping, Sweden: P. M. Sahlstroems Bookselling (C.V. Zickerman), [1897]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1897</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/13</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/24</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Recueil de plantes coloriees, pour servir a l&#39;intelligence des lettres elementaires sur la botanique.</dc:title>
+<dc:creator>Rousseau, Jean-Jacques,      1712-1778</dc:creator>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Pictorial works</dc:subject>
+<dc:description></dc:description>
+<dc:publisher>Paris : Poincot, Libraire, 1789.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1789</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/24</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/32</identifier>
+			<datestamp>2016-01-26T11:05:24Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>New illustration of the sexual system of Carolus von Linnaeus :and the temple of Flora, or garden of nature.</dc:title>
+<dc:creator>Thornton, Robert John,      1837</dc:creator>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Pictorial works</dc:subject>
+<dc:description></dc:description>
+<dc:publisher>London : 1807.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1807</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/32</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/35</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>A systematic arrangement of British plants :with an easy introduction to the study of botany.</dc:title>
+<dc:creator>Withering, William,      1741-1799</dc:creator>
+<dc:subject>Great Britain</dc:subject>
+<dc:subject>Ireland</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:description>v. 1</dc:description>
+<dc:publisher>London :Printed for T. Cadell, jun [etc.],1801.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1801</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/35</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/36</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>A systematic arrangement of British plants :with an easy introduction to the study of botany.</dc:title>
+<dc:creator>Withering, William,      1741-1799</dc:creator>
+<dc:subject>Great Britain</dc:subject>
+<dc:subject>Ireland</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:description>v. 2</dc:description>
+<dc:publisher>London :Printed for T. Cadell, jun [etc.],1801.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1801</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/36</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/37</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>A systematic arrangement of British plants :with an easy introduction to the study of botany.</dc:title>
+<dc:creator>Withering, William,      1741-1799</dc:creator>
+<dc:subject>Great Britain</dc:subject>
+<dc:subject>Ireland</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:description>v. 4</dc:description>
+<dc:publisher>London :Printed for T. Cadell, jun [etc.],1801.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1801</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/37</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/44</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Muscologiae recentiorum supplementum seu species muscorum...</dc:title>
+<dc:creator>Bridel-Brideri, Samuel Elisée de,      1761-1828</dc:creator>
+<dc:subject>Musci</dc:subject>
+<dc:description></dc:description>
+<dc:publisher>Gothae : apud C.G. Ettingerum, 1806-1819.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1806-1819</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/44</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/46</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Muscologia recentiorum seu analysis, historia et descriptio methodica omnium muscorum frondosorum hucusque cognitorum ad normam Hedwigii.</dc:title>
+<dc:creator>Bridel-Brideri, Samuel Elisée de,      1761-1828</dc:creator>
+<dc:subject>Musci</dc:subject>
+<dc:description>v.1-2</dc:description>
+<dc:publisher>Gothae : apud C. G. Ettingerum : Parisiis, apud Barrois iuniorem, 1797-1803.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1797</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/46</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/49</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>The genus Phoradendron :a monographic revision.</dc:title>
+<dc:creator>Trelease, William,      1857-1945</dc:creator>
+<dc:description></dc:description>
+<dc:publisher>Urbana, Ill. : The University, 1916.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1916</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/49</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/54</identifier>
+			<datestamp>2015-05-27T11:56:46Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Species muscorum frondosorum :  descriptae et tabulis aeneis lxxvii coloratis illustratae / Joannis Hedwig ; opus posthumum, editum a Friderico Schwaegrichen.</dc:title>
+<dc:creator>Hedwig, Johannes,      1730-1799</dc:creator>
+<dc:creator>Schwägrichen, Christian Friedrich,      1775-1853</dc:creator>
+<dc:subject>Musci</dc:subject>
+<dc:description>1801</dc:description>
+<dc:publisher>Lipsiae (Leipzig) :||Parisiis, A. Koenig,sumtu J. A. Barthii ;1801.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1801</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/54</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/58</identifier>
+			<datestamp>2015-05-27T12:02:56Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Species muscorum frondosorum :  descriptae et tabulis aeneis lxxvii coloratis illustratae / Joannis Hedwig ; opus posthumum, editum a Friderico Schwaegrichen.</dc:title>
+<dc:creator>Hedwig, Johannes,      1730-1799</dc:creator>
+<dc:creator>Schwägrichen, Christian Friedrich,      1775-1853</dc:creator>
+<dc:subject>Musci</dc:subject>
+<dc:description>suppl.1:v.1 (1816)</dc:description>
+<dc:publisher>Lipsiae (Leipzig) :||Parisiis, A. Koenig,sumtu J. A. Barthii ;1801.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1816</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/58</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/59</identifier>
+			<datestamp>2015-05-27T12:03:38Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Species muscorum frondosorum :  descriptae et tabulis aeneis lxxvii coloratis illustratae / Joannis Hedwig ; opus posthumum, editum a Friderico Schwaegrichen.</dc:title>
+<dc:creator>Hedwig, Johannes,      1730-1799</dc:creator>
+<dc:creator>Schwägrichen, Christian Friedrich,      1775-1853</dc:creator>
+<dc:subject>Musci</dc:subject>
+<dc:description>suppl.1:v.2 (1816)</dc:description>
+<dc:publisher>Lipsiae (Leipzig) :||Parisiis, A. Koenig,sumtu J. A. Barthii ;1801.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1816</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/59</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/83</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Synopsis muscorum frondosorum omnium hucusque cognitorum. /Auctore Carolo Müller.</dc:title>
+<dc:creator>M&#252;ller, Karl,      1818-1899</dc:creator>
+<dc:subject>Musci</dc:subject>
+<dc:description>1849 v.1</dc:description>
+<dc:publisher>Berolini [Berlin] :A. Foerstner,1849-1851.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1849</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/83</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/84</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Synopsis muscorum frondosorum omnium hucusque cognitorum. /Auctore Carolo Müller.</dc:title>
+<dc:creator>M&#252;ller, Karl,      1818-1899</dc:creator>
+<dc:subject>Musci</dc:subject>
+<dc:description>1851 v.2</dc:description>
+<dc:publisher>Berolini [Berlin] :A. Foerstner,1849-1851.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1851</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/84</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/112</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Traite des arbres forestiers :ou histoire et description des arbres indigenes ou naturalises... /par M. Jaume Saint-Hilaire. Ouvrage precede d&#39;une instruction sur la culture des arbres, par M. Thouin...</dc:title>
+<dc:creator>Jaume Saint-Hilaire, Jean Henri,      1772-1845</dc:creator>
+<dc:creator>Thouin, André,      1747-1824</dc:creator>
+<dc:subject>Arboriculture</dc:subject>
+<dc:subject>France</dc:subject>
+<dc:subject>Trees</dc:subject>
+<dc:description></dc:description>
+<dc:publisher>Paris :de l&#39;Imprimerie de Firmin Didot,1824.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1824</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/112</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/122</identifier>
+			<datestamp>2016-01-26T11:05:22Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora Aegyptiaco-Arabica :sive descriptiones plantarum :quas per &#230;gytum inferiorem et arabiam felicem detexit, illustravit Petrus Forskäl. Post mortem auctoris edidit Carsten Niebuhr.</dc:title>
+<dc:creator>Forssk&#229;l, Peter,      1732-1763</dc:creator>
+<dc:creator>Niebuhr, Carsten,      1733-1815</dc:creator>
+<dc:description></dc:description>
+<dc:publisher>Hauni&#230; (Copenhagen) :ex officina Mölleri,1775.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1775</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/122</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/123</identifier>
+			<datestamp>2016-01-26T11:05:21Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 1 1868 - Ranuncul-Connar</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1868</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/123</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/124</identifier>
+			<datestamp>2016-01-26T11:05:21Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 2 1871 -  Leguminosae-Ficoideae</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1871</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/124</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/125</identifier>
+			<datestamp>2016-01-26T11:05:23Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 3 1877 - Umbelliferae-Eben</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1877</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/125</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/126</identifier>
+			<datestamp>2016-01-26T11:05:21Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 4 (1-4) 1902-04 - Ola-Gentianeae</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1902-1904</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/126</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/127</identifier>
+			<datestamp>2016-01-26T11:05:22Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 4 (1-3) 1905-06 - Hydrophyll-Pedalineae</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1905-1906</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/127</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/128</identifier>
+			<datestamp>2016-01-26T11:05:21Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 5 (1-3) 1899-1900 - Acanth-Plantagineae</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1899-1900</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/128</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/129</identifier>
+			<datestamp>2016-01-26T11:05:21Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 6 (1-6) 1909-13 - Nyctagineae-Euphorbi</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1909-1913</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/129</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/130</identifier>
+			<datestamp>2016-01-26T11:05:21Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 6 (1-2) 1916-17 - Ulm-Cycad</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1916-1917</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/130</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/131</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 7 (1-3) 1897-98</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1897-1898</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/131</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/132</identifier>
+			<datestamp>2016-01-26T11:05:21Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora of tropical Africa /by Daniel Oliver ... assisted by other botanists.</dc:title>
+<dc:creator>Oliver, Daniel,      1830-1916</dc:creator>
+<dc:subject>Africa, Central</dc:subject>
+<dc:subject>Africa, Tropical</dc:subject>
+<dc:subject>Ebenaceae</dc:subject>
+<dc:subject>Plants</dc:subject>
+<dc:subject>Umbelliferae</dc:subject>
+<dc:description>v. 8 (1-3) 1901-02 - Pontederi-Cyper</dc:description>
+<dc:publisher>London :L. Reeve and co.,1868-1999.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1901-1902</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/132</dc:identifier>
+<dc:language>English</dc:language>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/137</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Catalogue of the plants collected by Mr. &amp;amp; Mrs. P.A. Talbotin the Oban district, South Nigeria,by A. B. Rendle, E.G. Baker, and H.F. Wernham, S. Moore, and others. With seventeen plates.</dc:title>
+<dc:creator>British Museum (Natural History).  Department of Botany.    </dc:creator>
+<dc:creator>Baker, Emund Gilbert,      1864-</dc:creator>
+<dc:creator>Moore, Spencer Le Marchant,      1850-1931</dc:creator>
+<dc:creator>Rendle, A. B.     (Alfred Barton), 1865-1938</dc:creator>
+<dc:creator>Wernham, Herbert Fuller,      1879-</dc:creator>
+<dc:description></dc:description>
+<dc:publisher>London, Printed by order of the Trustees, 1913.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1913</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/137</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/150</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Hortus Mauritianus :ou enumeration des plantes, exotiques et indigenes, qui croissent a l&#39;Ile Maurice, disposees d&#39;apres la methode naturelle /par W. Bojer.</dc:title>
+<dc:creator>Bojer, W.,      1797-1858</dc:creator>
+<dc:description></dc:description>
+<dc:publisher>Maurice :Imprimerie d&#39;Aimé Mamarot et Compagnie,1837.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1837</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/150</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/151</identifier>
+			<datestamp>2016-01-26T11:05:23Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Enumeratio plantarum Africae australis extratropicae :quae collectae, determinatae et expositae /a Christiano Friederico Ecklon &amp;amp; Carolo Zeyher. Pars I-III.</dc:title>
+<dc:creator>Ecklon, Christian Friedrich,      1795-1868</dc:creator>
+<dc:creator>Zeyher, Carl Ludwig Philipp,      1799-1858</dc:creator>
+<dc:description>1835</dc:description>
+<dc:publisher>Hamburgi : Sumtibus auctorum. Prostat apud Perthes &amp;amp; Besser, 1835-1837.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1835</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/151</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/152</identifier>
+			<datestamp>2016-01-26T11:05:23Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Enumeratio plantarum Africae australis extratropicae :quae collectae, determinatae et expositae /a Christiano Friederico Ecklon &amp;amp; Carolo Zeyher. Pars I-III.</dc:title>
+<dc:creator>Ecklon, Christian Friedrich,      1795-1868</dc:creator>
+<dc:creator>Zeyher, Carl Ludwig Philipp,      1799-1858</dc:creator>
+<dc:description>1836-37</dc:description>
+<dc:publisher>Hamburgi : Sumtibus auctorum. Prostat apud Perthes &amp;amp; Besser, 1835-1837.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1836-1837</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/152</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/162</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Commentariorum de plantis Africae Australioris :quas per octo annos collegit observationibusque manuscriptis. Illustravit Joannes Franciscus Drege /Ernesti H. F. Meyer.</dc:title>
+<dc:creator>Meyer, Ernst Heinrich Friedrich,      1791-1858</dc:creator>
+<dc:subject>Botany</dc:subject>
+<dc:subject>South Africa</dc:subject>
+<dc:description></dc:description>
+<dc:publisher>Lipsiae : Apud Leopoldum Voss, 1835-1837.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1835</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Book</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/162</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/659</identifier>
+			<datestamp>2016-01-26T11:05:22Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.1 (1881)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1881</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/659</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/660</identifier>
+			<datestamp>2016-01-26T11:05:22Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.35 (1905)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1905</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/660</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/661</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.2 (1882)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1881</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/661</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/662</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.3 (1882)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1882</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/662</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/663</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.4 (1883)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1883</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/663</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/665</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.6 (1885)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1886</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/665</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/666</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.7 (1886)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1886</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/666</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/667</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.8 (1887)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1887</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/667</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/668</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.9 (1888)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1888</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/668</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/669</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.11 (1890)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1890</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/669</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/670</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.12 (1890)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1890</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/670</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/671</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.13 (1891)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1891</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/671</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/672</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.14 (1892)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1892</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/672</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/673</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.16 (1892)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1893</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/673</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/674</identifier>
+			<datestamp>2016-01-26T11:05:27Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.15 (1893)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Smithsonian Libraries</dc:contributor>
+<dc:date>1893</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/674</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/675</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.17 (1893)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1893</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/675</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/676</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.18 (1894)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1894</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/676</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/677</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.19 (1895)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1895</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/677</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/678</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.20 (1895)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1895</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/678</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/679</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.21 (1896)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1896</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/679</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/680</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.22 (1897)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1897</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/680</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/681</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.23 (1897)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1897</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/681</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/682</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.24 (1898)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1898</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/682</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/683</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.25 (1898)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1898</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/683</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/684</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.10 (1889)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1889</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/684</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/686</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.26 (1899)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1899</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/686</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/687</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.27 (1900)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1900</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/687</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/689</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.28 (1901)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1901</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/689</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/690</identifier>
+			<datestamp>2016-01-26T11:05:18Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.29 (1901)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1901</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/690</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/691</identifier>
+			<datestamp>2016-01-26T11:05:24Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>Index v.26-30 (1902)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1902</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/691</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/692</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.30 (1902)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1902</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/692</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/693</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.31 (1902)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1902</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/693</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/694</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.32 (1903)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1903</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/694</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/696</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.33 (1904)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1904</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/696</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/697</identifier>
+			<datestamp>2016-01-26T11:05:21Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.34 (1905)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1905</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/697</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/698</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.36 (1905)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1905</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/698</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/699</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.37 (1906)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1906</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/699</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/700</identifier>
+			<datestamp>2016-01-26T11:05:22Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.38 (1907)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1907</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/700</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/701</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.39 (1907)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1907</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/701</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/702</identifier>
+			<datestamp>2016-01-26T11:05:27Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.40 (1908)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Smithsonian Libraries</dc:contributor>
+<dc:date>1908</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/702</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/703</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.41 (1908)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1908</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/703</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/704</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.42 (1909)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1909</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/704</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/705</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.43 (1909)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1909</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/705</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/706</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.44 (1910)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1910</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/706</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/707</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.45 (1911)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1911</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/707</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/708</identifier>
+			<datestamp>2016-01-26T11:05:23Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.46 (1912)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1912</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/708</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/709</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.47 (1912)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1912</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/709</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/710</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.48 (1913)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1913</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/710</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/711</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.49 (1913)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1913</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/711</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/712</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.50 (1914)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1914</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/712</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/713</identifier>
+			<datestamp>2016-01-26T11:05:19Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.50: suppl. (1914)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1914</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/713</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/714</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.51 (1914)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1914</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/714</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/715</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.52 (1915)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1915</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/715</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/716</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.53 (1915)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1915</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/716</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/717</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.54 (1917)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1917</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/717</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/718</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.55 (1919)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1919</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/718</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/719</identifier>
+			<datestamp>2016-01-26T11:05:20Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.56 (1921)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1921</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/719</dc:identifier>
+<dc:rights>Public domain.  The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/720</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Botanische Jahrb&#252;cher fur Systematik, Pflanzengeschichte und Pflanzengeographie.</dc:title>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.57 (1922)</dc:description>
+<dc:publisher>Stuttgart [etc.]Schweizerbart [etc.]</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1922</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/720</dc:identifier>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/891</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora oder Botanische Zeitung :welche Recensionen, Abhandlungen, Aufs&#228;tze, Neuigkeiten und Nachrichten, die  Botanik betreffend, enth&#228;lt /herausgegeben von der K&#246;nigl. Botanischen Gesellschaft in Regensburg.</dc:title>
+<dc:creator>Königliche Bayerische Botanische Gesellschaft zu Regensburg.      </dc:creator>
+<dc:creator>K&#246;nigliche Botanische Gesellschaft      </dc:creator>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.1 (1818)</dc:description>
+<dc:publisher>Regensburg :Die Gesellschaft,1818-1965.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1818</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/891</dc:identifier>
+<dc:language>German</dc:language>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/892</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora oder Botanische Zeitung :welche Recensionen, Abhandlungen, Aufs&#228;tze, Neuigkeiten und Nachrichten, die  Botanik betreffend, enth&#228;lt /herausgegeben von der K&#246;nigl. Botanischen Gesellschaft in Regensburg.</dc:title>
+<dc:creator>Königliche Bayerische Botanische Gesellschaft zu Regensburg.      </dc:creator>
+<dc:creator>K&#246;nigliche Botanische Gesellschaft      </dc:creator>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.2 (1819)</dc:description>
+<dc:publisher>Regensburg :Die Gesellschaft,1818-1965.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1819</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/892</dc:identifier>
+<dc:language>German</dc:language>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/893</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora oder Botanische Zeitung :welche Recensionen, Abhandlungen, Aufs&#228;tze, Neuigkeiten und Nachrichten, die  Botanik betreffend, enth&#228;lt /herausgegeben von der K&#246;nigl. Botanischen Gesellschaft in Regensburg.</dc:title>
+<dc:creator>Königliche Bayerische Botanische Gesellschaft zu Regensburg.      </dc:creator>
+<dc:creator>K&#246;nigliche Botanische Gesellschaft      </dc:creator>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.3:no.1 (1820)</dc:description>
+<dc:publisher>Regensburg :Die Gesellschaft,1818-1965.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1820</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/893</dc:identifier>
+<dc:language>German</dc:language>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/894</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora oder Botanische Zeitung :welche Recensionen, Abhandlungen, Aufs&#228;tze, Neuigkeiten und Nachrichten, die  Botanik betreffend, enth&#228;lt /herausgegeben von der K&#246;nigl. Botanischen Gesellschaft in Regensburg.</dc:title>
+<dc:creator>Königliche Bayerische Botanische Gesellschaft zu Regensburg.      </dc:creator>
+<dc:creator>K&#246;nigliche Botanische Gesellschaft      </dc:creator>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.3:no.2 (1820)</dc:description>
+<dc:publisher>Regensburg :Die Gesellschaft,1818-1965.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1820</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/894</dc:identifier>
+<dc:language>German</dc:language>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/895</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora oder Botanische Zeitung :welche Recensionen, Abhandlungen, Aufs&#228;tze, Neuigkeiten und Nachrichten, die  Botanik betreffend, enth&#228;lt /herausgegeben von der K&#246;nigl. Botanischen Gesellschaft in Regensburg.</dc:title>
+<dc:creator>Königliche Bayerische Botanische Gesellschaft zu Regensburg.      </dc:creator>
+<dc:creator>K&#246;nigliche Botanische Gesellschaft      </dc:creator>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.4:no.1 (1821)</dc:description>
+<dc:publisher>Regensburg :Die Gesellschaft,1818-1965.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1821</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/895</dc:identifier>
+<dc:language>German</dc:language>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+		<record>
+		<header>
+			<identifier>oai:biodiversitylibrary.org:item/896</identifier>
+			<datestamp>2016-01-26T15:24:52Z</datestamp>
+			<setSpec>item</setSpec>
+		</header>
+		<metadata>
+<oai_dc:dc xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ &#13;&#10;&#9;&#9;&#9;&#9;http://www.openarchives.org/OAI/2.0/oai_dc.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:title>Flora oder Botanische Zeitung :welche Recensionen, Abhandlungen, Aufs&#228;tze, Neuigkeiten und Nachrichten, die  Botanik betreffend, enth&#228;lt /herausgegeben von der K&#246;nigl. Botanischen Gesellschaft in Regensburg.</dc:title>
+<dc:creator>Königliche Bayerische Botanische Gesellschaft zu Regensburg.      </dc:creator>
+<dc:creator>K&#246;nigliche Botanische Gesellschaft      </dc:creator>
+<dc:subject>Botany</dc:subject>
+<dc:subject>Periodicals</dc:subject>
+<dc:description>v.4:no.2 (1821)</dc:description>
+<dc:publisher>Regensburg :Die Gesellschaft,1818-1965.</dc:publisher>
+<dc:contributor>Missouri Botanical Garden, Peter H. Raven Library</dc:contributor>
+<dc:date>1821</dc:date>
+<dc:type>text</dc:type>
+<dc:type>Journal</dc:type>
+<dc:identifier>http://www.biodiversitylibrary.org/item/896</dc:identifier>
+<dc:language>German</dc:language>
+<dc:rights>Public domain. The BHL considers that this work is no longer under copyright protection.</dc:rights>
+</oai_dc:dc>
+		</metadata>
+		</record>
+	<resumptionToken>|2015-02-01||oai_dc|item:896|2016-06-22T21:06:11Z</resumptionToken>
+
+</ListRecords></OAI-PMH>

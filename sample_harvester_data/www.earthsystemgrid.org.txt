@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
+         http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+
+  <responseDate>2016-06-22T21:11:07Z</responseDate>
+  <request>https://www.earthsystemgrid.org/oai/repository</request>
+
+        <error code="typeMismatch">
+          Failed to convert property value of type [java.lang.String] to required type [java.util.Date] for property &apos;from&apos;; nested exception is java.lang.IllegalArgumentException: Could not parse date: Unparseable date: &quot;{}&quot;
+        </error>
+        <error code="typeMismatch">
+          Failed to convert property value of type [java.lang.String] to required type [java.util.Date] for property &apos;until&apos;; nested exception is java.lang.IllegalArgumentException: Could not parse date: Unparseable date: &quot;{}&quot;
+        </error>
+
+</OAI-PMH>

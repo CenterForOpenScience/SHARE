@@ -1,0 +1,1906 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2016-06-22T17:09:47.248-04:00</responseDate>
+  <request verb="ListRecords">http://www.icpsr.umich.edu/icpsrweb/ICPSR/oai/studies</request>
+  <ListRecords>
+    <record>
+      <header>
+        <identifier>1</identifier>
+        <datestamp>1999-04-26T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>United States Historical Election Returns, 1824-1968</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>candidates</dc:subject>
+          <dc:subject>congressional elections</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>gubernatorial elections</dc:subject>
+          <dc:subject>historical data</dc:subject>
+          <dc:subject>political attitudes</dc:subject>
+          <dc:subject>political behavior</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>presidential elections</dc:subject>
+          <dc:subject>senatorial elections</dc:subject>
+          <dc:subject>states (USA)</dc:subject>
+          <dc:description>This collection of historical election data contains state files that list county-level returns for over 90 percent of all elections to the offices of president, governor, United States senator, and United States representative from 1824 through 1968. The data files include returns for all parties and candidates (as well as write-in and scattering votes if available for individual states), and for special elections as well as regularly-scheduled contests. Over 1,000 individual party names and many additional unaffiliated candidates are included.</dc:description>
+          <dc:identifier>1</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00001.v3</dc:identifier>
+          <dc:date>04-26-1999</dc:date>
+          <dc:type>aggregate</dc:type>
+          <dc:type>survey</dc:type>
+          <dc:source>official election returns provided by state governments</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1824--1968</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>2</identifier>
+        <datestamp>1995-06-05T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Candidate Name and Constituency Totals, 1788-1990</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>candidates</dc:subject>
+          <dc:subject>constituencies</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>political attitudes</dc:subject>
+          <dc:subject>political behavior</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:description>This data collection provides the names of candidates, political party name and ICPSR party ID code, and the number of votes received by each candidate in the constituency for elections between 1788 and 1990. The data include county-level returns for over 90 percent of all elections to the offices of president, governor, United States representative (1824-1990), and United States senator (1912-1990). The dataset also includes returns for approximately two-thirds of all elections to the offices of president, governor, and United States representative for the period 1788-1823. Returns for one additional statewide office are included beginning with the 1968 elections. Also presented are 1990 data from the District of Columbia election for United States senator and United States representative. The offices of two senators and one representative were created by the "District of Columbia Statehood Constitutional Convention Initiative," which was approved by District voters in 1980. Elections for these offices were postponed until the 1990 general election. The three offices are currently local District positions, which will turn into federal offices if the District becomes a state.</dc:description>
+          <dc:identifier>2</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00002.v5</dc:identifier>
+          <dc:date>06-05-1995</dc:date>
+          <dc:type>aggregate</dc:type>
+          <dc:type>survey</dc:type>
+          <dc:source>official election returns provided by state governments</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1788--1990</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>3</identifier>
+        <datestamp>2005-12-22T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Historical, Demographic, Economic, and Social Data: The United States, 1790-1970</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>economic conditions</dc:subject>
+          <dc:subject>eighteenth century</dc:subject>
+          <dc:subject>families</dc:subject>
+          <dc:subject>historical data</dc:subject>
+          <dc:subject>marriage</dc:subject>
+          <dc:subject>national identity</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>political change</dc:subject>
+          <dc:subject>population</dc:subject>
+          <dc:subject>population size</dc:subject>
+          <dc:subject>religion</dc:subject>
+          <dc:subject>states (USA)</dc:subject>
+          <dc:subject>twentieth century</dc:subject>
+          <dc:description>Detailed county and state-level ecological or descriptive data for the United States for the years 1790 to 1970 are contained in this collection. These data files contain extensive information about the social and political character of the United States, including a breakdown of population by state, race, nationality, number of families, size of the family, births, deaths, marriages, occupation, religion, and general economic conditions. Though not complete over the full time span of this study, statistics are available on such diverse subjects as total numbers of newspapers and periodicals, total capital invested in manufacturing, total numbers of educational institutions, total number of churches, taxation by state, and land surface area in square miles.</dc:description>
+          <dc:identifier>3</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00003.v1</dc:identifier>
+          <dc:date>12-22-2005</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>(1) United States Bureau of the Census decennial census reports, and (2) SURVEY OF CHURCHES AND CHURCH MEMBERSHIP, 1952</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1790--1970</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>4</identifier>
+        <datestamp>2010-05-06T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>United States Congressional Roll Call Voting Records, 1789-1998</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:creator>Congressional Quarterly, Inc.</dc:creator>
+          <dc:subject>eighteenth century</dc:subject>
+          <dc:subject>historical data</dc:subject>
+          <dc:subject>legislators</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>political history</dc:subject>
+          <dc:subject>roll call data</dc:subject>
+          <dc:subject>roll call voting records</dc:subject>
+          <dc:subject>twentieth century</dc:subject>
+          <dc:subject>United States Congress</dc:subject>
+          <dc:subject>United States House of Representatives</dc:subject>
+          <dc:subject>United States Senate</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>Roll call voting records for both chambers of the United States Congress through the second session of the 105th Congress are presented in this data collection. Each data file in the collection contains information for one chamber of a single Congress. The units of analysis in each part are the individual members of Congress. Each record contains a member's voting action on every roll call vote taken during that Congress, along with variables that identify the member (e.g., name, party, state, district, uniform ICPSR member number, and most recent means of attaining office). In addition, the codebook provides descriptive information for each roll call, including the date of the vote, outcome in terms of nays and yeas, name of initiator, the relevant bill or resolution number, and a synopsis of the issue.</dc:description>
+          <dc:identifier>4</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00004.v3</dc:identifier>
+          <dc:date>05-06-2010</dc:date>
+          <dc:type>rollcall</dc:type>
+          <dc:source>Materials for the House from the 1st through the 75th Congresses and for the Senate from the 1st through the 73rd Congresses were keypunched from the Congressional Vote Analysis Collection originally prepared by Clifford Lord under Works Progress Administration auspices. Data for the Senate from the 74th through the 78th Congresses were supplied by Richard W. Kirkendall, University of Missouri. Data for the House from the 76th through the 78th Congresses, and for both chambers of the 79th Congress through the 101st Congresses, were prepared by ICPSR staff utilizing the DAILY CONGRESSIONAL RECORD. Data for both chambers from the 102nd through the 105th Congresses were prepared by Congressional Quarterly, Inc.</dc:source>
+          <dc:coverage>1789--1998</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>5</identifier>
+        <datestamp>2005-12-22T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Data Confrontation Seminar, 1969: United States Data</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>congressional elections</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>national elections</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>presidential elections</dc:subject>
+          <dc:subject>state elections</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>This study contains national data prepared for the Data Confrontation Seminar on the Use of Ecological Data in Comparative Cross-National Research held under the auspices of the Inter-university Consortium for Political and Social Research on April 1-18, 1969. One of the primary concerns of this international seminar was the need for cooperation in the development of data resources in order to facilitate exchange of data between individual scholars and research groups. This data collection contains returns for all elections for 3,143 counties of 50 states of the United States to the offices of president, senator and representative, and governor, ecological data drawn from various United States censuses from 1947 to 1965, and selected data from the 1952 National Council of Churches Survey of church membership. It contains a merged set of data at the county, state, and congressional district levels for the 1950s and 1960s. The data are organized in three parts: (1) election returns and ecological data in raw form, (2) percentagized party votes and ecological data, and (3) series of derived measures and additional computations. Data on election returns include votes for the Democratic and Republican parties, as well as for other minor parties for the period 1949-1968. Data on ecology provide information on total population, urbanization, industries, housing, and sex and age distribution. Other demographic variables include education, religion, employment, and income.</dc:description>
+          <dc:identifier>5</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00005.v1</dc:identifier>
+          <dc:date>12-22-2005</dc:date>
+          <dc:type>aggregate data, census/enumeration data, and administrative records data</dc:type>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1969</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>6</identifier>
+        <datestamp>1995-06-05T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Referenda and Primary Election Materials</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>congressional elections (US House)</dc:subject>
+          <dc:subject>congressional elections (US Senate)</dc:subject>
+          <dc:subject>congressional voting</dc:subject>
+          <dc:subject>constitutional amendments</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>gubernatorial elections</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>political history</dc:subject>
+          <dc:subject>primaries</dc:subject>
+          <dc:subject>referendum</dc:subject>
+          <dc:subject>senatorial elections</dc:subject>
+          <dc:subject>states (USA)</dc:subject>
+          <dc:subject>twentieth century</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>This data collection contains election returns at the county and state levels from the mid-nineteenth century to the late twentieth century for primary and general elections on statewide referenda, constitutional amendments, state House/Senate joint resolutions, and initiated measures. The ballot language of each measure is also included. County-level returns for most gubernatorial, senatorial, and congressional primary elections from 1910 to the present are documented as well.</dc:description>
+          <dc:identifier>6</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00006.v1</dc:identifier>
+          <dc:date>06-05-1995</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>official election returns provided by state governments</dc:source>
+          <dc:coverage>Alabama</dc:coverage>
+          <dc:coverage>Alaska</dc:coverage>
+          <dc:coverage>Arizona</dc:coverage>
+          <dc:coverage>Arkansas</dc:coverage>
+          <dc:coverage>California</dc:coverage>
+          <dc:coverage>Colorado</dc:coverage>
+          <dc:coverage>Connecticut</dc:coverage>
+          <dc:coverage>Delaware</dc:coverage>
+          <dc:coverage>Florida</dc:coverage>
+          <dc:coverage>Georgia</dc:coverage>
+          <dc:coverage>Hawaii</dc:coverage>
+          <dc:coverage>Idaho</dc:coverage>
+          <dc:coverage>Illinois</dc:coverage>
+          <dc:coverage>Indiana</dc:coverage>
+          <dc:coverage>Iowa</dc:coverage>
+          <dc:coverage>Kansas</dc:coverage>
+          <dc:coverage>Kentucky</dc:coverage>
+          <dc:coverage>Louisiana</dc:coverage>
+          <dc:coverage>Maine</dc:coverage>
+          <dc:coverage>Maryland</dc:coverage>
+          <dc:coverage>Massachusetts</dc:coverage>
+          <dc:coverage>Michigan</dc:coverage>
+          <dc:coverage>Minnesota</dc:coverage>
+          <dc:coverage>Mississippi</dc:coverage>
+          <dc:coverage>Missouri</dc:coverage>
+          <dc:coverage>Montana</dc:coverage>
+          <dc:coverage>Nebraska</dc:coverage>
+          <dc:coverage>Nevada</dc:coverage>
+          <dc:coverage>New Hampshire</dc:coverage>
+          <dc:coverage>New Jersey</dc:coverage>
+          <dc:coverage>New Mexico</dc:coverage>
+          <dc:coverage>New York</dc:coverage>
+          <dc:coverage>North Carolina</dc:coverage>
+          <dc:coverage>North Dakota</dc:coverage>
+          <dc:coverage>Ohio</dc:coverage>
+          <dc:coverage>Oklahoma</dc:coverage>
+          <dc:coverage>Oregon</dc:coverage>
+          <dc:coverage>Pennsylvania</dc:coverage>
+          <dc:coverage>Rhode Island</dc:coverage>
+          <dc:coverage>South Carolina</dc:coverage>
+          <dc:coverage>South Dakota</dc:coverage>
+          <dc:coverage>Tennessee</dc:coverage>
+          <dc:coverage>Texas</dc:coverage>
+          <dc:coverage>Utah</dc:coverage>
+          <dc:coverage>Vermont</dc:coverage>
+          <dc:coverage>Virginia</dc:coverage>
+          <dc:coverage>Washington</dc:coverage>
+          <dc:coverage>West Virginia</dc:coverage>
+          <dc:coverage>Wisconsin</dc:coverage>
+          <dc:coverage>Wyoming</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>7</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Federal Deposit Insurance Corporation Data on Banks in the United States, 1920-1936</dc:title>
+          <dc:creator>Federal Deposit Insurance Corporation</dc:creator>
+          <dc:subject>bank deposits</dc:subject>
+          <dc:subject>banks</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>economic history</dc:subject>
+          <dc:subject>Great Depression (1929)</dc:subject>
+          <dc:description>This data collection contains information on banks in the United States in the period 1920-1936. Information is provided by county and in thousands of United States dollars on the total annual deposits in all banks, deposits in national and state banks, number of banks suspended, and number of national and state banks active in the period.</dc:description>
+          <dc:identifier>7</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00007.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>University of Wisconsin, Department of Economic History</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1920--1936</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>8</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Censuses of Religious Bodies, 1906-1936</dc:title>
+          <dc:creator>United States Department of Commerce. Bureau of the Census</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>church membership</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>religion</dc:subject>
+          <dc:subject>religious denominations</dc:subject>
+          <dc:subject>religious organizations</dc:subject>
+          <dc:subject>states(USA)</dc:subject>
+          <dc:description>This data collection provides county- and state-level information on the number of members of a variety of religious organizations and groups in the United States between 1906 and 1936. The variables in this collection provide the names of these groups and organizations, which include the Advent Christian Church, Southern and National Convention Baptist churches, Buddhist (Japanese) temples, Evangelical Association, Jewish congregations, Greek Orthodox Church, Mennonite Church, Friends Church, Pentecostal Church of the Nazarene, Polish National Church, Roman Catholic Church, Salvation Army, Seventh Day Adventist, Church of Jesus Christ of Latter-Day Saints, Russian Eastern Orthodox Church, Mennonite General Conference, Hungarian Reformed Church, Unitarian Church, Negro Baptist Church, and Evangelical Church.</dc:description>
+          <dc:identifier>8</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00008.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>census data</dc:type>
+          <dc:source>United States Department of Commerce. Bureau of the Census. CENSUS OF RELIGIOUS BODIES, 1906, 1916, 1926, and 1936</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1906--1936</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>9</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Farm Real Estate Values in the United States, 1850-1959</dc:title>
+          <dc:creator>Pressley, Thomas J.</dc:creator>
+          <dc:creator>Scofield, William H.</dc:creator>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>farms</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>property values</dc:subject>
+          <dc:subject>real estate</dc:subject>
+          <dc:subject>twentieth century</dc:subject>
+          <dc:description>This data collection contains information on the average monetary value per acre of farm lands and buildings for each county in the United States in the period 1850-1959.</dc:description>
+          <dc:identifier>9</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00009.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>Pressley, Thomas J., and William H. Scofield (eds.). FARM REAL ESTATE VALUES IN THE UNITED STATES BY COUNTIES, 1850-1959. Seattle, WA: University of Washington Press, 1965.</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1850--1959</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>10</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>United States Congressional District Data Books, 1961-1965</dc:title>
+          <dc:creator>United States Department of Commerce. Bureau of the Census</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>congressional districts</dc:subject>
+          <dc:subject>congressional elections</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>political attitudes</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>population characteristics</dc:subject>
+          <dc:subject>vote count</dc:subject>
+          <dc:subject>voter attitudes</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>This study contains selected electoral and aggregate economic, ecological, and demographic data at the congressional district level for districts of the 87th and 88th Congresses in the period 1961-1965. Data are provided for the number of votes cast for the Democratic and the Republican parties, and the percentage of votes cast for the majority party in the biennial elections for United States Representatives in the period 1952-1962, as well as the total votes cast for the office of president, and the number of votes cast for each party's presidential candidate in the 1952, 1956, and 1960 election. Data are also provided for population and housing characteristics, including total population by household, group quarters, institutions, age group, gender, marital status, race, nationality, and urban and rural residency. Additional demographic variables describe the congressional districts in terms of education, income, employment status and occupation, veteran status, births, deaths, and marriages.</dc:description>
+          <dc:identifier>10</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00010.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>census data, and aggregate data</dc:type>
+          <dc:source>(1) United States Department of Commerce. Bureau of the Census, and (2) Inter-university Consortium for Political and Social Research (ICPSR) electoral returns data</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1961--1965</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>11</identifier>
+        <datestamp>2005-12-22T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>United States Congressional District Data Book for the Ninety-Third Congress, 1973</dc:title>
+          <dc:creator>United States Department of Commerce. Bureau of the Census</dc:creator>
+          <dc:subject>candidates</dc:subject>
+          <dc:subject>congressional districts</dc:subject>
+          <dc:subject>congressional elections</dc:subject>
+          <dc:subject>Democratic Party (USA)</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>ethnicity</dc:subject>
+          <dc:subject>housing</dc:subject>
+          <dc:subject>income</dc:subject>
+          <dc:subject>national elections</dc:subject>
+          <dc:subject>presidential elections</dc:subject>
+          <dc:subject>Republican Party (USA)</dc:subject>
+          <dc:subject>United States Congress</dc:subject>
+          <dc:subject>United States House of Representatives</dc:subject>
+          <dc:subject>vote count</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:description>This study contains aggregate socioeconomic and demographic data as well as electoral returns for the offices of the United States President and United States Representatives for the elections of 1966-1970 for the congressional districts of the 93rd Congress. Data are provided for the number of votes cast for the Democratic candidates and the Republican candidates, the percentage of votes received by the winning party, and the total number of votes cast in the 1966, 1968, and 1970 elections for United States Representatives, as well as the total votes cast for the office of president, and the number of votes cast for each party's presidential candidate in the 1968 election. Information is also provided on housing characteristics, employment, income, poverty level, and military enrollment for the 93rd congressional districts. Demographic variables provide information on age, race, sex, marital status, education, and place of birth for the population of these congressional districts. In addition to the congressional district level, data aggregated to the state level are also available.</dc:description>
+          <dc:identifier>11</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00011.v1</dc:identifier>
+          <dc:date>12-22-2005</dc:date>
+          <dc:type>census data, and aggregate data</dc:type>
+          <dc:source>(1) United States Department of Commerce. Bureau of the Census. FIFTH COUNT FILES OF POPULATION AND HOUSING, and (2) Inter-university Consortium for Political and Social Research (ICPSR) electoral returns data, 1966-1970</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1973</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>12</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>County and City Data Books: 1952, 1956, 1962, 1967</dc:title>
+          <dc:creator>United States Department of Commerce. Bureau of the Census</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>cities</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>economic conditions</dc:subject>
+          <dc:subject>employment</dc:subject>
+          <dc:subject>government expenditures</dc:subject>
+          <dc:subject>government revenues</dc:subject>
+          <dc:subject>household composition</dc:subject>
+          <dc:subject>human services</dc:subject>
+          <dc:subject>industrial production</dc:subject>
+          <dc:subject>labor force</dc:subject>
+          <dc:subject>municipal services</dc:subject>
+          <dc:subject>population characteristics</dc:subject>
+          <dc:subject>states (USA)</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>Several datasets containing economic, demographic, and electoral data have been prepared from the County and City Databooks of 1952, 1956, 1962, and 1967 for this file. These data were obtained in machine-readable form from the Bureau of the Census. The 1952 information is presented only for counties, states, and cities while for the other three years data are available for counties, states, cities, SMSAs, and urbanized areas.</dc:description>
+          <dc:identifier>12</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00012.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:coverage>United States</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>13</identifier>
+        <datestamp>2013-11-22T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>General Election Data for the United States, 1950-1990</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>congressional elections</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>gubernatorial elections</dc:subject>
+          <dc:subject>historical data</dc:subject>
+          <dc:subject>political attitudes</dc:subject>
+          <dc:subject>political behavior</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>presidential elections</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>This data collection consists of national files containing county-level returns for elections to the offices of president, United States senator and representative, and governor. Also included are returns for one additional statewide office (usually attorney general or secretary of state) for those states that elected state offices in 1970 through 1990.</dc:description>
+          <dc:identifier>13</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00013.v2</dc:identifier>
+          <dc:date>11-22-2013</dc:date>
+          <dc:type>aggregate</dc:type>
+          <dc:source>official election returns provided by state governments</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1950--1990</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>14</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Survey of Churches and Church Membership by County, 1952</dc:title>
+          <dc:creator>National Council of Churches of Christ in the U.S.A.</dc:creator>
+          <dc:subject>church membership</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>religion</dc:subject>
+          <dc:subject>religious congregations</dc:subject>
+          <dc:subject>religious denominations</dc:subject>
+          <dc:subject>religious organizations</dc:subject>
+          <dc:description>This data collection contains information about church and religious organization membership by county in the United States for the year 1952. Information is provided on the number and percentage of members in churches such as the Congregational Christian, Methodist, Protestant Episcopalian, Roman Catholic, and Jewish congregations, as well as the percentage of the total population who are church members and those belonging to other faiths. Demographic variables provide information on median age, income, and education.</dc:description>
+          <dc:identifier>14</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00014.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>administrative records data, and census data</dc:type>
+          <dc:source>United States Department of Commerce. Bureau of the Census, and church records</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1952</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>15</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Socio-Economic, Public Policy, and Political Data for the United States, 1890-1960</dc:title>
+          <dc:creator>Hofferbert, Richard I.</dc:creator>
+          <dc:subject>economic behavior</dc:subject>
+          <dc:subject>education</dc:subject>
+          <dc:subject>expenditures</dc:subject>
+          <dc:subject>government expenditures</dc:subject>
+          <dc:subject>public policy</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>This study contains data for 48 states at decennial points from 1890 to 1960, including electoral, demographic, economic, public expenditure, and educational information. The majority of the variables in the dataset are derived measures such as percentages, ratios, indices, and ranks of the states along various dimensions presented. The data were collected and prepared by the staff of the Comparative Political Behavior Project of the Cornell University Center for International Studies.</dc:description>
+          <dc:identifier>15</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00015.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1890--1960</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>16</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Partisan Division of American State Governments, 1834-1985</dc:title>
+          <dc:creator>Burnham, W. Dean</dc:creator>
+          <dc:subject>governors</dc:subject>
+          <dc:subject>legislative bodies</dc:subject>
+          <dc:subject>legislators</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>political partisanship</dc:subject>
+          <dc:subject>state government</dc:subject>
+          <dc:subject>state legislatures</dc:subject>
+          <dc:subject>states (USA)</dc:subject>
+          <dc:subject>twentieth century</dc:subject>
+          <dc:description>This data collection provides information on the number of seats held by the major and minor parties in both houses of the state legislatures, as well as the party identification of the state's governor during the term of each legislature in the United States in the period 1834-1985. Data are presented annually and biennially for every legislature. The data from 1834 to 1868 for both datasets were collected by W. Dean Burnham, Massachusetts Institute of Technology. Data for subsequent years were added by the ICPSR staff.</dc:description>
+          <dc:identifier>16</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00016.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1834--1985</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>17</identifier>
+        <datestamp>2005-12-22T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Census of Governments, 1962 and 1967</dc:title>
+          <dc:creator>United States Department of Commerce. Bureau of the Census</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>debt</dc:subject>
+          <dc:subject>economic conditions</dc:subject>
+          <dc:subject>employee benefits</dc:subject>
+          <dc:subject>employment</dc:subject>
+          <dc:subject>government employees</dc:subject>
+          <dc:subject>government expenditures</dc:subject>
+          <dc:subject>government revenues</dc:subject>
+          <dc:subject>local government</dc:subject>
+          <dc:subject>municipal services</dc:subject>
+          <dc:subject>municipalities</dc:subject>
+          <dc:subject>school districts</dc:subject>
+          <dc:subject>state government</dc:subject>
+          <dc:subject>townships</dc:subject>
+          <dc:description>This study contains economic and employment data at the county level for states and local governments in the United States in 1962 and 1967. Data are provided on total population, land area, general revenues, number of municipalities and local governments of all types, number of public school districts, and number of employees of local governments. Information is also provided on educational payrolls of local governments, average earnings of full-time teachers, water supply revenues and expenditures of local governments, local government general expenditures on public welfare, highways, health and hospitals, police and fire protection, natural resources, and urban renewal, long-term general debt outstanding of local schools and local governments, and per capita intergovernmental revenues and expenditures.</dc:description>
+          <dc:identifier>17</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00017.v1</dc:identifier>
+          <dc:date>12-22-2005</dc:date>
+          <dc:type>census/enumeration data</dc:type>
+          <dc:source>United States Department of Commerce. Bureau of the Census. 1962 CENSUS OF GOVERNMENTS. Washington, DC: United States Government Printing Office, 1964, and (2) United States Department of Commerce. Bureau of the Census. 1967 CENSUS OF GOVERNMENTS. Washington, DC: United States Government Printing Office, 1968-1970.</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1962</dc:coverage>
+          <dc:coverage>1967</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>18</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Census of Population and Housing, 1970 [United States]: Public Use Samples</dc:title>
+          <dc:creator>United States Department of Commerce. Bureau of the Census</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>citizenship</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>education</dc:subject>
+          <dc:subject>employment</dc:subject>
+          <dc:subject>ethnicity</dc:subject>
+          <dc:subject>families</dc:subject>
+          <dc:subject>household composition</dc:subject>
+          <dc:subject>housing</dc:subject>
+          <dc:subject>housing conditions</dc:subject>
+          <dc:subject>housing units</dc:subject>
+          <dc:subject>income</dc:subject>
+          <dc:subject>occupational status</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>population</dc:subject>
+          <dc:subject>population characteristics</dc:subject>
+          <dc:subject>states (USA)</dc:subject>
+          <dc:description>This data collection contains 132 Public Use Microdata Samples (PUMS) files from the 1970 Census of Population and Housing. Information is provided in these files on the housing unit, such as occupancy and vacancy status of house, tenure, value of property, commercial use, year structure was built, number of rooms, availability of plumbing facilities, sewage disposal, bathtub or shower, complete kitchen facilities, flush toilet, water, telephone, and air conditioning. Data are also provided on household characteristics such as the number of persons aged 18 years and younger in the household, the presence of roomers, boarders, or lodgers, the presence of other nonrelative and of relative other than wife or child of head of household, the number of persons per room, the rent paid for unit, and the number of persons with Spanish surnames. Other demographic variables provide information on age, race, marital status, place of birth, state of birth, Puerto Rican heritage, citizenship, education, occupation, employment status, size of family, farm earnings, and family income. This hierarchical data collection contains approximately 214 variables for the 15-percent sample, 227 variables for the 5-percent sample, and 117 variables for the neighborhood characteristics sample.</dc:description>
+          <dc:identifier>18</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00018.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:source>self-enumerated questionnaires</dc:source>
+          <dc:coverage>Alabama</dc:coverage>
+          <dc:coverage>Alaska</dc:coverage>
+          <dc:coverage>Arizona</dc:coverage>
+          <dc:coverage>Arkansas</dc:coverage>
+          <dc:coverage>California</dc:coverage>
+          <dc:coverage>Colorado</dc:coverage>
+          <dc:coverage>Connecticut</dc:coverage>
+          <dc:coverage>Delaware</dc:coverage>
+          <dc:coverage>District of Columbia</dc:coverage>
+          <dc:coverage>Florida</dc:coverage>
+          <dc:coverage>Georgia</dc:coverage>
+          <dc:coverage>Hawaii</dc:coverage>
+          <dc:coverage>Idaho</dc:coverage>
+          <dc:coverage>Illinois</dc:coverage>
+          <dc:coverage>Indiana</dc:coverage>
+          <dc:coverage>Iowa</dc:coverage>
+          <dc:coverage>Kansas</dc:coverage>
+          <dc:coverage>Kentucky</dc:coverage>
+          <dc:coverage>Louisiana</dc:coverage>
+          <dc:coverage>Maine</dc:coverage>
+          <dc:coverage>Maryland</dc:coverage>
+          <dc:coverage>Massachusetts</dc:coverage>
+          <dc:coverage>Michigan</dc:coverage>
+          <dc:coverage>Minnesota</dc:coverage>
+          <dc:coverage>Mississippi</dc:coverage>
+          <dc:coverage>Missouri</dc:coverage>
+          <dc:coverage>Montana</dc:coverage>
+          <dc:coverage>Nebraska</dc:coverage>
+          <dc:coverage>Nevada</dc:coverage>
+          <dc:coverage>New Hampshire</dc:coverage>
+          <dc:coverage>New Jersey</dc:coverage>
+          <dc:coverage>New Mexico</dc:coverage>
+          <dc:coverage>New York (state)</dc:coverage>
+          <dc:coverage>North Carolina</dc:coverage>
+          <dc:coverage>North Dakota</dc:coverage>
+          <dc:coverage>Ohio</dc:coverage>
+          <dc:coverage>Oklahoma</dc:coverage>
+          <dc:coverage>Oregon</dc:coverage>
+          <dc:coverage>Pennsylvania</dc:coverage>
+          <dc:coverage>Puerto Rico</dc:coverage>
+          <dc:coverage>Rhode Island</dc:coverage>
+          <dc:coverage>South Carolina</dc:coverage>
+          <dc:coverage>South Dakota</dc:coverage>
+          <dc:coverage>Tennessee</dc:coverage>
+          <dc:coverage>Texas</dc:coverage>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>Utah</dc:coverage>
+          <dc:coverage>Vermont</dc:coverage>
+          <dc:coverage>Virginia</dc:coverage>
+          <dc:coverage>Washington</dc:coverage>
+          <dc:coverage>West Virginia</dc:coverage>
+          <dc:coverage>Wisconsin</dc:coverage>
+          <dc:coverage>Wyoming</dc:coverage>
+          <dc:coverage>1970</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>19</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>State-Level Presidential Election Data for the United States, 1824-1972</dc:title>
+          <dc:creator>Burnham, W. Dean</dc:creator>
+          <dc:creator>Flanigan, William</dc:creator>
+          <dc:subject>candidates</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>political attitudes and behavior</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>presidential elections</dc:subject>
+          <dc:subject>states</dc:subject>
+          <dc:description>Raw and percentagized returns for all presidential elections from 1824 to 1972 are included in this state-level data set. Data are presented for major candidates as well as the most significant minor party candidates in each election. The data were matched-merged and the parties fixed-formatted for all states in the file. There are approximately 3,400 card-image equivalents.</dc:description>
+          <dc:identifier>19</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00019.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1824--1972</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>20</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Demographic Characteristics of the Population of the United States, 1930-1950: County-Level</dc:title>
+          <dc:creator>Gardner, John</dc:creator>
+          <dc:creator>Cohen, William</dc:creator>
+          <dc:subject>African Americans</dc:subject>
+          <dc:subject>birth rates</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>ethnic groups</dc:subject>
+          <dc:subject>internal migration</dc:subject>
+          <dc:subject>mortality rates</dc:subject>
+          <dc:subject>population dynamics</dc:subject>
+          <dc:subject>population migration</dc:subject>
+          <dc:description>This data collection contains county-level information on total number of population and internal migration in the United States from 1930 to 1950. Demographic information is provided on race, age, and sex for the counties. There are variables that provide information by age group on the number of native-born white males and females, foreign-born white males and females, Black males and females, and males and females of other nationalities such as Indians, Japanese, and Chinese. For 1930 and 1940, the population is tabulated in five-year intervals until age 34 and in ten-year intervals thereafter. For 1950, the numbers of whites and non-whites are given by sex and age in five-year intervals. Additional variables provide information by age group on net migration of white males and females, and on Black males and females. Other variables give information on births and deaths.</dc:description>
+          <dc:identifier>20</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00020.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>census data, and aggregate data</dc:type>
+          <dc:source>United States Bureau of the Census censuses of population for 1930, 1940, and 1950</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1930--1950</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>21</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Michigan Religious Data, 1950 and 1960</dc:title>
+          <dc:creator>United Presbyterian Church in the United States. Synod of Michigan</dc:creator>
+          <dc:subject>church attendance</dc:subject>
+          <dc:subject>church buildings</dc:subject>
+          <dc:subject>church membership</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>religion</dc:subject>
+          <dc:subject>religious denominations</dc:subject>
+          <dc:description>This data collection contains county-level information on churches and church membership by denomination in Michigan for 1950 and 1960. Information is given on the names of the county, presbytery, and church. Other variables provide information on the number of churches and church members for each denomination. Additional variables give the number and percentage of the state population who were 14 years and older in each county in 1950 and in 1960, the percentage of this age group who attended churches in 1950 and in 1960, and the percentage of the change in membership in each denomination between 1950 and 1960.</dc:description>
+          <dc:identifier>21</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00021.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>administrative records data, and aggregate data</dc:type>
+          <dc:source>church membership records</dc:source>
+          <dc:coverage>Michigan</dc:coverage>
+          <dc:coverage>United States</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>22</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Economic Development and State Policy Data for the United States, 1950-1964</dc:title>
+          <dc:creator>Dye, Thomas R.</dc:creator>
+          <dc:subject>economic development</dc:subject>
+          <dc:subject>economic indicators</dc:subject>
+          <dc:subject>political indicators</dc:subject>
+          <dc:subject>public policy-making</dc:subject>
+          <dc:subject>social attitudes and behavior</dc:subject>
+          <dc:subject>state policies</dc:subject>
+          <dc:subject>states</dc:subject>
+          <dc:description>Economic, political, and social indicatorss for fifty states during the 1950s and 1960s from Thomas R. Dye, Florida State University, is collected in this study. The dataset contains variables that include data on population characteristics and levels of governmental expenditures and services, as well as various political indices and scales.</dc:description>
+          <dc:identifier>22</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00022.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:coverage>United States</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>24</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>American State Data, 1956-1965</dc:title>
+          <dc:creator>Sharkansky, Ira</dc:creator>
+          <dc:subject>crime rates</dc:subject>
+          <dc:subject>crime statistics</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>earned degrees</dc:subject>
+          <dc:subject>education</dc:subject>
+          <dc:subject>enrollments</dc:subject>
+          <dc:subject>government expenditures</dc:subject>
+          <dc:subject>government services</dc:subject>
+          <dc:subject>higher education</dc:subject>
+          <dc:subject>income</dc:subject>
+          <dc:subject>infant mortality</dc:subject>
+          <dc:subject>natural resources</dc:subject>
+          <dc:subject>population dynamics</dc:subject>
+          <dc:subject>public assistance programs</dc:subject>
+          <dc:subject>state government</dc:subject>
+          <dc:subject>states (USA)</dc:subject>
+          <dc:description>This data collection provides selected economic, social, demographic, and political information for 48 states of the United States during the 1950s and 1960s. Variables describe population characteristics, such as the number of adults aged 65 and over, the number of dentists and physicians, the number of patients in mental hospitals, the death rates of white and non-white infants under one year of age per 1,000 live births, respectively, the number of recipients of public assistance such as Aid to Families with Dependent Children (AFDC), elementary and secondary school enrollment, enrollment in vocational programs, the total number of students in higher education, the number of those conferred with M.A. and Ph.D. degrees, and the number of workers in research experiment stations. Other variables provide economic information, such as personal income per capita, average monthly payment per recipient of some public assistance programs, average salary per month for full-time state and local employees, state and local government revenues and expenditures, and various intergovernmental revenues from the federal government for certain services. Additional variables record crime statistics, such as the number of robbery, burglary, larceny, auto theft, assault, rape, and murder offenses per 100,000 of the population. There are also variables that give information on each state's topography, such as the acreage of state parks, total farm acreage, municipal road mileage, and total unsurfaced road mileage.</dc:description>
+          <dc:identifier>24</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00024.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>UNITED STATES STATISTICAL ABSTRACT, BOOK OF THE STATES</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1956--1965</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>25</identifier>
+        <datestamp>2008-03-25T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Comparative Study of Community Decision-Making</dc:title>
+          <dc:creator>Clark, Terry N.</dc:creator>
+          <dc:subject>cities</dc:subject>
+          <dc:subject>communities</dc:subject>
+          <dc:subject>community decision making</dc:subject>
+          <dc:subject>community elites</dc:subject>
+          <dc:subject>community leaders</dc:subject>
+          <dc:subject>community participation</dc:subject>
+          <dc:subject>leadership</dc:subject>
+          <dc:subject>local politics</dc:subject>
+          <dc:subject>municipalities</dc:subject>
+          <dc:subject>political influence</dc:subject>
+          <dc:subject>public policy</dc:subject>
+          <dc:description>This study contains data for 51 communities with populations of 50,000-750,000 in 22 states of the United States on the characteristics of community leadership, decision-making, and patterns of influence, as well as political, economic, and demographic composition of the communities and per capita expenditures for various common community functions. Information regarding general political and public policy issues, specific municipal problems, and their solutions was obtained from interviews with eight prominent individuals in each city, such as the Chamber of Commerce president, a labor leader, a leading newspaper editor or publisher, the chairmen of the Democratic and Republican parties, the president of the largest bank, and the mayor. Data are also provided on the characteristics of the cities, including composite indexes created from the interview data as well as data from other sources. The study is composed of three files: a Merged Aggregate and Individual file (Part 1), an Aggregate file (Part 2), and an Individual file (Part 3). The Merged Aggregate and Individual file (Part 1) contains the responses of the individuals interviewed and information on the characteristics of each respondent's city from other sources. Items include education, health, culture, welfare, and total expenditures of the city. The Aggregate file (Part 2) contains information on the population characteristics of each city, as well as information on the structure, income, and expenditures of the city government. Demographic indices describe age and income distribution of the population, racial composition, level of educational attainment, and the size, income and occupational distribution of the labor force. The Individual file (Part 3) provides information received from respondents on decision-making pertaining to issues of urban renewal, mayoral elections, air pollution control, race relations, health, education, industrial and economic development, and anti-poverty programs.</dc:description>
+          <dc:identifier>25</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00025.v1</dc:identifier>
+          <dc:date>03-25-2008</dc:date>
+          <dc:type>aggregate</dc:type>
+          <dc:type>survey</dc:type>
+          <dc:source>(1) personal interviews, and (2) reports of the United States Bureau of the Census, reports of the Department of Housing and Urban Development, the Municipal Yearbook, and scholarly publications</dc:source>
+          <dc:coverage>Akron</dc:coverage>
+          <dc:coverage>Alabama</dc:coverage>
+          <dc:coverage>Albany (New York)</dc:coverage>
+          <dc:coverage>Amarillo</dc:coverage>
+          <dc:coverage>Arizona</dc:coverage>
+          <dc:coverage>Atlanta</dc:coverage>
+          <dc:coverage>Berkeley</dc:coverage>
+          <dc:coverage>Birmingham</dc:coverage>
+          <dc:coverage>Bloomington</dc:coverage>
+          <dc:coverage>Boston</dc:coverage>
+          <dc:coverage>Buffalo</dc:coverage>
+          <dc:coverage>California</dc:coverage>
+          <dc:coverage>Cambridge</dc:coverage>
+          <dc:coverage>Charlotte</dc:coverage>
+          <dc:coverage>Clifton</dc:coverage>
+          <dc:coverage>Connecticut</dc:coverage>
+          <dc:coverage>Duluth</dc:coverage>
+          <dc:coverage>Euclid</dc:coverage>
+          <dc:coverage>Florida</dc:coverage>
+          <dc:coverage>Fort Worth</dc:coverage>
+          <dc:coverage>Fullerton</dc:coverage>
+          <dc:coverage>Gary</dc:coverage>
+          <dc:coverage>Georgia</dc:coverage>
+          <dc:coverage>Hamilton</dc:coverage>
+          <dc:coverage>Hammond</dc:coverage>
+          <dc:coverage>Indiana</dc:coverage>
+          <dc:coverage>Indianapolis</dc:coverage>
+          <dc:coverage>Irvington</dc:coverage>
+          <dc:coverage>Jacksonville</dc:coverage>
+          <dc:coverage>Long Beach</dc:coverage>
+          <dc:coverage>Malden</dc:coverage>
+          <dc:coverage>Manchester</dc:coverage>
+          <dc:coverage>Massachusetts</dc:coverage>
+          <dc:coverage>Memphis</dc:coverage>
+          <dc:coverage>Michigan</dc:coverage>
+          <dc:coverage>Milwaukee</dc:coverage>
+          <dc:coverage>Minneapolis</dc:coverage>
+          <dc:coverage>Minnesota</dc:coverage>
+          <dc:coverage>Missouri</dc:coverage>
+          <dc:coverage>New Hampshire</dc:coverage>
+          <dc:coverage>New Jersey</dc:coverage>
+          <dc:coverage>New York (state)</dc:coverage>
+          <dc:coverage>Newark</dc:coverage>
+          <dc:coverage>North Carolina</dc:coverage>
+          <dc:coverage>Ohio</dc:coverage>
+          <dc:coverage>Palo Alto</dc:coverage>
+          <dc:coverage>Pasadena</dc:coverage>
+          <dc:coverage>Pennsylvania</dc:coverage>
+          <dc:coverage>Phoenix</dc:coverage>
+          <dc:coverage>Pittsburgh</dc:coverage>
+          <dc:coverage>Salt Lake City</dc:coverage>
+          <dc:coverage>San Francisco</dc:coverage>
+          <dc:coverage>San Jose</dc:coverage>
+          <dc:coverage>Santa Ana</dc:coverage>
+          <dc:coverage>Santa Monica</dc:coverage>
+          <dc:coverage>Schenectady</dc:coverage>
+          <dc:coverage>Seattle</dc:coverage>
+          <dc:coverage>South Bend</dc:coverage>
+          <dc:coverage>St. Louis</dc:coverage>
+          <dc:coverage>St. Paul</dc:coverage>
+          <dc:coverage>St. Petersburg</dc:coverage>
+          <dc:coverage>Tampa</dc:coverage>
+          <dc:coverage>Tennessee</dc:coverage>
+          <dc:coverage>Texas</dc:coverage>
+          <dc:coverage>Tyler</dc:coverage>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>Utah</dc:coverage>
+          <dc:coverage>Utica</dc:coverage>
+          <dc:coverage>Waco</dc:coverage>
+          <dc:coverage>Warren</dc:coverage>
+          <dc:coverage>Washington (state)</dc:coverage>
+          <dc:coverage>Waterbury</dc:coverage>
+          <dc:coverage>Waukegan</dc:coverage>
+          <dc:coverage>Wisconsin</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>26</identifier>
+        <datestamp>2008-03-25T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Comparative Study of Community Power Research, 1920-1964</dc:title>
+          <dc:creator>Gilbert, Claire W.</dc:creator>
+          <dc:subject>cities</dc:subject>
+          <dc:subject>communities</dc:subject>
+          <dc:subject>community decision making</dc:subject>
+          <dc:subject>community elites</dc:subject>
+          <dc:subject>community participation</dc:subject>
+          <dc:subject>community power</dc:subject>
+          <dc:subject>electoral systems</dc:subject>
+          <dc:subject>income</dc:subject>
+          <dc:subject>industrial growth</dc:subject>
+          <dc:subject>local government</dc:subject>
+          <dc:subject>local politics</dc:subject>
+          <dc:subject>minorities</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>population growth rate</dc:subject>
+          <dc:subject>population size</dc:subject>
+          <dc:subject>urban areas</dc:subject>
+          <dc:description>This study contains data relevant to 166 community power studies conducted from 1920 to 1964. The goal of the data collection was to afford comparative analyses of these selected communities by any interested future researchers. Information is provided on the theoretical and methodological apparatus of the research, such as the major data collection techniques and the model of power utilized in the investigation. Additional information is given for the primary purpose of the research, the number of communities and the mode of entry into the communities studied, the number and scope of issues studied, the level of theoretical rigor, and the replicability of the study. Other variables provide information on the community power structure, formal structure, and characteristics of politics in the communities, such as the type of local government, electoral systems established, forms of formal and informal structures of power, political party dominating local politics, community conflict resolution, sources of innovation, and the place of experts, elite groups, masses, voters, and minorities in the community. There are also variables that provide information on the type of community and city, city rating, growth of the city, type of relationship between population growth and industrial growth, and population growth rate and population size of the city per square mile. Variables on the economic base of the community include the median income for the city in 1950 and in 1960, and the proportion of the population earning under $2,000 and under $3,000 in 1950, and over $10,000 in 1960. Demographic variables on the city's residents cover the education of the population in relation to the United States median, the median age from 1950 to 1960, the proportion of the population under 5 years, over 21 years, and under 65 years of age, and the proportion of the population that was non-white in any census year, of mixed parentage in 1960 in (where one parent was of foreign birth), and foreign-born between 1910 and 1960. Data are also provided on the researchers' sex, educational institutions attended, motivation for the research, and their publications based on the research findings.</dc:description>
+          <dc:identifier>26</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00026.v1</dc:identifier>
+          <dc:date>03-25-2008</dc:date>
+          <dc:type>aggregate</dc:type>
+          <dc:source>13th-16th Censuses of the United States, 1950 Census of Population, questionnaire by Claire W. Gilbert, and journal articles by Robert L. Carroll and Howard G. Nelson</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1920--1964</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>27</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Annual Time Series Statistics for the United States, 1929-1968</dc:title>
+          <dc:creator>Norwood, Douglas A.</dc:creator>
+          <dc:subject>church membership</dc:subject>
+          <dc:subject>congressional elections</dc:subject>
+          <dc:subject>congressional voting</dc:subject>
+          <dc:subject>consumer expenditures</dc:subject>
+          <dc:subject>economic indicators</dc:subject>
+          <dc:subject>demographic statistics</dc:subject>
+          <dc:subject>federal budget</dc:subject>
+          <dc:subject>federal elections</dc:subject>
+          <dc:subject>federal spending</dc:subject>
+          <dc:subject>government agencies</dc:subject>
+          <dc:subject>government employees</dc:subject>
+          <dc:subject>government expenditures</dc:subject>
+          <dc:subject>government revenues</dc:subject>
+          <dc:subject>income distribution</dc:subject>
+          <dc:subject>labor force</dc:subject>
+          <dc:subject>local government</dc:subject>
+          <dc:subject>party membership</dc:subject>
+          <dc:subject>political affiliation</dc:subject>
+          <dc:subject>political behavior</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>population characteristics</dc:subject>
+          <dc:subject>presidential elections</dc:subject>
+          <dc:subject>social history</dc:subject>
+          <dc:subject>social welfare</dc:subject>
+          <dc:subject>state government</dc:subject>
+          <dc:subject>twentieth century</dc:subject>
+          <dc:subject>unemployment</dc:subject>
+          <dc:subject>union membership</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:subject>United States Congress</dc:subject>
+          <dc:description>This study is a 40-year time series of social, economic, and political indicators at the national level for the United States in the period 1929-1968. The variables include data on expenditures from the federal budget by various departments, agencies, and commissions, the number of employees in the various United States departments, measures of the political characteristics of the United States Congress, such as the number of Repuplicans, Democrats, and "other" party members in the United States Senate and in the House of Representatives, business and consumer expenditures, and attributes of the population. Data are also provided on the number per 1,000 of immigrants to the United States, membership of all the religious bodies in the United States, labor union membership, total households in the United States, total civilian labor force, and the number of the unemployed. Demographic variables provide information on education, births, and death rates. The unit of analysis is the year. Variables 2-281 cover the period from 1929-1968 and Variables 282-408 cover only the period from 1947-1968.</dc:description>
+          <dc:identifier>27</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00027.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>administrative records data, census data, and aggregate data</dc:type>
+          <dc:source>United States government publications, United States Census Bureau statistical publications, 1957-1969, and books</dc:source>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1929--1968</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>28</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Governmental Units Analysis Data</dc:title>
+          <dc:creator>Aiken, Michael</dc:creator>
+          <dc:creator>Alford, Robert R.</dc:creator>
+          <dc:subject>cities</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>education</dc:subject>
+          <dc:subject>elementary school children</dc:subject>
+          <dc:subject>government expenditures</dc:subject>
+          <dc:subject>government programs</dc:subject>
+          <dc:subject>housing</dc:subject>
+          <dc:subject>housing needs</dc:subject>
+          <dc:subject>housing programs</dc:subject>
+          <dc:subject>income</dc:subject>
+          <dc:subject>labor force</dc:subject>
+          <dc:subject>local elections</dc:subject>
+          <dc:subject>local government</dc:subject>
+          <dc:subject>manufacturing industry</dc:subject>
+          <dc:subject>migrants</dc:subject>
+          <dc:subject>Model Cities Programs</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>population characteristics</dc:subject>
+          <dc:subject>population density</dc:subject>
+          <dc:subject>poverty</dc:subject>
+          <dc:subject>public housing</dc:subject>
+          <dc:subject>slums</dc:subject>
+          <dc:subject>suburbs</dc:subject>
+          <dc:subject>unemployment</dc:subject>
+          <dc:subject>urban areas</dc:subject>
+          <dc:subject>urban renewal</dc:subject>
+          <dc:subject>white collar workers</dc:subject>
+          <dc:description>This data collection provides information on the demographic, social, economic, political, and civil characteristics of selected municipalities with populations of 25,000 or more in the United States during the 1960s. Information is provided on population characteristics, such as the number of native-born persons residing in the state of birth, percentage of persons aged 5 years and older who were migrants, percentages in 1962 of non-white, foreign-born, and native-born populations of foreign or racially mixed parentage, median school years completed by those aged 25 years and older, percentage of elementary school children in private school, median income of families, number of full-time city employees per 1,000 population, percentage of civilian labor force that was unemployed in 1960, percentage of employed persons in white-collar occupations and in manufacturing industries, and percentage of the employed civilian labor force that was professional and that were managers, officials, and proprietors. Other variables provide information on city characteristics, such as the age of the city, the presence of dormitory city, balanced city, central city, independent city, and the suburbs, the density of population per square mile, the employment-residence ratio, the presence or absence of application for the Model Cities Program, and the number of applications for, and whether the city was a winner of, the All-American City award between 1952 and 1967. Further variables detail information on the city housing situation, such as the number of dwelling units built in 1929 or earlier, the number of dilapidated dwellings, the presence or absence of a local housing authority and jurisdiction of local housing authority, participation in programs of the United States Housing Act of 1937 (Public Law 412), the presence or absence of a low-rent housing program and of slum clearance, and the number of low-rent housing units per 100,000 population. Additional variables give information on city politics, including the presence of mayor-council government, city-manager government, and nonpartisan elections, the number of city councilmen, the percentage of city council elected at large, the percentage of the county presidential vote for the Democratic party and for the Republican party in 1960, and the numbers of registered voters. Other items cover city services and programs, such as the presence or absence of poverty programs, the number of dollars per capita for poverty programs as of June 30, 1966, the presence or absence of urban renewal programs and their execution or completion as of June 30, 1966, the current per capita amount raised for Community Chest, and the presence or absence of action on fluoridation of city water. There are also variables that identify a subset of cities for urban renewal analysis, Community Chest analysis, analysis of fluoridation decisions, and analysis of decisions about public housing.</dc:description>
+          <dc:identifier>28</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00028.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>census data, aggregate data, and administrative records data</dc:type>
+          <dc:source>census data, County and City Data Book, journal articles, municipal yearbooks, and Department of Housing reports and directory</dc:source>
+          <dc:coverage>Florida</dc:coverage>
+          <dc:coverage>Idaho</dc:coverage>
+          <dc:coverage>Louisiana</dc:coverage>
+          <dc:coverage>Maryland</dc:coverage>
+          <dc:coverage>Mississippi</dc:coverage>
+          <dc:coverage>Montana</dc:coverage>
+          <dc:coverage>New Mexico</dc:coverage>
+          <dc:coverage>Oklahoma</dc:coverage>
+          <dc:coverage>South Carolina</dc:coverage>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>Wyoming</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>29</identifier>
+        <datestamp>2009-12-01T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Knights of Labor Assemblies, 1879-1889</dc:title>
+          <dc:creator>Garlock, Jonathan</dc:creator>
+          <dc:subject>industry</dc:subject>
+          <dc:subject>Knights of Labor</dc:subject>
+          <dc:subject>labor (work)</dc:subject>
+          <dc:subject>labor history</dc:subject>
+          <dc:subject>labor organizers</dc:subject>
+          <dc:subject>labor strikes</dc:subject>
+          <dc:subject>labor unions</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>Powderly, Terence V.</dc:subject>
+          <dc:subject>Stephens, Uriah S.</dc:subject>
+          <dc:subject>union membership</dc:subject>
+          <dc:subject>work environment</dc:subject>
+          <dc:subject>workers</dc:subject>
+          <dc:description>This data collection provides information on the characteristics of almost 12,000 Knights of Labor Assemblies in the United States, Canada, and other nations for the period 1879 to 1889. Information is provided on the location of each assembly in the United States and Canada, their dates of origin, occupational categories and status, annual membership, the racial, sex, and ethnic composition of local assembly members, the population in 1880 and 1890 of the geographic location of local assemblies, and the last date in existence of local assemblies.</dc:description>
+          <dc:identifier>29</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00029.v1</dc:identifier>
+          <dc:date>12-01-2009</dc:date>
+          <dc:type>admin</dc:type>
+          <dc:type>aggregate</dc:type>
+          <dc:type>survey</dc:type>
+          <dc:source>(1) Journal of United Labor, 1880-1889, (2) Proceedings of the General Assembly of the Knights of Labor Annual Convention, 1879-1889, and (3) Report of the Illinois Bureau of Labor Statistics, 1886</dc:source>
+          <dc:coverage>Canada</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1879--1889</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>30</identifier>
+        <datestamp>2008-03-25T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Indiana Voter: Nineteenth Century Rural Bases of Partisanship, 1870</dc:title>
+          <dc:creator>Hammarberg, Melvyn A.</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>counties</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>foreign born</dc:subject>
+          <dc:subject>males</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>personal wealth</dc:subject>
+          <dc:subject>place of birth</dc:subject>
+          <dc:subject>place of residence</dc:subject>
+          <dc:subject>political affiliation</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>political partisanship</dc:subject>
+          <dc:subject>religious affiliation</dc:subject>
+          <dc:subject>rural areas</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:description>This data collection contains information on adult males living in nine counties of Indiana in 1870. The variables provide individual-level demographic information, such as county and township of residence, age, race, place of birth, parents' place of birth, status within the family, occupation, religious affiliation, and literacy level. Other variables provide information on the individual's and the family's real and total wealth, respectively, political party affiliation of the individual, disability condition, number of years the individual lived in Indiana, and percentage of life spent in Indiana.</dc:description>
+          <dc:identifier>30</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00030.v1</dc:identifier>
+          <dc:date>03-25-2008</dc:date>
+          <dc:type>census data, and administrative records data</dc:type>
+          <dc:source>(1) United States Census of 1870, and (2) 1874 PEOPLE'S GUIDE</dc:source>
+          <dc:coverage>Indiana</dc:coverage>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1870</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>31</identifier>
+        <datestamp>2008-03-25T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Demographic Characteristics of the Population of Detroit, 1850-1880</dc:title>
+          <dc:creator>Vinyard, Jo Ellen</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>ethnicity</dc:subject>
+          <dc:subject>family</dc:subject>
+          <dc:subject>family size</dc:subject>
+          <dc:subject>foreign born</dc:subject>
+          <dc:subject>German Americans</dc:subject>
+          <dc:subject>household composition</dc:subject>
+          <dc:subject>Irish Americans</dc:subject>
+          <dc:subject>nationality</dc:subject>
+          <dc:subject>native born</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>personal wealth</dc:subject>
+          <dc:subject>place of birth</dc:subject>
+          <dc:subject>population</dc:subject>
+          <dc:subject>school age children</dc:subject>
+          <dc:subject>urban areas</dc:subject>
+          <dc:description>This data collection provides information for native-born Americans, Irish Americans, and German Americans living in Detroit, Michigan, between 1850 and 1880. Demographic variables provide information on age, sex, occupation, marital status, marriage patterns, ethnic background, place of birth, and spouse's and parents' place of birth. Additional information is provided on family size, number of children of adults, number of individuals in the house beyond the immediate family, total number of individuals in the nuclear family, position of individuals within the family, number of children eligible to be in school, activities of school-age children, adult male skill level, literacy level, length of time the family had been in the United States, ownership and value of real estate, constitutional and legal status, and physical condition.</dc:description>
+          <dc:identifier>31</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00031.v1</dc:identifier>
+          <dc:date>03-25-2008</dc:date>
+          <dc:type>census data</dc:type>
+          <dc:source>United States Censuses of 1850 and 1880</dc:source>
+          <dc:coverage>Detroit</dc:coverage>
+          <dc:coverage>Michigan</dc:coverage>
+          <dc:coverage>United States</dc:coverage>
+          <dc:coverage>1850--1880</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>32</identifier>
+        <datestamp>2008-03-26T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Nineteenth Century Family History in Michigan: 1850-1880</dc:title>
+          <dc:creator>Warner, Sam Bass Jr.</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>extended families</dc:subject>
+          <dc:subject>families</dc:subject>
+          <dc:subject>family size</dc:subject>
+          <dc:subject>household composition</dc:subject>
+          <dc:subject>households</dc:subject>
+          <dc:subject>living arrangements</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>place of birth</dc:subject>
+          <dc:subject>rural areas</dc:subject>
+          <dc:subject>townships</dc:subject>
+          <dc:subject>urban areas</dc:subject>
+          <dc:description>This data collection provides information on the characteristics of 1,194 Michigan families in rural places, towns and villages, and the urban areas of Detroit in 1850 and 1880. Data are provided on the geographic location of each household and type of locale, total number of residents in the household, and total number of children of the head of each household. Demographic variables provide information on age, race, place of birth, and occupation of the household head and their spouse, place of birth of father and mother of the household head and of their spouse, sex of the household head and their children, and age of the children. Additional variables provide information on the number of children listed as unemployed, the number of parents or parents-in-law of the household head residing in the household, the number of other related adults aged 14 and older, other related children aged 14 and younger living in the household, the number of servants or employees in the household, and the number of boarders or roomers in the household.</dc:description>
+          <dc:identifier>32</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00032.v1</dc:identifier>
+          <dc:date>03-26-2008</dc:date>
+          <dc:type>census data</dc:type>
+          <dc:source>manuscript censuses of 1850 and 1880</dc:source>
+          <dc:coverage>Detroit</dc:coverage>
+          <dc:coverage>Flint</dc:coverage>
+          <dc:coverage>Lansing</dc:coverage>
+          <dc:coverage>Michigan</dc:coverage>
+          <dc:coverage>United States</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>33</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Miscellaneous Instructional Data Sets, 1912, 1920-1940, 1860-1900</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>instruction</dc:subject>
+          <dc:subject>instructional materials</dc:subject>
+          <dc:subject>national elections</dc:subject>
+          <dc:subject>referendum</dc:subject>
+          <dc:subject>vote count</dc:subject>
+          <dc:description>This data collection contains three files of county-level electoral returns for Ohio, Michigan, Nebraska, and New York in the period 1912, and 1920-1940. The data files were prepared for instructional use in the ICPSR Training Program and for graduate-level social science courses at the University of Michigan and other university campuses. They contain social, demographic, electoral, and economic data for various areas of the United States, usually for an extended period of time. Part 1, Ohio Referenda Counties as Units, and Part 2, Ohio Referenda as Units, consist of county-level returns for 42 referenda in the 1912 general election in Ohio. Data are provided for the names of counties, votes in the affirmative, total number of votes, and percentage of the "yes" votes for referenda on issues such as civil juries, capital punishment, governor's veto, workmen's compensation, 8-hour day, removal of elected officials, prison labor, women's suffrage, and taxes. The referenda included many questions considered important in the Progressive Movement. Part 3, Data Sets for Three States (Michigan, Nebraska, and New York), consists of electoral returns for the offices of president, governor, and United States representative, as well as ecological and population characteristics data in the period 1920-1940. Data are provided for the raw votes and percentage of the total votes received by the Democratic, Republican, Progressive, and other parties. Items also provide information on population characteristics, such as the total number of population, voting age population, urban population, and persons of other races, and school attendance and religion. Economic variables provide information on local government expenditures and revenues, agriculture and manufacturing, employment and unemployment, and the total number of banks and bank deposits.</dc:description>
+          <dc:identifier>33</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00033.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>(1) ICPSR Historical Election Data Archive, (2) 14th-15th Decennial Census of the United States, 1920 and 1930, (3) Religious Bodies, 1926 and 1936, (4) Financial Statistics of State and Local Government, 1932, (5) Census of Partial Employment, Unemployment and Occupations, 1936, and (6) Michigan and New York Manual, 1933 and 1927</dc:source>
+          <dc:coverage>Michigan</dc:coverage>
+          <dc:coverage>Nebraska</dc:coverage>
+          <dc:coverage>New York (state)</dc:coverage>
+          <dc:coverage>Ohio</dc:coverage>
+          <dc:coverage>United States</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>34</identifier>
+        <datestamp>2006-01-12T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Comparative Socio-Economic, Public Policy, and Political Data,1900-1960</dc:title>
+          <dc:creator>Hofferbert, Richard I.</dc:creator>
+          <dc:subject>agricultural land</dc:subject>
+          <dc:subject>agriculture</dc:subject>
+          <dc:subject>automobile ownership</dc:subject>
+          <dc:subject>birth rates</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>government expenditures</dc:subject>
+          <dc:subject>government services</dc:subject>
+          <dc:subject>home ownership</dc:subject>
+          <dc:subject>household composition</dc:subject>
+          <dc:subject>housing</dc:subject>
+          <dc:subject>income</dc:subject>
+          <dc:subject>industry</dc:subject>
+          <dc:subject>infant mortality</dc:subject>
+          <dc:subject>labor force</dc:subject>
+          <dc:subject>literacy rate</dc:subject>
+          <dc:subject>migration</dc:subject>
+          <dc:subject>mortality rates</dc:subject>
+          <dc:subject>national elections</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>place of birth</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>population characteristics</dc:subject>
+          <dc:subject>population density</dc:subject>
+          <dc:subject>poverty</dc:subject>
+          <dc:subject>provincial elections</dc:subject>
+          <dc:subject>public policy</dc:subject>
+          <dc:subject>rural population</dc:subject>
+          <dc:subject>taxes</dc:subject>
+          <dc:subject>urban areas</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>This study contains selected demographic, social, economic, public policy, and political comparative data for Switzerland, Canada, France, and Mexico for the decades of 1900-1960. Each dataset presents comparable data at the province or district level for each decade in the period. Various derived measures, such as percentages, ratios, and indices, constitute the bulk of these datasets. Data for Switzerland contain information for all cantons for each decennial year from 1900 to 1960. Variables describe population characteristics, such as the age of men and women, county and commune of origin, ratio of foreigners to Swiss, percentage of the population from other countries such as Germany, Austria and Lichtenstein, Italy, and France, the percentage of the population that were Protestants, Catholics, and Jews, births, deaths, infant mortality rates, persons per household, population density, the percentage of urban and agricultural population, marital status, marriages, divorces, professions, factory workers, and primary, secondary, and university students. Economic variables provide information on the number of corporations, factory workers, economic status, cultivated land, taxation and tax revenues, canton revenues and expenditures, federal subsidies, bankruptcies, bank account deposits, and taxable assets. Additional variables provide political information, such as national referenda returns, party votes cast in National Council elections, and seats in the cantonal legislature held by political groups such as the Peasants, Socialists, Democrats, Catholics, Radicals, and others. Data for Canada provide information for all provinces for the decades 1900-1960 on population characteristics, such as national origin, the net internal migration per 1,000 of native population, population density per square mile, the percentage of owner-occupied dwellings, the percentage of urban population, the percentage of change in population from preceding censuses, the percentage of illiterate population aged 5 years and older, and the median years of schooling. Economic variables provide information on per capita personal income, total provincial revenue and expenditure per capita, the percentage of the labor force employed in manufacturing and in agriculture, the average number of employees per manufacturing establishment, assessed value of real property per capita, the average number of acres per farm, highway and rural road mileage, transportation and communication, the number of telephones per 100 population, and the number of motor vehicles registered per 1,000 population. Additional variables on elections and votes are supplied as well. Data for France provide information for all departements for all legislative elections since 1936, the two presidential elections of 1965 and 1969, and several referenda held in the period since 1958. Social and economic data are provided for the years 1946, 1954, and 1962, while various policy data are presented for the period 1959-1962. Variables provide information on population characteristics, such as the percentages of population by age group, foreign-born, bachelors aged 20 to 59, divorced men aged 25 and older, elementary school students in private schools, elementary school students per million population from 1966 to 1967, the number of persons in household in 1962, infant mortality rates per million births, and the number of priests per 10,000 population in 1946. Economic variables focus on the Gross National Product (GNP), the revenue per capita per household, personal income per capita, income tax, the percentage of active population in industry, construction and public works, transportation, hotels, public administration, and other jobs, the percentage of skilled and unskilled industrial workers, the number of doctors per 10,000 population, the number of agricultural cooperatives in 1946, the average hectares per farm, the percentage of farms cultivated by the owner, tenants, and sharecroppers, the number of workhorses, cows, and oxen per 100 hectares of farmland in 1946, and the percentages of automobiles per 1,000 population, radios per 100 homes, and cinema seats per 1,000 population. Data are also provided on the percentage of Communists (PCF), Socialists, Radical Socialists, Conservatives, Gaullists, Moderates, Poujadists, Independents, Turnouts, and other political groups and parties in elections 1946-1969. Additional variables provide information on medical insurance, death benefits, and aid to families. Data for Mexico provide information for all states at decennial points from 1910 to 1960. Social and economic data are available for the entire period, while political and public policy data are presented for the decades beginning with 1930. Variables are provided on population size, population density per kilogram, the percentage of illiterate population, the percentage increase in population by decade, the percentage of economically active population, the total per capita state revenues and expenditures, per capita personal income, median family income, minimum salary in city and in countryside, the poverty index in percentages, the average number of employees per industrial firm, the average investment per manufacturing establishment, the value of industrial and agricultural products in pesos per capita, the average number of hectares per farm, gasoline consumption in litres per capita, and the number of telephones and of registered motor vehicles per 1,000 population. Variables also provide information on the percentage of registered voters who voted in elections.</dc:description>
+          <dc:identifier>34</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00034.v1</dc:identifier>
+          <dc:date>01-12-2006</dc:date>
+          <dc:type>census data, and aggregate data</dc:type>
+          <dc:source>(1) Recensement Federal de la Population, (2) EIDGENOSSISCHE VOLKSZAHLUNG, (3) Census of Switzerland, (4) STATISTICHES JAHRBUCH DER SCHWIZ, (5) ANNUAIRE STATISTIQUE DE LA SUISSE, (6) YEARBOOK OF SWISS STATISTICS, 1900-1964, (7) Census of Canada, 1931 to 1961, and (8) RESUMEN GENERAL DEL CEASO INDUSTRIAL DE 1935</dc:source>
+          <dc:coverage>Canada</dc:coverage>
+          <dc:coverage>Europe</dc:coverage>
+          <dc:coverage>France</dc:coverage>
+          <dc:coverage>Germany</dc:coverage>
+          <dc:coverage>Mexico</dc:coverage>
+          <dc:coverage>Switzerland</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>35</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Political Systems Performance Data: France, Sweden, and the United Kingdom, 1850-1965</dc:title>
+          <dc:creator>Peters, B. Guy</dc:creator>
+          <dc:subject>agricultural production</dc:subject>
+          <dc:subject>education</dc:subject>
+          <dc:subject>energy consumption</dc:subject>
+          <dc:subject>government expenditures</dc:subject>
+          <dc:subject>government revenues</dc:subject>
+          <dc:subject>Gross National Product</dc:subject>
+          <dc:subject>income tax</dc:subject>
+          <dc:subject>infant mortality</dc:subject>
+          <dc:subject>labor force</dc:subject>
+          <dc:subject>life expectancy</dc:subject>
+          <dc:subject>national debt</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>political ideologies</dc:subject>
+          <dc:subject>political systems</dc:subject>
+          <dc:subject>population characteristics</dc:subject>
+          <dc:subject>unemployment</dc:subject>
+          <dc:subject>urban areas</dc:subject>
+          <dc:subject>voter attitudes</dc:subject>
+          <dc:description>For this study of political systems performance, time-series data were compiled for France, Sweden, and the United Kingdom on a quinquennial basis for the period 1850-1965. Information is provided for each country on population characteristics, such as the number of total population, the number of total population aged 0 to 4, 0 to 14, and 65 and older, births per 1,000 population, life expectancy, deaths per 1,000 population, infant deaths per 1,000 live births, the number of pupils enrolled in elementary and secondary schools, the number of students enrolled in colleges and universities, the number of teachers in secondary schools, and the number of civil servants, doctors, midwives, and hospital beds. Economic variables provide information on the Gross National Product (GNP), price index, number of patents issued, energy consumption, maximum income tax rate, government revenue from income tax, amount of public debt in millions, total public expenditures on defense, education, pension, welfare, health, veterans' benefits, and labor, labor union membership, the number of total work force employed in agriculture, the amount of agricultural production, the percentage of working-age population unemployed, the number of people on welfare, and the number of people receiving public pensions. Additional variables provide information on the voting population, the population voting for left-wing parties, population residing in cities over 20,000 in size, and population residing in the three largest cities. Three political indexes, the Cutright Index of Political Development, the Flanigan-Fogelman Index of Democratization, and an index indicating the ideology of the regime for each year, are also provided for the purpose of crossnational comparisons.</dc:description>
+          <dc:identifier>35</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00035.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>published documents</dc:source>
+          <dc:coverage>France</dc:coverage>
+          <dc:coverage>Sweden</dc:coverage>
+          <dc:coverage>United Kingdom</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1850--1965</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>36</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Political Systems Performance Data: Sweden, 1865-1967</dc:title>
+          <dc:creator>Peters, B. Guy</dc:creator>
+          <dc:subject>agricultural production</dc:subject>
+          <dc:subject>agricultural workers</dc:subject>
+          <dc:subject>agriculture</dc:subject>
+          <dc:subject>birth rates</dc:subject>
+          <dc:subject>civil service</dc:subject>
+          <dc:subject>college students</dc:subject>
+          <dc:subject>education expenditures</dc:subject>
+          <dc:subject>elementary school students</dc:subject>
+          <dc:subject>energy consumption</dc:subject>
+          <dc:subject>government employees</dc:subject>
+          <dc:subject>government expenditures</dc:subject>
+          <dc:subject>governmental services</dc:subject>
+          <dc:subject>gross national product</dc:subject>
+          <dc:subject>health expenditures</dc:subject>
+          <dc:subject>health providers</dc:subject>
+          <dc:subject>high school students</dc:subject>
+          <dc:subject>income tax</dc:subject>
+          <dc:subject>labor unions</dc:subject>
+          <dc:subject>military expenditures</dc:subject>
+          <dc:subject>pensions</dc:subject>
+          <dc:subject>population</dc:subject>
+          <dc:subject>public assistance</dc:subject>
+          <dc:subject>rural population</dc:subject>
+          <dc:subject>suicide</dc:subject>
+          <dc:subject>teachers</dc:subject>
+          <dc:subject>urban population</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:subject>voter turnout</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>For this study of political systems performance in Sweden, time-series annual data were compiled for the period 1865-1967. Variables provide information on population characteristics, such as the total population, the number of people aged 0 to 14 years, 0 to 4 years, and over 65, birth rate, live births per 1,000 population, infant mortality rate, gross death rate, and life expectancy at birth for females, the number of elementary school students, secondary school students, and university students, the number of civil servants, doctors, midwives, hospital beds, school teachers, and university teachers, the population of the three largest cities, and the urban population. Economic variables provide information on government revenues, government expenditures on defense, education, pensions, welfare, public health, veterans' benefits, and labor benefits, Gross National Product (GNP), percentage of the population employed in agriculture, the value of agricultural production, energy consumption, the maximum income tax rate, the number of recipients of public relief, the number of recipients of public pensions, unemployment rate, price index, and the number of union members. Other variables provide information on the enfranchised population, voting turnout, votes for parties of the Left, and the number of suicides.</dc:description>
+          <dc:identifier>36</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00036.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>published documents</dc:source>
+          <dc:coverage>Sweden</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1865--1967</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>37</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Prussian Roll Call Data, 1848</dc:title>
+          <dc:creator>Mathiesen, Philip</dc:creator>
+          <dc:subject>legislative bodies</dc:subject>
+          <dc:subject>legislators</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>Prussian National Assembly</dc:subject>
+          <dc:subject>roll call data</dc:subject>
+          <dc:subject>voting patterns</dc:subject>
+          <dc:description>This data collection contains information on the voting patterns of the 556 deputies and alternates of the Prussian National Assembly of 1848. Variables provide information on the subject matter of the roll call votes in the Assembly, such as the establishment of a constitutional committee, the promulgation of the constitution, the abolition or the retention of the death penalty with or without provisos, the appointment by the king of all officers and colonels in the civic guard, the resignation of reactionary officers, the increase in taxes on unrefined beet sugar, contractual arrangements, the law concerning the hunting rights of the nobility, rights of tenants and landlords, special guarantees to Polish residents, abolition of the nobility with its titles and designations, and military aid to Vienna by the Prussian government. Demographic variables provide information on the National Assembly members, such as their occupation, membership status in the Assembly, electoral district, party membership, election date, previous service, and committee assignments. Also provided are variables on urban characteristics and religious characteristics of the deputy's electoral district.</dc:description>
+          <dc:identifier>37</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00037.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>roll call voting data</dc:type>
+          <dc:source>published books, serials, periodicals, and an unpublished dissertation</dc:source>
+          <dc:coverage>Europe</dc:coverage>
+          <dc:coverage>Germany</dc:coverage>
+          <dc:coverage>Prussia</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1848</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>38</identifier>
+        <datestamp>2006-01-12T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Data Confrontation Seminar, 1969: Comparative Socio-Political Data</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>administrative divisions</dc:subject>
+          <dc:subject>agriculture</dc:subject>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>crime rates</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>housing</dc:subject>
+          <dc:subject>industry</dc:subject>
+          <dc:subject>labor force</dc:subject>
+          <dc:subject>national elections</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>population characteristics</dc:subject>
+          <dc:subject>population migration</dc:subject>
+          <dc:subject>urbanization</dc:subject>
+          <dc:subject>voter attitudes</dc:subject>
+          <dc:description>This study contains selected electoral and demographic national data for nine nations in the 1950s and 1960s. The data were prepared for the Data Confrontation Seminar on the Use of Ecological Data in Comparative Cross-National Research held under the auspices of the Inter-university Consortium for Political and Social Research on April 1-18, 1969. One of the primary concerns of this international seminar was the need for cooperation in the development of data resources in order to facilitate exchange of data among individual scholars and research groups. Election returns for two or more national and/or local elections are provided for each of the nine nations, as well as ecological materials for at least two time points in the general period of the 1950s and 1960s. While each dataset was received at a single level of aggregation, the data have been further aggregated to at least a second level of aggregation. In most cases, the data can be supplied at the commune or municipality level and at the province or district level as well. Part 1 (Germany, Regierungsbezirke), Part 2 (Germany, Kreise), Part 3 (Germany, Lander), and Part 4 (Germany, Wahlkreise) contain data for all kreise, laender (states), administrative districts, and electoral districts for national elections in the period 1957-1969, and for state elections in the period 1946-1969, and ecological data from 1951 and 1961. Part 5 (France, Canton), and Part 6 (France, Departemente) contain data for the cantons and departements of two regions of France (West and Central) for the national elections of 1956, 1962, and 1967, and ecological data for the years 1954 and 1962. Data are provided for election returns for selected parties: Communist, Socialist, Radical, Federation de Gauche, and the Fifth Republic. Included are raw votes and percentage of total votes for each party. Ecological data provide information on total population, proportion of total population in rural areas, agriculture, industry, labor force, and middle class in 1954, as well as urbanization, crime rates, vital statistics, migration, housing, and the index of "comforts." Part 7 (Japan, Kanagawa Prefecture), Part 8 (Japan, House of Representatives Time Series), Part 9 (Japan, House of (Councilors (Time Series)), and Part 10 (Japan, Prefecture) contain data for the 46 prefectures for 15 national elections between 1949 and 1968, including data for all communities in the prefecture of Kanagawa for 13 national elections, returns for 8 House of Representatives' elections, 7 House of Councilors' elections, descriptive data from 4 national censuses, and ecological data for 1950, 1955, 1960, and 1965. Data are provided for total number of electorate, voters, valid votes, and votes cast by such groups as the Jiyu, Minshu, Kokkyo, Minji, Shakai, Kyosan, and Mushozoku for the Communist, Socialist, Conservative, Komei, and Independent parties for all the 46 prefectures. Population characteristics include age, sex, employment, marriage and divorce rates, total number of live births, deaths, households, suicides, Shintoists, Buddhists, and Christians, and labor union members, news media subscriptions, savings rate, and population density. Part 11 (India, Administrative Districts) and Part 12 (India, State) contain data for all administrative districts and all states and union territories for the national and state elections in 1952, 1957, 1962, 1965, and 1967, the 1958 legislative election, and ecological data from the national censuses of 1951 and 1961. Data are provided for total number of votes cast for the Congress, Communist, Jan Sangh, Kisan Mazdoor Praja, Socialist, Republican, Regional, and other parties, contesting candidates, electorate, valid votes, and the percentage of valid votes cast. Also included are votes cast for the Rightist, Christian Democratic, Center, Socialist, and Communist parties in the 1958 legislative election. Ecological data include total population, urban population, sex distribution, occupation, economically active population, education, literate population, and number of Buddhists, Christians, Hindus, Jainis, Moslems, Sikhs, and other religious groups. Part 13 (Norway, Province), and Part 14 (Norway, Commune) consist of the returns for four national elections in 1949, 1953, 1957, and 1961, and descriptive data from two national censuses. Data are provided for the total number of registered voters, valid votes, raw votes cast for the Communist, Labor, Liberal, Agrarian, Conservative, Christian Peoples parties, and other parties, and the percentage of total votes cast for each party. Data are also provided for total population by gender and age, economically active population, number of church services registered, and number of communes within each province, as well as percentagized number of population economically active in select industries, dissenters, and total population attending church. Part 15 (Norway, Year 1965) contains returns for national elections in 1961 and 1965 for 466 communes created by administrative reorganization in 1961, and ecological data from the 1960 census. Data are provided for total votes cast for the parties, and the number of registered voters. Other items specify the type of commune, region code, television coverage code, and politicization, two-day election, and periphery indexes. Part 16 (Sweden, Constituency) and Part 17 (Sweden, Commune) contain data for all communes, provinces, and constituencies for Parliamentary elections in 1948, 1952, 1956, and 1960, and ecological data from two national censuses for 1950 and 1960. Data are provided for total electorate, number of votes cast, raw votes, and percentage of votes cast for the Conservative, Agrarian, Liberal, Social Democratic, Communist, and other parties. Data are also provided for total population by gender, population economically active, number of salaried employees, and wage earners. Part 18 (Denmark, County) and Part 19 (Denmark, Commune) consist of data for all communes and provinces for the national elections of 1947, 1950, 1953, 1960, 1964, and 1966, and ecological data from the censuses of 1950 and 1960. Data are provided for total number of electorates and raw votes for the Social Democratic, Radical Liberal, Conservative, Liberal, Single-tax, Communist, Danish, German Minority parties, and other parties. Data are also provided for total and percentagized population by age and gender, industrially active population, and urbanization. Part 20 (Netherlands, Municipalities) consists of data for all municipalities, provinces, and economic-geographic areas for national elections in 1959 and 1963, and ecological data for 1954 and 1962 for total population and industrially active population by gender and age, urbanization, occupation, education, and religion. Part 21 (Poland, Poviats), Part 22 (Poland, Electoral Districts), and Part 23 (Poland, Voievodships) consist of data for all poviats, voievodships, and electoral districts for national elections in 1952, 1957, 1961, and 1965, two council elections, and ecological data for 1950, 1960, and 1965. Data are provided for total population by gender and age distribution, occupation, investments, communication media, industrially active population, number of dwelling units, farms, pigs, cattle, physicians, and population growth ratio in urban and rural areas. Items also specify the number of staff, employees, and council members in local councils in 1965. See the related collection, DATA CONFRONTATION SEMINAR, 1969: UNITED STATES DATA (ICPSR 0005).</dc:description>
+          <dc:identifier>38</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00038.v1</dc:identifier>
+          <dc:date>01-12-2006</dc:date>
+          <dc:type>aggregate data, census/enumeration data, and administrative records data</dc:type>
+          <dc:source>Data were supplied by: (1) Borre, Ole, and Jan Stehouwer. Aarhus University, Instituttet for Statskundskab, Sociologisk Afdeling, (2) Dogan, Mattei. Centre National de la Recherche Scientifique, Centre d'Etudes Sociologiques, Paris, (3) Kasse, Max, and Uwe Schleth. Universitat Mannheim, Institut fur Sozialwissenschaften, (4) Hoschka, Peter, and Klaus Liepelt. Institut fur angewandte Socialwissenschaft, Bad Godesberg, (5) Brouwer, Marten. Steinmetz Institute, Amsterdam, (6) Stouthard, Philip. Instituut voor Arbeidsvraagstukken, Tilburg, (7) Bashiruddin, Ahmed, R. Chandidas, and Rajni Kothari. Centre for the Study of Developing Societies, New Delhi, (8) Takabataki, Michitoshi. Rikkyo University, Department of Political Science, Tokyo, (9) Rokkan, Stein. The Chr. Michelsen Institute, Bergen, (10) Valen, Henry. Institute for Social Research, Oslo, (11) Ostrowski, Krysztof. University of Warsaw, Institute of Philosophy and Sociology of the Academy of Sciences, (12) Carlsson, Gosta, and Goran Gustafsson. University of Lund, Department of Sociology, (13) PREZEKROJE TERENOWE, 1945-1965, Glowny Urzad Statystyczny, Warszawa, 1967, (14) ROZWOJ GOSPODARCZY POWIATOW W LATACH, 1950-1965, Glowny Urzad Statystyczny, Warszawa, 1967, and (15) MONITOR POLSKI, Dziennik urzedowy Polskiej Rzeczpospolitej Ludowej, 1952, 1957, 1961, 1965</dc:source>
+          <dc:coverage>Denmark</dc:coverage>
+          <dc:coverage>France</dc:coverage>
+          <dc:coverage>Germany</dc:coverage>
+          <dc:coverage>India</dc:coverage>
+          <dc:coverage>Japan</dc:coverage>
+          <dc:coverage>Netherlands</dc:coverage>
+          <dc:coverage>Norway</dc:coverage>
+          <dc:coverage>Poland</dc:coverage>
+          <dc:coverage>Sweden</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1969</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>39</identifier>
+        <datestamp>2011-08-11T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Canadian Census and Election Data, 1908-1968</dc:title>
+          <dc:creator>Blake, Donald E.</dc:creator>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>national elections</dc:subject>
+          <dc:subject>political attitudes</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:subject>voting behavior</dc:subject>
+          <dc:description>This data collection contains seven files of Canadian census and election data, each corresponding to a particular electoral period when the number of constituencies was fixed. The data files include returns from the federal elections of 1908 and 1911 and data from the 1911 Census (Part 1), the elections of 1917 and 1921 and the 1921 Census (Part 2), the elections of 1925, 1926, and 1930 (Part 3), the elections of 1935, 1940, and 1945 (Part 4), the election of 1949 and the 1951 Census (Part 5), the elections of 1957, 1958, 1962, 1963, and 1965 and the 1961 Census (Part 6), and the election of 1968 (Part 7). The election data include information on the total valid vote cast and the percentage of the total vote received by each of the major parties, including the Conservative, Liberal, Socialist, Labor, Independent, Progressive, CCF, Social Credit, NDP, and Creditiste parties, as well as a total for all other parties. The census data provide demographic information on religion, including Anglican, Baptist, Jewish, Lutheran, Presbyterian, Roman Catholic, United Church, and other denominational sects, and ethnic origin, including British, French, German, Italian, Scandinavian, Russian, Polish, Asiatic, Native, and others, as well as information on age, education, occupation, and income from the 1961 Census.</dc:description>
+          <dc:identifier>39</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00039.v2</dc:identifier>
+          <dc:date>08-11-2011</dc:date>
+          <dc:type>aggregate</dc:type>
+          <dc:type>census</dc:type>
+          <dc:type>survey</dc:type>
+          <dc:source>(1) CANADIAN PARLIAMENTARY GUIDE, (2) CANADA VOTES, (3) REPORT OF THE CHIEF ELECTORAL OFFICER, (4) CENSUS OF CANADA, 1911, 1921, and 1961, and (5) CENSUS OF CANADA, 1951</dc:source>
+          <dc:coverage>Canada</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1908--1968</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>40</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Norwegian Ecological Data, 1949-1961</dc:title>
+          <dc:creator>Aarebrot, Frank</dc:creator>
+          <dc:creator>Kuhnle, Stein</dc:creator>
+          <dc:subject>agriculture</dc:subject>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>commercial districts</dc:subject>
+          <dc:subject>communes</dc:subject>
+          <dc:subject>domestic trade</dc:subject>
+          <dc:subject>education</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>employment</dc:subject>
+          <dc:subject>households</dc:subject>
+          <dc:subject>housing units</dc:subject>
+          <dc:subject>industry</dc:subject>
+          <dc:subject>modernization</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>population distribution</dc:subject>
+          <dc:subject>rural areas</dc:subject>
+          <dc:subject>urban areas</dc:subject>
+          <dc:subject>urbanization</dc:subject>
+          <dc:description>This study contains election and census data for 732 Norwegian communes in the period 1949-1961. Election returns are available for the elections of 1949, 1953, 1957, and 1961. In addition, data from the censuses of 1950 and 1960 are presented, including information on demography, education, modernization, the economy, and occupational structure, and contextual information about clusters of neighboring communes. Data are provided on the total number of registered voters and the total number of votes cast for the Norwegian Communist Party, the Norwegian Labour Party, the Liberal Party (Venstre), the Christian People's Party, the Agrarian Party (the Centre Party), the Conservative Party (Hoyre), and other political parties. Additional variables provide information on age and educational levels for males and females, the total number of economically active population employed in agriculture, forestry, fisheries, manufacturing, and construction, the total value of industrial production, and the total number of private households and occupied housing units.</dc:description>
+          <dc:identifier>40</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00040.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>census data, and aggregate data</dc:type>
+          <dc:source>Census of Norway, 1950 and 1960, and Norwegian election returns, 1949, 1953, 1957, and 1961</dc:source>
+          <dc:coverage>Europe</dc:coverage>
+          <dc:coverage>Norway</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1949--1961</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>41</identifier>
+        <datestamp>2006-01-12T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Norwegian Ecological Data, 1868-1903</dc:title>
+          <dc:creator>Aarebrot, Frank</dc:creator>
+          <dc:creator>Kuhnle, Stein</dc:creator>
+          <dc:subject>birth rates</dc:subject>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>communes</dc:subject>
+          <dc:subject>education</dc:subject>
+          <dc:subject>education expenditures</dc:subject>
+          <dc:subject>emigration</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>electoral census</dc:subject>
+          <dc:subject>enrollments</dc:subject>
+          <dc:subject>households</dc:subject>
+          <dc:subject>income distribution</dc:subject>
+          <dc:subject>mortality rates</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>parliamentary elections</dc:subject>
+          <dc:subject>political attitudes</dc:subject>
+          <dc:subject>political participation</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>population</dc:subject>
+          <dc:subject>religious affiliation</dc:subject>
+          <dc:subject>school age children</dc:subject>
+          <dc:subject>taxes</dc:subject>
+          <dc:subject>teachers</dc:subject>
+          <dc:subject>transportation</dc:subject>
+          <dc:subject>unwed mothers</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:subject>voter turnout</dc:subject>
+          <dc:description>This data collection provides economic, social, political, and demographic information on 431 communes (or electoral parishes) of Norway in the period 1868-1903. There are four parts to this collection. Part 1 contains information from the censuses of 1875, 1891, and 1900 and the electoral censuses of 1868 and 1876 on occupation, income distribution, taxation, age, household, total population by sex, place of birth, and religious affiliation, and information about political participation, such as the number of eligible voters, registered votes, and votes cast in the Storting (unicameral parliament) elections of 1868, 1870, 1873, 1876, 1879, 1882, 1885, 1888, 1891, 1894, 1897, 1900 and 1903. Part 2 provides information from the educational censuses of 1875 and 1885 on school enrollment, the number of male and female teachers, and school expenditures. Part 3 provides information on births, miscarriages, deaths, the number of live births from unwed mothers, the number of married couples, and the number of persons emigrating overseas and to the United States in 1868, 1875, 1891 to 1895, 1896 to 1900, and 1901 to 1905. Part 4 provides information on inter-communal communication and transportation, such as railways and steamships.</dc:description>
+          <dc:identifier>41</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00041.v1</dc:identifier>
+          <dc:date>01-12-2006</dc:date>
+          <dc:type>census data, and aggregate data</dc:type>
+          <dc:source>Censuses of Norway, 1868, 1875, 1876, 1885, 1891, and 1900, and Norwegian Storting (parliamentary) elections of 1868, 1970, 1873, 1876, 1879, 1882, 1885, 1888, 1891, 1894, 1897, 1900, and 1903</dc:source>
+          <dc:coverage>Europe</dc:coverage>
+          <dc:coverage>Norway</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1868--1903</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>42</identifier>
+        <datestamp>2005-12-22T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>German Weimar Republic Data, 1919-1933</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>agriculture</dc:subject>
+          <dc:subject>Catholics</dc:subject>
+          <dc:subject>civil service</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>industry</dc:subject>
+          <dc:subject>Jews</dc:subject>
+          <dc:subject>labor force</dc:subject>
+          <dc:subject>military</dc:subject>
+          <dc:subject>national elections</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>Protestants</dc:subject>
+          <dc:subject>religion</dc:subject>
+          <dc:subject>runoff elections</dc:subject>
+          <dc:subject>trade</dc:subject>
+          <dc:subject>transportation</dc:subject>
+          <dc:subject>urban population</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:subject>Weimar Republic</dc:subject>
+          <dc:subject>working women</dc:subject>
+          <dc:description>This data collection contains electoral and demographic data at several levels of aggregation (kreis, land/regierungsberzirk, and wahlkreis) for Germany in the Weimar Republic period of 1919-1933. Two datasets are available. Part 1, 1919 Data, presents raw and percentagized election returns at the wahlkreis level for the 1919 election to the Nationalversammlung. Information is provided on the number and percentage of eligible voters and the total votes cast for parties such as the German National People's Party, German People's Party, Christian People's Party, German Democratic Party, Social Democratic Party, and Independent Social Democratic Party. Part 2, 1920-1933 Data, consists of returns for elections to the Reichstag, 1920-1933, and for the Reichsprasident elections of 1925 and 1932 (including runoff elections in each year), returns for two national referenda, held in 1926 and 1929, and data pertaining to urban population, religion, and occupations, taken from the German Census of 1925. This second dataset contains data at several levels of aggregation and is a merged file. Crosstemporal discrepancies, such as changes in the names of the geographical units and the disappearance of units, have been adjusted for whenever possible. Variables in this file provide information for the total number and percentage of eligible voters and votes cast for parties, including the German Nationalist People's Party, German People's Party, German Center Party, German Democratic Party, German Social Democratic Party, German Communist Party, Bavarian People's Party, Nationalist-Socialist German Workers' Party (Hitler's movement), German Middle Class Party, German Business and Labor Party, Conservative People's Party, and other parties. Data are also provided for the total number and percentage of votes cast in the Reichsprasident elections of 1925 and 1932 for candidates Jarres, Held, Ludendorff, Braun, Marx, Hellpach, Thalman, Hitler, Duesterburg, Von Hindenburg, Winter, and others. Additional variables provide information on occupations in the country, including the number of wage earners employed in agriculture, industry and manufacturing, trade and transportation, civil service, army and navy, clergy, public health, welfare, domestic and personal services, and unknown occupations. Other census data cover the total number of wage earners in the labor force and the number of female wage earners employed in all occupations. Also provided is the percentage of the total population living in towns with 5,000 inhabitants or more, and the number and percentage of the population who were Protestants, Catholics, and Jews.</dc:description>
+          <dc:identifier>42</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00042.v1</dc:identifier>
+          <dc:date>12-22-2005</dc:date>
+          <dc:type>aggregate data, and census data</dc:type>
+          <dc:source>(1) German National Statistical Bureau, (2) 1925 German census, and (3) Dee Wernette, Union College (religious data)</dc:source>
+          <dc:coverage>Germany</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1919--1933</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>43</identifier>
+        <datestamp>2006-01-12T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>German Reichstag Election Data, 1871-1912</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>Catholics</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>German Reichstag</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>parliamentary elections</dc:subject>
+          <dc:subject>political attitudes</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>population</dc:subject>
+          <dc:subject>Protestants</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:subject>voter turnout</dc:subject>
+          <dc:description>This data collection contains electoral data at the wahlkreis and staat levels for the Reichstag elections of 1871, 1874, 1877, 1878, 1881, 1884, 1890, 1893, 1898, 1903, 1907, and 1912. The variables for each election provide information on the votes cast for parties, including the Conservative Party, the German Empire Party, the National-Liberals, the Liberal Empire Party, the People's Party, the Social Democrats, the Progress Party, the Catholic Center, the Particularists, the Poles Party, the Protest Party, the Antisemites, the Free-thinking People's Party, the German Reform Party, the Farmers' Union, the Peasants' Union, and splinter parties. Data are also provided on the total population in 1871 and every fifth year between 1875 and 1910, and the proportions of Protestants and of Catholics in the total population for 1871, 1875, 1880, 1885, 1890, 1905, and 1910. Additional variables provide information on the number of eligible voters, valid and invalid votes cast, and voter turnout.</dc:description>
+          <dc:identifier>43</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00043.v1</dc:identifier>
+          <dc:date>01-12-2006</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>(1) Monatshefte zur Statistik des Deutschen Reichs, 1879, 1882, 1885, 1887, 1890, (2) Vierteljahrshefte zur Statistik des Deutschen Reichs, 1875, 1893, 1903, 1907, and (3) Statistik des Deutschen Reichs 250 (1912), 4-70</dc:source>
+          <dc:coverage>Germany</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1871--1912</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>44</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Nazi Party Membership in Munich, Passau, Rosenheim, Landshut, and Mannheim, 1919-1922</dc:title>
+          <dc:creator>Douglas, Donald Morse</dc:creator>
+          <dc:subject>Nazi Party</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>party membership</dc:subject>
+          <dc:subject>place of residence</dc:subject>
+          <dc:subject>political affiliation</dc:subject>
+          <dc:subject>political attitudes</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:description>This data collection contains biographical information for members of the National German Workers (Nazi) Party's local groups in Munich, Passau, Rosenheim, Landshut, and Mannheim in Germany for the period 1919-1922. Data are provided on each member's party membership number, date of entry into the party, date of birth, age as of December 30, 1920, sex, marital status, and occupation. In addition, the individual's address has been transformed into a variable indicating the size and place of residence.</dc:description>
+          <dc:identifier>44</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00044.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>administrative records data, and census data</dc:type>
+          <dc:source>(1) Hoover Institution Collection NSDAP Hauptarchiv, and (2) 1925 German census data</dc:source>
+          <dc:coverage>Germany</dc:coverage>
+          <dc:coverage>Landshut</dc:coverage>
+          <dc:coverage>Mannheim</dc:coverage>
+          <dc:coverage>Munich</dc:coverage>
+          <dc:coverage>Passau</dc:coverage>
+          <dc:coverage>Rosenheim</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1919--1922</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>45</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Dutch Election Data, 1888-1917</dc:title>
+          <dc:creator>Verhoef, Jan</dc:creator>
+          <dc:subject>Dutch Parliament</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>religious affiliation</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:description>This data collection contains voting information from percentagized election returns for each of the nine general elections to the Lower House (Tweede Kamer) of the Dutch Parliament in the period 1888-1917, as well as information on religious composition for all of the 100 municipalities of the Netherlands. Variables computed from the basic election statistics on the basis of a left-right dimension of the political parties provide information on the number and percentage of votes cast for the Conservatives, the Liberals, the Radicals, the Social-Democrats, the Anti-Revolutionary Party, the Catholics, and the other left-wing and right-wing parties. Additional variables provide information on age, the number of registered voters, and the total number of votes cast. Religious variables provide information on the percentage of the population associated with specific denominations, such as the Dutch Reformed Church, the Wallon Church, the New Lutheran Church, the Remonstrant Church, the Mennonite Church, the Christian Reformed Church, the Roman Catholic Church, the Old Roman Catholic Church, the Jewish religion, and other churches and sects, including those with no religious association.</dc:description>
+          <dc:identifier>45</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00045.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>aggregate data, and census data</dc:type>
+          <dc:source>(1) Dutch Central Bureau for Statistics, (2) Dutch newspapers, 1888-1894, and (3) 1909 census of the Netherlands</dc:source>
+          <dc:coverage>Europe</dc:coverage>
+          <dc:coverage>Netherlands</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1888--1917</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>46</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Brazilian Elites, 1960</dc:title>
+          <dc:creator>McDonough, Peter J.</dc:creator>
+          <dc:subject>biographical data</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>influence</dc:subject>
+          <dc:subject>leadership</dc:subject>
+          <dc:subject>national elites</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:description>This data collection contains biographical information for approximately 1,000 prominent Brazilians in the early 1960s. Demographic variables provide information on age, sex, marital status, city and state of birth and residence, number of children, education, and profession. Additional variables provide information on the size of the city of birth and residence, the number of different occupations or professions, and foreign contacts, including evidence of foreign travels.</dc:description>
+          <dc:identifier>46</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00046.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>biographical data</dc:type>
+          <dc:source>Brazilian biographical directories</dc:source>
+          <dc:coverage>Brazil</dc:coverage>
+          <dc:coverage>South America</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>47</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Italian Election Data, 1963</dc:title>
+          <dc:creator>Rosenthal, Howard</dc:creator>
+          <dc:subject>communes</dc:subject>
+          <dc:subject>election returns</dc:subject>
+          <dc:subject>elections</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>provinces</dc:subject>
+          <dc:subject>voter registration</dc:subject>
+          <dc:subject>voters</dc:subject>
+          <dc:subject>voter turnout</dc:subject>
+          <dc:subject>voting precincts</dc:subject>
+          <dc:description>This data collection contains information on the election of representatives to the Italian Chamber of Deputies in 1963. Data at the level of electoral district, province, and commune provide information on registration, participation by sex, party votes, the total number and percentage of registered voters, and the number of precincts.</dc:description>
+          <dc:identifier>47</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00047.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>aggregate data</dc:type>
+          <dc:source>ELEGIONE DELLA CAMERA DEI DEPUTATI. Istituto Centrale di Statistica, 1963.</dc:source>
+          <dc:coverage>Europe</dc:coverage>
+          <dc:coverage>Italy</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1963</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>48</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Social, Demographic, and Educational Data for France, 1801-1897</dc:title>
+          <dc:creator>Inter-university Consortium for Political and Social Research</dc:creator>
+          <dc:subject>birth rates</dc:subject>
+          <dc:subject>census data</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>divorce rates</dc:subject>
+          <dc:subject>education</dc:subject>
+          <dc:subject>elementary school students</dc:subject>
+          <dc:subject>elementary schools</dc:subject>
+          <dc:subject>employment</dc:subject>
+          <dc:subject>families</dc:subject>
+          <dc:subject>housing</dc:subject>
+          <dc:subject>libraries</dc:subject>
+          <dc:subject>literacy</dc:subject>
+          <dc:subject>marriage rates</dc:subject>
+          <dc:subject>migration</dc:subject>
+          <dc:subject>mortality rates</dc:subject>
+          <dc:subject>nativity</dc:subject>
+          <dc:subject>occupations</dc:subject>
+          <dc:subject>religion</dc:subject>
+          <dc:subject>schools</dc:subject>
+          <dc:subject>teacher training</dc:subject>
+          <dc:subject>transportation</dc:subject>
+          <dc:subject>vital statistics</dc:subject>
+          <dc:description>This data collection consists of 161 selected social, demographic, and educational datasets for France in the period 1801-1897. The data were collected from published reports of three national statistical series: (1) National Censuses, (2) Vital Statistics, and (3) Primary Education. This project was supported by grants from the National Endowment for the Humanities and the National Science Foundation. The National Census data were derived from the quinquennial population censuses of France from 1801 to 1896 and were obtained from the Statistique Generale de la France. The data provide detailed social and economic information for the period 1851 to 1896. The data for 1801-1851 are less rich in subject matter coverage but do present some basic information on population characteristics. The National Census data in general describe the population, including the composition of the population by categories of age, sex, place of birth, marital status, religion, place of residence, and occupation. There is also some limited information on migration, transportation and communication, housing, and families. A large segment of the census data pertains to occupations of the population, specifying job classifications within professions, as well as information on non-employed household members that were dependent on employees in the various industries, in addition to enumerations of persons employed in various professions and trades. The Vital Statistics data files contain annual vital statistics for the French population. These data were obtained from two printed series, MOUVEMENT DE LA POPULATION (1801-1868), and STATISTIQUE ANNUELLE (1869-1897). The basic variables included in the vital statistics datasets record births, deaths, and marriages in France. Detailed cross-tabulations of these demographic indicators are presented for births, tabulated by sex, month, legitimacy status, and characteristics of the parents, and deaths, categorized by age and previous marital status of the partners. Additional cross-tabulations are provided for variables such as divorces, passports issued, medical personnel and hospitals, and a literacy indicator (signing of marriage certificates). The Primary Education data files provide information on primary schools and were obtained from the Statistique de l'enseignement Primaire. The data obtained from the series basically cover the period 1829-1897, although some recapitulative information for earlier years is also presented. The main focus of the data in this series is on primary schools, classes and buildings, enrollment, teachers, sources of funding and expenditure, and academic proficiency of the pupils. Additional information is included on literacy, teacher training (normal) schools, school age population, and libraries. A machine-readable French language codebook, describing the data items as well as the sources from which they were obtained, is provided with each dataset supplied. In addition, lists of the variables included in each dataset are included in Parts 162-164. See the related collection, DEMOGRAPHIC, SOCIAL, EDUCATIONAL AND ECONOMIC DATA FOR FRANCE, 1833-1925 (ICPSR 7529).</dc:description>
+          <dc:identifier>48</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00048.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>census/enumeration data, and aggregate data</dc:type>
+          <dc:source>(1) STATISTIQUE GENERALE DE LA FRANCE, (2) MOUVEMENT DE LA POPULATION, 1801-1868, (3) STATISTIQUE ANNUELLE, 1869-1897, and (4) STATISTIQUE DE L'ENSEIGNEMENT PRIMAIRE</dc:source>
+          <dc:coverage>Europe</dc:coverage>
+          <dc:coverage>France</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1801--1897</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>49</identifier>
+        <datestamp>2006-01-12T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Analysis of Arrests in Paris, June 1848</dc:title>
+          <dc:creator>Tilly, Charles</dc:creator>
+          <dc:creator>Unknown</dc:creator>
+          <dc:subject>arrests</dc:subject>
+          <dc:subject>arrondissements</dc:subject>
+          <dc:subject>civil disorders</dc:subject>
+          <dc:subject>demographic characteristics</dc:subject>
+          <dc:subject>labor force</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>population density</dc:subject>
+          <dc:subject>prosecution</dc:subject>
+          <dc:subject>riots</dc:subject>
+          <dc:subject>trial procedures</dc:subject>
+          <dc:subject>violence</dc:subject>
+          <dc:description>This data collection contains three files pertaining to the June 1848 insurrection in Paris and to people charged with or arrested for participation in the insurrection. The data files contain social, economic, and demographic information. Information is provided on the results of the judicial proceedings against the individual after arrest, as well as demographic characteristics of the individual, such as occupation, place of birth, sex, age, marital status, number of children, and place of residence (Part 1), the number of inhabitants arrested in connection with the rebellion, the labor force, and social characteristics of the 12 zones (arrondisements) (Part 2), and demographic and arrest information with a focus on the furnished apartments, clubs, and popular societies within the 48 quartiers (districts) existing in Paris in 1848 (Part 3).</dc:description>
+          <dc:identifier>49</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00049.v1</dc:identifier>
+          <dc:date>01-12-2006</dc:date>
+          <dc:type>event</dc:type>
+          <dc:type>survey</dc:type>
+          <dc:source>(1) LISTE GENERALE EN ORDER ALPHABETIQUE DES INCULPES DE JUIN 1848, (2) Pouthas, Charles H. LA POPULATION FRANCAISE PENDANT LA PREMIERE MOTIE DU XIXE SIECLES. Paris, France: Presses Universitaires de France, 1956, (3) the Chamber of Commerce Survey of Paris in 1848, and (4) the 1856 French Census</dc:source>
+          <dc:coverage>France</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>Paris</dc:coverage>
+          <dc:coverage>1848</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>51</identifier>
+        <datestamp>1992-02-16T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Disturbances in France, 1830-1860 and 1930-1960: Intensive Sample</dc:title>
+          <dc:creator>Tilly, Charles</dc:creator>
+          <dc:subject>administrative divisions</dc:subject>
+          <dc:subject>aggression</dc:subject>
+          <dc:subject>civil disorders</dc:subject>
+          <dc:subject>communes</dc:subject>
+          <dc:subject>internal political conflict</dc:subject>
+          <dc:subject>nineteenth century</dc:subject>
+          <dc:subject>political affiliation</dc:subject>
+          <dc:subject>political behavior</dc:subject>
+          <dc:subject>political violence</dc:subject>
+          <dc:subject>twentieth century</dc:subject>
+          <dc:subject>violence</dc:subject>
+          <dc:description>This detailed study of 578 disturbances in France in the period 1830-1860 and 1930-1960 provides information on the geographic, economic, political, demographic, and historical background for each of the communes involved in the disturbances. Data for the formations, a collective of forces comprising of at least 50 persons in each collective, provide information on their social, economic, and political background, population characteristics, type of formation, age-sex distribution of the formations, and the political party affiliation of its members. The antecedent history of the disturbances is also given, including public memory of previous conflicts, forms of and responses to violence, interactions with other formations, character and clarity of objectives, and extent of territory controlled. Data on the organization of each formation is provided for the leadership, coordination, segmentation, stratification, and differentiation of the formation, as well as the extent of participation in man-days, and the numbers of participants in the disturbances arrested, killed, or wounded. Information is also provided on the outcome of the disturbance and changes resulting from participation in the disturbances. Additional variables provide detailed descriptions of the magnitude, duration, objectives, and immediate consequences of the disturbances. Variables also describe the newspaper, archival, and secondary sources used in the coding of the data collection.</dc:description>
+          <dc:identifier>51</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00051.v1</dc:identifier>
+          <dc:date>02-16-1992</dc:date>
+          <dc:type>event transaction data</dc:type>
+          <dc:source>(1) Archives Nationales, Paris, and (2) Tilly, Charles, and James Rule. MEASURING POLITICAL UPHEAVAL. Princeton, NJ: Center for International Studies, 1965</dc:source>
+          <dc:coverage>France</dc:coverage>
+          <dc:coverage>Global</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <record>
+      <header>
+        <identifier>52</identifier>
+        <datestamp>2005-12-22T01:01:01Z</datestamp>
+      </header>
+      <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>French Representation Study, 1946-1958</dc:title>
+          <dc:creator>MacRae, Duncan</dc:creator>
+          <dc:subject>France</dc:subject>
+          <dc:subject>French National Assembly</dc:subject>
+          <dc:subject>legislation</dc:subject>
+          <dc:subject>legislative bodies</dc:subject>
+          <dc:subject>legislators</dc:subject>
+          <dc:subject>party members</dc:subject>
+          <dc:subject>political parties</dc:subject>
+          <dc:subject>roll call data</dc:subject>
+          <dc:description>This data collection contains data for the First, Second, and Third Legislatures of the French National Assembly for the Fourth Republic in 1946-1958. Data are provided on the names of members of French major parties and on the roll call of party members in the three legislatures. Variables provide information on legislative bills, on topics such as NATO passage, defense of the Republic, the Algerian statute, Indo-China, Italy treaty, Paris accords, military budget, atomic energy development, strike regulations, taxes, public health, Parisian transportation, colliery schools, National Assembly reform, agriculture and the economy, land reform, fiscal reform, anti-inflation, salary scale, and amnesty.</dc:description>
+          <dc:identifier>52</dc:identifier>
+          <dc:identifier>http://doi.org/10.3886/ICPSR00052.v1</dc:identifier>
+          <dc:date>12-22-2005</dc:date>
+          <dc:type>roll call voting data</dc:type>
+          <dc:source>FRANCE FOURTH REPUBLIC NATIONAL ASSEMBLY LEGISLATIVE RECORDS</dc:source>
+          <dc:coverage>Global</dc:coverage>
+          <dc:coverage>1946--1958</dc:coverage>
+        </oai_dc:dc>
+      </metadata>
+    </record>
+    <resumptionToken expirationDate="2016-06-22T23:09:53Z" cursor="0" completeListSize="9623">1:1900-01-01:2099-12-31:oai_dc</resumptionToken>
+  </ListRecords>
+</OAI-PMH>

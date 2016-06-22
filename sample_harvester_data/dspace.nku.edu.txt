@@ -1,0 +1,1428 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="static/style.xsl"?><OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"><responseDate>2016-06-22T21:11:14Z</responseDate><request verb="ListRecords" metadataPrefix="oai_dc">https://dspace.nku.edu/oai/request</request><ListRecords><record><header><identifier>oai:dspace.nku.edu:11216/18</identifier><datestamp>2014-06-05T13:28:48Z</datestamp><setSpec>com_11216_6</setSpec><setSpec>col_11216_19</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Faculty Senate Meeting- August 26, 2013</dc:title>
+<dc:creator>Bredemeyer, Carol</dc:creator>
+<dc:subject>Faculty Senate Minutes, Northern Kentucky University Faculty, Governance</dc:subject>
+<dc:description>Faculty Senate Meeting Minutes for August 26, 2013</dc:description>
+<dc:description>This is an example document of Faculty Senate minutes.  This item is only a sample and is being cataloged with basic information for testing purposes.</dc:description>
+<dc:description>N/A</dc:description>
+<dc:date>2014-06-04T13:30:14Z</dc:date>
+<dc:date>2014-06-04T13:30:14Z</dc:date>
+<dc:date>2013-08-26</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/18</dc:identifier>
+<dc:language>en_US</dc:language>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/24</identifier><datestamp>2014-06-06T03:30:08Z</datestamp><setSpec>com_11216_6</setSpec><setSpec>col_11216_23</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Faculty Senate Meeting- August 20, 2012</dc:title>
+<dc:title>FACULTY SENATE MEETING - August 20, 2012</dc:title>
+<dc:creator>Bratcher, Perry</dc:creator>
+<dc:subject>Governance, Northern Kentucky University, Faculty, Senate</dc:subject>
+<dc:description>Faculty Senate Meeting Minutes for August 20, 2012</dc:description>
+<dc:description>This is an example document of Faculty Senate minutes.  This item is only a sample and is being cataloged with basic information for testing purposes.</dc:description>
+<dc:date>2014-06-05T14:43:59Z</dc:date>
+<dc:date>2014-06-05T14:43:59Z</dc:date>
+<dc:date>2012-08-20</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/24</dc:identifier>
+<dc:language>en_US</dc:language>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/25</identifier><datestamp>2014-06-06T03:30:07Z</datestamp><setSpec>com_11216_4</setSpec><setSpec>col_11216_22</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Staff Congress Regular Meeting Minutes- April 10, 2014</dc:title>
+<dc:creator>Kiskaden, Connie</dc:creator>
+<dc:subject>Governance, Northern Kentucky University, Staff, Congress</dc:subject>
+<dc:description>Staff Congress Meeting Minutes for April 10, 2014</dc:description>
+<dc:description>This is an example document of Staff Congress minutes.  This item is only a sample and is being cataloged with basic information for testing purposes.</dc:description>
+<dc:date>2014-06-05T14:56:22Z</dc:date>
+<dc:date>2014-06-05T14:56:22Z</dc:date>
+<dc:date>2014-04-10</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/25</dc:identifier>
+<dc:language>en_US</dc:language>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/34</identifier><datestamp>2014-10-31T15:54:30Z</datestamp><setSpec>com_11216_6</setSpec><setSpec>col_11216_23</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>This is a test item for our meeting...</dc:title>
+<dc:title>This is test number 2 and I am typing more information in this box.</dc:title>
+<dc:title>This is title 3</dc:title>
+<dc:creator>Smith, John</dc:creator>
+<dc:creator>Smith, Julie</dc:creator>
+<dc:subject>Northern Kentucky University</dc:subject>
+<dc:subject>Faculty</dc:subject>
+<dc:subject>Test</dc:subject>
+<dc:description>Received this test document on 10/31/14.  Put anything here...</dc:description>
+<dc:description>This is a narrative box for typing in detailed information.</dc:description>
+<dc:description>Grant funding organization #2345&#xd;
+NEH Grant #: 123221</dc:description>
+<dc:date>2014-10-31T15:54:30Z</dc:date>
+<dc:date>2014-10-31T15:54:30Z</dc:date>
+<dc:date>2014-10-31</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>This is a sample citation for our test</dc:identifier>
+<dc:identifier>123432</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/34</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Test series;#123</dc:relation>
+<dc:publisher>Northern Kentucky University Test</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/36</identifier><datestamp>2014-11-14T16:23:19Z</datestamp><setSpec>com_11216_6</setSpec><setSpec>col_11216_23</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>screen 1, box 3 - title</dc:title>
+<dc:title>screen 1, box 4 - other title</dc:title>
+<dc:creator>screen 1, screen 1, box 2 - first name box 1 - last name</dc:creator>
+<dc:subject>screen 2, box 1 - keywords</dc:subject>
+<dc:description>screen 2, box 4 description</dc:description>
+<dc:description>screen 2, box 2 - abstract</dc:description>
+<dc:description>screen 2, box 3 - sponsors</dc:description>
+<dc:date>2014-11-14T16:23:19Z</dc:date>
+<dc:date>2014-11-14T16:23:19Z</dc:date>
+<dc:date>2014</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>screen 1, box 7 - citation</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/36</dc:identifier>
+<dc:relation>screen 1, box 8 - series #;</dc:relation>
+<dc:publisher>screen 1, box 6 - publisher</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/37</identifier><datestamp>2014-11-14T16:29:55Z</datestamp><setSpec>com_11216_6</setSpec><setSpec>col_11216_23</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Knowledge Management Services</dc:title>
+<dc:creator>Schultz, Lois - illustrator</dc:creator>
+<dc:date>2014-11-14T16:29:55Z</dc:date>
+<dc:date>2014-11-14T16:29:55Z</dc:date>
+<dc:date>2014</dc:date>
+<dc:identifier>http://hdl.handle.net/11216/37</dc:identifier>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/40</identifier><datestamp>2016-04-27T14:53:56Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee newsletter</dc:title>
+<dc:title>TEEC</dc:title>
+<dc:creator>Faculty Senate</dc:creator>
+<dc:date>2014-12-15T16:31:37Z</dc:date>
+<dc:date>2014-12-15T16:31:37Z</dc:date>
+<dc:date>2012</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/40</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Teaching Effectiveness and Enhancement Committee newsletter;issue 1</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/39</identifier><datestamp>2016-04-27T15:25:01Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee newsletter</dc:title>
+<dc:title>TEEC</dc:title>
+<dc:creator>Faculty Senate</dc:creator>
+<dc:date>2014-12-15T16:30:01Z</dc:date>
+<dc:date>2014-12-15T16:30:01Z</dc:date>
+<dc:date>2013</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/39</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Teaching Effectiveness and Enhancement Committee newsletter;issue 4</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/41</identifier><datestamp>2016-04-27T14:51:43Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee newsletter.</dc:title>
+<dc:title>TEEC</dc:title>
+<dc:creator>Faculty Senate</dc:creator>
+<dc:date>2014-12-15T16:41:59Z</dc:date>
+<dc:date>2014-12-15T16:41:59Z</dc:date>
+<dc:date>2014</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/41</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Teaching Effectiveness and Enhancement Committee newsletter;issue 7</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/42</identifier><datestamp>2015-03-20T18:42:05Z</datestamp><setSpec>com_11216_6</setSpec><setSpec>col_11216_38</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Fast-fish &amp; loose-fish</dc:title>
+<dc:title>Twenty years of Moby-Dick art by NKU students</dc:title>
+<dc:creator>Wallace, Robert K., editor</dc:creator>
+<dc:subject>Literature in art.</dc:subject>
+<dc:description>Is part of the Judith G. Clabes  Racing Collection.</dc:description>
+<dc:description>Artwork by NKU students about Herman Melville's Moby-Dick.</dc:description>
+<dc:date>2015-03-20T18:42:05Z</dc:date>
+<dc:date>2015-03-20T18:42:05Z</dc:date>
+<dc:date>2015-05</dc:date>
+<dc:type>Book</dc:type>
+<dc:identifier>Bogardus Collection Correspondence, Box 1, folder 3</dc:identifier>
+<dc:identifier>9780803733046</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/42</dc:identifier>
+<dc:language>en</dc:language>
+<dc:relation>Moby-Dick series;no. 3</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/43</identifier><datestamp>2015-03-21T03:48:06Z</datestamp><setSpec>com_11216_6</setSpec><setSpec>col_11216_38</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>"I took my Power in my Hand"</dc:title>
+<dc:title>NKU students create Emily Dickinson art</dc:title>
+<dc:creator>Editor, Robert K. Wallace</dc:creator>
+<dc:subject>Literature in art.</dc:subject>
+<dc:description>Is part of the Judith G. Clabes Racing Collection.</dc:description>
+<dc:description>A catalog of an art exhibition at Steely Library, Northern Kentucky University.</dc:description>
+<dc:date>2015-03-20T18:57:38Z</dc:date>
+<dc:date>2015-03-20T18:57:38Z</dc:date>
+<dc:date>2015-03</dc:date>
+<dc:identifier>Michael C.C. Adams Collection Box 1 folder 3</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/43</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Emily Dickinson artwork;volume 3</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header status="deleted"><identifier>oai:dspace.nku.edu:11216/45</identifier><datestamp>2015-05-05T18:56:08Z</datestamp><setSpec>com_11216_6</setSpec><setSpec>col_11216_44</setSpec></header></record><record><header status="deleted"><identifier>oai:dspace.nku.edu:11216/51</identifier><datestamp>2015-10-06T12:33:55Z</datestamp><setSpec>com_11216_49</setSpec><setSpec>com_11216_4</setSpec><setSpec>col_11216_50</setSpec></header></record><record><header status="deleted"><identifier>oai:dspace.nku.edu:11216/53</identifier><datestamp>2015-10-06T12:34:54Z</datestamp><setSpec>com_11216_49</setSpec><setSpec>com_11216_4</setSpec><setSpec>col_11216_52</setSpec></header></record><record><header status="deleted"><identifier>oai:dspace.nku.edu:11216/54</identifier><datestamp>2015-10-06T12:34:33Z</datestamp><setSpec>com_11216_49</setSpec><setSpec>com_11216_4</setSpec><setSpec>col_11216_52</setSpec></header></record><record><header><identifier>oai:dspace.nku.edu:11216/61</identifier><datestamp>2015-09-05T03:59:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>It's Good for the Heart</dc:title>
+<dc:creator>Knight, John Cantey</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-04T12:56:16Z</dc:date>
+<dc:date>2015-09-04T12:56:16Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/61</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/62</identifier><datestamp>2015-09-05T03:59:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Deer Crossing</dc:title>
+<dc:creator>Knight, John Cantey</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-04T17:12:19Z</dc:date>
+<dc:date>2015-09-04T17:12:19Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/62</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/63</identifier><datestamp>2015-09-05T03:59:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Coffee Before Going</dc:title>
+<dc:creator>Knight, John Cantey</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-04T19:01:53Z</dc:date>
+<dc:date>2015-09-04T19:01:53Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/63</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/64</identifier><datestamp>2015-09-10T03:59:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Early May Annunciation</dc:title>
+<dc:creator>Brown, Harry</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-09T15:40:41Z</dc:date>
+<dc:date>2015-09-09T15:40:41Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/64</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/65</identifier><datestamp>2015-09-10T03:59:07Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>With a Goodly Company</dc:title>
+<dc:creator>Brown, Harry</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-09T16:49:45Z</dc:date>
+<dc:date>2015-09-09T16:49:45Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/65</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/66</identifier><datestamp>2015-09-10T03:59:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Early May; or, of Innocence and Id</dc:title>
+<dc:creator>Brown, Harry</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-09T17:13:07Z</dc:date>
+<dc:date>2015-09-09T17:13:07Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/66</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/68</identifier><datestamp>2015-09-11T03:59:07Z</datestamp><setSpec>com_11216_20</setSpec><setSpec>com_11216_7</setSpec><setSpec>com_11216_21</setSpec><setSpec>com_11216_8</setSpec><setSpec>col_11216_67</setSpec><setSpec>col_11216_69</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Anxiety-Reduction Techniques for Art Students</dc:title>
+<dc:creator>Alvarez, Melody</dc:creator>
+<dc:subject>Anxiety Treatment</dc:subject>
+<dc:description>Undergraduate Honors Thesis</dc:description>
+<dc:date>2015-09-10T16:49:53Z</dc:date>
+<dc:date>2015-09-10T16:49:53Z</dc:date>
+<dc:date>2015-05</dc:date>
+<dc:type>Thesis</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/68</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Honors in Psychology Program;2015</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/70</identifier><datestamp>2015-09-12T03:59:07Z</datestamp><setSpec>com_11216_20</setSpec><setSpec>com_11216_7</setSpec><setSpec>com_11216_21</setSpec><setSpec>com_11216_8</setSpec><setSpec>col_11216_67</setSpec><setSpec>col_11216_69</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Stimulant and Antipsychotic Co-Administration: Long-Term Effects on Behavioral Development</dc:title>
+<dc:creator>Brewer, Chelsie</dc:creator>
+<dc:subject>Psychoses in children Treatment</dc:subject>
+<dc:subject>Antipsychotic drugs Side effects</dc:subject>
+<dc:description>Undergraduate Honors Thesis</dc:description>
+<dc:date>2015-09-11T15:09:17Z</dc:date>
+<dc:date>2015-09-11T15:09:17Z</dc:date>
+<dc:date>2015-05</dc:date>
+<dc:type>Thesis</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/70</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Honors in Psychology Program;2015</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/71</identifier><datestamp>2015-09-12T03:59:06Z</datestamp><setSpec>com_11216_20</setSpec><setSpec>com_11216_7</setSpec><setSpec>com_11216_21</setSpec><setSpec>com_11216_8</setSpec><setSpec>col_11216_67</setSpec><setSpec>col_11216_69</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Role of Food Perceptions in Eating Disorder Behavior</dc:title>
+<dc:creator>Weiglein, Alexander C.</dc:creator>
+<dc:subject>Eating disorders Treatment</dc:subject>
+<dc:subject>Food Psychological aspects</dc:subject>
+<dc:description>Undergraduate Honors Thesis</dc:description>
+<dc:date>2015-09-11T15:38:33Z</dc:date>
+<dc:date>2015-09-11T15:38:33Z</dc:date>
+<dc:date>2015-05</dc:date>
+<dc:type>Thesis</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/71</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Honors in Psychology Program;2015</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/72</identifier><datestamp>2015-09-16T03:59:07Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>One Body</dc:title>
+<dc:creator>Bouvard, Marguerite Guzman</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-15T13:23:30Z</dc:date>
+<dc:date>2015-09-15T13:23:30Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/72</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/73</identifier><datestamp>2015-09-16T03:59:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>By the Tennessee River</dc:title>
+<dc:creator>Holdridge, Jefferson</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-15T13:29:43Z</dc:date>
+<dc:date>2015-09-15T13:29:43Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/73</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/74</identifier><datestamp>2015-09-16T03:59:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>String Theory</dc:title>
+<dc:creator>Holdridge, Jefferson</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-15T13:35:40Z</dc:date>
+<dc:date>2015-09-15T13:35:40Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/74</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/75</identifier><datestamp>2015-09-16T03:59:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>View of a Voyeur</dc:title>
+<dc:creator>Keaton-Wilson, Sandi</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-15T13:41:37Z</dc:date>
+<dc:date>2015-09-15T13:41:37Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/75</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/76</identifier><datestamp>2015-09-16T03:59:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>In Kentucky</dc:title>
+<dc:creator>Keaton-Wilson, Sandi</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-15T13:51:48Z</dc:date>
+<dc:date>2015-09-15T13:51:48Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/76</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/77</identifier><datestamp>2015-09-15T13:56:44Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Maggie</dc:title>
+<dc:creator>Laczi, D.E.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-15T13:56:44Z</dc:date>
+<dc:date>2015-09-15T13:56:44Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/77</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/78</identifier><datestamp>2015-09-16T03:59:11Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Farm</dc:title>
+<dc:creator>Laczi, D.E.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-15T14:07:52Z</dc:date>
+<dc:date>2015-09-15T14:07:52Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/78</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/79</identifier><datestamp>2015-09-16T03:59:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Perfect Morning</dc:title>
+<dc:creator>Laczi, D.E.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-15T14:12:37Z</dc:date>
+<dc:date>2015-09-15T14:12:37Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/79</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/80</identifier><datestamp>2015-09-16T03:59:09Z</datestamp><setSpec>com_11216_20</setSpec><setSpec>com_11216_7</setSpec><setSpec>com_11216_21</setSpec><setSpec>com_11216_8</setSpec><setSpec>col_11216_67</setSpec><setSpec>col_11216_69</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>This is Your Brain on Drugs: Effects of a Biological Explanation on Attitudes Toward Heroin Users and Responses to Heroin Addiction</dc:title>
+<dc:creator>Sharpe, Sara M.</dc:creator>
+<dc:subject>Drug addicts Rehabilitation</dc:subject>
+<dc:subject>Harm reduction</dc:subject>
+<dc:description>Undergraduate Honors Thesis</dc:description>
+<dc:date>2015-09-15T19:42:28Z</dc:date>
+<dc:date>2015-09-15T19:42:28Z</dc:date>
+<dc:date>2015-05</dc:date>
+<dc:type>Thesis</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/80</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Honors in Psychology Program;2015</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/81</identifier><datestamp>2016-06-17T12:47:19Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Hillbilly Poet "as a student of the '80s"</dc:title>
+<dc:creator>Lane, Walter</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T12:48:30Z</dc:date>
+<dc:date>2015-09-16T12:48:30Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/81</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/82</identifier><datestamp>2015-09-17T03:59:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Dirt on the Fun House Mirror</dc:title>
+<dc:creator>Lane, Walter</dc:creator>
+<dc:contributor>dc.identifier.issn</dc:contributor>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T12:53:15Z</dc:date>
+<dc:date>2015-09-16T12:53:15Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/83</identifier><datestamp>2015-09-17T03:59:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>September Morning, 3 A.M.</dc:title>
+<dc:creator>O'Dell, Mary E.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T12:59:01Z</dc:date>
+<dc:date>2015-09-16T12:59:01Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/83</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/84</identifier><datestamp>2015-09-17T03:59:13Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>March Morning Walks</dc:title>
+<dc:creator>O'Dell, Mary E.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T13:10:57Z</dc:date>
+<dc:date>2015-09-16T13:10:57Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/84</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/85</identifier><datestamp>2015-09-17T03:59:12Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Southwest</dc:title>
+<dc:creator>Rash, Danielle K.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T14:40:56Z</dc:date>
+<dc:date>2015-09-16T14:40:56Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/85</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/86</identifier><datestamp>2015-09-17T03:59:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Alva's Life</dc:title>
+<dc:creator>Spencer, Stephen</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T14:54:57Z</dc:date>
+<dc:date>2015-09-16T14:54:57Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/86</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/87</identifier><datestamp>2015-09-17T03:59:13Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Fish Story</dc:title>
+<dc:creator>McHugh., Kevin C.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T15:02:44Z</dc:date>
+<dc:date>2015-09-16T15:02:44Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/87</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/88</identifier><datestamp>2015-09-17T03:59:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Thin Divide</dc:title>
+<dc:creator>McHugh., Kevin C.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T15:08:00Z</dc:date>
+<dc:date>2015-09-16T15:08:00Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/88</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/89</identifier><datestamp>2015-09-17T03:59:11Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Family Photos</dc:title>
+<dc:creator>McHugh., Kevin C.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T15:34:21Z</dc:date>
+<dc:date>2015-09-16T15:34:21Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/89</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/90</identifier><datestamp>2015-09-17T03:59:14Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Tsunami Snapshots</dc:title>
+<dc:creator>Kumar, Sukrita Paul</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-09-16T15:39:30Z</dc:date>
+<dc:date>2015-09-16T15:39:30Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/90</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/92</identifier><datestamp>2015-10-08T03:59:13Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Thyme and Thyme Again</dc:title>
+<dc:creator>Brue, Sandy</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-07T12:59:23Z</dc:date>
+<dc:date>2015-10-07T12:59:23Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/92</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/93</identifier><datestamp>2015-10-08T03:59:19Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Millie</dc:title>
+<dc:creator>Brue, Sandy</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-07T13:03:47Z</dc:date>
+<dc:date>2015-10-07T13:03:47Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/93</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>N</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/94</identifier><datestamp>2015-10-08T03:59:17Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Thistle Tea</dc:title>
+<dc:creator>Brue, Sandy</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-07T13:08:20Z</dc:date>
+<dc:date>2015-10-07T13:08:20Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/94</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/95</identifier><datestamp>2015-10-08T03:59:20Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Lavender and Lady's Mantle</dc:title>
+<dc:creator>Brue, Sandy</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-07T13:16:28Z</dc:date>
+<dc:date>2015-10-07T13:16:28Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/95</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/96</identifier><datestamp>2015-10-08T03:59:18Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Uncle Bill's Puzzles</dc:title>
+<dc:creator>Minick, Jim</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-07T13:21:10Z</dc:date>
+<dc:date>2015-10-07T13:21:10Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/96</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/97</identifier><datestamp>2015-10-08T03:59:21Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Sycamore on Big Branch</dc:title>
+<dc:creator>Minick, Jim</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-07T13:25:33Z</dc:date>
+<dc:date>2015-10-07T13:25:33Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/97</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/98</identifier><datestamp>2015-10-08T03:59:19Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>On the Road to Bowling Green (in memory of Jim Wayne Miller)</dc:title>
+<dc:creator>Worthington, Marianne</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-07T13:31:19Z</dc:date>
+<dc:date>2015-10-07T13:31:19Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/98</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/99</identifier><datestamp>2015-10-08T03:59:23Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Coyote Anthem</dc:title>
+<dc:creator>Richards, Susan Starr</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-07T13:35:41Z</dc:date>
+<dc:date>2015-10-07T13:35:41Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/99</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/101</identifier><datestamp>2015-10-23T03:40:12Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Six Horses</dc:title>
+<dc:creator>Engle, John</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-22T15:44:41Z</dc:date>
+<dc:date>2015-10-22T15:44:41Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/101</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/102</identifier><datestamp>2015-10-23T03:40:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Beneath Dark Hills</dc:title>
+<dc:creator>Engle, John</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-22T16:43:21Z</dc:date>
+<dc:date>2015-10-22T16:43:21Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/102</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/103</identifier><datestamp>2015-10-23T03:40:12Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Progress?</dc:title>
+<dc:creator>Engle, John</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-22T16:47:27Z</dc:date>
+<dc:date>2015-10-22T16:47:27Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/103</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/104</identifier><datestamp>2015-10-23T03:40:14Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Just a River?</dc:title>
+<dc:creator>Engle, John</dc:creator>
+<dc:subject>Short stories, American Kentucky</dc:subject>
+<dc:description>Short story</dc:description>
+<dc:date>2015-10-22T17:28:41Z</dc:date>
+<dc:date>2015-10-22T17:28:41Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/104</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/105</identifier><datestamp>2015-10-23T03:40:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Percy Holmes</dc:title>
+<dc:creator>Abbott, Raymond</dc:creator>
+<dc:subject>Short stories, American Kentucky</dc:subject>
+<dc:description>Short story</dc:description>
+<dc:date>2015-10-22T17:48:26Z</dc:date>
+<dc:date>2015-10-22T17:48:26Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/105</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/106</identifier><datestamp>2015-10-23T03:40:13Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Baptism</dc:title>
+<dc:creator>Goode, James B.</dc:creator>
+<dc:subject>Short stories, American Kentucky</dc:subject>
+<dc:description>Short story</dc:description>
+<dc:date>2015-10-22T18:00:52Z</dc:date>
+<dc:date>2015-10-22T18:00:52Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/106</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/107</identifier><datestamp>2015-10-23T03:40:12Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Footbridge</dc:title>
+<dc:creator>Tremoulet, Gretchen</dc:creator>
+<dc:subject>Short stories, American Kentucky</dc:subject>
+<dc:description>Short story</dc:description>
+<dc:date>2015-10-22T18:08:06Z</dc:date>
+<dc:date>2015-10-22T18:08:06Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/107</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/108</identifier><datestamp>2015-10-24T03:40:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Grass Fires</dc:title>
+<dc:creator>Richards, Susan Starr</dc:creator>
+<dc:subject>Short stories, American Kentucky</dc:subject>
+<dc:description>Short story</dc:description>
+<dc:date>2015-10-23T14:16:29Z</dc:date>
+<dc:date>2015-10-23T14:16:29Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/108</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/109</identifier><datestamp>2015-10-24T03:40:12Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>"Working Out of the World": An Interview with Susan Starr Richards</dc:title>
+<dc:title>An Interview with Susan Starr Richards</dc:title>
+<dc:creator>Scheele, Roy</dc:creator>
+<dc:subject>Richards, Susan Starr, Interviews</dc:subject>
+<dc:description>Author interview</dc:description>
+<dc:date>2015-10-23T16:42:01Z</dc:date>
+<dc:date>2015-10-23T16:42:01Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/109</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/110</identifier><datestamp>2015-10-24T03:40:13Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Caricature, Secular Shamanism, and Cultural Compensation in Hunter S. Thompson's Fear and Loathing on the Campaign Trail '72 and Fear and Loathing in Las Vegas</dc:title>
+<dc:creator>Matheson, Sue</dc:creator>
+<dc:subject>Thompson, Hunter S., Criticism and interpretation</dc:subject>
+<dc:description>Literary criticism</dc:description>
+<dc:date>2015-10-23T17:00:41Z</dc:date>
+<dc:date>2015-10-23T17:00:41Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/110</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/111</identifier><datestamp>2015-10-24T03:40:14Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Dramatic Voices of Frank X. Walker</dc:title>
+<dc:creator>Turpin, Anita J.</dc:creator>
+<dc:subject>Walker, Frank X., Criticism and interpretation</dc:subject>
+<dc:description>Literary criticism</dc:description>
+<dc:date>2015-10-23T17:37:29Z</dc:date>
+<dc:date>2015-10-23T17:37:29Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/111</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/112</identifier><datestamp>2016-04-27T14:46:56Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee newsletter</dc:title>
+<dc:title>TEEC</dc:title>
+<dc:creator>Faculty Senate</dc:creator>
+<dc:date>2015-10-23T21:39:36Z</dc:date>
+<dc:date>2015-10-23T21:39:36Z</dc:date>
+<dc:date>2012</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/112</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Teaching Effectiveness and Enhancement Committee newsletter;issue 2</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/113</identifier><datestamp>2016-04-27T14:44:35Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee newsletter</dc:title>
+<dc:title>TEEC</dc:title>
+<dc:creator>Faculty Senate</dc:creator>
+<dc:date>2015-10-23T21:49:33Z</dc:date>
+<dc:date>2015-10-23T21:49:33Z</dc:date>
+<dc:date>2013</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/113</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Teaching Effectiveness and Enhancement Committee newsletter;issue 3</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/114</identifier><datestamp>2016-04-27T14:38:24Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee newsletter</dc:title>
+<dc:title>TEEC</dc:title>
+<dc:creator>Faculty Senate</dc:creator>
+<dc:date>2015-10-23T21:51:02Z</dc:date>
+<dc:date>2015-10-23T21:51:02Z</dc:date>
+<dc:date>2014</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/114</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Teaching Effectiveness and Enhancement Committee newsletter;issue 5</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/115</identifier><datestamp>2016-04-27T14:42:10Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee newsletter</dc:title>
+<dc:title>TEEC</dc:title>
+<dc:creator>Faculty Senate</dc:creator>
+<dc:date>2015-10-23T21:52:28Z</dc:date>
+<dc:date>2015-10-23T21:52:28Z</dc:date>
+<dc:date>2014</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/115</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Teaching Effectiveness and Enhancement Committee newsletter;issue 6</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/116</identifier><datestamp>2016-04-27T14:17:33Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee newsletter</dc:title>
+<dc:title>TEEC</dc:title>
+<dc:creator>Faculty Senate</dc:creator>
+<dc:date>2015-10-23T22:02:43Z</dc:date>
+<dc:date>2015-10-23T22:02:43Z</dc:date>
+<dc:date>2015</dc:date>
+<dc:type>Other</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/116</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Teaching Effectiveness and Enhancement Committee newsletter;issue 8</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/117</identifier><datestamp>2015-10-23T22:05:28Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee (TEEC) newsletter</dc:title>
+<dc:title>TEEC</dc:title>
+<dc:date>2015-10-23T22:03:55Z</dc:date>
+<dc:date>2015-10-23T22:03:55Z</dc:date>
+<dc:date>2015</dc:date>
+<dc:type>Newsletter</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/117</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>;issue 9</dc:relation>
+<dc:relation>;issue 9</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/118</identifier><datestamp>2015-12-08T19:22:46Z</datestamp><setSpec>com_11216_57</setSpec><setSpec>com_11216_6</setSpec><setSpec>col_11216_91</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Teaching Effectiveness and Enhancement Committee newsletter</dc:title>
+<dc:title>TEEC newsletter</dc:title>
+<dc:creator>practice creator</dc:creator>
+<dc:creator>jane doe</dc:creator>
+<dc:contributor />
+<dc:date>2015-10-26T13:45:49Z</dc:date>
+<dc:date>2015-10-26T13:45:49Z</dc:date>
+<dc:date>circa 1899</dc:date>
+<dc:date>2015</dc:date>
+<dc:type>Newsletter</dc:type>
+<dc:identifier>http://hdl.handle.net/11216/118</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Teaching Effectiveness and Enhancement Committee newsletter;Issue 9</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/119</identifier><datestamp>2015-10-27T03:40:13Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>"A Mountain to Rest My Eyes Against": Place of Origin in Lee Smith's Fair and Tender Ladies</dc:title>
+<dc:title>Place of Origin in Lee Smith's Fair and Tender Ladies</dc:title>
+<dc:creator>Ogle, Donna</dc:creator>
+<dc:subject>Smith, Lee, Criticism and interpretation</dc:subject>
+<dc:description>Literary criticism</dc:description>
+<dc:date>2015-10-26T15:28:17Z</dc:date>
+<dc:date>2015-10-26T15:28:17Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/119</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/120</identifier><datestamp>2015-10-27T03:40:14Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Words, Actions, and "Resurrecting Home": the Fiction of Denise Giardina and the Ethical Imperative</dc:title>
+<dc:title>The Fiction of Denise Giardina and the Ethical Imperative</dc:title>
+<dc:creator>Shurbutt, Sylvia Bailey</dc:creator>
+<dc:subject>Giardina, Denise, Criticism and interpretation</dc:subject>
+<dc:description>Literary criticism</dc:description>
+<dc:date>2015-10-26T16:58:59Z</dc:date>
+<dc:date>2015-10-26T16:58:59Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/120</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>N</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/121</identifier><datestamp>2015-10-27T03:40:15Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Tales From the Deep: Mammoth Cave and American Literature</dc:title>
+<dc:title>Mammoth Cave and American Literature</dc:title>
+<dc:creator>Kennedy, Joy</dc:creator>
+<dc:subject>Caves in literature</dc:subject>
+<dc:subject>Mammoth Cave (Ky.)</dc:subject>
+<dc:description>Essay</dc:description>
+<dc:date>2015-10-26T17:47:42Z</dc:date>
+<dc:date>2015-10-26T17:47:42Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/121</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/122</identifier><datestamp>2015-10-27T03:40:15Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>"Making Room for Something Wonderful": Adriana Trigiani as Classic Appalachian Author</dc:title>
+<dc:title>Adriana Trigiani as Classic Appalachian Author</dc:title>
+<dc:creator>Brown, Jennifer</dc:creator>
+<dc:subject>Trigiani, Adriana, Criticism and interpretation</dc:subject>
+<dc:description>Literary criticism</dc:description>
+<dc:date>2015-10-26T18:20:56Z</dc:date>
+<dc:date>2015-10-26T18:20:56Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/122</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/123</identifier><datestamp>2015-10-27T03:40:16Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>"Brier Visions": What Did He See?</dc:title>
+<dc:title>What Did He See?</dc:title>
+<dc:creator>Minick, Jim</dc:creator>
+<dc:subject>Miller, Jim Wayne, Criticism and interpretation</dc:subject>
+<dc:description>Literary criticism</dc:description>
+<dc:date>2015-10-26T18:47:37Z</dc:date>
+<dc:date>2015-10-26T18:47:37Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/123</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/124</identifier><datestamp>2015-10-28T03:40:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Sanctifying the Profane: Jim Wayne Miller's "Dialogue with a Dead Man"</dc:title>
+<dc:title>Jim Wayne Miller's "Dialogue with a Dead Man"</dc:title>
+<dc:creator>Pendarvis, Edwina</dc:creator>
+<dc:subject>Miller, Jim Wayne, Criticism and interpretation</dc:subject>
+<dc:description>Literary criticism</dc:description>
+<dc:date>2015-10-27T14:08:28Z</dc:date>
+<dc:date>2015-10-27T14:08:28Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/124</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/125</identifier><datestamp>2015-10-28T03:40:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>"Lost in the American Funhouse": Magical Realism and Transfiguration in Jim Wayne Miller's The Mountains Have Come Closer</dc:title>
+<dc:title>Magical Realism and Transfiguration in Jim Wayne Miller's The Mountains Have Come Closer</dc:title>
+<dc:creator>Worthington, Marianne</dc:creator>
+<dc:subject>Miller, Jim Wayne, Criticism and interpretation</dc:subject>
+<dc:description>Literary criticism</dc:description>
+<dc:date>2015-10-27T14:26:08Z</dc:date>
+<dc:date>2015-10-27T14:26:08Z</dc:date>
+<dc:date>2005-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/125</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 22 September 2005</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/126</identifier><datestamp>2015-10-28T03:40:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Widow</dc:title>
+<dc:creator>Semones, Charles</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-27T14:44:21Z</dc:date>
+<dc:date>2015-10-27T14:44:21Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/126</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/127</identifier><datestamp>2015-10-28T03:40:11Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>October Elegy for One Who Died in Another October</dc:title>
+<dc:creator>Semones, Charles</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-27T15:11:26Z</dc:date>
+<dc:date>2015-10-27T15:11:26Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/127</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/128</identifier><datestamp>2015-10-28T03:40:11Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The November Visitor</dc:title>
+<dc:creator>Semones, Charles</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-27T15:22:21Z</dc:date>
+<dc:date>2015-10-27T15:22:21Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/128</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/129</identifier><datestamp>2015-10-29T03:40:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Depth Perception</dc:title>
+<dc:creator>Ball, Marietta</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-28T20:03:25Z</dc:date>
+<dc:date>2015-10-28T20:03:25Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/129</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/130</identifier><datestamp>2015-10-30T03:40:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Crying Under Water</dc:title>
+<dc:creator>Ball, Marietta</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-29T13:16:58Z</dc:date>
+<dc:date>2015-10-29T13:16:58Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/130</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/131</identifier><datestamp>2015-10-30T03:40:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Barbed Wire</dc:title>
+<dc:creator>Davis, Todd</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-29T19:51:10Z</dc:date>
+<dc:date>2015-10-29T19:51:10Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/131</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/132</identifier><datestamp>2015-10-30T03:40:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Across the River</dc:title>
+<dc:creator>Davis, Todd</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-29T19:55:31Z</dc:date>
+<dc:date>2015-10-29T19:55:31Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/132</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/133</identifier><datestamp>2015-10-31T03:40:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Flowers and Their Fruits</dc:title>
+<dc:creator>Davis, Todd</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-30T19:38:37Z</dc:date>
+<dc:date>2015-10-30T19:38:37Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/133</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/134</identifier><datestamp>2015-10-31T03:40:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Bargain</dc:title>
+<dc:creator>Trammell, Roger W.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-30T19:43:15Z</dc:date>
+<dc:date>2015-10-30T19:43:15Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/134</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/135</identifier><datestamp>2015-10-31T03:40:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Beautiful Buckle</dc:title>
+<dc:creator>Trammell, Roger W.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-10-30T19:49:09Z</dc:date>
+<dc:date>2015-10-30T19:49:09Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/135</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/136</identifier><datestamp>2015-11-04T03:40:07Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>LoveSmells</dc:title>
+<dc:creator>Trammell, Roger W.</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-03T14:48:59Z</dc:date>
+<dc:date>2015-11-03T14:48:59Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/136</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/137</identifier><datestamp>2015-11-04T03:40:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Man and Horse: Photo, Circa 1939</dc:title>
+<dc:title>Photo, Circa 1939</dc:title>
+<dc:creator>McKernan, Llewellyn</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-03T14:57:29Z</dc:date>
+<dc:date>2015-11-03T14:57:29Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/137</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/138</identifier><datestamp>2015-11-04T03:40:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Pencil In the All-Night Diner</dc:title>
+<dc:creator>McKernan, Llewellyn</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-03T15:05:56Z</dc:date>
+<dc:date>2015-11-03T15:05:56Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/138</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/139</identifier><datestamp>2015-11-04T03:40:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Cat at Rest</dc:title>
+<dc:creator>McKernan, Llewellyn</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-03T16:40:38Z</dc:date>
+<dc:date>2015-11-03T16:40:38Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/139</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/142</identifier><datestamp>2015-11-06T03:40:08Z</datestamp><setSpec>com_11216_140</setSpec><setSpec>com_11216_28</setSpec><setSpec>col_11216_141</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Northern Kentucky University Employee Salary Report</dc:title>
+<dc:date>2015-11-05T15:30:39Z</dc:date>
+<dc:date>2015-11-05T15:30:39Z</dc:date>
+<dc:date>2015-11-05</dc:date>
+<dc:identifier>http://hdl.handle.net/11216/142</dc:identifier>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/143</identifier><datestamp>2015-11-07T03:40:07Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Cat</dc:title>
+<dc:creator>Smock, Frederick</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-06T15:18:50Z</dc:date>
+<dc:date>2015-11-06T15:18:50Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/143</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/144</identifier><datestamp>2015-11-07T03:40:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Coming Home</dc:title>
+<dc:creator>Smock, Frederick</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-06T15:26:56Z</dc:date>
+<dc:date>2015-11-06T15:26:56Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/144</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/145</identifier><datestamp>2015-11-07T03:40:08Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Castle Cats</dc:title>
+<dc:creator>Alfaro, Barbara</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-06T15:37:02Z</dc:date>
+<dc:date>2015-11-06T15:37:02Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/145</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/146</identifier><datestamp>2015-11-07T03:40:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>The Hillbilly Poet (search for place)</dc:title>
+<dc:creator>Lane, Walter</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-06T15:37:39Z</dc:date>
+<dc:date>2015-11-06T15:37:39Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/146</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/147</identifier><datestamp>2015-11-11T03:40:07Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>With an "X" They Made their Mark</dc:title>
+<dc:creator>Knight, John Cantey</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-10T13:59:17Z</dc:date>
+<dc:date>2015-11-10T13:59:17Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/147</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/148</identifier><datestamp>2015-11-11T03:40:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Looking Down</dc:title>
+<dc:creator>Knight, John Cantey</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-10T14:04:06Z</dc:date>
+<dc:date>2015-11-10T14:04:06Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/148</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/149</identifier><datestamp>2015-11-11T03:40:09Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Crossed, Crucified on Water</dc:title>
+<dc:creator>Knight, John Cantey</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-10T14:24:57Z</dc:date>
+<dc:date>2015-11-10T14:24:57Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/149</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/150</identifier><datestamp>2015-11-11T03:40:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>An Emily Dickinson Ending</dc:title>
+<dc:creator>Knight, John Cantey</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-10T14:30:08Z</dc:date>
+<dc:date>2015-11-10T14:30:08Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/150</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><record><header><identifier>oai:dspace.nku.edu:11216/151</identifier><datestamp>2015-11-11T03:40:10Z</datestamp><setSpec>com_11216_58</setSpec><setSpec>com_11216_7</setSpec><setSpec>col_11216_60</setSpec></header><metadata><oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:doc="http://www.lyncode.com/xoai" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+<dc:title>Family</dc:title>
+<dc:creator>Beall, Glenda</dc:creator>
+<dc:subject>American poetry Kentucky</dc:subject>
+<dc:description>Poem</dc:description>
+<dc:date>2015-11-10T14:35:20Z</dc:date>
+<dc:date>2015-11-10T14:35:20Z</dc:date>
+<dc:date>2006-09</dc:date>
+<dc:type>Article</dc:type>
+<dc:identifier>8755-4208</dc:identifier>
+<dc:identifier>http://hdl.handle.net/11216/151</dc:identifier>
+<dc:language>en_US</dc:language>
+<dc:relation>Journal of Kentucky Studies;volume 23 September 2006</dc:relation>
+<dc:publisher>Northern Kentucky University</dc:publisher>
+</oai_dc:dc>
+</metadata></record><resumptionToken completeListSize="1129" cursor="0">oai_dc////100</resumptionToken></ListRecords></OAI-PMH>

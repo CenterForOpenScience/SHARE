@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clinical_study>
+  <!-- This xml conforms to an XML Schema at:
+    https://clinicaltrials.gov/ct2/html/images/info/public.xsd
+ and an XML DTD at:
+    https://clinicaltrials.gov/ct2/html/images/info/public.dtd -->
+  <required_header>
+    <download_date>ClinicalTrials.gov processed this data on June 21, 2016</download_date>
+    <link_text>Link to the current ClinicalTrials.gov record.</link_text>
+    <url>https://clinicaltrials.gov/show/NCT02425332</url>
+  </required_header>
+  <id_info>
+    <org_study_id>EK 2015 0020</org_study_id>
+    <nct_id>NCT02425332</nct_id>
+  </id_info>
+  <brief_title>Validation of a Novel Robot-aided Assessment of Gait Ability</brief_title>
+  <official_title>Validation of Lokomat-aided Assessment of Gait Ability</official_title>
+  <sponsors>
+    <lead_sponsor>
+      <agency>University of Zurich</agency>
+      <agency_class>Other</agency_class>
+    </lead_sponsor>
+  </sponsors>
+  <source>University of Zurich</source>
+  <oversight_info>
+    <authority>Switzerland: Ethikkommission</authority>
+    <has_dmc>Yes</has_dmc>
+  </oversight_info>
+  <brief_summary>
+    <textblock>
+      The aim of this study is the validation of a novel gait assessment method implemented in the
+      Lokomat gait trainer with respect to established clinical gait assessment methods. The
+      walking assessment method is based on the progressive reduction of the support of the
+      device. The outcome measures of this algorithm will be the support needed in the different
+      gait phases (guidance force of hip and knee joints) and the support required to the body
+      weight support system (unloading). The hypothesis is that the guidance force and the support
+      of the device will converge to a profile individual for each subject that is representative
+      of one's impairment in the different gait phases. The reliability of the method will be
+      tested collecting data from two sessions of Lokomat training. The validity of the method
+      will be tested comparing the outcome of the assessment task with established clinical
+      walking assessment measures.
+    </textblock>
+  </brief_summary>
+  <overall_status>Recruiting</overall_status>
+  <start_date>May 2015</start_date>
+  <primary_completion_date type="Anticipated">May 2017</primary_completion_date>
+  <phase>N/A</phase>
+  <study_type>Interventional</study_type>
+  <study_design>Intervention Model: Single Group Assignment, Masking: Open Label</study_design>
+  <primary_outcome>
+    <measure>Intraclass Correlation Coefficient between Lokomat score.</measure>
+    <time_frame>up to one week</time_frame>
+    <safety_issue>No</safety_issue>
+    <description>Reliability of Lokomat assessment</description>
+  </primary_outcome>
+  <number_of_arms>1</number_of_arms>
+  <enrollment type="Anticipated">50</enrollment>
+  <condition>Spinal Cord Injury</condition>
+  <arm_group>
+    <arm_group_label>Lokomat assessment</arm_group_label>
+    <arm_group_type>Experimental</arm_group_type>
+  </arm_group>
+  <intervention>
+    <intervention_type>Device</intervention_type>
+    <intervention_name>Lokomat gait trainer</intervention_name>
+    <arm_group_label>Lokomat assessment</arm_group_label>
+  </intervention>
+  <eligibility>
+    <criteria>
+      <textblock>
+        Inclusion Criteria:
+
+          -  individuals &gt;1 year post Spinal Cord Injury or able bodied persons
+
+        Exclusion Criteria:
+
+          -  presence of contraindications to Lokomat training, inability or unwillingness to
+             provide written informed consent or follow study procedures
+      </textblock>
+    </criteria>
+    <gender>Both</gender>
+    <minimum_age>18 Years</minimum_age>
+    <maximum_age>99 Years</maximum_age>
+    <healthy_volunteers>Accepts Healthy Volunteers</healthy_volunteers>
+  </eligibility>
+  <overall_contact>
+    <last_name>Serena Maggioni, MSc</last_name>
+    <email>smaggioni@paralab.balgrist.ch</email>
+  </overall_contact>
+  <location>
+    <facility>
+      <name>Universitätsklinik Balgrist</name>
+      <address>
+        <city>Zürich</city>
+        <country>Switzerland</country>
+      </address>
+    </facility>
+    <status>Recruiting</status>
+    <contact>
+      <last_name>Serena Maggioni</last_name>
+    </contact>
+  </location>
+  <location_countries>
+    <country>Switzerland</country>
+  </location_countries>
+  <verification_date>January 2016</verification_date>
+  <lastchanged_date>January 7, 2016</lastchanged_date>
+  <firstreceived_date>April 20, 2015</firstreceived_date>
+  <responsible_party>
+    <responsible_party_type>Sponsor</responsible_party_type>
+  </responsible_party>
+  <keyword>Spinal Cord Injury</keyword>
+  <keyword>adaptive control</keyword>
+  <keyword>assessment</keyword>
+  <keyword>assist-as-needed</keyword>
+  <keyword>walking ability</keyword>
+  <keyword>Lokomat</keyword>
+  <is_fda_regulated>No</is_fda_regulated>
+  <has_expanded_access>No</has_expanded_access>
+  <condition_browse>
+    <!-- CAUTION:  The following MeSH terms are assigned with an imperfect algorithm  -->
+    <mesh_term>Spinal Cord Injuries</mesh_term>
+  </condition_browse>
+  <!-- Results have not yet been posted for this study                                -->
+</clinical_study>
