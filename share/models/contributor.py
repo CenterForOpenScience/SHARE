@@ -1,7 +1,7 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.base import ShareForeignKey
+from share.models.fields import ShareForeignKey
 
 __all__ = ('Person', 'Email', 'PersonEmail', 'Contributor', 'Manuscript', 'Affiliation', 'Organization')
 

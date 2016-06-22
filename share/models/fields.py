@@ -75,3 +75,55 @@ JSONField.register_lookup(lookups.HasKeys)
 JSONField.register_lookup(lookups.HasAnyKeys)
 
 
+class ShareOneToOneField(models.OneToOneField):
+    def __init__(self, model, **kwargs):
+        self.__kwargs = kwargs
+        super().__init__(model, **kwargs)
+
+    def contribute_to_class(self, cls, name, **kwargs):
+        actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
+        actual.contribute_to_class(cls, name, **kwargs)
+
+        self.__kwargs['editable'] = False
+        version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+        version.contribute_to_class(cls, name + '_version', **kwargs)
+
+        actual._share_version_field = version
+
+
+class ShareForeignKey(models.ForeignKey):
+
+    def __init__(self, model, **kwargs):
+        self.__kwargs = kwargs
+        super().__init__(model, **kwargs)
+
+    def contribute_to_class(self, cls, name, **kwargs):
+        actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
+        actual.contribute_to_class(cls, name, **kwargs)
+
+        self.__kwargs['editable'] = False
+        version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+        version.contribute_to_class(cls, name + '_version', **kwargs)
+
+        actual._share_version_field = version
+
+
+class ShareManyToMany(models.ManyToManyField):
+
+    def __init__(self, model, **kwargs):
+        self.__kwargs = kwargs
+        super().__init__(model, **kwargs)
+
+    def contribute_to_class(self, cls, name, **kwargs):
+        actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
+        actual.contribute_to_class(cls, name, **kwargs)
+
+        self.__kwargs['through'] += 'Version'
+        self.__kwargs['editable'] = False
+
+        version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+        version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
+
+        actual._share_version_field = version
+
+

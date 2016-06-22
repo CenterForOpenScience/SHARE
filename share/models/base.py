@@ -3,8 +3,9 @@ import inspect
 from django.db import models
 from django.db.models.base import ModelBase
 
-from share.models.core import ShareSource
 from share.models.change import ChangeRequest
+from share.models.core import ShareSource
+from share.models.fields import DatetimeAwareJSONField
 
 
 class AbstractShareObject(models.Model):
@@ -16,9 +17,14 @@ class AbstractShareObject(models.Model):
 
     date_modified = models.DateTimeField(auto_now=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    extra = models.OneToOneField('ExtraData')
 
     class Meta:
         abstract = True
+
+
+class ExtraData(models.Model):
+    data = DatetimeAwareJSONField(default={})
 
 
 class ShareObjectVersion(models.Model):
@@ -28,42 +34,6 @@ class ShareObjectVersion(models.Model):
     class Meta:
         abstract = True
         ordering = ('-date_modified', )
-
-
-class ShareForeignKey(models.ForeignKey):
-
-    def __init__(self, model, **kwargs):
-        self.__kwargs = kwargs
-        super().__init__(model, **kwargs)
-
-    def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
-        actual.contribute_to_class(cls, name, **kwargs)
-
-        self.__kwargs['editable'] = False
-        version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
-        version.contribute_to_class(cls, name + '_version', **kwargs)
-
-        actual._share_version_field = version
-
-
-class ShareManyToMany(models.ManyToManyField):
-
-    def __init__(self, model, **kwargs):
-        self.__kwargs = kwargs
-        super().__init__(model, **kwargs)
-
-    def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
-        actual.contribute_to_class(cls, name, **kwargs)
-
-        self.__kwargs['through'] += 'Version'
-        self.__kwargs['editable'] = False
-
-        version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
-        version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
-
-        actual._share_version_field = version
 
 
 # Generates 3 class from the original definition of the model
