@@ -1,7 +1,6 @@
 import json
 import logging
 import datetime
-from time import sleep
 
 import celery
 import requests
@@ -9,6 +8,7 @@ import requests
 from django.apps import apps
 from django.conf import settings
 
+from share.change import ChangeGraph
 from share.models import RawData, NormalizedManuscript, ShareUser
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,8 @@ def run_harvester(self, app_label, start=None, end=None, started_by=None):
         start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
     config = apps.get_app_config(app_label)
     harvester = config.harvester(config)
+
+    # self.send_event('', )
 
     try:
         logger.info('Starting harvester run for {} {} - {}'.format(app_label, start, end))
@@ -53,7 +55,7 @@ def run_normalizer(self, app_label, raw_id, started_by=None):
     }, headers={'Authorization': config.authorization()})
 
     if (resp.status_code // 100) != 2:
-        raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Recieved {!r}'.format(resp)))
+        raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Recieved {!r}, {}'.format(resp, resp.content)))
 
     logger.info('Successfully submitted change for {!r}'.format(raw))
 
@@ -67,5 +69,7 @@ def make_json_patches(normalized_id, started_by_id=None):
     if started_by_id:
         started_by = ShareUser.objects.get(pk=started_by_id)
     logger.info('{} started make JSON patches for {} at {}'.format(started_by, normalized, datetime.datetime.utcnow().isoformat()))
-    sleep(10)
+
+    print(ChangeGraph(normalized.normalized_data).change_set(normalized.source))
+
     logger.info('Finished make JSON patches for {} by {} at {}'.format(normalized, started_by, datetime.datetime.utcnow().isoformat()))
