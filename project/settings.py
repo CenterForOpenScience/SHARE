@@ -55,6 +55,9 @@ INSTALLED_APPS = [
     'api'
 ]
 
+HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
+
+
 OAUTH2_PROVIDER = {
     'SCOPES': {
         'read': 'Read scope',

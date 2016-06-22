@@ -127,8 +127,8 @@ class HarvesterOauthTokenMigration(AbstractProviderMigration):
         token = AccessToken.objects.create(
             user=migration_user,
             application=application,
-            expires=(datetime.datetime.utcnow() + datetime.timedelta(years=20)),
-            scope='{} {}'.format(settings.OAUTH2_PROVIDER['SCOPES'][3], settings.OAUTH2_PROVIDER['SCOPES'][4]),
+            expires=(datetime.datetime.utcnow() + datetime.timedelta(weeks=20 * 52)), # 20 yrs
+            scope=settings.HARVESTER_SCOPES,
             token=client_secret
         )
 
