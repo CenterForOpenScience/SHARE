@@ -5,7 +5,8 @@ from django.db.models.base import ModelBase
 
 from share.models.change import ChangeRequest
 from share.models.core import ShareSource
-from share.models.fields import DatetimeAwareJSONField
+from share.models import fields
+
 
 
 class AbstractShareObject(models.Model):
@@ -20,10 +21,6 @@ class AbstractShareObject(models.Model):
 
     class Meta:
         abstract = True
-
-
-class ExtraData(models.Model):
-    data = DatetimeAwareJSONField(default={})
 
 
 class ShareObjectVersion(models.Model):
@@ -42,7 +39,7 @@ class ShareObjectVersion(models.Model):
 class ShareObjectMeta(ModelBase):
 
     def __new__(cls, name, bases, attrs):
-        if models.Model in bases or len(bases) > 1:
+        if (models.Model in bases and attrs['Meta'].abstract) or len(bases) > 1:
             return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
         module = attrs['__module__']  # Django pops __module__ off for some reason
 
@@ -54,6 +51,9 @@ class ShareObjectMeta(ModelBase):
             delattr(attrs['Meta'], 'db_table')
 
         attrs['__qualname__'] = 'Abstract' + attrs['__qualname__']
+        if name != 'ExtraData':
+            attrs['extra'] = fields.ShareOneToOneField('ExtraData')
+
         abstract = super(ShareObjectMeta, cls).__new__(cls, 'Abstract' + name, (AbstractShareObject, ), attrs)
 
         version = type(
@@ -61,8 +61,7 @@ class ShareObjectMeta(ModelBase):
             (abstract, ShareObjectVersion),
             {'__module__': module}
         )
-
-        concrete = super(ShareObjectMeta, cls).__new__(cls, name, (abstract, ShareObject), {
+        concrete = super(ShareObjectMeta, cls).__new__(cls, name, (abstract, bases[0]), {
             '__module__': module,
             'VersionModel': version,
             'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version')
@@ -104,6 +103,15 @@ class VersionManager(models.Manager):
         if not model._meta.abstract:
             setattr(model, name, VersionManagerDescriptor(model))
 
+
+class ExtraData(models.Model, metaclass=ShareObjectMeta):
+    data = fields.DatetimeAwareJSONField(default={})
+
+    objects = models.Manager()
+    versions = VersionManager()
+
+    class Meta:
+        abstract = False
 
 class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)

@@ -88,6 +88,6 @@ class Command(BaseCommand):
 
         m = Migration('0003_triggers', 'share')
         m.operations = ops
-        m.dependencies = [('share', '0001_initial'), ('share', '0002_create_share_user')]
+        m.dependencies = [('share', '0002_create_share_user')]
 
         self.write_migration(m)
