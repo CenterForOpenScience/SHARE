@@ -158,7 +158,7 @@ class RawDataManager(models.Manager):
 class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
-    source = models.ForeignKey(ShareSource)
+    source = models.ForeignKey(settings.AUTH_USER_MODEL)
     provider_doc_id = models.CharField(max_length=256)
 
     data = ZipField(blank=False)

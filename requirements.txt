@@ -1,3 +1,4 @@
+arrow==0.8.0
 bcrypt==2.0.0
 celery==3.1.23
 colorlog==2.7.0

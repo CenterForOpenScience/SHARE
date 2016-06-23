@@ -5,6 +5,7 @@ from providers.com.figshare.harvester import FigshareHarvester
 
 class FigshareConfig(ProviderAppConfig):
     name = 'providers.com.figshare'
+    label = 'com.figshare'
 
     title = 'figshare'
     harvester = FigshareHarvester
