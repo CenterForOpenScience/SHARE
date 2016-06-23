@@ -21,6 +21,11 @@ class Harvester(metaclass=abc.ABCMeta):
     # TODO Make this apply across threads
     rate_limit = (5, 1)  # Rate limit in requests per_second
 
+    def __init__(self, app_config):
+        self.last_call = 0
+        self.config = app_config
+        self.allowance = self.rate_limit[0]
+
     @property
     def requests(self) -> requests:
         if self.allowance < 1:
@@ -36,11 +41,6 @@ class Harvester(metaclass=abc.ABCMeta):
     @cached_property
     def source(self):
         return self.config.as_source()
-
-    def __init__(self, app_config):
-        self.last_call = 0
-        self.config = app_config
-        self.allowance = self.rate_limit[0]
 
     @abc.abstractmethod
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> list:
@@ -138,12 +138,12 @@ class Harvester(metaclass=abc.ABCMeta):
 
 class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
 
-    time_granularity = False
     namespaces = {
         'dc': 'http://purl.org/dc/elements/1.1/',
         'ns0': 'http://www.openarchives.org/OAI/2.0/',
         'oai_dc': 'http://www.openarchives.org/OAI/2.0/',
     }
+    time_granularity = True
 
     @abc.abstractproperty
     def url(self) -> str:

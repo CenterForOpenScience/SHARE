@@ -50,8 +50,11 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'share',
-    'providers.org.arxiv.apps.ArxivConfig',
     'providers.com.figshare.apps.FigshareConfig',
+    'providers.edu.caltech.apps.CaltechConfig',
+    'providers.org.arxiv.apps.ArxivConfig',
+    'providers.org.cogprints.apps.CogPrintsConfig',
+    'providers.uk.ac.cambridge.apps.CambridgeConfig',
     'api'
 ]
 

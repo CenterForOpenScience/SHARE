@@ -6,7 +6,6 @@ from share import Harvester
 
 
 class FigshareHarvester(Harvester):
-
     url = 'https://api.figshare.com/v1/articles/search'
 
     # Other harvesters should not have to implement this method

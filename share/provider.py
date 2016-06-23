@@ -26,6 +26,10 @@ class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractproperty
+    def long_title(self):
+        raise NotImplementedError
+
+    @abc.abstractproperty
     def home_page(self):
         raise NotImplementedError
 
@@ -116,7 +120,6 @@ class HarvesterUserMigration(AbstractProviderMigration):
             pass
 
 
-
 class HarvesterOauthTokenMigration(AbstractProviderMigration):
     def __call__(self, apps, schema_editor):
         ShareUser = apps.get_model('share', 'ShareUser')
@@ -138,6 +141,7 @@ class HarvesterOauthTokenMigration(AbstractProviderMigration):
 
     def reverse(self, apps, schema_editor):
         pass
+
 
 class HarvesterScheduleMigration(AbstractProviderMigration):
 
