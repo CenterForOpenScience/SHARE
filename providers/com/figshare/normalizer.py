@@ -14,7 +14,3 @@ class Manuscript(Parser):
     title = ctx.title
     description = ctx.description
     contributors = ctx.authors['*']
-    # publish_date = ParseDate(ctx.published_date)
-
-# Extra Field
-# Voting System
