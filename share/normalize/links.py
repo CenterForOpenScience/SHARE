@@ -39,18 +39,18 @@ class DictHashingDict:
         self.__inner = {}
 
     def get(self, key, *args):
-        return self.__inner.get((self._hash(key[0]), key[1]), *args)
+        return self.__inner.get(self._hash(key), *args)
 
     def __getitem__(self, key):
-        return self.__inner[(self._hash(key[0]), key[1])]
+        return self.__inner[self._hash(key)]
 
     def __setitem__(self, key, value):
-        self.__inner[(self._hash(key[0]), key[1])] = value
+        self.__inner[self._hash(key)] = value
 
     def _hash(self, val):
         if isinstance(val, dict):
             val = tuple((k, self._hash(v)) for k, v in val.items())
-        if isinstance(val, list):
+        if isinstance(val, (list, tuple)):
             val = tuple(self._hash(v) for v in val)
         return val
 
