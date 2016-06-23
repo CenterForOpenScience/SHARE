@@ -34,6 +34,10 @@ class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
+    def label(self):
+        return self.name.rpartition('providers.')[2]
+
+    @property
     def normalizer(self):
         return Normalizer
 
