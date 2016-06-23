@@ -19,14 +19,15 @@ class ShareObjectVersion(models.Model):
         ordering = ('-date_modified', )
 
 
-# Generates 3 class from the original definition of the model
-# An abstract class, Abstract<classname>
+# Generates 2 class from the original definition of the model
 # A concrete class, <classname>
 # And a version class, <classname>Version
 class ShareObjectMeta(ModelBase):
     concrete_bases = ()
     version_bases = (ShareObjectVersion, )
 
+    # This if effectively the "ShareBaseClass"
+    # Due to limitations in Django and TypedModels we cannot have an actual inheritence chain
     share_attrs = {
         'source': models.ForeignKey(ShareSource, null=True),
         'change': models.ForeignKey(ChangeRequest, null=True),
@@ -41,6 +42,7 @@ class ShareObjectMeta(ModelBase):
         if hasattr(attrs.get('Meta'), 'db_table'):
             delattr(attrs['Meta'], 'db_table')
 
+        # TODO Fix this in some None horrid fashion
         if name != 'ExtraData':
             attrs['extra'] = fields.ShareOneToOneField('ExtraData')
 
@@ -68,6 +70,8 @@ class TypedShareObjectMeta(ShareObjectMeta, typedmodels.TypedModelMetaclass):
     version_bases = (ShareObjectVersion, typedmodels.TypedModel)
 
     def __new__(cls, name, bases, attrs):
+        # Any subclasses of a class that already uses this metaclass will be
+        # turned into a proxy to the original table via TypedModelMetaclass
         if ShareObject not in bases:
             version = typedmodels.TypedModelMetaclass.__new__(cls, name + 'Version', (bases[0].VersionModel, ), {
                 **attrs,
