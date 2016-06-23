@@ -16,7 +16,6 @@ from django.utils.functional import cached_property
 logger = logging.getLogger(__name__)
 
 
-# NOTE: Have to use relative imports here because Django hates fun
 class Harvester(metaclass=abc.ABCMeta):
 
     # TODO Make this apply across threads
@@ -137,7 +136,6 @@ class Harvester(metaclass=abc.ABCMeta):
         return json.dumps(order_json(data)).encode()
 
 
-# NOTE: Have to use relative imports here because Django hates fun
 class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
 
     time_granularity = False
