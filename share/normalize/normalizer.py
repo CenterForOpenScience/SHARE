@@ -30,12 +30,23 @@ class Normalizer(metaclass=abc.ABCMeta):
             try:
                 module = __import__(self.config.name + '.normalizer', fromlist=('Manuscript', ))
             except ImportError:
-                raise ImportError('Unable to find normalizer definitions at {}'.format(self.config.name + '.normalizer'))
+                raise ImportError('Unable to find parser definitions at {}'.format(self.config.name + '.normalizer'))
 
-            try:
-                parser = getattr(module, 'Manuscript')
-            except AttributeError:
-                raise ImportError('Unable to find Manuscript definition for {}'.format(self.config.name))
+            from share.models import CreativeWork
+            root_levels = [
+                getattr(module, klass.__name__)
+                for klass in
+                [CreativeWork] + CreativeWork.__subclasses__()
+                if hasattr(module, klass.__name__)
+            ]
+
+            if not root_levels:
+                raise ImportError('No root level parsers found. You may have to create one or manually specifiy a parser with the root_parser attribute')
+
+            if len(root_levels) > 1:
+                raise ImportError('Found root level parsers {!r}. If more than one is found a single parser must be specified via the root_parser attribute')
+
+            parser = root_levels[0]
 
         return parser(parsed).parse()
 

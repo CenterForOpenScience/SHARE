@@ -45,12 +45,13 @@ class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
     def normalizer(self):
         return Normalizer
 
-    def as_source(self):
+    @property
+    def user(self):
         from share.models import ShareUser
         return ShareUser.objects.get(harvester=self.name)
 
-    def authorization(self):
-        return 'Bearer ' + self.as_source().user.accesstoken_set.first().token
+    def authorization(self) -> str:
+        return 'Bearer ' + self.user.accesstoken_set.first().token
 
 
 class OAIProviderAppConfig(ProviderAppConfig, metaclass=abc.ABCMeta):
@@ -137,7 +138,6 @@ class HarvesterOauthTokenMigration(AbstractProviderMigration):
             scope=settings.HARVESTER_SCOPES,
             token=client_secret
         )
-
 
     def reverse(self, apps, schema_editor):
         pass

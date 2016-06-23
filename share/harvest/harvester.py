@@ -40,7 +40,7 @@ class Harvester(metaclass=abc.ABCMeta):
 
     @cached_property
     def source(self):
-        return self.config.as_source()
+        return self.config.user
 
     @abc.abstractmethod
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> list:
