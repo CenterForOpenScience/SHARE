@@ -2,12 +2,10 @@ from django.db import models
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey
+from share.models.creative import CreativeWork
 
-__all__ = ('Person', 'Email', 'PersonEmail', 'Contributor', 'Manuscript', 'Affiliation', 'Organization')
+__all__ = ('Person', 'Email', 'PersonEmail', 'Contributor', 'Affiliation', 'Organization')
 
-
-# ShareObject = models.Model
-# ShareForeignKey = models.ForeignKey
 
 class Organization(ShareObject):
     name = models.CharField(max_length=200)
@@ -20,7 +18,6 @@ class Email(ShareObject):
 
     def __str__(self):
         return self.email
-
 
 
 class Person(ShareObject):
@@ -54,12 +51,6 @@ class PersonEmail(ShareObject):
     person = ShareForeignKey(Person)
 
 
-class Manuscript(ShareObject):
-    title = models.TextField()
-    description = models.TextField()
-    contributors = models.ManyToManyField(Person, through='Contributor')
-
-
 class Contributor(ShareObject):
     person = ShareForeignKey(Person)
-    manuscript = ShareForeignKey(Manuscript)
+    creative_work = ShareForeignKey(CreativeWork)

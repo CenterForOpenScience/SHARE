@@ -7,20 +7,7 @@ from share.models.change import ChangeRequest
 from share.models.core import ShareSource
 from share.models import fields
 
-
-
-class AbstractShareObject(models.Model):
-    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-    source = models.ForeignKey(ShareSource)
-    change = models.ForeignKey(ChangeRequest)
-    # source_data = models.ForeignKey(RawData, blank=True, null=True)  # NULL/None indicates a user submitted change
-
-    date_modified = models.DateTimeField(auto_now=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        abstract = True
+from typedmodels import models as typedmodels
 
 
 class ShareObjectVersion(models.Model):
@@ -37,34 +24,36 @@ class ShareObjectVersion(models.Model):
 # A concrete class, <classname>
 # And a version class, <classname>Version
 class ShareObjectMeta(ModelBase):
+    concrete_bases = ()
+    version_bases = (ShareObjectVersion, )
+
+    share_attrs = {
+        'source': models.ForeignKey(ShareSource, null=True),
+        'change': models.ForeignKey(ChangeRequest, null=True),
+        'date_modified': models.DateTimeField(auto_now=True),
+        'date_created': models.DateTimeField(auto_now_add=True),
+    }
 
     def __new__(cls, name, bases, attrs):
         if (models.Model in bases and attrs['Meta'].abstract) or len(bases) > 1:
             return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
-        module = attrs['__module__']  # Django pops __module__ off for some reason
 
-        if not attrs.get('Meta'):
-            attrs['Meta'] = type('Meta', (object, ), {})
-        attrs['Meta'].abstract = True
-
-        if hasattr(attrs['Meta'], 'db_table'):
+        if hasattr(attrs.get('Meta'), 'db_table'):
             delattr(attrs['Meta'], 'db_table')
 
-        attrs['__qualname__'] = 'Abstract' + attrs['__qualname__']
         if name != 'ExtraData':
             attrs['extra'] = fields.ShareOneToOneField('ExtraData')
 
-        abstract = super(ShareObjectMeta, cls).__new__(cls, 'Abstract' + name, (AbstractShareObject, ), attrs)
+        version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
+            **attrs,
+            **cls.share_attrs,
+        })
 
-        version = type(
-            name + 'Version',
-            (abstract, ShareObjectVersion),
-            {'__module__': module}
-        )
-        concrete = super(ShareObjectMeta, cls).__new__(cls, name, (abstract, bases[0]), {
-            '__module__': module,
+        concrete = super(ShareObjectMeta, cls).__new__(cls, name, (bases[0], ) + cls.concrete_bases, {
+            **attrs,
+            **cls.share_attrs,
             'VersionModel': version,
-            'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version')
+            'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version', null=True)
         })
 
         # Inject <classname>Version into the module of the original class definition
@@ -72,6 +61,20 @@ class ShareObjectMeta(ModelBase):
         inspect.stack()[1].frame.f_globals.update({concrete.VersionModel.__name__: concrete.VersionModel})
 
         return concrete
+
+
+class TypedShareObjectMeta(ShareObjectMeta, typedmodels.TypedModelMetaclass):
+    concrete_bases = (typedmodels.TypedModel,)
+    version_bases = (ShareObjectVersion, typedmodels.TypedModel)
+
+    def __new__(cls, name, bases, attrs):
+        if ShareObject not in bases:
+            version = typedmodels.TypedModelMetaclass.__new__(cls, name + 'Version', (bases[0].VersionModel, ), {
+                **attrs,
+                '__qualname__': attrs['__qualname__'] + 'Version'
+            })
+            return typedmodels.TypedModelMetaclass.__new__(cls, name, bases, {**attrs, 'VersionModel': version})
+        return super(TypedShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 
 
 class VersionManagerDescriptor:
@@ -112,6 +115,7 @@ class ExtraData(models.Model, metaclass=ShareObjectMeta):
 
     class Meta:
         abstract = False
+
 
 class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
