@@ -155,8 +155,8 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
         url.args['metadataPrefix'] = 'oai_dc'
 
         if self.time_granularity:
-            url.args['from'] = start_date.isoformat()
-            url.args['until'] = end_date.isoformat()
+            url.args['from'] =  start_date.format('YYYY-MM-DDTHH:mm:ss') + 'Z'
+            url.args['until'] =  end_date.format('YYYY-MM-DDTHH:mm:ss') + 'Z'
         else:
             url.args['from'] = start_date.date().isoformat()
             url.args['until'] = end_date.date().isoformat()

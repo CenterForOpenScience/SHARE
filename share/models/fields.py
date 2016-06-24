@@ -1,4 +1,3 @@
-import base64
 import binascii
 import zlib
 
@@ -22,25 +21,25 @@ class ZipField(models.Field):
             raise exceptions.ValidationError('"{}" on {!r} can not be blank or empty'.format(self.attname, model_instance))
         if isinstance(value, str):
             value = value.encode()
-        return base64.b64encode(zlib.compress(value))
+        return zlib.compress(value)
 
     def from_db_value(self, value, expression, connection, context):
         if value is None:
             return value
         assert value
-        return zlib.decompress(base64.b64decode(value))
+        return zlib.decompress(value)
 
     def to_python(self, value):
         assert value
         if value is None or isinstance(value, ZipField):
             return value
         try:
-            base64.decodebytes(bytes(value, 'utf8'))
+            bytes(value, 'utf8')
         except binascii.Error:
             # it's not base64, return it.
             return value
 
-        return zlib.decompress(base64.b64decode(value))
+        return zlib.decompress(value)
 
 
 class DatetimeAwareJSONField(JSONField):
