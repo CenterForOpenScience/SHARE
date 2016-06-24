@@ -40,3 +40,5 @@ class GenericDisambiguator(Disambiguator):
             self.model.objects.get(**self.attrs)
         except self.model.DoesNotExist:
             return None
+        except self.model.MultipleObjectsReturned:
+            return None
