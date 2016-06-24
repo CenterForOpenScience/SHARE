@@ -43,6 +43,8 @@ class Subparser:
         # Peak into the module where all the parsers are being imported from
         # and look for one matching out name
         # TODO Add a way to explictly declare the parser to be used. For more generic formats
+        if hasattr(self.parent.__class__, self.model.__name__):
+            return getattr(self.parent, self.model.__name__)
         return getattr(__import__(self.parent.__module__, fromlist=(self.model.__name__,)), self.model.__name__)
 
     def __init__(self, field, parent, context):
@@ -64,7 +66,6 @@ class Subparser:
 
 
 class Parser(metaclass=ParserMeta):
-    subparsers = {}
 
     @property
     def schema_type(self):

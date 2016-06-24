@@ -29,19 +29,19 @@ EXAMPLE = {
 }
 
 
-class Person(AbstractPerson):
+class Person(Parser):
     given_name = ParseName(ctx.author_name).first
     family_name = ParseName(ctx.author_name).last
 
 
-class Contributor(AbstractContributor):
+class Contributor(Parser):
     person = ctx
 
 
-class Manuscript(AbstractManuscript):
+class Manuscript(Parser):
     title = ctx.title
     description = ctx.description
-    publish_date = ParseDate(ctx.published_date)
+    # publish_date = ParseDate(ctx.published_date)
     contributors = ctx.authors['*']
 
 

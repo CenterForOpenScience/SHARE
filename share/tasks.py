@@ -36,23 +36,26 @@ def run_harvester(self, app_label, start=None, end=None, started_by=None):
 
 
 @celery.task(bind=True)
-def run_normalizer(self, app_label, raw_id, started_by=None):
+def run_normalizer(self, app_label: str, raw_id: int, started_by=None) -> dict:
     raw = RawData.objects.get(pk=raw_id)
     config = apps.get_app_config(app_label)
     normalizer = config.normalizer(config)
+
+    assert raw.source == config.user, 'RawData is from {}. Tried parsing it as {}'.format(config)
 
     logger.info('Starting normalization for {} by {}'.format(raw, normalizer))
 
     try:
         graph = normalizer.normalize(raw)
+
+        logger.debug('Parsed {} into {}'.format(raw, json.dumps(graph, indent=2)))
+
+        resp = requests.post(settings.API_URL + 'api/normalized/', json={
+            'created_at': datetime.datetime.utcnow().isoformat(),
+            'normalized_data': graph,
+        }, headers={'Authorization': config.authorization()})
     except Exception as e:
         raise self.retry(countdown=10, exc=e)
-
-    logger.debug('Parsed {} into {}'.format(raw, json.dumps(graph, indent=2)))
-    resp = requests.post(settings.API_URL + 'api/normalized/', json={
-        'created_at': datetime.datetime.utcnow().isoformat(),
-        'normalized_data': graph,
-    }, headers={'Authorization': config.authorization()})
 
     if (resp.status_code // 100) != 2:
         raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Recieved {!r}, {}'.format(resp, resp.content)))

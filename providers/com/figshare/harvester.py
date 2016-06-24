@@ -39,7 +39,7 @@ class FigshareHarvester(Harvester):
 
         while len(records) < total:
             page += 1
-            resp = self.requests.get(furl(url).add(query_params={page: page}).url)
+            resp = self.requests.get(furl(url).add(query_params={'page': page}).url)
             records.extend((item['article_id'], item) for item in resp.json()['items'])
 
         return records
