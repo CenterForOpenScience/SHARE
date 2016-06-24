@@ -90,6 +90,13 @@ class ChangeSet(models.Model):
     # raw = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
     # normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
 
+    def accept(self):
+        while True:
+            change = self.changes.filter(status=ChangeRequest.Status.PENDING).first()
+            if not change:
+                break
+            change.accept(recurse=True)
+
 
 class ChangeRequest(models.Model):
     STATUS = Choices((0, 'pending', _('pending')), (1, 'accepted', _('accepted')), (2, 'rejected', _('rejected')))
