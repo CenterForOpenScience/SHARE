@@ -82,7 +82,7 @@ class Command(BaseCommand):
         ops = []
 
         for model in apps.get_models(include_auto_created=True):
-            if not issubclass(model, ShareObject):
+            if not hasattr(model, 'VersionModel') or model._meta.proxy:
                 continue
             ops.extend(self.build_operations(model))
 
