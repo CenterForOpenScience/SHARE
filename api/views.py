@@ -15,7 +15,7 @@ class NormalizedManuscriptViewSet(viewsets.ModelViewSet):
     required_scopes = ['upload_normalized_manuscript', ]
 
     def get_queryset(self):
-        return self.request.user.sharesource.normalizedmanuscript_set.all()
+        return self.request.user.normalizedmanuscript_set.all()
 
     def create(self, request, *args, **kwargs):
         prelim_data = request.data
