@@ -44,8 +44,13 @@ class Manuscript(Parser):
     # publish_date = ParseDate(ctx.published_date)
     contributors = ctx.authors['*']
 
+    class Extra:
+        type = ctx.defined_type
+        defined_type = ctx.defined_type
+
 
 class TestParser:
 
     def test_parser(self):
         parsed = Manuscript(EXAMPLE).parse()
+        assert ctx.pool[parsed]['extra'] == {'type': 'paper', 'defined_type': 'paper'}

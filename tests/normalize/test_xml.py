@@ -58,27 +58,31 @@ factor, to within chemical accuracy, for CI calculations.
 '''
 
 
-class Manuscript(AbstractManuscript):
+class Manuscript(Parser):
     title = ctx.title[0].text()
     description = ctx.summary[0].text()
     contributors = ctx.author['*']
 
+    class Extra:
+        comment = ctx.comment[0].text()
+        journal_ref = ctx.journal_ref[0].text()
 
-class Contributor(AbstractContributor):
+
+class Contributor(Parser):
     person = ctx
 
 
-class Person(AbstractPerson):
+class Person(Parser):
     affiliations = ctx.affiliation[0].text()['*']
     given_name = ParseName(ctx.name[0].text()).first
     family_name = ParseName(ctx.name[0].text()).last
 
 
-class Affiliation(AbstractAffiliation):
+class Affiliation(Parser):
     organization = ctx
 
 
-class Organization(AbstractOrganization):
+class Organization(Parser):
     name = ctx
 
 
@@ -87,4 +91,5 @@ class TestParser:
     def test_preprint_parser(self):
         parsed = Manuscript(etree.fromstring(EXAMPLE)).parse()
         assert isinstance(parsed, dict)
-        assert parsed['@type'] == 'Manuscript'
+        assert parsed['@type'] == 'manuscript'
+        assert ctx.pool[parsed]['extra'] == {'comment': '11 pages, 6 figures, 3 tables, LaTeX209, submitted to The Journal of\n  Chemical Physics', 'journal_ref': 'J. Chem. Phys. 115, 1626 (2001)'}
