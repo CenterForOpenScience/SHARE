@@ -13,7 +13,7 @@ from share.models.fields import ZipField, DatetimeAwareJSONField
 from share.models.validators import is_valid_jsonld
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'ShareSource', 'RawData', 'NormalizedManuscript', 'NormalizationQueue', 'Normalization')
+__all__ = ('ShareUser', 'RawData', 'NormalizedManuscript', 'NormalizationQueue', 'Normalization')
 
 
 class ShareUserManager(BaseUserManager):
@@ -117,24 +117,6 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _('Share users')
 
 
-class ShareSource(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=256)
-    # Nullable as actual providers will not have users
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-
-    @property
-    def is_entity(self):
-        return self.user is None
-
-    @property
-    def is_user(self):
-        return not self.is_entity
-
-    def __str__(self):
-        return '{}'.format(self.name)
-
-
 class RawDataManager(models.Manager):
 
     def store_data(self, doc_id, data, source):
@@ -187,11 +169,11 @@ class RawData(models.Model):
 class NormalizedManuscript(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True)
-    normalized_data = DatetimeAwareJSONField(default={}, validators=[is_valid_jsonld,])
-    source = models.ForeignKey(ShareSource)
+    normalized_data = DatetimeAwareJSONField(default={}, validators=[is_valid_jsonld, ])
+    source = models.ForeignKey(settings.AUTH_USER_MODEL)
 
     def __str__(self):
-        return '{} created at {}'.format(self.source.name, self.created_at)
+        return '{} created at {}'.format(self.source.harvester, self.created_at)
 
 
 class Normalization(models.Model):

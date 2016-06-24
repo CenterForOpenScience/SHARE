@@ -69,10 +69,6 @@ class ProviderMigration:
     def ops(self):
         return [
             migrations.RunPython(
-                ProviderSourceMigration(self.config.label),
-                # ProviderSourceMigration(self.config.label).reverse,
-            ),
-            migrations.RunPython(
                 HarvesterUserMigration(self.config.label),
                 # HarvesterUserMigration(self.config.label).reverse,
             ),
@@ -166,21 +162,4 @@ class HarvesterScheduleMigration(AbstractProviderMigration):
                 args=json.dumps([self.config.name]),
             ).delete()
         except PeriodicTask.DoesNotExist:
-            pass
-
-
-class ProviderSourceMigration(AbstractProviderMigration):
-
-    def __call__(self, apps, schema_editor):
-        from share.models import ShareSource
-        ShareSource.objects.get_or_create(
-            name=self.config.name,
-            # self.app_config.title,
-        )[0].save()
-
-    def reverse(self, apps, schema_editor):
-        from share.models import ShareSource
-        try:
-            ShareSource.objects.get(name=self.config.name).delete()
-        except ShareSource.DoesNotExist:
             pass

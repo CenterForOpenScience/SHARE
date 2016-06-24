@@ -1,10 +1,10 @@
 import inspect
 
 from django.db import models
+from django.conf import settings
 from django.db.models.base import ModelBase
 
 from share.models.change import ChangeRequest
-from share.models.core import ShareSource
 from share.models import fields
 
 from typedmodels import models as typedmodels
@@ -29,7 +29,7 @@ class ShareObjectMeta(ModelBase):
     # This if effectively the "ShareBaseClass"
     # Due to limitations in Django and TypedModels we cannot have an actual inheritence chain
     share_attrs = {
-        'source': models.ForeignKey(ShareSource, null=True),
+        'source': models.ForeignKey(settings.AUTH_USER_MODEL, null=True),
         'change': models.ForeignKey(ChangeRequest, null=True),
         'date_modified': models.DateTimeField(auto_now=True),
         'date_created': models.DateTimeField(auto_now_add=True),

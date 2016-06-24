@@ -3,14 +3,13 @@ import logging
 import jsonpatch
 
 from django.db import models
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 from enumfields import Enum
 from enumfields import EnumField
-
-from share.models.core import ShareSource
 
 
 __all__ = ('ChangeSet', 'ChangeRequest', )
@@ -90,7 +89,7 @@ class Status(Enum):
 
 class ChangeSet(models.Model):
     id = models.AutoField(primary_key=True)
-    submitted_by = models.ForeignKey(ShareSource)
+    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     submitted_at = models.DateTimeField(auto_now_add=True, editable=False)
 
     # Null mean users submitted

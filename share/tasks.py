@@ -65,14 +65,17 @@ def run_normalizer(self, app_label: str, raw_id: int, started_by=None) -> dict:
     return resp.json()
 
 
-@celery.task()
-def make_json_patches(normalized_id, started_by_id=None):
+@celery.task(bind=True)
+def make_json_patches(self, normalized_id, started_by_id=None):
     started_by = None
     normalized = NormalizedManuscript.objects.get(pk=normalized_id)
     if started_by_id:
         started_by = ShareUser.objects.get(pk=started_by_id)
     logger.info('{} started make JSON patches for {} at {}'.format(started_by, normalized, datetime.datetime.utcnow().isoformat()))
 
-    print(ChangeGraph(normalized.normalized_data).change_set(normalized.source))
+    try:
+        print(ChangeGraph(normalized.normalized_data).change_set(normalized.source))
+    except Exception as e:
+        raise self.retry(countdown=10, exc=e)
 
     logger.info('Finished make JSON patches for {} by {} at {}'.format(normalized, started_by, datetime.datetime.utcnow().isoformat()))
