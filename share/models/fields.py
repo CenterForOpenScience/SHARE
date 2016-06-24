@@ -83,11 +83,10 @@ class ShareOneToOneField(models.OneToOneField):
         actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
 
-        self.__kwargs['editable'] = False
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **{**self.__kwargs, 'editable': True})
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **{**self.__kwargs, 'editable': True})
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
@@ -104,8 +103,11 @@ class ShareForeignKey(models.ForeignKey):
         actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
 
-        self.__kwargs['editable'] = False
-        version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+        if isinstance(self.remote_field.model, str):
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **{**self.__kwargs, 'editable': True})
+        else:
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **{**self.__kwargs, 'editable': True})
+
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
         actual._share_version_field = version
@@ -121,12 +123,7 @@ class ShareManyToMany(models.ManyToManyField):
         actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
 
-        self.__kwargs['through'] += 'Version'
-        self.__kwargs['editable'] = False
-
-        version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+        version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **{**self.__kwargs, 'through': self.__kwargs['through'] + 'Version', 'editable': False})
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
 
         actual._share_version_field = version
-
-
