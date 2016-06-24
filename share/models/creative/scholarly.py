@@ -1,14 +1,14 @@
 from django.db import models
 
-from share.models.creative.base import CreativeWork
+from share.models.creative.base import AbstractCreativeWork
 
 
 __all__ = ('Preprint', 'Manuscript')
 
 
-class Preprint(CreativeWork):
+class Preprint(AbstractCreativeWork):
     posted_date = models.DateTimeField()
 
 
-class Manuscript(CreativeWork):
+class Manuscript(AbstractCreativeWork):
     pass
