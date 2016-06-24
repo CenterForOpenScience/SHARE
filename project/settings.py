@@ -129,6 +129,14 @@ DATABASES = {
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
     },
+    'scrapi': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('SCRAPI_DATABASE_NAME', 'scrapi_prod'),
+        'USER': os.environ.get('SCRAPI_DATABASE_USER', 'postgres'),
+        'PASSWORD': os.environ.get('SCRAPI_DATABASE_PASSWORD', '...'),
+        'HOST': os.environ.get('SCRAPI_DATABASE_HOST', 'localhost'),
+        'PORT': os.environ.get('SCRAPI_DATABASE_PORT', '54321'),
+    },
 }
 
 # Password validation
