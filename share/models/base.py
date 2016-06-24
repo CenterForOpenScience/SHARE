@@ -44,11 +44,12 @@ class ShareObjectMeta(ModelBase):
 
         # TODO Fix this in some None horrid fashion
         if name != 'ExtraData':
-            attrs['extra'] = fields.ShareOneToOneField('ExtraData')
+            attrs['extra'] = fields.ShareOneToOneField('ExtraData', null=True)
 
         version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
             **attrs,
             **cls.share_attrs,
+            '__qualname__': attrs['__qualname__'] + 'Version'
         })
 
         concrete = super(ShareObjectMeta, cls).__new__(cls, name, (bases[0], ) + cls.concrete_bases, {
@@ -77,6 +78,13 @@ class TypedShareObjectMeta(ShareObjectMeta, typedmodels.TypedModelMetaclass):
                 **attrs,
                 '__qualname__': attrs['__qualname__'] + 'Version'
             })
+
+            # Our triggers don't update django typed's type field.
+            # Makes the concrete type option resolve properly when loading versions from the db
+            # And forces queries to use the concrete models key
+            version._typedmodels_type = 'share.' + name.lower()
+            version._typedmodels_registry['share.' + name.lower()] = version
+
             return typedmodels.TypedModelMetaclass.__new__(cls, name, bases, {**attrs, 'VersionModel': version})
         return super(TypedShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 

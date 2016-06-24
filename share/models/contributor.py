@@ -2,7 +2,7 @@ from django.db import models
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey
-from share.models.creative import CreativeWork
+from share.models.creative import AbstractCreativeWork
 
 __all__ = ('Person', 'Email', 'PersonEmail', 'Contributor', 'Affiliation', 'Organization')
 
@@ -53,4 +53,4 @@ class PersonEmail(ShareObject):
 
 class Contributor(ShareObject):
     person = ShareForeignKey(Person)
-    creative_work = ShareForeignKey(CreativeWork)
+    creative_work = ShareForeignKey(AbstractCreativeWork)

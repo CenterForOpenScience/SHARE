@@ -13,11 +13,11 @@ logger = logging.getLogger(__name__)
 class GraphNode:
 
     _MODELS = {
-        'Affiliation': share.models.Affiliation,
-        'Contributor': share.models.Contributor,
-        'Manuscript': share.models.Manuscript,
-        'Organization': share.models.Organization,
-        'Person': share.models.Person,
+        'affiliation': share.models.Affiliation,
+        'contributor': share.models.Contributor,
+        'manuscript': share.models.Manuscript,
+        'organization': share.models.Organization,
+        'person': share.models.Person,
     }
 
     @property
@@ -27,7 +27,7 @@ class GraphNode:
 
     @property
     def model(self):
-        return GraphNode._MODELS[self.type]
+        return GraphNode._MODELS[self.type.lower()]
 
     @cached_property
     def instance(self):

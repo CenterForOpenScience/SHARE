@@ -64,6 +64,7 @@ class ShareUserManager(BaseUserManager):
         user.save()
         return user
 
+
 class ShareUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     username = models.CharField(

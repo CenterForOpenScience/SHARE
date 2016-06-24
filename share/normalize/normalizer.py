@@ -32,11 +32,11 @@ class Normalizer(metaclass=abc.ABCMeta):
             except ImportError:
                 raise ImportError('Unable to find parser definitions at {}'.format(self.config.name + '.normalizer'))
 
-            from share.models import CreativeWork
+            from share.models import AbstractCreativeWork
             root_levels = [
                 getattr(module, klass.__name__)
                 for klass in
-                [CreativeWork] + CreativeWork.__subclasses__()
+                AbstractCreativeWork.__subclasses__()
                 if hasattr(module, klass.__name__)
             ]
 

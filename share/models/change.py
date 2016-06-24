@@ -51,8 +51,8 @@ class ChangeRequestManager(models.Manager):
             changes=changes.patch,
             change_set=change_set,
             status=ChangeRequest.Status.PENDING,
-            content_type=ContentType.objects.get_for_model(obj.__class__),
-            version_content_type=ContentType.objects.get_for_model(obj.__class__.VersionModel),
+            content_type=ContentType.objects.get_for_model(obj.__class__, for_concrete_model=False),
+            version_content_type=ContentType.objects.get_for_model(obj.__class__.VersionModel, for_concrete_model=False),
         )
 
         change.save()
