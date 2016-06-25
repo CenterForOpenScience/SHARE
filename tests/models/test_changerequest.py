@@ -5,7 +5,7 @@ import jsonpatch
 from share.models import Email
 from share.models import Person
 from share.models import Manuscript
-from share.models import Contributor
+from share.models.creative.contributors import Contributor
 from share.models import PersonEmail
 from share.models import ChangeRequest
 from share.change import ChangeGraph

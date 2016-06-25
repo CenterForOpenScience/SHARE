@@ -4,6 +4,7 @@ import logging
 from django.utils.functional import cached_property
 
 import share.models
+import share.models.creative.contributors
 from share.disambiguation import disambiguate
 
 
@@ -14,7 +15,7 @@ class GraphNode:
 
     _MODELS = {
         'affiliation': share.models.Affiliation,
-        'contributor': share.models.Contributor,
+        'contributor': share.models.creative.contributors.Contributor,
         'manuscript': share.models.Manuscript,
         'organization': share.models.Organization,
         'person': share.models.Person,

@@ -3,7 +3,8 @@ from django.contrib import admin
 from share.models.base import ExtraData
 from share.models.change import ChangeRequirement
 from .models import Organization, Affiliation, Email, RawData, NormalizedManuscript, ShareUser, Normalization, \
-    NormalizationQueue, Person, PersonEmail, ChangeRequest, ChangeSet, Contributor, Preprint, Manuscript, CreativeWork
+    NormalizationQueue, Person, PersonEmail, ChangeRequest, ChangeSet, Preprint, Manuscript, CreativeWork
+from share.models.creative.contributors import Contributor
 
 
 # from providers.org.arxiv_api.models import ArxivManuscripts
