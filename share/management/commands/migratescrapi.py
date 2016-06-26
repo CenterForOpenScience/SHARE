@@ -1,11 +1,29 @@
+import os
+
 from collections import OrderedDict
 from hashlib import sha256
+
+import arrow
 
 from django.db import connections
 from django.apps import apps
 from django.core.management.base import BaseCommand
 
 from share.models import RawData
+
+# setup the migration source db connection
+connections._databases['migration_source'] = {
+  'ENGINE': 'django.db.backends.postgresql_psycopg2',
+  'NAME': os.environ.get('SCRAPI_DATABASE_NAME', 'scrapi_prod'),
+  'USER': os.environ.get('SCRAPI_DATABASE_USER', 'postgres'),
+  'PASSWORD': os.environ.get('SCRAPI_DATABASE_PASSWORD', '...'),
+  'HOST': os.environ.get('SCRAPI_DATABASE_HOST', 'localhost'),
+  'PORT': os.environ.get('SCRAPI_DATABASE_PORT', '54321'),
+}
+
+# override model datetime field defaults, allows for migrated data insertion
+RawData._meta.get_field('date_seen').auto_now = False
+RawData._meta.get_field('date_harvested').auto_now_add = False
 
 
 class Command(BaseCommand):
@@ -14,8 +32,8 @@ class Command(BaseCommand):
     source_map = OrderedDict(sorted({
         # 'addis_ababa': '...',
         'arxiv_oai': 'org.arxiv',
-        # 'asu': '...',
-        # 'bhl': '...',
+        'asu': 'edu.asu',
+        'bhl': 'org.bhl',
         # 'biomedcentral': '...',
         # 'boise_state': '...',
         # 'calhoun': '...',
@@ -130,44 +148,36 @@ class Command(BaseCommand):
         # 'zenodo': '...',
     }.items()))
 
-    def do_migration(self, source, app_label):
-        print('{} -> {}'.format(source, app_label))
-
+    def do_migration(self, source: str, app_label: str):
         config = apps.get_app_config(app_label)
-        harvester = config.harvester(config)
 
         # This is required to populate the connection object properly
-        connection = connections['scrapi']
+        connection = connections['migration_source']
         if connection.connection is None:
             connection.cursor()
 
+        print('{} -> {}'.format(source, app_label))
         with connection.connection.cursor('scrapi_migration', withhold=True) as cursor:
             cursor.execute("""SELECT "docID", raw FROM webview_document WHERE source = '{source}';""".format(source=source))
-
+            record_count = 0
             records = cursor.fetchmany(size=cursor.itersize)
             while records:
-                print('records:', len(records))
                 bulk = []
                 for (doc_id, raw) in records:
+                    harvest_finished = arrow.get(raw['timestamps']['harvestFinished'])
                     data = raw['doc'].encode()
                     bulk.append(RawData(
-                        source=harvester.source,
+                        source=config.user,
                         provider_doc_id=doc_id,
                         sha256=sha256(data).hexdigest(),
                         data=data,
+                        date_seen=harvest_finished.datetime,
+                        date_harvested=harvest_finished.datetime,
                     ))
                 RawData.objects.bulk_create(bulk)
+                record_count += len(records)
+                print(record_count)
                 records = cursor.fetchmany(size=cursor.itersize)
-
-                # TODO: allow idempotent catch up w/ upsert and logging
-                # if created:
-                    #     logger.debug('Newly created RawData for document {} from {}'.format(doc_id, source))
-                    #     NormalizationQueue(data=rd).save()
-                    # else:
-                    #     logger.debug('Saw exact copy of document {} from {}'.format(doc_id, source))
-
-                    # rd.save()  # Force timestamps to update
-                    # return rd
 
     def handle(self, *args, **options):
         for key in self.source_map.keys():

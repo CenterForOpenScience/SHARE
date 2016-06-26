@@ -6,9 +6,7 @@ import datetime
 from collections import OrderedDict
 
 import arrow
-from furl import furl
 import requests
-from lxml import etree
 
 from django.db import transaction
 from django.utils.functional import cached_property
@@ -24,6 +22,7 @@ class Harvester(metaclass=abc.ABCMeta):
     def __init__(self, app_config):
         self.last_call = 0
         self.config = app_config
+        self.rate_limit = getattr(self.config, 'rate_limit', self.rate_limit)
         self.allowance = self.rate_limit[0]
 
     @property
@@ -134,69 +133,3 @@ class Harvester(metaclass=abc.ABCMeta):
                 for key, value in data.items()
             ], key=lambda x: x[0]))
         return json.dumps(order_json(data)).encode()
-
-
-class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
-
-    namespaces = {
-        'dc': 'http://purl.org/dc/elements/1.1/',
-        'ns0': 'http://www.openarchives.org/OAI/2.0/',
-        'oai_dc': 'http://www.openarchives.org/OAI/2.0/',
-    }
-    time_granularity = True
-
-    @abc.abstractproperty
-    def url(self) -> str:
-        raise NotImplementedError
-
-    def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> list:
-        url = furl(self.url)
-        url.args['verb'] = 'ListRecords'
-        url.args['metadataPrefix'] = 'oai_dc'
-
-        if self.time_granularity:
-            url.args['from'] =  start_date.format('YYYY-MM-DDTHH:mm:ss') + 'Z'
-            url.args['until'] =  end_date.format('YYYY-MM-DDTHH:mm:ss') + 'Z'
-        else:
-            url.args['from'] = start_date.date().isoformat()
-            url.args['until'] = end_date.date().isoformat()
-
-        return self.fetch_records(url)
-
-    def fetch_records(self, url: furl) -> list:
-        records = []
-        _records, token = self.fetch_page(url, token=None)
-
-        while True:
-            records.extend([
-                (
-                    x.xpath('ns0:header/ns0:identifier', namespaces=self.namespaces)[0].text,
-                    etree.tostring(x),
-                )
-                for x in _records
-            ])
-            _records, token = self.fetch_page(url, token=token)
-
-            if not token or not _records:
-                break
-
-        return records
-
-    def fetch_page(self, url: furl, token: str=None) -> (list, str):
-        if token:
-            url.remove('from')
-            url.remove('until')
-            url.remove('metadataPrefix')
-            url.args['resumptionToken'] = token
-
-        logger.info('Making request to {}'.format(url.url))
-
-        resp = self.requests.get(url.url)
-        parsed = etree.fromstring(resp.content)
-
-        records = parsed.xpath('//ns0:record', namespaces=self.namespaces)
-        token = (parsed.xpath('//ns0:resumptionToken/node()', namespaces=self.namespaces) + [None])[0]
-
-        logger.info('Found {} records. Continuing with token {}'.format(len(records), token))
-
-        return records, token

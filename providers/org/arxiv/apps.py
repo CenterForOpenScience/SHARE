@@ -1,11 +1,10 @@
 from share.provider import OAIProviderAppConfig
-from .harvester import ArxivHarvester
 
 
 class ArxivConfig(OAIProviderAppConfig):
     name = 'providers.org.arxiv'
-
     title = 'arxiv'
     long_title = 'ArXiv'
-    harvester = ArxivHarvester
     home_page = 'https://arxiv.org'
+    rate_limit = (1, 3)
+    url = 'http://export.arxiv.org/oai2'

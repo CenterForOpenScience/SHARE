@@ -11,6 +11,7 @@ from django.apps import AppConfig
 
 from celery.schedules import crontab
 
+from share.harvest.oai import OAIHarvester
 from share.normalize import Normalizer
 from share.normalize.oai import OAINormalizer
 
@@ -55,6 +56,16 @@ class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
 
 
 class OAIProviderAppConfig(ProviderAppConfig, metaclass=abc.ABCMeta):
+
+    rate_limit = (5, 1)
+
+    @abc.abstractproperty
+    def url(self):
+        return NotImplementedError
+
+    @property
+    def harvester(self):
+        return OAIHarvester
 
     @property
     def normalizer(self):
