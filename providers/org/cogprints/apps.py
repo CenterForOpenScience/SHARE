@@ -1,7 +1,7 @@
 from share.provider import OAIProviderAppConfig
 
 
-class CogPrintsConfig(OAIProviderAppConfig):
+class AppConfig(OAIProviderAppConfig):
     name = 'providers.org.cogprints'
     title = 'cogprints'
     long_title = 'Cognitive Sciences ePrint Archive'

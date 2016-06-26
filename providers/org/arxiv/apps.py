@@ -1,7 +1,7 @@
 from share.provider import OAIProviderAppConfig
 
 
-class ArxivConfig(OAIProviderAppConfig):
+class AppConfig(OAIProviderAppConfig):
     name = 'providers.org.arxiv'
     title = 'arxiv'
     long_title = 'ArXiv'

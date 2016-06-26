@@ -1,7 +1,7 @@
 from share.provider import OAIProviderAppConfig
 
 
-class CambridgeConfig(OAIProviderAppConfig):
+class AppConfig(OAIProviderAppConfig):
     name = 'providers.uk.cambridge'
     title = 'cambridge'
     long_title = 'Apollo @ University of Cambridge'

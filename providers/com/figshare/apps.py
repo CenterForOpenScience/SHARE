@@ -2,7 +2,7 @@ from share import ProviderAppConfig
 from .harvester import FigshareHarvester
 
 
-class FigshareConfig(ProviderAppConfig):
+class AppConfig(ProviderAppConfig):
     name = 'providers.com.figshare'
 
     title = 'figshare'

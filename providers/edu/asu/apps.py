@@ -1,7 +1,7 @@
 from share.provider import OAIProviderAppConfig
 
 
-class ASUConfig(OAIProviderAppConfig):
+class AppConfig(OAIProviderAppConfig):
     name = 'providers.edu.asu'
     title = 'asu'
     long_title = 'Arizona State University Digital Repository'

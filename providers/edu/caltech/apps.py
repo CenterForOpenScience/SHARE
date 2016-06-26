@@ -1,7 +1,7 @@
 from share.provider import OAIProviderAppConfig
 
 
-class CaltechConfig(OAIProviderAppConfig):
+class AppConfig(OAIProviderAppConfig):
     name = 'providers.edu.caltech'
     title = 'caltech'
     long_title = 'CaltechAUTHORS'

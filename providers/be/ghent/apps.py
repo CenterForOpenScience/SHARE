@@ -1,7 +1,7 @@
 from share.provider import OAIProviderAppConfig
 
 
-class CogPrintsConfig(OAIProviderAppConfig):
+class AppConfig(OAIProviderAppConfig):
     name = 'providers.be.ghent'
     title = 'ghent'
     long_title = 'Ghent University Academic Bibliography'

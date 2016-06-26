@@ -1,7 +1,7 @@
 from share.provider import OAIProviderAppConfig
 
 
-class CaltechConfig(OAIProviderAppConfig):
+class AppConfig(OAIProviderAppConfig):
     name = 'providers.edu.calhoun'
     title = 'calhoun'
     long_title = 'Calhoun: Institutional Archive of the Naval Postgraduate School'

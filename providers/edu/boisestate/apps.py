@@ -1,7 +1,7 @@
 from share.provider import OAIProviderAppConfig
 
 
-class CaltechConfig(OAIProviderAppConfig):
+class AppConfig(OAIProviderAppConfig):
     name = 'providers.edu.boisestate'
     title = 'boisestate'
     long_title = 'Boise State University ScholarWorks'

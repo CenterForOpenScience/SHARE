@@ -1,8 +1,8 @@
 from share.provider import OAIProviderAppConfig
 
 
-class CaltechConfig(OAIProviderAppConfig):
-    name = 'providers.edu.caltech'
+class AppConfig(OAIProviderAppConfig):
+    name = 'providers.edu.chapman'
     title = 'chapman'
     long_title = 'Chapman University Digital Commons'
     home_page = 'http://digitalcommons.chapman.edu'
