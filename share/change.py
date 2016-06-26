@@ -1,25 +1,29 @@
 import copy
 import logging
 
-from django.utils.functional import cached_property
+from django.apps import apps
 
-import share.models
-import share.models.creative.contributors
-from share.disambiguation import disambiguate
+from share import disambiguation
 
 
 logger = logging.getLogger(__name__)
 
 
-class GraphNode:
+class ChangeNode:
 
-    _MODELS = {
-        'affiliation': share.models.Affiliation,
-        'contributor': share.models.creative.contributors.Contributor,
-        'manuscript': share.models.Manuscript,
-        'organization': share.models.Organization,
-        'person': share.models.Person,
-    }
+    @classmethod
+    def from_jsonld(self, ld_graph, disambiguate=True):
+        return ChangeNode(ld_graph, disambiguate=disambiguate)
+
+    @property
+    def model(self):
+        if self.type.lower() == 'mergeaction':
+            return None
+        return apps.get_model('share', self.type.lower())
+
+    @property
+    def instance(self):
+        return self.__instance
 
     @property
     def is_blank(self):
@@ -27,91 +31,84 @@ class GraphNode:
         return isinstance(self.id, str) and self.id.startswith('_:')
 
     @property
-    def model(self):
-        return GraphNode._MODELS[self.type.lower()]
+    def change(self):
+        if self.model is None:
+            return None
 
-    @cached_property
-    def instance(self):
-        model = disambiguate(self.id, self.attrs, self.model)
-        if model:
-            self._found = True
-            return model
-        return self.model(**self.attrs)
+        if self.is_blank:
+            return {**self.attrs, **self.relations}
 
-    def __init__(self, node):
-        self._raw = node
-        self._found = False
-        node = copy.deepcopy(self._raw)
+        return {k: v for k, v in self.attrs.items() if getattr(self.instance, k) != v}
+
+    def __init__(self, node, disambiguate=True):
+        self.__raw = node
+        self.__change = None
+        node = copy.deepcopy(self.__raw)
 
         self.id = node.pop('@id')
         self.type = node.pop('@type')
+        self.extra = node.pop('extra', {})
 
         # JSON-LD variables are all prefixed with '@'s
-        self._context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
+        self.context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
         # Any nested data type is a relation in the current JSON-LD schema
         self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, (dict, list, tuple))}
 
         self.attrs = node
 
-    def change(self, change_set):
-        self.instance  # noqa
-        if self._found:
-            return share.models.ChangeRequest.objects.update_object(self.instance, change_set)
-        return share.models.ChangeRequest.objects.create_object(self.instance, change_set)
+        if disambiguate:
+            self._disambiguate()
+
+    def _disambiguate(self):
+        if not self.model:
+            return None
+        self.__instance = disambiguation.disambiguate(self.id, self.attrs, self.model)
+        if self.__instance:
+            self.id = self.__instance.pk
 
 
 class ChangeGraph:
 
-    def __init__(self, ld_graph):
-        self._raw = ld_graph
-        self._graph = self._raw['@graph']
-        self._nodes = {}
-        self._relations = {}
-        self.__changes = None
-        self.__change_set = None
+    @classmethod
+    def from_jsonld(self, ld_graph, disambiguate=True):
+        nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate) for obj in ld_graph['@graph']]
+        return ChangeGraph(nodes)
 
-        for obj in self._graph:
-            node = GraphNode(obj)
-            self._nodes[(node.id, node.type)] = node
-            # NOTE: lists and tuples are ignored here as many to many|one relations are handled by a different model
-            # Actual many to many|one results in circular dependancies
-            self._relations[node] = [x for x in node.relations.values() if not isinstance(x, (tuple, list))]
+    @property
+    def changes(self):
+        return self.__changes
 
-    def changes(self, change_set):
-        if self.__changes is not None:
-            return self.__changes
+    @property
+    def nodes(self):
+        return self.__nodes
 
-        ordered, to_order = [], list(self._nodes.values())
-        relations = {k: {(n['@id'], n['@type']) for n in v} for k, v in self._relations.items()}
+    def __init__(self, nodes, parse=True):
+        self.__parsed = False
+        self.__nodes = nodes
+
+        if parse:
+            self.__parse()
+
+    def __parse(self):
+        self.__parsed = True
+        to_order, self.__nodes = self.__nodes, []
+
+        relations = {
+            node: {
+                (n['@id'], n['@type'])
+                for n in node.relations.values()
+                if not isinstance(n, (tuple, list))
+            }
+            for node in to_order
+        }
 
         # Topologicallly sort graph nodes so relations can be properly built
         while to_order:
             node = to_order.pop(0)
-            if relations.get(node):
+            if relations[node]:
                 to_order.append(node)
                 continue
-            relations.pop(node), ordered.append(node)
+            relations.pop(node)
+            self.__nodes.append(node)
             for val in relations.values():
                 val.discard((node.id, node.type))
-
-        changes = []
-        for node in ordered:
-            for k, v in node.relations.items():
-                # See earlier note about ignoreing many to many|one
-                if not isinstance(v, (tuple, list)):
-                    # Attach all relations here so a proper change request can be generated
-                    setattr(node.instance, k, self._nodes[(v['@id'], v['@type'])].instance)
-            changes.append(node.change(change_set))
-        self.__changes = changes
-        return changes
-
-    def change_set(self, submitter):
-        if self.__change_set is not None:
-            return self.__change_set
-
-        self.__change_set = share.models.ChangeSet(submitted_by=submitter)
-        self.__change_set.save()
-
-        self.changes(self.__change_set)
-
-        return self.__change_set
