@@ -9,6 +9,18 @@ from share import disambiguation
 logger = logging.getLogger(__name__)
 
 
+class GraphParsingException(Exception):
+    pass
+
+
+class CyclicalDependency(GraphParsingException):
+    pass
+
+
+class UnresolvableReference(GraphParsingException):
+    pass
+
+
 class ChangeNode:
 
     @classmethod
@@ -38,11 +50,15 @@ class ChangeNode:
         if self.is_blank:
             return {**self.attrs, **self.relations}
 
+        if not self.instance:
+            raise UnresolvableReference('@id: {!r}, @type: {!r}'.format(self.id, self.type))
+
         return {k: v for k, v in self.attrs.items() if getattr(self.instance, k) != v}
 
     def __init__(self, node, disambiguate=True):
         self.__raw = node
         self.__change = None
+        self.__instance = None
         node = copy.deepcopy(self.__raw)
 
         self.id = node.pop('@id')
@@ -75,40 +91,58 @@ class ChangeGraph:
         return ChangeGraph(nodes)
 
     @property
-    def changes(self):
-        return self.__changes
-
-    @property
     def nodes(self):
         return self.__nodes
 
     def __init__(self, nodes, parse=True):
-        self.__parsed = False
         self.__nodes = nodes
+        self.__map = {(n.id, n.type): n for n in nodes}
+        self.__sorter = NodeSorter(self)
 
         if parse:
-            self.__parse()
+            self.__nodes = self.__sorter.sorted()
 
-    def __parse(self):
-        self.__parsed = True
-        to_order, self.__nodes = self.__nodes, []
+    def get_node(self, id, type):
+        try:
+            return self.__map[(id, type)]
+        except KeyError:
+            if str(id).startswith('_:'):
+                raise UnresolvableReference('Unresolvable reference @id: {!r}, @type: {!r}'.format(id, type))
+        return None  # External reference to an already existing object
 
-        relations = {
-            node: {
-                (n['@id'], n['@type'])
-                for n in node.relations.values()
-                if not isinstance(n, (tuple, list))
-            }
-            for node in to_order
-        }
 
-        # Topologicallly sort graph nodes so relations can be properly built
-        while to_order:
-            node = to_order.pop(0)
-            if relations[node]:
-                to_order.append(node)
-                continue
-            relations.pop(node)
-            self.__nodes.append(node)
-            for val in relations.values():
-                val.discard((node.id, node.type))
+class NodeSorter:
+
+    def __init__(self, graph):
+        self.__sorted = []
+        self.__graph = graph
+        self.__visted = set()
+        self.__visiting = set()
+        self.__nodes = list(graph.nodes)
+
+    def sorted(self):
+        if not self.__nodes:
+            return self.__sorted
+
+        while self.__nodes:
+            n = self.__nodes.pop(0)
+            self.__visit(n)
+
+        return self.__sorted
+
+    def __visit(self, node):
+        if node in self.__visiting:
+            raise CyclicalDependency()
+
+        if node in self.__visted:
+            return
+
+        self.__visiting.add(node)
+        for relation in node.relations.values():
+            n = self.__graph.get_node(relation['@id'], relation['@type'])
+            if n:
+                self.__visit(n)
+
+        self.__visted.add(node)
+        self.__sorted.append(node)
+        self.__visiting.remove(node)
