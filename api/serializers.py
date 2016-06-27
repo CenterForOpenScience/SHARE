@@ -13,3 +13,21 @@ class NormalizedManuscriptSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.NormalizedManuscript
         fields = ('created_at', 'normalized_data', 'source')
+
+
+class ChangeSerializer(serializers.ModelSerializer):
+    self = serializers.HyperlinkedIdentityField(view_name='api:change-detail')
+    class Meta:
+        model = models.Change
+        fields = ('self', 'id', 'change', 'node_id', 'type', 'status', 'target', 'target_version')
+
+
+class ChangeSetSerializer(serializers.ModelSerializer):
+    changes = ChangeSerializer(many=True)
+    self = serializers.HyperlinkedIdentityField(view_name='api:changeset-detail')
+
+    class Meta:
+        model = models.ChangeSet
+        fields = ('self', 'submitted_at', 'submitted_by', 'changes')
+
+

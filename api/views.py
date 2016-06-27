@@ -1,11 +1,12 @@
 from oauth2_provider.ext.rest_framework import TokenHasScope
 from rest_framework import permissions, viewsets
-from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status
 import ujson
 
-from api.serializers import NormalizedManuscriptSerializer, RawDataSerializer
+from api.serializers import NormalizedManuscriptSerializer, RawDataSerializer, ChangeSetSerializer, ChangeSerializer
+from share.models import ChangeSet
+from share.models.change import Change
 from share.tasks import make_json_patches
 
 
@@ -28,6 +29,18 @@ class NormalizedManuscriptViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class ChangeSetViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ChangeSetSerializer
+    # required_scopes = ['', ]
+    queryset = ChangeSet.objects.all()
+
+class ChangeViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ChangeSerializer
+
+    queryset = Change.objects.all()
 
 
 
