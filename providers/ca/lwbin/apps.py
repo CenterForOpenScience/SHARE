@@ -3,7 +3,7 @@ from .harvester import LWBINHarvester
 
 
 class AppConfig(ProviderAppConfig):
-    name = 'providers.edu.lwbin'
+    name = 'providers.ca.lwbin'
     title = 'lwbin'
     long_title = 'Lake Winnipeg Basin Information Network'
     home_page = 'http://130.179.67.140'

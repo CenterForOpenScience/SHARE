@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'share',
 
     'providers.be.ghent',
+    'providers.br.pcurio',
+    'providers.ca.lwbin',
     'providers.com.biomedcentral',
     'providers.com.dailyssrn',
     'providers.com.figshare',
@@ -81,7 +83,6 @@ INSTALLED_APPS = [
     'providers.edu.iwucommons',
     'providers.edu.kent',
     'providers.edu.krex',
-    'providers.edu.lwbin',
     'providers.edu.mason',
     'providers.edu.mit',
     'providers.edu.mizzou',
