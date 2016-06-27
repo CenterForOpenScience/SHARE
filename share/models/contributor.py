@@ -1,10 +1,9 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey
-from share.models.creative import AbstractCreativeWork
+from share.models.fields import ShareForeignKey, ShareManyToManyField
 
-__all__ = ('Person', 'Email', 'PersonEmail', 'Contributor', 'Affiliation', 'Organization')
+__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Organization')
 
 
 class Organization(ShareObject):
@@ -20,14 +19,25 @@ class Email(ShareObject):
         return self.email
 
 
+class Identifier(ShareObject):
+    # https://twitter.com/berniethoughts/
+    url = models.URLField()
+    # https://twitter.com/
+    base_url = models.URLField()
+
 class Person(ShareObject):
     family_name = models.CharField(max_length=200)  # last
     given_name = models.CharField(max_length=200)  # first
     additional_name = models.CharField(max_length=200, blank=True)  # can be used for middle
     suffix = models.CharField(max_length=50, blank=True)
 
-    emails = models.ManyToManyField(Email, through='PersonEmail')
-    affiliations = models.ManyToManyField(Organization, through='Affiliation')
+    emails = ShareManyToManyField(Email, through='PersonEmail')
+    affiliations = ShareManyToManyField(Organization, through='Affiliation')
+    orcid = models.URLField(blank=True)
+    # this replaces "authority_id" and "other_identifiers" in the diagram
+    identifiers = ShareManyToManyField(Identifier, through='ThroughIdentifiers')
+    location = models.URLField(blank=True)
+    url = models.URLField(blank=True)
 
     # current_affiliation =
     # other_properties = models.JSONField()
@@ -49,8 +59,3 @@ class Affiliation(ShareObject):
 class PersonEmail(ShareObject):
     email = ShareForeignKey(Email)
     person = ShareForeignKey(Person)
-
-
-class Contributor(ShareObject):
-    person = ShareForeignKey(Person)
-    creative_work = ShareForeignKey(AbstractCreativeWork)

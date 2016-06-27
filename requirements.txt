@@ -6,7 +6,6 @@ dateparser==0.4.0
 django==1.9.7
 django[bcrypt]==1.9.7
 django-celery==3.1.17
-django-enumfields==0.7.4
 django-extensions==1.6.7
 django-guardian==1.4.4
 django-oauth-toolkit==0.10.0
@@ -22,3 +21,4 @@ nameparser==0.4.0
 psycopg2==2.6.1
 requests==2.10.0
 ujson==1.35
+django-model-utils==2.5

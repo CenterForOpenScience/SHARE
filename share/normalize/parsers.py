@@ -23,6 +23,13 @@ class ParserMeta(type):
                 parsers[key] = attrs.pop(key).chain()[0]
         attrs['parsers'] = parsers
 
+        attrs['_extra'] = {
+            key: value.chain()[0]
+            for key, value
+            in attrs.pop('Extra', object).__dict__.items()
+            if isinstance(value, AbstractLink)
+        }
+
         return super(ParserMeta, cls).__new__(cls, name, bases, attrs)
 
 
@@ -105,6 +112,8 @@ class Parser(metaclass=ParserMeta):
                         ctx.pool[v][field.m2m_field_name()] = ref
 
             inst[key] = value
+
+        inst['extra'] = {key: chain.execute(self.context) for key, chain in self._extra.items()}
 
         ctx.pool[ref] = inst
         ctx.graph.append(inst)

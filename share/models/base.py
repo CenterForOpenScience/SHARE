@@ -4,7 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.db.models.base import ModelBase
 
-from share.models.change import ChangeRequest
+from share.models.change import Change
 from share.models import fields
 
 from typedmodels import models as typedmodels
@@ -27,12 +27,12 @@ class ShareObjectMeta(ModelBase):
     version_bases = (ShareObjectVersion, )
 
     # This if effectively the "ShareBaseClass"
-    # Due to limitations in Django and TypedModels we cannot have an actual inheritence chain
+    # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
-        'source': models.ForeignKey(settings.AUTH_USER_MODEL, null=True),
-        'change': models.ForeignKey(ChangeRequest, null=True),
-        'date_modified': models.DateTimeField(auto_now=True),
-        'date_created': models.DateTimeField(auto_now_add=True),
+        'source': lambda: models.ForeignKey(settings.AUTH_USER_MODEL, null=True, related_name='curated_%(class)s'),
+        'change': lambda: models.ForeignKey(Change, null=True, related_name='affected_%(class)s'),
+        'date_modified': lambda: models.DateTimeField(auto_now=True),
+        'date_created': lambda: models.DateTimeField(auto_now_add=True),
     }
 
     def __new__(cls, name, bases, attrs):
@@ -48,15 +48,17 @@ class ShareObjectMeta(ModelBase):
 
         version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
             **attrs,
-            **cls.share_attrs,
-            '__qualname__': attrs['__qualname__'] + 'Version'
+            **{k: v() for k, v in cls.share_attrs.items()},
+            '__qualname__': attrs['__qualname__'] + 'Version',
+            'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
         })
 
         concrete = super(ShareObjectMeta, cls).__new__(cls, name, (bases[0], ) + cls.concrete_bases, {
             **attrs,
-            **cls.share_attrs,
+            **{k: v() for k, v in cls.share_attrs.items()},
             'VersionModel': version,
-            'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version', null=True)
+            'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
+            'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version', null=True),
         })
 
         # Inject <classname>Version into the module of the original class definition

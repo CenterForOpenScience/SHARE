@@ -36,9 +36,6 @@ class GenericDisambiguator(Disambiguator):
         super().__init__(id, attrs)
 
     def disambiguate(self):
-        try:
-            self.model.objects.get(**self.attrs)
-        except self.model.DoesNotExist:
+        if not self.attrs:
             return None
-        except self.model.MultipleObjectsReturned:
-            return None
+        return self.model.objects.filter(**self.attrs).first()

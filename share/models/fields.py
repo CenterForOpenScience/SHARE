@@ -113,7 +113,7 @@ class ShareForeignKey(models.ForeignKey):
         actual._share_version_field = version
 
 
-class ShareManyToMany(models.ManyToManyField):
+class ShareManyToManyField(models.ManyToManyField):
 
     def __init__(self, model, **kwargs):
         self.__kwargs = kwargs
@@ -122,7 +122,9 @@ class ShareManyToMany(models.ManyToManyField):
     def contribute_to_class(self, cls, name, **kwargs):
         actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
-
+        if isinstance(self.remote_field.model, str):
+            import ipdb
+            ipdb.set_trace()
         version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **{**self.__kwargs, 'through': self.__kwargs['through'] + 'Version', 'editable': False})
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
 
