@@ -29,8 +29,8 @@ class ChangeNode:
 
     @property
     def model(self):
-        if self.type.lower() == 'mergeaction':
-            return None
+        if self.is_merge:
+            return apps.get_model('share', self.relations['into']['@type'].lower())
         return apps.get_model('share', self.type.lower())
 
     @property
@@ -40,13 +40,14 @@ class ChangeNode:
     @property
     def is_blank(self):
         # JSON-LD Blank Node ids start with "_:"
-        return isinstance(self.id, str) and self.id.startswith('_:')
+        return self.is_merge or (isinstance(self.id, str) and self.id.startswith('_:'))
+
+    @property
+    def is_merge(self):
+        return self.type.lower() == 'mergeaction'
 
     @property
     def change(self):
-        if self.model is None:
-            return None
-
         if self.is_blank:
             return {**self.attrs, **self.relations}
 
@@ -69,6 +70,7 @@ class ChangeNode:
         self.context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
         # Any nested data type is a relation in the current JSON-LD schema
         self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, (dict, list, tuple))}
+        self.related = sum((tuple(v) if isinstance(v, (list, tuple)) else (v, ) for v in self.relations.values()), ())
 
         self.attrs = node
 
@@ -76,7 +78,7 @@ class ChangeNode:
             self._disambiguate()
 
     def _disambiguate(self):
-        if not self.model:
+        if self.is_merge:
             return None
         self.__instance = disambiguation.disambiguate(self.id, self.attrs, self.model)
         if self.__instance:
@@ -138,7 +140,7 @@ class NodeSorter:
             return
 
         self.__visiting.add(node)
-        for relation in node.relations.values():
+        for relation in node.related:
             n = self.__graph.get_node(relation['@id'], relation['@type'])
             if n:
                 self.__visit(n)
