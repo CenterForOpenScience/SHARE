@@ -59,5 +59,3 @@ class Affiliation(ShareObject):
 class PersonEmail(ShareObject):
     email = ShareForeignKey(Email)
     person = ShareForeignKey(Person)
-
-

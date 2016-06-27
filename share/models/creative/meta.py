@@ -1,6 +1,6 @@
 from django.db import models
 
-from share.models import ShareUser
+# from share.models import ShareUser
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey
 
@@ -51,7 +51,7 @@ class Taxonomy(ShareObject):
     # for now, it can keep a separate list of tags by provider
     name = models.CharField(max_length=255)
     url = models.URLField(blank=True)
-    source = ShareForeignKey(ShareUser)
+    # source = ShareForeignKey(ShareUser)
 
 
 class Tag(ShareObject):

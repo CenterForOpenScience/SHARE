@@ -74,7 +74,7 @@ class Change(models.Model):
     change = JSONField()
     node_id = models.CharField(max_length=80)  # TODO
 
-    type = models.IntegerField(choices=TYPE)
+    type = models.IntegerField(choices=TYPE, editable=False)
     status = models.IntegerField(choices=STATUS, default=STATUS.pending)
 
     target_id = models.PositiveIntegerField(null=True)

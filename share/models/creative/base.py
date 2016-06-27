@@ -17,7 +17,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     awards = ShareManyToManyField(Award, through='ThroughAwards')
     data_providers = ShareManyToManyField(DataProvider, through='ThroughDataProviders')
     provider_link = models.URLField(blank=True)
-    subject = ShareForeignKey(Tag, related_name='subjected_%(class)s')
+    subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
     # TODO: eventually we should try and make that blank=False
     doi = models.URLField(blank=True)
     isbn = models.URLField(blank=True)
