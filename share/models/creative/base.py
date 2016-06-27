@@ -11,17 +11,17 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     title = models.TextField()
     description = models.TextField()
     contributors = ShareManyToManyField(Person, through='Contributor')
-    institutions = ShareManyToManyField(Institution, through='Institution')
-    venues = ShareManyToManyField(Venue, through='Venue')
-    funders = ShareManyToManyField(Funder, through='Funder')
-    awards = ShareManyToManyField(Award, through='Award')
-    data_providers = ShareManyToManyField(DataProvider, through='DataProvider')
+    institutions = ShareManyToManyField(Institution, through='ThroughInstitutions')
+    venues = ShareManyToManyField(Venue, through='ThroughVenues')
+    funders = ShareManyToManyField(Funder, through='ThroughFunders')
+    awards = ShareManyToManyField(Award, through='ThroughAwards')
+    data_providers = ShareManyToManyField(DataProvider, through='ThroughDataProviders')
     provider_link = models.URLField(blank=True)
     subject = ShareForeignKey(Tag, related_name='subjected_%(class)s')
     # TODO: eventually we should try and make that blank=False
     doi = models.URLField(blank=True)
     isbn = models.URLField(blank=True)
-    tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='Tag')
+    tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
     # TODO: We should probably figure out what this means, I don't know
     work_type = models.URLField(blank=True)
     created = models.DateTimeField(null=True)
@@ -29,6 +29,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     free_to_read_type = models.URLField(blank=True)
     free_to_read_date = models.DateTimeField(null=True)
     license = models.URLField(blank=True)
+
 
 class CreativeWork(AbstractCreativeWork):
     pass

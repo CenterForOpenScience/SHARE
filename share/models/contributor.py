@@ -35,7 +35,7 @@ class Person(ShareObject):
     affiliations = ShareManyToManyField(Organization, through='Affiliation')
     orcid = models.URLField(blank=True)
     # this replaces "authority_id" and "other_identifiers" in the diagram
-    identifiers = ShareManyToManyField(Identifier, through='Identifier')
+    identifiers = ShareManyToManyField(Identifier, through='ThroughIdentifiers')
     location = models.URLField(blank=True)
     url = models.URLField(blank=True)
 

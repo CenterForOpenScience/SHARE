@@ -27,7 +27,7 @@ class ShareObjectMeta(ModelBase):
     version_bases = (ShareObjectVersion, )
 
     # This if effectively the "ShareBaseClass"
-    # Due to limitations in Django and TypedModels we cannot have an actual inheritence chain
+    # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
         'source': models.ForeignKey(settings.AUTH_USER_MODEL, null=True),
         'change': models.ForeignKey(ChangeRequest, null=True),
