@@ -17,11 +17,11 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     awards = ShareManyToManyField(Award, through='Award')
     data_providers = ShareManyToManyField(DataProvider, through='DataProvider')
     provider_link = models.URLField(blank=True)
-    subject = ShareForeignKey(Tag, related_name='subjected')
+    subject = ShareForeignKey(Tag, related_name='subjected_%(class)s')
     # TODO: eventually we should try and make that blank=False
     doi = models.URLField(blank=True)
     isbn = models.URLField(blank=True)
-    tags = ShareManyToManyField(Tag, related_name='tagged', through='Tag')
+    tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='Tag')
     # TODO: We should probably figure out what this means, I don't know
     work_type = models.URLField(blank=True)
     created = models.DateTimeField(null=True)
