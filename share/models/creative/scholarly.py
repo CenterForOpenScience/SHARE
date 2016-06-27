@@ -12,5 +12,3 @@ class Preprint(AbstractCreativeWork):
 
 class Manuscript(AbstractCreativeWork):
     pass
-
-

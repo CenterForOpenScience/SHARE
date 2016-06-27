@@ -9,7 +9,7 @@ from django.apps import apps
 from django.conf import settings
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedManuscript, ShareUser
+from share.models import RawData, NormalizedManuscript, ShareUser, ChangeSet
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ def make_json_patches(self, normalized_id, started_by_id=None):
     logger.info('{} started make JSON patches for {} at {}'.format(started_by, normalized, datetime.datetime.utcnow().isoformat()))
 
     try:
-        print(ChangeGraph(normalized.normalized_data).change_set(normalized.source))
+        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data))
     except Exception as e:
         raise self.retry(countdown=10, exc=e)
 
