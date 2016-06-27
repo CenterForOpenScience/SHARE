@@ -10,6 +10,10 @@ https://osf.io/sdxvj/
                               
 ## Setup for testing
     pip install -r requirements.txt
+
+    docker-compose up -d rabbitmq postgres
+    ./up.sh
+    ---------------- or ----------------
     pg
     createuser share
     psql
@@ -23,4 +27,4 @@ https://osf.io/sdxvj/
 ## Run
     python manage.py runserver
     python manage.py monitor
-    python manage.py celery worker --autoreload -l DEBUG
+    python manage.py celery worker -l DEBUG
