@@ -25,6 +25,7 @@ class Command(BaseCommand):
             options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig)]
 
         for harvester in options['harvester']:
+            apps.get_app_config(harvester)  # Die if the AppConfig can not be loaded
             if options['async']:
                 run_harvester.apply_async((harvester,), **kwargs)
                 self.stdout.write('Started job for harvester {}'.format(harvester))
