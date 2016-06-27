@@ -7,10 +7,9 @@ from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-
-from enumfields import Enum
-from enumfields import EnumField
-
+from model_utils import Choices
+from django.utils.translation import ugettext as _
+from model_utils.fields import StatusField
 
 __all__ = ('ChangeSet', 'ChangeRequest', )
 logger = logging.getLogger(__name__)
@@ -75,19 +74,14 @@ class ChangeRequestManager(models.Manager):
             version=clean.version,
             changes=changes.patch,
             change_set=change_set,
-            status=ChangeRequest.Status.PENDING,
+            status=ChangeRequest.STATUS.pending,
         )
         ret.save()
         return ret
 
 
-class Status(Enum):
-    PENDING = 'P'
-    ACCEPTED = 'A'
-    REJECTED = 'R'
-
-
 class ChangeSet(models.Model):
+
     id = models.AutoField(primary_key=True)
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     submitted_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -98,13 +92,13 @@ class ChangeSet(models.Model):
 
 
 class ChangeRequest(models.Model):
-    Status = Status
+    STATUS = Choices((0, 'pending', _('pending')), (1, 'accepted', _('accepted')), (2, 'rejected', _('rejected')))
 
     objects = ChangeRequestManager()
 
     id = models.AutoField(primary_key=True)
     change_set = models.ForeignKey(ChangeSet, related_name='changes')
-    status = EnumField(Status, max_length=1, default=Status.PENDING)
+    status = StatusField(default=STATUS.pending)
 
     requires = models.ManyToManyField('ChangeRequest', through='ChangeRequirement')
 
@@ -122,18 +116,18 @@ class ChangeRequest(models.Model):
     version_content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT,  related_name='%(app_label)s_%(class)s_version')
 
     def reject(self):
-        self.status = ChangeRequest.Status.REJECTED
+        self.status = self.STATUS.rejected
         self.save()
 
     def accept(self, force=False, recurse=False):
         if recurse:
-            for request in self.depends_on.select_related('requirement').filter(requirement__status=ChangeRequest.Status.PENDING):
+            for request in self.depends_on.select_related('requirement').filter(requirement__status=self.STATUS.pending):
                 request.requirement.accept(recurse=recurse)
 
-        assert force or self.status == ChangeRequest.Status.PENDING
-        assert self.depends_on.exclude(requirement__status=ChangeRequest.Status.ACCEPTED).count() == 0, 'Not all dependancies have been accepted'
+        assert force or self.status == self.STATUS.pending
+        assert self.depends_on.exclude(requirement__status=self.STATUS.accepted).count() == 0, 'Not all dependencies have been accepted'
 
-        self.status = ChangeRequest.Status.ACCEPTED
+        self.status = self.STATUS.accepted
 
         if self.target:
             return self.apply_change()
@@ -164,6 +158,9 @@ class ChangeRequest(models.Model):
         self.version = inst.versions.first()
         self.save()
         return inst
+
+    def __str__(self):
+        return '({}) for {}'.format(self.status, self.target or 'new object')
 
 
 class ChangeRequirement(models.Model):
