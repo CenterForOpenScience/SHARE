@@ -8,6 +8,7 @@ import string
 from django.apps import apps
 from django.db import migrations
 from django.apps import AppConfig
+from django.utils import timezone
 
 from celery.schedules import crontab
 
@@ -141,7 +142,7 @@ class HarvesterOauthTokenMigration(AbstractProviderMigration):
         token = AccessToken.objects.create(
             user=migration_user,
             application=application,
-            expires=(datetime.datetime.utcnow() + datetime.timedelta(weeks=20 * 52)), # 20 yrs
+            expires=(timezone.now() + datetime.timedelta(weeks=20 * 52)), # 20 yrs
             scope=settings.HARVESTER_SCOPES,
             token=client_secret
         )
