@@ -70,7 +70,10 @@ class ChangeNode:
         self.context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
         # Any nested data type is a relation in the current JSON-LD schema
         self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, (dict, list, tuple))}
-        self.related = sum((tuple(v) if isinstance(v, (list, tuple)) else (v, ) for v in self.relations.values()), ())
+        self.related = tuple(v for v in self.relations.values() if not isinstance(v, (list, tuple)))
+
+        if self.is_merge:
+            self.related += sum((tuple(v) for v in self.relations.values() if isinstance(v, (list, tuple))), ())
 
         self.attrs = node
 
