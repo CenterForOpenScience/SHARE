@@ -28,6 +28,7 @@ def run_harvester(self, app_label, start=None, end=None, started_by=None):
         raws = harvester.harvest(start, end)
         logger.info('Collected {} data blobs from {}'.format(len(raws), app_label))
     except Exception as e:
+        logger.exception('Failed run_harvester(%s, %s, %s)'.format(app_label, start.isoformat(), end.isoformat()))
         raise self.retry(countdown=10, exc=e)
 
     for raw in raws:
@@ -55,6 +56,7 @@ def run_normalizer(self, app_label: str, raw_id: int, started_by=None) -> dict:
             'normalized_data': graph,
         }, headers={'Authorization': config.authorization()})
     except Exception as e:
+        logger.exception('Failed run_harvester(%s, %d)'.format(app_label, raw_id))
         raise self.retry(countdown=10, exc=e)
 
     if (resp.status_code // 100) != 2:
@@ -74,8 +76,9 @@ def make_json_patches(self, normalized_id, started_by_id=None):
     logger.info('{} started make JSON patches for {} at {}'.format(started_by, normalized, datetime.datetime.utcnow().isoformat()))
 
     try:
-        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data))
+        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data), normalized.source)
     except Exception as e:
+        logger.exception('Failed make_json_patches(%d)'.format(normalized_id))
         raise self.retry(countdown=10, exc=e)
 
     logger.info('Finished make JSON patches for {} by {} at {}'.format(normalized, started_by, datetime.datetime.utcnow().isoformat()))
