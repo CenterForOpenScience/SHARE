@@ -1,5 +1,6 @@
 import inspect
 
+import uuid
 from django.db import models
 from django.conf import settings
 from django.db.models.base import ModelBase
@@ -133,6 +134,7 @@ class ExtraData(models.Model, metaclass=ShareObjectMeta):
 
 class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     objects = models.Manager()
     versions = VersionManager()
 
