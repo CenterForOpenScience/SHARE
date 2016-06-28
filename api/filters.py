@@ -2,14 +2,10 @@ import django_filters
 
 from share.models import ChangeSet, Change
 
-def get_choice_int(val):
-    import ipdb
-    ipdb.set_trace()
-    return getattr(Change.STATUS, val)
-
 
 class ChangeSetFilter(django_filters.FilterSet):
     status = django_filters.MethodFilter()
+    target_uuid = django_filters.filters.UUIDFilter(name='changes__share_objects__uuid')
 
     def filter_status(self, queryset, value):
         # django-filters ChoicesFilter doesn't actually work.

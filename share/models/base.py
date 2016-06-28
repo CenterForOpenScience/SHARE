@@ -1,6 +1,8 @@
 import inspect
 
 import uuid
+
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.conf import settings
 from django.db.models.base import ModelBase
@@ -137,6 +139,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
     objects = models.Manager()
     versions = VersionManager()
+    changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id')
 
     class Meta:
         abstract = True
