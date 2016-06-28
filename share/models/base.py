@@ -13,7 +13,7 @@ from typedmodels import models as typedmodels
 
 class ShareObjectVersion(models.Model):
     action = models.CharField(max_length=10)
-    persistant_id = models.PositiveIntegerField()  # Must match the id of ShareObject
+    persistent_id = models.PositiveIntegerField()  # Must match the id of ShareObject
 
     class Meta:
         abstract = True
@@ -34,6 +34,7 @@ class ShareObjectMeta(ModelBase):
         'change': lambda: models.ForeignKey(Change, null=True, related_name='affected_%(class)s'),
         'date_modified': lambda: models.DateTimeField(auto_now=True),
         'date_created': lambda: models.DateTimeField(auto_now_add=True),
+        'uuid': lambda: models.UUIDField(default=uuid.uuid4, editable=False)
     }
 
     def __new__(cls, name, bases, attrs):
@@ -113,7 +114,7 @@ class VersionManager(models.Manager):
     def get_queryset(self):
         qs = self._queryset_class(model=self.model.VersionModel, using=self._db, hints=self._hints).order_by('-date_modified')
         if self.instance:
-            return qs.filter(persistant_id=self.instance.id)
+            return qs.filter(uuid=self.instance.uuid)
         return qs
 
     def contribute_to_class(self, model, name):
@@ -134,7 +135,6 @@ class ExtraData(models.Model, metaclass=ShareObjectMeta):
 
 class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     objects = models.Manager()
     versions = VersionManager()
 

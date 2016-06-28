@@ -7,7 +7,7 @@ from share.normalize.links import Context
 
 
 # NOTE: Context is a thread local singleton
-# It is asigned to ctx here just to keep a family interface
+# It is assigned to ctx here just to keep a family interface
 ctx = Context()
 
 

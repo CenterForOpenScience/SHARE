@@ -49,7 +49,7 @@ class Command(BaseCommand):
 
         version_fields.remove('id')
         version_fields.remove('action')
-        version_fields.remove('persistant_id')
+        version_fields.remove('persistent_id')
         concrete_fields.remove('NEW.id')
         concrete_fields.remove('NEW.version_id')
 
@@ -63,7 +63,7 @@ class Command(BaseCommand):
         params = {
             'concrete': model._meta.db_table,
             'version': model.VersionModel._meta.db_table,
-            'columns': ', '.join(['persistant_id', 'action'] + sorted(version_fields)),
+            'columns': ', '.join(['persistent_id', 'action'] + sorted(version_fields)),
             'new_columns': ', '.join(['NEW.id', 'TG_OP'] + sorted(concrete_fields)),
         }
 
