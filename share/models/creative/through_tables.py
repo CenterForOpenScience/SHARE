@@ -1,5 +1,5 @@
 from share.models.base import ShareObject
-from share.models.contributor import Identifier
+from share.models.people import Identifier
 from share.models.creative.meta import Institution, Venue, Funder, Award, DataProvider, Tag
 from share.models.fields import ShareForeignKey
 

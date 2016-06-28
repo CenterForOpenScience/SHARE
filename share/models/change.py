@@ -5,6 +5,7 @@ from model_utils import Choices
 
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.models import ContentType
@@ -146,9 +147,8 @@ class Change(models.Model):
             and hasattr(field, 'field')
         ]
 
-        # TODO Use arrow?
         # NOTE: Date is pinned up here to ensure its the same for all changed rows
-        date_modified = datetime.utcnow()
+        date_modified = timezone.now()
 
         for field in fields:
             # Update all rows in "from"

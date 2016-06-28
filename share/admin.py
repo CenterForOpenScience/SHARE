@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from share.models.base import ExtraData
-from share.models.contributor import Identifier
+from share.models.people import Identifier
 from share.models.creative.meta import Venue, Institution, Funder, Award, DataProvider, Taxonomy, Tag
 from .models import Organization, Affiliation, Email, RawData, NormalizedManuscript, ShareUser, Normalization, \
     NormalizationQueue, Person, PersonEmail, Change, ChangeSet, Preprint, Manuscript, CreativeWork
