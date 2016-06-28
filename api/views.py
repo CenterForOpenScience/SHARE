@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 import ujson
 
+from api.filters import ChangeSetFilter
 from api.serializers import NormalizedManuscriptSerializer, RawDataSerializer, ChangeSetSerializer, ChangeSerializer
 from share.models import ChangeSet
 from share.models.change import Change
@@ -33,13 +34,16 @@ class NormalizedManuscriptViewSet(viewsets.ModelViewSet):
 class ChangeSetViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ChangeSetSerializer
+    # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     queryset = ChangeSet.objects.all()
+    filter_class = ChangeSetFilter
 
 class ChangeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ChangeSerializer
-
+    # TODO: Add in scopes once we figure out who, why, and how.
+    # required_scopes = ['', ]
     queryset = Change.objects.all()
 
 

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
     'djcelery',
     'guardian',
+    'django_filters',
     'django_extensions',
     'oauth2_provider',
     'rest_framework',
@@ -144,7 +145,8 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'api.renderers.JSONLDRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-    )
+    ),
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
 
 MIDDLEWARE_CLASSES = [
