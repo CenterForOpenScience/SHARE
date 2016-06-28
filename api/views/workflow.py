@@ -1,14 +1,15 @@
-from oauth2_provider.ext.rest_framework import TokenHasScope
-from rest_framework import permissions, viewsets
-from rest_framework.response import Response
-from rest_framework import status
 import ujson
 
+from oauth2_provider.ext.rest_framework import TokenHasScope
+from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
+
 from api.filters import ChangeSetFilter
-from api.serializers import NormalizedManuscriptSerializer, RawDataSerializer, ChangeSetSerializer, ChangeSerializer
-from share.models import ChangeSet
-from share.models.change import Change
+from api.serializers import NormalizedManuscriptSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer
+from share.models import ChangeSet, Change
 from share.tasks import make_json_patches
+
+__all__ = ('NormalizedManuscriptViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet')
 
 
 class NormalizedManuscriptViewSet(viewsets.ModelViewSet):
@@ -39,13 +40,13 @@ class ChangeSetViewSet(viewsets.ModelViewSet):
     queryset = ChangeSet.objects.all()
     filter_class = ChangeSetFilter
 
+
 class ChangeViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ChangeSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     queryset = Change.objects.all()
-
 
 
 class RawDataViewSet(viewsets.ModelViewSet):
