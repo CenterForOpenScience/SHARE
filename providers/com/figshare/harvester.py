@@ -32,14 +32,18 @@ class FigshareHarvester(Harvester):
         }).url)
 
     def fetch_records(self, url):
-        page = 1
+        count, page = 0, 1
+
         resp = self.requests.get(url)
         total = resp.json()['items_found']
-        records = [(item['article_id'], item) for item in resp.json()['items']]
 
-        while len(records) < total:
+        while True:
+            if count >= total:
+                break
+
+            for item in resp.json()['items']:
+                count += 1
+                yield (item['article_id'], item)
+
             page += 1
             resp = self.requests.get(furl(url).add(query_params={'page': page}).url)
-            records.extend((item['article_id'], item) for item in resp.json()['items'])
-
-        return records

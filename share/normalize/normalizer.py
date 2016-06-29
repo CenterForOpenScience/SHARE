@@ -18,11 +18,11 @@ class Normalizer(metaclass=abc.ABCMeta):
     def __init__(self, app_config):
         self.config = app_config
 
-    def do_normalize(self, raw_data):
-        if raw_data.data.startswith(b'<'):
-            parsed = etree.fromstring(raw_data.data.decode())
+    def do_normalize(self, data):
+        if data.startswith(b'<'):
+            parsed = etree.fromstring(data.decode())
         else:
-            parsed = json.loads(raw_data.data.decode())
+            parsed = json.loads(data.decode())
 
         if self.root_parser:
             parser = self.root_parser
@@ -53,6 +53,8 @@ class Normalizer(metaclass=abc.ABCMeta):
     def normalize(self, raw_data):
         ctx.clear()  # Just incase
         # Parsed data will be loaded into ctx
+        if not isinstance(raw_data, bytes):
+            raw_data = raw_data.data
         self.do_normalize(raw_data)
         jsonld = ctx.jsonld
         ctx.clear()  # Clean up
