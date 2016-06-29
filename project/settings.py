@@ -111,6 +111,7 @@ INSTALLED_APPS = [
     'providers.org.mla',
     'providers.org.ncar',
     'providers.org.neurovault',
+    'providers.org.plos',
     'providers.ru.cyberleninka',
     'providers.tr.edu.hacettepe',
     'providers.uk.cambridge',
@@ -303,3 +304,4 @@ LOGGING = {
 # Custom Settings
 
 API_URL = os.environ.get('API_URL', 'http://localhost:8000').rstrip('/') + '/'
+PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
