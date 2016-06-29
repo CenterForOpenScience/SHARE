@@ -104,6 +104,7 @@ class Change(models.Model):
 
     def accept(self, save=True):
         assert self.get_requirements().exclude(status=Change.STATUS.accepted).count() == 0
+        assert self.status == Change.STATUS.pending, 'Cannot accept a change with status {}'.format(self.status)
         ret = self._accept(save)
         self.status = Change.STATUS.accepted
         if save:
