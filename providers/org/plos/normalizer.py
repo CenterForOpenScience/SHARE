@@ -18,5 +18,3 @@ class CreativeWork(Parser):
     contributors = ctx.xpath("arr[@name='author_display']/str")['*'].text()
     published = ctx.xpath("date[@name='publication_date']")[0].text()
     doi = ctx.xpath("str[@name='id']")[0].text()
-
-

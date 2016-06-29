@@ -1,7 +1,7 @@
 from furl import furl
 from lxml import etree
 
-from project.settings import PLOS_API_KEY
+from django.conf import settings
 
 from share import Harvester
 
@@ -12,13 +12,17 @@ class PLOSHarvester(Harvester):
     MAX_ROWS_PER_REQUEST = 999
 
     def do_harvest(self, start_date, end_date):
-        start_date = start_date.date()
-        end_date = end_date.date()
+
+        if not settings.PLOS_API_KEY:
+            raise Exception('PLOS api key not defined.')
+
+        start_date = start_date.format('YYYY-MM-DDT00:00:00') + 'Z'
+        end_date = end_date.format('YYYY-MM-DDT00:00:00') + 'Z'
 
         return self.fetch_rows(furl(self.url).set(query_params={
-            'q': 'publication_date:[{}T00:00:00Z TO {}T23:59:59Z]'.format(start_date.isoformat(), end_date.isoformat()),
+            'q': 'publication_date:[{} TO {}]'.format(start_date, end_date),
             'rows': '0',
-            'api_key': PLOS_API_KEY
+            'api_key': settings.PLOS_API_KEY
         }).url, start_date, end_date)
 
     def fetch_rows(self, url, start_date, end_date):
@@ -31,9 +35,9 @@ class PLOSHarvester(Harvester):
         current_row = 0
         while current_row < total_rows:
             response = self.requests.get(furl(self.url).set(query_params={
-                'q': 'publication_date:[{}T00:00:00Z TO {}T23:59:59Z]'.format(start_date.isoformat(), end_date.isoformat()),
+                'q': 'publication_date:[{} TO {}]'.format(start_date, end_date),
                 'start': current_row,
-                'api_key': PLOS_API_KEY,
+                'api_key': settings.PLOS_API_KEY,
                 'rows': self.MAX_ROWS_PER_REQUEST
             }).url)
 

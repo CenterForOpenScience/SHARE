@@ -226,8 +226,8 @@ class TextLink(AbstractLink):
     def execute(self, obj):
         return obj.text
 
-class XPathLink(AbstractLink):
 
+class XPathLink(AbstractLink):
     def __init__(self, xpath):
         self._xpath = xpath
         super().__init__()
