@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 from model_utils import Choices
 
@@ -187,6 +186,9 @@ class Change(models.Model):
                 change[k] = [self._resolve_ref(r) for r in v]
             else:
                 change[k] = v
+        extra = change.pop('extra', None)
+        if extra:
+            change['extra'] = {self.change_set.submitted_by.username: extra}
         return change
 
     def _resolve_ref(self, ref):

@@ -48,6 +48,9 @@ class ChangeNode:
 
     @property
     def change(self):
+        if self.is_merge:
+            return {**self.attrs, **self.relations, **self._reverse_relations}
+
         if self.is_blank:
             return {**self.attrs, **self.relations}
 
@@ -69,11 +72,12 @@ class ChangeNode:
         # JSON-LD variables are all prefixed with '@'s
         self.context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
         # Any nested data type is a relation in the current JSON-LD schema
-        self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, (dict, list, tuple))}
-        self.related = tuple(v for v in self.relations.values() if not isinstance(v, (list, tuple)))
+        self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, dict)}
+        self.related = tuple(self.relations.values())
+        self._reverse_relations = {k: tuple(node.pop(k)) for k, v in tuple(node.items()) if isinstance(v, (list, tuple))}
 
         if self.is_merge:
-            self.related += sum((tuple(v) for v in self.relations.values() if isinstance(v, (list, tuple))), ())
+            self.related += sum(self._reverse_relations.values(), tuple())
 
         self.attrs = node
 

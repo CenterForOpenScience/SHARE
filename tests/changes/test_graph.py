@@ -52,12 +52,12 @@ class TestChangeNode:
             ]
         }, disambiguate=False)
 
-        assert node.relations == {
-            'into': {'@type': 'Person', '@id': '1234'},
-            'from': [
+        assert node.relations == {'into': {'@type': 'Person', '@id': '1234'}}
+        assert node._reverse_relations == {
+            'from': (
                 {'@type': 'Person', '@id': '5827'},
                 {'@type': 'Person', '@id': '0847'}
-            ]
+            )
         }
 
     def test_peels_context(self):
@@ -226,4 +226,5 @@ class TestChangeGraph:
 
         assert len(graph.nodes) == 1
         assert len(graph.nodes[0].related) == 2
-        assert len(graph.nodes[0].relations) == 2
+        assert len(graph.nodes[0].relations) == 1
+        assert len(graph.nodes[0]._reverse_relations) == 1
