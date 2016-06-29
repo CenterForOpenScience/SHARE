@@ -85,6 +85,9 @@ class AbstractLink:
     def text(self):
         return self + TextLink()
 
+    def xpath(self, xpath):
+        return self + XPathLink(xpath)
+
     # Add a link into an existing chain
     def __add__(self, step):
         self._next = step
@@ -222,3 +225,13 @@ class IndexLink(AbstractLink):
 class TextLink(AbstractLink):
     def execute(self, obj):
         return obj.text
+
+class XPathLink(AbstractLink):
+
+    def __init__(self, xpath):
+        self._xpath = xpath
+        super().__init__()
+
+    def execute(self, obj):
+        return obj.xpath(self._xpath)
+
