@@ -1,4 +1,5 @@
 from share.provider import ProviderAppConfig
+from .harvester import ArxivHarvester
 
 
 class AppConfig(ProviderAppConfig):
@@ -9,3 +10,4 @@ class AppConfig(ProviderAppConfig):
     rate_limit = (1, 3)
     url = 'http://export.arxiv.org/rss/'
     time_granularity = False
+    harvester = ArxivHarvester
