@@ -69,8 +69,8 @@ class ChangeNode:
         self.__instance = None
         node = copy.deepcopy(self.__raw)
 
-        self.id = node.pop('@id')
-        self.type = node.pop('@type')
+        self.id = str(node.pop('@id'))
+        self.type = node.pop('@type').lower()
         self.extra = node.pop('extra', {})
 
         self.__refs = [(self.id, self.type)]
