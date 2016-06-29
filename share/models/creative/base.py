@@ -1,7 +1,7 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.contributor import Person
+from share.models.people import Person
 from share.models.base import TypedShareObjectMeta
 from share.models.creative.meta import Venue, Institution, Funder, Award, DataProvider, Tag
 from share.models.fields import ShareForeignKey, ShareManyToManyField

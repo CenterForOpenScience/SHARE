@@ -47,7 +47,14 @@ class ChangeNode:
         return self.type.lower() == 'mergeaction'
 
     @property
+    def refs(self):
+        return self.__refs
+
+    @property
     def change(self):
+        if self.is_merge:
+            return {**self.attrs, **self.relations, **self._reverse_relations}
+
         if self.is_blank:
             return {**self.attrs, **self.relations}
 
@@ -62,30 +69,44 @@ class ChangeNode:
         self.__instance = None
         node = copy.deepcopy(self.__raw)
 
-        self.id = node.pop('@id')
-        self.type = node.pop('@type')
+        self.id = str(node.pop('@id'))
+        self.type = node.pop('@type').lower()
         self.extra = node.pop('extra', {})
+
+        self.__refs = [(self.id, self.type)]
 
         # JSON-LD variables are all prefixed with '@'s
         self.context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
         # Any nested data type is a relation in the current JSON-LD schema
-        self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, (dict, list, tuple))}
-        self.related = tuple(v for v in self.relations.values() if not isinstance(v, (list, tuple)))
+        self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, dict)}
+        self.related = tuple(self.relations.values())
+        self._reverse_relations = {k: tuple(node.pop(k)) for k, v in tuple(node.items()) if isinstance(v, (list, tuple))}
 
         if self.is_merge:
-            self.related += sum((tuple(v) for v in self.relations.values() if isinstance(v, (list, tuple))), ())
+            self.related += sum(self._reverse_relations.values(), tuple())
 
         self.attrs = node
 
         if disambiguate:
             self._disambiguate()
 
+    def update_relations(self, mapper):
+        for v in self.relations.values():
+            node = mapper[(v['@id'], v['@type'])]
+            if node:
+                v['@id'] = node.id
+                v['@type'] = node.type
+
     def _disambiguate(self):
         if self.is_merge:
             return None
-        self.__instance = disambiguation.disambiguate(self.id, self.attrs, self.model)
+        self.__instance = disambiguation.disambiguate(self.id, {
+            **self.attrs,
+            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')}
+        }, self.model)
         if self.__instance:
             self.id = self.__instance.pk
+            self.__refs.append((self.id, self.type))
 
 
 class ChangeGraph:
@@ -93,16 +114,23 @@ class ChangeGraph:
     @classmethod
     def from_jsonld(self, ld_graph, disambiguate=True):
         nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate) for obj in ld_graph['@graph']]
-        return ChangeGraph(nodes)
+        return ChangeGraph(nodes, disambiguate=disambiguate)
 
     @property
     def nodes(self):
         return self.__nodes
 
-    def __init__(self, nodes, parse=True):
+    def __init__(self, nodes, parse=True, disambiguate=True):
         self.__nodes = nodes
-        self.__map = {(n.id, n.type): n for n in nodes}
+        self.__map = {ref: n for n in nodes for ref in n.refs}
         self.__sorter = NodeSorter(self)
+
+        # TODO This could probably be more efficiant
+        if disambiguate:
+            for n in self.__nodes:
+                n.update_relations(self.__map)
+            for n in self.__nodes:
+                n._disambiguate()
 
         if parse:
             self.__nodes = self.__sorter.sorted()

@@ -4,6 +4,8 @@ from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey
 
 
+__all__ = ('Venue', 'Institution', 'Funder', 'Award', 'DataProvider', 'Taxonomy', 'Tag')
+
 class Venue(ShareObject):
     name = models.CharField(max_length=255)
     venue_type = models.URLField(blank=True)

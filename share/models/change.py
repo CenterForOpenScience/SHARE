@@ -1,10 +1,11 @@
 import logging
-from datetime import datetime
 
 from model_utils import Choices
 
 from django.db import models
 from django.conf import settings
+from django.db import transaction
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.models import ContentType
@@ -17,6 +18,10 @@ logger = logging.getLogger(__name__)
 class ChangeSetManager(models.Manager):
 
     def from_graph(self, graph, submitter):
+        if all(not n.change for n in graph.nodes):
+            logger.info('No changes detected in {!r}, skipping.'.format(graph))
+            return None
+
         cs = ChangeSet(submitted_by=submitter)
         cs.save()
 
@@ -29,6 +34,10 @@ class ChangeSetManager(models.Manager):
 class ChangeManager(models.Manager):
 
     def from_node(self, node, change_set):
+        if not node.change:
+            logger.info('No changes detected in {!r}, skipping.'.format(node))
+            return None
+
         attrs = {
             'node_id': str(node.id),
             'change': node.change,
@@ -60,7 +69,8 @@ class ChangeSet(models.Model):
 #     # normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
 
     def accept(self, save=True):
-        return [c.accept(save=save) for c in self.changes.all()]
+        with transaction.atomic():
+            return [c.accept(save=save) for c in self.changes.all()]
 
 
 class Change(models.Model):
@@ -104,6 +114,7 @@ class Change(models.Model):
 
     def accept(self, save=True):
         assert self.get_requirements().exclude(status=Change.STATUS.accepted).count() == 0
+        assert self.status == Change.STATUS.pending, 'Cannot accept a change with status {}'.format(self.status)
         ret = self._accept(save)
         self.status = Change.STATUS.accepted
         if save:
@@ -146,9 +157,8 @@ class Change(models.Model):
             and hasattr(field, 'field')
         ]
 
-        # TODO Use arrow?
         # NOTE: Date is pinned up here to ensure its the same for all changed rows
-        date_modified = datetime.utcnow()
+        date_modified = timezone.now()
 
         for field in fields:
             # Update all rows in "from"
@@ -187,6 +197,9 @@ class Change(models.Model):
                 change[k] = [self._resolve_ref(r) for r in v]
             else:
                 change[k] = v
+        extra = change.pop('extra', None)
+        if extra:
+            change['extra'] = {self.change_set.submitted_by.username: extra}
         return change
 
     def _resolve_ref(self, ref):

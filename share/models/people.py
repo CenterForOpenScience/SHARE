@@ -25,6 +25,7 @@ class Identifier(ShareObject):
     # https://twitter.com/
     base_url = models.URLField()
 
+
 class Person(ShareObject):
     family_name = models.CharField(max_length=200)  # last
     given_name = models.CharField(max_length=200)  # first
@@ -46,6 +47,11 @@ class Person(ShareObject):
     # dropping-particle
 
 
+class PersonEmail(ShareObject):
+    email = ShareForeignKey(Email)
+    person = ShareForeignKey(Person)
+
+
 class Affiliation(ShareObject):
     # start_date = models.DateField()
     # end_date = models.DateField()
@@ -54,8 +60,3 @@ class Affiliation(ShareObject):
 
     def __str__(self):
         return self.organization.name
-
-
-class PersonEmail(ShareObject):
-    email = ShareForeignKey(Email)
-    person = ShareForeignKey(Person)

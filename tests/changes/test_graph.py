@@ -52,12 +52,12 @@ class TestChangeNode:
             ]
         }, disambiguate=False)
 
-        assert node.relations == {
-            'into': {'@type': 'Person', '@id': '1234'},
-            'from': [
+        assert node.relations == {'into': {'@type': 'Person', '@id': '1234'}}
+        assert node._reverse_relations == {
+            'from': (
                 {'@type': 'Person', '@id': '5827'},
                 {'@type': 'Person', '@id': '0847'}
-            ]
+            )
         }
 
     def test_peels_context(self):
@@ -119,6 +119,32 @@ class TestChangeGraph:
         assert graph.nodes[0].id == '_:1234'
         assert graph.nodes[1].id == '_:5678'
         assert len(graph.nodes[1].relations) == 1
+
+    def test_topological_sort_many_to_many(self):
+        graph = ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:91011',
+                '@type': 'preprint',
+                'contributors': [{'@id': '_:5678', '@type': 'contributor'}]
+            }, {
+                '@id': '_:5678',
+                '@type': 'contributor',
+                'person': {
+                    '@id': '_:1234',
+                    '@type': 'person'
+                }
+            }, {
+                '@id': '_:1234',
+                '@type': 'person',
+                'given_name': 'Doe',
+                'family_name': 'Jane',
+            }]
+        }, disambiguate=False)
+
+        assert len(graph.nodes) == 3
+        assert graph.nodes[0].id == '_:91011'
+        assert graph.nodes[1].id == '_:1234'
+        assert graph.nodes[2].id == '_:5678'
 
     def test_topological_sort_unchanged(self):
         graph = ChangeGraph.from_jsonld({
@@ -200,4 +226,5 @@ class TestChangeGraph:
 
         assert len(graph.nodes) == 1
         assert len(graph.nodes[0].related) == 2
-        assert len(graph.nodes[0].relations) == 2
+        assert len(graph.nodes[0].relations) == 1
+        assert len(graph.nodes[0]._reverse_relations) == 1

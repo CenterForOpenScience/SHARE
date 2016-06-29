@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from share.models.base import ExtraData
-from share.models.contributor import Identifier
+from share.models.people import Identifier
 from share.models.creative.meta import Venue, Institution, Funder, Award, DataProvider, Taxonomy, Tag
 from .models import Organization, Affiliation, Email, RawData, NormalizedManuscript, ShareUser, Normalization, \
     NormalizationQueue, Person, PersonEmail, Change, ChangeSet, Preprint, Manuscript, CreativeWork
@@ -21,6 +21,18 @@ count_changes.short_description = 'number of changes'
 class ChangeAdmin(admin.ModelAdmin):
     list_display = ('target', count_changes, 'status')
     # list_filter = ['status', ]
+
+
+def accept_changes(self, request, queryset):
+    for changeset in queryset:
+        changeset.accept()
+
+accept_changes.short_description = 'Accept changes'
+
+
+class ChangeSetAdmin(admin.ModelAdmin):
+    actions = [accept_changes]
+
 
 
 admin.site.register(Organization)
@@ -46,7 +58,7 @@ admin.site.register(NormalizedManuscript, NormalizedManuscriptAdmin)
 admin.site.register(CreativeWork)
 
 admin.site.register(Change, ChangeAdmin)
-admin.site.register(ChangeSet)
+admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(ShareUser)
 admin.site.register(Normalization)
 admin.site.register(NormalizationQueue)

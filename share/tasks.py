@@ -21,14 +21,12 @@ def run_harvester(self, app_label, start=None, end=None, started_by=None):
     config = apps.get_app_config(app_label)
     harvester = config.harvester(config)
 
-    # self.send_event('', )
-
     try:
         logger.info('Starting harvester run for {} {} - {}'.format(app_label, start, end))
         raws = harvester.harvest(start, end)
         logger.info('Collected {} data blobs from {}'.format(len(raws), app_label))
     except Exception as e:
-        logger.exception('Failed run_harvester(%s, %s, %s)'.format(app_label, start.isoformat(), end.isoformat()))
+        logger.exception('Failed run_harvester(%s, %s, %s)'.format(app_label, start, end))
         raise self.retry(countdown=10, exc=e)
 
     for raw in raws:

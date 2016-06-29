@@ -1,8 +1,12 @@
 import abc
 import json
 import time
+import types
 import logging
 import datetime
+from typing import Tuple
+from typing import Union
+from typing import Iterator
 from collections import OrderedDict
 
 import arrow
@@ -42,7 +46,7 @@ class Harvester(metaclass=abc.ABCMeta):
         return self.config.user
 
     @abc.abstractmethod
-    def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> list:
+    def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         """Fetch date from this provider inside of the given date range.
 
         Any HTTP[S] requests MUST be sent using the self.requests client.
@@ -53,7 +57,7 @@ class Harvester(metaclass=abc.ABCMeta):
             end_date (datetime):
 
         Returns:
-            List<Tuple<str, str|dict|bytes>>: The fetched data paired with
+            Iterator<Tuple<str, str|dict|bytes>>: The fetched data paired with
             the unique ID that this provider uses.
 
             [
@@ -77,8 +81,58 @@ class Harvester(metaclass=abc.ABCMeta):
         """
         return start_date, end_date
 
-    def harvest(self, start_date: [datetime.datetime, datetime.timedelta, arrow.Arrow]=None, end_date: [datetime.datetime, datetime.timedelta, arrow.Arrow]=None, shift_range: bool=True) -> list:
+    def harvest(self, start_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], end_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], shift_range: bool=True) -> list:
         from share.models import RawData
+        start_date, end_date = self._validate_dates(start_date, end_date)
+
+        stored = []
+        with transaction.atomic():
+            rawdata = self.do_harvest(start_date, end_date)
+            assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
+
+            for doc_id, datum in rawdata:
+                stored.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source))
+
+        return stored
+
+    def raw(self, start_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], end_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], shift_range: bool=True, limit: int=None) -> list:
+        start_date, end_date = self._validate_dates(start_date, end_date)
+        rawdata = self.do_harvest(start_date, end_date)
+        assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
+
+        data, harvest = [], self.do_harvest(start_date, end_date)
+        for doc_id, datum in harvest:
+            data.append((doc_id, self.encode_data(datum, pretty=True)))
+            if limit and len(data) >= limit:
+                break
+        return data
+
+    def encode_data(self, data, pretty=False) -> bytes:
+        if isinstance(data, bytes):
+            return data
+        if isinstance(data, dict):
+            return self.encode_json(data, pretty=pretty)
+        if isinstance(data, str):
+            return data.encode()
+        raise Exception('Unable to properly encode data blob {!r}. Data should be a dict, bytes, or str objects.'.format(data))
+
+    def encode_json(self, data: dict, pretty: bool=False) -> bytes:
+        """Orders a python dict recursively so it will always hash to the
+        same value. Used for Dedupping harvest results
+        Args:
+            data (dict):
+
+        Returns:
+            str: json.dumpsed ordered dictionary
+        """
+        def order_json(data: dict) -> OrderedDict:
+            return OrderedDict(sorted([
+                (key, order_json(value) if isinstance(value, dict) else value)
+                for key, value in data.items()
+            ], key=lambda x: x[0]))
+        return json.dumps(order_json(data), indent=4 if pretty else None).encode()
+
+    def _validate_dates(self, start_date, end_date):
         assert not (bool(start_date) ^ bool(end_date)), 'Must specify both a start and end date or neither'
         assert isinstance(start_date, (datetime.timedelta, datetime.datetime, arrow.Arrow)) and isinstance(end_date, (datetime.timedelta, datetime.datetime, arrow.Arrow)), 'start_date and end_date must be either datetimes or timedeltas'
         assert not (isinstance(start_date, datetime.timedelta) and isinstance(end_date, datetime.timedelta)), 'Only one of start_date and end_date may be a timedelta'
@@ -104,32 +158,4 @@ class Harvester(metaclass=abc.ABCMeta):
 
         assert start_date < end_date, 'start_date must be before end_date {} < {}'.format(start_date, end_date)
 
-        stored = []
-        with transaction.atomic():
-            rawdata = self.do_harvest(start_date, end_date)
-
-            for doc_id, datum in rawdata:
-                if isinstance(datum, dict):
-                    datum = self.encode_json(datum)
-                elif isinstance(datum, str):
-                    datum = datum.encode()
-                assert isinstance(datum, bytes), 'Found non-bytes item {} in results of self.do_harvest'.format(datum)
-                stored.append(RawData.objects.store_data(doc_id, datum, self.source))
-
-        return stored
-
-    def encode_json(self, data: dict) -> str:
-        """Orders a python dict recursively so it will always hash to the
-        same value. Used for Dedupping harvest results
-        Args:
-            data (dict):
-
-        Returns:
-            str: json.dumpsed ordered dictionary
-        """
-        def order_json(data: dict) -> OrderedDict:
-            return OrderedDict(sorted([
-                (key, order_json(value) if isinstance(value, dict) else value)
-                for key, value in data.items()
-            ], key=lambda x: x[0]))
-        return json.dumps(order_json(data)).encode()
+        return start_date, end_date

@@ -1,0 +1,125 @@
+#!/usr/bin/env python
+"""
+Usage: share [--version] [--help] <command> [<args>...]
+
+Options:
+  -h, --help  Show this screen.
+  -v, --version  Show version.
+
+Commands:
+    harvest      Run a specific harvester
+
+See 'share <command> --help' for more information on a specific command.
+"""
+import sys
+sys.path.insert(0, '')
+
+import os
+import re
+import json
+from pprint import pprint
+from datetime import timedelta
+
+import arrow
+from docopt import docopt
+
+import django
+from django.apps import apps
+from django.conf import settings
+
+from share.provider import ProviderAppConfig
+
+__version__ = 'share 0.0.0'
+
+
+def command(func):
+    def inner(argv):
+        parsed = docopt(func.__doc__, version=__version__, argv=argv)
+        print('Initializing Django...')
+        django.setup()
+        return func(parsed, argv)
+    inner.is_command = True
+    return inner
+
+
+@command
+def harvest(args, argv):
+    """
+    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR]
+
+    Options:
+        -l, --limit=NUMBER  Limit the harvester to NUMBER of documents
+        -p, --print         Print results to stdout rather than to a file
+        -o, --out=DIR       The directory to store the harvested data in. Defaults to ./<provider>
+    """
+    config = apps.get_app_config(args['<provider>'])
+    harvester = config.harvester(config)
+
+    if not args['--print']:
+        args['--out'] = args['--out'] or os.path.join(os.curdir, config.label)
+        os.makedirs(args['--out'], exist_ok=True)
+
+    for doc_id, data in harvester.raw(arrow.utcnow() - timedelta(days=1), arrow.utcnow(), limit=int(args['--limit']) if args['--limit'] else None):
+        if args['--print']:
+            print('Harvested data with identifier "{}"'.format(doc_id))
+            print(data.decode())
+            print('\n')
+        else:
+            with open(os.path.join(args['--out'], re.sub(r'[:\\\/\?\*]', '', str(doc_id))) + '.json', 'w') as fobj:
+                json.dump({'id': doc_id, 'raw': data.decode()}, fobj, indent=4)
+
+
+@command
+def normalize(args, argv):
+    """
+    Usage: share normalize <provider> FILE ...
+           share normalize <provider> --directory=DIR
+
+    Options:
+        -d, --directory=DIR  Normalize all JSON files in DIR
+
+    Normalize all given JSON files. Results will be printed to stdout.
+    """
+    config = apps.get_app_config(args['<provider>'])
+    normalizer = config.normalizer(config)
+
+    if args['FILE']:
+        files = [x for x in args['FILE'] if x.endswith('.json')]
+    else:
+        files = [x for x in os.listdir(args['--directory']) if x.endswith('.json')]
+
+    for name in files:
+        with open(name) as fobj:
+            data = json.load(fobj)
+        parsed = normalizer.normalize(data['raw'].encode())
+        print('Parsed raw data "{}" into'.format(data['id']))
+        pprint(parsed)
+        print('\n')
+
+
+@command
+def providers(args, argv):
+    """
+    Usage: share providers
+
+    Print out a list of currently installed providers
+    """
+    for config in apps.get_app_configs():
+        if isinstance(config, ProviderAppConfig):
+            print(config.label)
+
+
+def main():
+    args = docopt(__doc__, version=__version__, options_first=True)
+    func = globals().get(args['<command>'])
+    if not func or not getattr(func, 'is_command', False):
+        print('Invalid command "{}"'.format(args['<command>']))
+        return 0
+
+    return func([args['<command>']] + args['<args>'])
+
+
+if __name__ == '__main__':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
+    settings.DATABASES = {}
+    main()

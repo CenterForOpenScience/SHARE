@@ -16,4 +16,4 @@ class ChangeSetFilter(django_filters.FilterSet):
 
     class Meta:
         model = ChangeSet
-        fields = ['submitted_by', 'status']
+        fields = ['submitted_by', 'status', 'target_uuid']

@@ -35,8 +35,8 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
         url.args['metadataPrefix'] = 'oai_dc'
 
         if self.time_granularity:
-            url.args['from'] =  start_date.format('YYYY-MM-DDT00:00:00') + 'Z'
-            url.args['until'] =  end_date.format('YYYY-MM-DDT00:00:00') + 'Z'
+            url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00') + 'Z'
+            url.args['until'] = end_date.format('YYYY-MM-DDT00:00:00') + 'Z'
         else:
             url.args['from'] = start_date.date().isoformat()
             url.args['until'] = end_date.date().isoformat()
@@ -44,23 +44,19 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
         return self.fetch_records(url)
 
     def fetch_records(self, url: furl) -> list:
-        records = []
-        _records, token = self.fetch_page(url, token=None)
+        records, token = self.fetch_page(url, token=None)
 
         while True:
-            records.extend([
-                (
-                    x.xpath('ns0:header/ns0:identifier', namespaces=self.namespaces)[0].text,
-                    etree.tostring(x),
+            for record in records:
+                yield (
+                    record.xpath('ns0:header/ns0:identifier', namespaces=self.namespaces)[0].text,
+                    etree.tostring(record),
                 )
-                for x in _records
-            ])
-            _records, token = self.fetch_page(url, token=token)
 
-            if not token or not _records:
+            records, token = self.fetch_page(url, token=token)
+
+            if not token or not records:
                 break
-
-        return records
 
     def fetch_page(self, url: furl, token: str=None) -> (list, str):
         if token:
