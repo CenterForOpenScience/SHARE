@@ -12,7 +12,7 @@
         "is_staff": true,
         "is_active": true,
         "date_joined": "2016-06-24T13:33:03.681Z",
-        "harvester": "",
+        "robot": "",
         "groups": [],
         "user_permissions": []
     }

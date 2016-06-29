@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)

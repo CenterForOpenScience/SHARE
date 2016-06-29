@@ -48,17 +48,17 @@ class ShareUserManager(BaseUserManager):
 
         return self._create_user(username, email, password, **extra_fields)
 
-    def create_harvester_user(self, username, harvester):
+    def create_robot_user(self, username, robot):
         try:
-            ShareUser.objects.get(harvester=harvester)
+            ShareUser.objects.get(robot=robot)
         except ShareUser.DoesNotExist:
             pass
         else:
-            raise AssertionError('ShareUser with harvester {} already exists.'.format(harvester))
+            raise AssertionError('ShareUser for robot {} already exists.'.format(robot))
         user = ShareUser()
         user.set_unusable_password()
         user.username = username
-        user.harvester = harvester
+        user.robot = robot
         user.is_active = True
         user.is_staff = False
         user.is_superuser = False
@@ -101,17 +101,17 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
         ),
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-    harvester = models.CharField(max_length=40, blank=True)
+    robot = models.CharField(max_length=40, blank=True)
 
     def get_short_name(self):
-        return self.harvester if self.harvester != '' else self.username
+        return self.robot if self.is_robot else self.username
 
     def get_full_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
     @property
-    def is_harvester(self):
-        return self.harvester == ''
+    def is_robot(self):
+        return self.robot != ''
 
     objects = ShareUserManager()
 
@@ -181,7 +181,7 @@ class NormalizedManuscript(models.Model):
     tasks = models.ManyToManyField(CeleryProviderTask)
 
     def __str__(self):
-        return '{} created at {}'.format(self.source.harvester, self.created_at)
+        return '{} created at {}'.format(self.source.get_short_name(), self.created_at)
 
 
 class Normalization(models.Model):
