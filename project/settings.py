@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'share',
+    'api',
+    'monitor',
 
     'providers.be.ghent',
     'providers.br.pcurio',
@@ -116,8 +118,6 @@ INSTALLED_APPS = [
     'providers.uk.cambridge',
     'providers.uk.lshtm',
     'providers.za.csir',
-
-    'api',
 ]
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
@@ -264,6 +264,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 
 CELERY_TRACK_STARTED = True
 CELERY_RESULT_PERSISTENT = True
+CELERY_SEND_EVENTS = True
 CELERY_SEND_TASK_SENT_EVENT = True
 CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
