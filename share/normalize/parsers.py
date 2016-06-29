@@ -113,7 +113,8 @@ class Parser(metaclass=ParserMeta):
 
             inst[key] = value
 
-        inst['extra'] = {key: chain.execute(self.context) for key, chain in self._extra.items()}
+        if self._extra:
+            inst['extra'] = {key: chain.execute(self.context) for key, chain in self._extra.items()}
 
         ctx.pool[ref] = inst
         ctx.graph.append(inst)
