@@ -1,4 +1,4 @@
-from share.harvest.harvester import OAIHarvester
+from share.harvest.oai import OAIHarvester
 
 
 class ArxivHarvester(OAIHarvester):
