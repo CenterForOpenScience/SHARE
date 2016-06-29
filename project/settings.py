@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     'providers.gov.nsfawards',
     'providers.io.osf',
     'providers.org.arxiv',
+    'providers.org.arxiv.oai.apps.AppConfig',
     'providers.org.bhl',
     'providers.org.cogprints',
     'providers.org.crossref',
