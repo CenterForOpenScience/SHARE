@@ -7,7 +7,6 @@ class AppConfig(ProviderAppConfig):
     title = 'arxiv'
     long_title = 'ArXiv'
     home_page = 'https://arxiv.org'
-    rate_limit = (1, 3)
-    url = 'http://export.arxiv.org/rss/'
+    url = 'http://export.arxiv.org/api/query?search_query=all'
     time_granularity = False
     harvester = ArxivHarvester
