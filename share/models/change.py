@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 class ChangeSetManager(models.Manager):
 
     def from_graph(self, graph, submitter):
+        if all(not n.change for n in graph.nodes):
+            logger.info('No changes detected in {!r}, skipping.'.format(graph))
+            return None
+
         cs = ChangeSet(submitted_by=submitter)
         cs.save()
 
@@ -29,6 +33,10 @@ class ChangeSetManager(models.Manager):
 class ChangeManager(models.Manager):
 
     def from_node(self, node, change_set):
+        if not node.change:
+            logger.info('No changes detected in {!r}, skipping.'.format(node))
+            return None
+
         attrs = {
             'node_id': str(node.id),
             'change': node.change,
