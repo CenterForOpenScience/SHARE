@@ -23,6 +23,18 @@ class ChangeAdmin(admin.ModelAdmin):
     # list_filter = ['status', ]
 
 
+def accept_changes(self, request, queryset):
+    for changeset in queryset:
+        changeset.accept()
+
+accept_changes.short_description = 'Accept changes'
+
+
+class ChangeSetAdmin(admin.ModelAdmin):
+    actions = [accept_changes]
+
+
+
 admin.site.register(Organization)
 admin.site.register(Affiliation)
 admin.site.register(Person)
@@ -46,7 +58,7 @@ admin.site.register(NormalizedManuscript, NormalizedManuscriptAdmin)
 admin.site.register(CreativeWork)
 
 admin.site.register(Change, ChangeAdmin)
-admin.site.register(ChangeSet)
+admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(ShareUser)
 admin.site.register(Normalization)
 admin.site.register(NormalizationQueue)
