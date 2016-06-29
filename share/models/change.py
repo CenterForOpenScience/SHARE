@@ -4,6 +4,7 @@ from model_utils import Choices
 
 from django.db import models
 from django.conf import settings
+from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
@@ -68,7 +69,8 @@ class ChangeSet(models.Model):
 #     # normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
 
     def accept(self, save=True):
-        return [c.accept(save=save) for c in self.changes.all()]
+        with transaction.atomic():
+            return [c.accept(save=save) for c in self.changes.all()]
 
 
 class Change(models.Model):
