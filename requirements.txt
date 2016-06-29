@@ -23,3 +23,4 @@ requests==2.10.0
 ujson==1.35
 django-model-utils==2.5
 django-filter==0.13.0
+docopt==0.6.2
