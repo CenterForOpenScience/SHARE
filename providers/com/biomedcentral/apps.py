@@ -4,6 +4,7 @@ from .harvester import BiomedCentralHarvester
 
 class AppConfig(ProviderAppConfig):
     name = 'providers.com.biomedcentral'
+    version = '0.0.1'
     title = 'biomedcentral'
     long_title = 'BioMed Central'
     home_page = 'http://www.springer.com/us/'

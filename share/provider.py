@@ -43,6 +43,10 @@ class ProviderAppConfig(AppConfig, metaclass=abc.ABCMeta):
     def label(self):
         return self.name.rpartition('providers.')[2]
 
+    @abc.abstractproperty
+    def version(self):
+        raise NotImplementedError
+
     @property
     def normalizer(self):
         return Normalizer
