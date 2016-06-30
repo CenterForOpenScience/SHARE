@@ -218,11 +218,15 @@ class MaybeLink(AbstractLink):
     def execute(self, obj):
         if isinstance(obj, etree._Element):
             val = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
+            if len(val) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
+                val = val[0]
+                if self._next is None:
+                    val = val.text
         else:
             val = obj.get(self._segment)
         if not val:
             return None
-        return [self.__anchor.execute(sub) for sub in obj]
+        return [self.__anchor.execute(sub) for sub in val]
 
 
 class PathLink(AbstractLink):
@@ -235,7 +239,13 @@ class PathLink(AbstractLink):
             # Dirty hack to avoid namespaces with xpath
             # Anything name "<namespace>:<node>" will be accessed as <node>
             # IE: oai:title -> title
-            return obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
+            ret = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
+            if len(ret) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
+                ret = ret[0]
+                if self._next is None:
+                    ret = ret.text
+            return ret
+
         return obj[self._segment]
 
     def __repr__(self):

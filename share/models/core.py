@@ -3,12 +3,15 @@ from hashlib import sha256
 
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.models import PermissionsMixin, Group
 from django.core import validators
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import ZipField, DatetimeAwareJSONField
 from share.models.validators import is_valid_jsonld
 
@@ -120,7 +123,19 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = _('Share user')
         verbose_name_plural = _('Share users')
 
+@receiver(post_save, sender=ShareUser, dispatch_uid='share.share.models.share_user_post_save_handler')
+def user_post_save(sender, instance, created, **kwargs):
+    """
+    If the user is being created and they're not a robot add them to the humans group.
+    :param sender:
+    :param instance:
+    :param created:
+    :param kwargs:
+    :return:
+    """
+    if created and not instance.is_robot:
 
+        instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 class RawDataManager(models.Manager):
 
     def store_data(self, doc_id, data, source):

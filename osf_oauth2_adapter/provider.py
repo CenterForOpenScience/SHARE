@@ -44,8 +44,6 @@ class OSFProvider(OAuth2Provider):
         else:
             # json-api ftw
             user_info = resp.json().get('data').get('attributes')
-            import ipdb
-            ipdb.set_trace()
             return dict(
                 username=data.get('id'),
                 first_name=user_info.get('given_name'),

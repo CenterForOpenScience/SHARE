@@ -8,6 +8,7 @@ python manage.py celery purge -f \
 && python manage.py makemigrations \
 && git checkout api/migrations \
 && git checkout share/migrations \
+&& git checkout osf_oauth2_adapter/migrations \
 && python manage.py maketriggermigrations \
 && python manage.py makeprovidermigrations \
 && python manage.py migrate \
