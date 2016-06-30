@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     'api',
     'monitor',
 
+    'bots.automerge',
+
     'providers.be.ghent',
     'providers.br.pcurio',
     'providers.ca.lwbin',

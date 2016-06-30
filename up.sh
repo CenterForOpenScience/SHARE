@@ -1,6 +1,7 @@
 #!/bin/bash
 
 rm -fv ./{*/*/*/,*/*/,}*/migrations/00*.py
+rm -fv ./bots/*/migrations/00*.py
 
 python manage.py reset_db --noinput \
 && python manage.py makemigrations \

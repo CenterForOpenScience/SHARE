@@ -1,9 +1,9 @@
 from share.bot import BotAppConfig
 
-from bots.automerge.bot import AutoMergeBot
-
 
 class AppConfig(BotAppConfig):
     name = 'bots.automerge'
 
-    bot = AutoMergeBot
+    def get_bot(self):
+        from bots.automerge.bot import AutoMergeBot
+        return AutoMergeBot(self)
