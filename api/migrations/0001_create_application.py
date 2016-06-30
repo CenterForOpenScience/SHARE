@@ -10,8 +10,6 @@ def create_application(apps, schema_editor):
     Application = apps.get_model('oauth2_provider', 'Application')
     ShareUser = apps.get_model('share', 'ShareUser')
     share_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
-    # import ipdb
-    # ipdb.set_trace()
     fields = dict(
         client_type=str(ActualApplication.CLIENT_TYPES[0][1]),
         authorization_grant_type=str(ActualApplication.GRANT_TYPES[2][1]),
