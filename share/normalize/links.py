@@ -94,6 +94,9 @@ class AbstractLink:
         step._prev = self
         return step
 
+    def __radd__(self, other):
+        return self + PrependLink(other)
+
     # Reserved for special cases
     # Any other use is an error
     def __getitem__(self, name):
@@ -272,3 +275,12 @@ class GetIndexLink(AbstractLink):
 class TextLink(AbstractLink):
     def execute(self, obj):
         return obj.text
+
+
+class PrependLink(AbstractLink):
+    def __init__(self, string):
+        self._string = string
+        super().__init__()
+
+    def execute(self, obj):
+        return self._string + obj
