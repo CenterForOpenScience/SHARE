@@ -304,3 +304,4 @@ LOGGING = {
 # Custom Settings
 
 API_URL = os.environ.get('API_URL', 'http://localhost:8000').rstrip('/') + '/'
+BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
