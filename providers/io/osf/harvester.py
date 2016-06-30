@@ -15,7 +15,7 @@ class OSFHarvester(Harvester):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.url = 'https://api.osf.io/v2/nodes/?filter[public]=true&embed=contributors'
+        self.url = 'https://api.osf.io/v2/nodes/?page[size]=100&filter[public]=true&embed=contributors'
 
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
 
@@ -33,14 +33,27 @@ class OSFHarvester(Harvester):
         total_harvested = 0
         while True:
             for record in records.json()['data']:
-                # add the linked contributors data in a new key in the record
-                record['contributors'] = self.requests.get(record['relationships']['contributors']['links']['related']['href']).json()
+
+                # iterate the linked contributors data in a new key in the record
+                contributor_url = furl(record['relationships']['contributors']['links']['related']['href'])
+                contributor_url.args['page[size]'] = 100
+                contributor_records, next_contributor_page = self.fetch_page(contributor_url)
+                total_contributors = contributor_records.json()['links']['meta']['total']
+                contributor_data = []
+                while True:
+                    contributor_data = contributor_data + contributor_records.json()['data']
+                    if not next_contributor_page:
+                        break
+                    contributor_records, next_contributor_page = self.fetch_page(next_contributor_page)
+                logger.info('Had {} contributors to harvest, harvested {}'.format(total_contributors, len(contributor_data)))
+                record['contributors'] = contributor_data
+
+                # gather the the rest of the record
                 total_harvested += 1
                 yield(record['id'], record)
 
             if not next_page:
                 break
-
             records, next_page = self.fetch_page(next_page)
 
         logger.info('Had {} records to harvest, harvested {}'.format(total_records, total_harvested))
