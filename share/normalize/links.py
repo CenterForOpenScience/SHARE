@@ -98,6 +98,8 @@ class AbstractLink:
             return self + IteratorLink()
         if name == 'parent':
             return self + ParentLink()
+        if name == 'index':
+            return self + GetIndexLink()
         if isinstance(name, int):
             return self + IndexLink(name)
         raise Exception
@@ -217,6 +219,11 @@ class IndexLink(AbstractLink):
 
     def execute(self, obj):
         return obj[self._index]
+
+
+class GetIndexLink(AbstractLink):
+    def execute(self, obj):
+        return Context().parent.index(obj)
 
 
 class TextLink(AbstractLink):
