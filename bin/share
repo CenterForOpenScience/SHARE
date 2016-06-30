@@ -125,11 +125,15 @@ def debug(args, argv):
         data = normalizer.unwrap_data(json.load(fobj)['raw'].encode())
 
     parser = normalizer.get_root_parser()
+    def execute(data, chain):
+        return chain.chain()[0].execute(data)
+    e = execute
 
     print('\n')
     print('ctx: {}'.format(ctx))
     print('parser: {}'.format(parser))
     print('data: {}'.format(type(data)))
+    print('e, execute: {}'.format(execute))
     print('normalizer: {}'.format(normalizer))
 
     import ipdb
