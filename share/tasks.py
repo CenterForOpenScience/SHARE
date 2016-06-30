@@ -49,7 +49,7 @@ def run_normalizer(self, app_label: str, raw_id: int, started_by=None) -> dict:
 
         logger.debug('Parsed {} into {}'.format(raw, json.dumps(graph, indent=2)))
 
-        resp = requests.post(settings.API_URL + 'api/normalized/', json={
+        resp = requests.post(settings.OSF_API_URL + 'api/normalized/', json={
             'created_at': datetime.datetime.utcnow().isoformat(),
             'normalized_data': graph,
         }, headers={'Authorization': config.authorization()})

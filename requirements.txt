@@ -7,6 +7,7 @@ django==1.9.7
 django[bcrypt]==1.9.7
 django-celery==3.1.17
 django-extensions==1.6.7
+django-allauth==0.25.2
 django-guardian==1.4.4
 django-oauth-toolkit==0.10.0
 django-typed-models==0.5.0
