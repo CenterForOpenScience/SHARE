@@ -48,9 +48,8 @@ class OSFProvider(OAuth2Provider):
             ipdb.set_trace()
             return dict(
                 username=data.get('id'),
-                name=user_info.get('full_name'),
                 first_name=user_info.get('given_name'),
-                last_name=user_info.get('family_name')
+                last_name=user_info.get('family_name'),
             )
 
     def extract_uid(self, data):

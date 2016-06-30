@@ -8,7 +8,7 @@ from share.models.creative.base import AbstractCreativeWork
 
 class Contributor(ShareObject):
     cited_name = models.TextField(blank=True)
-    order = models.PositiveIntegerField(null=True)
+    order_cited = models.PositiveIntegerField(null=True)
 
     person = ShareForeignKey(Person)
     creative_work = ShareForeignKey(AbstractCreativeWork)
