@@ -1,7 +1,7 @@
 import abc
 import json
 
-from lxml import etree
+import xmltodict
 
 from share.normalize.links import Context
 
@@ -26,7 +26,7 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     def unwrap_data(self, data):
         if data.startswith(b'<'):
-            return etree.fromstring(data.decode())
+            return xmltodict.parse(data, process_namespaces=True)
         else:
             return json.loads(data.decode())
 
