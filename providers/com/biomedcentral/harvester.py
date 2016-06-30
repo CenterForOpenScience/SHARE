@@ -1,15 +1,18 @@
 from datetime import timedelta
+
 from furl import furl
 
-from share import Harvester
 from django.conf import settings
+
+from share import Harvester
 
 
 class BiomedCentralHarvester(Harvester):
     url = 'http://api.springer.com/meta/v1/json'
+    page_size = 100
+    offset = 1
 
     def do_harvest(self, start_date, end_date):
-
         if not settings.BIOMEDCENTRAL_API_KEY:
             raise Exception('BioMed Central api key not provided')
 
@@ -21,27 +24,28 @@ class BiomedCentralHarvester(Harvester):
         dates = [start_date + timedelta(n) for n in range((end_date - start_date).days + 1)]
 
         for date in dates:
-            return self.fetch_records(furl(self.url).set(query_params={
-                'api_key': settings.BIOMEDCENTRAL_API_KEY,
-                'q': 'date:{}'.format(date),
-            }).url)
+            yield from self.fetch_records(date)
 
-    def fetch_records(self, url):
-        resp = self.requests.get(url)
+    def fetch_records(self, date):
+        self.offset = 1
+        resp = self.requests.get(self.build_url(date))
         total = int(resp.json()['result'][0]['total'])
         total_processed = 0
 
         while total_processed < total:
-            response = self.requests.get(furl(url).add(query_params={
-                'p': 100,
-                's': total_processed
-            }).url)
+            records = resp.json()['records']
 
-            records = response.json()['records']
             for record in records:
-                print(record['identifier'])
-                print(record)
                 yield (record['identifier'], record)
 
-            total_processed += 100
+            total_processed += len(records)
+            self.offset += len(records)
+            resp = self.requests.get(self.build_url(date))
 
+    def build_url(self, date):
+        return furl(self.url).set(query_params={
+            'api_key': settings.BIOMEDCENTRAL_API_KEY,
+            'q': 'date:{}'.format(date),
+            'p': self.page_size,
+            's': self.offset
+        }).url
