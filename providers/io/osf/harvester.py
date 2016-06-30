@@ -15,7 +15,7 @@ class OSFHarvester(Harvester):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.url = 'https://api.osf.io/v2/nodes/?filter[public]=true'
+        self.url = 'https://api.osf.io/v2/nodes/?filter[public]=true&embed=contributors'
 
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
 
@@ -33,6 +33,8 @@ class OSFHarvester(Harvester):
         total_harvested = 0
         while True:
             for record in records.json()['data']:
+                # add the linked contributors data in a new key in the record
+                record['contributors'] = self.requests.get(record['relationships']['contributors']['links']['related']['href']).json()
                 total_harvested += 1
                 yield(record['id'], record)
 
