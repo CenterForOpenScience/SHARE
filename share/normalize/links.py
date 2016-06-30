@@ -218,6 +218,10 @@ class MaybeLink(AbstractLink):
     def execute(self, obj):
         if isinstance(obj, etree._Element):
             val = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
+            if len(val) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
+                val = val[0]
+                if self._next is None:
+                    val = val.text
         else:
             val = obj.get(self._segment)
         if not val:
