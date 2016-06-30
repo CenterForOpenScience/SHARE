@@ -1,0 +1,40 @@
+---
+  -
+    model: "share.shareuser"
+    fields:
+      password: "bcrypt_sha256$$2b$12$7iu98v2xWFOXATtT3sj8vOVKC7PuSKQSzHutU..dhnuBPg6ZK73g2"
+      last_login: null
+      is_superuser: true
+      username: "admin"
+      first_name: ""
+      last_name: ""
+      email: ""
+      is_staff: true
+      is_active: true
+      date_joined: "2016-06-24T13:33:03.681Z"
+      harvester: ""
+      groups: []
+      user_permissions: []
+  -
+    model: "auth.group"
+    fields:
+      name: "OSF Users"
+      permissions: []
+  -
+    model: "sites.site"
+    pk: 1
+    fields:
+      domain: "osf.io"
+      name: "OSF"
+  -
+    model: "socialaccount.socialapp"
+    pk: 1
+    fields:
+      provider: "osf"
+      name: "OSF"
+      # This is valid for staging
+      client_id: "bed531951db94e6bb30f3f0a19e712fb"
+      secret: "844IItP1s7FQkX5OWDcXY2RtwkUSwDe1fhwqbVHv"
+      key: ""
+      sites:
+        - 1

@@ -11,5 +11,4 @@ python manage.py celery purge -f \
 && python manage.py maketriggermigrations \
 && python manage.py makeprovidermigrations \
 && python manage.py migrate \
-&& python manage.py loaddata ./share/models/initial_data.json \
-&& python manage.py loaddata ./share/models/initial_groups.json
+&& python manage.py loaddata ./share/models/initial_data.yaml

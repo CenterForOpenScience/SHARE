@@ -25,3 +25,4 @@ ujson==1.35
 django-model-utils==2.5
 django-filter==0.13.0
 docopt==0.6.2
+pyyaml==3.11
