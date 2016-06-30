@@ -6,6 +6,7 @@ class Person(Parser):
     family_name = ParseName(ctx.name[0].text()).last
     additional_name = ParseName(ctx.name[0].text()).middle
     suffix = ParseName(ctx.name[0].text()).suffix
+    affiliations = ctx.xpath('arxiv:affiliation')[0].text()
 
 
 class Contributor(Parser):
