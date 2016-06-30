@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from share.tasks import run_normalizer
+from share.tasks import NormalizerTask
 
 
 class Command(BaseCommand):
@@ -11,6 +11,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['async']:
-            run_normalizer.apply_async((options['normalizer'],))
+            NormalizerTask().apply_async((options['normalizer'],))
         else:
-            run_normalizer(options['normalizer'])
+            NormalizerTask().run(options['normalizer'])

@@ -92,7 +92,7 @@ class ChangeNode:
 
     def update_relations(self, mapper):
         for v in self.relations.values():
-            node = mapper[(v['@id'], v['@type'])]
+            node = mapper[(v['@id'], v['@type'].lower())]
             if node:
                 v['@id'] = node.id
                 v['@type'] = node.type
@@ -137,7 +137,7 @@ class ChangeGraph:
 
     def get_node(self, id, type):
         try:
-            return self.__map[(id, type)]
+            return self.__map[(id, type.lower())]
         except KeyError:
             if str(id).startswith('_:'):
                 raise UnresolvableReference('Unresolvable reference @id: {!r}, @type: {!r}'.format(id, type))

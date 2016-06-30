@@ -1,9 +1,0 @@
-[
-{
-    "model": "auth.group",
-    "fields": {
-        "name": "OSF Users",
-        "permissions": []
-    }
-}
-]
