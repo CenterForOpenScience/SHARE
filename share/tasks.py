@@ -124,5 +124,4 @@ class BotTask(celery.Task):
         bot = config.get_bot()
 
         logger.info('Running bot %s. Started by %s', bot, started_by or 'system')
-        with transaction.atomic():
-            bot.run()
+        bot.run()
