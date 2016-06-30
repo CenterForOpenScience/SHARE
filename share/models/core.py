@@ -9,7 +9,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from share.models.celery import CeleryProviderTask
 from share.models.fields import ZipField, DatetimeAwareJSONField
 from share.models.validators import is_valid_jsonld
 
@@ -153,7 +152,7 @@ class RawData(models.Model):
     date_seen = models.DateTimeField(auto_now=True)
     date_harvested = models.DateTimeField(auto_now_add=True)
 
-    tasks = models.ManyToManyField(CeleryProviderTask)
+    tasks = models.ManyToManyField('CeleryProviderTask')
 
     objects = RawDataManager()
 
@@ -178,7 +177,7 @@ class NormalizedManuscript(models.Model):
     created_at = models.DateTimeField(null=True)
     normalized_data = DatetimeAwareJSONField(default={}, validators=[is_valid_jsonld, ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
-    tasks = models.ManyToManyField(CeleryProviderTask)
+    tasks = models.ManyToManyField('CeleryProviderTask')
 
     def __str__(self):
         return '{} created at {}'.format(self.source.get_short_name(), self.created_at)

@@ -61,7 +61,6 @@ INSTALLED_APPS = [
 
     'share',
     'api',
-    'monitor',
 
     'bots.automerge',
 

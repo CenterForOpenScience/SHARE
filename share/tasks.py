@@ -11,7 +11,7 @@ from django.conf import settings
 from django.db import transaction
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedManuscript, ShareUser, ChangeSet, CeleryProviderTask
+from share.models import RawData, NormalizedManuscript, ChangeSet, CeleryProviderTask, ShareUser
 
 
 logger = logging.getLogger(__name__)
@@ -31,6 +31,7 @@ class ProviderTask(celery.Task):
                 'app_version': self.config.version,
                 'args': args,
                 'kwargs': kwargs,
+                'provider': self.config.user
             },
         )
         self.task.save()

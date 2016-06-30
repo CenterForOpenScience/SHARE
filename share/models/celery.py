@@ -4,6 +4,8 @@ from pytz import utc
 from django.db import models
 from typedmodels.models import TypedModel
 
+from share.models.core import ShareUser
+
 
 class CeleryTask(TypedModel):
     uuid = models.UUIDField(db_index=True, unique=True)
@@ -20,6 +22,7 @@ class CeleryTask(TypedModel):
 class CeleryProviderTask(CeleryTask):
     app_label = models.TextField(db_index=True, blank=True)
     app_version = models.TextField(blank=True)
+    provider = models.ForeignKey(ShareUser)
 
 
 class CeleryEvent(TypedModel):
@@ -31,6 +34,7 @@ class CeleryEvent(TypedModel):
     class Meta:
         index_together = ['uuid', 'timestamp']
 
+
     # sent/received
     eta = models.DateTimeField(null=True)
     retries = models.IntegerField(null=True)
@@ -38,7 +42,7 @@ class CeleryEvent(TypedModel):
     exception = models.TextField(blank=True)
 
     def __init__(self, *args, **kwargs):
-        if type(kwargs['timestamp']) is float:
+        if type(kwargs.get('timestamp')) is float:
             kwargs['timestamp'] = datetime.fromtimestamp(kwargs['timestamp'], tz=utc)
         super().__init__(*args, **kwargs)
 

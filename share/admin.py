@@ -4,7 +4,7 @@ from share.models.base import ExtraData
 from share.models.people import Identifier
 from share.models.creative.meta import Venue, Institution, Funder, Award, DataProvider, Taxonomy, Tag
 from .models import Organization, Affiliation, Email, RawData, NormalizedManuscript, ShareUser, \
-    Person, PersonEmail, ChangeSet, Preprint, Manuscript, CreativeWork
+    Person, PersonEmail, ChangeSet, Preprint, Manuscript, CreativeWork, CeleryEvent, CeleryTask
 from share.models.creative.contributors import Contributor
 
 
@@ -38,6 +38,15 @@ class PersonAdmin(admin.ModelAdmin):
         return obj.contributor_set.count()
 
 
+class CeleryTaskAdmin(admin.ModelAdmin):
+    # list_display = ['']
+    pass
+
+class CeleryEventAdmin(admin.ModelAdmin):
+    list_display = ['uuid', 'type', ]
+    list_filter = ['type']
+
+
 admin.site.register(Organization)
 admin.site.register(Affiliation)
 admin.site.register(Person, PersonAdmin)
@@ -57,6 +66,8 @@ admin.site.register(RawData)
 admin.site.register(Preprint)
 admin.site.register(Manuscript)
 admin.site.register(NormalizedManuscript, NormalizedManuscriptAdmin)
+admin.site.register(CeleryEvent, CeleryEventAdmin)
+admin.site.register(CeleryTask, CeleryTaskAdmin)
 
 admin.site.register(CreativeWork)
 
