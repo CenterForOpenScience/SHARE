@@ -40,6 +40,9 @@ class Person(ShareObject):
     location = models.URLField(blank=True)
     url = models.URLField(blank=True)
 
+    class Meta:
+        verbose_name_plural = 'People'
+
     # current_affiliation =
     # other_properties = models.JSONField()
     # suffix

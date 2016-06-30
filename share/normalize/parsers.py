@@ -60,7 +60,7 @@ class Subparser:
         self.context = context
 
     def resolve(self):
-        prev, ctx.parent = ctx.parent, self.parent.context
+        prev, ctx.parent = ctx.parent, self.context
 
         if self.is_list:
             ret = [self.parser(v).parse() for v in self.context]

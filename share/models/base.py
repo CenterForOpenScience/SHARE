@@ -33,7 +33,7 @@ class ShareObjectMeta(ModelBase):
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
         'source': lambda: models.ForeignKey(settings.AUTH_USER_MODEL, null=True, related_name='curated_%(class)s'),
-        'change': lambda: models.ForeignKey(Change, null=True, related_name='affected_%(class)s'),
+        'change': lambda: models.OneToOneField(Change, null=True, related_name='affected_%(class)s'),
         'date_modified': lambda: models.DateTimeField(auto_now=True),
         'date_created': lambda: models.DateTimeField(auto_now_add=True),
         'uuid': lambda: models.UUIDField(default=uuid.uuid4, editable=False)

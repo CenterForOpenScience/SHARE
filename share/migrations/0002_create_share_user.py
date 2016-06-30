@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-def create_share_harvester_user(apps, schema_editor):
+def create_share_robot_user(apps, schema_editor):
     ShareUser = apps.get_model('share', 'ShareUser')
-    share_user = ShareUser.objects.create_harvester_user(username='share_oauth2_application_user', harvester='')
+    share_user = ShareUser.objects.create_robot_user(username='share_oauth2_application_user', robot='')
 
 
 class Migration(migrations.Migration):
@@ -16,5 +16,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_share_harvester_user),
+        migrations.RunPython(create_share_robot_user),
     ]
