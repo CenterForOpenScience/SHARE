@@ -3,7 +3,7 @@ from share import serializers
 
 
 class VenueViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated,]# TokenHasScope]
+    permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.VenueSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
