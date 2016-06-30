@@ -84,17 +84,17 @@ class NormalizerTask(ProviderTask):
                 'created_at': datetime.datetime.utcnow().isoformat(),
                 'normalized_data': graph,
             }, headers={'Authorization': self.config.authorization()})
-
-            # attach task
-            normalized_id = resp.json()['normalized_id']
-            normalized = NormalizedManuscript.objects.get(pk=normalized_id)
-            normalized.tasks.add(self.task)
         except Exception as e:
             logger.exception('Failed normalizer task (%s, %d)', self.config.label, raw_id)
             raise self.retry(countdown=10, exc=e)
 
         if (resp.status_code // 100) != 2:
             raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content)))
+
+        # attach task
+        normalized_id = resp.json()['normalized_id']
+        normalized = NormalizedManuscript.objects.get(pk=normalized_id)
+        normalized.tasks.add(self.task)
 
         logger.info('Successfully submitted change for %s', raw)
 
