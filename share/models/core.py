@@ -136,6 +136,8 @@ def user_post_save(sender, instance, created, **kwargs):
     if created and not instance.is_robot:
 
         instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
+
+
 class RawDataManager(models.Manager):
 
     def store_data(self, doc_id, data, source):

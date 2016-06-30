@@ -7,6 +7,11 @@ from .models import Organization, Affiliation, Email, RawData, NormalizedManuscr
     Person, PersonEmail, ChangeSet, Preprint, Manuscript, CreativeWork, CeleryEvent, CeleryTask
 from share.models.creative.contributors import Contributor
 
+class ShareAdminSite(admin.AdminSite):
+    site_header = 'SHARE Administration'
+    site_title = 'SHARE Administration'
+    empty_value_display = '-- INTENTIONALLY LEFT BLANK --'
+
 
 class NormalizedManuscriptAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
@@ -46,30 +51,31 @@ class CeleryEventAdmin(admin.ModelAdmin):
     list_display = ['uuid', 'type', ]
     list_filter = ['type']
 
+share_admin = ShareAdminSite(name='share_admin')
 
-admin.site.register(Organization)
-admin.site.register(Affiliation)
-admin.site.register(Person, PersonAdmin)
-admin.site.register(PersonEmail)
-admin.site.register(Identifier)
-admin.site.register(Venue)
-admin.site.register(Institution)
-admin.site.register(Funder)
-admin.site.register(Award)
-admin.site.register(DataProvider)
-admin.site.register(Taxonomy)
-admin.site.register(Tag)
-admin.site.register(ExtraData)
-admin.site.register(Contributor)
-admin.site.register(Email)
-admin.site.register(RawData)
-admin.site.register(Preprint)
-admin.site.register(Manuscript)
-admin.site.register(NormalizedManuscript, NormalizedManuscriptAdmin)
-admin.site.register(CeleryEvent, CeleryEventAdmin)
-admin.site.register(CeleryTask, CeleryTaskAdmin)
+share_admin.register(Organization)
+share_admin.register(Affiliation)
+share_admin.register(Person, PersonAdmin)
+share_admin.register(PersonEmail)
+share_admin.register(Identifier)
+share_admin.register(Venue)
+share_admin.register(Institution)
+share_admin.register(Funder)
+share_admin.register(Award)
+share_admin.register(DataProvider)
+share_admin.register(Taxonomy)
+share_admin.register(Tag)
+share_admin.register(ExtraData)
+share_admin.register(Contributor)
+share_admin.register(Email)
+share_admin.register(RawData)
+share_admin.register(Preprint)
+share_admin.register(Manuscript)
+share_admin.register(NormalizedManuscript, NormalizedManuscriptAdmin)
+share_admin.register(CeleryEvent, CeleryEventAdmin)
+share_admin.register(CeleryTask, CeleryTaskAdmin)
 
-admin.site.register(CreativeWork)
+share_admin.register(CreativeWork)
 
-admin.site.register(ChangeSet, ChangeSetAdmin)
-admin.site.register(ShareUser)
+share_admin.register(ChangeSet, ChangeSetAdmin)
+share_admin.register(ShareUser)
