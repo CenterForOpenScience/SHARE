@@ -20,5 +20,3 @@ Example Record
     <category term="math.NA" scheme="http://arxiv.org/schemas/atom"/>
 </entry>
 """
-
-start_page_num = 0
