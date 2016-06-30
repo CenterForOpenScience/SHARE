@@ -15,11 +15,6 @@
       groups: []
       user_permissions: []
   -
-    model: "auth.group"
-    fields:
-      name: "OSF Users"
-      permissions: []
-  -
     model: "sites.site"
     pk: 1
     fields:
