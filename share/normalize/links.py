@@ -239,7 +239,7 @@ class PathLink(AbstractLink):
             if len(ret) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
                 ret = ret[0]
                 if self._next is None:
-                    ret = ret.text()
+                    ret = ret.text
             return ret
 
         return obj[self._segment]
