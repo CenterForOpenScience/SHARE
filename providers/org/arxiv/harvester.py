@@ -1,6 +1,6 @@
 import logging
-
 import datetime
+
 from furl import furl
 from lxml import etree
 
@@ -31,17 +31,21 @@ class ArxivHarvester(Harvester):
         records = self.fetch_page(furl(url))
 
         while True:
-            # '2016-06-28T19:54:40Z'
-            updated = datetime.datetime.strptime(records[0].xpath('ns0:updated', namespaces=self.namespaces)[0].text, '%Y-%m-%dT%H:%M:%SZ').date()
-            for record in records:
+            in_date_range = True
+            for index, record in enumerate(records):
+                # '2016-06-28T19:54:40Z'
+                updated = datetime.datetime.strptime(record.xpath('ns0:updated', namespaces=self.namespaces)[0].text, '%Y-%m-%dT%H:%M:%SZ').date()
+                if updated < start_date:
+                    logger.info('Record index {}: Updated record date {} is less than start date {}.'.format(index, updated, start_date))
+                    in_date_range = False
+                    break
 
                 yield (
                     record.xpath('ns0:id', namespaces=self.namespaces)[0].text,
                     etree.tostring(record),
                 )
 
-            if updated < start_date:
-                logger.info('Updated record date {} is less than start date {}.'.format(updated, start_date))
+            if not in_date_range:
                 break
 
             records = self.fetch_page(furl(self.get_next_url()))
