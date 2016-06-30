@@ -270,6 +270,9 @@ CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
+CELERY_IGNORE_RESULT = True
+CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
+
 # Logging
 LOGGING = {
     'version': 1,

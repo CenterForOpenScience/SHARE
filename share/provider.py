@@ -164,7 +164,7 @@ class HarvesterScheduleMigration(AbstractProviderMigration):
         tab.save()
         PeriodicTask(
             name='{} harvester task'.format(self.config.title),
-            task='share.tasks.run_harvester',
+            task='share.tasks.HarvesterTask',
             description='TODO',
             args=json.dumps([self.config.name]),
             crontab=tab,
@@ -174,7 +174,7 @@ class HarvesterScheduleMigration(AbstractProviderMigration):
         from djcelery.models import PeriodicTask
         try:
             PeriodicTask.get(
-                task='share.tasks.run_harvester',
+                task='share.tasks.HarvesterTask',
                 args=json.dumps([self.config.name]),
             ).delete()
         except PeriodicTask.DoesNotExist:
