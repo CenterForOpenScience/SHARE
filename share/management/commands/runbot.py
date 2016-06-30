@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.core.management.base import BaseCommand
 
-from share.tasks import run_bot
+from share.tasks import BotTask
 from share.bot import BotAppConfig
 
 
@@ -19,8 +19,8 @@ class Command(BaseCommand):
         for bot in options['bot']:
             apps.get_app_config(bot)  # Die if the AppConfig can not be loaded
             if options['async']:
-                run_bot.apply_async((bot,))
+                BotTask().apply_async((bot,))
                 self.stdout.write('Started job for bot {}'.format(bot))
             else:
                 self.stdout.write('Running bot for {}'.format(bot))
-                run_bot(bot)
+                BotTask().run(bot)
