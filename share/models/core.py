@@ -105,6 +105,9 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         return self.harvester if self.harvester != '' else self.username
 
+    def get_full_name(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
     @property
     def is_harvester(self):
         return self.harvester == ''
