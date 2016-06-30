@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'djcelery',
     'guardian',
@@ -50,7 +51,19 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'rest_framework',
 
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.orcid',
+    'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.google',
+    'osf_oauth2_adapter',
+
     'share',
+    'api',
+    'monitor',
+
+    'bots.automerge',
 
     'providers.be.ghent',
     'providers.br.pcurio',
@@ -117,8 +130,6 @@ INSTALLED_APPS = [
     'providers.uk.cambridge',
     'providers.uk.lshtm',
     'providers.za.csir',
-
-    'api',
 ]
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
@@ -133,6 +144,31 @@ OAUTH2_PROVIDER = {
         'upload_raw_data': 'Upload Raw Data'
     }
 }
+
+SOCIALACCOUNT_PROVIDERS = \
+    {'osf':
+         {
+            'METHOD': 'oauth2',
+            'SCOPE': ['osf.users.all_read'],
+            'AUTH_PARAMS': {'access_type': 'offline'},
+          # 'FIELDS': [
+          #     'id',
+          #     'email',
+          #     'name',
+          #     'first_name',
+          #     'last_name',
+          #     'verified',
+          #     'locale',
+          #     'timezone',
+          #     'link',
+          #     'gender',
+          #     'updated_time'],
+          # 'EXCHANGE_TOKEN': True,
+          # 'LOCALE_FUNC': 'path.to.callable',
+          # 'VERIFIED_EMAIL': False,
+          # 'VERSION': 'v2.4'
+          }
+     }
 
 APPLICATION_USERNAME = 'share_oauth2_application_user'
 
@@ -218,6 +254,7 @@ if DEBUG:
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
+    'allauth.account.auth_backends.AuthenticationBackend',
     'guardian.backends.ObjectPermissionBackend',
 )
 
@@ -265,10 +302,14 @@ CELERY_ACCEPT_CONTENT = ['json']
 
 CELERY_TRACK_STARTED = True
 CELERY_RESULT_PERSISTENT = True
+CELERY_SEND_EVENTS = True
 CELERY_SEND_TASK_SENT_EVENT = True
 CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+
+CELERY_IGNORE_RESULT = True
+CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 
 # Logging
 LOGGING = {
@@ -303,4 +344,6 @@ LOGGING = {
 
 # Custom Settings
 
-API_URL = os.environ.get('API_URL', 'http://localhost:8000').rstrip('/') + '/'
+SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
+OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
+SITE_ID = 2

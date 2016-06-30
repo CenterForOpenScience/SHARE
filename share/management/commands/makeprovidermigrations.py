@@ -7,8 +7,8 @@ from django.db.migrations.loader import MigrationLoader
 from django.db.migrations.writer import MigrationWriter
 from django.db.migrations.autodetector import MigrationAutodetector
 
-from share.provider import ProviderAppConfig
-from share.provider import ProviderMigration
+from share.robot import RobotAppConfig
+from share.robot import RobotMigration
 
 
 class Command(BaseCommand):
@@ -27,8 +27,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         changes = {}
         for config in apps.get_app_configs():
-            if isinstance(config, ProviderAppConfig):
-                changes[config.name] = [ProviderMigration(config).migration()]
+            if isinstance(config, RobotAppConfig):
+                changes[config.name] = [RobotMigration(config).migration()]
 
         for migrations in changes.values():
             for m in migrations:

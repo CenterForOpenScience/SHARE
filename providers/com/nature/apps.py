@@ -3,6 +3,7 @@ from share.provider import OAIProviderAppConfig
 
 class AppConfig(OAIProviderAppConfig):
     name = 'providers.com.nature'
+    version = '0.0.1'
     title = 'nature'
     long_title = 'Nature Publishing Group'
     home_page =  'http://www.nature.com/'

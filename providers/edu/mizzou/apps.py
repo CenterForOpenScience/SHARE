@@ -3,6 +3,7 @@ from share.provider import OAIProviderAppConfig
 
 class AppConfig(OAIProviderAppConfig):
     name = 'providers.edu.mizzou'
+    version = '0.0.1'
     title = 'mizzou'
     long_title = 'DSpace@MIT'
     home_page = 'https://mospace.umsystem.edu'

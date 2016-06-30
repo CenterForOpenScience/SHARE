@@ -4,6 +4,7 @@ from .harvester import ArxivHarvester
 
 class AppConfig(ProviderAppConfig):
     name = 'providers.org.arxiv'
+    version = '0.0.1'
     title = 'arxiv'
     long_title = 'ArXiv'
     home_page = 'https://arxiv.org'

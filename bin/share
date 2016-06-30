@@ -8,6 +8,8 @@ Options:
 
 Commands:
     harvest      Run a specific harvester
+    normalize    Normalize the given files with a specific harvester
+    providers    Print a list of installed providers
 
 See 'share <command> --help' for more information on a specific command.
 """

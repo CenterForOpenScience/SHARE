@@ -4,6 +4,7 @@ from .harvester import DoepagesHarvester
 
 class AppConfig(ProviderAppConfig):
     name = 'providers.gov.doepages'
+    version = '0.0.1'
     title = 'doepages'
     long_title = 'Department of Energy Pages'
     home_page = 'http://www.osti.gov/pages/'
