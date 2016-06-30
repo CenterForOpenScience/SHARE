@@ -29,6 +29,7 @@ import django
 from django.apps import apps
 from django.conf import settings
 
+from share.normalize import ctx
 from share.provider import ProviderAppConfig
 
 __version__ = 'share 0.0.0'
@@ -109,6 +110,30 @@ def providers(args, argv):
     for config in apps.get_app_configs():
         if isinstance(config, ProviderAppConfig):
             print(config.label)
+
+
+@command
+def debug(args, argv):
+    """
+    Usage: share debug <provider> FILE
+
+    """
+    config = apps.get_app_config(args['<provider>'])
+    normalizer = config.normalizer(config)
+
+    with open(args['FILE']) as fobj:
+        data = normalizer.unwrap_data(json.load(fobj)['raw'].encode())
+
+    parser = normalizer.get_root_parser()
+
+    print('\n')
+    print('ctx: {}'.format(ctx))
+    print('parser: {}'.format(parser))
+    print('data: {}'.format(type(data)))
+    print('normalizer: {}'.format(normalizer))
+
+    import ipdb
+    ipdb.set_trace()
 
 
 def main():
