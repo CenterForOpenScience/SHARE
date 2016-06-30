@@ -3,7 +3,7 @@ import datetime
 from django.apps import apps
 from django.core.management.base import BaseCommand
 
-from share.tasks import run_harvester
+from share.tasks import HarvesterTask
 from share.provider import ProviderAppConfig
 
 
@@ -27,8 +27,8 @@ class Command(BaseCommand):
         for harvester in options['harvester']:
             apps.get_app_config(harvester)  # Die if the AppConfig can not be loaded
             if options['async']:
-                run_harvester.apply_async((harvester,), **kwargs)
+                HarvesterTask().apply_async((harvester,), **kwargs)
                 self.stdout.write('Started job for harvester {}'.format(harvester))
             else:
                 self.stdout.write('Running harvester for {}'.format(harvester))
-                run_harvester(harvester, **kwargs)
+                HarvesterTask().run(harvester, **kwargs)
