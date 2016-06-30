@@ -8,3 +8,4 @@ class AppConfig(ProviderAppConfig):
     long_title = 'Public Library of Science'
     home_page = 'https://plos.org/'
     harvester = PLOSHarvester
+    version = '0.0.0'

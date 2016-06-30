@@ -47,4 +47,4 @@ class PLOSHarvester(Harvester):
                     doc = etree.tostring(doc)
                     yield (doc_id, doc)
 
-            current_row += self.MAX_ROWS_PER_REQUEST
+            current_row += len(etree.XML(response.content).xpath('//doc'))
