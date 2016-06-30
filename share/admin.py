@@ -18,8 +18,8 @@ def count_changes(obj):
 count_changes.short_description = 'number of changes'
 
 
-class ChangeAdmin(admin.ModelAdmin):
-    list_display = ('target', count_changes, 'status')
+# class ChangeAdmin(admin.ModelAdmin):
+#     list_display = ('target', count_changes, 'status')
     # list_filter = ['status', ]
 
 
@@ -30,8 +30,8 @@ def accept_changes(self, request, queryset):
 accept_changes.short_description = 'Accept changes'
 
 
-class ChangeSetAdmin(admin.ModelAdmin):
-    actions = [accept_changes]
+# class ChangeSetAdmin(admin.ModelAdmin):
+#     actions = [accept_changes]
 
 
 
@@ -57,8 +57,8 @@ admin.site.register(NormalizedManuscript, NormalizedManuscriptAdmin)
 
 admin.site.register(CreativeWork)
 
-admin.site.register(Change, ChangeAdmin)
-admin.site.register(ChangeSet, ChangeSetAdmin)
+# admin.site.register(Change, ChangeAdmin)
+# admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(ShareUser)
 admin.site.register(Normalization)
 admin.site.register(NormalizationQueue)

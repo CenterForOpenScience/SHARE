@@ -61,8 +61,11 @@ class ChangeManager(models.Manager):
 
 
 class ChangeSet(models.Model):
+    STATUS = Choices((0, 'pending', _('pending')), (1, 'accepted', _('accepted')), (2, 'rejected', _('rejected')))
+
     objects = ChangeSetManager()
 
+    status = models.IntegerField(choices=STATUS, default=STATUS.pending)
     submitted_at = models.DateTimeField(auto_now_add=True)
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL)
 #     # raw = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
@@ -70,21 +73,22 @@ class ChangeSet(models.Model):
 
     def accept(self, save=True):
         with transaction.atomic():
-            return [c.accept(save=save) for c in self.changes.all()]
+            ret = [c.accept(save=save) for c in self.changes.all()]
+            self.status = ChangeSet.STATUS.accepted
+            if save:
+                self.save()
+        return ret
 
 
 class Change(models.Model):
     TYPE = Choices((0, 'create', _('create')), (1, 'merge', _('merge')), (2, 'update', _('update')))
-    STATUS = Choices((0, 'pending', _('pending')), (1, 'accepted', _('accepted')), (2, 'rejected', _('rejected')))
 
     objects = ChangeManager()
-    # accepted = ChangeQuerySet
 
     change = JSONField()
     node_id = models.CharField(max_length=80)  # TODO
 
     type = models.IntegerField(choices=TYPE, editable=False)
-    status = models.IntegerField(choices=STATUS, default=STATUS.pending)
 
     target_id = models.PositiveIntegerField(null=True)
     target = GenericForeignKey('target_type', 'target_id')
@@ -113,10 +117,9 @@ class Change(models.Model):
         )
 
     def accept(self, save=True):
-        assert self.get_requirements().exclude(status=Change.STATUS.accepted).count() == 0
-        assert self.status == Change.STATUS.pending, 'Cannot accept a change with status {}'.format(self.status)
+        # Little bit of blind faith here that all requirements have been accepted
+        assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.status)
         ret = self._accept(save)
-        self.status = Change.STATUS.accepted
         if save:
             self.save()
         return ret
