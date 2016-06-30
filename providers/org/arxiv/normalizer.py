@@ -2,18 +2,45 @@ from share.normalize import *  # noqa
 
 
 class Person(Parser):
-    given_name = ParseName(ctx.name[0].text()).first
-    family_name = ParseName(ctx.name[0].text()).last
-    additional_name = ParseName(ctx.name[0].text()).middle
-    suffix = ParseName(ctx.name[0].text()).suffix
-    # affiliations = ctx.arxiv[0].text()
+    given_name = ParseName(ctx.name).first
+    family_name = ParseName(ctx.name).last
+    additional_name = ParseName(ctx.name).middle
+    suffix = ParseName(ctx.name).suffix
+    affiliations = ctx.maybe('arxiv:affiliation')
 
 
 class Contributor(Parser):
+    order_cited = ctx['index']
     person = ctx
+    cited_name = ctx.name
 
 
 class CreativeWork(Parser):
-    title = ctx.title[0].text()
-    description = ctx.summary[0].text()
-    contributors = ctx.author['*']
+    title = ctx.entry.title
+    description = ctx.entry.summary
+    contributors = ctx.entry.author['*']
+    published = ctx.entry.published
+    doi = ctx.entry.maybe('arxiv:doi')
+    subject = ctx.entry('arxiv:primary_category')('@term')
+    tags = ctx.entry.category['*']
+
+
+class Affiliation(Parser):
+    organization = ctx
+
+
+class Organization(Parser):
+    name = ctx
+
+
+class Tag(Parser):
+    name = ctx
+    type = ctx
+
+
+class ThroughTags(Parser):
+    tag = ctx
+
+
+class Taxonomy(Parser):
+    name = ctx

@@ -88,6 +88,9 @@ class AbstractLink:
     def maybe(self, segment):
         return self + MaybeLink(segment)
 
+    def xpath(self, xpath):
+        return self + XPathLink(xpath)
+
     # Add a link into an existing chain
     def __add__(self, step):
         self._next = step
@@ -221,8 +224,8 @@ class MaybeLink(AbstractLink):
         else:
             val = obj.get(self._segment)
         if not val:
-            return None
-        return [self.__anchor.execute(sub) for sub in val]
+            return val
+        return self.__anchor.execute(val)
 
 
 class PathLink(AbstractLink):
@@ -268,3 +271,12 @@ class GetIndexLink(AbstractLink):
 class TextLink(AbstractLink):
     def execute(self, obj):
         return obj.text
+
+
+class XPathLink(AbstractLink):
+    def __init__(self, xpath):
+        self._xpath = xpath
+        super().__init__()
+
+    def execute(self, obj):
+        return obj.xpath(self._xpath)

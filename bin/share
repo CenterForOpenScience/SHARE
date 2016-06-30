@@ -94,7 +94,9 @@ def normalize(args, argv):
     for name in files:
         with open(name) as fobj:
             data = json.load(fobj)
-        parsed = normalizer.normalize(data['raw'].encode())
+        from ipdb import launch_ipdb_on_exception
+        with launch_ipdb_on_exception():
+            parsed = normalizer.normalize(data['raw'].encode())
         print('Parsed raw data "{}" into'.format(data['id']))
         pprint(parsed)
         print('\n')
