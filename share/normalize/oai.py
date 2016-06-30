@@ -26,9 +26,9 @@ class OAIManuscript(parsers.Parser):
     schema = 'Manuscript'
     Contributor = OAIContributor
 
-    title = links.Trim(ctx.metadata[0].dc[0].title[0].text())
-    contributors = ctx.metadata[0].dc[0].creator['*']
-    description = links.Trim(links.Concat(ctx.metadata[0].dc[0].description['*'].text()))
+    title = links.Trim(ctx.metadata.dc.title.text())
+    contributors = ctx.metadata.dc.creator['*']
+    description = links.Trim(links.Concat(ctx.metadata.dc.description['*'].text()))
 
 
 class OAINormalizer(Normalizer):

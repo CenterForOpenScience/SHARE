@@ -1,5 +1,3 @@
-import ujson
-
 from oauth2_provider.ext.rest_framework import TokenHasScope
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
@@ -27,7 +25,7 @@ class NormalizedManuscriptViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
-            return Response(ujson.dumps({'normalized_id': nm_instance.id, 'task_id': async_result.id}), status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+            return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

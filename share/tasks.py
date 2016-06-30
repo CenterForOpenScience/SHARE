@@ -10,7 +10,7 @@ from django.apps import apps
 from django.conf import settings
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedManuscript, ShareUser, ChangeSet, CeleryProviderTask
+from share.models import RawData, NormalizedManuscript, ChangeSet, CeleryProviderTask, ShareUser
 
 
 logger = logging.getLogger(__name__)
@@ -30,6 +30,7 @@ class ProviderTask(celery.Task):
                 'app_version': self.config.version,
                 'args': args,
                 'kwargs': kwargs,
+                'provider': self.config.user
             },
         )
         self.task.save()
@@ -83,17 +84,17 @@ class NormalizerTask(ProviderTask):
                 'created_at': datetime.datetime.utcnow().isoformat(),
                 'normalized_data': graph,
             }, headers={'Authorization': self.config.authorization()})
-
-            # attach task
-            normalized_id = resp.json()['normalized_id']
-            normalized = NormalizedManuscript.objects.get(pk=normalized_id)
-            normalized.tasks.add(self.task)
         except Exception as e:
             logger.exception('Failed normalizer task (%s, %d)', self.config.label, raw_id)
             raise self.retry(countdown=10, exc=e)
 
         if (resp.status_code // 100) != 2:
             raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content)))
+
+        # attach task
+        normalized_id = resp.json()['normalized_id']
+        normalized = NormalizedManuscript.objects.get(pk=normalized_id)
+        normalized.tasks.add(self.task)
 
         logger.info('Successfully submitted change for %s', raw)
 
@@ -114,3 +115,13 @@ class MakeJsonPatches(celery.Task):
             raise self.retry(countdown=10, exc=e)
 
         logger.info('Finished make JSON patches for %s by %s at %s', normalized, started_by, datetime.datetime.utcnow().isoformat())
+
+
+class BotTask(ProviderTask):
+
+    def do_run(self, app_label: str, started_by=None):
+        config = apps.get_app_config(app_label)
+        bot = config.get_bot()
+
+        logger.info('Running bot %s. Started by %s', bot, started_by or 'system')
+        bot.run()

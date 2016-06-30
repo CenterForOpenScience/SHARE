@@ -88,11 +88,17 @@ class AbstractLink:
     def xpath(self, xpath):
         return self + XPathLink(xpath)
 
+    def maybe(self, segment):
+        return self + MaybeLink(segment)
+
     # Add a link into an existing chain
     def __add__(self, step):
         self._next = step
         step._prev = self
         return step
+
+    def __radd__(self, other):
+        return self + PrependLink(other)
 
     # Reserved for special cases
     # Any other use is an error
@@ -118,6 +124,9 @@ class AbstractLink:
     # ctx.root.nextelement[0].first_item_attribute
     def __getattr__(self, name):
         return self + PathLink(name)
+
+    def __repr__(self):
+        return '<{}()>'.format(self.__class__.__name__)
 
 
 # The begining link for all chains
@@ -201,6 +210,31 @@ class IteratorLink(AbstractLink):
         return [self.__anchor.execute(sub) for sub in obj]
 
 
+class MaybeLink(AbstractLink):
+    def __init__(self, segment):
+        super().__init__()
+        self._segment = segment
+        self.__anchor = AnchorLink()
+
+    def __add__(self, step):
+        # Attach all new links to the "subchain"
+        self.__anchor.chain()[-1] + step
+        return self
+
+    def execute(self, obj):
+        if isinstance(obj, etree._Element):
+            val = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
+            if len(val) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
+                val = val[0]
+                if self._next is None:
+                    val = val.text
+        else:
+            val = obj.get(self._segment)
+        if not val:
+            return None
+        return [self.__anchor.execute(sub) for sub in val]
+
+
 class PathLink(AbstractLink):
     def __init__(self, segment):
         self._segment = segment
@@ -211,8 +245,17 @@ class PathLink(AbstractLink):
             # Dirty hack to avoid namespaces with xpath
             # Anything name "<namespace>:<node>" will be accessed as <node>
             # IE: oai:title -> title
-            return obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
+            ret = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
+            if len(ret) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
+                ret = ret[0]
+                if self._next is None:
+                    ret = ret.text
+            return ret
+
         return obj[self._segment]
+
+    def __repr__(self):
+        return '<{}({!r})>'.format(self.__class__.__name__, self._segment)
 
 
 class IndexLink(AbstractLink):
@@ -223,6 +266,9 @@ class IndexLink(AbstractLink):
     def execute(self, obj):
         return obj[self._index]
 
+    def __repr__(self):
+        return '<{}([{}])>'.format(self.__class__.__name__, self._index)
+
 
 class GetIndexLink(AbstractLink):
     def execute(self, obj):
@@ -232,6 +278,15 @@ class GetIndexLink(AbstractLink):
 class TextLink(AbstractLink):
     def execute(self, obj):
         return obj.text
+
+
+class PrependLink(AbstractLink):
+    def __init__(self, string):
+        self._string = string
+        super().__init__()
+
+    def execute(self, obj):
+        return self._string + obj
 
 
 class XPathLink(AbstractLink):

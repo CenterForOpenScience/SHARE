@@ -1,7 +1,7 @@
 import abc
 import json
 
-from lxml import etree
+import xmltodict
 
 from share.normalize.links import Context
 
@@ -19,36 +19,42 @@ class Normalizer(metaclass=abc.ABCMeta):
         self.config = app_config
 
     def do_normalize(self, data):
-        if data.startswith(b'<'):
-            parsed = etree.fromstring(data.decode())
-        else:
-            parsed = json.loads(data.decode())
-
-        if self.root_parser:
-            parser = self.root_parser
-        else:
-            try:
-                module = __import__(self.config.name + '.normalizer', fromlist=('Manuscript', ))
-            except ImportError:
-                raise ImportError('Unable to find parser definitions at {}'.format(self.config.name + '.normalizer'))
-
-            from share.models import AbstractCreativeWork
-            root_levels = [
-                getattr(module, klass.__name__)
-                for klass in
-                AbstractCreativeWork.__subclasses__()
-                if hasattr(module, klass.__name__)
-            ]
-
-            if not root_levels:
-                raise ImportError('No root level parsers found. You may have to create one or manually specifiy a parser with the root_parser attribute')
-
-            if len(root_levels) > 1:
-                raise ImportError('Found root level parsers {!r}. If more than one is found a single parser must be specified via the root_parser attribute')
-
-            parser = root_levels[0]
+        parsed = self.unwrap_data(data)
+        parser = self.get_root_parser()
 
         return parser(parsed).parse()
+
+    def unwrap_data(self, data):
+        if data.startswith(b'<'):
+            # process_namespaces=True uses full url, False uses short name
+            return xmltodict.parse(data, process_namespaces=False)
+        else:
+            return json.loads(data.decode())
+
+    def get_root_parser(self):
+        if self.root_parser:
+            return self.root_parser
+
+        try:
+            module = __import__(self.config.name + '.normalizer', fromlist=('Manuscript', ))
+        except ImportError:
+            raise ImportError('Unable to find parser definitions at {}'.format(self.config.name + '.normalizer'))
+
+        from share.models import AbstractCreativeWork
+        root_levels = [
+            getattr(module, klass.__name__)
+            for klass in
+            AbstractCreativeWork.__subclasses__()
+            if hasattr(module, klass.__name__)
+        ]
+
+        if not root_levels:
+            raise ImportError('No root level parsers found. You may have to create one or manually specifiy a parser with the root_parser attribute')
+
+        if len(root_levels) > 1:
+            raise ImportError('Found root level parsers {!r}. If more than one is found a single parser must be specified via the root_parser attribute')
+
+        return root_levels[0]
 
     def normalize(self, raw_data):
         ctx.clear()  # Just incase
