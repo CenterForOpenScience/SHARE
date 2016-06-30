@@ -1,10 +1,14 @@
 import arrow
+import logging
+
 from furl import furl
 from typing import Tuple
 from typing import Union
 from typing import Iterator
 
 from share.harvest.harvester import Harvester
+
+logger = logging.getLogger(__name__)
 
 
 class OSFHarvester(Harvester):
@@ -14,27 +18,39 @@ class OSFHarvester(Harvester):
         self.url = 'https://api.osf.io/v2/nodes/?filter[public]=true'
 
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
+
         url = furl(self.url)
 
-        url.args['filter[date_updated][gt]'] = start_date.date().isoformat()
-        url.args['filter[date_updated][lt]'] = end_date.date().isoformat()
+        url.args['filter[date_modified][gt]'] = start_date.date().isoformat()
+        url.args['filter[date_modified][lt]'] = end_date.date().isoformat()
 
         return self.fetch_records(url)
 
+    def fetch_records(self, url: furl) -> list:
+        records, next_page = self.fetch_page(url)
+        total_records = records.json()['links']['meta']['total']
 
-def fetch_records(self, url: furl) -> list:
+        total_harvested = 0
+        while True:
+            for record in records.json()['data']:
+                total_harvested += 1
+                yield(record['id'], record)
+
+            if not next_page:
+                break
+
+            records, next_page = self.fetch_page(next_page)
+
+        logger.info('Had {} records to harvest, harvested {}'.format(total_records, total_harvested))
+
+
+    def fetch_page(self, url: furl, next_page: str=None) -> (list, str):
+        logger.info('Making request to {}'.format(url.url))
+
         records = self.requests.get(url.url)
+        next_page = records.json()['links'].get('next')
+        next_page = furl(next_page) if next_page else None
 
-        total_records = records.json()['meta']['total']
-        all_records = []
-        while records['links'].get('next'):
-            record_list = records.json()['data']
+        logger.info('Found {} records.'.format(len(records.json()['data'])))
 
-            for record in record_list:
-                all_records.append(record)
-
-            records = self.requests.get(records.json()['links']['next'])
-
-        total = int(records.json()['counts']['total'])
-
-        return all_records
+        return records, next_page
