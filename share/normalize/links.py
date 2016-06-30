@@ -85,6 +85,9 @@ class AbstractLink:
     def text(self):
         return self + TextLink()
 
+    def maybe(self, segment):
+        return self + MaybeLink(segment)
+
     # Add a link into an existing chain
     def __add__(self, step):
         self._next = step
@@ -115,6 +118,9 @@ class AbstractLink:
     # ctx.root.nextelement[0].first_item_attribute
     def __getattr__(self, name):
         return self + PathLink(name)
+
+    def __repr__(self):
+        return '<{}()>'.format(self.__class__.__name__)
 
 
 # The begining link for all chains
@@ -198,6 +204,27 @@ class IteratorLink(AbstractLink):
         return [self.__anchor.execute(sub) for sub in obj]
 
 
+class MaybeLink(AbstractLink):
+    def __init__(self, segment):
+        super().__init__()
+        self._segment = segment
+        self.__anchor = AnchorLink()
+
+    def __add__(self, step):
+        # Attach all new links to the "subchain"
+        self.__anchor.chain()[-1] + step
+        return self
+
+    def execute(self, obj):
+        if isinstance(obj, etree._Element):
+            val = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
+        else:
+            val = obj.get(self._segment)
+        if not val:
+            return None
+        return [self.__anchor.execute(sub) for sub in obj]
+
+
 class PathLink(AbstractLink):
     def __init__(self, segment):
         self._segment = segment
@@ -211,6 +238,9 @@ class PathLink(AbstractLink):
             return obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
         return obj[self._segment]
 
+    def __repr__(self):
+        return '<{}({!r})>'.format(self.__class__.__name__, self._segment)
+
 
 class IndexLink(AbstractLink):
     def __init__(self, index):
@@ -219,6 +249,9 @@ class IndexLink(AbstractLink):
 
     def execute(self, obj):
         return obj[self._index]
+
+    def __repr__(self):
+        return '<{}([{}])>'.format(self.__class__.__name__, self._index)
 
 
 class GetIndexLink(AbstractLink):
