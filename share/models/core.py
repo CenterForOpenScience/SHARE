@@ -14,7 +14,7 @@ from share.models.fields import ZipField, DatetimeAwareJSONField
 from share.models.validators import is_valid_jsonld
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'RawData', 'NormalizedManuscript', 'NormalizationQueue', 'Normalization')
+__all__ = ('ShareUser', 'RawData', 'NormalizedManuscript',)
 
 
 class ShareUserManager(BaseUserManager):
@@ -134,7 +134,6 @@ class RawDataManager(models.Manager):
 
         if created:
             logger.debug('Newly created RawData for document {} from {}'.format(doc_id, source))
-            NormalizationQueue(data=rd).save()
         else:
             logger.debug('Saw exact copy of document {} from {}'.format(doc_id, source))
 
@@ -173,6 +172,7 @@ class RawData(models.Model):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.source, self.provider_doc_id)
 
 
+# TODO Rename me
 class NormalizedManuscript(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True)
@@ -182,13 +182,3 @@ class NormalizedManuscript(models.Model):
 
     def __str__(self):
         return '{} created at {}'.format(self.source.get_short_name(), self.created_at)
-
-
-class Normalization(models.Model):
-    id = models.AutoField(primary_key=True)
-    data = models.ForeignKey(RawData)
-    date = models.DateTimeField(auto_now_add=True)
-
-
-class NormalizationQueue(models.Model):
-    data = models.OneToOneField(RawData, primary_key=True)

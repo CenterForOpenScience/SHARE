@@ -79,6 +79,9 @@ class ChangeSet(models.Model):
                 self.save()
         return ret
 
+    def __repr__(self):
+        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.status.upper(), self.submitted_by, self.changes.count())
+
 
 class Change(models.Model):
     TYPE = Choices((0, 'create', _('create')), (1, 'merge', _('merge')), (2, 'update', _('update')))
