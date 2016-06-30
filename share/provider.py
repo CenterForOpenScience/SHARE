@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 class ProviderAppConfig(RobotAppConfig, metaclass=abc.ABCMeta):
 
-    version = '0.0.0'
     schedule = crontab(minute=0, hour=0)
     task = 'share.tasks.HarvesterTask'
     description = 'TODO'  # TODO
