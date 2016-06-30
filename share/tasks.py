@@ -8,7 +8,6 @@ import requests
 
 from django.apps import apps
 from django.conf import settings
-from django.db import transaction
 
 from share.change import ChangeGraph
 from share.models import RawData, NormalizedManuscript, ChangeSet, CeleryProviderTask, ShareUser
@@ -118,9 +117,9 @@ class MakeJsonPatches(celery.Task):
         logger.info('Finished make JSON patches for %s by %s at %s', normalized, started_by, datetime.datetime.utcnow().isoformat())
 
 
-class BotTask(celery.Task):
+class BotTask(ProviderTask):
 
-    def run(self, app_label: str, started_by=None):
+    def do_run(self, app_label: str, started_by=None):
         config = apps.get_app_config(app_label)
         bot = config.get_bot()
 
