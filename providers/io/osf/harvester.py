@@ -58,7 +58,6 @@ class OSFHarvester(Harvester):
 
         logger.info('Had {} records to harvest, harvested {}'.format(total_records, total_harvested))
 
-
     def fetch_page(self, url: furl, next_page: str=None) -> (list, str):
         logger.info('Making request to {}'.format(url.url))
 
