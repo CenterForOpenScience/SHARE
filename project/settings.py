@@ -287,8 +287,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-ELASTIC_SEARCH_URI = os.environ.get('ELASTIC_SEARCH_URI', 'http://localhost:9200')
-ELASTIC_SEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
+ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')
+ELASTICSEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
 
 # Celery Settings
 

@@ -16,7 +16,7 @@ class ElasticSearchBot(Bot):
 
     def __init__(self, config):
         super().__init__(config)
-        self.es_client = Elasticsearch(settings.ELASTIC_SEARCH_URI)
+        self.es_client = Elasticsearch(settings.ELASTICSEARCH_URL)
 
     def serialize(self, creative_work):
         # TODO Update format to whatever sharepa expects
@@ -47,7 +47,7 @@ class ElasticSearchBot(Bot):
             logger.debug(resp)
 
     def bulk_stream(self, cutoff_date=None):
-        opts = {'_index': settings.ELASTIC_SEARCH_INDEX, '_type': 'document'}
+        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'document'}
 
         if cutoff_date:
             qs = AbstractCreativeWork.objects.filter(date_modified__gt=cutoff_date)
