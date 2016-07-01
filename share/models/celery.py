@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from fuzzycount import FuzzyCountManager
 from pytz import utc
 
 from django.db import models
@@ -13,6 +15,8 @@ class CeleryTask(TypedModel):
     args = models.TextField(blank=True)
     kwargs = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    objects = FuzzyCountManager()
 
     @property
     def status(self):
@@ -34,6 +38,8 @@ class CeleryEvent(TypedModel):
     hostname = models.TextField()
     pid = models.IntegerField()
     timestamp = models.DateTimeField()
+
+    objects = FuzzyCountManager()
 
     # sent/received
     eta = models.DateTimeField(null=True)
