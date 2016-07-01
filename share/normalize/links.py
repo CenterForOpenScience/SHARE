@@ -2,6 +2,8 @@ import threading
 from functools import reduce
 from collections import deque
 
+import xmltodict
+
 import dateparser
 
 from lxml import etree
@@ -84,6 +86,9 @@ class AbstractLink:
     # Short cut method(s) for specific tranforms
     def text(self):
         return self + TextLink()
+
+    def xpath(self, xpath):
+        return self + XPathLink(xpath)
 
     def maybe(self, segment):
         return self + MaybeLink(segment)
@@ -284,3 +289,18 @@ class PrependLink(AbstractLink):
 
     def execute(self, obj):
         return self._string + obj
+
+
+class XPathLink(AbstractLink):
+    def __init__(self, xpath):
+        self._xpath = xpath
+        super().__init__()
+
+    def execute(self, obj):
+        unparsed_obj = xmltodict.unparse(obj)
+        xml_obj = etree.XML(unparsed_obj.encode())
+        elem = xml_obj.xpath(self._xpath)
+        elems = [xmltodict.parse(etree.tostring(x)) for x in elem]
+        if len(elems) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
+            return elems[0]
+        return elems
