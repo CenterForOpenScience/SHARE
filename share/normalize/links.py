@@ -228,8 +228,8 @@ class MaybeLink(AbstractLink):
         else:
             val = obj.get(self._segment)
         if not val:
-            return None
-        return [self.__anchor.execute(sub) for sub in val]
+            return val
+        return self.__anchor.execute(val)
 
 
 class PathLink(AbstractLink):
