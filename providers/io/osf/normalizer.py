@@ -6,7 +6,7 @@ class CreativeWork(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
     contributors = ctx.contributors['*']
-    institutions = ctx.relationships.affiliated_institutions['*']
+    institutions = ctx.embeds.affiliated_institutions.data['*']
     created = ctx.attributes.date_created
     subject = ctx.attributes.category
     tags = ctx.attributes.tags['*']
@@ -32,6 +32,7 @@ class Person(Parser):
 class ThroughInstitutions(Parser):
     institution = ctx
 
+
 class Institution(Parser):
-    name = ''
-    url = ctx.links.related.href
+    name = ctx.attributes.name
+    url = ctx.relationships.links.related.href
