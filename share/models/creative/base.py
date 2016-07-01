@@ -22,8 +22,9 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     published = models.DateTimeField(null=True)
     free_to_read_type = models.URLField(blank=True)
     free_to_read_date = models.DateTimeField(null=True)
-    rights = models.TextField()
-    language = models.TextField()
+
+    rights = models.TextField(blank=True, null=True)
+    language = models.TextField(blank=True, null=True)
 
 
 class CreativeWork(AbstractCreativeWork):
