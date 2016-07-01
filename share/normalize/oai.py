@@ -27,18 +27,32 @@ class OAIContributor(parsers.Parser):
 
 
 class OAITag(parsers.Parser):
+    schema = 'Tag'
     name = ctx
+
+
+class OAIThroughTags(parsers.Parser):
+    schema = 'ThroughTags'
+    Tag = OAITag
+    tag = ctx
 
 
 class OAIManuscript(parsers.Parser):
     schema = 'Manuscript'
     Contributor = OAIContributor
+    ThroughTags = OAIThroughTags
 
-    tags = ctx.record('dc:type')
-    language = ctx.record('dc:language')
+    # needs to be types
+    # types = ctx.record.metadata('oai_dc:dc')('dc:type')['*']
+    # tags = (
+    #     ctx.record.metadata('oai_dc:dc')('dc:subject')['*'] +
+    #     ctx.record.metadata('oai_dc:dc')('dc:type')['*']
+    # )
+    tags = ctx.record.metadata('oai_dc:dc')('dc:subject')['*']
+    language = ctx.record.metadata('oai_dc:dc').maybe('dc:language')
 
     title = ctx.record.metadata('oai_dc:dc')('dc:title')
-    rights = ctx.record.metadata('oai_dc:dc')('dc:rights')
+    rights = ctx.record.metadata('oai_dc:dc').maybe('dc:rights')
     contributors = ctx.record.metadata('oai_dc:dc')('dc:creator')['*']
     # contributors = (
     #     ctx.record.metadata('oai_dc:dc')('dc:creator')['*'] +
