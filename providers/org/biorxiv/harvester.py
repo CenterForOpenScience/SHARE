@@ -27,9 +27,9 @@ class BiorxivHarvester(Harvester):
     def do_harvest(self, start_date, end_date):
         # BioRxiv does not have filter dates; returns 30 most recent
         start_date = start_date.date()
-        url = (furl(self.url).set(query_params={
+        url = furl(self.url).set(query_params={
             'subject': 'all'
-        }).url)
+        }).url
         # Fetch records is a separate function for readability
         # Ends up returning a list of tuples with provider given id and the document itself
         return self.fetch_records(url, start_date)
