@@ -6,6 +6,6 @@ class AppConfig(OAIProviderAppConfig):
     version = '0.0.1'
     title = 'nature'
     long_title = 'Nature Publishing Group'
-    home_page =  'http://www.nature.com/'
+    home_page = 'http://www.nature.com/'
     url = 'http://www.nature.com/oai/request'
-    timezone_granularity = False
+    time_granularity = False

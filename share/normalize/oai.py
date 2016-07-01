@@ -42,15 +42,17 @@ class OAIManuscript(parsers.Parser):
     Contributor = OAIContributor
     ThroughTags = OAIThroughTags
 
-    title = ctx.record.metadata('oai_dc:dc')('dc:title')
-    description = links.Concat(ctx.record.metadata('oai_dc:dc')('dc:description')['*'])
+    title = ctx.record.metadata['oai_dc:dc']['dc:title']
+    rights = ctx.record.metadata['oai_dc:dc']['dc:rights']
+    language = ctx.record.metadata['oai_dc:dc']['dc:language']
+    description = links.Join(ctx.record.metadata['oai_dc:dc']['dc:description']('*'))
+
     # TODO: Contributors include a person, an organization, or a service
     # differentiate between them
-    contributors = ctx.record.metadata('oai_dc:dc')('dc:creator')['*']
-    # contributors = (
-    #     ctx.record.metadata('oai_dc:dc')('dc:creator')['*'] +
-    #     ctx.record.metadata('oai_dc:dc')('dc:contributor')['*']
-    # )
+    contributors = links.Concat(
+        ctx.record.metadata['oai_dc:dc'].maybe('dc:creator')('*'),
+        ctx.record.metadata['oai_dc:dc'].maybe('dc:contributor')('*')
+    )
 
     # TODO: need to determine which contributors/creators are institutions
     # institutions = ShareManyToManyField(Institution, through='ThroughInstitutions')
@@ -70,11 +72,10 @@ class OAIManuscript(parsers.Parser):
     # TODO: parse text of identifiers to find 'ISBN' also what is ISSN?
     # isbn = models.URLField(blank=True)
 
-    # tags = (
-    #     ctx.record.metadata('oai_dc:dc')('dc:subject')['*'] +
-    #     ctx.record.metadata('oai_dc:dc')('dc:type')['*']
-    # )
-    tags = ctx.record.metadata('oai_dc:dc')('dc:subject')['*']
+    tags = links.Concat(
+        ctx.record.metadata['oai_dc:dc']['dc:type']('*'),
+        ctx.record.metadata['oai_dc:dc']['dc:subject']('*')
+    )
 
     # TODO:update model to handle this
     # work_type = ctx.record.metadata('oai_dc:dc')('dc:type')['*']
