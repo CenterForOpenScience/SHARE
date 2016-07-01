@@ -48,12 +48,14 @@ def command(func):
 @command
 def harvest(args, argv):
     """
-    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR]
+    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR] [--start=MM-DD-YYYY] [--end=MM-DD-YY]
 
     Options:
-        -l, --limit=NUMBER  Limit the harvester to NUMBER of documents
-        -p, --print         Print results to stdout rather than to a file
-        -o, --out=DIR       The directory to store the harvested data in. Defaults to ./<provider>
+        -l, --limit=NUMBER      Limit the harvester to NUMBER of documents
+        -p, --print             Print results to stdout rather than to a file
+        -o, --out=DIR           The directory to store the harvested data in. Defaults to ./<provider>
+        -s, --start=MM-DD-YYYY  The start date for the harvester to begin, defaults to one day in the past
+        -e, --end=MM-DD-YYYY    The start date for the harvester to end, defaults to today
     """
     config = apps.get_app_config(args['<provider>'])
     harvester = config.harvester(config)
@@ -62,7 +64,10 @@ def harvest(args, argv):
         args['--out'] = args['--out'] or os.path.join(os.curdir, config.label)
         os.makedirs(args['--out'], exist_ok=True)
 
-    for doc_id, data in harvester.raw(arrow.utcnow() - timedelta(days=1), arrow.utcnow(), limit=int(args['--limit']) if args['--limit'] else None):
+    start_date = arrow.get(args['--start']) if args.get('--start') else arrow.utcnow() - timedelta(days=1)
+    end_date = arrow.get(args['--end']) if args.get('--end') else arrow.utcnow()
+
+    for doc_id, data in harvester.raw(start_date, end_date, limit=int(args['--limit']) if args['--limit'] else None):
         if args['--print']:
             print('Harvested data with identifier "{}"'.format(doc_id))
             print(data.decode())
