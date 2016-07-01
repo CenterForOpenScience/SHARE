@@ -29,7 +29,7 @@ class OSFHarvester(Harvester):
 
         return self.fetch_records(url)
 
-    def fetch_records(self, url: furl) -> list:
+    def fetch_records(self, url: furl) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         records, next_page = self.fetch_page(url)
         total_records = records.json()['links']['meta']['total']
 
