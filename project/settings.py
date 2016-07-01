@@ -115,6 +115,7 @@ INSTALLED_APPS = [
     'providers.edu.scholarsarchiveosu',
     'providers.edu.scholarsbank',
     'providers.edu.scholarscompass_vcu',
+    'providers.edu.scholarworks_umass',
     'providers.edu.smithsonian',
     'providers.edu.stcloud',
     'providers.edu.texasstate',
