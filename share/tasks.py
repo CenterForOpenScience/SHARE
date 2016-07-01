@@ -2,6 +2,7 @@ import abc
 import json
 import logging
 import datetime
+from dateutil import parser
 
 import celery
 import requests
@@ -45,9 +46,13 @@ class ProviderTask(celery.Task):
 
 class HarvesterTask(ProviderTask):
 
-    def do_run(self, start=None, end=None):
+    def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None):
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
+        if type(start) is str:
+            start = parser.parse(start)
+        if type(end) is str:
+            end = parser.parse(end)
 
         harvester = self.config.harvester(self.config)
 
