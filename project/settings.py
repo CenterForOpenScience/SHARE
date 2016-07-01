@@ -157,6 +157,7 @@ INSTALLED_APPS = [
     'providers.io.osf',
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
+    'providers.org.arxiv.oai.apps.AppConfig',
     'providers.org.bhl',
     'providers.org.cogprints',
     'providers.org.crossref',
@@ -402,3 +403,4 @@ BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1
+DOI_BASE_URL = 'http://dx.doi.org/'
