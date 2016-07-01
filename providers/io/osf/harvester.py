@@ -15,7 +15,7 @@ class OSFHarvester(Harvester):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.url = 'https://api.osf.io/v2/nodes/?page[size]=100&filter[public]=true&embed=contributors'
+        self.url = 'https://api.osf.io/v2/nodes/?page[size]=100&filter[public]=true'
 
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
 
