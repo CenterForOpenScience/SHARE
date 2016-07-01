@@ -158,6 +158,7 @@ INSTALLED_APPS = [
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.bhl',
+    'providers.org.biorxiv',
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
