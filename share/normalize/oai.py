@@ -11,8 +11,10 @@ ctx = links.Context()
 class OAIPerson(parsers.Parser):
     schema = 'Person'
 
-    given_name = links.ParseName(ctx.text()).first
-    family_name = links.ParseName(ctx.text()).last
+    suffix = links.ParseName(ctx).suffix
+    family_name = links.ParseName(ctx).last
+    given_name = links.ParseName(ctx).first
+    additional_name = links.ParseName(ctx).middle
 
 
 class OAIContributor(parsers.Parser):
@@ -20,15 +22,29 @@ class OAIContributor(parsers.Parser):
     Person = OAIPerson
 
     person = ctx
+    cited_name = ctx
+    order_cited = ctx['index']
+
+
+class OAITag(parsers.Parser):
+    name = ctx
 
 
 class OAIManuscript(parsers.Parser):
     schema = 'Manuscript'
     Contributor = OAIContributor
 
-    title = links.Trim(ctx.metadata.dc.title.text())
-    contributors = ctx.metadata.dc.creator['*']
-    description = links.Trim(links.Concat(ctx.metadata.dc.description['*'].text()))
+    tags = ctx.record('dc:type')
+    language = ctx.record('dc:language')
+
+    title = ctx.record.metadata('oai_dc:dc')('dc:title')
+    rights = ctx.record.metadata('oai_dc:dc')('dc:rights')
+    contributors = ctx.record.metadata('oai_dc:dc')('dc:creator')['*']
+    # contributors = (
+    #     ctx.record.metadata('oai_dc:dc')('dc:creator')['*'] +
+    #     ctx.record.metadata('oai_dc:dc')('dc:contributor')['*']
+    # )
+    description = links.Concat(ctx.record.metadata('oai_dc:dc')('dc:description')['*'])
 
 
 class OAINormalizer(Normalizer):
