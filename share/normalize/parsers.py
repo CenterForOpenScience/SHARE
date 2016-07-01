@@ -63,7 +63,7 @@ class Subparser:
         prev, ctx.parent = ctx.parent, self.context
 
         if self.is_list:
-            ret = [self.parser(v).parse() for v in self.context]
+            ret = [self.parser(v).parse() for v in self.context or []]
         else:
             ret = self.parser(self.context).parse()
 

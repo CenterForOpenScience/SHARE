@@ -1,1 +1,1 @@
-default_app_config = 'providers.org.dataone.apps.AppConfig'
+default_app_config = 'providers.org.elife.apps.AppConfig'

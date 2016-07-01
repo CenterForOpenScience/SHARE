@@ -72,7 +72,7 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     username = models.CharField(
         _('username'),
-        max_length=30,
+        max_length=64,
         unique=True,
         help_text=_('Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'),
         validators=[
@@ -86,8 +86,8 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
             'unique': _("A user with that username already exists."),
         },
     )
-    first_name = models.CharField(_('first name'), max_length=30, blank=True)
-    last_name = models.CharField(_('last name'), max_length=30, blank=True)
+    first_name = models.CharField(_('first name'), max_length=64, blank=True)
+    last_name = models.CharField(_('last name'), max_length=64, blank=True)
     email = models.EmailField(_('email address'), blank=True)
     is_staff = models.BooleanField(
         _('staff status'),
@@ -136,6 +136,8 @@ def user_post_save(sender, instance, created, **kwargs):
     if created and not instance.is_robot:
 
         instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
+
+
 class RawDataManager(models.Manager):
 
     def store_data(self, doc_id, data, source):

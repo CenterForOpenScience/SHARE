@@ -54,26 +54,33 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.orcid',
-    'allauth.socialaccount.providers.github',
-    'allauth.socialaccount.providers.google',
+    # not yet
+    # 'allauth.socialaccount.providers.orcid',
+    # 'allauth.socialaccount.providers.github',
+    # 'allauth.socialaccount.providers.google',
     'osf_oauth2_adapter',
 
     'share',
     'api',
 
     'bots.automerge',
+    'bots.elasticsearch',
 
+    'providers.au.uow',
     'providers.be.ghent',
     'providers.br.pcurio',
     'providers.ca.lwbin',
+    'providers.ca.umontreal',
+    'providers.ca.uwo',
     'providers.com.biomedcentral',
     'providers.com.dailyssrn',
     'providers.com.figshare',
     'providers.com.nature',
+    'providers.com.springer',
     'providers.edu.asu',
     'providers.edu.boisestate',
     'providers.edu.calhoun',
+    'providers.edu.calpoly',
     'providers.edu.caltech',
     'providers.edu.chapman',
     'providers.edu.citeseerx',
@@ -93,7 +100,7 @@ INSTALLED_APPS = [
     'providers.edu.icpsr',
     'providers.edu.iowaresearch',
     'providers.edu.iu',
-    'providers.edu.iwucommons',
+    'providers.edu.iwu_commons',
     'providers.edu.kent',
     'providers.edu.krex',
     'providers.edu.mason',
@@ -103,6 +110,39 @@ INSTALLED_APPS = [
     'providers.edu.oaktrust',
     'providers.edu.opensiuc',
     'providers.edu.pcom',
+    'providers.edu.pdxscholar',
+    'providers.edu.purdue',
+    'providers.edu.scholarsarchiveosu',
+    'providers.edu.scholarsbank',
+    'providers.edu.scholarscompass_vcu',
+    'providers.edu.smithsonian',
+    'providers.edu.stcloud',
+    'providers.edu.texasstate',
+    'providers.edu.triceratops',
+    'providers.edu.trinity',
+    'providers.edu.u_south_fl',
+    'providers.edu.udc',
+    'providers.edu.udel',
+    'providers.edu.uhawaii',
+    'providers.edu.uiucideals',
+    'providers.edu.ukansas',
+    'providers.edu.uky',
+    'providers.edu.umassmed',
+    'providers.edu.umich',
+    'providers.edu.uncg',
+    'providers.edu.unl_digitalcommons',
+    'providers.edu.upennsylvania',
+    'providers.edu.ut_chattanooga',
+    'providers.edu.utaustin',
+    'providers.edu.utktrace',
+    'providers.edu.utuskegee',
+    'providers.edu.uwashington',
+    'providers.edu.valposcholar',
+    'providers.edu.vivo',
+    'providers.edu.vtech',
+    'providers.edu.wash_state_u',
+    'providers.edu.waynestate',
+    'providers.edu.wustlopenscholarship',
     'providers.et.edu.addisababa',
     'providers.gov.clinicaltrials',
     'providers.gov.doepages',
@@ -110,12 +150,19 @@ INSTALLED_APPS = [
     'providers.gov.nist',
     'providers.gov.nodc',
     'providers.gov.nsfawards',
+    'providers.gov.pubmedcentral',
+    'providers.gov.scitech',
+    'providers.gov.usgs',
+    'providers.info.spdataverse',
     'providers.io.osf',
+    # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
+    'providers.org.arxiv.oai.apps.AppConfig',
     'providers.org.bhl',
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
+    'providers.org.dataone',
     'providers.org.dryad',
     'providers.org.elife',
     'providers.org.erudit',
@@ -123,6 +170,14 @@ INSTALLED_APPS = [
     'providers.org.mla',
     'providers.org.ncar',
     'providers.org.neurovault',
+    'providers.org.newprairiepress',
+    'providers.org.shareok',
+    'providers.org.sldr',
+    'providers.org.stepic',
+    'providers.org.tdar',
+    'providers.org.ucescholarship',
+    'providers.org.zenodo',
+    'providers.pt.rcaap',
     'providers.ru.cyberleninka',
     'providers.tr.edu.hacettepe',
     'providers.uk.cambridge',
@@ -168,7 +223,7 @@ SOCIALACCOUNT_PROVIDERS = \
           }
      }
 
-APPLICATION_USERNAME = 'share_oauth2_application_user'
+APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
@@ -286,6 +341,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')
+ELASTICSEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
 
 # Celery Settings
 
@@ -342,6 +399,8 @@ LOGGING = {
 
 # Custom Settings
 
+BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1
+DOI_BASE_URL = 'http://dx.doi.org/'

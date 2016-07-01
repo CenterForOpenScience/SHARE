@@ -1,4 +1,8 @@
+import ast
+import importlib
+
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 
 from share.models.base import ExtraData
 from share.models.people import Identifier
@@ -38,13 +42,58 @@ class PersonAdmin(admin.ModelAdmin):
         return obj.contributor_set.count()
 
 
+class StatusFieldListFilter(SimpleListFilter):
+    title = 'Status'
+    parameter_name = 'status'
+
+    def lookups(self, request, model_admin):
+        return CeleryEvent._meta.get_field('type').choices
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.extra(
+                where=[
+                    '''
+                    (
+                        SELECT share_celeryevent.type
+                        FROM share_celeryevent
+                        WHERE share_celerytask.uuid = share_celeryevent.uuid
+                        ORDER BY share_celeryevent.timestamp DESC
+                        LIMIT 1
+                    ) = %s
+                    '''
+                ],
+                params=[self.value()]
+            )
+        else:
+            return queryset
+
+
 class CeleryTaskAdmin(admin.ModelAdmin):
-    # list_display = ['']
-    pass
+    date_hierarchy = 'timestamp'
+    list_display = ('uuid', 'name', 'app_label', 'app_version', 'status_', 'started_by')
+    actions = ['rerun_tasks']
+    list_filter = [StatusFieldListFilter, 'name', 'app_label', 'app_version', 'started_by']
+
+    def rerun_tasks(self, request, queryset):
+        for changeset in queryset:
+            parts = changeset.name.rpartition('.')
+            Task = getattr(importlib.import_module(parts[0]), parts[2])
+            args = (changeset.app_label, changeset.submitted_by.id,) + ast.literal_eval(changeset.args)
+            kwargs = ast.literal_eval(changeset.kwargs)
+            Task().apply_async(args, kwargs)
+        pass
+    rerun_tasks.short_description = 'Re-run tasks'
+
+    def status_(self, obj):
+        return dict(CeleryEvent._meta.get_field('type').choices)[obj.status]
+
 
 class CeleryEventAdmin(admin.ModelAdmin):
-    list_display = ['uuid', 'type', ]
+    date_hierarchy = 'timestamp'
+    list_display = ['uuid', 'type']
     list_filter = ['type']
+
 
 
 admin.site.register(Organization)

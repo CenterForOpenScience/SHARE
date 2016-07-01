@@ -3,11 +3,11 @@ from django.db import models
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareManyToManyField
 
-__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Organization')
+__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Organization', 'Identifier')
 
 
 class Organization(ShareObject):
-    name = models.CharField(max_length=200)
+    name = models.Field()
     # parent = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
 
 

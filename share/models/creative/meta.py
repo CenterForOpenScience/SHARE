@@ -2,9 +2,10 @@ from django.db import models
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey
+from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Institution', 'Funder', 'Award', 'DataProvider', 'Taxonomy', 'Tag')
+__all__ = ('Venue', 'Institution', 'Funder', 'Award', 'DataProvider', 'Taxonomy', 'Tag', 'Link')
 
 class Venue(ShareObject):
     name = models.CharField(max_length=255)
@@ -59,3 +60,10 @@ class Tag(ShareObject):
     url = models.URLField(blank=True)
     # this is here to force disambiguation between providers' tags
     type = ShareForeignKey(Taxonomy)
+
+
+class Link(ShareObject):
+    url = models.URLField()
+    provider = ShareForeignKey(DataProvider)
+    type = models.IntegerField(choices=share_config.link_type_choices)
+    work = ShareForeignKey('AbstractCreativeWork')
