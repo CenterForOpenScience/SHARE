@@ -1,4 +1,5 @@
-from share.normalize import *
+from share.normalize import *  # noqa
+
 
 class CreativeWork(Parser):
     title = ctx.title
@@ -11,7 +12,7 @@ class CreativeWork(Parser):
 
 class Contributor(Parser):
     person = ctx
-    cited_name = ctx
+    cited_name = ctx.creator
     order_cited = ctx['index']
 
 
