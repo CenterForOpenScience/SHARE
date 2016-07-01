@@ -299,5 +299,8 @@ class XPathLink(AbstractLink):
     def execute(self, obj):
         unparsed_obj = xmltodict.unparse(obj)
         xml_obj = etree.XML(unparsed_obj.encode())
-        elem = xml_obj.xpath(self._xpath)[0]
-        return xmltodict.parse(etree.tostring(elem))
+        elem = xml_obj.xpath(self._xpath)
+        elems = [xmltodict.parse(etree.tostring(x)) for x in elem]
+        if len(elems) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
+            return elems[0]
+        return elems
