@@ -1,5 +1,6 @@
+from django.conf import settings
+
 from share.normalize import *  # noqa
-from project.settings import DOI_BASE_URL
 
 
 class Person(Parser):
