@@ -41,10 +41,11 @@ class PLOSHarvester(Harvester):
                 'rows': self.MAX_ROWS_PER_REQUEST
             }).url)
 
-            for doc in etree.XML(response.content).xpath('//doc'):
+            docs = etree.XML(response.content).xpath('//doc')
+            for doc in docs:
                 if doc.xpath("arr[@name='abstract']") or doc.xpath("str[@name='author_display']"):
                     doc_id = doc.xpath("str[@name='id']")[0].text
                     doc = etree.tostring(doc)
                     yield (doc_id, doc)
 
-            current_row += len(etree.XML(response.content).xpath('//doc'))
+            current_row += len(docs)

@@ -2,6 +2,8 @@ import threading
 from functools import reduce
 from collections import deque
 
+import xmltodict
+
 import dateparser
 
 from lxml import etree
@@ -295,5 +297,6 @@ class XPathLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
+        obj = xmltodict.unparse(obj)
+        obj = etree.XML(obj.encode())
         return obj.xpath(self._xpath)
-

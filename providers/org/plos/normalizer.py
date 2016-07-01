@@ -10,6 +10,8 @@ class Person(Parser):
 
 class Contributor(Parser):
     person = ctx
+    cited_name = ctx
+    order_cited = ctx['index']
 
 
 class CreativeWork(Parser):
