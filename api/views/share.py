@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions
 from share import serializers
 
 
-class VenueViewSet(viewsets.ModelViewSet):
+class VenueViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.VenueSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
@@ -10,7 +10,7 @@ class VenueViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class InstitutionViewSet(viewsets.ModelViewSet):
+class InstitutionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.InstitutionSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
@@ -18,7 +18,7 @@ class InstitutionViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class FunderViewSet(viewsets.ModelViewSet):
+class FunderViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.FunderSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
@@ -26,7 +26,7 @@ class FunderViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class AwardViewSet(viewsets.ModelViewSet):
+class AwardViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.AwardSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
@@ -34,15 +34,7 @@ class AwardViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class DataProviderViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
-    serializer_class = serializers.DataProviderSerializer
-    # TODO: Add in scopes once we figure out who, why, and how.
-    # required_scopes = ['', ]
-    queryset = serializer_class.Meta.model.objects.all()
-
-
-class TaxonomyViewSet(viewsets.ModelViewSet):
+class TaxonomyViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.TaxonomySerializer
     # TODO: Add in scopes once we figure out who, why, and how.
@@ -50,7 +42,7 @@ class TaxonomyViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.TagSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
@@ -58,7 +50,7 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class CreativeWorkViewSet(viewsets.ModelViewSet):
+class CreativeWorkViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.CreativeWorkSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
@@ -66,7 +58,7 @@ class CreativeWorkViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class PreprintViewSet(viewsets.ModelViewSet):
+class PreprintViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.PreprintSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
@@ -74,9 +66,24 @@ class PreprintViewSet(viewsets.ModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class ManuscriptViewSet(viewsets.ModelViewSet):
+class ManuscriptViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.ManuscriptSerializer
+    # TODO: Add in scopes once we figure out who, why, and how.
+    # required_scopes = ['', ]
+    queryset = serializer_class.Meta.model.objects.all()
+
+
+class PersonViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
+    serializer_class = serializers.PersonSerializer
+    # TODO: Add in scopes once we figure out who, why, and how.
+    # required_scopes = ['', ]
+    queryset = serializer_class.Meta.model.objects.all()
+
+class ContributorViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
+    serializer_class = serializers.ContributorSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     queryset = serializer_class.Meta.model.objects.all()

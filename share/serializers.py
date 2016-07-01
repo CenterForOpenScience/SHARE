@@ -1,68 +1,88 @@
 from rest_framework import serializers
+
+from api import fields
 from share import models
 
+class BaseShareSerializer(serializers.ModelSerializer):
 
-class VenueSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super(BaseShareSerializer, self).__init__(*args, **kwargs)
+        # remove version fields
+        # easier than specifying excludes for every model serializer
+        for k, v in tuple(self.fields.items()):
+            if 'version' in k:
+                self.fields.pop(k)
+
+        # add fields with improper names
+        self.fields.update({
+            '@id': serializers.HyperlinkedIdentityField(
+                # view-name: person-detail
+                'api:{}-detail'.format(self.Meta.model._meta.model_name),
+                lookup_field='pk'
+            ),
+            '@type': fields.TypeField(),
+        })
+
+class VenueSerializer(BaseShareSerializer):
     class Meta:
         model = models.Venue
 
 
-class InstitutionSerializer(serializers.ModelSerializer):
+class InstitutionSerializer(BaseShareSerializer):
     class Meta:
         model = models.Institution
 
 
-class PersonEmailSerializer(serializers.ModelSerializer):
+class PersonEmailSerializer(BaseShareSerializer):
     class Meta:
         model = models.PersonEmail
 
 
-class IdentifierSerializer(serializers.ModelSerializer):
+class IdentifierSerializer(BaseShareSerializer):
     class Meta:
         model = models.Identifier
 
 
-class PersonSerializer(serializers.ModelSerializer):
-    emails = PersonEmailSerializer(many=True)
-    identifiers = IdentifierSerializer(many=True)
+class PersonSerializer(BaseShareSerializer):
+    # emails = PersonEmailSerializer(many=True)
+    # identifiers = IdentifierSerializer(many=True)
     class Meta:
         model = models.Person
 
 
-class ContributorSerializer(serializers.ModelSerializer):
+class ContributorSerializer(BaseShareSerializer):
     person = PersonSerializer()
+    cited_name = serializers.ReadOnlyField(source='contributor.cited_name')
+    order_cited = serializers.ReadOnlyField(source='contributor.order_cited')
+    url = serializers.ReadOnlyField(source='contributor.url')
     class Meta:
         model = models.Contributor
 
 
-class FunderSerializer(serializers.ModelSerializer):
+class FunderSerializer(BaseShareSerializer):
     class Meta:
         model = models.Funder
 
 
-class AwardSerializer(serializers.ModelSerializer):
+class AwardSerializer(BaseShareSerializer):
     class Meta:
         model = models.Award
 
 
-class DataProviderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.DataProvider
-
-
-class TaxonomySerializer(serializers.ModelSerializer):
+class TaxonomySerializer(BaseShareSerializer):
     class Meta:
         model = models.Taxonomy
 
 
-class TagSerializer(serializers.ModelSerializer):
+class TagSerializer(BaseShareSerializer):
     taxonomy = TaxonomySerializer()
     class Meta:
         model = models.Tag
 
 
-class AbstractCreativeWorkSerializer(serializers.ModelSerializer):
+class AbstractCreativeWorkSerializer(BaseShareSerializer):
     tags = TagSerializer(many=True)
+    contributors = ContributorSerializer(source='contributor_set', many=True)
 
 
 class CreativeWorkSerializer(AbstractCreativeWorkSerializer):
@@ -80,6 +100,6 @@ class ManuscriptSerializer(AbstractCreativeWorkSerializer):
         model = models.Manuscript
 
 
-class Link(serializers.ModelSerializer):
+class Link(BaseShareSerializer):
     class Meta:
         model = models.Link

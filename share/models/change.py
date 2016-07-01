@@ -70,7 +70,7 @@ class ChangeSet(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL)
 #     # raw = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
-#     # normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
+#     normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
 
     def accept(self, save=True):
         with transaction.atomic():

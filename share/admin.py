@@ -6,7 +6,7 @@ from django.contrib.admin import SimpleListFilter
 
 from share.models.base import ExtraData
 from share.models.people import Identifier
-from share.models.creative.meta import Venue, Institution, Funder, Award, DataProvider, Taxonomy, Tag
+from share.models.creative.meta import Venue, Institution, Funder, Award, Taxonomy, Tag
 from .models import Organization, Affiliation, Email, RawData, NormalizedManuscript, ShareUser, \
     Person, PersonEmail, ChangeSet, Preprint, Manuscript, CreativeWork, CeleryEvent, CeleryTask
 from share.models.creative.contributors import Contributor
@@ -105,7 +105,6 @@ admin.site.register(Venue)
 admin.site.register(Institution)
 admin.site.register(Funder)
 admin.site.register(Award)
-admin.site.register(DataProvider)
 admin.site.register(Taxonomy)
 admin.site.register(Tag)
 admin.site.register(ExtraData)

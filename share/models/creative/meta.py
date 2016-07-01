@@ -5,7 +5,7 @@ from share.models.fields import ShareForeignKey
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Institution', 'Funder', 'Award', 'DataProvider', 'Taxonomy', 'Tag', 'Link')
+__all__ = ('Venue', 'Institution', 'Funder', 'Award', 'Taxonomy', 'Tag', 'Link')
 
 class Venue(ShareObject):
     name = models.CharField(max_length=255)
@@ -41,13 +41,6 @@ class Award(ShareObject):
     url = models.URLField(blank=True)
 
 
-class DataProvider(ShareObject):
-    name = models.CharField(max_length=255)
-    location = models.URLField(blank=True)
-    community_id = models.URLField(blank=True)
-    url = models.URLField(blank=True)
-
-
 class Taxonomy(ShareObject):
     # eventually, this can be good, pointing to a taxonomy url
     # for now, it can keep a separate list of tags by provider
@@ -63,7 +56,7 @@ class Tag(ShareObject):
 
 
 class Link(ShareObject):
+    # TODO Make this A URN Field that isn't stupid
     url = models.URLField()
-    provider = ShareForeignKey(DataProvider)
     type = models.IntegerField(choices=share_config.link_type_choices)
     work = ShareForeignKey('AbstractCreativeWork')
