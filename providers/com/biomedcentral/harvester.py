@@ -8,9 +8,12 @@ from share import Harvester
 
 
 class BiomedCentralHarvester(Harvester):
-    url = 'http://api.springer.com/meta/v1/json'
-    page_size = 100
-    offset = 1
+
+    def __init__(self, app_config):
+        super().__init__('providers.com.biomedcentral.apps.AppConfig')
+        self.url = 'http://api.springer.com/meta/v1/json'
+        self.page_size = 100
+        self.offset = 1
 
     def do_harvest(self, start_date, end_date):
         if not settings.BIOMEDCENTRAL_API_KEY:
@@ -19,7 +22,7 @@ class BiomedCentralHarvester(Harvester):
         start_date = start_date.date()
         end_date = end_date.date()
 
-        # API only accepts a specific date, not a date range, for retrieving articles
+        # BioMed Central API only accepts a specific date, not a date range, for retrieving articles
         # so we must create our own list of dates
         dates = [start_date + timedelta(n) for n in range((end_date - start_date).days + 1)]
 
@@ -27,18 +30,16 @@ class BiomedCentralHarvester(Harvester):
             yield from self.fetch_records(date)
 
     def fetch_records(self, date):
-        self.offset = 1
+        self.offset = 0
         resp = self.requests.get(self.build_url(date))
         total = int(resp.json()['result'][0]['total'])
-        total_processed = 0
 
-        while total_processed < total:
+        while self.offset < total:
             records = resp.json()['records']
 
             for record in records:
                 yield (record['identifier'], record)
 
-            total_processed += len(records)
             self.offset += len(records)
             resp = self.requests.get(self.build_url(date))
 
