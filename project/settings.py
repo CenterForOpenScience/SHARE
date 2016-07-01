@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'api',
 
     'bots.automerge',
+    'bots.elasticsearch',
 
     'providers.be.ghent',
     'providers.br.pcurio',
@@ -286,6 +287,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+ELASTIC_SEARCH_URI = os.environ.get('ELASTIC_SEARCH_URI', 'http://localhost:9200')
+ELASTIC_SEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
 
 # Celery Settings
 
