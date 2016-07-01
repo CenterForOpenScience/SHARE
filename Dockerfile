@@ -10,6 +10,7 @@ RUN apk add --no-cache \
       musl-dev \
       python3 \
       gcc \
+      git \
     && update-ca-certificates
 
 RUN mkdir -p /code

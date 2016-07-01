@@ -2,6 +2,7 @@ import abc
 import json
 import logging
 import datetime
+from dateutil import parser
 
 import celery
 import requests
@@ -45,9 +46,13 @@ class ProviderTask(celery.Task):
 
 class HarvesterTask(ProviderTask):
 
-    def do_run(self, start=None, end=None):
+    def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None):
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
+        if type(start) is str:
+            start = parser.parse(start)
+        if type(end) is str:
+            end = parser.parse(end)
 
         harvester = self.config.harvester(self.config)
 
@@ -121,9 +126,7 @@ class MakeJsonPatches(celery.Task):
 
 class BotTask(ProviderTask):
 
-    def do_run(self, app_label: str, started_by=None):
-        config = apps.get_app_config(app_label)
-        bot = config.get_bot()
-
-        logger.info('Running bot %s. Started by %s', bot, started_by or 'system')
+    def do_run(self):
+        bot = self.config.get_bot()
+        logger.info('Running bot %s. Started by %s', bot, self.started_by)
         bot.run()

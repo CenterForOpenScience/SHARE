@@ -22,8 +22,8 @@ class Command(BaseCommand):
 
         kwargs = {}
         if options['days_back']:
-            kwargs['end'] = datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))
-            kwargs['start'] = datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])
+            kwargs['end'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))).isoformat() + 'Z'
+            kwargs['start'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])).isoformat() + 'Z'
 
         if not options['harvester'] and options['all']:
             options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig)]
@@ -31,7 +31,7 @@ class Command(BaseCommand):
         for harvester in options['harvester']:
             apps.get_app_config(harvester)  # Die if the AppConfig can not be loaded
             if options['async']:
-                HarvesterTask().apply_async((harvester, user.id,), **kwargs)
+                HarvesterTask().apply_async((harvester, user.id,), kwargs)
                 self.stdout.write('Started job for harvester {}'.format(harvester))
             else:
                 self.stdout.write('Running harvester for {}'.format(harvester))
