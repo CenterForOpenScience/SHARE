@@ -47,7 +47,7 @@ class Subparser:
 
     @property
     def parser(self):
-        # Peak into the module where all the parsers are being imported from
+        # Peek into the module where all the parsers are being imported from
         # and look for one matching out name
         # TODO Add a way to explictly declare the parser to be used. For more generic formats
         if hasattr(self.parent.__class__, self.model.__name__):
