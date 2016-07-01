@@ -100,7 +100,7 @@ INSTALLED_APPS = [
     'providers.edu.icpsr',
     'providers.edu.iowaresearch',
     'providers.edu.iu',
-    'providers.edu.iwucommons',
+    'providers.edu.iwu_commons',
     'providers.edu.kent',
     'providers.edu.krex',
     'providers.edu.mason',
