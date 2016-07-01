@@ -9,7 +9,7 @@ from share.models.fields import ShareForeignKey, ShareManyToManyField
 
 class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     title = models.TextField()
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     contributors = ShareManyToManyField(Person, through='Contributor')
     institutions = ShareManyToManyField(Institution, through='ThroughInstitutions')
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
