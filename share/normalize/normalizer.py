@@ -26,6 +26,7 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     def unwrap_data(self, data):
         if data.startswith(b'<'):
+            # process_namespaces=True uses full url, False uses short name
             return xmltodict.parse(data, process_namespaces=False)
         else:
             return json.loads(data.decode())

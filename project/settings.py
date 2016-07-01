@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'api',
 
     'bots.automerge',
+    'bots.elasticsearch',
 
     'providers.be.ghent',
     'providers.br.pcurio',
@@ -169,7 +170,7 @@ SOCIALACCOUNT_PROVIDERS = \
           }
      }
 
-APPLICATION_USERNAME = 'share_oauth2_application_user'
+APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
@@ -287,6 +288,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+ELASTIC_SEARCH_URI = os.environ.get('ELASTIC_SEARCH_URI', 'http://localhost:9200')
+ELASTIC_SEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
 
 # Celery Settings
 

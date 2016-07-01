@@ -24,14 +24,15 @@ class AutoMergeBot(Bot):
             submitted_by__robot=''
         ).distinct()
 
-        logger.info('Found %s change sets eligible for automatic acceptance', qs.count())
+        total = qs.count()
+        logger.info('Found %s change sets eligible for automatic acceptance', total)
         logger.info('Committing in chunks of %d', chunk_size)
 
-        for changesets in chunk(qs.all(), chunk_size):
+        for i, changesets in enumerate(chunk(qs.all(), chunk_size)):
             with transaction.atomic():
                 for cs in changesets:
                     if not cs:
                         break
                     cs.accept()
                     logger.debug('Accepted change set %r', cs)
-                logger.info('Committed chunk of %d', chunk_size)
+                logger.info('Committed %d of %d', chunk_size * (i + 1), total)
