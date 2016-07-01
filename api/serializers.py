@@ -19,7 +19,7 @@ class ChangeSerializer(serializers.ModelSerializer):
     self = serializers.HyperlinkedIdentityField(view_name='api:change-detail')
     class Meta:
         model = models.Change
-        fields = ('self', 'id', 'change', 'node_id', 'type', 'status', 'target', 'target_version')
+        fields = ('self', 'id', 'change', 'node_id', 'type', 'target', 'target_version')
 
 
 class ChangeSetSerializer(serializers.ModelSerializer):
