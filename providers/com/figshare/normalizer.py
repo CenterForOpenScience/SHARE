@@ -7,7 +7,7 @@ class Person(Parser):
 
 
 class Contributor(Parser):
-    order_cited = ctx['index']
+    order_cited = ctx('index')
     person = ctx
     cited_name = ctx.author_name
 
@@ -16,4 +16,4 @@ class Manuscript(Parser):
     # doi = ctx.DOI
     title = ctx.title
     description = ctx.description
-    contributors = ctx.authors['*']
+    contributors = ctx.authors('*')

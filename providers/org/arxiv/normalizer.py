@@ -8,11 +8,11 @@ class Person(Parser):
     family_name = ParseName(ctx.name).last
     additional_name = ParseName(ctx.name).middle
     suffix = ParseName(ctx.name).suffix
-    affiliations = ctx.maybe('arxiv:affiliation')['*']
+    affiliations = ctx.maybe('arxiv:affiliation')('*')
 
 
 class Contributor(Parser):
-    order_cited = ctx['index']
+    order_cited = ctx('index')
     person = ctx
     cited_name = ctx.name
 
@@ -20,11 +20,11 @@ class Contributor(Parser):
 class CreativeWork(Parser):
     title = ctx.entry.title
     description = ctx.entry.summary
-    contributors = ctx.entry.author['*']
+    contributors = ctx.entry.author('*')
     published = ctx.entry.published
-    # doi = DOI_BASE_URL + ctx.entry.maybe('arxiv:doi')('#text')
-    subject = ctx.entry('arxiv:primary_category')
-    tags = ctx.entry.category['*']
+    # doi = settings.DOI_BASE_URL + ctx.entry.maybe('arxiv:doi')['#text']
+    subject = ctx.entry['arxiv:primary_category']
+    tags = ctx.entry.category('*')
 
 
 class Affiliation(Parser):

@@ -28,8 +28,12 @@ def Trim(chain):
     return chain + TrimLink()
 
 
-def Concat(chain):
-    return AbstractLink.__add__(chain, ConcatLink())
+def Concat(*chains):
+    return ConcatLink(*chains)
+
+
+def Join(chain, joiner='\n'):
+    return AbstractLink.__add__(chain, JoinLink(joiner=joiner))
 
 ### /Public API
 
@@ -102,29 +106,45 @@ class AbstractLink:
     def __radd__(self, other):
         return self + PrependLink(other)
 
+    # For handling paths that are not valid python
+    # or are already used. IE text, execute, oai:title
+    # ctx('oai:title')
+    def __getitem__(self, name):
+        if isinstance(name, int):
+            return self + IndexLink(name)
+        if isinstance(name, str):
+            return self + PathLink(name)
+        raise Exception(
+            '__getitem__ only accepts integers and strings\n'
+            'Found {}'.format(name)
+        )
+        # raise Exception
+
     # Reserved for special cases
     # Any other use is an error
-    def __getitem__(self, name):
+    def __call__(self, name):
         if name == '*':
             return self + IteratorLink()
         if name == 'parent':
             return self + ParentLink()
         if name == 'index':
             return self + GetIndexLink()
-        if isinstance(name, int):
-            return self + IndexLink(name)
-        raise Exception
-
-    # For handling paths that are not valid python
-    # or are already used. IE text, execute, oai:title
-    # ctx('oai:title')
-    def __call__(self, name):
-        return self + PathLink(name)
+        raise Exception(
+            '"{}" is not a action that __call__ can resolve\n'
+            '__call__ is reserved for special actions\n'
+            'If you are trying to access an element use dictionary notation'.format(name)
+        )
 
     # The preferred way of building paths.
     # Can express either json paths or xpaths
     # ctx.root.nextelement[0].first_item_attribute
     def __getattr__(self, name):
+        if name[0] == '_':
+            raise Exception(
+                '{} has no attribute {}\n'
+                'NOTE: "_"s are reserved for accessing private attributes\n'
+                'Use dictionary notation to access elements beginning with "_"s\n'.format(self, name)
+            )
         return self + PathLink(name)
 
     def __repr__(self):
@@ -182,8 +202,24 @@ class DateParserLink(AbstractLink):
 
 
 class ConcatLink(AbstractLink):
+    def __init__(self, *chains):
+        self._chains = chains
+        super().__init__()
+
     def execute(self, obj):
-        return '\n'.join(obj)
+        return reduce(lambda acc, val: acc + val, [
+            chain.chain()[0].execute(obj)
+            for chain in self._chains
+        ])
+
+
+class JoinLink(AbstractLink):
+    def __init__(self, joiner='\n'):
+        self._joiner = joiner
+        super().__init__()
+
+    def execute(self, obj):
+        return self._joiner.join(obj)
 
 
 class TrimLink(AbstractLink):
@@ -224,17 +260,12 @@ class MaybeLink(AbstractLink):
         return self
 
     def execute(self, obj):
-        if isinstance(obj, etree._Element):
-            val = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
-            if len(val) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
-                val = val[0]
-                if self._next is None:
-                    val = val.text
-        else:
-            val = obj.get(self._segment)
-        if not val:
-            return val
-        return self.__anchor.execute(val)
+        val = obj.get(self._segment)
+        if val:
+            return self.__anchor.execute(val)
+        if isinstance(self.__anchor._next, (IndexLink, IteratorLink)):
+            return []
+        return None
 
 
 class PathLink(AbstractLink):
@@ -243,17 +274,6 @@ class PathLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        if isinstance(obj, etree._Element):
-            # Dirty hack to avoid namespaces with xpath
-            # Anything name "<namespace>:<node>" will be accessed as <node>
-            # IE: oai:title -> title
-            ret = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
-            if len(ret) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
-                ret = ret[0]
-                if self._next is None:
-                    ret = ret.text
-            return ret
-
         return obj[self._segment]
 
     def __repr__(self):
