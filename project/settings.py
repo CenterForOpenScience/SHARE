@@ -54,9 +54,10 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.orcid',
-    'allauth.socialaccount.providers.github',
-    'allauth.socialaccount.providers.google',
+    # not yet
+    # 'allauth.socialaccount.providers.orcid',
+    # 'allauth.socialaccount.providers.github',
+    # 'allauth.socialaccount.providers.google',
     'osf_oauth2_adapter',
 
     'share',
