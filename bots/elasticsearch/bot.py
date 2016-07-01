@@ -7,6 +7,7 @@ from elasticsearch import Elasticsearch
 from share.bot import Bot
 from share.models import CeleryProviderTask
 from share.models import AbstractCreativeWork
+from share.models import CeleryTaskSucceededEvent
 
 logger = logging.getLogger(__name__)
 
@@ -30,17 +31,17 @@ class ElasticSearchBot(Bot):
         }
 
     def run(self, chunk_size=50, reindex_all=False):
-        # TODO Filter on task succeeded
-        last_run = CeleryProviderTask.objects.filter(
-            app_label=self.config.label
-        ).order_by(
-            '-date_created'
+        last_run = CeleryTaskSucceededEvent.objects.filter(
+            uuid__in=CeleryProviderTask.objects.filter(
+                app_label=self.config.label,
+                app_version=self.config.version,
+            ).order_by(
+                '-timestamp'
+            ).values_list('uuid', flat=True)
         ).first()
 
         if last_run:
-            last_run = last_run.date_created
-
-        last_run = None
+            last_run = last_run.timestamp
 
         for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream(last_run)):
             logger.debug(resp)
@@ -50,8 +51,10 @@ class ElasticSearchBot(Bot):
 
         if cutoff_date:
             qs = AbstractCreativeWork.objects.filter(date_modified__gt=cutoff_date)
+            logger.info('Looking for Creative Works that have been modified after %s', cutoff_date)
         else:
             qs = AbstractCreativeWork.objects.all()
+            logger.info('Getting all Creative Works')
 
         logger.info('Found %s creative works that must be updated in ES', qs.count())
 
