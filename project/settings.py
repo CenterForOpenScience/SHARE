@@ -349,3 +349,4 @@ LOGGING = {
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1
+DOI_BASE_URL = 'http://dx.doi.org/'

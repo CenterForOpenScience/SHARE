@@ -1,4 +1,5 @@
 from share.normalize import *  # noqa
+from project.settings import DOI_BASE_URL
 
 
 class Person(Parser):
@@ -20,7 +21,7 @@ class CreativeWork(Parser):
     description = ctx.entry.summary
     contributors = ctx.entry.author['*']
     published = ctx.entry.published
-    doi = ctx.entry.maybe('arxiv:doi')('#text')
+    doi = DOI_BASE_URL + ctx.entry.maybe('arxiv:doi')('#text')
     subject = ctx.entry('arxiv:primary_category')
     tags = ctx.entry.category['*']
 
