@@ -10,17 +10,17 @@ from share import Harvester
 class BiomedCentralHarvester(Harvester):
 
     def __init__(self, app_config):
-        super().__init__('providers.com.biomedcentral.apps.AppConfig')
-        self.url = 'http://api.springer.com/meta/v1/json'
-        self.page_size = 100
+        super().__init__(app_config)
         self.offset = 1
+        self.page_size = 100
+        self.url = 'https://api.springer.com/meta/v1/json'
 
     def do_harvest(self, start_date, end_date):
         if not settings.BIOMEDCENTRAL_API_KEY:
             raise Exception('BioMed Central api key not provided')
 
-        start_date = start_date.date()
         end_date = end_date.date()
+        start_date = start_date.date()
 
         # BioMed Central API only accepts a specific date, not a date range, for retrieving articles
         # so we must create our own list of dates
