@@ -18,7 +18,16 @@ class Contributor(Parser):
     cited_name = ctx.embeds.users.data.attributes.full_name
 
 
+class ThroughTags(Parser):
+    tag = ctx
+
+
 class Tag(Parser):
+    name = ctx
+    type = ctx
+
+
+class Taxonomy(Parser):
     name = ctx
 
 
@@ -35,4 +44,4 @@ class ThroughInstitutions(Parser):
 
 class Institution(Parser):
     name = ctx.attributes.name
-    url = ctx.relationships.links.related.href
+    url = ctx.links.self
