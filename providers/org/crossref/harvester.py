@@ -4,7 +4,7 @@ from share import Harvester
 
 
 class CrossRefHarvester(Harvester):
-    url = 'http://api.crossref.org/v1/works'
+    url = 'https://api.crossref.org/v1/works'
 
     def do_harvest(self, start_date, end_date):
         start_date = start_date.date()

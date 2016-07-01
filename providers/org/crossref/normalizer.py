@@ -11,6 +11,7 @@ class CreativeWork(Parser):
 
 
 class Contributor(Parser):
+    # CrossRef does not return a complete cited name, but returns the given name and family name of the contributor
     person = ctx
     order_cited = ctx['index']
 
