@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'api',
 
     'bots.automerge',
+    'bots.elasticsearch',
 
     'providers.au.uow',
     'providers.be.ghent',
@@ -338,6 +339,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')
+ELASTICSEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
 
 # Celery Settings
 
@@ -394,6 +397,7 @@ LOGGING = {
 
 # Custom Settings
 
+BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1

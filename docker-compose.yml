@@ -1,5 +1,10 @@
 version: '2'
 services:
+  elasticsearch:
+    image: elasticsearch
+    ports:
+      - 9200:9200
+
   rabbitmq:
     image: rabbitmq
     ports:
@@ -23,11 +28,13 @@ services:
     links:
       - rabbitmq
       - postgres
+      - elasticsearch
     volumes:
       - ./:/code
     environment:
       DATABASE_HOST: postgres
       BROKER_URL: amqp://guest:guest@rabbitmq:5672/
+      ELASTICSEARCH_URL: http://elasticsearch:9200/
 
   worker:
     build: .
@@ -40,12 +47,14 @@ services:
       - rabbitmq
       - postgres
       - web
+      - elasticsearch
     volumes:
       - ./:/code
     environment:
       DATABASE_HOST: postgres
       BROKER_URL: amqp://guest:guest@rabbitmq:5672/
-      SHARE_API_URL: 'http://web:8000/'
+      SHARE_API_URL: http://web:8000/
+      ELASTICSEARCH_URL: http://elasticsearch:9200/
 
   flower:
     build: .

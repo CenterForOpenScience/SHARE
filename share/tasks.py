@@ -126,9 +126,7 @@ class MakeJsonPatches(celery.Task):
 
 class BotTask(ProviderTask):
 
-    def do_run(self, app_label: str, started_by=None):
-        config = apps.get_app_config(app_label)
-        bot = config.get_bot()
-
-        logger.info('Running bot %s. Started by %s', bot, started_by or 'system')
+    def do_run(self):
+        bot = self.config.get_bot()
+        logger.info('Running bot %s. Started by %s', bot, self.started_by)
         bot.run()
