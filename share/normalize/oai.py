@@ -42,23 +42,53 @@ class OAIManuscript(parsers.Parser):
     Contributor = OAIContributor
     ThroughTags = OAIThroughTags
 
-    # needs to be types
-    # types = ctx.record.metadata('oai_dc:dc')('dc:type')['*']
-    # tags = (
-    #     ctx.record.metadata('oai_dc:dc')('dc:subject')['*'] +
-    #     ctx.record.metadata('oai_dc:dc')('dc:type')['*']
-    # )
-    tags = ctx.record.metadata('oai_dc:dc')('dc:subject')['*']
-    language = ctx.record.metadata('oai_dc:dc').maybe('dc:language')
-
     title = ctx.record.metadata('oai_dc:dc')('dc:title')
-    rights = ctx.record.metadata('oai_dc:dc').maybe('dc:rights')
+    description = links.Concat(ctx.record.metadata('oai_dc:dc')('dc:description')['*'])
+    # TODO: Contributors include a person, an organization, or a service
+    # differentiate between them
     contributors = ctx.record.metadata('oai_dc:dc')('dc:creator')['*']
     # contributors = (
     #     ctx.record.metadata('oai_dc:dc')('dc:creator')['*'] +
     #     ctx.record.metadata('oai_dc:dc')('dc:contributor')['*']
     # )
-    description = links.Concat(ctx.record.metadata('oai_dc:dc')('dc:description')['*'])
+
+    # TODO: need to determine which contributors/creators are institutions
+    # institutions = ShareManyToManyField(Institution, through='ThroughInstitutions')
+
+    # venues = ShareManyToManyField(Venue, through='ThroughVenues')
+    # funders = ShareManyToManyField(Funder, through='ThroughFunders')
+    # awards = ShareManyToManyField(Award, through='ThroughAwards')
+    # data_providers = ShareManyToManyField(DataProvider, through='ThroughDataProviders')
+    # provider_link = models.URLField(blank=True)
+
+    # TODO: ask for clarification on difference between subject and tags
+    # subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
+
+    # TODO: parse all identifiers (there can be many identifiers) for 'doi:' and DOI_BASE_URL
+    # doi = models.URLField(blank=True, null=True)
+
+    # TODO: parse text of identifiers to find 'ISBN' also what is ISSN?
+    # isbn = models.URLField(blank=True)
+
+    # tags = (
+    #     ctx.record.metadata('oai_dc:dc')('dc:subject')['*'] +
+    #     ctx.record.metadata('oai_dc:dc')('dc:type')['*']
+    # )
+    tags = ctx.record.metadata('oai_dc:dc')('dc:subject')['*']
+
+    # TODO:update model to handle this
+    # work_type = ctx.record.metadata('oai_dc:dc')('dc:type')['*']
+
+    # created = models.DateTimeField(null=True)
+    # published = models.DateTimeField(null=True)
+    # free_to_read_type = models.URLField(blank=True)
+    # free_to_read_date = models.DateTimeField(null=True)
+
+    language = ctx.record.metadata('oai_dc:dc').maybe('dc:language')
+    rights = ctx.record.metadata('oai_dc:dc').maybe('dc:rights')
+
+    # TODO: ask about format field
+    # TODO: add publisher field
 
 
 class OAINormalizer(Normalizer):
