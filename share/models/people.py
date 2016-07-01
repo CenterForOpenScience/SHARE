@@ -7,7 +7,7 @@ __all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Organization', 'Ide
 
 
 class Organization(ShareObject):
-    name = models.Field()
+    name = models.TextField()
     # parent = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
 
 

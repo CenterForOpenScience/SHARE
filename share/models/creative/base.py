@@ -19,7 +19,8 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     provider_link = models.URLField(blank=True)
     subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
     # TODO: eventually we should try and make that blank=False
-    doi = models.URLField(blank=True)
+    # Note: Null allows inserting of None but returns it as an empty string
+    doi = models.URLField(blank=True, null=True)
     isbn = models.URLField(blank=True)
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
     # TODO: We should probably figure out what this means, I don't know
@@ -28,7 +29,10 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     published = models.DateTimeField(null=True)
     free_to_read_type = models.URLField(blank=True)
     free_to_read_date = models.DateTimeField(null=True)
+
     license = models.URLField(blank=True)
+    # rights = models.TextField(blank=True)
+    # language = models.TextField(blank=True)
 
 
 class CreativeWork(AbstractCreativeWork):
