@@ -6,7 +6,7 @@ class Person(Parser):
     family_name = ParseName(ctx.name).last
     additional_name = ParseName(ctx.name).middle
     suffix = ParseName(ctx.name).suffix
-    affiliations = ctx.maybe('arxiv:affiliation')
+    affiliations = ctx.maybe('arxiv:affiliation')['*']
 
 
 class Contributor(Parser):
@@ -20,8 +20,8 @@ class CreativeWork(Parser):
     description = ctx.entry.summary
     contributors = ctx.entry.author['*']
     published = ctx.entry.published
-    doi = ctx.entry.maybe('arxiv:doi')
-    subject = ctx.entry('arxiv:primary_category')('@term')
+    doi = ctx.entry.maybe('arxiv:doi')('#text')
+    subject = ctx.entry('arxiv:primary_category')
     tags = ctx.entry.category['*']
 
 
@@ -30,12 +30,12 @@ class Affiliation(Parser):
 
 
 class Organization(Parser):
-    name = ctx
+    name = ctx('#text')
 
 
 class Tag(Parser):
-    name = ctx
-    type = ctx
+    name = ctx('@term')
+    type = ctx('@term')
 
 
 class ThroughTags(Parser):

@@ -18,7 +18,7 @@ class ArxivHarvester(Harvester):
     url = 'https://export.arxiv.org/api/query'
 
     def __init__(self, app_config):
-        super().__init__
+        super().__init__(app_config)
         self.start_page_num = 0
 
     def get_next_url(self):
