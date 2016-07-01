@@ -1,4 +1,5 @@
 import ast
+import importlib
 
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
@@ -69,17 +70,18 @@ class StatusFieldListFilter(SimpleListFilter):
 
 
 class CeleryTaskAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'app_label', 'app_version', 'status_' )
+    date_hierarchy = 'timestamp'
+    list_display = ('uuid', 'name', 'app_label', 'app_version', 'status_', 'started_by')
     actions = ['rerun_tasks']
-    list_filter = [StatusFieldListFilter, 'app_label', 'app_version']
+    list_filter = [StatusFieldListFilter, 'name', 'app_label', 'app_version', 'started_by']
 
     def rerun_tasks(self, request, queryset):
         for changeset in queryset:
-            Task = __import__(changeset.name)
-            uuid = changeset.uuid
-            args = ast.literal_eval(changeset.args)
+            parts = changeset.name.rpartition('.')
+            Task = getattr(importlib.import_module(parts[0]), parts[2])
+            args = (changeset.app_label, changeset.submitted_by.id,) + ast.literal_eval(changeset.args)
             kwargs = ast.literal_eval(changeset.kwargs)
-            Task().apply_async(args, kwargs, task_id=uuid)
+            Task().apply_async(args, kwargs)
         pass
     rerun_tasks.short_description = 'Re-run tasks'
 
@@ -88,7 +90,8 @@ class CeleryTaskAdmin(admin.ModelAdmin):
 
 
 class CeleryEventAdmin(admin.ModelAdmin):
-    list_display = ['uuid', 'type',]
+    date_hierarchy = 'timestamp'
+    list_display = ['uuid', 'type']
     list_filter = ['type']
 
 

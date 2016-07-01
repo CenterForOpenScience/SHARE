@@ -8,6 +8,7 @@ import requests
 
 from django.apps import apps
 from django.conf import settings
+from kombu import uuid
 
 from share.change import ChangeGraph
 from share.models import RawData, NormalizedManuscript, ChangeSet, CeleryProviderTask, ShareUser
@@ -19,18 +20,19 @@ logger = logging.getLogger(__name__)
 class ProviderTask(celery.Task):
     abstract = True
 
-    def run(self, *args, **kwargs):
-        app_label = args[0]
+    def run(self, app_label, started_by, *args, **kwargs):
         self.config = apps.get_app_config(app_label)
+        self.started_by = ShareUser.objects.get(id=started_by)
         self.task, _ = CeleryProviderTask.objects.get_or_create(
-            uuid=self.request.id,
+            uuid=self.request.id or uuid(),
             defaults={
                 'name': self.name,
                 'app_label': self.config.label,
                 'app_version': self.config.version,
                 'args': args,
                 'kwargs': kwargs,
-                'provider': self.config.user
+                'provider': self.config.user,
+                'started_by': self.started_by,
             },
         )
         self.task.save()
@@ -43,7 +45,7 @@ class ProviderTask(celery.Task):
 
 class HarvesterTask(ProviderTask):
 
-    def do_run(self, app_label, start=None, end=None, started_by=None):
+    def do_run(self, start=None, end=None):
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
 
@@ -61,13 +63,13 @@ class HarvesterTask(ProviderTask):
             # attach task
             raw.tasks.add(self.task)
 
-            task = NormalizerTask().apply_async((self.config.label, raw.pk,), {'started_by': started_by})
+            task = NormalizerTask().apply_async((self.config.label, self.started_by.id, raw.pk,))
             logger.debug('Started run harvester task {} for {}'.format(task, raw.id))
 
 
 class NormalizerTask(ProviderTask):
 
-    def do_run(self, app_label, raw_id, started_by=None):
+    def do_run(self, raw_id):
         raw = RawData.objects.get(pk=raw_id)
         normalizer = self.config.normalizer(self.config)
 
