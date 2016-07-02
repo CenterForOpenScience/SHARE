@@ -111,7 +111,8 @@ class Parser(metaclass=ParserMeta):
                     for v in value:
                         ctx.pool[v][field.m2m_field_name()] = ref
 
-            inst[key] = value
+            if value is not None:
+                inst[key] = value
 
         if self._extra:
             inst['extra'] = {key: chain.execute(self.context) for key, chain in self._extra.items()}
