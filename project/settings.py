@@ -27,7 +27,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs+^0l%=bt_dst0'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs+^0l%=bt_dst0')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
@@ -35,7 +35,7 @@ DEBUG = bool(os.environ.get('DEBUG', True))
 # Running local (not deployed)
 LOCAL_MODE = bool(os.environ.get('LOCAL_MODE', True))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', [])
 
 AUTH_USER_MODEL = 'share.ShareUser'
 
@@ -414,4 +414,4 @@ BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1
-DOI_BASE_URL = 'http://dx.doi.org/'
+DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
