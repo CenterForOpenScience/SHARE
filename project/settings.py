@@ -291,9 +291,7 @@ DATABASES = {
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'CONN_MAX_AGE': 0,
-        'OPTIONS': {
-            'MAX_CONNS': 20
-        },
+        'OPTIONS': {} if LOCAL_MODE else {'MAX_CONNS': 20},
     },
 }
 
