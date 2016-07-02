@@ -5,6 +5,9 @@ RUN apt-get update \
         ca-certificates \
         gcc \
         git \
+        libev4 \
+        libev-dev \
+        libevent-dev \
         libxml2-dev \
         libxslt1-dev \
         libffi-dev \

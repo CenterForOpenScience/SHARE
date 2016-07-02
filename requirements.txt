@@ -20,6 +20,7 @@ djangorestframework==3.3.3
 feedparser==5.2.1
 flower==0.9.1
 furl==0.4.95
+gevent==1.1.1
 jsonpatch==1.14
 jsonschema==2.5.1
 lxml==3.6.0
