@@ -16,9 +16,17 @@ class BaseShareSerializer(serializers.ModelSerializer):
             if sparse or 'version' in k:
                 # if they asked for sparse remove all fields but
                 # the @id and @type
-                
+
                 # if the field has version, kill it too.
                 self.fields.pop(k)
+
+        # remove typedmodel nonsense
+        if 'type' in self.fields.keys():
+            self.fields.pop('type')
+
+        # our id field is better
+        if 'id' in self.fields.keys():
+            self.fields.pop('id')
 
         # add fields with improper names
         self.fields.update({
@@ -33,6 +41,10 @@ class BaseShareSerializer(serializers.ModelSerializer):
 class VenueSerializer(BaseShareSerializer):
     class Meta:
         model = models.Venue
+
+class OrganizationSerializer(BaseShareSerializer):
+    class Meta:
+        model = models.Organization
 
 
 class InstitutionSerializer(BaseShareSerializer):
@@ -51,10 +63,19 @@ class IdentifierSerializer(BaseShareSerializer):
 
 
 class PersonSerializer(BaseShareSerializer):
-    # emails = PersonEmailSerializer(many=True)
-    # identifiers = IdentifierSerializer(many=True)
+    # no emails on purpose
+    identifiers = IdentifierSerializer(many=True)
+    affiliations = OrganizationSerializer(sparse=True, many=True)
     class Meta:
         model = models.Person
+
+
+class AffiliationSerializer(BaseShareSerializer):
+    person = PersonSerializer(sparse=True)
+    organization = OrganizationSerializer(sparse=True)
+
+    class Meta:
+        models = models.Affiliation
 
 
 class ContributorSerializer(BaseShareSerializer):
@@ -91,6 +112,9 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     tags = TagSerializer(many=True)
     contributors = ContributorSerializer(source='contributor_set', many=True)
     institutions = InstitutionSerializer(sparse=True, many=True)
+    venues = VenueSerializer(sparse=True, many=True)
+    awards = AwardSerializer(sparse=True, many=True)
+    subject = TagSerializer(sparse=True)
 
 
 class CreativeWorkSerializer(AbstractCreativeWorkSerializer):
