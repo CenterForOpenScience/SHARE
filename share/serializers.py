@@ -6,11 +6,18 @@ from share import models
 class BaseShareSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
+        # super hates my additional kwarg
+        sparse = kwargs.pop('sparse', False)
         super(BaseShareSerializer, self).__init__(*args, **kwargs)
         # remove version fields
         # easier than specifying excludes for every model serializer
+
         for k, v in tuple(self.fields.items()):
             if 'version' in k:
+                self.fields.pop(k)
+            elif sparse:
+                # if they asked for sparse remove all fields but
+                # the @id and @type
                 self.fields.pop(k)
 
         # add fields with improper names
@@ -83,6 +90,7 @@ class TagSerializer(BaseShareSerializer):
 class AbstractCreativeWorkSerializer(BaseShareSerializer):
     tags = TagSerializer(many=True)
     contributors = ContributorSerializer(source='contributor_set', many=True)
+    institutions = InstitutionSerializer(sparse=True, many=True)
 
 
 class CreativeWorkSerializer(AbstractCreativeWorkSerializer):

@@ -16,7 +16,6 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     funders = ShareManyToManyField(Funder, through='ThroughFunders')
     awards = ShareManyToManyField(Award, through='ThroughAwards')
     subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
-    # TODO: eventually we should try and make that blank=False
     # Note: Null allows inserting of None but returns it as an empty string
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
     created = models.DateTimeField(null=True)
