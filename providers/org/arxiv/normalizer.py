@@ -32,12 +32,12 @@ class Affiliation(Parser):
 
 
 class Organization(Parser):
-    name = ctx('#text')
+    name = ctx['#text']
 
 
 class Tag(Parser):
-    name = ctx('@term')
-    type = ctx('@term')
+    name = ctx['@term']
+    type = ctx['@term']
 
 
 class ThroughTags(Parser):
