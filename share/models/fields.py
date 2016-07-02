@@ -116,7 +116,7 @@ class ShareForeignKey(models.ForeignKey):
         actual._share_version_field = version
 
 
-class _ShareManyToManyField(models.ManyToManyField):
+class TypedManyToManyField(models.ManyToManyField):
 
     def _check_relationship_model(self, from_model=None, **kwargs):
         if hasattr(self.remote_field.through, '_meta'):
@@ -192,15 +192,17 @@ class _ShareManyToManyField(models.ManyToManyField):
 
             else:
                 # Count foreign keys in relationship model
+                # HERE IS THE ACTUAL CHANGE
+                # Look at models _meta.concrete_model to make typed models work
                 seen_from = len([
                     field for field in self.remote_field.through._meta.fields
                     if hasattr(field.remote_field, 'model')
-                    and from_model == field.remote_field.model._meta.concrete_model
+                    and from_model._meta.concrete_model == field.remote_field.model._meta.concrete_model
                 ])
                 seen_to = len([
                     field for field in self.remote_field.through._meta.fields
                     if hasattr(field.remote_field, 'model')
-                    and to_model == field.remote_field.model._meta.concrete_model
+                    and to_model._meta.concrete_model == field.remote_field.model._meta.concrete_model
                 ])
 
                 if seen_from > 1 and not self.remote_field.through_fields:
@@ -322,8 +324,40 @@ class _ShareManyToManyField(models.ManyToManyField):
 
         return errors
 
+    def _get_m2m_reverse_attr(self, related, attr):
+        """
+        Function that can be curried to provide the related accessor or DB
+        column name for the m2m table.
+        """
+        cache_attr = '_m2m_reverse_%s_cache' % attr
+        if hasattr(self, cache_attr):
+            return getattr(self, cache_attr)
+        found = False
+        if self.remote_field.through_fields is not None:
+            link_field_name = self.remote_field.through_fields[1]
+        else:
+            link_field_name = None
+        for f in self.remote_field.through._meta.fields:
+            # HERE IS THE ACTUAL CHANGE
+            # Look at models _meta.concrete_model to make typed models work
+            if f.is_relation and f.remote_field.model._meta.concrete_model == related.model._meta.concrete_model:
+                if link_field_name is None and related.related_model._meta.concrete_model == related.model._meta.concrete_model:
+                    # If this is an m2m-intermediate to self,
+                    # the first foreign key you find will be
+                    # the source column. Keep searching for
+                    # the second foreign key.
+                    if found:
+                        setattr(self, cache_attr, getattr(f, attr))
+                        break
+                    else:
+                        found = True
+                elif link_field_name is None or link_field_name == f.name:
+                    setattr(self, cache_attr, getattr(f, attr))
+                    break
+        return getattr(self, cache_attr)
 
-class ShareManyToManyField(_ShareManyToManyField):
+
+class ShareManyToManyField(TypedManyToManyField):
 
     def __init__(self, model, **kwargs):
         self.__kwargs = kwargs
