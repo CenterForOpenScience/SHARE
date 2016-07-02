@@ -5,32 +5,16 @@ from share.models.fields import ShareForeignKey
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Institution', 'Funder', 'Award', 'Taxonomy', 'Tag', 'Link')
+__all__ = ('Venue', 'Award', 'Taxonomy', 'Tag', 'Link')
+
+# TODO Rename this file
+
 
 class Venue(ShareObject):
     name = models.CharField(max_length=255)
     venue_type = models.URLField(blank=True)
     location = models.URLField(blank=True)
     community_identifier = models.URLField(blank=True)
-
-
-class Institution(ShareObject):
-    # TODO: ScholarlyArticle says this should be an Organization
-    name = models.CharField(max_length=255)
-    isni = models.URLField(blank=True)
-    rinngold = models.URLField(blank=True)
-    location = models.URLField(blank=True)
-    url = models.URLField(blank=True)
-
-
-class Funder(ShareObject):
-    # TODO: ScholarlyArticle says this should be a DiscourseElement
-    # http://purl.org/spar/deo/DiscourseElement
-    # many fields are missing but seem extraneous to our purpose
-    funder_name = models.CharField(max_length=255)
-    funder_region = models.URLField(blank=True)
-    community_identifier = models.URLField(blank=True)
-    url = models.URLField(blank=True)
 
 
 class Award(ShareObject):
@@ -60,3 +44,20 @@ class Link(ShareObject):
     url = models.URLField()
     type = models.IntegerField(choices=share_config.link_type_choices)
     work = ShareForeignKey('AbstractCreativeWork')
+
+
+# Through Tables for all the things
+
+class ThroughVenues(ShareObject):
+    venue = ShareForeignKey(Venue)
+    creative_work = ShareForeignKey('AbstractCreativeWork')
+
+
+class ThroughAwards(ShareObject):
+    award = ShareForeignKey(Award)
+    creative_work = ShareForeignKey('AbstractCreativeWork')
+
+
+class ThroughTags(ShareObject):
+    tag = ShareForeignKey(Tag)
+    creative_work = ShareForeignKey('AbstractCreativeWork')

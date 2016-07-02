@@ -123,9 +123,9 @@ class ShareManyToManyField(models.ManyToManyField):
         actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
         if isinstance(self.remote_field.model, str):
-            import ipdb
-            ipdb.set_trace()
-        version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **{**self.__kwargs, 'through': self.__kwargs['through'] + 'Version', 'editable': False})
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **{**self.__kwargs, 'editable': True})
+        else:
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **{**self.__kwargs, 'editable': True})
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
 
         actual._share_version_field = version

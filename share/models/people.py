@@ -3,13 +3,10 @@ from django.db import models
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareManyToManyField
 
-__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Organization', 'Identifier')
+__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Identifier', 'Contributor')
 
 
-class Organization(ShareObject):
-    name = models.TextField()
-    # parent = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
-
+# Person Auxillary classes
 
 class Email(ShareObject):
     is_primary = models.BooleanField()
@@ -26,6 +23,8 @@ class Identifier(ShareObject):
     base_url = models.URLField()
 
 
+# Actual Person
+
 class Person(ShareObject):
     family_name = models.CharField(max_length=200)  # last
     given_name = models.CharField(max_length=200)  # first
@@ -33,7 +32,7 @@ class Person(ShareObject):
     suffix = models.CharField(max_length=50, blank=True)
 
     emails = ShareManyToManyField(Email, through='PersonEmail')
-    affiliations = ShareManyToManyField(Organization, through='Affiliation')
+    affiliations = ShareManyToManyField('Entity', through='Affiliation')
     orcid = models.URLField(blank=True)
     # this replaces "authority_id" and "other_identifiers" in the diagram
     identifiers = ShareManyToManyField(Identifier, through='ThroughIdentifiers')
@@ -50,6 +49,13 @@ class Person(ShareObject):
     # dropping-particle
 
 
+# Through Tables for Person
+
+class ThroughIdentifiers(ShareObject):
+    person = ShareForeignKey(Person)
+    identifier = ShareForeignKey(Identifier)
+
+
 class PersonEmail(ShareObject):
     email = ShareForeignKey(Email)
     person = ShareForeignKey(Person)
@@ -59,7 +65,12 @@ class Affiliation(ShareObject):
     # start_date = models.DateField()
     # end_date = models.DateField()
     person = ShareForeignKey(Person)
-    organization = ShareForeignKey(Organization)
+    organization = ShareForeignKey('Entity')
 
-    def __str__(self):
-        return self.organization.name
+
+class Contributor(ShareObject):
+    cited_name = models.TextField(blank=True)
+    order_cited = models.PositiveIntegerField(null=True)
+
+    person = ShareForeignKey(Person)
+    creative_work = ShareForeignKey('AbstractCreativeWork')
