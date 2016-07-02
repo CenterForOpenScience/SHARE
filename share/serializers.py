@@ -24,14 +24,6 @@ class BaseShareSerializer(serializers.ModelSerializer):
         if 'type' in self.fields.keys():
             self.fields.pop('type')
 
-        # our id field is better
-        if 'id' in self.fields.keys():
-            self.fields.pop('id')
-
-        # changes, be gone!
-        if 'change' in self.fields.keys():
-            self.fields.pop('change')
-
         # add fields with improper names
         self.fields.update({
             '@id': serializers.HyperlinkedIdentityField(
@@ -41,28 +33,30 @@ class BaseShareSerializer(serializers.ModelSerializer):
             ),
             '@type': fields.TypeField(),
         })
+    class Meta:
+        exclude = ('change', 'id')
 
 class VenueSerializer(BaseShareSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Venue
 
 class OrganizationSerializer(BaseShareSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Organization
 
 
 class InstitutionSerializer(BaseShareSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Institution
 
 
 class PersonEmailSerializer(BaseShareSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.PersonEmail
 
 
 class IdentifierSerializer(BaseShareSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Identifier
 
 
@@ -70,7 +64,7 @@ class PersonSerializer(BaseShareSerializer):
     # no emails on purpose
     identifiers = IdentifierSerializer(many=True)
     affiliations = OrganizationSerializer(sparse=True, many=True)
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Person
 
 
@@ -78,7 +72,7 @@ class AffiliationSerializer(BaseShareSerializer):
     person = PersonSerializer(sparse=True)
     organization = OrganizationSerializer(sparse=True)
 
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         models = models.Affiliation
 
 
@@ -87,28 +81,30 @@ class ContributorSerializer(BaseShareSerializer):
     cited_name = serializers.ReadOnlyField(source='contributor.cited_name')
     order_cited = serializers.ReadOnlyField(source='contributor.order_cited')
     url = serializers.ReadOnlyField(source='contributor.url')
-    class Meta:
+    # TODO find a way to do this, or don't
+    # creative_work = CreativeWorkSerializer(sparse=True)
+    class Meta(BaseShareSerializer.Meta):
         model = models.Contributor
 
 
 class FunderSerializer(BaseShareSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Funder
 
 
 class AwardSerializer(BaseShareSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Award
 
 
 class TaxonomySerializer(BaseShareSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Taxonomy
 
 
 class TagSerializer(BaseShareSerializer):
     taxonomy = TaxonomySerializer()
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Tag
 
 
@@ -122,20 +118,20 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
 
 
 class CreativeWorkSerializer(AbstractCreativeWorkSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.CreativeWork
 
 
 class PreprintSerializer(AbstractCreativeWorkSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Preprint
 
 
 class ManuscriptSerializer(AbstractCreativeWorkSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Manuscript
 
 
 class Link(BaseShareSerializer):
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.Link
