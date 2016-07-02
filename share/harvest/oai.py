@@ -17,8 +17,8 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
         'ns0': 'http://www.openarchives.org/OAI/2.0/',
         'oai_dc': 'http://www.openarchives.org/OAI/2.0/',
     }
-    time_granularity = True
     url = None
+    time_granularity = True
 
     def __init__(self, app_config):
         super().__init__(app_config)
