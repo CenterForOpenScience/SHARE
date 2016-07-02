@@ -28,6 +28,10 @@ class BaseShareSerializer(serializers.ModelSerializer):
         if 'id' in self.fields.keys():
             self.fields.pop('id')
 
+        # changes, be gone!
+        if 'change' in self.fields.keys():
+            self.fields.pop('change')
+
         # add fields with improper names
         self.fields.update({
             '@id': serializers.HyperlinkedIdentityField(
