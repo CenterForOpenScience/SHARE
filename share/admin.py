@@ -4,11 +4,13 @@ import importlib
 from django.contrib import admin
 
 from share.models.base import ExtraData
-from share.models.people import Identifier
-from share.models.creative.meta import Venue, Institution, Funder, Award, Taxonomy, Tag
-from .models import Organization, Affiliation, Email, RawData, NormalizedManuscript, ShareUser, \
-    Person, PersonEmail, ChangeSet, Preprint, Manuscript, CreativeWork, CeleryTask
-from share.models.creative.contributors import Contributor
+from share.models.celery import CeleryTask
+from share.models.change import ChangeSet
+from share.models.core import RawData, NormalizedManuscript, ShareUser
+from share.models.creative import CreativeWork, Manuscript, Preprint
+from share.models.entities import Organization, Institution, Funder
+from share.models.meta import Venue, Award, Taxonomy, Tag
+from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
 
 
 class NormalizedManuscriptAdmin(admin.ModelAdmin):
