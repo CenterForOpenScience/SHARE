@@ -81,7 +81,7 @@ class ChangeSet(models.Model):
         return ret
 
     def __repr__(self):
-        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.status.upper(), self.submitted_by, self.changes.count())
+        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.STATUS[self.status].upper(), self.submitted_by, self.changes.count())
 
 
 class Change(models.Model):
