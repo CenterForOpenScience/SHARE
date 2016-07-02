@@ -13,11 +13,11 @@ class BaseShareSerializer(serializers.ModelSerializer):
         # easier than specifying excludes for every model serializer
 
         for k, v in tuple(self.fields.items()):
-            if 'version' in k:
-                self.fields.pop(k)
-            elif sparse:
+            if sparse or 'version' in k:
                 # if they asked for sparse remove all fields but
                 # the @id and @type
+                
+                # if the field has version, kill it too.
                 self.fields.pop(k)
 
         # add fields with improper names
