@@ -290,6 +290,7 @@ DATABASES = {
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'CONN_MAX_AGE': 0,
         'OPTIONS': {} if LOCAL_MODE else {'MAX_CONNS': 20},
     },
