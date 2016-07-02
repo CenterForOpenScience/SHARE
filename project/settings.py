@@ -32,6 +32,9 @@ SECRET_KEY = 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs+^0l%=bt_dst0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
+# Running local (not deployed)
+LOCAL_MODE = bool(os.environ.get('LOCAL_MODE', True))
+
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'share.ShareUser'
@@ -282,11 +285,15 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2' if LOCAL_MODE else 'django_db_geventpool.backends.postgresql_psycopg2',
         'NAME': os.environ.get('DATABASE_NAME', 'share'),
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'CONN_MAX_AGE': 0,
+        'OPTIONS': {
+            'MAX_CONNS': 20
+        },
     },
 }
 

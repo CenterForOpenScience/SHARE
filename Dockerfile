@@ -31,8 +31,8 @@ COPY ./constraints.txt /code/constraints.txt
 RUN pip install --no-cache-dir -c /code/constraints.txt -r /code/requirements.txt \
     && apt-get remove -y gcc
 
-RUN python manage.py collectstatic --noinput
-
 COPY ./ /code/
+
+RUN python manage.py collectstatic --noinput
 
 CMD ["python", "manage.py", "--help"]

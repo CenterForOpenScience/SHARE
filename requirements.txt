@@ -26,6 +26,7 @@ jsonschema==2.5.1
 lxml==3.6.0
 nameparser==0.4.0
 psycopg2==2.6.1
+psycogreen==1.0
 requests==2.10.0
 ujson==1.35
 django-model-utils==2.5
