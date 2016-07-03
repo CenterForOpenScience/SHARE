@@ -11,6 +11,23 @@ class CreativeWork(Parser):
     subject = ctx.attributes.category
     tags = ctx.attributes.tags['*']
 
+    class Extra:
+        files = ctx.relationships.files.links.related.href
+        parent = ctx.relationships.maybe('parent.links.related.href')
+        forks = ctx.relationships.forks.links.related.href
+        root = ctx.relationships.root.links.related.href
+        comments = ctx.relationships.comments.links.related.href
+        registrations = ctx.relationships.registrations.links.related.href
+        logs = ctx.relationships.logs.links.related.href
+        node_links = ctx.relationships.node_links.links.related.href
+        wikis = ctx.relationships.wikis.links.related.href
+        children = ctx.relationships.children.links.related.href
+        fork = ctx.attributes.fork
+        date_modified = ctx.attributes.date_modified
+        collection = ctx.attributes.collection
+        registration = ctx.attributes.registration
+        node_license = ctx.attributes.node_license
+
 
 class Contributor(Parser):
     person = ctx
