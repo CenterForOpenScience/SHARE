@@ -2,6 +2,7 @@ import ast
 import importlib
 
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 
 from share.models.base import ExtraData
 from share.models.celery import CeleryTask
@@ -18,10 +19,23 @@ class NormalizedDataAdmin(admin.ModelAdmin):
     list_filter = ['source', ]
 
 
+class ChangeSetSubmittedByFilter(SimpleListFilter):
+    title = 'Source'
+    parameter_name = 'source_id'
+
+    def lookups(self, request, model_admin):
+        return ShareUser.objects.filter(is_active=True).values_list('id', 'username')
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(normalized_data__source_id=self.value())
+        return queryset
+
+
 class ChangeSetAdmin(admin.ModelAdmin):
     list_display = ('status_', 'count_changes', 'submitted_by', 'submitted_at')
     actions = ['accept_changes']
-    list_filter = ['status']
+    list_filter = ['status', ChangeSetSubmittedByFilter]
 
     def accept_changes(self, request, queryset):
         for changeset in queryset:

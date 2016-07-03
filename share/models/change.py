@@ -71,7 +71,6 @@ class ChangeSet(models.Model):
     status = models.IntegerField(choices=STATUS, default=STATUS.pending)
     submitted_at = models.DateTimeField(auto_now_add=True)
     normalized_data = models.ForeignKey(NormalizedData)
-    # submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL)
 #     # raw = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
 #     normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
 
@@ -84,7 +83,7 @@ class ChangeSet(models.Model):
         return ret
 
     def __repr__(self):
-        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.STATUS[self.status].upper(), self.normalized_data.submitted_by, self.changes.count())
+        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.STATUS[self.status].upper(), self.normalized_data.source, self.changes.count())
 
 
 class Change(models.Model):
@@ -209,7 +208,7 @@ class Change(models.Model):
                 change[k] = v
         extra = change.pop('extra', None)
         if extra:
-            change['extra'] = {self.change_set.normalized_data.submitted_by.username: extra}
+            change['extra'] = {self.change_set.normalized_data.source.username: extra}
         return change
 
     def _resolve_ref(self, ref):
