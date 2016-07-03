@@ -29,11 +29,27 @@ def Trim(chain):
 
 
 def Concat(*chains):
-    return ConcatLink(*chains)
+    return AnchorLink() + ConcatLink(*chains)
+
+
+def XPath(chain, path):
+    return chain + XPathLink(path)
 
 
 def Join(chain, joiner='\n'):
     return AbstractLink.__add__(chain, JoinLink(joiner=joiner))
+
+
+def Maybe(chain, segment, default=None):
+    return chain + MaybeLink(segment, default=default)
+
+
+def Map(chain, *chains):
+    return Concat(*chains) + IteratorLink() + chain
+
+
+def Delegate(parser):
+    return DelegateLink(parser)
 
 ### /Public API
 
@@ -52,6 +68,9 @@ class DictHashingDict:
 
     def __setitem__(self, key, value):
         self.__inner[self._hash(key)] = value
+
+    def __contains__(self, key):
+        return self._hash(key) in self.__inner
 
     def _hash(self, val):
         if isinstance(val, dict):
@@ -86,16 +105,6 @@ class AbstractLink:
     # Transformation logic goes here
     def execute(self, obj):
         raise NotImplemented
-
-    # Short cut method(s) for specific tranforms
-    def text(self):
-        return self + TextLink()
-
-    def xpath(self, xpath):
-        return self + XPathLink(xpath)
-
-    def maybe(self, segment):
-        return self + MaybeLink(segment)
 
     # Add a link into an existing chain
     def __add__(self, step):
@@ -150,6 +159,12 @@ class AbstractLink:
     def __repr__(self):
         return '<{}()>'.format(self.__class__.__name__)
 
+    def run(self, obj):
+        Context().frames.append({'link': self, 'context': obj})
+        ret = self.execute(obj)
+        Context().frames.pop(-1)
+        return ret
+
 
 # The begining link for all chains
 # Contains logic for executing a chain against an object
@@ -158,7 +173,7 @@ class AbstractLink:
 class AnchorLink(AbstractLink):
 
     def execute(self, obj):
-        return reduce(lambda acc, cur: cur.execute(acc), self.chain()[1:], obj)
+        return reduce(lambda acc, cur: cur.run(acc), self.chain()[1:], obj)
 
 
 class Context(AnchorLink):
@@ -184,6 +199,7 @@ class Context(AnchorLink):
 
     def clear(self):
         self.graph = []
+        self.frames = []
         self.parent = None
         self.pool = DictHashingDict()
 
@@ -198,7 +214,8 @@ class NameParserLink(AbstractLink):
 
 class DateParserLink(AbstractLink):
     def execute(self, obj):
-        return dateparser.parse(obj)
+        # TODO Ensure UTC
+        return dateparser.parse(obj).isoformat()
 
 
 class ConcatLink(AbstractLink):
@@ -206,11 +223,16 @@ class ConcatLink(AbstractLink):
         self._chains = chains
         super().__init__()
 
+    def _concat(self, acc, val):
+        if not isinstance(val, list):
+            val = [val]
+        return acc + val
+
     def execute(self, obj):
-        return reduce(lambda acc, val: acc + val, [
+        return reduce(self._concat, [
             chain.chain()[0].execute(obj)
             for chain in self._chains
-        ])
+        ], [])
 
 
 class JoinLink(AbstractLink):
@@ -219,7 +241,7 @@ class JoinLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        return self._joiner.join(obj)
+        return self._joiner.join(obj or [])
 
 
 class TrimLink(AbstractLink):
@@ -249,9 +271,10 @@ class IteratorLink(AbstractLink):
 
 
 class MaybeLink(AbstractLink):
-    def __init__(self, segment):
+    def __init__(self, segment, default=None):
         super().__init__()
         self._segment = segment
+        self._default = default
         self.__anchor = AnchorLink()
 
     def __add__(self, step):
@@ -263,9 +286,9 @@ class MaybeLink(AbstractLink):
         val = obj.get(self._segment)
         if val:
             return self.__anchor.execute(val)
-        if isinstance(self.__anchor._next, (IndexLink, IteratorLink)):
+        if len(Context().frames) > 1 and isinstance(Context().frames[-2]['link'], (IndexLink, IteratorLink, ConcatLink, JoinLink)):
             return []
-        return None
+        return self._default
 
 
 class PathLink(AbstractLink):
@@ -294,7 +317,11 @@ class IndexLink(AbstractLink):
 
 class GetIndexLink(AbstractLink):
     def execute(self, obj):
-        return Context().parent.index(obj)
+        for frame in Context().frames[::-1]:
+            if isinstance(frame['link'], IteratorLink):
+                return frame['context'].index(obj)
+        return -1
+        # return Context().parent.index(obj)
 
 
 class TextLink(AbstractLink):
@@ -324,3 +351,12 @@ class XPathLink(AbstractLink):
         if len(elems) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
             return elems[0]
         return elems
+
+
+class DelegateLink(AbstractLink):
+    def __init__(self, parser):
+        self._parser = parser
+        super().__init__()
+
+    def execute(self, obj):
+        return self._parser(obj).parse()

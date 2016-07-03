@@ -26,6 +26,21 @@ class OAIContributor(parsers.Parser):
     order_cited = ctx('index')
 
 
+class OAIPublisher(parsers.Parser):
+    schema = 'Publisher'
+    name = ctx
+
+
+class OAIAssociation(parsers.Parser):
+    schema = 'Association'
+    # entity = links.Generic('entity')(ctx)
+
+
+class OAITaxonomy(parsers.Parser):
+    schema = 'Taxonomy'
+    name = ctx
+
+
 class OAITag(parsers.Parser):
     schema = 'Tag'
     name = ctx
@@ -33,25 +48,39 @@ class OAITag(parsers.Parser):
 
 class OAIThroughTags(parsers.Parser):
     schema = 'ThroughTags'
-    Tag = OAITag
-    tag = ctx
+    tag = OAITag(ctx)
 
 
 class OAICreativeWork(parsers.Parser):
     schema = 'CreativeWork'
-    Contributor = OAIContributor
-    ThroughTags = OAIThroughTags
 
     title = ctx.record.metadata['oai_dc:dc']['dc:title']
     rights = ctx.record.metadata['oai_dc:dc']['dc:rights']
     language = ctx.record.metadata['oai_dc:dc']['dc:language']
-    description = links.Join(ctx.record.metadata['oai_dc:dc'].maybe('dc:description')('*'))
+    description = links.Join(links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:description'))
+
+    published = links.ParseDate(ctx.record.metadata['oai_dc:dc']['dc:date'][0])
+
+    publishers = links.Map(
+        links.Delegate(OAIAssociation.using(entity=links.Delegate(OAIPublisher))),
+        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:publisher')
+    )
+
+    rights = links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:rights')
+    language = links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:language')
 
     # TODO: Contributors include a person, an organization, or a service
     # differentiate between them
-    contributors = links.Concat(
-        ctx.record.metadata['oai_dc:dc'].maybe('dc:creator')('*'),
-        ctx.record.metadata['oai_dc:dc'].maybe('dc:contributor')('*')
+    contributors = links.Map(
+        links.Delegate(OAIContributor),
+        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
+        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor'),
+    )
+
+    tags = links.Map(
+        links.Delegate(OAIThroughTags),
+        ctx.record.metadata['oai_dc:dc']['dc:type'],
+        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:subject')
     )
 
     # TODO: need to determine which contributors/creators are institutions
@@ -72,23 +101,19 @@ class OAICreativeWork(parsers.Parser):
     # TODO: parse text of identifiers to find 'ISBN' also what is ISSN?
     # isbn = models.URLField(blank=True)
 
-    tags = links.Concat(
-        ctx.record.metadata['oai_dc:dc']['dc:type']('*'),
-        ctx.record.metadata['oai_dc:dc'].maybe('dc:subject')('*')
-    )
+    # tags = links.Concat(
+    #     ctx.record.metadata['oai_dc:dc']['dc:type']('*'),
+    #     ctx.record.metadata['oai_dc:dc'].maybe('dc:subject')('*')
+    # )
 
     # TODO:update model to handle this
     # work_type = ctx.record.metadata('oai_dc:dc')('dc:type')['*']
 
-    published = links.ParseDate(ctx.record.metadata['oai_dc:dc']['dc:date'][0])
 
     # created = models.DateTimeField(null=True)
     # published = models.DateTimeField(null=True)
     # free_to_read_type = models.URLField(blank=True)
     # free_to_read_date = models.DateTimeField(null=True)
-
-    language = ctx.record.metadata['oai_dc:dc'].maybe('dc:language')
-    rights = ctx.record.metadata['oai_dc:dc'].maybe('dc:rights')
 
     # TODO: ask about format field
     # TODO: add publisher field
