@@ -15,7 +15,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
 
+        task_args = (options['normalizer'], user.id, options['raw_id'],)
+
         if options['async']:
-            NormalizerTask().apply_async((options['normalizer'], user.id, options['raw_id']))
+            NormalizerTask().apply_async(task_args)
         else:
-            NormalizerTask().run(options['normalizer'], user.id, options['raw_id'])
+            NormalizerTask().apply(task_args, throw=True)

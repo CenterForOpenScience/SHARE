@@ -9,7 +9,6 @@ import requests
 
 from django.apps import apps
 from django.conf import settings
-from kombu import uuid
 
 from share.change import ChangeGraph
 from share.models import RawData, NormalizedManuscript, ChangeSet, CeleryProviderTask, ShareUser
@@ -24,8 +23,9 @@ class ProviderTask(celery.Task):
     def run(self, app_label, started_by, *args, **kwargs):
         self.config = apps.get_app_config(app_label)
         self.started_by = ShareUser.objects.get(id=started_by)
+
         self.task, _ = CeleryProviderTask.objects.update_or_create(
-            uuid=self.request.id or uuid(),
+            uuid=self.request.id,
             defaults={
                 'name': self.name,
                 'app_label': self.config.label,
