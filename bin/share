@@ -48,12 +48,13 @@ def command(func):
 @command
 def harvest(args, argv):
     """
-    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR]
+    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR] [--days-back=DAYS]
 
     Options:
-        -l, --limit=NUMBER  Limit the harvester to NUMBER of documents
-        -p, --print         Print results to stdout rather than to a file
-        -o, --out=DIR       The directory to store the harvested data in. Defaults to ./<provider>
+        -l, --limit=NUMBER    Limit the harvester to NUMBER of documents
+        -p, --print           Print results to stdout rather than to a file
+        -o, --out=DIR         The directory to store the harvested data in. Defaults to ./<provider>
+        -d, --days-back=DAYS  Number of days back to harvest [default: 1]
     """
     config = apps.get_app_config(args['<provider>'])
     harvester = config.harvester(config)
@@ -62,7 +63,7 @@ def harvest(args, argv):
         args['--out'] = args['--out'] or os.path.join(os.curdir, config.label)
         os.makedirs(args['--out'], exist_ok=True)
 
-    for doc_id, data in harvester.raw(arrow.utcnow() - timedelta(days=1), arrow.utcnow(), limit=int(args['--limit']) if args['--limit'] else None):
+    for doc_id, data in harvester.raw(arrow.utcnow() - timedelta(days=int(args['--days-back'])), arrow.utcnow(), limit=int(args['--limit']) if args['--limit'] else None):
         if args['--print']:
             print('Harvested data with identifier "{}"'.format(doc_id))
             print(data.decode())
@@ -96,9 +97,8 @@ def normalize(args, argv):
             data = json.load(fobj)
         from ipdb import launch_ipdb_on_exception
         with launch_ipdb_on_exception():
-            parsed = normalizer.normalize(data['raw'].encode())
             print('Parsed raw data "{}" into'.format(data['id']))
-            pprint(parsed)
+            pprint(normalizer.normalize(data['raw'].encode()))
             print('\n')
 
 
