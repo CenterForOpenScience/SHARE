@@ -36,7 +36,7 @@ class Tag(ShareObject):
     name = models.CharField(max_length=255)
     url = models.URLField(blank=True)
     # this is here to force disambiguation between providers' tags
-    type = ShareForeignKey(Taxonomy)
+    type = ShareForeignKey(Taxonomy, null=True)
 
 
 class Link(ShareObject):
