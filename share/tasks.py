@@ -78,7 +78,7 @@ class HarvesterTask(ProviderTask):
             raw.tasks.add(self.task)
 
             task = NormalizerTask().apply_async((self.config.label, self.started_by.id, raw.pk,))
-            logger.debug('Started run harvester task {} for {}'.format(task, raw.id))
+            logger.debug('Started normalizer task %s for %s', task, raw.id)
 
 
 class NormalizerTask(ProviderTask):
