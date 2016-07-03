@@ -17,7 +17,7 @@ class Person(Parser):
     additional_name = ParseName(ctx.name).middle
     suffix = ParseName(ctx.name).suffix
     affiliations = Map(
-        Delegate(Affiliation.using(entry=Organization)),
+        Delegate(Affiliation.using(entity=Delegate(Organization))),
         Maybe(ctx, 'arxiv:affiliation')
     )
 

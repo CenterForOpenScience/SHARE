@@ -9,14 +9,17 @@ class Person(Parser):
 
 
 class Contributor(Parser):
-    person = ctx
+    person = Delegate(Person, ctx)
     cited_name = ctx
     order_cited = ctx('index')
 
 
 class CreativeWork(Parser):
-    title = ctx.xpath("str[@name='title_display']").str['#text']
-    description = ctx.xpath("arr[@name='abstract']/str").str
-    contributors = ctx.xpath("arr[@name='author_display']").arr.str('*')
-    published = ctx.xpath("date[@name='publication_date']").date['#text']
-    doi = ctx.xpath("str[@name='id']").str['#text']
+    title = XPath(ctx, "str[@name='title_display']").str['#text']
+    description = XPath(ctx, "arr[@name='abstract']/str").str
+    contributors = Map(
+        Delegate(Contributor),
+        XPath(ctx, "arr[@name='author_display']").arr.str
+    )
+    published = ParseDate(XPath(ctx, "date[@name='publication_date']").date['#text'])
+    # doi = ctx.xpath("str[@name='id']").str['#text']
