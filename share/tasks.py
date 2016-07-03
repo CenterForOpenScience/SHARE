@@ -94,8 +94,6 @@ class NormalizerTask(ProviderTask):
         try:
             graph = normalizer.normalize(raw)
 
-            logger.debug('Parsed %s into %s', raw, json.dumps(graph, indent=2))
-
             resp = requests.post(settings.SHARE_API_URL + 'api/normalized/', json={
                 'created_at': datetime.datetime.utcnow().isoformat(),
                 'normalized_data': graph,
