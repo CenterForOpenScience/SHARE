@@ -370,6 +370,38 @@ CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
+# Celery Queues
+
+DEFAULT_QUEUE = 'celery'
+LOW_QUEUE = 'low'
+MED_QUEUE = 'med'
+HIGH_QUEUE = 'high'
+
+LOW_PRI_MODULES = {
+    'share.tasks.NormalizerTask',
+}
+
+MED_PRI_MODULES = {
+    'share.tasks.HarvesterTask',
+}
+
+HIGH_PRI_MODULES = {
+}
+
+from kombu import Queue, Exchange
+CELERY_QUEUES = (
+    Queue(LOW_QUEUE, Exchange(LOW_QUEUE), routing_key=LOW_QUEUE,
+          consumer_arguments={'x-priority': -10}),
+    Queue(DEFAULT_QUEUE, Exchange(DEFAULT_QUEUE), routing_key=DEFAULT_QUEUE,
+          consumer_arguments={'x-priority': 0}),
+    Queue(MED_QUEUE, Exchange(MED_QUEUE), routing_key=MED_QUEUE,
+          consumer_arguments={'x-priority': 20}),
+    Queue(HIGH_QUEUE, Exchange(HIGH_QUEUE), routing_key=HIGH_QUEUE,
+          consumer_arguments={'x-priority': 30}),
+)
+
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_ROUTES = ('share.celery.CeleryRouter', )
 CELERY_IGNORE_RESULT = True
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 

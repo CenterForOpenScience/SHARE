@@ -23,6 +23,9 @@ furl==0.4.95
 gevent==1.1.1
 jsonpatch==1.14
 jsonschema==2.5.1
+# Kombu with the ability to specify queue priority
+# TODO: Remove this when Kombu has a stable release including commit c20f854
+git+git://github.com/mfraezz/kombu.git@v3.0.36
 lxml==3.6.0
 nameparser==0.4.0
 psycopg2==2.6.1
