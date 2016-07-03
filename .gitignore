@@ -2,6 +2,7 @@
 **/migrations/**
 !**/migrations/__init__.py
 
+static/
 
 # Created by https://www.gitignore.io/api/osx,python
 
@@ -174,6 +175,7 @@ gov.nsfawards/
 io.osf/
 org.arxiv/
 org.bhl/
+org.biorxiv/
 org.cogprints/
 org.crossref/
 org.datacite/

@@ -23,7 +23,9 @@ class ElasticSearchBot(Bot):
         return {
             'doi': creative_work.doi,
             'title': creative_work.title,
+            'subject': str(creative_work.subject),
             'description': creative_work.description,
+            'tags': [str(tag) for tag in creative_work.tags],
             'contributors': [{
                 'given_name': person.given_name,
                 'family_name': person.family_name,

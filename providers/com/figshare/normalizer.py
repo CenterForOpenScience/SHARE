@@ -7,13 +7,13 @@ class Person(Parser):
 
 
 class Contributor(Parser):
-    order_cited = ctx['index']
-    person = ctx
+    order_cited = ctx('index')
     cited_name = ctx.author_name
+    person = Delegate(Person, ctx)
 
 
-class Manuscript(Parser):
-    doi = ctx.DOI
+class CreativeWork(Parser):
+    # doi = ctx.DOI
     title = ctx.title
     description = ctx.description
-    contributors = ctx.authors['*']
+    contributors = Map(Delegate(Contributor), ctx.authors)

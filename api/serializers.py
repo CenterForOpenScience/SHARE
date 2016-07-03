@@ -29,5 +29,3 @@ class ChangeSetSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ChangeSet
         fields = ('self', 'submitted_at', 'submitted_by', 'changes')
-
-

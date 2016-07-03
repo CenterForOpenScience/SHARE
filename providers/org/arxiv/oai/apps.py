@@ -10,3 +10,4 @@ class AppConfig(OAIProviderAppConfig):
     url = 'http://export.arxiv.org/oai2'
     time_granularity = False
     version = '0.0.0'
+    emitted_type = 'preprint'

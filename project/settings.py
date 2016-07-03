@@ -20,16 +20,19 @@ LOGGING_CONFIG = 'project.log.configure'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs+^0l%=bt_dst0'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs+^0l%=bt_dst0')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
 
 AUTH_USER_MODEL = 'share.ShareUser'
 
@@ -115,6 +118,7 @@ INSTALLED_APPS = [
     'providers.edu.scholarsarchiveosu',
     'providers.edu.scholarsbank',
     'providers.edu.scholarscompass_vcu',
+    'providers.edu.scholarworks_umass',
     'providers.edu.smithsonian',
     'providers.edu.stcloud',
     'providers.edu.texasstate',
@@ -159,6 +163,7 @@ INSTALLED_APPS = [
     'providers.org.arxiv',
     'providers.org.arxiv.oai.apps.AppConfig',
     'providers.org.bhl',
+    'providers.org.biorxiv',
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
@@ -282,6 +287,7 @@ DATABASES = {
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
     },
 }
 
@@ -364,6 +370,38 @@ CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
+# Celery Queues
+
+DEFAULT_QUEUE = 'celery'
+LOW_QUEUE = 'low'
+MED_QUEUE = 'med'
+HIGH_QUEUE = 'high'
+
+LOW_PRI_MODULES = {
+    'share.tasks.NormalizerTask',
+}
+
+MED_PRI_MODULES = {
+    'share.tasks.HarvesterTask',
+}
+
+HIGH_PRI_MODULES = {
+}
+
+from kombu import Queue, Exchange
+CELERY_QUEUES = (
+    Queue(LOW_QUEUE, Exchange(LOW_QUEUE), routing_key=LOW_QUEUE,
+          consumer_arguments={'x-priority': -10}),
+    Queue(DEFAULT_QUEUE, Exchange(DEFAULT_QUEUE), routing_key=DEFAULT_QUEUE,
+          consumer_arguments={'x-priority': 0}),
+    Queue(MED_QUEUE, Exchange(MED_QUEUE), routing_key=MED_QUEUE,
+          consumer_arguments={'x-priority': 20}),
+    Queue(HIGH_QUEUE, Exchange(HIGH_QUEUE), routing_key=HIGH_QUEUE,
+          consumer_arguments={'x-priority': 30}),
+)
+
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_ROUTES = ('share.celery.CeleryRouter', )
 CELERY_IGNORE_RESULT = True
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 
@@ -405,4 +443,4 @@ BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1
-DOI_BASE_URL = 'http://dx.doi.org/'
+DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')

@@ -97,9 +97,9 @@ def normalize(args, argv):
         from ipdb import launch_ipdb_on_exception
         with launch_ipdb_on_exception():
             parsed = normalizer.normalize(data['raw'].encode())
-        print('Parsed raw data "{}" into'.format(data['id']))
-        pprint(parsed)
-        print('\n')
+            print('Parsed raw data "{}" into'.format(data['id']))
+            pprint(parsed)
+            print('\n')
 
 
 @command
@@ -127,9 +127,10 @@ def debug(args, argv):
         data = normalizer.unwrap_data(json.load(fobj)['raw'].encode())
 
     parser = normalizer.get_root_parser()
+
     def execute(data, chain):
         return chain.chain()[0].execute(data)
-    e = execute
+    e = execute  # noqa
 
     print('\n')
     print('ctx: {}'.format(ctx))

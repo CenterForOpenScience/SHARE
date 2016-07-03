@@ -2,14 +2,15 @@ import ast
 import importlib
 
 from django.contrib import admin
-from django.contrib.admin import SimpleListFilter
 
 from share.models.base import ExtraData
-from share.models.people import Identifier
-from share.models.creative.meta import Venue, Institution, Funder, Award, DataProvider, Taxonomy, Tag
-from .models import Organization, Affiliation, Email, RawData, NormalizedManuscript, ShareUser, \
-    Person, PersonEmail, ChangeSet, Preprint, Manuscript, CreativeWork, CeleryEvent, CeleryTask
-from share.models.creative.contributors import Contributor
+from share.models.celery import CeleryTask
+from share.models.change import ChangeSet
+from share.models.core import RawData, NormalizedManuscript, ShareUser
+from share.models.creative import CreativeWork, Manuscript, Preprint
+from share.models.entities import Organization, Institution, Funder
+from share.models.meta import Venue, Award, Taxonomy, Tag
+from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
 
 
 class NormalizedManuscriptAdmin(admin.ModelAdmin):
@@ -42,58 +43,22 @@ class PersonAdmin(admin.ModelAdmin):
         return obj.contributor_set.count()
 
 
-class StatusFieldListFilter(SimpleListFilter):
-    title = 'Status'
-    parameter_name = 'status'
-
-    def lookups(self, request, model_admin):
-        return CeleryEvent._meta.get_field('type').choices
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.extra(
-                where=[
-                    '''
-                    (
-                        SELECT share_celeryevent.type
-                        FROM share_celeryevent
-                        WHERE share_celerytask.uuid = share_celeryevent.uuid
-                        ORDER BY share_celeryevent.timestamp DESC
-                        LIMIT 1
-                    ) = %s
-                    '''
-                ],
-                params=[self.value()]
-            )
-        else:
-            return queryset
-
-
 class CeleryTaskAdmin(admin.ModelAdmin):
     date_hierarchy = 'timestamp'
-    list_display = ('uuid', 'name', 'app_label', 'app_version', 'status_', 'started_by')
-    actions = ['rerun_tasks']
-    list_filter = [StatusFieldListFilter, 'name', 'app_label', 'app_version', 'started_by']
+    list_display = ('uuid', 'name', 'app_label', 'app_version', 'status', 'started_by')
+    actions = ['retry_tasks']
+    list_filter = ['status', 'name', 'app_label', 'app_version', 'started_by']
 
-    def rerun_tasks(self, request, queryset):
+    def retry_tasks(self, request, queryset):
         for changeset in queryset:
+            task_id = str(changeset.uuid)
             parts = changeset.name.rpartition('.')
             Task = getattr(importlib.import_module(parts[0]), parts[2])
-            args = (changeset.app_label, changeset.submitted_by.id,) + ast.literal_eval(changeset.args)
+            args = (changeset.app_label, changeset.started_by.id,) + ast.literal_eval(changeset.args)
             kwargs = ast.literal_eval(changeset.kwargs)
-            Task().apply_async(args, kwargs)
+            Task().apply_async(args, kwargs, task_id=task_id)
         pass
-    rerun_tasks.short_description = 'Re-run tasks'
-
-    def status_(self, obj):
-        return dict(CeleryEvent._meta.get_field('type').choices)[obj.status]
-
-
-class CeleryEventAdmin(admin.ModelAdmin):
-    date_hierarchy = 'timestamp'
-    list_display = ['uuid', 'type']
-    list_filter = ['type']
-
+    retry_tasks.short_description = 'Retry tasks'
 
 
 admin.site.register(Organization)
@@ -105,7 +70,6 @@ admin.site.register(Venue)
 admin.site.register(Institution)
 admin.site.register(Funder)
 admin.site.register(Award)
-admin.site.register(DataProvider)
 admin.site.register(Taxonomy)
 admin.site.register(Tag)
 admin.site.register(ExtraData)
@@ -115,7 +79,6 @@ admin.site.register(RawData)
 admin.site.register(Preprint)
 admin.site.register(Manuscript)
 admin.site.register(NormalizedManuscript, NormalizedManuscriptAdmin)
-admin.site.register(CeleryEvent, CeleryEventAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 
 admin.site.register(CreativeWork)

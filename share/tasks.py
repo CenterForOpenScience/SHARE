@@ -24,7 +24,7 @@ class ProviderTask(celery.Task):
     def run(self, app_label, started_by, *args, **kwargs):
         self.config = apps.get_app_config(app_label)
         self.started_by = ShareUser.objects.get(id=started_by)
-        self.task, _ = CeleryProviderTask.objects.get_or_create(
+        self.task, _ = CeleryProviderTask.objects.update_or_create(
             uuid=self.request.id or uuid(),
             defaults={
                 'name': self.name,
@@ -32,12 +32,21 @@ class ProviderTask(celery.Task):
                 'app_version': self.config.version,
                 'args': args,
                 'kwargs': kwargs,
+                'status': CeleryProviderTask.STATUS.started,
                 'provider': self.config.user,
                 'started_by': self.started_by,
             },
         )
-        self.task.save()
         self.do_run(*args, **kwargs)
+
+    def on_retry(self, exc, task_id, args, kwargs, einfo):
+        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.retried)
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.failed)
+
+    def on_success(self, retval, task_id, args, kwargs):
+        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.succeeded)
 
     @abc.abstractmethod
     def do_run(self, *args, **kwargs):
@@ -69,7 +78,7 @@ class HarvesterTask(ProviderTask):
             raw.tasks.add(self.task)
 
             task = NormalizerTask().apply_async((self.config.label, self.started_by.id, raw.pk,))
-            logger.debug('Started run harvester task {} for {}'.format(task, raw.id))
+            logger.debug('Started normalizer task %s for %s', task, raw.id)
 
 
 class NormalizerTask(ProviderTask):
