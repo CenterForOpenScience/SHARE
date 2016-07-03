@@ -58,6 +58,13 @@ class Parser(metaclass=ParserMeta):
         self.id = '_:' + uuid.uuid4().hex
         self.ref = {'@id': self.id, '@type': self.schema}
 
+    def validate(self, field, value):
+        if field.is_relation:
+            if field.rel.many_to_many:
+                assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
+            else:
+                assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
+
     def parse(self):
         if (self.context, self.schema) in ctx.pool:
             return ctx.pool[self.context, self.schema]
@@ -73,12 +80,12 @@ class Parser(metaclass=ParserMeta):
 
             value = chain.execute(self.context)
 
-            # TODO Validate
-            if field.is_relation and field.rel.many_to_many and value:
+            if value and field.is_relation and field.rel.many_to_many:
                 for v in value:
                     ctx.pool[v][field.m2m_field_name()] = self.ref
 
             if value is not None:
+                self.validate(field, value)
                 inst[key] = value
 
         if self._extra:
