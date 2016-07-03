@@ -36,6 +36,15 @@ class Person(Parser):
     family_name = ctx.embeds.users.data.attributes.family_name
     additional_name = ctx.embeds.users.data.attributes.middle_names
     suffix = ctx.embeds.users.data.attributes.suffix
+    url = ctx.embeds.users.data.links.html
+
+    class Extra:
+        nodes = ctx.embeds.users.data.relationships.nodes.links.related.href
+        locale = ctx.embeds.users.data.attributes.locale
+        date_registered = ctx.embeds.users.data.attributes.date_registered
+        active = ctx.embeds.users.data.attributes.active
+        timezone = ctx.embeds.users.data.attributes.timezone
+        profile_image = ctx.embeds.users.data.links.profile_image
 
 
 class ThroughInstitutions(Parser):
