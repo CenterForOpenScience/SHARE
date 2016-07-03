@@ -4,14 +4,14 @@ from collections import deque
 
 import xmltodict
 
-import dateparser
+import arrow
 
 from lxml import etree
 
 from nameparser import HumanName
 
 
-__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat')
+__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe')
 
 
 #### Public API ####
@@ -48,8 +48,11 @@ def Map(chain, *chains):
     return Concat(*chains) + IteratorLink() + chain
 
 
-def Delegate(parser):
+def Delegate(parser, chain=None):
+    if chain:
+        return chain + DelegateLink(parser)
     return DelegateLink(parser)
+
 
 ### /Public API
 
@@ -214,8 +217,7 @@ class NameParserLink(AbstractLink):
 
 class DateParserLink(AbstractLink):
     def execute(self, obj):
-        # TODO Ensure UTC
-        return dateparser.parse(obj).isoformat()
+        return arrow.get(obj).to('UTC').isoformat()
 
 
 class ConcatLink(AbstractLink):
