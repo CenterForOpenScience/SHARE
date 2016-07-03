@@ -11,7 +11,7 @@ from lxml import etree
 from nameparser import HumanName
 
 
-__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe')
+__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath')
 
 
 #### Public API ####
@@ -243,7 +243,10 @@ class JoinLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        return self._joiner.join(obj or [])
+        obj = obj or []
+        if not isinstance(obj, (list, tuple)):
+            obj = (obj, )
+        return self._joiner.join(obj)
 
 
 class TrimLink(AbstractLink):

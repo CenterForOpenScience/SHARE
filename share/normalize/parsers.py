@@ -37,6 +37,8 @@ class Parser(metaclass=ParserMeta):
 
     @classmethod
     def using(cls, **overrides):
+        if not all(isinstance(x, AbstractLink) for x in overrides.values()):
+            raise Exception('Found non-link values in {}. Maybe you need to wrap something in Delegate?'.format(overrides))
         return type(
             cls.__name__ + 'Overridden',
             (cls, ), {
