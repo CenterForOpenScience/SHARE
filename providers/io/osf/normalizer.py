@@ -27,6 +27,8 @@ class CreativeWork(Parser):
         collection = ctx.attributes.collection
         registration = ctx.attributes.registration
         node_license = ctx.attributes.node_license
+        type = ctx.type
+        id = ctx.id
 
 
 class Contributor(Parser):
