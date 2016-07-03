@@ -25,7 +25,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
-            return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+            return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
