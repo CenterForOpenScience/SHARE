@@ -24,8 +24,8 @@ class Person(Parser):
 
 class Contributor(Parser):
     order_cited = ctx('index')
-    person = ctx
     cited_name = ctx.name
+    person = Delegate(Person, ctx)
 
 
 class Taxonomy(Parser):
@@ -47,5 +47,5 @@ class Preprint(Parser):
     published = ParseDate(ctx.entry.published)
     contributors = Map(Delegate(Contributor), ctx.entry.author)
     # doi = settings.DOI_BASE_URL + ctx.entry.maybe('arxiv:doi')['#text']
-    subject = ctx.entry['arxiv:primary_category']
+    subject = Delegate(Tag, ctx.entry['arxiv:primary_category'])
     tags = Map(Delegate(ThroughTags), ctx.entry.category)
