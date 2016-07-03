@@ -21,7 +21,7 @@ class CreativeWork(Parser):
     description = ctx.entry.summary
     contributors = ctx.entry.author['*']
     published = ctx.entry.published
-    doi = DOI_BASE_URL + ctx.entry.maybe('arxiv:doi')('#text')
+    # doi = DOI_BASE_URL + ctx.entry.maybe('arxiv:doi')('#text')
     subject = ctx.entry('arxiv:primary_category')
     tags = ctx.entry.category['*']
 

@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from fuzzycount import FuzzyCountManager
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import ZipField, DatetimeAwareJSONField
@@ -138,7 +139,7 @@ def user_post_save(sender, instance, created, **kwargs):
         instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
-class RawDataManager(models.Manager):
+class RawDataManager(FuzzyCountManager):
 
     def store_data(self, doc_id, data, source):
         rd, created = self.get_or_create(

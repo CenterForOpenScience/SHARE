@@ -1,9 +1,9 @@
 from share.models.base import ShareObject
 from share.models.people import Identifier
-from share.models.creative.meta import Institution, Venue, Funder, Award, DataProvider, Tag
+from share.models.creative.meta import Institution, Venue, Funder, Award, Tag
 from share.models.fields import ShareForeignKey
 
-__all__ = ('ThroughInstitutions', 'ThroughVenues', 'ThroughFunders', 'ThroughAwards', 'ThroughDataProviders', 'ThroughTags', 'ThroughIdentifiers')
+__all__ = ('ThroughInstitutions', 'ThroughVenues', 'ThroughFunders', 'ThroughAwards', 'ThroughTags', 'ThroughIdentifiers')
 
 class ThroughInstitutions(ShareObject):
     institution = ShareForeignKey(Institution)
@@ -22,11 +22,6 @@ class ThroughFunders(ShareObject):
 
 class ThroughAwards(ShareObject):
     award = ShareForeignKey(Award)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-
-
-class ThroughDataProviders(ShareObject):
-    venue = ShareForeignKey(DataProvider)
     creative_work = ShareForeignKey('AbstractCreativeWork')
 
 

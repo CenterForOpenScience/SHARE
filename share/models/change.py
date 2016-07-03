@@ -10,12 +10,13 @@ from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from fuzzycount import FuzzyCountManager
 
 __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)
 
 
-class ChangeSetManager(models.Manager):
+class ChangeSetManager(FuzzyCountManager):
 
     def from_graph(self, graph, submitter):
         if all(not n.change for n in graph.nodes):
@@ -31,7 +32,7 @@ class ChangeSetManager(models.Manager):
         return cs
 
 
-class ChangeManager(models.Manager):
+class ChangeManager(FuzzyCountManager):
 
     def from_node(self, node, change_set):
         if not node.change:
@@ -69,7 +70,7 @@ class ChangeSet(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL)
 #     # raw = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
-#     # normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
+#     normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
 
     def accept(self, save=True):
         with transaction.atomic():

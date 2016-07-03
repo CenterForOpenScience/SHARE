@@ -13,7 +13,7 @@ class Contributor(Parser):
 
 
 class Manuscript(Parser):
-    doi = ctx.DOI
+    # doi = ctx.DOI
     title = ctx.title
     description = ctx.description
     contributors = ctx.authors['*']
