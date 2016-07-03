@@ -8,7 +8,7 @@ from share.models.base import ExtraData
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
-from share.models.creative import CreativeWork, Manuscript, Preprint
+from share.models.creative import AbstractCreativeWork, CreativeWork, Manuscript, Preprint
 from share.models.entities import Organization, Institution, Funder
 from share.models.meta import Venue, Award, Tag
 from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
@@ -79,6 +79,15 @@ class CeleryTaskAdmin(admin.ModelAdmin):
     retry_tasks.short_description = 'Retry tasks'
 
 
+class AbstractCreativeWorkAdmin(admin.ModelAdmin):
+    list_display = ('type', 'title', 'num_contributors')
+    list_filter = ['type']
+
+    def num_contributors(self, obj):
+        return obj.contributors.count()
+    num_contributors.short_description = 'Contributors'
+
+
 admin.site.register(Organization)
 admin.site.register(Affiliation)
 admin.site.register(Person, PersonAdmin)
@@ -99,6 +108,7 @@ admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 
 admin.site.register(CreativeWork)
+admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(ShareUser)
