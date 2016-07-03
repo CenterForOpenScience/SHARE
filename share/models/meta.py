@@ -1,7 +1,7 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey
+from share.models.fields import ShareForeignKey, URIField
 from share.apps import ShareConfig as share_config
 
 
@@ -41,7 +41,7 @@ class Tag(ShareObject):
 
 class Link(ShareObject):
     # TODO Make this A URN Field that isn't stupid
-    url = models.URLField()
+    url = URIField()
     type = models.IntegerField(choices=share_config.link_type_choices)
     work = ShareForeignKey('AbstractCreativeWork')
 

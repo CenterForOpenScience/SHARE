@@ -3,25 +3,25 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 
 from api.filters import ChangeSetFilter
-from api.serializers import NormalizedManuscriptSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer
+from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer
 from share.models import ChangeSet, Change
 from share.tasks import MakeJsonPatches
 
-__all__ = ('NormalizedManuscriptViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet')
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet')
 
 
-class NormalizedManuscriptViewSet(viewsets.ModelViewSet):
+class NormalizedDataViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, TokenHasScope, ]
-    serializer_class = NormalizedManuscriptSerializer
+    serializer_class = NormalizedDataSerializer
     required_scopes = ['upload_normalized_manuscript', ]
 
     def get_queryset(self):
-        return self.request.user.normalizedmanuscript_set.all()
+        return self.request.user.normalizeddata_set.all()
 
     def create(self, request, *args, **kwargs):
         prelim_data = request.data
         prelim_data['source'] = request.user.id
-        serializer = NormalizedManuscriptSerializer(data=prelim_data)
+        serializer = NormalizedDataSerializer(data=prelim_data)
         if serializer.is_valid():
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)

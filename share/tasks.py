@@ -11,7 +11,7 @@ from django.apps import apps
 from django.conf import settings
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedManuscript, ChangeSet, CeleryProviderTask, ShareUser
+from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
 
 
 logger = logging.getLogger(__name__)
@@ -109,7 +109,7 @@ class NormalizerTask(ProviderTask):
 
         # attach task
         normalized_id = resp.json()['normalized_id']
-        normalized = NormalizedManuscript.objects.get(pk=normalized_id)
+        normalized = NormalizedData.objects.get(pk=normalized_id)
         normalized.tasks.add(self.task)
 
         logger.info('Successfully submitted change for %s', raw)
@@ -119,13 +119,13 @@ class MakeJsonPatches(celery.Task):
 
     def run(self, normalized_id, started_by_id=None):
         started_by = None
-        normalized = NormalizedManuscript.objects.get(pk=normalized_id)
+        normalized = NormalizedData.objects.get(pk=normalized_id)
         if started_by_id:
             started_by = ShareUser.objects.get(pk=started_by_id)
         logger.info('%s started make JSON patches for %s at %s', started_by, normalized, datetime.datetime.utcnow().isoformat())
 
         try:
-            ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data), normalized.source)
+            ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data), normalized.id)
         except Exception as e:
             logger.exception('Failed make json patches (%d)', normalized_id)
             raise self.retry(countdown=10, exc=e)

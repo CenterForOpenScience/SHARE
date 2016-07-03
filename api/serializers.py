@@ -9,9 +9,9 @@ class RawDataSerializer(serializers.ModelSerializer):
         fields = ('source', 'provider_doc_id', 'data', 'sha256', 'date_seen', 'date_harvested')
 
 
-class NormalizedManuscriptSerializer(serializers.ModelSerializer):
+class NormalizedDataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.NormalizedManuscript
+        model = models.NormalizedData
         fields = ('created_at', 'normalized_data', 'source')
 
 

@@ -21,7 +21,7 @@ class AutoMergeBot(Bot):
             status=ChangeSet.STATUS.pending,
             changes__type=Change.TYPE.create,
         ).exclude(
-            submitted_by__robot=''
+            normalized_data__submitted_by__robot=''
         ).distinct()
 
         total = qs.count()

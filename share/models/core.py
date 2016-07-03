@@ -17,7 +17,7 @@ from share.models.fields import ZipField, DatetimeAwareJSONField
 from share.models.validators import is_valid_jsonld
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'RawData', 'NormalizedManuscript',)
+__all__ = ('ShareUser', 'RawData', 'NormalizedData',)
 
 
 class ShareUserManager(BaseUserManager):
@@ -190,7 +190,7 @@ class RawData(models.Model):
 
 
 # TODO Rename me
-class NormalizedManuscript(models.Model):
+class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True)
     normalized_data = DatetimeAwareJSONField(default={}, validators=[is_valid_jsonld, ])

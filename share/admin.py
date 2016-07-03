@@ -6,14 +6,14 @@ from django.contrib import admin
 from share.models.base import ExtraData
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
-from share.models.core import RawData, NormalizedManuscript, ShareUser
+from share.models.core import RawData, NormalizedData, ShareUser
 from share.models.creative import CreativeWork, Manuscript, Preprint
 from share.models.entities import Organization, Institution, Funder
 from share.models.meta import Venue, Award, Taxonomy, Tag
 from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
 
 
-class NormalizedManuscriptAdmin(admin.ModelAdmin):
+class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
 
@@ -21,12 +21,16 @@ class NormalizedManuscriptAdmin(admin.ModelAdmin):
 class ChangeSetAdmin(admin.ModelAdmin):
     list_display = ('status_', 'count_changes', 'submitted_by', 'submitted_at')
     actions = ['accept_changes']
-    list_filter = ['status', 'submitted_by']
+    list_filter = ['status']
 
     def accept_changes(self, request, queryset):
         for changeset in queryset:
             changeset.accept()
-    accept_changes.short_description = 'Accept changes'
+    accept_changes.short_description = 'accept changes'
+
+    def submitted_by(self, obj):
+        return obj.normalized_data.source
+    submitted_by.short_description = 'submitted by'
 
     def count_changes(self, obj):
         return obj.changes.count()
@@ -78,7 +82,7 @@ admin.site.register(Email)
 admin.site.register(RawData)
 admin.site.register(Preprint)
 admin.site.register(Manuscript)
-admin.site.register(NormalizedManuscript, NormalizedManuscriptAdmin)
+admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 
 admin.site.register(CreativeWork)

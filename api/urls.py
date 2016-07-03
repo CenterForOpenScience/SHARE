@@ -4,7 +4,7 @@ from api import views
 
 router = DefaultRouter()
 
-router.register(r'normalized', views.NormalizedManuscriptViewSet, base_name='normalizedmanuscript')
+router.register(r'normalized', views.NormalizedDataViewSet, base_name='normalizeddata')
 router.register(r'changeset', views.ChangeSetViewSet, base_name='changeset')
 router.register(r'change', views.ChangeViewSet, base_name='change')
 router.register(r'person', views.PersonViewSet, base_name='person')
