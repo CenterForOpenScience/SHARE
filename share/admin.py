@@ -44,10 +44,10 @@ class PersonAdmin(admin.ModelAdmin):
 class CeleryTaskAdmin(admin.ModelAdmin):
     date_hierarchy = 'timestamp'
     list_display = ('uuid', 'name', 'app_label', 'app_version', 'status', 'started_by')
-    actions = ['rerun_tasks']
+    actions = ['retry_tasks']
     list_filter = ['status', 'name', 'app_label', 'app_version', 'started_by']
 
-    def rerun_tasks(self, request, queryset):
+    def retry_tasks(self, request, queryset):
         for changeset in queryset:
             task_id = str(changeset.uuid)
             parts = changeset.name.rpartition('.')
@@ -56,7 +56,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
             kwargs = ast.literal_eval(changeset.kwargs)
             Task().apply_async(args, kwargs, task_id=task_id)
         pass
-    rerun_tasks.short_description = 'Re-run tasks'
+    retry_tasks.short_description = 'Retry tasks'
 
 
 admin.site.register(Organization)
