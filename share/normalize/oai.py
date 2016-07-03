@@ -19,9 +19,8 @@ class OAIPerson(parsers.Parser):
 
 class OAIContributor(parsers.Parser):
     schema = 'Contributor'
-    Person = OAIPerson
 
-    person = ctx
+    person = links.Delegate(OAIPerson, ctx)
     cited_name = ctx
     order_cited = ctx('index')
 
@@ -33,7 +32,6 @@ class OAIPublisher(parsers.Parser):
 
 class OAIAssociation(parsers.Parser):
     schema = 'Association'
-    # entity = links.Generic('entity')(ctx)
 
 
 class OAITaxonomy(parsers.Parser):
@@ -48,7 +46,7 @@ class OAITag(parsers.Parser):
 
 class OAIThroughTags(parsers.Parser):
     schema = 'ThroughTags'
-    tag = OAITag(ctx)
+    tag = links.Delegate(OAITag, ctx)
 
 
 class OAICreativeWork(parsers.Parser):
