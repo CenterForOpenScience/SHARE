@@ -65,7 +65,7 @@ class Affiliation(ShareObject):
     # start_date = models.DateField()
     # end_date = models.DateField()
     person = ShareForeignKey(Person)
-    organization = ShareForeignKey('Entity')
+    entity = ShareForeignKey('Entity')
 
 
 class Contributor(ShareObject):
