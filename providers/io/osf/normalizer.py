@@ -54,3 +54,9 @@ class ThroughInstitutions(Parser):
 class Institution(Parser):
     name = ctx.attributes.name
     url = ctx.links.self
+
+    class Extra:
+        nodes = ctx.relationships.nodes.links.related.href
+        users = ctx.relationships.users.links.related.href
+        registrations = ctx.relationships.registrations.links.related.href
+        description = ctx.attributes.description
