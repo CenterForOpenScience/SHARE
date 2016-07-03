@@ -35,7 +35,7 @@ DEBUG = bool(os.environ.get('DEBUG', True))
 # Running local (not deployed)
 LOCAL_MODE = bool(os.environ.get('LOCAL_MODE', True))
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', [])
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
 
 AUTH_USER_MODEL = 'share.ShareUser'
 
