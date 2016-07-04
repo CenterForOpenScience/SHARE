@@ -120,5 +120,6 @@ class OAINormalizer(Normalizer):
     def root_parser(self):
         return {
             'preprint': OAIPreprint,
+            'publication': OAIPublication,
             'creativework': OAICreativeWork,
         }[self.config.emitted_type.lower()]
