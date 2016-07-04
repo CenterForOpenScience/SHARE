@@ -76,6 +76,8 @@ class OAICreativeWork(parsers.Parser):
         links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:subject')
     )
 
+    # TODO Add links
+
     # TODO: need to determine which contributors/creators are institutions
     # institutions = ShareManyToManyField(Institution, through='ThroughInstitutions')
 
