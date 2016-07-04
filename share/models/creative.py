@@ -18,6 +18,8 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     awards = ShareManyToManyField(Award, through='ThroughAwards')
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
+    links = ShareManyToManyField('Link', 'ThroughLinks')
+
     funders = ShareManyToManyField('Funder', through='Association')
     publishers = ShareManyToManyField('Publisher', through='Association')
     institutions = ShareManyToManyField('Institution', through='Association')
