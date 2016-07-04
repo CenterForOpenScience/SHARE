@@ -21,7 +21,7 @@ class Person(Parser):
 
 class Contributor(Parser):
     person = Delegate(Person, ctx)
-    order_cited = ctx['index']
+    order_cited = ctx('index')
     cited_name = ctx.embeds.users.data.attributes.full_name
 
 
@@ -56,17 +56,9 @@ class ThroughInstitutions(Parser):
 class CreativeWork(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
-
-    # contributors = ctx.contributors['*']
     contributors = Map(Delegate(Contributor), ctx['contributors'])
-
-    # institutions = ctx.embeds.affiliated_institutions.data['*']
     institutions = Map(Delegate(ThroughInstitutions), ctx.embeds.affiliated_institutions.data)
-
     created = ctx.attributes.date_created
-
-    # subject = ctx.attributes.category
-    # tags = ctx.attributes.tags['*']
     subject = Delegate(Tag, ctx.attributes.category)
     tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
 
