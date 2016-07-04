@@ -108,7 +108,9 @@ class NormalizerTask(ProviderTask):
         # attach task
         normalized_id = resp.json()['normalized_id']
         normalized = NormalizedData.objects.get(pk=normalized_id)
+        normalized.raw = raw
         normalized.tasks.add(self.task)
+        normalized.save()
 
         logger.info('Successfully submitted change for %s', raw)
 

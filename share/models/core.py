@@ -193,6 +193,7 @@ class RawData(models.Model):
 class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True)
+    raw = models.ForeignKey(RawData, null=True)
     normalized_data = DatetimeAwareJSONField(default={}, validators=[is_valid_jsonld, ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')
