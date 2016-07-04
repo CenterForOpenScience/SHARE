@@ -13,8 +13,8 @@ class Entity(ShareObject, metaclass=TypedShareObjectMeta):
     # TODO Expand to geolocation or text field for address
     location = models.URLField(blank=True)
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        verbose_name_plural = 'Entities'
 
 
 class Funder(Entity):

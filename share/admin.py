@@ -8,8 +8,8 @@ from share.models.base import ExtraData
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
-from share.models.creative import AbstractCreativeWork, CreativeWork, Manuscript, Preprint
-from share.models.entities import Organization, Institution, Funder
+from share.models.creative import AbstractCreativeWork
+from share.models.entities import Entity
 from share.models.meta import Venue, Award, Tag
 from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
 
@@ -89,26 +89,26 @@ class AbstractCreativeWorkAdmin(admin.ModelAdmin):
     num_contributors.short_description = 'Contributors'
 
 
-admin.site.register(Organization)
+class EntityAdmin(admin.ModelAdmin):
+    list_display = ('type', 'name')
+    list_filter = ('type',)
+
+
 admin.site.register(Affiliation)
 admin.site.register(Person, PersonAdmin)
 admin.site.register(PersonEmail)
 admin.site.register(Identifier)
 admin.site.register(Venue)
-admin.site.register(Institution)
-admin.site.register(Funder)
 admin.site.register(Award)
 admin.site.register(Tag)
 admin.site.register(ExtraData)
 admin.site.register(Contributor)
 admin.site.register(Email)
 admin.site.register(RawData)
-admin.site.register(Preprint)
-admin.site.register(Manuscript)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 
-admin.site.register(CreativeWork)
+admin.site.register(Entity, EntityAdmin)
 admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
