@@ -1,10 +1,10 @@
-import arrow
 import logging
-
-from furl import furl
 from typing import Tuple
 from typing import Union
 from typing import Iterator
+
+import arrow
+from furl import furl
 
 from share.harvest.harvester import Harvester
 
