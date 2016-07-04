@@ -72,7 +72,7 @@ class OAICreativeWork(parsers.Parser):
 
     tags = links.Map(
         links.Delegate(OAIThroughTags),
-        ctx.record.metadata['oai_dc:dc']['dc:type'],
+        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:type'),
         links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:subject')
     )
 
@@ -94,14 +94,8 @@ class OAICreativeWork(parsers.Parser):
     # TODO: parse text of identifiers to find 'ISBN' also what is ISSN?
     # isbn = models.URLField(blank=True)
 
-    # tags = links.Concat(
-    #     ctx.record.metadata['oai_dc:dc']['dc:type']('*'),
-    #     ctx.record.metadata['oai_dc:dc'].maybe('dc:subject')('*')
-    # )
-
     # TODO:update model to handle this
     # work_type = ctx.record.metadata('oai_dc:dc')('dc:type')['*']
-
 
     # created = models.DateTimeField(null=True)
     # published = models.DateTimeField(null=True)
