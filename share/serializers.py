@@ -43,12 +43,12 @@ class BaseShareSerializer(serializers.ModelSerializer):
 
 class ExtraDataSerializer(BaseShareSerializer):
     class Meta(BaseShareSerializer.Meta):
-        models = models.ExtraData
+        model = models.ExtraData
 
 
 class EntitySerializer(BaseShareSerializer):
     class Meta(BaseShareSerializer.Meta):
-        models = models.Entity
+        model = models.Entity
 
 
 class VenueSerializer(BaseShareSerializer):
@@ -94,7 +94,7 @@ class AffiliationSerializer(BaseShareSerializer):
     organization = OrganizationSerializer(sparse=True)
 
     class Meta(BaseShareSerializer.Meta):
-        models = models.Affiliation
+        model = models.Affiliation
 
 
 class ContributorSerializer(BaseShareSerializer):
