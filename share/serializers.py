@@ -40,17 +40,34 @@ class BaseShareSerializer(serializers.ModelSerializer):
     class Meta:
         exclude = ('change', 'id')
 
+
+class ExtraDataSerializer(BaseShareSerializer):
+    class Meta(BaseShareSerializer.Meta):
+        models = models.ExtraData
+
+
+class EntitySerializer(BaseShareSerializer):
+    class Meta(BaseShareSerializer.Meta):
+        models = models.Entity
+
+
 class VenueSerializer(BaseShareSerializer):
     class Meta(BaseShareSerializer.Meta):
         model = models.Venue
 
-class OrganizationSerializer(BaseShareSerializer):
-    class Meta(BaseShareSerializer.Meta):
+
+class OrganizationSerializer(EntitySerializer):
+    class Meta(EntitySerializer.Meta):
         model = models.Organization
 
 
-class InstitutionSerializer(BaseShareSerializer):
-    class Meta(BaseShareSerializer.Meta):
+class PublisherSerializer(EntitySerializer):
+    class Meta(EntitySerializer.Meta):
+        model = models.Publisher
+
+
+class InstitutionSerializer(EntitySerializer):
+    class Meta(EntitySerializer.Meta):
         model = models.Institution
 
 
@@ -91,8 +108,8 @@ class ContributorSerializer(BaseShareSerializer):
         model = models.Contributor
 
 
-class FunderSerializer(BaseShareSerializer):
-    class Meta(BaseShareSerializer.Meta):
+class FunderSerializer(EntitySerializer):
+    class Meta(EntitySerializer.Meta):
         model = models.Funder
 
 
