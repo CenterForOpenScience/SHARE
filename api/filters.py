@@ -6,9 +6,10 @@ from share.models import ChangeSet, ShareObject
 
 class ObjectIDFilter(django_filters.filters.CharFilter):
     def filter(self, qs, value):
-        shortuuid.set_alphabet('23456789abcdefghjkmnpqrstuvwxyz')
-        actual_value = shortuuid.decode(value)
-        return super(ObjectIDFilter, self).filter(qs, actual_value)
+        if value:
+            shortuuid.set_alphabet('23456789abcdefghjkmnpqrstuvwxyz')
+            value = shortuuid.decode(value)
+        return super(ObjectIDFilter, self).filter(qs, value)
 
 
 class ShareObjectFilterSet(django_filters.FilterSet):
