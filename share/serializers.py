@@ -24,6 +24,9 @@ class BaseShareSerializer(serializers.ModelSerializer):
         if 'type' in self.fields.keys():
             self.fields.pop('type')
 
+        if 'uuid' in self.fields.keys():
+            self.fields.pop('uuid')
+
         # add fields with improper names
         self.fields.update({
             '@id': serializers.HyperlinkedIdentityField(
@@ -32,6 +35,7 @@ class BaseShareSerializer(serializers.ModelSerializer):
                 lookup_field='pk'
             ),
             '@type': fields.TypeField(),
+            'object_id': fields.ObjectIDField(source='uuid')
         })
     class Meta:
         exclude = ('change', 'id')
