@@ -53,4 +53,4 @@ class RawDataViewSet(viewsets.ModelViewSet):
     required_scopes = ['upload_raw_data', ]
 
     def get_queryset(self):
-        return self.request.user.sharesource.rawdata_set.all()
+        return self.request.user.rawdata_set.all()
