@@ -36,6 +36,7 @@ class ChangeSetAdmin(admin.ModelAdmin):
     list_display = ('status_', 'count_changes', 'submitted_by', 'submitted_at')
     actions = ['accept_changes']
     list_filter = ['status', ChangeSetSubmittedByFilter]
+    raw_id_fields = ('normalized_data',)
 
     def accept_changes(self, request, queryset):
         for changeset in queryset:
