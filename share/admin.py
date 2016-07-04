@@ -83,6 +83,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
 class AbstractCreativeWorkAdmin(admin.ModelAdmin):
     list_display = ('type', 'title', 'num_contributors')
     list_filter = ['type']
+    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version', 'subject', 'subject_version')
 
     def num_contributors(self, obj):
         return obj.contributors.count()
