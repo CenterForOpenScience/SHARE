@@ -1,5 +1,7 @@
 SHARE
 =====
+
+[![Join the chat at https://gitter.im/CenterForOpenScience/SHARE](https://badges.gitter.im/CenterForOpenScience/SHARE.svg)](https://gitter.im/CenterForOpenScience/SHARE?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 SHARE is creating a free, open dataset of research (meta)data.
 
 SHARE Notification Service Components at COS
