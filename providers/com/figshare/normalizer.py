@@ -17,3 +17,7 @@ class CreativeWork(Parser):
     title = ctx.title
     description = ctx.description
     contributors = Map(Delegate(Contributor), ctx.authors)
+    published = ParseDate(ctx.published_date)
+
+    class Extra:
+        modifed = ParseDate(ctx.modifed_date)
