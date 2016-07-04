@@ -1,3 +1,7 @@
+import arrow
+
+import dateparser
+
 from share.normalize import *  # noqa
 
 
@@ -12,12 +16,35 @@ class Contributor(Parser):
     person = Delegate(Person, ctx)
 
 
+class Link(Parser):
+    url = ctx
+    type = RunPython('get_link_type', ctx)
+
+    def get_link_type(self, link):
+        if 'dx.doi.org' in link:
+            return 'doi'
+        if 'figshare.com' in link:
+            return 'provider'
+        return 'misc'
+
+
+class ThroughLinks(Parser):
+    link = Delegate(Link, ctx)
+
+
 class CreativeWork(Parser):
-    # doi = ctx.DOI
     title = ctx.title
     description = ctx.description
     contributors = Map(Delegate(Contributor), ctx.authors)
-    published = ParseDate(ctx.published_date)
+    published = RunPython('parse_date', ctx.published_date)
+    links = Concat(
+        Delegate(ThroughLinks, ctx.url),
+        Delegate(ThroughLinks, ctx.DOI),
+        Map(Delegate(ThroughLinks), ctx.links)
+    )
 
     class Extra:
-        modifed = ParseDate(ctx.modifed_date)
+        modifed = RunPython('parse_date', ctx.modifed_date)
+
+    def parse_date(self, date_str):
+        return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
