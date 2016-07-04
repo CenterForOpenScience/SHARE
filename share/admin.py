@@ -17,6 +17,7 @@ from share.models.people import Identifier, Contributor, Email, Person, PersonEm
 class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
+    raw_id_fields = ('raw', 'tasks',)
 
 
 class ChangeSetSubmittedByFilter(SimpleListFilter):
@@ -57,6 +58,7 @@ class ChangeSetAdmin(admin.ModelAdmin):
 
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('pk', 'given_name', 'family_name', 'works')
+    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
 
     def works(self, obj):
         return obj.contributor_set.count()
@@ -93,6 +95,19 @@ class AbstractCreativeWorkAdmin(admin.ModelAdmin):
 class EntityAdmin(admin.ModelAdmin):
     list_display = ('type', 'name')
     list_filter = ('type',)
+    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
+
+
+class ContributorAdmin(admin.ModelAdmin):
+    raw_id_fields = ('change', 'extra', 'extra_version', 'creative_work', 'creative_work_version', 'same_as', 'same_as_version', 'person', 'person_version',)
+
+
+class TagAdmin(admin.ModelAdmin):
+    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
+
+
+class RawDataAdmin(admin.ModelAdmin):
+    raw_id_fields = ('tasks',)
 
 
 admin.site.register(Affiliation)
@@ -101,11 +116,11 @@ admin.site.register(PersonEmail)
 admin.site.register(Identifier)
 admin.site.register(Venue)
 admin.site.register(Award)
-admin.site.register(Tag)
+admin.site.register(Tag, TagAdmin)
 admin.site.register(ExtraData)
-admin.site.register(Contributor)
+admin.site.register(Contributor, ContributorAdmin)
 admin.site.register(Email)
-admin.site.register(RawData)
+admin.site.register(RawData, RawDataAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 
