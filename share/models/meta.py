@@ -51,6 +51,11 @@ class Link(ShareObject):
 
 # Through Tables for all the things
 
+class ThroughLinks(ShareObject):
+    link = ShareForeignKey(Link)
+    creative_work = ShareForeignKey('AbstractCreativeWork')
+
+
 class ThroughVenues(ShareObject):
     venue = ShareForeignKey(Venue)
     creative_work = ShareForeignKey('AbstractCreativeWork')
