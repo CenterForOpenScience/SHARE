@@ -10,7 +10,7 @@ from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
 from share.models.creative import CreativeWork, Manuscript, Preprint
 from share.models.entities import Organization, Institution, Funder
-from share.models.meta import Venue, Award, Taxonomy, Tag
+from share.models.meta import Venue, Award, Tag
 from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
 
 
@@ -88,7 +88,6 @@ admin.site.register(Venue)
 admin.site.register(Institution)
 admin.site.register(Funder)
 admin.site.register(Award)
-admin.site.register(Taxonomy)
 admin.site.register(Tag)
 admin.site.register(ExtraData)
 admin.site.register(Contributor)

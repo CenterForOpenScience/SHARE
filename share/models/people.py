@@ -39,6 +39,12 @@ class Person(ShareObject):
     location = models.URLField(blank=True)
     url = models.URLField(blank=True)
 
+    def __str__(self):
+        return self.get_full_name()
+
+    def get_full_name(self):
+        return '{} {} {} {}'.format(self.given_name, self.family_name, self.additional_name, self.suffix)
+
     class Meta:
         verbose_name_plural = 'People'
 
@@ -67,6 +73,9 @@ class Affiliation(ShareObject):
     person = ShareForeignKey(Person)
     entity = ShareForeignKey('Entity')
 
+    def __str__(self):
+        return '{} ({})'.format(self.person, self.entity)
+
 
 class Contributor(ShareObject):
     cited_name = models.TextField(blank=True)
@@ -74,3 +83,6 @@ class Contributor(ShareObject):
 
     person = ShareForeignKey(Person)
     creative_work = ShareForeignKey('AbstractCreativeWork')
+
+    def __str__(self):
+        return '{} -> {}'.format(self.person, self.creative_work)

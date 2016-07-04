@@ -34,11 +34,6 @@ class OAIAssociation(parsers.Parser):
     schema = 'Association'
 
 
-class OAITaxonomy(parsers.Parser):
-    schema = 'Taxonomy'
-    name = ctx
-
-
 class OAITag(parsers.Parser):
     schema = 'Tag'
     name = ctx

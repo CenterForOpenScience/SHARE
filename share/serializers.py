@@ -97,13 +97,7 @@ class AwardSerializer(BaseShareSerializer):
         model = models.Award
 
 
-class TaxonomySerializer(BaseShareSerializer):
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Taxonomy
-
-
 class TagSerializer(BaseShareSerializer):
-    taxonomy = TaxonomySerializer()
     class Meta(BaseShareSerializer.Meta):
         model = models.Tag
 

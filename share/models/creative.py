@@ -33,6 +33,9 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     rights = models.TextField(blank=True, null=True)
     language = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.title
+
 
 # Subclasses/Types of Creative Work
 
@@ -57,3 +60,6 @@ class Publication(AbstractCreativeWork):
 class Association(ShareObject):
     entity = ShareForeignKey('Entity')
     creative_work = ShareForeignKey(AbstractCreativeWork)
+
+    def __str__(self):
+        return self.entity

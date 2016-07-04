@@ -34,14 +34,6 @@ class AwardViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class TaxonomyViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
-    serializer_class = serializers.TaxonomySerializer
-    # TODO: Add in scopes once we figure out who, why, and how.
-    # required_scopes = ['', ]
-    queryset = serializer_class.Meta.model.objects.all()
-
-
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     serializer_class = serializers.TagSerializer

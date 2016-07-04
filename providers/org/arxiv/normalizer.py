@@ -28,13 +28,8 @@ class Contributor(Parser):
     person = Delegate(Person, ctx)
 
 
-class Taxonomy(Parser):
-    name = ctx
-
-
 class Tag(Parser):
     name = ctx['@term']
-    type = Delegate(Taxonomy, ctx['@term'])
 
 
 class ThroughTags(Parser):
