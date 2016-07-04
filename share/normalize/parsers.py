@@ -74,6 +74,8 @@ class Parser(metaclass=ParserMeta):
         inst = {**self.ref}  # Shorthand for copying inst
         ctx.pool[self.context, self.schema] = self.ref
 
+        prev, Context().parser = Context().parser, self
+
         for key, chain in self.parsers.items():
             try:
                 field = self.model._meta.get_field(key)
@@ -92,6 +94,8 @@ class Parser(metaclass=ParserMeta):
 
         if self._extra:
             inst['extra'] = {key: parser.parse(self.context) for key, parser in self._extra.items()}
+
+        Context().parser = prev
 
         ctx.pool[self.ref] = inst
         ctx.graph.append(inst)
