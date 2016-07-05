@@ -71,8 +71,6 @@ class ChangeSet(models.Model):
     status = models.IntegerField(choices=STATUS, default=STATUS.pending)
     submitted_at = models.DateTimeField(auto_now_add=True)
     normalized_data = models.ForeignKey(NormalizedData)
-#     # raw = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
-#     normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
 
     def accept(self, save=True):
         with transaction.atomic():

@@ -63,7 +63,7 @@ class ShareObjectMeta(ModelBase):
             **{k: v() for k, v in cls.share_attrs.items()},
             'VersionModel': version,
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
-            'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version', null=True),
+            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version', null=True),
         })
 
         # Inject <classname>Version into the module of the original class definition
