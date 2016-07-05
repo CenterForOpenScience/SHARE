@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from fuzzycount import FuzzyCountManager
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
-from share.models.fields import ZipField, DatetimeAwareJSONField
+from share.models.fields import DatetimeAwareJSONField
 from share.models.validators import is_valid_jsonld
 
 logger = logging.getLogger(__name__)
@@ -165,7 +165,7 @@ class RawData(models.Model):
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     provider_doc_id = models.CharField(max_length=256)
 
-    data = ZipField(blank=False)
+    data = models.TextField(blank=False)
     sha256 = models.CharField(max_length=64)
 
     date_seen = models.DateTimeField(auto_now=True)
