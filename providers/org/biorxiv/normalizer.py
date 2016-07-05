@@ -14,7 +14,7 @@ class Association(Parser):
 class Link(Parser):
     url = links.RunPython('format_doi', ctx)
     # identifier will always be DOI
-    type = 'doi'
+    type = links.Static('doi')
 
     def format_doi(self, doi):
         return format_doi_as_url(self, doi)
