@@ -10,19 +10,22 @@ from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from fuzzycount import FuzzyCountManager
+
+from share.models import NormalizedData
 
 __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)
 
 
-class ChangeSetManager(models.Manager):
+class ChangeSetManager(FuzzyCountManager):
 
-    def from_graph(self, graph, submitter):
+    def from_graph(self, graph, normalized_data_id):
         if all(not n.change for n in graph.nodes):
             logger.info('No changes detected in {!r}, skipping.'.format(graph))
             return None
 
-        cs = ChangeSet(submitted_by=submitter)
+        cs = ChangeSet(normalized_data_id=normalized_data_id)
         cs.save()
 
         for node in graph.nodes:
@@ -31,7 +34,7 @@ class ChangeSetManager(models.Manager):
         return cs
 
 
-class ChangeManager(models.Manager):
+class ChangeManager(FuzzyCountManager):
 
     def from_node(self, node, change_set):
         if not node.change:
@@ -67,9 +70,9 @@ class ChangeSet(models.Model):
 
     status = models.IntegerField(choices=STATUS, default=STATUS.pending)
     submitted_at = models.DateTimeField(auto_now_add=True)
-    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    normalized_data = models.ForeignKey(NormalizedData)
 #     # raw = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
-#     # normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
+#     normalization_log = models.ForeignKey(RawData, on_delete=models.PROTECT, null=True)
 
     def accept(self, save=True):
         with transaction.atomic():
@@ -80,7 +83,7 @@ class ChangeSet(models.Model):
         return ret
 
     def __repr__(self):
-        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.status.upper(), self.submitted_by, self.changes.count())
+        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.STATUS[self.status].upper(), self.normalized_data.source, self.changes.count())
 
 
 class Change(models.Model):
@@ -205,7 +208,7 @@ class Change(models.Model):
                 change[k] = v
         extra = change.pop('extra', None)
         if extra:
-            change['extra'] = {self.change_set.submitted_by.username: extra}
+            change['extra'] = {self.change_set.normalized_data.source.username: extra}
         return change
 
     def _resolve_ref(self, ref):

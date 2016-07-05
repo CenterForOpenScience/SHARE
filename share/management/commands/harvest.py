@@ -20,19 +20,21 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
 
-        kwargs = {}
+        task_kwargs = {}
         if options['days_back']:
-            kwargs['end'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))).isoformat() + 'Z'
-            kwargs['start'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])).isoformat() + 'Z'
+            task_kwargs['end'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))).isoformat() + 'Z'
+            task_kwargs['start'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])).isoformat() + 'Z'
 
         if not options['harvester'] and options['all']:
             options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig)]
 
         for harvester in options['harvester']:
             apps.get_app_config(harvester)  # Die if the AppConfig can not be loaded
+
+            task_args = (harvester, user.id,)
             if options['async']:
-                HarvesterTask().apply_async((harvester, user.id,), kwargs)
+                HarvesterTask().apply_async(task_args, task_kwargs)
                 self.stdout.write('Started job for harvester {}'.format(harvester))
             else:
                 self.stdout.write('Running harvester for {}'.format(harvester))
-                HarvesterTask().run(harvester, user.id, **kwargs)
+                HarvesterTask().apply(task_args, task_kwargs, throw=True)

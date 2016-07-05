@@ -48,12 +48,13 @@ def command(func):
 @command
 def harvest(args, argv):
     """
-    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR] [--start=MM-DD-YYYY] [--end=MM-DD-YY]
+    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR] [--days-back=DAYS] [--start=MM-DD-YYYY] [--end=MM-DD-YY]
 
     Options:
-        -l, --limit=NUMBER      Limit the harvester to NUMBER of documents
-        -p, --print             Print results to stdout rather than to a file
-        -o, --out=DIR           The directory to store the harvested data in. Defaults to ./<provider>
+        -l, --limit=NUMBER    Limit the harvester to NUMBER of documents
+        -p, --print           Print results to stdout rather than to a file
+        -o, --out=DIR         The directory to store the harvested data in. Defaults to ./<provider>
+        -d, --days-back=DAYS  Number of days back to harvest [default: 1]
         -s, --start=MM-DD-YYYY  The start date for the harvester to begin, defaults to one day in the past
         -e, --end=MM-DD-YYYY    The start date for the harvester to end, defaults to today
     """
@@ -67,7 +68,7 @@ def harvest(args, argv):
     start_date = arrow.get(args['--start']) if args.get('--start') else arrow.utcnow() - timedelta(days=1)
     end_date = arrow.get(args['--end']) if args.get('--end') else arrow.utcnow()
 
-    for doc_id, data in harvester.raw(start_date, end_date, limit=int(args['--limit']) if args['--limit'] else None):
+    for doc_id, data in harvester.raw(arrow.utcnow() - timedelta(days=int(args['--days-back'])), arrow.utcnow(), limit=int(args['--limit']) if args['--limit'] else None):
         if args['--print']:
             print('Harvested data with identifier "{}"'.format(doc_id))
             print(data.decode())
@@ -101,10 +102,9 @@ def normalize(args, argv):
             data = json.load(fobj)
         from ipdb import launch_ipdb_on_exception
         with launch_ipdb_on_exception():
-            parsed = normalizer.normalize(data['raw'].encode())
-        print('Parsed raw data "{}" into'.format(data['id']))
-        pprint(parsed)
-        print('\n')
+            print('Parsed raw data "{}" into'.format(data['id']))
+            pprint(normalizer.normalize(data['raw'].encode()))
+            print('\n')
 
 
 @command
@@ -132,9 +132,10 @@ def debug(args, argv):
         data = normalizer.unwrap_data(json.load(fobj)['raw'].encode())
 
     parser = normalizer.get_root_parser()
+
     def execute(data, chain):
         return chain.chain()[0].execute(data)
-    e = execute
+    e = execute  # noqa
 
     print('\n')
     print('ctx: {}'.format(ctx))

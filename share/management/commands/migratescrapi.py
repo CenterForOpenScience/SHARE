@@ -9,6 +9,7 @@ from django.db import connections
 from django.apps import apps
 from django.core.management.base import BaseCommand
 
+from share import ProviderAppConfig
 from share.models import RawData
 
 # setup the migration source db connection
@@ -29,9 +30,9 @@ RawData._meta.get_field('date_harvested').auto_now_add = False
 class Command(BaseCommand):
     can_import_settings = True
 
-    source_map = OrderedDict(sorted({
-        'addis_ababa': 'et.addisababa',
-        'arxiv_oai': 'org.arxiv',
+    map = OrderedDict(sorted({
+        'addis_ababa': 'et.edu.addisababa',
+        'arxiv_oai': 'org.arxiv.oai',
         'asu': 'edu.asu',
         'bhl': 'org.bhl',
         'biomedcentral': 'com.biomedcentral',
@@ -41,144 +42,158 @@ class Command(BaseCommand):
         'caltech': 'edu.caltech',
         'cambridge': 'uk.cambridge',
         'chapman': 'edu.chapman',
-        # 'citeseerx': '...',
-        # 'clinicaltrials': '...',
-        # 'cmu': '...',
+        'citeseerx': 'edu.citeseerx',
+        'clinicaltrials': 'gov.clinicaltrials',
+        'cmu': 'edu.cmu',
         'cogprints': 'org.cogprints',
-        # 'colostate': '...',
-        # 'columbia': '...',
-        # 'crossref': '...',
-        # 'csir': '...',
-        # 'csuohio': '...',
-        # 'cuny': '...',
-        # 'cuscholar': '...',
-        # 'cyberleninka': '...',
-        # 'dailyssrn': '...',
-        # 'dash': '...',
-        # 'datacite': '...',
-        # 'dataone': '...',
-        # 'digitalhoward': '...',
-        # 'doepages': '...',
-        # 'dryad': '...',
-        # 'duke': '...',
-        # 'elife': '...',
-        # 'erudit': '...',
+        'colostate': 'edu.colostate',
+        'columbia': 'edu.columbia',
+        'crossref': 'org.crossref',
+        'csir': 'za.csir',
+        'csuohio': 'edu.csuohio',
+        'cuny': 'edu.cuny',
+        'cuscholar': 'edu.cuscholar',
+        'cyberleninka': 'ru.cyberleninka',
+        'dailyssrn': 'com.dailyssrn',
+        'dash': 'edu.dash',
+        'datacite': 'org.datacite',
+        'dataone': 'org.dataone',
+        'digitalhoward': 'edu.digitalhoward',
+        'doepages': 'gov.doepages',
+        'dryad': 'org.dryad',
+        'duke': 'edu.duke',
+        'elife': 'org.elife',
+        'erudit': 'org.erudit',
         'figshare': 'com.figshare',
-        # 'fit': '...',
-        # 'ghent': '...',
-        # 'hacettepe': '...',
-        # 'harvarddataverse': '...',
-        # 'huskiecommons': '...',
-        # 'iastate': '...',
-        # 'icpsr': '...',
-        # 'iowaresearch': '...',
-        # 'iu': '...',
-        # 'iwu_commons': '...',
-        # 'kent': '...',
-        # 'krex': '...',
-        # 'lshtm': '...',
-        # 'lwbin': '...',
-        # 'mason': '...',
-        # 'mblwhoilibrary': '...',
-        # 'mit': '...',
-        # 'mizzou': '...',
-        # 'mla': '...',
-        # 'nature': '...',
-        # 'ncar': '...',
-        # 'neurovault': '...',
-        # 'nih': '...',
-        # 'nist': '...',
-        # 'nku': '...',
+        'fit': 'edu.fit',
+        'ghent': 'be.ghent',
+        'hacettepe': 'tr.edu.hacettepe',
+        'harvarddataverse': 'edu.harvarddataverse',
+        'huskiecommons': 'edu.huskiecommons',
+        'iastate': 'edu.iastate',
+        'icpsr': 'edu.icpsr',
+        'iowaresearch': 'edu.iowaresearch',
+        'iu': 'edu.iu',
+        'iwu_commons': 'edu.iwu_commons',
+        'kent': 'edu.kent',
+        'krex': 'edu.krex',
+        'lshtm': 'uk.lshtm',
+        'lwbin': 'ca.lwbin',
+        'mason': 'edu.mason',
+        'mblwhoilibrary': 'org.mblwhoilibrary',
+        'mit': 'edu.mit',
+        'mizzou': 'edu.mizzou',
+        'mla': 'org.mla',
+        'nature': 'com.nature',
+        'ncar': 'org.ncar',
+        'neurovault': 'org.neurovault',
+        'nih': 'gov.nih',
+        'nist': 'gov.nist',
+        'nku': 'edu.nku',
         'noaa_nodc': 'gov.nodc',
         'npp_ksu': 'org.newprairiepress',
-        # 'nsfawards': '...',
-        # 'oaktrust': '...',
-        # 'opensiuc': '...',
-        # 'osf': '...',
-        # 'pcom': '...',
-        # 'pcurio': '...',
-        # 'pdxscholar': '...',
-        # 'plos': '...',
-        # 'pubmedcentral': '...',
-        # 'purdue': '...',
-        # 'rcaap': '...',
-        # 'scholarsarchiveosu': '...',
-        # 'scholarsbank': '...',
-        # 'scholarscompass_vcu': '...',
-        # 'scholarsphere': '...',
-        # 'scholarworks_umass': '...',
-        # 'scitech': '...',
-        # 'shareok': '...',
-        # 'sldr': '...',
-        # 'smithsonian': '...',
-        # 'spdataverse': '...',
-        # 'springer': '...',
-        # 'stcloud': '...',
-        # 'tdar': '...',
-        # 'texasstate': '...',
-        # 'triceratops': '...',
-        # 'trinity': '...',
-        # 'ucescholarship': '...',
-        # 'ucsd': '...',
-        # 'udc': '...',
-        # 'udel': '...',
-        # 'uhawaii': '...',
-        # 'uiucideals': '...',
-        # 'ukansas': '...',
-        # 'uky': '...',
-        # 'umassmed': '...',
-        # 'umich': '...',
-        # 'umontreal': '...',
-        # 'uncg': '...',
-        # 'unl_digitalcommons': '...',
-        # 'uow': '...',
-        # 'upennsylvania': '...',
-        # 'usgs': '...',
-        # 'u_south_fl': '...',
-        # 'utaustin': '...',
-        # 'ut_chattanooga': '...',
-        # 'utktrace': '...',
-        # 'uwashington': '...',
-        # 'uwo': '...',
-        # 'valposcholar': '...',
-        # 'vtech': '...',
-        # 'wash_state_u': '...',
-        # 'waynestate': '...',
-        # 'wustlopenscholarship': '...',
-        # 'zenodo': '...',
+        'nsfawards': 'gov.nsfawards',
+        'oaktrust': 'edu.oaktrust',
+        'opensiuc': 'edu.opensiuc',
+        'osf': 'io.osf',
+        'pcom': 'edu.pcom',
+        'pcurio': 'br.pcurio',
+        'pdxscholar': 'edu.pdxscholar',
+        'plos': 'org.plos',
+        'pubmedcentral': 'gov.pubmedcentral',
+        'purdue': 'edu.purdue',
+        'rcaap': 'pt.rcaap',
+        'scholarsarchiveosu': 'edu.scholarsarchiveosu',
+        'scholarsbank': 'edu.scholarsbank',
+        'scholarscompass_vcu': 'edu.scholarscompass_vcu',
+        # 'scholarsphere': '...', - does not exist in scrapi
+        'scholarworks_umass': 'edu.scholarworks_umass',
+        'scitech': 'gov.scitech',
+        'shareok': 'org.shareok',
+        'sldr': 'org.sldr',
+        'smithsonian': 'edu.smithsonian',
+        'spdataverse': 'info.spdataverse',
+        'springer': 'com.springer',
+        'stcloud': 'edu.stcloud',
+        'tdar': 'org.tdar',
+        'texasstate': 'edu.texasstate',
+        'triceratops': 'edu.triceratops',
+        'trinity': 'edu.trinity',
+        'u_south_fl': 'edu.u_south_fl',
+        'ucescholarship': 'org.ucescholarship',
+        'udc': 'edu.udc',
+        'udel': 'edu.udel',
+        'uhawaii': 'edu.uhawaii',
+        'uiucideals': 'edu.uiucideals',
+        'ukansas': 'edu.ukansas',
+        'uky': 'edu.uky',
+        'umassmed': 'edu.umassmed',
+        'umich': 'edu.umich',
+        'umontreal': 'ca.umontreal',
+        'uncg': 'edu.uncg',
+        'unl_digitalcommons': 'edu.unl_digitalcommons',
+        'uow': 'au.uow',
+        'upennsylvania': 'edu.upennsylvania',
+        # 'ucsd': '...', - does not exist in scrapi
+        'usgs': 'gov.usgs',
+        'ut_chattanooga': 'edu.ut_chattanooga',
+        'utaustin': 'edu.utaustin',
+        'utktrace': 'edu.utktrace',
+        'uwashington': 'edu.uwashington',
+        'uwo': 'ca.uwo',
+        'valposcholar': 'edu.valposcholar',
+        'vtech': 'edu.vtech',
+        'wash_state_u': 'edu.wash_state_u',
+        'waynestate': 'edu.waynestate',
+        'wustlopenscholarship': 'edu.wustlopenscholarship',
+        'zenodo': 'org.zenodo',
     }.items()))
 
-    def do_migration(self, source: str, app_label: str):
-        config = apps.get_app_config(app_label)
-
-        # This is required to populate the connection object properly
-        connection = connections['migration_source']
-        if connection.connection is None:
-            connection.cursor()
-
-        print('{} -> {}'.format(source, app_label))
-        with connection.connection.cursor('scrapi_migration', withhold=True) as cursor:
-            cursor.execute("""SELECT "docID", raw FROM webview_document WHERE source = '{source}';""".format(source=source))
-            record_count = 0
-            records = cursor.fetchmany(size=cursor.itersize)
-            while records:
-                bulk = []
-                for (doc_id, raw) in records:
-                    harvest_finished = arrow.get(raw['timestamps']['harvestFinished'])
-                    data = raw['doc'].encode()
-                    bulk.append(RawData(
-                        source=config.user,
-                        provider_doc_id=doc_id,
-                        sha256=sha256(data).hexdigest(),
-                        data=data,
-                        date_seen=harvest_finished.datetime,
-                        date_harvested=harvest_finished.datetime,
-                    ))
-                RawData.objects.bulk_create(bulk)
-                record_count += len(records)
-                print(record_count)
-                records = cursor.fetchmany(size=cursor.itersize)
+    def add_arguments(self, parser):
+        parser.add_argument('--all', action='store_true', help='Migrate all scrapi harvester')
+        parser.add_argument('harvester', nargs='*', type=str, help='The name of the scrapi harvester(s) to migrate')
 
     def handle(self, *args, **options):
-        for key in self.source_map.keys():
-            self.do_migration(key, self.source_map.get(key))
+        if not options['harvester'] and options['all']:
+            options['harvester'] = [k for k in self.map.keys()]
+
+        if options['harvester']:
+            connection = connections['migration_source']
+
+            # This is required to populate the connection object properly
+            if connection.connection is None:
+                connection.cursor()
+
+            for source in options['harvester']:
+                target = self.map[source]
+                config = apps.get_app_config(target)
+
+                print('{} -> {}'.format(source, target))
+                with connection.connection.cursor('scrapi_migration', withhold=True) as cursor:
+                    cursor.execute(
+                        """
+                            SELECT "docID", raw
+                            FROM webview_document
+                            WHERE source = '{source}'
+                        """.format(source=source)
+                    )
+
+                    record_count = 0
+                    records = cursor.fetchmany(size=cursor.itersize)
+                    while records:
+                        bulk = []
+                        for (doc_id, raw) in records:
+                            harvest_finished = arrow.get(raw['timestamps']['harvestFinished'])
+                            data = raw['doc'].encode()
+                            bulk.append(RawData(
+                                source=config.user,
+                                provider_doc_id=doc_id,
+                                sha256=sha256(data).hexdigest(),
+                                data=data,
+                                date_seen=harvest_finished.datetime,
+                                date_harvested=harvest_finished.datetime,
+                            ))
+                        RawData.objects.bulk_create(bulk)
+                        record_count += len(records)
+                        print(record_count)
+                        records = cursor.fetchmany(size=cursor.itersize)
