@@ -1,3 +1,4 @@
+from django.conf.urls import url
 from rest_framework.routers import DefaultRouter
 
 from api import views
@@ -29,4 +30,6 @@ router.register(r'changes', views.ChangeViewSet, base_name='change')
 router.register(r'raw_data', views.RawDataViewSet, base_name='rawdata')
 router.register(r'users', views.ShareUserViewSet, base_name='users')
 
-urlpatterns = router.urls
+urlpatterns = [
+    url(r'search/?', views.ElasticSearchView.as_view(), name='search')
+              ] + router.urls
