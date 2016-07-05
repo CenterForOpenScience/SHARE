@@ -20,16 +20,19 @@ LOGGING_CONFIG = 'project.log.configure'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# https://docs.djangoproject.com/en/1.9/howto/static-files/
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs+^0l%=bt_dst0'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs+^0l%=bt_dst0')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
 
 AUTH_USER_MODEL = 'share.ShareUser'
 
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'oauth2_provider',
     'rest_framework',
+    'corsheaders',
 
     'allauth',
     'allauth.account',
@@ -78,7 +82,7 @@ INSTALLED_APPS = [
     'providers.com.nature',
     'providers.com.springer',
     'providers.edu.asu',
-    'providers.edu.boisestate',
+    'providers.edu.boise_state',
     'providers.edu.calhoun',
     'providers.edu.calpoly',
     'providers.edu.caltech',
@@ -115,6 +119,7 @@ INSTALLED_APPS = [
     'providers.edu.scholarsarchiveosu',
     'providers.edu.scholarsbank',
     'providers.edu.scholarscompass_vcu',
+    'providers.edu.scholarworks_umass',
     'providers.edu.smithsonian',
     'providers.edu.stcloud',
     'providers.edu.texasstate',
@@ -143,7 +148,7 @@ INSTALLED_APPS = [
     'providers.edu.wash_state_u',
     'providers.edu.waynestate',
     'providers.edu.wustlopenscholarship',
-    'providers.et.edu.addisababa',
+    'providers.et.edu.addis_ababa',
     'providers.gov.clinicaltrials',
     'providers.gov.doepages',
     'providers.gov.nih',
@@ -159,6 +164,7 @@ INSTALLED_APPS = [
     'providers.org.arxiv',
     'providers.org.arxiv.oai.apps.AppConfig',
     'providers.org.bhl',
+    'providers.org.biorxiv',
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
@@ -171,6 +177,7 @@ INSTALLED_APPS = [
     'providers.org.ncar',
     'providers.org.neurovault',
     'providers.org.newprairiepress',
+    'providers.org.plos',
     'providers.org.shareok',
     'providers.org.sldr',
     'providers.org.stepic',
@@ -227,7 +234,10 @@ APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
-    'DEFAULT_AUTHENTICATION_CLASSES': ('oauth2_provider.ext.rest_framework.OAuth2Authentication',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'PAGE_SIZE': 10,
     'DEFAULT_PARSER_CLASSES': (
         'api.parsers.JSONLDParser',
@@ -242,6 +252,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -276,11 +287,12 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DATABASE_NAME', 'share'),
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
     },
 }
 
@@ -304,6 +316,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
+    CORS_ORIGIN_ALLOW_ALL = True
+    CORS_ALLOW_CREDENTIALS = True
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
@@ -363,6 +377,38 @@ CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
+# Celery Queues
+
+DEFAULT_QUEUE = 'celery'
+LOW_QUEUE = 'low'
+MED_QUEUE = 'med'
+HIGH_QUEUE = 'high'
+
+LOW_PRI_MODULES = {
+    'share.tasks.NormalizerTask',
+}
+
+MED_PRI_MODULES = {
+    'share.tasks.HarvesterTask',
+}
+
+HIGH_PRI_MODULES = {
+}
+
+from kombu import Queue, Exchange
+CELERY_QUEUES = (
+    Queue(LOW_QUEUE, Exchange(LOW_QUEUE), routing_key=LOW_QUEUE,
+          consumer_arguments={'x-priority': -10}),
+    Queue(DEFAULT_QUEUE, Exchange(DEFAULT_QUEUE), routing_key=DEFAULT_QUEUE,
+          consumer_arguments={'x-priority': 0}),
+    Queue(MED_QUEUE, Exchange(MED_QUEUE), routing_key=MED_QUEUE,
+          consumer_arguments={'x-priority': 20}),
+    Queue(HIGH_QUEUE, Exchange(HIGH_QUEUE), routing_key=HIGH_QUEUE,
+          consumer_arguments={'x-priority': 30}),
+)
+
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_ROUTES = ('share.celery.CeleryRouter', )
 CELERY_IGNORE_RESULT = True
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 
@@ -399,8 +445,12 @@ LOGGING = {
 
 # Custom Settings
 
+PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
 BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1
-DOI_BASE_URL = 'http://dx.doi.org/'
+DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
+
+import djcelery
+djcelery.setup_loader()

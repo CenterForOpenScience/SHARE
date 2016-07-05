@@ -6,9 +6,10 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.conf import settings
 from django.db.models.base import ModelBase
+from fuzzycount import FuzzyCountManager
 
 from share.models.change import Change
-from share.models import fields
+from share.models import fields, ShareUser
 
 from typedmodels import models as typedmodels
 
@@ -32,7 +33,7 @@ class ShareObjectMeta(ModelBase):
     # This if effectively the "ShareBaseClass"
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
-        'source': lambda: models.ForeignKey(settings.AUTH_USER_MODEL, null=True, related_name='curated_%(class)s'),
+        'source': lambda: models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s'),
         'change': lambda: models.OneToOneField(Change, null=True, related_name='affected_%(class)s'),
         'date_modified': lambda: models.DateTimeField(auto_now=True),
         'date_created': lambda: models.DateTimeField(auto_now_add=True),
@@ -62,7 +63,7 @@ class ShareObjectMeta(ModelBase):
             **{k: v() for k, v in cls.share_attrs.items()},
             'VersionModel': version,
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
-            'version': models.OneToOneField(version, editable=False, on_delete=models.PROTECT, related_name='%(app_label)s_%(class)s_version', null=True),
+            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version', null=True),
         })
 
         # Inject <classname>Version into the module of the original class definition
@@ -106,7 +107,7 @@ class VersionManagerDescriptor:
         return VersionManager(self.model, instance)
 
 
-class VersionManager(models.Manager):
+class VersionManager(FuzzyCountManager):
 
     def __init__(self, model=None, instance=None):
         super().__init__()
@@ -128,7 +129,7 @@ class VersionManager(models.Manager):
 class ExtraData(models.Model, metaclass=ShareObjectMeta):
     data = fields.DatetimeAwareJSONField(default={})
 
-    objects = models.Manager()
+    objects = FuzzyCountManager()
     versions = VersionManager()
 
     class Meta:
@@ -137,7 +138,7 @@ class ExtraData(models.Model, metaclass=ShareObjectMeta):
 
 class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
-    objects = models.Manager()
+    objects = FuzzyCountManager()
     versions = VersionManager()
     changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id')
 

@@ -22,9 +22,12 @@ class Command(BaseCommand):
 
         for bot in options['bot']:
             apps.get_app_config(bot)  # Die if the AppConfig can not be loaded
+
+            task_args = (bot, user.id,)
+
             if options['async']:
-                BotTask().apply_async((bot, user.id))
+                BotTask().apply_async(task_args)
                 self.stdout.write('Started job for bot {}'.format(bot))
             else:
                 self.stdout.write('Running bot for {}'.format(bot))
-                BotTask().run(bot, user.id)
+                BotTask().apply(task_args, throw=True)

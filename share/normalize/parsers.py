@@ -1,4 +1,5 @@
 import uuid
+from functools import reduce
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
@@ -15,11 +16,10 @@ ctx = Context()
 class ParserMeta(type):
 
     def __new__(cls, name, bases, attrs):
-        # Enabled inheirtence in parsers.
-        parsers = {**bases[0].parsers} if bases else {}
+        # Enabled inheritance in parsers.
+        parsers = reduce(lambda acc, val: {**acc, **getattr(val, 'parsers', {})}, bases, {})
         for key, value in tuple(attrs.items()):
             if isinstance(value, AbstractLink):
-                # Only need the AnchorLink to call the parser
                 parsers[key] = attrs.pop(key).chain()[0]
         attrs['parsers'] = parsers
 
@@ -33,91 +33,72 @@ class ParserMeta(type):
         return super(ParserMeta, cls).__new__(cls, name, bases, attrs)
 
 
-class Subparser:
-
-    @property
-    def model(self):
-        if self.field.many_to_many:
-            return self.field.rel.through
-        return self.field.rel.model
-
-    @property
-    def is_list(self):
-        return self.field.many_to_many
-
-    @property
-    def parser(self):
-        # Peak into the module where all the parsers are being imported from
-        # and look for one matching out name
-        # TODO Add a way to explictly declare the parser to be used. For more generic formats
-        if hasattr(self.parent.__class__, self.model.__name__):
-            return getattr(self.parent, self.model.__name__)
-        return getattr(__import__(self.parent.__module__, fromlist=(self.model.__name__,)), self.model.__name__)
-
-    def __init__(self, field, parent, context):
-        self.field = field
-        self.parent = parent
-        self.context = context
-
-    def resolve(self):
-        prev, ctx.parent = ctx.parent, self.context
-
-        if self.is_list:
-            ret = [self.parser(v).parse() for v in self.context or []]
-        else:
-            ret = self.parser(self.context).parse()
-
-        # Reset the parent to avoid leaking into other parsers
-        ctx.parent = prev
-        return ret
-
-
 class Parser(metaclass=ParserMeta):
 
+    @classmethod
+    def using(cls, **overrides):
+        if not all(isinstance(x, AbstractLink) for x in overrides.values()):
+            raise Exception('Found non-link values in {}. Maybe you need to wrap something in Delegate?'.format(overrides))
+        return type(
+            cls.__name__ + 'Overridden',
+            (cls, ), {
+                'schema': cls.schema if isinstance(cls.schema, str) else cls.__name__.lower(),
+                **overrides
+            }
+        )
+
     @property
-    def schema_type(self):
-        return getattr(self.__class__, 'schema', self.__class__.__name__.lower())
+    def schema(self):
+        return self.__class__.__name__.lower()
 
     @property
     def model(self):
-        return apps.get_model('share', self.schema_type)
+        return apps.get_model('share', self.schema)
 
     def __init__(self, context):
         self.context = context
         self.id = '_:' + uuid.uuid4().hex
+        self.ref = {'@id': self.id, '@type': self.schema}
 
-        self._value = ctx.pool.get((context, self.schema_type))
+    def validate(self, field, value):
+        if field.is_relation:
+            if field.rel.many_to_many:
+                assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
+            else:
+                assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
 
     def parse(self):
-        if self._value:
-            return self._value
+        if (self.context, self.schema) in ctx.pool:
+            return ctx.pool[self.context, self.schema]
 
-        ref = {'@id': self.id, '@type': self.schema_type}
-        ctx.pool[(self.context, self.schema_type)] = ref
+        inst = {**self.ref}  # Shorthand for copying inst
+        ctx.pool[self.context, self.schema] = self.ref
 
-        inst = {**ref}  # Shorthand for copying inst
+        prev, Context().parser = Context().parser, self
 
         for key, chain in self.parsers.items():
-            value = chain.execute(self.context)
-
             try:
                 field = self.model._meta.get_field(key)
             except FieldDoesNotExist:
                 raise Exception('Tried to parse value {} which does not exist on {}'.format(key, self.model))
 
-            if field.is_relation:
-                value = Subparser(field, self, value).resolve()
-                if field.rel.many_to_many:
-                    for v in value:
-                        ctx.pool[v][field.m2m_field_name()] = ref
+            value = chain.execute(self.context)
 
-            inst[key] = value
+            if value and field.is_relation and field.rel.many_to_many:
+                for v in value:
+                    ctx.pool[v][field.m2m_field_name()] = self.ref
+
+            if value is not None:
+                self.validate(field, value)
+                inst[key] = value
 
         if self._extra:
-            inst['extra'] = {key: chain.execute(self.context) for key, chain in self._extra.items()}
+            inst['extra'] = {key: parser.chain()[0].execute(self.context) for key, parser in self._extra.items()}
 
-        ctx.pool[ref] = inst
+        Context().parser = prev
+
+        ctx.pool[self.ref] = inst
         ctx.graph.append(inst)
 
         # Return only a reference to the parsed object to avoid circular data structures
-        return ref
+        return self.ref

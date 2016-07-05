@@ -12,4 +12,3 @@ class AppConfig(ProviderAppConfig):
     time_granularity = False
     rate_limit = (1, 3)
     harvester = ArxivHarvester
-    version = '0.0.0'

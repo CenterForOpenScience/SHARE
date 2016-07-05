@@ -1,21 +1,30 @@
+from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from share.models import ShareUser
+from share.models import ShareUser, RawData
 from share.tasks import NormalizerTask
 
 
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument('normalizer', type=str, help='The name of the normalizer to run')
-        parser.add_argument('raw_id', type=int, help='The id of the raw record to normalize')
+        parser.add_argument('normalizer', type=str, help='The name of the provider to run')
+        parser.add_argument('raws', nargs='*', type=int, help='The id(s) of the raw record to normalize')
+        parser.add_argument('--all', action='store_true', help='Normalize all data for the provider specified')
         parser.add_argument('--async', action='store_true', help='Whether or not to use Celery')
 
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+        config = apps.get_app_config(options['normalizer'])
 
-        if options['async']:
-            NormalizerTask().apply_async((options['normalizer'], user.id, options['raw_id']))
-        else:
-            NormalizerTask().run(options['normalizer'], user.id, options['raw_id'])
+        if not options['raws'] and options['all']:
+            options['raws'] = RawData.objects.filter(source=config.user.id).values_list('id', flat=True)
+
+        for raw in options['raws']:
+            task_args = (options['normalizer'], user.id, raw,)
+
+            if options['async']:
+                NormalizerTask().apply_async(task_args)
+            else:
+                NormalizerTask().apply(task_args, throw=True)

@@ -10,13 +10,14 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from fuzzycount import FuzzyCountManager
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import ZipField, DatetimeAwareJSONField
 from share.models.validators import is_valid_jsonld
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'RawData', 'NormalizedManuscript',)
+__all__ = ('ShareUser', 'RawData', 'NormalizedData',)
 
 
 class ShareUserManager(BaseUserManager):
@@ -138,7 +139,7 @@ def user_post_save(sender, instance, created, **kwargs):
         instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
-class RawDataManager(models.Manager):
+class RawDataManager(FuzzyCountManager):
 
     def store_data(self, doc_id, data, source):
         rd, created = self.get_or_create(
@@ -189,9 +190,10 @@ class RawData(models.Model):
 
 
 # TODO Rename me
-class NormalizedManuscript(models.Model):
+class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True)
+    raw = models.ForeignKey(RawData, null=True)
     normalized_data = DatetimeAwareJSONField(default={}, validators=[is_valid_jsonld, ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')

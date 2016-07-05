@@ -2,14 +2,16 @@ import threading
 from functools import reduce
 from collections import deque
 
-import dateparser
+import xmltodict
+
+import arrow
 
 from lxml import etree
 
 from nameparser import HumanName
 
 
-__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat')
+__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'RunPython', 'Static')
 
 
 #### Public API ####
@@ -26,8 +28,41 @@ def Trim(chain):
     return chain + TrimLink()
 
 
-def Concat(chain):
-    return AbstractLink.__add__(chain, ConcatLink())
+def Concat(*chains):
+    return AnchorLink() + ConcatLink(*chains)
+
+
+def XPath(chain, path):
+    return chain + XPathLink(path)
+
+
+def Join(chain, joiner='\n'):
+    return AbstractLink.__add__(chain, JoinLink(joiner=joiner))
+
+
+def Maybe(chain, segment, default=None):
+    return chain + MaybeLink(segment, default=default)
+
+
+def Map(chain, *chains):
+    return Concat(*chains) + IteratorLink() + chain
+
+
+def Delegate(parser, chain=None):
+    if chain:
+        return chain + DelegateLink(parser)
+    return DelegateLink(parser)
+
+
+def RunPython(function_name, chain=None):
+    if chain:
+        return chain + RunPythonLink(function_name)
+    return RunPythonLink(function_name)
+
+
+def Static(value):
+    return StaticLink(value)
+
 
 ### /Public API
 
@@ -46,6 +81,9 @@ class DictHashingDict:
 
     def __setitem__(self, key, value):
         self.__inner[self._hash(key)] = value
+
+    def __contains__(self, key):
+        return self._hash(key) in self.__inner
 
     def _hash(self, val):
         if isinstance(val, dict):
@@ -81,13 +119,6 @@ class AbstractLink:
     def execute(self, obj):
         raise NotImplemented
 
-    # Short cut method(s) for specific tranforms
-    def text(self):
-        return self + TextLink()
-
-    def maybe(self, segment):
-        return self + MaybeLink(segment)
-
     # Add a link into an existing chain
     def __add__(self, step):
         self._next = step
@@ -97,33 +128,55 @@ class AbstractLink:
     def __radd__(self, other):
         return self + PrependLink(other)
 
+    # For handling paths that are not valid python
+    # or are already used. IE text, execute, oai:title
+    # ctx('oai:title')
+    def __getitem__(self, name):
+        if isinstance(name, int):
+            return self + IndexLink(name)
+        if isinstance(name, str):
+            return self + PathLink(name)
+        raise Exception(
+            '__getitem__ only accepts integers and strings\n'
+            'Found {}'.format(name)
+        )
+        # raise Exception
+
     # Reserved for special cases
     # Any other use is an error
-    def __getitem__(self, name):
+    def __call__(self, name):
         if name == '*':
             return self + IteratorLink()
         if name == 'parent':
             return self + ParentLink()
         if name == 'index':
             return self + GetIndexLink()
-        if isinstance(name, int):
-            return self + IndexLink(name)
-        raise Exception
-
-    # For handling paths that are not valid python
-    # or are already used. IE text, execute, oai:title
-    # ctx('oai:title')
-    def __call__(self, name):
-        return self + PathLink(name)
+        raise Exception(
+            '"{}" is not a action that __call__ can resolve\n'
+            '__call__ is reserved for special actions\n'
+            'If you are trying to access an element use dictionary notation'.format(name)
+        )
 
     # The preferred way of building paths.
     # Can express either json paths or xpaths
     # ctx.root.nextelement[0].first_item_attribute
     def __getattr__(self, name):
+        if name[0] == '_':
+            raise Exception(
+                '{} has no attribute {}\n'
+                'NOTE: "_"s are reserved for accessing private attributes\n'
+                'Use dictionary notation to access elements beginning with "_"s\n'.format(self, name)
+            )
         return self + PathLink(name)
 
     def __repr__(self):
         return '<{}()>'.format(self.__class__.__name__)
+
+    def run(self, obj):
+        Context().frames.append({'link': self, 'context': obj})
+        ret = self.execute(obj)
+        Context().frames.pop(-1)
+        return ret
 
 
 # The begining link for all chains
@@ -133,7 +186,7 @@ class AbstractLink:
 class AnchorLink(AbstractLink):
 
     def execute(self, obj):
-        return reduce(lambda acc, cur: cur.execute(acc), self.chain()[1:], obj)
+        return reduce(lambda acc, cur: cur.run(acc), self.chain()[1:], obj)
 
 
 class Context(AnchorLink):
@@ -159,7 +212,8 @@ class Context(AnchorLink):
 
     def clear(self):
         self.graph = []
-        self.parent = None
+        self.frames = []
+        self.parser = None
         self.pool = DictHashingDict()
 
     def __add__(self, step):
@@ -173,12 +227,36 @@ class NameParserLink(AbstractLink):
 
 class DateParserLink(AbstractLink):
     def execute(self, obj):
-        return dateparser.parse(obj)
+        return arrow.get(obj).to('UTC').isoformat()
 
 
 class ConcatLink(AbstractLink):
+    def __init__(self, *chains):
+        self._chains = chains
+        super().__init__()
+
+    def _concat(self, acc, val):
+        if not isinstance(val, list):
+            val = [val]
+        return acc + val
+
     def execute(self, obj):
-        return '\n'.join(obj)
+        return reduce(self._concat, [
+            chain.chain()[0].execute(obj)
+            for chain in self._chains
+        ], [])
+
+
+class JoinLink(AbstractLink):
+    def __init__(self, joiner='\n'):
+        self._joiner = joiner
+        super().__init__()
+
+    def execute(self, obj):
+        obj = obj or []
+        if not isinstance(obj, (list, tuple)):
+            obj = (obj, )
+        return self._joiner.join(obj)
 
 
 class TrimLink(AbstractLink):
@@ -208,9 +286,10 @@ class IteratorLink(AbstractLink):
 
 
 class MaybeLink(AbstractLink):
-    def __init__(self, segment):
+    def __init__(self, segment, default=None):
         super().__init__()
         self._segment = segment
+        self._default = default
         self.__anchor = AnchorLink()
 
     def __add__(self, step):
@@ -219,17 +298,12 @@ class MaybeLink(AbstractLink):
         return self
 
     def execute(self, obj):
-        if isinstance(obj, etree._Element):
-            val = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
-            if len(val) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
-                val = val[0]
-                if self._next is None:
-                    val = val.text
-        else:
-            val = obj.get(self._segment)
-        if not val:
-            return val
-        return self.__anchor.execute(val)
+        val = obj.get(self._segment)
+        if val:
+            return self.__anchor.execute(val)
+        if len(Context().frames) > 1 and isinstance(Context().frames[-2]['link'], (IndexLink, IteratorLink, ConcatLink, JoinLink)):
+            return []
+        return self._default
 
 
 class PathLink(AbstractLink):
@@ -238,17 +312,6 @@ class PathLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        if isinstance(obj, etree._Element):
-            # Dirty hack to avoid namespaces with xpath
-            # Anything name "<namespace>:<node>" will be accessed as <node>
-            # IE: oai:title -> title
-            ret = obj.xpath('./*[local-name()=\'{}\']'.format(self._segment))
-            if len(ret) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
-                ret = ret[0]
-                if self._next is None:
-                    ret = ret.text
-            return ret
-
         return obj[self._segment]
 
     def __repr__(self):
@@ -269,7 +332,11 @@ class IndexLink(AbstractLink):
 
 class GetIndexLink(AbstractLink):
     def execute(self, obj):
-        return Context().parent.index(obj)
+        for frame in Context().frames[::-1]:
+            if isinstance(frame['link'], IteratorLink):
+                return frame['context'].index(obj)
+        return -1
+        # return Context().parent.index(obj)
 
 
 class TextLink(AbstractLink):
@@ -284,3 +351,45 @@ class PrependLink(AbstractLink):
 
     def execute(self, obj):
         return self._string + obj
+
+
+class XPathLink(AbstractLink):
+    def __init__(self, xpath):
+        self._xpath = xpath
+        super().__init__()
+
+    def execute(self, obj):
+        unparsed_obj = xmltodict.unparse(obj)
+        xml_obj = etree.XML(unparsed_obj.encode())
+        elem = xml_obj.xpath(self._xpath)
+        elems = [xmltodict.parse(etree.tostring(x)) for x in elem]
+        if len(elems) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
+            return elems[0]
+        return elems
+
+
+class DelegateLink(AbstractLink):
+    def __init__(self, parser):
+        self._parser = parser
+        super().__init__()
+
+    def execute(self, obj):
+        return self._parser(obj).parse()
+
+
+class RunPythonLink(AbstractLink):
+    def __init__(self, function_name):
+        self._function_name = function_name
+        super().__init__()
+
+    def execute(self, obj):
+        return getattr(Context().parser, self._function_name)(obj)
+
+
+class StaticLink(AbstractLink):
+    def __init__(self, value):
+        self._value = value
+        super().__init__()
+
+    def execute(self, obj):
+        return self._value

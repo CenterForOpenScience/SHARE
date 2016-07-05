@@ -2,6 +2,7 @@
 **/migrations/**
 !**/migrations/__init__.py
 
+static/
 
 # Created by https://www.gitignore.io/api/osx,python
 
@@ -133,7 +134,7 @@ com.dailyssrn/
 com.figshare/
 com.nature/
 edu.asu/
-edu.boisestate/
+edu.boise_state/
 edu.calhoun/
 edu.caltech/
 edu.chapman/
@@ -164,7 +165,7 @@ edu.nku/
 edu.oaktrust/
 edu.opensiuc/
 edu.pcom/
-et.edu.addisababa/
+et.edu.addis_ababa/
 gov.clinicaltrials/
 gov.doepages/
 gov.nih/
@@ -174,6 +175,7 @@ gov.nsfawards/
 io.osf/
 org.arxiv/
 org.bhl/
+org.biorxiv/
 org.cogprints/
 org.crossref/
 org.datacite/
