@@ -93,7 +93,7 @@ class Parser(metaclass=ParserMeta):
                 inst[key] = value
 
         if self._extra:
-            inst['extra'] = {key: parser.parse(self.context) for key, parser in self._extra.items()}
+            inst['extra'] = {key: parser.chain()[0].execute(self.context) for key, parser in self._extra.items()}
 
         Context().parser = prev
 
