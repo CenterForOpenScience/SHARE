@@ -25,13 +25,8 @@ class Contributor(Parser):
     cited_name = ctx.embeds.users.data.attributes.full_name
 
 
-class Taxonomy(Parser):
-    name = ctx
-
-
 class Tag(Parser):
     name = ctx
-    type = Delegate(Taxonomy, ctx)
 
 
 class ThroughTags(Parser):
