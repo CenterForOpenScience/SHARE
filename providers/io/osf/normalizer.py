@@ -65,7 +65,7 @@ class Project(Parser):
     created = ctx.attributes.date_created
     subject = Delegate(Tag, ctx.attributes.category)
     tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
-    rights = ctx.attributes.node_license
+    rights = Maybe(ctx, 'attributes.node_license')
     links = Map(Delegate(ThroughLinks), ctx.links.html)
 
     class Extra:
