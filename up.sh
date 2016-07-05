@@ -20,7 +20,7 @@ rm -fv ./{*/*/*/,*/*/,}*/migrations/00*.py
 rm -fv ./bots/*/migrations/00*.py
 
 if [ -n "$BACKUP" ]; then
-    python manage.py dumpdata share.RawData share.CeleryTask --natural-foreign --natural-primary --format json --output share_rawdata.json || true
+    python manage.py dumpdata share.RawData --natural-foreign --natural-primary --format json | gzip > share_rawdata.json.gz
 fi
 
 python manage.py celery purge -f
@@ -35,5 +35,5 @@ python manage.py migrate
 python manage.py loaddata ./share/models/initial_data.yaml
 
 if [ -n "$BACKUP" ]; then
-    python manage.py loaddata share_rawdata.json
+    python manage.py loaddata share_rawdata.json.gz
 fi
