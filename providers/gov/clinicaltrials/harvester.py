@@ -18,18 +18,10 @@ class ClinicalTrialsHarvester(Harvester):
         end_date = end_date.date()
         start_date = start_date.date()
 
-        end_day = end_date.strftime('%d')
-        end_year = end_date.strftime('%y')
-        end_month = end_date.strftime('%m')
-
-        start_day = start_date.strftime('%d')
-        start_year = start_date.strftime('%y')
-        start_month = start_date.strftime('%m')
-
         return self.fetch_records(furl(self.url).set(query_params={
             'displayxml': 'true',
-            'lup_s': '{}/{}/{}'.format(start_month, start_day, start_year),
-            'lup_e': '{}/{}/{}'.format(end_month, end_day, end_year)
+            'lup_s': start_date.strftime('%m/%d/%y'),
+            'lup_e': end_date.strftime('%m/%d/%y')
         }).url)
 
     def fetch_records(self, url):
@@ -59,9 +51,9 @@ class ClinicalTrialsHarvester(Harvester):
                 try:
                     record_resp = self.requests.get(url)
                 except self.requests.exceptions.ConnectionError as e:
-                    logger.info('Connection error: {}, wait a bit...'.format(e))
+                    logger.warning('Connection error: {}, wait a bit...'.format(e))
                     time.sleep(30)
-                    continue
+                    record_resp = self.requests.get(url)
 
                 doc = etree.XML(record_resp.content)
                 record = etree.tostring(doc)

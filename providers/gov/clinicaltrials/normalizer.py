@@ -1,33 +1,12 @@
 from share.normalize import *
 
 
-class CreativeWork(Parser):
-    title = ctx.clinical_study.maybe('official_title')
-    description = ctx.clinical_study.maybe('brief_summary')('textblock')
-    contributors = ctx.clinical_study.maybe('overall_contact')['*']
-    tags = ctx.clinical_study.maybe('keyword')['*']
-    venues = ctx.clinical_study.maybe('location')['*']
+class Venue(Parser):
+    name = Maybe(Maybe(ctx, 'facility'), 'name')
 
 
-class Contributor(Parser):
-    order_cited = ctx['index']
-    cited_name = ''
-    person = ctx
-
-
-class Person(Parser):
-    given_name = ctx.maybe('first_name')
-    family_name = ctx.maybe('last_name')
-    additional_name = ctx.maybe('middle_name')
-    emails = ctx.maybe('email')['*']
-
-
-class PersonEmail(Parser):
-    email = ctx
-
-
-class Email(Parser):
-    email = ctx
+class ThroughVenues(Parser):
+    pass
 
 
 class Tag(Parser):
@@ -35,12 +14,47 @@ class Tag(Parser):
 
 
 class ThroughTags(Parser):
-    tag = ctx
+    pass
 
 
-class Venue(Parser):
-    name = ctx.maybe('facility').maybe('name')
+class Email(Parser):
+    email = ctx
 
 
-class ThroughVenues(Parser):
-    venue = ctx
+class PersonEmail(Parser):
+    pass
+
+
+class Entity(Parser):
+    name = ctx
+
+
+class Affiliation(Parser):
+    pass
+
+
+class Person(Parser):
+    given_name = Maybe(ctx, 'first_name')
+    family_name = Maybe(ctx, 'last_name')
+    additional_name = Maybe(ctx, 'middle_name')
+    emails = Map(Delegate(PersonEmail), Maybe(ctx, 'email'))
+    affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Entity))), Maybe(ctx, 'affiliation'))
+
+
+class Contributor(Parser):
+    order_cited = ctx('index')
+    cited_name = ''
+    person = Delegate(Person, ctx)
+
+
+class CreativeWork(Parser):
+    title = Maybe(ctx.clinical_study, 'official_title')
+    description = Maybe(ctx.clinical_study, 'brief_summary')['textblock']
+    contributors = Map(
+        Delegate(Contributor),
+        Maybe(ctx.clinical_study, 'overall_official'),
+        Maybe(ctx.clinical_study, 'overall_contact'),
+        Maybe(ctx.clinical_study, 'overall_contact_backup')
+    )
+    tags = Map(Delegate(ThroughTags), Maybe(ctx.clinical_study, 'keyword'))
+    venues = Map(Delegate(ThroughVenues), Maybe(ctx.clinical_study, 'location'))
