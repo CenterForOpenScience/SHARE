@@ -1,7 +1,6 @@
 from oauth2_provider.ext.rest_framework import TokenHasScope
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from rest_framework.authentication import SessionAuthentication
 
 from api.filters import ChangeSetFilterSet
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
