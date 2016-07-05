@@ -53,7 +53,7 @@ class OSFHarvester(Harvester):
 
                 # gather the the rest of the record
                 total_harvested += 1
-                yield(record['id'], record)
+                yield (record['id'], record)
 
             if not next_page:
                 break
