@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'DataCite MDS'
     home_page = 'http://oai.datacite.org/'
     url = 'http://oai.datacite.org/oai'
+    property_list = ['date', 'identifier', 'setSpec', 'description']

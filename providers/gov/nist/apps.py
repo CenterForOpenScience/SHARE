@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'NIST MaterialsData'
     home_page = 'https://materialsdata.nist.gov'
     url = 'https://materialsdata.nist.gov/dspace/oai/request'
+    property_list = ['relation', 'rights', 'identifier', 'type', 'date', 'setSpec']

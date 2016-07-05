@@ -8,3 +8,16 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'CyberLeninka - Russian open access scientific library'
     home_page = 'http://cyberleninka.ru/'
     url = 'http://cyberleninka.ru/oai'
+    property_list = [
+        'isPartOf',
+        'type',
+        'format',
+        'issue',
+        'issn',
+        'pages',
+        'bibliographicCitation',
+        'uri',
+        'date',
+        'identifier',
+        'type',
+    ]

@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Cleveland State University\'s EngagedScholarship@CSU'
     home_page = 'http://engagedscholarship.csuohio.edu'
     url = 'http://engagedscholarship.csuohio.edu/do/oai/'
+    property_list = ['date', 'source', 'identifier', 'type', 'format', 'setSpec']

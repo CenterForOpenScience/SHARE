@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Digital Access to Scholarship at Harvard'
     home_page = 'http://dash.harvard.edu'
     url = 'http://dash.harvard.edu/oai/request'
+    property_list = ['date', 'relation', 'identifier', 'type', 'rights']

@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 class BotAppConfig(RobotAppConfig, metaclass=abc.ABCMeta):
 
-    version = '0.0.0'
     schedule = crontab(minute=0, hour=0)
     task = 'share.tasks.BotTask'
     description = 'TODO'  # TODO

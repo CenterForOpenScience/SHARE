@@ -124,6 +124,7 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = _('Share user')
         verbose_name_plural = _('Share users')
 
+
 @receiver(post_save, sender=ShareUser, dispatch_uid='share.share.models.share_user_post_save_handler')
 def user_post_save(sender, instance, created, **kwargs):
     """
@@ -189,7 +190,6 @@ class RawData(models.Model):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.source, self.provider_doc_id)
 
 
-# TODO Rename me
 class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True)

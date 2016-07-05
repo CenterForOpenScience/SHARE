@@ -8,3 +8,5 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'UNC-Greensboro'
     home_page = 'http://libres.uncg.edu/ir'
     url = 'http://libres.uncg.edu/ir/oai/oai.aspx'
+    approved_sets = ['UNCG']
+    property_list = ['date', 'type']

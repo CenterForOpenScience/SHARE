@@ -8,3 +8,5 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'RCAAP - Repositório Científico de Acesso Aberto de Portugal'
     home_page = 'http://www.rcaap.pt'
     url = 'http://www.rcaap.pt/oai'
+    approved_sets = ['portugal']
+    property_list = ['type', 'rights', 'date', 'format', 'identifier', 'setSpec']

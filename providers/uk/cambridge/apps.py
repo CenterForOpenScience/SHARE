@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Apollo @ University of Cambridge'
     home_page = 'https://www.repository.cam.ac.uk'
     url = 'https://www.repository.cam.ac.uk/oai/request'
+    property_list = ['date', 'identifier', 'type', 'format', 'setSpec']

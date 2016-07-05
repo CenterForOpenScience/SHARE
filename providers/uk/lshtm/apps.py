@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'London School of Hygiene and Tropical Medicine Research Online'
     home_page = 'http://researchonline.lshtm.ac.uk'
     url = 'http://researchonline.lshtm.ac.uk/cgi/oai2'
+    property_list = ['date', 'type', 'identifier', 'relation', 'setSpec']

@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'City University of New York'
     home_page = 'http://academicworks.cuny.edu'
     url = 'http://academicworks.cuny.edu/do/oai/'
+    property_list = ['publisher', 'language', 'format', 'source', 'date', 'identifier', 'type']

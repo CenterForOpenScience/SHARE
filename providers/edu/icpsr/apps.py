@@ -9,3 +9,4 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://www.icpsr.umich.edu/'
     url = 'http://www.icpsr.umich.edu/icpsrweb/ICPSR/oai/studies'
     timezone_granularity = False
+    property_list = ['date', 'identifier', 'type', 'coverage']
