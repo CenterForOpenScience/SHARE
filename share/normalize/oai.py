@@ -1,3 +1,7 @@
+import logging
+
+from lxml import etree
+
 from share.normalize import links
 from share.normalize import parsers
 from share.normalize.normalizer import Normalizer
@@ -6,6 +10,7 @@ from share.normalize.normalizer import Normalizer
 # NOTE: Context is a thread local singleton
 # It is asigned to ctx here just to keep a family interface
 ctx = links.Context()
+logger = logging.getLogger(__name__)
 
 
 class OAIPerson(parsers.Parser):
@@ -125,3 +130,15 @@ class OAINormalizer(Normalizer):
             'publication': OAIPublication,
             'creativework': OAICreativeWork,
         }[self.config.emitted_type.lower()]
+
+    def do_normalize(self, data):
+        if self.config.approved_sets is not None:
+            specs = set(x.replace('publication:', '') for x in etree.fromstring(data).xpath(
+                'ns0:header/ns0:setSpec/node()',
+                namespaces={'ns0': 'http://www.openarchives.org/OAI/2.0/'}
+            ))
+            if not (specs & set(self.config.approved_sets)):
+                logger.warning('Series %s not found in approved_sets for %s', specs, self.config.label)
+                return None
+
+        return super().do_normalize(data)
