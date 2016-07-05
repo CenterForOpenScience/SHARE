@@ -1,8 +1,6 @@
-from share.normalize import links
+from share.normalize import ctx, links
 from share.normalize.parsers import Parser
 from share.normalize.utils import format_doi_as_url
-
-ctx = links.Context()
 
 
 class Publisher(Parser):
