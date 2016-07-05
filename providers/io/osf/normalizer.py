@@ -48,6 +48,15 @@ class ThroughInstitutions(Parser):
     institution = Delegate(ctx, Institution)
 
 
+class Link(Parser):
+    url = ctx
+    type = 'provider'
+
+
+class ThroughLinks(Parser):
+    link = Delegate(ctx, Link)
+
+
 class Project(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
@@ -56,6 +65,8 @@ class Project(Parser):
     created = ctx.attributes.date_created
     subject = Delegate(Tag, ctx.attributes.category)
     tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
+    rights = ctx.attributes.node_license
+    links = Map(Delegate(ThroughLinks), ctx.links.html)
 
     class Extra:
         files = ctx.relationships.files.links.related.href
@@ -72,6 +83,5 @@ class Project(Parser):
         date_modified = ctx.attributes.date_modified
         collection = ctx.attributes.collection
         registration = ctx.attributes.registration
-        node_license = ctx.attributes.node_license
         type = ctx.type
         id = ctx.id
