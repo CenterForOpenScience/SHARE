@@ -238,7 +238,7 @@ REST_FRAMEWORK = {
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'PAGE_SIZE': 20,
+    'PAGE_SIZE': 32,
     'DEFAULT_PARSER_CLASSES': (
         'api.parsers.JSONLDParser',
     ),
