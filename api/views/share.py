@@ -47,7 +47,7 @@ class IdentifierViewSet(ShareObjectViewSet):
 
 class PersonViewSet(ShareObjectViewSet):
     serializer_class = serializers.PersonSerializer
-    queryset = serializer_class.Meta.model.objects.select_related(
+    queryset = serializer_class.Meta.model.objects.all().select_related(
         'extra'
     ).prefetch_related(
         'emails',
@@ -91,7 +91,7 @@ class CreativeWorkViewSet(ShareObjectViewSet):
 
 class PreprintViewSet(ShareObjectViewSet):
     serializer_class = serializers.PreprintSerializer
-    queryset = serializer_class.Meta.model.objects.select_related(
+    queryset = serializer_class.Meta.model.objects.all().select_related(
         'subject',
         'extra'
     )
