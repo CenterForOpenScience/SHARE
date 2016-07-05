@@ -97,6 +97,22 @@ class PreprintViewSet(ShareObjectViewSet):
     )
 
 
+class PublicationViewSet(ShareObjectViewSet):
+    serializer_class = serializers.PublicationSerializer
+    queryset = serializer_class.Meta.model.objects.all().select_related(
+        'subject',
+        'extra'
+    )
+
+
+class ProjectViewSet(ShareObjectViewSet):
+    serializer_class = serializers.ProjectSerializer
+    queryset = serializer_class.Meta.model.objects.all().select_related(
+        'subject',
+        'extra'
+    )
+
+
 class ManuscriptViewSet(ShareObjectViewSet):
     serializer_class = serializers.ManuscriptSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
