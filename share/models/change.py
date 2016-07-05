@@ -124,6 +124,7 @@ class Change(models.Model):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.status)
         ret = self._accept(save)
+        ret.sources.add(self.change_set.normalized_data.source)
         if save:
             self.save()
         return ret
