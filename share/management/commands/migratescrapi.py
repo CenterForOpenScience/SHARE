@@ -31,12 +31,12 @@ class Command(BaseCommand):
     can_import_settings = True
 
     map = OrderedDict(sorted({
-        'addis_ababa': 'et.edu.addisababa',
+        'addis_ababa': 'et.edu.addis_ababa',
         'arxiv_oai': 'org.arxiv.oai',
         'asu': 'edu.asu',
         'bhl': 'org.bhl',
         'biomedcentral': 'com.biomedcentral',
-        'boise_state': 'edu.boisestate',
+        'boise_state': 'edu.boise_state',
         'calhoun': 'edu.calhoun',
         'calpoly': 'edu.calpoly',
         'caltech': 'edu.caltech',
