@@ -61,14 +61,16 @@ def harvest(args, argv):
     config = apps.get_app_config(args['<provider>'])
     harvester = config.harvester(config)
 
+    import ipdb; ipdb.set_trace()
+
     if not args['--print']:
         args['--out'] = args['--out'] or os.path.join(os.curdir, config.label)
         os.makedirs(args['--out'], exist_ok=True)
 
-    start_date = arrow.get(args['--start']) if args.get('--start') else arrow.utcnow() - timedelta(days=1)
+    start_date = arrow.get(args['--start']) if args.get('--start') else arrow.utcnow() - timedelta(days=int(args['--days-back']))
     end_date = arrow.get(args['--end']) if args.get('--end') else arrow.utcnow()
 
-    for doc_id, data in harvester.raw(arrow.utcnow() - timedelta(days=int(args['--days-back'])), arrow.utcnow(), limit=int(args['--limit']) if args['--limit'] else None):
+    for doc_id, data in harvester.raw(start_date, end_date, limit=int(args['--limit']) if args['--limit'] else None):
         if args['--print']:
             print('Harvested data with identifier "{}"'.format(doc_id))
             print(data.decode())
