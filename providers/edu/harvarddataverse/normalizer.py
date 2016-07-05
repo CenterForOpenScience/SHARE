@@ -26,7 +26,7 @@ class Link(Parser):
         if 'dx.doi.org' in link:
             return 'doi'
         if 'dataverse.harvard.edu' in link:
-            return 'misc'
+            return 'provider'
 
 
 class ThroughLinks(Parser):
