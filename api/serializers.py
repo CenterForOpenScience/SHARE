@@ -36,15 +36,20 @@ class ShareUserSerializer(serializers.ModelSerializer):
         super(ShareUserSerializer, self).__init__(*args, **kwargs)
         self.fields.update({
             '🦄': serializers.SerializerMethodField(method_name='is_superuser'),
-            '🤖': serializers.SerializerMethodField(method_name='is_robot')
+            '🤖': serializers.SerializerMethodField(method_name='is_robot'),
         })
+    token = serializers.SerializerMethodField()
+
 
     def is_robot(self, obj):
         return obj.is_robot
+
+    def get_token(self, obj):
+        return obj.accesstoken_set.first().token
 
     def is_superuser(self, obj):
         return obj.is_superuser
 
     class Meta:
         model = models.ShareUser
-        fields = ('username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_active')
+        fields = ('username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_active', 'token')
