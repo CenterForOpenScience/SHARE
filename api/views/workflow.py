@@ -14,7 +14,6 @@ __all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDat
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated,]
-    authentication_classes = [SessionAuthentication,]
     serializer_class = ShareUserSerializer
 
     def get_queryset(self):

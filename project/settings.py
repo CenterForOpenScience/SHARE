@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'oauth2_provider',
     'rest_framework',
+    'corsheaders',
 
     'allauth',
     'allauth.account',
@@ -233,7 +234,10 @@ APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
-    'DEFAULT_AUTHENTICATION_CLASSES': ('oauth2_provider.ext.rest_framework.OAuth2Authentication',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'PAGE_SIZE': 10,
     'DEFAULT_PARSER_CLASSES': (
         'api.parsers.JSONLDParser',
@@ -248,6 +252,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -311,6 +316,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
+    CORS_ORIGIN_ALLOW_ALL = True
+    CORS_ALLOW_CREDENTIALS = True
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
