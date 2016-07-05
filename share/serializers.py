@@ -30,6 +30,7 @@ class BaseShareSerializer(serializers.ModelSerializer):
             '@type': fields.TypeField(),
             'object_id': fields.ObjectIDField(source='uuid')
         })
+
     class Meta:
         pass
 

@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from share import models
 
-
 class RawDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RawData
