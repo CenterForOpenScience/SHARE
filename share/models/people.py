@@ -43,7 +43,7 @@ class Person(ShareObject):
         return self.get_full_name()
 
     def get_full_name(self):
-        return '{} {} {} {}'.format(self.given_name, self.family_name, self.additional_name, self.suffix)
+        return ' '.join(x for x in [self.given_name, self.family_name, self.additional_name, self.suffix] if x)
 
     class Meta:
         verbose_name_plural = 'People'

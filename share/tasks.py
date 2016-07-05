@@ -94,6 +94,11 @@ class NormalizerTask(ProviderTask):
 
         try:
             graph = normalizer.normalize(raw)
+
+            if not graph['@graph']:
+                logger.warning('Graph was empty for %s, skipping...', raw)
+                return
+
             normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
             resp = requests.post(normalized_data_url, json={
                 'created_at': datetime.datetime.utcnow().isoformat(),

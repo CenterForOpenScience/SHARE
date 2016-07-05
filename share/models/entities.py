@@ -36,4 +36,4 @@ class Publisher(Entity):
 class Institution(Entity):
     # TODO: ScholarlyArticle says this should be an Organization
     isni = models.URLField(blank=True)
-    rinngold = models.URLField(blank=True)
+    ringgold = models.URLField(blank=True)
