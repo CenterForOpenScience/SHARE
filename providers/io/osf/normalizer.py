@@ -45,7 +45,7 @@ class Institution(Parser):
 
 
 class ThroughInstitutions(Parser):
-    institution = Delegate(ctx, Institution)
+    institution = Delegate(Institution, ctx)
 
 
 class Link(Parser):
@@ -54,7 +54,7 @@ class Link(Parser):
 
 
 class ThroughLinks(Parser):
-    link = Delegate(ctx, Link)
+    link = Delegate(Link, ctx)
 
 
 class Project(Parser):
