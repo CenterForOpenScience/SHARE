@@ -9,10 +9,9 @@ import requests
 
 from django.apps import apps
 from django.conf import settings
-from kombu import uuid
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedManuscript, ChangeSet, CeleryProviderTask, ShareUser
+from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
 
 
 logger = logging.getLogger(__name__)
@@ -24,20 +23,30 @@ class ProviderTask(celery.Task):
     def run(self, app_label, started_by, *args, **kwargs):
         self.config = apps.get_app_config(app_label)
         self.started_by = ShareUser.objects.get(id=started_by)
-        self.task, _ = CeleryProviderTask.objects.get_or_create(
-            uuid=self.request.id or uuid(),
+
+        self.task, _ = CeleryProviderTask.objects.update_or_create(
+            uuid=self.request.id,
             defaults={
                 'name': self.name,
                 'app_label': self.config.label,
                 'app_version': self.config.version,
                 'args': args,
                 'kwargs': kwargs,
+                'status': CeleryProviderTask.STATUS.started,
                 'provider': self.config.user,
                 'started_by': self.started_by,
             },
         )
-        self.task.save()
         self.do_run(*args, **kwargs)
+
+    def on_retry(self, exc, task_id, args, kwargs, einfo):
+        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.retried)
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.failed)
+
+    def on_success(self, retval, task_id, args, kwargs):
+        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.succeeded)
 
     @abc.abstractmethod
     def do_run(self, *args, **kwargs):
@@ -69,7 +78,7 @@ class HarvesterTask(ProviderTask):
             raw.tasks.add(self.task)
 
             task = NormalizerTask().apply_async((self.config.label, self.started_by.id, raw.pk,))
-            logger.debug('Started run harvester task {} for {}'.format(task, raw.id))
+            logger.debug('Started normalizer task %s for %s', task, raw.id)
 
 
 class NormalizerTask(ProviderTask):
@@ -85,8 +94,6 @@ class NormalizerTask(ProviderTask):
         try:
             graph = normalizer.normalize(raw)
 
-            logger.debug('Parsed %s into %s', raw, json.dumps(graph, indent=2))
-
             resp = requests.post(settings.SHARE_API_URL + 'api/normalized/', json={
                 'created_at': datetime.datetime.utcnow().isoformat(),
                 'normalized_data': graph,
@@ -100,8 +107,10 @@ class NormalizerTask(ProviderTask):
 
         # attach task
         normalized_id = resp.json()['normalized_id']
-        normalized = NormalizedManuscript.objects.get(pk=normalized_id)
+        normalized = NormalizedData.objects.get(pk=normalized_id)
+        normalized.raw = raw
         normalized.tasks.add(self.task)
+        normalized.save()
 
         logger.info('Successfully submitted change for %s', raw)
 
@@ -110,13 +119,13 @@ class MakeJsonPatches(celery.Task):
 
     def run(self, normalized_id, started_by_id=None):
         started_by = None
-        normalized = NormalizedManuscript.objects.get(pk=normalized_id)
+        normalized = NormalizedData.objects.get(pk=normalized_id)
         if started_by_id:
             started_by = ShareUser.objects.get(pk=started_by_id)
         logger.info('%s started make JSON patches for %s at %s', started_by, normalized, datetime.datetime.utcnow().isoformat())
 
         try:
-            ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data), normalized.source)
+            ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data), normalized.id)
         except Exception as e:
             logger.exception('Failed make json patches (%d)', normalized_id)
             raise self.retry(countdown=10, exc=e)

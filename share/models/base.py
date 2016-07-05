@@ -9,7 +9,7 @@ from django.db.models.base import ModelBase
 from fuzzycount import FuzzyCountManager
 
 from share.models.change import Change
-from share.models import fields
+from share.models import fields, ShareUser
 
 from typedmodels import models as typedmodels
 
@@ -33,7 +33,7 @@ class ShareObjectMeta(ModelBase):
     # This if effectively the "ShareBaseClass"
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
-        'source': lambda: models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='curated_%(class)s'),
+        'source': lambda: models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s'),
         'change': lambda: models.OneToOneField(Change, null=True, related_name='affected_%(class)s'),
         'date_modified': lambda: models.DateTimeField(auto_now=True),
         'date_created': lambda: models.DateTimeField(auto_now_add=True),

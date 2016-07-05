@@ -44,8 +44,9 @@ RUN pip install -U pip
 COPY ./requirements.txt /code/requirements.txt
 COPY ./constraints.txt /code/constraints.txt
 
-RUN pip install --no-cache-dir -c /code/constraints.txt -r /code/requirements.txt \
-    && apt-get remove -y gcc
+RUN pip install --no-cache-dir -c /code/constraints.txt -r /code/requirements.txt
+
+RUN apt-get remove -y gcc
 
 COPY ./ /code/
 

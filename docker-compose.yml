@@ -6,7 +6,7 @@ services:
       - 9200:9200
 
   rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:management
     ports:
       - 5672:5672
       - 15672:15672

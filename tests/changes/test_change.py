@@ -67,8 +67,8 @@ def merge_graph(jane_doe, john_doe):
 
 
 @pytest.fixture
-def change_set(share_source):
-    return ChangeSet.objects.create(submitted_by=share_source)
+def change_set(normalized_data_id):
+    return ChangeSet.objects.create(normalized_data_id=normalized_data_id)
 
 
 class TestChange:
@@ -140,8 +140,8 @@ class TestChange:
 class TestChangeSet:
 
     @pytest.mark.django_db
-    def test_create_dependencies_accept(self, share_source, create_graph_dependencies):
-        change_set = ChangeSet.objects.from_graph(create_graph_dependencies, share_source)
+    def test_create_dependencies_accept(self, normalized_data_id, create_graph_dependencies):
+        change_set = ChangeSet.objects.from_graph(create_graph_dependencies, normalized_data_id)
 
         assert change_set.changes.count() == 3
         assert change_set.changes.all()[0].node_id == '_:123'
@@ -164,7 +164,7 @@ class TestChangeSet:
         assert None not in [c.pk for c in changed]
 
     @pytest.mark.django_db
-    def test_update_dependencies_accept(self, john_doe, share_source):
+    def test_update_dependencies_accept(self, john_doe, normalized_data_id):
         graph = ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': john_doe.pk,
@@ -182,7 +182,7 @@ class TestChangeSet:
             }]
         })
 
-        change_set = ChangeSet.objects.from_graph(graph, share_source)
+        change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
 
         change_set.accept()
 
@@ -193,8 +193,8 @@ class TestChangeSet:
         assert Preprint.objects.filter(contributor__person=john_doe).first().title == 'All About Cats'
 
     @pytest.mark.django_db
-    def test_merge_accept(self, share_source, merge_graph, john_doe, jane_doe):
-        change_set = ChangeSet.objects.from_graph(merge_graph, share_source)
+    def test_merge_accept(self, normalized_data_id, merge_graph, john_doe, jane_doe):
+        change_set = ChangeSet.objects.from_graph(merge_graph, normalized_data_id)
         ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:123',
@@ -206,7 +206,7 @@ class TestChangeSet:
                 'person': {'@id': john_doe.pk, '@type': 'person'},
                 'creative_work': {'@id': '_:123', '@type': 'preprint'},
             }]
-        }), share_source).accept()
+        }), normalized_data_id).accept()
 
         assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
         assert Preprint.objects.filter(contributor__person=john_doe).count() == 1

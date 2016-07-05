@@ -32,9 +32,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
-# Running local (not deployed)
-LOCAL_MODE = bool(os.environ.get('LOCAL_MODE', True))
-
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
 
 AUTH_USER_MODEL = 'share.ShareUser'
@@ -285,11 +282,12 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DATABASE_NAME', 'share'),
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
     },
 }
 
@@ -372,6 +370,38 @@ CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
+# Celery Queues
+
+DEFAULT_QUEUE = 'celery'
+LOW_QUEUE = 'low'
+MED_QUEUE = 'med'
+HIGH_QUEUE = 'high'
+
+LOW_PRI_MODULES = {
+    'share.tasks.NormalizerTask',
+}
+
+MED_PRI_MODULES = {
+    'share.tasks.HarvesterTask',
+}
+
+HIGH_PRI_MODULES = {
+}
+
+from kombu import Queue, Exchange
+CELERY_QUEUES = (
+    Queue(LOW_QUEUE, Exchange(LOW_QUEUE), routing_key=LOW_QUEUE,
+          consumer_arguments={'x-priority': -10}),
+    Queue(DEFAULT_QUEUE, Exchange(DEFAULT_QUEUE), routing_key=DEFAULT_QUEUE,
+          consumer_arguments={'x-priority': 0}),
+    Queue(MED_QUEUE, Exchange(MED_QUEUE), routing_key=MED_QUEUE,
+          consumer_arguments={'x-priority': 20}),
+    Queue(HIGH_QUEUE, Exchange(HIGH_QUEUE), routing_key=HIGH_QUEUE,
+          consumer_arguments={'x-priority': 30}),
+)
+
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+CELERY_ROUTES = ('share.celery.CeleryRouter', )
 CELERY_IGNORE_RESULT = True
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 
@@ -416,3 +446,6 @@ DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
 PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
 BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
+
+import djcelery
+djcelery.setup_loader()
