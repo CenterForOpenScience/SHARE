@@ -1,10 +1,28 @@
 #!/bin/bash
 set -e
 
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -b|--backup)
+    BACKUP="sup"
+    ;;
+    *)
+    # unknown option
+    ;;
+esac
+shift # past argument or value
+done
+
 rm -fv ./{*/*/*/,*/*/,}*/migrations/00*.py
 rm -fv ./bots/*/migrations/00*.py
 
-python manage.py dumpdata share.RawData share.CeleryTask --natural-foreign --natural-primary --format json --output share_rawdata.json || true
+if [ -n "$BACKUP" ]; then
+    python manage.py dumpdata share.RawData share.CeleryTask --natural-foreign --natural-primary --format json --output share_rawdata.json || true
+fi
+
 python manage.py celery purge -f
 python manage.py reset_db --noinput
 python manage.py makemigrations
@@ -15,4 +33,7 @@ python manage.py maketriggermigrations
 python manage.py makeprovidermigrations
 python manage.py migrate
 python manage.py loaddata ./share/models/initial_data.yaml
-python manage.py loaddata share_rawdata.json
+
+if [ -n "$BACKUP" ]; then
+    python manage.py loaddata share_rawdata.json
+fi
