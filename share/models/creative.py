@@ -57,6 +57,10 @@ class Publication(AbstractCreativeWork):
     pass
 
 
+class Project(AbstractCreativeWork):
+    pass
+
+
 # Through Tables for Creative Work
 
 class Association(ShareObject):

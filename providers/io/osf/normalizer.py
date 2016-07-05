@@ -48,7 +48,7 @@ class ThroughInstitutions(Parser):
     institution = Delegate(ctx, Institution)
 
 
-class CreativeWork(Parser):
+class Project(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
     contributors = Map(Delegate(Contributor), ctx['contributors'])
