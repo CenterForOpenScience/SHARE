@@ -3,11 +3,20 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 
 from api.filters import ChangeSetFilterSet
-from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer
-from share.models import ChangeSet, Change
+from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
+    ShareUserSerializer
+from share.models import ChangeSet, Change, RawData
 from share.tasks import MakeJsonPatches
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet')
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet')
+
+
+class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [permissions.IsAuthenticated,]
+    serializer_class = ShareUserSerializer
+
+    def get_queryset(self):
+        return [self.request.user,]
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
@@ -52,5 +61,4 @@ class RawDataViewSet(viewsets.ModelViewSet):
     serializer_class = RawDataSerializer
     required_scopes = ['upload_raw_data', ]
 
-    def get_queryset(self):
-        return self.request.user.rawdata_set.all()
+    queryset = RawData.objects.all()

@@ -9,6 +9,7 @@ import requests
 
 from django.apps import apps
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from share.change import ChangeGraph
 from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
@@ -93,8 +94,8 @@ class NormalizerTask(ProviderTask):
 
         try:
             graph = normalizer.normalize(raw)
-
-            resp = requests.post(settings.SHARE_API_URL + 'api/normalized/', json={
+            normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
+            resp = requests.post(normalized_data_url, json={
                 'created_at': datetime.datetime.utcnow().isoformat(),
                 'normalized_data': graph,
             }, headers={'Authorization': self.config.authorization()})

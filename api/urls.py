@@ -27,5 +27,6 @@ router.register(r'normalized_data', views.NormalizedDataViewSet, base_name='norm
 router.register(r'changesets', views.ChangeSetViewSet, base_name='changeset')
 router.register(r'changes', views.ChangeViewSet, base_name='change')
 router.register(r'raw_data', views.RawDataViewSet, base_name='rawdata')
+router.register(r'users', views.ShareUserViewSet, base_name='users')
 
 urlpatterns = router.urls
