@@ -60,6 +60,10 @@ def RunPython(function_name, chain=None):
     return RunPythonLink(function_name)
 
 
+def Static(value):
+    return StaticLink(value)
+
+
 ### /Public API
 
 
@@ -380,3 +384,12 @@ class RunPythonLink(AbstractLink):
 
     def execute(self, obj):
         return getattr(Context().parser, self._function_name)(obj)
+
+
+class StaticLink(AbstractLink):
+    def __init__(self, value):
+        self._value = value
+        super().__init__()
+
+    def execute(self, obj):
+        return self._value
