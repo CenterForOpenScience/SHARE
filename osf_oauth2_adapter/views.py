@@ -10,11 +10,11 @@ class OSFOAuth2Adapter(OAuth2Adapter):
     base_url = '{}oauth2/{}'.format(OsfOauth2AdapterConfig.osf_accounts_url, '{}')
     access_token_url = base_url.format('token')
     authorize_url = base_url.format('authorize')
-    profile_url = base_url.format('profile')
+    profile_url = '{}v2/users/me/'.format(OsfOauth2AdapterConfig.osf_api_url)
 
     def complete_login(self, request, app, access_token, **kwargs):
-        extra_data = requests.get(self.profile_url, params={
-            'access_token': access_token.token
+        extra_data = requests.get(self.profile_url, headers={
+            'Authorization': 'Bearer {}'.format(access_token.token)
         })
 
         return self.get_provider().sociallogin_from_response(

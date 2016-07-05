@@ -5,9 +5,8 @@ from elasticsearch import helpers
 from elasticsearch import Elasticsearch
 
 from share.bot import Bot
-from share.models import CeleryProviderTask
 from share.models import AbstractCreativeWork
-from share.models import CeleryTaskSucceededEvent
+from share.models import CeleryProviderTask
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,9 @@ class ElasticSearchBot(Bot):
         return {
             'doi': creative_work.doi,
             'title': creative_work.title,
+            'subject': str(creative_work.subject),
             'description': creative_work.description,
+            'tags': [str(tag) for tag in creative_work.tags],
             'contributors': [{
                 'given_name': person.given_name,
                 'family_name': person.family_name,
@@ -31,13 +32,12 @@ class ElasticSearchBot(Bot):
         }
 
     def run(self, chunk_size=50, reindex_all=False):
-        last_run = CeleryTaskSucceededEvent.objects.filter(
-            uuid__in=CeleryProviderTask.objects.filter(
-                app_label=self.config.label,
-                app_version=self.config.version,
-            ).order_by(
-                '-timestamp'
-            ).values_list('uuid', flat=True)
+        last_run = CeleryProviderTask.objects.filter(
+            app_label=self.config.label,
+            app_version=self.config.version,
+            status=CeleryProviderTask.STATUS.succeeded,
+        ).order_by(
+            '-timestamp'
         ).first()
 
         if last_run:
