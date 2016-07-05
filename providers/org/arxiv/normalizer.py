@@ -1,19 +1,20 @@
-from share.normalize import ctx, links
+from share.normalize import ctx
+from share.normalize import tools
 from share.normalize.parsers import Parser
 from share.normalize.utils import format_doi_as_url
 
 
 class Link(Parser):
-    url = links.RunPython('format_doi', ctx)
+    url = tools.RunPython('format_doi', ctx)
     # identifier will always be DOI
-    type = links.Static('doi')
+    type = tools.Static('doi')
 
     def format_doi(self, doi):
         return format_doi_as_url(self, doi)
 
 
 class ThroughLinks(Parser):
-    link = links.Delegate(Link, ctx)
+    link = tools.Delegate(Link, ctx)
 
 
 class Organization(Parser):
@@ -25,20 +26,20 @@ class Affiliation(Parser):
 
 
 class Person(Parser):
-    given_name = links.ParseName(ctx.name).first
-    family_name = links.ParseName(ctx.name).last
-    additional_name = links.ParseName(ctx.name).middle
-    suffix = links.ParseName(ctx.name).suffix
-    affiliations = links.Map(
-        links.Delegate(Affiliation.using(entity=links.Delegate(Organization))),
-        links.Maybe(ctx, 'arxiv:affiliation')
+    given_name = tools.ParseName(ctx.name).first
+    family_name = tools.ParseName(ctx.name).last
+    additional_name = tools.ParseName(ctx.name).middle
+    suffix = tools.ParseName(ctx.name).suffix
+    affiliations = tools.Map(
+        tools.Delegate(Affiliation.using(entity=tools.Delegate(Organization))),
+        tools.Maybe(ctx, 'arxiv:affiliation')
     )
 
 
 class Contributor(Parser):
     order_cited = ctx('index')
     cited_name = ctx.name
-    person = links.Delegate(Person, ctx)
+    person = tools.Delegate(Person, ctx)
 
 
 class Tag(Parser):
@@ -46,17 +47,17 @@ class Tag(Parser):
 
 
 class ThroughTags(Parser):
-    tag = links.Delegate(Tag, ctx)
+    tag = tools.Delegate(Tag, ctx)
 
 
 class Preprint(Parser):
     title = ctx.entry.title
     description = ctx.entry.summary
-    published = links.ParseDate(ctx.entry.published)
-    contributors = links.Map(links.Delegate(Contributor), ctx.entry.author)
-    links = links.Map(
-        links.Delegate(ThroughLinks),
-        links.Maybe(ctx.entry['arxiv:primary_category']['#text'])
+    published = tools.ParseDate(ctx.entry.published)
+    contributors = tools.Map(tools.Delegate(Contributor), ctx.entry.author)
+    links = tools.Map(
+        tools.Delegate(ThroughLinks),
+        tools.Maybe(ctx.entry, 'arxiv:doi')['#text']
     )
-    subject = links.Delegate(Tag, ctx.entry['arxiv:primary_category'])
-    tags = links.Map(links.Delegate(ThroughTags), ctx.entry.category)
+    subject = tools.Delegate(Tag, ctx.entry['arxiv:primary_category'])
+    tags = tools.Map(tools.Delegate(ThroughTags), ctx.entry.category)
