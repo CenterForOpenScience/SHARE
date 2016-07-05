@@ -12,17 +12,13 @@ class BaseShareSerializer(serializers.ModelSerializer):
         # remove version fields
         # easier than specifying excludes for every model serializer
 
-        for k, v in tuple(self.fields.items()):
-            if sparse or 'version' in k:
-                # if they asked for sparse remove all fields but
-                # the @id and @type
-
-                # if the field has version, kill it too.
-                self.fields.pop(k)
-
-        # remove typedmodel nonsense
-        if 'type' in self.fields.keys():
-            self.fields.pop('type')
+        if sparse:
+            self.fields.clear()
+        else:
+            excluded_fields = ['change', 'id', 'type', 'uuid', 'source']
+            for field_name in tuple(self.fields.keys()):
+                if 'version' in field_name or field_name in excluded_fields:
+                    self.fields.pop(field_name)
 
         # add fields with improper names
         self.fields.update({
@@ -32,21 +28,38 @@ class BaseShareSerializer(serializers.ModelSerializer):
                 lookup_field='pk'
             ),
             '@type': fields.TypeField(),
+            'object_id': fields.ObjectIDField(source='uuid')
         })
     class Meta:
-        exclude = ('change', 'id')
+        pass
+
+class ExtraDataSerializer(BaseShareSerializer):
+    class Meta(BaseShareSerializer.Meta):
+        model = models.ExtraData
+
+
+class EntitySerializer(BaseShareSerializer):
+    class Meta(BaseShareSerializer.Meta):
+        model = models.Entity
+
 
 class VenueSerializer(BaseShareSerializer):
     class Meta(BaseShareSerializer.Meta):
         model = models.Venue
 
-class OrganizationSerializer(BaseShareSerializer):
-    class Meta(BaseShareSerializer.Meta):
+
+class OrganizationSerializer(EntitySerializer):
+    class Meta(EntitySerializer.Meta):
         model = models.Organization
 
 
-class InstitutionSerializer(BaseShareSerializer):
-    class Meta(BaseShareSerializer.Meta):
+class PublisherSerializer(EntitySerializer):
+    class Meta(EntitySerializer.Meta):
+        model = models.Publisher
+
+
+class InstitutionSerializer(EntitySerializer):
+    class Meta(EntitySerializer.Meta):
         model = models.Institution
 
 
@@ -66,6 +79,7 @@ class PersonSerializer(BaseShareSerializer):
     affiliations = OrganizationSerializer(sparse=True, many=True)
     class Meta(BaseShareSerializer.Meta):
         model = models.Person
+        fields = ('id', 'identifiers', 'affiliations',)
 
 
 class AffiliationSerializer(BaseShareSerializer):
@@ -73,7 +87,7 @@ class AffiliationSerializer(BaseShareSerializer):
     organization = OrganizationSerializer(sparse=True)
 
     class Meta(BaseShareSerializer.Meta):
-        models = models.Affiliation
+        model = models.Affiliation
 
 
 class ContributorSerializer(BaseShareSerializer):
@@ -85,10 +99,11 @@ class ContributorSerializer(BaseShareSerializer):
     # creative_work = CreativeWorkSerializer(sparse=True)
     class Meta(BaseShareSerializer.Meta):
         model = models.Contributor
+        exclude = ('creative_work',)
 
 
-class FunderSerializer(BaseShareSerializer):
-    class Meta(BaseShareSerializer.Meta):
+class FunderSerializer(EntitySerializer):
+    class Meta(EntitySerializer.Meta):
         model = models.Funder
 
 
@@ -97,13 +112,7 @@ class AwardSerializer(BaseShareSerializer):
         model = models.Award
 
 
-class TaxonomySerializer(BaseShareSerializer):
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Taxonomy
-
-
 class TagSerializer(BaseShareSerializer):
-    taxonomy = TaxonomySerializer()
     class Meta(BaseShareSerializer.Meta):
         model = models.Tag
 

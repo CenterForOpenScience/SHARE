@@ -13,6 +13,9 @@ class Entity(ShareObject, metaclass=TypedShareObjectMeta):
     # TODO Expand to geolocation or text field for address
     location = models.URLField(blank=True)
 
+    class Meta:
+        verbose_name_plural = 'Entities'
+
 
 class Funder(Entity):
     # TODO: ScholarlyArticle says this should be a DiscourseElement

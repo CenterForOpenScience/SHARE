@@ -19,9 +19,8 @@ class OAIPerson(parsers.Parser):
 
 class OAIContributor(parsers.Parser):
     schema = 'Contributor'
-    Person = OAIPerson
 
-    person = ctx
+    person = links.Delegate(OAIPerson, ctx)
     cited_name = ctx
     order_cited = ctx('index')
 
@@ -33,12 +32,6 @@ class OAIPublisher(parsers.Parser):
 
 class OAIAssociation(parsers.Parser):
     schema = 'Association'
-    # entity = links.Generic('entity')(ctx)
-
-
-class OAITaxonomy(parsers.Parser):
-    schema = 'Taxonomy'
-    name = ctx
 
 
 class OAITag(parsers.Parser):
@@ -48,7 +41,7 @@ class OAITag(parsers.Parser):
 
 class OAIThroughTags(parsers.Parser):
     schema = 'ThroughTags'
-    tag = OAITag(ctx)
+    tag = links.Delegate(OAITag, ctx)
 
 
 class OAICreativeWork(parsers.Parser):
@@ -79,9 +72,11 @@ class OAICreativeWork(parsers.Parser):
 
     tags = links.Map(
         links.Delegate(OAIThroughTags),
-        ctx.record.metadata['oai_dc:dc']['dc:type'],
+        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:type'),
         links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:subject')
     )
+
+    # TODO Add links
 
     # TODO: need to determine which contributors/creators are institutions
     # institutions = ShareManyToManyField(Institution, through='ThroughInstitutions')
@@ -101,14 +96,8 @@ class OAICreativeWork(parsers.Parser):
     # TODO: parse text of identifiers to find 'ISBN' also what is ISSN?
     # isbn = models.URLField(blank=True)
 
-    # tags = links.Concat(
-    #     ctx.record.metadata['oai_dc:dc']['dc:type']('*'),
-    #     ctx.record.metadata['oai_dc:dc'].maybe('dc:subject')('*')
-    # )
-
     # TODO:update model to handle this
     # work_type = ctx.record.metadata('oai_dc:dc')('dc:type')['*']
-
 
     # created = models.DateTimeField(null=True)
     # published = models.DateTimeField(null=True)
@@ -133,5 +122,6 @@ class OAINormalizer(Normalizer):
     def root_parser(self):
         return {
             'preprint': OAIPreprint,
+            'publication': OAIPublication,
             'creativework': OAICreativeWork,
         }[self.config.emitted_type.lower()]

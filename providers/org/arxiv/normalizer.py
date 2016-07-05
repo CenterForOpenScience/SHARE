@@ -17,7 +17,7 @@ class Person(Parser):
     additional_name = ParseName(ctx.name).middle
     suffix = ParseName(ctx.name).suffix
     affiliations = Map(
-        Delegate(Affiliation.using(entry=Organization)),
+        Delegate(Affiliation.using(entity=Delegate(Organization))),
         Maybe(ctx, 'arxiv:affiliation')
     )
 
@@ -28,13 +28,8 @@ class Contributor(Parser):
     person = Delegate(Person, ctx)
 
 
-class Taxonomy(Parser):
-    name = ctx
-
-
 class Tag(Parser):
     name = ctx['@term']
-    type = Delegate(Taxonomy, ctx['@term'])
 
 
 class ThroughTags(Parser):

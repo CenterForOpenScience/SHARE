@@ -1,11 +1,11 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey
+from share.models.fields import ShareForeignKey, URIField
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Taxonomy', 'Tag', 'Link')
+__all__ = ('Venue', 'Award', 'Tag', 'Link')
 
 # TODO Rename this file
 
@@ -16,6 +16,9 @@ class Venue(ShareObject):
     location = models.URLField(blank=True)
     community_identifier = models.URLField(blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Award(ShareObject):
     # ScholarlyArticle has an award object
@@ -24,29 +27,32 @@ class Award(ShareObject):
     description = models.TextField(blank=True)
     url = models.URLField(blank=True)
 
-
-class Taxonomy(ShareObject):
-    # eventually, this can be good, pointing to a taxonomy url
-    # for now, it can keep a separate list of tags by provider
-    name = models.CharField(max_length=255)
-    url = models.URLField(blank=True)
+    def __str__(self):
+        return self.description
 
 
 class Tag(ShareObject):
     name = models.CharField(max_length=255)
     url = models.URLField(blank=True)
-    # this is here to force disambiguation between providers' tags
-    type = ShareForeignKey(Taxonomy, null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Link(ShareObject):
-    # TODO Make this A URN Field that isn't stupid
-    url = models.URLField()
-    type = models.IntegerField(choices=share_config.link_type_choices)
-    work = ShareForeignKey('AbstractCreativeWork')
+    url = URIField()
+    type = models.CharField(max_length=50, choices=share_config.link_type_choices)
+
+    def __str__(self):
+        return self.url
 
 
 # Through Tables for all the things
+
+class ThroughLinks(ShareObject):
+    link = ShareForeignKey(Link)
+    creative_work = ShareForeignKey('AbstractCreativeWork')
+
 
 class ThroughVenues(ShareObject):
     venue = ShareForeignKey(Venue)

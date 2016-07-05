@@ -11,6 +11,8 @@ from django.core import exceptions
 from django.db import models
 from django.db.models.fields.related import resolve_relation
 
+from share.models.validators import is_valid_uri
+
 
 class ZipField(models.Field):
 
@@ -373,3 +375,11 @@ class ShareManyToManyField(TypedManyToManyField):
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
 
         actual._share_version_field = version
+
+
+class URIField(models.CharField):
+    default_validators = [is_valid_uri, ]
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = kwargs.get('max_length', 200)
+        super(URIField, self).__init__(*args, **kwargs)
+

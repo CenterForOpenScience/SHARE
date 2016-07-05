@@ -21,7 +21,7 @@ class BotAppConfig(RobotAppConfig, metaclass=abc.ABCMeta):
 
     @property
     def label(self):
-        return self.name
+        return self.name.rpartition('bots.')[2]
 
     @abc.abstractmethod
     def get_bot(self):

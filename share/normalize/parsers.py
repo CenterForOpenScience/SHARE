@@ -37,6 +37,8 @@ class Parser(metaclass=ParserMeta):
 
     @classmethod
     def using(cls, **overrides):
+        if not all(isinstance(x, AbstractLink) for x in overrides.values()):
+            raise Exception('Found non-link values in {}. Maybe you need to wrap something in Delegate?'.format(overrides))
         return type(
             cls.__name__ + 'Overridden',
             (cls, ), {
@@ -72,6 +74,8 @@ class Parser(metaclass=ParserMeta):
         inst = {**self.ref}  # Shorthand for copying inst
         ctx.pool[self.context, self.schema] = self.ref
 
+        prev, Context().parser = Context().parser, self
+
         for key, chain in self.parsers.items():
             try:
                 field = self.model._meta.get_field(key)
@@ -90,6 +94,8 @@ class Parser(metaclass=ParserMeta):
 
         if self._extra:
             inst['extra'] = {key: parser.chain()[0].execute(self.context) for key, parser in self._extra.items()}
+
+        Context().parser = prev
 
         ctx.pool[self.ref] = inst
         ctx.graph.append(inst)

@@ -11,7 +11,7 @@ from lxml import etree
 from nameparser import HumanName
 
 
-__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe')
+__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'RunPython')
 
 
 #### Public API ####
@@ -52,6 +52,16 @@ def Delegate(parser, chain=None):
     if chain:
         return chain + DelegateLink(parser)
     return DelegateLink(parser)
+
+
+def RunPython(function_name, chain=None):
+    if chain:
+        return chain + RunPythonLink(function_name)
+    return RunPythonLink(function_name)
+
+
+def Static(value):
+    return StaticLink(value)
 
 
 ### /Public API
@@ -203,7 +213,7 @@ class Context(AnchorLink):
     def clear(self):
         self.graph = []
         self.frames = []
-        self.parent = None
+        self.parser = None
         self.pool = DictHashingDict()
 
     def __add__(self, step):
@@ -243,7 +253,10 @@ class JoinLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        return self._joiner.join(obj or [])
+        obj = obj or []
+        if not isinstance(obj, (list, tuple)):
+            obj = (obj, )
+        return self._joiner.join(obj)
 
 
 class TrimLink(AbstractLink):
@@ -362,3 +375,21 @@ class DelegateLink(AbstractLink):
 
     def execute(self, obj):
         return self._parser(obj).parse()
+
+
+class RunPythonLink(AbstractLink):
+    def __init__(self, function_name):
+        self._function_name = function_name
+        super().__init__()
+
+    def execute(self, obj):
+        return getattr(Context().parser, self._function_name)(obj)
+
+
+class StaticLink(AbstractLink):
+    def __init__(self, value):
+        self._value = value
+        super().__init__()
+
+    def execute(self, obj):
+        return self._value

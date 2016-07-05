@@ -18,6 +18,8 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     awards = ShareManyToManyField(Award, through='ThroughAwards')
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
+    links = ShareManyToManyField('Link', through='ThroughLinks')
+
     funders = ShareManyToManyField('Funder', through='Association')
     publishers = ShareManyToManyField('Publisher', through='Association')
     institutions = ShareManyToManyField('Institution', through='Association')
@@ -32,6 +34,9 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     rights = models.TextField(blank=True, null=True)
     language = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.title
 
 
 # Subclasses/Types of Creative Work
@@ -57,3 +62,6 @@ class Publication(AbstractCreativeWork):
 class Association(ShareObject):
     entity = ShareForeignKey('Entity')
     creative_work = ShareForeignKey(AbstractCreativeWork)
+
+    def __str__(self):
+        return self.entity
