@@ -47,7 +47,7 @@ class IdentifierViewSet(ShareObjectViewSet):
 
 class PersonViewSet(ShareObjectViewSet):
     serializer_class = serializers.PersonSerializer
-    queryset = serializer_class.Meta.model.objects.all()
+    queryset = serializer_class.Meta.model.objects.prefetch_related('emails', 'affiliations', 'identifiers')
 
 
 class AffiliationViewSet(ShareObjectViewSet):
@@ -57,7 +57,7 @@ class AffiliationViewSet(ShareObjectViewSet):
 
 class ContributorViewSet(ShareObjectViewSet):
     serializer_class = serializers.ContributorSerializer
-    queryset = serializer_class.Meta.model.objects.all()
+    queryset = serializer_class.Meta.model.objects.select_related('person')
 
 
 class FunderViewSet(ShareObjectViewSet):
@@ -82,7 +82,18 @@ class CreativeWorkViewSet(ShareObjectViewSet):
 
 class PreprintViewSet(ShareObjectViewSet):
     serializer_class = serializers.PreprintSerializer
-    queryset = serializer_class.Meta.model.objects.all()
+    queryset = serializer_class.Meta.model.objects.select_related(
+        'subject'
+    ).prefetch_related(
+            'contributors',
+            'awards',
+            'venues',
+            'links',
+            'funders',
+            'publishers',
+            'institutions',
+            'tags'
+    )
 
 
 class ManuscriptViewSet(ShareObjectViewSet):
