@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Washington State University Research Exchange'
     home_page = 'http://research.wsulibs.wsu.edu/xmlui/'
     url = 'http://research.wsulibs.wsu.edu:8080/oai/request'
+    property_list = ['identifier', 'date', 'format', 'type', 'setSpec']

@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'ScholarWorks@UMass Amherst'
     home_page = 'http://scholarworks.umass.edu'
     url = 'http://scholarworks.umass.edu/do/oai/'
+    property_list = ['date', 'source', 'identifier', 'type', 'format']

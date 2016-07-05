@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Zenodo'
     home_page = 'https://zenodo.org/oai2d'
     url = 'https://zenodo.org/oai2d'
+    property_list = ['language', 'rights', 'source', 'relation', 'date', 'identifier', 'type']

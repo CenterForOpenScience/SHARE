@@ -8,3 +8,14 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'University of Illinois at Urbana-Champaign, IDEALS'
     home_page = 'https://www.ideals.illinois.edu'
     url = 'http://ideals.uiuc.edu/dspace-oai/request'
+    property_list = [
+        'type',
+        'format',
+        'date',
+        'identifier',
+        'setSpec',
+        'source',
+        'coverage',
+        'relation',
+        'rights',
+    ]

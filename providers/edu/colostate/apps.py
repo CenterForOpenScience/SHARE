@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Digital Collections of Colorado'
     home_page = 'https://dspace.library.colostate.edu'
     url = 'https://dspace.library.colostate.edu/oai/request'
+    property_list = ['source', 'relation', 'coverage', 'identifier', 'type', 'setSpec']

@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'ScholarsArchive@OSU'
     home_page = 'http://ir.library.oregonstate.edu/'
     url = 'http://ir.library.oregonstate.edu/oai/request'
+    property_list = ['relation', 'identifier', 'type', 'setSpec']

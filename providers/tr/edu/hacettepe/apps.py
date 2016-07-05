@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Hacettepe University DSpace on LibLiveCD'
     home_page = 'http://bbytezarsivi.hacettepe.edu.tr'
     url = 'http://bbytezarsivi.hacettepe.edu.tr/oai/request'
+    property_list = ['date', 'identifier', 'type', 'rights']

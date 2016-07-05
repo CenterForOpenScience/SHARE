@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Chapman University Digital Commons'
     home_page = 'http://digitalcommons.chapman.edu'
     url = 'http://digitalcommons.chapman.edu/do/oai/'
+    property_list = ['date', 'source', 'identifier', 'type', 'format', 'setSpec']

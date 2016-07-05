@@ -8,3 +8,13 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Scholars Bank University of Oregon'
     home_page = 'http://scholarsbank.uoregon.edu'
     url = 'http://scholarsbank.uoregon.edu/oai/request'
+    property_list = [
+        'type',
+        'source',
+        'format',
+        'relation',
+        'date',
+        'description',
+        'setSpec',
+        'identifier',
+    ]

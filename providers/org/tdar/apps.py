@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'The Digital Archaeological Record'
     home_page = 'http://www.tdar.org'
     url = 'http://core.tdar.org/oai-pmh/oai'
+    property_list = ['type', 'date', 'setSpec', 'type', 'coverage']

@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'KU ScholarWorks'
     home_page = 'https://kuscholarworks.ku.edu'
     url = 'https://kuscholarworks.ku.edu/oai/request'
+    property_list = ['date', 'identifier', 'type', 'format', 'setSpec']

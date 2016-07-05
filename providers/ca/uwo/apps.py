@@ -8,3 +8,14 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Western University'
     home_page = 'http://ir.lib.uwo.ca'
     url = 'http://ir.lib.uwo.ca/do/oai/'
+    property_list = [
+        'type',
+        'source',
+        'format',
+        'rights',
+        'identifier',
+        'relation',
+        'date',
+        'description',
+        'setSpec',
+    ]

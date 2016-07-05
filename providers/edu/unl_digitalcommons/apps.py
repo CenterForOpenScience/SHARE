@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'DigitalCommons@University of Nebraska - Lincoln'
     home_page = 'http://digitalcommons.unl.edu'
     url = 'http://digitalcommons.unl.edu/do/oai/'
+    property_list = ['type', 'identifier', 'format', 'date', 'source', 'setSpec']

@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'PubMed Central'
     home_page = 'http://www.ncbi.nlm.nih.gov/pmc/'
     url = 'http://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi'
+    property_list = ['type', 'source', 'rights', 'format', 'setSpec', 'date', 'identifier']

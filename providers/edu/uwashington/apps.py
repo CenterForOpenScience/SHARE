@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'ResearchWorks @ University of Washington'
     home_page = 'https://digital.lib.washington.edu/'
     url = 'http://digital.lib.washington.edu/dspace-oai/request'
+    property_list = ['type', 'source', 'format', 'date', 'identifier', 'setSpec', 'rights']

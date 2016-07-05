@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Smithsonian Digital Repository'
     home_page = 'http://repository.si.edu'
     url = 'http://repository.si.edu/oai/request'
+    property_list = ['date', 'identifier', 'type', 'format', 'setSpec']

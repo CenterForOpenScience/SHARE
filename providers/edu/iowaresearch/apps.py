@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Iowa Research Online'
     home_page = 'http://ir.uiowa.edu'
     url = 'http://ir.uiowa.edu/do/oai/'
+    property_list = ['date', 'source', 'identifier', 'type']

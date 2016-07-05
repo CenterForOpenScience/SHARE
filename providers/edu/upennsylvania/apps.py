@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'University of Pennsylvania Scholarly Commons'
     home_page = 'http://repository.upenn.edu'
     url = 'http://repository.upenn.edu/do/oai/'
+    property_list = ['type', 'format', 'date', 'identifier', 'setSpec', 'source', 'rights']
