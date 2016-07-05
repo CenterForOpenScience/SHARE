@@ -1,4 +1,5 @@
-from share.normalize import ctx, links
+from share.normalize import ctx
+from share.normalize import tools
 from share.normalize.parsers import Parser
 from share.normalize.utils import format_doi_as_url
 
@@ -12,38 +13,38 @@ class Association(Parser):
 
 
 class Link(Parser):
-    url = links.RunPython('format_doi', ctx)
+    url = tools.RunPython('format_doi', ctx)
     # identifier will always be DOI
-    type = links.Static('doi')
+    type = tools.Static('doi')
 
     def format_doi(self, doi):
         return format_doi_as_url(self, doi)
 
 
 class ThroughLinks(Parser):
-    link = links.Delegate(Link, ctx)
+    link = tools.Delegate(Link, ctx)
 
 
 class Person(Parser):
-    given_name = links.ParseName(ctx).first
-    family_name = links.ParseName(ctx).last
-    additional_name = links.ParseName(ctx).middle
-    suffix = links.ParseName(ctx).suffix
+    given_name = tools.ParseName(ctx).first
+    family_name = tools.ParseName(ctx).last
+    additional_name = tools.ParseName(ctx).middle
+    suffix = tools.ParseName(ctx).suffix
 
 
 class Contributor(Parser):
     order_cited = ctx('index')
-    person = links.Delegate(Person, ctx)
+    person = tools.Delegate(Person, ctx)
     cited_name = ctx
 
 
 class Preprint(Parser):
     title = ctx.item['dc:title']
     description = ctx.item.description
-    contributors = links.Map(links.Delegate(Contributor), ctx.item['dc:creator'])
+    contributors = tools.Map(tools.Delegate(Contributor), ctx.item['dc:creator'])
     published = ctx.item['dc:date']
-    publishers = links.Map(
-        links.Delegate(Association.using(entity=links.Delegate(Publisher))),
+    publishers = tools.Map(
+        tools.Delegate(Association.using(entity=tools.Delegate(Publisher))),
         ctx.item['dc:publisher']
     )
-    links = links.Map(links.Delegate(ThroughLinks), ctx.item['dc:identifier'])
+    links = tools.Map(tools.Delegate(ThroughLinks), ctx.item['dc:identifier'])
