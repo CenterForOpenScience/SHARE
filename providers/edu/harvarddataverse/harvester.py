@@ -7,11 +7,9 @@ from share import Harvester
 
 class HarvardDataverseHarvester(Harvester):
 
-    def __init__(self, app_config):
-        super().__init__(app_config)
-        self.url = 'https://dataverse.harvard.edu/api/search/'
-        self.type = 'dataset'
-        self.MAX_ITEMS_PER_REQUEST = 1000
+    url = 'https://dataverse.harvard.edu/api/search/'
+    type = 'dataset'
+    MAX_ITEMS_PER_REQUEST = 1000
 
     def do_harvest(self, start_date, end_date):
         end_date = end_date.date()
@@ -24,7 +22,7 @@ class HarvardDataverseHarvester(Harvester):
             'key': settings.DATAVERSE_API_KEY,
             'sort': 'date',
             'order': 'asc',
-            'fq': 'dateSort:[{}T00:00:00Z TO {}T00:00:00Z]'.format(start_date, end_date)
+            'fq': 'dateSort:[{}T00:00:00Z TO {}T00:00:00Z]'.format(start_date.isoformat(), end_date.isoformat())
         }).url)
 
     def fetch_records(self, url):
