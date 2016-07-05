@@ -1,26 +1,64 @@
 from share.normalize import *
+from share.normalize import links
+
+
+class Link(Parser):
+    url = ctx
+    type = RunPython('get_link_type', ctx)
+
+    def get_link_type(self, link):
+        if 'dx.doi.org' in link:
+            return 'doi'
+        if 'id.crossref.org' in link:
+            return 'provider'
+        return 'misc'
+
+
+class ThroughLinks(Parser):
+    link = Delegate(Link, ctx)
+
+
+class Tag(Parser):
+    name = ctx
+
+
+class ThroughTags(Parser):
+    tag = Delegate(Tag, ctx)
+
+
+class Publisher(Parser):
+    name = ctx
+
+
+class Association(Parser):
+    pass
+
+
+class Organization(Parser):
+    name = ctx
+
+
+class Affiliation(Parser):
+    pass
+
+
+class Person(Parser):
+    given_name = ctx.given
+    family_name = ctx.family
+    affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), ctx.affiliation)
+
+
+class Contributor(Parser):
+    person = Delegate(Person, ctx)
+    order_cited = ctx('index')
+    cited_name = links.Join(Concat(ctx.given, ctx.family), ' ')
 
 
 class CreativeWork(Parser):
     # Dates in CrossRef metadata are often incomplete, see: https://github.com/CrossRef/rest-api-doc/blob/master/rest_api.md#notes-on-dates
     title = ctx.title[0]
-    description = ctx.maybe('subtitle')
-    doi = ctx.DOI
-    contributors = ctx.author['*']
-    tags = ctx.maybe('subject')['*']
-
-
-class Contributor(Parser):
-    # CrossRef does not return a complete cited name, but returns the given name and family name of the contributor
-    person = ctx
-    order_cited = ctx['index']
-
-
-class Person(Parser):
-    family_name = ctx.family
-    given_name = ctx.given
-    affiliations = ctx.affiliation['*']
-
-
-class Organization(Parser):
-    name = ctx.name
+    description = Maybe(ctx, 'subtitle')[0]
+    contributors = Map(Delegate(Contributor), ctx.author)
+    tags = Map(Delegate(ThroughTags), Maybe(ctx, 'subject'))
+    links = Map(Delegate(ThroughLinks), ctx.URL)
+    publishers = Map(Delegate(Association.using(entity=Delegate(Publisher))), ctx.publisher)
