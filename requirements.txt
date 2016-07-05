@@ -28,6 +28,7 @@ jsonschema==2.5.1
 git+git://github.com/mfraezz/kombu.git@v3.0.36
 lxml==3.6.0
 nameparser==0.4.0
+shortuuid==0.4.3
 psycopg2==2.6.1
 psycogreen==1.0
 requests==2.10.0

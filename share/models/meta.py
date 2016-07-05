@@ -40,9 +40,8 @@ class Tag(ShareObject):
 
 
 class Link(ShareObject):
-    # TODO Make this A URN Field that isn't stupid
     url = URIField()
-    type = models.IntegerField(choices=share_config.link_type_choices)
+    type = models.CharField(max_length=50, choices=share_config.link_type_choices)
     work = ShareForeignKey('AbstractCreativeWork')
 
     def __str__(self):

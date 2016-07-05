@@ -42,7 +42,7 @@ class ChangeSetAdmin(admin.ModelAdmin):
     def accept_changes(self, request, queryset):
         for changeset in queryset:
             changeset.accept()
-    accept_changes.short_description = 'accept changes'
+    accept_changes.short_description = 'Accept changes'
 
     def submitted_by(self, obj):
         return obj.normalized_data.source
