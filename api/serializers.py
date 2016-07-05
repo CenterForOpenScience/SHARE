@@ -45,7 +45,10 @@ class ShareUserSerializer(serializers.ModelSerializer):
         return obj.is_robot
 
     def get_token(self, obj):
-        return obj.accesstoken_set.first().token
+        try:
+            return obj.accesstoken_set.first().token
+        except AttributeError:
+            return None
 
     def is_superuser(self, obj):
         return obj.is_superuser
