@@ -11,7 +11,7 @@ from lxml import etree
 from nameparser import HumanName
 
 
-__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'RunPython', 'Static')
+__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static')
 
 
 #### Public API ####
