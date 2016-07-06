@@ -90,6 +90,9 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(_('first name'), max_length=64, blank=True)
     last_name = models.CharField(_('last name'), max_length=64, blank=True)
     email = models.EmailField(_('email address'), blank=True)
+    gravatar = models.URLField(blank=True)
+    time_zone = models.CharField(max_length=100, blank=True)
+    locale = models.CharField(max_length=100, blank=True)
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,

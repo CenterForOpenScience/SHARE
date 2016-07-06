@@ -58,6 +58,7 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     def normalize(self, raw_data):
         ctx.clear()  # Just incase
+        ctx._config = self.config
         # Parsed data will be loaded into ctx
         if not isinstance(raw_data, str):
             raw_data = raw_data.data

@@ -214,6 +214,7 @@ class Context(AnchorLink):
         self.graph = []
         self.frames = []
         self.parser = None
+        self._config = None
         self.pool = DictHashingDict()
 
     def __add__(self, step):
@@ -298,6 +299,8 @@ class MaybeLink(AbstractLink):
         return self
 
     def execute(self, obj):
+        if not obj:
+            return []
         val = obj.get(self._segment)
         if val:
             return self.__anchor.execute(val)

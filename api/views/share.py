@@ -1,9 +1,34 @@
-from rest_framework import viewsets, permissions
+from django.db.models import Model
+from rest_framework import viewsets, permissions, views, status
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 
 from api.filters import ShareObjectFilterSet
 from share import serializers
+from api import serializers as api_serializers
 
-class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
+class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
+    @detail_route(methods=['get'])
+    def versions(self, request, pk=None):
+        if pk is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        versions = self.get_object().versions.all()
+        page = self.paginate_queryset(versions)
+        if page is not None:
+            ser = self.get_serializer(page, many=True, version_serializer=True)
+            return self.get_paginated_response(ser.data)
+        ser = self.get_serializer(versions, many=True, version_serializer=True)
+        return Response(ser.data)
+
+# class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
+#     @detail_route(methods=['get'])
+#     def changes(self, request, pk=None):
+#         import ipdb
+#         ipdb.set_trace()
+#         return Response()
+
+class ShareObjectViewSet(VersionsViewSet, viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
@@ -119,3 +144,8 @@ class ManuscriptViewSet(ShareObjectViewSet):
         'subject',
         'extra'
     )
+
+class ShareUserView(views.APIView):
+    def get(self, request, *args, **kwargs):
+        ser = api_serializers.ShareUserSerializer(request.user)
+        return Response(ser.data)
