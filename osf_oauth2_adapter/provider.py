@@ -33,9 +33,12 @@ class OSFProvider(OAuth2Provider):
         return dict(
             # we could put more fields here later
             # the api has much more available, just not sure how much we need right now
-            username=data.get('id'),
-            first_name=attributes.get('given_name'),
-            last_name=attributes.get('family_name'),
+            username=data.get('data').get('id'),
+            first_name=attributes.get('given_name', None),
+            last_name=attributes.get('family_name', None),
+            time_zone=attributes.get('timezone', None),
+            locale=attributes.get('locale', None),
+            profile_image_url=data.get('data').get('links').get('profile_image')
         )
 
     def extract_uid(self, data):

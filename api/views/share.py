@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, views
 
 from api.filters import ShareObjectFilterSet
 from share import serializers
@@ -119,3 +119,7 @@ class ManuscriptViewSet(ShareObjectViewSet):
         'subject',
         'extra'
     )
+
+# class ShareUserView(views.APIView):
+#     def get(self, request, *args, **kwargs):
+#         ser = serializers.

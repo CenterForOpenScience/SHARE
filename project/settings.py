@@ -204,7 +204,7 @@ OAUTH2_PROVIDER = {
         'upload_raw_data': 'Upload Raw Data'
     }
 }
-
+SOCIALACCOUNT_ADAPTER = 'osf_oauth2_adapter.views.OSFOAuth2Adapter'
 SOCIALACCOUNT_PROVIDERS = \
     {'osf':
          {
