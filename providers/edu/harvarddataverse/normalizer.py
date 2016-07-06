@@ -25,8 +25,9 @@ class Link(Parser):
     def get_link_type(self, link):
         if 'dx.doi.org' in link:
             return 'doi'
-        if 'dataverse.harvard.edu' in link:
+        elif 'dataverse.harvard.edu' in link:
             return 'provider'
+        return 'misc'
 
 
 class ThroughLinks(Parser):
@@ -37,11 +38,8 @@ class CreativeWork(Parser):
     title = ctx.name
     description = ctx.description
     contributors = Map(Delegate(Contributor), ctx.authors)
-    published = RunPython('parse_date', ctx.published_at)
+    published = ParseDate(ctx.published_at)
     links = Concat(
         Delegate(ThroughLinks, ctx.url),
         Delegate(ThroughLinks, ctx.image_url),
     )
-
-    def parse_date(self, date_str):
-        return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
