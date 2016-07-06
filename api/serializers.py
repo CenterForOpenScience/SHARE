@@ -54,3 +54,19 @@ class ShareUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ShareUser
         fields = ('username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_active', 'token', 'gravatar', 'locale', 'time_zone')
+
+
+class ProviderSerializer(ShareUserSerializer):
+    def __init__(self, *args, **kwargs):
+        super(ShareUserSerializer, self).__init__(*args, **kwargs)
+        self.fields.update({
+            '🤖': serializers.SerializerMethodField(method_name='is_robot'),
+            'provider_name': serializers.SerializerMethodField(method_name='provider_name')
+        })
+
+    def provider_name(self, obj):
+        return obj.username.replace('providers.', '')
+
+    class Meta:
+        model = models.ShareUser
+        fields = ('home_page', 'long_title', 'date_joined', 'gravatar')
