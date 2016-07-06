@@ -23,7 +23,7 @@ class OAILink(Parser):
     def get_link_type(self, link):
         if 'dx.doi.org' in link:
             return 'doi'
-        if self.config.provider_link_id and self.config.provider_link_id in link:
+        if self.config.home_page and self.config.home_page in link:
             return 'provider'
         return 'misc'
 
