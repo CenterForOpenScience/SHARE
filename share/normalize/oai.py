@@ -143,7 +143,8 @@ class OAICreativeWork(Parser):
         )
 
         # A related resource.
-        relation = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:relation')
+        # tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:relation')
+        relation = tools.RunPython('get_relation', ctx)
 
         # A related resource from which the described resource is derived.
         source = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:source')
@@ -155,6 +156,18 @@ class OAICreativeWork(Parser):
         resource_type = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:type')
 
         set_spec = tools.Maybe(ctx.record.header, 'setSpec')
+
+    def get_relation(self, ctx):
+        base = ctx['record']['metadata']['oai_dc:dc']
+        try:
+            base['dc:relation']
+        except KeyError:
+            return []
+        else:
+            try:
+                base['dc:relation']['#text']
+            except TypeError:
+                return base['dc:relation']
 
 
 class OAIPreprint(OAICreativeWork):
