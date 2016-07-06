@@ -60,7 +60,7 @@ class ElasticSearchBot(Bot):
         # TODO Update format to whatever sharepa expects
         return {
             'title': creative_work.title,
-            'associations': [entity.name for entity in Association.objects.select_related('entity').filter(creative_work=creative_work)],
+            'associations': [association.entity.name for association in Association.objects.select_related('entity').filter(creative_work=creative_work)],
             'awards': [str(award) for award in creative_work.awards.all()],
             'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
             'date_created': creative_work.date_created.isoformat(),
