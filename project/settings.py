@@ -194,7 +194,6 @@ INSTALLED_APPS = [
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
 
-
 OAUTH2_PROVIDER = {
     'SCOPES': {
         'read': 'Read scope',
@@ -229,6 +228,7 @@ SOCIALACCOUNT_PROVIDERS = \
           # 'VERSION': 'v2.4'
           }
      }
+
 
 APPLICATION_USERNAME = 'system'
 
@@ -318,6 +318,7 @@ if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
     CORS_ORIGIN_ALLOW_ALL = True
     CORS_ALLOW_CREDENTIALS = True
+    LOGIN_REDIRECT_URL = 'http://localhost:4200/login'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
