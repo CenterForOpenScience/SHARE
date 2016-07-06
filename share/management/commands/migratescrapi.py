@@ -5,7 +5,7 @@ from hashlib import sha256
 
 import arrow
 
-from django.db import connections
+from django.db import connections, transaction
 from django.apps import apps
 from django.core.management.base import BaseCommand
 
@@ -14,7 +14,7 @@ from share.models import RawData
 
 # setup the migration source db connection
 connections._databases['migration_source'] = {
-  'ENGINE': 'django.db.backends.postgresql_psycopg2',
+  'ENGINE': 'django.db.backends.postgresql',
   'NAME': os.environ.get('SCRAPI_DATABASE_NAME', 'scrapi_prod'),
   'USER': os.environ.get('SCRAPI_DATABASE_USER', 'postgres'),
   'PASSWORD': os.environ.get('SCRAPI_DATABASE_PASSWORD', '...'),
@@ -169,31 +169,32 @@ class Command(BaseCommand):
                 config = apps.get_app_config(target)
 
                 print('{} -> {}'.format(source, target))
-                with connection.connection.cursor('scrapi_migration', withhold=True) as cursor:
-                    cursor.execute(
-                        """
-                            SELECT "docID", raw
-                            FROM webview_document
-                            WHERE source = '{source}'
-                        """.format(source=source)
-                    )
+                with transaction.atomic(using='migration_source'):
+                    with connection.connection.cursor('scrapi_migration') as cursor:
+                        cursor.execute(
+                            """
+                                SELECT "docID", raw
+                                FROM webview_document
+                                WHERE source = '{source}'
+                            """.format(source=source)
+                        )
 
-                    record_count = 0
-                    records = cursor.fetchmany(size=cursor.itersize)
-                    while records:
-                        bulk = []
-                        for (doc_id, raw) in records:
-                            harvest_finished = arrow.get(raw['timestamps']['harvestFinished'])
-                            data = raw['doc'].encode()
-                            bulk.append(RawData(
-                                source=config.user,
-                                provider_doc_id=doc_id,
-                                sha256=sha256(data).hexdigest(),
-                                data=data,
-                                date_seen=harvest_finished.datetime,
-                                date_harvested=harvest_finished.datetime,
-                            ))
-                        RawData.objects.bulk_create(bulk)
-                        record_count += len(records)
-                        print(record_count)
+                        record_count = 0
                         records = cursor.fetchmany(size=cursor.itersize)
+                        while records:
+                            bulk = []
+                            for (doc_id, raw) in records:
+                                harvest_finished = arrow.get(raw['timestamps']['harvestFinished'])
+                                data = raw['doc'].encode()
+                                bulk.append(RawData(
+                                    source=config.user,
+                                    provider_doc_id=doc_id,
+                                    sha256=sha256(data).hexdigest(),
+                                    data=data,
+                                    date_seen=harvest_finished.datetime,
+                                    date_harvested=harvest_finished.datetime,
+                                ))
+                            RawData.objects.bulk_create(bulk)
+                            record_count += len(records)
+                            print(record_count)
+                            records = cursor.fetchmany(size=cursor.itersize)
