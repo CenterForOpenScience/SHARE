@@ -8,10 +8,18 @@ from rest_framework.response import Response
 class ElasticSearchView(views.APIView):
     permission_classes = [permissions.IsAuthenticated, ]
 
-    def get(self, request, *args, **kwargs):
-        es_url = furl('{}{}/search/'.format(
-            settings.ELASTICSEARCH_URL,
-            settings.ELASTICSEARCH_INDEX,
-        )).add(query_params=request.query_params)
+    def get(self, request, *args, url_bits='', **kwargs):
+        es_url = furl(settings.ELASTICSEARCH_URL).add(
+            path=settings.ELASTICSEARCH_INDEX,
+            query_params=request.query_params,
+        ).add(path=url_bits.split('/'))
         resp = requests.get(es_url)
+        return Response(data=resp.json(), headers={'Content-Type': 'application/json'})
+
+    def post(self, request, *args, url_bits='', **kwargs):
+        es_url = furl(settings.ELASTICSEARCH_URL).add(
+            path=settings.ELASTICSEARCH_INDEX,
+            query_params=request.query_params,
+        ).add(path=url_bits.split('/'))
+        resp = requests.post(es_url, json=request.data)
         return Response(data=resp.json(), headers={'Content-Type': 'application/json'})

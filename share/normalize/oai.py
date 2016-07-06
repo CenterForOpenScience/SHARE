@@ -190,6 +190,9 @@ class OAINormalizer(Normalizer):
         if self.config.property_list:
             logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))
             for prop in self.config.property_list:
+                if prop in parser._extra:
+                    logger.warning('Skipping property %s, it already exists', prop)
+                    continue
                 parser._extra[prop] = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:' + prop).chain()[0]
 
         return parser

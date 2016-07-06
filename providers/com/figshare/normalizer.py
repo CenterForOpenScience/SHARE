@@ -44,7 +44,7 @@ class CreativeWork(Parser):
     )
 
     class Extra:
-        modifed = RunPython('parse_date', ctx.modifed_date)
+        modified = RunPython('parse_date', ctx.modified_date)
 
     def parse_date(self, date_str):
         return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
