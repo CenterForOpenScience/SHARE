@@ -4,11 +4,11 @@ from rest_framework.response import Response
 
 from api.filters import ChangeSetFilterSet
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
-    ShareUserSerializer
-from share.models import ChangeSet, Change, RawData
+    ShareUserSerializer, ProviderSerializer
+from share.models import ChangeSet, Change, RawData, ShareUser
 from share.tasks import MakeJsonPatches
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet')
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -17,6 +17,14 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return [self.request.user,]
+
+
+class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,]
+    serializer_class = ProviderSerializer
+
+    def get_queryset(self):
+        return ShareUser.objects.exclude(robot='')
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
