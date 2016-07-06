@@ -29,7 +29,7 @@ class Normalizer(metaclass=abc.ABCMeta):
             # process_namespaces=True uses full url, False uses short name
             return xmltodict.parse(data, process_namespaces=False)
         else:
-            return json.loads(data.decode())
+            return json.loads(data)
 
     def get_root_parser(self):
         if self.root_parser:
