@@ -6,6 +6,7 @@ from elasticsearch import Elasticsearch
 
 from share.bot import Bot
 from share.models import Person
+from share.models import Association
 from share.models import CeleryProviderTask
 from share.models import AbstractCreativeWork
 
@@ -59,12 +60,17 @@ class ElasticSearchBot(Bot):
         # TODO Update format to whatever sharepa expects
         return {
             'title': creative_work.title,
-            'subject': str(creative_work.subject),
+            'associations': [entity.name for entity in Association.objects.select_related('entity').filter(creative_work=creative_work)],
+            'awards': [str(award) for award in creative_work.awards.all()],
+            'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
+            'date_created': creative_work.date_created.isoformat(),
             'description': creative_work.description,
-            'tags': [str(tag) for tag in creative_work.tags.all()],
+            'language': creative_work.language,
             'links': [str(link) for link in creative_work.links.all()],
             'sources': [source.robot for source in creative_work.sources.all()],
-            'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()]
+            'subject': str(creative_work.subject),
+            'tags': [str(tag) for tag in creative_work.tags.all()],
+            'venues': [str(venue) for venue in creative_work.venues.all()],
         }
 
     def run(self, chunk_size=50, reindex_all=False):
