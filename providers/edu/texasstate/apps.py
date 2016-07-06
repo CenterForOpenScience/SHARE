@@ -61,14 +61,3 @@ class AppConfig(OAIProviderAppConfig):
         'com_10877_4425',
         'col_10877_78',
     ]
-    property_list = [
-        'type',
-        'format',
-        'date',
-        'identifier',
-        'setSpec',
-        'source',
-        'coverage',
-        'relation',
-        'rights',
-    ]

@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'New Prairie Press at Kansas State University'
     home_page = 'http://newprairiepress.org'
     url = 'http://newprairiepress.org/do/oai/'
-    property_list = ['identifier', 'source', 'date', 'type', 'format', 'setSpec']

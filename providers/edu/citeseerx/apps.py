@@ -9,4 +9,3 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://citeseerx.ist.psu.edu'
     url = 'http://citeseerx.ist.psu.edu/oai2'
     timezone_granularity = False
-    property_list = ['rights', 'format', 'source', 'date', 'identifier', 'type', 'setSpec']

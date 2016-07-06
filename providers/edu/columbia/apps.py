@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Columbia Academic Commons'
     home_page = 'http://academiccommons.columbia.edu/'
     url = 'http://academiccommons.columbia.edu/catalog/oai'
-    property_list = ['type', 'format', 'date', 'identifier', 'setSpec']

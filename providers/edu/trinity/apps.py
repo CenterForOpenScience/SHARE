@@ -47,14 +47,3 @@ class AppConfig(OAIProviderAppConfig):
         'urban_studocs',
         'written-communication',
     ]
-    property_list = [
-        'type',
-        'format',
-        'date',
-        'identifier',
-        'setSpec',
-        'source',
-        'coverage',
-        'relation',
-        'rights',
-    ]
