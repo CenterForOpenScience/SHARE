@@ -44,8 +44,8 @@ class Institution(Parser):
         description = ctx.attributes.description
 
 
-class ThroughInstitutions(Parser):
-    institution = Delegate(Institution, ctx)
+class Association(Parser):
+    pass
 
 
 class Link(Parser):
@@ -61,7 +61,6 @@ class Link(Parser):
                 return 'http://dx/doi.org/{}'.format(return_id)
             else:
                 return 'http://whatisthis/{}'.format(return_id)
-
 
     def parse_type(self, ctx):
         if isinstance(ctx, str):
@@ -79,7 +78,7 @@ class Registration(Parser):
     description = ctx.attributes.description
     contributors = Map(Delegate(Contributor), ctx['contributors'])
     institutions = Map(
-        Delegate(ThroughInstitutions),
+        Delegate(Association.using(entity=Delegate(Institution))),
         ctx.embeds.affiliated_institutions.data
     )
     created = ctx.attributes.date_created
