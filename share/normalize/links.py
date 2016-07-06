@@ -214,6 +214,7 @@ class Context(AnchorLink):
         self.graph = []
         self.frames = []
         self.parser = None
+        self._config = None
         self.pool = DictHashingDict()
 
     def __add__(self, step):

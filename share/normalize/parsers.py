@@ -56,7 +56,8 @@ class Parser(metaclass=ParserMeta):
     def model(self):
         return apps.get_model('share', self.schema)
 
-    def __init__(self, context):
+    def __init__(self, context, config=None):
+        self.config = config or ctx._config
         self.context = context
         self.id = '_:' + uuid.uuid4().hex
         self.ref = {'@id': self.id, '@type': self.schema}
@@ -93,8 +94,13 @@ class Parser(metaclass=ParserMeta):
                 self.validate(field, value)
                 inst[key] = value
 
-        if self._extra:
-            inst['extra'] = {key: parser.chain()[0].execute(self.context) for key, parser in self._extra.items()}
+        inst['extra'] = {}
+        for key, chain in self._extra.items():
+            val = chain.execute(self.context)
+            if val:
+                inst['extra'][key] = val
+        if not inst['extra']:
+            del inst['extra']
 
         Context().parser = prev
 
