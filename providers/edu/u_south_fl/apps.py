@@ -310,4 +310,3 @@ class AppConfig(OAIProviderAppConfig):
         'wle_etd',
         'wle_facpub',
     ]
-    property_list = ['identifier', 'date', 'type', 'source', 'format', 'setSpec']

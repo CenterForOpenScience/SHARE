@@ -110,4 +110,3 @@ class AppConfig(OAIProviderAppConfig):
         'com_2022_12991',
         'com_2022_12994',
     ]
-    property_list = []

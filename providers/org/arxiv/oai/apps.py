@@ -11,4 +11,3 @@ class AppConfig(OAIProviderAppConfig):
     time_granularity = False
     version = '0.0.0'
     emitted_type = 'preprint'
-    property_list = ['type', 'format', 'date', 'identifier', 'setSpec', 'description']

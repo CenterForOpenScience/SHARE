@@ -110,4 +110,3 @@ class AppConfig(OAIProviderAppConfig):
         'com_10125_1678',
         'com_10125_1701',
     ]
-    property_list = ['type', 'identifier', 'date', 'setSpec', 'language']

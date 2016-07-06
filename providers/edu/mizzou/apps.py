@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'DSpace@MIT'
     home_page = 'https://mospace.umsystem.edu'
     url = 'https://mospace.umsystem.edu/oai/request'
-    property_list = []
