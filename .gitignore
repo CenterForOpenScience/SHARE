@@ -199,4 +199,4 @@ za.csir/
 testdir/
 scratch/
 celerybeat.pid
-.orig
+*.orig
