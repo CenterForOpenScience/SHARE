@@ -299,6 +299,8 @@ class MaybeLink(AbstractLink):
         return self
 
     def execute(self, obj):
+        if not obj:
+            return []
         val = obj.get(self._segment)
         if val:
             return self.__anchor.execute(val)
