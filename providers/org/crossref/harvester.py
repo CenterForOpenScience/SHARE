@@ -21,7 +21,13 @@ class CrossRefHarvester(Harvester):
     def fetch_records(self, url):
         resp = self.requests.get(url)
         total = resp.json()['message']['total-results']
+        records = resp.json()['message']['items']
 
+        # return the first 1000 records
+        for record in records:
+            yield (record['DOI'], record)
+
+        # make requests for the remaining records
         for i in range(1000, total, 1000):
             response = self.requests.get(furl(self.url).add(query_params={
                 'offset': i
