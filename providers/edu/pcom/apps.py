@@ -16,4 +16,4 @@ class AppConfig(OAIProviderAppConfig):
         'research_day',
         'posters',
     ]
-    property_list = ['date', 'source', 'identifier', 'type', 'format', 'setSpec']
+    property_list = []

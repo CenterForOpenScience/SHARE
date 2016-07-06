@@ -143,7 +143,6 @@ class OAICreativeWork(Parser):
         )
 
         # A related resource.
-        # tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:relation')
         relation = tools.RunPython('get_relation', ctx)
 
         # A related resource from which the described resource is derived.
@@ -191,7 +190,7 @@ class OAINormalizer(Normalizer):
         if self.config.property_list:
             logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))
             for prop in self.config.property_list:
-                parser._extra[prop] = links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:' + prop).chain()[0]
+                parser._extra[prop] = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:' + prop).chain()[0]
 
         return parser
 

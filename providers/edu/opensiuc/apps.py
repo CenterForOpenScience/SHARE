@@ -123,4 +123,4 @@ class AppConfig(OAIProviderAppConfig):
         'zool_diss',
         'zool_pubs',
     ]
-    property_list = ['type', 'source', 'format', 'identifier', 'date', 'setSpec']
+    property_list = []

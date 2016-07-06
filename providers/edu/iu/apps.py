@@ -110,13 +110,4 @@ class AppConfig(OAIProviderAppConfig):
         'com_2022_12991',
         'com_2022_12994',
     ]
-    property_list = [
-        'date',
-        'format',
-        'identifier',
-        'type',
-        'relation',
-        'setSpec',
-        'language',
-        'rights',
-    ]
+    property_list = []

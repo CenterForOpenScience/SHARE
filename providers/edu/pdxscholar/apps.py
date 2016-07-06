@@ -82,4 +82,4 @@ class AppConfig(OAIProviderAppConfig):
         'wll_fac',
         'younghistorians',
     ]
-    property_list = ['date', 'source', 'identifier', 'type', 'setSpec']
+    property_list = []
