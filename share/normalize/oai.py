@@ -23,7 +23,7 @@ class OAILink(Parser):
     def get_link_type(self, link):
         if 'dx.doi.org' in link:
             return 'doi'
-        # TODO: id there a way to get current provider name?
+        # TODO: access value in config
         # if 'figshare.com' in link:
         #     return 'provider'
         return 'misc'
@@ -60,6 +60,13 @@ class OAIContributor(Parser):
 
 class OAIPublisher(Parser):
     schema = 'Publisher'
+
+    name = ctx
+
+
+class OAIInstitution(Parser):
+    schema = 'Institution'
+
     name = ctx
 
 
@@ -69,16 +76,28 @@ class OAIAssociation(Parser):
 
 class OAITag(Parser):
     schema = 'Tag'
+
     name = ctx
 
 
 class OAIThroughTags(Parser):
     schema = 'ThroughTags'
+
     tag = tools.Delegate(OAITag, ctx)
 
 
 class OAICreativeWork(Parser):
     schema = 'CreativeWork'
+
+    ORGANIZATION_KEYWORDS = (
+        'the'
+    )
+    INSTITUTION_KEYWORDS = (
+        'school',
+        'university',
+        'institution',
+        'institute'
+    )
 
     title = tools.Join(ctx.record.metadata['oai_dc:dc']['dc:title'])
     description = tools.Join(tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:description'))
@@ -92,12 +111,40 @@ class OAICreativeWork(Parser):
 
     language = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:language')
 
-    # TODO: Contributors include a person, an organization, or a service
-    # differentiate between them
     contributors = tools.Map(
         tools.Delegate(OAIContributor),
-        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
-        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor'),
+        tools.RunPython(
+            'get_contributors',
+            tools.Concat(
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+            ),
+            'contributor'
+        )
+    )
+
+    institutions = tools.Map(
+        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIInstitution))),
+        tools.RunPython(
+            'get_contributors',
+            tools.Concat(
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+            ),
+            'institution'
+        )
+    )
+
+    organizations = tools.Map(
+        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIInstitution))),
+        tools.RunPython(
+            'get_contributors',
+            tools.Concat(
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+            ),
+            'organization'
+        )
     )
 
     tags = tools.Map(
@@ -167,6 +214,42 @@ class OAICreativeWork(Parser):
                 base['dc:relation']['#text']
             except TypeError:
                 return base['dc:relation']
+
+    def get_contributors(self, options, entity):
+        """
+        Returns list of organization, institutions, or contributors names based on entity type.
+        """
+        if entity == 'organization':
+            organizations = [
+                value for value in options if
+                (
+                    not self.value_in_list(value, self.INSTITUTION_KEYWORDS) and
+                    self.value_in_list(value, self.ORGANIZATION_KEYWORDS)
+                )
+            ]
+            return organizations
+        elif entity == 'institution':
+            institutions = [
+                value for value in options if
+                self.value_in_list(value, self.INSTITUTION_KEYWORDS)
+            ]
+            return institutions
+        elif entity == 'contributor':
+            people = [
+                value for value in options if
+                (
+                    not self.value_in_list(value, self.INSTITUTION_KEYWORDS) and not
+                    self.value_in_list(value, self.ORGANIZATION_KEYWORDS)
+                )
+            ]
+            return people
+        else:
+            return options
+
+    def value_in_list(self, string, list_):
+        if any(word in string for word in list_):
+            return True
+        return False
 
 
 class OAIPreprint(OAICreativeWork):

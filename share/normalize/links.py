@@ -54,10 +54,10 @@ def Delegate(parser, chain=None):
     return DelegateLink(parser)
 
 
-def RunPython(function_name, chain=None):
+def RunPython(function_name, chain=None, *args, **kwargs):
     if chain:
-        return chain + RunPythonLink(function_name)
-    return RunPythonLink(function_name)
+        return chain + RunPythonLink(function_name, *args, **kwargs)
+    return RunPythonLink(function_name, *args, **kwargs)
 
 
 def Static(value):
@@ -378,12 +378,14 @@ class DelegateLink(AbstractLink):
 
 
 class RunPythonLink(AbstractLink):
-    def __init__(self, function_name):
+    def __init__(self, function_name, *args, **kwargs):
         self._function_name = function_name
+        self._args = args
+        self._kwargs = kwargs
         super().__init__()
 
     def execute(self, obj):
-        return getattr(Context().parser, self._function_name)(obj)
+        return getattr(Context().parser, self._function_name)(obj, *self._args, **self._kwargs)
 
 
 class StaticLink(AbstractLink):
