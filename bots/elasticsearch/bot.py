@@ -109,7 +109,7 @@ class ElasticSearchBot(Bot):
         logger.info('Found %s %s that must be updated in ES', qs.count(), model)
 
         for inst in qs:
-            yield {'_id': inst.pk, '_op_type': 'index', 'doc': self.serialize(inst), **opts}
+            yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
             # if acw.is_delete:  # TODO
             #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
 
