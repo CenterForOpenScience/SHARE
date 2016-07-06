@@ -44,8 +44,8 @@ class Institution(Parser):
         description = ctx.attributes.description
 
 
-class ThroughInstitutions(Parser):
-    institution = Delegate(Institution, ctx)
+class Association(Parser):
+    pass
 
 
 class Link(Parser):
@@ -61,7 +61,10 @@ class Project(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
     contributors = Map(Delegate(Contributor), ctx['contributors'])
-    institutions = Map(Delegate(ThroughInstitutions), ctx.embeds.affiliated_institutions.data)
+    institutions = Map(
+        Delegate(Association.using(entity=Delegate(Institution))),
+        ctx.embeds.affiliated_institutions.data
+    )
     created = ctx.attributes.date_created
     subject = Delegate(Tag, ctx.attributes.category)
     tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
