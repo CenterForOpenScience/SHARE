@@ -5,8 +5,10 @@ from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
 from api.filters import ShareObjectFilterSet
+from api.serializers import ChangeSerializer
 from share import serializers
 from api import serializers as api_serializers
+
 
 class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
@@ -21,14 +23,22 @@ class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
         ser = self.get_serializer(versions, many=True, version_serializer=True)
         return Response(ser.data)
 
-# class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
-#     @detail_route(methods=['get'])
-#     def changes(self, request, pk=None):
-#         import ipdb
-#         ipdb.set_trace()
-#         return Response()
 
-class ShareObjectViewSet(VersionsViewSet, viewsets.ReadOnlyModelViewSet):
+class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
+    @detail_route(methods=['get'])
+    def changes(self, request, pk=None):
+        if pk is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        changes = self.get_object().changes.all()
+        page = self.paginate_queryset(changes)
+        if page is not None:
+            ser = ChangeSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(ser.data)
+        ser = ChangeSerializer(changes, many=True, context={'request': request})
+        return Response(ser.data)
+
+
+class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
