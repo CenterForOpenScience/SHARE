@@ -23,6 +23,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     funders = ShareManyToManyField('Funder', through='Association')
     publishers = ShareManyToManyField('Publisher', through='Association')
     institutions = ShareManyToManyField('Institution', through='Association')
+    organizations = ShareManyToManyField('Organization', through='Association')
 
     subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
     # Note: Null allows inserting of None but returns it as an empty string
