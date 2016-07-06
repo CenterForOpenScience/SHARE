@@ -25,8 +25,7 @@ class OSFRegistrationsHarvester(OSFHarvester):
 
         url.args['page[size]'] = 100
         url.args['filter[public]'] = 'true'
-        url.args['embed'] = 'affiliated_institutions'
-        url.args['embed'] = 'identifiers'
+        url.args['embed'] = ['affiliated_institutions', 'identifiers']
         url.args['filter[date_created][gt]'] = start_date.date().isoformat()
         url.args['filter[date_created][lt]'] = end_date.date().isoformat()
 
