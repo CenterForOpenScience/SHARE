@@ -51,7 +51,7 @@ class ShareUserManager(BaseUserManager):
 
         return self._create_user(username, email, password, **extra_fields)
 
-    def create_robot_user(self, username, robot, long_title=None):
+    def create_robot_user(self, username, robot, long_title=None, home_page=None):
         try:
             ShareUser.objects.get(robot=robot)
         except ShareUser.DoesNotExist:
@@ -63,6 +63,7 @@ class ShareUserManager(BaseUserManager):
         user.username = username
         user.robot = robot
         user.long_title = long_title
+        user.home_page = home_page
         user.is_active = True
         user.is_staff = False
         user.is_superuser = False
