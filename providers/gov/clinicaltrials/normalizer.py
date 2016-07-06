@@ -43,7 +43,7 @@ class Person(Parser):
 
 class Contributor(Parser):
     order_cited = ctx('index')
-    cited_name = ''
+    cited_name = Join(Concat(Maybe(ctx, 'first_name'), Maybe(ctx, 'last_name')), joiner=' ')
     person = Delegate(Person, ctx)
 
 
