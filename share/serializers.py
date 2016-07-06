@@ -16,7 +16,7 @@ class BaseShareSerializer(serializers.ModelSerializer):
             self.fields.clear()
         else:
             # remove hidden fields
-            excluded_fields = ['change', 'id', 'type', 'uuid', 'sources']
+            excluded_fields = ['change', 'type', 'uuid', 'sources']
             for field_name in tuple(self.fields.keys()):
                 if 'version' in field_name or field_name in excluded_fields:
                     self.fields.pop(field_name)
