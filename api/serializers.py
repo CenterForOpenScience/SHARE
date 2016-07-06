@@ -39,7 +39,6 @@ class ShareUserSerializer(serializers.ModelSerializer):
         })
     token = serializers.SerializerMethodField()
 
-
     def is_robot(self, obj):
         return obj.is_robot
 
@@ -54,4 +53,4 @@ class ShareUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ShareUser
-        fields = ('username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_active', 'token')
+        fields = ('username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_active', 'token', 'gravatar', 'locale', 'time_zone')

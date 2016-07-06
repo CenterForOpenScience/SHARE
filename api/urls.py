@@ -34,4 +34,5 @@ router.register(r'users', views.ShareUserViewSet, base_name='users')
 
 urlpatterns = [
     url(r'search/(?P<url_bits>.*)', views.ElasticSearchView.as_view(), name='search')
+    url(r'user_info/?', views.ShareUserView.as_view(), name='userinfo')
 ] + router.urls

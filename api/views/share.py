@@ -1,7 +1,9 @@
 from rest_framework import viewsets, permissions, views
+from rest_framework.response import Response
 
 from api.filters import ShareObjectFilterSet
 from share import serializers
+from api import serializers as api_serializers
 
 class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
@@ -120,6 +122,7 @@ class ManuscriptViewSet(ShareObjectViewSet):
         'extra'
     )
 
-# class ShareUserView(views.APIView):
-#     def get(self, request, *args, **kwargs):
-#         ser = serializers.
+class ShareUserView(views.APIView):
+    def get(self, request, *args, **kwargs):
+        ser = api_serializers.ShareUserSerializer(request.user)
+        return Response(ser.data)
