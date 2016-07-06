@@ -143,7 +143,7 @@ def user_post_save(sender, instance, created, **kwargs):
     :param kwargs:
     :return:
     """
-    if created and not instance.is_robot:
+    if created and not instance.is_robot and instance.username != settings.APPLICATION_USERNAME:
         application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
         application = Application.objects.get(user=application_user)
         client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
