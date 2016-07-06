@@ -23,9 +23,8 @@ class OAILink(Parser):
     def get_link_type(self, link):
         if 'dx.doi.org' in link:
             return 'doi'
-        # TODO: access value in config
-        # if 'figshare.com' in link:
-        #     return 'provider'
+        if self.config.provider_link_id and self.config.provider_link_id in link:
+            return 'provider'
         return 'misc'
 
     def format_link(self, link):
@@ -90,7 +89,8 @@ class OAICreativeWork(Parser):
     schema = 'CreativeWork'
 
     ORGANIZATION_KEYWORDS = (
-        'the'
+        'the',
+        'center'
     )
     INSTITUTION_KEYWORDS = (
         'school',
@@ -223,31 +223,31 @@ class OAICreativeWork(Parser):
             organizations = [
                 value for value in options if
                 (
-                    not self.value_in_list(value, self.INSTITUTION_KEYWORDS) and
-                    self.value_in_list(value, self.ORGANIZATION_KEYWORDS)
+                    not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and
+                    self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
                 )
             ]
             return organizations
         elif entity == 'institution':
             institutions = [
                 value for value in options if
-                self.value_in_list(value, self.INSTITUTION_KEYWORDS)
+                self.list_in_string(value, self.INSTITUTION_KEYWORDS)
             ]
             return institutions
         elif entity == 'contributor':
             people = [
                 value for value in options if
                 (
-                    not self.value_in_list(value, self.INSTITUTION_KEYWORDS) and not
-                    self.value_in_list(value, self.ORGANIZATION_KEYWORDS)
+                    not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and not
+                    self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
                 )
             ]
             return people
         else:
             return options
 
-    def value_in_list(self, string, list_):
-        if any(word in string for word in list_):
+    def list_in_string(self, string, list_):
+        if any(word in string.lower() for word in list_):
             return True
         return False
 

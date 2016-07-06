@@ -5,13 +5,10 @@ Example Record
 
 <record>
     <header>
-        <identifier>oai:scholarworks.umass.edu:theses-1103</identifier>
-        <datestamp>2010-05-29T08:05:25Z</datestamp>
-        <setSpec>publication:ecs</setSpec>
-        <setSpec>publication:me_theses</setSpec>
-        <setSpec>publication:etds</setSpec>
-        <setSpec>publication:mie</setSpec>
-        <setSpec>publication:theses</setSpec>
+        <identifier>oai:lib.dr.iastate.edu:museums_exhibitguides-1000</identifier>
+        <datestamp>2016-07-05T12:10:28Z</datestamp>
+        <setSpec>publication:museums</setSpec>
+        <setSpec>publication:museums_exhibitguides</setSpec>
     </header>
     <metadata>
         <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
@@ -20,66 +17,55 @@ Example Record
             xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/
             http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
                 <dc:title>
-                    Ontologies and Methods for Interoperability of Engineering Analysis Models (EAMS) in
-                    an E-Design Environment
+                    (Re)discovering S(h)elves: Selections from the Permanent Collection
                 </dc:title>
-                <dc:creator>Kanuri, Neelima</dc:creator>
+                <dc:creator>Bix, Amy</dc:creator>
+                <dc:creator>Eisman, April</dc:creator>
+                <dc:creator>Gebhart, Nancy</dc:creator>
+                <dc:creator>Langenberg, Christiana</dc:creator>
+                <dc:creator>Marcketti, Sara B.</dc:creator>
+                <dc:creator>Popillion, Amy</dc:creator>
+                <dc:creator>Schaal, Michèle A.</dc:creator>
+                <dc:creator>Sterle, Jodi A.</dc:creator>
+                <dc:creator>Jones-Johnson, Gloria</dc:creator>
                 <dc:description>
-                    ABSTRACT ONTOLOGIES AND METHODS FOR INTEROPERABILITY OF ENGINEERING ANALYSIS
-                    MODELS (EAMS) IN AN E-DESIGN ENVIRONMENT SEPTEMBER 2007 NEELIMA KANURI, B.S.,
-                    BIRLA INSTITUTE OF TECHNOLOGY AND SCIENCES PILANI INDIA M.S., UNIVERSITY OF
-                    MASSACHUSETTS AMHERST Directed by: Professor Ian Grosse Interoperability is the
-                    ability of two or more systems to exchange and reuse information efficiently. This
-                    thesis presents new techniques for interoperating engineering tools using ontologies
-                    as the basis for representing, visualizing, reasoning about, and securely exchanging
-                    abstract engineering knowledge between software systems. The specific engineering
-                    domain that is the primary focus of this report is the modeling knowledge associated
-                    with the development of engineering analysis models (EAMs). This abstract modeling
-                    knowledge has been used to support integration of analysis and optimization tools
-                    in iSIGHT FD , a commercial engineering environment. ANSYS , a commercial FEA tool,
-                    has been wrapped as an analysis service available inside of iSIGHT-FD. Engineering
-                    analysis modeling (EAM) ontology has been developed and instantiated to form a
-                    knowledge base for representing analysis modeling knowledge. The instances of the
-                    knowledge base are the analysis models of real world applications. To illustrate
-                    how abstract modeling knowledge can be exploited for useful purposes, a cantilever
-                    I-Beam design optimization problem has been used as a test bed proof-of-concept
-                    application. Two distinct finite element models of the I-beam are available to
-                    analyze a given beam design- a beam-element finite element model with potentially
-                    lower accuracy but significantly reduced computational costs and a high fidelity,
-                    high cost, shell-element finite element model. The goal is to obtain an optimized
-                    I-beam design at minimum computational expense. An intelligent KB tool was developed
-                    and implemented in FiPER . This tool reasons about the modeling knowledge to
-                    intelligently shift between the beam and the shell element models during an
-                    optimization process to select the best analysis model for a given optimization
-                    design state. In addition to improved interoperability and design optimization,
-                    methods are developed and presented that demonstrate the ability to operate on
-                    ontological knowledge bases to perform important engineering tasks. One such method
-                    is the automatic technical report generation method which converts the modeling
-                    knowledge associated with an analysis model to a flat technical report. The second
-                    method is a secure knowledge sharing method which allocates permissions to portions
-                    of knowledge to control knowledge access and sharing. Both the methods acting together
-                    enable recipient specific fine grain controlled knowledge viewing and sharing in an
-                    engineering workflow integration environment, such as iSIGHT-FD. These methods
-                    together play a very efficient role in reducing the large scale inefficiencies
-                    existing in current product design and development cycles due to poor knowledge
-                    sharing and reuse between people and software engineering tools. This work is a
-                    significant advance in both understanding and application of integration of knowledge
-                    in a distributed engineering design framework.
+                    How does society define identity? How do you? How do pieces of the identity
+                    puzzle such as gender, color, social class or spirituality influence our experiences?
+                    Through a diverse selection of artists and media, this exhibition explores some of
+                    the many ways in which identity can be empowered or marginalized, multidimensional
+                    or stereotyped. The works of art presented offer different lenses through which to
+                    view society. The paintings, sculptures, crafts, and other objects in this exhibition
+                    embody and connect to a wide variety of social issues and perspectives to inspire
+                    visitor discussion and develop critical thinking skills through visual literacy.
+                    This exhibition reflects a multi-disciplinary curatorial approach to reexamining
+                    the permanent collection in conjunction with the 40th Anniversary celebration of
+                    University Museums. These collaborative interpretations, juxtaposed with the works
+                    of art, aim at encouraging viewers to examine themselves and varying perceptions
+                    of identity. The curatorial team includes Amy Bix, History; April Eisman, Art
+                    History; Nancy Gebhart, University Museums; Christiana Langenberg, English; Sara
+                    Marcketti, Apparel, Events, and Hospitality Management; Amy Popillion, Human
+                    Development and Family Studies; Michèle Schaal, Women’s Studies and English; Jodi
+                    Sterle, Animal Science; and Gloria Jones-Johnson, Sociology-LAS. This exhibition
+                    is supported by the ISU Women’s and Diversity Grant Program, Michèle Schaal and
+                    Jean-Philippe Tessonnier, Sara Marcketti, the Department of Apparel Events and
+                    Hospitality Management, the Department of History, the Department of English, the
+                    Department of Women’s Studies, and the University Museums Membership.
                 </dc:description>
-                <dc:date>2007-01-01T08:00:00Z</dc:date>
+                <dc:date>2015-01-01T08:00:00Z</dc:date>
                 <dc:type>text</dc:type>
                 <dc:format>application/pdf</dc:format>
-                <dc:identifier>http://scholarworks.umass.edu/theses/68</dc:identifier>
+                <dc:identifier>http://lib.dr.iastate.edu/museums_exhibitguides/1</dc:identifier>
                 <dc:identifier>
-                    http://scholarworks.umass.edu/cgi/viewcontent.cgi?article=1103&amp;context=theses
+                    http://lib.dr.iastate.edu/cgi/viewcontent.cgi?article=1000&amp;context=museums_exhibitguides
                 </dc:identifier>
-                <dc:source>Masters Theses 1911 - February 2014</dc:source>
-                <dc:publisher>ScholarWorks@UMass Amherst</dc:publisher>
-                <dc:subject>Ontology</dc:subject>
-                <dc:subject>Interoperability</dc:subject>
-                <dc:subject>Secured knowledge sharing</dc:subject>
-                <dc:subject>Engineering analysis models</dc:subject>
-                <dc:subject>Mechanical engineering</dc:subject>
+                <dc:source>University Museums Exhibition Guides</dc:source>
+                <dc:publisher>Digital Repository @ Iowa State University</dc:publisher>
+                <dc:subject>Feminist, Gender, and Sexuality Studies</dc:subject>
+                <dc:subject>Fine Arts</dc:subject>
+                <dc:subject>Interdisciplinary Arts and Media</dc:subject>
+                <dc:description>
+                    http://lib.dr.iastate.edu/museums_exhibitguides/1000/thumbnail.jpg
+                </dc:description>
         </oai_dc:dc>
     </metadata>
 </record>

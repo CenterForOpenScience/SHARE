@@ -8,4 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Huskie Commons @ Northern Illinois University'
     home_page = 'http://commons.lib.niu.edu'
     url = 'http://commons.lib.niu.edu/oai/request'
-    property_list = ['date', 'identifier', 'type', 'setSpec']
+    provider_link_id = 'commons.lib.niu.edu'

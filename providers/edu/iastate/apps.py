@@ -8,6 +8,7 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Digital Repository @ Iowa State University'
     home_page = 'http://lib.dr.iastate.edu'
     url = 'http://lib.dr.iastate.edu/do/oai/'
+    provider_link_id = 'lib.dr.iastate.edu'
     approved_sets = [
         'museums_rediscoveringshelves',
         'museums_rediscoveringshelves_installation',
@@ -778,4 +779,3 @@ class AppConfig(OAIProviderAppConfig):
         'zool_etd',
         'a2ru_photos',
     ]
-    property_list = ['source', 'identifier', 'date', 'type', 'format', 'setSpec']
