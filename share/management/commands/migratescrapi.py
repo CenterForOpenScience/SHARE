@@ -196,5 +196,5 @@ class Command(BaseCommand):
                                 ))
                             RawData.objects.bulk_create(bulk)
                             record_count += len(records)
-                            print(record_count)
+                            print('{} -> {}: {}'.format(source, target, record_count))
                             records = cursor.fetchmany(size=cursor.itersize)
