@@ -44,7 +44,7 @@ class ShareUserSerializer(serializers.ModelSerializer):
 
     def get_token(self, obj):
         try:
-            return obj.accesstoken_set.first().token
+            return obj.socialaccount_set.first().socialtoken_set.first().token
         except AttributeError:
             return None
 
