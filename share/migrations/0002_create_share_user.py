@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('share', '0001_initial'),
+        ('oauth2_provider', '0001_initial'),
         ('osf_oauth2_adapter', '0001_make_human_group')
     ]
 
