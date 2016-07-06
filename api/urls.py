@@ -21,6 +21,8 @@ router.register(r'awards', views.AwardViewSet, base_name='award')
 router.register(r'tags', views.TagViewSet, base_name='tag')
 router.register(r'creative_works', views.CreativeWorkViewSet, base_name='creative_work')
 router.register(r'preprints', views.PreprintViewSet, base_name='preprint')
+router.register(r'publications', views.PublicationViewSet, base_name='publication')
+router.register(r'projects', views.ProjectViewSet, base_name='project')
 router.register(r'manuscripts', views.ManuscriptViewSet, base_name='manuscript')
 
 # workflow routes
@@ -32,4 +34,4 @@ router.register(r'users', views.ShareUserViewSet, base_name='users')
 
 urlpatterns = [
     url(r'search/?', views.ElasticSearchView.as_view(), name='search')
-              ] + router.urls
+] + router.urls

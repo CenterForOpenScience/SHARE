@@ -9,12 +9,12 @@ class BaseShareSerializer(serializers.ModelSerializer):
         # super hates my additional kwarg
         sparse = kwargs.pop('sparse', False)
         super(BaseShareSerializer, self).__init__(*args, **kwargs)
-        # remove version fields
-        # easier than specifying excludes for every model serializer
 
         if sparse:
+            # clear the fields if they asked for sparse
             self.fields.clear()
         else:
+            # remove hidden fields
             excluded_fields = ['change', 'id', 'type', 'uuid', 'source']
             for field_name in tuple(self.fields.keys()):
                 if 'version' in field_name or field_name in excluded_fields:
@@ -30,6 +30,7 @@ class BaseShareSerializer(serializers.ModelSerializer):
             '@type': fields.TypeField(),
             'object_id': fields.ObjectIDField(source='uuid')
         })
+
     class Meta:
         pass
 
@@ -134,6 +135,16 @@ class CreativeWorkSerializer(AbstractCreativeWorkSerializer):
 class PreprintSerializer(AbstractCreativeWorkSerializer):
     class Meta(BaseShareSerializer.Meta):
         model = models.Preprint
+
+
+class PublicationSerializer(AbstractCreativeWorkSerializer):
+    class Meta(BaseShareSerializer.Meta):
+        model = models.Publication
+
+
+class ProjectSerializer(AbstractCreativeWorkSerializer):
+    class Meta(BaseShareSerializer.Meta):
+        model = models.Project
 
 
 class ManuscriptSerializer(AbstractCreativeWorkSerializer):
