@@ -6,7 +6,7 @@ class Venue(Parser):
 
 
 class ThroughVenues(Parser):
-    pass
+    venue = Delegate(Venue, ctx)
 
 
 class Tag(Parser):
@@ -14,7 +14,7 @@ class Tag(Parser):
 
 
 class ThroughTags(Parser):
-    pass
+    tag = Delegate(Tag, ctx)
 
 
 class Email(Parser):
@@ -22,7 +22,7 @@ class Email(Parser):
 
 
 class PersonEmail(Parser):
-    pass
+    email = Delegate(Email, ctx)
 
 
 class Entity(Parser):
