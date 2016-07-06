@@ -17,8 +17,39 @@ class ElasticSearchBot(Bot):
 
     INDEX_MODELS = [AbstractCreativeWork, Person]
 
+    SETTINGS = {
+        'analysis': {
+            'filter': {
+                'autocomplete_filter': {
+                    'type': 'edge_ngram',
+                    'min_gram': 2,
+                    'max_gram': 20
+                }
+            },
+            'analyzer': {
+                'autocomplete': {
+                    'type': 'custom',
+                    'tokenizer': 'standard',
+                    'filter': ['lowercase', 'autocomplete_filter']
+                }
+            }
+        }
+    }
+
     MAPPINGS = {
         'person': {
+            'dynamic_templates': [{
+                'ngrams': {
+                    'unmatch': 'description',
+                    'match_mapping_type': 'string',
+                    'mapping': {
+                        'type': 'string',
+                        'fields': {
+                            'ngram': {'type': 'string', 'analyzer': 'autocomplete'}
+                        }
+                    }
+                }
+            }],
             'properties': {
                 'sources': {
                     'type': 'string',
@@ -27,6 +58,18 @@ class ElasticSearchBot(Bot):
             }
         },
         'abstractcreativework': {
+            'dynamic_templates': [{
+                'ngrams': {
+                    'unmatch': 'description',
+                    'match_mapping_type': 'string',
+                    'mapping': {
+                        'type': 'string',
+                        'fields': {
+                            'ngram': {'type': 'string', 'analyzer': 'autocomplete'}
+                        }
+                    }
+                }
+            }],
             'properties': {
                 'sources': {
                     'type': 'string',
@@ -74,10 +117,7 @@ class ElasticSearchBot(Bot):
         }
 
     def run(self, chunk_size=50, reindex_all=False):
-        logger.debug('Ensuring Elasticsearch index %s', settings.ELASTICSEARCH_URL)
-        self.es_client.indices.create(settings.ELASTICSEARCH_INDEX, ignore=400)
-
-        self._put_mappings()
+        self._setup()
 
         logger.debug('Finding last successful job')
         last_run = CeleryProviderTask.objects.filter(
@@ -113,7 +153,22 @@ class ElasticSearchBot(Bot):
             # if acw.is_delete:  # TODO
             #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
 
-    def _put_mappings(self):
+    def _setup(self):
+        logger.debug('Ensuring Elasticsearch index %s', settings.ELASTICSEARCH_INDEX)
+        self.es_client.indices.create(settings.ELASTICSEARCH_INDEX, ignore=400)
+
+        logger.debug('Waiting for yellow status')
+        self.es_client.cluster.health(wait_for_status='yellow')
+
+        logger.debug('Closing index %s', settings.ELASTICSEARCH_INDEX)
+        self.es_client.indices.close(index=settings.ELASTICSEARCH_INDEX)
+
+        logger.debug('Update Elasticsearch settings')
+        self.es_client.indices.put_settings({'settings': self.SETTINGS}, index=settings.ELASTICSEARCH_INDEX)
+
+        logger.debug('Open index %s', settings.ELASTICSEARCH_INDEX)
+        self.es_client.indices.open(index=settings.ELASTICSEARCH_INDEX)
+
         logger.info('Putting Elasticsearch mappings')
         for doc_type, mapping in self.MAPPINGS.items():
             logger.debug('Putting mapping for %s', doc_type)
