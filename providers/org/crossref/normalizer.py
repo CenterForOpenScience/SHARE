@@ -18,14 +18,6 @@ class ThroughLinks(Parser):
     link = Delegate(Link, ctx)
 
 
-class Tag(Parser):
-    name = ctx
-
-
-class ThroughTags(Parser):
-    tag = Delegate(Tag, ctx)
-
-
 class Publisher(Parser):
     name = ctx
 
@@ -35,7 +27,7 @@ class Association(Parser):
 
 
 class Organization(Parser):
-    name = ctx
+    name = Maybe(ctx, 'name')
 
 
 class Affiliation(Parser):
@@ -58,7 +50,6 @@ class CreativeWork(Parser):
     # Dates in CrossRef metadata are often incomplete, see: https://github.com/CrossRef/rest-api-doc/blob/master/rest_api.md#notes-on-dates
     title = ctx.title[0]
     description = Maybe(ctx, 'subtitle')[0]
-    contributors = Map(Delegate(Contributor), ctx.author)
-    tags = Map(Delegate(ThroughTags), Maybe(ctx, 'subject'))
-    links = Map(Delegate(ThroughLinks), ctx.URL)
-    publishers = Map(Delegate(Association.using(entity=Delegate(Publisher))), ctx.publisher)
+    contributors = Map(Delegate(Contributor), Maybe(ctx, 'author'))
+    links = Map(Delegate(ThroughLinks), Maybe(ctx, 'URL'))
+    publishers = Map(Delegate(Association.using(entity=Delegate(Publisher))), Maybe(ctx, 'publisher'))
