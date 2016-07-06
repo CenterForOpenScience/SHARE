@@ -1,4 +1,7 @@
+import datetime
 import logging
+import random
+import string
 from hashlib import sha256
 
 from django.conf import settings
@@ -11,6 +14,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from fuzzycount import FuzzyCountManager
+from oauth2_provider.models import AccessToken, Application
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import DatetimeAwareJSONField
@@ -132,6 +136,7 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
 def user_post_save(sender, instance, created, **kwargs):
     """
     If the user is being created and they're not a robot add them to the humans group.
+    If the user is being created and they're not a robot make them an oauth token.
     :param sender:
     :param instance:
     :param created:
@@ -139,7 +144,18 @@ def user_post_save(sender, instance, created, **kwargs):
     :return:
     """
     if created and not instance.is_robot:
+        application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+        application = Application.objects.get(user=application_user)
+        client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
 
+        # create oauth2 token for user
+        AccessToken.objects.create(
+            user=instance,
+            application=application,
+            expires=(timezone.now() + datetime.timedelta(weeks=20 * 52)),  # 20 yrs
+            scope=settings.USER_SCOPES,
+            token=client_secret
+        )
         instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 

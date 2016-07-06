@@ -193,6 +193,7 @@ INSTALLED_APPS = [
 ]
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
+USER_SCOPES = 'approve_changesets'
 
 OAUTH2_PROVIDER = {
     'SCOPES': {
@@ -200,7 +201,8 @@ OAUTH2_PROVIDER = {
         'write': 'Write scope',
         'groups': 'Access to your groups',
         'upload_normalized_manuscript': 'Upload Normalized Manuscript',
-        'upload_raw_data': 'Upload Raw Data'
+        'upload_raw_data': 'Upload Raw Data',
+        'approve_changesets': 'Approve ChangeSets'
     }
 }
 SOCIALACCOUNT_ADAPTER = 'osf_oauth2_adapter.views.OSFOAuth2Adapter'
