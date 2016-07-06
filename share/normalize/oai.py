@@ -125,11 +125,18 @@ class OAINormalizer(Normalizer):
 
     @property
     def root_parser(self):
-        return {
+        parser = {
             'preprint': OAIPreprint,
             'publication': OAIPublication,
             'creativework': OAICreativeWork,
         }[self.config.emitted_type.lower()]
+
+        if self.config.property_list:
+            logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))
+            for prop in self.config.property_list:
+                parser._extra[prop] = links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:' + prop).chain()[0]
+
+        return parser
 
     def do_normalize(self, data):
         if self.config.approved_sets is not None:

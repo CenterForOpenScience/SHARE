@@ -59,7 +59,7 @@ class Normalizer(metaclass=abc.ABCMeta):
     def normalize(self, raw_data):
         ctx.clear()  # Just incase
         # Parsed data will be loaded into ctx
-        if not isinstance(raw_data, bytes):
+        if not isinstance(raw_data, str):
             raw_data = raw_data.data
         self.do_normalize(raw_data)
         jsonld = ctx.jsonld

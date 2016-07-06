@@ -17,18 +17,19 @@ class ParserMeta(type):
 
     def __new__(cls, name, bases, attrs):
         # Enabled inheritance in parsers.
-        parsers = reduce(lambda acc, val: {**acc, **getattr(val, 'parsers', {})}, bases, {})
+        parsers = reduce(lambda acc, val: {**acc, **getattr(val, 'parsers', {})}, bases[::-1], {})
         for key, value in tuple(attrs.items()):
             if isinstance(value, AbstractLink):
                 parsers[key] = attrs.pop(key).chain()[0]
         attrs['parsers'] = parsers
 
-        attrs['_extra'] = {
+        attrs['_extra'] = reduce(lambda acc, val: {**acc, **getattr(val, '_extra', {})}, bases[::-1], {})
+        attrs['_extra'].update({
             key: value.chain()[0]
             for key, value
             in attrs.pop('Extra', object).__dict__.items()
             if isinstance(value, AbstractLink)
-        }
+        })
 
         return super(ParserMeta, cls).__new__(cls, name, bases, attrs)
 

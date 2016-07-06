@@ -3,7 +3,6 @@ import logging
 from model_utils import Choices
 
 from django.db import models
-from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import ugettext as _
