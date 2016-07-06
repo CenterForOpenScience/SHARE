@@ -184,6 +184,9 @@ class Command(BaseCommand):
                         while records:
                             bulk = []
                             for (doc_id, raw) in records:
+                                if raw == 'null':
+                                    print('{} -> {}: {} : raw is null'.format(source, target, doc_id))
+                                    continue
                                 harvest_finished = arrow.get(raw['timestamps']['harvestFinished'])
                                 data = raw['doc'].encode()
                                 bulk.append(RawData(
