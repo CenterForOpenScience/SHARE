@@ -90,7 +90,7 @@ class RobotMigration:
 class RobotUserMigration(AbstractRobotMigration):
     def __call__(self, apps, schema_editor):
         ShareUser = apps.get_model('share', 'ShareUser')
-        ShareUser.objects.create_robot_user(self.config.name, self.config.name)
+        ShareUser.objects.create_robot_user(username=self.config.name, robot=self.config.name, long_title=self.config.long_title)
 
     def reverse(self, apps, schema_editor):
         ShareUser = apps.get_model('share', 'ShareUser')
