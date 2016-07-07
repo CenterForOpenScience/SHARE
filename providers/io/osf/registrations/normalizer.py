@@ -1,6 +1,6 @@
 from share.normalize import ctx
 from share.normalize.parsers import Parser
-from share.normalize.links import Delegate, Map, Maybe, Concat, RunPython
+from share.normalize.links import Delegate, Map, Maybe, Concat, RunPython, ParseDate
 
 
 class Person(Parser):
@@ -58,9 +58,9 @@ class Link(Parser):
         else:
             return_id = ctx['attributes']['value']
             if ctx['attributes']['category'] == 'doi':
-                return 'http://dx/doi.org/{}'.format(return_id)
+                return 'http://dx.doi.org/{}'.format(return_id)
             else:
-                return 'http://whatisthis/{}'.format(return_id)
+                return 'http://n2t.net/ark:/{}'.format(return_id)
 
     def parse_type(self, ctx):
         if isinstance(ctx, str):
@@ -81,16 +81,15 @@ class Registration(Parser):
         Delegate(Association.using(entity=Delegate(Institution))),
         ctx.embeds.affiliated_institutions.data
     )
-    created = ctx.attributes.date_created
+    date_created = ParseDate(ctx.attributes.date_created)
     subject = Delegate(Tag, ctx.attributes.category)
     tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
     rights = Maybe(ctx, 'attributes.node_license')
-    free_to_read_date = Maybe(ctx.attributes, 'embargo_end_date')
+    free_to_read_date = ParseDate(Maybe(ctx.attributes, 'embargo_end_date'))
     links = Concat(
         Delegate(ThroughLinks, ctx.links.html),
         Map(Delegate(ThroughLinks), ctx.embeds.identifiers.data)
     )
-
 
     class Extra:
         files = ctx.relationships.files.links.related.href
