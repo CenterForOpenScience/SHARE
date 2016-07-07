@@ -107,7 +107,7 @@ class Organization(Parser):
 
     def get_personnel(self, options, entity):
         """
-        Returns list of organization, institutions, or contributors names based on entity type.
+        Returns list based on entity type.
         """
         if not isinstance(options, list):
             options = [options]
