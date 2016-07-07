@@ -21,7 +21,7 @@ class PersonEmail(Parser):
 
 
 class Identifier(Parser):
-    base_url = 'https://orcid.org/'
+    base_url = Static('https://orcid.org/')
     url = ctx
 
 
@@ -34,7 +34,7 @@ class Person(Parser):
     family_name = ParseName(ctx.name).last
     additional_name = ParseName(ctx.name).middle
     suffix = ParseName(ctx.name).suffix
-    identifier = Map(Delegate(ThroughIdentifiers), Maybe(ctx, 'orcid'))
+    identifiers = Map(Delegate(ThroughIdentifiers), Maybe(ctx, 'orcid'))
     emails = Map(Delegate(PersonEmail), Maybe(ctx, 'email'))
     affiliations = Map(
         Delegate(Affiliation.using(entity=Delegate(Organization))),
@@ -141,7 +141,7 @@ class CreativeWork(Parser):
         identifier = ctx.record['dc:identifier']
         identifier_citation = ctx.record['dcq:identifier-citation']
         identifier_doe_contract = ctx.record['dcq:identifierDOEcontract']
-        identifier_purl = ctx.record['dcq:identifier-purl']['#text']
+        identifier_purl = ctx.record['dcq:identifier-purl']
         identifier_other = ctx.record['dc:identifierOther']
         identifier_report = ctx.record['dc:identifierReport']
         publisher_availability = ctx.record['dcq:publisherAvailability']
