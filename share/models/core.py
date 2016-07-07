@@ -110,8 +110,8 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     robot = models.CharField(max_length=40, blank=True)
-    long_title = models.CharField(max_length=100, blank=True)
-    home_page = models.URLField(blank=True)
+    long_title = models.CharField(max_length=100, blank=True, null=True, default='')
+    home_page = models.URLField(blank=True, null=True, default='')
 
     def get_short_name(self):
         return self.robot if self.is_robot else self.username
