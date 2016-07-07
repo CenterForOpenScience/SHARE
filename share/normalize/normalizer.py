@@ -13,9 +13,10 @@ ctx = Context()
 
 class Normalizer(metaclass=abc.ABCMeta):
 
+    root_parser = None
+
     def __init__(self, app_config):
         self.config = app_config
-        self.root_parser = app_config.root_parser or None
 
     def do_normalize(self, data):
         parsed = self.unwrap_data(data)
