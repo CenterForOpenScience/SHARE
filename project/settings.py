@@ -193,6 +193,7 @@ INSTALLED_APPS = [
 ]
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
+USER_SCOPES = 'approve_changesets'
 
 OAUTH2_PROVIDER = {
     'SCOPES': {
@@ -200,7 +201,8 @@ OAUTH2_PROVIDER = {
         'write': 'Write scope',
         'groups': 'Access to your groups',
         'upload_normalized_manuscript': 'Upload Normalized Manuscript',
-        'upload_raw_data': 'Upload Raw Data'
+        'upload_raw_data': 'Upload Raw Data',
+        'approve_changesets': 'Approve ChangeSets'
     }
 }
 SOCIALACCOUNT_ADAPTER = 'osf_oauth2_adapter.views.OSFOAuth2Adapter'
@@ -266,7 +268,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -354,6 +356,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
+STATICFILES_DIRS = (
+    os.path.join(
+        os.path.dirname(__file__),
+        'static'
+    ),
+)
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')

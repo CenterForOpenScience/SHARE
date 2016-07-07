@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Carnegie Mellon University Research Showcase'
     home_page = 'http://repository.cmu.edu/'
     url = 'http://repository.cmu.edu/do/oai/'
-    property_list = ['type', 'format', 'date', 'identifier', 'setSpec', 'description']

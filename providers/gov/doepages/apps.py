@@ -1,5 +1,6 @@
 from share.provider import ProviderAppConfig
 from .harvester import DoepagesHarvester
+from .normalizer import DoepagesNormalizer
 
 
 class AppConfig(ProviderAppConfig):
@@ -9,3 +10,4 @@ class AppConfig(ProviderAppConfig):
     long_title = 'Department of Energy Pages'
     home_page = 'http://www.osti.gov/pages/'
     harvester = DoepagesHarvester
+    normalizer = DoepagesNormalizer

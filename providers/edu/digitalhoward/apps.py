@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Digital Howard @ Howard University'
     home_page = 'http://dh.howard.edu'
     url = 'http://dh.howard.edu/do/oai/'
-    property_list = ['date', 'source', 'identifier', 'type', 'rights']

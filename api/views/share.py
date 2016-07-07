@@ -1,8 +1,6 @@
-from django.db.models import Model
 from rest_framework import viewsets, permissions, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
 
 from api.filters import ShareObjectFilterSet
 from api.serializers import ChangeSerializer

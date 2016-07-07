@@ -90,4 +90,3 @@ class AppConfig(OAIProviderAppConfig):
         'utgradmedpubs',
         'vernacular',
     ]
-    property_list = ['date', 'source', 'identifier', 'type', 'format', 'setSpec']

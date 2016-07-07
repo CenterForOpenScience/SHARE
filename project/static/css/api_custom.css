@@ -1,0 +1,64 @@
+/* custom navigation styles */
+.navbar {
+  width: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 3;
+}
+
+.navbar {
+  background: #BBBBBB;
+  color: white;
+  border: none;
+  border-top: 5px solid #00B3EA;
+  border-radius: 0px;
+}
+
+.navbar .nav li, .navbar .nav li a, .navbar .brand:hover {
+  color: white;
+}
+
+.nav-list > .active > a, .nav-list > .active > a:hover {
+  background: #105B74;
+}
+
+.navbar .dropdown-menu li a, .navbar .dropdown-menu li {
+  color: #21B6E8;
+}
+
+.navbar .dropdown-menu li a:hover {
+  background: #EEEEEE;
+  color: #197D9E;
+}
+
+.pagination>.disabled>a,
+.pagination>.disabled>a:hover,
+.pagination>.disabled>a:focus {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pager>.disabled>a,
+.pager>.disabled>a:hover,
+.pager>.disabled>a:focus {
+  pointer-events: none;
+}
+
+.pager .next {
+  margin-left: 10px;
+}
+
+.logo {
+  width: 60px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.str, .atv {
+  color: #5D615B;
+}
+
+body a {
+  color: #20B3E4;
+}

@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Addis Ababa University Institutional Repository'
     home_page = 'http://etd.aau.edu.et'
     url = 'http://etd.aau.edu.et/oai/request'
-    property_list = ['date', 'type', 'identifier', 'setSpec']

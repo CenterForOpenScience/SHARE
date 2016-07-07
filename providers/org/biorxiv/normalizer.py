@@ -42,7 +42,7 @@ class Preprint(Parser):
     title = ctx.item['dc:title']
     description = ctx.item.description
     contributors = tools.Map(tools.Delegate(Contributor), ctx.item['dc:creator'])
-    published = ctx.item['dc:date']
+    date_published = ctx.item['dc:date']
     publishers = tools.Map(
         tools.Delegate(Association.using(entity=tools.Delegate(Publisher))),
         ctx.item['dc:publisher']

@@ -31,22 +31,17 @@ class AppConfig(OAIProviderAppConfig):
         'ortolang',
         'archive:long-term',
     ]
+    # using a subset of terms from the dcterms namespace
     property_list = [
-        'source',
-        'type',
-        'rights',
         'modified',
         'temporal',
         'extent',
         'spatial',
-        'identifier',
         'abstract',
-        'date',
         'created',
         'license',
         'bibliographicCitation',
         'isPartOf',
         'tableOfContents',
-        'accessRights',
-        'setSpec',
+        'accessRights'
     ]

@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'CU Scholar University of Colorado Boulder'
     home_page = 'http://scholar.colorado.edu'
     url = 'http://scholar.colorado.edu/do/oai/'
-    property_list = ['type', 'source', 'format', 'date', 'setSpec', 'identifier']

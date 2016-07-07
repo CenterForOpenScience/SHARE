@@ -36,7 +36,7 @@ class CreativeWork(Parser):
     title = ctx.title
     description = ctx.description
     contributors = Map(Delegate(Contributor), ctx.authors)
-    published = RunPython('parse_date', ctx.published_date)
+    date_published = RunPython('parse_date', ctx.published_date)
     links = Concat(
         Delegate(ThroughLinks, ctx.url),
         Delegate(ThroughLinks, ctx.DOI),

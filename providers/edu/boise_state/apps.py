@@ -8,13 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Boise State University ScholarWorks'
     home_page = 'http://scholarworks.boisestate.edu'
     url = 'http://scholarworks.boisestate.edu/do/oai/'
-    property_list = [
-        'source',
-        'identifier',
-        'type',
-        'date',
-        'setSpec',
-        'publisher',
-        'rights',
-        'format',
-    ]

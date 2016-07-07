@@ -2,7 +2,7 @@ from oauth2_provider.ext.rest_framework import TokenHasScope
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 
-from api.filters import ChangeSetFilterSet
+from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
     ShareUserSerializer, ProviderSerializer
 from share.models import ChangeSet, Change, RawData, ShareUser
@@ -62,6 +62,7 @@ class ChangeViewSet(viewsets.ModelViewSet):
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     queryset = Change.objects.all()
+    filter_class = ChangeFilterSet
 
 
 class RawDataViewSet(viewsets.ModelViewSet):
