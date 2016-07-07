@@ -6,6 +6,6 @@ class AppConfig(ProviderAppConfig):
     name = 'providers.com.springer'
     version = '0.0.1'
     title = 'springer'
-    long_title = 'Springer'
-    home_page = 'http://www.springer.com/us/'
+    long_title = 'Springer | BioMed Central API'
+    home_page = 'http://link.springer.com/'
     harvester = SpringerHarvester
