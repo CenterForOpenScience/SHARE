@@ -1,0 +1,24 @@
+{% extends "rest_framework/base.html" %}
+    {% load rest_framework %}
+    {% load staticfiles %}
+
+    {% block title %}SHARE Notify{% endblock %}
+
+    {% block style %}
+        {% block bootstrap_theme %}
+            <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
+            <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap-tweaks.css" %}"/>
+        {% endblock %}
+        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/prettify.css" %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/default.css" %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static "css/api_custom.css" %}"/>
+    {% endblock %}
+
+    {% block branding %}
+        <img class="logo" src="{% static 'img/share.png' %}"/>
+        <!--<img class="logo" src="project/static/img/share.png"/>-->
+    {% endblock %}
+
+    {% block userlinks %}
+    <li><a href="/help/#!/SHARE/post_share_data">API Documentation</a></li>
+    {% endblock %}
