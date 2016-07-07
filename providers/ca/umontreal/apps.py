@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = "PAPYRUS - Dépôt institutionnel de l'Université de Montréal"
     home_page = 'http://papyrus.bib.umontreal.ca'
     url = 'http://papyrus.bib.umontreal.ca/oai/request'
-    property_list = ['identifier', 'type', 'format', 'setSpec']

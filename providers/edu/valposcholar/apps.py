@@ -44,4 +44,3 @@ class AppConfig(OAIProviderAppConfig):
         'law_fac_pubs',
         'ils_papers',
     ]
-    property_list = ['type', 'source', 'setSpec', 'format', 'identifier']

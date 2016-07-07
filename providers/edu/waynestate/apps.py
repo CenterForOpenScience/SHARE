@@ -5,7 +5,7 @@ class AppConfig(OAIProviderAppConfig):
     name = 'providers.edu.waynestate'
     version = '0.0.1'
     title = 'waynestate'
-    long_title =  'Digital Commons @ Wayne State'
+    long_title = 'Digital Commons @ Wayne State'
     home_page = 'http://digitalcommons.wayne.edu'
     url = 'http://digitalcommons.wayne.edu/do/oai/'
     approved_sets = [
@@ -99,4 +99,3 @@ class AppConfig(OAIProviderAppConfig):
         'narrative',
         'storytelling',
     ]
-    property_list = ['type', 'source', 'format', 'date', 'setSpec', 'identifier']

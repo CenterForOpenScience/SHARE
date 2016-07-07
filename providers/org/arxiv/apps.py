@@ -7,7 +7,7 @@ class AppConfig(ProviderAppConfig):
     version = '0.0.1'
     title = 'arxiv'
     long_title = 'ArXiv'
-    home_page = 'https://arxiv.org'
+    home_page = 'http://arxiv.org'
     url = 'http://export.arxiv.org/api/query'
     time_granularity = False
     rate_limit = (1, 3)

@@ -3,6 +3,7 @@ import importlib
 
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from oauth2_provider.models import AccessToken
 
 from share.models.base import ExtraData
 from share.models.celery import CeleryTask
@@ -109,6 +110,13 @@ class TagAdmin(admin.ModelAdmin):
 class RawDataAdmin(admin.ModelAdmin):
     raw_id_fields = ('tasks',)
 
+
+class AccessTokenAdmin(admin.ModelAdmin):
+    list_display = ('token', 'user', 'scope')
+
+
+admin.site.unregister(AccessToken)
+admin.site.register(AccessToken, AccessTokenAdmin)
 
 admin.site.register(Affiliation)
 admin.site.register(Person, PersonAdmin)

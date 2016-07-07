@@ -126,4 +126,3 @@ class AppConfig(OAIProviderAppConfig):
         'wvi_fac',
         'wvisp',
     ]
-    property_list = ['type', 'source', 'format', 'date', 'setSpec']

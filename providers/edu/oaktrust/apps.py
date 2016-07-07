@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'The OAKTrust Digital Repository at Texas A&M'
     home_page = 'http://oaktrust.library.tamu.edu'
     url = 'http://oaktrust.library.tamu.edu/dspace-oai/request'
-    property_list = ['identifier', 'type', 'format', 'setSpec']

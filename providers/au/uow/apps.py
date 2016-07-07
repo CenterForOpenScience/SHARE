@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Research Online @ University of Wollongong'
     home_page = 'http://ro.uow.edu.au'
     url = 'http://ro.uow.edu.au/do/oai/'
-    property_list = ['date', 'source', 'identifier', 'type', 'format', 'setSpec']

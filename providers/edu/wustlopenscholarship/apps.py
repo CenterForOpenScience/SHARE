@@ -25,4 +25,3 @@ class AppConfig(OAIProviderAppConfig):
         'lib_papers',
         'wgssprogram',
     ]
-    property_list = ['date', 'source', 'identifier', 'type', 'format', 'setSpec']

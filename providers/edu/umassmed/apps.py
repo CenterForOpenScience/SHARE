@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'eScholarship@UMMS'
     home_page = 'http://escholarship.umassmed.edu'
     url = 'http://escholarship.umassmed.edu/do/oai/'
-    property_list = ['rights', 'source', 'relation', 'date', 'identifier', 'type', 'setSpec']

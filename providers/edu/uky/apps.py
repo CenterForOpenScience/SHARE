@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'UKnowledge @ University of Kentucky'
     home_page = 'http://uknowledge.uky.edu'
     url = 'http://uknowledge.uky.edu/do/oai/'
-    property_list = ['date', 'source', 'identifier', 'type', 'format', 'setSpec']

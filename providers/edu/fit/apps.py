@@ -96,4 +96,3 @@ class AppConfig(OAIProviderAppConfig):
         'col_11141_698',
         'col_11141_699',
     ]
-    property_list = ['date', 'type']

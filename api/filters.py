@@ -1,7 +1,7 @@
 import django_filters
 import shortuuid
 
-from share.models import ChangeSet, ShareObject
+from share.models import ChangeSet, ShareObject, Change
 
 
 class ObjectIDFilter(django_filters.filters.CharFilter):
@@ -35,3 +35,10 @@ class ChangeSetFilterSet(django_filters.FilterSet):
     class Meta:
         model = ChangeSet
         fields = ['submitted_by', 'status', 'target_uuid']
+
+class ChangeFilterSet(django_filters.FilterSet):
+    changeset = django_filters.filters.NumberFilter(name='change_set_id')
+
+    class Meta:
+        model = Change
+        fields = ['changeset']
