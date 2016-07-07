@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'MLA Commons'
     home_page = 'https://commons.mla.org'
     url = 'https://commons.mla.org/deposits/oai/'
-    property_list = ['date', 'identifier', 'setSpec']

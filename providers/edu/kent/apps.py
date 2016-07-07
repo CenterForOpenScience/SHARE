@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Digital Commons @ Kent State University Libraries'
     home_page = 'http://digitalcommons.kent.edu'
     url = 'http://digitalcommons.kent.edu/do/oai/'
-    property_list = ['date', 'source', 'identifier', 'type', 'setSpec']

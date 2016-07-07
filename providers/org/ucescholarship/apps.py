@@ -8,14 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'eScholarship @ University of California'
     home_page = 'http://www.escholarship.org/'
     url = 'http://www.escholarship.org/uc/oai'
-    property_list = [
-        'type',
-        'format',
-        'date',
-        'identifier',
-        'setSpec',
-        'source',
-        'coverage',
-        'relation',
-        'rights',
-    ]

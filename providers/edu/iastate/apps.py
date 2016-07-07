@@ -778,4 +778,3 @@ class AppConfig(OAIProviderAppConfig):
         'zool_etd',
         'a2ru_photos',
     ]
-    property_list = ['source', 'identifier', 'date', 'type', 'format', 'setSpec']

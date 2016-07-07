@@ -28,8 +28,9 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
     # Note: Null allows inserting of None but returns it as an empty string
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
-    created = models.DateTimeField(null=True)
-    published = models.DateTimeField(null=True)
+    date_created = models.DateTimeField(null=True)
+    date_published = models.DateTimeField(null=True)
+    date_updated = models.DateTimeField(null=True)
     free_to_read_type = models.URLField(blank=True)
     free_to_read_date = models.DateTimeField(null=True)
 

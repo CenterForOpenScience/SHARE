@@ -53,7 +53,7 @@ class ThroughTags(Parser):
 class Preprint(Parser):
     title = ctx.entry.title
     description = ctx.entry.summary
-    published = tools.ParseDate(ctx.entry.published)
+    date_published = tools.ParseDate(ctx.entry.published)
     contributors = tools.Map(tools.Delegate(Contributor), ctx.entry.author)
     links = tools.Map(
         tools.Delegate(ThroughLinks),

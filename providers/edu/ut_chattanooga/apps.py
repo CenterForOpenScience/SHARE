@@ -9,14 +9,3 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://scholar.utc.edu'
     url = 'http://scholar.utc.edu/do/oai/'
     approved_sets = ['honors-theses', 'theses']
-    property_list = [
-        'type',
-        'format',
-        'identifier',
-        'date',
-        'source',
-        'setSpec',
-        'publisher',
-        'language',
-        'rights',
-    ]

@@ -9,4 +9,3 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://www.biodiversitylibrary.org/'
     url = 'http://www.biodiversitylibrary.org/oai'
     time_granularity = False
-    property_list = ['type', 'date', 'relation', 'setSpec', 'rights']
