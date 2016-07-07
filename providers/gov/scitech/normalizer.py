@@ -20,12 +20,21 @@ class PersonEmail(Parser):
     email = Delegate(Email, ctx)
 
 
+class Identifier(Parser):
+    base_url = 'https://orcid.org/'
+    url = ctx
+
+
+class ThroughIdentifiers(Parser):
+    identifier = Delegate(Identifier, ctx)
+
+
 class Person(Parser):
     given_name = ParseName(ctx.name).first
     family_name = ParseName(ctx.name).last
     additional_name = ParseName(ctx.name).middle
     suffix = ParseName(ctx.name).suffix
-    orcid = Maybe(ctx, 'orcid')
+    identifier = Map(Delegate(ThroughIdentifiers), Maybe(ctx, 'orcid'))
     emails = Map(Delegate(PersonEmail), Maybe(ctx, 'email'))
     affiliations = Map(
         Delegate(Affiliation.using(entity=Delegate(Organization))),
@@ -84,7 +93,7 @@ class CreativeWork(Parser):
         if affiliations:
             parsed_name['affiliation'] = list(map(self.doe_parse_affiliation, affiliations))
         if orcid:
-            parsed_name['orcid'] = ['https://orcid.org/{}'.format(orcid)]
+            parsed_name['orcid'] = orcid
         if email:
             parsed_name['email'] = email
         return parsed_name
@@ -132,7 +141,7 @@ class CreativeWork(Parser):
         identifier = ctx.record['dc:identifier']
         identifier_citation = ctx.record['dcq:identifier-citation']
         identifier_doe_contract = ctx.record['dcq:identifierDOEcontract']
-        identifier_purl = ctx.record['dcq:identifier-purl']
+        identifier_purl = ctx.record['dcq:identifier-purl']['#text']
         identifier_other = ctx.record['dc:identifierOther']
         identifier_report = ctx.record['dc:identifierReport']
         publisher_availability = ctx.record['dcq:publisherAvailability']
