@@ -11,7 +11,7 @@ class Entity(ShareObject, metaclass=TypedShareObjectMeta):
     url = models.URLField(blank=True)
     name = models.CharField(max_length=255)
     # TODO Expand to geolocation or text field for address
-    location = models.URLField(blank=True)
+    location = models.TextField(blank=True)
 
     class Meta:
         verbose_name_plural = 'Entities'
