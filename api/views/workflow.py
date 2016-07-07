@@ -44,7 +44,10 @@ class ChangeSetViewSet(viewsets.ModelViewSet):
     serializer_class = ChangeSetSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
-    queryset = ChangeSet.objects.all()
+    # queryset = ChangeSet.objects.all()
+
+    def get_queryset(self):
+        return ChangeSet.objects.all().select_related('normalized_data__source')
     filter_class = ChangeSetFilterSet
 
 
