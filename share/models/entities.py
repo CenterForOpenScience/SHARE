@@ -2,6 +2,7 @@ from django.db import models
 
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
+from share.models.fields import ShareManyToManyField
 
 
 __all__ = ('Entity', 'Funder', 'Organization', 'Publisher', 'Institution')
@@ -10,8 +11,8 @@ __all__ = ('Entity', 'Funder', 'Organization', 'Publisher', 'Institution')
 class Entity(ShareObject, metaclass=TypedShareObjectMeta):
     url = models.URLField(blank=True)
     name = models.CharField(max_length=255)
-    # TODO Expand to geolocation or text field for address
     location = models.TextField(blank=True)
+    affiliations = ShareManyToManyField('Person', through='Affiliation')
 
     class Meta:
         verbose_name_plural = 'Entities'

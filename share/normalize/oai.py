@@ -69,6 +69,12 @@ class OAIInstitution(Parser):
     name = ctx
 
 
+class OAIOrganization(Parser):
+    schema = 'Organization'
+
+    name = ctx
+
+
 class OAIAssociation(Parser):
     schema = 'Association'
 
@@ -136,7 +142,7 @@ class OAICreativeWork(Parser):
     )
 
     organizations = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIInstitution))),
+        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIOrganization))),
         tools.RunPython(
             'get_contributors',
             tools.Concat(
