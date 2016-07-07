@@ -56,12 +56,15 @@ class ChangeNode:
             return {**self.attrs, **self.relations, **self._reverse_relations}
 
         if self.is_blank:
-            return {**self.attrs, **self.relations}
+            return {**self.attrs, **self.relations, 'extra': self.extra}
 
         if not self.instance:
             raise UnresolvableReference('@id: {!r}, @type: {!r}'.format(self.id, self.type))
 
-        return {k: v for k, v in self.attrs.items() if getattr(self.instance, k) != v}
+        return {
+            **{k: v for k, v in self.attrs.items() if getattr(self.instance, k) != v},
+            'extra': {k: v for k, v in self.extra.items() if not self.instance.extra or self.instance.extra.data.get(k) != v}
+        }
 
     def __init__(self, node, disambiguate=True):
         self.__raw = node
