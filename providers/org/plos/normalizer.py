@@ -21,5 +21,5 @@ class Publication(Parser):
         Delegate(Contributor),
         XPath(ctx, "arr[@name='author_display']").arr.str
     )
-    published = ParseDate(XPath(ctx, "date[@name='publication_date']").date['#text'])
+    date_published = ParseDate(XPath(ctx, "date[@name='publication_date']").date['#text'])
     # doi = ctx.xpath("str[@name='id']").str['#text']

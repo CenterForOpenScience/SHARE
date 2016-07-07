@@ -5,7 +5,7 @@ class CreativeWork(Parser):
     title = ctx.title
     contributors = ctx.creators('*')
     description = ctx.abstract
-    published = ctx.publicationDate
+    date_published = ctx.publicationDate
     doi = ctx.doi
     # subject = ctx.genre
 
