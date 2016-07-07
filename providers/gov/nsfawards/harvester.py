@@ -40,7 +40,7 @@ class NSFAwardsHarvester(Harvester):
                 break
 
             url.args['offset'] += 25
-            records = self.requests.get(url.url).json()['response'].get('award')
             logger.info('About to harvest {}'.format(url.url))
+            records = self.requests.get(url.url).json()['response'].get('award')
 
         logger.info('Harvested {} records'.format(total_harvested))
