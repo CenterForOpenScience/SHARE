@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from share import models
+from share.models import ChangeSet
 from share.serializers import PersonSerializer
 
 
@@ -60,12 +61,16 @@ class ChangeSetSerializer(serializers.ModelSerializer):
     change_count = serializers.SerializerMethodField()
     self = serializers.HyperlinkedIdentityField(view_name='api:changeset-detail')
     source = ShareUserSerializer(source='normalized_data.source')
+    status = serializers.SerializerMethodField()
+
+    def get_status(self, obj):
+        return ChangeSet.STATUS[obj.status]
 
     def get_change_count(self, obj):
         return obj.changes.count()
 
     class Meta:
         model = models.ChangeSet
-        fields = ('self', 'submitted_at', 'change_count', 'source')
+        fields = ('self', 'submitted_at', 'change_count', 'source', 'status')
 
 
