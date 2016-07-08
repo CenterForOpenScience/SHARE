@@ -1,5 +1,5 @@
+import re
 import logging
-
 from lxml import etree
 
 from share.normalize import ctx, tools
@@ -9,6 +9,9 @@ from share.normalize.utils import format_doi_as_url
 
 
 logger = logging.getLogger(__name__)
+
+URL_REGEX = re.compile(r'(https?:\/\/\S*\.[^\s\[\]\<\>\}\{\^]*)')
+DOI_REGEX = re.compile(r'(doi:10\.\S*)')
 
 
 class OAILink(Parser):
@@ -30,6 +33,8 @@ class OAILink(Parser):
     def format_link(self, link):
         link_type = self.get_link_type(link)
         if link_type == 'doi':
+            if 'http' in link:
+                return link
             return format_doi_as_url(self, link)
         return link
 
@@ -163,7 +168,21 @@ class OAICreativeWork(Parser):
 
     links = tools.Map(
         tools.Delegate(OAIThroughLinks),
-        tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:identifier')
+        tools.Concat(
+            tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:identifier'),
+            tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:relation'),
+        )
+    )
+
+    links = tools.Map(
+        tools.Delegate(OAIThroughLinks),
+        tools.RunPython(
+            'get_links',
+            tools.Concat(
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:identifier'),
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:relation')
+            )
+        )
     )
 
     date_updated = tools.ParseDate(ctx.record.header.datestamp)
@@ -214,6 +233,26 @@ class OAICreativeWork(Parser):
 
         # Status in the header, will exist if the resource is deleted
         status = tools.Maybe(ctx.record.header, '@status')
+
+    def get_links(self, ctx):
+        links = []
+        for link in ctx:
+            if link:
+                try:
+                    found_url = URL_REGEX.search(link).group()
+                    links.append(found_url)
+                    continue
+                except AttributeError:
+                    pass
+                try:
+                    found_doi = DOI_REGEX.search(link).group()
+                    if 'dx.doi.org' in found_doi:
+                        links.append(found_doi)
+                    else:
+                        links.append('http://dx.doi.org/{}'.format(found_doi.replace('doi:', '')))
+                except AttributeError:
+                    continue
+        return links
 
     def get_relation(self, ctx):
         metadata = ctx['record'].get('metadata', None)
