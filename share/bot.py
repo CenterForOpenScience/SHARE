@@ -33,5 +33,5 @@ class Bot(abc.ABC):
         self.config = config
 
     @abc.abstractmethod
-    def run(self):
+    def run(self, last_run):
         raise NotImplementedError

@@ -127,7 +127,7 @@ class ElasticSearchBot(Bot):
             'venues': [str(venue) for venue in creative_work.venues.all()],
         }
 
-    def run(self, chunk_size=50, reindex_all=False):
+    def run(self, last_run, chunk_size=50, reindex_all=False):
         self._setup()
 
         logger.debug('Finding last successful job')

@@ -16,7 +16,7 @@ def chunk(iterable, size):
 
 class AutoMergeBot(Bot):
 
-    def run(self, chunk_size=50, dry=False):
+    def run(self, last_run, chunk_size=50, dry=False):
         qs = ChangeSet.objects.filter(
             status=ChangeSet.STATUS.pending,
             changes__type=Change.TYPE.create,

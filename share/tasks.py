@@ -130,7 +130,10 @@ class MakeJsonPatches(celery.Task):
         logger.info('%s started make JSON patches for %s at %s', started_by, normalized, datetime.datetime.utcnow().isoformat())
 
         try:
-            ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
+            cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
+            if cs and normalized.source.is_robot:
+                # TODO: verify change set is not overwriting user created object
+                cs.accept()
         except Exception as e:
             logger.exception('Failed make json patches (%d)', normalized_id)
             raise self.retry(countdown=10, exc=e)
@@ -140,10 +143,10 @@ class MakeJsonPatches(celery.Task):
 
 class BotTask(ProviderTask):
 
-    def do_run(self):
+    def do_run(self, last_run):
         bot = self.config.get_bot()
         logger.info('Running bot %s. Started by %s', bot, self.started_by)
-        bot.run()
+        bot.run(last_run)
 
 
 class ApplySingleChangeSet(celery.Task):
@@ -172,6 +175,3 @@ class ApplyChangeSets(celery.Task):
 
         for changeset_id in changeset_ids:
             ApplySingleChangeSet().apply_async(kwargs=dict(changeset_id=changeset_id, started_by_id=started_by_id))
-
-
-

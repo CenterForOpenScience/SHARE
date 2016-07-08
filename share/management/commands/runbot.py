@@ -12,6 +12,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--all', action='store_true', help='Run all harvester')
         parser.add_argument('bot', nargs='*', type=str, help='The name of the bot to run')
+        parser.add_argument('--last-run', type=int, help='The timestmap of the last run')
         parser.add_argument('--async', action='store_true', help='Whether or not to use Celery')
 
     def handle(self, *args, **options):
@@ -24,10 +25,11 @@ class Command(BaseCommand):
             apps.get_app_config(bot)  # Die if the AppConfig can not be loaded
 
             task_args = (bot, user.id,)
+            task_kwargs = {'last_run': options['last_run']}
 
             if options['async']:
-                BotTask().apply_async(task_args)
+                BotTask().apply_async(task_args, task_kwargs)
                 self.stdout.write('Started job for bot {}'.format(bot))
             else:
                 self.stdout.write('Running bot for {}'.format(bot))
-                BotTask().apply(task_args, throw=True)
+                BotTask().apply(task_args, task_kwargs, throw=True)

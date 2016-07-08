@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     'share',
     'api',
 
+    'bots.autocurateperson',
+    'bots.autocuratetag',
     'bots.automerge',
     'bots.elasticsearch',
 
@@ -423,6 +425,7 @@ CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_ROUTES = ('share.celery.CeleryRouter', )
 CELERY_IGNORE_RESULT = True
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 # Logging
 LOGGING = {
