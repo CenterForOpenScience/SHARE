@@ -105,25 +105,25 @@ class OAICreativeWork(Parser):
         'institute'
     )
 
-    title = tools.Join(ctx.record.metadata['oai_dc:dc']['dc:title'])
-    description = tools.Join(tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:description'))
+    title = tools.Join(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:title'])
+    description = tools.Join(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:description'])
 
     publishers = tools.Map(
         tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIPublisher))),
-        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:publisher')
+        tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:publisher')
     )
 
-    rights = tools.Join(tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:rights'))
+    rights = tools.Join(tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:rights'))
 
-    language = tools.ParseLanguage(tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:language'))
+    language = tools.ParseLanguage(tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:language'))
 
     contributors = tools.Map(
         tools.Delegate(OAIContributor),
         tools.RunPython(
             'get_contributors',
             tools.Concat(
-                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
-                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:creator'),
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:contributor')
             ),
             'contributor'
         )
@@ -134,8 +134,8 @@ class OAICreativeWork(Parser):
         tools.RunPython(
             'get_contributors',
             tools.Concat(
-                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
-                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:creator'),
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:contributor')
             ),
             'institution'
         )
@@ -146,8 +146,8 @@ class OAICreativeWork(Parser):
         tools.RunPython(
             'get_contributors',
             tools.Concat(
-                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
-                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:creator'),
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:contributor')
             ),
             'organization'
         )
@@ -155,15 +155,15 @@ class OAICreativeWork(Parser):
 
     tags = tools.Map(
         tools.Delegate(OAIThroughTags),
-        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:type'),
-        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:subject'),
-        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:format'),
+        tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:type'),
+        tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:subject'),
+        tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:format'),
         tools.Maybe(ctx.record.header, 'setSpec')
     )
 
     links = tools.Map(
         tools.Delegate(OAIThroughLinks),
-        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:identifier')
+        tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:identifier')
     )
 
     date_updated = tools.ParseDate(ctx.record.header.datestamp)
@@ -174,24 +174,24 @@ class OAICreativeWork(Parser):
         their original entry to preserve raw data structure.
         """
         # An entity responsible for making contributions to the resource.
-        contributor = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+        contributor = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:contributor')
 
         # The spatial or temporal topic of the resource, the spatial applicability of the resource,
         # or the jurisdiction under which the resource is relevant.
-        coverage = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:coverage')
+        coverage = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:coverage')
 
         # An entity primarily responsible for making the resource.
-        creator = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator')
+        creator = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:creator')
 
         # A point or period of time associated with an event in the lifecycle of the resource.
-        dates = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:date')
+        dates = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:date')
 
         # The file format, physical medium, or dimensions of the resource.
-        resource_format = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:format')
+        resource_format = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:format')
 
         # An unambiguous reference to the resource within a given context.
         identifiers = tools.Concat(
-            ctx.record.metadata['oai_dc:dc']['dc:identifier'],
+            tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:identifier'],
             tools.Maybe(ctx.record.header, 'identifier')
         )
 
@@ -199,30 +199,37 @@ class OAICreativeWork(Parser):
         relation = tools.RunPython('get_relation', ctx)
 
         # A related resource from which the described resource is derived.
-        source = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:source')
+        source = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:source')
 
         # The topic of the resource.
-        subject = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:subject')
+        subject = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:subject')
 
         # The nature or genre of the resource.
-        resource_type = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:type')
+        resource_type = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:type')
 
         set_spec = tools.Maybe(ctx.record.header, 'setSpec')
 
         # Language also stored in the Extra class in case the language reported cannot be parsed by ParseLanguage
-        language = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:language')
+        language = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:language')
+
+        # Status in the header, will exist if the resource is deleted
+        status = tools.Maybe(ctx.record.header, '@status')
 
     def get_relation(self, ctx):
-        base = ctx['record']['metadata']['oai_dc:dc']
-        try:
-            base['dc:relation']
-        except KeyError:
-            return []
-        else:
+        metadata = ctx['record'].get('metadata', None)
+        if metadata:
+            base = ctx['record']['metadata']['oai_dc:dc']
             try:
-                base['dc:relation']['#text']
-            except TypeError:
-                return base['dc:relation']
+                base['dc:relation']
+            except KeyError:
+                return []
+            else:
+                try:
+                    base['dc:relation']['#text']
+                except TypeError:
+                    return base['dc:relation']
+        else:
+            return []
 
     def get_contributors(self, options, entity):
         """
@@ -232,6 +239,7 @@ class OAICreativeWork(Parser):
             organizations = [
                 value for value in options if
                 (
+                    value and
                     not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and
                     self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
                 )
@@ -240,13 +248,17 @@ class OAICreativeWork(Parser):
         elif entity == 'institution':
             institutions = [
                 value for value in options if
-                self.list_in_string(value, self.INSTITUTION_KEYWORDS)
+                (
+                    value and
+                    self.list_in_string(value, self.INSTITUTION_KEYWORDS)
+                )
             ]
             return institutions
         elif entity == 'contributor':
             people = [
                 value for value in options if
                 (
+                    value and
                     not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and not
                     self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
                 )
