@@ -1,1 +1,0 @@
-<rss version="2.0"><channel><title>DailySSRN - All</title><link>dailyssrn.com</link><description>Summary of new papers published on SSRN over last 5 days.</description></channel></rss>
