@@ -26,17 +26,17 @@ class HarvardDataverseHarvester(Harvester):
         }).url)
 
     def fetch_records(self, url):
-        resp = self.requests.get(url)
-        total_num = resp.json()['data']['total_count']
+        response = self.requests.get(url)
+        total_num = response.json()['data']['total_count']
         num_processed = 0
 
         while num_processed < total_num:
-            response = self.requests.get(furl(url).add(query_params={
-                'start': str(num_processed)
-            }).url)
-
             records = response.json()['data']['items']
+            num_processed += len(records)
+
             for record in records:
                 yield (record['global_id'], record)
 
-            num_processed += len(records)
+            response = self.requests.get(furl(url).add(query_params={
+                'start': str(num_processed)
+            }).url)
