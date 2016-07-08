@@ -130,7 +130,7 @@ class MakeJsonPatches(celery.Task):
         logger.info('%s started make JSON patches for %s at %s', started_by, normalized, datetime.datetime.utcnow().isoformat())
 
         try:
-            ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data), normalized.id)
+            ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
         except Exception as e:
             logger.exception('Failed make json patches (%d)', normalized_id)
             raise self.retry(countdown=10, exc=e)

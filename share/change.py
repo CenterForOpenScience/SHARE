@@ -24,8 +24,8 @@ class UnresolvableReference(GraphParsingException):
 class ChangeNode:
 
     @classmethod
-    def from_jsonld(self, ld_graph, disambiguate=True):
-        return ChangeNode(ld_graph, disambiguate=disambiguate)
+    def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
+        return ChangeNode(ld_graph, disambiguate=disambiguate, extra_namespace=extra_namespace)
 
     @property
     def model(self):
@@ -61,15 +61,21 @@ class ChangeNode:
         if not self.instance:
             raise UnresolvableReference('@id: {!r}, @type: {!r}'.format(self.id, self.type))
 
-        return {
-            **{k: v for k, v in self.attrs.items() if getattr(self.instance, k) != v},
-            'extra': {k: v for k, v in self.extra.items() if not self.instance.extra or self.instance.extra.data.get(k) != v}
-        }
+        ret = {k: v for k, v in self.attrs.items() if getattr(self.instance, k) != v}
+        if self.__extra_namespace:
+            ret['extra'] = {
+                k: v for k, v in self.extra.items()
+                if not (self.instance.extra and self.instance.extra.get(self.__extra_namespace))
+                or self.instance.extra.data[self.__extra_namespace].get(k) != v
+            }
 
-    def __init__(self, node, disambiguate=True):
+        return ret
+
+    def __init__(self, node, disambiguate=True, extra_namespace=None):
         self.__raw = node
         self.__change = None
         self.__instance = None
+        self.__extra_namespace = None
         node = copy.deepcopy(self.__raw)
 
         self.id = str(node.pop('@id'))
@@ -115,8 +121,8 @@ class ChangeNode:
 class ChangeGraph:
 
     @classmethod
-    def from_jsonld(self, ld_graph, disambiguate=True):
-        nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate) for obj in ld_graph['@graph']]
+    def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
+        nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
         return ChangeGraph(nodes, disambiguate=disambiguate)
 
     @property
