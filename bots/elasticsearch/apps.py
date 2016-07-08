@@ -7,6 +7,6 @@ class AppConfig(BotAppConfig):
     long_title = ''
     home_page = ''
 
-    def get_bot(self):
+    def get_bot(self, started_by):
         from bots.elasticsearch.bot import ElasticSearchBot
-        return ElasticSearchBot(self)
+        return ElasticSearchBot(self, started_by)

@@ -2,8 +2,8 @@ import logging
 
 import arrow
 
+from bots.autocuratetag.tasks import CurateItemTask
 from share.bot import Bot
-from share.change import ChangeNode
 from share.models import CeleryProviderTask
 
 from share.models import Tag
@@ -43,27 +43,16 @@ class AutoCurateBot(Bot):
         total = qs.count()
         logger.info('Found %s tags eligible for automatic curation', total)
 
-        for tag in qs:
-            if tag.id in submitted:
+        for row in qs:
+            if row.id in submitted:
                 continue
 
             matches = list(
                 Tag.objects.filter(
-                    name__iexact=tag.name,
+                    name__iexact=row.name,
                 ).order_by('-date_modified').values_list('id', flat=True)
             )
 
             if len(matches) > 1:
                 submitted = submitted.union(set(matches))
-                # use the oldest record from the order by specified
-                into_id = matches.pop()
-                json_ld = {
-                    '@id': '_:{}'.format(into_id),
-                    '@type': 'MergeAction',
-                    'into': {'@type': 'Person', '@id': into_id},
-                    'from': []
-                }
-                for from_id in matches:
-                    json_ld['from'].append({'@type': 'Person', '@id': from_id})
-                ChangeNode.from_jsonld(json_ld, disambiguate=False)
-                logger.info('Created changeset for tag %s (%d) found %d matche(s)', tag, into_id, len(matches))
+                CurateItemTask().apply_async((self.config.label, self.started_by.id, matches,))
