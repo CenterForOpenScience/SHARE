@@ -51,3 +51,4 @@ class CreativeWork(Parser):
     def format_doi_url(self, doi):
         if doi:
             return format_doi_as_url(self, doi)
+        return None
