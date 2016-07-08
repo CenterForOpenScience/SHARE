@@ -31,6 +31,7 @@ router.register(r'changesets', views.ChangeSetViewSet, base_name=views.ChangeSet
 router.register(r'changes', views.ChangeViewSet, base_name=views.ChangeViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'raw_data', views.RawDataViewSet, base_name=views.RawDataViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'users', views.ShareUserViewSet, base_name=views.ShareUserViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'providers', views.ProviderViewSet, base_name=views.ProviderViewSet.serializer_class.Meta.model._meta.model_name)
 
 urlpatterns = [
     url(r'user_info/?', views.ShareUserView.as_view(), name='userinfo'),
