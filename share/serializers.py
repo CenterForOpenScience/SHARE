@@ -6,7 +6,7 @@ from share import models
 class BaseShareSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
-        # super hates my additional kwarg
+        # super hates my additional kwargs
         sparse = kwargs.pop('sparse', False)
         version_serializer = kwargs.pop('version_serializer', False)
         super(BaseShareSerializer, self).__init__(*args, **kwargs)
@@ -14,6 +14,7 @@ class BaseShareSerializer(serializers.ModelSerializer):
         if sparse:
             # clear the fields if they asked for sparse
             self.fields.clear()
+
         else:
             # remove hidden fields
             excluded_fields = ['change', 'uuid', 'sources']
@@ -88,7 +89,7 @@ class PersonSerializer(BaseShareSerializer):
     affiliations = OrganizationSerializer(sparse=True, many=True)
     class Meta(BaseShareSerializer.Meta):
         model = models.Person
-        fields = ('id', 'identifiers', 'affiliations',)
+        exclude = ('emails',)
 
 
 class AffiliationSerializer(BaseShareSerializer):

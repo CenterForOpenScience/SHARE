@@ -3,9 +3,14 @@ import logging
 from django.conf import settings
 from elasticsearch import helpers
 from elasticsearch import Elasticsearch
+from rest_framework.reverse import reverse
 
 from share.bot import Bot
 from share.models import Person
+from share.models import Tag
+from share.models import Entity
+from share.models import Award
+from share.models import Venue
 from share.models import Association
 from share.models import CeleryProviderTask
 from share.models import AbstractCreativeWork
@@ -16,14 +21,20 @@ logger = logging.getLogger(__name__)
 class ElasticSearchBot(Bot):
 
     INDEX_MODELS = [AbstractCreativeWork, Person]
+    AUTO_COMPLETE_MODELS = [
+        # (Model, attribute, )
+        Person,
+        Tag,
+        Entity,
+        Award,
+        Venue
+    ]
 
     SETTINGS = {
         'analysis': {
             'filter': {
                 'autocomplete_filter': {
                     'type': 'edge_ngram',
-                    'min_gram': 2,
-                    'max_gram': 20
                 }
             },
             'analyzer': {
@@ -37,19 +48,23 @@ class ElasticSearchBot(Bot):
     }
 
     MAPPINGS = {
-        'person': {
-            'dynamic_templates': [{
-                'ngrams': {
-                    'unmatch': 'description',
-                    'match_mapping_type': 'string',
-                    'mapping': {
-                        'type': 'string',
-                        'fields': {
-                            'ngram': {'type': 'string', 'analyzer': 'autocomplete'}
-                        }
-                    }
+        'autocomplete': {
+            'properties': {
+                '@id': {
+                    'type': 'string',
+                    'index': 'not_analyzed'
+                },
+                '@type': {
+                    'type': 'string',
+                    'index': 'not_analyzed'
+                },
+                'text': {
+                    'type': 'string',
+                    'analyzer': 'autocomplete'
                 }
-            }],
+            }
+        },
+        'person': {
             'properties': {
                 'sources': {
                     'type': 'string',
@@ -58,18 +73,6 @@ class ElasticSearchBot(Bot):
             }
         },
         'abstractcreativework': {
-            'dynamic_templates': [{
-                'ngrams': {
-                    'unmatch': 'description',
-                    'match_mapping_type': 'string',
-                    'mapping': {
-                        'type': 'string',
-                        'fields': {
-                            'ngram': {'type': 'string', 'analyzer': 'autocomplete'}
-                        }
-                    }
-                }
-            }],
             'properties': {
                 'sources': {
                     'type': 'string',
@@ -89,6 +92,13 @@ class ElasticSearchBot(Bot):
             AbstractCreativeWork: self.serialize_creative_work,
         }[type(inst)._meta.concrete_model](inst)
 
+    def serialize_autocomplete(self, model):
+        return {
+            '@id': str(model.pk),
+            'text': str(model),
+            '@type': type(model).__name__.lower(),
+        }
+
     def serialize_person(self, person):
         return {
             'suffix': person.suffix,
@@ -100,13 +110,14 @@ class ElasticSearchBot(Bot):
         }
 
     def serialize_creative_work(self, creative_work):
-        # TODO Update format to whatever sharepa expects
         return {
+            '@type': type(creative_work).__name__.lower(),
             'title': creative_work.title,
             'associations': [association.entity.name for association in Association.objects.select_related('entity').filter(creative_work=creative_work)],
             'awards': [str(award) for award in creative_work.awards.all()],
             'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
             'date_created': creative_work.date_created.isoformat(),
+            'date_modified': creative_work.date_modified.isoformat(),
             'description': creative_work.description,
             'language': creative_work.language,
             'links': [str(link) for link in creative_work.links.all()],
@@ -136,6 +147,11 @@ class ElasticSearchBot(Bot):
             for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream(model, last_run)):
                 logger.debug(resp)
 
+        logger.info('Loading up autocomplete type')
+        for model in self.AUTO_COMPLETE_MODELS:
+            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream_autocomplete(model, cutoff_date=last_run)):
+                logger.debug(resp)
+
     def bulk_stream(self, model, cutoff_date=None):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
 
@@ -152,6 +168,26 @@ class ElasticSearchBot(Bot):
             yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
             # if acw.is_delete:  # TODO
             #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
+
+    def bulk_stream_autocomplete(self, model, cutoff_date=None):
+        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'autocomplete'}
+
+        if cutoff_date:
+            qs = model.objects.filter(date_modified__gt=cutoff_date)
+            logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
+        else:
+            qs = model.objects.all()
+            logger.info('Getting all %s', model)
+
+        logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+
+        for inst in qs:
+            yield {
+                '_op_type': 'index',
+                '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
+                **self.serialize_autocomplete(inst),
+                **opts
+            }
 
     def _setup(self):
         logger.debug('Ensuring Elasticsearch index %s', settings.ELASTICSEARCH_INDEX)
