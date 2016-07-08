@@ -115,7 +115,7 @@ class OAICreativeWork(Parser):
 
     rights = tools.Join(tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:rights'))
 
-    language = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:language')
+    language = tools.ParseLanguage(tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:language'))
 
     contributors = tools.Map(
         tools.Delegate(OAIContributor),
@@ -208,6 +208,9 @@ class OAICreativeWork(Parser):
         resource_type = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:type')
 
         set_spec = tools.Maybe(ctx.record.header, 'setSpec')
+
+        # Language also stored in the Extra class in case the language reported cannot be parsed by ParseLanguage
+        language = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:language')
 
     def get_relation(self, ctx):
         base = ctx['record']['metadata']['oai_dc:dc']

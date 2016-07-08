@@ -8,10 +8,12 @@ import arrow
 
 from lxml import etree
 
+from pycountry import languages
+
 from nameparser import HumanName
 
 
-__all__ = ('ParseDate', 'ParseName', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static')
 
 
 #### Public API ####
@@ -22,6 +24,10 @@ def ParseDate(chain):
 
 def ParseName(chain):
     return chain + NameParserLink()
+
+
+def ParseLanguage(chain):
+    return chain + LanguageParserLink()
 
 
 def Trim(chain):
@@ -229,6 +235,14 @@ class NameParserLink(AbstractLink):
 class DateParserLink(AbstractLink):
     def execute(self, obj):
         return arrow.get(obj).to('UTC').isoformat()
+
+
+class LanguageParserLink(AbstractLink):
+    def execute(self, obj):
+        try:
+            return languages.get(name=obj).iso639_3_code
+        except KeyError:
+            return None
 
 
 class ConcatLink(AbstractLink):
