@@ -55,7 +55,7 @@ class ShareUserManager(BaseUserManager):
 
         return self._create_user(username, email, password, **extra_fields)
 
-    def create_robot_user(self, username, robot):
+    def create_robot_user(self, username, robot, long_title='', home_page=''):
         try:
             ShareUser.objects.get(robot=robot)
         except ShareUser.DoesNotExist:
@@ -66,6 +66,8 @@ class ShareUserManager(BaseUserManager):
         user.set_unusable_password()
         user.username = username
         user.robot = robot
+        user.long_title = long_title
+        user.home_page = home_page
         user.is_active = True
         user.is_staff = False
         user.is_superuser = False
@@ -112,6 +114,8 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     robot = models.CharField(max_length=40, blank=True)
+    long_title = models.CharField(max_length=100, blank=True)
+    home_page = models.URLField(blank=True)
 
     def get_short_name(self):
         return self.robot if self.is_robot else self.username
