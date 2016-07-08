@@ -75,10 +75,13 @@ class ChangeSet(models.Model):
         ret = []
         with transaction.atomic():
             for c in self.changes.all():
+                change_id = c.id
+                changeset_id = self.id
+                source = self.normalized_data.source
                 try:
                     ret.append(c.accept(save=save))
                 except Exception as ex:
-                    logger.exception('Could not save change {} for changeset {} submitted by {}'.format(c, self, self.normalized_data.source))
+                    logger.error('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
                     raise ex
             self.status = ChangeSet.STATUS.accepted
             if save:
