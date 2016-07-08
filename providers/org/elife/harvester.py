@@ -14,15 +14,14 @@ logger = logging.getLogger(__name__)
 
 class ELifeHarvester(Harvester):
 
-    BASE_URL = 'https://api.github.com/repos/elifesciences/elife-article-xml/commits?'
-    BASE_COMMIT_URL = 'https://api.github.com/repos/elifesciences/elife-article-xml/commits/{}'
     BASE_DATA_URL = 'https://raw.githubusercontent.com/elifesciences/elife-article-xml/master/{}'
+    BASE_URL = 'https://api.github.com/repos/elifesciences/elife-article-xml/commits{}'
 
     def do_harvest(self, start_date, end_date):
         end_date = end_date.date()
         start_date = start_date.date()
 
-        shas = self.fetch_commits(start_date, end_date, page=1, shas=[])
+        shas = self.fetch_commits(start_date, end_date)
 
         file_names = list(chain.from_iterable([
             self.fetch_file_names(sha)
@@ -31,41 +30,65 @@ class ELifeHarvester(Harvester):
 
         logger.info("There are {} record urls to harvest - this may take a while... ".format(len(file_names)))
 
-        file_names = filter(lambda file_name: file_name.endswith('.xml'), file_names)
-
         xml_records = [
             self.fetch_xml(file_name)
-            for file_name in file_names
+            for file_name in filter(lambda file_name: file_name.endswith('.xml'), file_names)
         ]
 
         for record in xml_records:
             doc = etree.tostring(record)
             doc_id = record.xpath('//article-id[@*]')[0].text
-            yield(doc_id, doc)
+            yield (doc_id, doc)
 
-    def fetch_commits(self, start_date, end_date, page, shas):
-        resp = self.requests.get(furl(self.BASE_URL).set(query_params={
+    def fetch_commits(self, start_date, end_date):
+        page = 0
+        url = self.BASE_URL.format('?')
+        response = self.requests.get(furl(url).set(query_params={
             'since': start_date.isoformat(),
             'until': end_date.isoformat(),
             'page': page,
             'per_page': 100
         }).url)
 
-        commits = resp.json()
-        num_commits = len(commits)
-        for commit in commits:
-            shas.append(commit['sha'])
+        commits = response.json()
+        shas = [c['sha'] for c in commits]
+        page += 1
 
-        if num_commits == 100:
+        while len(commits) == 100:
+            response = self.requests.get(furl(url).set(query_params={
+                'since': start_date.isoformat(),
+                'until': end_date.isoformat(),
+                'page': page,
+                'per_page': 100
+            }).url)
+
+            commits = response.json()
+            shas = shas + [c['sha'] for c in commits]
             page += 1
-            self.fetch_commits(start_date, end_date, page, shas)
 
         return shas
 
     def fetch_file_names(self, sha):
-        resp = self.requests.get(self.BASE_COMMIT_URL.format(sha))
-        files = resp.json()['files']
+        page = 0
+        url = self.BASE_URL.format('/{}'.format(sha))
+        response = self.requests.get(furl(url).set(query_params={
+            'page': page,
+            'per_page': 100
+        }))
+
+        files = response.json()['files']
         file_names = [file['filename'] for file in files]
+
+        while len(files) == 100:
+            response = self.requests.get(furl(url).set(query_params={
+                'page': page,
+                'per_page': 100
+            }))
+
+            files = response.json()['files']
+            file_names = file_names + [file['filename'] for file in files]
+            page += 1
+
         return file_names
 
     def fetch_xml(self, file_name):
