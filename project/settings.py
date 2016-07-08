@@ -160,6 +160,7 @@ INSTALLED_APPS = [
     'providers.gov.usgs',
     'providers.info.spdataverse',
     'providers.io.osf',
+    'providers.io.osf.registrations',
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai.apps.AppConfig',

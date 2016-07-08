@@ -63,6 +63,10 @@ class Project(AbstractCreativeWork):
     pass
 
 
+class Registration(AbstractCreativeWork):
+    pass
+
+
 # Through Tables for Creative Work
 
 class Association(ShareObject):
