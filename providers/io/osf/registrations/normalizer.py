@@ -34,7 +34,7 @@ class ThroughTags(Parser):
 
 
 class Institution(Parser):
-    name = Maybe(ctx, 'attributes.name')
+    name = ctx.attributes.name
     url = ctx.links.self
 
     class Extra:
@@ -79,7 +79,7 @@ class Registration(Parser):
     contributors = Map(Delegate(Contributor), ctx['contributors'])
     institutions = Map(
         Delegate(Association.using(entity=Delegate(Institution))),
-        ctx.embeds.affiliated_institutions.data
+        Maybe(ctx, 'embeds').affiliated_institutions.data
     )
     date_created = ParseDate(ctx.attributes.date_created)
     subject = Delegate(Tag, ctx.attributes.category)
@@ -88,32 +88,32 @@ class Registration(Parser):
     free_to_read_date = ParseDate(Maybe(ctx.attributes, 'embargo_end_date'))
     links = Concat(
         Delegate(ThroughLinks, ctx.links.html),
-        Map(Delegate(ThroughLinks), ctx.embeds.identifiers.data)
+        Map(Delegate(ThroughLinks), Maybe(ctx, 'embeds').identifiers.data)
     )
 
     class Extra:
-        files = ctx.relationships.files.links.related.href
-        registration_schema = ctx.relationships.registration_schema.links.related.href
-        logs = ctx.relationships.logs.links.related.href
-        forks = ctx.relationships.forks.links.related.href
-        root = ctx.relationships.root.links.related.href
-        comments = ctx.relationships.comments.links.related.href
-        registered_from = ctx.relationships.registered_from.links.related.href
-        node_links = ctx.relationships.node_links.links.related.href
-        wikis = ctx.relationships.wikis.links.related.href
-        children = ctx.relationships.children.links.related.href
+        files = Maybe(ctx.relationships, 'files').links.related.href
+        registration_schema = Maybe(ctx.relationships, 'registration_schema').links.related.href
+        logs = Maybe(ctx.relationships, 'logs').links.related.href
+        forks = Maybe(ctx.relationships, 'forks').links.related.href
+        root = Maybe(ctx.relationships, 'root').links.related.href
+        comments = Maybe(ctx.relationships, 'comments').links.related.href
+        registered_from = Maybe(ctx.relationships, 'registered_from').links.related.href
+        node_links = Maybe(ctx.relationships, 'node_links').links.related.href
+        wikis = Maybe(ctx.relationships, 'wikis').links.related.href
+        children = Maybe(ctx.relationships, 'children').links.related.href
 
-        fork = ctx.attributes.fork
-        pending_registration_approval = ctx.attributes.pending_registration_approval
-        date_modified = ctx.attributes.date_modified
-        registration_supplement = ctx.attributes.registration_supplement
+        fork = Maybe(ctx.attributes, 'fork')
+        pending_registration_approval = Maybe(ctx.relationships, 'pending_registration_approval')
+        date_modified = Maybe(ctx.attributes, 'date_modified')
+        registration_supplement = Maybe(ctx.attributes, 'registration_supplement')
         registered_meta_summary = Maybe(ctx, 'registered_meta.summary.value')
-        collection = ctx.attributes.collection
-        withdrawn = ctx.attributes.withdrawn
-        date_registered = ctx.attributes.withdrawn
-        pending_embargo_approval = ctx.attributes.pending_embargo_approval
+        collection = Maybe(ctx.attributes, 'collection')
+        withdrawn = Maybe(ctx.attributes, 'withdrawn')
+        date_registered = Maybe(ctx.attributes, 'withdrawn')
+        pending_embargo_approval = Maybe(ctx.attributes, 'pending_embargo_approval')
         withdrawal_justification = Maybe(ctx.attributes, 'withdrawal_justification')
-        registration = ctx.attributes.registration
-        pending_withdrawal = ctx.attributes.pending_withdrawal
+        registration = Maybe(ctx.attributes, 'registration')
+        pending_withdrawal = Maybe(ctx.attributes, 'pending_withdrawal')
         type = ctx.type
         id = ctx.id
