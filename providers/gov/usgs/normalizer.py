@@ -9,7 +9,7 @@ class Person(Parser):
 
 class Contributor(Parser):
     order_cited = ctx('index')
-    cited_name = Join(Concat(Maybe(ctx, 'given'), ctx.family), ' ')
+    cited_name = Join(Concat(Maybe(ctx, 'given'), ctx.family), joiner=' ')
     person = Delegate(Person, ctx)
 
 
@@ -34,7 +34,7 @@ class Publisher(Parser):
 
 
 class Association(Parser):
-    pass
+    entity = Delegate(Publisher, ctx)
 
 
 class CreativeWork(Parser):
@@ -54,7 +54,7 @@ class CreativeWork(Parser):
     date_updated = ParseDate(ctx.lastModifiedDate)
     date_published = ParseDate(ctx.displayToPublicDate)
     language = Maybe(ctx, 'language')
-    publishers = Map(Delegate(Association.using(entity=Delegate(Publisher))), Maybe(ctx, 'publisher'))
+    publishers = Map(Delegate(Association), Maybe(ctx, 'publisher'))
     contributors = Map(Delegate(Contributor), Maybe(ctx, 'contributors').authors)
     links = Map(
         Delegate(ThroughLinks),
