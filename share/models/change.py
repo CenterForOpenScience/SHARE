@@ -105,6 +105,9 @@ class Change(models.Model):
 
     class Meta:
         ordering = ('pk', )
+        index_together = (
+            ('node_id', 'change_set', 'target_type',),
+        )
 
     def get_requirements(self):
         node_ids, content_types = [], set()
