@@ -39,7 +39,8 @@ class Contributor(Parser):
 class CreativeWork(Parser):
     title = Maybe(XPath(ctx, "str[@name='title']"), 'str')['#text']
     description = Maybe(XPath(ctx, "str[@name='abstract']"), 'str')['#text']
-    published = Maybe(XPath(ctx, "date[@name='datePublished']"), 'date')['#text']
+    date_published = ParseDate(Maybe(XPath(ctx, "date[@name='datePublished']"), 'date')['#text'])
+    date_updated = ParseDate(Maybe(XPath(ctx, "date[@name='dateModified']"), 'date')['#text'])
     contributors = Map(
         Delegate(Contributor),
         Maybe(XPath(ctx, "str[@name='author']"), 'str')['#text'],
@@ -57,7 +58,6 @@ class CreativeWork(Parser):
 
     class Extra:
         datasource = Maybe(XPath(ctx, "str[@name='datasource']"), 'str')['#text']
-        dateModified = Maybe(XPath(ctx, "date[@name='dateModified']"), 'date')['#text']
         datePublished = Maybe(XPath(ctx, "date[@name='datePublished']"), 'date')['#text']
         dateUploaded = Maybe(XPath(ctx, "date[@name='dateUploaded']"), 'date')['#text']
         fileID = Maybe(XPath(ctx, "str[@name='fileID']"), 'str')['#text']
