@@ -38,7 +38,7 @@ class CreativeWork(Parser):
     title = ctx.name
     description = ctx.description
     contributors = Map(Delegate(Contributor), ctx.authors)
-    published = ParseDate(ctx.published_at)
+    date_published = ParseDate(ctx.published_at)
     links = Concat(
         Delegate(ThroughLinks, ctx.url),
         Delegate(ThroughLinks, ctx.image_url),
