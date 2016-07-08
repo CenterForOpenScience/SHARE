@@ -3,7 +3,6 @@ import logging
 from model_utils import Choices
 
 from django.db import models
-from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import ugettext as _
@@ -124,6 +123,7 @@ class Change(models.Model):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.status)
         ret = self._accept(save)
+        ret.sources.add(self.change_set.normalized_data.source)
         if save:
             self.save()
         return ret
@@ -196,7 +196,17 @@ class Change(models.Model):
     def _resolve_change(self):
         change = {}
         for k, v in self.change.items():
-            if isinstance(v, dict):
+            if k == 'extra':
+                if not v:
+                    continue
+                if self.target:
+                    change[k] = self.target.extra
+                else:
+                    from share.models.base import ExtraData
+                    change[k] = ExtraData()
+                change[k].data.update({self.change_set.normalized_data.source.username: v})
+                change[k].save()
+            elif isinstance(v, dict):
                 inst = self._resolve_ref(v)
                 change[k] = inst
                 change[k + '_version'] = inst.version
@@ -204,9 +214,6 @@ class Change(models.Model):
                 change[k] = [self._resolve_ref(r) for r in v]
             else:
                 change[k] = v
-        extra = change.pop('extra', None)
-        if extra:
-            change['extra'] = {self.change_set.normalized_data.source.username: extra}
         return change
 
     def _resolve_ref(self, ref):

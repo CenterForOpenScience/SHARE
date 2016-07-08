@@ -1,9 +1,42 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, views, status
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
 
 from api.filters import ShareObjectFilterSet
+from api.serializers import ChangeSerializer
 from share import serializers
+from api import serializers as api_serializers
 
-class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
+
+class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
+    @detail_route(methods=['get'])
+    def versions(self, request, pk=None):
+        if pk is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        versions = self.get_object().versions.all()
+        page = self.paginate_queryset(versions)
+        if page is not None:
+            ser = self.get_serializer(page, many=True, version_serializer=True)
+            return self.get_paginated_response(ser.data)
+        ser = self.get_serializer(versions, many=True, version_serializer=True)
+        return Response(ser.data)
+
+
+class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
+    @detail_route(methods=['get'])
+    def changes(self, request, pk=None):
+        if pk is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        changes = self.get_object().changes.all()
+        page = self.paginate_queryset(changes)
+        if page is not None:
+            ser = ChangeSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(ser.data)
+        ser = ChangeSerializer(changes, many=True, context={'request': request})
+        return Response(ser.data)
+
+
+class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
@@ -89,8 +122,26 @@ class CreativeWorkViewSet(ShareObjectViewSet):
     )
 
 
+
+
 class PreprintViewSet(ShareObjectViewSet):
     serializer_class = serializers.PreprintSerializer
+    queryset = serializer_class.Meta.model.objects.all().select_related(
+        'subject',
+        'extra'
+    )
+
+
+class PublicationViewSet(ShareObjectViewSet):
+    serializer_class = serializers.PublicationSerializer
+    queryset = serializer_class.Meta.model.objects.all().select_related(
+        'subject',
+        'extra'
+    )
+
+
+class ProjectViewSet(ShareObjectViewSet):
+    serializer_class = serializers.ProjectSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
         'subject',
         'extra'
@@ -103,3 +154,8 @@ class ManuscriptViewSet(ShareObjectViewSet):
         'subject',
         'extra'
     )
+
+class ShareUserView(views.APIView):
+    def get(self, request, *args, **kwargs):
+        ser = api_serializers.ShareUserSerializer(request.user)
+        return Response(ser.data)

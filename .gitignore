@@ -134,7 +134,7 @@ com.dailyssrn/
 com.figshare/
 com.nature/
 edu.asu/
-edu.boisestate/
+edu.boise_state/
 edu.calhoun/
 edu.caltech/
 edu.chapman/
@@ -165,7 +165,9 @@ edu.nku/
 edu.oaktrust/
 edu.opensiuc/
 edu.pcom/
-et.edu.addisababa/
+edu.pdxscholar/
+edu.purdue/
+et.edu.addis_ababa/
 gov.clinicaltrials/
 gov.doepages/
 gov.nih/
@@ -174,6 +176,7 @@ gov.nodc/
 gov.nsfawards/
 io.osf/
 org.arxiv/
+org.arxiv.oai/
 org.bhl/
 org.biorxiv/
 org.cogprints/
@@ -197,3 +200,4 @@ za.csir/
 testdir/
 scratch/
 celerybeat.pid
+*.orig

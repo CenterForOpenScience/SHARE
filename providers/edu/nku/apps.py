@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'NKU Institutional Repository'
     home_page = 'https://dspace.nku.edu'
     url = 'https://dspace.nku.edu/oai/request'
+    approved_sets = ['com_11216_7', 'com_11216_20', 'col_11216_168']

@@ -33,17 +33,16 @@ class Person(ShareObject):
 
     emails = ShareManyToManyField(Email, through='PersonEmail')
     affiliations = ShareManyToManyField('Entity', through='Affiliation')
-    orcid = models.URLField(blank=True)
     # this replaces "authority_id" and "other_identifiers" in the diagram
     identifiers = ShareManyToManyField(Identifier, through='ThroughIdentifiers')
-    location = models.URLField(blank=True)
+    location = models.TextField(blank=True)
     url = models.URLField(blank=True)
 
     def __str__(self):
         return self.get_full_name()
 
     def get_full_name(self):
-        return '{} {} {} {}'.format(self.given_name, self.family_name, self.additional_name, self.suffix)
+        return ' '.join(x for x in [self.given_name, self.family_name, self.additional_name, self.suffix] if x)
 
     class Meta:
         verbose_name_plural = 'People'

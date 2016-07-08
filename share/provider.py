@@ -53,6 +53,8 @@ class ProviderAppConfig(RobotAppConfig, metaclass=abc.ABCMeta):
 class OAIProviderAppConfig(ProviderAppConfig, metaclass=abc.ABCMeta):
 
     rate_limit = (5, 1)
+    approved_sets = None
+    property_list = []
     emitted_type = 'CreativeWork'
 
     @abc.abstractproperty

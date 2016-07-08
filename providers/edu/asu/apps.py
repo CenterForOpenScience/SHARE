@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Arizona State University Digital Repository'
     home_page = 'http://www.asu.edu/'
     url = 'http://repository.asu.edu/oai-pmh'
+    approved_sets = ['research']

@@ -30,7 +30,7 @@ class JSONLDRenderer(JSONRenderer):
             return bytes()
 
         renderer_context = renderer_context or {}
-        indent = self.get_indent(accepted_media_type, renderer_context)
+        indent = self.get_indent(accepted_media_type, renderer_context) or 4
 
         if indent is None:
             separators = SHORT_SEPARATORS if self.compact else LONG_SEPARATORS
@@ -38,9 +38,10 @@ class JSONLDRenderer(JSONRenderer):
             separators = INDENT_SEPARATORS
 
         ret = ujson.dumps(  #  UJSON is faster
-            data
+            data,
             # , cls=self.encoder_class,
-            # indent=indent, ensure_ascii=self.ensure_ascii,
+            escape_forward_slashes=False,
+            indent=indent, ensure_ascii=self.ensure_ascii,
             # separators=separators
         )
 

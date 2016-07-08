@@ -3,6 +3,8 @@ import importlib
 
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from oauth2_provider.models import AccessToken
+from django.contrib import messages
 
 from share.models.base import ExtraData
 from share.models.celery import CeleryTask
@@ -12,6 +14,7 @@ from share.models.creative import AbstractCreativeWork
 from share.models.entities import Entity
 from share.models.meta import Venue, Award, Tag
 from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
+from share.tasks import ApplyChangeSets
 
 
 class NormalizedDataAdmin(admin.ModelAdmin):
@@ -40,8 +43,8 @@ class ChangeSetAdmin(admin.ModelAdmin):
     raw_id_fields = ('normalized_data',)
 
     def accept_changes(self, request, queryset):
-        for changeset in queryset:
-            changeset.accept()
+        ApplyChangeSets().apply_async(kwargs=dict(changeset_ids=[x[0] for x in queryset.values_list('id')], started_by_id=request.user.id))
+        messages.success(request, 'Scheduled {} changesets for acceptance.'.format(queryset.count()))
     accept_changes.short_description = 'Accept changes'
 
     def submitted_by(self, obj):
@@ -109,6 +112,13 @@ class TagAdmin(admin.ModelAdmin):
 class RawDataAdmin(admin.ModelAdmin):
     raw_id_fields = ('tasks',)
 
+
+class AccessTokenAdmin(admin.ModelAdmin):
+    list_display = ('token', 'user', 'scope')
+
+
+admin.site.unregister(AccessToken)
+admin.site.register(AccessToken, AccessTokenAdmin)
 
 admin.site.register(Affiliation)
 admin.site.register(Person, PersonAdmin)

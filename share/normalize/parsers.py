@@ -17,18 +17,19 @@ class ParserMeta(type):
 
     def __new__(cls, name, bases, attrs):
         # Enabled inheritance in parsers.
-        parsers = reduce(lambda acc, val: {**acc, **getattr(val, 'parsers', {})}, bases, {})
+        parsers = reduce(lambda acc, val: {**acc, **getattr(val, 'parsers', {})}, bases[::-1], {})
         for key, value in tuple(attrs.items()):
             if isinstance(value, AbstractLink):
                 parsers[key] = attrs.pop(key).chain()[0]
         attrs['parsers'] = parsers
 
-        attrs['_extra'] = {
+        attrs['_extra'] = reduce(lambda acc, val: {**acc, **getattr(val, '_extra', {})}, bases[::-1], {})
+        attrs['_extra'].update({
             key: value.chain()[0]
             for key, value
             in attrs.pop('Extra', object).__dict__.items()
             if isinstance(value, AbstractLink)
-        }
+        })
 
         return super(ParserMeta, cls).__new__(cls, name, bases, attrs)
 
@@ -55,7 +56,8 @@ class Parser(metaclass=ParserMeta):
     def model(self):
         return apps.get_model('share', self.schema)
 
-    def __init__(self, context):
+    def __init__(self, context, config=None):
+        self.config = config or ctx._config
         self.context = context
         self.id = '_:' + uuid.uuid4().hex
         self.ref = {'@id': self.id, '@type': self.schema}
@@ -92,8 +94,13 @@ class Parser(metaclass=ParserMeta):
                 self.validate(field, value)
                 inst[key] = value
 
-        if self._extra:
-            inst['extra'] = {key: parser.parse(self.context) for key, parser in self._extra.items()}
+        inst['extra'] = {}
+        for key, chain in self._extra.items():
+            val = chain.execute(self.context)
+            if val:
+                inst['extra'][key] = val
+        if not inst['extra']:
+            del inst['extra']
 
         Context().parser = prev
 

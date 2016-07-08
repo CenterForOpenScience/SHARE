@@ -1,4 +1,7 @@
+import datetime
 import logging
+import random
+import string
 from hashlib import sha256
 
 from django.conf import settings
@@ -11,9 +14,10 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from fuzzycount import FuzzyCountManager
+from oauth2_provider.models import AccessToken, Application
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
-from share.models.fields import ZipField, DatetimeAwareJSONField
+from share.models.fields import DatetimeAwareJSONField
 from share.models.validators import is_valid_jsonld
 
 logger = logging.getLogger(__name__)
@@ -90,6 +94,9 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(_('first name'), max_length=64, blank=True)
     last_name = models.CharField(_('last name'), max_length=64, blank=True)
     email = models.EmailField(_('email address'), blank=True)
+    gravatar = models.URLField(blank=True)
+    time_zone = models.CharField(max_length=100, blank=True)
+    locale = models.CharField(max_length=100, blank=True)
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,
@@ -124,18 +131,31 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = _('Share user')
         verbose_name_plural = _('Share users')
 
+
 @receiver(post_save, sender=ShareUser, dispatch_uid='share.share.models.share_user_post_save_handler')
 def user_post_save(sender, instance, created, **kwargs):
     """
     If the user is being created and they're not a robot add them to the humans group.
+    If the user is being created and they're not a robot make them an oauth token.
     :param sender:
     :param instance:
     :param created:
     :param kwargs:
     :return:
     """
-    if created and not instance.is_robot:
+    if created and not instance.is_robot and instance.username != settings.APPLICATION_USERNAME:
+        application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+        application = Application.objects.get(user=application_user)
+        client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
 
+        # create oauth2 token for user
+        AccessToken.objects.create(
+            user=instance,
+            application=application,
+            expires=(timezone.now() + datetime.timedelta(weeks=20 * 52)),  # 20 yrs
+            scope=settings.USER_SCOPES,
+            token=client_secret
+        )
         instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
@@ -164,7 +184,7 @@ class RawData(models.Model):
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     provider_doc_id = models.CharField(max_length=256)
 
-    data = ZipField(blank=False)
+    data = models.TextField(blank=False)
     sha256 = models.CharField(max_length=64)
 
     date_seen = models.DateTimeField(auto_now=True)
@@ -189,7 +209,6 @@ class RawData(models.Model):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.source, self.provider_doc_id)
 
 
-# TODO Rename me
 class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True)

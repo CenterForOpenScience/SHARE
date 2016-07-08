@@ -1,6 +1,3 @@
-import binascii
-import zlib
-
 import six
 import ujson
 from psycopg2.extras import Json
@@ -12,39 +9,6 @@ from django.db import models
 from django.db.models.fields.related import resolve_relation
 
 from share.models.validators import is_valid_uri
-
-
-class ZipField(models.Field):
-
-    def db_type(self, connection):
-        return 'bytea'
-
-    def pre_save(self, model_instance, add):
-        value = getattr(model_instance, self.attname)
-        assert isinstance(value, (bytes, str)), 'Values must be of type str or bytes, got {}'.format(type(value))
-        if not value and not self.blank:
-            raise exceptions.ValidationError('"{}" on {!r} can not be blank or empty'.format(self.attname, model_instance))
-        if isinstance(value, str):
-            value = value.encode()
-        return zlib.compress(value)
-
-    def from_db_value(self, value, expression, connection, context):
-        if value is None:
-            return value
-        assert value
-        return zlib.decompress(value)
-
-    def to_python(self, value):
-        assert value
-        if value is None or isinstance(value, ZipField):
-            return value
-        try:
-            bytes(value, 'utf8')
-        except binascii.Error:
-            # it's not base64, return it.
-            return value
-
-        return zlib.decompress(value)
 
 
 class DatetimeAwareJSONField(JSONField):

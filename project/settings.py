@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'oauth2_provider',
     'rest_framework',
+    'corsheaders',
 
     'allauth',
     'allauth.account',
@@ -81,7 +82,7 @@ INSTALLED_APPS = [
     'providers.com.nature',
     'providers.com.springer',
     'providers.edu.asu',
-    'providers.edu.boisestate',
+    'providers.edu.boise_state',
     'providers.edu.calhoun',
     'providers.edu.calpoly',
     'providers.edu.caltech',
@@ -147,7 +148,7 @@ INSTALLED_APPS = [
     'providers.edu.wash_state_u',
     'providers.edu.waynestate',
     'providers.edu.wustlopenscholarship',
-    'providers.et.edu.addisababa',
+    'providers.et.edu.addis_ababa',
     'providers.gov.clinicaltrials',
     'providers.gov.doepages',
     'providers.gov.nih',
@@ -192,7 +193,7 @@ INSTALLED_APPS = [
 ]
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
-
+USER_SCOPES = 'approve_changesets'
 
 OAUTH2_PROVIDER = {
     'SCOPES': {
@@ -200,10 +201,11 @@ OAUTH2_PROVIDER = {
         'write': 'Write scope',
         'groups': 'Access to your groups',
         'upload_normalized_manuscript': 'Upload Normalized Manuscript',
-        'upload_raw_data': 'Upload Raw Data'
+        'upload_raw_data': 'Upload Raw Data',
+        'approve_changesets': 'Approve ChangeSets'
     }
 }
-
+SOCIALACCOUNT_ADAPTER = 'osf_oauth2_adapter.views.OSFOAuth2Adapter'
 SOCIALACCOUNT_PROVIDERS = \
     {'osf':
          {
@@ -229,12 +231,16 @@ SOCIALACCOUNT_PROVIDERS = \
           }
      }
 
+
 APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
-    'DEFAULT_AUTHENTICATION_CLASSES': ('oauth2_provider.ext.rest_framework.OAuth2Authentication',),
-    'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'PAGE_SIZE': 32,
     'DEFAULT_PARSER_CLASSES': (
         'api.parsers.JSONLDParser',
     ),
@@ -248,6 +254,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -261,7 +268,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -311,6 +318,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
+    CORS_ORIGIN_ALLOW_ALL = True
+    CORS_ALLOW_CREDENTIALS = True
+    LOGIN_REDIRECT_URL = 'http://localhost:4200/login'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
@@ -346,6 +356,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
+STATICFILES_DIRS = (
+    os.path.join(
+        os.path.dirname(__file__),
+        'static'
+    ),
+)
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')

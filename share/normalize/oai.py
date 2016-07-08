@@ -1,111 +1,261 @@
-from share.normalize import links
-from share.normalize import parsers
+import logging
+
+from lxml import etree
+
+from share.normalize import ctx, tools
+from share.normalize.parsers import Parser
 from share.normalize.normalizer import Normalizer
+from share.normalize.utils import format_doi_as_url
 
 
-# NOTE: Context is a thread local singleton
-# It is asigned to ctx here just to keep a family interface
-ctx = links.Context()
+logger = logging.getLogger(__name__)
 
 
-class OAIPerson(parsers.Parser):
+class OAILink(Parser):
+    schema = 'Link'
+
+    url = tools.RunPython('format_link', ctx)
+    type = tools.RunPython('get_link_type', ctx)
+
+    # TODO: account for other types of links
+    # i.e. ISBN
+
+    def get_link_type(self, link):
+        if 'dx.doi.org' in link:
+            return 'doi'
+        if self.config.home_page and self.config.home_page in link:
+            return 'provider'
+        return 'misc'
+
+    def format_link(self, link):
+        link_type = self.get_link_type(link)
+        if link_type == 'doi':
+            return format_doi_as_url(self, link)
+        return link
+
+
+class OAIThroughLinks(Parser):
+    schema = 'ThroughLinks'
+
+    link = tools.Delegate(OAILink, ctx)
+
+
+class OAIPerson(Parser):
     schema = 'Person'
 
-    suffix = links.ParseName(ctx).suffix
-    family_name = links.ParseName(ctx).last
-    given_name = links.ParseName(ctx).first
-    additional_name = links.ParseName(ctx).middle
+    suffix = tools.ParseName(ctx).suffix
+    family_name = tools.ParseName(ctx).last
+    given_name = tools.ParseName(ctx).first
+    additional_name = tools.ParseName(ctx).middle
 
 
-class OAIContributor(parsers.Parser):
+class OAIContributor(Parser):
     schema = 'Contributor'
 
-    person = links.Delegate(OAIPerson, ctx)
+    person = tools.Delegate(OAIPerson, ctx)
     cited_name = ctx
     order_cited = ctx('index')
 
 
-class OAIPublisher(parsers.Parser):
+class OAIPublisher(Parser):
     schema = 'Publisher'
+
     name = ctx
 
 
-class OAIAssociation(parsers.Parser):
+class OAIInstitution(Parser):
+    schema = 'Institution'
+
+    name = ctx
+
+
+class OAIOrganization(Parser):
+    schema = 'Organization'
+
+    name = ctx
+
+
+class OAIAssociation(Parser):
     schema = 'Association'
 
 
-class OAITag(parsers.Parser):
+class OAITag(Parser):
     schema = 'Tag'
+
     name = ctx
 
 
-class OAIThroughTags(parsers.Parser):
+class OAIThroughTags(Parser):
     schema = 'ThroughTags'
-    tag = links.Delegate(OAITag, ctx)
+
+    tag = tools.Delegate(OAITag, ctx)
 
 
-class OAICreativeWork(parsers.Parser):
+class OAICreativeWork(Parser):
     schema = 'CreativeWork'
 
-    title = ctx.record.metadata['oai_dc:dc']['dc:title']
-    rights = ctx.record.metadata['oai_dc:dc']['dc:rights']
-    language = ctx.record.metadata['oai_dc:dc']['dc:language']
-    description = links.Join(links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:description'))
-
-    published = links.ParseDate(ctx.record.metadata['oai_dc:dc']['dc:date'][0])
-
-    publishers = links.Map(
-        links.Delegate(OAIAssociation.using(entity=links.Delegate(OAIPublisher))),
-        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:publisher')
+    ORGANIZATION_KEYWORDS = (
+        'the',
+        'center'
+    )
+    INSTITUTION_KEYWORDS = (
+        'school',
+        'university',
+        'institution',
+        'institute'
     )
 
-    rights = links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:rights')
-    language = links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:language')
+    title = tools.Join(ctx.record.metadata['oai_dc:dc']['dc:title'])
+    description = tools.Join(tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:description'))
 
-    # TODO: Contributors include a person, an organization, or a service
-    # differentiate between them
-    contributors = links.Map(
-        links.Delegate(OAIContributor),
-        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
-        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor'),
+    publishers = tools.Map(
+        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIPublisher))),
+        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:publisher')
     )
 
-    tags = links.Map(
-        links.Delegate(OAIThroughTags),
-        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:type'),
-        links.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:subject')
+    rights = tools.Join(tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:rights'))
+
+    language = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:language')
+
+    contributors = tools.Map(
+        tools.Delegate(OAIContributor),
+        tools.RunPython(
+            'get_contributors',
+            tools.Concat(
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+            ),
+            'contributor'
+        )
     )
 
-    # TODO Add links
+    institutions = tools.Map(
+        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIInstitution))),
+        tools.RunPython(
+            'get_contributors',
+            tools.Concat(
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+            ),
+            'institution'
+        )
+    )
 
-    # TODO: need to determine which contributors/creators are institutions
-    # institutions = ShareManyToManyField(Institution, through='ThroughInstitutions')
+    organizations = tools.Map(
+        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIOrganization))),
+        tools.RunPython(
+            'get_contributors',
+            tools.Concat(
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator'),
+                tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
+            ),
+            'organization'
+        )
+    )
 
-    # venues = ShareManyToManyField(Venue, through='ThroughVenues')
-    # funders = ShareManyToManyField(Funder, through='ThroughFunders')
-    # awards = ShareManyToManyField(Award, through='ThroughAwards')
-    # data_providers = ShareManyToManyField(DataProvider, through='ThroughDataProviders')
-    # provider_link = models.URLField(blank=True)
+    tags = tools.Map(
+        tools.Delegate(OAIThroughTags),
+        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:type'),
+        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:subject'),
+        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:format'),
+        tools.Maybe(ctx.record.header, 'setSpec')
+    )
 
-    # TODO: ask for clarification on difference between subject and tags
-    # subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
+    links = tools.Map(
+        tools.Delegate(OAIThroughLinks),
+        tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:identifier')
+    )
 
-    # TODO: parse all identifiers (there can be many identifiers) for 'doi:' and DOI_BASE_URL
-    # doi = models.URLField(blank=True, null=True)
+    date_updated = tools.ParseDate(ctx.record.header.datestamp)
 
-    # TODO: parse text of identifiers to find 'ISBN' also what is ISSN?
-    # isbn = models.URLField(blank=True)
+    class Extra:
+        """
+        Fields that are combined in the base parser are relisted as singular elements that match
+        their original entry to preserve raw data structure.
+        """
+        # An entity responsible for making contributions to the resource.
+        contributor = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:contributor')
 
-    # TODO:update model to handle this
-    # work_type = ctx.record.metadata('oai_dc:dc')('dc:type')['*']
+        # The spatial or temporal topic of the resource, the spatial applicability of the resource,
+        # or the jurisdiction under which the resource is relevant.
+        coverage = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:coverage')
 
-    # created = models.DateTimeField(null=True)
-    # published = models.DateTimeField(null=True)
-    # free_to_read_type = models.URLField(blank=True)
-    # free_to_read_date = models.DateTimeField(null=True)
+        # An entity primarily responsible for making the resource.
+        creator = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:creator')
 
-    # TODO: ask about format field
-    # TODO: add publisher field
+        # A point or period of time associated with an event in the lifecycle of the resource.
+        dates = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:date')
+
+        # The file format, physical medium, or dimensions of the resource.
+        resource_format = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:format')
+
+        # An unambiguous reference to the resource within a given context.
+        identifiers = tools.Concat(
+            ctx.record.metadata['oai_dc:dc']['dc:identifier'],
+            tools.Maybe(ctx.record.header, 'identifier')
+        )
+
+        # A related resource.
+        relation = tools.RunPython('get_relation', ctx)
+
+        # A related resource from which the described resource is derived.
+        source = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:source')
+
+        # The topic of the resource.
+        subject = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:subject')
+
+        # The nature or genre of the resource.
+        resource_type = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:type')
+
+        set_spec = tools.Maybe(ctx.record.header, 'setSpec')
+
+    def get_relation(self, ctx):
+        base = ctx['record']['metadata']['oai_dc:dc']
+        try:
+            base['dc:relation']
+        except KeyError:
+            return []
+        else:
+            try:
+                base['dc:relation']['#text']
+            except TypeError:
+                return base['dc:relation']
+
+    def get_contributors(self, options, entity):
+        """
+        Returns list of organization, institutions, or contributors names based on entity type.
+        """
+        if entity == 'organization':
+            organizations = [
+                value for value in options if
+                (
+                    not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and
+                    self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
+                )
+            ]
+            return organizations
+        elif entity == 'institution':
+            institutions = [
+                value for value in options if
+                self.list_in_string(value, self.INSTITUTION_KEYWORDS)
+            ]
+            return institutions
+        elif entity == 'contributor':
+            people = [
+                value for value in options if
+                (
+                    not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and not
+                    self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
+                )
+            ]
+            return people
+        else:
+            return options
+
+    def list_in_string(self, string, list_):
+        if any(word in string.lower() for word in list_):
+            return True
+        return False
 
 
 class OAIPreprint(OAICreativeWork):
@@ -120,8 +270,30 @@ class OAINormalizer(Normalizer):
 
     @property
     def root_parser(self):
-        return {
+        parser = {
             'preprint': OAIPreprint,
             'publication': OAIPublication,
             'creativework': OAICreativeWork,
         }[self.config.emitted_type.lower()]
+
+        if self.config.property_list:
+            logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))
+            for prop in self.config.property_list:
+                if prop in parser._extra:
+                    logger.warning('Skipping property %s, it already exists', prop)
+                    continue
+                parser._extra[prop] = tools.Maybe(ctx.record.metadata['oai_dc:dc'], 'dc:' + prop).chain()[0]
+
+        return parser
+
+    def do_normalize(self, data):
+        if self.config.approved_sets is not None:
+            specs = set(x.replace('publication:', '') for x in etree.fromstring(data).xpath(
+                'ns0:header/ns0:setSpec/node()',
+                namespaces={'ns0': 'http://www.openarchives.org/OAI/2.0/'}
+            ))
+            if not (specs & set(self.config.approved_sets)):
+                logger.warning('Series %s not found in approved_sets for %s', specs, self.config.label)
+                return None
+
+        return super().do_normalize(data)

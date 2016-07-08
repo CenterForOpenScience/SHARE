@@ -9,3 +9,39 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://sldr.org'
     url = 'http://sldr.org/oai-pmh.php'
     timezone_granularity = False
+    approved_sets = [
+        'publisher',
+        'date',
+        'language',
+        'rights',
+        'license',
+        'format',
+        'isPartOf',
+        'created',
+        'accessRights',
+        'temporal',
+        'source',
+        'bibliographicCitation',
+        'modified',
+        'spatial',
+        'requires',
+        'identifier',
+        'type',
+        'tableOfContents',
+        'ortolang',
+        'archive:long-term',
+    ]
+    # using a subset of terms from the dcterms namespace
+    property_list = [
+        'modified',
+        'temporal',
+        'extent',
+        'spatial',
+        'abstract',
+        'created',
+        'license',
+        'bibliographicCitation',
+        'isPartOf',
+        'tableOfContents',
+        'accessRights'
+    ]
