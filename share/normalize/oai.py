@@ -111,7 +111,7 @@ class OAICreativeWork(Parser):
     )
 
     title = tools.Join(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:title'])
-    description = tools.Join(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:description'])
+    description = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:description')
 
     publishers = tools.Map(
         tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIPublisher))),
