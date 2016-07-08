@@ -72,8 +72,14 @@ class ChangeSet(models.Model):
     normalized_data = models.ForeignKey(NormalizedData)
 
     def accept(self, save=True):
+        ret = []
         with transaction.atomic():
-            ret = [c.accept(save=save) for c in self.changes.all()]
+            for c in self.changes.all():
+                try:
+                    ret.append(c.accept(save=save))
+                except Exception as ex:
+                    logger.exception('Could not save change {} for changeset {} submitted by {}'.format(c, self, self.normalized_data.source))
+                    raise ex
             self.status = ChangeSet.STATUS.accepted
             if save:
                 self.save()
