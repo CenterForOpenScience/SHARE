@@ -74,4 +74,4 @@ class Association(ShareObject):
     creative_work = ShareForeignKey(AbstractCreativeWork)
 
     def __str__(self):
-        return self.entity
+        return str(self.entity)
