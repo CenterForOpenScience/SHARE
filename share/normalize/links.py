@@ -238,11 +238,17 @@ class DateParserLink(AbstractLink):
 
 
 class LanguageParserLink(AbstractLink):
-    def execute(self, obj):
-        try:
-            return languages.get(name=obj).iso639_3_code
-        except KeyError:
-            return None
+    def execute(self, maybe_code):
+        # Force indices to populate
+        if not languages._is_loaded:
+            languages._load()
+
+        for kwarg in languages.indices.keys():
+            try:
+                return languages.get(**{kwarg: maybe_code}).iso639_3_code
+            except KeyError:
+                continue
+        return None
 
 
 class ConcatLink(AbstractLink):
