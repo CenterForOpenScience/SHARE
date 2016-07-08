@@ -111,4 +111,3 @@ class AppConfig(OAIProviderAppConfig):
         'univcom',
         'wglt',
     ]
-    property_list = ['date', 'type', 'source', 'format', 'identifier', 'setSpec']

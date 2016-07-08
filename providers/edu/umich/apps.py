@@ -110,4 +110,3 @@ class AppConfig(OAIProviderAppConfig):
         'col_2027.42_39392',
         'col_2027.42_49534',
     ]
-    property_list = ['date', 'identifier', 'setSpec']

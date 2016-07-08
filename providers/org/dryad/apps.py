@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Dryad Data Repository'
     home_page = 'http://www.datadryad.org/'
     url = 'http://www.datadryad.org/oai/request'
-    property_list = ['rights', 'format', 'relation', 'date', 'identifier', 'type', 'setSpec']

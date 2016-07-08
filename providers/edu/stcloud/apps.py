@@ -28,4 +28,3 @@ class AppConfig(OAIProviderAppConfig):
         'econ_seminars',
         'stcloud_ling',
     ]
-    property_list = ['type', 'source', 'format', 'setSpec', 'date']

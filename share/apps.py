@@ -7,7 +7,6 @@ class ShareConfig(AppConfig):
     name = 'share'
     link_type_choices = Choices(
         ('doi', _('DOI')),
-        ('orcid', _('Orchid')),
         ('provider', _('Provider')),
         ('misc', _('Miscellaneous')),
     )

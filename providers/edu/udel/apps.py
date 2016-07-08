@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'University of Delaware Institutional Repository'
     home_page = 'http://udspace.udel.edu/dspace-oai/request'
     url = 'http://udspace.udel.edu/dspace-oai/request'
-    property_list = ['identifier', 'type']

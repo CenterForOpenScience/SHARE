@@ -6,19 +6,28 @@ from share import models
 class BaseShareSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
-        # super hates my additional kwarg
+        # super hates my additional kwargs
         sparse = kwargs.pop('sparse', False)
+        version_serializer = kwargs.pop('version_serializer', False)
         super(BaseShareSerializer, self).__init__(*args, **kwargs)
 
         if sparse:
             # clear the fields if they asked for sparse
             self.fields.clear()
+
         else:
             # remove hidden fields
-            excluded_fields = ['change', 'id', 'type', 'uuid', 'source']
+            excluded_fields = ['change', 'uuid', 'sources']
             for field_name in tuple(self.fields.keys()):
                 if 'version' in field_name or field_name in excluded_fields:
                     self.fields.pop(field_name)
+
+        # version specific fields
+        if version_serializer:
+            self.fields.update({
+                'action': serializers.CharField(max_length=10),
+                'persistent_id': serializers.IntegerField()
+            })
 
         # add fields with improper names
         self.fields.update({
@@ -80,7 +89,7 @@ class PersonSerializer(BaseShareSerializer):
     affiliations = OrganizationSerializer(sparse=True, many=True)
     class Meta(BaseShareSerializer.Meta):
         model = models.Person
-        fields = ('id', 'identifiers', 'affiliations',)
+        exclude = ('emails',)
 
 
 class AffiliationSerializer(BaseShareSerializer):

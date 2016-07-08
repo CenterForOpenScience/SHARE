@@ -10,13 +10,3 @@ class AppConfig(OAIProviderAppConfig):
     url = 'http://www.nature.com/oai/request'
     time_granularity = False
     emitted_type = 'publication'
-    property_list = [
-        'type',
-        'format',
-        'date',
-        'description',
-        'relation',
-        'setSpec',
-        'rights',
-        'identifier',
-    ]

@@ -1,6 +1,6 @@
 from share.normalize import ctx
 from share.normalize.parsers import Parser
-from share.normalize.links import Delegate, Map, Maybe
+from share.normalize import tools
 
 
 class Person(Parser):
@@ -20,7 +20,7 @@ class Person(Parser):
 
 
 class Contributor(Parser):
-    person = Delegate(Person, ctx)
+    person = tools.Delegate(Person, ctx)
     order_cited = ctx('index')
     cited_name = ctx.embeds.users.data.attributes.full_name
 
@@ -30,7 +30,7 @@ class Tag(Parser):
 
 
 class ThroughTags(Parser):
-    tag = Delegate(Tag, ctx)
+    tag = tools.Delegate(Tag, ctx)
 
 
 class Institution(Parser):
@@ -44,8 +44,8 @@ class Institution(Parser):
         description = ctx.attributes.description
 
 
-class ThroughInstitutions(Parser):
-    institution = Delegate(Institution, ctx)
+class Association(Parser):
+    pass
 
 
 class Link(Parser):
@@ -54,23 +54,26 @@ class Link(Parser):
 
 
 class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
+    link = tools.Delegate(Link, ctx)
 
 
 class Project(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
-    contributors = Map(Delegate(Contributor), ctx['contributors'])
-    institutions = Map(Delegate(ThroughInstitutions), ctx.embeds.affiliated_institutions.data)
-    created = ctx.attributes.date_created
-    subject = Delegate(Tag, ctx.attributes.category)
-    tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
-    rights = Maybe(ctx, 'attributes.node_license')
-    links = Map(Delegate(ThroughLinks), ctx.links.html)
+    contributors = tools.Map(tools.Delegate(Contributor), ctx['contributors'])
+    institutions = tools.Map(
+        tools.Delegate(Association.using(entity=tools.Delegate(Institution))),
+        ctx.embeds.affiliated_institutions.data
+    )
+    date_created = tools.ParseDate(ctx.attributes.date_created)
+    subject = tools.Delegate(Tag, ctx.attributes.category)
+    tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.tags)
+    rights = tools.Maybe(ctx, 'attributes.node_license')
+    links = tools.Map(tools.Delegate(ThroughLinks), ctx.links.html)
 
     class Extra:
         files = ctx.relationships.files.links.related.href
-        parent = Maybe(ctx, 'relationships.parent.links.related.href')
+        parent = tools.Maybe(ctx, 'relationships.parent.links.related.href')
         forks = ctx.relationships.forks.links.related.href
         root = ctx.relationships.root.links.related.href
         comments = ctx.relationships.comments.links.related.href

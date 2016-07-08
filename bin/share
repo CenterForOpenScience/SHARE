@@ -95,7 +95,7 @@ def normalize(args, argv):
     if args['FILE']:
         files = [x for x in args['FILE'] if x.endswith('.json')]
     else:
-        files = [x for x in os.listdir(args['--directory']) if x.endswith('.json')]
+        files = [os.path.join(args['--directory'], x) for x in os.listdir(args['--directory']) if x.endswith('.json')]
 
     for name in files:
         with open(name) as fobj:

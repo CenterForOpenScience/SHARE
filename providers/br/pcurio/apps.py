@@ -9,4 +9,3 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://www.maxwell.vrac.puc-rio.br'
     url = 'http://www.maxwell.vrac.puc-rio.br/DC_Todos.php'
     timezone_granularity = False
-    property_list = ['date', 'identifier', 'type', 'setSpec']

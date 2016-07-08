@@ -225,4 +225,3 @@ class AppConfig(OAIProviderAppConfig):
         'vcoa_pubs',
         'wrld_pubs',
     ]
-    property_list = ['date', 'source', 'format', 'identifier', 'type', 'setSpec']

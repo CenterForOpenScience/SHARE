@@ -1,5 +1,4 @@
 import abc
-import json
 import logging
 import datetime
 from dateutil import parser
@@ -145,3 +144,34 @@ class BotTask(ProviderTask):
         bot = self.config.get_bot()
         logger.info('Running bot %s. Started by %s', bot, self.started_by)
         bot.run()
+
+
+class ApplySingleChangeSet(celery.Task):
+    def run(self, changeset_id=None, started_by_id=None):
+        started_by = None
+        if changeset_id is None:
+            logger.error('Got null changeset_id from {}'.format(started_by_id))
+            return
+        if started_by_id:
+            started_by = ShareUser.objects.get(pk=started_by_id)
+        logger.info('{} started apply changeset for {} at {}'.format(started_by, changeset_id, datetime.datetime.utcnow().isoformat()))
+        try:
+            changeset = ChangeSet.objects.get(id=changeset_id, status=ChangeSet.STATUS.pending)
+        except ChangeSet.DoesNotExist as ex:
+            logger.exception('Changeset {} does not exist'.format(changeset_id))
+        else:
+            changeset.accept(save=True)
+
+class ApplyChangeSets(celery.Task):
+
+    def run(self, changeset_ids=list(), started_by_id=None):
+        started_by = None
+        if started_by_id:
+            started_by = ShareUser.objects.get(pk=started_by_id)
+        logger.info('{} started apply changesets for {} at {}'.format(started_by, changeset_ids, datetime.datetime.utcnow().isoformat()))
+
+        for changeset_id in changeset_ids:
+            ApplySingleChangeSet().apply_async(kwargs=dict(changeset_id=changeset_id, started_by_id=started_by_id))
+
+
+

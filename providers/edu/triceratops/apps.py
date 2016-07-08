@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Triceratops: Tri-College Digital Repository'
     home_page = 'http://triceratops.brynmawr.edu'
     url = 'http://triceratops.brynmawr.edu/dspace-oai/request'
-    property_list = ['date', 'identifier', 'type', 'setSpec']

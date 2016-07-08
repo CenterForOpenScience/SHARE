@@ -8,4 +8,3 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'K-State Research Exchange'
     home_page = 'http://krex.k-state.edu'
     url = 'http://krex.k-state.edu/dspace-oai/request'
-    property_list = ['type', 'date', 'identifier', 'setSpec']
