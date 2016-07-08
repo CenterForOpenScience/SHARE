@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 
 class ElasticSearchView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated, ]
+    permission_classes = []
 
     def get(self, request, *args, url_bits='', **kwargs):
         es_url = furl(settings.ELASTICSEARCH_URL).add(
