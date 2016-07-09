@@ -82,8 +82,8 @@ class ElasticSearchBot(Bot):
         },
     }
 
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, started_by):
+        super().__init__(config, started_by)
         self.es_client = Elasticsearch(settings.ELASTICSEARCH_URL)
 
     def serialize(self, inst):
