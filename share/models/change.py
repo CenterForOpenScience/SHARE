@@ -98,7 +98,7 @@ class Change(models.Model):
     objects = ChangeManager()
 
     change = JSONField()
-    node_id = models.TextField()
+    node_id = models.TextField(db_index=True)
 
     type = models.IntegerField(choices=TYPE, editable=False)
 
@@ -133,7 +133,7 @@ class Change(models.Model):
 
     def accept(self, save=True):
         # Little bit of blind faith here that all requirements have been accepted
-        assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.status)
+        assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
         ret = self._accept(save)
         ret.sources.add(self.change_set.normalized_data.source)
         if save:
