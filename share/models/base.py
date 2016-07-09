@@ -15,7 +15,7 @@ from typedmodels import models as typedmodels
 
 
 class ShareObjectVersion(models.Model):
-    action = models.CharField(max_length=10)
+    action = models.TextField(max_length=10)
     persistent_id = models.PositiveIntegerField()  # Must match the id of ShareObject
 
     class Meta:

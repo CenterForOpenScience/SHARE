@@ -98,7 +98,7 @@ class Change(models.Model):
     objects = ChangeManager()
 
     change = JSONField()
-    node_id = models.CharField(max_length=80)  # TODO
+    node_id = models.TextField()
 
     type = models.IntegerField(choices=TYPE, editable=False)
 

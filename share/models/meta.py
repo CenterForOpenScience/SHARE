@@ -41,7 +41,7 @@ class Tag(ShareObject):
 
 class Link(ShareObject):
     url = URIField()
-    type = models.CharField(max_length=50, choices=share_config.link_type_choices)
+    type = models.TextField(choices=share_config.link_type_choices)
 
     def __str__(self):
         return self.url
