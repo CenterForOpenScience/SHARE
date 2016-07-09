@@ -110,7 +110,7 @@ class OAICreativeWork(Parser):
         'institute'
     )
 
-    title = tools.Join(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:title'])
+    title = tools.Join(tools.RunPython('force_text', tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:title']))
     description = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:description')
 
     publishers = tools.Map(
@@ -252,6 +252,11 @@ class OAICreativeWork(Parser):
         return links
 
     def force_text(self, data):
+        if isinstance(data, dict):
+            return data['#text']
+
+        if isinstance(data, str):
+            return data
         fixed = []
         for datum in data:
             if isinstance(datum, dict):
