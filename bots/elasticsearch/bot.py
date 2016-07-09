@@ -73,6 +73,18 @@ class ElasticSearchBot(Bot):
             }
         },
         'abstractcreativework': {
+            'dynamic_templates': [{
+                'exact_matches': {
+                    'unmatch': 'description',
+                    'match_mapping_type': 'string',
+                    'mapping': {
+                        'type': 'string',
+                        'fields': {
+                            'raw': {'type': 'string', 'index': 'not_analyzed'}
+                        }
+                    }
+                }
+            }],
             'properties': {
                 'sources': {
                     'type': 'string',
