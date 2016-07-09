@@ -102,9 +102,8 @@ class ChangeNode:
     def update_relations(self, mapper):
         for v in self.relations.values():
             node = mapper[(v['@id'], v['@type'].lower())]
-            if node:
-                v['@id'] = node.id
-                v['@type'] = node.type
+            v['@id'] = node.id
+            v['@type'] = node.type
 
     def _disambiguate(self):
         if self.is_merge:
@@ -137,9 +136,9 @@ class ChangeGraph:
         # TODO This could probably be more efficiant
         if disambiguate:
             for n in self.__nodes:
-                n.update_relations(self.__map)
-            for n in self.__nodes:
                 n._disambiguate()
+            for n in self.__nodes:
+                n.update_relations(self.__map)
 
         if parse:
             self.__nodes = self.__sorter.sorted()
