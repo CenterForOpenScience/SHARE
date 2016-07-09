@@ -357,8 +357,7 @@ class ShareURLField(models.TextField):
 
     def deconstruct(self):
         name, path, args, kwargs = super(ShareURLField, self).deconstruct()
-        if kwargs.get("max_length") == 200:
-            del kwargs['max_length']
+        del kwargs['max_length']
         return name, path, args, kwargs
 
     def formfield(self, **kwargs):
