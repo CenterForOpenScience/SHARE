@@ -160,17 +160,14 @@ class OAICreativeWork(Parser):
 
     tags = tools.Map(
         tools.Delegate(OAIThroughTags),
-        tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:type'),
-        tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:subject'),
-        tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:format'),
-        tools.Maybe(ctx.record.header, 'setSpec')
-    )
-
-    links = tools.Map(
-        tools.Delegate(OAIThroughLinks),
-        tools.Concat(
-            tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:identifier'),
-            tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:relation'),
+        tools.RunPython(
+            'force_text',
+            tools.Concat(
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:type'),
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:subject'),
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:format'),
+                tools.Maybe(ctx.record.header, 'setSpec')
+            )
         )
     )
 
@@ -253,6 +250,17 @@ class OAICreativeWork(Parser):
                 except AttributeError:
                     continue
         return links
+
+    def force_text(self, data):
+        fixed = []
+        for datum in data:
+            if isinstance(datum, dict):
+                fixed.append(datum['#text'])
+            elif isinstance(datum, str):
+                fixed.append(datum)
+            else:
+                raise Exception(datum)
+        return fixed
 
     def get_relation(self, ctx):
         metadata = ctx['record'].get('metadata', None)

@@ -257,9 +257,11 @@ class ConcatLink(AbstractLink):
         super().__init__()
 
     def _concat(self, acc, val):
+        if val is None:
+            return acc
         if not isinstance(val, list):
             val = [val]
-        return acc + val
+        return acc + [v for v in val if v is not None]
 
     def execute(self, obj):
         return reduce(self._concat, [
@@ -277,7 +279,7 @@ class JoinLink(AbstractLink):
         obj = obj or []
         if not isinstance(obj, (list, tuple)):
             obj = (obj, )
-        return self._joiner.join(obj)
+        return self._joiner.join(x for x in obj if x)
 
 
 class TrimLink(AbstractLink):
@@ -303,6 +305,8 @@ class IteratorLink(AbstractLink):
     def execute(self, obj):
         if not isinstance(obj, (list, tuple)):
             obj = (obj, )
+        if None in obj:
+            import ipdb; ipdb.set_trace()
         return [self.__anchor.execute(sub) for sub in obj]
 
 
