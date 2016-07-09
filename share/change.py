@@ -56,7 +56,10 @@ class ChangeNode:
             return {**self.attrs, **self.relations, **self._reverse_relations}
 
         if self.is_blank:
-            return {**self.attrs, **self.relations, 'extra': self.extra}
+            ret = {**self.attrs, **self.relations}
+            if self.extra:
+                ret['extra'] = self.extra
+            return ret
 
         if not self.instance:
             raise UnresolvableReference('@id: {!r}, @type: {!r}'.format(self.id, self.type))
@@ -68,6 +71,9 @@ class ChangeNode:
                 if not (self.instance.extra and self.instance.extra.get(self.__extra_namespace))
                 or self.instance.extra.data[self.__extra_namespace].get(k) != v
             }
+
+            if not ret['extra']:
+                del ret['extra']
 
         return ret
 
