@@ -32,7 +32,7 @@ class Award(ShareObject):
 
 
 class Tag(ShareObject):
-    name = models.TextField()
+    name = models.TextField(db_index=True)
     url = ShareURLField(blank=True)
 
     def __str__(self):

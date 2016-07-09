@@ -218,7 +218,8 @@ class Change(models.Model):
                     change[k] = ExtraData()
                 change[k].data.update({self.change_set.normalized_data.source.username: v})
                 change[k].save()
-                change[k + '_version'] = change[k].versions.first()
+                change[k].refresh_from_db()
+                change[k + '_version'] = change[k].version
             elif isinstance(v, dict):
                 inst = self._resolve_ref(v)
                 change[k] = inst

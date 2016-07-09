@@ -46,6 +46,9 @@ class Person(ShareObject):
 
     class Meta:
         verbose_name_plural = 'People'
+        index_together = (
+            ('family_name', 'given_name', 'additional_name', 'suffix')
+        )
 
     # current_affiliation =
     # other_properties = models.JSONField()
