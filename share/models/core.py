@@ -17,7 +17,7 @@ from fuzzycount import FuzzyCountManager
 from oauth2_provider.models import AccessToken, Application
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
-from share.models.fields import DatetimeAwareJSONField
+from share.models.fields import DatetimeAwareJSONField, ShareURLField
 from share.models.validators import is_valid_jsonld
 
 logger = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(_('first name'), max_length=64, blank=True)
     last_name = models.CharField(_('last name'), max_length=64, blank=True)
     email = models.EmailField(_('email address'), blank=True)
-    gravatar = models.URLField(blank=True)
+    gravatar = ShareURLField(blank=True)
     time_zone = models.CharField(max_length=100, blank=True)
     locale = models.CharField(max_length=100, blank=True)
     is_staff = models.BooleanField(
@@ -115,7 +115,7 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     robot = models.CharField(max_length=40, blank=True)
     long_title = models.CharField(max_length=100, blank=True)
-    home_page = models.URLField(blank=True)
+    home_page = ShareURLField(blank=True)
 
     def get_short_name(self):
         return self.robot if self.is_robot else self.username

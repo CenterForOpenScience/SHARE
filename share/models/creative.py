@@ -4,7 +4,7 @@ from share.models.base import ShareObject
 from share.models.people import Person
 from share.models.base import TypedShareObjectMeta
 from share.models.meta import Venue, Award, Tag
-from share.models.fields import ShareForeignKey, ShareManyToManyField
+from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
 
 # Base Creative Work class
@@ -31,7 +31,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     date_created = models.DateTimeField(null=True)
     date_published = models.DateTimeField(null=True)
     date_updated = models.DateTimeField(null=True)
-    free_to_read_type = models.URLField(blank=True)
+    free_to_read_type = ShareURLField(blank=True)
     free_to_read_date = models.DateTimeField(null=True)
 
     rights = models.TextField(blank=True, null=True)

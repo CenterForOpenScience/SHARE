@@ -1,7 +1,7 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, ShareManyToManyField
+from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
 __all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Identifier', 'Contributor')
 
@@ -18,9 +18,9 @@ class Email(ShareObject):
 
 class Identifier(ShareObject):
     # https://twitter.com/berniethoughts/
-    url = models.URLField()
+    url = ShareURLField()
     # https://twitter.com/
-    base_url = models.URLField()
+    base_url = ShareURLField()
 
 
 # Actual Person
@@ -36,7 +36,7 @@ class Person(ShareObject):
     # this replaces "authority_id" and "other_identifiers" in the diagram
     identifiers = ShareManyToManyField(Identifier, through='ThroughIdentifiers')
     location = models.TextField(blank=True)
-    url = models.URLField(blank=True)
+    url = ShareURLField(blank=True)
 
     def __str__(self):
         return self.get_full_name()

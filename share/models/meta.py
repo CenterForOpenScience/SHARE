@@ -1,7 +1,7 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, URIField
+from share.models.fields import ShareForeignKey, URIField, ShareURLField
 from share.apps import ShareConfig as share_config
 
 
@@ -12,9 +12,9 @@ __all__ = ('Venue', 'Award', 'Tag', 'Link')
 
 class Venue(ShareObject):
     name = models.TextField()
-    venue_type = models.URLField(blank=True)
-    location = models.URLField(blank=True)
-    community_identifier = models.URLField(blank=True)
+    venue_type = ShareURLField(blank=True)
+    location = ShareURLField(blank=True)
+    community_identifier = ShareURLField(blank=True)
 
     def __str__(self):
         return self.name
@@ -23,9 +23,9 @@ class Venue(ShareObject):
 class Award(ShareObject):
     # ScholarlyArticle has an award object
     # it's just a text field, I assume our 'description' covers it.
-    award = models.URLField(blank=True)
+    award = ShareURLField(blank=True)
     description = models.TextField(blank=True)
-    url = models.URLField(blank=True)
+    url = ShareURLField(blank=True)
 
     def __str__(self):
         return self.description
@@ -33,7 +33,7 @@ class Award(ShareObject):
 
 class Tag(ShareObject):
     name = models.TextField()
-    url = models.URLField(blank=True)
+    url = ShareURLField(blank=True)
 
     def __str__(self):
         return self.name

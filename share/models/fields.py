@@ -1,13 +1,14 @@
 import six
 import ujson
+
+from django import forms
 from psycopg2.extras import Json
 from django.contrib.postgres import lookups
 from django.contrib.postgres.fields.jsonb import JSONField
-from django.core import checks
-from django.core import exceptions
+from django.core import exceptions, validators, checks
 from django.db import models
 from django.db.models.fields.related import resolve_relation
-
+from django.utils.translation import ugettext_lazy as _
 from share.models.validators import is_valid_uri
 
 
@@ -341,9 +342,30 @@ class ShareManyToManyField(TypedManyToManyField):
         actual._share_version_field = version
 
 
-class URIField(models.CharField):
+class URIField(models.TextField):
     default_validators = [is_valid_uri, ]
     def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = kwargs.get('max_length', 200)
         super(URIField, self).__init__(*args, **kwargs)
 
+
+class ShareURLField(models.TextField):
+    default_validators = [validators.URLValidator()]
+    description = _("URL")
+
+    def __init__(self, verbose_name=None, name=None, **kwargs):
+        super(ShareURLField, self).__init__(verbose_name, name, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(ShareURLField, self).deconstruct()
+        if kwargs.get("max_length") == 200:
+            del kwargs['max_length']
+        return name, path, args, kwargs
+
+    def formfield(self, **kwargs):
+        # As with CharField, this will cause URL validation to be performed
+        # twice.
+        defaults = {
+            'form_class': forms.URLField,
+        }
+        defaults.update(kwargs)
+        return super(ShareURLField, self).formfield(**defaults)
