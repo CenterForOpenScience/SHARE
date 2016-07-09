@@ -31,11 +31,11 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     date_created = models.DateTimeField(null=True, db_index=True)
     date_published = models.DateTimeField(null=True, db_index=True)
     date_updated = models.DateTimeField(null=True, db_index=True)
-    free_to_read_type = ShareURLField(blank=True)
-    free_to_read_date = models.DateTimeField(null=True)
+    free_to_read_type = ShareURLField(blank=True, db_index=True)
+    free_to_read_date = models.DateTimeField(null=True, db_index=True)
 
-    rights = models.TextField(blank=True, null=True)
-    language = models.TextField(blank=True, null=True)
+    rights = models.TextField(blank=True, null=True, db_index=True)
+    language = models.TextField(blank=True, null=True, db_index=True)
 
     def __str__(self):
         return self.title
