@@ -10,7 +10,7 @@ from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLF
 # Base Creative Work class
 
 class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
-    title = models.TextField()
+    title = models.TextField(db_index = True)
     description = models.TextField()
 
     contributors = ShareManyToManyField(Person, through='Contributor')
@@ -28,18 +28,22 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
     # Note: Null allows inserting of None but returns it as an empty string
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
-    date_created = models.DateTimeField(null=True)
-    date_published = models.DateTimeField(null=True)
-    date_updated = models.DateTimeField(null=True)
+    date_created = models.DateTimeField(null=True, db_index=True)
+    date_published = models.DateTimeField(null=True, db_index=True)
+    date_updated = models.DateTimeField(null=True, db_index=True)
     free_to_read_type = ShareURLField(blank=True)
     free_to_read_date = models.DateTimeField(null=True)
 
-    rights = models.TextField(blank=True, null=True)
-    language = models.TextField(blank=True, null=True)
+    rights = models.TextField(blank=True, null=True, db_index=True)
+    language = models.TextField(blank=True, null=True, db_index=True)
 
     def __str__(self):
         return self.title
 
+    class Meta:
+        index_together = (
+            ('type', 'date_updated', 'rights', 'language', 'title')
+        )
 
 # Subclasses/Types of Creative Work
 
