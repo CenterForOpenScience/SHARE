@@ -88,3 +88,8 @@ class Contributor(ShareObject):
 
     def __str__(self):
         return '{} -> {}'.format(self.person, self.creative_work)
+
+    class Meta:
+        index_together = (
+            ('cited_name', 'order_cited',)
+        )
