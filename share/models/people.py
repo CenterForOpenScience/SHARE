@@ -26,10 +26,10 @@ class Identifier(ShareObject):
 # Actual Person
 
 class Person(ShareObject):
-    family_name = models.CharField(max_length=200)  # last
-    given_name = models.CharField(max_length=200)  # first
-    additional_name = models.CharField(max_length=200, blank=True)  # can be used for middle
-    suffix = models.CharField(max_length=50, blank=True)
+    family_name = models.TextField()  # last
+    given_name = models.TextField()  # first
+    additional_name = models.TextField(blank=True)  # can be used for middle
+    suffix = models.TextField(blank=True)
 
     emails = ShareManyToManyField(Email, through='PersonEmail')
     affiliations = ShareManyToManyField('Entity', through='Affiliation')

@@ -11,7 +11,7 @@ __all__ = ('Venue', 'Award', 'Tag', 'Link')
 
 
 class Venue(ShareObject):
-    name = models.CharField(max_length=255)
+    name = models.TextField()
     venue_type = models.URLField(blank=True)
     location = models.URLField(blank=True)
     community_identifier = models.URLField(blank=True)
@@ -32,7 +32,7 @@ class Award(ShareObject):
 
 
 class Tag(ShareObject):
-    name = models.CharField(max_length=255)
+    name = models.TextField()
     url = models.URLField(blank=True)
 
     def __str__(self):

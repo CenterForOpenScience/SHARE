@@ -10,7 +10,7 @@ __all__ = ('Entity', 'Funder', 'Organization', 'Publisher', 'Institution')
 
 class Entity(ShareObject, metaclass=TypedShareObjectMeta):
     url = models.URLField(blank=True)
-    name = models.CharField(max_length=255)
+    name = models.TextField()
     location = models.TextField(blank=True)
     affiliations = ShareManyToManyField('Person', through='Affiliation')
 
