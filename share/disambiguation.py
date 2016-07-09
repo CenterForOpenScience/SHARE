@@ -1,4 +1,5 @@
 import abc
+from share.models import Link
 
 
 __all__ = ('disambiguate', )
@@ -39,3 +40,13 @@ class GenericDisambiguator(Disambiguator):
         if not self.attrs:
             return None
         return self.model.objects.filter(**self.attrs).first()
+
+
+class LinkDisambiguator(Disambiguator):
+    model = Link
+    FOR_MODEL = Link
+
+    def disambiguate(self):
+        if not self.attrs.get('url'):
+            return None
+        return Link.objects.filter(url=self.attrs['url']).first()

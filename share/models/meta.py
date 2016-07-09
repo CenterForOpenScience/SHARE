@@ -40,7 +40,7 @@ class Tag(ShareObject):
 
 
 class Link(ShareObject):
-    url = URIField()
+    url = URIField(db_index=True)
     type = models.TextField(choices=share_config.link_type_choices)
 
     def __str__(self):
