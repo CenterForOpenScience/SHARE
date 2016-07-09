@@ -40,11 +40,6 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     def __str__(self):
         return self.title
 
-    class Meta:
-        index_together = (
-            ('type', 'date_updated', 'rights', 'title')
-        )
-
 
 # Subclasses/Types of Creative Work
 
