@@ -68,9 +68,8 @@ class ChangeViewSet(viewsets.ModelViewSet):
     filter_class = ChangeFilterSet
 
 
-class RawDataViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated, TokenHasScope, ]
+class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, ]
     serializer_class = RawDataSerializer
-    required_scopes = ['upload_raw_data', ]
 
     queryset = RawData.objects.all()
