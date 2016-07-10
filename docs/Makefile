@@ -44,6 +44,10 @@ help:
 	@echo "  coverage   to run coverage check of the documentation (if enabled)"
 	@echo "  dummy      to check syntax errors of document sources"
 
+.PHONY: watch
+watch:
+	sphinx-autobuild . $(BUILDDIR)
+
 .PHONY: clean
 clean:
 	rm -rf $(BUILDDIR)/*
