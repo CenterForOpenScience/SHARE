@@ -18,7 +18,8 @@ To run::
     python manage.py runserver
     python manage.py celery worker -l DEBUG
 
-Run a harvester:
+Run a harvester::
+
     python manage.py harvest domain.providername --async
 
 To see a list of all providers, as well as their names for harvesting, visit http://localhost:8000/api/providers/
