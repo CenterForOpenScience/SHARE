@@ -12,6 +12,7 @@ from share.models import Entity
 from share.models import Award
 from share.models import Venue
 from share.models import Association
+from share.models import Affiliation
 from share.models import CeleryProviderTask
 from share.models import AbstractCreativeWork
 
@@ -113,31 +114,55 @@ class ElasticSearchBot(Bot):
 
     def serialize_person(self, person):
         return {
+            '@id': person.pk,
+            '@type': 'person',
             'suffix': person.suffix,
             'given_name': person.given_name,
             'family_name': person.family_name,
             'full_name': person.get_full_name(),
             'additional_name': person.additional_name,
+            'identifiers': [{
+                'url': identifier.url,
+                'base_url': identifier.base_url,
+            } for identifier in person.identifiers.all()],
+            'affiliations': [
+                self.serialize_entity(affiliation.entity)
+                for affiliation in
+                Affiliation.objects.select_related('entity').filter(person=person)
+            ],
             'sources': [source.robot for source in person.sources.all()],
+        }
+
+    def serialize_entity(self, entity):
+        return {
+            '@id': entity.pk,
+            'name': entity.name,
+            '@type': type(entity).__name__.lower(),
         }
 
     def serialize_creative_work(self, creative_work):
         return {
             '@type': type(creative_work).__name__.lower(),
+            'associations': [
+                self.serialize_entity(association.entity)
+                for association in
+                Association.objects.select_related('entity').filter(creative_work=creative_work)
+            ],
             'title': creative_work.title,
-            'associations': [association.entity.name for association in Association.objects.select_related('entity').filter(creative_work=creative_work)],
-            'awards': [str(award) for award in creative_work.awards.all()],
-            'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
+            'language': creative_work.language,
+            'subject': str(creative_work.subject),
+            'description': creative_work.description,
+            'date': (creative_work.date_published or creative_work.date_updated or creative_work.date_created).isoformat(),
             'date_created': creative_work.date_created.isoformat(),
             'date_modified': creative_work.date_modified.isoformat(),
-            'date': (creative_work.date_published or creative_work.date_updated or creative_work.date_created).isoformat(),
-            'description': creative_work.description,
-            'language': creative_work.language,
-            'links': [str(link) for link in creative_work.links.all()],
-            'sources': [source.robot for source in creative_work.sources.all()],
-            'subject': str(creative_work.subject),
+            'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
+            'date_published': creative_work.date_published.isoformat() if creative_work.date_published else None,
             'tags': [str(tag) for tag in creative_work.tags.all()],
+            'links': [str(link) for link in creative_work.links.all()],
+            'awards': [str(award) for award in creative_work.awards.all()],
             'venues': [str(venue) for venue in creative_work.venues.all()],
+            'sources': [source.robot for source in creative_work.sources.all()],
+            'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
         }
 
     def run(self, last_run, chunk_size=50, reindex_all=False):
