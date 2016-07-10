@@ -3,7 +3,7 @@ Share Models
 
 Model Descriptions
 ------------------
-The descriptions of the models used in SHARE will be useful when writing the normalizer for a new provider.
+SHARE model descriptions will be useful when writing normalizers for new providers.
 See existing provider normalizers for more detailed examples.
 
 
@@ -38,7 +38,18 @@ Creative Work
         class CreativeWork:
             awards = Map(Delegate(ThroughAwards), ctx.<awards>)
   - venues
-   - A list of venues associated with the work, passed to the ``Venue`` class via the ``ThroughVenues`` class (syntax follows the ``awards`` example above).
+   - A list of venues associated with the work, passed to the ``Venue`` class via the ``ThroughVenues`` class::
+   
+        class Venue:
+            description = ctx.<venue_description>
+            url = ctx.<venue_url>
+
+        class ThroughVenues:
+            venue = Delegate(Venue, ctx)
+
+        class CreativeWork:
+            venues = Map(Delegate(ThroughVenues), ctx.<venues>)
+
   - links
    - A list of links associated with the work, passed to the ``Link`` class via the ``ThroughLinks`` class::
 
