@@ -37,7 +37,7 @@ class Affiliation(Parser):
 class Person(Parser):
     given_name = ctx.given
     family_name = ctx.family
-    affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), ctx.affiliation)
+    affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
 
 
 class Contributor(Parser):
