@@ -1,1 +1,1 @@
-default_app_config = 'bots.autocuratetag.apps.AppConfig'
+default_app_config = 'bots.autocurate.tag.apps.AppConfig'
