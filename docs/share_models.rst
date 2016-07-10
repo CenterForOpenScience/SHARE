@@ -9,6 +9,7 @@ See existing provider normalizers for more detailed examples.
 
 Creative Work
 """""""""""""
+
  **Metadata Fields:**
   - title
   - description
@@ -16,39 +17,39 @@ Creative Work
    - A list of contributors associated with the work, passed to the ``Person`` class via the ``Contributor`` class::
 
         class Person:
-            family_name = ctx.<family_name>
-            given_name = ctx.<given_name>
+            family_name = ctx.family_name
+            given_name = ctx.given_name
 
         class Contributor:
-            cited_name = ctx.<cited_name>
+            cited_name = ctx.cited_name
             person = Delegate(Person, ctx)
 
         class CreativeWork:
-            contributors = Map(Delegate(Contributor), ctx.<contributors>)
+            contributors = Map(Delegate(Contributor), ctx.contributors)
   - awards
    - A list of awards associated with the work, passed to the ``Award`` class via the ``ThroughAwards`` class::
 
         class Award:
-            description = ctx.<award_description>
+            description = ctx.award_description
             url = ctx.<award_url>
 
         class ThroughAwards:
             award = Delegate(Award, ctx)
 
         class CreativeWork:
-            awards = Map(Delegate(ThroughAwards), ctx.<awards>)
+            awards = Map(Delegate(ThroughAwards), ctx.awards)
   - venues
    - A list of venues associated with the work, passed to the ``Venue`` class via the ``ThroughVenues`` class::
    
         class Venue:
-            description = ctx.<venue_description>
-            url = ctx.<venue_url>
+            description = ctx.venue_description
+            url = ctx.venue_url
 
         class ThroughVenues:
             venue = Delegate(Venue, ctx)
 
         class CreativeWork:
-            venues = Map(Delegate(ThroughVenues), ctx.<venues>)
+            venues = Map(Delegate(ThroughVenues), ctx.venues)
 
   - links
    - A list of links associated with the work, passed to the ``Link`` class via the ``ThroughLinks`` class::
@@ -71,18 +72,19 @@ Creative Work
             link = Delegate(Link, ctx)
 
         class CreativeWork:
-            links = Map(Delegate(ThroughLinks), ctx.<links>)
+            links = Map(Delegate(ThroughLinks), ctx.links)
+
   - publishers
    - A list of publishers associated with the work, passed to the ``Publisher`` class via the ``Association`` class::
 
         class Publisher:
-            name = ctx.<publisher_name>
+            name = ctx.publisher_name
 
         class Association:
             entity = Delegate(Publisher, ctx)
 
         class CreativeWork:
-            publishers = Map(Delegate(Association), ctx.<publishers>)
+            publishers = Map(Delegate(Association), ctx.publishers)
   - funders
    - A list of funders associated with the work, passed to a ``Funder`` class via the ``Association`` class (syntax follows the ``publishers`` example above).
   - institutions
@@ -93,10 +95,10 @@ Creative Work
    - A single subject associated with the work, passed to the ``Tag`` class::
 
         class Tag:
-            name = ctx.<tag_name>
+            name = ctx.tag_name
 
         class CreativeWork:
-            subject = Delegate(Tag, ctx.<subject>)
+            subject = Delegate(Tag, ctx.subject)
 
   - tags
    - A list of tags associated with the work, passed to the ``Tag`` class via the ``ThroughTags`` class::
@@ -108,7 +110,7 @@ Creative Work
             tag = Delegate(Tag, ctx)
 
         class CreativeWork:
-            tags = Map(Delegate(ThroughTags), ctx.<tags>)
+            tags = Map(Delegate(ThroughTags), ctx.tags)
 
   - date_created
   - date_published
