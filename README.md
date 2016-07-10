@@ -1,6 +1,11 @@
 # SHAREv2
 
-## On OSF
+## Technical Documentation
+
+http://share-research.readthedocs.io/en/latest/index.html
+
+
+## On the OSF
 
 https://osf.io/sdxvj/
 
