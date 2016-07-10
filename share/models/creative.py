@@ -4,7 +4,7 @@ from share.models.base import ShareObject
 from share.models.people import Person
 from share.models.base import TypedShareObjectMeta
 from share.models.meta import Venue, Award, Tag
-from share.models.fields import ShareForeignKey, ShareManyToManyField
+from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
 
 # Base Creative Work class
@@ -28,14 +28,14 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
     # Note: Null allows inserting of None but returns it as an empty string
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
-    date_created = models.DateTimeField(null=True)
-    date_published = models.DateTimeField(null=True)
-    date_updated = models.DateTimeField(null=True)
-    free_to_read_type = models.URLField(blank=True)
-    free_to_read_date = models.DateTimeField(null=True)
+    date_created = models.DateTimeField(null=True, db_index=True)
+    date_published = models.DateTimeField(null=True, db_index=True)
+    date_updated = models.DateTimeField(null=True, db_index=True)
+    free_to_read_type = ShareURLField(blank=True, db_index=True)
+    free_to_read_date = models.DateTimeField(null=True, db_index=True)
 
-    rights = models.TextField(blank=True, null=True)
-    language = models.TextField(blank=True, null=True)
+    rights = models.TextField(blank=True, null=True, db_index=True)
+    language = models.TextField(blank=True, null=True, db_index=True)
 
     def __str__(self):
         return self.title

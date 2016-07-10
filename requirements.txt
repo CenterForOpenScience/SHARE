@@ -46,3 +46,5 @@ werkzeug==0.11.10
 xmltodict==0.10.2
 # TODO May need to downgrade
 elasticsearch==2.3.0
+# newrelic APM agent
+newrelic==2.66.0.49

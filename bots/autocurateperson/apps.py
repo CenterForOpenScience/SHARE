@@ -7,6 +7,6 @@ class AppConfig(BotAppConfig):
     long_title = ''
     home_page = ''
 
-    def get_bot(self):
+    def get_bot(self, started_by):
         from .bot import AutoCurateBot
-        return AutoCurateBot(self)
+        return AutoCurateBot(self, started_by)
