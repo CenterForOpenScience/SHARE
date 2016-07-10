@@ -184,7 +184,7 @@ class Change(models.Model):
             # Update all rows in "from"
             # Updates the change, the field in question, the version pin of the field in question
             # and date_modified must be manually updated
-            field.model.objects.filter(**{
+            field.model.objects.select_for_update().filter(**{
                 field.name + '__in': change['from']
             }).update(**{
                 'change': self,
@@ -195,7 +195,7 @@ class Change(models.Model):
 
         # Finally point all from rows' same_as and
         # same_as_version to the canonical model.
-        type(change['into']).objects.filter(
+        type(change['into']).objects.select_for_update().filter(
             pk__in=[i.pk for i in change['from']]
         ).update(
             change=self,
