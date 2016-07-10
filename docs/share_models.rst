@@ -8,6 +8,7 @@ Model Descriptions
 The descriptions of the models used in SHARE will be useful when writing the normalizer for a new provider.
 See existing provider normalizers for more detailed examples.
 
+.. _creative-work:
 
 Creative Work
 """""""""""""
