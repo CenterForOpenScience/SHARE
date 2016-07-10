@@ -42,6 +42,8 @@ class GenericDisambiguator(Disambiguator):
     def disambiguate(self):
         if not self.attrs:
             return None
+        if len(self.attrs.get('title','')) > 1024:
+            return None
         return self.model.objects.filter(**self.attrs).first()
 
 
