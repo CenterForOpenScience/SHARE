@@ -48,8 +48,8 @@ class Contributor(Parser):
 
 class CreativeWork(Parser):
     # Dates in CrossRef metadata are often incomplete, see: https://github.com/CrossRef/rest-api-doc/blob/master/rest_api.md#notes-on-dates
-    title = ctx.title[0]
-    description = Maybe(ctx, 'subtitle')[0]
+    title = Join(ctx.title)
+    description = Join(Maybe(ctx, 'subtitle'))
     contributors = Map(Delegate(Contributor), Maybe(ctx, 'author'))
     links = Map(Delegate(ThroughLinks), Maybe(ctx, 'URL'))
     publishers = Map(Delegate(Association.using(entity=Delegate(Publisher))), Maybe(ctx, 'publisher'))
