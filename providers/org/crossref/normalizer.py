@@ -35,8 +35,8 @@ class Affiliation(Parser):
 
 
 class Person(Parser):
-    given_name = ctx.given
-    family_name = ctx.family
+    given_name = Maybe(ctx, 'given')
+    family_name = Maybe(ctx, 'family')
     affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
 
 
