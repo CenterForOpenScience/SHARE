@@ -1,3 +1,5 @@
+.. _share-models:
+
 Share Models
 ============
 
@@ -7,6 +9,7 @@ Model Descriptions
 SHARE model descriptions will be useful when writing normalizers for new providers.
 See existing provider normalizers for more detailed examples.
 
+.. _creative-work:
 
 Creative Work
 """""""""""""

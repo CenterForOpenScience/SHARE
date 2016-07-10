@@ -3,7 +3,7 @@ Harvesters and Normalizers
 
 A `harvester` gathers raw data from a provider using their API.
 
-A `normalizer` takes the raw data gathered by a harvester and maps the fields to defined models.
+A `normalizer` takes the raw data gathered by a harvester and maps the fields to the defined :ref:`share models <share-models>`.
 
 Start Up
 --------
@@ -117,29 +117,38 @@ Writing a Harvester and Normalizer
 See the normalizers and harvesters located in the ``providers/`` directory for more examples of syntax and best practices.
 
 Best practices for OAI providers:
-    - if the provider follows OAI standards then the provider's ``app.py`` should begin like this::
+    - If the provider follows OAI standards, then the provider's ``app.py`` should begin like this::
 
         from share.provider import OAIProviderAppConfig
 
 
         class AppConfig(OAIProviderAppConfig):
 
-    - provider specific normalizers and harvesters are uneccessary for OAI providers as they all use the same ones
+    - Provider specific normalizers and harvesters are uneccessary for OAI providers as they all use the base OAI harvester and normalizer.
 
 Best practices for writing a non-OAI Harvester:
-    - the harvester should be defined in ``<provider_dir>/harvester.py``
-    - check to see if the data returned is paginated
-        - there will often be a resumption token to get the next page of results
-    - add an example record to the provider's ``__init__.py``
-    - check to see if the provider's API accepts a date range
-        - if the API does not then, if possible, check the date on each record returned and stop harvesting if the date on the record is older than the start date specified
+    - The harvester should be defined in ``<provider_dir>/harvester.py``.
+    - Add an example record to the provider's ``__init__.py``.
+    - Add the provider to the list of ``INSTALLED_APPS`` in ``project/settings.py``
+    - When writing the harvester:
+        - Define a ``do_harvest(...)`` function (and possibly additional helper functions) to make requests to the provider and to yield the harvested records.
+        - Check to see if the data returned by the provider is paginated.
+            - There will often be a resumption token to get the next page of results.
+        - Check to see if the provider's API accepts a date range
+            - If the API does not then, if possible, check the date on each record returned and stop harvesting if the date on the record is older than the specified start date.
+
 
 Best practices for writing a non-OAI Normalizer:
-    - the normalizer should be defined in ``<provider_dir>/normalizer.py``
-    - utilize the ``Extra`` class
-        - raw data that does not fit into a model to ensure all data is preserved
-        - raw data that are combined to fit into a model field to preserve data structure
+    - The normalizer should be defined in ``<provider_dir>/normalizer.py``.
+    - When writing the normalizer:
+        - Determine what information from the provider record should be stored as part of the ``CreativeWork`` :ref:`model <creative-work>` (i.e. if the record clearly defines a title, description, contributors, etc.).
+        - Use the :ref:`normalizing tools <normalizing-tools>` as necessary to correctly parse the raw data.
+        - Utilize the ``Extra`` class
+            - Raw data that does not fit into a defined :ref:`share model <share-models>` should be stored here.
+            - Raw data that is otherwise altered in the normalizer should also be stored here to ensure data integrity.
 
+
+.. _normalizing-tools:
 
 SHARE Normalizing Tools
 """""""""""""""""""""""
@@ -164,15 +173,15 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
 
         tools.Join(<list>, joiner=' ')
 
-    Elements are separated with the ``joiner``
-    By default ``joiner`` is a newline
+    Elements are separated with the ``joiner``.
+    By default ``joiner`` is a newline.
 
 - Map
     To designate the class used for each instance of a value found::
 
         tools.Map(tools.Delegate(<class_name>), <chain>)
 
-    See models for what uses a through table (anything that sets ``through=``).
+    See the :ref:`share models <share-models>` for what uses a through table (anything that sets ``through=``).
     Uses the :ref:`Delegate <delegate-reference>` tool.
 
 - Maybe
@@ -189,12 +198,12 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
         tools.Maybe(tools.Maybe(<path>, '<item_that_might_not_exist>')['<item_that_will_exist_if_maybe_passes>'], '<item_that_might_not_exist>')
 
 - ParseDate
-    To pull out a date from a string::
+    To determine a date from a string::
 
         tools.ParseDate(<date_string>)
 
 - ParseLanguage
-    To pull a language (i.e. english ) type out of a string and standardize using ISO databases::
+    To determine the ISO language code (i.e. 'ENG') from a string (i.e. 'English')::
 
         tools.ParseLanguage(<language_string>)
 
@@ -203,7 +212,7 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
     .. _pycountry: https://pypi.python.org/pypi/pycountry
 
 - ParseName
-    To pull parts of a name (i.e. first name) out of a string::
+    To determine the parts of a name (i.e. first name) out of a string::
 
         tools.ParseName(<name_string>).first
 
@@ -221,7 +230,7 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
     .. _nameparser: https://pypi.python.org/pypi/nameparser
 
 - RunPython
-    To use a python function::
+    To run a defined python function::
 
         tools.RunPython('<function_name>', <chain>, *args, **kwargs)
 

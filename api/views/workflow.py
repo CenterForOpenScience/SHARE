@@ -23,7 +23,7 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProviderSerializer
 
     def get_queryset(self):
-        return ShareUser.objects.exclude(robot='')
+        return ShareUser.objects.exclude(robot='').exclude(long_title='')
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):

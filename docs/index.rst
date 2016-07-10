@@ -2,8 +2,6 @@
 SHARE
 *****
 
-SHARE is building a free, open, dataset about research and scholarly activities across the lifecycle.
-
 SHARE is a higher education initiative whose mission is to maximize research impact by making research widely accessible,
 discoverable, and reusable. To fulfill this mission SHARE is building a free, open, data set about research and scholarly
 activities across their life cycle.
@@ -21,16 +19,6 @@ The technical side of SHARE has many pieces that you can interact with:
    - Discovering new Projects
    - Curation
    - Corrections and Updates
-
-
-Features
-========
-
-SHARE has a processing pipeline that allows the data to be used in many formats::
-
-    Harvester/Push/Curators -> Raw -> Normalization -> HoldingMaster ->
-    Process -> Master (Versioned) ->
-    Views (e.g., JamDB, ES, Neo4J) -> Provenance
 
 Guide
 =====
