@@ -1,0 +1,4 @@
+Ember Application
+=================
+
+Coming soon
