@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            "CREATE INDEX share_abstractcreativework_title_not_too_long ON share_abstractcreativework (title ASC) WHERE octet_length(title) < 1025;"
+            "CREATE INDEX share_abstractcreativework_title_not_too_long ON share_abstractcreativework (title ASC) WHERE octet_length(title) < 2049;"
         )
     ]
