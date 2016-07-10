@@ -130,6 +130,7 @@ class ElasticSearchBot(Bot):
             'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
             'date_created': creative_work.date_created.isoformat(),
             'date_modified': creative_work.date_modified.isoformat(),
+            'date': (creative_work.date_published or creative_work.date_updated or creative_work.date_created).isoformat(),
             'description': creative_work.description,
             'language': creative_work.language,
             'links': [str(link) for link in creative_work.links.all()],
