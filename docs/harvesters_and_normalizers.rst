@@ -8,7 +8,7 @@ A `normalizer` takes the raw data gathered by a harvester and maps the fields to
 Start Up
 --------
 
-Installation (inside a virtual environment))::
+Installation (inside a virtual environment)::
 
     pip install -r requirements.txt
 
@@ -41,9 +41,9 @@ Visit http://localhost:5555/dashboard to keep an eye on your harvesting and norm
 Running Existing Harvesters and Normalizers
 -------------------------------------------
 
-To see a list of all providers, as well as their names for harvesting, visit http://localhost:8000/api/providers/
+To see a list of all providers and their names for harvesting, visit http://localhost:8000/api/providers/
 
-Gathering data involves a few steps:
+Steps for gathering data:
     - **Harvest** data from the original source
     - **Normalize** data, or create a ``ChangeSet``` that will format the data to be saved into SHARE Models
     - **Accept** the ``ChangeSet``` objects, and save them as ``AbstractCreativeWork`` objects in the SHARE database
@@ -52,7 +52,7 @@ Gathering data involves a few steps:
 Printing to the Console
 -----------------------
 
-It's possible to run the harvesters and normalizers separately, and print the results out to the console
+It is possible to run the harvesters and normalizers separately, and print the results out to the console
 for testing and debugging using ``./bin/share``
 
 For general help documentation::
@@ -72,7 +72,7 @@ If the harvester created a *lot* of files and you want to view a couple::
     find <provider dir i.e. edu.icpsr/> -type f -name '*.json' | head -<number to list>
 
 The harvest command will by default create a new folder at the top level with the same name as the provider name,
-but you can also specify a specific folder when running the harvest command with the ``--out`` argument.
+but you can also specify a folder when running the harvest command with the ``--out`` argument.
 
 To normalize all harvested documents::
 
