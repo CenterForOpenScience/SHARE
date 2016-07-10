@@ -26,7 +26,7 @@ html_static_path = ['_static']
 templates_path = ['_templates']
 html_show_sourcelink = False
 html_theme_options = {
-    'logo': 'share.png',
+    'logo': 'logo.png',
     'description': 'A free, open, dataset about research and scholarly activities across the lifecycle.',
     'description_font_style': 'italic',
     'github_user': 'CenterForOpenScience',
