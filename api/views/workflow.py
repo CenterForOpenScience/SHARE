@@ -3,16 +3,16 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
+from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
     ShareUserSerializer, ProviderSerializer
-from share.models import ChangeSet, Change, RawData, ShareUser
+from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
 from share.tasks import MakeJsonPatches
 
 __all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated,]
     serializer_class = ShareUserSerializer
 
     def get_queryset(self):
@@ -20,7 +20,6 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,]
     serializer_class = ProviderSerializer
 
     def get_queryset(self):
@@ -28,12 +27,12 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated, TokenHasScope, ]
+    permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
     serializer_class = NormalizedDataSerializer
     required_scopes = ['upload_normalized_manuscript', ]
 
     def get_queryset(self):
-        return self.request.user.normalizeddata_set.all()
+        return NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
         prelim_data = request.data
@@ -48,11 +47,9 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
 
 class ChangeSetViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
     serializer_class = ChangeSetSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
-    # queryset = ChangeSet.objects.all()
 
     def get_queryset(self):
         return ChangeSet.objects.all().select_related('normalized_data__source')
@@ -60,7 +57,6 @@ class ChangeSetViewSet(viewsets.ModelViewSet):
 
 
 class ChangeViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
     serializer_class = ChangeSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
@@ -69,7 +65,6 @@ class ChangeViewSet(viewsets.ModelViewSet):
 
 
 class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, ]
     serializer_class = RawDataSerializer
 
     queryset = RawData.objects.all()
