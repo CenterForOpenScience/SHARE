@@ -95,8 +95,8 @@ class ElasticSearchBot(Bot):
         },
     }
 
-    def __init__(self, config, started_by):
-        super().__init__(config, started_by)
+    def __init__(self, config, started_by, last_run=None):
+        super().__init__(config, started_by, last_run=last_run)
         self.es_client = Elasticsearch(settings.ELASTICSEARCH_URL)
 
     def serialize(self, inst):
@@ -165,29 +165,16 @@ class ElasticSearchBot(Bot):
             'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
         }
 
-    def run(self, last_run, chunk_size=50, reindex_all=False):
+    def run(self, chunk_size=50, reindex_all=False):
         self._setup()
 
-        logger.debug('Finding last successful job')
-        last_run = CeleryProviderTask.objects.filter(
-            app_label=self.config.label,
-            app_version=self.config.version,
-            status=CeleryProviderTask.STATUS.succeeded,
-        ).order_by(
-            '-timestamp'
-        ).first()
-
-        if last_run:
-            logger.info('Found last job %s', last_run)
-            last_run = last_run.timestamp
-
         for model in self.INDEX_MODELS:
-            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream(model, last_run)):
+            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream(model, self.last_run)):
                 logger.debug(resp)
 
         logger.info('Loading up autocomplete type')
         for model in self.AUTO_COMPLETE_MODELS:
-            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream_autocomplete(model, cutoff_date=last_run)):
+            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream_autocomplete(model, cutoff_date=self.last_run)):
                 logger.debug(resp)
 
     def bulk_stream(self, model, cutoff_date=None):

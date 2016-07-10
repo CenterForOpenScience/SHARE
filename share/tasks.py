@@ -143,10 +143,10 @@ class MakeJsonPatches(celery.Task):
 
 class BotTask(ProviderTask):
 
-    def do_run(self, last_run):
-        bot = self.config.get_bot(self.started_by)
+    def do_run(self, last_run=None):
+        bot = self.config.get_bot(self.started_by, last_run=last_run)
         logger.info('Running bot %s. Started by %s', bot, self.started_by)
-        bot.run(last_run)
+        bot.run()
 
 
 class ApplySingleChangeSet(celery.Task):

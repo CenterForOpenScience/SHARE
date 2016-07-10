@@ -1,10 +1,7 @@
 import logging
 
-import arrow
-
-from bots.autocurateperson.tasks import CurateItemTask
+from bots.autocurate.person.tasks import CurateItemTask
 from share.bot import Bot
-from share.models import CeleryProviderTask
 
 from share.models import Person
 
@@ -13,31 +10,11 @@ logger = logging.getLogger(__name__)
 
 class AutoCurateBot(Bot):
 
-    def run(self, last_run, dry=False):
-        if not last_run:
-            logger.debug('Finding last successful job')
-            last_run = CeleryProviderTask.objects.filter(
-                app_label=self.config.label,
-                status=CeleryProviderTask.STATUS.succeeded,
-            ).order_by(
-                '-timestamp'
-            ).values_list('timestamp', flat=True).first()
-            if last_run:
-                last_run = arrow.get(last_run)
-            else:
-                last_run = arrow.get(0)
-            logger.info('Found last job %s', last_run)
-        else:
-            last_run = arrow.get(last_run)
-
-        logger.info('Using last run of %s', last_run)
-        self.do_curation(last_run)
-
-    def do_curation(self, last_run: arrow.Arrow):
+    def run(self):
         submitted = set()
 
         qs = Person.objects.filter(
-            date_modified__gte=last_run.datetime,
+            date_modified__gte=self.last_run.datetime,
         )
 
         total = qs.count()

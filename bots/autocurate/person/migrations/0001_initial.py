@@ -15,12 +15,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            code=share.robot.RobotUserMigration('autocuratetag'),
+            code=share.robot.RobotUserMigration('autocurate.person'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('autocuratetag'),
+            code=share.robot.RobotOauthTokenMigration('autocurate.person'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotScheduleMigration('autocuratetag'),
+            code=share.robot.RobotScheduleMigration('autocurate.person'),
         ),
     ]
