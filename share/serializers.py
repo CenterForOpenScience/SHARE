@@ -43,6 +43,7 @@ class BaseShareSerializer(serializers.ModelSerializer):
     class Meta:
         pass
 
+
 class ExtraDataSerializer(BaseShareSerializer):
     class Meta(BaseShareSerializer.Meta):
         model = models.ExtraData
@@ -56,6 +57,11 @@ class EntitySerializer(BaseShareSerializer):
 class VenueSerializer(BaseShareSerializer):
     class Meta(BaseShareSerializer.Meta):
         model = models.Venue
+
+
+class LinkSerializer(BaseShareSerializer):
+    class Meta(BaseShareSerializer.Meta):
+        model = models.Link
 
 
 class OrganizationSerializer(EntitySerializer):
@@ -133,6 +139,7 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     institutions = InstitutionSerializer(sparse=True, many=True)
     venues = VenueSerializer(sparse=True, many=True)
     awards = AwardSerializer(sparse=True, many=True)
+    links = LinkSerializer(many=True)
     subject = TagSerializer(sparse=True)
 
 

@@ -1,6 +1,11 @@
 # SHAREv2
 
-## On OSF
+## Technical Documentation
+
+http://share-research.readthedocs.io/en/latest/index.html
+
+
+## On the OSF
 
 https://osf.io/sdxvj/
 
@@ -28,3 +33,10 @@ https://osf.io/sdxvj/
     python manage.py runserver
     python manage.py monitor
     python manage.py celery worker -l DEBUG
+
+
+## Build docs
+     
+    cd docs/
+    pip install -r requirements.txt
+    make watch

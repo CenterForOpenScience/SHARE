@@ -19,6 +19,7 @@ router.register(r'contributors', views.ContributorViewSet, base_name=views.Contr
 router.register(r'funders', views.FunderViewSet, base_name=views.FunderViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'awards', views.AwardViewSet, base_name=views.AwardViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'tags', views.TagViewSet, base_name=views.TagViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'links', views.LinkViewSet, base_name=views.LinkViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'creativeworks', views.CreativeWorkViewSet, base_name=views.CreativeWorkViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'publications', views.PublicationViewSet, base_name=views.PublicationViewSet.serializer_class.Meta.model._meta.model_name)

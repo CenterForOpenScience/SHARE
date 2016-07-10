@@ -114,6 +114,11 @@ class TagViewSet(ShareObjectViewSet):
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
+class LinkViewSet(ShareObjectViewSet):
+    serializer_class = serializers.LinkSerializer
+    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+
+
 class CreativeWorkViewSet(ShareObjectViewSet):
     serializer_class = serializers.CreativeWorkSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(

@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from fuzzycount import FuzzyCountManager
 
+from django.apps import apps
 from share.models import NormalizedData
 
 __all__ = ('Change', 'ChangeSet', )
@@ -183,7 +184,7 @@ class Change(models.Model):
             # Update all rows in "from"
             # Updates the change, the field in question, the version pin of the field in question
             # and date_modified must be manually updated
-            field.model.objects.filter(**{
+            field.model.objects.select_for_update().filter(**{
                 field.name + '__in': change['from']
             }).update(**{
                 'change': self,
@@ -194,7 +195,7 @@ class Change(models.Model):
 
         # Finally point all from rows' same_as and
         # same_as_version to the canonical model.
-        type(change['into']).objects.filter(
+        type(change['into']).objects.select_for_update().filter(
             pk__in=[i.pk for i in change['from']]
         ).update(
             change=self,
@@ -231,11 +232,12 @@ class Change(models.Model):
         return change
 
     def _resolve_ref(self, ref):
-        ct = ContentType.objects.get(app_label='share', model=ref['@type'])
+        model = apps.get_model('share', model_name=ref['@type'])
+        ct = ContentType.objects.get_for_model(model, for_concrete_model=False)
         if str(ref['@id']).startswith('_:'):
-            return ct.model_class().objects.get(
+            return model.objects.get(
                 change__target_type=ct,
                 change__node_id=ref['@id'],
                 change__change_set=self.change_set,
             )
-        return ct.model_class().objects.get(pk=ref['@id'])
+        return model.objects.get(pk=ref['@id'])
