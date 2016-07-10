@@ -67,8 +67,8 @@ INSTALLED_APPS = [
     'share',
     'api',
 
-    # 'bots.autocurate.person',
-    # 'bots.autocurate.tag',
+    'bots.autocurate.person',
+    'bots.autocurate.tag',
     'bots.automerge',
     'bots.elasticsearch',
 

@@ -1,9 +1,10 @@
 import logging
 
-from bots.autocurate.person.tasks import CurateItemTask
 from share.bot import Bot
-
 from share.models import Person
+
+from .tasks import CurateItemTask
+
 
 logger = logging.getLogger(__name__)
 
