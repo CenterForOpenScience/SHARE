@@ -3,7 +3,6 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from api.filters import ShareObjectFilterSet
-from api.serializers import ChangeSerializer
 from share import serializers
 from api import serializers as api_serializers
 
@@ -30,14 +29,13 @@ class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
         changes = self.get_object().changes.all()
         page = self.paginate_queryset(changes)
         if page is not None:
-            ser = ChangeSerializer(page, many=True, context={'request': request})
+            ser = api_serializers.ChangeSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(ser.data)
-        ser = ChangeSerializer(changes, many=True, context={'request': request})
+        ser = api_serializers.ChangeSerializer(changes, many=True, context={'request': request})
         return Response(ser.data)
 
 
 class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated, ]  # TokenHasScope]
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     filter_class = ShareObjectFilterSet

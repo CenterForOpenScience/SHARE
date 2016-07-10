@@ -4,22 +4,20 @@ SHARE
 
 SHARE is building a free, open, dataset about research and scholarly activities across the lifecycle.
 
-
 SHARE is a higher education initiative whose mission is to maximize research impact by making research widely accessible,
 discoverable, and reusable. To fulfill this mission SHARE is building a free, open, data set about research and scholarly
 activities across their life cycle.
 
-SHARE harvests metadata from 100+ separate repositories from around the web on a nightly basis, and then normalizes that
-metadata into one format, and makes it accessable via a web API.
+SHARE harvests metadata nightly from 100+ repositories, normalizes that metadata into one format, and makes it accessable via a web API.
 
 The technical side of SHARE has many pieces that you can interact with:
 
 - API Endpoints for accessing the raw and normalized metadata
-- A search endpoint powered by elasticsearch that indexes the normalized data, to allow for:
+- A search endpoint powered by elasticsearch that indexes the normalized data allowing:
    - Thorough search
    - Data aggregations across fields
 - A python library called ``sharepa`` for SHARE Parsing and Analysis
-- An application built using Ember using the SHARE API for:
+- An Ember application using the SHARE API for:
    - Discovering new Projects
    - Curation
    - Corrections and Updates

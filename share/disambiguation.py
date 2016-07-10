@@ -42,9 +42,17 @@ class GenericDisambiguator(Disambiguator):
     def disambiguate(self):
         if not self.attrs:
             return None
+        self.attrs.pop('description', None)
         if len(self.attrs.get('title','')) > 2048:
             return None
-        self.attrs.pop('description', None)
+        elif self.attrs.get('title', None):
+            # if the model has a title, it's an abstractcreativework
+            # limit the query so it uses an index
+            return self.model.objects.filter(**self.attrs).extra(
+                where=[
+                    "octet_length(title) < 2049"
+                ]
+            ).first()
         return self.model.objects.filter(**self.attrs).first()
 
 
