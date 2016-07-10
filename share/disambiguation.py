@@ -44,6 +44,7 @@ class GenericDisambiguator(Disambiguator):
             return None
         if len(self.attrs.get('title','')) > 1024:
             return None
+        self.attrs.pop('description', None)
         return self.model.objects.filter(**self.attrs).first()
 
 
