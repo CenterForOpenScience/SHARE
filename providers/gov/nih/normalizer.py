@@ -10,8 +10,8 @@ class Person(Parser):
 
 class Contributor(Parser):
     order_cited = ctx('index')
-    cited_name = ctx
-    person = Delegate(Person, ctx)
+    cited_name = ctx.PI_NAME
+    person = Delegate(Person, ctx.PI_NAME)
 
 
 class Link(Parser):
@@ -45,7 +45,7 @@ class CreativeWork(Parser):
     title = ctx.row.PROJECT_TITLE
     contributors = Map(
         Delegate(Contributor),
-        ctx.row.PIS.PI.PI_NAME
+        ctx.row.PIS.PI
     )
     links = Map(
         Delegate(ThroughLinks),
