@@ -3,7 +3,7 @@ Harvesters and Normalizers
 
 A `harvester` gathers raw data from a provider using their API.
 
-A `normalizer` takes the raw data gathered by a harvester and maps the fields to defined models.
+A `normalizer` takes the raw data gathered by a harvester and maps the fields to the defined :ref:`share models <share-models>`.
 
 Start Up
 --------

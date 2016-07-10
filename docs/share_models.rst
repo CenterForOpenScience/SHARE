@@ -1,3 +1,5 @@
+.. _share-models:
+
 Share Models
 ============
 
