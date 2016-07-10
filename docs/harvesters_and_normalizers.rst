@@ -96,6 +96,8 @@ To debug::
 Running Though the Full Pipeline
 """"""""""""""""""""""""""""""""
 
+Note: celery must be running for ``--async`` tasks
+
 Run a harvester and normalizer::
 
     python manage.py harvest domain.providername --async
@@ -112,7 +114,31 @@ To automatically add all harvested and accepted documents to Elasticsearch::
 Writing a Harvester and Normalizer
 ----------------------------------
 
-See the normalizers and harvesters located in the ``providers/`` directory for examples of syntax and best practices.
+See the normalizers and harvesters located in the ``providers/`` directory for more examples of syntax and best practices.
+
+Best practices for OAI providers:
+    - if the provider follows OAI standards then the provider's ``app.py`` should begin like this::
+
+        from share.provider import OAIProviderAppConfig
+
+
+        class AppConfig(OAIProviderAppConfig):
+
+    - provider specific normalizers and harvesters are uneccessary for OAI providers as they all use the same ones
+
+Best practices for writing a non-OAI Harvester:
+    - the harvester should be defined in ``<provider_dir>/harvester.py``
+    - check to see if the data returned is paginated
+        - there will often be a resumption token to get the next page of results
+    - add an example record to the provider's ``__init__.py``
+    - check to see if the provider's API accepts a date range
+        - if the API does not then, if possible, check the date on each record returned and stop harvesting if the date on the record is older than the start date specified
+
+Best practices for writing a non-OAI Normalizer:
+    - the normalizer should be defined in ``<provider_dir>/normalizer.py``
+    - utilize the ``Extra`` class
+        - raw data that does not fit into a model to ensure all data is preserved
+        - raw data that are combined to fit into a model field to preserve data structure
 
 
 SHARE Normalizing Tools
