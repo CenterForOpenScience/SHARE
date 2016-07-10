@@ -40,6 +40,7 @@ Guide
 
     quickstart
     harvesters_and_normalizers
+    share_models
     elasticsearch
     ember_app
     troubleshooting
