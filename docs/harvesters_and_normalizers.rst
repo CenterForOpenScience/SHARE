@@ -1,6 +1,10 @@
 Harvesters and Normalizers
 ==========================
 
+A `harvester` gathers raw data from a provider using their API.
+
+A `normalizer` takes the raw data gathered by a harvester and maps the fields to defined models.
+
 Start Up
 --------
 
@@ -106,47 +110,101 @@ To automatically add all harvested and accepted documents to Elasticsearch::
 
 
 Writing a Harvester and Normalizer
-""""""""""""""""""""""""""""""""""
+----------------------------------
 
-See the normalizers and harvesters located in the ``providers/`` directory examples of syntax and best practices.
+See the normalizers and harvesters located in the ``providers/`` directory for examples of syntax and best practices.
 
 
 SHARE Normalizing Tools
 """""""""""""""""""""""
 
-    ParseDate
+If using normalizing tools, add ``from share.normalize import tools`` at the top of the file.
+Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``tools`` to avoid name conflicts with the models.
 
+- Concat
+    To combine list or singular elements into a flat list::
 
-    ParseName
+        tools.Concat(<string_or_list>, <string_or_list>)
 
+.. _delegate-reference:
 
-    ParseLanguage
+- Delegate
+    To specify which class to use::
 
+        tools.Delegate(<class_name>)
 
-    Trim
+- Join
+    To combine list elements into a single string::
 
+        tools.Join(<list>, joiner=' ')
 
-    Concat
+    Elements are separated with the ``joiner``
+    By default ``joiner`` is a newline
 
+- Map
+    To designate the class used for each instance of a value found::
 
-    XPath
+        tools.Map(tools.Delegate(<class_name>), <chain>)
 
+    See models for what uses a through table (anything that sets ``through=``).
+    Uses the :ref:`Delegate <delegate-reference>` tool.
 
-    Join
+- Maybe
+    To normalize data that is not consistently available::
 
+        tools.Maybe(<path>, '<item_that_might_not_exist>')
 
-    Maybe
+    Indexing further if the path exists::
 
+        tools.Maybe(<path>, '<item_that_might_not_exist>')['<item_that_will_exist_if_maybe_passes>']
 
-    Map
+    Nesting Maybe::
 
+        tools.Maybe(tools.Maybe(<path>, '<item_that_might_not_exist>')['<item_that_will_exist_if_maybe_passes>'], '<item_that_might_not_exist>')
 
-    Delegate
+- ParseDate
+    To pull out a date from a string::
 
+        tools.ParseDate(<date_string>)
 
-    RunPython
+- ParseLanguage
+    To pull a language (i.e. english ) type out of a string and standardize using ISO databases::
 
+        tools.ParseLanguage(<language_string>)
 
-    Static
+    Uses pycountry_ package.
 
+    .. _pycountry: https://pypi.python.org/pypi/pycountry
 
+- ParseName
+    To pull parts of a name (i.e. first name) out of a string::
+
+        tools.ParseName(<name_string>).first
+
+    options::
+
+        first
+        last
+        middle
+        suffix
+        title
+        nickname
+
+    Uses nameparser_ package.
+
+    .. _nameparser: https://pypi.python.org/pypi/nameparser
+
+- RunPython
+    To use a python function::
+
+        tools.RunPython('<function_name>', <chain>, *args, **kwargs)
+
+- Static
+    To define a static field::
+
+        tools.Static(<static_value>)
+
+- XPath
+    To access data using xpath::
+
+        tools.XPath(<chain>, "<xpath_string>")
