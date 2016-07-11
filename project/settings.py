@@ -320,7 +320,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'https://staging-share.osf.io')
+LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'http://localhost:8000/')
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
