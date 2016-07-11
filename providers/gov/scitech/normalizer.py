@@ -14,6 +14,7 @@ class Affiliation(Parser):
 
 class Email(Parser):
     email = ctx
+    is_primary = Static(False)
 
 
 class PersonEmail(Parser):

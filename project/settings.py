@@ -67,8 +67,8 @@ INSTALLED_APPS = [
     'share',
     'api',
 
-    'bots.autocurateperson',
-    'bots.autocuratetag',
+    'bots.autocurate.person',
+    'bots.autocurate.tag',
     'bots.automerge',
     'bots.elasticsearch',
 
@@ -293,7 +293,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'db.backends.postgresql',
         'NAME': os.environ.get('DATABASE_NAME', 'share'),
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),

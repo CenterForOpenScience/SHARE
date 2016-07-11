@@ -34,6 +34,19 @@ class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
         ser = api_serializers.ChangeSerializer(changes, many=True, context={'request': request})
         return Response(ser.data)
 
+#
+# class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
+#     @detail_route(methods=['get'])
+#     def rawdata(self, request, pk=None):
+#         if pk is None:
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
+#         data = []
+#         obj = self.get_object()
+#         if not obj.changes.exists():
+#             data.append(obj.change.change_set.normalized_data.raw)
+#         else:
+#             data
+
 
 class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, viewsets.ReadOnlyModelViewSet):
     # TODO: Add in scopes once we figure out who, why, and how.
@@ -160,5 +173,5 @@ class ManuscriptViewSet(ShareObjectViewSet):
 
 class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
-        ser = api_serializers.ShareUserSerializer(request.user)
+        ser = api_serializers.ShareUserSerializer(request.user, token=True)
         return Response(ser.data)
