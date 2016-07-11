@@ -1,5 +1,6 @@
 from share.normalize import *
 from share.normalize import links
+from share.normalize.utils import format_doi_as_url
 
 
 class Link(Parser):
@@ -20,6 +21,14 @@ class ThroughLinks(Parser):
 
 class Publisher(Parser):
     name = ctx
+
+
+class Funder(Parser):
+    name = ctx.name
+
+
+class Award(Parser):
+    award = ctx.award
 
 
 class Association(Parser):
@@ -62,10 +71,67 @@ class Contributor(Parser):
     )
 
 
+class Tag(Parser):
+    name = ctx
+
+
 class CreativeWork(Parser):
-    # Dates in CrossRef metadata are often incomplete, see: https://github.com/CrossRef/rest-api-doc/blob/master/rest_api.md#notes-on-dates
-    title = Join(ctx.title)
-    description = Join(Maybe(ctx, 'subtitle'))
-    contributors = Map(Delegate(Contributor), Maybe(ctx, 'author'))
-    links = Map(Delegate(ThroughLinks), Maybe(ctx, 'URL'))
-    publishers = Map(Delegate(Association.using(entity=Delegate(Publisher))), Maybe(ctx, 'publisher'))
+    """
+    Documentation for CrossRef's metadata can be found here:
+    https://github.com/CrossRef/rest-api-doc/blob/master/api_format.md
+    """
+
+    def format_doi_as_url(self, doi):
+        return format_doi_as_url(self, doi)
+
+    title = Maybe(ctx, 'title')[0]
+    description = Maybe(ctx, 'subtitle')[0]
+    subject = Delegate(Tag, Maybe(ctx, 'subject')[0])
+    date_updated = ParseDate(ctx.deposited['date-time'])
+    date_created = ParseDate(ctx.created['date-time'])
+
+    contributors = Map(
+        Delegate(Contributor),
+        Maybe(ctx, 'author')
+    )
+    links = Map(
+        Delegate(ThroughLinks),
+        RunPython('format_doi_as_url', ctx.DOI),
+        ctx.member,
+        ctx.prefix
+    )
+    publishers = Map(
+        Delegate(Association.using(entity=Delegate(Publisher))),
+        ctx.publisher
+    )
+    funders = Map(
+        Delegate(Association.using(entity=Delegate(Funder))),
+        Maybe(ctx, 'funder')
+    )
+    awards = Map(
+        Delegate(Association.using(entity=Delegate(Award))),
+        Maybe(ctx, 'funder')
+    )
+
+    class Extra:
+        alternative_id = Maybe(ctx, 'alternative-id')
+        archive = Maybe(ctx, 'archive')
+        article_number = Maybe(ctx, 'article-number')
+        chair = Maybe(ctx, 'chair')
+        container_title = Maybe(ctx, 'container-title')
+        date_published = Maybe(ctx, 'issued')
+        editor = Maybe(ctx, 'editor')
+        licenses = Maybe(ctx, 'license')
+        isbn = Maybe(ctx, 'isbn')
+        issn = Maybe(ctx, 'issn')
+        issue = Maybe(ctx, 'issue')
+        reference_count = ctx['reference-count']
+        page = Maybe(ctx, 'page')
+        published_online = Maybe(ctx, 'published-online')
+        published_print = Maybe(ctx, 'published-print')
+        subjects = Maybe(ctx, 'subject')
+        subtitles = Maybe(ctx, 'subtitle')
+        titles = ctx.title
+        translator = Maybe(ctx, 'translator')
+        type = ctx.type
+        volume = Maybe(ctx, 'volume')
