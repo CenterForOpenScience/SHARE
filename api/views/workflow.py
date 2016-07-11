@@ -13,6 +13,9 @@ __all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDat
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Returns details about the currently logged in user
+    """
     serializer_class = ShareUserSerializer
 
     def get_queryset(self):
@@ -27,6 +30,9 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
+    """
+    View showing all normalized data in the SHARE Dataset.
+    """
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
     serializer_class = NormalizedDataSerializer
     required_scopes = ['upload_normalized_manuscript', ]
@@ -47,6 +53,11 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
 
 class ChangeSetViewSet(viewsets.ModelViewSet):
+    """
+    ChangeSets are items that have been added to the SHARE dataset but may not yet have been accepted.
+
+    These can come from harvesters and normalizers or from the curate interface.
+    """
     serializer_class = ChangeSetSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
