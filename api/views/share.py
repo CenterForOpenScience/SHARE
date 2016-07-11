@@ -34,21 +34,30 @@ class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
         ser = api_serializers.ChangeSerializer(changes, many=True, context={'request': request})
         return Response(ser.data)
 
-#
-# class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
-#     @detail_route(methods=['get'])
-#     def rawdata(self, request, pk=None):
-#         if pk is None:
-#             return Response(status=status.HTTP_400_BAD_REQUEST)
-#         data = []
-#         obj = self.get_object()
-#         if not obj.changes.exists():
-#             data.append(obj.change.change_set.normalized_data.raw)
-#         else:
-#             data
+
+class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
+    @detail_route(methods=['get'])
+    def rawdata(self, request, pk=None):
+        if pk is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        data = []
+        obj = self.get_object()
+        if not obj.changes.exists():
+            data.append(obj.change.change_set.normalized_data.raw)
+        else:
+            changes = obj.changes.all()
+            data = [change.changeset.normalized_data.raw for change in changes]
+
+        page = self.paginate_queryset(data)
+        if page is not None:
+            ser = api_serializers.RawDataSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(ser.data)
+        ser = api_serializers.RawDataSerializer(data, many=True, context={'request': request})
+        return Response(ser.data)
 
 
-class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, viewsets.ReadOnlyModelViewSet):
+
+class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, viewsets.ReadOnlyModelViewSet):
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     filter_class = ShareObjectFilterSet
