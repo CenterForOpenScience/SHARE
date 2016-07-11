@@ -3,12 +3,12 @@ Harvesters and Normalizers
 
 A `harvester` gathers raw data from a provider using their API.
 
-A `normalizer` takes the raw data gathered by a harvester and maps the fields to defined models.
+A `normalizer` takes the raw data gathered by a harvester and maps the fields to the defined :ref:`SHARE models <share-models>`.
 
 Start Up
 --------
 
-Installation (inside a virtual environment))::
+Installation (inside a virtual environment)::
 
     pip install -r requirements.txt
 
@@ -41,9 +41,9 @@ Visit http://localhost:5555/dashboard to keep an eye on your harvesting and norm
 Running Existing Harvesters and Normalizers
 -------------------------------------------
 
-To see a list of all providers, as well as their names for harvesting, visit http://localhost:8000/api/providers/
+To see a list of all providers and their names for harvesting, visit https://staging-share.osf.io/api/providers/
 
-Gathering data involves a few steps:
+Steps for gathering data:
     - **Harvest** data from the original source
     - **Normalize** data, or create a ``ChangeSet``` that will format the data to be saved into SHARE Models
     - **Accept** the ``ChangeSet``` objects, and save them as ``AbstractCreativeWork`` objects in the SHARE database
@@ -52,7 +52,7 @@ Gathering data involves a few steps:
 Printing to the Console
 -----------------------
 
-It's possible to run the harvesters and normalizers separately, and print the results out to the console
+It is possible to run the harvesters and normalizers separately, and print the results out to the console
 for testing and debugging using ``./bin/share``
 
 For general help documentation::
@@ -72,7 +72,7 @@ If the harvester created a *lot* of files and you want to view a couple::
     find <provider dir i.e. edu.icpsr/> -type f -name '*.json' | head -<number to list>
 
 The harvest command will by default create a new folder at the top level with the same name as the provider name,
-but you can also specify a specific folder when running the harvest command with the ``--out`` argument.
+but you can also specify a folder when running the harvest command with the ``--out`` argument.
 
 To normalize all harvested documents::
 
@@ -96,6 +96,8 @@ To debug::
 Running Though the Full Pipeline
 """"""""""""""""""""""""""""""""
 
+Note: celery must be running for ``--async`` tasks
+
 Run a harvester and normalizer::
 
     python manage.py harvest domain.providername --async
@@ -114,6 +116,47 @@ Writing a Harvester and Normalizer
 
 See the normalizers and harvesters located in the ``providers/`` directory for examples of syntax and best practices.
 
+Best practices for OAI providers
+""""""""""""""""""""""""""""""""
+
+If the provider follows OAI standards, then the provider's ``app.py`` should begin like this:
+
+.. code-block:: python
+
+    from share.provider import OAIProviderAppConfig
+
+
+    class AppConfig(OAIProviderAppConfig):
+
+Provider-specific normalizers and harvesters are unnecessary for OAI providers as they all use the base OAI harvester and normalizer.
+
+Best practices for writing a non-OAI Harvester
+""""""""""""""""""""""""""""""""""""""""""""""
+
+- The harvester should be defined in ``<provider_dir>/harvester.py``.
+- Add an example record to the provider's ``__init__.py``.
+- Add the provider to the list of ``INSTALLED_APPS`` in ``project/settings.py``
+- When writing the harvester:
+    - Define a ``do_harvest(...)`` function (and possibly additional helper functions) to make requests to the provider and to yield the harvested records.
+    - Check to see if the data returned by the provider is paginated.
+        - There will often be a resumption token to get the next page of results.
+    - Check to see if the provider's API accepts a date range
+        - If the API does not then, if possible, check the date on each record returned and stop harvesting if the date on the record is older than the specified start date.
+
+
+Best practices for writing a non-OAI Normalizer
+"""""""""""""""""""""""""""""""""""""""""""""""
+
+- The normalizer should be defined in ``<provider_dir>/normalizer.py``.
+- When writing the normalizer:
+    - Determine what information from the provider record should be stored as part of the ``CreativeWork`` :ref:`model <creative-work>` (i.e. if the record clearly defines a title, description, contributors, etc.).
+    - Use the :ref:`normalizing tools <normalizing-tools>` as necessary to correctly parse the raw data.
+    - Utilize the ``Extra`` class
+        - Raw data that does not fit into a defined :ref:`share model <share-models>` should be stored here.
+        - Raw data that is otherwise altered in the normalizer should also be stored here to ensure data integrity.
+
+
+.. _normalizing-tools:
 
 SHARE Normalizing Tools
 """""""""""""""""""""""
@@ -138,15 +181,15 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
 
         tools.Join(<list>, joiner=' ')
 
-    Elements are separated with the ``joiner``
-    By default ``joiner`` is a newline
+    Elements are separated with the ``joiner``.
+    By default ``joiner`` is a newline.
 
 - Map
     To designate the class used for each instance of a value found::
 
         tools.Map(tools.Delegate(<class_name>), <chain>)
 
-    See models for what uses a through table (anything that sets ``through=``).
+    See the :ref:`share models <share-models>` for what uses a through table (anything that sets ``through=``).
     Uses the :ref:`Delegate <delegate-reference>` tool.
 
 - Maybe
@@ -163,12 +206,12 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
         tools.Maybe(tools.Maybe(<path>, '<item_that_might_not_exist>')['<item_that_will_exist_if_maybe_passes>'], '<item_that_might_not_exist>')
 
 - ParseDate
-    To pull out a date from a string::
+    To determine a date from a string::
 
         tools.ParseDate(<date_string>)
 
 - ParseLanguage
-    To pull a language (i.e. english ) type out of a string and standardize using ISO databases::
+    To determine the ISO language code (i.e. 'ENG') from a string (i.e. 'English')::
 
         tools.ParseLanguage(<language_string>)
 
@@ -177,7 +220,7 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
     .. _pycountry: https://pypi.python.org/pypi/pycountry
 
 - ParseName
-    To pull parts of a name (i.e. first name) out of a string::
+    To determine the parts of a name (i.e. first name) out of a string::
 
         tools.ParseName(<name_string>).first
 
@@ -195,7 +238,7 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
     .. _nameparser: https://pypi.python.org/pypi/nameparser
 
 - RunPython
-    To use a python function::
+    To run a defined python function::
 
         tools.RunPython('<function_name>', <chain>, *args, **kwargs)
 

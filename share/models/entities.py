@@ -15,6 +15,9 @@ class Entity(ShareObject, metaclass=TypedShareObjectMeta):
 
     class Meta:
         verbose_name_plural = 'Entities'
+        index_together = (
+            ('type', 'name',)
+        )
 
 
 class Funder(Entity):

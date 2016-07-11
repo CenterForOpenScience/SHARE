@@ -4,11 +4,12 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from furl import furl
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 
 class ElasticSearchView(views.APIView):
-    permission_classes = []
+    permission_classes = [AllowAny, ]
 
     def get(self, request, *args, url_bits='', **kwargs):
         es_url = furl(settings.ELASTICSEARCH_URL).add(

@@ -1,20 +1,18 @@
 import logging
 
 from django.conf import settings
-from elasticsearch import helpers
 from elasticsearch import Elasticsearch
+from elasticsearch import helpers
 from rest_framework.reverse import reverse
 
 from share.bot import Bot
+from share.models import AbstractCreativeWork
+from share.models import Award
+from share.models import CeleryProviderTask
+from share.models import Entity
 from share.models import Person
 from share.models import Tag
-from share.models import Entity
-from share.models import Award
 from share.models import Venue
-from share.models import Association
-from share.models import Affiliation
-from share.models import CeleryProviderTask
-from share.models import AbstractCreativeWork
 
 logger = logging.getLogger(__name__)
 
@@ -126,9 +124,9 @@ class ElasticSearchBot(Bot):
                 'base_url': identifier.base_url,
             } for identifier in person.identifiers.all()],
             'affiliations': [
-                self.serialize_entity(affiliation.entity)
+                self.serialize_entity(affiliation)
                 for affiliation in
-                Affiliation.objects.select_related('entity').filter(person=person)
+                person.affiliations.all()
             ],
             'sources': [source.robot for source in person.sources.all()],
         }
@@ -144,9 +142,14 @@ class ElasticSearchBot(Bot):
         return {
             '@type': type(creative_work).__name__.lower(),
             'associations': [
-                self.serialize_entity(association.entity)
+                self.serialize_entity(association)
                 for association in
-                Association.objects.select_related('entity').filter(creative_work=creative_work)
+                [
+                    *creative_work.funders.all(),
+                    *creative_work.publishers.all(),
+                    *creative_work.institutions.all(),
+                    *creative_work.organizations.all()
+                ]
             ],
             'title': creative_work.title,
             'language': creative_work.language,
@@ -192,12 +195,30 @@ class ElasticSearchBot(Bot):
 
     def bulk_stream(self, model, cutoff_date=None):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
+        if type(AbstractCreativeWork) == type(model):
+            qs = model.objects.select_related('subject', 'extra').prefetch_related('contributors__affiliations',
+                                                                               'contributors__emails',
+                                                                               'contributors__identifiers',
+                                                                               'contributors__sources', 'awards',
+                                                                               'venues', 'links', 'funders',
+                                                                               'publishers', 'institutions',
+                                                                               'organizations',
+                                                                               'sources', 'tags')
+        elif type(Person) == type(model):
+            qs = model.objects.prefetch_related('emails', 'sources', 'affiliations', 'identifiers')
+        elif type(Entity) == type(model):
+            qs = model.objects.prefetch_related('sources', 'affiliations', 'affiliations__emails',
+                                                'affiliations__identifiers', 'affiliations__sources')
+        else:
+            qs = model.objects
+
+
 
         if cutoff_date:
-            qs = model.objects.filter(date_modified__gt=cutoff_date)
+            qs = qs.filter(date_modified__gt=cutoff_date)
             logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
         else:
-            qs = model.objects.all()
+            qs = qs.all()
             logger.info('Getting all %s', model)
 
         logger.info('Found %s %s that must be updated in ES', qs.count(), model)
