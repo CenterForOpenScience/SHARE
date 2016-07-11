@@ -106,7 +106,7 @@ class ElasticSearchBot(Bot):
     def serialize_autocomplete(self, model):
         return {
             '@id': str(model.pk),
-            'text': str(model),
+            'text': str(model)[:32766],
             '@type': type(model).__name__.lower(),
         }
 
@@ -114,11 +114,11 @@ class ElasticSearchBot(Bot):
         return {
             '@id': person.pk,
             '@type': 'person',
-            'suffix': person.suffix,
-            'given_name': person.given_name,
-            'family_name': person.family_name,
-            'full_name': person.get_full_name(),
-            'additional_name': person.additional_name,
+            'suffix': person.suffix[:32766],
+            'given_name': person.given_name[:32766],
+            'family_name': person.family_name[:32766],
+            'full_name': person.get_full_name()[:32766],
+            'additional_name': person.additional_name[:32766],
             'identifiers': [{
                                 'url': identifier.url,
                                 'base_url': identifier.base_url,
@@ -134,7 +134,7 @@ class ElasticSearchBot(Bot):
     def serialize_entity(self, entity):
         return {
             '@id': entity.pk,
-            'name': entity.name,
+            'name': entity.name[:32766],
             '@type': type(entity).__name__.lower(),
         }
 
@@ -151,20 +151,20 @@ class ElasticSearchBot(Bot):
                     *creative_work.organizations.all()
                 ]
                 ],
-            'title': creative_work.title,
-            'language': creative_work.language,
+            'title': creative_work.title[:32766],
+            'language': creative_work.language[:32766],
             'subject': str(creative_work.subject),
-            'description': creative_work.description,
+            'description': creative_work.description[:32766],
             'date': (
             creative_work.date_published or creative_work.date_updated or creative_work.date_created).isoformat(),
             'date_created': creative_work.date_created.isoformat(),
             'date_modified': creative_work.date_modified.isoformat(),
             'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
             'date_published': creative_work.date_published.isoformat() if creative_work.date_published else None,
-            'tags': [str(tag) for tag in creative_work.tags.all()],
-            'links': [str(link) for link in creative_work.links.all()],
-            'awards': [str(award) for award in creative_work.awards.all()],
-            'venues': [str(venue) for venue in creative_work.venues.all()],
+            'tags': [str(tag)[:32766] for tag in creative_work.tags.all()],
+            'links': [str(link)[:32766] for link in creative_work.links.all()],
+            'awards': [str(award)[:32766] for award in creative_work.awards.all()],
+            'venues': [str(venue)[:32766] for venue in creative_work.venues.all()],
             'sources': [source.robot for source in creative_work.sources.all()],
             'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
         }
