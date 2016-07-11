@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db import transaction
 from elasticsearch import helpers
 from elasticsearch import Elasticsearch
-from rest_framework.reverse import reverse
 
 from db.backends.postgresql.base import server_side_cursors
 from share.bot import Bot
@@ -16,6 +15,11 @@ from share.models import Venue
 from share.models import AbstractCreativeWork
 
 logger = logging.getLogger(__name__)
+
+def safe_substr(value, length=32000):
+    if value:
+        return str(value)[:length]
+    return None
 
 
 class ElasticSearchBot(Bot):
@@ -106,7 +110,7 @@ class ElasticSearchBot(Bot):
     def serialize_autocomplete(self, model):
         return {
             '@id': str(model.pk),
-            'text': str(model),
+            'text': safe_substr(model),
             '@type': type(model).__name__.lower(),
         }
 
@@ -114,11 +118,11 @@ class ElasticSearchBot(Bot):
         return {
             '@id': person.pk,
             '@type': 'person',
-            'suffix': person.suffix,
-            'given_name': person.given_name,
-            'family_name': person.family_name,
-            'full_name': person.get_full_name(),
-            'additional_name': person.additional_name,
+            'suffix': safe_substr(person.suffix),
+            'given_name': safe_substr(person.given_name),
+            'family_name': safe_substr(person.family_name),
+            'full_name': safe_substr(person.get_full_name()),
+            'additional_name': safe_substr(person.additional_name),
             'identifiers': [{
                                 'url': identifier.url,
                                 'base_url': identifier.base_url,
@@ -134,7 +138,7 @@ class ElasticSearchBot(Bot):
     def serialize_entity(self, entity):
         return {
             '@id': entity.pk,
-            'name': entity.name,
+            'name': safe_substr(entity.name),
             '@type': type(entity).__name__.lower(),
         }
 
@@ -151,20 +155,20 @@ class ElasticSearchBot(Bot):
                     *creative_work.organizations.all()
                 ]
                 ],
-            'title': creative_work.title,
-            'language': creative_work.language,
-            'subject': str(creative_work.subject),
-            'description': creative_work.description,
+            'title': safe_substr(creative_work.title),
+            'language': safe_substr(creative_work.language),
+            'subject': safe_substr(creative_work.subject),
+            'description': safe_substr(creative_work.description),
             'date': (
             creative_work.date_published or creative_work.date_updated or creative_work.date_created).isoformat(),
             'date_created': creative_work.date_created.isoformat(),
             'date_modified': creative_work.date_modified.isoformat(),
             'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
             'date_published': creative_work.date_published.isoformat() if creative_work.date_published else None,
-            'tags': [str(tag) for tag in creative_work.tags.all()],
-            'links': [str(link) for link in creative_work.links.all()],
-            'awards': [str(award) for award in creative_work.awards.all()],
-            'venues': [str(venue) for venue in creative_work.venues.all()],
+            'tags': [safe_substr(tag) for tag in creative_work.tags.all()],
+            'links': [safe_substr(link) for link in creative_work.links.all()],
+            'awards': [safe_substr(award) for award in creative_work.awards.all()],
+            'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
             'sources': [source.robot for source in creative_work.sources.all()],
             'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
         }
@@ -216,7 +220,7 @@ class ElasticSearchBot(Bot):
                 for inst in qs.iterator():
                     yield {
                         '_op_type': 'index',
-                        '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
+                        '_id': inst.uuid,
                         **self.serialize_autocomplete(inst),
                         **opts
                     }

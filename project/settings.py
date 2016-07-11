@@ -244,7 +244,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         # 'api.authentication.NonCSRFSessionAuthentication',
     ),
-    'PAGE_SIZE': 32,
+    'PAGE_SIZE': 10,
     'DEFAULT_PARSER_CLASSES': (
         'api.parsers.JSONLDParser',
     ),
@@ -320,11 +320,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'http://localhost:8000/')
+
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
     CORS_ORIGIN_ALLOW_ALL = True
     CORS_ALLOW_CREDENTIALS = True
-    LOGIN_REDIRECT_URL = 'http://localhost:4200/login'
+
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
