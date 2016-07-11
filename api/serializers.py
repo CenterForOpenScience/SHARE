@@ -25,9 +25,9 @@ class ChangeSerializer(serializers.ModelSerializer):
 
 
 class ShareUserSerializer(serializers.ModelSerializer):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, token=None, **kwargs):
         super(ShareUserSerializer, self).__init__(*args, **kwargs)
-        if kwargs.get('token', False):
+        if token:
             self.fields.update({
                 'token': serializers.SerializerMethodField()
             })
