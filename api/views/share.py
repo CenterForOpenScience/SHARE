@@ -173,5 +173,5 @@ class ManuscriptViewSet(ShareObjectViewSet):
 
 class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
-        ser = api_serializers.ShareUserSerializer(request.user)
+        ser = api_serializers.ShareUserSerializer(request.user, token=True)
         return Response(ser.data)
