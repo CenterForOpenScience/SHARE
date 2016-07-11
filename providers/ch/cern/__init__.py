@@ -1,6 +1,9 @@
 default_app_config = 'providers.ch.cern.apps.AppConfig'
 
-"""<record>
+"""
+Example Record
+
+record>
         <header>
             <identifier>
                 oai:cds.cern.ch:2198005
