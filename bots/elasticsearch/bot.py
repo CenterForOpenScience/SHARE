@@ -1,19 +1,18 @@
 import logging
 
 from django.conf import settings
+from django.db import transaction
 from elasticsearch import helpers
 from elasticsearch import Elasticsearch
 from rest_framework.reverse import reverse
 
+from db.backends.postgresql.base import server_side_cursors
 from share.bot import Bot
 from share.models import Person
 from share.models import Tag
 from share.models import Entity
 from share.models import Award
 from share.models import Venue
-from share.models import Association
-from share.models import Affiliation
-from share.models import CeleryProviderTask
 from share.models import AbstractCreativeWork
 
 logger = logging.getLogger(__name__)
@@ -125,9 +124,9 @@ class ElasticSearchBot(Bot):
                                 'base_url': identifier.base_url,
                             } for identifier in person.identifiers.all()],
             'affiliations': [
-                self.serialize_entity(affiliation.entity)
+                self.serialize_entity(affiliation)
                 for affiliation in
-                Affiliation.objects.select_related('entity').filter(person=person)
+                person.affiliations.all()
                 ],
             'sources': [source.robot for source in person.sources.all()],
         }
@@ -143,9 +142,14 @@ class ElasticSearchBot(Bot):
         return {
             '@type': type(creative_work).__name__.lower(),
             'associations': [
-                self.serialize_entity(association.entity)
+                self.serialize_entity(association)
                 for association in
-                Association.objects.select_related('entity').filter(creative_work=creative_work)
+                [
+                    *creative_work.funders.all(),
+                    *creative_work.publishers.all(),
+                    *creative_work.institutions.all(),
+                    *creative_work.organizations.all()
+                ]
                 ],
             'title': creative_work.title,
             'language': creative_work.language,
@@ -189,11 +193,12 @@ class ElasticSearchBot(Bot):
             logger.info('Getting all %s', model)
 
         logger.info('Found %s %s that must be updated in ES', qs.count(), model)
-
-        for inst in qs.iterator():
-            yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
-            # if acw.is_delete:  # TODO
-            #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
+        with transaction.atomic():
+            with server_side_cursors(qs):
+                for inst in qs.iterator():
+                    yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
+                    # if acw.is_delete:  # TODO
+                    #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
 
     def bulk_stream_autocomplete(self, model, cutoff_date=None):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'autocomplete'}
@@ -206,14 +211,15 @@ class ElasticSearchBot(Bot):
             logger.info('Getting all %s', model)
 
         logger.info('Found %s %s that must be updated in ES', qs.count(), model)
-
-        for inst in qs.iterator():
-            yield {
-                '_op_type': 'index',
-                '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
-                **self.serialize_autocomplete(inst),
-                **opts
-            }
+        with transaction.atomic():
+            with server_side_cursors(qs):
+                for inst in qs.iterator():
+                    yield {
+                        '_op_type': 'index',
+                        '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
+                        **self.serialize_autocomplete(inst),
+                        **opts
+                    }
 
     def _setup(self):
         logger.debug('Ensuring Elasticsearch index %s', settings.ELASTICSEARCH_INDEX)
