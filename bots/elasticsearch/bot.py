@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.db import transaction
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 from rest_framework.reverse import reverse
@@ -182,58 +183,77 @@ class ElasticSearchBot(Bot):
 
     def bulk_stream(self, model, cutoff_date=None):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
-        if type(AbstractCreativeWork) == type(model):
-            qs = model.objects.select_related('subject', 'extra').prefetch_related('contributors__affiliations',
-                                                                               'contributors__emails',
-                                                                               'contributors__identifiers',
-                                                                               'contributors__sources', 'awards',
-                                                                               'venues', 'links', 'funders',
-                                                                               'publishers', 'institutions',
-                                                                               'organizations',
-                                                                               'sources', 'tags')
-        elif type(Person) == type(model):
-            qs = model.objects.prefetch_related('emails', 'sources', 'affiliations', 'identifiers')
-        elif type(Entity) == type(model):
-            qs = model.objects.prefetch_related('sources', 'affiliations', 'affiliations__emails',
-                                                'affiliations__identifiers', 'affiliations__sources')
-        else:
-            qs = model.objects
+        with transaction.atomic():
+            if type(AbstractCreativeWork) == type(model):
+                qs = model.objects.select_related('subject', 'extra').prefetch_related('contributors__affiliations',
+                                                                                   'contributors__emails',
+                                                                                   'contributors__identifiers',
+                                                                                   'contributors__sources', 'awards',
+                                                                                   'venues', 'links', 'funders',
+                                                                                   'publishers', 'institutions',
+                                                                                   'organizations',
+                                                                                   'sources', 'tags')
+            elif type(Person) == type(model):
+                qs = model.objects.prefetch_related('emails', 'sources', 'affiliations', 'identifiers')
+            elif type(Entity) == type(model):
+                qs = model.objects.prefetch_related('sources', 'affiliations', 'affiliations__emails',
+                                                    'affiliations__identifiers', 'affiliations__sources')
+            else:
+                qs = model.objects
 
 
 
-        if cutoff_date:
-            qs = qs.filter(date_modified__gt=cutoff_date)
-            logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
-        else:
-            qs = qs.all()
-            logger.info('Getting all %s', model)
+            if cutoff_date:
+                qs = qs.filter(date_modified__gt=cutoff_date)
+                logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
+            else:
+                qs = qs.all()
+                logger.info('Getting all %s', model)
 
-        logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+            logger.info('Found %s %s that must be updated in ES', qs.count(), model)
 
-        for inst in qs:
-            yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
-            # if acw.is_delete:  # TODO
-            #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
+            for inst in qs:
+                yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
+                # if acw.is_delete:  # TODO
+                #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
 
     def bulk_stream_autocomplete(self, model, cutoff_date=None):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'autocomplete'}
+        with transaction.atomic():
+            if type(AbstractCreativeWork) == type(model):
+                qs = model.objects.select_related('subject', 'extra').prefetch_related('contributors__affiliations',
+                                                                                       'contributors__emails',
+                                                                                       'contributors__identifiers',
+                                                                                       'contributors__sources',
+                                                                                       'awards',
+                                                                                       'venues', 'links', 'funders',
+                                                                                       'publishers', 'institutions',
+                                                                                       'organizations',
+                                                                                       'sources', 'tags')
+            elif type(Person) == type(model):
+                qs = model.objects.prefetch_related('emails', 'sources', 'affiliations', 'identifiers')
+            elif type(Entity) == type(model):
+                qs = model.objects.prefetch_related('sources', 'affiliations', 'affiliations__emails',
+                                                    'affiliations__identifiers', 'affiliations__sources')
+            else:
+                qs = model.objects
 
-        if cutoff_date:
-            qs = model.objects.filter(date_modified__gt=cutoff_date)
-            logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
-        else:
-            qs = model.objects.all()
-            logger.info('Getting all %s', model)
+            if cutoff_date:
+                qs = qs.filter(date_modified__gt=cutoff_date)
+                logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
+            else:
+                qs = qs.all()
+                logger.info('Getting all %s', model)
 
-        logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+            logger.info('Found %s %s that must be updated in ES', qs.count(), model)
 
-        for inst in qs:
-            yield {
-                '_op_type': 'index',
-                '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
-                **self.serialize_autocomplete(inst),
-                **opts
-            }
+            for inst in qs:
+                yield {
+                    '_op_type': 'index',
+                    '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
+                    **self.serialize_autocomplete(inst),
+                    **opts
+                }
 
     def _setup(self):
         logger.debug('Ensuring Elasticsearch index %s', settings.ELASTICSEARCH_INDEX)
