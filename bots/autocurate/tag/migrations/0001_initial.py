@@ -15,6 +15,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
+            "DELETE FROM django_migrations WHERE app='autocuratetag';"
+        ),
+        migrations.RunSQL(
             "UPDATE share_shareuser SET username='bots.autocurate.tag', robot='bots.autocurate.tag' WHERE username='bots.autocuratetag';"
         ),
         migrations.RunSQL(
