@@ -320,13 +320,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'https://staging-share.osf.io')
+
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
     CORS_ORIGIN_ALLOW_ALL = True
     CORS_ALLOW_CREDENTIALS = True
-    LOGIN_REDIRECT_URL = 'http://localhost:4200/login'
 
-LOGIN_REDIRECT_URL = 'https://staging-share.osf.io'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
