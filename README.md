@@ -1,5 +1,7 @@
 # SHAREv2
 
+[![Gitter](https://badges.gitter.im/CenterForOpenScience/SHARE.svg)](https://gitter.im/CenterForOpenScience/SHARE?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 ## Technical Documentation
 
 http://share-research.readthedocs.io/en/latest/index.html
