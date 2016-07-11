@@ -186,15 +186,11 @@ class ElasticSearchBot(Bot):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
         with transaction.atomic():
             if type(AbstractCreativeWork) == type(model):
-                qs = model.objects.select_related('subject', 'extra').prefetch_related('contributors__affiliations',
-                                                                                       'contributors__emails',
-                                                                                       'contributors__identifiers',
-                                                                                       'contributors__sources',
-                                                                                       'awards',
+                qs = model.objects.select_related('subject', 'extra').prefetch_related('awards',
                                                                                        'venues', 'links', 'funders',
                                                                                        'publishers', 'institutions',
                                                                                        'organizations',
-                                                                                       'sources', 'tags')
+                                                                                       'sources')
             elif type(Person) == type(model):
                 qs = model.objects.prefetch_related('emails', 'sources', 'affiliations', 'identifiers')
             elif type(Entity) == type(model):
