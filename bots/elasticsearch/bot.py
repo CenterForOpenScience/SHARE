@@ -106,7 +106,7 @@ class ElasticSearchBot(Bot):
     def serialize_autocomplete(self, model):
         return {
             '@id': str(model.pk),
-            'text': str(model),
+            'text': str(model.name),
             '@type': type(model).__name__.lower(),
         }
 
