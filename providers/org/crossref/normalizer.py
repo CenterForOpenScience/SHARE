@@ -34,16 +34,32 @@ class Affiliation(Parser):
     pass
 
 
+class Identifier(Parser):
+    base_url = 'https://orcid.org'
+    url = ctx
+
+
+class ThroughIdentifiers(Parser):
+    identifier = Delegate(Identifier, ctx)
+
+
 class Person(Parser):
     given_name = Maybe(ctx, 'given')
     family_name = Maybe(ctx, 'family')
     affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
+    identifiers = Map(Delegate(ThroughIdentifiers), Maybe(ctx, 'ORCID'))
 
 
 class Contributor(Parser):
     person = Delegate(Person, ctx)
     order_cited = ctx('index')
-    cited_name = links.Join(Concat(ctx.given, ctx.family), ' ')
+    cited_name = links.Join(
+        Concat(
+            Maybe(ctx, 'given'),
+            Maybe(ctx, 'family')
+        ),
+        joiner=' '
+    )
 
 
 class CreativeWork(Parser):
