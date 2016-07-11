@@ -27,6 +27,7 @@ jsonschema==2.5.1
 # TODO: Remove this when Kombu has a stable release including commit c20f854
 git+git://github.com/mfraezz/kombu.git@v3.0.36
 lxml==3.6.0
+Markdown==2.6.6
 nameparser==0.4.0
 shortuuid==0.4.3
 django-cors-headers==1.1.0
