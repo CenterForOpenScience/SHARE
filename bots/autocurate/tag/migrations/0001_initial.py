@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import share.robot
+# import share.robot
 
 
 class Migration(migrations.Migration):
@@ -14,13 +14,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(
-            code=share.robot.RobotUserMigration('autocurate.tag'),
+        migrations.RunSQL(
+            "UPDATE share_shareuser SET username='bots.autocurate.tag', robot='bots.autocurate.tag' WHERE username='bots.autocuratetag';"
         ),
-        migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('autocurate.tag'),
+        migrations.RunSQL(
+            "UPDATE djcelery_periodictask SET name='autocurate.tag bot task', args='[\"bots.autocurate.tag\"]' WHERE name='autocuratetag bot task';"
         ),
-        migrations.RunPython(
-            code=share.robot.RobotScheduleMigration('autocurate.tag'),
-        ),
+        # migrations.RunPython(
+        #     code=share.robot.RobotUserMigration('autocurate.tag'),
+        # ),
+        # migrations.RunPython(
+        #     code=share.robot.RobotOauthTokenMigration('autocurate.tag'),
+        # ),
+        # migrations.RunPython(
+        #     code=share.robot.RobotScheduleMigration('autocurate.tag'),
+        # ),
     ]
