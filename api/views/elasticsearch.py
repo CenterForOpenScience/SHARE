@@ -9,6 +9,13 @@ from api import authentication
 
 
 class ElasticSearchView(views.APIView):
+    """
+    Elasticsearch endpoint for SHARE Data.
+
+    - [Abstract Creative Works](/api/search/abstractcreativework/_search) - search individual documents harvested
+    - [Person](/api/search/person/_search) - people who are contributors to documents harvested
+    - [Autocomplete](/api/search/autocomplete/_search) - filter on the fly for applications built on the SHARE API
+    """
     authentication_classes = [authentication.NonCSRFSessionAuthentication, ]
     permission_classes = [AllowAny, ]
 
