@@ -16,7 +16,7 @@ from share.models import AbstractCreativeWork
 
 logger = logging.getLogger(__name__)
 
-def safe_substr(value, length=32766):
+def safe_substr(value, length=32000):
     if value:
         return str(value)[:length]
     return None
