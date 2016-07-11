@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db import transaction
 from elasticsearch import helpers
 from elasticsearch import Elasticsearch
-from rest_framework.reverse import reverse
 
 from db.backends.postgresql.base import server_side_cursors
 from share.bot import Bot
@@ -221,7 +220,7 @@ class ElasticSearchBot(Bot):
                 for inst in qs.iterator():
                     yield {
                         '_op_type': 'index',
-                        '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
+                        '_id': inst.uuid,
                         **self.serialize_autocomplete(inst),
                         **opts
                     }
