@@ -19,6 +19,9 @@ class Entity(ShareObject, metaclass=TypedShareObjectMeta):
             ('type', 'name',)
         )
 
+    def __str__(self):
+        return self.name
+
 
 class Funder(Entity):
     # TODO: ScholarlyArticle says this should be a DiscourseElement
