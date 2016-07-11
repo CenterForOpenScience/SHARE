@@ -249,7 +249,7 @@ REST_FRAMEWORK = {
         'api.parsers.JSONLDParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'api.renderers.JSONLDRenderer',
+        'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
