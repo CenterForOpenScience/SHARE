@@ -43,18 +43,23 @@ Once in the `share` virtual environment, install the necessary requirements.
 
 ## Run
 Run the API server
+
     python manage.py runserver
+    
 Run Celery
+
     python manage.py celery worker -l DEBUG
 
 ## Populate with data
 This is particularly applicable to running [ember-share](https://github.com/CenterForOpenScience/ember-share), an interface for SHARE.
 
 Harvest data from providers, for example
+
     ./manage.py harvest com.nature --async
     ./manage.py harvest io.osf --async
 
 Pass data to elasticsearch with `runbot`. Rerunning this command will get the most recently harvested data. This can take a minute or two to finish.
+
     ./manage.py runbot elasticsearch
 
 ## Build docs
