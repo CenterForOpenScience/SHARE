@@ -1,26 +1,25 @@
 import logging
 
 from django.conf import settings
-from django.db import transaction
-from elasticsearch import Elasticsearch
 from elasticsearch import helpers
+from elasticsearch import Elasticsearch
 from rest_framework.reverse import reverse
 
-from bots.elasticsearch.util import server_side_cursors
 from share.bot import Bot
-from share.models import AbstractCreativeWork
-from share.models import Award
-from share.models import CeleryProviderTask
-from share.models import Entity
 from share.models import Person
 from share.models import Tag
+from share.models import Entity
+from share.models import Award
 from share.models import Venue
+from share.models import Association
+from share.models import Affiliation
+from share.models import CeleryProviderTask
+from share.models import AbstractCreativeWork
 
 logger = logging.getLogger(__name__)
 
 
 class ElasticSearchBot(Bot):
-
     INDEX_MODELS = [AbstractCreativeWork, Person]
     AUTO_COMPLETE_MODELS = [
         # (Model, attribute, )
@@ -122,14 +121,14 @@ class ElasticSearchBot(Bot):
             'full_name': person.get_full_name(),
             'additional_name': person.additional_name,
             'identifiers': [{
-                'url': identifier.url,
-                'base_url': identifier.base_url,
-            } for identifier in person.identifiers.all()],
+                                'url': identifier.url,
+                                'base_url': identifier.base_url,
+                            } for identifier in person.identifiers.all()],
             'affiliations': [
-                self.serialize_entity(affiliation)
+                self.serialize_entity(affiliation.entity)
                 for affiliation in
-                person.affiliations.all()
-            ],
+                Affiliation.objects.select_related('entity').filter(person=person)
+                ],
             'sources': [source.robot for source in person.sources.all()],
         }
 
@@ -144,20 +143,16 @@ class ElasticSearchBot(Bot):
         return {
             '@type': type(creative_work).__name__.lower(),
             'associations': [
-                self.serialize_entity(association)
+                self.serialize_entity(association.entity)
                 for association in
-                [
-                    *creative_work.funders.all(),
-                    *creative_work.publishers.all(),
-                    *creative_work.institutions.all(),
-                    *creative_work.organizations.all()
-                ]
-            ],
+                Association.objects.select_related('entity').filter(creative_work=creative_work)
+                ],
             'title': creative_work.title,
             'language': creative_work.language,
             'subject': str(creative_work.subject),
             'description': creative_work.description,
-            'date': (creative_work.date_published or creative_work.date_updated or creative_work.date_created).isoformat(),
+            'date': (
+            creative_work.date_published or creative_work.date_updated or creative_work.date_created).isoformat(),
             'date_created': creative_work.date_created.isoformat(),
             'date_modified': creative_work.date_modified.isoformat(),
             'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
@@ -179,60 +174,46 @@ class ElasticSearchBot(Bot):
 
         logger.info('Loading up autocomplete type')
         for model in self.AUTO_COMPLETE_MODELS:
-            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream_autocomplete(model, cutoff_date=self.last_run.datetime)):
+            for resp in helpers.streaming_bulk(self.es_client,
+                                               self.bulk_stream_autocomplete(model, cutoff_date=self.last_run.datetime)):
                 logger.debug(resp)
 
     def bulk_stream(self, model, cutoff_date=None):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
-        with transaction.atomic():
-            if type(AbstractCreativeWork) == type(model):
-                qs = model.objects.select_related('subject', 'extra').prefetch_related(
-                                                                                       'awards',
-                                                                                       'venues', 'funders',
-                                                                                       'publishers', 'institutions',
-                                                                                       'organizations',
-                                                                                       'sources', 'tags')
-            elif type(Person) == type(model):
-                qs = model.objects.prefetch_related('emails', 'sources', 'identifiers')
-            elif type(Entity) == type(model):
-                qs = model.objects.prefetch_related('sources')
-            else:
-                qs = model.objects
-            with server_side_cursors(qs, itersize=1000):
-                if cutoff_date:
-                    qs = qs.filter(date_modified__gt=cutoff_date)
-                    logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
-                else:
-                    qs = qs.all()
-                    logger.info('Getting all %s', model)
 
-                logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+        if cutoff_date:
+            qs = model.objects.filter(date_modified__gt=cutoff_date)
+            logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
+        else:
+            qs = model.objects.all()
+            logger.info('Getting all %s', model)
 
-                for inst in qs:
-                    yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
-                    # if acw.is_delete:  # TODO
-                    #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
+        logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+
+        for inst in qs:
+            yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
+            # if acw.is_delete:  # TODO
+            #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
 
     def bulk_stream_autocomplete(self, model, cutoff_date=None):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'autocomplete'}
-        with transaction.atomic():
-            if cutoff_date:
-                qs = model.objects.filter(date_modified__gt=cutoff_date)
-                logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
-            else:
-                qs = model.objects.all()
-                logger.info('Getting all %s', model)
 
-            logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+        if cutoff_date:
+            qs = model.objects.filter(date_modified__gt=cutoff_date)
+            logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
+        else:
+            qs = model.objects.all()
+            logger.info('Getting all %s', model)
 
-            with server_side_cursors(qs, itersize=500):
-                for inst in qs:
-                    yield {
-                        '_op_type': 'index',
-                        '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
-                        **self.serialize_autocomplete(inst),
-                        **opts
-                    }
+        logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+
+        for inst in qs:
+            yield {
+                '_op_type': 'index',
+                '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
+                **self.serialize_autocomplete(inst),
+                **opts
+            }
 
     def _setup(self):
         logger.debug('Ensuring Elasticsearch index %s', settings.ELASTICSEARCH_INDEX)
