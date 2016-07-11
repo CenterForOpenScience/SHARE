@@ -34,7 +34,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
     ## Submit Changesets
     Change sets are submitted under @graph, described [here](https://www.w3.org/TR/json-ld/#named-graphs).
-    Not known @ids use the format described [here](https://www.w3.org/TR/json-ld/#node-identifiers). It looks like '_:<randomstring>'
+    Known ids and not known @ids use the format described [here](https://www.w3.org/TR/json-ld/#node-identifiers). Not known ids looks like '_:<randomstring>'
 
     Create
 
