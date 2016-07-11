@@ -11,6 +11,7 @@ SHARE harvests metadata nightly from 100+ repositories, normalizes that metadata
 The technical side of SHARE has many pieces that you can interact with:
 
 - API Endpoints for accessing the raw and normalized metadata
+    + https://staging-share.osf.io/api
 - A search endpoint powered by elasticsearch that indexes the normalized data allowing:
    - Thorough search
    - Data aggregations across fields
@@ -19,6 +20,7 @@ The technical side of SHARE has many pieces that you can interact with:
    - Discovering new Projects
    - Curation
    - Corrections and Updates
+        + https://staging-share.osf.io/discover
 
 Guide
 =====
