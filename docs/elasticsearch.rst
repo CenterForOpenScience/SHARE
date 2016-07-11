@@ -40,7 +40,7 @@ You can acess the API via the command line using a basic query string with curl:
                 "query" : "test"
             }
         }
-    }' http://localhost:8000/api/search/abstractcreativework/_search
+    }' https://staging-share.osf.io/api/search/abstractcreativework/_search
 
 The elasticsearch API also allows you to aggregate over the whole dataset. This query will also return an aggregation of which sources
 do not have a value specified for the field "language"::
@@ -68,7 +68,7 @@ do not have a value specified for the field "language"::
                 ]
             }
         }
-    }' http://localhost:8000/api/search/abstractcreativework/_search
+    }' https://staging-share.osf.io/api/search/abstractcreativework/_search
 
 For more information on sending elasticsearch queries and aggregations, check out the `elasticsearch query DSL documentation  <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html>`_.
 
