@@ -3,7 +3,7 @@ Harvesters and Normalizers
 
 A `harvester` gathers raw data from a provider using their API.
 
-A `normalizer` takes the raw data gathered by a harvester and maps the fields to the defined :ref:`share models <share-models>`.
+A `normalizer` takes the raw data gathered by a harvester and maps the fields to the defined :ref:`SHARE models <share-models>`.
 
 Start Up
 --------
@@ -41,7 +41,7 @@ Visit http://localhost:5555/dashboard to keep an eye on your harvesting and norm
 Running Existing Harvesters and Normalizers
 -------------------------------------------
 
-To see a list of all providers and their names for harvesting, visit http://localhost:8000/api/providers/
+To see a list of all providers and their names for harvesting, visit https://staging-share.osf.io/api/providers/
 
 Steps for gathering data:
     - **Harvest** data from the original source
@@ -114,38 +114,46 @@ To automatically add all harvested and accepted documents to Elasticsearch::
 Writing a Harvester and Normalizer
 ----------------------------------
 
-See the normalizers and harvesters located in the ``providers/`` directory for more examples of syntax and best practices.
+See the normalizers and harvesters located in the ``providers/`` directory for examples of syntax and best practices.
 
-Best practices for OAI providers:
-    - If the provider follows OAI standards, then the provider's ``app.py`` should begin like this::
+Best practices for OAI providers
+""""""""""""""""""""""""""""""""
 
-        from share.provider import OAIProviderAppConfig
+If the provider follows OAI standards, then the provider's ``app.py`` should begin like this:
 
+.. code-block:: python
 
-        class AppConfig(OAIProviderAppConfig):
-
-    - Provider specific normalizers and harvesters are uneccessary for OAI providers as they all use the base OAI harvester and normalizer.
-
-Best practices for writing a non-OAI Harvester:
-    - The harvester should be defined in ``<provider_dir>/harvester.py``.
-    - Add an example record to the provider's ``__init__.py``.
-    - Add the provider to the list of ``INSTALLED_APPS`` in ``project/settings.py``
-    - When writing the harvester:
-        - Define a ``do_harvest(...)`` function (and possibly additional helper functions) to make requests to the provider and to yield the harvested records.
-        - Check to see if the data returned by the provider is paginated.
-            - There will often be a resumption token to get the next page of results.
-        - Check to see if the provider's API accepts a date range
-            - If the API does not then, if possible, check the date on each record returned and stop harvesting if the date on the record is older than the specified start date.
+    from share.provider import OAIProviderAppConfig
 
 
-Best practices for writing a non-OAI Normalizer:
-    - The normalizer should be defined in ``<provider_dir>/normalizer.py``.
-    - When writing the normalizer:
-        - Determine what information from the provider record should be stored as part of the ``CreativeWork`` :ref:`model <creative-work>` (i.e. if the record clearly defines a title, description, contributors, etc.).
-        - Use the :ref:`normalizing tools <normalizing-tools>` as necessary to correctly parse the raw data.
-        - Utilize the ``Extra`` class
-            - Raw data that does not fit into a defined :ref:`share model <share-models>` should be stored here.
-            - Raw data that is otherwise altered in the normalizer should also be stored here to ensure data integrity.
+    class AppConfig(OAIProviderAppConfig):
+
+Provider-specific normalizers and harvesters are unnecessary for OAI providers as they all use the base OAI harvester and normalizer.
+
+Best practices for writing a non-OAI Harvester
+""""""""""""""""""""""""""""""""""""""""""""""
+
+- The harvester should be defined in ``<provider_dir>/harvester.py``.
+- Add an example record to the provider's ``__init__.py``.
+- Add the provider to the list of ``INSTALLED_APPS`` in ``project/settings.py``
+- When writing the harvester:
+    - Define a ``do_harvest(...)`` function (and possibly additional helper functions) to make requests to the provider and to yield the harvested records.
+    - Check to see if the data returned by the provider is paginated.
+        - There will often be a resumption token to get the next page of results.
+    - Check to see if the provider's API accepts a date range
+        - If the API does not then, if possible, check the date on each record returned and stop harvesting if the date on the record is older than the specified start date.
+
+
+Best practices for writing a non-OAI Normalizer
+"""""""""""""""""""""""""""""""""""""""""""""""
+
+- The normalizer should be defined in ``<provider_dir>/normalizer.py``.
+- When writing the normalizer:
+    - Determine what information from the provider record should be stored as part of the ``CreativeWork`` :ref:`model <creative-work>` (i.e. if the record clearly defines a title, description, contributors, etc.).
+    - Use the :ref:`normalizing tools <normalizing-tools>` as necessary to correctly parse the raw data.
+    - Utilize the ``Extra`` class
+        - Raw data that does not fit into a defined :ref:`share model <share-models>` should be stored here.
+        - Raw data that is otherwise altered in the normalizer should also be stored here to ensure data integrity.
 
 
 .. _normalizing-tools:

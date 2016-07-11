@@ -1,6 +1,6 @@
 .. _share-models:
 
-Share Models
+SHARE Models
 ============
 
 Model Descriptions
