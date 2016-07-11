@@ -190,7 +190,7 @@ class ElasticSearchBot(Bot):
 
         logger.info('Found %s %s that must be updated in ES', qs.count(), model)
 
-        for inst in qs:
+        for inst in qs.iterator():
             yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
             # if acw.is_delete:  # TODO
             #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
@@ -207,7 +207,7 @@ class ElasticSearchBot(Bot):
 
         logger.info('Found %s %s that must be updated in ES', qs.count(), model)
 
-        for inst in qs:
+        for inst in qs.iterator():
             yield {
                 '_op_type': 'index',
                 '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
