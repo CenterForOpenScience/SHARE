@@ -244,7 +244,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         # 'api.authentication.NonCSRFSessionAuthentication',
     ),
-    'PAGE_SIZE': 32,
+    'PAGE_SIZE': 10,
     'DEFAULT_PARSER_CLASSES': (
         'api.parsers.JSONLDParser',
     ),
