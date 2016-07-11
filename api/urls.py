@@ -36,6 +36,6 @@ router.register(r'users', views.ShareUserViewSet, base_name=views.ShareUserViewS
 router.register(r'providers', views.ProviderViewSet, base_name=views.ProviderViewSet.serializer_class.Meta.model._meta.model_name)
 
 urlpatterns = [
-    url(r'user_info/?', views.ShareUserView.as_view(), name='userinfo'),
+    url(r'userinfo/?', views.ShareUserView.as_view(), name='userinfo'),
     url(r'search/(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
 ] + router.urls
