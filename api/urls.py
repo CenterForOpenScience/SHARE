@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.routers import DefaultRouter
 
 from api import views
@@ -36,5 +37,5 @@ router.register(r'providers', views.ProviderViewSet, base_name=views.ProviderVie
 
 urlpatterns = [
     url(r'user_info/?', views.ShareUserView.as_view(), name='userinfo'),
-    url(r'search/(?P<url_bits>.*)', views.ElasticSearchView.as_view(), name='search'),
+    url(r'search/(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
 ] + router.urls
