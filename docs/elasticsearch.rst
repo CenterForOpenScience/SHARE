@@ -4,6 +4,8 @@ Elasticsearch
 SHARE has an elasticsearch API endpoint that can be used for searching SHARE's normalized data, as well as for compiling
 summary statistics and analyses of the completeness of data from the various sources.
 
+https://staging-share.osf.io/api/search/abstractcreativework/_search
+
 Fields Indexed by Elasticsearch
 ###############################
 
