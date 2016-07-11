@@ -172,12 +172,12 @@ class ElasticSearchBot(Bot):
         self._setup()
 
         for model in self.INDEX_MODELS:
-            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream(model, self.last_run)):
+            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream(model, self.last_run.datetime)):
                 logger.debug(resp)
 
         logger.info('Loading up autocomplete type')
         for model in self.AUTO_COMPLETE_MODELS:
-            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream_autocomplete(model, cutoff_date=self.last_run)):
+            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream_autocomplete(model, cutoff_date=self.last_run.datetime)):
                 logger.debug(resp)
 
     def bulk_stream(self, model, cutoff_date=None):
