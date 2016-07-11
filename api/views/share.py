@@ -35,6 +35,19 @@ class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(ser.data)
 
 
+class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
+    @detail_route(methods=['get'])
+    def rawdata(self, request, pk=None):
+        if pk is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        data = []
+        obj = self.get_object()
+        if not obj.changes.exists():
+            data.append(obj.change.change_set.normalized_data.raw)
+        else:
+            data
+
+
 class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, viewsets.ReadOnlyModelViewSet):
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]

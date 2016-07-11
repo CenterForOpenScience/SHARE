@@ -5,8 +5,11 @@ from furl import furl
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from api import authentication
+
 
 class ElasticSearchView(views.APIView):
+    authentication_classes = [authentication.NonCSRFSessionAuthentication, ]
     permission_classes = [AllowAny, ]
 
     def get(self, request, *args, url_bits='', **kwargs):
