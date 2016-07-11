@@ -33,17 +33,23 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
     """View showing all normalized data in the SHARE Dataset.
 
     ## Submit Changesets
+    Change sets are submitted under @graph, described [here](https://www.w3.org/TR/json-ld/#named-graphs).
+    Not known @ids use the format described [here](https://www.w3.org/TR/json-ld/#node-identifiers). It looks like '_:<randomstring>'
 
     Create
 
         Method:        POST
         Body (JSON):   {
-                        '@type': <type of document, exp: person>,
-                        '@id': <id if available, else _:<2 digit random int>>,
-                        <attribute_name>: <value>
-                        <relationship_name>: {
-                            '@type': <type>,
-                            '@id': <id>
+                        'normalized_data': {
+                            '@graph': [{
+                                '@type': <type of document, exp: person>,
+                                '@id': <_:random>,
+                                <attribute_name>: <value>,
+                                <relationship_name>: {
+                                    '@type': <type>,
+                                    '@id': <id>
+                                }
+                            }]
                         }
                        }
         Success:       200 OK
@@ -52,12 +58,16 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        '@type': <type of document, exp: person>,
-                        '@id': <id>,
-                        <attribute_name>: <value>,
-                        <relationship_name>: {
-                            '@type': <type>,
-                            '@id': <id>
+                        'normalized_data': {
+                            '@graph': [{
+                                '@type': <type of document, exp: person>,
+                                '@id': <id>,
+                                <attribute_name>: <value>,
+                                <relationship_name>: {
+                                    '@type': <type>,
+                                    '@id': <id>
+                                }
+                            }]
                         }
                        }
         Success:       200 OK
@@ -66,15 +76,19 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        '@type': 'mergeAction',
-                        '@id': <_:<2 digit random int>>,
-                        'into': {
-                            '@type': <type of document>,
-                            '@id': <doc id>
-                        },
-                        'from': {
-                            '@type': <same type of document>,
-                            '@id': <doc id>
+                        'normalized_data': {
+                            '@graph': [{
+                                '@type': 'mergeAction',
+                                '@id': <_:random>,
+                                'into': {
+                                    '@type': <type of document>,
+                                    '@id': <doc id>
+                                },
+                                'from': {
+                                    '@type': <same type of document>,
+                                    '@id': <doc id>
+                                }
+                            }]
                         }
                        }
         Success:       200 OK
