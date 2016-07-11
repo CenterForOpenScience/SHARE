@@ -326,6 +326,8 @@ if DEBUG:
     CORS_ALLOW_CREDENTIALS = True
     LOGIN_REDIRECT_URL = 'http://localhost:4200/login'
 
+LOGIN_REDIRECT_URL = 'https://staging-share.osf.io'
+
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
     'allauth.account.auth_backends.AuthenticationBackend',
