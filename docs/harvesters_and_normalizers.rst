@@ -153,6 +153,8 @@ Make sure you only add the relevant migrations folder when adding changes!
 
 Provider-specific normalizers and harvesters are unnecessary for OAI providers as they all use the base OAI harvester and normalizer.
 
+Remember to add the provider's harvest directory to gitignore. See the file for examples.
+
 Best practices for writing a non-OAI Harvester
 """"""""""""""""""""""""""""""""""""""""""""""
 
@@ -178,6 +180,7 @@ Best practices for writing a non-OAI Normalizer
         - Raw data that does not fit into a defined :ref:`share model <share-models>` should be stored here.
         - Raw data that is otherwise altered in the normalizer should also be stored here to ensure data integrity.
 
+Remember to add the provider's harvest directory to gitignore. See the file for examples.
 
 .. _normalizing-tools:
 
