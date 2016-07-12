@@ -13,7 +13,15 @@ logger = logging.getLogger(__name__)
 
 
 def chunk(iterable, size):
-    return itertools.zip_longest(*([iter(iterable)] * size))
+    iterable = iter(iterable)
+    try:
+        while True:
+            l = []
+            for _ in range(size):
+                l.append(next(iterable))
+            yield l
+    except StopIteration:
+        yield l
 
 
 class ElasticSearchBot(Bot):
