@@ -178,6 +178,7 @@ INSTALLED_APPS = [
     'providers.org.erudit',
     'providers.org.mblwhoilibrary',
     'providers.org.mla',
+    'providers.org.mpra',
     'providers.org.ncar',
     'providers.org.neurovault',
     'providers.org.newprairiepress',
