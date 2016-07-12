@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'providers.com.dailyssrn',
     'providers.com.figshare',
     'providers.com.nature',
+    'providers.com.peerj',
     'providers.com.springer',
     'providers.edu.asu',
     'providers.edu.boise_state',
