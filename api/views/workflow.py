@@ -30,8 +30,68 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
-    """
-    View showing all normalized data in the SHARE Dataset.
+    """View showing all normalized data in the SHARE Dataset.
+
+    ## Submit Changesets
+    Change sets are submitted under @graph, described [here](https://www.w3.org/TR/json-ld/#named-graphs).
+    Known ids and not known @ids use the format described [here](https://www.w3.org/TR/json-ld/#node-identifiers). Not known ids looks like '_:<randomstring>'
+
+    Create
+
+        Method:        POST
+        Body (JSON):   {
+                        'normalized_data': {
+                            '@graph': [{
+                                '@type': <type of document, exp: person>,
+                                '@id': <_:random>,
+                                <attribute_name>: <value>,
+                                <relationship_name>: {
+                                    '@type': <type>,
+                                    '@id': <id>
+                                }
+                            }]
+                        }
+                       }
+        Success:       200 OK
+
+    Update
+
+        Method:        POST
+        Body (JSON):   {
+                        'normalized_data': {
+                            '@graph': [{
+                                '@type': <type of document, exp: person>,
+                                '@id': <id>,
+                                <attribute_name>: <value>,
+                                <relationship_name>: {
+                                    '@type': <type>,
+                                    '@id': <id>
+                                }
+                            }]
+                        }
+                       }
+        Success:       200 OK
+
+    Merge
+
+        Method:        POST
+        Body (JSON):   {
+                        'normalized_data': {
+                            '@graph': [{
+                                '@type': 'mergeAction',
+                                '@id': <_:random>,
+                                'into': {
+                                    '@type': <type of document>,
+                                    '@id': <doc id>
+                                },
+                                'from': {
+                                    '@type': <same type of document>,
+                                    '@id': <doc id>
+                                }
+                            }]
+                        }
+                       }
+        Success:       200 OK
     """
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
     serializer_class = NormalizedDataSerializer
@@ -57,6 +117,15 @@ class ChangeSetViewSet(viewsets.ModelViewSet):
     ChangeSets are items that have been added to the SHARE dataset but may not yet have been accepted.
 
     These can come from harvesters and normalizers or from the curate interface.
+
+    ## Get Info
+
+        Method:        GET
+        Query Params:  `submitted_by=<Int>` -- share user that submitted the changeset
+        Success:       200 OK
+
+    ## Submit changes
+        Look at `/api/normalizeddata/`
     """
     serializer_class = ChangeSetSerializer
     # TODO: Add in scopes once we figure out who, why, and how.
