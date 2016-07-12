@@ -240,10 +240,9 @@ class OAICreativeWork(Parser):
         status = tools.Maybe(ctx.record.header, '@status')
 
     def get_first_language(self,ctx):
-        list_languages = []
-        for language in ctx:
-            list_languages.append(language)
-        return list_languages[0]
+        if len(ctx) is not 0:
+            return ctx[0]
+        return 
 
     def get_links(self, ctx):
         links = []
