@@ -11,7 +11,7 @@ class CrossRefHarvester(Harvester):
         end_date = end_date.date()
 
         return self.fetch_records(furl(self.url).set(query_params={
-            'filter': 'from-pub-date:{},until-pub-date:{}'.format(
+            'filter': 'from-update-date:{},until-update-date:{}'.format(
                 start_date.isoformat(),
                 end_date.isoformat()
             ),
@@ -29,7 +29,7 @@ class CrossRefHarvester(Harvester):
 
         # make requests for the remaining records
         for i in range(1000, total, 1000):
-            response = self.requests.get(furl(self.url).add(query_params={
+            response = self.requests.get(furl(url).add(query_params={
                 'offset': i
             }).url)
 
