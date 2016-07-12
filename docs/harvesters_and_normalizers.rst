@@ -119,7 +119,9 @@ See the normalizers and harvesters located in the ``providers/`` directory for e
 Best practices for OAI providers
 """"""""""""""""""""""""""""""""
 
-If the provider follows OAI standards, then the provider's ``app.py`` should begin like this:
+If the provider follows OAI standards, then the provider's ``apps.py`` should begin like this:
+
+
 
 .. code-block:: python
 
@@ -127,6 +129,27 @@ If the provider follows OAI standards, then the provider's ``app.py`` should beg
 
 
     class AppConfig(OAIProviderAppConfig):
+
+
+Make ``__init__.py`` in the ``providers/`` specific folder and copy::
+
+    default_app_config = 'providers.domain.provider_name_here.apps.AppConfig'
+
+
+After that put a docstring labeled "Example Record", with a formatted XML response.
+
+If there is an example of a deleted record, add an example of that as well.
+
+-------------------------
+
+Add the provider to the ``project/settings.py`` file in the ``INSTALLED_APPS`` list.
+
+Finally, run ``./manage.py makeprovidermigrations`` in the terminal.
+
+Make sure you only add the relevant migrations folder when adding changes!
+
+
+
 
 Provider-specific normalizers and harvesters are unnecessary for OAI providers as they all use the base OAI harvester and normalizer.
 
