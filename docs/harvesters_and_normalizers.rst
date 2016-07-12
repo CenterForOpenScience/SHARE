@@ -37,6 +37,7 @@ To monitor your celery tasks::
 
 Visit http://localhost:5555/dashboard to keep an eye on your harvesting and normalizing tasks
 
+.. _running-providers:
 
 Running Existing Harvesters and Normalizers
 -------------------------------------------
@@ -142,6 +143,7 @@ Best practices for writing a non-OAI Harvester
         - There will often be a resumption token to get the next page of results.
     - Check to see if the provider's API accepts a date range
         - If the API does not then, if possible, check the date on each record returned and stop harvesting if the date on the record is older than the specified start date.
+- Test by :ref:`running the harvester <running-providers>`
 
 
 Best practices for writing a non-OAI Normalizer
@@ -154,7 +156,7 @@ Best practices for writing a non-OAI Normalizer
     - Utilize the ``Extra`` class
         - Raw data that does not fit into a defined :ref:`share model <share-models>` should be stored here.
         - Raw data that is otherwise altered in the normalizer should also be stored here to ensure data integrity.
-
+- Test by :ref:`running the normalizer <running-providers>` against raw data you have harvested.
 
 .. _normalizing-tools:
 
