@@ -46,7 +46,7 @@ class BaseShareSerializer(serializers.ModelSerializer):
 
 class ExtraDataSerializer(BaseShareSerializer):
     data = serializers.JSONField()
-    
+
     class Meta(BaseShareSerializer.Meta):
         model = models.ExtraData
 
@@ -180,6 +180,7 @@ class PreprintSerializer(AbstractCreativeWorkSerializer):
 
 
 class PublicationSerializer(AbstractCreativeWorkSerializer):
+    publishers = PublisherSerializer(many=True)
     class Meta(BaseShareSerializer.Meta):
         model = models.Publication
 
