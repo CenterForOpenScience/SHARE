@@ -11,11 +11,11 @@ logger = logging.getLogger(__name__)
 class PeerJHarvester(Harvester):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.base_url = 'https://peerj.com/articles/index.json/'
+        self.base_url = 'https://peerj.com/articles/index.json'
 
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow):
 
-        return self.fetch_records(start_date, self.base_url, end_date)
+        return self.fetch_records(self.base_url, start_date, end_date)
 
     def fetch_records(self, url, start_date, end_date):
 
@@ -36,4 +36,4 @@ class PeerJHarvester(Harvester):
             if next_page:
                 self.fetch_records(next_page, start_date, end_date)
 
-        logger.info("PeerJ has been harvested.")
+        logger.info("PeerJ has been harvested")
