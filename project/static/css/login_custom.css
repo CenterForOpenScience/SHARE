@@ -1,0 +1,195 @@
+.field_entry {
+  padding-top: 30px;
+}
+
+ul#id_approved_sets {
+  width: 100%;
+  margin-bottom:20px;
+  overflow:hidden;
+}
+
+#id_approved_sets li {
+  width:33%;
+  line-height:1.5em;
+  float:left;
+  display:inline;
+}
+
+#id_approved_sets li label{
+  font-weight: inherit;
+}
+
+.below_jumbotron {
+  text-align: center;
+}
+
+#provider_list {
+  width:50%;
+  line-height:1.5em;
+  float:left;
+  display:inline;
+  margin-bottom: 10px;
+}
+
+#provider_list img {
+  max-width: 16px;
+}
+
+.front_page {
+  width:33%;
+  line-height:1.5em;
+  float:left;
+  display:inline;
+}
+
+ul#id_approved_sets {
+  padding-left: 0px;
+}
+
+.logo_jumbotron {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 170px;
+}
+
+.logo_header {
+  background-color: #f5f5f5;
+  margin-top: 30px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-bottom: 10px;
+}
+
+.logo_smaller {
+  margin-top: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  margin-bottom: 5px;
+  max-height: 65px;
+  max-width: 65px;
+}
+
+.main_body {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+input {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.jumbotron {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.btn-bottom {
+  margin-right: 50px;
+  margin-top: 20px;
+  float: right;
+
+}
+
+textarea {
+  width: 100%;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-right: 10px;
+  padding-left: 10px;
+  border-color: #A3A3A3;
+}
+
+input[type=text] {
+  width: 100%;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+input[type=url] {
+  width: 100%;
+}
+
+input[type=number] {
+  margin-right: 10px;
+  width: 75px;
+}
+
+input[type=email] {
+  width: 100%;
+}
+
+input[type=password] {
+  width: 100%;
+}
+
+.breadcrumb > li + li:before {
+    content: "> ";
+}
+
+span.help-block {
+  background-color: #FF7B7B;
+  background-image: linear-gradient(90deg, transparent 60%, rgba(255,255,255,.5) 50%);
+  background-size: 3px 3px;
+  color: black;
+  font-weight: bold;
+  padding-left: 10px;
+}
+
+#header {
+  background: #f5f5f5;
+  height: 130px !important;
+}
+
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+  color: #5D625C;
+}
+
+div#user-tools {
+  color: #5D625C;
+}
+
+div#user-tools a:link {
+  color: #06B4EA;
+}
+
+table#result_list input {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+div.help_information {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.pushregnav {
+  background:#BBBBBB;
+}
+
+.pushregnav li a {
+  color: white !important;
+}
+
+#login_logo {
+    width: 150px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    position: absolute;
+    padding-top: 10px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    top: 0;
+}
