@@ -48,3 +48,4 @@ xmltodict==0.10.2
 elasticsearch==2.3.0
 # newrelic APM agent
 newrelic==2.66.0.49
+raven==5.23.0
