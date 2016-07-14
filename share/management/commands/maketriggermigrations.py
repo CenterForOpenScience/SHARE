@@ -94,8 +94,10 @@ class Command(BaseCommand):
         else:
             ml = MigrationLoader(connection=connection)
             ml.build_graph()
-            next_number = '{0:04d}'.format(int([x[1] for x in ml.graph.leaf_nodes() if x[0] == 'share'][0][0:4])+1)
+            last_share_migration = [x[1] for x in ml.graph.leaf_nodes() if x[0] == 'share'][0]
+            next_number = '{0:04d}'.format(int(last_share_migration[0:4])+1)
             m = Migration('{}_update_trigger_migrations_{}'.format(next_number, datetime.datetime.now().strftime("%Y%m%d_%H%M")), 'share')
+            m.dependencies = [('share', '0002_create_share_user'), ('share', last_share_migration)]
         m.operations = ops
         self.write_migration(m)
 
