@@ -31,11 +31,14 @@ class Command(BaseCommand):
             return
 
         if options['days_back']:
-            task_kwargs['end'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))).isoformat() + 'Z'
-            task_kwargs['start'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])).isoformat() + 'Z'
+            task_kwargs['end'] = datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))
+            task_kwargs['start'] = datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])
         else:
             task_kwargs['start'] = arrow.get(options['start']) if options.get('start') else arrow.utcnow() - datetime.timedelta(days=int(options['days_back'] or 1))
             task_kwargs['end'] = arrow.get(options['end']) if options.get('end') else arrow.utcnow()
+
+        task_kwargs['end'] = task_kwargs['end'].isoformat() + 'Z'
+        task_kwargs['start'] = task_kwargs['start'].isoformat() + 'Z'
 
         if not options['harvester'] and options['all']:
             options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig)]
