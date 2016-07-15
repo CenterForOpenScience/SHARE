@@ -68,6 +68,8 @@ class Parser(metaclass=ParserMeta):
                 assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
             else:
                 assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
+        else:
+            assert not isinstance(value, dict), 'Value for non-relational field {} must be a primative type. Found {}'.format(field, value)
 
     def parse(self):
         if (self.context, self.schema) in ctx.pool:

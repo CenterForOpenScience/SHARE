@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% load staticfiles %}
+
+{% block extrastyle %}
+    <link href="{% static 'css/login_custom.css' %}" rel="stylesheet" media="screen"/>
+{% endblock %}
+
+
+{% block title %} SHARE | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+
+<h1 id="site-name" class="admin_header"><img class="logo" id="login_logo" src="{% static 'img/share.png' %}"/><a href="{% url 'admin:index' %}"></a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

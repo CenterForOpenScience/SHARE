@@ -1,6 +1,3 @@
-# TODO: Do not ignore migrations once database schema is defined
-**/migrations/**
-!**/migrations/__init__.py
 
 static/
 
@@ -129,6 +126,7 @@ ENV/
 be.ghent/
 br.pcurio/
 ca.lwbin/
+ch.cern/
 com.biomedcentral/
 com.dailyssrn/
 com.figshare/
@@ -175,6 +173,7 @@ gov.nist/
 gov.nodc/
 gov.nsfawards/
 io.osf/
+io.osf.registrations/
 org.arxiv/
 org.arxiv.oai/
 org.bhl/

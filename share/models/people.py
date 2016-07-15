@@ -1,7 +1,7 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, ShareManyToManyField
+from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
 __all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Identifier', 'Contributor')
 
@@ -18,25 +18,25 @@ class Email(ShareObject):
 
 class Identifier(ShareObject):
     # https://twitter.com/berniethoughts/
-    url = models.URLField()
+    url = ShareURLField()
     # https://twitter.com/
-    base_url = models.URLField()
+    base_url = ShareURLField()
 
 
 # Actual Person
 
 class Person(ShareObject):
-    family_name = models.CharField(max_length=200)  # last
-    given_name = models.CharField(max_length=200)  # first
-    additional_name = models.CharField(max_length=200, blank=True)  # can be used for middle
-    suffix = models.CharField(max_length=50, blank=True)
+    family_name = models.TextField(db_index=True)  # last
+    given_name = models.TextField(db_index=True)  # first
+    additional_name = models.TextField(blank=True, db_index=True)  # can be used for middle
+    suffix = models.TextField(blank=True, db_index=True)
 
     emails = ShareManyToManyField(Email, through='PersonEmail')
     affiliations = ShareManyToManyField('Entity', through='Affiliation')
     # this replaces "authority_id" and "other_identifiers" in the diagram
     identifiers = ShareManyToManyField(Identifier, through='ThroughIdentifiers')
     location = models.TextField(blank=True)
-    url = models.URLField(blank=True)
+    url = ShareURLField(blank=True)
 
     def __str__(self):
         return self.get_full_name()
@@ -46,6 +46,9 @@ class Person(ShareObject):
 
     class Meta:
         verbose_name_plural = 'People'
+        index_together = (
+            ('family_name', 'given_name', 'additional_name', 'suffix')
+        )
 
     # current_affiliation =
     # other_properties = models.JSONField()
@@ -85,3 +88,8 @@ class Contributor(ShareObject):
 
     def __str__(self):
         return '{} -> {}'.format(self.person, self.creative_work)
+
+    class Meta:
+        index_together = (
+            ('cited_name', 'order_cited',)
+        )

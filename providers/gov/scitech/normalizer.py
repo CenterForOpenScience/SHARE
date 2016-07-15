@@ -14,6 +14,7 @@ class Affiliation(Parser):
 
 class Email(Parser):
     email = ctx
+    is_primary = Static(False)
 
 
 class PersonEmail(Parser):
@@ -118,7 +119,7 @@ class CreativeWork(Parser):
 
     title = ctx.record['dc:title']
     description = ctx.record['dc:description']
-    language = ctx.record['dc:language']
+    language = ParseLanguage(ctx.record['dc:language'])
     rights = Maybe(ctx.record, 'dc:rights')
     contributors = Map(
         Delegate(Contributor),

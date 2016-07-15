@@ -17,7 +17,7 @@ from fuzzycount import FuzzyCountManager
 from oauth2_provider.models import AccessToken, Application
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
-from share.models.fields import DatetimeAwareJSONField
+from share.models.fields import DatetimeAwareJSONField, ShareURLField
 from share.models.validators import is_valid_jsonld
 
 logger = logging.getLogger(__name__)
@@ -77,12 +77,12 @@ class ShareUserManager(BaseUserManager):
 
 class ShareUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
-    username = models.CharField(
+    username = models.TextField(
         _('username'),
-        max_length=64,
         unique=True,
         help_text=_('Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'),
         validators=[
+            validators.MaxLengthValidator(64),
             validators.RegexValidator(
                 r'^[\w.@+-]+$',
                 _('Enter a valid username. This value may contain only '
@@ -93,12 +93,12 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
             'unique': _("A user with that username already exists."),
         },
     )
-    first_name = models.CharField(_('first name'), max_length=64, blank=True)
-    last_name = models.CharField(_('last name'), max_length=64, blank=True)
+    first_name = models.TextField(_('first name'), validators=[validators.MaxLengthValidator(64)], blank=True)
+    last_name = models.TextField(_('last name'), validators=[validators.MaxLengthValidator(64)], blank=True)
     email = models.EmailField(_('email address'), blank=True)
-    gravatar = models.URLField(blank=True)
-    time_zone = models.CharField(max_length=100, blank=True)
-    locale = models.CharField(max_length=100, blank=True)
+    gravatar = ShareURLField(blank=True)
+    time_zone = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
+    locale = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,
@@ -113,9 +113,9 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
         ),
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-    robot = models.CharField(max_length=40, blank=True)
-    long_title = models.CharField(max_length=100, blank=True)
-    home_page = models.URLField(blank=True)
+    robot = models.TextField(validators=[validators.MaxLengthValidator(40)], blank=True)
+    long_title = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
+    home_page = ShareURLField(blank=True)
 
     def get_short_name(self):
         return self.robot if self.is_robot else self.username
@@ -186,10 +186,10 @@ class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
-    provider_doc_id = models.CharField(max_length=256)
+    provider_doc_id = models.TextField()
 
     data = models.TextField(blank=False)
-    sha256 = models.CharField(max_length=64)
+    sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
 
     date_seen = models.DateTimeField(auto_now=True)
     date_harvested = models.DateTimeField(auto_now_add=True)

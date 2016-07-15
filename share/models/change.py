@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from fuzzycount import FuzzyCountManager
 
+from django.apps import apps
 from share.models import NormalizedData
 
 __all__ = ('Change', 'ChangeSet', )
@@ -72,8 +73,17 @@ class ChangeSet(models.Model):
     normalized_data = models.ForeignKey(NormalizedData)
 
     def accept(self, save=True):
+        ret = []
         with transaction.atomic():
-            ret = [c.accept(save=save) for c in self.changes.all()]
+            for c in self.changes.all():
+                change_id = c.id
+                changeset_id = self.id
+                source = self.normalized_data.source
+                try:
+                    ret.append(c.accept(save=save))
+                except Exception as ex:
+                    logger.error('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
+                    raise ex
             self.status = ChangeSet.STATUS.accepted
             if save:
                 self.save()
@@ -89,7 +99,7 @@ class Change(models.Model):
     objects = ChangeManager()
 
     change = JSONField()
-    node_id = models.CharField(max_length=80)  # TODO
+    node_id = models.TextField(db_index=True)
 
     type = models.IntegerField(choices=TYPE, editable=False)
 
@@ -105,6 +115,9 @@ class Change(models.Model):
 
     class Meta:
         ordering = ('pk', )
+        index_together = (
+            ('node_id', 'change_set', 'target_type',),
+        )
 
     def get_requirements(self):
         node_ids, content_types = [], set()
@@ -121,7 +134,7 @@ class Change(models.Model):
 
     def accept(self, save=True):
         # Little bit of blind faith here that all requirements have been accepted
-        assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.status)
+        assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
         ret = self._accept(save)
         ret.sources.add(self.change_set.normalized_data.source)
         if save:
@@ -171,7 +184,7 @@ class Change(models.Model):
             # Update all rows in "from"
             # Updates the change, the field in question, the version pin of the field in question
             # and date_modified must be manually updated
-            field.model.objects.filter(**{
+            field.model.objects.select_for_update().filter(**{
                 field.name + '__in': change['from']
             }).update(**{
                 'change': self,
@@ -182,7 +195,7 @@ class Change(models.Model):
 
         # Finally point all from rows' same_as and
         # same_as_version to the canonical model.
-        type(change['into']).objects.filter(
+        type(change['into']).objects.select_for_update().filter(
             pk__in=[i.pk for i in change['from']]
         ).update(
             change=self,
@@ -206,6 +219,8 @@ class Change(models.Model):
                     change[k] = ExtraData()
                 change[k].data.update({self.change_set.normalized_data.source.username: v})
                 change[k].save()
+                change[k].refresh_from_db()
+                change[k + '_version'] = change[k].version
             elif isinstance(v, dict):
                 inst = self._resolve_ref(v)
                 change[k] = inst
@@ -217,11 +232,12 @@ class Change(models.Model):
         return change
 
     def _resolve_ref(self, ref):
-        ct = ContentType.objects.get(app_label='share', model=ref['@type'])
+        model = apps.get_model('share', model_name=ref['@type'])
+        ct = ContentType.objects.get_for_model(model, for_concrete_model=False)
         if str(ref['@id']).startswith('_:'):
-            return ct.model_class().objects.get(
+            return model.objects.get(
                 change__target_type=ct,
                 change__node_id=ref['@id'],
                 change__change_set=self.change_set,
             )
-        return ct.model_class().objects.get(pk=ref['@id'])
+        return model.objects.get(pk=ref['@id'])

@@ -1,34 +1,30 @@
 import logging
 
+import itertools
+from django.apps import apps
 from django.conf import settings
-from elasticsearch import helpers
 from elasticsearch import Elasticsearch
-from rest_framework.reverse import reverse
 
+from bots.elasticsearch.tasks import IndexModelTask
+from bots.elasticsearch.tasks import IndexAutoCompleteTask
 from share.bot import Bot
-from share.models import Person
-from share.models import Tag
-from share.models import Entity
-from share.models import Award
-from share.models import Venue
-from share.models import Association
-from share.models import CeleryProviderTask
-from share.models import AbstractCreativeWork
 
 logger = logging.getLogger(__name__)
 
 
-class ElasticSearchBot(Bot):
+def chunk(iterable, size):
+    iterable = iter(iterable)
+    try:
+        while True:
+            l = []
+            for _ in range(size):
+                l.append(next(iterable))
+            yield l
+    except StopIteration:
+        yield l
 
-    INDEX_MODELS = [AbstractCreativeWork, Person]
-    AUTO_COMPLETE_MODELS = [
-        # (Model, attribute, )
-        Person,
-        Tag,
-        Entity,
-        Award,
-        Venue
-    ]
+
+class ElasticSearchBot(Bot):
 
     SETTINGS = {
         'analysis': {
@@ -73,6 +69,18 @@ class ElasticSearchBot(Bot):
             }
         },
         'abstractcreativework': {
+            'dynamic_templates': [{
+                'exact_matches': {
+                    'unmatch': 'description',
+                    'match_mapping_type': 'string',
+                    'mapping': {
+                        'type': 'string',
+                        'fields': {
+                            'raw': {'type': 'string', 'index': 'not_analyzed'}
+                        }
+                    }
+                }
+            }],
             'properties': {
                 'sources': {
                     'type': 'string',
@@ -82,114 +90,34 @@ class ElasticSearchBot(Bot):
         },
     }
 
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, started_by, last_run=None):
+        super().__init__(config, started_by, last_run=last_run)
         self.es_client = Elasticsearch(settings.ELASTICSEARCH_URL)
 
-    def serialize(self, inst):
-        return {
-            Person: self.serialize_person,
-            AbstractCreativeWork: self.serialize_creative_work,
-        }[type(inst)._meta.concrete_model](inst)
+    def run(self, chunk_size=500):
+        self.setup()
 
-    def serialize_autocomplete(self, model):
-        return {
-            '@id': str(model.pk),
-            'text': str(model),
-            '@type': type(model).__name__.lower(),
-        }
+        logger.info('Loading up indexed models')
+        for model_name in self.config.INDEX_MODELS:
+            model = apps.get_model('share', model_name)
+            qs = model.objects.filter(date_modified__gt=self.last_run.datetime).values_list('id', flat=True)
+            logger.info('Looking for %ss that have been modified after %s', model, self.last_run.datetime)
 
-    def serialize_person(self, person):
-        return {
-            'suffix': person.suffix,
-            'given_name': person.given_name,
-            'family_name': person.family_name,
-            'full_name': person.get_full_name(),
-            'additional_name': person.additional_name,
-            'sources': [source.robot for source in person.sources.all()],
-        }
+            logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+            for i, batch in enumerate(chunk(qs.all(), chunk_size)):
+                IndexModelTask().apply_async((self.config.label, self.started_by.id, model.__name__, batch,))
 
-    def serialize_creative_work(self, creative_work):
-        return {
-            '@type': type(creative_work).__name__.lower(),
-            'title': creative_work.title,
-            'associations': [association.entity.name for association in Association.objects.select_related('entity').filter(creative_work=creative_work)],
-            'awards': [str(award) for award in creative_work.awards.all()],
-            'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
-            'date_created': creative_work.date_created.isoformat(),
-            'date_modified': creative_work.date_modified.isoformat(),
-            'description': creative_work.description,
-            'language': creative_work.language,
-            'links': [str(link) for link in creative_work.links.all()],
-            'sources': [source.robot for source in creative_work.sources.all()],
-            'subject': str(creative_work.subject),
-            'tags': [str(tag) for tag in creative_work.tags.all()],
-            'venues': [str(venue) for venue in creative_work.venues.all()],
-        }
+        logger.info('Loading up autocomplete models')
+        for model_name in self.config.AUTO_COMPLETE_MODELS:
+            model = apps.get_model('share', model_name)
+            qs = model.objects.filter(date_modified__gt=self.last_run.datetime).values_list('id', flat=True)
+            logger.info('Looking for %ss that have been modified after %s', model, self.last_run.datetime)
 
-    def run(self, chunk_size=50, reindex_all=False):
-        self._setup()
+            logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+            for i, batch in enumerate(chunk(qs.all(), chunk_size)):
+                IndexAutoCompleteTask().apply_async((self.config.label, self.started_by.id, model.__name__, batch,))
 
-        logger.debug('Finding last successful job')
-        last_run = CeleryProviderTask.objects.filter(
-            app_label=self.config.label,
-            app_version=self.config.version,
-            status=CeleryProviderTask.STATUS.succeeded,
-        ).order_by(
-            '-timestamp'
-        ).first()
-
-        if last_run:
-            logger.info('Found last job %s', last_run)
-            last_run = last_run.timestamp
-
-        for model in self.INDEX_MODELS:
-            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream(model, last_run)):
-                logger.debug(resp)
-
-        logger.info('Loading up autocomplete type')
-        for model in self.AUTO_COMPLETE_MODELS:
-            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream_autocomplete(model, cutoff_date=last_run)):
-                logger.debug(resp)
-
-    def bulk_stream(self, model, cutoff_date=None):
-        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
-
-        if cutoff_date:
-            qs = model.objects.filter(date_modified__gt=cutoff_date)
-            logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
-        else:
-            qs = model.objects.all()
-            logger.info('Getting all %s', model)
-
-        logger.info('Found %s %s that must be updated in ES', qs.count(), model)
-
-        for inst in qs:
-            yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
-            # if acw.is_delete:  # TODO
-            #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
-
-    def bulk_stream_autocomplete(self, model, cutoff_date=None):
-        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'autocomplete'}
-
-        if cutoff_date:
-            qs = model.objects.filter(date_modified__gt=cutoff_date)
-            logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
-        else:
-            qs = model.objects.all()
-            logger.info('Getting all %s', model)
-
-        logger.info('Found %s %s that must be updated in ES', qs.count(), model)
-
-        for inst in qs:
-            yield {
-                '_op_type': 'index',
-                '_id': reverse('api:{}-detail'.format(model._meta.model_name), (inst.pk,)),
-                **self.serialize_autocomplete(inst),
-                **opts
-            }
-
-    def _setup(self):
+    def setup(self):
         logger.debug('Ensuring Elasticsearch index %s', settings.ELASTICSEARCH_INDEX)
         self.es_client.indices.create(settings.ELASTICSEARCH_INDEX, ignore=400)
 

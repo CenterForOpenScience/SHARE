@@ -24,8 +24,8 @@ class UnresolvableReference(GraphParsingException):
 class ChangeNode:
 
     @classmethod
-    def from_jsonld(self, ld_graph, disambiguate=True):
-        return ChangeNode(ld_graph, disambiguate=disambiguate)
+    def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
+        return ChangeNode(ld_graph, disambiguate=disambiguate, extra_namespace=extra_namespace)
 
     @property
     def model(self):
@@ -56,20 +56,32 @@ class ChangeNode:
             return {**self.attrs, **self.relations, **self._reverse_relations}
 
         if self.is_blank:
-            return {**self.attrs, **self.relations, 'extra': self.extra}
+            ret = {**self.attrs, **self.relations}
+            if self.extra:
+                ret['extra'] = self.extra
+            return ret
 
         if not self.instance:
             raise UnresolvableReference('@id: {!r}, @type: {!r}'.format(self.id, self.type))
 
-        return {
-            **{k: v for k, v in self.attrs.items() if getattr(self.instance, k) != v},
-            'extra': {k: v for k, v in self.extra.items() if not self.instance.extra or self.instance.extra.data.get(k) != v}
-        }
+        ret = {k: v for k, v in self.attrs.items() if getattr(self.instance, k) != v}
+        if self.__extra_namespace:
+            ret['extra'] = {
+                k: v for k, v in self.extra.items()
+                if not (self.instance.extra and self.instance.extra.get(self.__extra_namespace))
+                or self.instance.extra.data[self.__extra_namespace].get(k) != v
+            }
 
-    def __init__(self, node, disambiguate=True):
+            if not ret['extra']:
+                del ret['extra']
+
+        return ret
+
+    def __init__(self, node, disambiguate=True, extra_namespace=None):
         self.__raw = node
         self.__change = None
         self.__instance = None
+        self.__extra_namespace = None
         node = copy.deepcopy(self.__raw)
 
         self.id = str(node.pop('@id'))
@@ -96,9 +108,8 @@ class ChangeNode:
     def update_relations(self, mapper):
         for v in self.relations.values():
             node = mapper[(v['@id'], v['@type'].lower())]
-            if node:
-                v['@id'] = node.id
-                v['@type'] = node.type
+            v['@id'] = node.id
+            v['@type'] = node.type
 
     def _disambiguate(self):
         if self.is_merge:
@@ -115,8 +126,8 @@ class ChangeNode:
 class ChangeGraph:
 
     @classmethod
-    def from_jsonld(self, ld_graph, disambiguate=True):
-        nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate) for obj in ld_graph['@graph']]
+    def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
+        nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
         return ChangeGraph(nodes, disambiguate=disambiguate)
 
     @property
@@ -131,9 +142,9 @@ class ChangeGraph:
         # TODO This could probably be more efficiant
         if disambiguate:
             for n in self.__nodes:
-                n.update_relations(self.__map)
-            for n in self.__nodes:
                 n._disambiguate()
+            for n in self.__nodes:
+                n.update_relations(self.__map)
 
         if parse:
             self.__nodes = self.__sorter.sorted()

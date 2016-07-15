@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+
+import raven
 from django.utils.log import DEFAULT_LOGGING
 
 # Suppress select django deprecation messages
@@ -67,6 +69,8 @@ INSTALLED_APPS = [
     'share',
     'api',
 
+    'bots.autocurate.person',
+    'bots.autocurate.tag',
     'bots.automerge',
     'bots.elasticsearch',
 
@@ -76,6 +80,7 @@ INSTALLED_APPS = [
     'providers.ca.lwbin',
     'providers.ca.umontreal',
     'providers.ca.uwo',
+    'providers.ch.cern',
     'providers.com.biomedcentral',
     'providers.com.dailyssrn',
     'providers.com.figshare',
@@ -160,6 +165,7 @@ INSTALLED_APPS = [
     'providers.gov.usgs',
     'providers.info.spdataverse',
     'providers.io.osf',
+    'providers.io.osf.registrations',
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai.apps.AppConfig',
@@ -191,6 +197,7 @@ INSTALLED_APPS = [
     'providers.uk.lshtm',
     'providers.za.csir',
 ]
+
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
 USER_SCOPES = 'approve_changesets'
@@ -235,17 +242,18 @@ SOCIALACCOUNT_PROVIDERS = \
 APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticatedOrReadOnly',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
+        # 'api.authentication.NonCSRFSessionAuthentication',
     ),
-    'PAGE_SIZE': 32,
+    'PAGE_SIZE': 10,
     'DEFAULT_PARSER_CLASSES': (
         'api.parsers.JSONLDParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'api.renderers.JSONLDRenderer',
+        'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
@@ -256,7 +264,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -289,7 +297,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'db.backends.postgresql',
         'NAME': os.environ.get('DATABASE_NAME', 'share'),
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
@@ -316,11 +324,26 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'http://localhost:8000/')
+
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
-    CORS_ORIGIN_ALLOW_ALL = True
-    CORS_ALLOW_CREDENTIALS = True
-    LOGIN_REDIRECT_URL = 'http://localhost:4200/login'
+# else:
+INSTALLED_APPS += [
+    'raven.contrib.django.raven_compat',
+]
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('SENTRY_DSN', None),
+    'release': raven.fetch_git_sha(os.getcwd())
+}
+
+
+# TODO REMOVE BEFORE PRODUCTION
+# ALLOW LOCAL USERS TO SEARCH
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+# TODO REMOVE BEFORE PRODUCTION
+
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
@@ -422,6 +445,7 @@ CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_ROUTES = ('share.celery.CeleryRouter', )
 CELERY_IGNORE_RESULT = True
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 # Logging
 LOGGING = {
@@ -434,9 +458,14 @@ LOGGING = {
         }
     },
     'handlers': {
+        'sentry': {
+            'level': 'ERROR',  # To capture more than ERROR, change to WARNING, INFO, etc.
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'INFO',
+            'level': 'DEBUG',
             'formatter': 'console'
         },
     },
@@ -445,11 +474,26 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False
-        }
+        },
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
     },
     'root': {
-        'level': 'INFO',
-        'handlers': ['console']
+        'level': 'WARNING',
+        'handlers': ['sentry'],
     }
 }
 
@@ -464,6 +508,7 @@ DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
 PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
+PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 
 import djcelery
 djcelery.setup_loader()

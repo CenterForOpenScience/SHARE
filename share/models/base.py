@@ -15,7 +15,7 @@ from typedmodels import models as typedmodels
 
 
 class ShareObjectVersion(models.Model):
-    action = models.CharField(max_length=10)
+    action = models.TextField(max_length=10)
     persistent_id = models.PositiveIntegerField()  # Must match the id of ShareObject
 
     class Meta:
@@ -49,7 +49,7 @@ class ShareObjectMeta(ModelBase):
 
         # TODO Fix this in some None horrid fashion
         if name != 'ExtraData':
-            attrs['extra'] = fields.ShareOneToOneField('ExtraData', null=True)
+            attrs['extra'] = fields.ShareForeignKey('ExtraData', null=True)
 
         version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
             **attrs,
@@ -57,6 +57,9 @@ class ShareObjectMeta(ModelBase):
             '__qualname__': attrs['__qualname__'] + 'Version',
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
         })
+
+        if name != 'ExtraData':
+            attrs['extra'] = fields.ShareOneToOneField('ExtraData', null=True)
 
         concrete = super(ShareObjectMeta, cls).__new__(cls, name, (bases[0], ) + cls.concrete_bases, {
             **attrs,

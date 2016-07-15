@@ -1,12 +1,23 @@
 import requests
-from rest_framework import views, permissions
+from rest_framework import views
 from django.conf import settings
 from furl import furl
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+
+from api import authentication
 
 
 class ElasticSearchView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated, ]
+    """
+    Elasticsearch endpoint for SHARE Data.
+
+    - [Abstract Creative Works](/api/search/abstractcreativework/_search) - search individual documents harvested
+    - [Person](/api/search/person/_search) - people who are contributors to documents harvested
+    - [Autocomplete](/api/search/autocomplete/_search) - filter on the fly for applications built on the SHARE API
+    """
+    authentication_classes = [authentication.NonCSRFSessionAuthentication, ]
+    permission_classes = [AllowAny, ]
 
     def get(self, request, *args, url_bits='', **kwargs):
         es_url = furl(settings.ELASTICSEARCH_URL).add(

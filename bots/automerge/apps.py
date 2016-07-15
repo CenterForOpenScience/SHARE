@@ -7,6 +7,6 @@ class AppConfig(BotAppConfig):
     long_title = ''
     home_page = ''
 
-    def get_bot(self):
-        from bots.automerge.bot import AutoMergeBot
-        return AutoMergeBot(self)
+    def get_bot(self, started_by, last_run=None):
+        from .bot import AutoMergeBot
+        return AutoMergeBot(self, started_by, last_run)
