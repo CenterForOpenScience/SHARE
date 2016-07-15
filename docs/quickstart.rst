@@ -2,8 +2,11 @@
 Quickstart
 ----------
 
-SHARE Pipeline
-^^^^^^^^^^^^^^
+Note - These instructions are for getting up and running with the simplest steps possible and is good as more of a refresher --
+for more details, or getting started for the first time, please see the section on getting up and
+running on the :ref:`Harvesters and Normalizers section <harvesters-and-normalizers>`.
+
+
 THE SHARE Pipeline can be setup locally for testing and modifications.
 
 Setup::

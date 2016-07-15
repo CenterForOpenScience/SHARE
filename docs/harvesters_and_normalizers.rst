@@ -1,3 +1,5 @@
+.. _harvesters-and-normalizers:
+
 Harvesters and Normalizers
 ==========================
 
