@@ -11,6 +11,6 @@ class NeuroVaultHarvester(Harvester):
             records = response.json()
             for record in records['results']:
                 record_id = record['id']
-                yield(record_id, record)
+                yield (record_id, record)
 
             api_url = records['next']
