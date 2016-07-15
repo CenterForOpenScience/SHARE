@@ -121,7 +121,7 @@ class CreatorPerson(Parser):
     family_name = tools.ParseName(ctx.creatorName).last
     given_name = tools.ParseName(ctx.creatorName).first
     additional_name = tools.ParseName(ctx.creatorName).middle
-    affiliations = tools.Map(tools.Delegate(Affiliation.using(entity=tools.Delegate(CreatorOrganization))), tools.Try(tools.Text(ctx.affiliation)))
+    affiliations = tools.Map(tools.Delegate(Affiliation.using(entity=tools.Delegate(CreatorOrganization))), tools.Concat(tools.Try(tools.Text(ctx.affiliation))))
     identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), tools.Concat(tools.Try(ctx, 'nameIdentifier')))
 
     class Extra:
