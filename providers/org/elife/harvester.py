@@ -1,4 +1,5 @@
 import logging
+import requests
 
 from furl import furl
 
@@ -23,12 +24,12 @@ class ELifeHarvester(Harvester):
 
         shas = self.fetch_commits(start_date, end_date)
 
-        file_names = list(chain.from_iterable([
+        file_names = chain.from_iterable([
             self.fetch_file_names(sha)
             for sha in shas
-        ]))
+        ])
 
-        logger.info("There are {} record urls to harvest - this may take a while... ".format(len(file_names)))
+        logger.info("The data for each record must be requested individually - this may take a while... ")
 
         xml_records = [
             self.fetch_xml(file_name)
@@ -42,6 +43,7 @@ class ELifeHarvester(Harvester):
 
     def fetch_commits(self, start_date, end_date):
         page = 0
+        shas = []
         url = self.BASE_URL.format('?')
         response = self.requests.get(furl(url).set(query_params={
             'since': start_date.isoformat(),
@@ -51,7 +53,7 @@ class ELifeHarvester(Harvester):
         }).url)
 
         commits = response.json()
-        shas = [c['sha'] for c in commits]
+        shas.extend([c.get('sha') for c in commits])
         page += 1
 
         while len(commits) == 100:
@@ -63,7 +65,7 @@ class ELifeHarvester(Harvester):
             }).url)
 
             commits = response.json()
-            shas = shas + [c['sha'] for c in commits]
+            shas.extend([c.get('sha') for c in commits])
             page += 1
 
         return shas
@@ -92,6 +94,8 @@ class ELifeHarvester(Harvester):
         return file_names
 
     def fetch_xml(self, file_name):
-        resp = self.requests.get(self.BASE_DATA_URL.format(file_name))
+        file_url = furl(self.BASE_DATA_URL.format(file_name))
+        # Not using self.requests when getting the file contents because the eLife rate limit (1, 60) does not apply
+        resp = requests.get(file_url.url)
         xml = etree.XML(resp.content)
         return xml
