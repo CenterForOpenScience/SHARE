@@ -17,7 +17,12 @@ class Contributor(Parser):
 
 class Link(Parser):
     url = ctx
-    type = Static('doi')
+    type = RunPython('get_link_type', ctx)
+
+    def get_link_type(self, link):
+        if 'dx.doi.org' in link:
+            return 'doi'
+        return 'eissn'
 
 
 class ThroughLinks(Parser):
@@ -51,12 +56,12 @@ class Publication(Parser):
         Delegate(ThroughLinks),
         RunPython(
             'format_doi_as_url',
-            XPath(ctx, "str[@name='id']").str['#text']
-        )
+            XPath(ctx, "str[@name='id']").str['#text'],
+        ),
+        XPath(ctx, "str[@name='eissn']").str['#text']
     )
     date_published = ParseDate(XPath(ctx, "date[@name='publication_date']").date['#text'])
 
     class Extra:
-        eissn = XPath(ctx, "str[@name='eissn']").str['#text']
         article_type = XPath(ctx, "str[@name='article_type']").str['#text']
         score = XPath(ctx, "float[@name='score']").float['#text']
