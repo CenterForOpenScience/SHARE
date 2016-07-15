@@ -24,141 +24,85 @@ Example Record
     </header>
     <metadata>
         <oai_datacite xmlns="http://schema.datacite.org/oai/oai-1.0/"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://schema.datacite.org/oai/oai-1.0/
-            http://schema.datacite.org/oai/oai-1.0/oai.xsd">
-                <isReferenceQuality>false</isReferenceQuality>
+            oai_datacite.xsd">
+                <isReferenceQuality>true</isReferenceQuality>
                 <schemaVersion>2.1</schemaVersion>
-                <datacentreSymbol>TIB.WDCC</datacentreSymbol>
+                <datacentreSymbol>CISTI.JOE</datacentreSymbol>
                 <payload>
                     <resource xmlns="http://datacite.org/schema/kernel-2.1"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                         xsi:schemaLocation="http://datacite.org/schema/kernel-2.1
                         http://schema.datacite.org/meta/kernel-2.1/metadata.xsd">
-                            <identifier identifierType="DOI">10.1594/WDCC/CLM_C20_3_D3</identifier>
+                            <identifier identifierType="DOI">10.5072/WDCC/CCSRNIES_SRES_B2</identifier>
                             <creators>
                                 <creator>
-                                    <creatorName>Lautenschlager, Michael</creatorName>
+                                    <creatorName>Toru, Nozawa</creatorName>
                                 </creator>
                                 <creator>
-                                    <creatorName>Keuler, Klaus</creatorName>
-                                </creator>
-                                <creator>
-                                    <creatorName>Wunram, Claudia</creatorName>
-                                </creator>
-                                <creator>
-                                    <creatorName>Keup-Thiel, Elke</creatorName>
-                                </creator>
-                                <creator>
-                                    <creatorName>Schubert, Martina</creatorName>
-                                </creator>
-                                <creator>
-                                    <creatorName>Will, Andreas</creatorName>
-                                </creator>
-                                <creator>
-                                    <creatorName>Rockel, Burkhardt</creatorName>
-                                </creator>
-                                <creator>
-                                    <creatorName>Boehm, Uwe</creatorName>
+                                    <creatorName>Utor, Awazon</creatorName>
+                                    <nameIdentifier nameIdentifierScheme="ISNI">1422 4586 3573 0476</nameIdentifier>
                                 </creator>
                             </creators>
                             <titles>
                                 <title>
-                                    Climate Simulation with CLM, Climate of the 20th Century run
-                                    no.3, Data Stream 3: European region MPI-M/MaD
+                                    National Institute for Environmental Studies and Center for Climate System Research Japan
+                                </title>
+                                <title titleType="Subtitle">
+                                    A survey
                                 </title>
                             </titles>
                             <publisher>World Data Center for Climate (WDCC)</publisher>
-                            <publicationYear>2011</publicationYear>
+                            <publicationYear>2004</publicationYear>
                             <subjects>
-                                <subject>Climate</subject>
+                                <subject>Earth sciences and geology</subject>
+                                <subject subjectScheme="DDC">551 Geology, hydrology, meteorology</subject>
                             </subjects>
                             <contributors>
+                                <contributor contributorType="DataManager">
+                                    <contributorName>PANGAEA</contributorName>
+                                </contributor>
                                 <contributor contributorType="ContactPerson">
-                                    <contributorName>Lautenschlager, Michael</contributorName>
+                                    <contributorName>Doe, John</contributorName>
+                                    <nameIdentifier nameIdentifierScheme="ORCID">xyz789</nameIdentifier>
                                 </contributor>
                             </contributors>
                             <dates>
-                                <date dateType="Created">2007-07-04</date>
+                                <date dateType="Valid">2005-04-05</date>
+                                <date dateType="Accepted">2005-01-01</date>
                             </dates>
                             <language>eng</language>
-                            <resourceType resourceTypeGeneral="Dataset">Digital</resourceType>
+                            <resourceType resourceTypeGeneral="Image">Animation</resourceType>
                             <alternateIdentifiers>
-                                <alternateIdentifier alternateIdentifierType="URN">
-                                    nbn:de:tib-10.1594/WDCC/CLM_C20_3_D36
-                                </alternateIdentifier>
+                                <alternateIdentifier alternateIdentifierType="ISBN">937-0-1234-56789-X</alternateIdentifier>
                             </alternateIdentifiers>
+                            <relatedIdentifiers>
+                                <relatedIdentifier relatedIdentifierType="DOI" relationType="IsCitedBy">
+                                    10.1234/testpub
+                                </relatedIdentifier>
+                                <relatedIdentifier relatedIdentifierType="URN" relationType="Cites">
+                                    http://testing.ts/testpub
+                                </relatedIdentifier>
+                            </relatedIdentifiers>
                             <sizes>
-                                <size>2302106804800 Bytes</size>
+                                <size>285 kb</size>
+                                <size>100 pages</size>
                             </sizes>
                             <formats>
-                                <format>NetCDF</format>
+                                <format>text/plain</format>
                             </formats>
-                            <version>1</version>
-                            <rights>Open access data at least for academic use.</rights>
+                            <version>1.0</version>
+                            <rights>Open Database License [ODbL]</rights>
                             <descriptions>
-                                <description descriptionType="Abstract">Project: CLM regional climate
-                                    model runs forced by the global IPCC scenario runs
-                                    These regional climate simulations have been funded by the BMBF
-                                    and computed at DKRZ by the group "Model and Data" of MPI-M, Hamburg,
-                                    in close cooperation with BTU Cottbus, GKSS Geesthacht and PIK Potsdam.
-                                    Serving as community model, the climate version of the local model
-                                    (CLM) of the DWD was used to simulate the regional climate of the
-                                    20th century (1960-2000) and 21st century (2001-2100) in Europe.
-                                    The regional model runs are forced by the global IPCC scenario runs
-                                    (http://www.grida.no/climate/ipcc/emission/index.htm ) to explore
-                                    future developments in the European climate on a regional scale.
-                                    CLM (see http://clm.gkss.de ) was run in non hydrostatic mode with
-                                    0.165 degree horizontal grid resolution and was forced 6 hourly by
-                                    the output of the global climate model runs with ECHAM5/MPIOM. The
-                                    climate of the 20th century was simulated by three 20th century
-                                    realization runs, set off at different initialization times. The
-                                    climate of the 21st century was modeled with respect to two I
-                                    PCC-climate scenarios (A1B and B1) with different assumptions regarding
-                                    the development of global greenhouse gas concentrations.
-                                    For storage in and download from this data base, the data has been
-                                    transformed into time series of single model variables and is
-                                    provided in two different data streams (referenced as "data stream
-                                    2" and "data stream 3"). Data stream 2 is given on a rotated grid
-                                    with 0.165 deg. spatial resolution (rotated coordinates). Data
-                                    stream 3 is projected onto a non-rotated grid with 0.2 deg. spatial
-                                    resolution (usual geographical coordinates). For the data transformation
-                                    between the respective grids the cdo-routines have been used.
-                                    For the original model output (referenced as "data stream 0" and
-                                    "data stream 1") please contact model(at)dkrz.de for further information.
-                                    See http://sga.wdc-climate.de for more details on CLM simulations
-                                    in the context of the BMBF funding priority "klimazwei", some useful
-                                    information on handling climate model data and the data access regulations.
-                                    Summary: The experiment CLM_C20_3_D3 contains European regional
-                                    climate simulations of the years 1960-2000 on a regular geographical
-                                    grid. The data are generated during post processing of the corresponding
-                                    data stream 2 experiment (CLM_C20_3_D2) of regional climate model runs
-                                    (CLM non hydrostatic, see http://clm.gkss.de ). The simulations of
-                                    the 20th century (1960-2000) have been forced by the third (_3_)
-                                    run of the global 20th century climate (EH5-T63L31_OM-GR1.5L40_20C_3_6H)
-                                    with observed anthropogenic forcing.
-                                    In data stream 3 (_D3) the output variables of CLM data stream 2
-                                    and some additionally derived parameters are stored as time series
-                                    on a regular grid with a horizontal spacing of 0.2 degree. The model
-                                    parameters have been transformed onto the regular geographical grid
-                                    by the CDO routines. Please note, that none of the variables has
-                                    been corrected for topographical differences between the two grids.
-                                    The model domain of data stream 3 covers the European region starting
-                                    at 34.6/-10.6 (lat/lon, centre of lower left grid box) with an
-                                    increment of 0.2 degree. The number of grid points is 177/238 (lat/lon).
-                                    For some model variables and additionally derived parameters some
-                                    statistics on daily, monthly or yearly basis are available. See
-                                    also http://sga.wdc-climate.de for a list of available parameters.
-                                    Please contact sga"at"dkrz.de for data request details.
-                                    See http://sga.wdc-climate.de for more details on CLM simulations
-                                    in the context of the BMBF funding priority "klimazwei", some useful
-                                    information on handling climate model data and the data access regulations.
-                                    The output format is netCDF
-                                    Experiment with CLM 2.4.11 on NEC-SX6(hurrikan)
-                                    raw data: hpss:/dxul/ut/k/k204095/prism/experiments/C20_3
+                                <description descriptionType="Other">
+                                    The current xml-example for a DataCite record is the official example from the documentation.
+                                    <br/>
+                                    Please look on datacite.org to find the newest versions of sample data and schemas.
                                 </description>
                             </descriptions>
-                        </resource>
-            </payload>
+                    </resource>
+                </payload>
         </oai_datacite>
     </metadata>
 </record>
