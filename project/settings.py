@@ -174,7 +174,6 @@ INSTALLED_APPS = [
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
-    'providers.org.datacite.oai.apps.AppConfig',
     'providers.org.dataone',
     'providers.org.dryad',
     'providers.org.elife',
