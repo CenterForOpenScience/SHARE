@@ -357,13 +357,13 @@ class TryLink(AbstractLink):
 
     def execute(self, obj):
         try:
-            val = self._chain.chain()[0].run(obj)
+            val = self._chain.chain()[0].execute(obj)
         except (IndexError, KeyError):
             return self._default
         except TypeError as err:
             logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain))
             return self._default
-        return self.__anchor.run(val)
+        return self.__anchor.execute(val)
 
 
 class PathLink(AbstractLink):
