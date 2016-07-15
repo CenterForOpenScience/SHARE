@@ -11,4 +11,4 @@ class LWBINHarvester(Harvester):
         records = response.json()['result']
         for record in records:
             record_id = record['id']
-            yield(record_id, record)
+            yield (record_id, record)
