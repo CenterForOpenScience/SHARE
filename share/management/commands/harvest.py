@@ -34,7 +34,7 @@ class Command(BaseCommand):
             task_kwargs['end'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))).isoformat() + 'Z'
             task_kwargs['start'] = (datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])).isoformat() + 'Z'
         else:
-            task_kwargs['start'] = arrow.get(options['start']) if options.get('start') else arrow.utcnow() - datetime.timedelta(days=int(options.get('days_back', 1)))
+            task_kwargs['start'] = arrow.get(options['start']) if options.get('start') else arrow.utcnow() - datetime.timedelta(days=int(options['days_back'] or 1))
             task_kwargs['end'] = arrow.get(options['end']) if options.get('end') else arrow.utcnow()
 
         if not options['harvester'] and options['all']:
