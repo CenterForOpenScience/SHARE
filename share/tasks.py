@@ -1,8 +1,8 @@
 import abc
 import logging
 import datetime
-from dateutil import parser
 
+import arrow
 import celery
 import requests
 
@@ -58,10 +58,10 @@ class HarvesterTask(ProviderTask):
     def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None):
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
-        if type(start) is str:
-            start = parser.parse(start)
         if type(end) is str:
-            end = parser.parse(end)
+            end = arrow.get(end).datetime
+        if type(start) is str:
+            start = arrow.get(start).datetime
 
         harvester = self.config.harvester(self.config)
 
