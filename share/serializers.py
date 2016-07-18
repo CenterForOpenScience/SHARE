@@ -148,6 +148,7 @@ class FunderSerializer(EntitySerializer):
 
 class AwardSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
+    entities = EntitySerializer(many=True)
     class Meta(BaseShareSerializer.Meta):
         model = models.Award
 
