@@ -1,6 +1,7 @@
 import threading
 from functools import reduce
 from collections import deque
+import logging
 
 import xmltodict
 
@@ -13,7 +14,10 @@ from pycountry import languages
 from nameparser import HumanName
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static')
+logger = logging.getLogger(__name__)
+
+
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Text', 'TextList')
 
 
 #### Public API ####
@@ -50,6 +54,10 @@ def Maybe(chain, segment, default=None):
     return chain + MaybeLink(segment, default=default)
 
 
+def Try(chain, default=None):
+    return TryLink(chain, default=default)
+
+
 def Map(chain, *chains):
     return Concat(*chains) + IteratorLink() + chain
 
@@ -58,6 +66,14 @@ def Delegate(parser, chain=None):
     if chain:
         return chain + DelegateLink(parser)
     return DelegateLink(parser)
+
+
+def Text(chain):
+    return chain + TextLink()
+
+
+def TextList(chain):
+    return chain + TextListLink()
 
 
 def RunPython(function_name, chain=None, *args, **kwargs):
@@ -234,7 +250,9 @@ class NameParserLink(AbstractLink):
 
 class DateParserLink(AbstractLink):
     def execute(self, obj):
-        return arrow.get(obj).to('UTC').isoformat()
+        if obj:
+            return arrow.get(obj).to('UTC').isoformat()
+        return None
 
 
 class LanguageParserLink(AbstractLink):
@@ -265,7 +283,7 @@ class ConcatLink(AbstractLink):
 
     def execute(self, obj):
         return reduce(self._concat, [
-            chain.chain()[0].execute(obj)
+            chain.chain()[0].run(obj)
             for chain in self._chains
         ], [])
 
@@ -307,7 +325,7 @@ class IteratorLink(AbstractLink):
             obj = (obj, )
         if None in obj:
             import ipdb; ipdb.set_trace()
-        return [self.__anchor.execute(sub) for sub in obj]
+        return [self.__anchor.run(sub) for sub in obj]
 
 
 class MaybeLink(AbstractLink):
@@ -327,10 +345,33 @@ class MaybeLink(AbstractLink):
             return []
         val = obj.get(self._segment)
         if val:
-            return self.__anchor.execute(val)
+            return self.__anchor.run(val)
         if len(Context().frames) > 1 and isinstance(Context().frames[-2]['link'], (IndexLink, IteratorLink, ConcatLink, JoinLink)):
             return []
         return self._default
+
+
+class TryLink(AbstractLink):
+    def __init__(self, chain, default=None):
+        super().__init__()
+        self._chain = chain
+        self._default = default
+        self.__anchor = AnchorLink()
+
+    def __add__(self, step):
+        # Attach all new links to the "subchain"
+        self.__anchor.chain()[-1] + step
+        return self
+
+    def execute(self, obj):
+        try:
+            val = self._chain.chain()[0].run(obj)
+        except (IndexError, KeyError):
+            return self._default
+        except TypeError as err:
+            logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain))
+            return self._default
+        return self.__anchor.run(val)
 
 
 class PathLink(AbstractLink):
@@ -368,7 +409,37 @@ class GetIndexLink(AbstractLink):
 
 class TextLink(AbstractLink):
     def execute(self, obj):
-        return obj.text
+        if isinstance(obj, str):
+            return obj
+        elif isinstance(obj, dict):
+            if '#text' in obj:
+                return obj['#text']
+            raise Exception('#text is not in {}'.format(obj))
+        elif isinstance(obj, list):
+            for item in obj:
+                if isinstance(item, str):
+                    return item
+            raise('No value in list {} is a string.'.format(obj))
+        else:
+            raise Exception('{} is not a string or a dictionary.'.format(obj))
+
+
+class TextListLink(AbstractLink):
+    def execute(self, obj):
+        text_list = []
+        if isinstance(obj, list):
+            for item in obj:
+                if isinstance(item, dict):
+                    if '#text' in item:
+                        text_list.append(item['#text'])
+                        continue
+                elif isinstance(item, str):
+                    text_list.append(item)
+                    continue
+                logger.warning('#text is not in {} and it is not a string'.format(item))
+            return text_list
+        else:
+            raise Exception('{} is not a list.'.format(obj))
 
 
 class PrependLink(AbstractLink):
