@@ -1,7 +1,7 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, URIField, ShareURLField
+from share.models.fields import ShareForeignKey, URIField, ShareURLField, ShareManyToManyField
 from share.apps import ShareConfig as share_config
 
 
@@ -26,6 +26,7 @@ class Award(ShareObject):
     award = ShareURLField(blank=True)
     description = models.TextField(blank=True)
     url = ShareURLField(blank=True)
+    entities = ShareManyToManyField('Entity', through='ThroughAwardEntities')
 
     def __str__(self):
         return self.description
@@ -67,3 +68,8 @@ class ThroughAwards(ShareObject):
 class ThroughTags(ShareObject):
     tag = ShareForeignKey(Tag)
     creative_work = ShareForeignKey('AbstractCreativeWork')
+
+
+class ThroughAwardEntities(ShareObject):
+    award = ShareForeignKey('Award')
+    entity = ShareForeignKey('Entity')

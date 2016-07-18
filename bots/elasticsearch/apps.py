@@ -7,6 +7,19 @@ class AppConfig(BotAppConfig):
     long_title = ''
     home_page = ''
 
-    def get_bot(self, started_by):
+    def get_bot(self, started_by, last_run=None):
         from bots.elasticsearch.bot import ElasticSearchBot
-        return ElasticSearchBot(self, started_by)
+        return ElasticSearchBot(self, started_by, last_run=last_run)
+
+    INDEX_MODELS = [
+        'AbstractCreativeWork',
+        'Person',
+    ]
+
+    AUTO_COMPLETE_MODELS = [
+        'Person',
+        'Tag',
+        'Entity',
+        'Award',
+        'Venue',
+    ]

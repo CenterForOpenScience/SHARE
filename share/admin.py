@@ -12,7 +12,7 @@ from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.entities import Entity
-from share.models.meta import Venue, Award, Tag
+from share.models.meta import Venue, Award, Tag, Link
 from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
 from share.tasks import ApplyChangeSets
 
@@ -109,6 +109,10 @@ class TagAdmin(admin.ModelAdmin):
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
 
 
+class LinkAdmin(admin.ModelAdmin):
+    raw_id_fields = ('change', 'same_as', 'same_as_version', 'extra', 'extra_version',)
+
+
 class RawDataAdmin(admin.ModelAdmin):
     raw_id_fields = ('tasks',)
 
@@ -126,6 +130,7 @@ admin.site.register(PersonEmail)
 admin.site.register(Identifier)
 admin.site.register(Venue)
 admin.site.register(Award)
+admin.site.register(Link, LinkAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(ExtraData)
 admin.site.register(Contributor, ContributorAdmin)

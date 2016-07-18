@@ -15,6 +15,12 @@ class Entity(ShareObject, metaclass=TypedShareObjectMeta):
 
     class Meta:
         verbose_name_plural = 'Entities'
+        index_together = (
+            ('type', 'name',)
+        )
+
+    def __str__(self):
+        return self.name
 
 
 class Funder(Entity):

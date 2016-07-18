@@ -37,48 +37,72 @@ class BaseShareSerializer(serializers.ModelSerializer):
                 lookup_field='pk'
             ),
             '@type': fields.TypeField(),
-            'object_id': fields.ObjectIDField(source='uuid')
+            'object_id': fields.ObjectIDField(source='uuid'),
         })
 
     class Meta:
         pass
 
+
 class ExtraDataSerializer(BaseShareSerializer):
+    data = serializers.JSONField()
+
     class Meta(BaseShareSerializer.Meta):
         model = models.ExtraData
 
 
 class EntitySerializer(BaseShareSerializer):
+    extra = ExtraDataSerializer()
+
     class Meta(BaseShareSerializer.Meta):
         model = models.Entity
 
 
 class VenueSerializer(BaseShareSerializer):
+    extra = ExtraDataSerializer()
+
     class Meta(BaseShareSerializer.Meta):
         model = models.Venue
 
 
+class LinkSerializer(BaseShareSerializer):
+    extra = ExtraDataSerializer()
+
+    class Meta(BaseShareSerializer.Meta):
+        model = models.Link
+
+
 class OrganizationSerializer(EntitySerializer):
+    extra = ExtraDataSerializer()
+
     class Meta(EntitySerializer.Meta):
         model = models.Organization
 
 
 class PublisherSerializer(EntitySerializer):
+    extra = ExtraDataSerializer()
+
     class Meta(EntitySerializer.Meta):
         model = models.Publisher
 
 
 class InstitutionSerializer(EntitySerializer):
+    extra = ExtraDataSerializer()
+
     class Meta(EntitySerializer.Meta):
         model = models.Institution
 
 
 class PersonEmailSerializer(BaseShareSerializer):
+    extra = ExtraDataSerializer()
+
     class Meta(BaseShareSerializer.Meta):
         model = models.PersonEmail
 
 
 class IdentifierSerializer(BaseShareSerializer):
+    extra = ExtraDataSerializer()
+
     class Meta(BaseShareSerializer.Meta):
         model = models.Identifier
 
@@ -87,6 +111,8 @@ class PersonSerializer(BaseShareSerializer):
     # no emails on purpose
     identifiers = IdentifierSerializer(many=True)
     affiliations = OrganizationSerializer(sparse=True, many=True)
+    extra = ExtraDataSerializer()
+
     class Meta(BaseShareSerializer.Meta):
         model = models.Person
         exclude = ('emails',)
@@ -95,6 +121,7 @@ class PersonSerializer(BaseShareSerializer):
 class AffiliationSerializer(BaseShareSerializer):
     person = PersonSerializer(sparse=True)
     organization = OrganizationSerializer(sparse=True)
+    extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
         model = models.Affiliation
@@ -105,6 +132,7 @@ class ContributorSerializer(BaseShareSerializer):
     cited_name = serializers.ReadOnlyField(source='contributor.cited_name')
     order_cited = serializers.ReadOnlyField(source='contributor.order_cited')
     url = serializers.ReadOnlyField(source='contributor.url')
+    extra = ExtraDataSerializer()
     # TODO find a way to do this, or don't
     # creative_work = CreativeWorkSerializer(sparse=True)
     class Meta(BaseShareSerializer.Meta):
@@ -113,16 +141,20 @@ class ContributorSerializer(BaseShareSerializer):
 
 
 class FunderSerializer(EntitySerializer):
+    extra = ExtraDataSerializer()
     class Meta(EntitySerializer.Meta):
         model = models.Funder
 
 
 class AwardSerializer(BaseShareSerializer):
+    extra = ExtraDataSerializer()
+    entities = EntitySerializer(many=True)
     class Meta(BaseShareSerializer.Meta):
         model = models.Award
 
 
 class TagSerializer(BaseShareSerializer):
+    extra = ExtraDataSerializer()
     class Meta(BaseShareSerializer.Meta):
         model = models.Tag
 
@@ -133,7 +165,9 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     institutions = InstitutionSerializer(sparse=True, many=True)
     venues = VenueSerializer(sparse=True, many=True)
     awards = AwardSerializer(sparse=True, many=True)
+    links = LinkSerializer(many=True)
     subject = TagSerializer(sparse=True)
+    extra = ExtraDataSerializer()
 
 
 class CreativeWorkSerializer(AbstractCreativeWorkSerializer):
@@ -147,6 +181,7 @@ class PreprintSerializer(AbstractCreativeWorkSerializer):
 
 
 class PublicationSerializer(AbstractCreativeWorkSerializer):
+    publishers = PublisherSerializer(many=True)
     class Meta(BaseShareSerializer.Meta):
         model = models.Publication
 
@@ -162,5 +197,6 @@ class ManuscriptSerializer(AbstractCreativeWorkSerializer):
 
 
 class Link(BaseShareSerializer):
+    extra = ExtraDataSerializer()
     class Meta(BaseShareSerializer.Meta):
         model = models.Link
