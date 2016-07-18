@@ -9,3 +9,4 @@ class AppConfig(ProviderAppConfig):
     long_title = 'eLife Sciences'
     home_page = 'http://elifesciences.org/'
     harvester = ELifeHarvester
+    rate_limit = (1, 60)
