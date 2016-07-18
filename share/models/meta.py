@@ -26,7 +26,7 @@ class Award(ShareObject):
     award = ShareURLField(blank=True)
     description = models.TextField(blank=True)
     url = ShareURLField(blank=True)
-    funder = ShareManyToManyField('Funder', through='ThroughAwardFunders')
+    entities = ShareManyToManyField('Entity', through='ThroughAwardEntities')
 
     def __str__(self):
         return self.description
@@ -70,6 +70,6 @@ class ThroughTags(ShareObject):
     creative_work = ShareForeignKey('AbstractCreativeWork')
 
 
-class ThroughAwardFunders(ShareObject):
+class ThroughAwardEntities(ShareObject):
     award = ShareForeignKey('Award')
-    funder = ShareForeignKey('Funder')
+    entity = ShareForeignKey('Entity')
