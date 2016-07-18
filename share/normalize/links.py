@@ -17,7 +17,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Text', 'TextList')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try')
 
 
 #### Public API ####
@@ -66,14 +66,6 @@ def Delegate(parser, chain=None):
     if chain:
         return chain + DelegateLink(parser)
     return DelegateLink(parser)
-
-
-def Text(chain):
-    return chain + TextLink()
-
-
-def TextList(chain):
-    return chain + TextListLink()
 
 
 def RunPython(function_name, chain=None, *args, **kwargs):
@@ -405,41 +397,6 @@ class GetIndexLink(AbstractLink):
                 return frame['context'].index(obj)
         return -1
         # return Context().parent.index(obj)
-
-
-class TextLink(AbstractLink):
-    def execute(self, obj):
-        if isinstance(obj, str):
-            return obj
-        elif isinstance(obj, dict):
-            if '#text' in obj:
-                return obj['#text']
-            raise Exception('#text is not in {}'.format(obj))
-        elif isinstance(obj, list):
-            for item in obj:
-                if isinstance(item, str):
-                    return item
-            raise('No value in list {} is a string.'.format(obj))
-        else:
-            raise Exception('{} is not a string or a dictionary.'.format(obj))
-
-
-class TextListLink(AbstractLink):
-    def execute(self, obj):
-        text_list = []
-        if isinstance(obj, list):
-            for item in obj:
-                if isinstance(item, dict):
-                    if '#text' in item:
-                        text_list.append(item['#text'])
-                        continue
-                elif isinstance(item, str):
-                    text_list.append(item)
-                    continue
-                logger.warning('#text is not in {} and it is not a string'.format(item))
-            return text_list
-        else:
-            raise Exception('{} is not a list.'.format(obj))
 
 
 class PrependLink(AbstractLink):
