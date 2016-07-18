@@ -34,9 +34,7 @@ class RelatedLink(Parser):
     type = tools.RunPython('lower', tools.Try(ctx['@relatedIdentifierType']))
 
     def lower(self, type):
-        if type:
-            return type.lower()
-        return type
+        return type.lower()
 
 
 class ThroughLinks(Parser):
