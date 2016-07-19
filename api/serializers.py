@@ -1,8 +1,8 @@
+from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
 
 from share import models
 from share.models import ChangeSet
-from share.serializers import PersonSerializer
 
 
 class RawDataSerializer(serializers.ModelSerializer):
@@ -38,7 +38,9 @@ class ShareUserSerializer(serializers.ModelSerializer):
 
 
     def is_robot(self, obj):
-        return obj.is_robot
+        if not isinstance(obj, AnonymousUser):
+            return obj.is_robot
+        return False
 
     def get_token(self, obj):
         try:
