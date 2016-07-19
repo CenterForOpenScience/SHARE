@@ -19,24 +19,22 @@ class USGSHarvester(Harvester):
         # The USGS API does not support date ranges
         for days_back in range(end_days_back, start_days_back):
             page = 1
-            resp = self.requests.get(furl(self.url).set(query_params={
-                'mod_x_days': days_back + 1,
-                'page_number': page,
-                'page_size': 100
-            }).url)
+            page_size = 100
 
-            records = resp.json()['records']
+            while True:
+                resp = self.requests.get(furl(self.url).set(query_params={
+                    'mod_x_days': days_back + 1,
+                    'page_number': page,
+                    'page_size': page_size
+                }).url)
 
-            while records:
+                records = resp.json()['records']
+
                 for record in records:
                     record_id = record['id']
                     yield (record_id, record)
 
-                page += 1
-                resp = self.requests.get(furl(self.url).set(query_params={
-                    'mod_x_days': days_back + 1,
-                    'page_number': page,
-                    'page_size': 100
-                }).url)
+                if len(records) < page_size:
+                    break
 
-                records = resp.json()['records']
+                page += 1

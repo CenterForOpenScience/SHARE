@@ -4,12 +4,12 @@ from share.normalize.utils import format_doi_as_url
 
 class Person(Parser):
     given_name = Maybe(ctx, 'given')
-    family_name = ctx.family
+    family_name = Maybe(ctx, 'family')
 
 
 class Contributor(Parser):
     order_cited = ctx('index')
-    cited_name = Join(Concat(Maybe(ctx, 'given'), ctx.family), joiner=' ')
+    cited_name = Join(Concat(Maybe(ctx, 'given'), Maybe(ctx, 'family')), joiner=' ')
     person = Delegate(Person, ctx)
 
 
@@ -20,7 +20,7 @@ class Link(Parser):
     def get_link_type(self, link):
         if 'dx.doi.org' in link:
             return 'doi'
-        elif 'usgs.gov' in link:
+        if 'usgs.gov' in link:
             return 'provider'
         return 'misc'
 
@@ -38,24 +38,13 @@ class Association(Parser):
 
 
 class CreativeWork(Parser):
-
-    def format_doi_as_url(self, doi):
-        return format_doi_as_url(self, doi)
-
-    def format_usgs_id_as_url(self, id):
-        return 'https://pubs.er.usgs.gov/publication/{}'.format(id)
-
-    def get_links(self, links):
-        for link in links:
-            return link.get('url')
-
     title = ctx.title
     description = Maybe(ctx, 'docAbstract')
     date_updated = ParseDate(ctx.lastModifiedDate)
     date_published = ParseDate(ctx.displayToPublicDate)
     language = Maybe(ctx, 'language')
     publishers = Map(Delegate(Association), Maybe(ctx, 'publisher'))
-    contributors = Map(Delegate(Contributor), Maybe(ctx, 'contributors').authors)
+    contributors = Map(Delegate(Contributor), Maybe(Maybe(ctx, 'contributors'), 'authors'))
     links = Map(
         Delegate(ThroughLinks),
         RunPython('format_doi_as_url', Maybe(ctx, 'doi')),
@@ -80,3 +69,12 @@ class CreativeWork(Parser):
         state = Maybe(ctx, 'state')
         type = Maybe(ctx, 'type')
         volume = Maybe(ctx, 'volume')
+
+    def format_doi_as_url(self, doi):
+        return format_doi_as_url(self, doi)
+
+    def format_usgs_id_as_url(self, id):
+        return 'https://pubs.er.usgs.gov/publication/{}'.format(id)
+
+    def get_links(self, links):
+        return [link['url'] for link in links if link.get('url')]
