@@ -1,4 +1,5 @@
 from share.normalize import *
+from share.normalize.utils import format_address
 
 
 class Person(Parser):
@@ -59,12 +60,6 @@ class ThroughAwardEntities(Parser):
 
 
 class Award(Parser):
-
-    def get_award_amount(self, award_info):
-        if award_info:
-            return award_info.split(':')[1].replace('\\', '')
-        return None
-
     # The amount of the award provided by the funding NIH Institute(s) or Center(s)
     description = RunPython('get_award_amount', ctx.FUNDING_ICs)
     entities = Map(Delegate(ThroughAwardEntities), ctx)
@@ -73,24 +68,43 @@ class Award(Parser):
         arra_funded = ctx.ARRA_FUNDED
         award_notice_date = ctx.AWARD_NOTICE_DATE
 
+    def get_award_amount(self, award_info):
+        if award_info:
+            return award_info.split(':')[1].replace('\\', '')
+        return None
+
 
 class ThroughAwards(Parser):
     award = Delegate(Award, ctx)
 
 
-class CreativeWork(Parser):
+class Organization(Parser):
+    name = ctx.ORG_NAME
+    location = RunPython('format_address', ctx)
 
+    class Extra:
+        organization_duns = ctx.ORG_DUNS
+        organization_fips = ctx.ORG_FIPS
+        organization_dept = ctx.ORG_DEPT
+        organization_district = ctx.ORG_DISTRICT
+
+    def format_address(self, doc):
+        return format_address(
+            self,
+            city=doc.get('ORG_CITY'),
+            state_or_province=doc.get('ORG_STATE'),
+            postal_code=doc.get('ORG_ZIPCODE'),
+            country=doc.get('ORG_COUNTRY')
+        )
+
+
+class Association(Parser):
+    pass
+
+
+class Project(Parser):
     PROJECT_BASE_URL = 'https://projectreporter.nih.gov/project_info_description.cfm?aid={}'
     FOA_BASE_URL = 'https://grants.nih.gov/grants/guide/pa-files/{}.html'
-
-    def format_nih_url(self, id):
-        return self.PROJECT_BASE_URL.format(id)
-
-    def format_foa_url(self, foa_number):
-        return self.FOA_BASE_URL.format(foa_number)
-
-    def parse_awards(self, award_info):
-        return [award for award in award_info.split(';')]
 
     title = ctx.row.PROJECT_TITLE
     contributors = Concat(
@@ -110,6 +124,10 @@ class CreativeWork(Parser):
         Delegate(ThroughAwards),
         ctx.row
     )
+    organizations = Map(
+        Delegate(Association.using(entity=Delegate(Organization))),
+        ctx.row
+    )
 
     class Extra:
         activity = ctx.row.ACTIVITY
@@ -123,15 +141,6 @@ class CreativeWork(Parser):
         foa_number = ctx.row.FOA_NUMBER
         full_project_number = ctx.row.FULL_PROJECT_NUM
         nih_spending_cats = ctx.row.NIH_SPENDING_CATS
-        organization_city = ctx.row.ORG_CITY
-        organization_country = ctx.row.ORG_COUNTRY
-        organization_dept = ctx.row.ORG_DEPT
-        organization_district = ctx.row.ORG_DISTRICT
-        organization_duns = ctx.row.ORG_DUNS
-        organization_fips = ctx.row.ORG_FIPS
-        organization_name = ctx.row.ORG_NAME
-        organization_state = ctx.row.ORG_STATE
-        organization_zip = ctx.row.ORG_ZIPCODE
         phr = ctx.row.PHR
         project_start = ctx.row.PROJECT_START
         project_end = ctx.row.PROJECT_END
@@ -143,3 +152,12 @@ class CreativeWork(Parser):
         support_year = ctx.row.SUPPORT_YEAR
         total_cost = ctx.row.TOTAL_COST
         total_cost_subproject = ctx.row.TOTAL_COST_SUB_PROJECT
+
+    def format_nih_url(self, id):
+        return self.PROJECT_BASE_URL.format(id)
+
+    def format_foa_url(self, foa_number):
+        return self.FOA_BASE_URL.format(foa_number)
+
+    def parse_awards(self, award_info):
+        return [award for award in award_info.split(';')]
