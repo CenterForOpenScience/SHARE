@@ -122,12 +122,7 @@ class OAICreativeWork(Parser):
 
     # Note: this is only taking the first language in the case of multiple languages
     language = tools.ParseLanguage(
-        tools.RunPython(
-            'get_first_language',
-            tools.Concat(
-                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:language'),
-            )
-        )
+        tools.Try(ctx.record['metadata']['oai_dc:dc']['dc:language']),
     )
 
     contributors = tools.Map(
@@ -242,7 +237,7 @@ class OAICreativeWork(Parser):
     def get_first_language(self,ctx):
         if len(ctx) is not 0:
             return ctx[0]
-        return 
+        return
 
     def get_links(self, ctx):
         links = []
