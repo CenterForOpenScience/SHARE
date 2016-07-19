@@ -27,6 +27,10 @@ router.register(r'publications', views.PublicationViewSet, base_name=views.Publi
 router.register(r'projects', views.ProjectViewSet, base_name=views.ProjectViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'manuscripts', views.ManuscriptViewSet, base_name=views.ManuscriptViewSet.serializer_class.Meta.model._meta.model_name)
 
+# # feed routes
+# router.register(r'rss', views.CreativeWorksRSS, base_name='rss')
+# router.register(r'atom', views.CreativeWorksAtom, base_name='atom')
+
 # workflow routes
 router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name=views.NormalizedDataViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'changesets', views.ChangeSetViewSet, base_name=views.ChangeSetViewSet.serializer_class.Meta.model._meta.model_name)
@@ -38,4 +42,6 @@ router.register(r'providers', views.ProviderViewSet, base_name=views.ProviderVie
 urlpatterns = [
     url(r'userinfo/?', views.ShareUserView.as_view(), name='userinfo'),
     url(r'search/(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
+    url('rss/?', views.CreativeWorksRSS(), name='rss'),
+    url('atom/?', views.CreativeWorksAtom(), name='atom')
 ] + router.urls

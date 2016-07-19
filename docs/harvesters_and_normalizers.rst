@@ -12,7 +12,7 @@ Start Up
 
     1. Install `Docker <https://docs.docker.com/engine/installation/>`_.
     2. Make sure you're using Python3 - install with `conda <http://conda.pydata.org/miniconda.html>`_ , or `homebrew <http://blog.manbolo.com/2013/02/04/how-to-install-python-3-and-pydev-on-osx#2>`_
-    3. Install everything inside a Virtual Enviornment - created with `Conda <http://conda.pydata.org/docs/using/envs.html>`_ or `Virtualenv <https://virtualenv.pypa.io/en/stable/>`_ or
+    3. Install everything inside a Virtual Enviornment - created with `Conda <http://conda.pydata.org/docs/using/envs.html>`_ or `Virtualenv <https://virtualenv.pypa.io/en/stable/>`_ or your python enviornment of choice.
 
 Installation (inside a virtual environment)::
 
