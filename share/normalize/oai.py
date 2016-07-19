@@ -234,11 +234,6 @@ class OAICreativeWork(Parser):
         # Status in the header, will exist if the resource is deleted
         status = tools.Maybe(ctx.record.header, '@status')
 
-    def get_first_language(self,ctx):
-        if len(ctx) is not 0:
-            return ctx[0]
-        return
-
     def get_links(self, ctx):
         links = []
         for link in ctx:
