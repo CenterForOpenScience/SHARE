@@ -1,6 +1,7 @@
 import threading
 from functools import reduce
 from collections import deque
+import logging
 
 import xmltodict
 
@@ -13,7 +14,10 @@ from pycountry import languages
 from nameparser import HumanName
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static')
+logger = logging.getLogger(__name__)
+
+
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try')
 
 
 #### Public API ####
@@ -48,6 +52,10 @@ def Join(chain, joiner='\n'):
 
 def Maybe(chain, segment, default=None):
     return chain + MaybeLink(segment, default=default)
+
+
+def Try(chain, default=None):
+    return TryLink(chain, default=default)
 
 
 def Map(chain, *chains):
@@ -234,7 +242,9 @@ class NameParserLink(AbstractLink):
 
 class DateParserLink(AbstractLink):
     def execute(self, obj):
-        return arrow.get(obj).to('UTC').isoformat()
+        if obj:
+            return arrow.get(obj).to('UTC').isoformat()
+        return None
 
 
 class LanguageParserLink(AbstractLink):
@@ -265,7 +275,7 @@ class ConcatLink(AbstractLink):
 
     def execute(self, obj):
         return reduce(self._concat, [
-            chain.chain()[0].execute(obj)
+            chain.chain()[0].run(obj)
             for chain in self._chains
         ], [])
 
@@ -307,7 +317,7 @@ class IteratorLink(AbstractLink):
             obj = (obj, )
         if None in obj:
             import ipdb; ipdb.set_trace()
-        return [self.__anchor.execute(sub) for sub in obj]
+        return [self.__anchor.run(sub) for sub in obj]
 
 
 class MaybeLink(AbstractLink):
@@ -327,10 +337,33 @@ class MaybeLink(AbstractLink):
             return []
         val = obj.get(self._segment)
         if val:
-            return self.__anchor.execute(val)
+            return self.__anchor.run(val)
         if len(Context().frames) > 1 and isinstance(Context().frames[-2]['link'], (IndexLink, IteratorLink, ConcatLink, JoinLink)):
             return []
         return self._default
+
+
+class TryLink(AbstractLink):
+    def __init__(self, chain, default=None):
+        super().__init__()
+        self._chain = chain
+        self._default = default
+        self.__anchor = AnchorLink()
+
+    def __add__(self, step):
+        # Attach all new links to the "subchain"
+        self.__anchor.chain()[-1] + step
+        return self
+
+    def execute(self, obj):
+        try:
+            val = self._chain.chain()[0].run(obj)
+        except (IndexError, KeyError):
+            return self._default
+        except TypeError as err:
+            logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain))
+            return self._default
+        return self.__anchor.run(val)
 
 
 class PathLink(AbstractLink):
@@ -364,11 +397,6 @@ class GetIndexLink(AbstractLink):
                 return frame['context'].index(obj)
         return -1
         # return Context().parent.index(obj)
-
-
-class TextLink(AbstractLink):
-    def execute(self, obj):
-        return obj.text
 
 
 class PrependLink(AbstractLink):

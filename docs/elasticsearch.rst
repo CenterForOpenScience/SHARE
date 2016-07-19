@@ -79,6 +79,8 @@ Tutorials
 
 For a detailed series of tutorials on how to use the SHARE Search API, check out `this repository on GitHub  <https://github.com/erinspace/share_tutorials>`_.
 
+Run these tutorials online here: http://mybinder.org:/repo/erinspace/share_tutorials
+
 
 sharepa - SHARE Parsing and Analysis Library
 ********************************************
@@ -86,10 +88,12 @@ sharepa - SHARE Parsing and Analysis Library
 You can also use ``sharepa`` - a python library for parsing SHARE data that connects directly to the search API. It is based on the
 `elasticsearch DSL  <http://elasticsearch-dsl.readthedocs.io/en/latest/index.html>`_.
 
-Install sharepa with::
-
-    pip install sharepa
-
 You can see the `source code for sharepa on GitHub  <https://github.com/CenterForOpenScience/sharepa>`_.
 
+Install the beta version of sharepa with::
+
+    pip install git+https://github.com/CenterForOpenScience/sharepa@develop
+
 See some tutorials on how to use sharepa by visiting `this repository on GitHub  <https://github.com/erinspace/share_tutorials>`_.
+
+Run the tutorials Online without installing anything by visiting http://mybinder.org:/repo/erinspace/share_tutorials
