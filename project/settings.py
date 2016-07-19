@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+
+import raven
 from django.utils.log import DEFAULT_LOGGING
 
 # Suppress select django deprecation messages
@@ -78,6 +80,7 @@ INSTALLED_APPS = [
     'providers.ca.lwbin',
     'providers.ca.umontreal',
     'providers.ca.uwo',
+    'providers.ch.cern',
     'providers.com.biomedcentral',
     'providers.com.dailyssrn',
     'providers.com.figshare',
@@ -195,6 +198,7 @@ INSTALLED_APPS = [
     'providers.za.csir',
 ]
 
+
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
 USER_SCOPES = 'approve_changesets'
 
@@ -249,7 +253,7 @@ REST_FRAMEWORK = {
         'api.parsers.JSONLDParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'api.renderers.JSONLDRenderer',
+        'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
@@ -324,8 +328,21 @@ LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'http://localhost:8000
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
-    CORS_ORIGIN_ALLOW_ALL = True
-    CORS_ALLOW_CREDENTIALS = True
+# else:
+INSTALLED_APPS += [
+    'raven.contrib.django.raven_compat',
+]
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('SENTRY_DSN', None),
+    'release': raven.fetch_git_sha(os.getcwd())
+}
+
+
+# TODO REMOVE BEFORE PRODUCTION
+# ALLOW LOCAL USERS TO SEARCH
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+# TODO REMOVE BEFORE PRODUCTION
 
 
 AUTHENTICATION_BACKENDS = (
@@ -441,9 +458,14 @@ LOGGING = {
         }
     },
     'handlers': {
+        'sentry': {
+            'level': 'ERROR',  # To capture more than ERROR, change to WARNING, INFO, etc.
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'INFO',
+            'level': 'DEBUG',
             'formatter': 'console'
         },
     },
@@ -452,11 +474,26 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False
-        }
+        },
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
     },
     'root': {
-        'level': 'INFO',
-        'handlers': ['console']
+        'level': 'WARNING',
+        'handlers': ['sentry'],
     }
 }
 
@@ -471,6 +508,7 @@ DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
 PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
+PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 
 import djcelery
 djcelery.setup_loader()

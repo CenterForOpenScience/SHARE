@@ -13,7 +13,9 @@ The technical side of SHARE has many pieces that you can interact with:
 - API Endpoints for accessing the raw and normalized metadata
     + https://staging-share.osf.io/api
 - A search endpoint powered by elasticsearch that indexes the normalized data allowing:
-   - Thorough search
+   - Thorough search of creative works:
+        + Creative works: https://staging-share.osf.io/api/search/abstractcreativework/_search
+        + more info on the elasticsearch docs page: http://share-research.readthedocs.io/en/latest/elasticsearch.html
    - Data aggregations across fields
 - A python library called ``sharepa`` for SHARE Parsing and Analysis
 - An Ember application using the SHARE API for:

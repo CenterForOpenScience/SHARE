@@ -1,37 +1,30 @@
 import logging
 
+import itertools
+from django.apps import apps
 from django.conf import settings
-from django.db import transaction
-from elasticsearch import helpers
 from elasticsearch import Elasticsearch
 
-from db.backends.postgresql.base import server_side_cursors
+from bots.elasticsearch.tasks import IndexModelTask
+from bots.elasticsearch.tasks import IndexAutoCompleteTask
 from share.bot import Bot
-from share.models import Person
-from share.models import Tag
-from share.models import Entity
-from share.models import Award
-from share.models import Venue
-from share.models import AbstractCreativeWork
 
 logger = logging.getLogger(__name__)
 
-def safe_substr(value, length=32000):
-    if value:
-        return str(value)[:length]
-    return None
+
+def chunk(iterable, size):
+    iterable = iter(iterable)
+    try:
+        while True:
+            l = []
+            for _ in range(size):
+                l.append(next(iterable))
+            yield l
+    except StopIteration:
+        yield l
 
 
 class ElasticSearchBot(Bot):
-    INDEX_MODELS = [AbstractCreativeWork, Person]
-    AUTO_COMPLETE_MODELS = [
-        # (Model, attribute, )
-        Person,
-        Tag,
-        Entity,
-        Award,
-        Venue
-    ]
 
     SETTINGS = {
         'analysis': {
@@ -101,131 +94,30 @@ class ElasticSearchBot(Bot):
         super().__init__(config, started_by, last_run=last_run)
         self.es_client = Elasticsearch(settings.ELASTICSEARCH_URL)
 
-    def serialize(self, inst):
-        return {
-            Person: self.serialize_person,
-            AbstractCreativeWork: self.serialize_creative_work,
-        }[type(inst)._meta.concrete_model](inst)
+    def run(self, chunk_size=500):
+        self.setup()
 
-    def serialize_autocomplete(self, model):
-        return {
-            '@id': str(model.pk),
-            'text': safe_substr(model),
-            '@type': type(model).__name__.lower(),
-        }
+        logger.info('Loading up indexed models')
+        for model_name in self.config.INDEX_MODELS:
+            model = apps.get_model('share', model_name)
+            qs = model.objects.filter(date_modified__gt=self.last_run.datetime).values_list('id', flat=True)
+            logger.info('Looking for %ss that have been modified after %s', model, self.last_run.datetime)
 
-    def serialize_person(self, person):
-        return {
-            '@id': person.pk,
-            '@type': 'person',
-            'suffix': safe_substr(person.suffix),
-            'given_name': safe_substr(person.given_name),
-            'family_name': safe_substr(person.family_name),
-            'full_name': safe_substr(person.get_full_name()),
-            'additional_name': safe_substr(person.additional_name),
-            'identifiers': [{
-                                'url': identifier.url,
-                                'base_url': identifier.base_url,
-                            } for identifier in person.identifiers.all()],
-            'affiliations': [
-                self.serialize_entity(affiliation)
-                for affiliation in
-                person.affiliations.all()
-                ],
-            'sources': [source.robot for source in person.sources.all()],
-        }
+            logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+            for i, batch in enumerate(chunk(qs.all(), chunk_size)):
+                IndexModelTask().apply_async((self.config.label, self.started_by.id, model.__name__, batch,))
 
-    def serialize_entity(self, entity):
-        return {
-            '@id': entity.pk,
-            'name': safe_substr(entity.name),
-            '@type': type(entity).__name__.lower(),
-        }
+        logger.info('Loading up autocomplete models')
+        for model_name in self.config.AUTO_COMPLETE_MODELS:
+            model = apps.get_model('share', model_name)
+            qs = model.objects.filter(date_modified__gt=self.last_run.datetime).values_list('id', flat=True)
+            logger.info('Looking for %ss that have been modified after %s', model, self.last_run.datetime)
 
-    def serialize_creative_work(self, creative_work):
-        return {
-            '@type': type(creative_work).__name__.lower(),
-            'associations': [
-                self.serialize_entity(association)
-                for association in
-                [
-                    *creative_work.funders.all(),
-                    *creative_work.publishers.all(),
-                    *creative_work.institutions.all(),
-                    *creative_work.organizations.all()
-                ]
-                ],
-            'title': safe_substr(creative_work.title),
-            'language': safe_substr(creative_work.language),
-            'subject': safe_substr(creative_work.subject),
-            'description': safe_substr(creative_work.description),
-            'date': (
-            creative_work.date_published or creative_work.date_updated or creative_work.date_created).isoformat(),
-            'date_created': creative_work.date_created.isoformat(),
-            'date_modified': creative_work.date_modified.isoformat(),
-            'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
-            'date_published': creative_work.date_published.isoformat() if creative_work.date_published else None,
-            'tags': [safe_substr(tag) for tag in creative_work.tags.all()],
-            'links': [safe_substr(link) for link in creative_work.links.all()],
-            'awards': [safe_substr(award) for award in creative_work.awards.all()],
-            'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
-            'sources': [source.robot for source in creative_work.sources.all()],
-            'contributors': [self.serialize_person(person) for person in creative_work.contributors.all()],
-        }
+            logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+            for i, batch in enumerate(chunk(qs.all(), chunk_size)):
+                IndexAutoCompleteTask().apply_async((self.config.label, self.started_by.id, model.__name__, batch,))
 
-    def run(self, chunk_size=50, reindex_all=False):
-        self._setup()
-
-        for model in self.INDEX_MODELS:
-            for resp in helpers.streaming_bulk(self.es_client, self.bulk_stream(model, self.last_run.datetime)):
-                logger.debug(resp)
-
-        logger.info('Loading up autocomplete type')
-        for model in self.AUTO_COMPLETE_MODELS:
-            for resp in helpers.streaming_bulk(self.es_client,
-                                               self.bulk_stream_autocomplete(model, cutoff_date=self.last_run.datetime)):
-                logger.debug(resp)
-
-    def bulk_stream(self, model, cutoff_date=None):
-        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
-
-        if cutoff_date:
-            qs = model.objects.filter(date_modified__gt=cutoff_date)
-            logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
-        else:
-            qs = model.objects.all()
-            logger.info('Getting all %s', model)
-
-        logger.info('Found %s %s that must be updated in ES', qs.count(), model)
-        with transaction.atomic():
-            with server_side_cursors(qs):
-                for inst in qs.iterator():
-                    yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
-                    # if acw.is_delete:  # TODO
-                    #     yield {'_id': acw.pk, '_op_type': 'delete', **opts}
-
-    def bulk_stream_autocomplete(self, model, cutoff_date=None):
-        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'autocomplete'}
-
-        if cutoff_date:
-            qs = model.objects.filter(date_modified__gt=cutoff_date)
-            logger.info('Looking for %ss that have been modified after %s', model, cutoff_date)
-        else:
-            qs = model.objects.all()
-            logger.info('Getting all %s', model)
-
-        logger.info('Found %s %s that must be updated in ES', qs.count(), model)
-        with transaction.atomic():
-            with server_side_cursors(qs):
-                for inst in qs.iterator():
-                    yield {
-                        '_op_type': 'index',
-                        '_id': inst.uuid,
-                        **self.serialize_autocomplete(inst),
-                        **opts
-                    }
-
-    def _setup(self):
+    def setup(self):
         logger.debug('Ensuring Elasticsearch index %s', settings.ELASTICSEARCH_INDEX)
         self.es_client.indices.create(settings.ELASTICSEARCH_INDEX, ignore=400)
 
