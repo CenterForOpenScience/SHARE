@@ -15,15 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf.urls import url, include
+from django.conf import settings
+from django.views.generic.base import RedirectView
 from revproxy.views import ProxyView
 
 urlpatterns = [
-    url(r'^admin(/|$)', admin.site.urls),
+    url(r'^admin/', admin.site.urls),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^api(/|$)', include('api.urls', namespace='api')),
-    url(r'^o(/|$)', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    url(r'^accounts(/|$)', include('allauth.urls')),
+    url(r'^api/', include('api.urls', namespace='api')),
+    url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    url(r'^accounts/', include('allauth.urls')),
 
-    # TODO ember url in settings, maybe a separate view
-    url(r'^(?P<path>.*)$', ProxyView.as_view(upstream='http://localhost:4200/')),
+    url(r'^(?P<path>app/.*)$', ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
+    url(r'^$', RedirectView.as_view(url='app/discover')),
 ]
