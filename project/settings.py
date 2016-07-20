@@ -177,9 +177,11 @@ INSTALLED_APPS = [
     'providers.org.dataone',
     'providers.org.dryad',
     'providers.org.elife',
+    'providers.org.elis',
     'providers.org.erudit',
     'providers.org.mblwhoilibrary',
     'providers.org.mla',
+    'providers.org.mpra',
     'providers.org.ncar',
     'providers.org.neurovault',
     'providers.org.newprairiepress',
@@ -217,7 +219,7 @@ SOCIALACCOUNT_PROVIDERS = \
     {'osf':
          {
             'METHOD': 'oauth2',
-            'SCOPE': ['osf.users.all_read'],
+            'SCOPE': ['osf.users.profile_read'],
             'AUTH_PARAMS': {'access_type': 'offline'},
           # 'FIELDS': [
           #     'id',
