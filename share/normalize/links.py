@@ -440,6 +440,8 @@ class RunPythonLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
+        if callable(self._function_name):
+            return self._function_name(obj, *self._args, **self._kwargs)
         return getattr(Context().parser, self._function_name)(obj, *self._args, **self._kwargs)
 
 

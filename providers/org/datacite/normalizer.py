@@ -12,8 +12,30 @@ THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 DATE_REGEX = re.compile(r'(^[^a-zA-Z]+$)')
 
 
+def force_text(data):
+    if isinstance(data, str):
+        return data
+    elif isinstance(data, dict):
+        if '#text' in data:
+            return data['#text']
+        raise Exception('#text is not in {}'.format(data))
+    elif isinstance(data, list):
+        for item in data:
+            if isinstance(item, str):
+                return item
+        raise('No value in list {} is a string.'.format(data))
+    else:
+        raise Exception('{} is not a string or a dictionary.'.format(data))
+
+
 class Link(Parser):
-    url = tools.RunPython('format_link', tools.Text(ctx))
+    url = tools.RunPython(
+        'format_link',
+        tools.RunPython(
+            force_text,
+            ctx
+        )
+    )
     type = tools.Static('doi')
 
     def format_link(self, link):
@@ -23,14 +45,20 @@ class Link(Parser):
 class AlternateLink(Parser):
     schema = 'Link'
 
-    url = tools.Text(ctx)
+    url = tools.RunPython(
+        force_text,
+        ctx
+    )
     type = tools.Static('misc')
 
 
 class RelatedLink(Parser):
     schema = 'Link'
 
-    url = tools.Text(ctx)
+    url = tools.RunPython(
+        force_text,
+        ctx
+    )
     type = tools.RunPython('lower', tools.Try(ctx['@relatedIdentifierType']))
 
     def lower(self, type):
@@ -106,7 +134,12 @@ class ContributorPerson(Parser):
     identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), tools.Concat(tools.Try(ctx, 'nameIdentifier')))
 
     class Extra:
-        name_identifier = tools.Try(tools.Text(ctx.nameIdentifier))
+        name_identifier = tools.Try(
+            tools.RunPython(
+                force_text,
+                ctx.nameIdentifier
+            )
+        )
         name_identifier_scheme = tools.Try(ctx.nameIdentifier['@nameIdentifierScheme'])
         name_identifier_scheme_uri = tools.Try(ctx.nameIdentifier['@schemeURI'])
         contributor_type = tools.Try(ctx.contributorType)
@@ -119,11 +152,21 @@ class CreatorPerson(Parser):
     family_name = tools.ParseName(ctx.creatorName).last
     given_name = tools.ParseName(ctx.creatorName).first
     additional_name = tools.ParseName(ctx.creatorName).middle
-    affiliations = tools.Map(tools.Delegate(Affiliation.using(entity=tools.Delegate(CreatorOrganization))), tools.Concat(tools.Try(tools.Text(ctx.affiliation))))
+    affiliations = tools.Map(tools.Delegate(Affiliation.using(entity=tools.Delegate(CreatorOrganization))), tools.Concat(tools.Try(
+        tools.RunPython(
+            force_text,
+            ctx.affiliation
+        )
+    )))
     identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), tools.Concat(tools.Try(ctx, 'nameIdentifier')))
 
     class Extra:
-        name_identifier = tools.Try(tools.Text(ctx.nameIdentifier))
+        name_identifier = tools.Try(
+            tools.RunPython(
+                force_text,
+                ctx.nameIdentifier
+            )
+        )
         name_identifier_scheme = tools.Try(ctx.nameIdentifier['@nameIdentifierScheme'])
         name_identifier_scheme_uri = tools.Try(ctx.nameIdentifier['@schemeURI'])
 
@@ -152,7 +195,12 @@ class Funder(Parser):
 
 
 class Venue(Parser):
-    name = tools.Try(tools.Text(ctx.geoLocationPlace))
+    name = tools.Try(
+        tools.RunPython(
+            force_text,
+            ctx.geoLocationPlace
+        )
+    )
     # polygon = tools.Try(ctx.geoLocationBox)
     # point = tools.Try(ctx.geoLocationPoint)
 
@@ -228,15 +276,28 @@ class CreativeWork(Parser):
         'institute'
     )
 
-    title = tools.Text(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.titles.title))
-    description = tools.Text(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description[0]))
+    title = tools.RunPython(
+        force_text,
+        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.titles.title)
+    )
+    description = tools.RunPython(
+        force_text,
+        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description[0])
+    )
 
     publishers = tools.Map(
         tools.Delegate(Association.using(entity=tools.Delegate(Publisher))),
         tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.publisher)
     )
 
-    rights = tools.Try(tools.Join(tools.TextList(tools.Concat(ctx.record.metadata['oai_datacite'].payload.resource.rightsList.rights))))
+    rights = tools.Try(
+        tools.Join(
+            tools.RunPython(
+                'text_list',
+                tools.Concat(ctx.record.metadata['oai_datacite'].payload.resource.rightsList.rights)
+            )
+        )
+    )
 
     language = tools.ParseLanguage(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.language))
 
@@ -306,10 +367,13 @@ class CreativeWork(Parser):
     tags = tools.Map(
         tools.Delegate(ThroughTags),
         tools.RunPython(
-            'force_text',
+            force_text,
             tools.Concat(
                 tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_datacite'], 'type'),
-                tools.TextList(tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject))),
+                tools.RunPython(
+                    'text_list',
+                    (tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)))
+                ),
                 tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.formats.format),
                 tools.Try(ctx.record.metadata['oai_datacite'].datacentreSymbol),
                 tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.resourceType['#text']),
@@ -425,21 +489,21 @@ class CreativeWork(Parser):
             return None
         return date
 
-    def force_text(self, data):
-        if isinstance(data, dict):
-            return data['#text']
-
-        if isinstance(data, str):
-            return data
-        fixed = []
-        for datum in data:
-            if isinstance(datum, dict):
-                fixed.append(datum['#text'])
-            elif isinstance(datum, str):
-                fixed.append(datum)
-            else:
-                raise Exception(datum)
-        return fixed
+    def text_list(self, data):
+        text_list = []
+        if isinstance(data, list):
+            for item in data:
+                if isinstance(item, dict):
+                    if '#text' in item:
+                        text_list.append(item['#text'])
+                        continue
+                elif isinstance(item, str):
+                    text_list.append(item)
+                    continue
+                logger.warning('#text is not in {} and it is not a string'.format(item))
+            return text_list
+        else:
+            raise Exception('{} is not a list.'.format(data))
 
     def get_contributors(self, options, entity, field=None):
         """
