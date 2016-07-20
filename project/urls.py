@@ -26,6 +26,6 @@ urlpatterns = [
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^accounts/', include('allauth.urls')),
 
-    url(r'^(?P<path>app/.*)$', ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
-    url(r'^$', RedirectView.as_view(url='app/discover')),
+    url(r'^(?P<path>share/.*)$', ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
+    url(r'^$', RedirectView.as_view(url='share/')),
 ]
