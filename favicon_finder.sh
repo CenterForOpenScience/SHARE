@@ -6,11 +6,8 @@ do
     if [ -n "$url_from" ]
     then
         var=`echo $f | sed -e 's/\/apps\.py//'`
-        mkdir $var/static/favicons
-        cd $var/static/favicons && { curl -O http://www.google.com/s2/favicons?domain_url=$url_from ;
-	for file in *; do
-		mv "$file" "`basename "$file"`.ico"
-	done
-	cd -; }
+        providerappname=`echo $f | sed -e 's/\/apps\.py//' | sed -e 's/\.\/providers\///' | sed -e 's/\//./g'`
+        mkdir $var/static/; mkdir $var/static/$providerappname/; mkdir $var/static/$providerappname/img/; mkdir $var/static/$providerappname/img/favicon/
+        cd $var/static/ && { curl -o $providerappname/img/favicon/favicon.ico http://www.google.com/s2/favicons?domain_url=$url_from ; cd -; }
     fi
 done
