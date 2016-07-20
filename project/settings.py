@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'rest_framework',
     'corsheaders',
+    'revproxy',
 
     'allauth',
     'allauth.account',
