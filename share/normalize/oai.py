@@ -120,7 +120,10 @@ class OAICreativeWork(Parser):
 
     rights = tools.Join(tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:rights'))
 
-    language = tools.ParseLanguage(tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:language'))
+    # Note: this is only taking the first language in the case of multiple languages
+    language = tools.ParseLanguage(
+        tools.Try(ctx.record['metadata']['oai_dc:dc']['dc:language'][0]),
+    )
 
     contributors = tools.Map(
         tools.Delegate(OAIContributor),
