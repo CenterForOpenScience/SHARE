@@ -217,7 +217,7 @@ SOCIALACCOUNT_PROVIDERS = \
     {'osf':
          {
             'METHOD': 'oauth2',
-            'SCOPE': ['osf.users.all_read'],
+            'SCOPE': ['osf.users.profile_read'],
             'AUTH_PARAMS': {'access_type': 'offline'},
           # 'FIELDS': [
           #     'id',
