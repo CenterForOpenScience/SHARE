@@ -179,7 +179,7 @@ class OAICreativeWork(Parser):
         tools.RunPython(
             'get_links',
             tools.Concat(
-                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:identifier'),
+                tools.Try(ctx.record.metadata['oai_dc:dc']['dc:identifier']),
                 tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:relation')
             )
         )
@@ -210,7 +210,7 @@ class OAICreativeWork(Parser):
 
         # An unambiguous reference to the resource within a given context.
         identifiers = tools.Concat(
-            tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:identifier'],
+            tools.Try(ctx.record.metadata['oai_dc:dc']['dc:identifier']),
             tools.Maybe(ctx.record.header, 'identifier')
         )
 
