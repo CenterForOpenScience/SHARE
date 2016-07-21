@@ -181,6 +181,7 @@ INSTALLED_APPS = [
     'providers.org.erudit',
     'providers.org.mblwhoilibrary',
     'providers.org.mla',
+    'providers.org.mpra',
     'providers.org.ncar',
     'providers.org.neurovault',
     'providers.org.newprairiepress',
@@ -218,7 +219,7 @@ SOCIALACCOUNT_PROVIDERS = \
     {'osf':
          {
             'METHOD': 'oauth2',
-            'SCOPE': ['osf.users.all_read'],
+            'SCOPE': ['osf.users.profile_read'],
             'AUTH_PARAMS': {'access_type': 'offline'},
           # 'FIELDS': [
           #     'id',
@@ -389,6 +390,10 @@ STATICFILES_DIRS = (
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
 
 ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')
 ELASTICSEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')

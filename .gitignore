@@ -123,6 +123,7 @@ ENV/
 .ropeproject
 
 # Generated harvester data
+<<<<<<< HEAD
 be.ghent/
 br.pcurio/
 ca.lwbin/
@@ -195,6 +196,23 @@ tr.edu.hacettepe/
 uk.cambridge/
 uk.lshtm/
 za.csir/
+=======
+be.*/
+br.*/
+ca.*/
+ch.*/
+com.*/
+edu.*/
+et.*/
+gov.*/
+io.*/
+org.*/
+ru.*/
+tr.*/
+uk.*/
+uk.*/
+za.*/
+>>>>>>> 530f844f5db4f0141d27f29e38a294ceb96b1b40
 
 # Other
 .idea/
