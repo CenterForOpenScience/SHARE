@@ -263,6 +263,8 @@ class OAICreativeWork(Parser):
 
         fixed = []
         for datum in (data or []):
+            if datum is None:
+                continue
             if isinstance(datum, dict):
                 fixed.append(datum['#text'])
             elif isinstance(datum, str):
