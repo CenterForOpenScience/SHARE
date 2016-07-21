@@ -9,6 +9,7 @@ class ShareConfig(AppConfig):
         ('doi', _('DOI')),
         ('provider', _('Provider')),
         ('misc', _('Miscellaneous')),
+        ('eissn', _('Electronic International Standard Serial Number')),
         ('ark', _('ARK')),
         ('arxiv', _('arXiv')),
         ('bibcode', _('bibcode')),

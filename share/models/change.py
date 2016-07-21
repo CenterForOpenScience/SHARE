@@ -136,7 +136,14 @@ class Change(models.Model):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
         ret = self._accept(save)
-        ret.sources.add(self.change_set.normalized_data.source)
+
+        # Psuedo hack, sources.add(...) tries to do some safety checks.
+        # Don't do that. We have a database. That is its job. Let it do its job.
+        ret._meta.get_field('sources').rel.through.objects.get_or_create(**{
+            ret._meta.concrete_model._meta.model_name: ret,
+            'shareuser': self.change_set.normalized_data.source,
+        })
+
         if save:
             self.save()
         return ret
