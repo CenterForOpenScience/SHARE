@@ -188,9 +188,10 @@ class AbstractLink:
 
     def run(self, obj):
         Context().frames.append({'link': self, 'context': obj})
-        ret = self.execute(obj)
-        Context().frames.pop(-1)
-        return ret
+        try:
+            return self.execute(obj)
+        finally:
+            Context().frames.pop(-1)
 
 
 # The begining link for all chains
@@ -315,8 +316,6 @@ class IteratorLink(AbstractLink):
     def execute(self, obj):
         if not isinstance(obj, (list, tuple)):
             obj = (obj, )
-        if None in obj:
-            import ipdb; ipdb.set_trace()
         return [self.__anchor.run(sub) for sub in obj]
 
 
