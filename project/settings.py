@@ -177,6 +177,7 @@ INSTALLED_APPS = [
     'providers.org.dataone',
     'providers.org.dryad',
     'providers.org.elife',
+    'providers.org.elis',
     'providers.org.erudit',
     'providers.org.mblwhoilibrary',
     'providers.org.mla',

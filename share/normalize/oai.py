@@ -120,7 +120,15 @@ class OAICreativeWork(Parser):
 
     rights = tools.Join(tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:rights'))
 
-    language = tools.ParseLanguage(tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:language'))
+    # Note: this is only taking the first language in the case of multiple languages
+    language = tools.ParseLanguage(
+        tools.RunPython(
+            'get_first_language',
+            tools.Concat(
+                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:language'),
+            )
+        )
+    )
 
     contributors = tools.Map(
         tools.Delegate(OAIContributor),
@@ -230,6 +238,11 @@ class OAICreativeWork(Parser):
 
         # Status in the header, will exist if the resource is deleted
         status = tools.Maybe(ctx.record.header, '@status')
+
+    def get_first_language(self,ctx):
+        if len(ctx) is not 0:
+            return ctx[0]
+        return 
 
     def get_links(self, ctx):
         links = []
