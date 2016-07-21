@@ -110,7 +110,7 @@ class OAICreativeWork(Parser):
         'institute'
     )
 
-    title = tools.Join(tools.RunPython('force_text', tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:title']))
+    title = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata['oai_dc:dc']['dc:title'])))
     description = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:description')
 
     publishers = tools.Map(
