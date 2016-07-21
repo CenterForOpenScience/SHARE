@@ -107,6 +107,11 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
+            from share.change import ChangeGraph
+            try:
+                ChangeGraph.from_jsonld(nm_instance.normalized_data)
+            except:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
