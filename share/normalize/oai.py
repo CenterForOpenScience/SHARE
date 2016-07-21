@@ -260,8 +260,9 @@ class OAICreativeWork(Parser):
 
         if isinstance(data, str):
             return data
+
         fixed = []
-        for datum in data:
+        for datum in (data or []):
             if isinstance(datum, dict):
                 fixed.append(datum['#text'])
             elif isinstance(datum, str):
