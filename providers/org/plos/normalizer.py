@@ -1,3 +1,5 @@
+import re
+
 from share.normalize import *  # noqa
 from share.normalize.utils import format_doi_as_url
 
@@ -22,7 +24,9 @@ class Link(Parser):
     def get_link_type(self, link):
         if 'dx.doi.org' in link:
             return 'doi'
-        return 'eissn'
+        if re.match(r'^\d{4}-\d{3}[\dxX]$', link):
+            return 'eissn'
+        return 'misc'
 
 
 class ThroughLinks(Parser):
