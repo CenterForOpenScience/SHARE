@@ -123,3 +123,24 @@ class IndexAutoCompleteTask(ProviderTask):
             'text': safe_substr(model),
             '@type': type(model).__name__.lower(),
         }
+
+
+class IndexProviderAutoCompleteTask(ProviderTask):
+
+    def do_run(self):
+        es_client = Elasticsearch(settings.ELASTICSEARCH_URL)
+        for resp in helpers.streaming_bulk(es_client, self.bulk_stream()):
+            logger.debug(resp)
+
+    def bulk_stream(self):
+        ShareUser = apps.get_model('share.ShareUser')
+        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'autocomplete'}
+        for provider in ShareUser.objects.exclude(robot='').exclude(long_title='').all():
+            yield {'_op_type': 'index', '_id': provider.robot, **self.serialize(provider), **opts}
+
+    def serialize(self, provider):
+        return {
+            '@id': str(provider.pk),
+            '@type': 'provider',
+            'text': provider.long_title,
+        }

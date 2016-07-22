@@ -1,12 +1,12 @@
 import logging
 
-import itertools
 from django.apps import apps
 from django.conf import settings
 from elasticsearch import Elasticsearch
 
 from bots.elasticsearch.tasks import IndexModelTask
 from bots.elasticsearch.tasks import IndexAutoCompleteTask
+from bots.elasticsearch.tasks import IndexProviderAutoCompleteTask
 from share.bot import Bot
 
 logger = logging.getLogger(__name__)
@@ -106,6 +106,9 @@ class ElasticSearchBot(Bot):
             logger.info('Found %s %s that must be updated in ES', qs.count(), model)
             for i, batch in enumerate(chunk(qs.all(), chunk_size)):
                 IndexModelTask().apply_async((self.config.label, self.started_by.id, model.__name__, batch,))
+
+        logger.info('Starting task to index providers')
+        IndexProviderAutoCompleteTask().apply_async((self.config.label, self.started_by.id))
 
         logger.info('Loading up autocomplete models')
         for model_name in self.config.AUTO_COMPLETE_MODELS:
