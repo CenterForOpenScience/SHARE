@@ -83,7 +83,7 @@ class CreativeWork(Parser):
         return [
             self.doe_name_parser(name)
             for name
-            in self.DOE_CONTRIBUTOR_REGEX.findall(ctx)
+            in self.DOE_CONTRIBUTOR_REGEX.findall(ctx or '')
             if name
         ]
 
