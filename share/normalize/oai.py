@@ -110,7 +110,7 @@ class OAICreativeWork(Parser):
         'institute'
     )
 
-    title = tools.Join(tools.RunPython('force_text', tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:title']))
+    title = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata['oai_dc:dc']['dc:title'])))
     description = tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:description')
 
     publishers = tools.Map(
@@ -122,12 +122,7 @@ class OAICreativeWork(Parser):
 
     # Note: this is only taking the first language in the case of multiple languages
     language = tools.ParseLanguage(
-        tools.RunPython(
-            'get_first_language',
-            tools.Concat(
-                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:language'),
-            )
-        )
+        tools.Try(ctx.record['metadata']['oai_dc:dc']['dc:language'][0]),
     )
 
     contributors = tools.Map(
@@ -184,7 +179,7 @@ class OAICreativeWork(Parser):
         tools.RunPython(
             'get_links',
             tools.Concat(
-                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:identifier'),
+                tools.Try(ctx.record.metadata['oai_dc:dc']['dc:identifier']),
                 tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_dc:dc'], 'dc:relation')
             )
         )
@@ -215,7 +210,7 @@ class OAICreativeWork(Parser):
 
         # An unambiguous reference to the resource within a given context.
         identifiers = tools.Concat(
-            tools.Maybe(ctx.record, 'metadata')['oai_dc:dc']['dc:identifier'],
+            tools.Try(ctx.record.metadata['oai_dc:dc']['dc:identifier']),
             tools.Maybe(ctx.record.header, 'identifier')
         )
 
@@ -270,8 +265,11 @@ class OAICreativeWork(Parser):
 
         if isinstance(data, str):
             return data
+
         fixed = []
-        for datum in data:
+        for datum in (data or []):
+            if datum is None:
+                continue
             if isinstance(datum, dict):
                 fixed.append(datum['#text'])
             elif isinstance(datum, str):

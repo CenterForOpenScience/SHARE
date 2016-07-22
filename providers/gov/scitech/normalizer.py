@@ -80,8 +80,12 @@ class CreativeWork(Parser):
     DOE_ORCID_REGEX = re.compile(r'(\(ORCID:\s*(\S*)\))')
 
     def doe_process_contributors(self, ctx):
-        names = self.DOE_CONTRIBUTOR_REGEX.findall(ctx)
-        return list(map(self.doe_name_parser, names))
+        return [
+            self.doe_name_parser(name)
+            for name
+            in self.DOE_CONTRIBUTOR_REGEX.findall(ctx or '')
+            if name
+        ]
 
     def doe_name_parser(self, name):
         if name.strip() == 'None':
