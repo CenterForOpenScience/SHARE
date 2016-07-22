@@ -1,5 +1,5 @@
 
-static/
+/static/
 
 # Created by https://www.gitignore.io/api/osx,python
 
@@ -138,6 +138,22 @@ tr.*/
 uk.*/
 uk.*/
 za.*/
+
+!providers/*/*/*/be.*/
+!providers/*/*/*/br.*/
+!providers/*/*/*/ca.*/
+!providers/*/*/*/ch.*/
+!providers/*/*/*/com.*/
+!providers/*/*/*/edu.*/
+!providers/*/*/*/et.*/
+!providers/*/*/*/gov.*/
+!providers/*/*/*/io.*/
+!providers/*/*/*/org.*/
+!providers/*/*/*/ru.*/
+!providers/*/*/*/tr.*/
+!providers/*/*/*/uk.*/
+!providers/*/*/*/uk.*/
+!providers/*/*/*/za.*/
 
 # Other
 .idea/
