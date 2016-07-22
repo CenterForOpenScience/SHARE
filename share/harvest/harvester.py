@@ -100,12 +100,12 @@ class Harvester(metaclass=abc.ABCMeta):
         rawdata = self.do_harvest(start_date, end_date)
         assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
-        data, harvest = [], self.do_harvest(start_date, end_date)
+        count, harvest = 0, self.do_harvest(start_date, end_date)
         for doc_id, datum in harvest:
-            data.append((doc_id, self.encode_data(datum, pretty=True)))
-            if limit and len(data) >= limit:
+            yield doc_id, self.encode_data(datum, pretty=True)
+            count += 1
+            if limit and count >= limit:
                 break
-        return data
 
     def encode_data(self, data, pretty=False) -> bytes:
         if isinstance(data, bytes):
