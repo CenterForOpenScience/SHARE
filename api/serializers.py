@@ -90,3 +90,7 @@ class ProviderSerializer(ShareUserSerializer):
     class Meta:
         model = models.ShareUser
         fields = ('home_page', 'long_title', 'date_joined', 'gravatar')
+
+class AtomFeedSerializer(serializers.BaseSerializer):
+    pass
+
