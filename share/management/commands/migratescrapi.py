@@ -56,7 +56,7 @@ class Command(BaseCommand):
         'cyberleninka': 'ru.cyberleninka',
         'dailyssrn': 'com.dailyssrn',
         'dash': 'edu.dash',
-        'datacite': 'org.datacite',
+        'datacite': 'org.datacite.oai',
         'dataone': 'org.dataone',
         'digitalhoward': 'edu.digitalhoward',
         'doepages': 'gov.doepages',
