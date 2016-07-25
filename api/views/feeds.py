@@ -1,40 +1,16 @@
-from django.contrib.syndication.views import Feed
-from django.utils.feedgenerator import Atom1Feed
-from django.core import serializers
-
-import requests
-
-from share.models.creative import AbstractCreativeWork
-
-
-SHARE_URL = 'https://staging-share.osf.io/api/search/abstractcreativework/_search'
-
-class CreativeWorksRSS(Feed):
-    title = "SHARE RSS Feed"
-    link = "/rss/"
-    description = "Updates to the SHARE dataset"
-
-    def items(self):
-        # TODO - make this filterable and probably not use only AbstractCreativeWorks
-        # TODO - make use elasticsearch results?
-        return AbstractCreativeWork.objects.order_by('-date_updated')[:5]
-
-    def item_link(self, item):
-        links = item.links.all()
-        if links:
-            return links[0].url
-        else:
-            return None
-
-    def item_author_name(self, item):
-        for contributor in item.contributors.all():
-            return contributor.get_full_name()
-
 import re
 import pytz
 import requests
 import json
+
 from urllib.parse import parse_qs
+from dateutil.parser import parse
+
+from django.contrib.syndication.views import Feed
+from django.utils.feedgenerator import Atom1Feed
+
+
+SHARE_URL = 'https://staging-share.osf.io/api/search/abstractcreativework/_search'
 
 RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
                  u'|' + \
@@ -56,11 +32,10 @@ class Atom1CustomFeed(Atom1Feed):
 
 class CreativeWorksAtom(Feed):
     feed_type = Atom1CustomFeed
-    subtitle = CreativeWorksRSS.description
-    items_ = []
-
-    def items(self):
-        return self.items_
+    items = []
+    link = '/atom/'
+    url = 'https://cos.io/share'
+    author_name = 'COS'
 
     def item_link(self, item):
         return item.get('links')[0]['href'] if item.get('links') else self.url
@@ -86,33 +61,28 @@ class CreativeWorksAtom(Feed):
     def item_extra_kwargs(self, item):
         return {'authors': item.get('authors')}
 
-    def get_object(self, request, *args, **kwargs):
+    def get_object(self, request):
         query_params = parse_qs(request.get_full_path().replace(request.path + '?', ''))
-        data = query_params['jsonQuery'][0] if query_params and query_params['jsonQuery'] else {}
-        params = json.loads(query_params['urlQuery'][0] if query_params and query_params['urlQuery'] else {})
-        if data == 'undefined':
-            data = False
-        else:
-            data = json.loads(data)
+        request_kwargs = {}
+        params = {}
+
+        if query_params:
+            if query_params['jsonQuery'] and query_params['jsonQuery'][0] != 'undefined':
+                request_kwargs['data'] = json.loads(query_params['jsonQuery'][0])
+            if query_params['urlQuery'] and query_params['urlQuery'][0] != 'undefined':
+                params = json.loads(query_params['urlQuery'][0])
+                request_kwargs['params'] = params
+
         headers = {'Content-Type': 'application/json'}
         url = 'https://staging-share.osf.io/api/search/abstractcreativework/_search'
-        r = requests.post(url, headers=headers, params=params, data=data) if params and data else (
-            requests.post(url, headers=headers, params=params) if params else (
-                requests.post(url, headers=headers, data=data) if data else requests.post(url, headers=headers)
-            )
-        )
-        self.link = '/atom/'
-        self.url = 'https://cos.io/share'
+        r = requests.post(url, headers=headers, **request_kwargs)
+
         data = r.json()
         start = 1
         size = 10
-        if params and params.get('q') == '*':
-            title_query = 'All'
-        else:
-            title_query = params.get('q') if params else 'None'
+        title_query = 'All' if params.get('q') == '*' else params.get('q')
 
-        self.title = 'SHARE: Atom Feed for query: "{title_query}"'.format(title_query=title_query)
-        self.author = 'COS'
+        self.title = 'SHARE: Atom Feed for query: "{}"'.format(title_query or 'None')
 
         links = [
             {'href': '{url}?page=1'.format(url=url), 'rel': 'first'},
@@ -124,24 +94,22 @@ class CreativeWorksAtom(Feed):
 
         for doc in data['hits']['hits']:
             try:
-                self.items_.append(to_atom(doc))
+                result = doc.get('_source')
+                self.items.append({
+                    'title': html_and_illegal_unicode_replace(result.get('title')) or 'No title provided.',
+                    'description': html_and_illegal_unicode_replace(result.get('description')) or 'No summary provided.',
+                    'id': result['links'][0] if result.get('links') and len(result['links']) else 'No identifying link provided',
+                    'updated': get_date_updated(result),
+                    'links': [{'href': link, 'rel': 'alternate'} for link in result.get('links')],
+                    'authors': [html_and_illegal_unicode_replace(entry['full_name']) for entry in result.get('contributors')],
+                    'categories': [html_and_illegal_unicode_replace(tag) for tag in (result.get('tags', []) + result.get('subjects', []))],
+                    'published': parse(result.get('date_updated')) if result.get('date_updated') else parse(result.get('date_created'))
+                })
             except ValueError as e:
                 # panic
                 pass
 
-
-def to_atom(result):
-    result = result.get('_source')
-    return {
-            'title': html_and_illegal_unicode_replace(result.get('title')) or 'No title provided.',
-            'description': html_and_illegal_unicode_replace(result.get('description')) or 'No summary provided.',
-            'id': result['links'][0] if result.get('links') and len(result['links']) else 'No identifying link provided',
-            'updated': get_date_updated(result),
-            'links': [{'href': link, 'rel': 'alternate'} for link in result.get('links')],
-            'authors': [html_and_illegal_unicode_replace(entry['full_name']) for entry in result.get('contributors')],
-            'categories': [html_and_illegal_unicode_replace(tag) for tag in (result.get('tags', []) + result.get('subjects', []))],
-            'published': parse(result.get('date_updated')) if result.get('date_updated') else parse(result.get('date_created'))
-        }
+import bleach
 
 def html_and_illegal_unicode_replace(atom_element):
     """ Replace an illegal for XML unicode character with nothing.
@@ -150,10 +118,8 @@ def html_and_illegal_unicode_replace(atom_element):
     """
     if atom_element:
         new_element = RE_XML_ILLEGAL_COMPILED.sub('', atom_element)
-        return strip_html(new_element)
+        return bleach.clean(new_element, strip=True, tags=[], attributes=[], styles=[]) if isinstance(new_element, str) else None
     return atom_element
-
-from dateutil.parser import parse
 
 def get_date_updated(result):
     updated = None
@@ -163,24 +129,3 @@ def get_date_updated(result):
         except ValueError:
             updated = parse(result.get('date_updated'))
     return updated
-
-import collections
-import bleach
-
-
-def strip_html(unclean):
-    """Sanitize a string, removing (as opposed to escaping) HTML tags
-
-    :param unclean: A string to be stripped of HTML tags
-
-    :return: stripped string
-    :rtype: str
-    """
-    # We make this noop for non-string, non-collection inputs so this function can be used with higher-order
-    # functions, such as rapply (recursively applies a function to collections)
-    if not isinstance(unclean, str) and not is_iterable(unclean) and unclean is not None:
-        return unclean
-    return bleach.clean(unclean, strip=True, tags=[], attributes=[], styles=[])
-
-def is_iterable(obj):
-    return isinstance(obj, collections.Iterable)
