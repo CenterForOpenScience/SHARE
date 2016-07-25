@@ -15,12 +15,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            code=share.robot.RobotUserMigration('org.openlib.repec'),
+            code=share.robot.RobotUserMigration('org.repec'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('org.openlib.repec'),
+            code=share.robot.RobotOauthTokenMigration('org.repec'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotScheduleMigration('org.openlib.repec'),
+            code=share.robot.RobotScheduleMigration('org.repec'),
         ),
     ]

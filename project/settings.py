@@ -186,6 +186,7 @@ INSTALLED_APPS = [
     'providers.org.neurovault',
     'providers.org.newprairiepress',
     'providers.org.plos',
+    'providers.org.repec',
     'providers.org.shareok',
     'providers.org.sldr',
     'providers.org.stepic',

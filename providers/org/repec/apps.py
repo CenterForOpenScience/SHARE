@@ -2,7 +2,7 @@ from share.provider import OAIProviderAppConfig
 
 
 class AppConfig(OAIProviderAppConfig):
-    name = 'providers.org.openlib.repec'
+    name = 'providers.org.repec'
     version = '0.0.1'
     title = 'repec'
     long_title = 'Research Papers in Economics'
