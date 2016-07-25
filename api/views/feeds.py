@@ -2,7 +2,7 @@ import re
 import pytz
 import requests
 import json
-
+import bleach
 from urllib.parse import parse_qs
 from dateutil.parser import parse
 
@@ -67,9 +67,9 @@ class CreativeWorksAtom(Feed):
         params = {}
 
         if query_params:
-            if query_params['jsonQuery'] and query_params['jsonQuery'][0] != 'undefined':
+            if query_params.get('jsonQuery'):
                 request_kwargs['data'] = json.loads(query_params['jsonQuery'][0])
-            if query_params['urlQuery'] and query_params['urlQuery'][0] != 'undefined':
+            if query_params.get('urlQuery'):
                 params = json.loads(query_params['urlQuery'][0])
                 request_kwargs['params'] = params
 
@@ -108,8 +108,6 @@ class CreativeWorksAtom(Feed):
             except ValueError as e:
                 # panic
                 pass
-
-import bleach
 
 def html_and_illegal_unicode_replace(atom_element):
     """ Replace an illegal for XML unicode character with nothing.
