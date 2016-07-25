@@ -1,5 +1,5 @@
 
-static/
+/static/
 
 # Created by https://www.gitignore.io/api/osx,python
 
@@ -123,21 +123,21 @@ ENV/
 .ropeproject
 
 # Generated harvester data
-be.*/
-br.*/
-ca.*/
-ch.*/
-com.*/
-edu.*/
-et.*/
-gov.*/
-io.*/
-org.*/
-ru.*/
-tr.*/
-uk.*/
-uk.*/
-za.*/
+/be.*/
+/br.*/
+/ca.*/
+/ch.*/
+/com.*/
+/edu.*/
+/et.*/
+/gov.*/
+/io.*/
+/org.*/
+/ru.*/
+/tr.*/
+/uk.*/
+/uk.*/
+/za.*/
 
 # Other
 .idea/
