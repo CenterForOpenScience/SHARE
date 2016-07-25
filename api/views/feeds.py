@@ -35,7 +35,6 @@ import pytz
 import requests
 import json
 from urllib.parse import parse_qs
-from werkzeug.contrib.atom import AtomFeed
 
 RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
                  u'|' + \
@@ -46,14 +45,46 @@ RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
 
 RE_XML_ILLEGAL_COMPILED = re.compile(RE_XML_ILLEGAL)
 
+
+class Atom1CustomFeed(Atom1Feed):
+    def add_item_elements(self, handler, item):
+        super(Atom1CustomFeed, self).add_item_elements(handler, item)
+        for author in item.get('authors'):
+            handler.startElement('author', {})
+            handler.addQuickElement('name', author)
+            handler.endElement('author')
+
 class CreativeWorksAtom(Feed):
-    feed_type = Atom1Feed
+    feed_type = Atom1CustomFeed
     subtitle = CreativeWorksRSS.description
-    items = []
+    items_ = []
 
+    def items(self):
+        return self.items_
 
-    def item_link(self, *args, **kwargs):
-        return self.url
+    def item_link(self, item):
+        return item.get('links')[0]['href'] if item.get('links') else self.url
+
+    def item_id(self, item):
+        return item.get('id')
+
+    def item_categories(self, item):
+        return item.get('categories')
+
+    def item_title(self, item):
+        return item.get('title')
+
+    def item_description(self, item):
+        return item.get('description')
+
+    def item_updateddate(self, item):
+        return item.get('updated')
+
+    def item_pubdate(self, item):
+        return item.get('published')
+
+    def item_extra_kwargs(self, item):
+        return {'authors': item.get('authors')}
 
     def get_object(self, request, *args, **kwargs):
         query_params = parse_qs(request.get_full_path().replace(request.path + '?', ''))
@@ -91,10 +122,9 @@ class CreativeWorksAtom(Feed):
 
         self.links = links[1:-1] if (start / size) == 0 else links
 
-        self.items.append(to_atom(data['hits']['hits'][0]))
         for doc in data['hits']['hits']:
             try:
-                pass#self.items.append(to_atom(doc))
+                self.items_.append(to_atom(doc))
             except ValueError as e:
                 # panic
                 pass
@@ -104,15 +134,13 @@ def to_atom(result):
     result = result.get('_source')
     return {
             'title': html_and_illegal_unicode_replace(result.get('title')) or 'No title provided.',
-            'summary': html_and_illegal_unicode_replace(result.get('description')) or 'No summary provided.',
-            #'id': result['uris']['canonicalUri'],
-            #'updated': get_date_updated(result),
-            'links': [
-                #{'href': result['uris']['canonicalUri'], 'rel': 'alternate'}
-            ],
-            'author': format_contributors_for_atom(result['contributors']),
-            'categories': [{'term': html_and_illegal_unicode_replace(tag)} for tag in (result.get('tags', []) + result.get('subjects', []))],
-            #'published': parse(result.get('providerUpdatedDateTime'))
+            'description': html_and_illegal_unicode_replace(result.get('description')) or 'No summary provided.',
+            'id': result['links'][0] if result.get('links') and len(result['links']) else 'No identifying link provided',
+            'updated': get_date_updated(result),
+            'links': [{'href': link, 'rel': 'alternate'} for link in result.get('links')],
+            'authors': [html_and_illegal_unicode_replace(entry['full_name']) for entry in result.get('contributors')],
+            'categories': [html_and_illegal_unicode_replace(tag) for tag in (result.get('tags', []) + result.get('subjects', []))],
+            'published': parse(result.get('date_updated')) if result.get('date_updated') else parse(result.get('date_created'))
         }
 
 def html_and_illegal_unicode_replace(atom_element):
@@ -125,21 +153,15 @@ def html_and_illegal_unicode_replace(atom_element):
         return strip_html(new_element)
     return atom_element
 
-def format_contributors_for_atom(contributors_list):
-    return [
-        {
-            'name': html_and_illegal_unicode_replace(entry['name'])
-        } for entry in contributors_list
-    ]
-
 from dateutil.parser import parse
 
 def get_date_updated(result):
-    try:
-        updated = pytz.utc.localize(parse(result.get('providerUpdatedDateTime')))
-    except ValueError:
-        updated = parse(result.get('providerUpdatedDateTime'))
-
+    updated = None
+    if result.get('date_updated'):
+        try:
+            updated = pytz.utc.localize(parse(result.get('date_updated')))
+        except ValueError:
+            updated = parse(result.get('date_updated'))
     return updated
 
 import collections
