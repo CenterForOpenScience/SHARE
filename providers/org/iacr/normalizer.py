@@ -18,38 +18,8 @@ class Link(Parser):
 class ThroughLinks(Parser):
     link = Delegate(Link, ctx)
 
-
-class Publisher(Parser):
-    name = ctx
-
-
-class Funder(Parser):
-    name = ctx.name
-
-
-class Award(Parser):
-    award = ctx.award
-
-
-class Association(Parser):
-    pass
-
-
-class Organization(Parser):
-    name = Maybe(ctx, 'name')
-
-
 class Affiliation(Parser):
     pass
-
-
-class Identifier(Parser):
-    base_url = 'https://orcid.org'
-    url = ctx
-
-
-class ThroughIdentifiers(Parser):
-    identifier = Delegate(Identifier, ctx)
 
 
 class Person(Parser):
@@ -74,7 +44,6 @@ class CreativeWork(Parser):
     Documentation for CrossRef's metadata can be found here:
     https://github.com/CrossRef/rest-api-doc/blob/master/api_format.md
     """
-    print(ctx)
     def format_doi_as_url(self, doi):
         return format_doi_as_url(self, doi)
 
