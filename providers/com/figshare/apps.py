@@ -1,5 +1,6 @@
 from share import ProviderAppConfig
 from .harvester import FigshareHarvester
+from .normalizer import FigshareNormalizer
 
 
 class AppConfig(ProviderAppConfig):
@@ -9,4 +10,5 @@ class AppConfig(ProviderAppConfig):
     title = 'figshare'
     long_title = 'figshare'
     harvester = FigshareHarvester
+    normalizer = FigshareNormalizer
     home_page = 'https://figshare.com/'
