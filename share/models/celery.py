@@ -26,7 +26,8 @@ class CeleryTask(TypedModel):
     objects = FuzzyCountManager()
 
     class Meta:
-        index_together = ['type', 'name', 'app_label', 'timestamp']
+        ordering = ('-timestamp',)
+        index_together = ('type', 'name', 'app_label', 'timestamp')
 
 
 class CeleryProviderTask(CeleryTask):

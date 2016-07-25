@@ -13,7 +13,7 @@ Setup::
 
     pip install -r requirements.txt
 
-    docker-compose up -d rabbitmq postgres
+    docker-compose up -d web
     ./up.sh
 
 To run::

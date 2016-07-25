@@ -178,9 +178,11 @@ INSTALLED_APPS = [
     'providers.org.dataone',
     'providers.org.dryad',
     'providers.org.elife',
+    'providers.org.elis',
     'providers.org.erudit',
     'providers.org.mblwhoilibrary',
     'providers.org.mla',
+    'providers.org.mpra',
     'providers.org.ncar',
     'providers.org.neurovault',
     'providers.org.newprairiepress',
@@ -389,6 +391,11 @@ STATICFILES_DIRS = (
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
 
 ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')
 ELASTICSEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
