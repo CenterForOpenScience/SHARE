@@ -134,7 +134,7 @@ def debug(args, argv):
     parser = normalizer.get_root_parser()
 
     def execute(data, chain):
-        return chain.chain()[0].execute(data)
+        return chain.chain()[0].run(data)
     e = execute  # noqa
 
     print('\n')

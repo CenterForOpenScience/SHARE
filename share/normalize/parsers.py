@@ -86,7 +86,7 @@ class Parser(metaclass=ParserMeta):
             except FieldDoesNotExist:
                 raise Exception('Tried to parse value {} which does not exist on {}'.format(key, self.model))
 
-            value = chain.execute(self.context)
+            value = chain.run(self.context)
 
             if value and field.is_relation and field.rel.many_to_many:
                 for v in value:
@@ -98,7 +98,7 @@ class Parser(metaclass=ParserMeta):
 
         inst['extra'] = {}
         for key, chain in self._extra.items():
-            val = chain.execute(self.context)
+            val = chain.run(self.context)
             if val:
                 inst['extra'][key] = val
         if not inst['extra']:
