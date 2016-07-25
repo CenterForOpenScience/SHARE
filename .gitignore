@@ -123,37 +123,21 @@ ENV/
 .ropeproject
 
 # Generated harvester data
-be.*/
-br.*/
-ca.*/
-ch.*/
-com.*/
-edu.*/
-et.*/
-gov.*/
-io.*/
-org.*/
-ru.*/
-tr.*/
-uk.*/
-uk.*/
-za.*/
-
-!providers/*/*/*/be.*/
-!providers/*/*/*/br.*/
-!providers/*/*/*/ca.*/
-!providers/*/*/*/ch.*/
-!providers/*/*/*/com.*/
-!providers/*/*/*/edu.*/
-!providers/*/*/*/et.*/
-!providers/*/*/*/gov.*/
-!providers/*/*/*/io.*/
-!providers/*/*/*/org.*/
-!providers/*/*/*/ru.*/
-!providers/*/*/*/tr.*/
-!providers/*/*/*/uk.*/
-!providers/*/*/*/uk.*/
-!providers/*/*/*/za.*/
+/be.*/
+/br.*/
+/ca.*/
+/ch.*/
+/com.*/
+/edu.*/
+/et.*/
+/gov.*/
+/io.*/
+/org.*/
+/ru.*/
+/tr.*/
+/uk.*/
+/uk.*/
+/za.*/
 
 # Other
 .idea/
