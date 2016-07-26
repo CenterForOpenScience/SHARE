@@ -97,10 +97,9 @@ class Harvester(metaclass=abc.ABCMeta):
 
     def raw(self, start_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], end_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], shift_range: bool=True, limit: int=None) -> list:
         start_date, end_date = self._validate_dates(start_date, end_date)
-        rawdata = self.do_harvest(start_date, end_date)
-        assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
-
         count, harvest = 0, self.do_harvest(start_date, end_date)
+        assert isinstance(harvest, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(harvest))
+
         for doc_id, datum in harvest:
             yield doc_id, self.encode_data(datum, pretty=True)
             count += 1
