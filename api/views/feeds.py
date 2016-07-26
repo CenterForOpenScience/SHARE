@@ -68,7 +68,7 @@ class CreativeWorksAtom(Feed):
 
         if query_params:
             if query_params.get('jsonQuery'):
-                request_kwargs['data'] = json.loads(query_params['jsonQuery'][0])
+                request_kwargs['data'] = query_params['jsonQuery'][0]
             if query_params.get('urlQuery'):
                 params = json.loads(query_params['urlQuery'][0])
                 request_kwargs['params'] = params
@@ -78,6 +78,10 @@ class CreativeWorksAtom(Feed):
         r = requests.post(url, headers=headers, **request_kwargs)
 
         data = r.json()
+
+        if r.status_code != 200:
+            return
+
         start = 1
         size = 10
         title_query = 'All' if params.get('q') == '*' else params.get('q')
