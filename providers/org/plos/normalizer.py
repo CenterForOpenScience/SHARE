@@ -50,7 +50,7 @@ class Publication(Parser):
     description = XPath(ctx, "arr[@name='abstract']/str").str
     contributors = Map(
         Delegate(Contributor),
-        XPath(ctx, "arr[@name='author_display']").arr.str
+        Try(XPath(ctx, "arr[@name='author_display']").arr.str)
     )
     publishers = Map(
         Delegate(Association),
