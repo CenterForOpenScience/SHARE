@@ -237,21 +237,20 @@ class OAICreativeWork(Parser):
     def get_links(self, ctx):
         links = []
         for link in ctx:
-            if link:
-                try:
-                    found_url = URL_REGEX.search(link).group()
-                    links.append(found_url)
-                    continue
-                except AttributeError:
-                    pass
-                try:
-                    found_doi = DOI_REGEX.search(link).group()
-                    if 'dx.doi.org' in found_doi:
-                        links.append(found_doi)
-                    else:
-                        links.append('http://dx.doi.org/{}'.format(found_doi.replace('doi:', '')))
-                except AttributeError:
-                    continue
+            if not link or not isinstance(link, str):
+                continue
+            found_url = URL_REGEX.search(link)
+            if found_url is not None:
+                links.append(found_url.group())
+                continue
+
+            found_doi = DOI_REGEX.search(link)
+            if found_doi is not None:
+                found_doi = found_doi.group()
+                if 'dx.doi.org' in found_doi:
+                    links.append(found_doi)
+                else:
+                    links.append('http://dx.doi.org/{}'.format(found_doi.replace('doi:', '')))
         return links
 
     def force_text(self, data):
