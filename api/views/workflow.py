@@ -26,8 +26,11 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProviderSerializer
 
     def get_queryset(self):
-        return ShareUser.objects.exclude(robot='').exclude(long_title='')
-
+        queryset = ShareUser.objects.exclude(robot='').exclude(long_title='')
+        sort = self.request.query_params.get("sort")
+        if sort:
+            return queryset.order_by(sort)
+        return queryset
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
     """View showing all normalized data in the SHARE Dataset.

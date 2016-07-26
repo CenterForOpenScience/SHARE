@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Cognitive Sciences ePrint Archive'
     home_page = 'http://www.cogprints.org/'
     url = 'http://cogprints.org/cgi/oai2'
+    emitted_type = 'preprint'

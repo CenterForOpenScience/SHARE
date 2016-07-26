@@ -14,6 +14,9 @@ from share.robot import RobotMigration
 class Command(BaseCommand):
     can_import_settings = True
 
+    def add_arguments(self, parser):
+        parser.add_argument('providers', nargs='*', type=str, help='App label(s) of the provider(s) to make migration(s) for')
+
     def write_migration(self, migration):
         loader = MigrationLoader(None, ignore_no_migrations=True)
         autodetector = MigrationAutodetector(loader.project_state(), ProjectState.from_apps(apps),)
@@ -26,7 +29,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         changes = {}
-        for config in apps.get_app_configs():
+        if options.get('providers'):
+            configs = [apps.get_app_config(label) for label in options['providers']]
+        else:
+            configs = apps.get_app_configs()
+
+        for config in configs:
             if isinstance(config, RobotAppConfig):
                 changes[config.name] = [RobotMigration(config).migration()]
 
