@@ -34,7 +34,7 @@ class CreativeWorksAtom(Feed):
     feed_type = Atom1CustomFeed
     items = []
     link = '/atom/'
-    url = 'https://cos.io/share'
+    url = 'https://cos.io/share'  # needs to be changed to correct url
     author_name = 'COS'
 
     def item_link(self, item):
@@ -65,6 +65,8 @@ class CreativeWorksAtom(Feed):
         query_params = parse_qs(request.get_full_path().replace(request.path + '?', ''))
         request_kwargs = {}
         params = {}
+        start = 1
+        size = 10
 
         if query_params:
             if query_params.get('jsonQuery'):
@@ -72,9 +74,13 @@ class CreativeWorksAtom(Feed):
             if query_params.get('urlQuery'):
                 params = json.loads(query_params['urlQuery'][0])
                 request_kwargs['params'] = params
+            if query_params.get('page'):
+                start = query_params.get('page')
+                params['from'] = start*size
+
 
         headers = {'Content-Type': 'application/json'}
-        url = 'https://staging-share.osf.io/api/search/abstractcreativework/_search'
+        url = SHARE_URL
         r = requests.post(url, headers=headers, **request_kwargs)
 
         data = r.json()
@@ -82,8 +88,6 @@ class CreativeWorksAtom(Feed):
         if r.status_code != 200:
             return
 
-        start = 1
-        size = 10
         title_query = 'All' if params.get('q') == '*' else params.get('q')
 
         self.title = 'SHARE: Atom Feed for query: "{}"'.format(title_query or 'None')
