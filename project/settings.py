@@ -337,7 +337,7 @@ INSTALLED_APPS += [
 ]
 RAVEN_CONFIG = {
     'dsn': os.environ.get('SENTRY_DSN', None),
-    'release': raven.fetch_git_sha(os.getcwd())
+    'release': os.environ.get('GIT_COMMIT', None),
 }
 
 
