@@ -250,6 +250,8 @@ class DateParserLink(AbstractLink):
 
 class LanguageParserLink(AbstractLink):
     def execute(self, maybe_code):
+        if isinstance(maybe_code, dict):
+            maybe_code = maybe_code['#text']
         # Force indices to populate
         if not languages._is_loaded:
             languages._load()
