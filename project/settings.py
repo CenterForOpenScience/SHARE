@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
-import raven
 from django.utils.log import DEFAULT_LOGGING
 
 # Suppress select django deprecation messages
