@@ -71,7 +71,7 @@ class Publication(Parser):
 
     class Extra:
         openaccess = ctx.openaccess
-        ending_page = ctx.endingPage
+        ending_page = Try(ctx.endingPage)
         issue_type = ctx.issuetype
         number = ctx.number
         starting_page = ctx.startingPage
