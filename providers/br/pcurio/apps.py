@@ -1,7 +1,5 @@
 from share.provider import OAIProviderAppConfig
 
-from providers.br.pcurio.normalizer import Normalizer
-
 
 class AppConfig(OAIProviderAppConfig):
     name = 'providers.br.pcurio'
@@ -11,4 +9,3 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://www.maxwell.vrac.puc-rio.br'
     url = 'http://www.maxwell.vrac.puc-rio.br/DC_Todos.php'
     time_granularity = False
-    normalizer = Normalizer
