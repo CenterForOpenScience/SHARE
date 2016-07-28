@@ -21,7 +21,7 @@ class ThroughLinks(Parser):
 
 
 class Institution(Parser):
-    name = RunPython(text, Maybe(ctx, 'institution'))
+    name = Join(Map(RunPython(text), Maybe(ctx, 'institution')))
 
 
 class Organization(Parser):
