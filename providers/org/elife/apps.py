@@ -11,5 +11,6 @@ class AppConfig(ProviderAppConfig):
     harvester = ELifeHarvester
     rate_limit = (1, 60)
     namespaces = {
-        'http://www.w3.org/1999/xlink': None
+        'http://www.w3.org/1999/xlink': None,
+        'http://www.w3.org/1998/Math/MathML': 'mml',
     }

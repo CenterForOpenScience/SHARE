@@ -70,7 +70,7 @@ class CreativeWork(Parser):
             XPath(ctx, '//article-meta/pub-date[@publication-format="electronic"]')['pub-date']
         )
     )
-    rights = RunPython(text, XPath(ctx, '//permissions/license/license-p')['license-p']['ext-link'])
+    rights = Join(Map(RunPython(text), Map(Try(ctx['license-p']['ext-link']), XPath(ctx, '//permissions/license/license-p'))))
     contributors = Map(
         Delegate(Contributor),
         XPath(ctx, '//article-meta/contrib-group/contrib[name]')
