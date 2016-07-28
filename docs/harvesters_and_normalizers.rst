@@ -160,7 +160,7 @@ Make sure you only add the relevant migrations folder when adding changes!
 
 Provider-specific normalizers and harvesters are unnecessary for OAI providers as they all use the base OAI harvester and normalizer.
 
-Remember to add the provider's harvest directory to gitignore. See the file for examples.
+If the provider has a new TLD folder (e.g. com, au, gov), please add ``/TLD.*/`` to the .gitignore in the generated harvester data section.
 
 Best practices for writing a non-OAI Harvester
 """"""""""""""""""""""""""""""""""""""""""""""
