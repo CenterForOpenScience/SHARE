@@ -115,7 +115,7 @@ class OAICreativeWork(Parser):
 
     publishers = tools.Map(
         tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIPublisher))),
-        tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:publisher')
+        tools.Map(tools.RunPython('force_text'), tools.Try(ctx.record.metadata.dc['dc:publisher']))
     )
 
     rights = tools.Join(tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:rights'))
@@ -284,6 +284,8 @@ class OAICreativeWork(Parser):
         """
         Returns list of organization, institutions, or contributors names based on entity type.
         """
+        options = [o if isinstance(o, str) else o['#text'] for o in options]
+
         if entity == 'organization':
             organizations = [
                 value for value in options if
