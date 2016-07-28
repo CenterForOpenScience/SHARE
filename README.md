@@ -11,8 +11,6 @@ http://share-research.readthedocs.io/en/latest/index.html
 
 https://osf.io/sdxvj/
 
-## Pipeline
-    Harvester/Push/Curators -> Raw -> Normalization -> HoldingMaster -> Process -> Master (Versioned) -> Views (e.g., JamDB, ES, Neo4J) -> Provenance
                               
 ## Setup for testing
 It is useful to set up a [virtual environment](http://virtualenvwrapper.readthedocs.io/en/latest/install.html) to ensure [python3](https://www.python.org/downloads/) is your designated version of python and make the python requirements specific to this project.

@@ -15,6 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf.urls import url, include
+from django.conf import settings
+from django.views.generic.base import RedirectView
+from revproxy.views import ProxyView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -22,4 +25,7 @@ urlpatterns = [
     url(r'^api/', include('api.urls', namespace='api')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^accounts/', include('allauth.urls')),
+
+    url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
+    url(r'^$', RedirectView.as_view(url='{}/'.format(settings.EMBER_SHARE_PREFIX))),
 ]

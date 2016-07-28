@@ -15,6 +15,12 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     root_parser = None
 
+    NAMESPACES = {
+        'http://purl.org/dc/elements/1.1/': 'dc',
+        'http://www.openarchives.org/OAI/2.0/': None,
+        'http://www.openarchives.org/OAI/2.0/oai_dc/': None,
+    }
+
     def __init__(self, app_config):
         self.config = app_config
 
@@ -26,8 +32,7 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     def unwrap_data(self, data):
         if data.startswith('<'):
-            # process_namespaces=True uses full url, False uses short name
-            return xmltodict.parse(data, process_namespaces=False)
+            return xmltodict.parse(data, process_namespaces=True, namespaces=self.NAMESPACES)
         else:
             return json.loads(data)
 

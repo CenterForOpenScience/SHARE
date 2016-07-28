@@ -72,6 +72,8 @@ class CeleryTaskAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'name', 'app_label', 'app_version', 'status', 'started_by')
     actions = ['retry_tasks']
     list_filter = ['status', 'name', 'app_label', 'app_version', 'started_by']
+    list_select_related = ('provider', 'started_by')
+    ordering = ('-timestamp', )
 
     def retry_tasks(self, request, queryset):
         for changeset in queryset:

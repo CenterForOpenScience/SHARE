@@ -66,6 +66,7 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
 class ExtraDataViewSet(ShareObjectViewSet):
     serializer_class = serializers.ExtraDataSerializer
     queryset = serializer_class.Meta.model.objects.all()
+    filter_class = None
 
 
 class EntityViewSet(ShareObjectViewSet):

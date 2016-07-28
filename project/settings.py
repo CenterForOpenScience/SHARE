@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+
 from django.utils.log import DEFAULT_LOGGING
 
 # Suppress select django deprecation messages
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'rest_framework',
     'corsheaders',
+    'revproxy',
 
     'allauth',
     'allauth.account',
@@ -167,18 +169,21 @@ INSTALLED_APPS = [
     'providers.io.osf.registrations',
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
-    'providers.org.arxiv.oai.apps.AppConfig',
+    'providers.org.arxiv.oai',
     'providers.org.bhl',
     'providers.org.biorxiv',
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
+    'providers.org.datacite.oai',
     'providers.org.dataone',
     'providers.org.dryad',
     'providers.org.elife',
+    'providers.org.elis',
     'providers.org.erudit',
     'providers.org.mblwhoilibrary',
     'providers.org.mla',
+    'providers.org.mpra',
     'providers.org.ncar',
     'providers.org.neurovault',
     'providers.org.newprairiepress',
@@ -196,6 +201,7 @@ INSTALLED_APPS = [
     'providers.uk.lshtm',
     'providers.za.csir',
 ]
+
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
 USER_SCOPES = 'approve_changesets'
@@ -215,7 +221,7 @@ SOCIALACCOUNT_PROVIDERS = \
     {'osf':
          {
             'METHOD': 'oauth2',
-            'SCOPE': ['osf.users.all_read'],
+            'SCOPE': ['osf.users.profile_read'],
             'AUTH_PARAMS': {'access_type': 'offline'},
           # 'FIELDS': [
           #     'id',
@@ -326,8 +332,21 @@ LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'http://localhost:8000
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
-    CORS_ORIGIN_ALLOW_ALL = True
-    CORS_ALLOW_CREDENTIALS = True
+# else:
+INSTALLED_APPS += [
+    'raven.contrib.django.raven_compat',
+]
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('SENTRY_DSN', None),
+    'release': os.environ.get('GIT_COMMIT', None),
+}
+
+
+# TODO REMOVE BEFORE PRODUCTION
+# ALLOW LOCAL USERS TO SEARCH
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+# TODO REMOVE BEFORE PRODUCTION
 
 
 AUTHENTICATION_BACKENDS = (
@@ -373,6 +392,11 @@ STATICFILES_DIRS = (
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
 
 ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')
 ELASTICSEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
@@ -443,9 +467,14 @@ LOGGING = {
         }
     },
     'handlers': {
+        'sentry': {
+            'level': 'ERROR',  # To capture more than ERROR, change to WARNING, INFO, etc.
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'INFO',
+            'level': 'DEBUG',
             'formatter': 'console'
         },
     },
@@ -454,16 +483,33 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False
-        }
+        },
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
     },
     'root': {
-        'level': 'INFO',
-        'handlers': ['console']
+        'level': 'WARNING',
+        'handlers': ['sentry'],
     }
 }
 
 
 # Custom Settings
+EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
+EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share')
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1
@@ -473,6 +519,7 @@ DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
 PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
+PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 
 import djcelery
 djcelery.setup_loader()
