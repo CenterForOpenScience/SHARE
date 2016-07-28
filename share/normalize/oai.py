@@ -265,6 +265,9 @@ class OAICreativeWork(Parser):
             if datum is None:
                 continue
             if isinstance(datum, dict):
+                if '#text' not in datum:
+                    logger.warn('Skipping %s, no #text key exists', datum)
+                    continue
                 fixed.append(datum['#text'])
             elif isinstance(datum, str):
                 fixed.append(datum)
