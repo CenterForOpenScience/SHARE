@@ -108,7 +108,7 @@ class Project(Parser):
 
     title = ctx.row.PROJECT_TITLE
     contributors = Concat(
-        Map(Delegate(Contributor), ctx.row.PIS.PI),
+        Map(Delegate(Contributor), Maybe(ctx.row.PIS, 'PI')),
         Map(Delegate(ProgramOfficer), ctx.row.PROGRAM_OFFICER_NAME)
     )
     links = Map(
