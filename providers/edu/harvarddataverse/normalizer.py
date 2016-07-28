@@ -36,8 +36,8 @@ class ThroughLinks(Parser):
 
 class CreativeWork(Parser):
     title = ctx.name
-    description = ctx.description
-    contributors = Map(Delegate(Contributor), ctx.authors)
+    description = Try(ctx.description)
+    contributors = Map(Delegate(Contributor), Try(ctx.authors))
     date_published = ParseDate(ctx.published_at)
     links = Concat(
         Delegate(ThroughLinks, ctx.url),
