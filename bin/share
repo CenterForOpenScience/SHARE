@@ -51,12 +51,12 @@ def harvest(args, argv):
     Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR] [--days-back=DAYS] [--start=MM-DD-YYYY] [--end=MM-DD-YY]
 
     Options:
-        -l, --limit=NUMBER    Limit the harvester to NUMBER of documents
-        -p, --print           Print results to stdout rather than to a file
-        -o, --out=DIR         The directory to store the harvested data in. Defaults to ./<provider>
-        -d, --days-back=DAYS  Number of days back to harvest [default: 1]
-        -s, --start=MM-DD-YYYY  The start date for the harvester to begin, defaults to one day in the past
-        -e, --end=MM-DD-YYYY    The start date for the harvester to end, defaults to today
+        -l, --limit=NUMBER     Limit the harvester to NUMBER of documents
+        -p, --print            Print results to stdout rather than to a file
+        -o, --out=DIR          The directory to store the harvested data in. Defaults to ./<provider>
+        -d, --days-back=DAYS   Number of days back to harvest [default: 1]
+        -s, --start=YYY-MM-DD  The start date for the harvester to begin, defaults to one day in the past
+        -e, --end=YYYY-MM-DD   The start date for the harvester to end, defaults to today
     """
     config = apps.get_app_config(args['<provider>'])
     harvester = config.harvester(config)
@@ -134,7 +134,7 @@ def debug(args, argv):
     parser = normalizer.get_root_parser()
 
     def execute(data, chain):
-        return chain.chain()[0].execute(data)
+        return chain.chain()[0].run(data)
     e = execute  # noqa
 
     print('\n')

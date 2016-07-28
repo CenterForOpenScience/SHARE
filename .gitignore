@@ -1,5 +1,5 @@
 
-static/
+/static/
 
 # Created by https://www.gitignore.io/api/osx,python
 
@@ -123,75 +123,21 @@ ENV/
 .ropeproject
 
 # Generated harvester data
-be.ghent/
-br.pcurio/
-ca.lwbin/
-com.biomedcentral/
-com.dailyssrn/
-com.figshare/
-com.nature/
-edu.asu/
-edu.boise_state/
-edu.calhoun/
-edu.caltech/
-edu.chapman/
-edu.citeseerx/
-edu.cmu/
-edu.colostate/
-edu.columbia/
-edu.csuohio/
-edu.cuny/
-edu.cuscholar/
-edu.dash/
-edu.digitalhoward/
-edu.duke/
-edu.fit/
-edu.harvarddataverse/
-edu.huskiecommons/
-edu.iastate/
-edu.icpsr/
-edu.iowaresearch/
-edu.iu/
-edu.iwucommons/
-edu.kent/
-edu.krex/
-edu.mason/
-edu.mit/
-edu.mizzou/
-edu.nku/
-edu.oaktrust/
-edu.opensiuc/
-edu.pcom/
-edu.pdxscholar/
-edu.purdue/
-et.edu.addis_ababa/
-gov.clinicaltrials/
-gov.doepages/
-gov.nih/
-gov.nist/
-gov.nodc/
-gov.nsfawards/
-io.osf/
-io.osf.registrations/
-org.arxiv/
-org.arxiv.oai/
-org.bhl/
-org.biorxiv/
-org.cogprints/
-org.crossref/
-org.datacite/
-org.dryad/
-org.dataone/
-org.erudit/
-org.mblwhoilibrary/
-org.mla/
-org.ncar/
-org.neurovault/
-ru.cyberleninka/
-tr.edu.hacettepe/
-uk.cambridge/
-uk.lshtm/
-za.csir/
+/be.*/
+/br.*/
+/ca.*/
+/ch.*/
+/com.*/
+/edu.*/
+/et.*/
+/gov.*/
+/io.*/
+/org.*/
+/ru.*/
+/tr.*/
+/uk.*/
+/uk.*/
+/za.*/
 
 # Other
 .idea/

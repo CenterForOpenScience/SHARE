@@ -8,4 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'CiteSeerX Scientific Literature Digital Library and Search Engine'
     home_page = 'http://citeseerx.ist.psu.edu'
     url = 'http://citeseerx.ist.psu.edu/oai2'
-    timezone_granularity = False
+    time_granularity = False

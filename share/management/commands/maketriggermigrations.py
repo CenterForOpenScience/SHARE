@@ -1,9 +1,12 @@
+import datetime
 import os
 
 from django.apps import apps
 from django.core.management.base import BaseCommand
-from django.db.migrations import Migration
+from django.db import connection
+from django.db.migrations import Migration, utils
 from django.db.migrations import operations
+from django.db.migrations.loader import MigrationLoader
 from django.db.migrations.writer import MigrationWriter
 
 from share.models.base import ShareObject
@@ -85,9 +88,20 @@ class Command(BaseCommand):
             if not hasattr(model, 'VersionModel') or model._meta.proxy:
                 continue
             ops.extend(self.build_operations(model))
-
-        m = Migration('0003_triggers', 'share')
+        if options['initial']:
+            m = Migration('0003_triggers', 'share')
+            m.dependencies = [('share', '0002_create_share_user')]
+        else:
+            ml = MigrationLoader(connection=connection)
+            ml.build_graph()
+            last_share_migration = [x[1] for x in ml.graph.leaf_nodes() if x[0] == 'share'][0]
+            next_number = '{0:04d}'.format(int(last_share_migration[0:4])+1)
+            m = Migration('{}_update_trigger_migrations_{}'.format(next_number, datetime.datetime.now().strftime("%Y%m%d_%H%M")), 'share')
+            m.dependencies = [('share', '0002_create_share_user'), ('share', last_share_migration)]
         m.operations = ops
-        m.dependencies = [('share', '0002_create_share_user')]
-
         self.write_migration(m)
+
+
+    def add_arguments(self, parser):
+        parser.add_argument('--initial', action='store_true', help='Create initial trigger migrations')
+        parser.add_argument('--update', action='store_true', help='Update trigger migrations after schema change')
