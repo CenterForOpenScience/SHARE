@@ -10,6 +10,7 @@ django-extensions==1.6.7
 django-allauth==0.25.2
 django-guardian==1.4.4
 django-oauth-toolkit==0.10.0
+django-revproxy==0.9.12
 # Django 1.9 compatibility
 # django-postgres-fuzzycount==0.1.6
 git+https://github.com/stephenmcd/django-postgres-fuzzycount.git@686053fe130c742b9bb0cce338d2aa7eb24fb91c
