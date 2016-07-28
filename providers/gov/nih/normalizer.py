@@ -109,7 +109,7 @@ class Project(Parser):
     title = ctx.row.PROJECT_TITLE
     contributors = Concat(
         Map(Delegate(Contributor), Maybe(ctx.row.PIS, 'PI')),
-        Map(Delegate(ProgramOfficer), ctx.row.PROGRAM_OFFICER_NAME)
+        Map(Delegate(ProgramOfficer), RunPython('filter_nil', ctx.row.PROGRAM_OFFICER_NAME))
     )
     links = Map(
         Delegate(ThroughLinks),
@@ -161,3 +161,8 @@ class Project(Parser):
 
     def parse_awards(self, award_info):
         return [award for award in award_info.split(';')]
+
+    def filter_nil(self, obj):
+        if isinstance(obj, dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
+            return None
+        return ob
