@@ -111,7 +111,7 @@ class OAICreativeWork(Parser):
     )
 
     title = tools.Join(tools.RunPython('force_text', tools.Try(ctx['record']['metadata']['dc']['dc:title'])))
-    description = tools.RunPython('force_text', tools.Join(tools.Try(ctx.record.metadata.dc['dc:description'])))
+    description = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:description'])))
 
     publishers = tools.Map(
         tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIPublisher))),
