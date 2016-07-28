@@ -11,15 +11,10 @@ class AppConfig(BotAppConfig):
         from bots.elasticsearch.bot import ElasticSearchBot
         return ElasticSearchBot(self, started_by, last_run=last_run)
 
+    # Sources are also indexed as a special case
     INDEX_MODELS = [
         'AbstractCreativeWork',
-        'Person',
-    ]
-
-    AUTO_COMPLETE_MODELS = [
+        'Entity',
         'Person',
         'Tag',
-        'Entity',
-        'Award',
-        'Venue',
     ]
