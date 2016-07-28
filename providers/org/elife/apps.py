@@ -10,3 +10,6 @@ class AppConfig(ProviderAppConfig):
     home_page = 'http://elifesciences.org/'
     harvester = ELifeHarvester
     rate_limit = (1, 60)
+    namespaces = {
+        'http://www.w3.org/1999/xlink': None
+    }
