@@ -48,7 +48,12 @@ class Funder(Parser):
     name = ctx.IC_NAME
 
     # The organizational code of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
-    community_identifier = ctx.ADMINISTERING_IC
+    community_identifier = RunPython('filter_nil', ctx.ADMINISTERING_IC)
+
+    def filter_nil(self, obj):
+        if isinstance(obj, dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
+            return None
+        return obj
 
     class Extra:
         funding_ics = ctx.FUNDING_ICs
@@ -126,7 +131,7 @@ class Project(Parser):
     )
     organizations = Map(
         Delegate(Association.using(entity=Delegate(Organization))),
-        ctx.row
+        RunPython('maybe_org', ctx.row)
     )
 
     class Extra:
@@ -164,5 +169,10 @@ class Project(Parser):
 
     def filter_nil(self, obj):
         if isinstance(obj, dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
+            return None
+        return obj
+
+    def maybe_org(self, obj):
+        if isinstance(obj.get('ORG_NAME'), dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
             return None
         return obj
