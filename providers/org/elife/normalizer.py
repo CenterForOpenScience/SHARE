@@ -1,15 +1,14 @@
 import datetime
 
-from lxml import etree
-
-from share.normalize import *
+from share.normalize import *  # noqa
 from share.normalize.utils import format_doi_as_url
 
 
 def text(obj):
     if isinstance(obj, str):
         return obj
-    return obj['#text']
+    # Elife is weird
+    return obj.get('#text') or obj['italic']
 
 
 class Link(Parser):
@@ -22,11 +21,11 @@ class ThroughLinks(Parser):
 
 
 class Institution(Parser):
-    name = Maybe(ctx, 'institution')
+    name = RunPython(text, Maybe(ctx, 'institution'))
 
 
 class Organization(Parser):
-    name = ctx['contrib']['collab']
+    name = RunPython(text, ctx['contrib']['collab'])
 
 
 class Affiliation(Parser):
