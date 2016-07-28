@@ -12,5 +12,5 @@ class AppConfig(ProviderAppConfig):
     rate_limit = (1, 60)
     namespaces = {
         'http://www.w3.org/1999/xlink': None,
-        'http://www.w3.org/1998/Math/MathML': 'mml',
+        'http://www.w3.org/1998/Math/MathML': None,
     }
