@@ -69,9 +69,9 @@ class Award(Parser):
         award_notice_date = ctx.AWARD_NOTICE_DATE
 
     def get_award_amount(self, award_info):
-        if award_info:
-            return award_info.split(':')[1].replace('\\', '')
-        return None
+        if not award_info or (isinstance(award_info, dict) and award_info.get('@http://www.w3.org/2001/XMLSchema-instance:nil')):
+            return None
+        return award_info.split(':')[1].replace('\\', '')
 
 
 class ThroughAwards(Parser):
@@ -165,4 +165,4 @@ class Project(Parser):
     def filter_nil(self, obj):
         if isinstance(obj, dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
             return None
-        return ob
+        return obj
