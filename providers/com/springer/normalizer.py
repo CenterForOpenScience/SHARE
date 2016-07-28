@@ -75,5 +75,5 @@ class Publication(Parser):
         issue_type = ctx.issuetype
         number = ctx.number
         starting_page = ctx.startingPage
-        topicalCollection = ctx.topicalCollection
-        journalid = ctx.journalid
+        topicalCollection = Try(ctx.topicalCollection)
+        journalid = Try(ctx.journalid)
