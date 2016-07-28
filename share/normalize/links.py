@@ -312,7 +312,11 @@ class IteratorLink(AbstractLink):
 
     def __add__(self, step):
         # Attach all new links to the "subchain"
-        self.__anchor.chain()[-1] + step
+        chain = list(step.chain())
+        while isinstance(chain[0], AnchorLink):
+            chain.pop(0)
+
+        self.__anchor.chain()[-1] + chain[0]
         return self
 
     def execute(self, obj):
