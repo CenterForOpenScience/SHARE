@@ -1,4 +1,5 @@
 import logging
+import re
 
 from django.apps import apps
 from elasticsearch import helpers
@@ -20,9 +21,10 @@ def safe_substr(value, length=32000):
         return str(value)[:length]
     return None
 
-def add_suggest(obj, input_keys, payload_keys):
+def add_suggest(obj, input, payload_keys):
+    word_starts = re.finditer(r'\b\w', input)
     obj['suggest'] = {
-        'input': [ obj[k] for k in input_keys ],
+        'input': [ input[m.start():] for m in word_starts ],
         'payload': { k: obj[k] for k in payload_keys }
     }
     return obj
@@ -73,8 +75,8 @@ class IndexModelTask(ProviderTask):
         }
         if suggest:
             return add_suggest(serialized_person,
-                   input_keys=('given_name', 'family_name', 'full_name'),
-                   payload_keys=('@id', '@type', 'full_name'))
+                               input=serialized_person['full_name'],
+                               payload_keys=('@id', '@type', 'full_name'))
         else:
             return serialized_person
 
@@ -96,8 +98,8 @@ class IndexModelTask(ProviderTask):
         }
         if suggest:
             return add_suggest(serialized_entity,
-                           input_keys = ('name',),
-                           payload_keys = ('@id', '@type', 'name'))
+                               input = serialized_entity['name'],
+                               payload_keys = ('@id', '@type', 'name'))
         else:
             return serialized_entity
 
@@ -108,7 +110,7 @@ class IndexModelTask(ProviderTask):
             'name': safe_substr(tag.name),
         }
         return add_suggest(serialized_tag,
-                           input_keys = ('name',),
+                           input = serialized_tag['name'],
                            payload_keys = ('@id', 'name'))
 
     def serialize_creative_work(self, creative_work):
@@ -159,10 +161,10 @@ class IndexSourceTask(ProviderTask):
         serialized_source = {
             '@id': str(source.pk),
             '@type': 'source',
-            'long_name': source.long_title,
-            'short_name': source.robot
+            'long_name': safe_substr(source.long_title),
+            'short_name': safe_substr(source.robot)
         }
         return add_suggest(serialized_source,
-                           input_keys = ('long_name',),
+                           input = serialized_source['long_name'],
                            payload_keys = ('@id', '@type', 'long_name', 'short_name'))
 
