@@ -67,7 +67,7 @@ class ThroughAwardEntities(Parser):
 class Award(Parser):
     # The amount of the award provided by the funding NIH Institute(s) or Center(s)
     description = RunPython('get_award_amount', ctx.FUNDING_ICs)
-    entities = Map(Delegate(ThroughAwardEntities), ctx)
+    entities = Map(Delegate(ThroughAwardEntities), RunPython('maybe_entity', ctx))
 
     class Extra:
         arra_funded = ctx.ARRA_FUNDED
@@ -77,6 +77,11 @@ class Award(Parser):
         if not award_info or (isinstance(award_info, dict) and award_info.get('@http://www.w3.org/2001/XMLSchema-instance:nil')):
             return None
         return award_info.split(':')[1].replace('\\', '')
+
+    def maybe_entity(self, obj):
+        if not obj.get('IC_NAME') or (isinstance(obj['IC_NAME'], dict) and obj['IC_NAME'].get('@http://www.w3.org/2001/XMLSchema-instance:nil')):
+            return None
+        return obj
 
 
 class ThroughAwards(Parser):
