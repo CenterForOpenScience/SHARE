@@ -22,11 +22,16 @@ def safe_substr(value, length=32000):
     return None
 
 def add_suggest(obj, input, payload_keys):
-    word_starts = re.finditer(r'\b\w', input)
-    obj['suggest'] = {
-        'input': [ input[m.start():] for m in word_starts ],
-        'payload': { k: obj[k] for k in payload_keys }
-    }
+    if input:
+        # Elastic's completion suggester only looks at prefixes. If we give each
+        # object several inputs, starting at each word, it can match words in
+        # the middle of the text, without losing much speed (hopefully)
+        word_starts = re.finditer(r'\b\w', input)
+        obj['suggest'] = {
+            'input': [ input[m.start():] for m in word_starts ],
+            'output': '{} {}'.format(obj['@type'], obj['@id']),
+            'payload': { k: obj[k] for k in payload_keys }
+        }
     return obj
 
 class IndexModelTask(ProviderTask):
@@ -76,17 +81,9 @@ class IndexModelTask(ProviderTask):
         if suggest:
             return add_suggest(serialized_person,
                                input=serialized_person['full_name'],
-                               payload_keys=('@id', '@type', 'full_name'))
+                               payload_keys=('@id', 'full_name'))
         else:
             return serialized_person
-
-    def serialize_person_link(self, person):
-        return {
-            '@id': person.pk,
-            '@type': 'person',
-            'name': safe_substr(entity.name),
-        }
-
 
     def serialize_entity(self, entity, suggest=True):
         serialized_entity = {
@@ -103,15 +100,18 @@ class IndexModelTask(ProviderTask):
         else:
             return serialized_entity
 
-    def serialize_tag(self, tag):
+    def serialize_tag(self, tag, suggest=True):
         serialized_tag = {
             '@id': str(tag.pk),
             '@type': 'tag',
             'name': safe_substr(tag.name),
         }
-        return add_suggest(serialized_tag,
-                           input = serialized_tag['name'],
-                           payload_keys = ('@id', 'name'))
+        if suggest:
+            return add_suggest(serialized_tag,
+                               input = serialized_tag['name'],
+                               payload_keys = ('@id', 'name'))
+        else:
+            return serialized_tag
 
     def serialize_creative_work(self, creative_work):
         return {
