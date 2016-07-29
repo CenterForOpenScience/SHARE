@@ -53,12 +53,18 @@ class ElasticSearchBot(Bot):
                 'sources': {
                     'type': 'string',
                     'index': 'not_analyzed'
+                },
+                'associations': {
+                    'type': 'nested'
                 }
             }
         },
         'entity': {
             'properties': {
-                'suggest': SUGGEST_MAPPING
+                'suggest': SUGGEST_MAPPING,
+                'affiliations': {
+                    'type': 'nested'
+                }
             }
         },
         'person': {
