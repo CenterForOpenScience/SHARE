@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.conf.urls import url, include
 from django.conf import settings
 from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 from revproxy.views import ProxyView
 
 urlpatterns = [
@@ -28,4 +29,8 @@ urlpatterns = [
 
     url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
     url(r'^$', RedirectView.as_view(url='{}/'.format(settings.EMBER_SHARE_PREFIX))),
+    url(r'^favicon.ico$', RedirectView.as_view(
+        url=staticfiles_storage.url('favicon.ico'),
+        permanent=False
+    ), name="favicon"),
 ]
