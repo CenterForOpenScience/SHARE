@@ -82,10 +82,7 @@ class IndexModelTask(ProviderTask):
             ],
             'sources': [source.robot for source in person.sources.all()],
         }
-        if suggest:
-            return add_suggest(serialized_person)
-        else:
-            return serialized_person
+        return add_suggest(serialized_person) if suggest else serialized_person
 
     def serialize_entity(self, entity, suggest=True):
         serialized_entity = {
@@ -95,10 +92,7 @@ class IndexModelTask(ProviderTask):
             'url': entity.url,
             'location': safe_substr(entity.location),
         }
-        if suggest:
-            return add_suggest(serialized_entity)
-        else:
-            return serialized_entity
+        return add_suggest(serialized_entity) if suggest else serialized_entity
 
     def serialize_tag(self, tag, suggest=True):
         serialized_tag = {
@@ -106,10 +100,7 @@ class IndexModelTask(ProviderTask):
             '@type': 'tag',
             'name': safe_substr(tag.name),
         }
-        if suggest:
-            return add_suggest(serialized_tag)
-        else:
-            return serialized_tag
+        return add_suggest(serialized_tag) if suggest else serialized_tag
 
     def serialize_creative_work(self, creative_work):
         return {
