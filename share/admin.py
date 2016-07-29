@@ -1,11 +1,16 @@
 import ast
 import importlib
 
+import celery
+
+from django.apps import apps
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from oauth2_provider.models import AccessToken
 from django.contrib import messages
+from django.contrib.admin.views.main import ChangeList
 
+from share.robot import RobotAppConfig
 from share.models.base import ExtraData
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
@@ -67,13 +72,54 @@ class PersonAdmin(admin.ModelAdmin):
         return obj.contributor_set.count()
 
 
+class AppLabelFilter(admin.SimpleListFilter):
+    title = 'App Label'
+    parameter_name = 'app_label'
+
+    def lookups(self, request, model_admin):
+        return sorted([
+            (config.label, config.label)
+            for config in apps.get_app_configs()
+            if isinstance(config, RobotAppConfig)
+        ])
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(app_label=self.value())
+        return queryset
+
+
+class TaskNameFilter(admin.SimpleListFilter):
+    title = 'Task'
+    parameter_name = 'task'
+
+    def lookups(self, request, model_admin):
+        return sorted(
+            (key, key)
+            for key in celery.current_app.tasks.keys()
+            if key.startswith('share.')
+        )
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(name=self.value())
+        return queryset
+
+
+class CeleryTaskChangeList(ChangeList):
+    def get_ordering(self, request, queryset):
+        return ['-timestamp']
+        return 'timestamp', 'desc'
+
+
 class CeleryTaskAdmin(admin.ModelAdmin):
-    date_hierarchy = 'timestamp'
-    list_display = ('uuid', 'name', 'app_label', 'app_version', 'status', 'started_by')
+    list_display = ('uuid', 'name', 'app_label', 'status', 'started_by')
     actions = ['retry_tasks']
-    list_filter = ['status', 'name', 'app_label', 'app_version', 'started_by']
+    list_filter = ['status', TaskNameFilter, AppLabelFilter, 'started_by']
     list_select_related = ('provider', 'started_by')
-    ordering = ('-timestamp', )
+
+    def get_changelist(self, request, **kwargs):
+        return CeleryTaskChangeList
 
     def retry_tasks(self, request, queryset):
         for changeset in queryset:
@@ -83,7 +129,6 @@ class CeleryTaskAdmin(admin.ModelAdmin):
             args = (changeset.app_label, changeset.started_by.id,) + ast.literal_eval(changeset.args)
             kwargs = ast.literal_eval(changeset.kwargs)
             Task().apply_async(args, kwargs, task_id=task_id)
-        pass
     retry_tasks.short_description = 'Retry tasks'
 
 
