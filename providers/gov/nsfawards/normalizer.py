@@ -32,9 +32,9 @@ class Award(Parser):
     class Extra:
         awardee_city = ctx.awardeeCity
         funds_obligated_amt = ctx.fundsObligatedAmt
-        name = ctx.awardeeName
+        name = tools.Try(ctx.awardeeName)
         awardee_city = ctx.awardeeCity
-        awardee_state_code = ctx.awardeeStateCode
+        awardee_state_code = tools.Try(ctx.awardeeStateCode)
 
 
 class ThroughAwards(Parser):
@@ -42,12 +42,12 @@ class ThroughAwards(Parser):
 
 
 class Venue(Parser):
-    name = ctx.awardeeName
-    location = tools.Join(tools.Concat(ctx.awardeeCity, ctx.awardeeStateCode), joiner=', ')
+    name = tools.Try(ctx.awardeeName)
+    location = tools.Join(tools.Concat(ctx.awardeeCity, tools.Try(ctx.awardeeStateCode)), joiner=', ')
 
     class Extra:
         awardee_city = ctx.awardeeCity
-        awardee_state_code = ctx.awardeeStateCode
+        awardee_state_code = tools.Try(ctx.awardeeStateCode)
 
 
 class ThroughVenues(Parser):

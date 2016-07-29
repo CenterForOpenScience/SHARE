@@ -1,9 +1,14 @@
 import datetime
 
-from lxml import etree
-
-from share.normalize import *
+from share.normalize import *  # noqa
 from share.normalize.utils import format_doi_as_url
+
+
+def text(obj):
+    if isinstance(obj, str):
+        return obj
+    # Elife is weird
+    return obj.get('#text') or obj['italic']
 
 
 class Link(Parser):
@@ -16,7 +21,11 @@ class ThroughLinks(Parser):
 
 
 class Institution(Parser):
-    name = Maybe(ctx, 'institution')
+    name = Join(Map(RunPython(text), Maybe(ctx, 'institution')))
+
+
+class Organization(Parser):
+    name = RunPython(text, ctx['contrib']['collab'])
 
 
 class Affiliation(Parser):
@@ -36,7 +45,7 @@ class Contributor(Parser):
 
 
 class Tag(Parser):
-    name = Maybe(ctx.kwd, '#text')
+    name = RunPython(text, ctx.kwd)
 
 
 class ThroughTags(Parser):
@@ -44,7 +53,7 @@ class ThroughTags(Parser):
 
 
 class Publisher(Parser):
-    name = ctx['publisher-name']['#text']
+    name = RunPython(text, ctx['publisher-name'])
 
 
 class Association(Parser):
@@ -52,6 +61,38 @@ class Association(Parser):
 
 
 class CreativeWork(Parser):
+
+    title = RunPython(text, XPath(ctx, '//article-meta/title-group/article-title')['article-title'])
+    description = RunPython(text, Maybe(XPath(ctx, '//abstract[not(@abstract-type="executive-summary")]/p[1]'), 'p'))
+    date_published = ParseDate(
+        RunPython('parse_date',
+            XPath(ctx, '//article-meta/pub-date[@publication-format="electronic"]')['pub-date']
+        )
+    )
+    rights = Join(Map(RunPython(text), Map(Try(ctx['license-p']['ext-link']), XPath(ctx, '//permissions/license/license-p'))))
+    contributors = Map(
+        Delegate(Contributor),
+        XPath(ctx, '//article-meta/contrib-group/contrib[name]')
+    )
+    publishers = Map(
+        Delegate(Association),
+        XPath(ctx, '//publisher-name')
+    )
+    organizations = Map(
+        Delegate(Association.using(entity=Delegate(Organization))),
+        XPath(ctx, '//article-meta/contrib-group/contrib[not(name)]')
+    )
+    tags = Map(
+        Delegate(ThroughTags),
+        XPath(ctx, '//kwd')
+    )
+    links = Map(
+        Delegate(ThroughLinks),
+        RunPython('format_doi_url', RunPython(text, XPath(ctx, '//article-id[@pub-id-type="doi"]')[0]['article-id']))
+    )
+
+    class Extra:
+        article_categories = XPath(ctx, '//article-meta/atricle-categories/descendant::text()')
 
     def parse_date(self, ctx):
         day = ctx.get('day')
@@ -61,31 +102,3 @@ class CreativeWork(Parser):
 
     def format_doi_url(self, doi):
         return format_doi_as_url(self, doi)
-
-    title = XPath(ctx, '//article-meta/title-group/article-title')['article-title']['#text']
-    description = Maybe(XPath(ctx, '//abstract[not(@abstract-type="executive-summary")]/p[1]'), 'p')['#text']
-    date_published = ParseDate(
-        RunPython('parse_date',
-                  XPath(ctx, '//article-meta/pub-date[@publication-format="electronic"]')['pub-date']
-        )
-    )
-    rights = XPath(ctx, '//permissions/license/license-p')['license-p']['ext-link']['#text']
-    contributors = Map(
-        Delegate(Contributor),
-        XPath(ctx, '//article-meta/contrib-group/contrib')
-    )
-    publishers = Map(
-        Delegate(Association),
-        XPath(ctx, '//publisher-name')
-    )
-    tags = Map(
-        Delegate(ThroughTags),
-        XPath(ctx, '//kwd')
-    )
-    links = Map(
-        Delegate(ThroughLinks),
-        RunPython('format_doi_url', XPath(ctx, '//article-id[@pub-id-type="doi"]')[0]['article-id']['#text'])
-    )
-
-    class Extra:
-        article_categories = XPath(ctx, '//article-meta/atricle-categories/descendant::text()')

@@ -115,7 +115,7 @@ class OAICreativeWork(Parser):
 
     publishers = tools.Map(
         tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIPublisher))),
-        tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:publisher')
+        tools.Map(tools.RunPython('force_text'), tools.Try(ctx.record.metadata.dc['dc:publisher']))
     )
 
     rights = tools.Join(tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:rights'))
@@ -265,6 +265,9 @@ class OAICreativeWork(Parser):
             if datum is None:
                 continue
             if isinstance(datum, dict):
+                if '#text' not in datum:
+                    logger.warn('Skipping %s, no #text key exists', datum)
+                    continue
                 fixed.append(datum['#text'])
             elif isinstance(datum, str):
                 fixed.append(datum)
@@ -284,6 +287,8 @@ class OAICreativeWork(Parser):
         """
         Returns list of organization, institutions, or contributors names based on entity type.
         """
+        options = [o if isinstance(o, str) else o['#text'] for o in options]
+
         if entity == 'organization':
             organizations = [
                 value for value in options if

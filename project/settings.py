@@ -154,6 +154,7 @@ INSTALLED_APPS = [
     'providers.edu.waynestate',
     'providers.edu.wustlopenscholarship',
     'providers.et.edu.addis_ababa',
+    'providers.eu.econstor',
     'providers.gov.clinicaltrials',
     'providers.gov.doepages',
     'providers.gov.nih',

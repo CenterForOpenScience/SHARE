@@ -23,6 +23,7 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     def __init__(self, app_config):
         self.config = app_config
+        self.namespaces = getattr(self.config, 'namespaces', self.NAMESPACES)
 
     def do_normalize(self, data):
         parsed = self.unwrap_data(data)
@@ -32,7 +33,7 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     def unwrap_data(self, data):
         if data.startswith('<'):
-            return xmltodict.parse(data, process_namespaces=True, namespaces=self.NAMESPACES)
+            return xmltodict.parse(data, process_namespaces=True, namespaces=self.namespaces)
         else:
             return json.loads(data)
 

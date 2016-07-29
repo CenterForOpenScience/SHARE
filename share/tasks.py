@@ -87,7 +87,7 @@ class NormalizerTask(ProviderTask):
         raw = RawData.objects.get(pk=raw_id)
         normalizer = self.config.normalizer(self.config)
 
-        assert raw.source == self.config.user, 'RawData is from {}. Tried parsing it as {}'.format(self.config)
+        assert raw.source == self.config.user, 'RawData is from {}. Tried parsing it as {}'.format(raw.source, self.config)
 
         logger.info('Starting normalization for %s by %s', raw, normalizer)
 
