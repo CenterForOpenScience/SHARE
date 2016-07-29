@@ -25,7 +25,7 @@ class PersonEmail(Parser):
     email = Delegate(Email, ctx)
 
 
-class Entity(Parser):
+class Organization(Parser):
     name = ctx
 
 
@@ -38,7 +38,7 @@ class Person(Parser):
     family_name = Maybe(ctx, 'last_name')
     additional_name = Maybe(ctx, 'middle_name')
     emails = Map(Delegate(PersonEmail), Maybe(ctx, 'email'))
-    affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Entity))), Maybe(ctx, 'affiliation'))
+    affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
 
 
 class Contributor(Parser):
