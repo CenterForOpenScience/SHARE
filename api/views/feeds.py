@@ -14,7 +14,11 @@ class CreativeWorksRSS(Feed):
     link = "/rss/"
     description = "Updates to the SHARE dataset"
 
-    def items(self):
+    def get_object(self, request):
+        # return elasticsearch query from request parameters?
+        pass
+
+    def items(self, obj):
         # TODO - make this filterable and probably not use only AbstractCreativeWorks
         # TODO - make use elasticsearch results?
         return AbstractCreativeWork.objects.order_by('-date_updated')[:5]
