@@ -11,3 +11,9 @@ class AppConfig(ProviderAppConfig):
     home_page = 'http://www.osti.gov/pages/'
     harvester = DoepagesHarvester
     normalizer = DoepagesNormalizer
+
+    namespaces = {
+        'http://www.w3.org/1999/02/22-rdf-syntax-ns#': 'rdf',
+        'http://purl.org/dc/elements/1.1/': 'dc',
+        'http://purl.org/dc/terms/': 'dcq',
+    }
