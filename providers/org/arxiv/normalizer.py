@@ -27,7 +27,7 @@ class ThroughLinks(Parser):
 
 
 class Organization(Parser):
-    name = ctx['#text']
+    name = ctx
 
 
 class Affiliation(Parser):
@@ -67,7 +67,7 @@ class Preprint(Parser):
     contributors = tools.Map(tools.Delegate(Contributor), ctx.entry.author)
     links = tools.Map(
         tools.Delegate(ThroughLinks),
-        tools.Maybe(ctx.entry, 'arxiv:doi')['#text'],
+        tools.Maybe(ctx.entry, 'arxiv:doi'),
         ctx.entry.id
     )
     subject = tools.Delegate(Tag, ctx.entry['arxiv:primary_category'])
@@ -75,5 +75,5 @@ class Preprint(Parser):
 
     class Extra:
         resource_id = ctx.entry.id
-        journal_ref = tools.Maybe(ctx.entry, 'arxiv:journal_ref')['#text']
-        comment = tools.Maybe(ctx.entry, 'arxiv:comment')['#text']
+        journal_ref = tools.Maybe(ctx.entry, 'arxiv:journal_ref')
+        comment = tools.Maybe(ctx.entry, 'arxiv:comment')

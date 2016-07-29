@@ -12,3 +12,8 @@ class AppConfig(ProviderAppConfig):
     time_granularity = False
     rate_limit = (1, 3)
     harvester = ArxivHarvester
+
+    namespaces = {
+        'http://www.w3.org/2005/Atom': None,
+        'http://arxiv.org/schemas/atom': 'arxiv',
+    }
