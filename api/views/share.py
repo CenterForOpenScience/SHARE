@@ -1,3 +1,10 @@
+import re
+import pytz
+import requests
+import json
+
+from werkzeug.contrib.atom import AtomFeed
+
 from rest_framework import viewsets, permissions, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
@@ -6,6 +13,14 @@ from api.filters import ShareObjectFilterSet
 from share import serializers
 from api import serializers as api_serializers
 
+RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
+                 u'|' + \
+                 u'([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % \
+                 (chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff),
+                  chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff),
+                  chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff))
+
+RE_XML_ILLEGAL_COMPILED = re.compile(RE_XML_ILLEGAL)
 
 class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])

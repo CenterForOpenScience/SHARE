@@ -38,4 +38,5 @@ router.register(r'providers', views.ProviderViewSet, base_name=views.ProviderVie
 urlpatterns = [
     url(r'userinfo/?', views.ShareUserView.as_view(), name='userinfo'),
     url(r'search/(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
+    url('atom/?', views.CreativeWorksAtom(), name='atom')
 ] + router.urls
