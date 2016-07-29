@@ -21,7 +21,8 @@ def safe_substr(value, length=32000):
         return str(value)[:length]
     return None
 
-def add_suggest(obj, input, payload_keys):
+def add_suggest(obj):
+    input = obj['name']
     if input:
         # Elastic's completion suggester only looks at prefixes. If we give each
         # object several inputs, starting at each word, it can match words in
@@ -30,7 +31,10 @@ def add_suggest(obj, input, payload_keys):
         obj['suggest'] = {
             'input': [ input[m.start():] for m in word_starts ],
             'output': '{} {}'.format(obj['@type'], obj['@id']),
-            'payload': { k: obj[k] for k in payload_keys }
+            'payload': {
+                '@id': obj['@id'],
+                'name': input
+            }
         }
     return obj
 
@@ -65,7 +69,7 @@ class IndexModelTask(ProviderTask):
             'suffix': safe_substr(person.suffix),
             'given_name': safe_substr(person.given_name),
             'family_name': safe_substr(person.family_name),
-            'full_name': safe_substr(person.get_full_name()),
+            'name': safe_substr(person.get_full_name()),
             'additional_name': safe_substr(person.additional_name),
             'identifiers': [{
                 'url': identifier.url,
@@ -79,9 +83,7 @@ class IndexModelTask(ProviderTask):
             'sources': [source.robot for source in person.sources.all()],
         }
         if suggest:
-            return add_suggest(serialized_person,
-                               input=serialized_person['full_name'],
-                               payload_keys=('@id', 'full_name'))
+            return add_suggest(serialized_person)
         else:
             return serialized_person
 
@@ -94,9 +96,7 @@ class IndexModelTask(ProviderTask):
             'location': safe_substr(entity.location),
         }
         if suggest:
-            return add_suggest(serialized_entity,
-                               input = serialized_entity['name'],
-                               payload_keys = ('@id', '@type', 'name'))
+            return add_suggest(serialized_entity)
         else:
             return serialized_entity
 
@@ -107,9 +107,7 @@ class IndexModelTask(ProviderTask):
             'name': safe_substr(tag.name),
         }
         if suggest:
-            return add_suggest(serialized_tag,
-                               input = serialized_tag['name'],
-                               payload_keys = ('@id', 'name'))
+            return add_suggest(serialized_tag)
         else:
             return serialized_tag
 
@@ -139,7 +137,7 @@ class IndexModelTask(ProviderTask):
             'links': [safe_substr(link) for link in creative_work.links.all()],
             'awards': [safe_substr(award) for award in creative_work.awards.all()],
             'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
-            'sources': [source.robot for source in creative_work.sources.all()],
+            'sources': [safe_substr(source.long_title) for source in creative_work.sources.all()],
             'contributors': [self.serialize_person(person, False) for person in creative_work.contributors.all()],
         }
 
@@ -160,10 +158,8 @@ class IndexSourceTask(ProviderTask):
         serialized_source = {
             '@id': str(source.pk),
             '@type': 'source',
-            'long_name': safe_substr(source.long_title),
+            'name': safe_substr(source.long_title),
             'short_name': safe_substr(source.robot)
         }
-        return add_suggest(serialized_source,
-                           input = serialized_source['long_name'],
-                           payload_keys = ('@id', '@type', 'long_name', 'short_name'))
+        return add_suggest(serialized_source)
 
