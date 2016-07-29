@@ -17,10 +17,10 @@ class CeleryTask(TypedModel):
     )
 
     uuid = models.UUIDField(db_index=True, unique=True)
-    name = models.TextField(blank=True)
+    name = models.TextField(blank=True, db_index=True)
     args = models.TextField(blank=True)
     kwargs = models.TextField(blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
     status = models.IntegerField(choices=STATUS)
 
     objects = FuzzyCountManager()
@@ -32,6 +32,6 @@ class CeleryTask(TypedModel):
 
 class CeleryProviderTask(CeleryTask):
     app_label = models.TextField(db_index=True, blank=True)
-    app_version = models.TextField(blank=True)
+    app_version = models.TextField(blank=True, db_index=True)
     provider = models.ForeignKey(ShareUser, related_name='provider')
     started_by = models.ForeignKey(ShareUser, related_name='started_by')
