@@ -36,6 +36,5 @@ class IACRHarvester(Harvester):
 
         logger.info('Found {} records.'.format(len(records)))
         for record in records:
-            title, authors = record[1].text.split(', by')
-            data.append({'link':record[0].text, 'description': record[2].text, 'title':title.strip(),'authors':[a.strip(' ') for a in authors.split('and')] })
+            data.append(record)
         return data
