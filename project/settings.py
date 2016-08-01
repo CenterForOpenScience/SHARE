@@ -519,7 +519,7 @@ DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
 PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
-SPRINGER_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
+SPRINGER_API_KEY = os.environ.get('SPRINGER_API_KEY')
 
 import djcelery  # noqa
 djcelery.setup_loader()
