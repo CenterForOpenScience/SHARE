@@ -24,11 +24,8 @@ class IACRHarvester(Harvester):
     def fetch_records(self, url, start_date):
         records = self.fetch_page(url)
 
-        for index, record in enumerate(records):
-            yield (
-                record['link'],
-                record
-            )
+        for record in records:
+            yield (record['link'], record )
 
     def fetch_page(self, url):
         logger.info('Making request to {}'.format(url))
