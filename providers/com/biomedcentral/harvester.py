@@ -16,8 +16,8 @@ class BiomedCentralHarvester(Harvester):
         self.url = 'https://api.springer.com/meta/v1/json'
 
     def do_harvest(self, start_date, end_date):
-        if not settings.BIOMEDCENTRAL_API_KEY:
-            raise Exception('BioMed Central api key not provided')
+        if not settings.SPRINGER_API_KEY:
+            raise Exception('SPRINGER_API_KEY not provided')
 
         end_date = end_date.date()
         start_date = start_date.date()

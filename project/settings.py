@@ -508,6 +508,7 @@ LOGGING = {
 
 
 # Custom Settings
+PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
 EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share')
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
@@ -516,10 +517,9 @@ SITE_ID = 1
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 
 # API KEYS
-BIOMEDCENTRAL_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
 PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
-PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
+SPRINGER_API_KEY = os.environ.get('BIOMEDCENTRAL_API_KEY')
 
-import djcelery
+import djcelery  # noqa
 djcelery.setup_loader()
