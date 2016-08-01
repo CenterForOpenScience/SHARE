@@ -2,11 +2,14 @@ from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.core import serializers
 
+import json
 import requests
 
 from share.models.creative import AbstractCreativeWork
 
+RESULTS_PER_PAGE = 250
 
+# TODO get elastic url from ENV/config
 SHARE_URL = 'https://staging-share.osf.io/api/search/abstractcreativework/_search'
 
 class CreativeWorksRSS(Feed):
@@ -15,13 +18,27 @@ class CreativeWorksRSS(Feed):
     description = "Updates to the SHARE dataset"
 
     def get_object(self, request):
-        # return elasticsearch query from request parameters?
-        pass
+        elastic_query = request.GET.get('elasticQuery', {})
+        page = request.GET.get('page', 1)
+
+        return {
+            'query': elastic_query.get('query'),
+            'filter': elastic_query.get('filter'),
+            'sort': { 'date_created': 'desc' },
+            'start': (page - 1) * RESULTS_PER_PAGE,
+            'size': RESULTS_PER_PAGE
+        }
 
     def items(self, obj):
-        # TODO - make this filterable and probably not use only AbstractCreativeWorks
-        # TODO - make use elasticsearch results?
-        return AbstractCreativeWork.objects.order_by('-date_updated')[:5]
+        # TODO headers?
+        elastic_response = requests.post(SHARE_URL, data=obj)
+
+        if elastic_response.status_code != 200:
+            # TODO error response?
+            return None
+
+        results = elastic_response.json()['hits']['hits']
+
 
     def item_link(self, item):
         links = item.links.all()
