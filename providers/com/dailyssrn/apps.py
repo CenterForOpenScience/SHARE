@@ -9,3 +9,4 @@ class AppConfig(ProviderAppConfig):
     long_title = 'Social Science Research Network'
     home_page = 'http://papers.ssrn.com/'
     harvester = DailySSRNHarvester
+    disabled = True  # Disabled as no articles have been release in a while

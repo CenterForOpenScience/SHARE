@@ -41,7 +41,7 @@ class Command(BaseCommand):
         task_kwargs['start'] = task_kwargs['start'].isoformat() + 'Z'
 
         if not options['harvester'] and options['all']:
-            options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig)]
+            options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig) and not x.disabled]
 
         for harvester in options['harvester']:
             apps.get_app_config(harvester)  # Die if the AppConfig can not be loaded

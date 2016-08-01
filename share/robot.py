@@ -13,6 +13,8 @@ from django.utils import timezone
 
 class RobotAppConfig(AppConfig, metaclass=abc.ABCMeta):
 
+    disabled = False
+
     @abc.abstractproperty
     def version(self):
         raise NotImplementedError
@@ -135,6 +137,7 @@ class RobotScheduleMigration(AbstractRobotMigration):
         tab = CrontabSchedule.from_schedule(self.config.schedule)
         tab.save()
         PeriodicTask(
+            enabled=not self.config.disabled,
             name=self.config.task_name,
             task=self.config.task,
             description=self.config.description,

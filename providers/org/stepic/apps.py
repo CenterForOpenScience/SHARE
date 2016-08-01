@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Stepic.org Online Education Platform'
     home_page = 'http://www.stepic.org'
     url = 'https://stepic.org/api/lessons'
+    disabled = True  # Endpoint does not return OAI data. Also only a list of classes

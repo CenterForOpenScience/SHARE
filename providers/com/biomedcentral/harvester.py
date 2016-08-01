@@ -45,7 +45,7 @@ class BiomedCentralHarvester(Harvester):
 
     def build_url(self, date):
         return furl(self.url).set(query_params={
-            'api_key': settings.BIOMEDCENTRAL_API_KEY,
+            'api_key': settings.SPRINGER_API_KEY,
             'q': 'date:{}'.format(date),
             'p': self.page_size,
             's': self.offset

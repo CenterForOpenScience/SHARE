@@ -9,3 +9,4 @@ class AppConfig(ProviderAppConfig):
     long_title = 'BioMed Central'
     home_page = 'http://www.springer.com/us/'
     harvester = BiomedCentralHarvester
+    disabled = True  # Disabled as com.springer is the same api

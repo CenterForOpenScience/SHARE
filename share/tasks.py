@@ -56,6 +56,9 @@ class ProviderTask(celery.Task):
 class HarvesterTask(ProviderTask):
 
     def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None):
+        if self.config.disabled:
+            raise Exception('Harvester {} is disabled. Either enable it or disable it\'s celery beat entry')
+
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
         if type(end) is str:
