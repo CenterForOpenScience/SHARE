@@ -22,18 +22,18 @@ def chunk(iterable, size):
     except StopIteration:
         yield l
 
-SUGGEST_MAPPING = {
-    'type': 'completion',
-    'payloads': True,
-    'context': {
-        '@type': {
-            'type': 'category',
-            'path': '@type'
+class ElasticSearchBot(Bot):
+
+    SUGGEST_MAPPING = {
+        'type': 'completion',
+        'payloads': True,
+        'context': {
+            '@type': {
+                'type': 'category',
+                'path': '@type'
+            }
         }
     }
-}
-
-class ElasticSearchBot(Bot):
 
     MAPPINGS = {
         'abstractcreativework': {

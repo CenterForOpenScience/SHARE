@@ -105,14 +105,10 @@ class IndexModelTask(ProviderTask):
     def serialize_creative_work(self, creative_work):
         return {
             '@type': type(creative_work).__name__.lower(),
-            'funders': [self.serialize_entity(entity, False)
-                        for entity in creative_work.funders.all()],
-            'publishers': [self.serialize_entity(entity, False)
-                        for entity in creative_work.publishers.all()],
-            'institutions': [self.serialize_entity(entity, False)
-                        for entity in creative_work.institutions.all()],
-            'organizations': [self.serialize_entity(entity, False)
-                        for entity in creative_work.organizations.all()],
+            'funders': [self.serialize_entity(entity, False) for entity in creative_work.funders.all()],
+            'publishers': [self.serialize_entity(entity, False) for entity in creative_work.publishers.all()],
+            'institutions': [self.serialize_entity(entity, False) for entity in creative_work.institutions.all()],
+            'organizations': [self.serialize_entity(entity, False) for entity in creative_work.organizations.all()],
             'title': safe_substr(creative_work.title),
             'language': safe_substr(creative_work.language),
             'subject': safe_substr(creative_work.subject),
