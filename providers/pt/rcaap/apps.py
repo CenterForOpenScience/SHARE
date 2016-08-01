@@ -9,3 +9,4 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://www.rcaap.pt'
     url = 'http://www.rcaap.pt/oai'
     approved_sets = ['portugal']
+    time_granularity = False
