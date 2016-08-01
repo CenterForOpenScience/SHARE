@@ -13,7 +13,7 @@ from share.provider import ProviderAppConfig
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument('--all', action='store_true', help='Run all harvester')
+        parser.add_argument('--all', action='store_true', help='Run all harvesters')
         parser.add_argument('harvester', nargs='*', type=str, help='The name of the harvester to run')
         parser.add_argument('--async', action='store_true', help='Whether or not to use Celery')
 
