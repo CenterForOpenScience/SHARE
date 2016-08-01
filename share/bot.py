@@ -40,7 +40,9 @@ class Bot(abc.ABC):
     def last_run(self) -> arrow.Arrow:
         from share.models import CeleryProviderTask
 
-        if not self._last_run:
+        if self._last_run is not None:
+            last_run = arrow.get(self._last_run)
+        else:
             logger.debug('Finding last successful job')
             last_run = CeleryProviderTask.objects.filter(
                 app_label=self.config.label,
@@ -53,8 +55,7 @@ class Bot(abc.ABC):
             else:
                 last_run = arrow.get(0)
             logger.info('Found last job %s', last_run)
-        else:
-            last_run = arrow.get(self._last_run)
+
         logger.info('Using last run of %s', last_run)
         return last_run
 
