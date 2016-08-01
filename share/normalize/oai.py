@@ -351,7 +351,7 @@ class OAINormalizer(Normalizer):
                 if prop in parser._extra:
                     logger.warning('Skipping property %s, it already exists', prop)
                     continue
-                parser._extra[prop] = tools.Maybe(ctx.record.metadata.dc, 'dc:' + prop).chain()[0]
+                parser._extra[prop] = tools.Try(ctx.record.metadata.dc['dc:' + prop]).chain()[0]
 
         return parser
 
