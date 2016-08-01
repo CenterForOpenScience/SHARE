@@ -12,3 +12,8 @@ class AppConfig(ProviderAppConfig):
     url = 'http://connect.biorxiv.org/biorxiv_xml.php?subject=all'
     time_granularity = False
     harvester = BiorxivHarvester
+
+    namespaces = {
+        'http://purl.org/rss/1.0/': None,
+        'http://purl.org/dc/elements/1.1/': 'dc',
+    }
