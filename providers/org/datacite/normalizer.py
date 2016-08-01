@@ -15,17 +15,18 @@ DATE_REGEX = re.compile(r'(^[^a-zA-Z]+$)')
 def force_text(data):
     if isinstance(data, str):
         return data
-    elif isinstance(data, dict):
+    if isinstance(data, dict):
         if '#text' in data:
             return data['#text']
         raise Exception('#text is not in {}'.format(data))
-    elif isinstance(data, list):
+    if isinstance(data, list):
         for item in data:
-            if isinstance(item, str):
-                return item
+            try:
+                return force_text(item)
+            except Exception:
+                pass
         raise Exception('No value in list {} is a string.'.format(data))
-    else:
-        raise Exception('{} is not a string or a dictionary.'.format(data))
+    raise Exception('{} is not a string or a dictionary.'.format(data))
 
 
 class Link(Parser):
