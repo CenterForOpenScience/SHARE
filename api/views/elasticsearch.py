@@ -14,7 +14,9 @@ class ElasticSearchView(views.APIView):
 
     - [Abstract Creative Works](/api/search/abstractcreativework/_search) - search individual documents harvested
     - [Person](/api/search/person/_search) - people who are contributors to documents harvested
-    - [Autocomplete](/api/search/autocomplete/_search) - filter on the fly for applications built on the SHARE API
+    - [Tag](/api/search/tag/_search) - tags placed on documents
+    - [Source](/api/search/source/_search) - data sources
+    - [Entity](/api/search/entity/_search) - institutions, organizations, publishers, and funders
     """
     authentication_classes = [authentication.NonCSRFSessionAuthentication, ]
     permission_classes = [AllowAny, ]
