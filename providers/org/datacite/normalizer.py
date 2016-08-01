@@ -23,7 +23,7 @@ def force_text(data):
         for item in data:
             if isinstance(item, str):
                 return item
-        raise('No value in list {} is a string.'.format(data))
+        raise Exception('No value in list {} is a string.'.format(data))
     else:
         raise Exception('{} is not a string or a dictionary.'.format(data))
 
