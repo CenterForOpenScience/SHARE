@@ -37,14 +37,13 @@ class PeerJHarvester(Harvester):
             if arrow.get(record['date']) > end_date:
                 continue
 
-            yield (preprint+record['identifiers']['peerj'], record)
+            yield (preprint + record['identifiers']['peerj'], record)
 
         if 'next' in next_page:
             yield from self.fetch_page(next_page['next']['href'], start_date, end_date)
 
     def build_url(self):
-        return [
-        furl(self.base_url).set(query_params={
+        return [furl(self.base_url).set(query_params={
             'journal': 'peerj',
         }).url,
         furl(self.base_url).set(query_params={

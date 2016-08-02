@@ -5,23 +5,29 @@ import dateparser
 from share.normalize import Parser, Static, Delegate, RunPython, ParseName, Normalizer, Maybe, Concat, Map, ctx, Try
 from share.normalize.utils import format_doi_as_url
 
+
 class ISSN(Parser):
     schema = 'Link'
     url = ctx
     type = Static('issn')
 
+
 class Email(Parser):
     email = ctx
+
 
 class PersonEmail(Parser):
     email = Delegate(Email, ctx)
 
+
 class Institution:
     name = ctx.author_institution
+
 
 class Affiliation:
     # The entity used here could be any of the entity subclasses (Institution, Publisher, Funder, Organization).
     entity = Delegate(Institution, ctx)
+
 
 class Link(Parser):
     url = ctx
@@ -34,44 +40,54 @@ class Link(Parser):
             return 'provider'
         return 'misc'
 
+
 class ThroughLinks(Parser):
     link = Delegate(Link, ctx)
+
 
 class Tag(Parser):
     name = ctx
 
+
 class ThroughTags(Parser):
     tag = (Delegate(Tag), ctx)
 
+
 class Publisher(Parser):
     name = ctx
+
 
 class Institution(Parser):
     name = RunPython('get_author_institute', ctx)
 
     def get_author_institute(self, context):
         # read into a set while preserving order and passed back to erase duplicates
-        seen = set();
+        seen = set()
         if 'author_institution' in context:
             if isinstance(context['author_institution'], str):
                 return [x for x in [context['author_institution']] if x not in seen and not seen.add(x)]
             return [x for x in context['author_institution'] if x not in seen and not seen.add(x)]
         return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
 
+
 class Institutions(Parser):
     name = ctx
 
+
 class Association(Parser):
-    pass # entity = Delegate(Publisher, ctx)
+    pass
+
 
 class Person(Parser):
     given_name = ParseName(ctx).first
     family_name = ParseName(ctx).last
 
+
 class Contributor(Parser):
     person = Delegate(Person, ctx)
     cited_name = ctx
     order_cited = ctx('index')
+
 
 class CreativeWork(Parser):
     title = ctx.title
@@ -99,6 +115,7 @@ class CreativeWork(Parser):
         Delegate(Tag, ctx.subjects),
         Map(Delegate(ThroughTags), Maybe(ctx, 'keywords'))
     )
+
     class Extra:
         modified = RunPython('parse_date', ctx.date)
         subjects = Maybe(ctx, 'subjects')
@@ -119,6 +136,7 @@ class CreativeWork(Parser):
     def parse_date(self, date_str):
         return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
 
+
 class Preprint(CreativeWork):
 
     class Extra:
@@ -131,6 +149,7 @@ class Preprint(CreativeWork):
         identifiers = ctx.identifiers
         emails = Maybe(ctx, 'author_email')
         description_nohtml = ctx.description
+
 
 class PeerJNormalizer(Normalizer):
 
