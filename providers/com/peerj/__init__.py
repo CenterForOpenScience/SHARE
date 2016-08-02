@@ -187,4 +187,3 @@ Preprints Example (JSON)
   }
 }
 """
-

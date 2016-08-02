@@ -11,4 +11,3 @@ class AppConfig(ProviderAppConfig):
     home_page = 'https://peerj.com/articles/'
     harvester = PeerJHarvester
     normalizer = PeerJNormalizer
-
