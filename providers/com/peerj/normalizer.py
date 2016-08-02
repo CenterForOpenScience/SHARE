@@ -108,8 +108,8 @@ class CreativeWork(Parser):
         identifiers = ctx.identifiers
         volume = ctx.volume
         emails = Maybe(ctx, 'author_email')
-        journal_title = ctx.journal_title
-        journal_abbrev = ctx.journal_abbrev
+        journal_title = Try('journal_title', ctx)
+        journal_abbrev = Try('journal_abbrev', ctx)
         description_nohtml = ctx.description
 
     def format_doi(self, doi):
