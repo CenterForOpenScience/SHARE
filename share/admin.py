@@ -117,6 +117,17 @@ class CeleryTaskAdmin(admin.ModelAdmin):
     actions = ['retry_tasks']
     list_filter = ['status', TaskNameFilter, AppLabelFilter, 'started_by']
     list_select_related = ('provider', 'started_by')
+    fields = (
+        ('app_label', 'app_version'),
+        ('uuid', 'name'),
+        ('args', 'kwargs'),
+        'timestamp',
+        'traceback'
+    )
+    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'traceback')
+
+    def traceback(self, task):
+        return apps.get_model('djcelery', 'taskmeta').objects.filter(task_id=task.uuid).first().traceback
 
     def get_changelist(self, request, **kwargs):
         return CeleryTaskChangeList
