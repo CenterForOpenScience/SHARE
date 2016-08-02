@@ -21,22 +21,20 @@ def safe_substr(value, length=32000):
         return str(value)[:length]
     return None
 
+
 def add_suggest(obj):
-    input = obj['name']
-    if input:
-        # Elastic's completion suggester only looks at prefixes. If we give each
-        # object several inputs, starting at each word, it can match words in
-        # the middle of the text, without losing much speed (hopefully)
-        word_starts = re.finditer(r'\b\w', input)
+    if obj['name']:
         obj['suggest'] = {
-            'input': [ input[m.start():] for m in word_starts ],
-            'output': '{} {}'.format(obj['@type'], obj['@id']),
+            'input': re.split('[\\s,]', obj['name']) + [obj['name']],
+            'output': obj['name'],
             'payload': {
                 '@id': obj['@id'],
-                'name': input
+                'name': obj['name'],
+                '@type': obj['@type'],
             }
         }
     return obj
+
 
 class IndexModelTask(ProviderTask):
 
@@ -128,6 +126,7 @@ class IndexModelTask(ProviderTask):
             'contributors': [self.serialize_person(person, False) for person in creative_work.contributors.all()],
         }
 
+
 class IndexSourceTask(ProviderTask):
 
     def do_run(self):
@@ -149,4 +148,3 @@ class IndexSourceTask(ProviderTask):
             'short_name': safe_substr(source.robot)
         }
         return add_suggest(serialized_source)
-
