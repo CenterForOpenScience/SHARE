@@ -54,8 +54,7 @@ class Institution(Parser):
         seen = set();
         if 'author_institution' in context:
             return [x for x in context['author_institution'] if x not in seen and not seen.add(x)]
-        else:
-            return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
+        return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
 
 class Institutions(Parser):
     name = ctx
@@ -87,9 +86,9 @@ class CreativeWork(Parser):
         ctx.publisher
     )
     institutions = Map(
-            Delegate(Association.using(entity=Delegate(Institution))),
-            ctx
-        )
+        Delegate(Association.using(entity=Delegate(Institution))),
+        ctx
+    )
     subject = Delegate(Tag, ctx.subjects[0])
     date_created = RunPython('parse_date', ctx.date)
     date_published = RunPython('parse_date', ctx.date)
@@ -106,10 +105,10 @@ class CreativeWork(Parser):
             ctx
         )
         identifiers = ctx.identifiers
-        volume = ctx.volume
+        volume = Try(ctx.volume)
         emails = Maybe(ctx, 'author_email')
-        journal_title = Try('journal_title', ctx)
-        journal_abbrev = Try('journal_abbrev', ctx)
+        journal_title = Try(ctx.journal_title)
+        journal_abbrev = Try(ctx.journal_abbrev)
         description_nohtml = ctx.description
 
     def format_doi(self, doi):
@@ -118,8 +117,23 @@ class CreativeWork(Parser):
     def parse_date(self, date_str):
         return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
 
+class Preprint(CreativeWork):
+
+    class Extra:
+        modified = RunPython('parse_date', ctx.date)
+        subjects = Maybe(ctx, 'subjects')
+        affiliations = Map(
+            Delegate(Association.using(entity=Delegate(Institution))),
+            ctx
+        )
+        identifiers = ctx.identifiers
+        emails = Maybe(ctx, 'author_email')
+        description_nohtml = ctx.description
+
 class PeerJNormalizer(Normalizer):
+
     def do_normalize(self, data):
         unwrapped = self.unwrap_data(data)
-
+        if 'preprint' in unwrapped['_links']['self']['href']:
+            return Preprint(unwrapped).parse()
         return CreativeWork(unwrapped).parse()

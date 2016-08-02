@@ -1,6 +1,6 @@
 from share.provider import ProviderAppConfig
 from .harvester import PeerJHarvester
-# from .normalizer import PeerJNormalizer
+from .normalizer import PeerJNormalizer
 
 
 class AppConfig(ProviderAppConfig):
@@ -10,5 +10,5 @@ class AppConfig(ProviderAppConfig):
     long_title = 'PeerJ'
     home_page = 'https://peerj.com/articles/'
     harvester = PeerJHarvester
-    # normalizer = PeerJNormalizer
-    
+    normalizer = PeerJNormalizer
+    # emitted_type = 'preprint'

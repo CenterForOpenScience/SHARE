@@ -39,7 +39,7 @@ class PeerJHarvester(Harvester):
 
             yield (preprint+record['identifiers']['peerj'], record)
 
-        if ('next' in next_page):
+        if 'next' in next_page:
             yield from self.fetch_page(next_page['next']['href'], start_date, end_date)
 
     def build_url(self):
