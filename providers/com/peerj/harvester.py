@@ -32,8 +32,7 @@ class PeerJHarvester(Harvester):
 
             yield (record['identifiers']['peerj'], record)
 
-        else:
-            if next_page:
-                self.fetch_records(next_page, start_date, end_date)
+        if next_page:
+            self.fetch_records(next_page, start_date, end_date)
 
         logger.info("PeerJ has been harvested")

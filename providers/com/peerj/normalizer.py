@@ -50,12 +50,12 @@ class Institution(Parser):
     name = RunPython('get_author_institute', ctx)
 
     def get_author_institute(self, context):
-        # read into a set and passed back to erase duplicates
+        # read into a set while preserving order and passed back to erase duplicates
+        seen = set();
         if 'author_institution' in context:
-            inst_set = set(context['author_institution'])
+            return [x for x in context['author_institution'] if x not in seen and not seen.add(x)]
         else:
-            inst_set = set(context['author_institutions'].split('; '))
-        return list(inst_set)
+            return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
 
 class Institutions(Parser):
     name = ctx
@@ -78,7 +78,7 @@ class CreativeWork(Parser):
     contributors = Map(Delegate(Contributor), ctx.author)
     links = Concat(
         Map(Delegate(ThroughLinks), ctx.pdf_url),
-        Map(Delegate(ThroughLinks), ctx.doi),
+        Map(Delegate(ThroughLinks), RunPython('format_doi', ctx.doi)),
         Delegate(ThroughLinks.using(link=Delegate(ISSN)), Maybe(ctx, 'issn')),
         Map(Delegate(ThroughLinks), ctx.fulltext_html_url)
     )
@@ -112,6 +112,8 @@ class CreativeWork(Parser):
         journal_abbrev = ctx.journal_abbrev
         description_nohtml = ctx.description
 
+    def format_doi(self, doi):
+        return format_doi_as_url(self, doi)
 
     def parse_date(self, date_str):
         return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
