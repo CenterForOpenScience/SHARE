@@ -10,4 +10,3 @@ class AppConfig(ProviderAppConfig):
     home_page = 'https://eprint.iacr.org/'
     harvester = IACRHarvester
     emitted_type = 'preprint'
-

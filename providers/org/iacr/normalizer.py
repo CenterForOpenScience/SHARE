@@ -62,4 +62,3 @@ class CreativeWork(Parser):
 
     def parse_contributors(self, title):
         return title.split(', by ')[1].split(' and ')
-

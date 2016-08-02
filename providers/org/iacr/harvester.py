@@ -39,4 +39,3 @@ class IACRHarvester(Harvester):
             doc = etree.tostring(record)
             i = i+1
             yield(doc_id,doc)
-
