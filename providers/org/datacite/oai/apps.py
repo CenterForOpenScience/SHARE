@@ -8,3 +8,9 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'DataCite MDS'
     home_page = 'http://oai.datacite.org/'
     url = 'http://oai.datacite.org/oai'
+    disabled = True
+
+    @property
+    def user(self):
+        from share.models import ShareUser
+        return ShareUser.objects.get(robot='providers.org.datacite')

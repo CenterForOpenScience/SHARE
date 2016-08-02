@@ -11,3 +11,9 @@ class AppConfig(OAIProviderAppConfig):
     time_granularity = False
     version = '0.0.0'
     emitted_type = 'preprint'
+    disabled = True  # superceeded by org.arxiv
+
+    @property
+    def user(self):
+        from share.models import ShareUser
+        return ShareUser.objects.get(robot='providers.org.arxiv')
