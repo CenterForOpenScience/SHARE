@@ -27,7 +27,7 @@ class PeerJHarvester(Harvester):
 
         logger.info("PeerJ has been harvested")
 
-    def fetch_page(self,url, start_date, end_date, preprint=''):
+    def fetch_page(self, url, start_date, end_date, preprint=''):
         records = self.requests.get(url).json()
         next_page = records['_links']
         for record in records['_items']:
