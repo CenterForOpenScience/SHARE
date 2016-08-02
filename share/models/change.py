@@ -137,15 +137,17 @@ class Change(models.Model):
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
         ret = self._accept(save)
 
-        # Psuedo hack, sources.add(...) tries to do some safety checks.
-        # Don't do that. We have a database. That is its job. Let it do its job.
-        ret._meta.get_field('sources').rel.through.objects.get_or_create(**{
-            ret._meta.concrete_model._meta.model_name: ret,
-            'shareuser': self.change_set.normalized_data.source,
-        })
-
         if save:
+            logger.warning('Calling accept with save=False will not update the sources field')
+            # Psuedo hack, sources.add(...) tries to do some safety checks.
+            # Don't do that. We have a database. That is its job. Let it do its job.
+            ret._meta.get_field('sources').rel.through.objects.get_or_create(**{
+                ret._meta.concrete_model._meta.model_name: ret,
+                'shareuser': self.change_set.normalized_data.source,
+            })
+
             self.save()
+
         return ret
 
     def _accept(self, save):
