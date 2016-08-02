@@ -1,11 +1,7 @@
-import datetime
 import logging
 
-from furl import furl
 from lxml import etree
-import requests
 from share import Harvester
-from io import StringIO, BytesIO
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +25,7 @@ class IACRHarvester(Harvester):
 
         resp = self.requests.get(url, verify=False)
         parsed = etree.fromstring(resp.content)
-        total_records = int(parsed.xpath("//ttl")[0].text)
+        total_records = int(parsed.xpath( "//ttl" )[0].text)
 
         records = parsed.xpath('//item', namespaces=self.namespaces)
         logger.info('Found {} records of {}.'.format(len(records), total_records))
