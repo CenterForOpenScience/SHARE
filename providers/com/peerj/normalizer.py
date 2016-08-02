@@ -2,7 +2,7 @@ import arrow
 
 import dateparser
 
-from share.normalize import *
+from share.normalize import Parser, Static, Delegate, RunPython, ParseName, Normalizer, Maybe, Concat, Map, ctx, Try
 from share.normalize.utils import format_doi_as_url
 
 class ISSN(Parser):
@@ -53,6 +53,8 @@ class Institution(Parser):
         # read into a set while preserving order and passed back to erase duplicates
         seen = set();
         if 'author_institution' in context:
+            if isinstance(context['author_institution'], str):
+                return [x for x in [context['author_institution']] if x not in seen and not seen.add(x)]
             return [x for x in context['author_institution'] if x not in seen and not seen.add(x)]
         return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
 
