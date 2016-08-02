@@ -137,3 +137,4 @@ class PeerJNormalizer(Normalizer):
         if 'preprint' in unwrapped['_links']['self']['href']:
             return Preprint(unwrapped).parse()
         return CreativeWork(unwrapped).parse()
+

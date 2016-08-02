@@ -54,3 +54,4 @@ class PeerJHarvester(Harvester):
             'journal': 'peerj',
         }).url
         ]
+
