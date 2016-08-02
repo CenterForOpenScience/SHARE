@@ -31,10 +31,11 @@ def sanitize_for_xml(s):
 class CreativeWorksRSS(Feed):
     link = '/'
     description = 'Updates to the SHARE open dataset'
+    author_name = 'COS'
 
     def title(self, obj):
         query = json.dumps(obj.get('query', 'All'))
-        return 'SHARE: Atom feed for query: {}'.format(query)
+        return sanitize_for_xml('SHARE: Atom feed for query: {}'.format(query))
 
     def get_object(self, request):
         elastic_query = request.GET.get('elasticQuery')
@@ -50,12 +51,12 @@ class CreativeWorksRSS(Feed):
 
     def items(self, obj):
         headers = {'Content-Type': 'application/json'}
-        search_url = '{}/{}/abstractcreativeworks/_search'.format(settings.ELASTICSEARCH_URL, settings.ELASTICSEARCH_INDEX)
+        search_url = '{}{}/abstractcreativework/_search'.format(settings.ELASTICSEARCH_URL, settings.ELASTICSEARCH_INDEX)
         elastic_response = requests.post(search_url, data=json.dumps(obj), headers=headers)
         json_response = elastic_response.json()
 
         if elastic_response.status_code != 200 or 'error' in json_response:
-            return []
+            return
 
         def get_item(hit):
             source = hit.get('_source')
@@ -72,7 +73,7 @@ class CreativeWorksRSS(Feed):
 
     def item_link(self, item):
         # Link to SHARE curate page
-        return '{}/{}/curate/{}/{}'.format(settings.SHARE_API_URL, settings.EMBER_SHARE_PREFIX, item.get('@type'), item.get('@id'))
+        return '{}{}/curate/{}/{}'.format(settings.SHARE_API_URL, settings.EMBER_SHARE_PREFIX, item.get('@type'), item.get('@id'))
 
     def item_pubdate(self, item):
         pubdate = item.get('date')
