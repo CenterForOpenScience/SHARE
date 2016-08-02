@@ -1,6 +1,7 @@
 arrow==0.8.0
 bcrypt==2.0.0
 beautifulsoup4==4.4.1
+bleach==1.4.3
 celery==3.1.23
 colorlog==2.7.0
 dateparser==0.4.0
