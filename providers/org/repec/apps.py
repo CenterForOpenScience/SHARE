@@ -7,6 +7,6 @@ class AppConfig(OAIProviderAppConfig):
     title = 'repec'
     long_title = 'Research Papers in Economics'
     home_page = 'http://repec.org/'
-    url = 'http://oai.repec.openlib.org'
+    url = 'http://oai.repec.org'
     time_granularity = False
     emitted_type = 'preprint'
