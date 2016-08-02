@@ -1,7 +1,7 @@
 from share.normalize import *
-from share.normalize import links
-from share.normalize.utils import format_doi_as_url
 
+def text(obj):
+    return obj.get('#text') or obj['italic']
 
 class Link(Parser):
     url = ctx
@@ -44,14 +44,21 @@ class CreativeWork(Parser):
     Documentation for CrossRef's metadata can be found here:
     https://github.com/CrossRef/rest-api-doc/blob/master/api_format.md
     """
-    def format_doi_as_url(self, doi):
-        return format_doi_as_url(self, doi)
 
-    title = Maybe(ctx, 'title')
-    description = Maybe(ctx, 'description')
+    title = RunPython('parse_title' ,XPath(ctx, '//title')['title'])
+    description = XPath(ctx, '//description')['description']
 
     contributors = Map(
         Delegate(Contributor),
-        Concat(Maybe(ctx, 'authors'))
+        RunPython('parse_contributors' ,XPath(ctx, '//title')['title'])
     )
-    links = Map(Delegate(ThroughLinks), ctx.link)
+
+    links = Map(
+        Delegate(ThroughLinks),
+        XPath(ctx, '//link')['link']
+    )
+    def parse_title(self, title):
+        return title.split(', by ')[0]
+
+    def parse_contributors(self, title):
+        return title.split(', by ')[1].split(' and ')
