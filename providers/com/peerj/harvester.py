@@ -2,7 +2,6 @@ import arrow
 from furl import furl
 
 import logging
-import pprint
 from share import Harvester
 
 logger = logging.getLogger(__name__)
@@ -32,7 +31,6 @@ class PeerJHarvester(Harvester):
         records = self.requests.get(url).json()
         next_page = records['_links']
         for record in records['_items']:
-            print(arrow.get(record['date']))
             if arrow.get(record['date']) < start_date:
                 return
 
