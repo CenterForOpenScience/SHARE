@@ -67,6 +67,9 @@ class Institution(Parser):
             if isinstance(context['author_institution'], str):
                 return [x for x in [context['author_institution']] if x not in seen and not seen.add(x)]
             return [x for x in context['author_institution'] if x not in seen and not seen.add(x)]
+        # the below is author_institutions with an 's', it will always be a string
+        # and is sometimes present in the case that author_institution is not.
+        # This will always be a string
         return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
 
 
