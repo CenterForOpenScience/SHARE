@@ -102,16 +102,19 @@ class IndexModelTask(ProviderTask):
         return add_suggest(serialized_tag) if suggest else serialized_tag
 
     def serialize_creative_work(self, creative_work):
+        serialized_lists = {
+            'contributors': [self.serialize_person(person) for person in creative_work.contributors.order_by('contributor__order_cited')],
+            'funders': [self.serialize_entity(entity) for entity in creative_work.funders.all()],
+            'publishers': [self.serialize_entity(entity) for entity in creative_work.publishers.all()],
+            'institutions': [self.serialize_entity(entity) for entity in creative_work.institutions.all()],
+            'organizations': [self.serialize_entity(entity) for entity in creative_work.organizations.all()],
+        }
+
         return {
             '@type': type(creative_work).__name__.lower(),
-            'funders': [self.serialize_entity(entity, False) for entity in creative_work.funders.all()],
-            'publishers': [self.serialize_entity(entity, False) for entity in creative_work.publishers.all()],
-            'institutions': [self.serialize_entity(entity, False) for entity in creative_work.institutions.all()],
-            'organizations': [self.serialize_entity(entity, False) for entity in creative_work.organizations.all()],
             'title': safe_substr(creative_work.title),
-            'language': safe_substr(creative_work.language),
-            'subject': safe_substr(creative_work.subject),
             'description': safe_substr(creative_work.description),
+            'language': safe_substr(creative_work.language),
             'date': (
                 creative_work.date_published or creative_work.date_updated or creative_work.date_created
             ).isoformat(),
@@ -119,12 +122,16 @@ class IndexModelTask(ProviderTask):
             'date_modified': creative_work.date_modified.isoformat(),
             'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
             'date_published': creative_work.date_published.isoformat() if creative_work.date_published else None,
-            'tags': [safe_substr(tag) for tag in creative_work.tags.all()],
-            'links': [safe_substr(link) for link in creative_work.links.all()],
-            'awards': [safe_substr(award) for award in creative_work.awards.all()],
-            'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
-            'sources': [self.serialize_source(source) for source in creative_work.sources.all()],
-            'contributors': [self.serialize_person(person, False) for person in creative_work.contributors.order_by('contributor__order_cited')],
+            'tag': [safe_substr(tag) for tag in creative_work.tags.all()],
+            'award': [safe_substr(award) for award in creative_work.awards.all()],
+            'venue': [safe_substr(venue) for venue in creative_work.venues.all()],
+            'source': [safe_substr(source.long_title) for source in creative_work.sources.all()],
+            'contributor': [c['name'] for c in serialized_lists['contributors']],
+            'funder': [c['name'] for c in serialized_lists['funders']],
+            'publisher': [c['name'] for c in serialized_lists['publishers']],
+            'institution': [c['name'] for c in serialized_lists['institutions']],
+            'organization': [c['name'] for c in serialized_lists['organizations']],
+            'lists': serialized_lists
         }
 
     def serialize_source(self, source):

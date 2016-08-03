@@ -48,7 +48,12 @@ class ElasticSearchBot(Bot):
                         }
                     }
                 }
-            }]
+            }],
+            'properties': {
+                'lists': {
+                    'enabled': False
+                }
+            }
         },
         'entity': {
             'properties': {
