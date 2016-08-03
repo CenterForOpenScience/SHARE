@@ -58,10 +58,9 @@ class Publisher(Parser):
 
 
 class Institution(Parser):
-    name = RunPython('get_author_institute', {})
+    name = RunPython('get_author_institute', ctx)
 
     def get_author_institute(self, context):
-        print(context)
         # read into a set while preserving order and passed back to erase duplicates
         seen = set()
         if 'author_institution' in context:
