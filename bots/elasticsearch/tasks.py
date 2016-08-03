@@ -124,7 +124,7 @@ class IndexModelTask(ProviderTask):
             'awards': [safe_substr(award) for award in creative_work.awards.all()],
             'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
             'sources': [self.serialize_source(source) for source in creative_work.sources.all()],
-            'contributors': [self.serialize_person(person, False) for person in creative_work.contributors.all()],
+            'contributors': [self.serialize_person(person, False) for person in creative_work.contributors.order_by('contributor__order_cited')],
         }
 
     def serialize_source(self, source):
