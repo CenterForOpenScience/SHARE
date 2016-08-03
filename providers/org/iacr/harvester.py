@@ -24,15 +24,14 @@ class IACRHarvester(Harvester):
     def fetch_page(self, url):
         logger.info('Making request to {}'.format(url))
 
-        resp = self.requests.get(url, verify=False)
+        resp = self.requests.get(url, verify=True)
         parsed = etree.fromstring(resp.content)
         total_records = int(parsed.xpath("//ttl")[0].text)
 
         records = parsed.xpath('//item', namespaces=self.namespaces)
         logger.info('Found {} records of {}.'.format(len(records), total_records))
-        i = 0
         for record in records:
-            doc_id = record.xpath('//guid', namespaces=self.namespaces)[i].text
+            rec_id = record.xpath('./guid', namespaces=self.namespaces)[0].text.split('/')
+            doc_id = rec_id[len(rec_id)-1]
             doc = etree.tostring(record)
-            i = i + 1
             yield (doc_id, doc)
