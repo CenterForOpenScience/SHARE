@@ -22,6 +22,13 @@ def safe_substr(value, length=32000):
     return None
 
 
+def score_text(text):
+    return int(
+        (len(re.findall('(?!\d)\w', text)) / (1 + len(re.findall('[\W\d]', text))))
+        / (len(text) / 100)
+    )
+
+
 def add_suggest(obj, weight=None):
     if obj['name']:
         obj['suggest'] = {
@@ -32,8 +39,9 @@ def add_suggest(obj, weight=None):
                 'name': obj['name'],
                 '@type': obj['@type'],
             },
-            'weight': weight
         }
+        if weight is not None:
+            obj['suggest']['weight'] = weight
     return obj
 
 
@@ -99,7 +107,7 @@ class IndexModelTask(ProviderTask):
             '@type': 'tag',
             'name': safe_substr(tag.name),
         }
-        return add_suggest(serialized_tag) if suggest else serialized_tag
+        return add_suggest(serialized_tag, weight=score_text(tag.name)) if suggest else serialized_tag
 
     def serialize_creative_work(self, creative_work):
         serialized_lists = {
