@@ -35,4 +35,4 @@ class IACRHarvester(Harvester):
             doc_id = record.xpath('//guid', namespaces=self.namespaces)[i].text
             doc = etree.tostring(record)
             i = i + 1
-            yield(doc_id, doc)
+            yield (doc_id, doc)

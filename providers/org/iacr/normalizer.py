@@ -43,11 +43,6 @@ class Tag(Parser):
 
 
 class CreativeWork(Parser):
-    """
-    Documentation for CrossRef's metadata can be found here:
-    https://github.com/CrossRef/rest-api-doc/blob/master/api_format.md
-    """
-
     title = RunPython('parse_title', XPath(ctx, '//title')['title'])
     description = XPath(ctx, '//description')['description']
 
