@@ -1,7 +1,9 @@
-from share.normalize import *
+from share.normalize import ctx, Parser, RunPython, XPath, Map, Delegate, ParseName
+
 
 def text(obj):
     return obj.get('#text') or obj['italic']
+
 
 class Link(Parser):
     url = ctx
@@ -17,6 +19,7 @@ class Link(Parser):
 
 class ThroughLinks(Parser):
     link = Delegate(Link, ctx)
+
 
 class Affiliation(Parser):
     pass
@@ -45,18 +48,19 @@ class CreativeWork(Parser):
     https://github.com/CrossRef/rest-api-doc/blob/master/api_format.md
     """
 
-    title = RunPython('parse_title' ,XPath(ctx, '//title')['title'])
+    title = RunPython('parse_title', XPath(ctx, '//title')['title'])
     description = XPath(ctx, '//description')['description']
 
     contributors = Map(
         Delegate(Contributor),
-        RunPython('parse_contributors' ,XPath(ctx, '//title')['title'])
+        RunPython('parse_contributors', XPath(ctx, '//title')['title'])
     )
 
     links = Map(
         Delegate(ThroughLinks),
         XPath(ctx, '//link')['link']
     )
+
     def parse_title(self, title):
         return title.split(', by ')[0]
 

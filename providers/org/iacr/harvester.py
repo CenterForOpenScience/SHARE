@@ -5,13 +5,14 @@ from share import Harvester
 
 logger = logging.getLogger(__name__)
 
+
 class IACRHarvester(Harvester):
 
     namespaces = {
         'ns0': 'http://www.w3.org/2005/Atom'
     }
 
-    url = 'http://eprint.iacr.org/rss/rss.xml'
+    url = 'https://eprint.iacr.org/rss/rss.xml'
 
     def do_harvest(self, start_date, end_date):
         # IACR has previous-search, you can only go from some past day to today
@@ -25,13 +26,13 @@ class IACRHarvester(Harvester):
 
         resp = self.requests.get(url, verify=False)
         parsed = etree.fromstring(resp.content)
-        total_records = int(parsed.xpath( "//ttl" )[0].text)
+        total_records = int(parsed.xpath("//ttl")[0].text)
 
         records = parsed.xpath('//item', namespaces=self.namespaces)
         logger.info('Found {} records of {}.'.format(len(records), total_records))
         i = 0
         for record in records:
-            doc_id = record.xpath('//guid',namespaces=self.namespaces)[i].text
+            doc_id = record.xpath('//guid', namespaces=self.namespaces)[i].text
             doc = etree.tostring(record)
-            i = i+1
-            yield(doc_id,doc)
+            i = i + 1
+            yield(doc_id, doc)
