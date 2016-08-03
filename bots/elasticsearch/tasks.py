@@ -22,7 +22,7 @@ def safe_substr(value, length=32000):
     return None
 
 
-def add_suggest(obj):
+def add_suggest(obj, weight=None):
     if obj['name']:
         obj['suggest'] = {
             'input': re.split('[\\s,]', obj['name']) + [obj['name']],
@@ -31,7 +31,8 @@ def add_suggest(obj):
                 '@id': obj['@id'],
                 'name': obj['name'],
                 '@type': obj['@type'],
-            }
+            },
+            'weight': weight
         }
     return obj
 
@@ -78,7 +79,7 @@ class IndexModelTask(ProviderTask):
                 for affiliation in
                 person.affiliations.all()
             ],
-            'sources': [source.robot for source in person.sources.all()],
+            'sources': [self.serialize_source(source) for source in person.sources.all()],
         }
         return add_suggest(serialized_person) if suggest else serialized_person
 
@@ -128,8 +129,6 @@ class IndexModelTask(ProviderTask):
 
     def serialize_source(self, source):
         return {
-            '@id': str(source.pk),
-            '@type': 'source',
             'name': safe_substr(source.long_title),
             'short_name': safe_substr(source.robot)
         }
