@@ -48,13 +48,7 @@ class ElasticSearchBot(Bot):
                         }
                     }
                 }
-            }],
-            'properties': {
-                'sources': {
-                    'type': 'string',
-                    'index': 'not_analyzed'
-                }
-            }
+            }]
         },
         'entity': {
             'properties': {
@@ -63,10 +57,6 @@ class ElasticSearchBot(Bot):
         },
         'person': {
             'properties': {
-                'sources': {
-                    'type': 'string',
-                    'index': 'not_analyzed'
-                },
                 'suggest': SUGGEST_MAPPING
             }
         },
