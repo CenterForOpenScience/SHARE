@@ -2,7 +2,7 @@ import arrow
 
 import dateparser
 
-from share.normalize import Parser, Static, Delegate, RunPython, ParseName, Normalizer, Maybe, Concat, Map, ctx, Try
+from share.normalize import Parser, Static, Delegate, RunPython, ParseName, Normalizer, Concat, Map, ctx, Try
 from share.normalize.utils import format_doi_as_url
 
 
@@ -50,7 +50,7 @@ class Tag(Parser):
 
 
 class ThroughTags(Parser):
-    tag = (Delegate(Tag), ctx)
+    tag = Delegate(Tag, ctx)
 
 
 class Publisher(Parser):
@@ -58,9 +58,10 @@ class Publisher(Parser):
 
 
 class Institution(Parser):
-    name = RunPython('get_author_institute', ctx)
+    name = RunPython('get_author_institute', {})
 
     def get_author_institute(self, context):
+        print(context)
         # read into a set while preserving order and passed back to erase duplicates
         seen = set()
         if 'author_institution' in context:
@@ -91,13 +92,15 @@ class Contributor(Parser):
 
 class CreativeWork(Parser):
     title = ctx.title
-    description = Maybe(ctx, 'description-html')
+    description = Try(ctx.description)
     contributors = Map(Delegate(Contributor), ctx.author)
     links = Concat(
-        Map(Delegate(ThroughLinks), ctx.pdf_url),
-        Map(Delegate(ThroughLinks), RunPython('format_doi', ctx.doi)),
-        Delegate(ThroughLinks.using(link=Delegate(ISSN)), Maybe(ctx, 'issn')),
-        Map(Delegate(ThroughLinks), ctx.fulltext_html_url)
+        Delegate(ThroughLinks.using(link=Delegate(ISSN)), ctx.issn),
+        Map(Delegate(ThroughLinks),
+            ctx.pdf_url,
+            RunPython('format_doi', ctx.doi),
+            ctx.fulltext_html_url
+        )
     )
     publishers = Map(
         Delegate(Association.using(entity=Delegate(Publisher))),
@@ -107,28 +110,31 @@ class CreativeWork(Parser):
         Delegate(Association.using(entity=Delegate(Institution))),
         ctx
     )
-    subject = Delegate(Tag, ctx.subjects[0])
+    subject = Delegate(ThroughTags, ctx.subjects[0])
     date_created = RunPython('parse_date', ctx.date)
     date_published = RunPython('parse_date', ctx.date)
     language = ctx.language
     tags = Concat(
-        Delegate(Tag, ctx.subjects),
-        Map(Delegate(ThroughTags), Maybe(ctx, 'keywords'))
+        Map(
+            Delegate(ThroughTags),
+            Try(ctx.keywords),
+            Try(ctx.subjects)
+        )
     )
 
     class Extra:
         modified = RunPython('parse_date', ctx.date)
-        subjects = Maybe(ctx, 'subjects')
+        subjects = Try(ctx.subjects)
         affiliations = Map(
             Delegate(Association.using(entity=Delegate(Institution))),
             ctx
         )
         identifiers = ctx.identifiers
         volume = Try(ctx.volume)
-        emails = Maybe(ctx, 'author_email')
+        emails = Try(ctx.author_email)
         journal_title = Try(ctx.journal_title)
         journal_abbrev = Try(ctx.journal_abbrev)
-        description_nohtml = ctx.description
+        description_html = Try(ctx['description-html'])
 
     def format_doi(self, doi):
         return format_doi_as_url(self, doi)
@@ -141,14 +147,14 @@ class Preprint(CreativeWork):
 
     class Extra:
         modified = RunPython('parse_date', ctx.date)
-        subjects = Maybe(ctx, 'subjects')
+        subjects = ctx.subjects
         affiliations = Map(
             Delegate(Association.using(entity=Delegate(Institution))),
             ctx
         )
-        identifiers = ctx.identifiers
-        emails = Maybe(ctx, 'author_email')
-        description_nohtml = ctx.description
+        identifiers = Try(ctx.identifiers)
+        emails = Try(ctx.author_email)
+        description_html = Try(ctx['description-html'])
 
 
 class PeerJNormalizer(Normalizer):
