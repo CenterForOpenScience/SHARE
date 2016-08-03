@@ -122,8 +122,16 @@ class IndexModelTask(ProviderTask):
             'links': [safe_substr(link) for link in creative_work.links.all()],
             'awards': [safe_substr(award) for award in creative_work.awards.all()],
             'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
-            'sources': [safe_substr(source.long_title) for source in creative_work.sources.all()],
+            'sources': [self.serialize_source(source) for source in creative_work.sources.all()],
             'contributors': [self.serialize_person(person, False) for person in creative_work.contributors.all()],
+        }
+
+    def serialize_source(self, source):
+        return {
+            '@id': str(source.pk),
+            '@type': 'source',
+            'name': safe_substr(source.long_title),
+            'short_name': safe_substr(source.robot)
         }
 
 
