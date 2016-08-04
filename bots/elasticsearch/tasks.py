@@ -29,7 +29,7 @@ def score_text(text):
     )
 
 
-def add_suggest(obj, weight=None):
+def add_suggest(obj):
     if obj['name']:
         obj['suggest'] = {
             'input': re.split('[\\s,]', obj['name']) + [obj['name']],
@@ -39,9 +39,8 @@ def add_suggest(obj, weight=None):
                 'name': obj['name'],
                 '@type': obj['@type'],
             },
+            'weight': score_text(obj['name'])
         }
-        if weight is not None:
-            obj['suggest']['weight'] = weight
     return obj
 
 
@@ -107,7 +106,7 @@ class IndexModelTask(ProviderTask):
             '@type': 'tag',
             'name': safe_substr(tag.name),
         }
-        return add_suggest(serialized_tag, weight=score_text(tag.name)) if suggest else serialized_tag
+        return add_suggest(serialized_tag) if suggest else serialized_tag
 
     def serialize_creative_work(self, creative_work):
         serialized_lists = {
