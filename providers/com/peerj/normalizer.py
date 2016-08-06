@@ -63,14 +63,15 @@ class Institution(Parser):
     def get_author_institute(self, context):
         # read into a set while preserving order and passed back to erase duplicates
         seen = set()
+        seen_add = seen.add
         if 'author_institution' in context:
             if isinstance(context['author_institution'], str):
-                return [x for x in [context['author_institution']] if x not in seen and not seen.add(x)]
-            return [x for x in context['author_institution'] if x not in seen and not seen.add(x)]
+                return [x for x in [context['author_institution']] if x not in seen and not seen_add(x)]
+            return [x for x in context['author_institution'] if x not in seen and not seen_add(x)]
         # the below is author_institutions with an 's', it will always be a string
         # and is sometimes present in the case that author_institution is not.
         # This will always be a string
-        return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
+        return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen_add(x)]
 
 
 class Institutions(Parser):
