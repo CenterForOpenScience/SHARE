@@ -23,18 +23,21 @@ class PhilicaHarvester(Harvester):
 
         logger.info('Making request to {}'.format(url))
 
-        yield from self.fetch_page( url, start_date, end_date)
+        yield from self.fetch_page(url, start_date, end_date)
 
         logger.info("Philica has been harvested")
 
     def fetch_page(self, url, start_date, end_date, preprint=''):
         # Grabbing information for the head of the article as
-        # Philica has no API. 'Philica Article' means that
-        # article is missing
-        for x in range(2, 662):
-            url = furl(url).set(query_params={'article_id': x })
+        # Philica has no API, so we have to search iteratively
+        for x in range(1, 662):
+            url = furl(url).set(query_params={'article_id': x})
             records = self.requests.get(url)
             soup = BeautifulSoup(records.content, 'html.parser')
-            if soup.html.head.title is 'Philica Article':
+            article_list = soup.head.find_all(lambda tag: tag.name == u'meta' or tag.name == u'link')
+            attr_list = [tag.attrs for tag in article_list]
+            # Check for if the article is missing, some are randomly throughout
+            if soup.html.head.title.text == 'Philica Article':
                 continue
-            yield (x, str(soup.html.head))
+
+            yield (x, {'data': attr_list})
