@@ -22,7 +22,7 @@ class PhilicaHarvester(Harvester):
     def fetch_records(self, url, start_date, end_date):
 
         logger.info('Making request to {}'.format(url))
-        print(start_date, end_date)
+
         yield from self.fetch_page(url, start_date, end_date)
 
         logger.info("Philica has been harvested")
