@@ -195,25 +195,6 @@ class Funder(Parser):
         name_identifier_scheme_uri = Try(ctx.nameIdentifier['@schemeURI'])
 
 
-class Venue(Parser):
-    name = Try(
-        RunPython(
-            force_text,
-            ctx.geoLocationPlace
-        )
-    )
-    # polygon = Try(ctx.geoLocationBox)
-    # point = Try(ctx.geoLocationPoint)
-
-    class Extra:
-        polygon = Try(ctx.geoLocationBox)
-        point = Try(ctx.geoLocationPoint)
-
-
-class ThroughVenues(Parser):
-    venue = Delegate(Venue, ctx)
-
-
 class Publisher(Parser):
     name = ctx
 
@@ -420,10 +401,6 @@ class CreativeWork(Parser):
             'contributor'
         )
     )
-    venues = Map(
-        Delegate(ThroughVenues),
-        Try(ctx.record.metadata['oai_datacite'].payload.resource.geoLocations.geoLocation)
-    )
 
     class Extra:
         """
@@ -539,6 +516,12 @@ class CreativeWork(Parser):
                 elif (
                     value[field + 'Name'] and
                     self.list_in_string(value[field + 'Name'], self.INSTITUTION_KEYWORDS)
+                ):
+                    institutions.append(value)
+                elif (
+                    'affiliation' in value and
+                    value['affiliation'] and
+                    self.list_in_string(value['affiliation'], self.INSTITUTION_KEYWORDS)
                 ):
                     institutions.append(value)
 
