@@ -9,7 +9,7 @@ class AppConfig(ProviderAppConfig):
     home_page = 'https://zenodo.org/oai2d'
     url = 'https://zenodo.org/oai2d'
     harvester = ZenodoHarvester
-    rate_limit = (1, 5)
+    rate_limit = (1, 2)
     namespaces = {
         'http://purl.org/dc/elements/1.1/': 'dc',
         'http://datacite.org/schema/kernel-3': None,
