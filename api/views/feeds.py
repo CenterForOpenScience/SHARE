@@ -59,7 +59,7 @@ class CreativeWorksRSS(Feed):
 
         def get_item(hit):
             source = hit.get('_source')
-            source['@id'] = hit.get('_id')
+            source['id'] = hit.get('_id')
             return source
 
         return [get_item(hit) for hit in json_response['hits']['hits']]
@@ -72,7 +72,7 @@ class CreativeWorksRSS(Feed):
 
     def item_link(self, item):
         # Link to SHARE curate page
-        return '{}{}/curate/{}/{}'.format(settings.SHARE_API_URL, settings.EMBER_SHARE_PREFIX, item.get('@type'), item.get('@id'))
+        return '{}{}/curate/{}/{}'.format(settings.SHARE_API_URL, settings.EMBER_SHARE_PREFIX, item.get('type'), item.get('id'))
 
     def item_pubdate(self, item):
         pubdate = item.get('date')
@@ -84,7 +84,7 @@ class CreativeWorksRSS(Feed):
 
     def item_categories(self, item):
         categories = [item.get('subject')]
-        categories.extend(item.get('tags'))
+        categories.extend(item.get('tag'))
         return [sanitize_for_xml(c) for c in categories if c]
 
 class CreativeWorksAtom(CreativeWorksRSS):

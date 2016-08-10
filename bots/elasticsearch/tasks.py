@@ -35,9 +35,9 @@ def add_suggest(obj):
             'input': re.split('[\\s,]', obj['name']) + [obj['name']],
             'output': obj['name'],
             'payload': {
-                '@id': obj['@id'],
+                'id': obj['id'],
                 'name': obj['name'],
-                '@type': obj['@type'],
+                'type': obj['type'],
             },
             'weight': score_text(obj['name'])
         }
@@ -70,8 +70,8 @@ class IndexModelTask(ProviderTask):
 
     def serialize_person(self, person, suggest=True):
         serialized_person = {
-            '@id': person.pk,
-            '@type': 'person',
+            'id': person.pk,
+            'type': 'person',
             'suffix': safe_substr(person.suffix),
             'given_name': safe_substr(person.given_name),
             'family_name': safe_substr(person.family_name),
@@ -92,8 +92,8 @@ class IndexModelTask(ProviderTask):
 
     def serialize_entity(self, entity, suggest=True):
         serialized_entity = {
-            '@id': entity.pk,
-            '@type': type(entity).__name__.lower(),
+            'id': entity.pk,
+            'type': type(entity).__name__.lower(),
             'name': safe_substr(entity.name),
             'url': entity.url,
             'location': safe_substr(entity.location),
@@ -102,8 +102,8 @@ class IndexModelTask(ProviderTask):
 
     def serialize_tag(self, tag, suggest=True):
         serialized_tag = {
-            '@id': str(tag.pk),
-            '@type': 'tag',
+            'id': str(tag.pk),
+            'type': 'tag',
             'name': safe_substr(tag.name),
         }
         return add_suggest(serialized_tag) if suggest else serialized_tag
@@ -118,7 +118,7 @@ class IndexModelTask(ProviderTask):
         }
 
         return {
-            '@type': type(creative_work).__name__.lower(),
+            'type': type(creative_work).__name__.lower(),
             'title': safe_substr(creative_work.title),
             'description': safe_substr(creative_work.description),
             'language': safe_substr(creative_work.language),
@@ -163,8 +163,8 @@ class IndexSourceTask(ProviderTask):
 
     def serialize(self, source):
         serialized_source = {
-            '@id': str(source.pk),
-            '@type': 'source',
+            'id': str(source.pk),
+            'type': 'source',
             'name': safe_substr(source.long_title),
             'short_name': safe_substr(source.robot)
         }
