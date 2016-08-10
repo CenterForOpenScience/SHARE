@@ -55,7 +55,7 @@ def harvest(args, argv):
         -p, --print            Print results to stdout rather than to a file
         -o, --out=DIR          The directory to store the harvested data in. Defaults to ./<provider>
         -d, --days-back=DAYS   Number of days back to harvest [default: 1]
-        -s, --start=YYY-MM-DD  The start date for the harvester to begin, defaults to one day in the past
+        -s, --start=YYYY-MM-DD  The start date for the harvester to begin, defaults to one day in the past
         -e, --end=YYYY-MM-DD   The start date for the harvester to end, defaults to today
     """
     config = apps.get_app_config(args['<provider>'])
