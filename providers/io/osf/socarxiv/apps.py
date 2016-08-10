@@ -1,5 +1,6 @@
 from share.provider import ProviderAppConfig
-# from .harvester import OSFHarvester
+from .harvester import SocarxivHarvester
+from provider.io.osf.normalizer import OSFNormalizer
 
 
 class AppConfig(ProviderAppConfig):
@@ -8,4 +9,5 @@ class AppConfig(ProviderAppConfig):
     title = 'osf'
     long_title = 'Socarxiv'
     home_page = 'http://osf.io/api/v1/search/'
-    harvester = OSFHarvester
+    harvester = SocarxivHarvester
+    normalizer = OSFNormalizer
