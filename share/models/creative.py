@@ -73,5 +73,8 @@ class Association(ShareObject):
     entity = ShareForeignKey('Entity')
     creative_work = ShareForeignKey(AbstractCreativeWork)
 
+    class Meta:
+        unique_together = ('entity', 'creative_work')
+
     def __str__(self):
         return str(self.entity)

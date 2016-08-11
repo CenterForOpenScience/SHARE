@@ -33,8 +33,7 @@ class Award(ShareObject):
 
 
 class Tag(ShareObject):
-    name = models.TextField(db_index=True)
-    url = ShareURLField(blank=True)
+    name = models.TextField(unique=True)
 
     def __str__(self):
         return self.name
@@ -54,22 +53,37 @@ class ThroughLinks(ShareObject):
     link = ShareForeignKey(Link)
     creative_work = ShareForeignKey('AbstractCreativeWork')
 
+    class Meta:
+        unique_together = ('link', 'creative_work')
+
 
 class ThroughVenues(ShareObject):
     venue = ShareForeignKey(Venue)
     creative_work = ShareForeignKey('AbstractCreativeWork')
+
+    class Meta:
+        unique_together = ('venue', 'creative_work')
 
 
 class ThroughAwards(ShareObject):
     award = ShareForeignKey(Award)
     creative_work = ShareForeignKey('AbstractCreativeWork')
 
+    class Meta:
+        unique_together = ('award', 'creative_work')
+
 
 class ThroughTags(ShareObject):
     tag = ShareForeignKey(Tag)
     creative_work = ShareForeignKey('AbstractCreativeWork')
 
+    class Meta:
+        unique_together = ('tag', 'creative_work')
+
 
 class ThroughAwardEntities(ShareObject):
     award = ShareForeignKey('Award')
     entity = ShareForeignKey('Entity')
+
+    class Meta:
+        unique_together = ('award', 'entity')
