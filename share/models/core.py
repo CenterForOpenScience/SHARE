@@ -188,7 +188,7 @@ class RawData(models.Model):
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     provider_doc_id = models.TextField()
 
-    data = models.TextField(blank=False)
+    data = models.TextField()
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
 
     date_seen = models.DateTimeField(auto_now=True)
@@ -217,6 +217,7 @@ class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True)
     raw = models.ForeignKey(RawData, null=True)
+    # TODO Rename this to data
     normalized_data = DatetimeAwareJSONField(default={}, validators=[is_valid_jsonld, ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')
