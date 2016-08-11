@@ -1,5 +1,5 @@
 from share.models import Tag
-from share.models import ThroughTags
+from share.models.meta import ThroughTags
 from share.disambiguation import TagDisambiguator
 
 
@@ -10,7 +10,7 @@ def TagFactory(name):
 class TestTag:
 
     def test_disambiguates(self):
-
+        TagFactory('This')
         pass
 
     def test_does_not_disambiguate(self):
