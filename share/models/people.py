@@ -63,10 +63,16 @@ class ThroughIdentifiers(ShareObject):
     person = ShareForeignKey(Person)
     identifier = ShareForeignKey(Identifier)
 
+    class Meta:
+        unique_together = ('person', 'identifier')
+
 
 class PersonEmail(ShareObject):
     email = ShareForeignKey(Email)
     person = ShareForeignKey(Person)
+
+    class Meta:
+        unique_together = ('email', 'person')
 
 
 class Affiliation(ShareObject):
@@ -74,6 +80,9 @@ class Affiliation(ShareObject):
     # end_date = models.DateField()
     person = ShareForeignKey(Person)
     entity = ShareForeignKey('Entity')
+
+    class Meta:
+        unique_together = ('person', 'entity')
 
     def __str__(self):
         return '{} ({})'.format(self.person, self.entity)

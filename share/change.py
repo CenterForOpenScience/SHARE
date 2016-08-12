@@ -107,9 +107,12 @@ class ChangeNode:
 
     def update_relations(self, mapper):
         for v in self.relations.values():
-            node = mapper[(v['@id'], v['@type'].lower())]
-            v['@id'] = node.id
-            v['@type'] = node.type
+            try:
+                node = mapper[(v['@id'], v['@type'].lower())]
+                v['@id'] = node.id
+                v['@type'] = node.type
+            except KeyError:
+                pass
 
     def _disambiguate(self):
         if self.is_merge:

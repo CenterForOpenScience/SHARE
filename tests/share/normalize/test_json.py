@@ -35,14 +35,14 @@ class Person(Parser):
 
 
 class Contributor(Parser):
-    person = ctx
+    person = Delegate(Person, ctx)
 
 
 class Manuscript(Parser):
     title = ctx.title
     description = ctx.description
     # publish_date = ParseDate(ctx.published_date)
-    contributors = ctx.authors['*']
+    contributors = Map(Delegate(Contributor, ctx.authors))
 
     class Extra:
         type = ctx.defined_type

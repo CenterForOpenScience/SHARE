@@ -407,7 +407,6 @@ class CreativeWork(Parser):
     )
 
     date_updated = tools.ParseDate(ctx.record.header.datestamp)
-    date_created = tools.ParseDate(tools.RunPython('get_date_type', tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.dates.date)), 'Created'))
     date_published = tools.ParseDate(tools.RunPython('get_date_type', tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.dates.date)), 'Issued'))
     free_to_read_type = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.rightsList.rights['@rightsURI'])
     free_to_read_date = tools.ParseDate(tools.RunPython('get_date_type', tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.dates.date)), 'Available'))

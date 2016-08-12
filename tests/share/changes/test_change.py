@@ -78,7 +78,6 @@ class TestChange:
         change = Change.objects.from_node(create_graph.nodes[0], change_set)
 
         assert change.type == Change.TYPE.create
-        assert change.status == Change.STATUS.pending
 
         assert change.target is None
         assert change.target_type == ContentType.objects.get(app_label='share', model='person')
@@ -101,7 +100,7 @@ class TestChange:
         assert person.change == change
         assert person.given_name == 'Jane'
         assert person.family_name == 'Doe'
-        assert change.affected_person.first() == person
+        assert change.affected_person == person
 
     @pytest.mark.django_db
     def test_create_accept_no_save(self, create_graph, change_set):

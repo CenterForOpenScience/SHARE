@@ -1,4 +1,4 @@
-from lxml import etree
+import xmltodict
 
 from share.normalize import *  # noqa
 
@@ -58,38 +58,48 @@ factor, to within chemical accuracy, for CI calculations.
 '''
 
 
-class Manuscript(Parser):
-    title = ctx.title[0].text()
-    description = ctx.summary[0].text()
-    contributors = ctx.author['*']
-
-    class Extra:
-        comment = ctx.comment[0].text()
-        journal_ref = ctx.journal_ref[0].text()
-
-
-class Contributor(Parser):
-    person = ctx
-
-
-class Person(Parser):
-    affiliations = ctx.affiliation[0].text()['*']
-    given_name = ParseName(ctx.name[0].text()).first
-    family_name = ParseName(ctx.name[0].text()).last
+class Organization(Parser):
+    name = ctx
 
 
 class Affiliation(Parser):
-    organization = ctx
+    entity = Delegate(Organization, ctx)
 
 
-class Organization(Parser):
-    name = ctx
+class Person(Parser):
+    affiliations = Map(Delegate(Affiliation), ctx.affiliation)
+    given_name = ParseName(ctx.name).first
+    family_name = ParseName(ctx.name).last
+
+
+class Contributor(Parser):
+    person = Delegate(Person, ctx)
+
+
+class Preprint(Parser):
+    title = ctx.entry.title
+    description = ctx.entry.summary
+    contributors = Map(Delegate(Contributor), ctx.entry.author)
+
+    class Extra:
+        comment = ctx.entry.comment
+        journal_ref = ctx.entry.journal_ref
 
 
 class TestParser:
 
     def test_preprint_parser(self):
-        parsed = Manuscript(etree.fromstring(EXAMPLE)).parse()
+        parsed = Preprint(
+            xmltodict.parse(
+                EXAMPLE,
+                process_namespaces=True,
+                namespaces={
+                    'http://www.w3.org/2005/Atom': None,
+                    'http://arxiv.org/schemas/atom': None,
+                }
+            )
+        ).parse()
+
         assert isinstance(parsed, dict)
-        assert parsed['@type'] == 'manuscript'
+        assert parsed['@type'] == 'preprint'
         assert ctx.pool[parsed]['extra'] == {'comment': '11 pages, 6 figures, 3 tables, LaTeX209, submitted to The Journal of\n  Chemical Physics', 'journal_ref': 'J. Chem. Phys. 115, 1626 (2001)'}

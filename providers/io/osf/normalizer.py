@@ -1,6 +1,6 @@
 from share.normalize import ctx
 from share.normalize.parsers import Parser
-from share.normalize import *
+from share.normalize import tools
 
 
 class Person(Parser):
@@ -20,7 +20,7 @@ class Person(Parser):
 
 
 class Contributor(Parser):
-    person = Delegate(Person, ctx)
+    person = tools.Delegate(Person, ctx)
     order_cited = ctx('index')
     cited_name = ctx.embeds.users.data.attributes.full_name
 
@@ -30,7 +30,7 @@ class Tag(Parser):
 
 
 class ThroughTags(Parser):
-    tag = Delegate(Tag, ctx)
+    tag = tools.Delegate(Tag, ctx)
 
 
 class Institution(Parser):
@@ -44,10 +44,6 @@ class Institution(Parser):
         description = ctx.attributes.description
 
 
-class Publisher(Parser):
-    name = ctx
-
-
 class Association(Parser):
     pass
 
@@ -58,59 +54,29 @@ class Link(Parser):
 
 
 class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
+    link = tools.Delegate(Link, ctx)
 
 
 class Project(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
-    contributors = Map(Delegate(Contributor), ctx['contributors'])
-    institutions = Map(
-        Delegate(Association.using(entity=Delegate(Institution))),
-        Maybe(ctx, 'embeds.affiliated_institutions.data')
+    contributors = tools.Map(tools.Delegate(Contributor), ctx['contributors'])
+    institutions = tools.Map(
+        tools.Delegate(Association.using(entity=tools.Delegate(Institution))),
+        ctx.embeds.affiliated_institutions.data
     )
-    date_created = ParseDate(ctx.attributes.date_created)
-    subject = Delegate(Tag, ctx.attributes.category)
-    tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
-    rights = Maybe(ctx, 'attributes.node_license')
-    links = Map(Delegate(ThroughLinks), ctx.links.html)
+    date_updated = tools.ParseDate(ctx.attributes.date_modified)
+    subject = tools.Delegate(Tag, ctx.attributes.category)
+    tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.tags)
+    rights = tools.Maybe(ctx, 'attributes.node_license')
+    links = tools.Map(tools.Delegate(ThroughLinks), ctx.links.html)
 
     class Extra:
-        files = Maybe(ctx, 'relationships.files.links.related.href')
-        parent = Maybe(ctx, 'relationships.parent.links.related.href')
-        forks = Maybe(ctx, 'relationships.forks.links.related.href')
-        root = Maybe(ctx, 'relationships.root.links.related.href')
-        comments = Maybe(ctx, 'relationships.comments.links.related.href')
-        registrations = Maybe(ctx, 'relationships.registrations.links.related.href')
-        logs = Maybe(ctx, 'relationships.logs.links.related.href')
-        node_links = Maybe(ctx, 'relationships.node_links.links.related.href')
-        wikis = Maybe(ctx, 'relationships.wikis.links.related.href')
-        children = Maybe(ctx, 'relationships.children.links.related.href')
-        fork = Maybe(ctx, 'attributes.fork')
-        date_modified = Maybe(ctx, 'attributes.date_modified')
-        collection = Maybe(ctx, 'attributes.collection')
-        registration = Maybe(ctx, 'attributes.registration')
-        type = ctx.type
-        id = ctx.id
-
-class Preprint(Project):
-    schema = 'Preprint'
-    description = ctx.attributes.abstract
-    contributors = Map(Delegate(Contributor), ctx.relationships.contributors)
-    publishers = Delegate(Association.using(entity=Delegate(Publisher)), ctx.attributes.provider)
-    subject = Delegate(Tag, ctx.attributes.subjects)[0]
-    links = Map(
-        Delegate(ThroughLinks),
-        ctx.links.self,
-        ctx.links.html
-    )
-
-    class Extra:
+        date_created = tools.ParseDate(ctx.attributes.date_created)
         files = ctx.relationships.files.links.related.href
-        # parent = Maybe(ctx, 'relationships.parent.links.related.href')
-        # forks = ctx.relationships.forks.links.related.href
-        # root = ctx.relationships.root.links.related.href
-        subjects = Delegate(Tag, ctx.attributes.subjects)
+        parent = tools.Maybe(ctx, 'relationships.parent.links.related.href')
+        forks = ctx.relationships.forks.links.related.href
+        root = ctx.relationships.root.links.related.href
         comments = ctx.relationships.comments.links.related.href
         registrations = ctx.relationships.registrations.links.related.href
         logs = ctx.relationships.logs.links.related.href
@@ -121,13 +87,5 @@ class Preprint(Project):
         date_modified = ctx.attributes.date_modified
         collection = ctx.attributes.collection
         registration = ctx.attributes.registration
-        type_soc = ctx.type
-        id_soc = ctx.id
-
-class OSFNormalizer(Normalizer):
-
-    def do_normalize(self, data):
-        unwrapped = self.unwrap_data(data)
-        if 'preprints' == unwrapped['type']:
-            return Preprint(unwrapped).parse()
-        return Project(unwrapped).parse()
+        type = ctx.type
+        id = ctx.id

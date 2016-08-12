@@ -1,3 +1,4 @@
+import copy
 import inspect
 
 import uuid
@@ -34,7 +35,7 @@ class ShareObjectMeta(ModelBase):
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
         'sources': lambda: models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s'),
-        'change': lambda: models.OneToOneField(Change, null=True, related_name='affected_%(class)s'),
+        'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s'),
         'date_modified': lambda: models.DateTimeField(auto_now=True),
         'date_created': lambda: models.DateTimeField(auto_now_add=True),
         'uuid': lambda: models.UUIDField(default=uuid.uuid4, editable=False)
@@ -47,12 +48,22 @@ class ShareObjectMeta(ModelBase):
         if hasattr(attrs.get('Meta'), 'db_table'):
             delattr(attrs['Meta'], 'db_table')
 
-        # TODO Fix this in some None horrid fashion
+        version_attrs = {}
+        for key, val in attrs.items():
+            if isinstance(val, models.Field) and val.unique:
+                val = copy.deepcopy(val)
+                val._unique = False
+            if key == 'Meta' and hasattr(val, 'unique_together'):
+                val = copy.deepcopy(val)
+                delattr(val, 'unique_together')
+            version_attrs[key] = val
+
+        # TODO Fix this in some non-horrid fashion
         if name != 'ExtraData':
-            attrs['extra'] = fields.ShareForeignKey('ExtraData', null=True)
+            version_attrs['extra'] = fields.ShareForeignKey('ExtraData', null=True)
 
         version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
-            **attrs,
+            **version_attrs,
             **{k: v() for k, v in cls.share_attrs.items()},
             '__qualname__': attrs['__qualname__'] + 'Version',
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
@@ -66,7 +77,7 @@ class ShareObjectMeta(ModelBase):
             **{k: v() for k, v in cls.share_attrs.items()},
             'VersionModel': version,
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
-            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version', null=True),
+            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version'),
         })
 
         # Inject <classname>Version into the module of the original class definition
