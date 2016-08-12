@@ -109,11 +109,10 @@ class TaskNameFilter(admin.SimpleListFilter):
 class CeleryTaskChangeList(ChangeList):
     def get_ordering(self, request, queryset):
         return ['-timestamp']
-        return 'timestamp', 'desc'
 
 
 class CeleryTaskAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'name', 'app_label', 'status', 'started_by')
+    list_display = ('uuid', 'timestamp', 'name', 'app_label', 'status', 'started_by')
     actions = ['retry_tasks']
     list_filter = ['status', TaskNameFilter, AppLabelFilter, 'started_by']
     list_select_related = ('provider', 'started_by')
