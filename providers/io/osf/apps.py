@@ -1,6 +1,5 @@
 from share.provider import ProviderAppConfig
 from .harvester import OSFHarvester
-from .normalizer import OSFNormalizer
 
 
 class AppConfig(ProviderAppConfig):
@@ -10,4 +9,3 @@ class AppConfig(ProviderAppConfig):
     long_title = 'Open Science Framework'
     home_page = 'http://osf.io/api/v1/search/'
     harvester = OSFHarvester
-    normalizer = OSFNormalizer

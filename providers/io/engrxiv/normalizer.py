@@ -95,7 +95,7 @@ class Preprint(Parser):
 
 
 class EngrxivNormalizer(Normalizer):
-    root_parser = OSFParser.Preprint
+    root_parser = OSFParser.Project
 
     def do_normalize(self, data):
         unwrapped = self.unwrap_data(data)
