@@ -34,7 +34,7 @@ class ThroughTags(Parser):
 
 
 class Association(Parser):
-    pass
+    entity = Delegate(Publisher)
 
 
 class Person(Parser):
@@ -52,14 +52,12 @@ class Preprint(Parser):
     title = Try(ctx['DC.title'])
     description = Try(ctx['DC.description'])
     contributors = Map(Delegate(Contributor), ctx['DC.contributor'])
-    links = Concat(
-        Map(Delegate(ThroughLinks),
+    links = Map(Delegate(ThroughLinks),
             ctx['href'],
             ctx['DC.source']
-            )
     )
     publishers = Map(
-        Delegate(Association.using(entity=Delegate(Publisher))),
+        Delegate(Association),
         ctx['DC.publisher']
     )
     subject = Delegate(ThroughTags, ctx['DC.subject'])

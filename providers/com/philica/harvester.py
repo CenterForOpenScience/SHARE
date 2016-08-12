@@ -44,7 +44,7 @@ class PhilicaHarvester(Harvester):
             records = self.requests.get(url)
 
             soup = BeautifulSoup(records.content, 'html.parser')
-            article_list = soup.head.find_all(lambda tag: tag.name == u'meta' or tag.name == u'link')
+            article_list = soup.head.find_all(lambda tag: tag.name == 'meta' or tag.name == 'link')
 
             for tag in article_list:
                 if 'name' in tag.attrs and tag.attrs['name'] == 'DC.date':
