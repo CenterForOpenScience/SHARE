@@ -2,7 +2,7 @@ import providers.io.osf.normalizer as OSFParser
 from share.normalize.normalizer import Normalizer
 
 from share.normalize.parsers import Parser
-from share.normalize import Delegate, RunPython, ParseName, Normalizer, Concat, Map, ctx, Try, Maybe, ParseDate
+from share.normalize import Delegate, RunPython, Map, ctx, Maybe, ParseDate
 
 
 class Person(Parser):
@@ -64,15 +64,10 @@ class Link(Parser):
         else:
             return 'provider'
 
+
 class ThroughLinks(Parser):
     link = Delegate(Link, ctx)
 
-
-class Project(Parser):
-    institutions = Map(
-        Delegate(Association.using(entity=Delegate(Institution))),
-        Maybe(ctx, 'embeds.affiliated_institutions.data')
-    )
 
 class Preprint(Parser):
     schema = 'Preprint'
@@ -84,8 +79,8 @@ class Preprint(Parser):
     links = Map(
         Delegate(ThroughLinks),
         ctx.links.self,
-        ctx.links.html
-        # ctx.links.doi
+        ctx.links.html,
+        ctx.links.doi
     )
     tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
     rights = Maybe(ctx, 'attributes.node_license')
@@ -96,13 +91,13 @@ class Preprint(Parser):
         date_modified = ctx.attributes.date_modified
         type_soc = ctx.type
         id_soc = ctx.id
-        # doi_plain = ctx.attributes.doi
+        doi_plain = ctx.attributes.doi
+
 
 class EngrxivNormalizer(Normalizer):
     root_parser = OSFParser.Preprint
 
     def do_normalize(self, data):
         unwrapped = self.unwrap_data(data)
-        if 'preprints' == unwrapped['type']:
-            return Preprint(unwrapped).parse()
-        return Project(unwrapped).parse()
+
+        return Preprint(unwrapped).parse()

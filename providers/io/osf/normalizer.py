@@ -1,6 +1,6 @@
 from share.normalize import ctx
 from share.normalize.parsers import Parser
-from share.normalize import tools
+from share.normalize import *
 
 
 class Person(Parser):
@@ -67,7 +67,7 @@ class Project(Parser):
     contributors = Map(Delegate(Contributor), ctx['contributors'])
     institutions = Map(
         Delegate(Association.using(entity=Delegate(Institution))),
-        ctx.embeds.affiliated_institutions.data
+        Maybe(ctx, 'embeds.affiliated_institutions.data')
     )
     date_created = ParseDate(ctx.attributes.date_created)
     subject = Delegate(Tag, ctx.attributes.category)
@@ -76,27 +76,29 @@ class Project(Parser):
     links = Map(Delegate(ThroughLinks), ctx.links.html)
 
     class Extra:
-        files = ctx.relationships.files.links.related.href
+        files = Maybe(ctx, 'relationships.files.links.related.href')
         parent = Maybe(ctx, 'relationships.parent.links.related.href')
-        forks = Maybe(ctx.relationships.forks.links.related.href)
-        root = Maybe(ctx.relationships.root.links.related.href)
-        comments = Maybe(ctx.relationships.comments.links.related.href)
-        registrations = Maybe(ctx.relationships.registrations.links.related.href)
-        logs = Maybe(ctx.relationships.logs.links.related.href)
-        node_links = Maybe(ctx.relationships.node_links.links.related.href)
-        wikis = Maybe(ctx.relationships.wikis.links.related.href)
-        children = Maybe(ctx.relationships.children.links.related.href)
-        fork = Maybe(ctx.attributes.fork)
-        date_modified = Maybe(ctx.attributes.date_modified)
-        collection = Maybe(ctx.attributes.collection)
-        registration = Maybe(ctx.attributes.registration)
+        forks = Maybe(ctx, 'relationships.forks.links.related.href')
+        root = Maybe(ctx, 'relationships.root.links.related.href')
+        comments = Maybe(ctx, 'relationships.comments.links.related.href')
+        registrations = Maybe(ctx, 'relationships.registrations.links.related.href')
+        logs = Maybe(ctx, 'relationships.logs.links.related.href')
+        node_links = Maybe(ctx, 'relationships.node_links.links.related.href')
+        wikis = Maybe(ctx, 'relationships.wikis.links.related.href')
+        children = Maybe(ctx, 'relationships.children.links.related.href')
+        fork = Maybe(ctx, 'attributes.fork')
+        date_modified = Maybe(ctx, 'attributes.date_modified')
+        collection = Maybe(ctx, 'attributes.collection')
+        registration = Maybe(ctx, 'attributes.registration')
         type = ctx.type
         id = ctx.id
 
 class Preprint(Project):
+    schema = 'Preprint'
     description = ctx.attributes.abstract
-    contributors = ctx.relationships.contributors
+    contributors = Map(Delegate(Contributor), ctx.relationships.contributors)
     publishers = Delegate(Association.using(entity=Delegate(Publisher)), ctx.attributes.provider)
+    subject = Delegate(Tag, ctx.attributes.subjects)[0]
     links = Map(
         Delegate(ThroughLinks),
         ctx.links.self,
@@ -108,6 +110,7 @@ class Preprint(Project):
         # parent = Maybe(ctx, 'relationships.parent.links.related.href')
         # forks = ctx.relationships.forks.links.related.href
         # root = ctx.relationships.root.links.related.href
+        subjects = Delegate(Tag, ctx.attributes.subjects)
         comments = ctx.relationships.comments.links.related.href
         registrations = ctx.relationships.registrations.links.related.href
         logs = ctx.relationships.logs.links.related.href
@@ -118,14 +121,13 @@ class Preprint(Project):
         date_modified = ctx.attributes.date_modified
         collection = ctx.attributes.collection
         registration = ctx.attributes.registration
-        type = ctx.type
-        id = ctx.id
+        type_soc = ctx.type
+        id_soc = ctx.id
 
 class OSFNormalizer(Normalizer):
 
     def do_normalize(self, data):
         unwrapped = self.unwrap_data(data)
-
-        if 'preprints' == unwrapped.type:
+        if 'preprints' == unwrapped['type']:
             return Preprint(unwrapped).parse()
         return Project(unwrapped).parse()
