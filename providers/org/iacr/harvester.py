@@ -31,7 +31,6 @@ class IACRHarvester(Harvester):
         records = parsed.xpath('//item', namespaces=self.namespaces)
         logger.info('Found {} records of {}.'.format(len(records), total_records))
         for record in records:
-            rec_id = record.xpath('./guid', namespaces=self.namespaces)[0].text.split('/')
-            doc_id = rec_id[len(rec_id)-1]
+            doc_id = record.xpath('./guid', namespaces=self.namespaces)[0].text
             doc = etree.tostring(record)
             yield (doc_id, doc)

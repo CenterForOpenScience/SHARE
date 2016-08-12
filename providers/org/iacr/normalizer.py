@@ -1,8 +1,4 @@
-from share.normalize import ctx, Parser, RunPython, XPath, Map, Delegate, ParseName
-
-
-def text(obj):
-    return obj.get('#text') or obj['italic']
+from share.normalize import ctx, Parser, RunPython, Map, Delegate, ParseName
 
 
 class Link(Parser):
@@ -19,10 +15,6 @@ class Link(Parser):
 
 class ThroughLinks(Parser):
     link = Delegate(Link, ctx)
-
-
-class Affiliation(Parser):
-    pass
 
 
 class Person(Parser):
@@ -43,17 +35,17 @@ class Tag(Parser):
 
 
 class CreativeWork(Parser):
-    title = RunPython('parse_title', XPath(ctx, '//title')['title'])
-    description = XPath(ctx, '//description')['description']
+    title = RunPython('parse_title', ctx.item.title)
+    description = ctx.item.description
 
     contributors = Map(
         Delegate(Contributor),
-        RunPython('parse_contributors', XPath(ctx, '//title')['title'])
+        RunPython('parse_contributors', ctx.item.title)
     )
 
     links = Map(
         Delegate(ThroughLinks),
-        XPath(ctx, '//link')['link']
+        ctx.item.link
     )
 
     def parse_title(self, title):
