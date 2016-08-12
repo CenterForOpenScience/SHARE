@@ -4,7 +4,7 @@ from provider.io.osf.normalizer import OSFNormalizer
 
 
 class AppConfig(ProviderAppConfig):
-    name = 'providers.io.osf.socarxiv'
+    name = 'providers.io.socarxiv'
     version = '0.0.1'
     title = 'osf'
     long_title = 'Socarxiv'

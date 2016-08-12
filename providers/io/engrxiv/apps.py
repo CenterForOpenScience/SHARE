@@ -3,7 +3,7 @@ from .harvester import EngrxivHarvester
 from provider.io.osf.normalizer import OSFNormalizer
 
 class AppConfig(ProviderAppConfig):
-    name = 'providers.io.osf.engrxiv'
+    name = 'providers.io.engrxiv'
     version = '0.0.1'
     title = 'osf'
     long_title = 'Socarxiv'
