@@ -1,6 +1,6 @@
 from share.provider import ProviderAppConfig
 from .harvester import EngrxivHarvester
-from provider.io.osf.normalizer import OSFNormalizer
+from .normalizer import EngrxivNormalizer
 
 class AppConfig(ProviderAppConfig):
     name = 'providers.io.engrxiv'
@@ -9,4 +9,4 @@ class AppConfig(ProviderAppConfig):
     long_title = 'Socarxiv'
     home_page = 'http://osf.io/api/v1/search/'
     harvester = EngrxivHarvester
-    normalizer = OSFNormalizer
+    normalizer = EngrxivNormalizer

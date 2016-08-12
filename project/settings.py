@@ -166,8 +166,10 @@ INSTALLED_APPS = [
     'providers.gov.scitech',
     'providers.gov.usgs',
     'providers.info.spdataverse',
+    'providers.io.engrxiv',
     'providers.io.osf',
     'providers.io.osf.registrations',
+    'providers.io.socarxiv',
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai',

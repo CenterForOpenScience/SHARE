@@ -22,8 +22,6 @@ class SocarxivHarvester(Harvester):
         url = furl(self.url)
 
         url.args['page[size]'] = 100
-        # url.args['filter[public]'] = 'true'
-        # url.args['embed'] = 'affiliated_institutions'
         url.args['filter[date_modified][gt]'] = start_date.date().isoformat()
         url.args['filter[date_modified][lt]'] = end_date.date().isoformat()
 
