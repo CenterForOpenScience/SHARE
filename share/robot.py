@@ -141,7 +141,7 @@ class RobotScheduleMigration(AbstractRobotMigration):
             name=self.config.task_name,
             task=self.config.task,
             description=self.config.description,
-            args=json.dumps([self.config.name, 1]),  # Note 1 should always be the system user
+            args=json.dumps([self.config.label, 1]),  # Note 1 should always be the system user
             crontab=tab,
         ).save()
 
@@ -150,7 +150,7 @@ class RobotScheduleMigration(AbstractRobotMigration):
         try:
             PeriodicTask.get(
                 task=self.config.task,
-                args=json.dumps([self.config.name, 1]),  # Note 1 should always be the system user
+                args=json.dumps([self.config.label, 1]),  # Note 1 should always be the system user
             ).delete()
         except PeriodicTask.DoesNotExist:
             pass
