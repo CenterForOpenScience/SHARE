@@ -15,15 +15,15 @@ class SocarxivHarvester(Harvester):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.url = 'https://api.osf.io/v2/nodes/'
+        self.url = 'http://localhost:8000/v2/preprints/?filter[provider]=socarxiv'
 
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
 
         url = furl(self.url)
 
         url.args['page[size]'] = 100
-        url.args['filter[public]'] = 'true'
-        url.args['embed'] = 'affiliated_institutions'
+        # url.args['filter[public]'] = 'true'
+        # url.args['embed'] = 'affiliated_institutions'
         url.args['filter[date_modified][gt]'] = start_date.date().isoformat()
         url.args['filter[date_modified][lt]'] = end_date.date().isoformat()
 
