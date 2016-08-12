@@ -65,13 +65,14 @@ class Project(Parser):
         tools.Delegate(Association.using(entity=tools.Delegate(Institution))),
         ctx.embeds.affiliated_institutions.data
     )
-    date_created = tools.ParseDate(ctx.attributes.date_created)
+    date_updated = tools.ParseDate(ctx.attributes.date_modified)
     subject = tools.Delegate(Tag, ctx.attributes.category)
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.tags)
     rights = tools.Maybe(ctx, 'attributes.node_license')
     links = tools.Map(tools.Delegate(ThroughLinks), ctx.links.html)
 
     class Extra:
+        date_created = tools.ParseDate(ctx.attributes.date_created)
         files = ctx.relationships.files.links.related.href
         parent = tools.Maybe(ctx, 'relationships.parent.links.related.href')
         forks = ctx.relationships.forks.links.related.href

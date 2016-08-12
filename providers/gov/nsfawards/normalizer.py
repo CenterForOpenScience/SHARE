@@ -77,7 +77,7 @@ class CreativeWork(Parser):
         tools.Delegate(Association.using(entity=tools.Delegate(Institution))), ctx
     )
 
-    date_created = tools.ParseDate(ctx.date)
+    date_updated = tools.ParseDate(ctx.date)
 
     class Extra:
         public_access_mandate = ctx.publicAccessMandate
