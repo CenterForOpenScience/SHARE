@@ -2,17 +2,20 @@ import logging
 
 from model_utils import Choices
 
+from fuzzycount import FuzzyCountManager
+
+from django.apps import apps
 from django.db import models
 from django.db import transaction
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from fuzzycount import FuzzyCountManager
 
-from django.apps import apps
 from share.models import NormalizedData
+
 
 __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)
@@ -137,15 +140,17 @@ class Change(models.Model):
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
         ret = self._accept(save)
 
-        # Psuedo hack, sources.add(...) tries to do some safety checks.
-        # Don't do that. We have a database. That is its job. Let it do its job.
-        ret._meta.get_field('sources').rel.through.objects.get_or_create(**{
-            ret._meta.concrete_model._meta.model_name: ret,
-            'shareuser': self.change_set.normalized_data.source,
-        })
-
         if save:
+            logger.warning('Calling accept with save=False will not update the sources field')
+            # Psuedo hack, sources.add(...) tries to do some safety checks.
+            # Don't do that. We have a database. That is its job. Let it do its job.
+            ret._meta.get_field('sources').rel.through.objects.get_or_create(**{
+                ret._meta.concrete_model._meta.model_name: ret,
+                'shareuser': self.change_set.normalized_data.source,
+            })
+
             self.save()
+
         return ret
 
     def _accept(self, save):
@@ -158,7 +163,20 @@ class Change(models.Model):
     def _create(self, save=True):
         inst = self.target_type.model_class()(change=self, **self._resolve_change())
         if save:
-            inst.save()
+            try:
+                with transaction.atomic():
+                    inst.save()
+            except IntegrityError as e:
+                from share.disambiguation import disambiguate
+                logger.info('Handling unique violation error %r', e)
+
+                self.type = Change.TYPE.update
+                self.target = disambiguate('_:', self.change, self.target_type.model_class())
+
+                logger.info('Updating target to %r and type to update', self.target)
+                self.save()
+
+                return self._update(save=save)
         return inst
 
     def _update(self, save=True):
