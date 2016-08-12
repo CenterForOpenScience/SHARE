@@ -10,5 +10,5 @@ class AppConfig(ProviderAppConfig):
     long_title = 'Philica'
     home_page = 'http://philica.com/'
     harvester = PhilicaHarvester
-    emitted_type = 'preprints'
+    emitted_type = 'preprint'
     normalizer = PhilicaNormalizer
