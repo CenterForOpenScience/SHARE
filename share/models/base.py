@@ -35,7 +35,7 @@ class ShareObjectMeta(ModelBase):
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
         'sources': lambda: models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s'),
-        'change': lambda: models.OneToOneField(Change, null=True, related_name='affected_%(class)s'),
+        'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s'),
         'date_modified': lambda: models.DateTimeField(auto_now=True),
         'date_created': lambda: models.DateTimeField(auto_now_add=True),
         'uuid': lambda: models.UUIDField(default=uuid.uuid4, editable=False)
@@ -77,7 +77,7 @@ class ShareObjectMeta(ModelBase):
             **{k: v() for k, v in cls.share_attrs.items()},
             'VersionModel': version,
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
-            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version', null=True),
+            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version'),
         })
 
         # Inject <classname>Version into the module of the original class definition

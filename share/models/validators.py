@@ -27,8 +27,8 @@ def is_valid_uri(value):
         raise ValidationError(ex)
 
 
-def validate_json(value):
-    assert isinstance(value['@graph'], list)
+def is_valid_jsonld(value):
+    raise Exception('Depricated; use JSONLDValidator')
 
 
 class JSONLDValidator:
