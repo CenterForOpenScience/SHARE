@@ -88,7 +88,6 @@ class CreativeWork(Parser):
     description = Maybe(ctx, 'subtitle')[0]
     subject = Delegate(Tag, Maybe(ctx, 'subject')[0])
     date_updated = ParseDate(Try(ctx.deposited['date-time']))
-    date_created = ParseDate(Try(ctx.created['date-time']))
 
     contributors = Map(
         Delegate(Contributor),
@@ -119,6 +118,8 @@ class CreativeWork(Parser):
         article_number = Maybe(ctx, 'article-number')
         chair = Maybe(ctx, 'chair')
         container_title = Maybe(ctx, 'container-title')
+        date_created = ParseDate(Try(ctx.created['date-time']))
+        # TODO move date_published out of extra?
         date_published = Maybe(ctx, 'issued')
         editor = Maybe(ctx, 'editor')
         licenses = Maybe(ctx, 'license')

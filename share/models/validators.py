@@ -11,6 +11,7 @@ from jsonschema import Draft4Validator
 from django.db import connection
 from django.apps import apps
 from django.core.exceptions import ValidationError
+from django.utils.deconstruct import deconstructible
 
 
 def is_valid_uri(value):
@@ -28,9 +29,10 @@ def is_valid_uri(value):
 
 
 def is_valid_jsonld(value):
-    raise Exception('Depricated; use JSONLDValidator')
+    raise Exception('Deprecated; use JSONLDValidator')
 
 
+@deconstructible
 class JSONLDValidator:
 
     __schema_cache = {}
@@ -43,12 +45,12 @@ class JSONLDValidator:
         'timestamp with time zone': 'string',
     }
 
-    def __init__(self, check_existance=True):
+    def __init__(self, check_existence=True):
         self.__blank_refs = set()
         self.__blank_nodes = set()
         self.__concrete_refs = set()
         self.__concrete_nodes = set()
-        self.__check_existance = check_existance
+        self.__check_existence = check_existence
 
     def __call__(self, value):
         try:
@@ -71,6 +73,9 @@ class JSONLDValidator:
                 OrderedDict([('@id', id), ('@type', type)]) for id, type in
                 sorted(self.__blank_refs - self.__blank_nodes)
             ])))
+
+    def __eq__(self, other):
+        return self.__check_existence == other.__check_existence
 
     def validate_node(self, value):
         model = apps.app_configs['share'].models.get(value['@type'].lower())

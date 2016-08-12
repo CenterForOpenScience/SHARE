@@ -113,7 +113,6 @@ class CreativeWork(Parser):
         ctx
     )
     subject = Delegate(ThroughTags, ctx.subjects[0])
-    date_created = RunPython('parse_date', ctx.date)
     date_published = RunPython('parse_date', ctx.date)
     language = ctx.language
     tags = Concat(

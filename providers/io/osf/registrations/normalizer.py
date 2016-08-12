@@ -81,7 +81,7 @@ class Registration(Parser):
         Delegate(Association.using(entity=Delegate(Institution))),
         Maybe(ctx, 'embeds').affiliated_institutions.data
     )
-    date_created = ParseDate(ctx.attributes.date_created)
+    date_updated = ParseDate(ctx.attributes.date_modified)
     subject = Delegate(Tag, ctx.attributes.category)
     tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
     rights = Maybe(ctx, 'attributes.node_license')
@@ -105,6 +105,7 @@ class Registration(Parser):
 
         fork = Maybe(ctx.attributes, 'fork')
         pending_registration_approval = Maybe(ctx.relationships, 'pending_registration_approval')
+        date_created = ParseDate(ctx.attributes.date_created)
         date_modified = Maybe(ctx.attributes, 'date_modified')
         registration_supplement = Maybe(ctx.attributes, 'registration_supplement')
         registered_meta_summary = Maybe(ctx, 'registered_meta.summary.value')
