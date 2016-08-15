@@ -4,7 +4,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
 
   "definitions": {
-    "primatives": {
+    "primitives": {
       "type": ["string", "number", "null"]
     },
     "reference": {
@@ -21,7 +21,7 @@
   "required": ["@graph"],
   "additionalProperties": false,
   "properties": {
-    "context": {"type": "object"},
+    "@context": {"type": "object"},
 
     "@graph": {
       "description": "Used to express a graph.",
@@ -37,7 +37,7 @@
         "additionalProperties": {
           "oneOf": [
             {"$ref": "#/definitions/reference"},
-            {"$ref": "#/definitions/primatives"},
+            {"$ref": "#/definitions/primitives"},
             {"type": "array", "items": {"$ref": "#/definitions/reference"}}
           ]
         }
