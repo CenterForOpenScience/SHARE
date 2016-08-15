@@ -47,7 +47,7 @@ def XPath(chain, path):
 
 
 def Join(chain, joiner='\n'):
-    return AbstractLink.__add__(chain, JoinLink(joiner=joiner))
+    return chain + JoinLink(joiner=joiner)
 
 
 def Maybe(chain, segment, default=None):
