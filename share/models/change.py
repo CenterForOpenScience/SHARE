@@ -182,7 +182,7 @@ class Change(models.Model):
 
     def _update(self, save=True):
         self.target.change = self
-        self.target.__dict__.update(self.change)
+        self.target.__dict__.update(self._resolve_change())
         if save:
             self.target.save()
         return self.target
