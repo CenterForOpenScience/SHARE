@@ -20,7 +20,8 @@ class Disambiguator(metaclass=abc.ABCMeta):
 
     def __init__(self, id, attrs):
         self.id = id
-        self.attrs = attrs
+        # only include attrs with truthy values
+        self.attrs = { k:v for k,v in attrs.items() if v }
         self.is_blank = isinstance(id, str) and id.startswith('_:')
 
     @abc.abstractmethod

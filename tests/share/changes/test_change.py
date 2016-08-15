@@ -66,10 +66,6 @@ def merge_graph(jane_doe, john_doe):
     })
 
 
-@pytest.fixture
-def change_set(normalized_data_id):
-    return ChangeSet.objects.create(normalized_data_id=normalized_data_id)
-
 
 class TestChange:
 
