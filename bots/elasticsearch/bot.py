@@ -28,9 +28,9 @@ class ElasticSearchBot(Bot):
         'type': 'completion',
         'payloads': True,
         'context': {
-            '@type': {
+            'type': {
                 'type': 'category',
-                'path': '@type'
+                'path': 'type'
             }
         }
     }
@@ -50,9 +50,8 @@ class ElasticSearchBot(Bot):
                 }
             }],
             'properties': {
-                'sources': {
-                    'type': 'string',
-                    'index': 'not_analyzed'
+                'lists': {
+                    'enabled': False
                 }
             }
         },
@@ -63,10 +62,6 @@ class ElasticSearchBot(Bot):
         },
         'person': {
             'properties': {
-                'sources': {
-                    'type': 'string',
-                    'index': 'not_analyzed'
-                },
                 'suggest': SUGGEST_MAPPING
             }
         },

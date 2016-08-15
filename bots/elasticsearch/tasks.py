@@ -22,16 +22,24 @@ def safe_substr(value, length=32000):
     return None
 
 
+def score_text(text):
+    return int(
+        (len(re.findall('(?!\d)\w', text)) / (1 + len(re.findall('[\W\d]', text))))
+        / (len(text) / 100)
+    )
+
+
 def add_suggest(obj):
     if obj['name']:
         obj['suggest'] = {
             'input': re.split('[\\s,]', obj['name']) + [obj['name']],
             'output': obj['name'],
             'payload': {
-                '@id': obj['@id'],
+                'id': obj['id'],
                 'name': obj['name'],
-                '@type': obj['@type'],
-            }
+                'type': obj['type'],
+            },
+            'weight': score_text(obj['name'])
         }
     return obj
 
@@ -62,8 +70,8 @@ class IndexModelTask(ProviderTask):
 
     def serialize_person(self, person, suggest=True):
         serialized_person = {
-            '@id': person.pk,
-            '@type': 'person',
+            'id': person.pk,
+            'type': 'person',
             'suffix': safe_substr(person.suffix),
             'given_name': safe_substr(person.given_name),
             'family_name': safe_substr(person.family_name),
@@ -78,14 +86,14 @@ class IndexModelTask(ProviderTask):
                 for affiliation in
                 person.affiliations.all()
             ],
-            'sources': [source.robot for source in person.sources.all()],
+            'sources': [self.serialize_source(source) for source in person.sources.all()],
         }
         return add_suggest(serialized_person) if suggest else serialized_person
 
     def serialize_entity(self, entity, suggest=True):
         serialized_entity = {
-            '@id': entity.pk,
-            '@type': type(entity).__name__.lower(),
+            'id': entity.pk,
+            'type': type(entity).__name__.lower(),
             'name': safe_substr(entity.name),
             'url': entity.url,
             'location': safe_substr(entity.location),
@@ -94,23 +102,26 @@ class IndexModelTask(ProviderTask):
 
     def serialize_tag(self, tag, suggest=True):
         serialized_tag = {
-            '@id': str(tag.pk),
-            '@type': 'tag',
+            'id': str(tag.pk),
+            'type': 'tag',
             'name': safe_substr(tag.name),
         }
         return add_suggest(serialized_tag) if suggest else serialized_tag
 
     def serialize_creative_work(self, creative_work):
+        serialized_lists = {
+            'contributors': [self.serialize_person(person) for person in creative_work.contributors.order_by('contributor__order_cited')],
+            'funders': [self.serialize_entity(entity) for entity in creative_work.funders.all()],
+            'publishers': [self.serialize_entity(entity) for entity in creative_work.publishers.all()],
+            'institutions': [self.serialize_entity(entity) for entity in creative_work.institutions.all()],
+            'organizations': [self.serialize_entity(entity) for entity in creative_work.organizations.all()],
+        }
+
         return {
-            '@type': type(creative_work).__name__.lower(),
-            'funders': [self.serialize_entity(entity, False) for entity in creative_work.funders.all()],
-            'publishers': [self.serialize_entity(entity, False) for entity in creative_work.publishers.all()],
-            'institutions': [self.serialize_entity(entity, False) for entity in creative_work.institutions.all()],
-            'organizations': [self.serialize_entity(entity, False) for entity in creative_work.organizations.all()],
+            'type': type(creative_work).__name__.lower(),
             'title': safe_substr(creative_work.title),
-            'language': safe_substr(creative_work.language),
-            'subject': safe_substr(creative_work.subject),
             'description': safe_substr(creative_work.description),
+            'language': safe_substr(creative_work.language),
             'date': (
                 creative_work.date_published or creative_work.date_updated or creative_work.date_created
             ).isoformat(),
@@ -118,12 +129,22 @@ class IndexModelTask(ProviderTask):
             'date_modified': creative_work.date_modified.isoformat(),
             'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
             'date_published': creative_work.date_published.isoformat() if creative_work.date_published else None,
-            'tags': [safe_substr(tag) for tag in creative_work.tags.all()],
-            'links': [safe_substr(link) for link in creative_work.links.all()],
-            'awards': [safe_substr(award) for award in creative_work.awards.all()],
-            'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
-            'sources': [safe_substr(source.long_title) for source in creative_work.sources.all()],
-            'contributors': [self.serialize_person(person, False) for person in creative_work.contributors.all()],
+            'tag': [safe_substr(tag) for tag in creative_work.tags.all()],
+            'award': [safe_substr(award) for award in creative_work.awards.all()],
+            'venue': [safe_substr(venue) for venue in creative_work.venues.all()],
+            'source': [safe_substr(source.long_title) for source in creative_work.sources.all()],
+            'contributor': [c['name'] for c in serialized_lists['contributors']],
+            'funder': [c['name'] for c in serialized_lists['funders']],
+            'publisher': [c['name'] for c in serialized_lists['publishers']],
+            'institution': [c['name'] for c in serialized_lists['institutions']],
+            'organization': [c['name'] for c in serialized_lists['organizations']],
+            'lists': serialized_lists
+        }
+
+    def serialize_source(self, source):
+        return {
+            'name': safe_substr(source.long_title),
+            'short_name': safe_substr(source.robot)
         }
 
 
@@ -142,8 +163,8 @@ class IndexSourceTask(ProviderTask):
 
     def serialize(self, source):
         serialized_source = {
-            '@id': str(source.pk),
-            '@type': 'source',
+            'id': str(source.pk),
+            'type': 'source',
             'name': safe_substr(source.long_title),
             'short_name': safe_substr(source.robot)
         }
