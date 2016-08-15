@@ -10,8 +10,8 @@ from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLF
 # Base Creative Work class
 
 class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
-    title = models.TextField()
-    description = models.TextField()
+    title = models.TextField(blank=True)
+    description = models.TextField(blank=True)
 
     contributors = ShareManyToManyField(Person, through='Contributor')
 
