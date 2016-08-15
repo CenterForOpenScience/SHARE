@@ -1,8 +1,7 @@
-import providers.io.osf.normalizer as OSFParser
 from share.normalize.normalizer import Normalizer
 
 from share.normalize.parsers import Parser
-from share.normalize import Delegate, RunPython, Map, ctx, Maybe, ParseDate
+from share.normalize import Delegate, RunPython, Map, ctx, Try, ParseDate
 
 
 class Person(Parser):
@@ -70,20 +69,20 @@ class ThroughLinks(Parser):
 
 
 class Preprint(Parser):
-    schema = 'Preprint'
     title = ctx.attributes.title
-    description = ctx.attributes.abstract
+    description = Try(ctx.attributes.abstract)
     contributors = Map(Delegate(Contributor), ctx['contributors'])
     date_created = ParseDate(ctx.attributes.date_created)
+    # TODO: update subject once implemented
     subject = Delegate(Tag, ctx.attributes.subjects)
     links = Map(
         Delegate(ThroughLinks),
         ctx.links.self,
         ctx.links.html,
-        ctx.links.doi
+        Try(ctx.links.doi)
     )
-    tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
-    rights = Maybe(ctx, 'attributes.node_license')
+    tags = Map(Delegate(ThroughTags), Try(ctx.attributes.tags))
+    rights = Try(ctx.attributes.node_license)
 
     class Extra:
         files = ctx.relationships.files.links.related.href
@@ -95,7 +94,6 @@ class Preprint(Parser):
 
 
 class PreprintNormalizer(Normalizer):
-    root_parser = OSFParser.Project
 
     def do_normalize(self, data):
         unwrapped = self.unwrap_data(data)
