@@ -94,7 +94,7 @@ class Preprint(Parser):
         doi_plain = ctx.attributes.doi
 
 
-class SocarxivNormalizer(Normalizer):
+class PreprintNormalizer(Normalizer):
     root_parser = OSFParser.Project
 
     def do_normalize(self, data):

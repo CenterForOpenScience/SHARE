@@ -11,13 +11,11 @@ from providers.io.osf.harvester import OSFHarvester
 logger = logging.getLogger(__name__)
 
 
-
 class OSFRegistrationsHarvester(OSFHarvester):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.url = 'https://api.osf.io/v2/registrations/'
-
 
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
 

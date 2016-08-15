@@ -168,6 +168,7 @@ INSTALLED_APPS = [
     'providers.info.spdataverse',
     'providers.io.engrxiv',
     'providers.io.osf',
+    'providers.io.osf.preprints',
     'providers.io.osf.registrations',
     'providers.io.socarxiv',
     # 'providers.io.osfshare',  # push api?

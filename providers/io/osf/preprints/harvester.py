@@ -11,7 +11,7 @@ from providers.io.osf.harvester import OSFHarvester
 logger = logging.getLogger(__name__)
 
 
-class EngrxivHarvester(OSFHarvester):
+class PreprintHarvester(OSFHarvester):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,7 +21,7 @@ class EngrxivHarvester(OSFHarvester):
 
         url = furl(self.url)
 
-        url.args['filter[provider]'] = 'engrXiv'
+        url.args['filter[provider]'] = 'osf'
         url.args['page[size]'] = 100
         url.args['filter[date_modified][gt]'] = start_date.date().isoformat()
         url.args['filter[date_modified][lt]'] = end_date.date().isoformat()
