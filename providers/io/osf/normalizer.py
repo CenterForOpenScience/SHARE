@@ -66,7 +66,7 @@ class Project(Parser):
         ctx.embeds.affiliated_institutions.data
     )
     date_updated = tools.ParseDate(ctx.attributes.date_modified)
-    subject = tools.Delegate(Tag, ctx.attributes.category)
+    subject = tools.Delegate(Tag, tools.Maybe(ctx, 'attributes.category'))
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.tags)
     rights = tools.Maybe(ctx, 'attributes.node_license')
     links = tools.Map(tools.Delegate(ThroughLinks), ctx.links.html)
