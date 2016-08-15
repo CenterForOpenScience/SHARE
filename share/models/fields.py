@@ -36,7 +36,7 @@ def decode_datetime_objects(nested_value):
     if isinstance(nested_value, list):
         return [decode_datetime_objects(item) for item in nested_value]
     elif isinstance(nested_value, dict):
-        for key, value in nested_value.iteritems():
+        for key, value in nested_value.items():
             if isinstance(value, dict) and 'type' in value.keys():
                 if value['type'] == 'encoded_datetime':
                     nested_value[key] = parser.parse(value['value'])
