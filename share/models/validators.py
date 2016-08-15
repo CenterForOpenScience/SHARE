@@ -46,10 +46,6 @@ class JSONLDValidator:
     }
 
     def __init__(self, check_existence=True):
-        self.__blank_refs = set()
-        self.__blank_nodes = set()
-        self.__concrete_refs = set()
-        self.__concrete_nodes = set()
         self.__check_existence = check_existence
 
     def __call__(self, value):
@@ -61,23 +57,25 @@ class JSONLDValidator:
         if len(value['@graph']) < 1:
             raise ValidationError('@graph may not be empty')
 
+        refs = {'blank': set(), 'concrete': set()}
+        nodes = {'blank': set(), 'concrete': set()}
         for i, node in enumerate(value['@graph']):
             try:
-                self.validate_node(node)
+                self.validate_node(node, refs, nodes)
             except exceptions.ValidationError as e:
                 e.path.appendleft(i)  # Hack to add in a leading slash
                 raise ValidationError('{} at /@graph/{}'.format(e.message, i, '/'.join(str(x) for x in e.path)))
 
-        if self.__blank_refs - self.__blank_nodes:
+        if refs['blank'] - nodes['blank']:
             raise ValidationError('Unresolved references {}'.format(json.dumps([
                 OrderedDict([('@id', id), ('@type', type)]) for id, type in
-                sorted(self.__blank_refs - self.__blank_nodes)
+                sorted(refs['blank'] - nodes['blank'])
             ])))
 
     def __eq__(self, other):
         return self.__check_existence == other.__check_existence
 
-    def validate_node(self, value):
+    def validate_node(self, value, refs, nodes):
         model = apps.app_configs['share'].models.get(value['@type'].lower())
         if model is None:
             raise ValidationError("'{}' is not a valid type".format(value['@type']))
@@ -89,14 +87,14 @@ class JSONLDValidator:
                 continue
 
             if isinstance(val['@id'], str) and val['@id'].startswith('_:'):
-                self.__blank_refs.add((val['@id'], val['@type'].lower()))
+                refs['blank'].add((val['@id'], val['@type'].lower()))
             else:
-                self.__concrete_refs.add((str(val['@id']), val['@type'].lower()))
+                refs['concrete'].add((str(val['@id']), val['@type'].lower()))
 
         if isinstance(value['@id'], str) and value['@id'].startswith('_:'):
-            self.__blank_nodes.add((value['@id'], value['@type'].lower()))
+            nodes['blank'].add((value['@id'], value['@type'].lower()))
         else:
-            self.__concrete_nodes.add((str(value['@id']), value['@type'].lower()))
+            nodes['concrete'].add((str(value['@id']), value['@type'].lower()))
 
     def json_schema_for_field(self, field):
         if field.is_relation:
