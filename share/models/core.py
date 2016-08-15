@@ -17,7 +17,7 @@ from fuzzycount import FuzzyCountManager
 from oauth2_provider.models import AccessToken, Application
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
-from share.models.fields import DatetimeAwareJSONField, ShareURLField
+from share.models.fields import DateTimeAwareJSONField, ShareURLField
 from share.models.validators import JSONLDValidator
 
 logger = logging.getLogger(__name__)
@@ -218,7 +218,7 @@ class NormalizedData(models.Model):
     created_at = models.DateTimeField(null=True)
     raw = models.ForeignKey(RawData, null=True)
     # TODO Rename this to data
-    normalized_data = DatetimeAwareJSONField(default={}, validators=[JSONLDValidator(), ])
+    normalized_data = DateTimeAwareJSONField(default={}, validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')
 

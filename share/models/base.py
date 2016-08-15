@@ -141,7 +141,7 @@ class VersionManager(FuzzyCountManager):
 
 
 class ExtraData(models.Model, metaclass=ShareObjectMeta):
-    data = fields.DatetimeAwareJSONField(default=dict)
+    data = fields.DateTimeAwareJSONField(default=dict)
 
     objects = FuzzyCountManager()
     versions = VersionManager()
