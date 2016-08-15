@@ -153,7 +153,7 @@ class JSONLDValidator:
         }
 
         for field in model._meta.get_fields():
-            if field.auto_created or field.name in {'id', 'uuid', 'sources', 'changes', 'date_created', 'date_modified', 'same_as', 'extra', 'type'}:
+            if field.auto_created or (field.name == 'type' and model._meta.proxy) or field.name in {'id', 'uuid', 'sources', 'changes', 'date_created', 'date_modified', 'same_as', 'extra'}:
                 continue
             if field.is_relation and not hasattr(field.related_model, 'VersionModel'):
                 continue
