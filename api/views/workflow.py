@@ -112,7 +112,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
             return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChangeSetViewSet(viewsets.ModelViewSet):
