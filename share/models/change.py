@@ -242,6 +242,7 @@ class Change(models.Model):
                 else:
                     from share.models.base import ExtraData
                     change[k] = ExtraData()
+                change[k].change = self
                 change[k].data.update({self.change_set.normalized_data.source.username: v})
                 change[k].save()
                 change[k].refresh_from_db()
