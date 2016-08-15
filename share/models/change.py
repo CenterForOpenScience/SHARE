@@ -141,7 +141,6 @@ class Change(models.Model):
         ret = self._accept(save)
 
         if save:
-            logger.warning('Calling accept with save=False will not update the sources field')
             # Psuedo hack, sources.add(...) tries to do some safety checks.
             # Don't do that. We have a database. That is its job. Let it do its job.
             ret._meta.get_field('sources').rel.through.objects.get_or_create(**{
@@ -150,6 +149,8 @@ class Change(models.Model):
             })
 
             self.save()
+        else:
+            logger.warning('Calling accept with save=False will not update the sources field')
 
         return ret
 
