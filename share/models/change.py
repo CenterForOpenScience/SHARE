@@ -141,7 +141,6 @@ class Change(models.Model):
         ret = self._accept(save)
 
         if save:
-            logger.warning('Calling accept with save=False will not update the sources field')
             # Psuedo hack, sources.add(...) tries to do some safety checks.
             # Don't do that. We have a database. That is its job. Let it do its job.
             ret._meta.get_field('sources').rel.through.objects.get_or_create(**{
@@ -150,6 +149,8 @@ class Change(models.Model):
             })
 
             self.save()
+        else:
+            logger.warning('Calling accept with save=False will not update the sources field')
 
         return ret
 
@@ -181,7 +182,7 @@ class Change(models.Model):
 
     def _update(self, save=True):
         self.target.change = self
-        self.target.__dict__.update(self.change)
+        self.target.__dict__.update(self._resolve_change())
         if save:
             self.target.save()
         return self.target
@@ -242,6 +243,7 @@ class Change(models.Model):
                 else:
                     from share.models.base import ExtraData
                     change[k] = ExtraData()
+                change[k].change = self
                 change[k].data.update({self.change_set.normalized_data.source.username: v})
                 change[k].save()
                 change[k].refresh_from_db()

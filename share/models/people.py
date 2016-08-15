@@ -27,7 +27,7 @@ class Identifier(ShareObject):
 
 class Person(ShareObject):
     family_name = models.TextField(db_index=True)  # last
-    given_name = models.TextField(db_index=True)  # first
+    given_name = models.TextField(blank=True, db_index=True)  # first
     additional_name = models.TextField(blank=True, db_index=True)  # can be used for middle
     suffix = models.TextField(blank=True, db_index=True)
 

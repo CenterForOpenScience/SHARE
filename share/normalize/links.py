@@ -274,7 +274,7 @@ class ConcatLink(AbstractLink):
             return acc
         if not isinstance(val, list):
             val = [val]
-        return acc + [v for v in val if v is not None]
+        return acc + [v for v in val if v != '' and v is not None]
 
     def execute(self, obj):
         return reduce(self._concat, [
