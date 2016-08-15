@@ -1,7 +1,8 @@
 import pytest
 
-from share.models import Person, NormalizedData
+from share.models import Person, NormalizedData, Change, ChangeSet
 from share.models import ShareUser
+from share.change import ChangeNode
 
 
 @pytest.fixture
@@ -24,6 +25,31 @@ def normalized_data_id(normalized_data):
 
 
 @pytest.fixture
+def change_set(normalized_data_id):
+    return ChangeSet.objects.create(normalized_data_id=normalized_data_id)
+
+
+@pytest.fixture
+def change_node():
+    return ChangeNode.from_jsonld({
+        '@id': '_:1234',
+        '@type': 'person',
+        'given_name': 'No',
+        'family_name': 'Matter',
+    }, disambiguate=False)
+
+
+@pytest.fixture
+def change(change_node, change_set):
+    return Change.objects.from_node(change_node, change_set)
+
+
+@pytest.fixture
+def change_id(change):
+    return change.id
+
+
+@pytest.fixture
 def john_doe(share_source):
     return Person.objects.create(given_name='John', family_name='Doe')
 
@@ -31,3 +57,4 @@ def john_doe(share_source):
 @pytest.fixture
 def jane_doe(share_source):
     return Person.objects.create(given_name='Jane', family_name='Doe')
+
