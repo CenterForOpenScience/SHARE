@@ -131,7 +131,13 @@ class JSONLDValidator:
             return rel
         if field.choices:
             return {'enum': field.choices}
-        return {'type': JSONLDValidator.db_type_map[field.db_type(connection)]}
+
+        schema = {
+            'type': JSONLDValidator.db_type_map[field.db_type(connection)],
+        }
+        if schema['type'] == 'string' and not field.blank:
+            schema['minLength'] = 1
+        return schema
 
     def validator_for(self, model):
         if model in JSONLDValidator.__schema_cache:
