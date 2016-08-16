@@ -1,3 +1,5 @@
+from django.utils.functional import cached_property
+
 from share.provider import OAIProviderAppConfig
 
 
@@ -10,7 +12,7 @@ class AppConfig(OAIProviderAppConfig):
     url = 'http://oai.datacite.org/oai'
     disabled = True
 
-    @property
+    @cached_property
     def user(self):
         from share.models import ShareUser
         return ShareUser.objects.get(robot='providers.org.datacite')

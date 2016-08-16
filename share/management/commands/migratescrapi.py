@@ -179,25 +179,27 @@ class Command(BaseCommand):
                             """.format(source=source)
                         )
 
-                        record_count = 0
-                        records = cursor.fetchmany(size=cursor.itersize)
-                        while records:
-                            bulk = []
-                            for (doc_id, raw) in records:
-                                if raw is None or raw == 'null' or raw['timestamps'] is None or raw['timestamps']['harvestFinished'] is None:
-                                    print('{} -> {}: {} : raw is null'.format(source, target, doc_id))
-                                    continue
-                                harvest_finished = arrow.get(raw['timestamps']['harvestFinished'])
-                                data = raw['doc'].encode()
-                                bulk.append(RawData(
-                                    source=config.user,
-                                    provider_doc_id=doc_id,
-                                    sha256=sha256(data).hexdigest(),
-                                    data=data,
-                                    date_seen=harvest_finished.datetime,
-                                    date_harvested=harvest_finished.datetime,
-                                ))
-                            RawData.objects.bulk_create(bulk)
-                            record_count += len(records)
-                            print('{} -> {}: {}'.format(source, target, record_count))
+                        with transaction.atomic():
+                            record_count = 0
                             records = cursor.fetchmany(size=cursor.itersize)
+
+                            while records:
+                                bulk = []
+                                for (doc_id, raw) in records:
+                                    if raw is None or raw == 'null' or raw['timestamps'] is None or raw['timestamps']['harvestFinished'] is None:
+                                        print('{} -> {}: {} : raw is null'.format(source, target, doc_id))
+                                        continue
+                                    harvest_finished = arrow.get(raw['timestamps']['harvestFinished'])
+                                    data = raw['doc'].encode()
+                                    bulk.append(RawData(
+                                        source=config.user,
+                                        provider_doc_id=doc_id,
+                                        sha256=sha256(data).hexdigest(),
+                                        data=data,
+                                        date_seen=harvest_finished.datetime,
+                                        date_harvested=harvest_finished.datetime,
+                                    ))
+                                RawData.objects.bulk_create(bulk)
+                                record_count += len(records)
+                                print('{} -> {}: {}'.format(source, target, record_count))
+                                records = cursor.fetchmany(size=cursor.itersize)

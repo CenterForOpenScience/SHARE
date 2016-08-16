@@ -9,6 +9,7 @@ from django.db import migrations
 from django.conf import settings
 from django.apps import AppConfig
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 
 class RobotAppConfig(AppConfig, metaclass=abc.ABCMeta):
@@ -35,7 +36,7 @@ class RobotAppConfig(AppConfig, metaclass=abc.ABCMeta):
     def schedule(self):
         raise NotImplementedError
 
-    @property
+    @cached_property
     def user(self):
         from share.models import ShareUser
         return ShareUser.objects.get(robot=self.name)
