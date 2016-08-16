@@ -11,7 +11,7 @@ __all__ = ('Venue', 'Award', 'Tag', 'Link')
 
 
 class Venue(ShareObject):
-    name = models.TextField()
+    name = models.TextField(blank=True)
     venue_type = ShareURLField(blank=True)
     location = ShareURLField(blank=True)
     community_identifier = ShareURLField(blank=True)
