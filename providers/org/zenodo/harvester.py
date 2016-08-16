@@ -13,7 +13,7 @@ class ZenodoHarvester(OAIHarvester):
         url = furl(self.url)
         url.args['verb'] = 'ListRecords'
         url.args['metadataPrefix'] = 'oai_datacite3'
-        url.args['set']= 'openaire_data'
+        url.args['set'] = 'openaire_data'
 
         if self.time_granularity:
             url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00') + 'Z'

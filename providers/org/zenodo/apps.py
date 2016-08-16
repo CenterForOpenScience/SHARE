@@ -1,5 +1,7 @@
 from share.provider import ProviderAppConfig
 from .harvester import ZenodoHarvester
+from providers.org.datacite.normalizer import DataciteNormalizer
+
 
 class AppConfig(ProviderAppConfig):
     name = 'providers.org.zenodo'
@@ -9,6 +11,7 @@ class AppConfig(ProviderAppConfig):
     home_page = 'https://zenodo.org/oai2d'
     url = 'https://zenodo.org/oai2d'
     harvester = ZenodoHarvester
+    normalizer = DataciteNormalizer
     rate_limit = (1, 2)
     namespaces = {
         'http://purl.org/dc/elements/1.1/': 'dc',

@@ -2,6 +2,7 @@ import logging
 
 from share.normalize import ctx, tools
 from share.normalize.parsers import Parser
+from share.normalize.normalizer import Normalizer
 
 
 logger = logging.getLogger(__name__)
@@ -699,3 +700,10 @@ class CreativeWork(Parser):
             return text_list
         else:
             raise Exception('{} is not a list.'.format(data))
+
+
+class DataciteNormalizer(Normalizer):
+
+    def do_normalize(self, data):
+        unwrapped = self.unwrap_data(data)
+        return CreativeWork(unwrapped).parse()
