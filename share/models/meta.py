@@ -1,11 +1,12 @@
 from django.db import models
+from mptt.models import MPTTModel, TreeForeignKey
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, URIField, ShareURLField, ShareManyToManyField
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Link')
+__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject')
 
 # TODO Rename this file
 
@@ -45,6 +46,20 @@ class Link(ShareObject):
 
     def __str__(self):
         return self.url
+
+
+class Subject(MPTTModel):
+    id = models.AutoField(primary_key=True)
+    name = models.TextField()
+    long_name = models.TextField()
+    synonyms = models.TextField()
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+
+    def __str__(self):
+        return self.long_name
+
+    class MPTTMeta:
+        order_insertion_by = ['name']
 
 
 # Through Tables for all the things
@@ -87,3 +102,11 @@ class ThroughAwardEntities(ShareObject):
 
     class Meta:
         unique_together = ('award', 'entity')
+
+
+class ThroughSubjects(ShareObject):
+    subject = TreeForeignKey('Subject')
+    creative_work = ShareForeignKey('AbstractCreativeWork')
+
+    class Meta:
+        unique_together = ('subject', 'creative_work')
