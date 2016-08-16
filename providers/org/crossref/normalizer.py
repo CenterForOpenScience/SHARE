@@ -26,9 +26,10 @@ class Publisher(Parser):
 class Funder(Parser):
     name = ctx.name
 
-
-class Award(Parser):
-    award = ctx.award
+    class Extra:
+        doi = Maybe(ctx, 'DOI')
+        award = Maybe(ctx, 'award')
+        doi_asserted_by = Maybe(ctx, 'doi-asserted-by')
 
 
 class Association(Parser):
@@ -105,10 +106,6 @@ class CreativeWork(Parser):
     )
     funders = Map(
         Delegate(Association.using(entity=Delegate(Funder))),
-        Maybe(ctx, 'funder')
-    )
-    awards = Map(
-        Delegate(Association.using(entity=Delegate(Award))),
         Maybe(ctx, 'funder')
     )
 
