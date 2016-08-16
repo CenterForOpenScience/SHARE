@@ -132,7 +132,7 @@ class ContributorPerson(Parser):
     family_name = tools.ParseName(ctx.contributorName).last
     given_name = tools.ParseName(ctx.contributorName).first
     additional_name = tools.ParseName(ctx.contributorName).middle
-    identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), tools.Concat(tools.Try(ctx, 'nameIdentifier')))
+    identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), tools.Try(ctx.nameIdentifier))
 
     class Extra:
         name_identifier = tools.Try(
@@ -159,7 +159,7 @@ class CreatorPerson(Parser):
             ctx.affiliation
         )
     )))
-    identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), tools.Concat(tools.Try(ctx, 'nameIdentifier')))
+    identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), tools.Try(ctx.nameIdentifier))
 
     class Extra:
         name_identifier = tools.Try(
