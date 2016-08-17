@@ -50,5 +50,5 @@ xmltodict==0.10.2
 # TODO May need to downgrade
 elasticsearch==2.3.0
 # newrelic APM agent
-newrelic==2.66.0.49
+newrelic==2.68.0.50
 raven==5.23.0
