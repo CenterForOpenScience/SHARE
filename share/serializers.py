@@ -158,10 +158,11 @@ class TagSerializer(BaseShareSerializer):
     class Meta(BaseShareSerializer.Meta):
         model = models.Tag
 
+
 class SubjectSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         ret = super(serializers.ModelSerializer, self).to_representation(obj)
-        ret['lineage'] = obj.get_ancestors()
+        ret['lineage'] = [s.name for s in obj.get_ancestors()]
         return ret
 
     class Meta:
