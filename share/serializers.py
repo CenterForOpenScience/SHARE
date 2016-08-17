@@ -160,14 +160,11 @@ class TagSerializer(BaseShareSerializer):
 
 
 class SubjectSerializer(serializers.ModelSerializer):
-    def to_representation(self, obj):
-        ret = super(serializers.ModelSerializer, self).to_representation(obj)
-        ret['lineage'] = [s.name for s in obj.get_ancestors()]
-        return ret
+    synonyms = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = models.Subject
-        fields = ('id', 'name', 'synonyms')
+        fields = ('id', 'name', 'lineages', 'synonyms')
 
 
 class AbstractCreativeWorkSerializer(BaseShareSerializer):

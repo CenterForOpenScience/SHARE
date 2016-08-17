@@ -1,5 +1,5 @@
 from django.db import models
-from mptt.models import MPTTModel, TreeForeignKey
+from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, URIField, ShareURLField, ShareManyToManyField
@@ -48,18 +48,23 @@ class Link(ShareObject):
         return self.url
 
 
-class Subject(MPTTModel):
-    id = models.AutoField(primary_key=True)
-    name = models.TextField()
-    long_name = models.TextField()
-    synonyms = models.TextField()
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+class Subject(models.Model):
+    name = models.TextField(unique=True)
+    lineages = JSONField()
+    
+    def __str__(self):
+        return self.name
+
+
+class SubjectSynonym(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='synonyms')
+    synonym = models.TextField(db_index=True)
 
     def __str__(self):
-        return self.long_name
+        return self.synonym
 
-    class MPTTMeta:
-        order_insertion_by = ['name']
+    class Meta:
+        unique_together = ('subject', 'synonym')
 
 
 # Through Tables for all the things
@@ -105,7 +110,7 @@ class ThroughAwardEntities(ShareObject):
 
 
 class ThroughSubjects(ShareObject):
-    subject = TreeForeignKey('Subject')
+    subject = models.ForeignKey('Subject')
     creative_work = ShareForeignKey('AbstractCreativeWork')
 
     class Meta:
