@@ -158,6 +158,16 @@ class TagSerializer(BaseShareSerializer):
     class Meta(BaseShareSerializer.Meta):
         model = models.Tag
 
+class SubjectSerializer(serializers.ModelSerializer):
+    def to_representation(self, obj):
+        ret = super(serializers.ModelSerializer, self).to_representation(obj)
+        ret['lineage'] = obj.get_ancestors()
+        return ret
+
+    class Meta:
+        model = models.Subject
+        fields = ('id', 'name', 'synonyms')
+
 
 class AbstractCreativeWorkSerializer(BaseShareSerializer):
     tags = TagSerializer(many=True)
@@ -166,7 +176,7 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     venues = VenueSerializer(sparse=True, many=True)
     awards = AwardSerializer(sparse=True, many=True)
     links = LinkSerializer(many=True)
-    subject = TagSerializer(sparse=True)
+    subjects = SubjectSerializer(many=True)
     extra = ExtraDataSerializer()
 
 
