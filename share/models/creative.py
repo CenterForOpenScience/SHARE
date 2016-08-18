@@ -4,7 +4,7 @@ from share.models.base import ShareObject
 from share.models.people import Person
 from share.models.base import TypedShareObjectMeta
 from share.models.meta import Venue, Award, Tag
-from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
+from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField, TypedManyToManyField
 
 
 # Base Creative Work class
@@ -25,7 +25,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     institutions = ShareManyToManyField('Institution', through='Association')
     organizations = ShareManyToManyField('Organization', through='Association')
 
-    subject = ShareForeignKey(Tag, related_name='subjected_%(class)s', null=True)
+    subjects = TypedManyToManyField('Subject', related_name='subjected_%(class)s', through='ThroughSubjects')
     # Note: Null allows inserting of None but returns it as an empty string
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
     date_created = models.DateTimeField(null=True, db_index=True)
