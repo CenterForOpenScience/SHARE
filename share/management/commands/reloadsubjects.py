@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('subject-file', type=argparse.FileType('r'), help='CSV file of PLOS subject area taxonomy')
         parser.add_argument('synonym-file', type=argparse.FileType('r'), help='CSV file of PLOS subject area synonyms')
-        parser.add_argument('--max-depth', type=int, default=3, help='Number of tiers of the taxonomy to include')
+        parser.add_argument('--max-depth', type=int, default=12, help='Number of tiers of the taxonomy to include')
 
     def handle(self, *args, **options):
         self.stdout.write('Loading synonyms...')
