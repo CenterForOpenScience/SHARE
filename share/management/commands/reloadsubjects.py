@@ -68,7 +68,7 @@ class Command(BaseCommand):
                     'pk': next_id,
                     'name': name,
                     'lineages': [],
-                    'synonyms': synonyms[name] if name in synonyms else []
+                    'synonyms': synonyms[name] if name in synonyms else [name]
                 }
                 next_id = next_id + 1
             if lineage:
@@ -92,8 +92,8 @@ class Command(BaseCommand):
             if not sym:
                 continue  # No Synonym exists
             if term not in synonyms:
-                synonyms[term] = []
-            synonyms[term].append(sym)
+                synonyms[term] = set([term])
+            synonyms[term].add(sym)
 
         return synonyms
 
