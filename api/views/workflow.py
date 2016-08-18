@@ -6,11 +6,10 @@ from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
     ShareUserSerializer, ProviderSerializer
-from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData, Subject
-from share.serializers import SubjectSerializer
+from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
 from share.tasks import MakeJsonPatches
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SubjectViewSet')
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -152,8 +151,3 @@ class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = RawDataSerializer
 
     queryset = RawData.objects.all()
-
-class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = SubjectSerializer
-
-    queryset = Subject.objects.all()
