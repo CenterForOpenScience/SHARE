@@ -29,7 +29,6 @@ class TestSubject:
         disSubject = None
         try:
             disSubject = disambiguate('_:', {'name': 'That'}, Subject)
+            assert False
         except:
             assert disSubject is None
-            return
-        assert False
