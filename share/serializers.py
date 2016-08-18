@@ -160,11 +160,9 @@ class TagSerializer(BaseShareSerializer):
 
 
 class SubjectSerializer(serializers.ModelSerializer):
-    synonyms = serializers.StringRelatedField(many=True)
-
     class Meta:
         model = models.Subject
-        fields = ('id', 'name', 'lineages', 'synonyms')
+        fields = ('id', 'name', 'lineages')
 
 
 class AbstractCreativeWorkSerializer(BaseShareSerializer):
