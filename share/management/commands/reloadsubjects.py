@@ -4,7 +4,7 @@ import json
 
 from django.core.management.base import BaseCommand
 
-from share.models import Subject
+from share.models import Subject, SubjectSynonym
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
@@ -15,11 +15,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Loading synonyms...')
         synonyms = self.parse_synonyms(options['synonym-file'])
+        synonyms_count = sum(len(s) for s in synonyms.values())
 
         self.stdout.write('Loading subjects...')
         subjects = self.parse_subjects(options['subject-file'], options['max_depth'], synonyms)
 
-        self.stdout.write('Saving {} unique subjects...'.format(len(subjects)))
+        self.stdout.write('Saving {} unique subjects and {} synonyms...'.format(len(subjects), synonyms_count))
         self.reload_subjects(subjects)
 
         self.stdout.write('Done!')
@@ -27,10 +28,16 @@ class Command(BaseCommand):
     def reload_subjects(self, subjects):
         Subject.objects.all().delete()
 
-        for s in subjects:
-            subject = Subject.objects.create(pk=s['pk'], name=s['name'], lineages=s['lineages'])
-            for syn in s['synonyms']:
-                subject.synonyms.create(synonym=syn)
+        Subject.objects.bulk_create([
+            Subject(pk=sub['pk'], name=sub['name'], lineages=sub['lineages'])
+            for sub in subjects
+        ])
+
+        SubjectSynonym.objects.bulk_create([
+            SubjectSynonym(subject_id=sub['pk'], synonym=syn)
+            for sub in subjects
+            for syn in sub['synonyms']
+        ])
 
     def parse_subjects(self, subject_file, max_depth, synonyms):
         # Super weird data.
@@ -68,7 +75,7 @@ class Command(BaseCommand):
                     'pk': next_id,
                     'name': name,
                     'lineages': [],
-                    'synonyms': synonyms[name] if name in synonyms else [name]
+                    'synonyms': synonyms[name] if name in synonyms else []
                 }
                 next_id = next_id + 1
             if lineage:
@@ -92,7 +99,7 @@ class Command(BaseCommand):
             if not sym:
                 continue  # No Synonym exists
             if term not in synonyms:
-                synonyms[term] = set([term])
+                synonyms[term] = set()
             synonyms[term].add(sym)
 
         return synonyms

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db import IntegrityError
 from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
@@ -6,7 +7,7 @@ from share.models.fields import ShareForeignKey, URIField, ShareURLField, ShareM
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject')
+__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject', 'SubjectSynonym')
 
 # TODO Rename this file
 
@@ -55,6 +56,9 @@ class Subject(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self):
+        raise IntegrityError('Subjects are an immutable set! Do it in bulk, if you must.')
+
 
 class SubjectSynonym(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='synonyms')
@@ -62,6 +66,9 @@ class SubjectSynonym(models.Model):
 
     def __str__(self):
         return self.synonym
+
+    def save(self):
+        raise IntegrityError('Subjects synonyms are an immutable set! Do it in bulk, if you must.')
 
     class Meta:
         unique_together = ('subject', 'synonym')

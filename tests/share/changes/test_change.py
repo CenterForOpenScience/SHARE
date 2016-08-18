@@ -1,12 +1,14 @@
 import pytest
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 
 from share.models import Change
 from share.models import Person
 from share.models import Preprint
 from share.models import Contributor
 from share.models import ChangeSet
+from share.models import Subject
 from share.change import ChangeGraph
 
 
@@ -243,3 +245,58 @@ class TestChangeSet:
         # The affected contributor should have been updated
         assert Contributor.objects.get(person=jane_doe).versions.count() == 2
         assert Contributor.objects.get(person=jane_doe).change.change_set == change_set
+
+    @pytest.mark.django_db
+    def test_subject_accept(self, normalized_data_id):
+        Subject.objects.bulk_create([
+            Subject(name='Felines', lineages=[])
+        ])
+
+        assert Subject.objects.filter(name='Felines').count() == 1
+
+        graph = ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:987',
+                '@type': 'subject',
+                'name': 'Felines'
+            }, {
+                '@id': '_:678',
+                '@type': 'throughsubjects',
+                'subject': {'@id': '_:987', '@type': 'subject'},
+                'creative_work': {'@id': '_:789', '@type': 'preprint'},
+            }, {
+                '@id': '_:789',
+                '@type': 'preprint',
+                'title': 'All About Cats',
+            }]
+        })
+
+        change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
+
+        change_set.accept()
+
+        assert Preprint.objects.filter(subjects__name='Felines').count() == 1
+        assert Preprint.objects.filter(subjects__name='Felines').first().title == 'All About Cats'
+
+    @pytest.mark.django_db
+    def test_invalid_subject(self, normalized_data_id):
+        try:
+            graph = ChangeGraph.from_jsonld({
+                '@graph': [{
+                    '@id': '_:987',
+                    '@type': 'subject',
+                    'name': 'Felines'
+                }, {
+                    '@id': '_:678',
+                    '@type': 'throughsubjects',
+                    'subject': {'@id': '_:987', '@type': 'subject'},
+                    'creative_work': {'@id': '_:789', '@type': 'preprint'},
+                }, {
+                    '@id': '_:789',
+                    '@type': 'preprint',
+                    'title': 'All About Cats',
+                }]
+            })
+            assert False
+        except ValidationError as e:
+            assert e.message == 'Invalid subject: Felines'
