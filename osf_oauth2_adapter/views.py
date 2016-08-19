@@ -1,8 +1,6 @@
 import requests
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
-from allauth.account.adapter import DefaultAccountAdapter
-
 from allauth.utils import valid_email_or_none
 
 from allauth.account.utils import user_email, user_username, user_field

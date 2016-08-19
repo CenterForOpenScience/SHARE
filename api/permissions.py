@@ -4,6 +4,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 class ReadOnlyOrTokenHasScopeOrIsAuthenticated(TokenHasScope, IsAuthenticated, BasePermission):
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:

@@ -65,4 +65,3 @@ class CreativeWork(Parser):
         formatType = Maybe(XPath(ctx, "str[@name='formatType']"), 'str')['#text']
         id = Maybe(XPath(ctx, "str[@name='id']"), 'str')['#text']
         identifier = Maybe(XPath(ctx, "str[@name='identifier']"), 'str')['#text']
-

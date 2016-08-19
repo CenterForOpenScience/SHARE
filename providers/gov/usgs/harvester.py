@@ -1,6 +1,6 @@
 from furl import furl
 
-from datetime import date, timedelta
+from datetime import date
 
 from share.harvest.harvester import Harvester
 

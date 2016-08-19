@@ -19,6 +19,7 @@ class NormalizedDataSerializer(serializers.ModelSerializer):
 
 class ChangeSerializer(serializers.ModelSerializer):
     self = serializers.HyperlinkedIdentityField(view_name='api:change-detail')
+
     class Meta:
         model = models.Change
         fields = ('self', 'id', 'change', 'node_id', 'type', 'target', 'target_version')
@@ -35,7 +36,6 @@ class ShareUserSerializer(serializers.ModelSerializer):
             '🦄': serializers.SerializerMethodField(method_name='is_superuser'),
             '🤖': serializers.SerializerMethodField(method_name='is_robot'),
         })
-
 
     def is_robot(self, obj):
         if not isinstance(obj, AnonymousUser):
@@ -54,8 +54,9 @@ class ShareUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ShareUser
         fields = (
-        'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_active', 'gravatar',
-        'locale', 'time_zone')
+            'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login',
+            'is_active', 'gravatar', 'locale', 'time_zone'
+        )
 
 
 class ChangeSetSerializer(serializers.ModelSerializer):

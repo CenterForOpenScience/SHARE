@@ -17,7 +17,7 @@ class ShareObjectFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = ShareObject
-        fields = ['object_id',]
+        fields = ['object_id', ]
 
 
 class ChangeSetFilterSet(django_filters.FilterSet):
@@ -31,10 +31,10 @@ class ChangeSetFilterSet(django_filters.FilterSet):
             return queryset.filter(status=getattr(ChangeSet.STATUS, value))
         return queryset
 
-
     class Meta:
         model = ChangeSet
         fields = ['submitted_by', 'status', 'target_uuid']
+
 
 class ChangeFilterSet(django_filters.FilterSet):
     changeset = django_filters.filters.NumberFilter(name='change_set_id')

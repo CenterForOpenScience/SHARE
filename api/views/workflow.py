@@ -1,5 +1,4 @@
-from oauth2_provider.ext.rest_framework import TokenHasScope
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
@@ -19,7 +18,7 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ShareUserSerializer
 
     def get_queryset(self):
-        return [self.request.user,]
+        return [self.request.user, ]
 
 
 class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
@@ -31,6 +30,7 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
         if sort:
             return queryset.order_by(sort)
         return queryset
+
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
     """View showing all normalized data in the SHARE Dataset.

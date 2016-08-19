@@ -1,1 +1,1 @@
-from share.normalize.links import *
+from share.normalize.links import *  # noqa
