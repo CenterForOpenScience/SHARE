@@ -11,6 +11,9 @@ cache:
     directories:
       - node_modules
 
+addons:
+    postgresql: "9.4"
+
 install:
     - travis_retry pip install --upgrade pip
     - travis_retry pip install flake8==2.4.0 --force-reinstall --upgrade
