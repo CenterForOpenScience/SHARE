@@ -5,15 +5,11 @@ from share.models.meta import ThroughTags
 from share.disambiguation import disambiguate
 
 
-def create_tag(name, change_id):
-    return Tag.objects.create(name=name, change_id=change_id)
-
-
 class TestTag:
 
     @pytest.mark.django_db
-    def test_disambiguates(self, change_id):
-        oldTag = create_tag('This', change_id)
+    def test_disambiguates(self, change_ids):
+        oldTag = Tag.objects.create(name='This', change_id=change_ids.get())
         disTag = disambiguate('_:', {'name': 'This'}, Tag)
 
         assert disTag is not None
@@ -21,8 +17,8 @@ class TestTag:
         assert disTag.name == oldTag.name
 
     @pytest.mark.django_db
-    def test_does_not_disambiguate(self, change_id):
-        oldTag = create_tag('This', change_id)
+    def test_does_not_disambiguate(self, change_ids):
+        oldTag = Tag.objects.create(name='This', change_id=change_ids.get())
         disTag = disambiguate('_:', {'name': 'That'}, Tag)
 
         assert disTag is None

@@ -20,9 +20,10 @@ class TestRawData:
         rd = RawData(source=share_source)
 
         with pytest.raises(exceptions.ValidationError) as e:
+            rd.clean_fields()
             rd.save()
 
-        assert '"data" on {!r} can not be blank or empty'.format(rd) == e.value.args[0]
+        assert 'This field cannot be blank.' == e.value.message_dict['data'][0]
 
     def test_must_have_source(self):
         rd = RawData(data='SomeData')

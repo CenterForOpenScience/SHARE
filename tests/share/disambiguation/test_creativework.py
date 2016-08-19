@@ -10,11 +10,11 @@ def create_work(attrs):
 class TestAbstractWork:
 
     @pytest.mark.django_db
-    def test_disambiguates(self, change_id):
+    def test_disambiguates(self, change_ids):
         oldWork = create_work({
             'title': 'all about giraffes',
             'description': 'see here is the the thing about giraffes',
-            'change_id': change_id
+            'change_id': change_ids.get()
         })
         disWork = disambiguate('_:', {'title': 'all about giraffes'}, CreativeWork)
 
@@ -24,22 +24,22 @@ class TestAbstractWork:
         assert disWork.description == oldWork.description
 
     @pytest.mark.django_db
-    def test_does_not_disambiguate(self, change_id):
+    def test_does_not_disambiguate(self, change_ids):
         oldWork = create_work({
             'title': 'all about giraffes',
             'description': 'see here is the the thing about giraffes',
-            'change_id': change_id
+            'change_id': change_ids.get()
         })
         disWork = disambiguate('_:', {'title': 'all about short-necked ungulates'}, CreativeWork)
 
         assert disWork is None
 
     @pytest.mark.django_db
-    def test_does_not_disambiguate_empty_string(self, change_id):
+    def test_does_not_disambiguate_empty_string(self, change_ids):
         oldWork = create_work({
             'title': '',
             'description': 'see here is the the thing about emptiness',
-            'change_id': change_id
+            'change_id': change_ids.get()
         })
         disWork = disambiguate('_:', {'title': ''}, CreativeWork)
 
