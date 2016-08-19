@@ -7,7 +7,7 @@ from share.disambiguation import disambiguate
 
 def create_subject(name):
     Subject.objects.bulk_create([
-        Subject(pk=1, name=name, lineages=[])
+        Subject(name=name, lineages=[])
     ])
     return Subject.objects.get(name=name)
 
