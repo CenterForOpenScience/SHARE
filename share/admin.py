@@ -121,9 +121,10 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         ('uuid', 'name'),
         ('args', 'kwargs'),
         'timestamp',
-        'traceback'
+        'status',
+        'traceback',
     )
-    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'traceback')
+    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'status', 'traceback')
 
     def traceback(self, task):
         return apps.get_model('djcelery', 'taskmeta').objects.filter(task_id=task.uuid).first().traceback
