@@ -37,10 +37,10 @@ class Contributor(Parser):
 
 
 class CreativeWork(Parser):
-    title = Maybe(XPath(ctx, "str[@name='title']"), 'str')['#text']
-    description = Join(Maybe(XPath(ctx, "str[@name='abstract']"), 'str')['#text'])
-    date_published = ParseDate(Maybe(XPath(ctx, "date[@name='datePublished']"), 'date')['#text'])
-    date_updated = ParseDate(Maybe(XPath(ctx, "date[@name='dateModified']"), 'date')['#text'])
+    title = Try(XPath(ctx, "str[@name='title']").str['#text'])
+    description = Try(XPath(ctx, "str[@name='abstract']").str['#text'])
+    date_updated = ParseDate(Try(XPath(ctx, "date[@name='dateModified']").date['#text']))
+    date_published = ParseDate(Try(XPath(ctx, "date[@name='datePublished']").date['#text']))
     contributors = Map(
         Delegate(Contributor),
         Maybe(XPath(ctx, "str[@name='author']"), 'str')['#text'],
