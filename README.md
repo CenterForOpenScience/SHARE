@@ -1,48 +1,69 @@
-SHARE
-=====
+# SHARE v2
 
-[![Join the chat at https://gitter.im/CenterForOpenScience/SHARE](https://badges.gitter.im/CenterForOpenScience/SHARE.svg)](https://gitter.im/CenterForOpenScience/SHARE?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 SHARE is creating a free, open dataset of research (meta)data.
 
-SHARE Notification Service Components at COS
-=====
+[![Gitter](https://badges.gitter.im/CenterForOpenScience/SHARE.svg)](https://gitter.im/CenterForOpenScience/SHARE)
 
-Here, you can post issues related to SHARE, SHARE Notify, or the [beta application built on the Open Science Framework (OSF) using SHARE Data](http://osf.io/share)
-* [how to use the issue tracker](https://github.com/CenterForOpenScience/SHARE/wiki/Using-the-Issue-Tracker)
+## Technical Documentation
 
-More information available in the [SHARE Development Documentation](https://osf.io/wur56/wiki/home/)
+http://share-research.readthedocs.io/en/latest/index.html
 
 
-Core
------
-ScrAPI is a data processing pipeline that harvests information from many external providers and normalizes them for consumption into SHARE Notify. 
+## On the OSF
 
-You can find the scraAPI code on github at http://www.github.com/fabianvf/scrapi
-Issues specific to scrAPI internals are filed and tracked under [scrAPI's issue tracker on github](https://github.com/fabianvf/scrapi/issues).
+https://osf.io/sdxvj/
 
-Documentation on scrAPI can be found in [the SHARE Documentation on scrAPI](https://osf.io/wur56/wiki/scrAPI/) hosted on the Open Science Framework.
+                              
+## Setup for testing
+It is useful to set up a [virtual environment](http://virtualenvwrapper.readthedocs.io/en/latest/install.html) to ensure [python3](https://www.python.org/downloads/) is your designated version of python and make the python requirements specific to this project.
 
-Using SHARE
------------
-For more documentation on using the various output options for SHARE content, see the [SHARE documentation on Feed Options](https://osf.io/wur56/wiki/Feed%20Options/) hosted on the OSF.
+    mkvirtualenv share -p `which python3.5`
+    workon share
 
-There are a variety of output formats provided by the API, the links are listed below:
+Once in the `share` virtual environment, install the necessary requirements.
 
-JSON: https://osf.io/api/v1/share/search
-Atom: https://osf.io/share/atom
+    pip install -r requirements.txt
 
-A beta application built using the SHARE JSON API can be found at https://osf.io/share. 
+`docker-compose` assumes [Docker](https://www.docker.com/) is installed and running. Finally, `./up.sh` ensures everything has been installed properly.
 
+    docker-compose up -d rabbitmq postgres
+    ./up.sh
 
-Harvesters
------
-Harvesters are included within scrAPI, the data processing pipeline making up SHARE core.
+    ---------------- or ----------------
 
-You can see the code for each harvester at https://github.com/fabianvf/scrapi/tree/master/scrapi/harvesters
+    pg
+    createuser share
+    psql
+        CREATE DATABASE share;
+    python manage.py makemigrations
+    python manage.py maketriggermigrations
+    python manage.py makeprovidermigrations
+    python manage.py migrate
+    python manage.py createsuperuser
 
+## Run
+Run the API server
 
-Conflict Management
------
+    python manage.py runserver
+    
+Run Celery
 
-Casey and Faye evaluated and prototyped conflict management with [FuzzyWuzzy](https://github.com/seatgeek/fuzzywuzzy). On hold until Core is further developed.
+    python manage.py celery worker -l DEBUG
 
+## Populate with data
+This is particularly applicable to running [ember-share](https://github.com/CenterForOpenScience/ember-share), an interface for SHARE.
+
+Harvest data from providers, for example
+
+    ./manage.py harvest com.nature --async
+    ./manage.py harvest io.osf --async
+
+Pass data to elasticsearch with `runbot`. Rerunning this command will get the most recently harvested data. This can take a minute or two to finish.
+
+    ./manage.py runbot elasticsearch
+
+## Build docs
+     
+    cd docs/
+    pip install -r requirements.txt
+    make watch
