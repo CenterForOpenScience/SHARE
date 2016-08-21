@@ -33,6 +33,12 @@ class Command(BaseCommand):
             for sub in subjects
         ])
 
+        Subject.parents.through.objects.bulk_create([
+            Subject.parents.through(from_subject_id=sub['pk'], to_subject_id=parent)
+            for sub in subjects
+            for parent in sub['parents']
+        ])
+
         SubjectSynonym.objects.bulk_create([
             SubjectSynonym(subject_id=sub['pk'], synonym=syn)
             for sub in subjects
@@ -50,7 +56,7 @@ class Command(BaseCommand):
         with subject_file:
             lines = list(csv.reader(subject_file.readlines()))[1:]
         subjects = [l[:max_depth] for l in lines if any(l[:max_depth])]
-        
+
         # Transform into
         # TOP   , NEXT  , NEXT  , ...
         # TOP   , NEXT  , NEXT  , ...
@@ -74,12 +80,15 @@ class Command(BaseCommand):
                 unique_subjects[name] = {
                     'pk': next_id,
                     'name': name,
+                    'parents': [],
                     'lineages': [],
                     'synonyms': synonyms[name] if name in synonyms else []
                 }
                 next_id = next_id + 1
             if lineage:
                 unique_subjects[name]['lineages'].append(lineage)
+                if unique_subjects[lineage[-1]]['pk'] not in unique_subjects[name]['parents']:
+                    unique_subjects[name]['parents'].append(unique_subjects[lineage[-1]]['pk'])
 
         return sorted(unique_subjects.values(), key=lambda s: s['pk'])
 
@@ -87,7 +96,7 @@ class Command(BaseCommand):
         # Stored As
         # TAG1  Synonym1
         # TAG1  Synonym2
-        # TAG2  
+        # TAG2
         # TAG3  Synonym1
         # TAG4  Synonym1
         # ...
@@ -103,5 +112,3 @@ class Command(BaseCommand):
             synonyms[term].add(sym)
 
         return synonyms
-
-

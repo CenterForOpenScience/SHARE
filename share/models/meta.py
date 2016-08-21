@@ -50,9 +50,10 @@ class Link(ShareObject):
 
 
 class Subject(models.Model):
-    name = models.TextField(unique=True)
     lineages = JSONField()
-    
+    parents = models.ManyToManyField('self')
+    name = models.TextField(unique=True, db_index=True)
+
     def __str__(self):
         return self.name
 
