@@ -1,3 +1,5 @@
+from django.utils.functional import cached_property
+
 from share.provider import ProviderAppConfig
 from .harvester import PreprintHarvester
 from .normalizer import PreprintNormalizer
@@ -12,3 +14,8 @@ class AppConfig(ProviderAppConfig):
     home_page = 'http://osf.io/api/v2/preprints/'
     harvester = PreprintHarvester
     normalizer = PreprintNormalizer
+
+    @cached_property
+    def user(self):
+        from share.models import ShareUser
+        return ShareUser.objects.get(robot='providers.io.osf')

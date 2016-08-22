@@ -15,7 +15,7 @@ class PreprintHarvester(OSFHarvester):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.url = 'http://staging2-api.osf.io/v2/preprints/'
+        self.url = 'https://staging2-api.osf.io/v2/preprints/'
 
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
 

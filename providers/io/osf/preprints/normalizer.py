@@ -53,6 +53,10 @@ class Association(Parser):
     pass
 
 
+class Subject(Parser):
+    name = ctx.text
+
+
 class Link(Parser):
     url = ctx
     type = RunPython('get_link_type', ctx)
@@ -68,13 +72,16 @@ class ThroughLinks(Parser):
     link = Delegate(Link, ctx)
 
 
+class ThroughSubjects(Parser):
+    subject = Delegate(Subject, ctx)
+
+
 class Preprint(Parser):
     title = ctx.attributes.title
     description = Try(ctx.attributes.abstract)
     contributors = Map(Delegate(Contributor), ctx['contributors'])
     date_created = ParseDate(ctx.attributes.date_created)
-    # TODO: update subject once implemented
-    subject = Delegate(Tag, ctx.attributes.subjects)
+    subjects = Map(Delegate(ThroughSubjects), ctx.attributes.subjects)
     links = Map(
         Delegate(ThroughLinks),
         ctx.links.self,
@@ -86,7 +93,6 @@ class Preprint(Parser):
 
     class Extra:
         files = ctx.relationships.files.links.related.href
-        subjects = Delegate(Tag, ctx.attributes.subjects)
         date_modified = ctx.attributes.date_modified
         type_soc = ctx.type
         id_soc = ctx.id
