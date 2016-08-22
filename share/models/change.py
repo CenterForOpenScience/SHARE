@@ -167,6 +167,8 @@ class Change(models.Model):
             try:
                 with transaction.atomic():
                     inst.save()
+                    self.target_id = inst.id
+                    self.save()
             except IntegrityError as e:
                 from share.disambiguation import disambiguate
                 logger.info('Handling unique violation error %r', e)
