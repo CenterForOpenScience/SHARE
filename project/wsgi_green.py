@@ -8,9 +8,9 @@ https://docs.djangoproject.com/en/1.9/howto/deployment/wsgi/
 """
 
 from gevent import monkey
-from psycogreen.gevent import patch_psycopg
-
 monkey.patch_all()
+
+from psycogreen.gevent import patch_psycopg  # noqa
 patch_psycopg()
 
 from .wsgi import application  # noqa
