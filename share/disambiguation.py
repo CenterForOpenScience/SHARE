@@ -107,4 +107,5 @@ class SubjectDisambiguator(Disambiguator):
         if subjects:
             # TODO allow mapping a synonym to multiple subjects?
             return synonyms.first()
-        raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
+        logger.warn('Invalid Subject: {}'.format(self.attrs['name']))
+        return None
