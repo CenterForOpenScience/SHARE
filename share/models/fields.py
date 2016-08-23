@@ -103,9 +103,9 @@ class ShareOneToOneField(models.OneToOneField):
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
@@ -123,9 +123,9 @@ class ShareForeignKey(models.ForeignKey):
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
@@ -382,10 +382,15 @@ class ShareManyToManyField(TypedManyToManyField):
     def contribute_to_class(self, cls, name, **kwargs):
         actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
+
+        from share.models.base import ShareObject
+        if not isinstance(self.remote_field.model, ShareObject):
+            return
+
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
 
         actual._share_version_field = version
