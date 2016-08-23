@@ -2,7 +2,7 @@ import pytest
 
 from share.models import Person, NormalizedData, Change, ChangeSet
 from share.models import ShareUser
-from share.change import ChangeNode
+from share.change import ChangeNode, ChangeGraph
 
 
 @pytest.fixture
@@ -38,23 +38,39 @@ def change_node():
         'family_name': 'Matter',
     }, disambiguate=False)
 
+@pytest.fixture
+def change_factory(share_source, change_set, change_node):
+    class ChangeFactory:
+        def from_graph(self, graph, disambiguate=False):
+            nd = NormalizedData.objects.create(normalized_data=graph, source=share_source)
+            return ChangeSet.objects.from_graph(
+                ChangeGraph.from_jsonld(
+                    graph,
+                    disambiguate=disambiguate,
+                ),
+                nd.pk
+            )
+
+        def get(self):
+            return Change.objects.from_node(change_node, change_set)
+
+    return ChangeFactory()
+
 
 @pytest.fixture
-def change(change_node, change_set):
-    return Change.objects.from_node(change_node, change_set)
+def change_ids(change_factory):
+    class ChangeIdFactory:
+        def get(self):
+            return change_factory.get().id
+    return ChangeIdFactory()
 
 
 @pytest.fixture
-def change_id(change):
-    return change.id
+def john_doe(share_source, change_ids):
+    return Person.objects.create(given_name='John', family_name='Doe', change_id=change_ids.get())
 
 
 @pytest.fixture
-def john_doe(share_source):
-    return Person.objects.create(given_name='John', family_name='Doe')
-
-
-@pytest.fixture
-def jane_doe(share_source):
-    return Person.objects.create(given_name='Jane', family_name='Doe')
+def jane_doe(share_source, change_ids):
+    return Person.objects.create(given_name='Jane', family_name='Doe', change_id=change_ids.get())
 
