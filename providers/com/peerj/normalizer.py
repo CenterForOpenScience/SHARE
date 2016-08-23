@@ -98,7 +98,8 @@ class CreativeWork(Parser):
     contributors = Map(Delegate(Contributor), ctx.author)
     links = Concat(
         Delegate(ThroughLinks.using(link=Delegate(ISSN)), ctx.issn),
-        Map(Delegate(ThroughLinks),
+        Map(
+            Delegate(ThroughLinks),
             ctx.pdf_url,
             RunPython('format_doi', ctx.doi),
             ctx.fulltext_html_url

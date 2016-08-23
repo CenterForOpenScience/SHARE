@@ -22,6 +22,7 @@ def chunk(iterable, size):
     except StopIteration:
         yield l
 
+
 class ElasticSearchBot(Bot):
 
     SUGGEST_MAPPING = {

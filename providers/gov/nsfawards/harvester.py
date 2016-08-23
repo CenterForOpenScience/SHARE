@@ -17,7 +17,6 @@ class NSFAwardsHarvester(Harvester):
         super().__init__(*args, **kwargs)
         self.url = 'http://api.nsf.gov/services/v1/awards.json'
 
-
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         url = furl(self.url)
 

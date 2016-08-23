@@ -168,6 +168,7 @@ class ApplySingleChangeSet(celery.Task):
         else:
             changeset.accept(save=True)
 
+
 class ApplyChangeSets(celery.Task):
 
     def run(self, changeset_ids=list(), started_by_id=None):

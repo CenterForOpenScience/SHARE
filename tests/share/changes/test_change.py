@@ -66,7 +66,6 @@ def merge_graph(jane_doe, john_doe):
     })
 
 
-
 class TestChange:
 
     @pytest.mark.django_db

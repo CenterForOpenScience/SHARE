@@ -3,6 +3,7 @@ from rest_framework import serializers
 from api import fields
 from share import models
 
+
 class BaseShareSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
@@ -135,6 +136,7 @@ class ContributorSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
     # TODO find a way to do this, or don't
     # creative_work = CreativeWorkSerializer(sparse=True)
+
     class Meta(BaseShareSerializer.Meta):
         model = models.Contributor
         exclude = ('creative_work',)
@@ -142,6 +144,7 @@ class ContributorSerializer(BaseShareSerializer):
 
 class FunderSerializer(EntitySerializer):
     extra = ExtraDataSerializer()
+
     class Meta(EntitySerializer.Meta):
         model = models.Funder
 
@@ -149,12 +152,14 @@ class FunderSerializer(EntitySerializer):
 class AwardSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
     entities = EntitySerializer(many=True)
+
     class Meta(BaseShareSerializer.Meta):
         model = models.Award
 
 
 class TagSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
+
     class Meta(BaseShareSerializer.Meta):
         model = models.Tag
 
@@ -182,6 +187,7 @@ class PreprintSerializer(AbstractCreativeWorkSerializer):
 
 class PublicationSerializer(AbstractCreativeWorkSerializer):
     publishers = PublisherSerializer(many=True)
+
     class Meta(BaseShareSerializer.Meta):
         model = models.Publication
 
@@ -198,5 +204,6 @@ class ManuscriptSerializer(AbstractCreativeWorkSerializer):
 
 class Link(BaseShareSerializer):
     extra = ExtraDataSerializer()
+
     class Meta(BaseShareSerializer.Meta):
         model = models.Link

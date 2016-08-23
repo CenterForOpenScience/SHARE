@@ -21,7 +21,7 @@ class Disambiguator(metaclass=abc.ABCMeta):
     def __init__(self, id, attrs):
         self.id = id
         # only include attrs with truthy values
-        self.attrs = { k:v for k,v in attrs.items() if v }
+        self.attrs = {k: v for k, v in attrs.items() if v}
         self.is_blank = isinstance(id, str) and id.startswith('_:')
 
     @abc.abstractmethod
@@ -44,7 +44,7 @@ class GenericDisambiguator(Disambiguator):
         if not self.attrs:
             return None
         self.attrs.pop('description', None)
-        if len(self.attrs.get('title','')) > 2048:
+        if len(self.attrs.get('title', '')) > 2048:
             return None
         elif self.attrs.get('title', None):
             # if the model has a title, it's an abstractcreativework
