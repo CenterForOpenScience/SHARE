@@ -46,10 +46,10 @@ class PeerJHarvester(Harvester):
         return [furl(self.base_url).set(query_params={
             'journal': 'peerj',
         }).url,
-        furl(self.base_url).set(query_params={
-            'journal': 'cs',
-        }).url,
-        furl(self.base_preprint_url).set(query_params={
-            'journal': 'peerj',
-        }).url
+            furl(self.base_url).set(query_params={
+                'journal': 'cs',
+            }).url,
+            furl(self.base_preprint_url).set(query_params={
+                'journal': 'peerj',
+            }).url
         ]

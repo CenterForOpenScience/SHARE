@@ -8,24 +8,26 @@ import json
 import re
 import requests
 
-from share.models.creative import AbstractCreativeWork
-
 RESULTS_PER_PAGE = 250
 
 RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
                  u'|' + \
                  u'([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % \
-                 (chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff),
-                 chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff),
-                 chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff))
+    (
+        chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff),
+        chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff),
+        chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff)
+    )
 
 RE_XML_ILLEGAL_COMPILED = re.compile(RE_XML_ILLEGAL)
+
 
 def sanitize_for_xml(s):
     if s:
         s = RE_XML_ILLEGAL_COMPILED.sub('', s)
         return bleach.clean(s, strip=True, tags=[], attributes=[], styles=[])
     return s
+
 
 class CreativeWorksRSS(Feed):
     link = '/'
@@ -40,7 +42,7 @@ class CreativeWorksRSS(Feed):
         elastic_query = request.GET.get('elasticQuery')
 
         elastic_data = {
-            'sort': { 'date_modified': 'desc' },
+            'sort': {'date_modified': 'desc'},
             'from': request.GET.get('from', 0),
             'size': RESULTS_PER_PAGE
         }
@@ -86,6 +88,7 @@ class CreativeWorksRSS(Feed):
         categories = [item.get('subject')]
         categories.extend(item.get('tag'))
         return [sanitize_for_xml(c) for c in categories if c]
+
 
 class CreativeWorksAtom(CreativeWorksRSS):
     feed_type = Atom1Feed

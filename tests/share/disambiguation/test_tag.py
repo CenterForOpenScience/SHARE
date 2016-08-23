@@ -1,7 +1,6 @@
 import pytest
 
 from share.models import Tag
-from share.models.meta import ThroughTags
 from share.disambiguation import disambiguate
 
 
@@ -18,7 +17,7 @@ class TestTag:
 
     @pytest.mark.django_db
     def test_does_not_disambiguate(self, change_ids):
-        oldTag = Tag.objects.create(name='This', change_id=change_ids.get())
+        Tag.objects.create(name='This', change_id=change_ids.get())
         disTag = disambiguate('_:', {'name': 'That'}, Tag)
 
         assert disTag is None

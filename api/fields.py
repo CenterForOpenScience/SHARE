@@ -12,6 +12,7 @@ class TypeField(serializers.ReadOnlyField):
     def to_representation(self, obj):
         return obj._meta.model_name
 
+
 class ObjectIDField(serializers.ReadOnlyField):
     """
     Returns a cleaner version of a uuid

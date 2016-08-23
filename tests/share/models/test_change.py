@@ -6,7 +6,6 @@ from share.models import AbstractCreativeWork
 from share.models import Contributor
 from share.models.change import Change
 from share.models.change import ChangeSet
-from share.models import NormalizedData
 
 
 @pytest.fixture
@@ -31,7 +30,6 @@ def ld_graph():
             {'@id': '_:6203fec461bb4b3fa956772acbd9c50d', 'contributors': [{'@type': 'Contributor', '@id': '_:687a4ba2cbd54ab7a2f2c3cd1777ea8a'}, {'@type': 'Contributor', '@id': '_:27961f3c7c644101a500772477aff304'}, {'@type': 'Contributor', '@id': '_:bf7726af4542405888463c796e5b7686'}, {'@type': 'Contributor', '@id': '_:18d151204d7c431388a7e516defab1bc'}, {'@type': 'Contributor', '@id': '_:a17f28109536459ca02d99bf777400ae'}], 'title': 'Impact of Electron-Electron Cusp on Configuration Interaction Energies', '@type': 'Manuscript', 'description': '  The effect of the electron-electron cusp on the convergence of configuration\ninteraction (CI) wave functions is examined. By analogy with the\npseudopotential approach for electron-ion interactions, an effective\nelectron-electron interaction is developed which closely reproduces the\nscattering of the Coulomb interaction but is smooth and finite at zero\nelectron-electron separation. The exact many-electron wave function for this\nsmooth effective interaction has no cusp at zero electron-electron separation.\nWe perform CI and quantum Monte Carlo calculations for He and Be atoms, both\nwith the Coulomb electron-electron interaction and with the smooth effective\nelectron-electron interaction. We find that convergence of the CI expansion of\nthe wave function for the smooth electron-electron interaction is not\nsignificantly improved compared with that for the divergent Coulomb interaction\nfor energy differences on the order of 1 mHartree. This shows that, contrary to\npopular belief, description of the electron-electron cusp is not a limiting\nfactor, to within chemical accuracy, for CI calculations.\n'}  # noqa
         ]
     }
-
 
 
 @pytest.mark.django_db

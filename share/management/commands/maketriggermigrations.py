@@ -4,12 +4,10 @@ import os
 from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.db import connection
-from django.db.migrations import Migration, utils
+from django.db.migrations import Migration
 from django.db.migrations import operations
 from django.db.migrations.loader import MigrationLoader
 from django.db.migrations.writer import MigrationWriter
-
-from share.models.base import ShareObject
 
 
 # Triggers are Faster and will run in any insert/update situation
@@ -95,12 +93,11 @@ class Command(BaseCommand):
             ml = MigrationLoader(connection=connection)
             ml.build_graph()
             last_share_migration = [x[1] for x in ml.graph.leaf_nodes() if x[0] == 'share'][0]
-            next_number = '{0:04d}'.format(int(last_share_migration[0:4])+1)
+            next_number = '{0:04d}'.format(int(last_share_migration[0:4]) + 1)
             m = Migration('{}_update_trigger_migrations_{}'.format(next_number, datetime.datetime.now().strftime("%Y%m%d_%H%M")), 'share')
             m.dependencies = [('share', '0002_create_share_user'), ('share', last_share_migration)]
         m.operations = ops
         self.write_migration(m)
-
 
     def add_arguments(self, parser):
         parser.add_argument('--initial', action='store_true', help='Create initial trigger migrations')

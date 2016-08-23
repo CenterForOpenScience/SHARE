@@ -38,6 +38,7 @@ def change_node():
         'family_name': 'Matter',
     }, disambiguate=False)
 
+
 @pytest.fixture
 def change_factory(share_source, change_set, change_node):
     class ChangeFactory:
@@ -73,4 +74,3 @@ def john_doe(share_source, change_ids):
 @pytest.fixture
 def jane_doe(share_source, change_ids):
     return Person.objects.create(given_name='Jane', family_name='Doe', change_id=change_ids.get())
-
