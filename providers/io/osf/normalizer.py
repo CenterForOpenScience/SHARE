@@ -50,7 +50,7 @@ class Association(Parser):
 
 class Link(Parser):
     url = ctx
-    type = 'provider'
+    type = tools.Static('provider')
 
 
 class ThroughLinks(Parser):
