@@ -148,6 +148,23 @@ class ChangeViewSet(viewsets.ModelViewSet):
 
 
 class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Raw data, exactly as harvested from the data source.
+
+    ## Query by object
+    To get all the raw data corresponding to a Share object, use the query
+    parameters `object_id=<@id>` and `object_type=<@type>`
+    """
+
     serializer_class = RawDataSerializer
 
-    queryset = RawData.objects.all()
+    def get_queryset(self):
+        object_id = self.request.query_params.get('object_id', None)
+        object_type = self.request.query_params.get('object_type', None)
+        if object_id and object_type:
+            return RawData.objects.filter(
+                normalizeddata__changeset__changes__target_id=object_id,
+                normalizeddata__changeset__changes__target_type__model=object_type
+            ).distinct('id')
+        else:
+            return RawData.objects.all()

@@ -22,7 +22,7 @@ class ChangeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Change
-        fields = ('self', 'id', 'change', 'node_id', 'type', 'target', 'target_version')
+        fields = ('self', 'id', 'change', 'node_id', 'type', 'target_version', 'target_type', 'target_id')
 
 
 class ShareUserSerializer(serializers.ModelSerializer):
