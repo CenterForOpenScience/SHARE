@@ -80,7 +80,8 @@ class Preprint(Parser):
     title = ctx.attributes.title
     description = Try(ctx.attributes.abstract)
     contributors = Map(Delegate(Contributor), ctx['contributors'])
-    date_created = ParseDate(ctx.attributes.date_created)
+    date_updated = ParseDate(ctx.attributes.date_modified)
+    date_published = ParseDate(ctx.attributes.date_created)
     subjects = Map(Delegate(ThroughSubjects), ctx.attributes.subjects)
     links = Map(
         Delegate(ThroughLinks),
@@ -93,7 +94,6 @@ class Preprint(Parser):
 
     class Extra:
         files = ctx.relationships.files.links.related.href
-        date_modified = ctx.attributes.date_modified
         type_soc = ctx.type
         id_soc = ctx.id
         doi_plain = ctx.attributes.doi
