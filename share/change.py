@@ -125,6 +125,9 @@ class ChangeNode:
             self.id = self.__instance.pk
             self.__refs.append((self.id, self.type))
 
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.model, self.instance)
+
 
 class ChangeGraph:
 
@@ -142,15 +145,16 @@ class ChangeGraph:
         self.__map = {ref: n for n in nodes for ref in n.refs}
         self.__sorter = NodeSorter(self)
 
+        if parse:
+            self.__nodes = self.__sorter.sorted()
+
         # TODO This could probably be more efficiant
         if disambiguate:
             for n in self.__nodes:
-                n._disambiguate()
-            for n in self.__nodes:
                 n.update_relations(self.__map)
-
-        if parse:
-            self.__nodes = self.__sorter.sorted()
+                n._disambiguate()
+                for ref in n.refs:
+                    self.__map[ref] = n
 
     def get_node(self, id, type):
         try:
