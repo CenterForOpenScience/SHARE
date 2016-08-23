@@ -86,7 +86,7 @@ class IndexModelTask(ProviderTask):
                 for affiliation in
                 person.affiliations.all()
             ],
-            'sources': [self.serialize_source(source) for source in person.sources.all()],
+            'sources': [safe_substr(source.long_title) for source in person.sources.all()],
         }
         return add_suggest(serialized_person) if suggest else serialized_person
 
@@ -139,12 +139,6 @@ class IndexModelTask(ProviderTask):
             'institutions': [c['name'] for c in serialized_lists['institutions']],
             'organizations': [c['name'] for c in serialized_lists['organizations']],
             'lists': serialized_lists
-        }
-
-    def serialize_source(self, source):
-        return {
-            'name': safe_substr(source.long_title),
-            'short_name': safe_substr(source.robot)
         }
 
 
