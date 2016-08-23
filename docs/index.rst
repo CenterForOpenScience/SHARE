@@ -11,18 +11,20 @@ SHARE harvests metadata nightly from 100+ repositories, normalizes that metadata
 The technical side of SHARE has many pieces that you can interact with:
 
 - API Endpoints for accessing the raw and normalized metadata
-    + https://staging-share.osf.io/api
+    + https://share.osf.io/api
 - A search endpoint powered by elasticsearch that indexes the normalized data allowing:
    - Thorough search of creative works:
-        + Creative works: https://staging-share.osf.io/api/search/abstractcreativework/_search
+        + Creative works: `</api/search/abstractcreativework/_search_>`_
         + more info on the elasticsearch docs page: http://share-research.readthedocs.io/en/latest/elasticsearch.html
    - Data aggregations across fields
 - A python library called ``sharepa`` for SHARE Parsing and Analysis
-- An Ember application using the SHARE API for:
+- An `Ember application`_ using the SHARE API for:
    - Discovering new Projects
    - Curation
    - Corrections and Updates
-        + https://staging-share.osf.io/discover
+
+.. _`/api/search/abstractcreativework/_search`: https://share.osf.io/api/search/abstractcreativework/_search
+.. _Ember application: https://share.osf.io/discover
 
 Guide
 =====

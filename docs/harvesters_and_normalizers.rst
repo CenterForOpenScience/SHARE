@@ -48,7 +48,7 @@ Visit http://localhost:5555/dashboard to keep an eye on your harvesting and norm
 Running Existing Harvesters and Normalizers
 -------------------------------------------
 
-To see a list of all providers and their names for harvesting, visit https://staging-share.osf.io/api/providers/
+To see a list of all providers and their names for harvesting, visit https://share.osf.io/api/providers/
 
 Steps for gathering data:
     - **Harvest** data from the original source
