@@ -383,14 +383,12 @@ class ShareManyToManyField(TypedManyToManyField):
         actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
 
-        from share.models.base import ShareObject
-        if not isinstance(self.remote_field.model, ShareObject):
-            return
-
         if isinstance(self.remote_field.model, str):
             version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
-        else:
+        elif hasattr(self.remote_field.model, 'VersionModel'):
             version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
+        else:
+            return
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
 
         actual._share_version_field = version
