@@ -8,7 +8,7 @@ Push data directly into the SHARE database
 
 Using the `normalizeddata endpoint`_
 """""""""""""""""""""""""""""""""""""
-    - the payload should be in the format as the body template under the CREATE/UPDATE heading::
+    - the payload should be in the same format as the body template under the CREATE/UPDATE heading::
 
            Body (JSON):   {
             'normalized_data': {
@@ -26,8 +26,9 @@ Using the `normalizeddata endpoint`_
     - to create a record, the ``@id`` must be a unique identifier that does not exist in the database
     - to update an existing record, the format remains the same but the existing document will be updated and a new document will not be created
         - versions are kept of every change
-    - need an `OAuth bearer token`_
+    - an `OAuth bearer token`_ is needed to post to the endpoint
         - your token can be obtained by logging in on the `SHARE website`_
+    - changesets must be accepted so there will be a delay between submission and public availability
 
 Examples
 """"""""
