@@ -1,4 +1,5 @@
 from share.provider import OAIProviderAppConfig
+from providers.org.cogprints.normalizer import CogprintsNormalizer
 
 
 class AppConfig(OAIProviderAppConfig):
@@ -9,3 +10,5 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://www.cogprints.org/'
     url = 'http://cogprints.org/cgi/oai2'
     emitted_type = 'preprint'
+
+    normalizer = CogprintsNormalizer
