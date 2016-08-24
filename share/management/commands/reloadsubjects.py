@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 
 from share.models import Subject, SubjectSynonym
 
+
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('subject-file', type=argparse.FileType('r'), help='CSV file of PLOS subject area taxonomy')

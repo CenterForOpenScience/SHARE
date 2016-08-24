@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 QA_TAG = 'qatest'
 
+
 class OSFHarvester(Harvester):
 
     def __init__(self, *args, **kwargs):

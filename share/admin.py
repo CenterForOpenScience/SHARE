@@ -178,6 +178,7 @@ class RawDataAdmin(admin.ModelAdmin):
 class AccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'user', 'scope')
 
+
 class SubjectSynonymInline(admin.TabularInline):
     model = SubjectSynonym
 
@@ -186,6 +187,7 @@ class SubjectSynonymInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
             return False
+
 
 class SubjectAdmin(admin.ModelAdmin):
     inlines = [

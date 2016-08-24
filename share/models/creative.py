@@ -4,7 +4,7 @@ from share.models.base import ShareObject
 from share.models.people import Person
 from share.models.base import TypedShareObjectMeta
 from share.models.meta import Venue, Award, Tag, Subject
-from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField, TypedManyToManyField
+from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
 
 # Base Creative Work class

@@ -1,7 +1,8 @@
 import pytest
 
+from django.core.exceptions import ValidationError
+
 from share.models import Subject
-from share.models.meta import ThroughSubjects
 from share.disambiguation import disambiguate
 
 
@@ -25,10 +26,9 @@ class TestSubject:
 
     @pytest.mark.django_db
     def test_does_not_disambiguate(self):
-        oldSubject = create_subject('This')
-        disSubject = None
-        try:
-            disSubject = disambiguate('_:', {'name': 'That'}, Subject)
-            assert False
-        except:
-            assert disSubject is None
+        create_subject('This')
+
+        with pytest.raises(ValidationError) as e:
+            disambiguate('_:', {'name': 'That'}, Subject)
+
+        assert e.value.message == 'Invalid subject: That'
