@@ -13,11 +13,10 @@ from pycountry import languages
 
 from nameparser import HumanName
 
-
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects')
 
 
 #### Public API ####
@@ -76,6 +75,16 @@ def RunPython(function_name, chain=None, *args, **kwargs):
 
 def Static(value):
     return StaticLink(value)
+
+
+def Subjects(chain, name_path=None):
+    if name_path is None:
+        subjects = chain
+    elif isinstance(name_path, int):
+        subjects = Map(IndexLink(name_path), chain)
+    elif isinstance(name_path, str):
+        subjects = Map(PathLink(name_path), chain)
+    return Map(MapSubjectLink(), subjects)
 
 
 ### /Public API
@@ -457,3 +466,14 @@ class StaticLink(AbstractLink):
 
     def execute(self, obj):
         return self._value
+
+
+class MapSubjectLink(AbstractLink):
+    def execute(self, obj):
+        if not obj:
+            return None
+        from share import models
+        if models.Subject.objects.filter(name__iexact=obj).exists():
+            return obj
+        subjects = models.SubjectSynonym.objects.filter(synonym__iexact=obj).values_list('subject__name', flat=True)
+        return subjects or None
