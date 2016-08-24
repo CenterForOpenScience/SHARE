@@ -20,15 +20,6 @@ class PersonEmail(Parser):
     email = Delegate(Email, ctx)
 
 
-class Institution:
-    name = ctx.author_institution
-
-
-class Affiliation:
-    # The entity used here could be any of the entity subclasses (Institution, Publisher, Funder, Organization).
-    entity = Delegate(Institution, ctx)
-
-
 class Link(Parser):
     url = ctx
     type = RunPython('get_link_type', ctx)
@@ -45,6 +36,14 @@ class ThroughLinks(Parser):
     link = Delegate(Link, ctx)
 
 
+class Subject(Parser):
+    name = ctx
+
+
+class ThroughSubjects(Parser):
+    subject = Delegate(Subject, ctx)
+
+
 class Tag(Parser):
     name = ctx
 
@@ -58,22 +57,6 @@ class Publisher(Parser):
 
 
 class Institution(Parser):
-    name = RunPython('get_author_institute', ctx)
-
-    def get_author_institute(self, context):
-        # read into a set while preserving order and passed back to erase duplicates
-        seen = set()
-        if 'author_institution' in context:
-            if isinstance(context['author_institution'], str):
-                return [x for x in [context['author_institution']] if x not in seen and not seen.add(x)]
-            return [x for x in context['author_institution'] if x not in seen and not seen.add(x)]
-        # the below is author_institutions with an 's', it will always be a string
-        # and is sometimes present in the case that author_institution is not.
-        # This will always be a string
-        return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
-
-
-class Institutions(Parser):
     name = ctx
 
 
@@ -110,25 +93,20 @@ class CreativeWork(Parser):
     )
     institutions = Map(
         Delegate(Association.using(entity=Delegate(Institution))),
-        ctx
+        RunPython('get_author_institute', ctx)
     )
     date_published = RunPython('parse_date', ctx.date)
     language = ctx.language
-    tags = Concat(
-        Map(
-            Delegate(ThroughTags),
-            Try(ctx.keywords),
-            Try(ctx.subjects)
-        )
+    tags = Map(
+        Delegate(ThroughTags),
+        Try(ctx.keywords),
+        Try(ctx.subjects)
     )
+    subjects = Map(Delegate(ThroughSubjects), Try(ctx.subjects))
 
     class Extra:
         modified = RunPython('parse_date', ctx.date)
         subjects = Try(ctx.subjects)
-        affiliations = Map(
-            Delegate(Association.using(entity=Delegate(Institution))),
-            ctx
-        )
         identifiers = ctx.identifiers
         volume = Try(ctx.volume)
         emails = Try(ctx.author_email)
@@ -142,16 +120,24 @@ class CreativeWork(Parser):
     def parse_date(self, date_str):
         return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
 
+    def get_author_institute(self, context):
+        # read into a set while preserving order and passed back to erase duplicates
+        seen = set()
+        if 'author_institution' in context:
+            if isinstance(context['author_institution'], str):
+                return [x for x in [context['author_institution']] if x not in seen and not seen.add(x)]
+            return [x for x in context['author_institution'] if x not in seen and not seen.add(x)]
+        # the below is author_institutions with an 's', it will always be a string
+        # and is sometimes present in the case that author_institution is not.
+        # This will always be a string
+        return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
+
 
 class Preprint(CreativeWork):
 
     class Extra:
         modified = RunPython('parse_date', ctx.date)
         subjects = ctx.subjects
-        affiliations = Map(
-            Delegate(Association.using(entity=Delegate(Institution))),
-            ctx
-        )
         identifiers = Try(ctx.identifiers)
         emails = Try(ctx.author_email)
         description_html = Try(ctx['description-html'])
