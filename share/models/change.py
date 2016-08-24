@@ -40,7 +40,10 @@ class ChangeSetManager(FuzzyCountManager):
 class ChangeManager(FuzzyCountManager):
 
     def from_node(self, node, change_set):
-        if not node.change:
+        # Subjects may not be changed
+        # This case is only reached when a synoynm is sent up
+        # TODO Fix this in a better way 2016-08-23 @chrisseto
+        if not node.change or node.model == apps.get_model('share', 'subject'):
             logger.info('No changes detected in {!r}, skipping.'.format(node))
             return None
 
@@ -169,6 +172,8 @@ class Change(models.Model):
             try:
                 with transaction.atomic():
                     inst.save()
+                    self.target_id = inst.id
+                    self.save()
             except IntegrityError as e:
                 from share.disambiguation import disambiguate
                 logger.info('Handling unique violation error %r', e)

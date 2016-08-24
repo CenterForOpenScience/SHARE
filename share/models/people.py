@@ -99,6 +99,4 @@ class Contributor(ShareObject):
         return '{} -> {}'.format(self.person, self.creative_work)
 
     class Meta:
-        index_together = (
-            ('cited_name', 'order_cited',)
-        )
+        unique_together = ('person', 'creative_work')

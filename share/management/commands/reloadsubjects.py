@@ -1,10 +1,12 @@
 import argparse
 import csv
+import glob
 import json
 
 from django.core.management.base import BaseCommand
 
 from share.models import Subject, SubjectSynonym
+
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
@@ -14,11 +16,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write('Loading synonyms...')
+        mappings = self.parse_provider_mappings()
         synonyms = self.parse_synonyms(options['synonym-file'])
         synonyms_count = sum(len(s) for s in synonyms.values())
+        synonyms_count += sum(len(s) for s in mappings.values())
 
         self.stdout.write('Loading subjects...')
-        subjects = self.parse_subjects(options['subject-file'], options['max_depth'], synonyms)
+        subjects = self.parse_subjects(options['subject-file'], options['max_depth'], synonyms, mappings)
 
         self.stdout.write('Saving {} unique subjects and {} synonyms...'.format(len(subjects), synonyms_count))
         self.reload_subjects(subjects)
@@ -45,7 +49,7 @@ class Command(BaseCommand):
             for syn in sub['synonyms']
         ])
 
-    def parse_subjects(self, subject_file, max_depth, synonyms):
+    def parse_subjects(self, subject_file, max_depth, synonyms, mappings):
         # Super weird data.
         # Tier 1, Tier 2, Tier 3, ...
         # TOP   ,       ,       , ...
@@ -82,7 +86,7 @@ class Command(BaseCommand):
                     'name': name,
                     'parents': [],
                     'lineages': [],
-                    'synonyms': synonyms[name] if name in synonyms else []
+                    'synonyms': sorted(synonyms.get(name, set()) | set(mappings.get(name, [])))
                 }
                 next_id = next_id + 1
             if lineage:
@@ -112,3 +116,12 @@ class Command(BaseCommand):
             synonyms[term].add(sym)
 
         return synonyms
+
+    def parse_provider_mappings(self):
+        mappings = {}
+        for filename in glob.glob('providers/**/subject-mapping.json', recursive=True):
+            self.stdout.write('Loading {}...'.format(filename))
+            with open(filename, 'r') as fobj:
+                for key, value in json.load(fobj).items():
+                    mappings.setdefault(key, []).extend(value)
+        return mappings

@@ -121,9 +121,10 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         ('uuid', 'name'),
         ('args', 'kwargs'),
         'timestamp',
-        'traceback'
+        'status',
+        'traceback',
     )
-    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'traceback')
+    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'status', 'traceback')
 
     def traceback(self, task):
         return apps.get_model('djcelery', 'taskmeta').objects.filter(task_id=task.uuid).first().traceback
@@ -177,6 +178,7 @@ class RawDataAdmin(admin.ModelAdmin):
 class AccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'user', 'scope')
 
+
 class SubjectSynonymInline(admin.TabularInline):
     model = SubjectSynonym
 
@@ -185,6 +187,7 @@ class SubjectSynonymInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
             return False
+
 
 class SubjectAdmin(admin.ModelAdmin):
     inlines = [

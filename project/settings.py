@@ -14,6 +14,8 @@ import os
 
 from django.utils.log import DEFAULT_LOGGING
 
+from kombu import Queue, Exchange
+
 # Suppress select django deprecation messages
 LOGGING = DEFAULT_LOGGING
 LOGGING_CONFIG = 'project.log.configure'
@@ -224,27 +226,27 @@ OAUTH2_PROVIDER = {
 SOCIALACCOUNT_ADAPTER = 'osf_oauth2_adapter.views.OSFOAuth2Adapter'
 SOCIALACCOUNT_PROVIDERS = \
     {'osf':
-         {
+        {
             'METHOD': 'oauth2',
             'SCOPE': ['osf.users.profile_read'],
             'AUTH_PARAMS': {'access_type': 'offline'},
-          # 'FIELDS': [
-          #     'id',
-          #     'email',
-          #     'name',
-          #     'first_name',
-          #     'last_name',
-          #     'verified',
-          #     'locale',
-          #     'timezone',
-          #     'link',
-          #     'gender',
-          #     'updated_time'],
-          # 'EXCHANGE_TOKEN': True,
-          # 'LOCALE_FUNC': 'path.to.callable',
-          # 'VERIFIED_EMAIL': False,
-          # 'VERSION': 'v2.4'
-          }
+            # 'FIELDS': [
+            #     'id',
+            #     'email',
+            #     'name',
+            #     'first_name',
+            #     'last_name',
+            #     'verified',
+            #     'locale',
+            #     'timezone',
+            #     'link',
+            #     'gender',
+            #     'updated_time'],
+            # 'EXCHANGE_TOKEN': True,
+            # 'LOCALE_FUNC': 'path.to.callable',
+            # 'VERIFIED_EMAIL': False,
+            # 'VERSION': 'v2.4'
+        }
      }
 
 
@@ -443,7 +445,6 @@ MED_PRI_MODULES = {
 HIGH_PRI_MODULES = {
 }
 
-from kombu import Queue, Exchange
 CELERY_QUEUES = (
     Queue(LOW_QUEUE, Exchange(LOW_QUEUE), routing_key=LOW_QUEUE,
           consumer_arguments={'x-priority': -10}),

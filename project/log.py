@@ -15,5 +15,6 @@ def configure(settings):
     dictConfig(settings)
     for module, message in IGNORE_DJANGO_110_WARNINGS.items():
         warnings.filterwarnings(
-            action='ignore', category=RemovedInDjango110Warning, module=module, message=message
-    )
+            action='ignore',
+            category=RemovedInDjango110Warning, module=module, message=message
+        )

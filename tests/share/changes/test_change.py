@@ -68,7 +68,6 @@ def merge_graph(jane_doe, john_doe):
     })
 
 
-
 class TestChange:
 
     @pytest.mark.django_db
@@ -280,8 +279,8 @@ class TestChangeSet:
 
     @pytest.mark.django_db
     def test_invalid_subject(self, normalized_data_id):
-        try:
-            graph = ChangeGraph.from_jsonld({
+        with pytest.raises(ValidationError) as e:
+            ChangeGraph.from_jsonld({
                 '@graph': [{
                     '@id': '_:987',
                     '@type': 'subject',
@@ -297,6 +296,5 @@ class TestChangeSet:
                     'title': 'All About Cats',
                 }]
             })
-            assert False
-        except ValidationError as e:
-            assert e.message == 'Invalid subject: Felines'
+
+        assert e.value.message == 'Invalid subject: Felines'

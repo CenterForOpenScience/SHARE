@@ -12,6 +12,7 @@ from share.models import AbstractCreativeWork
 from share.models import Entity
 from share.models import Person
 from share.models import Tag
+from share.models import Subject
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,7 @@ class IndexModelTask(ProviderTask):
             Entity: self.serialize_entity,
             Person: self.serialize_person,
             Tag: self.serialize_tag,
+            Subject: self.serialize_subject,
         }[type(inst)._meta.concrete_model](inst)
 
     def serialize_person(self, person, suggest=True):
@@ -86,7 +88,7 @@ class IndexModelTask(ProviderTask):
                 for affiliation in
                 person.affiliations.all()
             ],
-            'sources': [self.serialize_source(source) for source in person.sources.all()],
+            'sources': [safe_substr(source.long_title) for source in person.sources.all()],
         }
         return add_suggest(serialized_person) if suggest else serialized_person
 
@@ -107,6 +109,14 @@ class IndexModelTask(ProviderTask):
             'name': safe_substr(tag.name),
         }
         return add_suggest(serialized_tag) if suggest else serialized_tag
+
+    def serialize_subject(self, subject, suggest=True):
+        serialized_subject = {
+            'id': str(subject.pk),
+            'type': 'subject',
+            'name': safe_substr(subject.name),
+        }
+        return add_suggest(serialized_subject) if suggest else serialized_subject
 
     def serialize_creative_work(self, creative_work):
         serialized_lists = {
@@ -130,6 +140,7 @@ class IndexModelTask(ProviderTask):
             'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
             'date_published': creative_work.date_published.isoformat() if creative_work.date_published else None,
             'tags': [safe_substr(tag) for tag in creative_work.tags.all()],
+            'subjects': [safe_substr(subject) for subject in creative_work.subjects.all()],
             'awards': [safe_substr(award) for award in creative_work.awards.all()],
             'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
             'sources': [safe_substr(source.long_title) for source in creative_work.sources.all()],
@@ -139,12 +150,6 @@ class IndexModelTask(ProviderTask):
             'institutions': [c['name'] for c in serialized_lists['institutions']],
             'organizations': [c['name'] for c in serialized_lists['organizations']],
             'lists': serialized_lists
-        }
-
-    def serialize_source(self, source):
-        return {
-            'name': safe_substr(source.long_title),
-            'short_name': safe_substr(source.robot)
         }
 
 

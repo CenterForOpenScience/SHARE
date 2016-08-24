@@ -65,7 +65,8 @@ class CreativeWork(Parser):
     title = RunPython(text, XPath(ctx, '//article-meta/title-group/article-title')['article-title'])
     description = RunPython(text, Maybe(XPath(ctx, '//abstract[not(@abstract-type="executive-summary")]/p[1]'), 'p'))
     date_published = ParseDate(
-        RunPython('parse_date',
+        RunPython(
+            'parse_date',
             XPath(ctx, '//article-meta/pub-date[@publication-format="electronic"]')['pub-date']
         )
     )

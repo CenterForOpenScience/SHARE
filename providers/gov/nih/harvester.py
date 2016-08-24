@@ -99,7 +99,6 @@ class NIHHarvester(Harvester):
             date = self.parse_month_column(month_column, day_of_week)
             return (date, fiscal_year, url)
 
-
     def parse_rows(self, rows, day_of_week):
         """
         A generator to parse all the rows

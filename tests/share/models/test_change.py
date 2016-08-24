@@ -4,10 +4,8 @@ from share.models import Tag
 from share.models import Person
 from share.models import AbstractCreativeWork
 from share.models import Contributor
-from share.change import ChangeGraph
 from share.models.change import Change
 from share.models.change import ChangeSet
-from share.models import NormalizedData
 
 
 @pytest.fixture
@@ -34,26 +32,11 @@ def ld_graph():
     }
 
 
-@pytest.fixture
-def ChangeFactory(share_source):
-    class Factory:
-        def from_graph(self, graph, disambiguate=False):
-            nd = NormalizedData.objects.create(normalized_data=graph, source=share_source)
-            return ChangeSet.objects.from_graph(
-                ChangeGraph.from_jsonld(
-                    graph,
-                    disambiguate=disambiguate,
-                ),
-                nd.pk
-            )
-    return Factory()
-
-
 @pytest.mark.django_db
 class TestChange:
 
-    def test_create_person(self, ChangeFactory):
-        change_set = ChangeFactory.from_graph({
+    def test_create_person(self, change_factory):
+        change_set = change_factory.from_graph({
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'Person',
@@ -184,15 +167,15 @@ class TestChange:
 @pytest.mark.django_db
 class TestChangeGraph:
 
-    def test_changes(self, ChangeFactory, ld_graph):
-        ChangeFactory.from_graph(ld_graph).accept()
+    def test_changes(self, change_factory, ld_graph):
+        change_factory.from_graph(ld_graph).accept()
 
         assert Person.objects.filter(pk__isnull=False).count() == 5
         assert Contributor.objects.filter(pk__isnull=False).count() == 5
         assert AbstractCreativeWork.objects.filter(pk__isnull=False).count() == 1
 
-    def test_change_existing(self, ChangeFactory, jane_doe):
-        change_set = ChangeFactory.from_graph({
+    def test_change_existing(self, change_factory, jane_doe):
+        change_set = change_factory.from_graph({
             '@graph': [{
                 '@id': jane_doe.pk,
                 '@type': 'Person',
@@ -209,10 +192,10 @@ class TestChangeGraph:
 
         assert jane_doe.given_name == 'John'
 
-    def test_handles_unique_violation(self, ChangeFactory):
-        tag = Tag.objects.create(name='MyCoolTag')
+    def test_handles_unique_violation(self, change_factory, change_ids):
+        tag = Tag.objects.create(name='MyCoolTag', change_id=change_ids.get())
 
-        change_set = ChangeFactory.from_graph({
+        change_set = change_factory.from_graph({
             '@graph': [{
                 '@type': 'Tag',
                 '@id': '_:1234',

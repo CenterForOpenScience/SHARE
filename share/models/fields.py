@@ -103,9 +103,9 @@ class ShareOneToOneField(models.OneToOneField):
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
@@ -123,9 +123,9 @@ class ShareForeignKey(models.ForeignKey):
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
@@ -189,7 +189,7 @@ class TypedManyToManyField(models.ManyToManyField):
             # Count foreign keys in intermediate model
             if self_referential:
                 seen_self = sum(from_model == getattr(field.remote_field, 'model', None)
-                    for field in self.remote_field.through._meta.fields)
+                                for field in self.remote_field.through._meta.fields)
 
                 if seen_self > 2 and not self.remote_field.through_fields:
                     errors.append(
@@ -382,10 +382,13 @@ class ShareManyToManyField(TypedManyToManyField):
     def contribute_to_class(self, cls, name, **kwargs):
         actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
+
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
+        elif hasattr(self.remote_field.model, 'VersionModel'):
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, **self.__kwargs)
+            return
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
 
         actual._share_version_field = version
@@ -393,6 +396,7 @@ class ShareManyToManyField(TypedManyToManyField):
 
 class URIField(models.TextField):
     default_validators = [is_valid_uri, ]
+
     def __init__(self, *args, **kwargs):
         super(URIField, self).__init__(*args, **kwargs)
 
