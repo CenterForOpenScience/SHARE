@@ -118,6 +118,12 @@ class IndexModelTask(ProviderTask):
         }
         return add_suggest(serialized_subject) if suggest else serialized_subject
 
+    def serialize_link(self, link):
+        return {
+            'type': safe_substr(link.type),
+            'url': safe_substr(link.url),
+        }
+
     def serialize_creative_work(self, creative_work):
         serialized_lists = {
             'contributors': [self.serialize_person(person) for person in creative_work.contributors.order_by('contributor__order_cited')],
@@ -125,6 +131,7 @@ class IndexModelTask(ProviderTask):
             'publishers': [self.serialize_entity(entity) for entity in creative_work.publishers.all()],
             'institutions': [self.serialize_entity(entity) for entity in creative_work.institutions.all()],
             'organizations': [self.serialize_entity(entity) for entity in creative_work.organizations.all()],
+            'links': [self.serialize_link(link) for link in creative_work.links.all()],
         }
 
         return {
