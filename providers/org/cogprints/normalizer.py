@@ -1,5 +1,5 @@
 from share.normalize import Parser, Delegate, ctx, tools
-from share.normalize.oai import OAINormalizer, OAICreativeWork
+from share.normalize.oai import OAINormalizer, OAIPreprint
 
 
 class Subject(Parser):
@@ -10,7 +10,7 @@ class ThroughSubjects(Parser):
     subject = Delegate(Subject, ctx)
 
 
-class Preprint(OAICreativeWork):
+class Preprint(OAIPreprint):
 
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
