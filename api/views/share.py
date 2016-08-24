@@ -183,3 +183,8 @@ class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
         ser = api_serializers.ShareUserSerializer(request.user, token=True)
         return Response(ser.data)
+
+class SchemaView(views.APIView):
+    def get(self, request, *args, **kwargs):
+        # TODO
+        pass

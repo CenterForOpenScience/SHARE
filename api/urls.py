@@ -41,4 +41,5 @@ urlpatterns = [
     url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
     url(r'userinfo/?', views.ShareUserView.as_view(), name='userinfo'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
+    url(r'schema/(?P<model>\w*)', views.SchemaView.as_view(), name='schema')
 ] + router.urls
