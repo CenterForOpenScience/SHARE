@@ -253,7 +253,11 @@ class Change(models.Model):
             elif isinstance(v, dict):
                 inst = self._resolve_ref(v)
                 change[k] = inst
-                change[k + '_version'] = inst.version
+                try:
+                    change[k + '_version'] = inst.version
+                except AttributeError:
+                    # inst isn't a ShareObject, no worries
+                    pass
             elif isinstance(v, list):
                 change[k] = [self._resolve_ref(r) for r in v]
             else:

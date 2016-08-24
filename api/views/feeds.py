@@ -85,7 +85,7 @@ class CreativeWorksRSS(Feed):
         return dateparser.parse(updateddate) if updateddate else None
 
     def item_categories(self, item):
-        categories = [item.get('subject')]
+        categories = item.get('subjects', [])
         categories.extend(item.get('tag'))
         return [sanitize_for_xml(c) for c in categories if c]
 

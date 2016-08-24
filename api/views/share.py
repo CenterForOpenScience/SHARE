@@ -139,10 +139,14 @@ class LinkViewSet(ShareObjectViewSet):
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
+class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.SubjectSerializer
+    queryset = serializer_class.Meta.model.objects.all()
+
+
 class CreativeWorkViewSet(ShareObjectViewSet):
     serializer_class = serializers.CreativeWorkSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
 
@@ -150,7 +154,6 @@ class CreativeWorkViewSet(ShareObjectViewSet):
 class PreprintViewSet(ShareObjectViewSet):
     serializer_class = serializers.PreprintSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
 
@@ -158,7 +161,6 @@ class PreprintViewSet(ShareObjectViewSet):
 class PublicationViewSet(ShareObjectViewSet):
     serializer_class = serializers.PublicationSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
 
@@ -166,7 +168,6 @@ class PublicationViewSet(ShareObjectViewSet):
 class ProjectViewSet(ShareObjectViewSet):
     serializer_class = serializers.ProjectSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
 
@@ -174,7 +175,6 @@ class ProjectViewSet(ShareObjectViewSet):
 class ManuscriptViewSet(ShareObjectViewSet):
     serializer_class = serializers.ManuscriptSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
 

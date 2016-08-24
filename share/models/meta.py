@@ -1,11 +1,13 @@
 from django.db import models
+from django.db import IntegrityError
+from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, URIField, ShareURLField, ShareManyToManyField
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Link')
+__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject', 'SubjectSynonym')
 
 # TODO Rename this file
 
@@ -45,6 +47,32 @@ class Link(ShareObject):
 
     def __str__(self):
         return self.url
+
+
+class Subject(models.Model):
+    lineages = JSONField()
+    parents = models.ManyToManyField('self')
+    name = models.TextField(unique=True, db_index=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self):
+        raise IntegrityError('Subjects are an immutable set! Do it in bulk, if you must.')
+
+
+class SubjectSynonym(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='synonyms')
+    synonym = models.TextField(db_index=True)
+
+    def __str__(self):
+        return self.synonym
+
+    def save(self):
+        raise IntegrityError('Subjects synonyms are an immutable set! Do it in bulk, if you must.')
+
+    class Meta:
+        unique_together = ('subject', 'synonym')
 
 
 # Through Tables for all the things
@@ -87,3 +115,11 @@ class ThroughAwardEntities(ShareObject):
 
     class Meta:
         unique_together = ('award', 'entity')
+
+
+class ThroughSubjects(ShareObject):
+    subject = models.ForeignKey('Subject')
+    creative_work = ShareForeignKey('AbstractCreativeWork')
+
+    class Meta:
+        unique_together = ('subject', 'creative_work')

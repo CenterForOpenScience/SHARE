@@ -1,8 +1,11 @@
 import abc
 
+from django.core.exceptions import ValidationError
+
 from share.models import Tag
 from share.models import Link
 from share.models import Person
+from share.models import Subject
 
 
 __all__ = ('disambiguate', )
@@ -88,3 +91,20 @@ class PersonDisambiguator(Disambiguator):
             family_name=self.attrs.get('family_name'),
             additional_name=self.attrs.get('additional_name'),
         ).first()
+
+
+class SubjectDisambiguator(Disambiguator):
+    model = Subject
+    FOR_MODEL = Subject
+
+    def disambiguate(self):
+        if not self.attrs.get('name'):
+            return None
+        subjects = Subject.objects.filter(name__iexact=self.attrs['name'])
+        if subjects:
+            return subjects.first()
+        subjects = Subject.objects.filter(synonyms__synonym__iexact=self.attrs['name'])
+        if subjects:
+            # TODO allow mapping a synonym to multiple subjects?
+            return synonyms.first()
+        raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))

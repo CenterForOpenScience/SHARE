@@ -33,6 +33,8 @@ python manage.py makemigrations
 #python manage.py makeprovidermigrations
 python manage.py migrate
 python manage.py loaddata ./share/models/initial_data.yaml
+python manage.py loaddata subjects
+python manage.py addsynonyms --all
 
 if [ -n "$BACKUP" ]; then
     python manage.py loaddata share_rawdata.json.gz

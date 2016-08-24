@@ -220,9 +220,6 @@ class OAICreativeWork(Parser):
         # A related resource from which the described resource is derived.
         source = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:source')
 
-        # The topic of the resource.
-        subject = tools.Try(ctx.record.metadata.dc['dc:subject'])
-
         # The nature or genre of the resource.
         resource_type = tools.Try(ctx.record.metadata.dc['dc:type'])
 
