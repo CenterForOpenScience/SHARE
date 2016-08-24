@@ -1,6 +1,6 @@
 import ujson
 import six
-from rest_framework.compat import SHORT_SEPARATORS, LONG_SEPARATORS, INDENT_SEPARATORS
+# from rest_framework.compat import SHORT_SEPARATORS, LONG_SEPARATORS, INDENT_SEPARATORS
 from rest_framework.renderers import JSONRenderer
 from rest_framework.settings import api_settings
 from rest_framework.utils import encoders
@@ -32,12 +32,12 @@ class JSONLDRenderer(JSONRenderer):
         renderer_context = renderer_context or {}
         indent = self.get_indent(accepted_media_type, renderer_context) or 4
 
-        if indent is None:
-            separators = SHORT_SEPARATORS if self.compact else LONG_SEPARATORS
-        else:
-            separators = INDENT_SEPARATORS
+        # if indent is None:
+        #     separators = SHORT_SEPARATORS if self.compact else LONG_SEPARATORS
+        # else:
+        #     separators = INDENT_SEPARATORS
 
-        ret = ujson.dumps(  #  UJSON is faster
+        ret = ujson.dumps(  # UJSON is faster
             data,
             # , cls=self.encoder_class,
             escape_forward_slashes=False,

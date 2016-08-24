@@ -1,5 +1,4 @@
 import pytest
-from datetime import datetime
 
 from share.models import Person
 from share.models import Identifier
@@ -22,8 +21,6 @@ def test_build_trigger():
     assert procedure.reversible is True
     assert 'DROP FUNCTION before_share_person_change' in procedure.reverse_sql
     assert 'CREATE OR REPLACE FUNCTION before_share_person_change' in procedure.sql
-
-
 
 
 class TestVersioning:

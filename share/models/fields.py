@@ -189,7 +189,7 @@ class TypedManyToManyField(models.ManyToManyField):
             # Count foreign keys in intermediate model
             if self_referential:
                 seen_self = sum(from_model == getattr(field.remote_field, 'model', None)
-                    for field in self.remote_field.through._meta.fields)
+                                for field in self.remote_field.through._meta.fields)
 
                 if seen_self > 2 and not self.remote_field.through_fields:
                     errors.append(
@@ -396,6 +396,7 @@ class ShareManyToManyField(TypedManyToManyField):
 
 class URIField(models.TextField):
     default_validators = [is_valid_uri, ]
+
     def __init__(self, *args, **kwargs):
         super(URIField, self).__init__(*args, **kwargs)
 
