@@ -1,0 +1,18 @@
+{
+    "Biology and life sciences": ["Behavioral Biology", "Cognitive Archeology", "Ethology", "Sociobiology"],
+    "Cognitive psychology": ["Applied Cognitive Psychology", "Perceptual Cognitive Psychology"],
+    "Computer and information sciences": ["Complexity Theory", "Human Computer Interaction", "Speech"],
+    "Computer imaging": ["Machine Vision"],
+    "Evolutionary biology": ["Evolution"],
+    "Linguistic morphology": ["Morphology"],
+    "Linguistics": ["Pragmatics", "Comparative Linguistics", "Learnability"],
+    "Neural networks": ["Neural Nets"],
+    "Neuroimaging": ["Brain Imaging"],
+    "Neuropsychiatric disorders": ["Neuropsychiatry"],
+    "Neuroscience": ["Neurogenetics", "Neural Modelling", "Neural Modeling"],
+    "Philosophy": ["Epistemology", "Ethics", "Logic", "Metaphysics", "Philosophy of Language", "Philosophy of Mind", "Philosophy of Science"],
+    "Programming languages": ["Language"],
+    "Psychology": ["Behavioral Analysis", "Comparative Psychology", "Evolutionary Psychology", "Physiological Psychology", "Psychobiology", "Psychophysiology"],
+    "Research and analysis methods": ["Copyright"],
+    "Social psychology": ["Social simulation"]
+}
