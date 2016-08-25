@@ -25,7 +25,7 @@ class Venue(ShareObject):
 class Award(ShareObject):
     # ScholarlyArticle has an award object
     # it's just a text field, I assume our 'description' covers it.
-    award = ShareURLField(blank=True)
+    name = models.TextField(blank=True)
     description = models.TextField(blank=True)
     url = ShareURLField(blank=True)
     entities = ShareManyToManyField('Entity', through='ThroughAwardEntities')
