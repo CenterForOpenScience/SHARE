@@ -273,7 +273,6 @@ class ConcatLink(AbstractLink):
         self._deep = deep
         super().__init__()
 
-
     def _concat(self, acc, val):
         if val is None:
             return acc

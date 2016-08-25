@@ -86,9 +86,7 @@ class ChangeSet(models.Model):
                 changeset_id = self.id
                 source = self.normalized_data.source
                 try:
-                    obj = c.accept(save=save)
-                    if obj:
-                        ret.append(obj)
+                    ret.append(c.accept(save=save))
                 except Exception as ex:
                     logger.error('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
                     raise ex
@@ -181,11 +179,10 @@ class Change(models.Model):
                 self.type = Change.TYPE.update
                 self.target = disambiguate('_:', self.change, self.target_type.model_class())
 
-                if self.target:
-                    logger.info('Updating target to %r and type to update', self.target)
-                    self.save()
+                logger.info('Updating target to %r and type to update', self.target)
+                self.save()
 
-                    return self._update(save=save)
+                return self._update(save=save)
         return inst
 
     def _update(self, save=True):
