@@ -37,8 +37,8 @@ def Trim(chain):
     return chain + TrimLink()
 
 
-def Concat(*chains):
-    return AnchorLink() + ConcatLink(*chains)
+def Concat(*chains, deep=False):
+    return AnchorLink() + ConcatLink(*chains, deep=deep)
 
 
 def XPath(chain, path):
@@ -77,14 +77,8 @@ def Static(value):
     return StaticLink(value)
 
 
-def Subjects(chain, name_path=None):
-    if name_path is None:
-        subjects = chain
-    elif isinstance(name_path, int):
-        subjects = Map(IndexLink(name_path), chain)
-    elif isinstance(name_path, str):
-        subjects = Map(PathLink(name_path), chain)
-    return Map(MapSubjectLink(), subjects)
+def Subjects(*chains):
+    return Concat(Map(MapSubjectLink(), *chains), deep=True)
 
 
 ### /Public API
@@ -274,15 +268,19 @@ class LanguageParserLink(AbstractLink):
 
 
 class ConcatLink(AbstractLink):
-    def __init__(self, *chains):
+    def __init__(self, *chains, deep=False):
         self._chains = chains
+        self._deep = deep
         super().__init__()
+
 
     def _concat(self, acc, val):
         if val is None:
             return acc
         if not isinstance(val, list):
             val = [val]
+        elif self._deep:
+            val = reduce(self._concat, val, [])
         return acc + [v for v in val if v != '' and v is not None]
 
     def execute(self, obj):
@@ -476,4 +474,4 @@ class MapSubjectLink(AbstractLink):
         if models.Subject.objects.filter(name__iexact=obj).exists():
             return obj
         subjects = models.SubjectSynonym.objects.filter(synonym__iexact=obj).values_list('subject__name', flat=True)
-        return subjects or None
+        return list(subjects) or None

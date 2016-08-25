@@ -82,7 +82,7 @@ class Preprint(Parser):
     contributors = Map(Delegate(Contributor), ctx['contributors'])
     date_updated = ParseDate(ctx.attributes.date_modified)
     date_published = ParseDate(ctx.attributes.date_created)
-    subjects = Map(Delegate(ThroughSubjects), Subjects(ctx.attributes.subjects, 'text'))
+    subjects = Map(Delegate(ThroughSubjects), Subjects(ctx.attributes.subjects.text))
     links = Map(
         Delegate(ThroughLinks),
         ctx.links.self,
