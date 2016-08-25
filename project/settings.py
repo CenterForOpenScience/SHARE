@@ -155,6 +155,7 @@ INSTALLED_APPS = [
     'providers.edu.vtech',
     'providers.edu.wash_state_u',
     'providers.edu.waynestate',
+    'providers.edu.wisconsin',
     'providers.edu.wustlopenscholarship',
     'providers.et.edu.addis_ababa',
     'providers.eu.econstor',
