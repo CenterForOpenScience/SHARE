@@ -526,3 +526,10 @@ class AppConfig(OAIProviderAppConfig):
         'hdl_1793_236',
         'hdl_1793_257',
     ]
+    property_list = [
+        'date',
+        'rights',
+        'identifier',
+        'relation',
+        'format'
+    ]
