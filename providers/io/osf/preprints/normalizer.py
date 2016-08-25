@@ -1,7 +1,7 @@
 from share.normalize.normalizer import Normalizer
 
 from share.normalize.parsers import Parser
-from share.normalize import Delegate, RunPython, Map, ctx, Try, ParseDate
+from share.normalize import Delegate, RunPython, Map, ctx, Try, ParseDate, Subjects
 
 
 class Person(Parser):
@@ -54,7 +54,7 @@ class Association(Parser):
 
 
 class Subject(Parser):
-    name = ctx.text
+    name = ctx
 
 
 class Link(Parser):
@@ -82,7 +82,7 @@ class Preprint(Parser):
     contributors = Map(Delegate(Contributor), ctx['contributors'])
     date_updated = ParseDate(ctx.attributes.date_modified)
     date_published = ParseDate(ctx.attributes.date_created)
-    subjects = Map(Delegate(ThroughSubjects), ctx.attributes.subjects)
+    subjects = Map(Delegate(ThroughSubjects), Subjects(ctx.attributes.subjects.text))
     links = Map(
         Delegate(ThroughLinks),
         ctx.links.self,
