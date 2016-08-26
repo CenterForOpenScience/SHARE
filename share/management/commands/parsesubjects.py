@@ -1,11 +1,8 @@
 import argparse
 import csv
-import glob
 import json
 
 from django.core.management.base import BaseCommand
-
-from share.models import Subject, SubjectSynonym
 
 
 class Command(BaseCommand):

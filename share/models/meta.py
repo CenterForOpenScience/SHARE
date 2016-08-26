@@ -65,7 +65,7 @@ class Subject(models.Model):
         return self.name
 
     def natural_key(self):
-        return (self.name,)
+        return self.name
 
     def save(self):
         raise IntegrityError('Subjects are an immutable set! Do it in bulk, if you must.')
