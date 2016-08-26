@@ -37,6 +37,7 @@ Guide
     harvesters_and_normalizers
     share_models
     elasticsearch
+    share_api
     ember_app
     troubleshooting
 
