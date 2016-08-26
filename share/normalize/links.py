@@ -1,7 +1,8 @@
-import threading
-from functools import reduce
 from collections import deque
+from functools import reduce
 import logging
+import shelve
+import threading
 
 import xmltodict
 
@@ -466,11 +467,18 @@ class StaticLink(AbstractLink):
 
 
 class MapSubjectLink(AbstractLink):
+
     def execute(self, obj):
         if not obj:
             return None
-        from share import models
-        if models.Subject.objects.filter(name__iexact=obj).exists():
-            return obj
-        subjects = models.SubjectSynonym.objects.filter(synonym__iexact=obj).values_list('subject__name', flat=True)
-        return list(subjects) or None
+
+        assert isinstance(obj, str), 'Subjects must be strings. Got {}.'.format(type(obj))
+
+        # TODO Might be better to just hold onto the pointer
+        with shelve.open('synonyms.shelf') as lookup:
+            mapped = lookup.get(obj.lower())
+
+        if not mapped:
+            logger.warning('No synonyms found for term "{}"'.format(obj))
+
+        return mapped
