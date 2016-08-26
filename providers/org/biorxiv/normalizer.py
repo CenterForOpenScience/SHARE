@@ -38,6 +38,14 @@ class Contributor(Parser):
     cited_name = ctx
 
 
+class Subject(Parser):
+    name = ctx
+
+
+class ThroughSubjects(Parser):
+    subject = tools.Delegate(Subject, ctx)
+
+
 class Preprint(Parser):
     title = ctx.item['dc:title']
     description = ctx.item.description
@@ -48,3 +56,7 @@ class Preprint(Parser):
         ctx.item['dc:publisher']
     )
     links = tools.Map(tools.Delegate(ThroughLinks), ctx.item['dc:identifier'])
+    subjects = tools.Map(
+        tools.Delegate(ThroughSubjects),
+        tools.Concat(tools.Static('Biology and life sciences'))
+    )
