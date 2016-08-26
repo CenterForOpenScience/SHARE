@@ -187,7 +187,7 @@ class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
-    app_label = models.TextField()
+    app_label = models.TextField(db_index=True)
     provider_doc_id = models.TextField()
 
     data = models.TextField()

@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='rawdata',
             name='app_label',
-            field=models.TextField(),
+            field=models.TextField(db_index=True),
         ),
     ]
