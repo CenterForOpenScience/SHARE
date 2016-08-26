@@ -1,7 +1,21 @@
-from share.normalize.normalizer import Normalizer
+import furl
 
 from share.normalize.parsers import Parser
-from share.normalize import Delegate, RunPython, Map, ctx, Try, ParseDate, Subjects
+from share.normalize.normalizer import Normalizer
+from share.normalize import Delegate, RunPython, Map, ctx, Try, ParseDate
+
+
+class Identifier(Parser):
+    url = ctx
+    base_url = RunPython('get_base_url', ctx)
+
+    def get_base_url(self, url):
+        url = furl.furl(url)
+        return '{}://{}'.format(url.scheme, url.host)
+
+
+class ThroughIdentifiers(Parser):
+    identifier = Delegate(Identifier, ctx)
 
 
 class Person(Parser):
@@ -10,6 +24,11 @@ class Person(Parser):
     additional_name = ctx.embeds.users.data.attributes.middle_names
     suffix = ctx.embeds.users.data.attributes.suffix
     url = ctx.embeds.users.data.links.html
+    identifiers = Map(
+        Delegate(ThroughIdentifiers),
+        ctx.embeds.users.data.links.html,
+        ctx.embeds.users.data.links.profile_image,
+    )
 
     class Extra:
         nodes = ctx.embeds.users.data.relationships.nodes.links.related.href
@@ -54,7 +73,7 @@ class Association(Parser):
 
 
 class Subject(Parser):
-    name = ctx
+    name = ctx.text
 
 
 class Link(Parser):
@@ -79,10 +98,11 @@ class ThroughSubjects(Parser):
 class Preprint(Parser):
     title = ctx.attributes.title
     description = Try(ctx.attributes.abstract)
-    contributors = Map(Delegate(Contributor), ctx['contributors'])
+    contributors = Map(Delegate(Contributor), ctx.contributors)
     date_updated = ParseDate(ctx.attributes.date_modified)
     date_published = ParseDate(ctx.attributes.date_created)
-    subjects = Map(Delegate(ThroughSubjects), Subjects(ctx.attributes.subjects.text))
+    # NOTE: OSF has a direct mapping to SHARE's taxonomy. Subjects() is not needed
+    subjects = Map(Delegate(ThroughSubjects), ctx.attributes.subjects)
     links = Map(
         Delegate(ThroughLinks),
         ctx.links.self,
