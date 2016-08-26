@@ -1,3 +1,5 @@
+from django.apps import apps
+
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
 
@@ -173,5 +175,10 @@ class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
 
 class SchemaView(views.APIView):
     def get(self, request, *args, **kwargs):
-        model = kwargs['model']
-        schema = JSONLDValidator()
+        model_name = kwargs['model']
+        if model_name:
+            model = apps.get_model('share', model_name)
+            schema = JSONLDValidator().validator_for(model).schema
+        else:
+            schema = JSONLDValidator.jsonld_schema.schema
+        return Response(schema)

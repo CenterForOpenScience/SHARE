@@ -43,6 +43,7 @@ class JSONLDValidator:
         'text': 'string',
         'integer': 'integer',
         'timestamp with time zone': 'string',
+        'jsonb': 'object',
     }
 
     def __init__(self, check_existence=True):
@@ -105,6 +106,7 @@ class JSONLDValidator:
 
             rel = {
                 'type': 'object',
+                'description': field.description,
                 'required': ['@id', '@type'],
                 'additionalProperties': False,
                 'properties': {
@@ -128,10 +130,14 @@ class JSONLDValidator:
                 return {'type': 'array', 'items': rel}
             return rel
         if field.choices:
-            return {'enum': field.choices}
+            return {
+                'enum': field.choices,
+                'description': field.description
+            }
 
         schema = {
             'type': JSONLDValidator.db_type_map[field.db_type(connection)],
+            'description': field.description
         }
         if schema['type'] == 'string' and not field.blank:
             schema['minLength'] = 1
