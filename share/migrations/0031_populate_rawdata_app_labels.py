@@ -7,7 +7,7 @@ from django.db import migrations
 
 def set_app_labels(apps, schema_editor):
     RawData = apps.get_model('share', 'RawData')
-    for raw in RawData.objects.all():
+    for raw in RawData.objects.select_related('source').all():
         raw.app_label = raw.source.username.rpartition('providers.')[2]
         raw.save()
 
@@ -19,5 +19,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(set_app_labels)
+        migrations.RunPython(set_app_labels, reverse_code=migrations.RunPython.noop)
     ]
