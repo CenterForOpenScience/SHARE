@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, views, status
 from rest_framework.response import Response
 
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
@@ -6,9 +6,10 @@ from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
     ShareUserSerializer, ProviderSerializer
 from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
+from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet')
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -168,3 +169,9 @@ class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
             ).distinct('id')
         else:
             return RawData.objects.all()
+
+
+class SchemaView(views.APIView):
+    def get(self, request, *args, **kwargs):
+        model = kwargs['model']
+        schema = JSONLDValidator()
