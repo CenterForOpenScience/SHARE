@@ -29,7 +29,7 @@
     "Computer hardware": ["cs.AR"],
     "Computer networks": ["cs.NI"],
     "Computer software": ["cs.MS"],
-    "Computer vision": ["cs.CV  "],
+    "Computer vision": ["cs.CV"],
     "Computing methods": ["cs.LO"],
     "Computing systems": ["cs.ET"],
     "Condensed matter physics": ["cond-mat.dis-nn","cond-mat.mtrl-sci","cond-mat.mes-hall","cond-mat.other","cond-mat.quant-gas","cond-mat.soft","cond-mat.stat-mech","cond-mat.str-el","cond-mat.supr-con"],

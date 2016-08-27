@@ -3,6 +3,7 @@ import json
 
 from django.core.management.base import BaseCommand
 from django.db import connection
+from django.db import transaction
 
 from share.models import Subject
 
@@ -18,6 +19,7 @@ class Command(BaseCommand):
         self.stdout.write('Saving {} unique subjects...'.format(len(subjects)))
         self.save_subjects(subjects)
 
+    @transaction.atomic
     def save_subjects(self, subjects):
         subjects_values = [
             (s['name'], json.dumps(s['lineages']))

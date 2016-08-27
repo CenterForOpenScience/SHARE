@@ -1,7 +1,7 @@
 from collections import deque
 from functools import reduce
+import json
 import logging
-import shelve
 import threading
 
 import xmltodict
@@ -468,15 +468,19 @@ class StaticLink(AbstractLink):
 
 class MapSubjectLink(AbstractLink):
 
+    with open('synonyms.json') as fobj:
+        MAPPING = json.load(fobj)
+
     def execute(self, obj):
         if not obj:
             return None
 
+        if isinstance(obj, list):
+            return [self.execute(x) for x in obj]
+
         assert isinstance(obj, str), 'Subjects must be strings. Got {}.'.format(type(obj))
 
-        # TODO Might be better to just hold onto the pointer
-        with shelve.open('synonyms.shelf') as lookup:
-            mapped = lookup.get(obj.lower())
+        mapped = self.MAPPING.get(obj.lower())
 
         if not mapped:
             logger.warning('No synonyms found for term "{}"'.format(obj))
