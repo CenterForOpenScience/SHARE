@@ -49,12 +49,22 @@ class Link(ShareObject):
         return self.url
 
 
+class SubjectManager(models.Manager):
+    def get_by_natural_key(self, subject):
+        return self.get(name=subject)
+
+
 class Subject(models.Model):
     lineages = JSONField(editable=False)
     parents = models.ManyToManyField('self')
     name = models.TextField(unique=True, db_index=True)
 
+    objects = SubjectManager()
+
     def __str__(self):
+        return self.name
+
+    def natural_key(self):
         return self.name
 
     def save(self):
