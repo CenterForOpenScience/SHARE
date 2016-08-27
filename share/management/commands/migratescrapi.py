@@ -192,6 +192,7 @@ class Command(BaseCommand):
                                     data = raw['doc'].encode()
                                     bulk.append(RawData(
                                         source=config.user,
+                                        app_label=config.label,
                                         provider_doc_id=doc_id,
                                         sha256=sha256(data).hexdigest(),
                                         data=data,
