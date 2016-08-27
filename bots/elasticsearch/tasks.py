@@ -13,6 +13,11 @@ from share.models import Entity
 from share.models import Person
 from share.models import Tag
 from share.models import Subject
+from share.models import Association
+from share.models import Funder
+from share.models import Publisher
+from share.models import Institution
+from share.models import Organization
 
 logger = logging.getLogger(__name__)
 
@@ -132,12 +137,16 @@ class IndexModelTask(ProviderTask):
         }
 
     def serialize_creative_work(self, creative_work):
+        associations = {}
+        for association in Association.objects.filter(creative_work=creative_work).select_related('entity'):
+            associations.setdefault(type(association.entity), []).append(association.entity)
+
         serialized_lists = {
             'links': [self.serialize_link(link) for link in creative_work.links.all()],
-            'funders': [self.serialize_entity(entity) for entity in creative_work.funders.all()],
-            'publishers': [self.serialize_entity(entity) for entity in creative_work.publishers.all()],
-            'institutions': [self.serialize_entity(entity) for entity in creative_work.institutions.all()],
-            'organizations': [self.serialize_entity(entity) for entity in creative_work.organizations.all()],
+            'funders': [self.serialize_entity(entity) for entity in associations.get(Funder, [])],
+            'publishers': [self.serialize_entity(entity) for entity in associations.get(Publisher, [])],
+            'institutions': [self.serialize_entity(entity) for entity in associations.get(Institution, [])],
+            'organizations': [self.serialize_entity(entity) for entity in associations.get(Organization, [])],
             'contributors': [self.serialize_contributor(contrib) for contrib in creative_work.contributor_set.select_related('person').order_by('order_cited')],
         }
 
