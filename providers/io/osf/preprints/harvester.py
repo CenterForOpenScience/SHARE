@@ -1,4 +1,5 @@
 import logging
+import datetime
 from typing import Tuple
 from typing import Union
 from typing import Iterator
@@ -23,7 +24,8 @@ class PreprintHarvester(OSFHarvester):
         url = furl(self.url)
 
         url.args['page[size]'] = 100
-        url.args['filter[date_modified][gte]'] = start_date.date().isoformat()
+        # OSF turns dates into date @ midnight so we have to go ahead one more day
+        url.args['filter[date_modified][gte]'] = (start_date + datetime.timedelta(days=1)).date().isoformat()
         url.args['filter[date_modified][lte]'] = end_date.date().isoformat()
 
         return self.fetch_records(url)
