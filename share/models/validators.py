@@ -41,6 +41,7 @@ class JSONLDValidator:
 
     db_type_map = {
         'text': 'string',
+        'boolean': 'boolean',
         'integer': 'integer',
         'timestamp with time zone': 'string',
     }
