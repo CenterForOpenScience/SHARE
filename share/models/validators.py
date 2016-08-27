@@ -43,6 +43,7 @@ class JSONLDValidator:
         'text': 'string',
         'boolean': 'boolean',
         'integer': 'integer',
+        'varchar(254)': 'string',
         'timestamp with time zone': 'string',
     }
 
