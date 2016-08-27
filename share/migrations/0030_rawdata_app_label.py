@@ -15,6 +15,21 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rawdata',
             name='app_label',
-            field=models.TextField(db_index=True, null=True),
+            field=models.TextField(null=True),
+        ),
+        migrations.RunSQL(
+            sql='''UPDATE
+                share_rawdata
+            SET
+                app_label = REPLACE(share_shareuser.robot, 'providers.', '')
+            FROM
+                share_shareuser
+            WHERE
+                share_rawdata.source_id = share_shareuser.id;''',
+        ),
+        migrations.AlterField(
+            model_name='rawdata',
+            name='app_label',
+            field=models.TextField(db_index=True),
         ),
     ]
