@@ -124,14 +124,21 @@ class IndexModelTask(ProviderTask):
             'url': safe_substr(link.url),
         }
 
+    def serialize_contributor(self, contributor):
+        return {
+            'cited_name': contributor.bibliographic,
+            'bibliographic': contributor.bibliographic,
+            **self.serialize_person(contributor.person),
+        }
+
     def serialize_creative_work(self, creative_work):
         serialized_lists = {
-            'contributors': [self.serialize_person(person) for person in creative_work.contributors.order_by('contributor__order_cited')],
+            'links': [self.serialize_link(link) for link in creative_work.links.all()],
             'funders': [self.serialize_entity(entity) for entity in creative_work.funders.all()],
             'publishers': [self.serialize_entity(entity) for entity in creative_work.publishers.all()],
             'institutions': [self.serialize_entity(entity) for entity in creative_work.institutions.all()],
             'organizations': [self.serialize_entity(entity) for entity in creative_work.organizations.all()],
-            'links': [self.serialize_link(link) for link in creative_work.links.all()],
+            'contributors': [self.serialize_contributor(contrib) for contrib in creative_work.contributor_set.select_related('person').order_by('order_cited')],
         }
 
         return {
