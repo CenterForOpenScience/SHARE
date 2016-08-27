@@ -41,7 +41,8 @@ class Person(Parser):
 
 class Contributor(Parser):
     person = Delegate(Person, ctx)
-    order_cited = ctx('index')
+    order_cited = ctx.attributes.index
+    bibliographic = ctx.attributes.bibliographic
     cited_name = ctx.embeds.users.data.attributes.full_name
 
 
