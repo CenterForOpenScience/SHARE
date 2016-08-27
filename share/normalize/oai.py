@@ -300,7 +300,7 @@ class OAICreativeWork(Parser):
     def tokenize(self, data):
         tokens = []
         for item in data:
-            tokens.extend([x.strip() for x in re.split('[\-:\.]', data) if x])
+            tokens.extend([x.strip() for x in re.split('(?: - )|\.', data) if x])
         return tokens
 
     def get_relation(self, ctx):
