@@ -63,10 +63,13 @@ def sources(qs):
 class IndexModelTask(ProviderTask):
 
     def do_run(self, model_name, ids):
-        es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
+        # es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
         model = apps.get_model('share', model_name)
-        for resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids)):
-            logger.debug(resp)
+        # for resp in helpers.streaming_bulk(es_client,
+        for _ in self.bulk_stream(model, ids):
+            pass
+        # for resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids)):
+        #     logger.debug(resp)
 
     def bulk_stream(self, model, ids):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
