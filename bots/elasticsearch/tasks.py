@@ -50,6 +50,16 @@ def add_suggest(obj):
     return obj
 
 
+__shareuser_cache = {}
+def sources(qs):
+    sus = []
+    for through in qs:
+        if through.shareuser_id not in __shareuser_cache:
+            __shareuser_cache[through.shareuser_id] = through.shareuser
+        sus.append(__shareuser_cache[through.shareuser_id])
+    return sus
+
+
 class IndexModelTask(ProviderTask):
 
     def do_run(self, model_name, ids):
@@ -93,7 +103,7 @@ class IndexModelTask(ProviderTask):
                 for affiliation in
                 person.affiliations.all()
             ],
-            'sources': [safe_substr(source.long_title) for source in person.sources.all()],
+            'sources': [safe_substr(source.long_title) for source in sources(person.sources.through.objects.filter(person=person))]
         }
         return add_suggest(serialized_person) if suggest else serialized_person
 
@@ -131,7 +141,7 @@ class IndexModelTask(ProviderTask):
 
     def serialize_contributor(self, contributor):
         return {
-            'cited_name': contributor.bibliographic,
+            'cited_name': contributor.cited_name,
             'bibliographic': contributor.bibliographic,
             **self.serialize_person(contributor.person),
         }
@@ -166,7 +176,7 @@ class IndexModelTask(ProviderTask):
             'subjects': [safe_substr(subject) for subject in creative_work.subjects.all()],
             'awards': [safe_substr(award) for award in creative_work.awards.all()],
             'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
-            'sources': [safe_substr(source.long_title) for source in creative_work.sources.all()],
+            'sources': [safe_substr(source.long_title) for source in sources(creative_work.sources.through.objects.filter(abstractcreativework=creative_work))],
             'contributors': [c['name'] for c in serialized_lists['contributors']],
             'funders': [c['name'] for c in serialized_lists['funders']],
             'publishers': [c['name'] for c in serialized_lists['publishers']],
