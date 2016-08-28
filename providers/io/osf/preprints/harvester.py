@@ -25,7 +25,7 @@ class PreprintHarvester(OSFHarvester):
 
         url.args['page[size]'] = 100
         # OSF turns dates into date @ midnight so we have to go ahead one more day
-        url.args['filter[date_modified][gte]'] = (start_date + datetime.timedelta(days=1)).date().isoformat()
-        url.args['filter[date_modified][lte]'] = end_date.date().isoformat()
+        url.args['filter[date_modified][gte]'] = start_date.date().isoformat()
+        url.args['filter[date_modified][lte]'] = (end_date + datetime.timedelta(days=2)).date().isoformat()
 
         return self.fetch_records(url)
