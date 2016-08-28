@@ -2,7 +2,7 @@ import furl
 
 from share.normalize.parsers import Parser
 from share.normalize.normalizer import Normalizer
-from share.normalize import Delegate, RunPython, Map, ctx, Try, ParseDate
+from share.normalize import Delegate, RunPython, Map, ctx, Try, ParseDate, OneOf
 
 
 class Identifier(Parser):
@@ -19,31 +19,47 @@ class ThroughIdentifiers(Parser):
 
 
 class Person(Parser):
-    given_name = ctx.embeds.users.data.attributes.given_name
-    family_name = ctx.embeds.users.data.attributes.family_name
-    additional_name = ctx.embeds.users.data.attributes.middle_names
-    suffix = ctx.embeds.users.data.attributes.suffix
-    url = ctx.embeds.users.data.links.html
+    given_name = OneOf(
+        ctx.embeds.users.data.attributes.given_name,
+        ctx.embeds.users.errors[0].meta.given_name,
+    )
+    family_name = OneOf(
+        ctx.embeds.users.data.attributes.family_name,
+        ctx.embeds.users.errors[0].meta.family_name,
+    )
+    additional_name = OneOf(
+        ctx.embeds.users.data.attributes.middle_names,
+        ctx.embeds.users.errors[0].meta.middle_names,
+    )
+    suffix = OneOf(
+        ctx.embeds.users.data.attributes.suffix,
+        ctx.embeds.users.errors[0].meta.suffix,
+    )
+
     identifiers = Map(
         Delegate(ThroughIdentifiers),
-        ctx.embeds.users.data.links.html,
-        ctx.embeds.users.data.links.profile_image,
+        Try(ctx.embeds.users.data.links.html),
+        Try(ctx.embeds.users.data.links.profile_image),
+        Try(ctx.embeds.users.errors[0].meta.profile_image)
     )
 
     class Extra:
-        nodes = ctx.embeds.users.data.relationships.nodes.links.related.href
-        locale = ctx.embeds.users.data.attributes.locale
-        date_registered = ctx.embeds.users.data.attributes.date_registered
-        active = ctx.embeds.users.data.attributes.active
-        timezone = ctx.embeds.users.data.attributes.timezone
-        profile_image = ctx.embeds.users.data.links.profile_image
+        nodes = Try(ctx.embeds.users.data.relationships.nodes.links.related.href)
+        locale = Try(ctx.embeds.users.data.attributes.locale)
+        date_registered = Try(ctx.embeds.users.data.attributes.date_registered)
+        active = Try(ctx.embeds.users.data.attributes.active)
+        timezone = Try(ctx.embeds.users.data.attributes.timezone)
+        profile_image = Try(ctx.embeds.users.data.links.profile_image)
 
 
 class Contributor(Parser):
     person = Delegate(Person, ctx)
     order_cited = ctx.attributes.index
     bibliographic = ctx.attributes.bibliographic
-    cited_name = ctx.embeds.users.data.attributes.full_name
+    cited_name = OneOf(
+        ctx.embeds.users.data.attributes.full_name,
+        ctx.embeds.users.errors[0].meta.full_name,
+    )
 
 
 class Tag(Parser):

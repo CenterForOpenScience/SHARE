@@ -17,7 +17,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf')
 
 
 #### Public API ####
@@ -80,6 +80,10 @@ def Static(value):
 
 def Subjects(*chains):
     return Concat(Map(MapSubjectLink(), *chains), deep=True)
+
+
+def OneOf(*chains):
+    return OneOfLink(*chains)
 
 
 ### /Public API
@@ -486,3 +490,20 @@ class MapSubjectLink(AbstractLink):
             logger.warning('No synonyms found for term "{}"'.format(obj))
 
         return mapped
+
+
+class OneOfLink(AbstractLink):
+
+    def __init__(self, *chains):
+        self._chains = chains
+        super().__init__()
+
+    def execute(self, obj):
+        errors = []
+        for chain in self._chains:
+            try:
+                return chain.execute(chain)
+            except Exception as e:
+                errors.append(e)
+
+        raise Exception('All chains failed {}'.format(errors))
