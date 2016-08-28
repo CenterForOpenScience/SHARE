@@ -502,7 +502,7 @@ class OneOfLink(AbstractLink):
         errors = []
         for chain in self._chains:
             try:
-                return chain.execute(chain)
+                return chain.chain()[0].run(obj)
             except Exception as e:
                 errors.append(e)
 
