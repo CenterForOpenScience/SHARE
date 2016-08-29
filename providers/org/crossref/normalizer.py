@@ -87,7 +87,6 @@ class CreativeWork(Parser):
 
     title = Maybe(ctx, 'title')[0]
     description = Maybe(ctx, 'subtitle')[0]
-    subject = Delegate(Tag, Maybe(ctx, 'subject')[0])
     date_updated = ParseDate(Try(ctx.deposited['date-time']))
 
     contributors = Map(
