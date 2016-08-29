@@ -188,62 +188,62 @@ class TestChangeSet:
         assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
         assert Preprint.objects.filter(contributor__person=john_doe).first().title == 'All About Cats'
 
-    @pytest.mark.django_db
-    def test_merge_accept(self, normalized_data_id, merge_graph, john_doe, jane_doe):
-        change_set = ChangeSet.objects.from_graph(merge_graph, normalized_data_id)
-        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
-            '@graph': [{
-                '@id': '_:123',
-                '@type': 'preprint',
-                'title': 'All About Cats'
-            }, {
-                '@id': '_:456',
-                '@type': 'contributor',
-                'person': {'@id': john_doe.pk, '@type': 'person'},
-                'creative_work': {'@id': '_:123', '@type': 'preprint'},
-            }]
-        }), normalized_data_id).accept()
+    # @pytest.mark.django_db
+    # def test_merge_accept(self, normalized_data_id, merge_graph, john_doe, jane_doe):
+    #     change_set = ChangeSet.objects.from_graph(merge_graph, normalized_data_id)
+    #     ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+    #         '@graph': [{
+    #             '@id': '_:123',
+    #             '@type': 'preprint',
+    #             'title': 'All About Cats'
+    #         }, {
+    #             '@id': '_:456',
+    #             '@type': 'contributor',
+    #             'person': {'@id': john_doe.pk, '@type': 'person'},
+    #             'creative_work': {'@id': '_:123', '@type': 'preprint'},
+    #         }]
+    #     }), normalized_data_id).accept()
 
-        assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
-        assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
-        assert Preprint.objects.filter(contributor__person=jane_doe).count() == 0
+    #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
+    #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
+    #     assert Preprint.objects.filter(contributor__person=jane_doe).count() == 0
 
-        change_set.accept()
+    #     change_set.accept()
 
-        john_doe.refresh_from_db()
-        jane_doe.refresh_from_db()
+    #     john_doe.refresh_from_db()
+    #     jane_doe.refresh_from_db()
 
-        # Jane should not have been modified
-        assert jane_doe.same_as is None
-        assert jane_doe.versions.count() == 1
+    #     # Jane should not have been modified
+    #     assert jane_doe.same_as is None
+    #     assert jane_doe.versions.count() == 1
 
-        # John should have been updated
-        assert john_doe.versions.count() == 2
+    #     # John should have been updated
+    #     assert john_doe.versions.count() == 2
 
-        # John's same_as field and same_as_version should have been updated
-        assert john_doe.same_as == jane_doe
-        assert john_doe.version.same_as == jane_doe
-        assert john_doe.same_as_version == jane_doe.version
-        assert john_doe.version.same_as_version == jane_doe.version
+    #     # John's same_as field and same_as_version should have been updated
+    #     assert john_doe.same_as == jane_doe
+    #     assert john_doe.version.same_as == jane_doe
+    #     assert john_doe.same_as_version == jane_doe.version
+    #     assert john_doe.version.same_as_version == jane_doe.version
 
-        # John's latest change should be set to the  merge change
-        assert john_doe.change.change_set == change_set
-        assert john_doe.version.change.change_set == change_set
+    #     # John's latest change should be set to the  merge change
+    #     assert john_doe.change.change_set == change_set
+    #     assert john_doe.version.change.change_set == change_set
 
-        # Ensure that date modifieds have been update
-        assert john_doe.versions.first().date_modified > john_doe.versions.last().date_modified
+    #     # Ensure that date modifieds have been update
+    #     assert john_doe.versions.first().date_modified > john_doe.versions.last().date_modified
 
-        # John is no longer a contributor on anything
-        assert Preprint.objects.filter(contributor__person=john_doe).count() == 0
-        assert Preprint.objects.filter(contributor__person_version=john_doe.version).count() == 0
+    #     # John is no longer a contributor on anything
+    #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 0
+    #     assert Preprint.objects.filter(contributor__person_version=john_doe.version).count() == 0
 
-        # Jane is now a contributor
-        assert Preprint.objects.filter(contributor__person=jane_doe).count() == 1
-        assert Preprint.objects.filter(contributor__person_version=jane_doe.version).count() == 1
+    #     # Jane is now a contributor
+    #     assert Preprint.objects.filter(contributor__person=jane_doe).count() == 1
+    #     assert Preprint.objects.filter(contributor__person_version=jane_doe.version).count() == 1
 
-        # The affected contributor should have been updated
-        assert Contributor.objects.get(person=jane_doe).versions.count() == 2
-        assert Contributor.objects.get(person=jane_doe).change.change_set == change_set
+    #     # The affected contributor should have been updated
+    #     assert Contributor.objects.get(person=jane_doe).versions.count() == 2
+    #     assert Contributor.objects.get(person=jane_doe).change.change_set == change_set
 
     @pytest.mark.django_db
     def test_subject_accept(self, normalized_data_id):
