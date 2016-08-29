@@ -1,1 +1,1 @@
-default_app_config = 'providers.io.engrxiv.apps.AppConfig'
+default_app_config = 'providers.io.psyarxiv.apps.AppConfig'

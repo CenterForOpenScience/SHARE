@@ -25,6 +25,7 @@ class PsyarxivHarvester(OSFHarvester):
         url = furl(self.url)
 
         url.args['page[size]'] = 100
+        url.args['embed'] = 'affiliated_institutions'  # temporary - remove with proper preprint harvest
         url.args['filter[date_modified][gt]'] = start_date.date().isoformat()
         url.args['filter[date_modified][lt]'] = end_date.date().isoformat()
 
