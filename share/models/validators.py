@@ -45,7 +45,6 @@ class JSONLDValidator:
         'integer': 'integer',
         'varchar(254)': 'string',
         'timestamp with time zone': 'string',
-        'jsonb': 'object',
     }
 
     def __init__(self, check_existence=True):
