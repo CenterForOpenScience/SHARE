@@ -132,7 +132,11 @@ class TestChangeGraph:
                 'person': {
                     '@id': '_:1234',
                     '@type': 'person'
-                }
+                },
+                'creative_work': {
+                    '@id': '_:91011',
+                    '@type': 'preprint'
+                },
             }, {
                 '@id': '_:1234',
                 '@type': 'person',

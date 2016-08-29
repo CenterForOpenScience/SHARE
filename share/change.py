@@ -114,12 +114,28 @@ class ChangeNode:
             except KeyError:
                 pass
 
-    def _disambiguate(self):
+    def _disambiguate(self, mapper=None):
         if self.is_merge:
             return None
+
+        reverse_relations = {}
+
+        if mapper:
+            for key, values in self._reverse_relations.items():
+                mapped = []
+                for value in values:
+                    node = mapper[value['@id'], value['@type'].lower()]
+                    related = next(x for x in node.related if x['@id'] != self.id)
+                    rnode = mapper[related['@id'], related['@type'].lower()]
+                    if not str(rnode.id).startswith('_:'):
+                        mapped.append(rnode.id)
+                if mapped:
+                    reverse_relations[key] = mapped
+
         self.__instance = disambiguation.disambiguate(self.id, {
             **self.attrs,
-            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')}
+            **reverse_relations,
+            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')},
         }, self.model)
         if self.__instance:
             self.id = self.__instance.pk
@@ -133,7 +149,7 @@ class ChangeGraph:
 
     @classmethod
     def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
-        nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
+        nodes = [ChangeNode.from_jsonld(obj, disambiguate=False, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
         return ChangeGraph(nodes, disambiguate=disambiguate)
 
     @property
@@ -152,7 +168,7 @@ class ChangeGraph:
         if disambiguate:
             for n in self.__nodes:
                 n.update_relations(self.__map)
-                n._disambiguate()
+                n._disambiguate(self.__map)
                 for ref in n.refs:
                     self.__map[ref] = n
 
@@ -186,7 +202,7 @@ class NodeSorter:
 
     def __visit(self, node):
         if node in self.__visiting:
-            raise CyclicalDependency()
+            raise CyclicalDependency(node, self.__visiting)
 
         if node in self.__visted:
             return
