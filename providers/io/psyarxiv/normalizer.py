@@ -68,7 +68,7 @@ class ThroughLinks(Parser):
 
 
 class Subject(Parser):
-    name = ctx.text
+    name = ctx
 
 
 class ThroughSubjects(Parser):
@@ -89,7 +89,7 @@ class Preprint(Parser):
     links = tools.Map(tools.Delegate(ThroughLinks), ctx.links.html)
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
-        tools.Concat(tools.Static({'text':'Social and behavioral sciences'}))
+        tools.Concat(tools.Static('Social and behavioral sciences'))
     )
 
     class Extra:

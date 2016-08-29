@@ -89,7 +89,7 @@ class Preprint(Parser):
     links = tools.Map(tools.Delegate(ThroughLinks), ctx.links.html)
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
-        tools.Concat(tools.Static({'text':'Engineering and technology'}))
+        tools.Concat(tools.Static('Engineering and technology'))
     )
 
     class Extra:
