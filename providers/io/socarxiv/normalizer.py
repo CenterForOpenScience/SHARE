@@ -75,7 +75,7 @@ class ThroughSubjects(Parser):
     subject = tools.Delegate(Subject, ctx)
 
 
-class Project(Parser):
+class Preprint(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
     contributors = tools.Map(tools.Delegate(Contributor), ctx['contributors'])
