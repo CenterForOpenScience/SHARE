@@ -90,6 +90,7 @@ class Affiliation(ShareObject):
 
 class Contributor(ShareObject):
     cited_name = models.TextField(blank=True)
+    bibliographic = models.BooleanField(default=True)
     order_cited = models.PositiveIntegerField(null=True)
 
     person = ShareForeignKey(Person)

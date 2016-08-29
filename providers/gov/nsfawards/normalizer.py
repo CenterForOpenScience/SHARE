@@ -56,7 +56,7 @@ class ThroughVenues(Parser):
 
 class Link(Parser):
     url = tools.RunPython('format_url', ctx)
-    type = 'provider'
+    type = tools.Static('provider')
 
     def format_url(self, ctx):
         return 'https://www.nsf.gov/awardsearch/showAward?AWD_ID={}'.format(ctx['id'])

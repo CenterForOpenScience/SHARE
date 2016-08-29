@@ -165,9 +165,10 @@ def user_post_save(sender, instance, created, **kwargs):
 
 class RawDataManager(FuzzyCountManager):
 
-    def store_data(self, doc_id, data, source):
+    def store_data(self, doc_id, data, source, app_label):
         rd, created = self.get_or_create(
             source=source,
+            app_label=app_label,
             provider_doc_id=doc_id,
             sha256=sha256(data).hexdigest(),
             defaults={'data': data},
@@ -186,6 +187,7 @@ class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
+    app_label = models.TextField(db_index=True)
     provider_doc_id = models.TextField()
 
     data = models.TextField()

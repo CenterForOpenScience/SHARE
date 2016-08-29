@@ -19,10 +19,10 @@ class Command(BaseCommand):
         config = apps.get_app_config(options['normalizer'])
 
         if not options['raws'] and options['all']:
-            options['raws'] = RawData.objects.filter(source=config.user.id).values_list('id', flat=True)
+            options['raws'] = RawData.objects.filter(app_label=config.label).values_list('id', flat=True)
 
         for raw in options['raws']:
-            task_args = (options['normalizer'], user.id, raw,)
+            task_args = (config.label, user.id, raw,)
 
             if options['async']:
                 NormalizerTask().apply_async(task_args)

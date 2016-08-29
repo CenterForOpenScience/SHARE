@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from share.models import Subject, SubjectSynonym
 from share.provider import ProviderAppConfig
 
+
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--all', action='store_true', help='Load synonyms for all sources')
@@ -42,7 +43,7 @@ class Command(BaseCommand):
             synonyms[subject].update(syns)
 
     def insert_new_synonyms(self, synonyms):
-        subjects = { name: id for name, id in Subject.objects.values_list('name', 'id') }
+        subjects = {name: id for name, id in Subject.objects.values_list('name', 'id')}
         existing_synonyms = {}
         for sub, syn in SubjectSynonym.objects.values_list('subject__name', 'synonym'):
             if sub not in existing_synonyms:

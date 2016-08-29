@@ -10,6 +10,8 @@ from share.models import Contributor
 from share.models import Association
 from share.models import Affiliation
 from share.models import PersonEmail
+from share.models.meta import ThroughLinks
+from share.models import AbstractCreativeWork
 
 
 __all__ = ('disambiguate', )
@@ -17,7 +19,7 @@ __all__ = ('disambiguate', )
 
 def disambiguate(id, attrs, model):
     for cls in Disambiguator.__subclasses__():
-        if getattr(cls, 'FOR_MODEL', None) == model:
+        if getattr(cls, 'FOR_MODEL', None) == model._meta.concrete_model:
             return cls(id, attrs).find()
 
     return GenericDisambiguator(id, attrs, model).find()
@@ -88,7 +90,7 @@ class GenericDisambiguator(Disambiguator):
             if field.name not in self.attrs:
                 return None
 
-        return self.model.objects.filter(**self.attrs).first()
+        return self.model.objects.filter(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)}).first()
 
 
 class LinkDisambiguator(Disambiguator):
@@ -138,3 +140,24 @@ class SubjectDisambiguator(Disambiguator):
         if subjects:
             return subjects.first()
         raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
+
+
+class AbstractCreativeWorkDisambiguator(Disambiguator):
+    model = AbstractCreativeWork
+    FOR_MODEL = AbstractCreativeWork
+
+    def disambiguate(self):
+        if self.attrs.get('links'):
+            for link in self.attrs.get('links'):
+                qs = ThroughLinks.objects.filter(link=link).select_related('creative_work')
+                if qs:
+                    return qs.first().creative_work
+
+        if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
+            return None
+
+        self.attrs.pop('description', None)
+
+        print(self.attrs)
+        # Limitting the length of title forces postgres to use the partial index
+        return self.model.objects.filter(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)}).extra(where=('octet_length(title) < 2049', )).first()

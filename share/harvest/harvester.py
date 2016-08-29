@@ -91,7 +91,7 @@ class Harvester(metaclass=abc.ABCMeta):
             assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
             for doc_id, datum in rawdata:
-                stored.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source))
+                stored.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source, self.config.label))
 
         return stored
 

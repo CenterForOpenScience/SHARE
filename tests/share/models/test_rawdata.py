@@ -11,13 +11,13 @@ from share.models import RawData
 class TestRawData:
 
     def test_doesnt_mangle_data(self, share_source):
-        rd = RawData(source=share_source, data=b'This is just some data')
+        rd = RawData(source=share_source, app_label='foo', data=b'This is just some data')
         rd.save()
 
         assert RawData.objects.first().data == 'This is just some data'
 
     def test_must_have_data(self, share_source):
-        rd = RawData(source=share_source)
+        rd = RawData(source=share_source, app_label='foo')
 
         with pytest.raises(exceptions.ValidationError) as e:
             rd.clean_fields()
@@ -26,7 +26,7 @@ class TestRawData:
         assert 'This field cannot be blank.' == e.value.message_dict['data'][0]
 
     def test_must_have_source(self):
-        rd = RawData(data='SomeData')
+        rd = RawData(data='SomeData', app_label='foo')
 
         with pytest.raises(IntegrityError) as e:
             rd.save()
@@ -34,19 +34,20 @@ class TestRawData:
         assert 'null value in column "source_id" violates not-null constraint' in e.value.args[0]
 
     def test_store_data(self, share_source):
-        rd = RawData.objects.store_data('myid', b'mydatums', share_source)
+        rd = RawData.objects.store_data('myid', b'mydatums', share_source, 'applabel')
 
         assert rd.date_seen is not None
         assert rd.date_harvested is not None
 
         assert rd.data == b'mydatums'
         assert rd.source == share_source
+        assert rd.app_label == 'applabel'
         assert rd.provider_doc_id == 'myid'
         assert rd.sha256 == hashlib.sha256(b'mydatums').hexdigest()
 
     def test_store_data_dedups(self, share_source):
-        rd1 = RawData.objects.store_data('myid', b'mydatums', share_source)
-        rd2 = RawData.objects.store_data('myid', b'mydatums', share_source)
+        rd1 = RawData.objects.store_data('myid', b'mydatums', share_source, 'applabel')
+        rd2 = RawData.objects.store_data('myid', b'mydatums', share_source, 'applabel')
 
         assert rd1.pk == rd2.pk
         assert rd1.date_seen < rd2.date_seen

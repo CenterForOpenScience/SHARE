@@ -2,7 +2,7 @@ import arrow
 
 import dateparser
 
-from share.normalize import Parser, Static, Delegate, RunPython, ParseName, Normalizer, Concat, Map, ctx, Try
+from share.normalize import Parser, Static, Delegate, RunPython, ParseName, Normalizer, Concat, Map, ctx, Try, Subjects
 from share.normalize.utils import format_doi_as_url
 
 
@@ -103,7 +103,7 @@ class CreativeWork(Parser):
         Try(ctx.keywords),
         Try(ctx.subjects)
     )
-    subjects = Map(Delegate(ThroughSubjects), Try(ctx.subjects))
+    subjects = Map(Delegate(ThroughSubjects), Subjects(ctx.subjects))
 
     class Extra:
         modified = RunPython('parse_date', ctx.date)

@@ -9,7 +9,7 @@ class AppConfig(ProviderAppConfig):
     name = 'providers.io.osf.preprints'
     version = '0.0.1'
     title = 'osf_preprints'
-    long_title = 'Open Science Framework Preprints'
+    long_title = 'OSF'
     emitted_type = 'preprint'
     home_page = 'http://osf.io/api/v2/preprints/'
     harvester = PreprintHarvester
