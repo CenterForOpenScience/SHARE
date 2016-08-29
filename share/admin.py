@@ -17,7 +17,7 @@ from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.entities import Entity
-from share.models.meta import Venue, Award, Tag, Link
+from share.models.meta import Venue, Award, Tag, Link, Subject, SubjectSynonym
 from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
 from share.tasks import ApplyChangeSets
 
@@ -146,7 +146,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
 class AbstractCreativeWorkAdmin(admin.ModelAdmin):
     list_display = ('type', 'title', 'num_contributors')
     list_filter = ['type']
-    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version', 'subject', 'subject_version')
+    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version', 'subjects')
 
     def num_contributors(self, obj):
         return obj.contributors.count()
@@ -179,6 +179,21 @@ class AccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'user', 'scope')
 
 
+class SubjectSynonymInline(admin.TabularInline):
+    model = SubjectSynonym
+
+    def has_add_permission(self, request, obj=None):
+            return False
+
+    def has_delete_permission(self, request, obj=None):
+            return False
+
+
+class SubjectAdmin(admin.ModelAdmin):
+    inlines = [
+        SubjectSynonymInline
+    ]
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -190,6 +205,8 @@ admin.site.register(Venue)
 admin.site.register(Award)
 admin.site.register(Link, LinkAdmin)
 admin.site.register(Tag, TagAdmin)
+admin.site.register(Subject, SubjectAdmin)
+admin.site.register(SubjectSynonym)
 admin.site.register(ExtraData)
 admin.site.register(Contributor, ContributorAdmin)
 admin.site.register(Email)

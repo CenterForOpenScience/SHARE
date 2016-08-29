@@ -9,17 +9,16 @@ from django.db import connections, transaction
 from django.apps import apps
 from django.core.management.base import BaseCommand
 
-from share import ProviderAppConfig
 from share.models import RawData
 
 # setup the migration source db connection
 connections._databases['migration_source'] = {
-  'ENGINE': 'django.db.backends.postgresql',
-  'NAME': os.environ.get('SCRAPI_DATABASE_NAME', 'scrapi_prod'),
-  'USER': os.environ.get('SCRAPI_DATABASE_USER', 'postgres'),
-  'PASSWORD': os.environ.get('SCRAPI_DATABASE_PASSWORD', '...'),
-  'HOST': os.environ.get('SCRAPI_DATABASE_HOST', 'localhost'),
-  'PORT': os.environ.get('SCRAPI_DATABASE_PORT', '54321'),
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': os.environ.get('SCRAPI_DATABASE_NAME', 'scrapi_prod'),
+    'USER': os.environ.get('SCRAPI_DATABASE_USER', 'postgres'),
+    'PASSWORD': os.environ.get('SCRAPI_DATABASE_PASSWORD', '...'),
+    'HOST': os.environ.get('SCRAPI_DATABASE_HOST', 'localhost'),
+    'PORT': os.environ.get('SCRAPI_DATABASE_PORT', '54321'),
 }
 
 # override model datetime field defaults, allows for migrated data insertion
@@ -193,6 +192,7 @@ class Command(BaseCommand):
                                     data = raw['doc'].encode()
                                     bulk.append(RawData(
                                         source=config.user,
+                                        app_label=config.label,
                                         provider_doc_id=doc_id,
                                         sha256=sha256(data).hexdigest(),
                                         data=data,

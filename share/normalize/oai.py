@@ -45,6 +45,18 @@ class OAIThroughLinks(Parser):
     link = tools.Delegate(OAILink, ctx)
 
 
+class OAISubject(Parser):
+    schema = 'Subject'
+
+    name = ctx
+
+
+class OAIThroughSubjects(Parser):
+    schema = 'ThroughSubjects'
+
+    subject = tools.Delegate(OAISubject, ctx)
+
+
 class OAIPerson(Parser):
     schema = 'Person'
 
@@ -161,6 +173,19 @@ class OAICreativeWork(Parser):
         )
     )
 
+    subjects = tools.Map(
+        tools.Delegate(OAIThroughSubjects),
+        tools.Subjects(
+            tools.Map(
+                tools.RunPython('tokenize'),
+                tools.Try(ctx['record']['header']['setSpec']),
+                tools.Try(ctx['record']['metadata']['dc']['dc:type']),
+                tools.Try(ctx['record']['metadata']['dc']['dc:format']),
+                tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+            )
+        )
+    )
+
     tags = tools.Map(
         tools.Delegate(OAIThroughTags),
         tools.RunPython(
@@ -220,9 +245,6 @@ class OAICreativeWork(Parser):
         # A related resource from which the described resource is derived.
         source = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:source')
 
-        # The topic of the resource.
-        subject = tools.Try(ctx.record.metadata.dc['dc:subject'])
-
         # The nature or genre of the resource.
         resource_type = tools.Try(ctx.record.metadata.dc['dc:type'])
 
@@ -274,6 +296,12 @@ class OAICreativeWork(Parser):
             else:
                 raise Exception(datum)
         return fixed
+
+    def tokenize(self, data):
+        tokens = []
+        for item in data:
+            tokens.extend([x.strip() for x in re.split('(?: - )|\.', data) if x])
+        return tokens
 
     def get_relation(self, ctx):
         if not ctx['record'].get('metadata'):

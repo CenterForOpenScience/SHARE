@@ -1,5 +1,4 @@
-from oauth2_provider.ext.rest_framework import TokenHasScope
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
@@ -19,7 +18,7 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ShareUserSerializer
 
     def get_queryset(self):
-        return [self.request.user,]
+        return [self.request.user, ]
 
 
 class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
@@ -31,6 +30,7 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
         if sort:
             return queryset.order_by(sort)
         return queryset
+
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
     """View showing all normalized data in the SHARE Dataset.
@@ -148,6 +148,23 @@ class ChangeViewSet(viewsets.ModelViewSet):
 
 
 class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Raw data, exactly as harvested from the data source.
+
+    ## Query by object
+    To get all the raw data corresponding to a Share object, use the query
+    parameters `object_id=<@id>` and `object_type=<@type>`
+    """
+
     serializer_class = RawDataSerializer
 
-    queryset = RawData.objects.all()
+    def get_queryset(self):
+        object_id = self.request.query_params.get('object_id', None)
+        object_type = self.request.query_params.get('object_type', None)
+        if object_id and object_type:
+            return RawData.objects.filter(
+                normalizeddata__changeset__changes__target_id=object_id,
+                normalizeddata__changeset__changes__target_type__model=object_type
+            ).distinct('id')
+        else:
+            return RawData.objects.all()

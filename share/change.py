@@ -114,23 +114,42 @@ class ChangeNode:
             except KeyError:
                 pass
 
-    def _disambiguate(self):
+    def _disambiguate(self, mapper=None):
         if self.is_merge:
             return None
+
+        reverse_relations = {}
+
+        if mapper:
+            for key, values in self._reverse_relations.items():
+                mapped = []
+                for value in values:
+                    node = mapper[value['@id'], value['@type'].lower()]
+                    related = next(x for x in node.related if x['@id'] != self.id)
+                    rnode = mapper[related['@id'], related['@type'].lower()]
+                    if not str(rnode.id).startswith('_:'):
+                        mapped.append(rnode.id)
+                if mapped:
+                    reverse_relations[key] = mapped
+
         self.__instance = disambiguation.disambiguate(self.id, {
             **self.attrs,
-            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')}
+            **reverse_relations,
+            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')},
         }, self.model)
         if self.__instance:
             self.id = self.__instance.pk
             self.__refs.append((self.id, self.type))
+
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.model, self.instance)
 
 
 class ChangeGraph:
 
     @classmethod
     def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
-        nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
+        nodes = [ChangeNode.from_jsonld(obj, disambiguate=False, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
         return ChangeGraph(nodes, disambiguate=disambiguate)
 
     @property
@@ -142,15 +161,16 @@ class ChangeGraph:
         self.__map = {ref: n for n in nodes for ref in n.refs}
         self.__sorter = NodeSorter(self)
 
+        if parse:
+            self.__nodes = self.__sorter.sorted()
+
         # TODO This could probably be more efficiant
         if disambiguate:
             for n in self.__nodes:
-                n._disambiguate()
-            for n in self.__nodes:
                 n.update_relations(self.__map)
-
-        if parse:
-            self.__nodes = self.__sorter.sorted()
+                n._disambiguate(self.__map)
+                for ref in n.refs:
+                    self.__map[ref] = n
 
     def get_node(self, id, type):
         try:
@@ -182,7 +202,7 @@ class NodeSorter:
 
     def __visit(self, node):
         if node in self.__visiting:
-            raise CyclicalDependency()
+            raise CyclicalDependency(node, self.__visiting)
 
         if node in self.__visted:
             return

@@ -90,6 +90,7 @@ class Affiliation(ShareObject):
 
 class Contributor(ShareObject):
     cited_name = models.TextField(blank=True)
+    bibliographic = models.BooleanField(default=True)
     order_cited = models.PositiveIntegerField(null=True)
 
     person = ShareForeignKey(Person)
@@ -99,6 +100,4 @@ class Contributor(ShareObject):
         return '{} -> {}'.format(self.person, self.creative_work)
 
     class Meta:
-        index_together = (
-            ('cited_name', 'order_cited',)
-        )
+        unique_together = ('person', 'creative_work')

@@ -10,6 +10,8 @@ from share.harvest.harvester import Harvester
 
 logger = logging.getLogger(__name__)
 
+QA_TAG = 'qatest'
+
 
 class OSFHarvester(Harvester):
 
@@ -36,6 +38,8 @@ class OSFHarvester(Harvester):
         total_harvested = 0
         while True:
             for record in records.json()['data']:
+                if QA_TAG in record['attributes']['tags']:
+                    continue
 
                 # iterate the linked contributors data in a new key in the record
                 contributor_url = furl(record['relationships']['contributors']['links']['related']['href'])

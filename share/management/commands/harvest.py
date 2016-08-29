@@ -26,11 +26,11 @@ class Command(BaseCommand):
 
         task_kwargs = {}
 
-        if options['days_back'] and (options['start'] or options['end']):
+        if options['days_back'] is not None and (options['start'] or options['end']):
             self.stdout.write('Please choose days-back OR a start date with end date, not both')
             return
 
-        if options['days_back']:
+        if options['days_back'] is not None:
             task_kwargs['end'] = datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))
             task_kwargs['start'] = datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])
         else:

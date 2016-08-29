@@ -14,6 +14,8 @@ import os
 
 from django.utils.log import DEFAULT_LOGGING
 
+from kombu import Queue, Exchange
+
 # Suppress select django deprecation messages
 LOGGING = DEFAULT_LOGGING
 LOGGING_CONFIG = 'project.log.configure'
@@ -166,8 +168,11 @@ INSTALLED_APPS = [
     'providers.gov.scitech',
     'providers.gov.usgs',
     'providers.info.spdataverse',
+    'providers.io.engrxiv',
     'providers.io.osf',
+    'providers.io.osf.preprints',
     'providers.io.osf.registrations',
+    'providers.io.socarxiv',
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai',
@@ -221,27 +226,27 @@ OAUTH2_PROVIDER = {
 SOCIALACCOUNT_ADAPTER = 'osf_oauth2_adapter.views.OSFOAuth2Adapter'
 SOCIALACCOUNT_PROVIDERS = \
     {'osf':
-         {
+        {
             'METHOD': 'oauth2',
             'SCOPE': ['osf.users.profile_read'],
             'AUTH_PARAMS': {'access_type': 'offline'},
-          # 'FIELDS': [
-          #     'id',
-          #     'email',
-          #     'name',
-          #     'first_name',
-          #     'last_name',
-          #     'verified',
-          #     'locale',
-          #     'timezone',
-          #     'link',
-          #     'gender',
-          #     'updated_time'],
-          # 'EXCHANGE_TOKEN': True,
-          # 'LOCALE_FUNC': 'path.to.callable',
-          # 'VERIFIED_EMAIL': False,
-          # 'VERSION': 'v2.4'
-          }
+            # 'FIELDS': [
+            #     'id',
+            #     'email',
+            #     'name',
+            #     'first_name',
+            #     'last_name',
+            #     'verified',
+            #     'locale',
+            #     'timezone',
+            #     'link',
+            #     'gender',
+            #     'updated_time'],
+            # 'EXCHANGE_TOKEN': True,
+            # 'LOCALE_FUNC': 'path.to.callable',
+            # 'VERIFIED_EMAIL': False,
+            # 'VERSION': 'v2.4'
+        }
      }
 
 
@@ -414,6 +419,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 
+CELERY_ACKS_LATE = True
 CELERY_TRACK_STARTED = True
 CELERY_RESULT_PERSISTENT = True
 CELERY_SEND_EVENTS = True
@@ -440,7 +446,6 @@ MED_PRI_MODULES = {
 HIGH_PRI_MODULES = {
 }
 
-from kombu import Queue, Exchange
 CELERY_QUEUES = (
     Queue(LOW_QUEUE, Exchange(LOW_QUEUE), routing_key=LOW_QUEUE,
           consumer_arguments={'x-priority': -10}),

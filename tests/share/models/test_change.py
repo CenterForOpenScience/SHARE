@@ -6,7 +6,6 @@ from share.models import AbstractCreativeWork
 from share.models import Contributor
 from share.models.change import Change
 from share.models.change import ChangeSet
-from share.models import NormalizedData
 
 
 @pytest.fixture
@@ -33,7 +32,6 @@ def ld_graph():
     }
 
 
-
 @pytest.mark.django_db
 class TestChange:
 
@@ -55,6 +53,48 @@ class TestChange:
 
         assert person.change == change_set.changes.first()
         assert change_set.status == ChangeSet.STATUS.accepted
+
+    def test_update_creative_work(self, change_factory):
+        link, preprint, _ = change_factory.from_graph({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'link',
+                'type': 'provider',
+                'url': 'https://share.osf.io',
+            }, {
+                '@id': '_:5678',
+                '@type': 'ThroughLinks',
+                'link': {'@id': '_:1234', '@type': 'link'},
+                'creative_work': {'@id': '_:890', '@type': 'preprint'},
+            }, {
+                '@id': '_:890',
+                '@type': 'preprint',
+                'title': 'All about Cats and more',
+                'links': [{'@id': '_:5678', '@type': 'ThroughLinks'}]
+            }]
+        }).accept()
+
+        change_set = change_factory.from_graph({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'link',
+                'type': 'provider',
+                'url': 'https://share.osf.io',
+            }, {
+                '@id': '_:5678',
+                '@type': 'ThroughLinks',
+                'link': {'@id': '_:1234', '@type': 'link'},
+                'creative_work': {'@id': '_:890', '@type': 'preprint'},
+            }, {
+                '@id': '_:890',
+                '@type': 'preprint',
+                'title': 'JUST ABOUT CATS',
+                'links': [{'@id': '_:5678', '@type': 'ThroughLinks'}],
+            }]
+        }, disambiguate=True)
+
+        assert change_set.changes.count() == 1
+        assert change_set.changes.first().target == preprint
 
     # def test_update_requires_saved(self, share_source):
     #     p = Person(given_name='John', family_name='Doe', source=share_source)

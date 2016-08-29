@@ -110,16 +110,19 @@ Creative Work
   - A list of institutions associated with the work, passed to an ``Institution`` class via the ``Association`` class (syntax follows the ``publishers`` example above).
 - organizations
   - A list of organizations associated with the work, passed to an ``Organization`` class via the ``Association`` class (syntax follows the ``publishers`` example above).
-- subject
-  - A single subject associated with the work, passed to the ``Tag`` class
+- subjects
+  - A list of subjects associated with the work, passed to the ``Subject`` class via the ``ThroughSubjects`` class:
 
 .. code-block:: python
 
-    class Tag:
-        name = ctx.tag_name
+    class Subject:
+        name = ctx.subject_name
+
+    class ThroughSubjects:
+        link = Delegate(Subject, ctx)
 
     class CreativeWork:
-        subject = Delegate(Tag, ctx.subject)
+        subjects = Map(Delegate(ThroughSubjects), ctx.subjects)
 
 - tags
    - A list of tags associated with the work, passed to the ``Tag`` class via the ``ThroughTags`` class

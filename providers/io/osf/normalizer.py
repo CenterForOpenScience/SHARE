@@ -3,12 +3,22 @@ from share.normalize.parsers import Parser
 from share.normalize import tools
 
 
+class Identifier(Parser):
+    url = ctx
+    base_url = tools.Static('https://osf.io/')
+
+
+class ThroughIdentifiers(Parser):
+    identifier = tools.Delegate(Identifier, ctx)
+
+
 class Person(Parser):
     given_name = ctx.embeds.users.data.attributes.given_name
     family_name = ctx.embeds.users.data.attributes.family_name
     additional_name = ctx.embeds.users.data.attributes.middle_names
     suffix = ctx.embeds.users.data.attributes.suffix
     url = ctx.embeds.users.data.links.html
+    identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), ctx.embeds.users.data.links.html)
 
     class Extra:
         nodes = ctx.embeds.users.data.relationships.nodes.links.related.href
@@ -50,7 +60,7 @@ class Association(Parser):
 
 class Link(Parser):
     url = ctx
-    type = 'provider'
+    type = tools.Static('provider')
 
 
 class ThroughLinks(Parser):

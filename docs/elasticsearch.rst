@@ -4,7 +4,7 @@ Elasticsearch
 SHARE has an elasticsearch API endpoint that can be used for searching SHARE's normalized data, as well as for compiling
 summary statistics and analyses of the completeness of data from the various sources.
 
-https://staging-share.osf.io/api/search/abstractcreativework/_search
+https://share.osf.io/api/search/abstractcreativework/_search
 
 Fields Indexed by Elasticsearch
 ###############################
@@ -42,7 +42,7 @@ You can acess the API via the command line using a basic query string with curl:
                 "query" : "test"
             }
         }
-    }' https://staging-share.osf.io/api/search/abstractcreativework/_search
+    }' https://share.osf.io/api/search/abstractcreativework/_search
 
 The elasticsearch API also allows you to aggregate over the whole dataset. This query will also return an aggregation of which sources
 do not have a value specified for the field "language"::
@@ -70,7 +70,7 @@ do not have a value specified for the field "language"::
                 ]
             }
         }
-    }' https://staging-share.osf.io/api/search/abstractcreativework/_search
+    }' https://share.osf.io/api/search/abstractcreativework/_search
 
 For more information on sending elasticsearch queries and aggregations, check out the `elasticsearch query DSL documentation  <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html>`_.
 

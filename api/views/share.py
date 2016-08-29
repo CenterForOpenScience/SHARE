@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, views, status
+from rest_framework import viewsets, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
@@ -54,7 +54,6 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
             return self.get_paginated_response(ser.data)
         ser = api_serializers.RawDataSerializer(data, many=True, context={'request': request})
         return Response(ser.data)
-
 
 
 class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, viewsets.ReadOnlyModelViewSet):
@@ -140,20 +139,21 @@ class LinkViewSet(ShareObjectViewSet):
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
+class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.SubjectSerializer
+    queryset = serializer_class.Meta.model.objects.all()
+
+
 class CreativeWorkViewSet(ShareObjectViewSet):
     serializer_class = serializers.CreativeWorkSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
-
-
 
 
 class PreprintViewSet(ShareObjectViewSet):
     serializer_class = serializers.PreprintSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
 
@@ -161,7 +161,6 @@ class PreprintViewSet(ShareObjectViewSet):
 class PublicationViewSet(ShareObjectViewSet):
     serializer_class = serializers.PublicationSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
 
@@ -169,7 +168,6 @@ class PublicationViewSet(ShareObjectViewSet):
 class ProjectViewSet(ShareObjectViewSet):
     serializer_class = serializers.ProjectSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
 
@@ -177,9 +175,9 @@ class ProjectViewSet(ShareObjectViewSet):
 class ManuscriptViewSet(ShareObjectViewSet):
     serializer_class = serializers.ManuscriptSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related(
-        'subject',
         'extra'
     )
+
 
 class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):

@@ -41,7 +41,9 @@ class JSONLDValidator:
 
     db_type_map = {
         'text': 'string',
+        'boolean': 'boolean',
         'integer': 'integer',
+        'varchar(254)': 'string',
         'timestamp with time zone': 'string',
     }
 
@@ -153,11 +155,9 @@ class JSONLDValidator:
         }
 
         for field in model._meta.get_fields():
-            if field.auto_created or (field.name == 'type' and model._meta.proxy) or field.name in {'id', 'uuid', 'sources', 'changes', 'date_created', 'date_modified', 'same_as', 'extra'}:
+            if field.auto_created or not field.editable or (field.name == 'type' and model._meta.proxy) or field.name in {'id', 'sources', 'changes', 'same_as', 'extra'}:
                 continue
-            if field.is_relation and not hasattr(field.related_model, 'VersionModel'):
-                continue
-            if not (field.null or field.blank or field.many_to_many):
+            if not (field.null or field.blank or field.many_to_many or field.has_default()):
                 schema['required'].append(field.name)
 
             schema['properties'][field.name] = self.json_schema_for_field(field)
