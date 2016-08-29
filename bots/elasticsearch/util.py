@@ -1,5 +1,3 @@
-import itertools
-
 from django.db import connection
 
 
@@ -8,6 +6,7 @@ def sql_to_dict(keys, values):
     for i in range(len(values[0])):
         ret.append({key: values[j][i] for j, key in enumerate(keys)})
     return ret
+
 
 def unique_by(key, values):
     ret = {}
