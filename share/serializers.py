@@ -173,9 +173,6 @@ class SubjectSerializer(serializers.ModelSerializer):
 class AbstractCreativeWorkSerializer(BaseShareSerializer):
     tags = TagSerializer(many=True)
     contributors = ContributorSerializer(source='contributor_set', many=True)
-    institutions = InstitutionSerializer(sparse=True, many=True)
-    venues = VenueSerializer(sparse=True, many=True)
-    awards = AwardSerializer(sparse=True, many=True)
     links = LinkSerializer(many=True)
     subjects = SubjectSerializer(many=True)
     extra = ExtraDataSerializer()
@@ -192,8 +189,6 @@ class PreprintSerializer(AbstractCreativeWorkSerializer):
 
 
 class PublicationSerializer(AbstractCreativeWorkSerializer):
-    publishers = PublisherSerializer(many=True)
-
     class Meta(BaseShareSerializer.Meta):
         model = models.Publication
 
