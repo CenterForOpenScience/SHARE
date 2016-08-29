@@ -1,8 +1,6 @@
-import itertools
 import logging
 import re
 
-from django.db import connection
 from django.apps import apps
 from elasticsearch import helpers
 from elasticsearch import Elasticsearch
@@ -15,11 +13,8 @@ from share.models import Entity
 from share.models import Person
 from share.models import Tag
 from share.models import Subject
-from share.models import Association
-from share.models import Funder
-from share.models import Publisher
-from share.models import Institution
-from share.models import Organization
+
+from bots.elasticsearch import util
 
 logger = logging.getLogger(__name__)
 
@@ -65,13 +60,10 @@ def sources(qs):
 class IndexModelTask(ProviderTask):
 
     def do_run(self, model_name, ids):
-        # es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
+        es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
         model = apps.get_model('share', model_name)
-        # for resp in helpers.streaming_bulk(es_client,
-        for _ in self.bulk_stream(model, ids):
-            pass
-        # for resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids)):
-        #     logger.debug(resp)
+        for resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids)):
+            logger.debug(resp)
 
     def bulk_stream(self, model, ids):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
@@ -91,57 +83,7 @@ class IndexModelTask(ProviderTask):
         }[type(inst)._meta.concrete_model](inst)
 
     def serialize_person(self, person, suggest=True):
-        with connection.cursor() as c:
-            c.execute('''
-                SELECT
-                share_identifier.url
-                , share_identifier.base_url
-                , share_entity.id
-                , share_entity.name
-                , share_entity.type
-                , share_entity.url
-                , share_entity.location
-                , share_shareuser.long_title
-                FROM share_person
-                left JOIN share_throughidentifiers ON share_person.id = share_throughidentifiers.person_id
-                left JOIN share_identifier ON share_throughidentifiers.identifier_id = share_identifier.id
-                left JOIN share_affiliation ON share_person.id = share_affiliation.person_id
-                left JOIN share_entity ON share_affiliation.entity_id = share_entity.id
-                left JOIN share_person_sources ON share_person.id = share_person_sources.person_id
-                left JOIN share_shareuser ON share_shareuser.id = share_person_sources.shareuser_id
-                WHERE share_person.id = %s
-            ''', (person.pk, ))
-
-            data = c.fetchall()
-
-        urls, base_urls, entity_ids, entity_types, entity_names, entity_urls, entity_loactions, sources = zip(*data)
-
-        serialized_person = {
-            'id': person.pk,
-            'type': 'person',
-            'suffix': safe_substr(person.suffix),
-            'given_name': safe_substr(person.given_name),
-            'family_name': safe_substr(person.family_name),
-            'name': safe_substr(person.get_full_name()),
-            'additional_name': safe_substr(person.additional_name),
-            'identifiers': [{'url': url, 'base_url': base_url} for url, base_url in zip(urls, base_urls) if url and base_url],
-            'affiliations': [
-                dict(zip(*blob)) for blob in
-                zip(
-                    zip(
-                        itertools.repeat('id'),
-                        itertools.repeat('type'),
-                        itertools.repeat('name'),
-                        itertools.repeat('url'),
-                        itertools.repeat('location'),
-                    ),
-                    zip(entity_ids, entity_types, entity_names, entity_urls, entity_loactions)
-                )
-                if blob[1][0]
-            ],
-            'sources': sources,
-        }
-
+        serialized_person = util.fetch_person(person.pk)
         return add_suggest(serialized_person) if suggest else serialized_person
 
     def serialize_entity(self, entity, suggest=True):
@@ -176,51 +118,8 @@ class IndexModelTask(ProviderTask):
             'url': safe_substr(link.url),
         }
 
-    def serialize_contributor(self, contributor):
-        return {
-            'cited_name': contributor.cited_name,
-            'bibliographic': contributor.bibliographic,
-            **self.serialize_person(contributor.person),
-        }
-
     def serialize_creative_work(self, creative_work):
-        associations = {}
-        for association in Association.objects.filter(creative_work=creative_work).select_related('entity'):
-            associations.setdefault(type(association.entity), []).append(association.entity)
-
-        serialized_lists = {
-            'links': [self.serialize_link(link) for link in creative_work.links.all()],
-            'funders': [self.serialize_entity(entity) for entity in associations.get(Funder, [])],
-            'publishers': [self.serialize_entity(entity) for entity in associations.get(Publisher, [])],
-            'institutions': [self.serialize_entity(entity) for entity in associations.get(Institution, [])],
-            'organizations': [self.serialize_entity(entity) for entity in associations.get(Organization, [])],
-            'contributors': [self.serialize_contributor(contrib) for contrib in creative_work.contributor_set.select_related('person').order_by('order_cited')],
-        }
-
-        return {
-            'type': type(creative_work).__name__.lower(),
-            'title': safe_substr(creative_work.title),
-            'description': safe_substr(creative_work.description),
-            'language': safe_substr(creative_work.language),
-            'date': (
-                creative_work.date_published or creative_work.date_updated or creative_work.date_created
-            ).isoformat(),
-            'date_created': creative_work.date_created.isoformat(),
-            'date_modified': creative_work.date_modified.isoformat(),
-            'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
-            'date_published': creative_work.date_published.isoformat() if creative_work.date_published else None,
-            'tags': [safe_substr(tag) for tag in creative_work.tags.all()],
-            'subjects': [safe_substr(subject) for subject in creative_work.subjects.all()],
-            'awards': [safe_substr(award) for award in creative_work.awards.all()],
-            'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
-            'sources': [safe_substr(source.long_title) for source in sources(creative_work.sources.through.objects.filter(abstractcreativework=creative_work))],
-            'contributors': [c['name'] for c in serialized_lists['contributors']],
-            'funders': [c['name'] for c in serialized_lists['funders']],
-            'publishers': [c['name'] for c in serialized_lists['publishers']],
-            'institutions': [c['name'] for c in serialized_lists['institutions']],
-            'organizations': [c['name'] for c in serialized_lists['organizations']],
-            'lists': serialized_lists
-        }
+        return util.fetch_abstractcreativework(creative_work.pk)
 
 
 class IndexSourceTask(ProviderTask):
