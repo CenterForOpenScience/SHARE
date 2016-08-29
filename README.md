@@ -1,6 +1,8 @@
-# SHAREv2
+# SHARE v2
 
-[![Gitter](https://badges.gitter.im/CenterForOpenScience/SHARE.svg)](https://gitter.im/CenterForOpenScience/SHARE?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+SHARE is creating a free, open dataset of research (meta)data.
+
+[![Gitter](https://badges.gitter.im/CenterForOpenScience/SHARE.svg)](https://gitter.im/CenterForOpenScience/SHARE)
 
 ## Technical Documentation
 

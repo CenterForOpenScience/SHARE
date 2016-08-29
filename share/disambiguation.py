@@ -158,6 +158,5 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
 
         self.attrs.pop('description', None)
 
-        print(self.attrs)
         # Limitting the length of title forces postgres to use the partial index
         return self.model.objects.filter(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)}).extra(where=('octet_length(title) < 2049', )).first()
