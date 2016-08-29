@@ -1,6 +1,8 @@
+import itertools
 import logging
 import re
 
+from django.db import connection
 from django.apps import apps
 from elasticsearch import helpers
 from elasticsearch import Elasticsearch
@@ -89,6 +91,31 @@ class IndexModelTask(ProviderTask):
         }[type(inst)._meta.concrete_model](inst)
 
     def serialize_person(self, person, suggest=True):
+        with connection.cursor() as c:
+            c.execute('''
+                SELECT
+                share_identifier.url
+                , share_identifier.base_url
+                , share_entity.id
+                , share_entity.name
+                , share_entity.type
+                , share_entity.url
+                , share_entity.location
+                , share_shareuser.long_title
+                FROM share_person
+                left JOIN share_throughidentifiers ON share_person.id = share_throughidentifiers.person_id
+                left JOIN share_identifier ON share_throughidentifiers.identifier_id = share_identifier.id
+                left JOIN share_affiliation ON share_person.id = share_affiliation.person_id
+                left JOIN share_entity ON share_affiliation.entity_id = share_entity.id
+                left JOIN share_person_sources ON share_person.id = share_person_sources.person_id
+                left JOIN share_shareuser ON share_shareuser.id = share_person_sources.shareuser_id
+                WHERE share_person.id = %s
+            ''', (person.pk, ))
+
+            data = c.fetchall()
+
+        urls, base_urls, entity_ids, entity_types, entity_names, entity_urls, entity_loactions, sources = zip(*data)
+
         serialized_person = {
             'id': person.pk,
             'type': 'person',
@@ -97,17 +124,24 @@ class IndexModelTask(ProviderTask):
             'family_name': safe_substr(person.family_name),
             'name': safe_substr(person.get_full_name()),
             'additional_name': safe_substr(person.additional_name),
-            'identifiers': [{
-                'url': identifier.url,
-                'base_url': identifier.base_url,
-            } for identifier in person.identifiers.all()],
+            'identifiers': [{'url': url, 'base_url': base_url} for url, base_url in zip(urls, base_urls) if url and base_url],
             'affiliations': [
-                self.serialize_entity(affiliation, False)
-                for affiliation in
-                person.affiliations.all()
+                dict(zip(*blob)) for blob in
+                zip(
+                    zip(
+                        itertools.repeat('id'),
+                        itertools.repeat('type'),
+                        itertools.repeat('name'),
+                        itertools.repeat('url'),
+                        itertools.repeat('location'),
+                    ),
+                    zip(entity_ids, entity_types, entity_names, entity_urls, entity_loactions)
+                )
+                if blob[1][0]
             ],
-            'sources': [safe_substr(source.long_title) for source in sources(person.sources.through.objects.filter(person=person))]
+            'sources': sources,
         }
+
         return add_suggest(serialized_person) if suggest else serialized_person
 
     def serialize_entity(self, entity, suggest=True):
