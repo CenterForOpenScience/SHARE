@@ -76,7 +76,10 @@ class ThroughSubjects(Parser):
 
 
 class Preprint(Parser):
-    title = ctx.attributes.title
+    def update_title_for_preprint(self, title):
+        return title + ' -- Preprint'
+
+    title = title = tools.RunPython('update_title_for_preprint', ctx.attributes.title)
     description = ctx.attributes.description
     contributors = tools.Map(tools.Delegate(Contributor), ctx['contributors'])
     institutions = tools.Map(
