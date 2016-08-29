@@ -11,7 +11,7 @@ from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
 from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView')
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView', 'ModelSchemaView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -174,11 +174,63 @@ class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SchemaView(views.APIView):
+    """
+    Schema used to validate changes or additions to the SHARE dataset.
+
+    To submit changes, see [`/api/normalizeddata`](/api/normalizeddata)
+
+    ## Model schemas
+    Each node in the submitted `@graph` is validated by a model schema determined by its `@type`.
+
+    ### Work types
+    - [Publication](/api/schema/Publication)
+    - [Project](/api/schema/Project)
+    - [Preprint](/api/schema/Preprint)
+    - [Registration](/api/schema/Registration)
+    - [Manuscript](/api/schema/Manuscript)
+    - [CreativeWork](/api/schema/CreativeWork)
+
+    ### People
+    - [Person](/api/schema/Person)
+
+    ### Entities
+    - [Institution](/api/schema/Institution)
+    - [Publisher](/api/schema/Publisher)
+    - [Funder](/api/schema/Funder)
+    - [Organization](/api/schema/Organization)
+
+    ### Other
+    - [Award](/api/schema/Award)
+    - [Email](/api/schema/Email)
+    - [Identifier](/api/schema/Identifier)
+    - [Link](/api/schema/Link)
+    - [Subject](/api/schema/Subject)
+    - [Tag](/api/schema/Tag)
+    - [Venue](/api/schema/Venue)
+
+    ### Relationships between nodes
+    - [Affiliation](/api/schema/Affiliation)
+    - [Association](/api/schema/Association)
+    - [Contributor](/api/schema/Contributor)
+    - [PersonEmail](/api/schema/PersonEmail)
+    - [ThroughAwardEntities](/api/schema/ThroughAwardEntities)
+    - [ThroughAwards](/api/schema/ThroughAwards)
+    - [ThroughIdentifiers](/api/schema/ThroughIdentifiers)
+    - [ThroughLinks](/api/schema/ThroughLinks)
+    - [ThroughSubjects](/api/schema/ThroughSubjects)
+    - [ThroughTags](/api/schema/ThroughTags)
+    - [ThroughVenues](/api/schema/ThroughVenues)
+    """
     def get(self, request, *args, **kwargs):
-        model_name = kwargs['model']
-        if model_name:
-            model = apps.get_model('share', model_name)
-            schema = JSONLDValidator().validator_for(model).schema
-        else:
-            schema = JSONLDValidator.jsonld_schema.schema
+        schema = JSONLDValidator.jsonld_schema.schema
+        return Response(schema)
+
+
+class ModelSchemaView(views.APIView):
+    """
+    Schema used to validate submitted changes of matching `@type`. See [`/api/schema`](/api/schema)
+    """
+    def get(self, request, *args, **kwargs):
+        model = apps.get_model('share', kwargs['model'])
+        schema = JSONLDValidator().validator_for(model).schema
         return Response(schema)
