@@ -16,7 +16,9 @@ class SocarxivHarvester(OSFHarvester):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.url = '{}v2/preprint_providers/socarxiv/preprints/'.format(settings.OSF_API_URL)
+        # self.url = '{}v2/preprint_providers/socarxiv/preprints/'.format(settings.OSF_API_URL)
+        # temporary harvest URL until preprint branding is complete
+        self.url = '{}v2/nodes/?filter[tags]=socarxiv'.format(settings.OSF_API_URL)
 
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
 

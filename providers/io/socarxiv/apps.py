@@ -1,6 +1,6 @@
 from share.provider import ProviderAppConfig
 from .harvester import SocarxivHarvester
-from providers.io.osf.preprints.normalizer import PreprintNormalizer
+# from providers.io.osf.preprints.normalizer import PreprintNormalizer
 
 
 class AppConfig(ProviderAppConfig):
@@ -11,4 +11,5 @@ class AppConfig(ProviderAppConfig):
     emitted_type = 'preprint'
     home_page = 'http://osf.io/api/v1/search/'
     harvester = SocarxivHarvester
-    normalizer = PreprintNormalizer
+    # temporary change - switch back to PreprintNormalizer when preprint branding is complete
+    # normalizer = PreprintNormalizer
