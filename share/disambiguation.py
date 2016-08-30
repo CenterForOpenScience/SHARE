@@ -20,15 +20,16 @@ __all__ = ('disambiguate', )
 def disambiguate(id, attrs, model):
     for cls in Disambiguator.__subclasses__():
         if getattr(cls, 'FOR_MODEL', None) == model._meta.concrete_model:
-            return cls(id, attrs).find()
+            return cls(id, attrs, model).find()
 
     return GenericDisambiguator(id, attrs, model).find()
 
 
 class Disambiguator(metaclass=abc.ABCMeta):
 
-    def __init__(self, id, attrs):
+    def __init__(self, id, attrs, model):
         self.id = id
+        self.model = model
         # only include attrs with truthy values
         self.attrs = {k: v for k, v in attrs.items() if v}
         self.is_blank = isinstance(id, str) and id.startswith('_:')
@@ -54,10 +55,6 @@ class GenericDisambiguator(Disambiguator):
             Affiliation,
             PersonEmail,
         }
-
-    def __init__(self, id, attrs, model):
-        self.model = model
-        super().__init__(id, attrs)
 
     def disambiguate(self):
         if not self.attrs:
@@ -94,7 +91,6 @@ class GenericDisambiguator(Disambiguator):
 
 
 class LinkDisambiguator(Disambiguator):
-    model = Link
     FOR_MODEL = Link
 
     def disambiguate(self):
@@ -104,7 +100,6 @@ class LinkDisambiguator(Disambiguator):
 
 
 class TagDisambiguator(Disambiguator):
-    model = Tag
     FOR_MODEL = Tag
 
     def disambiguate(self):
@@ -114,7 +109,6 @@ class TagDisambiguator(Disambiguator):
 
 
 class PersonDisambiguator(Disambiguator):
-    model = Person
     FOR_MODEL = Person
 
     def disambiguate(self):
@@ -127,7 +121,6 @@ class PersonDisambiguator(Disambiguator):
 
 
 class SubjectDisambiguator(Disambiguator):
-    model = Subject
     FOR_MODEL = Subject
 
     def disambiguate(self):
@@ -140,7 +133,6 @@ class SubjectDisambiguator(Disambiguator):
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
-    model = AbstractCreativeWork
     FOR_MODEL = AbstractCreativeWork
 
     def disambiguate(self):
