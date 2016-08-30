@@ -140,6 +140,7 @@ class ChangeNode:
 
         if self.__instance:
             self.id = self.__instance.pk
+            self.type = self.__instance._meta.model_name.lower()
             self.__refs.append((self.id, self.type))
 
     def __repr__(self):
