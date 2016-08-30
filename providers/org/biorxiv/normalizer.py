@@ -15,8 +15,12 @@ class Association(Parser):
 class DoiLink(Parser):
     schema = 'Link'
 
-    url = tools.RunPython(format_doi_as_url, ctx)
+    url = tools.RunPython('format_doi', ctx)
+    # identifier will always be DOI
     type = tools.Static('doi')
+
+    def format_doi(self, doi):
+        return format_doi_as_url(self, doi)
 
 
 class DoiThroughLinks(Parser):
