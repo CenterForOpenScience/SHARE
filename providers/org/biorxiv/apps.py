@@ -10,7 +10,6 @@ class AppConfig(ProviderAppConfig):
     home_page = 'http://biorxiv.org/'
     rate_limit = (1, 3)
     url = 'http://biorxiv.org/archive'
-    time_granularity = False
     harvester = BiorxivHarvester
 
     namespaces = {
