@@ -3,8 +3,6 @@ import json
 import ujson
 from collections import OrderedDict
 
-import regex
-
 from jsonschema import exceptions
 from jsonschema import Draft4Validator, draft4_format_checker
 
