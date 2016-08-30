@@ -1,7 +1,7 @@
 from share.normalize import ctx
 from share.normalize import tools
 from share.normalize.parsers import Parser
-from share.normalize.normalizer import Normalizer
+from share.normalize.utils import format_doi_as_url
 
 
 class Publisher(Parser):
@@ -12,6 +12,19 @@ class Association(Parser):
     pass
 
 
+class DoiLink(Parser):
+    schema = 'Link'
+
+    url = tools.RunPython(format_doi_as_url, ctx)
+    type = tools.Static('doi')
+
+
+class DoiThroughLinks(Parser):
+    schema = 'ThroughLinks'
+
+    link = tools.Delegate(DoiLink, ctx)
+
+
 class Link(Parser):
     url = ctx
     type = tools.RunPython('get_link_type', ctx)
@@ -19,7 +32,7 @@ class Link(Parser):
     def get_link_type(self, link):
         if 'dx.doi.org' in link:
             return 'doi'
-        if 'philica.com' in link:
+        if 'biorxiv.org' in link:
             return 'provider'
         return 'misc'
 
@@ -41,6 +54,14 @@ class Contributor(Parser):
     cited_name = ctx
 
 
+class Tag(Parser):
+    name = ctx
+
+
+class ThroughTags(Parser):
+    tag = tools.Delegate(Tag, ctx)
+
+
 class Subject(Parser):
     name = ctx
 
@@ -58,11 +79,19 @@ class Preprint(Parser):
         ctx['DC.Contributor']
     )
 
-    links = tools.Map(
-        tools.Delegate(ThroughLinks),
-        tools.Concat(
-            ctx['href'],
-            ctx['citation_public_url']
+    links = tools.Concat(
+        tools.Map(
+            tools.Delegate(ThroughLinks),
+            tools.Concat(
+                ctx['og:url'],
+                ctx['citation_public_url']
+            )
+        ),
+        tools.Map(
+            tools.Delegate(DoiThroughLinks),
+            tools.Concat(
+                ctx['citation_doi']
+            )
         )
     )
 
@@ -77,6 +106,13 @@ class Preprint(Parser):
     language = tools.Try(ctx['DC.Language'])
     rights = tools.Try(ctx['DC.Rights'])
 
+    tags = tools.Map(
+        tools.Delegate(ThroughTags),
+        tools.Concat(
+            tools.Try(ctx['category'])
+        )
+    )
+
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
         tools.Concat(tools.Static('Biology and life sciences'))
@@ -85,20 +121,7 @@ class Preprint(Parser):
     class Extra:
         identifiers = ctx['DC.Identifier']
         access_rights = ctx['DC.AccessRights']
-
-
-class BiorxivNormalizer(Normalizer):
-
-    def do_normalize(self, data):
-        unwrapped = self.unwrap_data(data)
-        unwrapped = self.change_context(unwrapped['data'])
-        return Preprint(unwrapped).parse()
-
-    def change_context(self, context):
-        bucket = {'href': []}
-        for blocks in context:
-            if 'name' in blocks:
-                bucket.update({blocks['name']: blocks['content']})
-            elif 'href' in blocks and not blocks['href'] == 'css/stylesheet.css':
-                bucket['href'].append(blocks['href'])
-        return bucket
+        record_type = ctx['type']
+        citation_author = ctx['citation_author']
+        citation_author_institution = ctx['citation_author_institution']
+        citation_author_email = ctx['citation_author_email']

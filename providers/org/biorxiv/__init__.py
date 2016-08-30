@@ -66,14 +66,8 @@ Example Record
 
     <meta name="citation_date" content="2016-01-27">
 
-    <link rel="alternate" type="application/pdf" title="Full Text (PDF)" href="/content/early/2016/01/27/038018.full.pdf">
-
     <meta name="description" content="bioRxiv - the preprint server for biology, operated by Cold Spring Harbor Laboratory, a research and educational institution">
     <meta name="generator" content="Drupal 7 (http://drupal.org)">
-    <link rel="canonical" href="http://biorxiv.org/content/early/2016/01/27/038018">
-
-    <link rel="shortlink" href="http://biorxiv.org/node/10210">
-    <title>Seqping: Gene Prediction Pipeline for Plant Genomes using Self-Trained Gene Models and Transcriptomic Data | bioRxiv</title>
 
 </head>
 """
