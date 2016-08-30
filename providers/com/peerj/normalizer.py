@@ -2,7 +2,7 @@ import arrow
 
 import dateparser
 
-from share.normalize import Parser, Static, Delegate, RunPython, ParseName, Normalizer, Concat, Map, ctx, Try, Subjects
+from share.normalize import Parser, Delegate, RunPython, ParseName, Normalizer, Map, ctx, Try, Subjects
 from share.normalize.utils import format_doi_as_url
 
 
