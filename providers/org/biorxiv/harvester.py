@@ -52,8 +52,15 @@ class BiorxivHarvester(Harvester):
 
                 article = self.requests.get('http://biorxiv.org' + link.decode())
 
-                yield (link.decode(), {
-                    meta.attrs['name']: meta.attrs['content']
-                    for meta in BeautifulSoup(article.content, 'html.parser').find_all('meta')
-                    if 'name' in meta.attrs
-                })
+                data = {}
+                for meta in BeautifulSoup(article.content, 'html.parser').find_all('meta'):
+                    if 'name' not in meta.attrs:
+                        continue
+                    if meta.attrs['name'] in data:
+                        if not isinstance(data[meta.attrs['name']], list):
+                            data[meta.attrs['name']] = [data[meta.attrs['name']]]
+                        data[meta.attrs['name']].append(meta.attrs['content'])
+                    else:
+                        data[meta.attrs['name']] = meta.attrs['content']
+
+                yield link.decode(), data
