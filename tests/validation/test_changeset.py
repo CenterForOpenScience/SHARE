@@ -207,6 +207,26 @@ class TestJSONLDValidator:
                 'name': 'New Tag',
             }]
         }
+    }, {
+        'out': "'giraffe' is not a 'uri' at /@graph/0",
+        'in': {
+            '@graph': [{
+                '@id': '_:123',
+                '@type': 'Link',
+                'url': 'giraffe',
+                'type': 'misc',
+            }]
+        }
+    }, {
+        'out': None,
+        'in': {
+            '@graph': [{
+                '@id': '_:123',
+                '@type': 'Link',
+                'url': 'https://share.osf.io/foo',
+                'type': 'misc',
+            }]
+        }
     }]
 
     @pytest.mark.parametrize('data, message', [(case['in'], case['out']) for case in CASES])
