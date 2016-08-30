@@ -6,12 +6,6 @@ from share.normalize import Parser, Static, Delegate, RunPython, ParseName, Norm
 from share.normalize.utils import format_doi_as_url
 
 
-class ISSN(Parser):
-    schema = 'Link'
-    url = ctx
-    type = Static('issn')
-
-
 class Email(Parser):
     email = ctx
 
@@ -79,14 +73,11 @@ class CreativeWork(Parser):
     title = ctx.title
     description = Try(ctx.description)
     contributors = Map(Delegate(Contributor), ctx.author)
-    links = Concat(
-        Delegate(ThroughLinks.using(link=Delegate(ISSN)), ctx.issn),
-        Map(
-            Delegate(ThroughLinks),
-            ctx.pdf_url,
-            RunPython('format_doi', ctx.doi),
-            ctx.fulltext_html_url
-        )
+    links = Map(
+        Delegate(ThroughLinks),
+        ctx.pdf_url,
+        RunPython('format_doi', ctx.doi),
+        ctx.fulltext_html_url
     )
     publishers = Map(
         Delegate(Association.using(entity=Delegate(Publisher))),
