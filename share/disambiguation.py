@@ -136,9 +136,6 @@ class SubjectDisambiguator(Disambiguator):
         subjects = Subject.objects.filter(name__iexact=self.attrs['name'])
         if subjects:
             return subjects.first()
-        subjects = Subject.objects.filter(synonyms__synonym__iexact=self.attrs['name'])
-        if subjects:
-            return subjects.first()
         raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
 
 
