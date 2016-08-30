@@ -1,11 +1,17 @@
+import furl
+
 from share.normalize import ctx
-from share.normalize.parsers import Parser
 from share.normalize import tools
+from share.normalize.parsers import Parser
 
 
 class Identifier(Parser):
     url = ctx
-    base_url = tools.Static('https://osf.io/')
+    base_url = tools.RunPython('get_base_url', ctx)
+
+    def get_base_url(self, url):
+        url = furl.furl(url)
+        return '{}://{}'.format(url.scheme, url.host)
 
 
 class ThroughIdentifiers(Parser):
@@ -17,11 +23,14 @@ class Person(Parser):
     family_name = ctx.embeds.users.data.attributes.family_name
     additional_name = ctx.embeds.users.data.attributes.middle_names
     suffix = ctx.embeds.users.data.attributes.suffix
-    url = ctx.embeds.users.data.links.html
-    identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), ctx.embeds.users.data.links.html)
+    identifiers = tools.Map(
+        tools.Delegate(ThroughIdentifiers),
+        tools.Try(ctx.embeds.users.data.links.html),
+        tools.Try(ctx.embeds.users.data.links.profile_image),
+        tools.Try(ctx.embeds.users.errors[0].meta.profile_image)
+    )
 
     class Extra:
-        nodes = ctx.embeds.users.data.relationships.nodes.links.related.href
         locale = ctx.embeds.users.data.attributes.locale
         date_registered = ctx.embeds.users.data.attributes.date_registered
         active = ctx.embeds.users.data.attributes.active
@@ -31,7 +40,8 @@ class Person(Parser):
 
 class Contributor(Parser):
     person = tools.Delegate(Person, ctx)
-    order_cited = ctx('index')
+    order_cited = ctx.attributes.index
+    bibliographic = ctx.attributes.bibliographic
     cited_name = ctx.embeds.users.data.attributes.full_name
 
 
@@ -68,7 +78,7 @@ class ThroughLinks(Parser):
 
 
 class Subject(Parser):
-    name = ctx.text
+    name = ctx
 
 
 class ThroughSubjects(Parser):
@@ -77,40 +87,19 @@ class ThroughSubjects(Parser):
 
 class Preprint(Parser):
 
-    def update_title_for_preprint(self, title):
-        return title + ' -- Preprint'
-
-    title = title = tools.RunPython('update_title_for_preprint', ctx.attributes.title)
+    title = ctx.attributes.title
     description = ctx.attributes.description
-    contributors = tools.Map(tools.Delegate(Contributor), ctx['contributors'])
+    contributors = tools.Map(tools.Delegate(Contributor), ctx.contributors)
     institutions = tools.Map(
         tools.Delegate(Association.using(entity=tools.Delegate(Institution))),
         ctx.embeds.affiliated_institutions.data
     )
+    # rights = tools.Try(ctx.attributes.node_license)
     date_updated = tools.ParseDate(ctx.attributes.date_modified)
-    tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
-    rights = tools.Maybe(ctx, 'attributes.node_license')
     links = tools.Map(tools.Delegate(ThroughLinks), ctx.links.html)
-    subjects = tools.Map(
-        tools.Delegate(ThroughSubjects),
-        tools.Concat(tools.Static('Engineering and technology'))
-    )
+    tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
+    subjects = tools.Map(tools.Delegate(ThroughSubjects), tools.Static('Engineering and technology'))
 
     class Extra:
         date_created = tools.ParseDate(ctx.attributes.date_created)
-        files = ctx.relationships.files.links.related.href
-        parent = tools.Maybe(ctx, 'relationships.parent.links.related.href')
-        forks = ctx.relationships.forks.links.related.href
-        root = ctx.relationships.root.links.related.href
-        comments = ctx.relationships.comments.links.related.href
-        registrations = ctx.relationships.registrations.links.related.href
-        logs = ctx.relationships.logs.links.related.href
-        node_links = ctx.relationships.node_links.links.related.href
-        wikis = ctx.relationships.wikis.links.related.href
-        children = ctx.relationships.children.links.related.href
-        fork = ctx.attributes.fork
         date_modified = ctx.attributes.date_modified
-        collection = ctx.attributes.collection
-        registration = ctx.attributes.registration
-        type = ctx.type
-        id = ctx.id
