@@ -1,9 +1,8 @@
-import datetime
 import logging
 import re
 
+import arrow
 from furl import furl
-from lxml import etree
 from bs4 import BeautifulSoup
 
 from share import Harvester
@@ -22,12 +21,12 @@ class BiorxivHarvester(Harvester):
         # I wish I was wrong, the url is just "<key1>:<value> <key2>:<value>" and so on
         url = furl(self.url).add(
             path=' '.join([
-                'limit_to:{}'.format(end_date),
                 'limit_from:{}'.format(start_date),
+                'limit_to:{}'.format(end_date),
                 'numresults:100',
-                'format_result:standard'
-                'sort:publication-date'
-                'direction:descending'
+                'sort:publication-date',
+                'direction:descending',
+                'format_result:standard',
             ])
         ).url
 
@@ -36,8 +35,7 @@ class BiorxivHarvester(Harvester):
         return self.fetch_records(url, start_date, end_date)
 
     def fetch_records(self, url, start_date, end_date):
-        page = 0
-        resp = self.requests.get(url)
+        page = -1
 
         while True:
             page += 1
@@ -45,9 +43,13 @@ class BiorxivHarvester(Harvester):
             links = re.findall(b'href="(/content/early/[^"]+?/[^"]+)"', resp.content)
 
             if not links:
-                break
+                return
 
             for link in links:
+                date = arrow.get('-'.join(link.decode().split('/')[3:-1])).date()
+                if date < start_date or date > end_date:  # Biorxiv's search sometimes "leaks"
+                    return
+
                 article = self.requests.get('http://biorxiv.org' + link.decode())
 
                 yield (link.decode(), {
