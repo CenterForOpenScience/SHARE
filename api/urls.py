@@ -40,6 +40,7 @@ urlpatterns = [
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
     url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
     url(r'userinfo/?', views.ShareUserView.as_view(), name='userinfo'),
+    url(r'v1data/?', views.V1DataView.as_view(), name='v1data'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
     url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema')

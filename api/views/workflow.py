@@ -10,8 +10,11 @@ from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, Chang
 from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
 from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
+from share.harvest.harvester import Harvester
+from django.db import transaction
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView', 'ModelSchemaView')
+
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView', 'ModelSchemaView', 'V1DataView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -234,3 +237,96 @@ class ModelSchemaView(views.APIView):
         model = apps.get_model('share', kwargs['model'])
         schema = JSONLDValidator().validator_for(model).schema
         return Response(schema)
+
+
+class V1DataView(views.APIView):
+    """View allowing sources to post SHARE v1 formatted metadata directly to the SHARE Dataset.
+
+    ## Submit Data in SHARE v1 Format
+    Please note that this endpoint is to ease the transition from SHARE v1 to SHARE v2 and sources
+    are encouraged to transition to submitting metadata in the SHARE v2 format.
+
+    Submitting data through the normalizeddata endpoint is strongly preferred as support for
+    the v1 format will not be continued.
+
+    v1 Format
+
+        For the full format please see https://github.com/erinspace/shareregistration/blob/master/push_endpoint/schemas.py
+
+        Required Fields: [
+            "title",
+            "contributors",
+            "uris",
+            "providerUpdatedDateTime"
+        ],
+
+    Create
+
+        Method:        POST
+        Body (JSON): {
+                        {
+                            "publisher":{
+                                "name": <publisher name>,
+                                "uri": <publisher uri>
+                            },
+                            "description": <description>,
+                            "contributors":[
+                                {
+                                    "name":<contributor name>,
+                                    "email": <email>,
+                                    "sameAs": <uri>
+                                },
+                                {
+                                    "name":<contributor name>
+                                }
+                            ],
+                            "title": <title>,
+                            "tags":[
+                                <tag>,
+                                <tag>
+                            ],
+                            "languages":[
+                                <language>
+                            ],
+                            "providerUpdatedDateTime": <time submitted>,
+                            "uris": {
+                                "canonicalUri": <uri>,
+                                "providerUris":[
+                                    <uri>
+                                ]
+                            }
+                        }
+
+                    }
+        Success:       200 OK
+    """
+    permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
+    serializer_class = NormalizedDataSerializer
+
+    def get_queryset(self):
+        return NormalizedData.objects.all()
+
+    def post(self, request, *args, **kwargs):
+
+        prelim_data = request.data
+        prelim_data['source'] = ShareUser.objects.get(id=request.user.id)
+
+        # store raw data, assuming you can only submit one at a time
+        stored = []
+        with transaction.atomic():
+            doc_id = prelim_data['uris']['canonicalUri']  # str(prelim_data['source'].id)
+
+            # breaks because of source
+            stored.append(RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), prelim_data['source'], request.user.username))
+        # normalize data
+
+        # celery task accept
+
+        # return
+        serializer = RawDataSerializer(data=prelim_data)
+        if serializer.is_valid():
+            nm_instance = serializer.save()
+            async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
+            return Response({'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
