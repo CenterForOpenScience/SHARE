@@ -16,8 +16,6 @@ from django.db.models.fields.related import resolve_relation
 from django.utils.translation import ugettext_lazy as _
 from psycopg2.extras import Json
 
-from share.models.validators import is_valid_uri
-
 
 class DateTimeAwareJSONEncoder(DjangoJSONEncoder):
     def default(self, o):
@@ -395,8 +393,6 @@ class ShareManyToManyField(TypedManyToManyField):
 
 
 class URIField(models.TextField):
-    default_validators = [is_valid_uri, ]
-
     def __init__(self, *args, **kwargs):
         super(URIField, self).__init__(*args, **kwargs)
 
