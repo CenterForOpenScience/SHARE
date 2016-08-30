@@ -1,7 +1,7 @@
 from share.normalize import ctx
 from share.normalize import tools
 from share.normalize.parsers import Parser
-from share.normalize.utils import format_doi_as_url
+from share.normalize.normalizer import Normalizer
 
 
 class Publisher(Parser):
@@ -13,12 +13,15 @@ class Association(Parser):
 
 
 class Link(Parser):
-    url = tools.RunPython('format_doi', ctx)
-    # identifier will always be DOI
-    type = tools.Static('doi')
+    url = ctx
+    type = tools.RunPython('get_link_type', ctx)
 
-    def format_doi(self, doi):
-        return format_doi_as_url(self, doi)
+    def get_link_type(self, link):
+        if 'dx.doi.org' in link:
+            return 'doi'
+        if 'philica.com' in link:
+            return 'provider'
+        return 'misc'
 
 
 class ThroughLinks(Parser):
@@ -47,16 +50,55 @@ class ThroughSubjects(Parser):
 
 
 class Preprint(Parser):
-    title = ctx.item['dc:title']
-    description = ctx.item.description
-    contributors = tools.Map(tools.Delegate(Contributor), ctx.item['dc:creator'])
-    date_published = ctx.item['dc:date']
+
+    title = tools.Try(ctx['DC.Title'])
+    description = tools.Try(ctx['DC.Description'])
+    contributors = tools.Map(
+        tools.Delegate(Contributor),
+        ctx['DC.Contributor']
+    )
+
+    links = tools.Map(
+        tools.Delegate(ThroughLinks),
+        tools.Concat(
+            ctx['href'],
+            ctx['citation_public_url']
+        )
+    )
+
     publishers = tools.Map(
         tools.Delegate(Association.using(entity=tools.Delegate(Publisher))),
-        ctx.item['dc:publisher']
+        ctx['DC.Publisher']
     )
-    links = tools.Map(tools.Delegate(ThroughLinks), ctx.item['dc:identifier'])
+
+    date_updated = tools.ParseDate(ctx['DC.Date'])
+    date_published = tools.ParseDate(ctx['article:published_time'])
+
+    language = tools.Try(ctx['DC.Language'])
+    rights = tools.Try(ctx['DC.Rights'])
+
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
         tools.Concat(tools.Static('Biology and life sciences'))
     )
+
+    class Extra:
+        identifiers = ctx['DC.Identifier']
+        access_rights = ctx['DC.AccessRights']
+
+
+class BiorxivNormalizer(Normalizer):
+
+    def do_normalize(self, data):
+        unwrapped = self.unwrap_data(data)
+        unwrapped = self.change_context(unwrapped['data'])
+        return Preprint(unwrapped).parse()
+
+    def change_context(self, context):
+        bucket = {'href': []}
+        for blocks in context:
+            if 'name' in blocks:
+                bucket.update({blocks['name']: blocks['content']})
+            elif 'href' in blocks and not blocks['href'] == 'css/stylesheet.css':
+                bucket['href'].append(blocks['href'])
+        return bucket
