@@ -105,6 +105,7 @@ class CreativeWork(Parser):
         journal_title = Try(ctx.journal_title)
         journal_abbrev = Try(ctx.journal_abbrev)
         description_html = Try(ctx['description-html'])
+        issn = Try(ctx.issn)
 
     def format_doi(self, doi):
         return format_doi_as_url(self, doi)
