@@ -173,6 +173,7 @@ INSTALLED_APPS = [
     'providers.io.osf.preprints',
     'providers.io.osf.registrations',
     'providers.io.socarxiv',
+    'providers.io.psyarxiv',
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai',

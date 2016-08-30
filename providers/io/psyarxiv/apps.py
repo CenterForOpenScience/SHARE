@@ -1,15 +1,15 @@
 from share.provider import ProviderAppConfig
-from .harvester import EngrxivHarvester
+from .harvester import PsyarxivHarvester
 # from providers.io.osf.preprints.normalizer import PreprintNormalizer
 
 
 class AppConfig(ProviderAppConfig):
-    name = 'providers.io.engrxiv'
+    name = 'providers.io.psyarxiv'
     version = '0.0.1'
-    title = 'osf_preprints_engrxiv'
-    long_title = 'engrXiv'
-    home_page = 'http://osf.io/api/v1/search/'
+    title = 'osf_preprints_psyarxiv'
+    long_title = 'PsyArXiv'
+    home_page = 'http://psyarxiv.org'
     emitted_type = 'preprint'
-    harvester = EngrxivHarvester
+    harvester = PsyarxivHarvester
     # temporary change - switch back to PreprintNormalizer when preprint branding is complete
     # normalizer = PreprintNormalizer

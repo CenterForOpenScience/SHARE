@@ -15,12 +15,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            code=share.robot.RobotUserMigration('io.engrxiv'),
+            code=share.robot.RobotUserMigration('io.psyarxiv'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('io.engrxiv'),
+            code=share.robot.RobotOauthTokenMigration('io.psyarxiv'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotScheduleMigration('io.engrxiv'),
+            code=share.robot.RobotScheduleMigration('io.psyarxiv'),
         ),
     ]
