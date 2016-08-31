@@ -8,7 +8,7 @@ from share.models import ChangeSet
 class RawDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RawData
-        fields = ('source', 'app_label', 'provider_doc_id', 'data', 'sha256', 'date_seen', 'date_harvested')
+        fields = ('id', 'source', 'app_label', 'provider_doc_id', 'data', 'sha256', 'date_seen', 'date_harvested')
 
 
 class NormalizedDataSerializer(serializers.ModelSerializer):
