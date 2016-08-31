@@ -144,7 +144,8 @@ class Preprint(Parser):
 
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
-        tools.Concat(tools.Static('Biology and life sciences'))
+        tools.Static('Biology and life sciences'),
+        ctx['subject-areas'],
     )
 
     class Extra:

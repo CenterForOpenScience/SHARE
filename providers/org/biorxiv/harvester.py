@@ -34,22 +34,28 @@ class BiorxivHarvester(Harvester):
         return self.fetch_records(url, start_date, end_date)
 
     def fetch_records(self, url, start_date, end_date):
-        page = -1
-        seen = set()
+        count, page = 0, 0
+        resp = self.requests.get(furl(url).set(query_params={'page': page}))
+        total = int(BeautifulSoup(resp.content, 'html.parser').find(id='page-title').text.split(' ')[0].strip())
 
-        while True:
-            page += 1
-            resp = self.requests.get(furl(url).set(query_params={'page': page}))
+        logging.info('Found %d results from biorxiv', total)
+
+        while count < total:
             links = re.findall(b'href="(/content/early/[^"]+?/[^"]+)"', resp.content)
-
-            if not set(links) - seen:
-                return
 
             for link in links:
                 article = self.requests.get('http://biorxiv.org' + link.decode())
+                soup = BeautifulSoup(article.content, 'lxml')
 
-                data = {}
-                for meta in BeautifulSoup(article.content, 'html.parser').find_all('meta'):
+                data = {
+                    'subject-areas': [
+                        subject.a.text.strip()
+                        for subject in
+                        soup.find_all(**{'class': 'highwire-article-collection-term'})
+                    ]
+                }
+
+                for meta in BeautifulSoup(article.content, 'lxml').find_all('meta'):
                     if 'name' not in meta.attrs:
                         continue
                     if meta.attrs['name'] in data:
@@ -59,6 +65,8 @@ class BiorxivHarvester(Harvester):
                     else:
                         data[meta.attrs['name']] = meta.attrs['content']
 
+                count += 1
                 yield link.decode(), data
 
-            seen |= set(links)
+            page += 1
+            resp = self.requests.get(furl(url).set(query_params={'page': page}))
