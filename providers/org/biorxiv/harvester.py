@@ -1,8 +1,9 @@
-import datetime
 import logging
+import re
 
+import arrow
 from furl import furl
-from lxml import etree
+from bs4 import BeautifulSoup
 
 from share import Harvester
 
@@ -10,53 +11,56 @@ logger = logging.getLogger(__name__)
 
 
 class BiorxivHarvester(Harvester):
-
-    namespaces = {
-        'dc': 'http://purl.org/dc/elements/1.1/',
-        'syn': 'http://purl.org/rss/1.0/modules/syndication/',
-        'content': 'http://purl.org/rss/1.0/modules/content/',
-        'admin': 'http://webns.net/mvcb/',
-        'prism': 'http://purl.org/rss/1.0/modules/prism/',
-        'taxo': 'http://purl.org/rss/1.0/modules/taxonomy/',
-        'ns0': 'http://purl.org/rss/1.0/',
-        'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
-    }
-
-    url = 'http://connect.biorxiv.org/biorxiv_xml.php'
+    url = 'http://biorxiv.org/search/'
 
     def do_harvest(self, start_date, end_date):
-        # BioRxiv does not have filter dates; returns 30 most recent
+
+        end_date = end_date.date()
         start_date = start_date.date()
-        url = furl(self.url).set(query_params={
-            'subject': 'all'
-        }).url
+
+        # I wish I was wrong, the url is just "<key1>:<value> <key2>:<value>" and so on
+        url = furl(self.url).add(
+            path=' '.join([
+                'limit_from:{}'.format(start_date),
+                'limit_to:{}'.format(end_date),
+                'numresults:100',
+                'sort:publication-date',
+                'direction:descending',
+                'format_result:standard',
+            ])
+        ).url
+
         # Fetch records is a separate function for readability
         # Ends up returning a list of tuples with provider given id and the document itself
-        return self.fetch_records(url, start_date)
+        return self.fetch_records(url, start_date, end_date)
 
-    def fetch_records(self, url, start_date):
-        records = self.fetch_page(url)
+    def fetch_records(self, url, start_date, end_date):
+        page = -1
 
-        for index, record in enumerate(records):
-            # '2016-06-30'
-            updated = datetime.datetime.strptime(record.xpath('dc:date', namespaces=self.namespaces)[0].text, '%Y-%m-%d').date()
-            if updated < start_date:
-                logger.info('Record index {}: Record date {} is less than start date {}.'.format(index, updated, start_date))
+        while True:
+            page += 1
+            resp = self.requests.get(furl(url).set(query_params={'page': page}))
+            links = re.findall(b'href="(/content/early/[^"]+?/[^"]+)"', resp.content)
+
+            if not links:
                 return
 
-            yield (
-                record.xpath('dc:identifier', namespaces=self.namespaces)[0].text,
-                etree.tostring(record),
-            )
+            for link in links:
+                date = arrow.get('-'.join(link.decode().split('/')[3:-1])).date()
+                if date < start_date or date > end_date:  # Biorxiv's search sometimes "leaks"
+                    return
 
-    def fetch_page(self, url):
-        logger.info('Making request to {}'.format(url))
+                article = self.requests.get('http://biorxiv.org' + link.decode())
 
-        resp = self.requests.get(url, verify=False)
-        parsed = etree.fromstring(resp.content)
+                data = {}
+                for meta in BeautifulSoup(article.content, 'html.parser').find_all('meta'):
+                    if 'name' not in meta.attrs:
+                        continue
+                    if meta.attrs['name'] in data:
+                        if not isinstance(data[meta.attrs['name']], list):
+                            data[meta.attrs['name']] = [data[meta.attrs['name']]]
+                        data[meta.attrs['name']].append(meta.attrs['content'])
+                    else:
+                        data[meta.attrs['name']] = meta.attrs['content']
 
-        records = parsed.xpath('//ns0:item', namespaces=self.namespaces)
-
-        logger.info('Found {} records.'.format(len(records)))
-
-        return records
+                yield link.decode(), data

@@ -179,6 +179,7 @@ INSTALLED_APPS = [
     'providers.org.arxiv.oai',
     'providers.org.bhl',
     'providers.org.biorxiv',
+    'providers.org.biorxiv.rss',
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
