@@ -1,7 +1,6 @@
 import logging
 import re
 
-import arrow
 from furl import furl
 from bs4 import BeautifulSoup
 
