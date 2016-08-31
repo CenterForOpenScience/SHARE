@@ -3,13 +3,14 @@ from .harvester import BiorxivHarvester
 
 
 class AppConfig(ProviderAppConfig):
-    name = 'providers.org.biorxiv'
+    name = 'providers.org.biorxiv.rss'
     version = '0.0.0'
     title = 'biorxiv'
     long_title = 'bioRxiv'
     home_page = 'http://biorxiv.org/'
-    rate_limit = (1, 2)
-    url = 'http://biorxiv.org/archive'
+    rate_limit = (1, 3)
+    url = 'http://connect.biorxiv.org/biorxiv_xml.php?subject=all'
+    time_granularity = False
     harvester = BiorxivHarvester
 
     namespaces = {

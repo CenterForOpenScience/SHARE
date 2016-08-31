@@ -179,6 +179,7 @@ INSTALLED_APPS = [
     'providers.org.arxiv.oai',
     'providers.org.bhl',
     'providers.org.biorxiv',
+    'providers.org.biorxiv.rss',
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
@@ -342,7 +343,7 @@ if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
 # else:
 INSTALLED_APPS += [
-#    'raven.contrib.django.raven_compat',
+    # 'raven.contrib.django.raven_compat',
 ]
 RAVEN_CONFIG = {
     'dsn': os.environ.get('SENTRY_DSN', None),
