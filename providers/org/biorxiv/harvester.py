@@ -36,7 +36,7 @@ class BiorxivHarvester(Harvester):
     def fetch_records(self, url, start_date, end_date):
         count, page = 0, 0
         resp = self.requests.get(furl(url).set(query_params={'page': page}))
-        total = int(BeautifulSoup(resp.content, 'html.parser').find(id='page-title').text.split(' ')[0].strip())
+        total = int(BeautifulSoup(resp.content, 'html.parser').find(id='page-title').text.split(' ')[0].strip().replace(',', ''))
 
         logging.info('Found %d results from biorxiv', total)
 
