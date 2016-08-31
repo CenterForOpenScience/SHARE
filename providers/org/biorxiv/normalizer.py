@@ -1,3 +1,5 @@
+import itertools
+
 from share.normalize import ctx
 from share.normalize import tools
 from share.normalize.parsers import Parser
@@ -161,11 +163,11 @@ class Preprint(Parser):
         emails = link['citation_author_email'] if isinstance(link['citation_author_email'], list) else [link['citation_author_email']]
 
         contribs = []
-        for index, author in enumerate(authors):
+        for author, email, institution in itertools.zip_longest(authors, emails, institutions):
             contrib = {
-                'author': authors[index],
-                'institution': institutions[index],
-                'email': emails[index]
+                'author': author,
+                'institution': institution,
+                'email': email,
             }
             contribs.append(contrib)
 

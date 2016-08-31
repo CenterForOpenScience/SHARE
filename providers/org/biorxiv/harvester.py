@@ -47,10 +47,6 @@ class BiorxivHarvester(Harvester):
                 return
 
             for link in links:
-                date = arrow.get('-'.join(link.decode().split('/')[3:-1])).date()
-                if date < start_date or date > end_date:  # Biorxiv's search sometimes "leaks"
-                    return
-
                 article = self.requests.get('http://biorxiv.org' + link.decode())
 
                 data = {}
