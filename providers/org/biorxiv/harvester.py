@@ -36,13 +36,14 @@ class BiorxivHarvester(Harvester):
 
     def fetch_records(self, url, start_date, end_date):
         page = -1
+        seen = set()
 
         while True:
             page += 1
             resp = self.requests.get(furl(url).set(query_params={'page': page}))
             links = re.findall(b'href="(/content/early/[^"]+?/[^"]+)"', resp.content)
 
-            if not links:
+            if not set(links) - seen:
                 return
 
             for link in links:
@@ -64,3 +65,5 @@ class BiorxivHarvester(Harvester):
                         data[meta.attrs['name']] = meta.attrs['content']
 
                 yield link.decode(), data
+
+            seen |= set(links)
