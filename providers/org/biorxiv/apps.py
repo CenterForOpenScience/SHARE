@@ -8,7 +8,7 @@ class AppConfig(ProviderAppConfig):
     title = 'biorxiv'
     long_title = 'bioRxiv'
     home_page = 'http://biorxiv.org/'
-    rate_limit = (1, 2)
+    rate_limit = (1, 5)
     url = 'http://biorxiv.org/archive'
     harvester = BiorxivHarvester
 
