@@ -135,7 +135,7 @@ class ChangeNode:
         self.__instance = disambiguation.disambiguate(self.id, {
             **self.attrs,
             **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')},
-            **{k: [x['@id'] for x in v] for k, v in self.reverse_relations.items() if any(not str(x['@id']).startswith('_:') for x in v)},
+            **{k: [x['@id'] for x in v if not str(x['@id']).startswith('_:')] for k, v in self.reverse_relations.items() if any(not str(x['@id']).startswith('_:') for x in v)},
         }, self.model)
 
         if self.__instance:
