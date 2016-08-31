@@ -45,17 +45,40 @@ class ThroughLinks(Parser):
     link = tools.Delegate(Link, ctx)
 
 
+class Organization(Parser):
+    name = ctx
+
+
+class Affiliation(Parser):
+    pass
+
+
+class Email(Parser):
+    email = ctx
+
+
+class PersonEmail(Parser):
+    email = tools.Delegate(Email, ctx)
+
+
 class Person(Parser):
-    given_name = tools.ParseName(ctx).first
-    family_name = tools.ParseName(ctx).last
-    additional_name = tools.ParseName(ctx).middle
-    suffix = tools.ParseName(ctx).suffix
+    given_name = tools.ParseName(ctx.author).first
+    family_name = tools.ParseName(ctx.author).last
+    additional_name = tools.ParseName(ctx.author).middle
+    suffix = tools.ParseName(ctx.author).suffix
+
+    emails = tools.Map(tools.Delegate(PersonEmail), tools.Try(ctx.email))
+
+    affiliations = tools.Map(
+        tools.Delegate(Affiliation.using(entity=tools.Delegate(Organization))),
+        tools.Try(ctx.institution)
+    )
 
 
 class Contributor(Parser):
     order_cited = ctx('index')
     person = tools.Delegate(Person, ctx)
-    cited_name = ctx
+    cited_name = ctx.author
 
 
 class Tag(Parser):
@@ -80,7 +103,7 @@ class Preprint(Parser):
     description = tools.Try(ctx['DC.Description'])
     contributors = tools.Map(
         tools.Delegate(Contributor),
-        ctx['DC.Contributor']
+        tools.RunPython('get_contributors', ctx)
     )
 
     links = tools.Concat(
@@ -126,6 +149,24 @@ class Preprint(Parser):
         identifiers = ctx['DC.Identifier']
         access_rights = ctx['DC.AccessRights']
         record_type = ctx['type']
+        contributors = ctx['DC.Contributor']
+
         citation_author = ctx['citation_author']
         citation_author_institution = ctx['citation_author_institution']
         citation_author_email = ctx['citation_author_email']
+
+    def get_contributors(self, link):
+        authors = link['citation_author'] if isinstance(link['citation_author'], list) else [link['citation_author']]
+        institutions = link['citation_author_institution'] if isinstance(link['citation_author_institution'], list) else [link['citation_author_institution']]
+        emails = link['citation_author_email'] if isinstance(link['citation_author_email'], list) else [link['citation_author_email']]
+
+        contribs = []
+        for index, author in enumerate(authors):
+            contrib = {
+                'author': authors[index],
+                'institution': institutions[index],
+                'email': emails[index]
+            }
+            contribs.append(contrib)
+
+        return contribs
