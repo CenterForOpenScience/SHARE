@@ -123,6 +123,7 @@ class Change(models.Model):
         ordering = ('pk', )
         index_together = (
             ('node_id', 'change_set', 'target_type',),
+            ('target_type', 'target_id'),
         )
 
     def get_requirements(self):
