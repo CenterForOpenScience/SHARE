@@ -154,7 +154,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
     objects = FuzzyCountManager()
     versions = VersionManager()
-    changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id')
+    changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=False)
 
     class Meta:
         abstract = True
