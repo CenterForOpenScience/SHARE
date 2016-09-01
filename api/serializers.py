@@ -74,7 +74,7 @@ class ChangeSetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ChangeSet
-        fields = ('self', 'submitted_at', 'change_count', 'source', 'status')
+        fields = ('self', 'id', 'submitted_at', 'change_count', 'source', 'status')
 
 
 class ProviderSerializer(ShareUserSerializer):
