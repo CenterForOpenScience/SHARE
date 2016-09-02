@@ -18,7 +18,9 @@ Installation (inside a virtual environment)::
 
     pip install -r requirements.txt
 
-    docker-compose up -d rabbitmq postgres
+    // Creates and starts containers for elasticsearch, rabbitmq, and postgres
+    docker-compose up -d web
+
     ./up.sh
     ---------------- or ----------------
     pg

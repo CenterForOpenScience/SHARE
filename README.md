@@ -13,7 +13,7 @@ http://share-research.readthedocs.io/en/latest/index.html
 
 https://osf.io/sdxvj/
 
-                              
+
 ## Setup for testing
 It is useful to set up a [virtual environment](http://virtualenvwrapper.readthedocs.io/en/latest/install.html) to ensure [python3](https://www.python.org/downloads/) is your designated version of python and make the python requirements specific to this project.
 
@@ -24,9 +24,9 @@ Once in the `share` virtual environment, install the necessary requirements.
 
     pip install -r requirements.txt
 
-`docker-compose` assumes [Docker](https://www.docker.com/) is installed and running. Finally, `./up.sh` ensures everything has been installed properly.
+`docker-compose` assumes [Docker](https://www.docker.com/) is installed and running. `docker-compose up -d web` creates and starts containers for elasticsearch, rabbitmq, and postgres. Finally, `./up.sh` ensures everything has been installed properly.
 
-    docker-compose up -d rabbitmq postgres
+    docker-compose up -d web
     ./up.sh
 
     ---------------- or ----------------
@@ -45,7 +45,7 @@ Once in the `share` virtual environment, install the necessary requirements.
 Run the API server
 
     python manage.py runserver
-    
+
 Run Celery
 
     python manage.py celery worker -l DEBUG
@@ -63,7 +63,7 @@ Pass data to elasticsearch with `runbot`. Rerunning this command will get the mo
     ./manage.py runbot elasticsearch
 
 ## Build docs
-     
+
     cd docs/
     pip install -r requirements.txt
     make watch
