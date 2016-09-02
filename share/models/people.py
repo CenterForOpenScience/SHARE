@@ -16,13 +16,6 @@ class Email(ShareObject):
         return self.email
 
 
-class Identifier(ShareObject):
-    # https://twitter.com/berniethoughts/
-    url = ShareURLField()
-    # https://twitter.com/
-    base_url = ShareURLField()
-
-
 # Actual Person
 
 class Person(ShareObject):
@@ -33,8 +26,7 @@ class Person(ShareObject):
 
     emails = ShareManyToManyField(Email, through='PersonEmail')
     affiliations = ShareManyToManyField('Entity', through='Affiliation')
-    # this replaces "authority_id" and "other_identifiers" in the diagram
-    identifiers = ShareManyToManyField(Identifier, through='ThroughIdentifiers')
+    identifiers = ShareManyToManyField('Identifier', through='PersonIdentifiers')
     location = models.TextField(blank=True)
     url = ShareURLField(blank=True)
 
@@ -59,9 +51,9 @@ class Person(ShareObject):
 
 # Through Tables for Person
 
-class ThroughIdentifiers(ShareObject):
+class PersonIdentifiers(ShareObject):
     person = ShareForeignKey(Person)
-    identifier = ShareForeignKey(Identifier)
+    identifier = ShareForeignKey('Identifier')
 
     class Meta:
         unique_together = ('person', 'identifier')

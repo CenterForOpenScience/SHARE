@@ -22,7 +22,8 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     awards = ShareManyToManyField(Award, through='ThroughAwards')
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
-    links = ShareManyToManyField('Link', through='ThroughLinks')
+    #links = ShareManyToManyField('Link', through='ThroughLinks')
+    identifiers = ShareManyToManyField('Identifier', through='CreativeWorkIdentifiers')
 
     funders = ShareManyToManyField('Funder', through='Association')
     publishers = ShareManyToManyField('Publisher', through='Association')
@@ -126,3 +127,24 @@ class Association(ShareObject):
 
     def __str__(self):
         return str(self.entity)
+
+
+class CreativeWorkIdentifiers(ShareObject):
+    identifier = ShareForeignKey('Identifier')
+    creative_work = ShareForeignKey(AbstractCreativeWork)
+
+    class Meta:
+        unique_together = ('identifier', 'creative_work')
+
+
+class CreativeWorkRelation(ShareObject):
+    subject_work = ShareForeignKey(AbstractCreativeWork)
+    object_work = ShareForeignKey(AbstractCreativeWork)
+    relation_type = models.TextField(choices=share_config.relation_type_choices)
+
+    def __str__(self):
+        return '{} {} {}'.format(self.subject_work, self.relation_type, self.object_work)
+
+    class Meta:
+        unique_together = ('subject_work', 'object_work')
+

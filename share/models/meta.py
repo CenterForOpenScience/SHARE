@@ -12,6 +12,17 @@ __all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject')
 # TODO Rename this file
 
 
+class Identifier(ShareObject):
+    # https://twitter.com/berniethoughts/
+    url = ShareURLField(unique=True)
+    # https://twitter.com/
+    base_url = ShareURLField()
+
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    identified_object = GenericForeignkey('content_type', 'object_id')
+
+
 class Venue(ShareObject):
     name = models.TextField(blank=True)
     venue_type = ShareURLField(blank=True)
