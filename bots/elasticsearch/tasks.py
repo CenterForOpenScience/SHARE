@@ -56,6 +56,9 @@ class IndexModelTask(ProviderTask):
             logger.debug(resp)
 
     def bulk_stream(self, model, ids):
+        if not ids:
+            return
+
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
 
         if model is AbstractCreativeWork:
