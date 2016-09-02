@@ -71,9 +71,6 @@ def fetch_person(pk):
 
 
 def fetch_abstractcreativework(pks):
-    if pks:
-        return
-
     if connection.connection is None:
         connection.cursor()
 
