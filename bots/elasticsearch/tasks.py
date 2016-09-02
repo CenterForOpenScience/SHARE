@@ -47,18 +47,6 @@ def add_suggest(obj):
     return obj
 
 
-__shareuser_cache = {}
-
-
-def sources(qs):
-    sus = []
-    for through in qs:
-        if through.shareuser_id not in __shareuser_cache:
-            __shareuser_cache[through.shareuser_id] = through.shareuser
-        sus.append(__shareuser_cache[through.shareuser_id])
-    return sus
-
-
 class IndexModelTask(ProviderTask):
 
     def do_run(self, model_name, ids):
@@ -69,6 +57,12 @@ class IndexModelTask(ProviderTask):
 
     def bulk_stream(self, model, ids):
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
+
+        if model is AbstractCreativeWork:
+            for blob in util.fetch_abstractcreativework(ids):
+                yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
+            return
+
         qs = model.objects.filter(id__in=ids)
         for inst in qs.all():
             # if inst.is_delete:  # TODO
@@ -77,7 +71,6 @@ class IndexModelTask(ProviderTask):
 
     def serialize(self, inst):
         return {
-            AbstractCreativeWork: self.serialize_creative_work,
             Entity: self.serialize_entity,
             Person: self.serialize_person,
             Tag: self.serialize_tag,
@@ -119,9 +112,6 @@ class IndexModelTask(ProviderTask):
             'type': safe_substr(link.type),
             'url': safe_substr(link.url),
         }
-
-    def serialize_creative_work(self, creative_work):
-        return util.fetch_abstractcreativework(creative_work.pk)
 
 
 class IndexSourceTask(ProviderTask):

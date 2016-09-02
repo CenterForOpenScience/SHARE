@@ -487,7 +487,7 @@ class MapSubjectLink(AbstractLink):
         mapped = self.MAPPING.get(obj.lower())
 
         if not mapped:
-            logger.warning('No synonyms found for term "{}"'.format(obj))
+            logger.warning('No synonyms found for term "%s"', obj)
 
         return mapped
 

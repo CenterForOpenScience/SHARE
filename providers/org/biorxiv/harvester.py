@@ -43,6 +43,8 @@ class BiorxivHarvester(Harvester):
         while count < total:
             links = re.findall(b'href="(/content/early/[^"]+?/[^"]+)"', resp.content)
 
+            logger.info('On document %d of %d (%d%%)', count, total, (count / total) * 100)
+
             for link in links:
                 article = self.requests.get('http://biorxiv.org' + link.decode())
                 soup = BeautifulSoup(article.content, 'lxml')
