@@ -11,6 +11,7 @@ from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
 from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
 from share.harvest.harvester import Harvester
+from share.normalize.v1_push import V1Normalizer
 from django.db import transaction
 
 
@@ -309,21 +310,21 @@ class V1DataView(views.APIView):
     def post(self, request, *args, **kwargs):
 
         prelim_data = request.data
-        prelim_data['source'] = ShareUser.objects.get(id=request.user.id)
+        app_label = request.user.username
 
         # store raw data, assuming you can only submit one at a time
-        stored = []
+        raw = None
         with transaction.atomic():
-            doc_id = prelim_data['uris']['canonicalUri']  # str(prelim_data['source'].id)
+            doc_id = prelim_data['uris']['canonicalUri']
+            raw = RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), ShareUser.objects.get(id=request.user.id), app_label)
 
-            # breaks because of source
-            stored.append(RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), prelim_data['source'], request.user.username))
         # normalize data
+        normalized_data = V1Normalizer({}).normalize(raw.data)
+        data = {}
+        data['source'] = request.user.id
+        data['normalized_data'] = normalized_data
+        serializer = NormalizedDataSerializer(data=data)
 
-        # celery task accept
-
-        # return
-        serializer = RawDataSerializer(data=prelim_data)
         if serializer.is_valid():
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)

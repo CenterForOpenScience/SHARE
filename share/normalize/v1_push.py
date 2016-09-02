@@ -1,16 +1,16 @@
-import logging
+import re
 
 from share.normalize import ctx, tools
 from share.normalize.parsers import Parser
+from share.normalize.normalizer import Normalizer
 
-
-logger = logging.getLogger(__name__)
+THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 
 
 class Link(Parser):
 
     url = ctx
-    type = 'url'
+    type = tools.Static('url')
 
 
 class ProviderLink(Parser):
@@ -18,7 +18,7 @@ class ProviderLink(Parser):
     schema = 'Link'
 
     url = ctx
-    type = 'provider'
+    type = tools.Static('provider')
 
 
 class ThroughLinks(Parser):
@@ -28,13 +28,18 @@ class ThroughLinks(Parser):
 
 class ProviderThroughLinks(Parser):
 
+    schema = 'ThroughLinks'
+
     link = tools.Delegate(ProviderLink, ctx)
 
 
 class Publisher(Parser):
 
     name = ctx.name
-    url = tools.Join(tools.Try(ctx.sameAs))
+    url = tools.OneOf(
+        ctx.uri,
+        tools.Join(ctx.sameAs)
+    )
 
     class Extra:
 
@@ -153,13 +158,16 @@ class ThroughSubjects(Parser):
 class CreativeWork(Parser):
 
     ORGANIZATION_KEYWORDS = (
-        'the',
-        'center'
+        THE_REGEX,
+        'council',
+        'center',
+        'foundation'
     )
     INSTITUTION_KEYWORDS = (
         'school',
         'university',
         'institution',
+        'college',
         'institute'
     )
 
@@ -168,7 +176,6 @@ class CreativeWork(Parser):
         tools.Try(ctx.sponsorships.award)
     )
 
-    # unsure how to tell difference between person and org
     contributors = tools.Map(
         tools.Delegate(Contributor),
         tools.RunPython(
@@ -235,13 +242,11 @@ class CreativeWork(Parser):
 
     rights = tools.Join(tools.Try(ctx.licenses.uri))
 
-    # unsure if these should actually go in subjects
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
         tools.Try(ctx.subjects)
     )
 
-    # unsure if to include both tags and subjects
     tags = tools.Map(
         tools.Delegate(ThroughTags),
         tools.Concat(
@@ -282,15 +287,14 @@ class CreativeWork(Parser):
         """
         Returns list of organization, institutions, or contributors names based on entity type.
         """
-        options = [o if isinstance(o, str) else o['#text'] for o in options]
 
         if entity == 'organization':
             organizations = [
                 value for value in options if
                 (
-                    value and
-                    not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and
-                    self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
+                    value['name'] and
+                    not self.list_in_string(value['name'], self.INSTITUTION_KEYWORDS) and
+                    self.list_in_string(value['name'], self.ORGANIZATION_KEYWORDS)
                 )
             ]
             return organizations
@@ -298,8 +302,8 @@ class CreativeWork(Parser):
             institutions = [
                 value for value in options if
                 (
-                    value and
-                    self.list_in_string(value, self.INSTITUTION_KEYWORDS)
+                    value['name'] and
+                    self.list_in_string(value['name'], self.INSTITUTION_KEYWORDS)
                 )
             ]
             return institutions
@@ -307,9 +311,9 @@ class CreativeWork(Parser):
             people = [
                 value for value in options if
                 (
-                    value and
-                    not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and not
-                    self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
+                    value['name'] and
+                    not self.list_in_string(value['name'], self.INSTITUTION_KEYWORDS) and not
+                    self.list_in_string(value['name'], self.ORGANIZATION_KEYWORDS)
                 )
             ]
             return people
@@ -317,6 +321,18 @@ class CreativeWork(Parser):
             return options
 
     def list_in_string(self, string, list_):
-        if any(word in string.lower() for word in list_):
-            return True
+        for word in list_:
+            if isinstance(word, str):
+                if word in string.lower():
+                    return True
+            else:
+                if word.search(string):
+                    return True
         return False
+
+
+class V1Normalizer(Normalizer):
+    root_parser = CreativeWork
+
+    def do_normalize(self, data):
+        return super().do_normalize(data)

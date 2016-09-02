@@ -66,8 +66,10 @@ class Normalizer(metaclass=abc.ABCMeta):
         ctx.clear()  # Just incase
         ctx._config = self.config
         # Parsed data will be loaded into ctx
-        if not isinstance(raw_data, str):
+        if not isinstance(raw_data, (str, bytes)):
             raw_data = raw_data.data
+        if isinstance(raw_data, bytes):
+            raw_data = raw_data.decode()
         self.do_normalize(raw_data)
         jsonld = ctx.jsonld
         ctx.clear()  # Clean up
