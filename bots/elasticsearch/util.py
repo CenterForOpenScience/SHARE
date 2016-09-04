@@ -82,6 +82,7 @@ def fetch_abstractcreativework(pks):
                 , 'type', creativework.type
                 , 'title', creativework.title
                 , 'description', creativework.description
+                , 'is_deleted', creativework.is_deleted
                 , 'language', creativework.language
                 , 'date_created', creativework.date_created
                 , 'date_modified', creativework.date_modified

@@ -13,6 +13,10 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     title = models.TextField(blank=True)
     description = models.TextField(blank=True)
 
+    # Used to determine if something should be surfaced in ES or not
+    # this may need to be renamed later
+    is_deleted = models.BooleanField(default=False)
+
     contributors = ShareManyToManyField(Person, through='Contributor')
 
     awards = ShareManyToManyField(Award, through='ThroughAwards')

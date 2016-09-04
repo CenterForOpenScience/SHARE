@@ -63,7 +63,10 @@ class IndexModelTask(ProviderTask):
 
         if model is AbstractCreativeWork:
             for blob in util.fetch_abstractcreativework(ids):
-                yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
+                if blob['is_deleted']:
+                    yield {'_id': blob['id'], '_op_type': 'delete', **opts}
+                else:
+                    yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
         qs = model.objects.filter(id__in=ids)
