@@ -188,6 +188,54 @@ class TestChangeSet:
         assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
         assert Preprint.objects.filter(contributor__person=john_doe).first().title == 'All About Cats'
 
+    @pytest.mark.django_db
+    def test_can_delete_work(self, john_doe, normalized_data_id):
+        graph = ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:abc',
+                '@type': 'link',
+                'url': 'https://share.osf.io/faq',
+                'type': 'provider',
+            }, {
+                '@id': '_:456',
+                '@type': 'throughlinks',
+                'link': {'@id': '_:abc', '@type': 'link'},
+                'creative_work': {'@id': '_:789', '@type': 'preprint'},
+            }, {
+                '@id': '_:789',
+                '@type': 'preprint',
+                'title': 'All About Cats',
+            }]
+        })
+
+        change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
+
+        link, preprint, _ = change_set.accept()
+
+        assert preprint.is_deleted is False
+
+        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:abc',
+                '@type': 'link',
+                'type': 'provider',
+                'url': 'https://share.osf.io/faq',
+            }, {
+                '@id': '_:456',
+                '@type': 'throughlinks',
+                'link': {'@id': '_:abc', '@type': 'link'},
+                'creative_work': {'@id': '_:789', '@type': 'preprint'},
+            }, {
+                '@id': '_:789',
+                'is_deleted': True,
+                '@type': 'preprint',
+                'links': [{'@id': '_:456', '@type': 'throughlinks'}]
+            }]
+        }), normalized_data_id).accept()
+
+        preprint.refresh_from_db()
+        assert preprint.is_deleted is True
+
     # @pytest.mark.django_db
     # def test_merge_accept(self, normalized_data_id, merge_graph, john_doe, jane_doe):
     #     change_set = ChangeSet.objects.from_graph(merge_graph, normalized_data_id)
