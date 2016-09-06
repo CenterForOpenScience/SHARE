@@ -112,6 +112,11 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
             'Unselect this instead of deleting accounts.'
         ),
     )
+    is_trusted = models.BooleanField(
+        _('trusted'),
+        default=False,
+        help_text=_('Designates whether the user can push directly into the db.'),
+    )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     robot = models.TextField(validators=[validators.MaxLengthValidator(40)], blank=True)
     long_title = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
