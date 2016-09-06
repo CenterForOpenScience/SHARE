@@ -704,6 +704,4 @@ class CreativeWork(Parser):
 
 class DataciteNormalizer(Normalizer):
 
-    def do_normalize(self, data):
-        unwrapped = self.unwrap_data(data)
-        return CreativeWork(unwrapped).parse()
+    root_parser = CreativeWork

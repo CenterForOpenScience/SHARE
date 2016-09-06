@@ -12,7 +12,7 @@ class AppConfig(ProviderAppConfig):
     url = 'https://zenodo.org/oai2d'
     harvester = ZenodoHarvester
     normalizer = DataciteNormalizer
-    rate_limit = (1, 2)
+    rate_limit = (1, 3)
     namespaces = {
         'http://purl.org/dc/elements/1.1/': 'dc',
         'http://datacite.org/schema/kernel-3': None,
