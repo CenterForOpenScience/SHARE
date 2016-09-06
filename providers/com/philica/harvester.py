@@ -60,4 +60,15 @@ class PhilicaHarvester(Harvester):
             if soup.html.head.title.text == 'Philica Article':
                 continue
 
+            attr_list = self.change_context(attr_list)
+
             yield (x, {'data': attr_list})
+
+    def change_context(self, context):
+        bucket = {'href': []}
+        for blocks in context:
+            if 'name' in blocks:
+                bucket.update({blocks['name']: blocks['content']})
+            elif 'href' in blocks and blocks['href'] != 'css/stylesheet.css':
+                bucket['href'].append(blocks['href'])
+        return bucket

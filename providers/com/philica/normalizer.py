@@ -2,7 +2,7 @@ import arrow
 
 import dateparser
 
-from share.normalize import Parser, Delegate, RunPython, ParseName, Normalizer, Concat, Map, ctx, Try
+from share.normalize import Parser, Delegate, RunPython, ParseName, ParseDate, Normalizer, Concat, Map, ctx, Try
 
 
 class Link(Parser):
@@ -32,9 +32,17 @@ class Tag(Parser):
 class ThroughTags(Parser):
     tag = Delegate(Tag, ctx)
 
+# The subject field is not helpful on Philica. It says "See abstract"
+# class Subjects(Parser):
+#     name = ctx
+#
+#
+# class ThroughSubjects(Parser):
+#     subject = Delegate(Subjects, ctx)
+#
 
 class Association(Parser):
-    entity = Delegate(Publisher)
+    pass
 
 
 class Person(Parser):
@@ -49,47 +57,28 @@ class Contributor(Parser):
 
 
 class Preprint(Parser):
-    title = Try(ctx['DC.title'])
-    description = Try(ctx['DC.description'])
-    contributors = Map(Delegate(Contributor), ctx['DC.contributor'])
+    title = Try(ctx.data['DC.title'])
+    description = Try(ctx.data['DC.description'])
+    date_published = ParseDate(ctx.data['DC.created'])
+    contributors = Map(Delegate(Contributor), ctx.data['DC.contributor'])
     links = Map(Delegate(ThroughLinks),
-            ctx['href'],
-            ctx['DC.source']
+            ctx.data['href'],
+            ctx.data['DC.source']
     )
     publishers = Map(
-        Delegate(Association),
-        ctx['DC.publisher']
+        Delegate(Association.using(entity=Delegate(Publisher))),
+        ctx.data['DC.publisher']
     )
-    subject = Delegate(ThroughTags, ctx['DC.subject'])
-    date_created = RunPython('parse_date', ctx['DC.created'])
-    date_published = RunPython('parse_date', ctx['DC.dateSubmitted'])
-    language = ctx['DC.language']
-    rights = ctx['DC.rights']
+    language = ctx.data['DC.language']
+    rights = ctx.data['DC.rights']
 
     class Extra:
-        abstract = ctx['DC.abstract']
-        coverage = ctx['DC.coverage']
-        identifiers = ctx['DC.identifier']
-        format_type = ctx['DC.identifier']
-        type_publication = ctx['DC.type']
-        citation = ctx['DC.biliographicCitation']
-
-    def parse_date(self, date_str):
-        return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
-
-
-class PhilicaNormalizer(Normalizer):
-
-    def do_normalize(self, data):
-        unwrapped = self.unwrap_data(data)
-        unwrapped = self.change_context(unwrapped['data'])
-        return Preprint(unwrapped).parse()
-
-    def change_context(self, context):
-        bucket = {'href': []}
-        for blocks in context:
-            if 'name' in blocks:
-                bucket.update({blocks['name']: blocks['content']})
-            elif 'href' in blocks and not blocks['href'] == 'css/stylesheet.css':
-                bucket['href'].append(blocks['href'])
-        return bucket
+        abstract = ctx.data['DC.abstract']
+        coverage = ctx.data['DC.coverage']
+        data_created = ParseDate(ctx.data['DC.created'])
+        data_submitted = ParseDate(ctx.data['DC.dateSubmitted'])
+        identifiers = ctx.data['DC.identifier']
+        format_type = ctx.data['DC.identifier']
+        type_publication = ctx.data['DC.type']
+        citation = ctx.data['DC.biliographicCitation']
+        subjects = ctx.data['DC.subject']
