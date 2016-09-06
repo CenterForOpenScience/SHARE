@@ -70,12 +70,12 @@ class VenueSerializer(BaseShareSerializer):
         model = models.Venue
 
 
-class LinkSerializer(BaseShareSerializer):
+class RelationSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
     link_type = serializers.CharField(source='type')
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.Link
+        model = models.Relation
 
 
 class OrganizationSerializer(EntitySerializer):
@@ -184,7 +184,8 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     funders = FunderSerializer(sparse=True, many=True)
     venues = VenueSerializer(sparse=True, many=True)
     awards = AwardSerializer(sparse=True, many=True)
-    links = LinkSerializer(many=True)
+    identifiers = IdentifierSerializer(many=True)
+    relations = RelationSerializer(many=True)
     subjects = SubjectSerializer(many=True)
     extra = ExtraDataSerializer()
 
@@ -199,10 +200,3 @@ def make_creative_work_serializer_class(model):
 
     CreativeWorkSerializer.Meta.model = model
     return CreativeWorkSerializer
-
-
-class Link(BaseShareSerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Link

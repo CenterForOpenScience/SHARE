@@ -3,14 +3,12 @@ import abc
 from django.core.exceptions import ValidationError
 
 from share.models import Tag
-from share.models import Link
 from share.models import Person
 from share.models import Subject
 from share.models import Contributor
 from share.models import Association
 from share.models import Affiliation
 from share.models import PersonEmail
-from share.models.meta import ThroughLinks
 from share.models import AbstractCreativeWork
 
 
@@ -93,15 +91,15 @@ class GenericDisambiguator(Disambiguator):
             return None
 
 
-class LinkDisambiguator(Disambiguator):
-    FOR_MODEL = Link
+class IdentifierDisambiguator(Disambiguator):
+    FOR_MODEL = Identifier
 
     def disambiguate(self):
         if not self.attrs.get('url'):
             return None
         try:
-            return Link.objects.get(url=self.attrs['url'])
-        except Link.DoesNotExist:
+            return Identifier.objects.get(url=self.attrs['url'])
+        except Identifier.DoesNotExist:
             return None
 
 
@@ -143,13 +141,18 @@ class SubjectDisambiguator(Disambiguator):
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
     FOR_MODEL = AbstractCreativeWork
+    # self.model could be a subclass of AbstractCreativeWork
 
     def disambiguate(self):
-        if self.attrs.get('links'):
-            for link in self.attrs.get('links'):
-                models = ThroughLinks.objects.select_related('creative_work', 'link').filter(link=link)[:2].all()
-                if len(models) == 1 and 'issn' not in models[0].link.type.lower():
-                    return models[0].creative_work
+        if self.attrs.get('identifiers'):
+            for id in self.attrs.get('identifiers'):
+                try:
+                    identifier = Identifier.objects.select_related('identified_object').get(id=id)
+                    # TODO what if this identifier points to a non-work object
+                    return identifier.identified_object
+                except Identifier.DoesNotExist:
+                    # TODO Or should this return None, so we only disambiguate on identifiers?
+                    pass
 
         if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
             return None

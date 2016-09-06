@@ -1,5 +1,7 @@
 from django.db import models
 from django.db import IntegrityError
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
@@ -7,7 +9,7 @@ from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyF
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject')
+__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation')
 
 # TODO Rename this file
 
@@ -20,7 +22,19 @@ class Identifier(ShareObject):
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    identified_object = GenericForeignkey('content_type', 'object_id')
+    identified_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        index_together = ('content_type', 'object_id')
+
+
+class Relation(ShareObject):
+    subject_work = ShareForeignKey('AbstractCreativeWork')
+    object_work = ShareForeignKey('AbstractCreativeWork')
+    relation_type = models.TextField(choices=share_config.relation_type_choices)
+
+    class Meta:
+        unique_together = ('subject_work', 'object_work', 'relation_type')
 
 
 class Venue(ShareObject):
@@ -52,14 +66,6 @@ class Tag(ShareObject):
         return self.name
 
 
-class Link(ShareObject):
-    url = ShareURLField(db_index=True)
-    type = models.TextField(choices=share_config.link_type_choices)
-
-    def __str__(self):
-        return self.url
-
-
 class SubjectManager(models.Manager):
     def get_by_natural_key(self, subject):
         return self.get(name=subject)
@@ -83,14 +89,6 @@ class Subject(models.Model):
 
 
 # Through Tables for all the things
-
-class ThroughLinks(ShareObject):
-    link = ShareForeignKey(Link, on_delete=models.CASCADE)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-
-    class Meta:
-        unique_together = ('link', 'creative_work')
-
 
 class ThroughVenues(ShareObject):
     venue = ShareForeignKey(Venue)
