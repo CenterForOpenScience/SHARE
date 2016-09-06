@@ -87,7 +87,10 @@ class GenericDisambiguator(Disambiguator):
             if field.name not in self.attrs:
                 return None
 
-        return self.model.objects.filter(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)}).first()
+        try:
+            return self.model.objects.get(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)})
+        except self.model.DoesNotExist:
+            return None
 
 
 class LinkDisambiguator(Disambiguator):
@@ -96,7 +99,10 @@ class LinkDisambiguator(Disambiguator):
     def disambiguate(self):
         if not self.attrs.get('url'):
             return None
-        return Link.objects.filter(url=self.attrs['url']).first()
+        try:
+            return Link.objects.get(url=self.attrs['url'])
+        except Link.DoesNotExist:
+            return None
 
 
 class TagDisambiguator(Disambiguator):
@@ -105,7 +111,10 @@ class TagDisambiguator(Disambiguator):
     def disambiguate(self):
         if not self.attrs.get('name'):
             return None
-        return Tag.objects.filter(name=self.attrs['name']).first()
+        try:
+            return Tag.objects.get(name=self.attrs['name'])
+        except Tag.DoesNotExist:
+            return None
 
 
 class PersonDisambiguator(Disambiguator):
@@ -126,10 +135,10 @@ class SubjectDisambiguator(Disambiguator):
     def disambiguate(self):
         if not self.attrs.get('name'):
             return None
-        subjects = Subject.objects.filter(name__iexact=self.attrs['name'])
-        if subjects:
-            return subjects.first()
-        raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
+        try:
+            return Subject.objects.get(name=self.attrs['name'])
+        except Subject.DoesNotExist:
+            raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
@@ -138,9 +147,12 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
     def disambiguate(self):
         if self.attrs.get('links'):
             for link in self.attrs.get('links'):
-                model = ThroughLinks.objects.filter(link=link).select_related('creative_work', 'link').first()
-                if model and 'issn' not in model.link.type.lower():
-                    return model.creative_work
+                try:
+                    model = ThroughLinks.objects.select_related('creative_work', 'link').get(link=link)
+                    if 'issn' not in model.link.type.lower():
+                        return model.creative_work
+                except ThroughLinks.DoesNotExist:
+                    pass
 
         if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
             return None
