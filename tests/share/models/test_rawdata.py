@@ -45,9 +45,18 @@ class TestRawData:
         assert rd.provider_doc_id == 'myid'
         assert rd.sha256 == hashlib.sha256(b'mydatums').hexdigest()
 
-    def test_store_data_dedups(self, share_source):
+    def test_store_data_dedups_simple(self, share_source):
         rd1 = RawData.objects.store_data('myid', b'mydatums', share_source, 'applabel')
         rd2 = RawData.objects.store_data('myid', b'mydatums', share_source, 'applabel')
+
+        assert rd1.pk == rd2.pk
+        assert rd1.date_seen < rd2.date_seen
+        assert rd1.date_harvested == rd2.date_harvested
+
+    def test_store_data_dedups_complex(self, share_source):
+        data = b'{"providerUpdatedDateTime":"2016-08-25T11:37:40Z","uris":{"canonicalUri":"https://provider.domain/files/7d2792031","providerUris":["https://provider.domain/files/7d2792031"]},"contributors":[{"name":"Person1","email":"one@provider.domain"},{"name":"Person2","email":"two@provider.domain"},{"name":"Person3","email":"three@provider.domain"},{"name":"Person4","email":"dxm6@psu.edu"}],"title":"ReducingMorbiditiesinNeonatesUndergoingMRIScannig"}'
+        rd1 = RawData.objects.store_data('myid', data, share_source, 'applabel')
+        rd2 = RawData.objects.store_data('myid', data, share_source, 'applabel')
 
         assert rd1.pk == rd2.pk
         assert rd1.date_seen < rd2.date_seen
