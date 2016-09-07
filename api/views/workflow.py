@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.db import transaction
 
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
@@ -12,7 +13,6 @@ from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
 from share.harvest.harvester import Harvester
 from share.normalize.v1_push import V1Normalizer
-from django.db import transaction
 
 
 __all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView', 'ModelSchemaView', 'V1DataView')
@@ -315,8 +315,14 @@ class V1DataView(views.APIView):
         # store raw data, assuming you can only submit one at a time
         raw = None
         with transaction.atomic():
-            doc_id = prelim_data['uris']['canonicalUri']
-            raw = RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), ShareUser.objects.get(id=request.user.id), app_label)
+            try:
+                doc_id = prelim_data['uris']['canonicalUri']
+            except KeyError:
+                return Response({'errors': 'Canonical URI is required.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                return Response({'errors': 'An error was encountered. Please ensure the data is formatted properly.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+
+            raw = RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), request.user, app_label)
 
         # normalize data
         normalized_data = V1Normalizer({}).normalize(raw.data)

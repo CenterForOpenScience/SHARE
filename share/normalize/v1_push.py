@@ -52,17 +52,17 @@ class Funder(Parser):
     name = ctx.sponsorName
 
 
-class ThroughAwards:
-
-    award = ctx
-
-
 class Award:
 
     # award will become name
     award = tools.Try(ctx.awardIdentifier)
     description = ctx.awardName
     url = tools.Try(ctx.awardIdentifier)
+
+
+class ThroughAwards:
+
+    award = tools.Delegate(Award, ctx)
 
 
 class Institution(Parser):
@@ -86,7 +86,7 @@ class Email(Parser):
 
 class PersonEmail(Parser):
 
-    email = ctx
+    email = tools.Delegate(Email, ctx)
 
 
 class Identifier(Parser):
@@ -106,7 +106,10 @@ class Person(Parser):
     given_name = tools.ParseName(ctx.name).first
     additional_name = tools.ParseName(ctx.name).middle
 
-    emails = tools.Delegate(PersonEmail, tools.Try(ctx.email))
+    emails = tools.Map(
+        tools.Delegate(PersonEmail),
+        tools.Try(ctx.email)
+    )
     affiliations = tools.Map(
         tools.Delegate(Association.using(entity=tools.Delegate(Organization))),
         tools.Try(ctx.affiliation)
@@ -185,9 +188,9 @@ class CreativeWork(Parser):
         )
     )
 
-    date_updated = tools.ParseDate(ctx.providerUpdatedDateTime)
+    date_updated = tools.ParseDate(tools.Try(ctx.providerUpdatedDateTime))
 
-    description = ctx.description
+    description = tools.Try(ctx.description)
 
     funders = tools.Map(
         tools.Delegate(Association.using(entity=tools.Delegate(Funder))),
@@ -211,11 +214,9 @@ class CreativeWork(Parser):
     links = tools.Concat(
         tools.Map(
             tools.Delegate(ThroughLinks),
-            tools.Concat(
-                tools.Try(ctx.uris.canonicalUri),
-                tools.Try(ctx.uris.descriptorUris),
-                tools.Try(ctx.uris.objectUris)
-            )
+            tools.Try(ctx.uris.canonicalUri),
+            tools.Try(ctx.uris.descriptorUris),
+            tools.Try(ctx.uris.objectUris)
         ),
         tools.Map(
             tools.Delegate(ProviderThroughLinks),
@@ -249,10 +250,8 @@ class CreativeWork(Parser):
 
     tags = tools.Map(
         tools.Delegate(ThroughTags),
-        tools.Concat(
-            tools.Try(ctx.tags),
-            tools.Try(ctx.subjects)
-        )
+        tools.Try(ctx.tags),
+        tools.Try(ctx.subjects)
     )
 
     title = ctx.title
@@ -334,5 +333,5 @@ class CreativeWork(Parser):
 class V1Normalizer(Normalizer):
     root_parser = CreativeWork
 
-    def do_normalize(self, data):
-        return super().do_normalize(data)
+    # def do_normalize(self, data):
+    #     return super().do_normalize(data)
