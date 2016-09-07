@@ -2,10 +2,12 @@ import uuid
 from functools import reduce
 
 from django.apps import apps
+from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 
 from share.normalize.links import Context
 from share.normalize.links import AbstractLink
+from share.normalize.utils import format_doi_as_url
 
 
 # NOTE: Context is a thread local singleton
@@ -111,3 +113,26 @@ class Parser(metaclass=ParserMeta):
 
         # Return only a reference to the parsed object to avoid circular data structures
         return self.ref
+
+
+# Some common, reusable parsers with redundant names that repeat a word
+
+
+class URIIdentifier(Parser):
+    schema = 'Identifier'
+    url = ctx
+    base_url = RunPython('get_base_url', ctx)
+
+    def get_base_url(self, url):
+        url = furl.furl(url)
+        return '{}://{}'.format(url.scheme, url.host)
+
+
+class DOIIdentifier(Parser):
+    schema = 'Identifier'
+    url = RunPython('format_doi_as_url', ctx),
+    base_url = Static(settings.DOI_BASE_URL)
+
+    def format_doi_as_url(self, doi):
+        return format_doi_as_url(self, doi)
+
