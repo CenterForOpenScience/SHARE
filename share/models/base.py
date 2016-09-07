@@ -45,17 +45,13 @@ class ShareObjectMeta(ModelBase):
         if (models.Model in bases and attrs['Meta'].abstract) or len(bases) > 1:
             return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 
-        if hasattr(attrs.get('Meta'), 'db_table'):
-            delattr(attrs['Meta'], 'db_table')
-
         version_attrs = {}
         for key, val in attrs.items():
             if isinstance(val, models.Field) and val.unique:
                 val = copy.deepcopy(val)
                 val._unique = False
-            if key == 'Meta' and hasattr(val, 'unique_together'):
-                val = copy.deepcopy(val)
-                delattr(val, 'unique_together')
+            if key == 'Meta':
+                val = type('VersionMeta', (val, ), {'unique_together': None, 'db_table': None})
             version_attrs[key] = val
 
         # TODO Fix this in some non-horrid fashion
