@@ -220,9 +220,7 @@ class CreativeWork(Parser):
         ),
         tools.Map(
             tools.Delegate(ProviderThroughLinks),
-            tools.Concat(
-                tools.Try(ctx.uris.providerUris),
-            )
+            tools.Try(ctx.uris.providerUris),
         )
     )
 
@@ -332,6 +330,3 @@ class CreativeWork(Parser):
 
 class V1Normalizer(Normalizer):
     root_parser = CreativeWork
-
-    # def do_normalize(self, data):
-    #     return super().do_normalize(data)
