@@ -5,8 +5,7 @@ from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 
-from share.normalize.links import Context
-from share.normalize.links import AbstractLink
+from share.normalize.links import Context, AbstractLink, RunPython, Static
 from share.normalize.utils import format_doi_as_url
 
 
