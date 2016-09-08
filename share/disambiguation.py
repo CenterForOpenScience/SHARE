@@ -147,6 +147,7 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
                     # TODO Or should this return None, so we only disambiguate on identifiers?
                     pass
 
+        # TODO should we disambiguate on anything besides identifiers?
         if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
             return None
 
@@ -157,3 +158,17 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
             # Limiting the length of title forces postgres to use the partial index
             return self.model.objects.filter(**filter).extra(where=('octet_length(title) < 2049', )).first()
         return None
+
+
+class RelationDisambiguator(Disambiguator):
+    FOR_MODEL = Relation
+
+    def disambiguate(self):
+        filters = {
+            'subject_work': self.attrs.get('subject_work'),
+            'object_work': self.attrs.get('object_work')
+        }
+        if self.attrs.get('relation_type'):
+            relation_type = RelationType.objects.get_by_natural_key(self.attrs.get('relation_type'))
+            filters['relation_type'] = relation_type
+        return Relation.objects.filter(**filters).first()

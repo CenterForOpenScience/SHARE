@@ -1,0 +1,174 @@
+[
+    {
+        "key": "unknown",
+        "uri": ""
+    },
+    {
+        "key": "cites",
+        "uri": "http://purl.org/spar/cito/cites"
+    },
+    {
+        "key": "agrees_with",
+        "uri": "http://purl.org/spar/cito/agreesWith"
+    },
+    {
+        "key": "cites_as_authority",
+        "uri": "http://purl.org/spar/cito/citesAsAuthority"
+    },
+    {
+        "key": "cites_as_data_source",
+        "uri": "http://purl.org/spar/cito/citesAsDataSource"
+    },
+    {
+        "key": "cites_as_evidence",
+        "uri": "http://purl.org/spar/cito/citesAsEvidence"
+    },
+    {
+        "key": "cites_as_metadata_document",
+        "uri": "http://purl.org/spar/cito/citesAsMetadataDocument"
+    },
+    {
+        "key": "cites_as_potential_solution",
+        "uri": "http://purl.org/spar/cito/citesAsPotentialSolution"
+    },
+    {
+        "key": "cites_as_recommended_reading",
+        "uri": "http://purl.org/spar/cito/citesAsRecommendedReading"
+    },
+    {
+        "key": "cites_as_related",
+        "uri": "http://purl.org/spar/cito/citesAsRelated"
+    },
+    {
+        "key": "cites_as_source_document",
+        "uri": "http://purl.org/spar/cito/citesAsSourceDocument"
+    },
+    {
+        "key": "cites_for_information",
+        "uri": "http://purl.org/spar/cito/citesForInformation"
+    },
+    {
+        "key": "compiles",
+        "uri": "http://purl.org/spar/cito/compiles"
+    },
+    {
+        "key": "confirms",
+        "uri": "http://purl.org/spar/cito/confirms"
+    },
+    {
+        "key": "contains_assertion_from",
+        "uri": "http://purl.org/spar/cito/containsAssertionFrom"
+    },
+    {
+        "key": "corrects",
+        "uri": "http://purl.org/spar/cito/corrects"
+    },
+    {
+        "key": "credits",
+        "uri": "http://purl.org/spar/cito/credits"
+    },
+    {
+        "key": "critiques",
+        "uri": "http://purl.org/spar/cito/critiques"
+    },
+    {
+        "key": "derides",
+        "uri": "http://purl.org/spar/cito/derides"
+    },
+    {
+        "key": "describes",
+        "uri": "http://purl.org/spar/cito/describes"
+    },
+    {
+        "key": "disagrees_with",
+        "uri": "http://purl.org/spar/cito/disagreesWith"
+    },
+    {
+        "key": "discusses",
+        "uri": "http://purl.org/spar/cito/discusses"
+    },
+    {
+        "key": "disputes",
+        "uri": "http://purl.org/spar/cito/disputes"
+    },
+    {
+        "key": "documents",
+        "uri": "http://purl.org/spar/cito/documents"
+    },
+    {
+        "key": "extends",
+        "uri": "http://purl.org/spar/cito/extends"
+    },
+    {
+        "key": "includes_excerpt_from",
+        "uri": "http://purl.org/spar/cito/includesExcerptFrom"
+    },
+    {
+        "key": "includes_quotation_from",
+        "uri": "http://purl.org/spar/cito/includesQuotationFrom"
+    },
+    {
+        "key": "obtains_background_from",
+        "uri": "http://purl.org/spar/cito/obtainsBackgroundFrom"
+    },
+    {
+        "key": "obtains_support_from",
+        "uri": "http://purl.org/spar/cito/obtainsSupportFrom"
+    },
+    {
+        "key": "parodies",
+        "uri": "http://purl.org/spar/cito/parodies"
+    },
+    {
+        "key": "plagiarizes",
+        "uri": "http://purl.org/spar/cito/plagiarizes"
+    },
+    {
+        "key": "qualifies",
+        "uri": "http://purl.org/spar/cito/qualifies"
+    },
+    {
+        "key": "refutes",
+        "uri": "http://purl.org/spar/cito/refutes"
+    },
+    {
+        "key": "replies_to",
+        "uri": "http://purl.org/spar/cito/repliesTo"
+    },
+    {
+        "key": "retracts",
+        "uri": "http://purl.org/spar/cito/retracts"
+    },
+    {
+        "key": "reviews",
+        "uri": "http://purl.org/spar/cito/reviews"
+    },
+    {
+        "key": "ridicules",
+        "uri": "http://purl.org/spar/cito/ridicules"
+    },
+    {
+        "key": "speculates_on",
+        "uri": "http://purl.org/spar/cito/speculatesOn"
+    },
+    {
+        "key": "supports",
+        "uri": "http://purl.org/spar/cito/supports"
+    },
+    {
+        "key": "updates",
+        "uri": "http://purl.org/spar/cito/updates"
+    },
+    {
+        "key": "uses_conclusions_from",
+        "uri": "http://purl.org/spar/cito/usesConclusionsFrom"
+    },
+    {
+        "key": "uses_data_from",
+        "uri": "http://purl.org/spar/cito/usesDataFrom"
+    },
+    {
+        "key": "uses_method_in",
+        "uri": "http://purl.org/spar/cito/usesMethodIn"
+    }
+]

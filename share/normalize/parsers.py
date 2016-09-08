@@ -66,11 +66,15 @@ class Parser(metaclass=ParserMeta):
     def validate(self, field, value):
         if field.is_relation:
             if field.rel.many_to_many:
-                assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
+                if not isinstance(value, (list, tuple)):
+                    raise Exception('Values for field {} must be lists. Found {}'.format(field, value))
             else:
-                assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
+                if not (isinstance(value, dict) and '@id' in value and '@type' in value):
+                    if not (hasattr(field.rel.model, 'valid_natural_key') or field.rel.model.valid_natural_key(value)):
+                        raise Exception('Values for field {} must be a dictionary with keys @id and @type or a valid natural key. Found {}'.format(field, value))
         else:
-            assert not isinstance(value, dict), 'Value for non-relational field {} must be a primative type. Found {}'.format(field, value)
+            if isinstance(value, dict):
+                raise Exception('Value for non-relational field {} must be a primitive type. Found {}'.format(field, value))
 
     def parse(self):
         if (self.context, self.schema) in ctx.pool:

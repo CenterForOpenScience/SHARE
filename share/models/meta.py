@@ -20,18 +20,38 @@ class Identifier(ShareObject):
     # https://twitter.com/
     base_url = ShareURLField()
 
-    content_type = models.ForeignKey(ContentType)
+    object_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    identified_object = GenericForeignKey('content_type', 'object_id')
+    identified_object = GenericForeignKey('object_type', 'object_id')
 
     class Meta:
-        index_together = ('content_type', 'object_id')
+        index_together = ('object_type', 'object_id')
+
+
+class RelationTypeManager(models.Manager):
+    def get_by_natural_key(self, key):
+        return self.get(key=key)
+
+
+class RelationType(models.Model):
+    key = models.TextField(unique=True)
+    uri = models.TextField(blank=True)
+    #TODO? parent = models.ForeignKey('self')
+
+    objects = RelationTypeManager()
+
+    def natural_key(self):
+        return self.key
+
+    @staticmethod
+    def valid_natural_key(key):
+        return isinstance(key, str)
 
 
 class Relation(ShareObject):
-    subject_work = ShareForeignKey('AbstractCreativeWork')
-    object_work = ShareForeignKey('AbstractCreativeWork')
-    relation_type = models.TextField(choices=share_config.relation_type_choices)
+    subject_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)s')
+    object_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)s')
+    relation_type = models.ForeignKey(RelationType)
 
     class Meta:
         unique_together = ('subject_work', 'object_work', 'relation_type')
