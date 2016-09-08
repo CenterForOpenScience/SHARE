@@ -76,6 +76,10 @@ class Tag(Parser):
     name = ctx
 
 
+class ThroughTags(Parser):
+    tag = Delegate(Tag, ctx)
+    
+
 class CreativeWork(Parser):
     """
     Documentation for CrossRef's metadata can be found here:
@@ -107,7 +111,7 @@ class CreativeWork(Parser):
     )
     # TODO These are "a controlled vocabulary from Sci-Val", map to Subjects!
     tags = Map(
-        Delegate(Tag),
+        Delegate(ThroughTags),
         Maybe(ctx, 'subject')
     )
 
