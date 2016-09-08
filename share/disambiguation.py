@@ -2,14 +2,7 @@ import abc
 
 from django.core.exceptions import ValidationError
 
-from share.models import Tag
-from share.models import Person
-from share.models import Subject
-from share.models import Contributor
-from share.models import Association
-from share.models import Affiliation
-from share.models import PersonEmail
-from share.models import AbstractCreativeWork
+from share.models import Tag, Person, Subject, Contributor, Association, Affiliation, PersonEmail, AbstractCreativeWork, Identifier
 
 
 __all__ = ('disambiguate', )

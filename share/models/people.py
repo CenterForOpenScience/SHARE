@@ -3,7 +3,7 @@ from django.db import models
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
-__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Identifier', 'Contributor')
+__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Contributor')
 
 
 # Person Auxillary classes
@@ -26,7 +26,6 @@ class Person(ShareObject):
 
     emails = ShareManyToManyField(Email, through='PersonEmail')
     affiliations = ShareManyToManyField('Entity', through='Affiliation')
-    identifiers = ShareManyToManyField('Identifier', through='PersonIdentifiers')
     location = models.TextField(blank=True)
     url = ShareURLField(blank=True)
 
@@ -50,14 +49,6 @@ class Person(ShareObject):
 
 
 # Through Tables for Person
-
-class PersonIdentifiers(ShareObject):
-    person = ShareForeignKey(Person)
-    identifier = ShareForeignKey('Identifier')
-
-    class Meta:
-        unique_together = ('person', 'identifier')
-
 
 class PersonEmail(ShareObject):
     email = ShareForeignKey(Email)
