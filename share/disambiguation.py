@@ -151,7 +151,7 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
                     model = ThroughLinks.objects.select_related('creative_work', 'link').get(link=link)
                     if 'issn' not in model.link.type.lower():
                         return model.creative_work
-                except ThroughLinks.DoesNotExist:
+                except (ThroughLinks.DoesNotExist, ThroughLinks.MultpleObjectsReturned):
                     pass
 
         if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
