@@ -1,15 +1,6 @@
 from share.normalize import ctx
-from share.normalize.parsers import Parser
+from share.normalize.parsers import Parser, URIIdentifier
 from share.normalize import tools
-
-
-class Identifier(Parser):
-    url = ctx
-    base_url = tools.Static('https://osf.io/')
-
-
-class ThroughIdentifiers(Parser):
-    identifier = tools.Delegate(Identifier, ctx)
 
 
 class Person(Parser):
@@ -30,12 +21,7 @@ class Person(Parser):
         ctx.embeds.users.errors[0].meta.suffix,
     )
 
-    identifiers = tools.Map(
-        tools.Delegate(ThroughIdentifiers),
-        tools.Try(ctx.embeds.users.data.links.html),
-        tools.Try(ctx.embeds.users.data.links.profile_image),
-        tools.Try(ctx.embeds.users.errors[0].meta.profile_image)
-    )
+    identifiers = tools.Map(tools.Delegate(URIIdentifier), ctx.embeds.users.data.links.html)
 
     class Extra:
         nodes = tools.Try(ctx.embeds.users.data.relationships.nodes.links.related.href)
@@ -78,15 +64,6 @@ class Association(Parser):
     pass
 
 
-class Link(Parser):
-    url = ctx
-    type = tools.Static('provider')
-
-
-class ThroughLinks(Parser):
-    link = tools.Delegate(Link, ctx)
-
-
 class Project(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
@@ -98,7 +75,8 @@ class Project(Parser):
     date_updated = tools.ParseDate(ctx.attributes.date_modified)
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
     rights = tools.Maybe(ctx, 'attributes.node_license')
-    links = tools.Map(tools.Delegate(ThroughLinks), ctx.links.html)
+    identifiers = tools.Map(tools.Delegate(URIIdentifier), ctx.links.html)
+    # TODO add relations for parent, forks, children, maybe root
 
     class Extra:
         date_created = tools.ParseDate(ctx.attributes.date_created)

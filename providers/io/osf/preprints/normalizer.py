@@ -1,21 +1,8 @@
 import furl
 
-from share.normalize.parsers import Parser
+from share.normalize.parsers import Parser, URIIdentifier
 from share.normalize.normalizer import Normalizer
 from share.normalize import Delegate, RunPython, Map, ctx, Try, ParseDate, OneOf
-
-
-class Identifier(Parser):
-    url = ctx
-    base_url = RunPython('get_base_url', ctx)
-
-    def get_base_url(self, url):
-        url = furl.furl(url)
-        return '{}://{}'.format(url.scheme, url.host)
-
-
-class ThroughIdentifiers(Parser):
-    identifier = Delegate(Identifier, ctx)
 
 
 class Person(Parser):
@@ -35,12 +22,9 @@ class Person(Parser):
         ctx.embeds.users.data.attributes.suffix,
         ctx.embeds.users.errors[0].meta.suffix,
     )
-
     identifiers = Map(
-        Delegate(ThroughIdentifiers),
-        Try(ctx.embeds.users.data.links.html),
-        Try(ctx.embeds.users.data.links.profile_image),
-        Try(ctx.embeds.users.errors[0].meta.profile_image)
+        Delegate(URIIdentifier),
+        Try(ctx.embeds.users.data.links.html)
     )
 
     class Extra:
@@ -49,7 +33,10 @@ class Person(Parser):
         date_registered = Try(ctx.embeds.users.data.attributes.date_registered)
         active = Try(ctx.embeds.users.data.attributes.active)
         timezone = Try(ctx.embeds.users.data.attributes.timezone)
-        profile_image = Try(ctx.embeds.users.data.links.profile_image)
+        profile_image = OneOf(
+            ctx.embeds.users.data.links.profile_image,
+            ctx.embeds.users.errors[0].meta.profile_image
+        )
 
 
 class Contributor(Parser):
@@ -93,21 +80,6 @@ class Subject(Parser):
     name = ctx.text
 
 
-class Link(Parser):
-    url = ctx
-    type = RunPython('get_link_type', ctx)
-
-    def get_link_type(self, link):
-        if 'dx.doi.org' in link:
-            return 'doi'
-        else:
-            return 'provider'
-
-
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
-
-
 class ThroughSubjects(Parser):
     subject = Delegate(Subject, ctx)
 
@@ -120,10 +92,10 @@ class Preprint(Parser):
     date_published = ParseDate(ctx.attributes.date_created)
     # NOTE: OSF has a direct mapping to SHARE's taxonomy. Subjects() is not needed
     subjects = Map(Delegate(ThroughSubjects), ctx.attributes.subjects)
-    links = Map(
-        Delegate(ThroughLinks),
+    identifiers = Map(
+        Delegate(URIIdentifier),
         ctx.links.self,
-        ctx.links.html,
+        #ctx.links.html, TODO add relation to OSF project
         Try(ctx.links.doi)
     )
     tags = Map(Delegate(ThroughTags), Try(ctx.attributes.tags))
