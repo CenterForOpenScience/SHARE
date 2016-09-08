@@ -3,7 +3,9 @@ from django.db import transaction
 
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
 
+from api import parsers
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
@@ -303,13 +305,18 @@ class V1DataView(views.APIView):
     """
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
     serializer_class = NormalizedDataSerializer
-
-    def get_queryset(self):
-        return NormalizedData.objects.all()
+    parser_classes = (parsers.V1SchemaParser,)
 
     def post(self, request, *args, **kwargs):
 
-        prelim_data = request.data
+        try:
+            prelim_data = request.data
+        except ParseError as error:
+            return Response(
+                'Invalid JSON - {0}'.format(error.message),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         app_label = request.user.username
 
         # store raw data, assuming you can only submit one at a time
@@ -318,9 +325,7 @@ class V1DataView(views.APIView):
             try:
                 doc_id = prelim_data['uris']['canonicalUri']
             except KeyError:
-                return Response({'errors': 'Canonical URI is required.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
-            except:
-                return Response({'errors': 'An error was encountered. Please ensure the data is formatted properly.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
             raw = RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), request.user, app_label)
 

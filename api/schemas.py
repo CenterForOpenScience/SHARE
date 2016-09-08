@@ -1,4 +1,4 @@
-{
+v1_push_schema = {
     "definitions": {
         "person": {
             "required": [
