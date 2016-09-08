@@ -15,7 +15,7 @@ def DeleteDuplicates(table, *keys):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0036_update_trigger_migrations_20160903_2022'),
+        ('share', '0037_update_trigger_migrations_20160903_2022'),
     ]
 
     operations = [
