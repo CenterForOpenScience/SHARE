@@ -109,7 +109,15 @@ class OAIThroughTags(Parser):
 
 
 class OAICreativeWork(Parser):
-    schema = 'CreativeWork'
+    @property
+    def schema(self):
+        try:
+            resourceType = self.context['record']['metadata']['dc']['dc:type']
+            if resourceType == 'preprint':
+                return 'Preprint'
+            return 'CreativeWork'
+        except (KeyError, ValueError):
+            return 'CreativeWork'
 
     ORGANIZATION_KEYWORDS = (
         'the',
