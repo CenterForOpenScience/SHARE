@@ -9,7 +9,7 @@ __all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Identifier', 'Contr
 # Person Auxillary classes
 
 class Email(ShareObject):
-    is_primary = models.BooleanField()
+    is_primary = models.BooleanField(default=False)
     email = models.EmailField()
 
     def __str__(self):
@@ -90,6 +90,7 @@ class Affiliation(ShareObject):
 
 class Contributor(ShareObject):
     cited_name = models.TextField(blank=True)
+    bibliographic = models.BooleanField(default=True)
     order_cited = models.PositiveIntegerField(null=True)
 
     person = ShareForeignKey(Person)

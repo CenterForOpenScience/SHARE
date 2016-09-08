@@ -8,7 +8,7 @@ from share.models import ChangeSet
 class RawDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RawData
-        fields = ('source', 'provider_doc_id', 'data', 'sha256', 'date_seen', 'date_harvested')
+        fields = ('id', 'source', 'app_label', 'provider_doc_id', 'data', 'sha256', 'date_seen', 'date_harvested')
 
 
 class NormalizedDataSerializer(serializers.ModelSerializer):
@@ -74,7 +74,7 @@ class ChangeSetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ChangeSet
-        fields = ('self', 'submitted_at', 'change_count', 'source', 'status')
+        fields = ('self', 'id', 'submitted_at', 'change_count', 'source', 'status')
 
 
 class ProviderSerializer(ShareUserSerializer):

@@ -15,6 +15,7 @@ class BaseShareSerializer(serializers.ModelSerializer):
         if sparse:
             # clear the fields if they asked for sparse
             self.fields.clear()
+            self.fields['id'] = serializers.IntegerField()
 
         else:
             # remove hidden fields
@@ -38,6 +39,7 @@ class BaseShareSerializer(serializers.ModelSerializer):
                 lookup_field='pk'
             ),
             '@type': fields.TypeField(),
+            'type': fields.TypeField(),
             'object_id': fields.ObjectIDField(source='uuid'),
         })
 
@@ -68,6 +70,7 @@ class VenueSerializer(BaseShareSerializer):
 
 class LinkSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
+    link_type = serializers.CharField(source='type')
 
     class Meta(BaseShareSerializer.Meta):
         model = models.Link
@@ -110,7 +113,7 @@ class IdentifierSerializer(BaseShareSerializer):
 
 class PersonSerializer(BaseShareSerializer):
     # no emails on purpose
-    identifiers = IdentifierSerializer(many=True)
+    identifiers = IdentifierSerializer(sparse=True, many=True)
     affiliations = OrganizationSerializer(sparse=True, many=True)
     extra = ExtraDataSerializer()
 
@@ -174,6 +177,9 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     tags = TagSerializer(many=True)
     contributors = ContributorSerializer(source='contributor_set', many=True)
     institutions = InstitutionSerializer(sparse=True, many=True)
+    organizations = OrganizationSerializer(sparse=True, many=True)
+    publishers = PublisherSerializer(sparse=True, many=True)
+    funders = FunderSerializer(sparse=True, many=True)
     venues = VenueSerializer(sparse=True, many=True)
     awards = AwardSerializer(sparse=True, many=True)
     links = LinkSerializer(many=True)
@@ -192,8 +198,6 @@ class PreprintSerializer(AbstractCreativeWorkSerializer):
 
 
 class PublicationSerializer(AbstractCreativeWorkSerializer):
-    publishers = PublisherSerializer(many=True)
-
     class Meta(BaseShareSerializer.Meta):
         model = models.Publication
 

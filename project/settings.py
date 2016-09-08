@@ -156,6 +156,7 @@ INSTALLED_APPS = [
     'providers.edu.wash_state_u',
     'providers.edu.waynestate',
     'providers.edu.wisconsin',
+    'providers.edu.wm',
     'providers.edu.wustlopenscholarship',
     'providers.et.edu.addis_ababa',
     'providers.eu.econstor',
@@ -174,11 +175,13 @@ INSTALLED_APPS = [
     'providers.io.osf.preprints',
     'providers.io.osf.registrations',
     'providers.io.socarxiv',
+    'providers.io.psyarxiv',
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai',
     'providers.org.bhl',
     'providers.org.biorxiv',
+    'providers.org.biorxiv.rss',
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
@@ -420,6 +423,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 
+CELERY_ACKS_LATE = True
 CELERY_TRACK_STARTED = True
 CELERY_RESULT_PERSISTENT = True
 CELERY_SEND_EVENTS = True

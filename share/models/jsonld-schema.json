@@ -5,7 +5,7 @@
 
   "definitions": {
     "primitives": {
-      "type": ["string", "number", "null"]
+      "type": ["string", "number", "boolean", "null"]
     },
     "reference": {
       "type": "object",

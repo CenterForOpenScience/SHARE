@@ -7,7 +7,7 @@ from share.models.fields import ShareForeignKey, URIField, ShareURLField, ShareM
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject', 'SubjectSynonym')
+__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject')
 
 # TODO Rename this file
 
@@ -49,30 +49,26 @@ class Link(ShareObject):
         return self.url
 
 
+class SubjectManager(models.Manager):
+    def get_by_natural_key(self, subject):
+        return self.get(name=subject)
+
+
 class Subject(models.Model):
     lineages = JSONField(editable=False)
     parents = models.ManyToManyField('self')
     name = models.TextField(unique=True, db_index=True)
 
+    objects = SubjectManager()
+
     def __str__(self):
+        return self.name
+
+    def natural_key(self):
         return self.name
 
     def save(self):
         raise IntegrityError('Subjects are an immutable set! Do it in bulk, if you must.')
-
-
-class SubjectSynonym(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='synonyms')
-    synonym = models.TextField(db_index=True)
-
-    def __str__(self):
-        return self.synonym
-
-    def save(self):
-        raise IntegrityError('Subjects synonyms are an immutable set! Do it in bulk, if you must.')
-
-    class Meta:
-        unique_together = ('subject', 'synonym')
 
 
 # Through Tables for all the things

@@ -6,11 +6,10 @@ class AppConfig(ProviderAppConfig):
     name = 'providers.org.biorxiv'
     version = '0.0.0'
     title = 'biorxiv'
-    long_title = 'BioRxiv'
+    long_title = 'bioRxiv'
     home_page = 'http://biorxiv.org/'
-    rate_limit = (1, 3)
-    url = 'http://connect.biorxiv.org/biorxiv_xml.php?subject=all'
-    time_granularity = False
+    rate_limit = (1, 5)
+    url = 'http://biorxiv.org/archive'
     harvester = BiorxivHarvester
 
     namespaces = {

@@ -10,6 +10,8 @@ from share.models import Contributor
 from share.models import Association
 from share.models import Affiliation
 from share.models import PersonEmail
+from share.models.meta import ThroughLinks
+from share.models import AbstractCreativeWork
 
 
 __all__ = ('disambiguate', )
@@ -17,16 +19,17 @@ __all__ = ('disambiguate', )
 
 def disambiguate(id, attrs, model):
     for cls in Disambiguator.__subclasses__():
-        if getattr(cls, 'FOR_MODEL', None) == model:
-            return cls(id, attrs).find()
+        if getattr(cls, 'FOR_MODEL', None) == model._meta.concrete_model:
+            return cls(id, attrs, model).find()
 
     return GenericDisambiguator(id, attrs, model).find()
 
 
 class Disambiguator(metaclass=abc.ABCMeta):
 
-    def __init__(self, id, attrs):
+    def __init__(self, id, attrs, model):
         self.id = id
+        self.model = model
         # only include attrs with truthy values
         self.attrs = {k: v for k, v in attrs.items() if v}
         self.is_blank = isinstance(id, str) and id.startswith('_:')
@@ -52,10 +55,6 @@ class GenericDisambiguator(Disambiguator):
             Affiliation,
             PersonEmail,
         }
-
-    def __init__(self, id, attrs, model):
-        self.model = model
-        super().__init__(id, attrs)
 
     def disambiguate(self):
         if not self.attrs:
@@ -88,31 +87,37 @@ class GenericDisambiguator(Disambiguator):
             if field.name not in self.attrs:
                 return None
 
-        return self.model.objects.filter(**self.attrs).first()
+        try:
+            return self.model.objects.get(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)})
+        except self.model.DoesNotExist:
+            return None
 
 
 class LinkDisambiguator(Disambiguator):
-    model = Link
     FOR_MODEL = Link
 
     def disambiguate(self):
         if not self.attrs.get('url'):
             return None
-        return Link.objects.filter(url=self.attrs['url']).first()
+        try:
+            return Link.objects.get(url=self.attrs['url'])
+        except Link.DoesNotExist:
+            return None
 
 
 class TagDisambiguator(Disambiguator):
-    model = Tag
     FOR_MODEL = Tag
 
     def disambiguate(self):
         if not self.attrs.get('name'):
             return None
-        return Tag.objects.filter(name=self.attrs['name']).first()
+        try:
+            return Tag.objects.get(name=self.attrs['name'])
+        except Tag.DoesNotExist:
+            return None
 
 
 class PersonDisambiguator(Disambiguator):
-    model = Person
     FOR_MODEL = Person
 
     def disambiguate(self):
@@ -125,16 +130,34 @@ class PersonDisambiguator(Disambiguator):
 
 
 class SubjectDisambiguator(Disambiguator):
-    model = Subject
     FOR_MODEL = Subject
 
     def disambiguate(self):
         if not self.attrs.get('name'):
             return None
-        subjects = Subject.objects.filter(name=self.attrs['name'])
-        if subjects:
-            return subjects.first()
-        subjects = Subject.objects.filter(synonyms__synonym=self.attrs['name'])
-        if subjects:
-            return subjects.first()
-        raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
+        try:
+            return Subject.objects.get(name=self.attrs['name'])
+        except Subject.DoesNotExist:
+            raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
+
+
+class AbstractCreativeWorkDisambiguator(Disambiguator):
+    FOR_MODEL = AbstractCreativeWork
+
+    def disambiguate(self):
+        if self.attrs.get('links'):
+            for link in self.attrs.get('links'):
+                try:
+                    model = ThroughLinks.objects.select_related('creative_work', 'link').get(link=link)
+                    if 'issn' not in model.link.type.lower():
+                        return model.creative_work
+                except ThroughLinks.DoesNotExist:
+                    pass
+
+        if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
+            return None
+
+        self.attrs.pop('description', None)
+
+        # Limitting the length of title forces postgres to use the partial index
+        return self.model.objects.filter(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)}).extra(where=('octet_length(title) < 2049', )).first()

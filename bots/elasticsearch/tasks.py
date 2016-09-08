@@ -14,6 +14,8 @@ from share.models import Person
 from share.models import Tag
 from share.models import Subject
 
+from bots.elasticsearch import util
+
 logger = logging.getLogger(__name__)
 
 
@@ -48,13 +50,25 @@ def add_suggest(obj):
 class IndexModelTask(ProviderTask):
 
     def do_run(self, model_name, ids):
-        es_client = Elasticsearch(settings.ELASTICSEARCH_URL)
+        es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
         model = apps.get_model('share', model_name)
         for resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids)):
             logger.debug(resp)
 
     def bulk_stream(self, model, ids):
+        if not ids:
+            return
+
         opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
+
+        if model is AbstractCreativeWork:
+            for blob in util.fetch_abstractcreativework(ids):
+                if blob['is_deleted']:
+                    yield {'_id': blob['id'], '_op_type': 'delete', **opts}
+                else:
+                    yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
+            return
+
         qs = model.objects.filter(id__in=ids)
         for inst in qs.all():
             # if inst.is_delete:  # TODO
@@ -63,7 +77,6 @@ class IndexModelTask(ProviderTask):
 
     def serialize(self, inst):
         return {
-            AbstractCreativeWork: self.serialize_creative_work,
             Entity: self.serialize_entity,
             Person: self.serialize_person,
             Tag: self.serialize_tag,
@@ -71,25 +84,7 @@ class IndexModelTask(ProviderTask):
         }[type(inst)._meta.concrete_model](inst)
 
     def serialize_person(self, person, suggest=True):
-        serialized_person = {
-            'id': person.pk,
-            'type': 'person',
-            'suffix': safe_substr(person.suffix),
-            'given_name': safe_substr(person.given_name),
-            'family_name': safe_substr(person.family_name),
-            'name': safe_substr(person.get_full_name()),
-            'additional_name': safe_substr(person.additional_name),
-            'identifiers': [{
-                'url': identifier.url,
-                'base_url': identifier.base_url,
-            } for identifier in person.identifiers.all()],
-            'affiliations': [
-                self.serialize_entity(affiliation, False)
-                for affiliation in
-                person.affiliations.all()
-            ],
-            'sources': [safe_substr(source.long_title) for source in person.sources.all()],
-        }
+        serialized_person = util.fetch_person(person.pk)
         return add_suggest(serialized_person) if suggest else serialized_person
 
     def serialize_entity(self, entity, suggest=True):
@@ -124,46 +119,11 @@ class IndexModelTask(ProviderTask):
             'url': safe_substr(link.url),
         }
 
-    def serialize_creative_work(self, creative_work):
-        serialized_lists = {
-            'contributors': [self.serialize_person(person) for person in creative_work.contributors.order_by('contributor__order_cited')],
-            'funders': [self.serialize_entity(entity) for entity in creative_work.funders.all()],
-            'publishers': [self.serialize_entity(entity) for entity in creative_work.publishers.all()],
-            'institutions': [self.serialize_entity(entity) for entity in creative_work.institutions.all()],
-            'organizations': [self.serialize_entity(entity) for entity in creative_work.organizations.all()],
-            'links': [self.serialize_link(link) for link in creative_work.links.all()],
-        }
-
-        return {
-            'type': type(creative_work).__name__.lower(),
-            'title': safe_substr(creative_work.title),
-            'description': safe_substr(creative_work.description),
-            'language': safe_substr(creative_work.language),
-            'date': (
-                creative_work.date_published or creative_work.date_updated or creative_work.date_created
-            ).isoformat(),
-            'date_created': creative_work.date_created.isoformat(),
-            'date_modified': creative_work.date_modified.isoformat(),
-            'date_updated': creative_work.date_updated.isoformat() if creative_work.date_updated else None,
-            'date_published': creative_work.date_published.isoformat() if creative_work.date_published else None,
-            'tags': [safe_substr(tag) for tag in creative_work.tags.all()],
-            'subjects': [safe_substr(subject) for subject in creative_work.subjects.all()],
-            'awards': [safe_substr(award) for award in creative_work.awards.all()],
-            'venues': [safe_substr(venue) for venue in creative_work.venues.all()],
-            'sources': [safe_substr(source.long_title) for source in creative_work.sources.all()],
-            'contributors': [c['name'] for c in serialized_lists['contributors']],
-            'funders': [c['name'] for c in serialized_lists['funders']],
-            'publishers': [c['name'] for c in serialized_lists['publishers']],
-            'institutions': [c['name'] for c in serialized_lists['institutions']],
-            'organizations': [c['name'] for c in serialized_lists['organizations']],
-            'lists': serialized_lists
-        }
-
 
 class IndexSourceTask(ProviderTask):
 
     def do_run(self):
-        es_client = Elasticsearch(settings.ELASTICSEARCH_URL)
+        es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
         for resp in helpers.streaming_bulk(es_client, self.bulk_stream()):
             logger.debug(resp)
 

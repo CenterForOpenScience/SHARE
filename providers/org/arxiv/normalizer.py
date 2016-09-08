@@ -35,13 +35,15 @@ class Affiliation(Parser):
 
 
 class Person(Parser):
+
     given_name = tools.ParseName(ctx.name).first
     family_name = tools.ParseName(ctx.name).last
     additional_name = tools.ParseName(ctx.name).middle
     suffix = tools.ParseName(ctx.name).suffix
+
     affiliations = tools.Map(
         tools.Delegate(Affiliation.using(entity=tools.Delegate(Organization))),
-        tools.Maybe(ctx, 'arxiv:affiliation')
+        tools.Try(ctx['arxiv:affiliation'])
     )
 
 
@@ -59,21 +61,49 @@ class ThroughTags(Parser):
     tag = tools.Delegate(Tag, ctx)
 
 
+class Subject(Parser):
+    name = ctx
+
+
+class ThroughSubjects(Parser):
+    subject = tools.Delegate(Subject, ctx)
+
+
 class Preprint(Parser):
+
     title = ctx.entry.title
     description = ctx.entry.summary
     date_published = tools.ParseDate(ctx.entry.published)
     date_updated = tools.ParseDate(ctx.entry.updated)
     contributors = tools.Map(tools.Delegate(Contributor), ctx.entry.author)
+
     links = tools.Map(
         tools.Delegate(ThroughLinks),
-        tools.Maybe(ctx.entry, 'arxiv:doi'),
+        tools.Try(ctx.entry['arxiv:doi']),
         ctx.entry.id
     )
-    subject = tools.Delegate(Tag, ctx.entry['arxiv:primary_category'])
-    tags = tools.Map(tools.Delegate(ThroughTags), ctx.entry.category)
+
+    subjects = tools.Map(
+        tools.Delegate(ThroughSubjects),
+        tools.Subjects(
+            tools.RunPython(
+                'get_subjects',
+                tools.Concat(tools.Try(ctx.entry.category))
+            )
+        )
+    )
+
+    tags = tools.Map(
+        tools.Delegate(ThroughTags),
+        ctx.entry.category
+    )
 
     class Extra:
+
         resource_id = ctx.entry.id
-        journal_ref = tools.Maybe(ctx.entry, 'arxiv:journal_ref')
-        comment = tools.Maybe(ctx.entry, 'arxiv:comment')
+        journal_ref = tools.Try(ctx.entry['arxiv:journal_ref'])
+        comment = tools.Try(ctx.entry['arxiv:comment'])
+        primary_category = tools.Try(ctx.entry['arxiv:primary_category'])
+
+    def get_subjects(self, link):
+        return list(map((lambda category: category['@term']), link))

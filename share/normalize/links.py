@@ -1,7 +1,8 @@
-import threading
-from functools import reduce
 from collections import deque
+from functools import reduce
+import json
 import logging
+import threading
 
 import xmltodict
 
@@ -13,11 +14,10 @@ from pycountry import languages
 
 from nameparser import HumanName
 
-
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf')
 
 
 #### Public API ####
@@ -38,8 +38,8 @@ def Trim(chain):
     return chain + TrimLink()
 
 
-def Concat(*chains):
-    return AnchorLink() + ConcatLink(*chains)
+def Concat(*chains, deep=False):
+    return AnchorLink() + ConcatLink(*chains, deep=deep)
 
 
 def XPath(chain, path):
@@ -76,6 +76,14 @@ def RunPython(function_name, chain=None, *args, **kwargs):
 
 def Static(value):
     return StaticLink(value)
+
+
+def Subjects(*chains):
+    return Concat(Map(MapSubjectLink(), *chains), deep=True)
+
+
+def OneOf(*chains):
+    return OneOfLink(*chains)
 
 
 ### /Public API
@@ -265,8 +273,9 @@ class LanguageParserLink(AbstractLink):
 
 
 class ConcatLink(AbstractLink):
-    def __init__(self, *chains):
+    def __init__(self, *chains, deep=False):
         self._chains = chains
+        self._deep = deep
         super().__init__()
 
     def _concat(self, acc, val):
@@ -274,6 +283,8 @@ class ConcatLink(AbstractLink):
             return acc
         if not isinstance(val, list):
             val = [val]
+        elif self._deep:
+            val = reduce(self._concat, val, [])
         return acc + [v for v in val if v != '' and v is not None]
 
     def execute(self, obj):
@@ -457,3 +468,42 @@ class StaticLink(AbstractLink):
 
     def execute(self, obj):
         return self._value
+
+
+class MapSubjectLink(AbstractLink):
+
+    with open('synonyms.json') as fobj:
+        MAPPING = json.load(fobj)
+
+    def execute(self, obj):
+        if not obj:
+            return None
+
+        if isinstance(obj, list):
+            return [self.execute(x) for x in obj]
+
+        assert isinstance(obj, str), 'Subjects must be strings. Got {}.'.format(type(obj))
+
+        mapped = self.MAPPING.get(obj.lower())
+
+        if not mapped:
+            logger.warning('No synonyms found for term "%s"', obj)
+
+        return mapped
+
+
+class OneOfLink(AbstractLink):
+
+    def __init__(self, *chains):
+        self._chains = chains
+        super().__init__()
+
+    def execute(self, obj):
+        errors = []
+        for chain in self._chains:
+            try:
+                return chain.chain()[0].run(obj)
+            except Exception as e:
+                errors.append(e)
+
+        raise Exception('All chains failed {}'.format(errors))

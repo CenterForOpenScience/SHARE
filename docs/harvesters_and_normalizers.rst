@@ -12,13 +12,15 @@ Start Up
 
     1. Install `Docker <https://docs.docker.com/engine/installation/>`_.
     2. Make sure you're using Python3 - install with `conda <http://conda.pydata.org/miniconda.html>`_ , or `homebrew <http://blog.manbolo.com/2013/02/04/how-to-install-python-3-and-pydev-on-osx#2>`_
-    3. Install everything inside a Virtual Enviornment - created with `Conda <http://conda.pydata.org/docs/using/envs.html>`_ or `Virtualenv <https://virtualenv.pypa.io/en/stable/>`_ or
+    3. Install everything inside a Virtual Enviornment - created with `Conda <http://conda.pydata.org/docs/using/envs.html>`_ or `Virtualenv <https://virtualenv.pypa.io/en/stable/>`_ or your python enviornment of choice.
 
 Installation (inside a virtual environment)::
 
     pip install -r requirements.txt
 
-    docker-compose up -d rabbitmq postgres
+    // Creates and starts containers for elasticsearch, rabbitmq, and postgres
+    docker-compose up -d web
+
     ./up.sh
     ---------------- or ----------------
     pg
@@ -48,7 +50,7 @@ Visit http://localhost:5555/dashboard to keep an eye on your harvesting and norm
 Running Existing Harvesters and Normalizers
 -------------------------------------------
 
-To see a list of all providers and their names for harvesting, visit https://staging-share.osf.io/api/providers/
+To see a list of all providers and their names for harvesting, visit https://share.osf.io/api/providers/
 
 Steps for gathering data:
     - **Harvest** data from the original source
@@ -121,13 +123,42 @@ To automatically add all harvested and accepted documents to Elasticsearch::
 Writing a Harvester and Normalizer
 ----------------------------------
 
-See the normalizers and harvesters located in the ``providers/`` directory for examples of syntax and best practices.
+See the normalizers and harvesters located in the ``providers/`` directory for more examples of syntax and best practices.
+
+Adding a new provider
+"""""""""""""""""""""
+
+- Determine whether the provider has an API to access their metadata
+- Create an ``__init__.py`` file in the ``providers/`` specific folder and copy::
+
+    default_app_config = 'providers.domain.provider_name_here.apps.AppConfig'
+
+- Create an ``apps.py`` file in the ``providers/`` specific folder
+- Add the provider to the ``project/settings.py`` file in the ``INSTALLED_APPS`` list
+- If the provider has a new TLD folder (e.g. com, au, gov), please add ``/TLD.*/`` to the `.gitignore`_ in the generated harvester data section
+- Put a docstring labeled "Example Record", with a formatted XML response in the ``__init__.py`` file
+    - If there is an example of a deleted record, add an example of that as well
+- Determine whether the provider returns metadata in `OAI-PMH`_ format
+    - If the provider is OAI see :ref:`Best practices for OAI providers <oai-providers>`
+- Writing the harvester
+    - See :ref:`Best practices for writing a non-OAI Harvester <writing-harvesters>`
+- Writing the normalizer
+    - See :ref:`Best practices for writing a non-OAI Normalizer <writing-normalizers>`
+- Adding the migration
+    - Finally, run ``./manage.py makeprovidermigrations`` in the terminal
+    - Include only the relevant migration in the PR
+- Adding a provider's favicon
+    - visit ``www.domain.com/favicon.ico`` and download the ``favicon.ico`` file
+    - place ``favicon.ico`` in ``providers/domain/provider_name/static/domain.provider_name/img/``
+
+.. _OAI-PMH: http://www.openarchives.org/OAI/openarchivesprotocol.html
+
+.. _oai-providers:
 
 Best practices for OAI providers
 """"""""""""""""""""""""""""""""
 
-If the provider follows OAI standards, then the provider's ``apps.py`` should begin like this:
-
+If the provider follows OAI standards and uses the `oai_dc` metadata prefix, then the provider's ``apps.py`` should begin like this:
 
 
 .. code-block:: python
@@ -138,36 +169,20 @@ If the provider follows OAI standards, then the provider's ``apps.py`` should be
     class AppConfig(OAIProviderAppConfig):
 
 
-Make ``__init__.py`` in the ``providers/`` specific folder and copy::
-
-    default_app_config = 'providers.domain.provider_name_here.apps.AppConfig'
-
-
-After that put a docstring labeled "Example Record", with a formatted XML response.
-
-If there is an example of a deleted record, add an example of that as well.
-
 -------------------------
-
-Add the provider to the ``project/settings.py`` file in the ``INSTALLED_APPS`` list.
-
-Finally, run ``./manage.py makeprovidermigrations`` in the terminal.
-
-Make sure you only add the relevant migrations folder when adding changes!
-
-
 
 
 Provider-specific normalizers and harvesters are unnecessary for OAI providers as they all use the base OAI harvester and normalizer.
 
-If the provider has a new TLD folder (e.g. com, au, gov), please add ``/TLD.*/`` to the .gitignore in the generated harvester data section.
+
+.. _.gitignore: https://github.com/CenterForOpenScience/SHARE/blob/develop/.gitignore
+
+.. _writing-harvesters:
 
 Best practices for writing a non-OAI Harvester
 """"""""""""""""""""""""""""""""""""""""""""""
 
 - The harvester should be defined in ``<provider_dir>/harvester.py``.
-- Add an example record to the provider's ``__init__.py``.
-- Add the provider to the list of ``INSTALLED_APPS`` in ``project/settings.py``
 - When writing the harvester:
     - Define a ``do_harvest(...)`` function (and possibly additional helper functions) to make requests to the provider and to yield the harvested records.
     - Check to see if the data returned by the provider is paginated.
@@ -176,6 +191,7 @@ Best practices for writing a non-OAI Harvester
         - If the API does not then, if possible, check the date on each record returned and stop harvesting if the date on the record is older than the specified start date.
 - Test by :ref:`running the harvester <running-providers>`
 
+.. _writing-normalizers:
 
 Best practices for writing a non-OAI Normalizer
 """""""""""""""""""""""""""""""""""""""""""""""
@@ -187,8 +203,6 @@ Best practices for writing a non-OAI Normalizer
     - Utilize the ``Extra`` class
         - Raw data that does not fit into a defined :ref:`share model <share-models>` should be stored here.
         - Raw data that is otherwise altered in the normalizer should also be stored here to ensure data integrity.
-
-Remember to add the provider's harvest directory to gitignore. See the file for examples.
 
 - Test by :ref:`running the normalizer <running-providers>` against raw data you have harvested.
 
@@ -231,15 +245,22 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
 - Maybe
     To normalize data that is not consistently available::
 
-        tools.Maybe(<path>, '<item_that_might_not_exist>')
+        tools.Maybe(<chain>, '<item_that_might_not_exist>')
 
     Indexing further if the path exists::
 
-        tools.Maybe(<path>, '<item_that_might_not_exist>')['<item_that_will_exist_if_maybe_passes>']
+        tools.Maybe(<chain>, '<item_that_might_not_exist>')['<item_that_will_exist_if_maybe_passes>']
 
     Nesting Maybe::
 
-        tools.Maybe(tools.Maybe(<path>, '<item_that_might_not_exist>')['<item_that_will_exist_if_maybe_passes>'], '<item_that_might_not_exist>')
+        tools.Maybe(tools.Maybe(<chain>, '<item_that_might_not_exist>')['<item_that_will_exist_if_maybe_passes>'], '<item_that_might_not_exist>')
+
+    To avoid excessive nesting use the :ref:`Try link <try-reference>`
+
+- OneOf
+    To specify two possible paths for a single value::
+
+        tools.OneOf(<chain_option_1>, <chain_option_2>)
 
 - ParseDate
     To determine a date from a string::
@@ -282,6 +303,18 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
     To define a static field::
 
         tools.Static(<static_value>)
+
+- Subjects
+    To map a subject to the PLOS taxonomy based on defined mappings::
+
+        tools.Subjects(<subject_string>)
+
+.. _try-reference:
+
+- Try
+    To normalize data that is not consistently available and may throw an exception::
+
+        tools.Try(<chain>)
 
 - XPath
     To access data using xpath::

@@ -28,19 +28,22 @@ class PeerJHarvester(Harvester):
         logger.info("PeerJ has been harvested")
 
     def fetch_page(self, url, start_date, end_date, preprint=''):
-        records = self.requests.get(url).json()
-        next_page = records['_links']
-        for record in records['_items']:
-            if arrow.get(record['date']) < start_date:
-                return
+        while url:
+            records = self.requests.get(url).json()
 
-            if arrow.get(record['date']) > end_date:
-                continue
+            for record in records['_items']:
+                if arrow.get(record['date']) < start_date:
+                    return
 
-            yield (preprint + record['identifiers']['peerj'], record)
+                if arrow.get(record['date']) > end_date:
+                    continue
 
-        if 'next' in next_page:
-            yield from self.fetch_page(next_page['next']['href'], start_date, end_date)
+                yield (preprint + record['identifiers']['peerj'], record)
+
+            if 'next' in record['_links']:
+                url = record['_links']['next']['href']
+            else:
+                url = None
 
     def build_url(self):
         return [furl(self.base_url).set(query_params={

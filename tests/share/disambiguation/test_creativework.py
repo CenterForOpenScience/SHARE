@@ -1,6 +1,8 @@
 import pytest
 
+from share.models import Link
 from share.models import CreativeWork
+from share.models.meta import ThroughLinks
 from share.disambiguation import disambiguate
 
 
@@ -41,6 +43,26 @@ class TestAbstractWork:
         disWork = disambiguate('_:', {'title': ''}, CreativeWork)
 
         assert disWork is None
+
+    @pytest.mark.django_db
+    def test_links_disambiguate(self, change_ids):
+        cw = CreativeWork.objects.create(
+            title='All about cats',
+            description='see here is the the thing about emptiness',
+            change_id=change_ids.get()
+        )
+
+        link = Link.objects.create(url='http://share.osf.io/cats', type='provider', change_id=change_ids.get())
+
+        ThroughLinks.objects.create(
+            link=link,
+            creative_work=cw,
+            change_id=change_ids.get(),
+            link_version=link.versions.first(),
+            creative_work_version=cw.versions.first(),
+        )
+
+        assert disambiguate('_:', {'links': [link.pk]}, CreativeWork) == cw
 
 
 class TestAffiliations:

@@ -14,7 +14,7 @@ class Preprint(OAIPreprint):
 
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
-        tools.Try(ctx.record.metadata.dc['dc:subject'])
+        tools.Subjects(ctx.record.metadata.dc['dc:subject'])
     )
 
 

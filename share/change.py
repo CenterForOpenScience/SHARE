@@ -47,6 +47,10 @@ class ChangeNode:
         return self.type.lower() == 'mergeaction'
 
     @property
+    def ref(self):
+        return {'@id': self.id, '@type': self.type}
+
+    @property
     def refs(self):
         return self.__refs
 
@@ -95,15 +99,23 @@ class ChangeNode:
         # Any nested data type is a relation in the current JSON-LD schema
         self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, dict)}
         self.related = tuple(self.relations.values())
-        self._reverse_relations = {k: tuple(node.pop(k)) for k, v in tuple(node.items()) if isinstance(v, (list, tuple))}
 
-        if self.is_merge:
-            self.related += sum(self._reverse_relations.values(), tuple())
+        self.reverse_relations = {}  # Resolved through relations to be populated later
+        self.__reverse_relations = {k: tuple(node.pop(k)) for k, v in tuple(node.items()) if isinstance(v, (list, tuple))}
 
         self.attrs = node
 
         if disambiguate:
             self._disambiguate()
+
+    def resolve_relations(self, mapper):
+        for key, relations in self.__reverse_relations.items():
+            resolved = [
+                next(x for x in mapper[r['@id'], r['@type'].lower()].related if x['@id'] != self.id)
+                for r in relations
+            ]
+            self.reverse_relations[key] = resolved
+            self.related += tuple(resolved)
 
     def update_relations(self, mapper):
         for v in self.relations.values():
@@ -113,16 +125,22 @@ class ChangeNode:
                 v['@type'] = node.type
             except KeyError:
                 pass
+        for k, values in self.reverse_relations.items():
+            self.reverse_relations[k] = [mapper.get((v['@id'], v['@type'].lower()), (v['@id'], v['@type'].lower())).ref for v in values]
 
     def _disambiguate(self):
         if self.is_merge:
             return None
+
         self.__instance = disambiguation.disambiguate(self.id, {
             **self.attrs,
-            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')}
+            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')},
+            **{k: [x['@id'] for x in v if not str(x['@id']).startswith('_:')] for k, v in self.reverse_relations.items() if any(not str(x['@id']).startswith('_:') for x in v)},
         }, self.model)
+
         if self.__instance:
             self.id = self.__instance.pk
+            self.type = self.__instance._meta.model_name.lower()
             self.__refs.append((self.id, self.type))
 
     def __repr__(self):
@@ -133,7 +151,7 @@ class ChangeGraph:
 
     @classmethod
     def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
-        nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
+        nodes = [ChangeNode.from_jsonld(obj, disambiguate=False, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
         return ChangeGraph(nodes, disambiguate=disambiguate)
 
     @property
@@ -144,6 +162,9 @@ class ChangeGraph:
         self.__nodes = nodes
         self.__map = {ref: n for n in nodes for ref in n.refs}
         self.__sorter = NodeSorter(self)
+
+        for node in self.__nodes:
+            node.resolve_relations(self.__map)
 
         if parse:
             self.__nodes = self.__sorter.sorted()
@@ -186,7 +207,7 @@ class NodeSorter:
 
     def __visit(self, node):
         if node in self.__visiting:
-            raise CyclicalDependency()
+            raise CyclicalDependency(node, self.__visiting)
 
         if node in self.__visted:
             return

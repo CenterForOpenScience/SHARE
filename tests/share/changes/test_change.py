@@ -189,61 +189,109 @@ class TestChangeSet:
         assert Preprint.objects.filter(contributor__person=john_doe).first().title == 'All About Cats'
 
     @pytest.mark.django_db
-    def test_merge_accept(self, normalized_data_id, merge_graph, john_doe, jane_doe):
-        change_set = ChangeSet.objects.from_graph(merge_graph, normalized_data_id)
-        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+    def test_can_delete_work(self, john_doe, normalized_data_id):
+        graph = ChangeGraph.from_jsonld({
             '@graph': [{
-                '@id': '_:123',
-                '@type': 'preprint',
-                'title': 'All About Cats'
+                '@id': '_:abc',
+                '@type': 'link',
+                'url': 'https://share.osf.io/faq',
+                'type': 'provider',
             }, {
                 '@id': '_:456',
-                '@type': 'contributor',
-                'person': {'@id': john_doe.pk, '@type': 'person'},
-                'creative_work': {'@id': '_:123', '@type': 'preprint'},
+                '@type': 'throughlinks',
+                'link': {'@id': '_:abc', '@type': 'link'},
+                'creative_work': {'@id': '_:789', '@type': 'preprint'},
+            }, {
+                '@id': '_:789',
+                '@type': 'preprint',
+                'title': 'All About Cats',
+            }]
+        })
+
+        change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
+
+        link, preprint, _ = change_set.accept()
+
+        assert preprint.is_deleted is False
+
+        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:abc',
+                '@type': 'link',
+                'type': 'provider',
+                'url': 'https://share.osf.io/faq',
+            }, {
+                '@id': '_:456',
+                '@type': 'throughlinks',
+                'link': {'@id': '_:abc', '@type': 'link'},
+                'creative_work': {'@id': '_:789', '@type': 'preprint'},
+            }, {
+                '@id': '_:789',
+                'is_deleted': True,
+                '@type': 'preprint',
+                'links': [{'@id': '_:456', '@type': 'throughlinks'}]
             }]
         }), normalized_data_id).accept()
 
-        assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
-        assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
-        assert Preprint.objects.filter(contributor__person=jane_doe).count() == 0
+        preprint.refresh_from_db()
+        assert preprint.is_deleted is True
 
-        change_set.accept()
+    # @pytest.mark.django_db
+    # def test_merge_accept(self, normalized_data_id, merge_graph, john_doe, jane_doe):
+    #     change_set = ChangeSet.objects.from_graph(merge_graph, normalized_data_id)
+    #     ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+    #         '@graph': [{
+    #             '@id': '_:123',
+    #             '@type': 'preprint',
+    #             'title': 'All About Cats'
+    #         }, {
+    #             '@id': '_:456',
+    #             '@type': 'contributor',
+    #             'person': {'@id': john_doe.pk, '@type': 'person'},
+    #             'creative_work': {'@id': '_:123', '@type': 'preprint'},
+    #         }]
+    #     }), normalized_data_id).accept()
 
-        john_doe.refresh_from_db()
-        jane_doe.refresh_from_db()
+    #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
+    #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
+    #     assert Preprint.objects.filter(contributor__person=jane_doe).count() == 0
 
-        # Jane should not have been modified
-        assert jane_doe.same_as is None
-        assert jane_doe.versions.count() == 1
+    #     change_set.accept()
 
-        # John should have been updated
-        assert john_doe.versions.count() == 2
+    #     john_doe.refresh_from_db()
+    #     jane_doe.refresh_from_db()
 
-        # John's same_as field and same_as_version should have been updated
-        assert john_doe.same_as == jane_doe
-        assert john_doe.version.same_as == jane_doe
-        assert john_doe.same_as_version == jane_doe.version
-        assert john_doe.version.same_as_version == jane_doe.version
+    #     # Jane should not have been modified
+    #     assert jane_doe.same_as is None
+    #     assert jane_doe.versions.count() == 1
 
-        # John's latest change should be set to the  merge change
-        assert john_doe.change.change_set == change_set
-        assert john_doe.version.change.change_set == change_set
+    #     # John should have been updated
+    #     assert john_doe.versions.count() == 2
 
-        # Ensure that date modifieds have been update
-        assert john_doe.versions.first().date_modified > john_doe.versions.last().date_modified
+    #     # John's same_as field and same_as_version should have been updated
+    #     assert john_doe.same_as == jane_doe
+    #     assert john_doe.version.same_as == jane_doe
+    #     assert john_doe.same_as_version == jane_doe.version
+    #     assert john_doe.version.same_as_version == jane_doe.version
 
-        # John is no longer a contributor on anything
-        assert Preprint.objects.filter(contributor__person=john_doe).count() == 0
-        assert Preprint.objects.filter(contributor__person_version=john_doe.version).count() == 0
+    #     # John's latest change should be set to the  merge change
+    #     assert john_doe.change.change_set == change_set
+    #     assert john_doe.version.change.change_set == change_set
 
-        # Jane is now a contributor
-        assert Preprint.objects.filter(contributor__person=jane_doe).count() == 1
-        assert Preprint.objects.filter(contributor__person_version=jane_doe.version).count() == 1
+    #     # Ensure that date modifieds have been update
+    #     assert john_doe.versions.first().date_modified > john_doe.versions.last().date_modified
 
-        # The affected contributor should have been updated
-        assert Contributor.objects.get(person=jane_doe).versions.count() == 2
-        assert Contributor.objects.get(person=jane_doe).change.change_set == change_set
+    #     # John is no longer a contributor on anything
+    #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 0
+    #     assert Preprint.objects.filter(contributor__person_version=john_doe.version).count() == 0
+
+    #     # Jane is now a contributor
+    #     assert Preprint.objects.filter(contributor__person=jane_doe).count() == 1
+    #     assert Preprint.objects.filter(contributor__person_version=jane_doe.version).count() == 1
+
+    #     # The affected contributor should have been updated
+    #     assert Contributor.objects.get(person=jane_doe).versions.count() == 2
+    #     assert Contributor.objects.get(person=jane_doe).change.change_set == change_set
 
     @pytest.mark.django_db
     def test_subject_accept(self, normalized_data_id):
