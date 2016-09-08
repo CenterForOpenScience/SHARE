@@ -1,5 +1,6 @@
 from share.provider import ProviderAppConfig
 from .harvester import CrossRefHarvester
+from .normalizer import CrossRefNormalizer
 
 
 class AppConfig(ProviderAppConfig):
@@ -9,3 +10,4 @@ class AppConfig(ProviderAppConfig):
     long_title = 'CrossRef'
     home_page = 'http://www.crossref.org'
     harvester = CrossRefHarvester
+    normalizer = CrossRefNormalizer
