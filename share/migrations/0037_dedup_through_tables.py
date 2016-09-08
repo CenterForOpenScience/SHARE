@@ -5,11 +5,12 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
-def DeleteConstraints(table, *keys):
-    return migrations.RunSQL(sql='DELETE FROM share_{0}_sources WHERE {0}_id NOT IN (SELECT min(id) FROM share_{0} GROUP BY {1});'.format(table,', '.join(keys)))
+def DeleteConstraining(table, *keys):
+    return migrations.RunSQL(sql='DELETE FROM share_{0}_sources WHERE {0}_id in (SELECT id FROM share_{0} EXCEPT SELECT min(id) FROM share_{0} GROUP BY {1});'.format(table, ', '.join(keys)))
+
 
 def DeleteDuplicates(table, *keys):
-    return migrations.RunSQL(sql='DELETE FROM share_{0} WHERE id NOT IN (SELECT min(id) FROM share_{0} GROUP BY {1});'.format(table,', '.join(keys)))
+    return migrations.RunSQL(sql='DELETE FROM share_{0} WHERE id in (SELECT id FROM share_{0} EXCEPT SELECT min(id) FROM share_{0} GROUP BY {1});'.format(table, ', '.join(keys)))
 
 
 class Migration(migrations.Migration):
@@ -19,36 +20,36 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        DeleteConstraints('affiliation', 'person_id', 'entity_id'),
+        DeleteConstraining('affiliation', 'person_id', 'entity_id'),
         DeleteDuplicates('affiliation', 'person_id', 'entity_id'),
 
-        DeleteConstraints('association', 'entity_id', 'creative_work_id'),
+        DeleteConstraining('association', 'entity_id', 'creative_work_id'),
         DeleteDuplicates('association', 'entity_id', 'creative_work_id'),
 
-        DeleteConstraints('contributor', 'person_id', 'creative_work_id'),
+        DeleteConstraining('contributor', 'person_id', 'creative_work_id'),
         DeleteDuplicates('contributor', 'person_id', 'creative_work_id'),
 
-        DeleteConstraints('personemail', 'person_id', 'email_id'),
+        DeleteConstraining('personemail', 'person_id', 'email_id'),
         DeleteDuplicates('personemail', 'person_id', 'email_id'),
 
-        DeleteConstraints('throughawardentities', 'award_id', 'entity_id'),
+        DeleteConstraining('throughawardentities', 'award_id', 'entity_id'),
         DeleteDuplicates('throughawardentities', 'award_id', 'entity_id'),
 
-        DeleteConstraints('throughawards', 'award_id', 'creative_work_id'),
+        DeleteConstraining('throughawards', 'award_id', 'creative_work_id'),
         DeleteDuplicates('throughawards', 'award_id', 'creative_work_id'),
 
-        DeleteConstraints('throughidentifiers', 'person_id', 'identifier_id'),
+        DeleteConstraining('throughidentifiers', 'person_id', 'identifier_id'),
         DeleteDuplicates('throughidentifiers', 'person_id', 'identifier_id'),
 
-        DeleteConstraints('throughlinks', 'link_id', 'creative_work_id'),
+        DeleteConstraining('throughlinks', 'link_id', 'creative_work_id'),
         DeleteDuplicates('throughlinks', 'link_id', 'creative_work_id'),
 
-        DeleteConstraints('throughsubjects', 'subject_id', 'creative_work_id'),
+        DeleteConstraining('throughsubjects', 'subject_id', 'creative_work_id'),
         DeleteDuplicates('throughsubjects', 'subject_id', 'creative_work_id'),
 
-        DeleteConstraints('throughtags', 'tag_id', 'creative_work_id'),
+        DeleteConstraining('throughtags', 'tag_id', 'creative_work_id'),
         DeleteDuplicates('throughtags', 'tag_id', 'creative_work_id'),
 
-        DeleteConstraints('throughvenues', 'venue_id', 'creative_work_id'),
+        DeleteConstraining('throughvenues', 'venue_id', 'creative_work_id'),
         DeleteDuplicates('throughvenues', 'venue_id', 'creative_work_id'),
     ]
