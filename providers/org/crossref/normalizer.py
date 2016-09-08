@@ -78,7 +78,7 @@ class Tag(Parser):
 
 class ThroughTags(Parser):
     tag = Delegate(Tag, ctx)
-    
+
 
 class CreativeWork(Parser):
     """
