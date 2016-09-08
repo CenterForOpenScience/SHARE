@@ -10,6 +10,10 @@ class Publisher(Parser):
 
 class Funder(Parser):
     name = ctx.name
+    identifiers = Map(
+        Delegate(DOIIdentifier),
+        Maybe(ctx, 'DOI')
+    )
 
     class Extra:
         doi = Maybe(ctx, 'DOI')
