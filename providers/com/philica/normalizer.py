@@ -1,8 +1,4 @@
-import arrow
-
-import dateparser
-
-from share.normalize import Parser, Delegate, RunPython, ParseName, ParseDate, Normalizer, Concat, Map, ctx, Try
+from share.normalize import Parser, Delegate, RunPython, ParseName, ParseDate, Map, ctx, Try
 
 
 class Link(Parser):
@@ -41,6 +37,7 @@ class ThroughTags(Parser):
 #     subject = Delegate(Subjects, ctx)
 #
 
+
 class Association(Parser):
     pass
 
@@ -61,14 +58,8 @@ class Preprint(Parser):
     description = Try(ctx.data['DC.description'])
     date_published = ParseDate(ctx.data['DC.created'])
     contributors = Map(Delegate(Contributor), ctx.data['DC.contributor'])
-    links = Map(Delegate(ThroughLinks),
-            ctx.data['href'],
-            ctx.data['DC.source']
-    )
-    publishers = Map(
-        Delegate(Association.using(entity=Delegate(Publisher))),
-        ctx.data['DC.publisher']
-    )
+    links = Map(Delegate(ThroughLinks), ctx.data['href'], ctx.data['DC.source'])
+    publishers = Map(Delegate(Association.using(entity=Delegate(Publisher))), ctx.data['DC.publisher'])
     language = ctx.data['DC.language']
     rights = ctx.data['DC.rights']
 
@@ -80,5 +71,5 @@ class Preprint(Parser):
         identifiers = ctx.data['DC.identifier']
         format_type = ctx.data['DC.identifier']
         type_publication = ctx.data['DC.type']
-        citation = ctx.data['DC.biliographicCitation']
+        citation = ctx.data['DC.biliographicCitation']  # Typo intended
         subjects = ctx.data['DC.subject']
