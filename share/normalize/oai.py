@@ -116,7 +116,7 @@ class OAICreativeWork(Parser):
             if resourceType == 'preprint':
                 return 'Preprint'
             return 'CreativeWork'
-        except KeyError:
+        except (KeyError, ValueError):
             return 'CreativeWork'
 
     ORGANIZATION_KEYWORDS = (
