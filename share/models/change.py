@@ -177,7 +177,7 @@ class Change(models.Model):
                 logger.info('Handling unique violation error %r', e)
 
                 self.type = Change.TYPE.update
-                self.target = disambiguate('_:', self.change, self.target_type.model_class())
+                self.target = disambiguate('_:', {k: v['@id'] if isinstance(v, dict) else v for k, v in self.change.items()}, self.target_type.model_class())
 
                 logger.info('Updating target to %r and type to update', self.target)
                 self.save()
