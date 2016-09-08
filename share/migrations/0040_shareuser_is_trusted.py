@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0037_update_trigger_migrations_20160903_2022'),
+        ('share', '0039_auto_20160907_1810'),
     ]
 
     operations = [

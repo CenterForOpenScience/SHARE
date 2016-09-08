@@ -7,7 +7,6 @@ import datetime
 from typing import Tuple
 from typing import Union
 from typing import Iterator
-from collections import OrderedDict
 
 import arrow
 import requests
