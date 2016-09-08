@@ -76,6 +76,10 @@ class Tag(Parser):
     name = ctx
 
 
+class ThroughTags(Parser):
+    tag = Delegate(Tag, ctx)
+    
+
 class CreativeWork(Parser):
     """
     Documentation for CrossRef's metadata can be found here:
@@ -95,9 +99,7 @@ class CreativeWork(Parser):
     )
     links = Map(
         Delegate(ThroughLinks),
-        RunPython('format_doi_as_url', ctx.DOI),
-        ctx.member,
-        ctx.prefix
+        RunPython('format_doi_as_url', ctx.DOI)
     )
     publishers = Map(
         Delegate(Association.using(entity=Delegate(Publisher))),
@@ -106,6 +108,11 @@ class CreativeWork(Parser):
     funders = Map(
         Delegate(Association.using(entity=Delegate(Funder))),
         Maybe(ctx, 'funder')
+    )
+    # TODO These are "a controlled vocabulary from Sci-Val", map to Subjects!
+    tags = Map(
+        Delegate(ThroughTags),
+        Maybe(ctx, 'subject')
     )
 
     class Extra:
@@ -123,6 +130,7 @@ class CreativeWork(Parser):
         issn = Maybe(ctx, 'issn')
         issue = Maybe(ctx, 'issue')
         reference_count = ctx['reference-count']
+        member = Maybe(ctx, 'member')
         page = Maybe(ctx, 'page')
         published_online = Maybe(ctx, 'published-online')
         published_print = Maybe(ctx, 'published-print')
@@ -132,3 +140,23 @@ class CreativeWork(Parser):
         translator = Maybe(ctx, 'translator')
         type = ctx.type
         volume = Maybe(ctx, 'volume')
+
+
+class Publication(CreativeWork):
+    pass
+
+
+# TODO when DataSet is added
+# class DataSet(CreativeWork):
+#     pass
+
+
+class CrossRefNormalizer(Normalizer):
+    def do_normalize(self, data):
+        unwrapped = self.unwrap_data(data)
+
+        if unwrapped['type'] == 'journal-article':
+            return Publication(unwrapped).parse()
+        # if unwrapped['type'] == 'dataset':
+        #    return DataSet(unwrapped).parse()
+        return CreativeWork(unwrapped).parse()
