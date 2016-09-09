@@ -74,17 +74,17 @@ class WorkIdentifier(Parser):
 
 class RelatedProject(Parser):
     schema = 'Project'
-    workidentifiers = Map(Delegate(WorkIdentifier), ctx)
+    workidentifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx)
 
 
-class RelationType(Parser):
-    #TODO
-    pass
+class ParentRelationType(Parser):
+    schema = 'RelationType'
 
 
-class Relation(Parser):
-    #TODO
-    pass
+class ParentRelation(Parser):
+    schema = 'Relation'
+    subject_work = tools.Delegate(RelatedProject, ctx)
+    relation_type = tools.Static('is_parent_to')
 
 
 class Project(Parser):
@@ -99,7 +99,7 @@ class Project(Parser):
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
     rights = tools.Maybe(ctx, 'attributes.node_license')
     workidentifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx.links.html)
-    # TODO add relations for parent, forks, children, maybe root
+    incoming_relations = tools.Map(tools.Delegate(ParentRelation), tools.Maybe(ctx, 'relationships.parent.links.related.href'))
 
     class Extra:
         date_created = tools.ParseDate(ctx.attributes.date_created)
