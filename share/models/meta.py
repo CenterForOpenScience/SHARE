@@ -9,23 +9,18 @@ from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyF
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation', 'RelationType')
+__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'WorkIdentifier', 'Relation', 'RelationType')
 
 # TODO Rename this file
 
 
-class Identifier(ShareObject):
+class WorkIdentifier(ShareObject):
     # https://twitter.com/berniethoughts/
     url = ShareURLField(unique=True)
     # https://twitter.com/
     base_url = ShareURLField()
 
-    object_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    identified_object = GenericForeignKey('object_type', 'object_id')
-
-    class Meta:
-        index_together = ('object_type', 'object_id')
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='identifiers')
 
 
 class RelationTypeManager(models.Manager):

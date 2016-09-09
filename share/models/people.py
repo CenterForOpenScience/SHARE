@@ -16,6 +16,15 @@ class Email(ShareObject):
         return self.email
 
 
+class PersonIdentifier(ShareObject):
+    # https://twitter.com/berniethoughts/
+    url = ShareURLField(unique=True)
+    # https://twitter.com/
+    base_url = ShareURLField()
+
+    person = ShareForeignKey('Person', related_name='identifiers')
+
+
 # Actual Person
 
 class Person(ShareObject):
