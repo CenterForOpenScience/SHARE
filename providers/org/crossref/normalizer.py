@@ -10,10 +10,6 @@ class Publisher(Parser):
 
 class Funder(Parser):
     name = ctx.name
-    identifiers = Map(
-        Delegate(DOIIdentifier),
-        Maybe(ctx, 'DOI')
-    )
 
     class Extra:
         doi = Maybe(ctx, 'DOI')
@@ -53,8 +49,14 @@ class Person(Parser):
     given_name = Maybe(ctx, 'given')
     family_name = Maybe(ctx, 'family')
     affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
-    identifiers = Map(Delegate(URIIdentifier), Maybe(ctx, 'ORCID'))
+    personidentifiers = Map(Delegate(PersonIdentifier), Maybe(ctx, 'ORCID'))
 
+
+class WorkIdentifier(Parser):
+    url = RunPython('format_doi_as_url', ctx)
+
+    def format_doi_as_url(self, doi):
+        return format_doi_as_url(self, doi)
 
 class Contributor(Parser):
     person = Delegate(Person, ctx)
@@ -106,6 +108,7 @@ class CreativeWork(Parser):
         Delegate(ThroughTags),
         Maybe(ctx, 'subject')
     )
+
 
     class Extra:
         alternative_id = Maybe(ctx, 'alternative-id')
