@@ -1,6 +1,10 @@
 from share.normalize import ctx
-from share.normalize.parsers import Parser, URIIdentifier
+from share.normalize.parsers import Parser
 from share.normalize import tools
+
+
+class PersonIdentifier(Parser):
+    url = ctx
 
 
 class Person(Parser):
@@ -21,7 +25,7 @@ class Person(Parser):
         ctx.embeds.users.errors[0].meta.suffix,
     )
 
-    identifiers = tools.Map(tools.Delegate(URIIdentifier), ctx.embeds.users.data.links.html)
+    personidentifiers = tools.Map(tools.Delegate(PersonIdentifier), ctx.embeds.users.data.links.html)
 
     class Extra:
         nodes = tools.Try(ctx.embeds.users.data.relationships.nodes.links.related.href)
@@ -64,6 +68,25 @@ class Association(Parser):
     pass
 
 
+class WorkIdentifier(Parser):
+    url = ctx
+
+
+class RelatedProject(Parser):
+    schema = 'Project'
+    workidentifiers = Map(Delegate(WorkIdentifier), ctx)
+
+
+class RelationType(Parser):
+    #TODO
+    pass
+
+
+class Relation(Parser):
+    #TODO
+    pass
+
+
 class Project(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
@@ -75,7 +98,7 @@ class Project(Parser):
     date_updated = tools.ParseDate(ctx.attributes.date_modified)
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
     rights = tools.Maybe(ctx, 'attributes.node_license')
-    identifiers = tools.Map(tools.Delegate(URIIdentifier), ctx.links.html)
+    workidentifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx.links.html)
     # TODO add relations for parent, forks, children, maybe root
 
     class Extra:
