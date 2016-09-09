@@ -1,8 +1,6 @@
-import furl
-
 from share.normalize.parsers import Parser, URIIdentifier
 from share.normalize.normalizer import Normalizer
-from share.normalize import Delegate, RunPython, Map, ctx, Try, ParseDate, OneOf
+from share.normalize import Delegate, Map, ctx, Try, ParseDate, OneOf
 
 
 class Person(Parser):
@@ -95,7 +93,7 @@ class Preprint(Parser):
     identifiers = Map(
         Delegate(URIIdentifier),
         ctx.links.self,
-        #ctx.links.html, TODO add relation to OSF project
+        # ctx.links.html, TODO add relation to OSF project
         Try(ctx.links.doi)
     )
     tags = Map(Delegate(ThroughTags), Try(ctx.attributes.tags))

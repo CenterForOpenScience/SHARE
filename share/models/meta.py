@@ -1,14 +1,11 @@
 from django.db import models
 from django.db import IntegrityError
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.fields import JSONField
 
 import furl
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
-from share.apps import ShareConfig as share_config
 
 
 __all__ = ('Venue', 'Award', 'Tag', 'Subject', 'WorkIdentifier', 'Relation', 'RelationType')
@@ -33,7 +30,7 @@ class RelationTypeManager(models.Manager):
 class RelationType(models.Model):
     key = models.TextField(unique=True)
     uri = models.TextField(blank=True)
-    #TODO? parent = models.ForeignKey('self')
+    # TODO? parent = models.ForeignKey('self')
 
     objects = RelationTypeManager()
 

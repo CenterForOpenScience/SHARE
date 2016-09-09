@@ -58,6 +58,7 @@ class WorkIdentifier(Parser):
     def format_doi_as_url(self, doi):
         return format_doi_as_url(self, doi)
 
+
 class Contributor(Parser):
     person = Delegate(Person, ctx)
     order_cited = ctx('index')
@@ -108,7 +109,6 @@ class CreativeWork(Parser):
         Delegate(ThroughTags),
         Maybe(ctx, 'subject')
     )
-
 
     class Extra:
         alternative_id = Maybe(ctx, 'alternative-id')
