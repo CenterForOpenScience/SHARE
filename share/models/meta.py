@@ -4,6 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.fields import JSONField
 
+import furl
+
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 from share.apps import ShareConfig as share_config
@@ -15,12 +17,12 @@ __all__ = ('Venue', 'Award', 'Tag', 'Subject', 'WorkIdentifier', 'Relation', 'Re
 
 
 class WorkIdentifier(ShareObject):
-    # https://twitter.com/berniethoughts/
     url = ShareURLField(unique=True)
-    # https://twitter.com/
-    base_url = ShareURLField()
-
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='%(class)ss')
+
+    def get_base_url(self):
+        url = furl.furl(self.url)
+        return '{}://{}'.format(url.scheme, url.host)
 
 
 class RelationTypeManager(models.Manager):

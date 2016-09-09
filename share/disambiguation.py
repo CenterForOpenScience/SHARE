@@ -125,6 +125,7 @@ class PersonDisambiguator(Disambiguator):
     FOR_MODEL = Person
 
     def disambiguate(self):
+        # TODO disambiguate on identifiers (only?)
         return Person.objects.filter(
             suffix=self.attrs.get('suffix', ''),
             given_name=self.attrs.get('given_name', ''),
@@ -150,13 +151,12 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
     # self.model could be a subclass of AbstractCreativeWork
 
     def disambiguate(self):
-        if self.attrs.get('identifiers'):
-            for id in self.attrs.get('identifiers'):
+        if self.attrs.get('workidentifiers'):
+            for id in self.attrs.get('workidentifiers'):
                 try:
-                    identifier = Identifier.objects.select_related('identified_object').get(id=id)
-                    # TODO what if this identifier points to a non-work object
-                    return identifier.identified_object
-                except Identifier.DoesNotExist:
+                    identifier = WorkIdentifier.objects.select_related('creative_work').get(id=id)
+                    return identifier.creative_work
+                except WorkIdentifier.DoesNotExist:
                     # TODO Or should this return None, so we only disambiguate on identifiers?
                     pass
 

@@ -1,5 +1,7 @@
 from django.db import models
 
+import furl
+
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
@@ -17,12 +19,12 @@ class Email(ShareObject):
 
 
 class PersonIdentifier(ShareObject):
-    # https://twitter.com/berniethoughts/
     url = ShareURLField(unique=True)
-    # https://twitter.com/
-    base_url = ShareURLField()
-
     person = ShareForeignKey('Person', related_name='%(class)ss')
+
+    def get_base_url(self):
+        url = furl.furl(self.url)
+        return '{}://{}'.format(url.scheme, url.host)
 
 
 # Actual Person
