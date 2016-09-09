@@ -88,7 +88,7 @@ class GenericDisambiguator(Disambiguator):
                 return None
 
         try:
-            return self.model.objects.get(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)})
+            return self.model.objects.get(**{field.name: self.attrs[field.name] for field in fields})
         except (self.model.DoesNotExist, self.model.MultipleObjectsReturned):
             return None
 
