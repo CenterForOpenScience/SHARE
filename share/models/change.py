@@ -25,7 +25,7 @@ class ChangeSetManager(FuzzyCountManager):
 
     def from_graph(self, graph, normalized_data_id):
         if all(not n.change for n in graph.nodes):
-            logger.info('No changes detected in {!r}, skipping.'.format(graph))
+            logger.debug('No changes detected in {!r}, skipping.'.format(graph))
             return None
 
         cs = ChangeSet(normalized_data_id=normalized_data_id)
@@ -44,7 +44,7 @@ class ChangeManager(FuzzyCountManager):
         # This case is only reached when a synoynm is sent up
         # TODO Fix this in a better way 2016-08-23 @chrisseto
         if not node.change or node.model == apps.get_model('share', 'subject'):
-            logger.info('No changes detected in {!r}, skipping.'.format(node))
+            logger.debug('No changes detected in {!r}, skipping.'.format(node))
             return None
 
         attrs = {
