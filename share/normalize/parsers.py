@@ -1,4 +1,5 @@
 import uuid
+import furl
 from functools import reduce
 
 from django.apps import apps
@@ -70,7 +71,7 @@ class Parser(metaclass=ParserMeta):
                     raise Exception('Values for field {} must be lists. Found {}'.format(field, value))
             else:
                 if not (isinstance(value, dict) and '@id' in value and '@type' in value):
-                    if not (hasattr(field.rel.model, 'valid_natural_key') or field.rel.model.valid_natural_key(value)):
+                    if not (hasattr(field.rel.model, 'valid_natural_key') and field.rel.model.valid_natural_key(value)):
                         raise Exception('Values for field {} must be a dictionary with keys @id and @type or a valid natural key. Found {}'.format(field, value))
         else:
             if isinstance(value, dict):
@@ -89,7 +90,10 @@ class Parser(metaclass=ParserMeta):
             try:
                 field = self.model._meta.get_field(key)
             except FieldDoesNotExist:
-                raise Exception('Tried to parse value {} which does not exist on {}'.format(key, self.model))
+                try:
+                    field = [vf for vf in self.model._meta.virtual_fields if vf.name == key][0]
+                except KeyError:
+                    raise Exception('Tried to parse value {} which does not exist on {}'.format(key, self.model))
 
             value = chain.run(self.context)
 
@@ -134,8 +138,11 @@ class URIIdentifier(Parser):
 class DOIIdentifier(Parser):
     schema = 'Identifier'
     url = RunPython('format_doi_as_url', ctx),
-    base_url = Static(settings.DOI_BASE_URL)
+    base_url = RunPython('base_doi_url')
 
     def format_doi_as_url(self, doi):
         return format_doi_as_url(self, doi)
+
+    def base_doi_url(self, _):
+        return settings.DOI_BASE_URL
 

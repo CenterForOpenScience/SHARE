@@ -59,7 +59,7 @@ class ShareObjectMeta(ModelBase):
         if name != 'ExtraData':
             version_attrs['extra'] = fields.ShareForeignKey('ExtraData', null=True)
         if name != 'Identifier':
-            attrs['identifiers'] = GenericRelation('Identifier', for_concrete_model=False)
+            version_attrs['identifiers'] = GenericRelation('Identifier', for_concrete_model=False)
 
         version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
             **version_attrs,

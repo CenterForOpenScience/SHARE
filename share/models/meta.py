@@ -9,7 +9,7 @@ from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyF
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation')
+__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation', 'RelationType')
 
 # TODO Rename this file
 
@@ -49,8 +49,8 @@ class RelationType(models.Model):
 
 
 class Relation(ShareObject):
-    subject_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)s')
-    object_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)s')
+    subject_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
+    object_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')
     relation_type = models.ForeignKey(RelationType)
 
     class Meta:
