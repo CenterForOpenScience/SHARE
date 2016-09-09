@@ -1,6 +1,14 @@
 [
     {
-        "key": "unknown",
+        "key": "is_parent_to",
+        "uri": ""
+    },
+    {
+        "key": "is_supplemented_by",
+        "uri": ""
+    },
+    {
+        "key": "is_derived_from",
         "uri": ""
     },
     {
