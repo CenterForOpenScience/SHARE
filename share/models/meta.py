@@ -20,7 +20,7 @@ class WorkIdentifier(ShareObject):
     # https://twitter.com/
     base_url = ShareURLField()
 
-    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='identifiers')
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='%(class)ss')
 
 
 class RelationTypeManager(models.Manager):

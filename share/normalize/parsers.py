@@ -90,10 +90,7 @@ class Parser(metaclass=ParserMeta):
             try:
                 field = self.model._meta.get_field(key)
             except FieldDoesNotExist:
-                try:
-                    field = [vf for vf in self.model._meta.virtual_fields if vf.name == key][0]
-                except KeyError:
-                    raise Exception('Tried to parse value {} which does not exist on {}'.format(key, self.model))
+                raise Exception('Tried to parse value {} which does not exist on {}'.format(key, self.model))
 
             value = chain.run(self.context)
 

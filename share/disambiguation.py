@@ -2,18 +2,27 @@ import abc
 
 from django.core.exceptions import ValidationError
 
-from share.models import Tag, Person, Subject, Contributor, Association, Affiliation, PersonEmail, AbstractCreativeWork, Identifier, Relation, RelationType
+from share.models import Tag, Person, Subject, Contributor, Association, Affiliation, PersonEmail, AbstractCreativeWork, WorkIdentifier, PersonIdentifier, Relation, RelationType
 
 
 __all__ = ('disambiguate', )
 
 
 def disambiguate(id, attrs, model):
-    for cls in Disambiguator.__subclasses__():
+    for cls in all_subclasses(Disambiguator):
         if getattr(cls, 'FOR_MODEL', None) == model._meta.concrete_model:
             return cls(id, attrs, model).find()
 
     return GenericDisambiguator(id, attrs, model).find()
+
+
+def all_subclasses(cls, subclasses=None):
+    if subclasses is None:
+        subclasses = set()
+    for subclass in cls.__subclasses__():
+        subclasses.add(subclass)
+        all_subclasses(subclass, subclasses)
+    return subclasses
 
 
 class Disambiguator(metaclass=abc.ABCMeta):
@@ -84,16 +93,20 @@ class GenericDisambiguator(Disambiguator):
             return None
 
 
-class IdentifierDisambiguator(Disambiguator):
-    FOR_MODEL = Identifier
+class WorkIdentifierDisambiguator(Disambiguator):
+    FOR_MODEL = WorkIdentifier
 
     def disambiguate(self):
         if not self.attrs.get('url'):
             return None
         try:
-            return Identifier.objects.get(url=self.attrs['url'])
-        except Identifier.DoesNotExist:
+            return self.model.objects.get(url=self.attrs['url'])
+        except self.model.DoesNotExist:
             return None
+
+
+class PersonIdentifierDisambiguator(WorkIdentifierDisambiguator):
+    FOR_MODEL = PersonIdentifier
 
 
 class TagDisambiguator(Disambiguator):

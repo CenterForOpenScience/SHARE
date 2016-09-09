@@ -3,7 +3,7 @@ from django.db import models
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
-__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Contributor')
+__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Contributor', 'PersonIdentifier')
 
 
 # Person Auxillary classes
@@ -22,7 +22,7 @@ class PersonIdentifier(ShareObject):
     # https://twitter.com/
     base_url = ShareURLField()
 
-    person = ShareForeignKey('Person', related_name='identifiers')
+    person = ShareForeignKey('Person', related_name='%(class)ss')
 
 
 # Actual Person
