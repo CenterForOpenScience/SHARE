@@ -127,7 +127,8 @@ def fetch_abstractcreativework(pks):
                 ) AS subjects ON true
                 LEFT JOIN LATERAL (
                     SELECT json_agg(json_build_object(
-                        'order_cited', contributor.order_cited
+                        'id', person.id
+                        , 'order_cited', contributor.order_cited
                         , 'bibliographic', contributor.bibliographic
                         , 'cited_name', contributor.cited_name
                         , 'given_name', person.given_name
