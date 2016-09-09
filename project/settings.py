@@ -440,14 +440,21 @@ MED_QUEUE = 'med'
 HIGH_QUEUE = 'high'
 
 LOW_PRI_MODULES = {
-    'share.tasks.NormalizerTask',
-}
-
-MED_PRI_MODULES = {
     'share.tasks.HarvesterTask',
 }
 
+# Default priority is implicit
+# DEFAULT_PRI_MODULES = {
+#     'share.tasks.NormalizerTask',
+# }
+
+MED_PRI_MODULES = {
+    'share.tasks.MakeJsonPatches',
+}
+
 HIGH_PRI_MODULES = {
+    'share.tasks.BotTask',
+    'bots.elasticsearch',
 }
 
 CELERY_QUEUES = (
