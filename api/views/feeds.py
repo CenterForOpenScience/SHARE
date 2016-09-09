@@ -86,7 +86,7 @@ class CreativeWorksRSS(Feed):
 
     def item_categories(self, item):
         categories = item.get('subjects', [])
-        categories.extend(item.get('tag'))
+        categories.extend(item.get('tags', []))
         return [sanitize_for_xml(c) for c in categories if c]
 
 
