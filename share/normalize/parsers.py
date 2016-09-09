@@ -66,7 +66,7 @@ class Parser(metaclass=ParserMeta):
 
     def validate(self, field, value):
         if field.is_relation:
-            if field.rel.many_to_many:
+            if field.one_to_many or field.rel.many_to_many:
                 if not isinstance(value, (list, tuple)):
                     raise Exception('Values for field {} must be lists. Found {}'.format(field, value))
             else:
@@ -94,9 +94,10 @@ class Parser(metaclass=ParserMeta):
 
             value = chain.run(self.context)
 
-            if value and field.is_relation and field.rel.many_to_many:
+            if value and field.is_relation and (field.one_to_many or field.rel.many_to_many):
                 for v in value:
-                    ctx.pool[v][field.m2m_field_name()] = self.ref
+                    name = field.field.name if field.one_to_many else field.m2m_field_name()
+                    ctx.pool[v][name] = self.ref
 
             if value is not None:
                 self.validate(field, value)
