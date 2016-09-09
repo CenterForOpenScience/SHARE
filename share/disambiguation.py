@@ -89,7 +89,7 @@ class GenericDisambiguator(Disambiguator):
 
         try:
             return self.model.objects.get(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)})
-        except self.model.DoesNotExist:
+        except (self.model.DoesNotExist, self.model.MultipleObjectsReturned):
             return None
 
 
@@ -151,7 +151,7 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
                     model = ThroughLinks.objects.select_related('creative_work', 'link').get(link=link)
                     if 'issn' not in model.link.type.lower():
                         return model.creative_work
-                except (ThroughLinks.DoesNotExist, ThroughLinks.MultpleObjectsReturned):
+                except (ThroughLinks.DoesNotExist, ThroughLinks.MultipleObjectsReturned):
                     pass
 
         if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
