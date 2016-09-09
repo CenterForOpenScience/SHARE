@@ -147,12 +147,9 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
     def disambiguate(self):
         if self.attrs.get('links'):
             for link in self.attrs.get('links'):
-                try:
-                    model = ThroughLinks.objects.select_related('creative_work', 'link').get(link=link)
-                    if 'issn' not in model.link.type.lower():
-                        return model.creative_work
-                except (ThroughLinks.DoesNotExist, ThroughLinks.MultipleObjectsReturned):
-                    pass
+                models = ThroughLinks.objects.select_related('creative_work', 'link').filter(link=link)[:2].all()
+                if len(models) == 1 and 'issn' not in models[0].link.type.lower():
+                    return models[0].creative_work
 
         if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
             return None
