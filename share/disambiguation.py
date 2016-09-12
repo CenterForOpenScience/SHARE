@@ -158,6 +158,6 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
 
         filter = {k: v for k, v in self.attrs.items() if not isinstance(v, list)}
         if filter:
-            # Limitting the length of title forces postgres to use the partial index
+            # Limiting the length of title forces postgres to use the partial index
             return self.model.objects.filter(**filter).extra(where=('octet_length(title) < 2049', )).first()
         return None
