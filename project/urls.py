@@ -20,10 +20,13 @@ from django.views.generic.base import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
 from revproxy.views import ProxyView
 
+from api.views import APIVersionRedirectView
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^api/', include('api.urls', namespace='api')),
+    url(r'^api/v2/', include('api.urls', namespace='api')),
+    url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^accounts/', include('allauth.urls')),
 
