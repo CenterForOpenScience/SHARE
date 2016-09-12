@@ -151,10 +151,10 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
                 if len(models) == 1 and 'issn' not in models[0].link.type.lower():
                     return models[0].creative_work
 
-        if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
-            return None
-
         self.attrs.pop('description', None)
+
+        if not self.attrs or not self.attrs.get('title') or len(self.attrs['title']) > 2048:
+            return None
 
         # Limitting the length of title forces postgres to use the partial index
         return self.model.objects.filter(**{k: v for k, v in self.attrs.items() if not isinstance(v, list)}).extra(where=('octet_length(title) < 2049', )).first()
