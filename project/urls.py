@@ -27,6 +27,7 @@ urlpatterns = [
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/v2/', include('api.urls', namespace='api')),
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
+    url(r'^api/v1/', include('api.urls_v1', namespace='api_v1')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^accounts/', include('allauth.urls')),
 
