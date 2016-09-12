@@ -2,6 +2,8 @@ from rest_framework import viewsets, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
+from django.views.generic.base import RedirectView
+
 from api.filters import ShareObjectFilterSet
 from share import serializers
 from api import serializers as api_serializers
@@ -183,3 +185,10 @@ class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
         ser = api_serializers.ShareUserSerializer(request.user, token=True)
         return Response(ser.data)
+
+
+class APIVersionRedirectView(RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+
+        return '/api/v2/{}'.format(kwargs['path'])
