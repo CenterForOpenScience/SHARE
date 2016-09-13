@@ -157,19 +157,7 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
                     identifier = WorkIdentifier.objects.select_related('creative_work').get(id=id)
                     return identifier.creative_work
                 except WorkIdentifier.DoesNotExist:
-                    # TODO Or should this return None, so we only disambiguate on identifiers?
                     pass
-
-        # TODO should we disambiguate on anything besides identifiers?
-        if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
-            return None
-
-        self.attrs.pop('description', None)
-
-        filter = {k: v for k, v in self.attrs.items() if not isinstance(v, list)}
-        if filter:
-            # Limiting the length of title forces postgres to use the partial index
-            return self.model.objects.filter(**filter).extra(where=('octet_length(title) < 2049', )).first()
         return None
 
 

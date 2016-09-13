@@ -35,6 +35,7 @@ class NormalizedDataSerializer(serializers.ModelSerializer):
 
 class ChangeSerializer(serializers.ModelSerializer):
     self = serializers.HyperlinkedIdentityField(view_name='api:change-detail')
+    target_type = serializers.StringRelatedField()
 
     class Meta:
         model = models.Change

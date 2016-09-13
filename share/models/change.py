@@ -188,6 +188,7 @@ class Change(models.Model):
         return inst
 
     def _update(self, save=True):
+        # TODO update type for works
         self.target.change = self
         self.target.__dict__.update(self._resolve_change())
         if save:

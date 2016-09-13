@@ -139,6 +139,7 @@ class ChangeNode:
         }, self.model)
 
         if self.__instance:
+            # TODO if self.type is CreativeWork and instance is something else, update all refs accordingly (if this doesn't already happen)
             self.id = self.__instance.pk
             self.type = self.__instance._meta.model_name.lower()
             self.__refs.append((self.id, self.type))
