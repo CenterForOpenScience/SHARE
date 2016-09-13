@@ -1,4 +1,5 @@
 from share.provider import OAIProviderAppConfig
+from .harvester import PMCHarvester
 
 
 class AppConfig(OAIProviderAppConfig):
@@ -7,5 +8,6 @@ class AppConfig(OAIProviderAppConfig):
     title = 'pmc-metadata'
     long_title = 'PubMed Central: PMC Metadata'
     home_page = 'http://www.ncbi.nlm.nih.gov/pmc/'
-    url = 'https://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi?metadataPrefix=pmc'
+    url = 'https://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi'
     time_granularity = False
+    harvester = PMCHarvester
