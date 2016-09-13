@@ -48,7 +48,10 @@ class Contributor(Parser):
 
 
 class CreativeWork(Parser):
-    title = Maybe(ctx.clinical_study, 'official_title')
+    title = OneOf(
+        ctx.clinical_study.official_title,
+        ctx.clinical_study.brief_title
+    )
     description = Maybe(ctx.clinical_study, 'brief_summary')['textblock']
     contributors = Map(
         Delegate(Contributor),

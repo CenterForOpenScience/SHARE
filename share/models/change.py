@@ -165,7 +165,8 @@ class Change(models.Model):
         return self._merge(save=save)
 
     def _create(self, save=True):
-        inst = self.target_type.model_class()(change=self, **self._resolve_change())
+        resolved_change = self._resolve_change()
+        inst = self.target_type.model_class()(change=self, **resolved_change)
         if save:
             try:
                 with transaction.atomic():
@@ -177,7 +178,7 @@ class Change(models.Model):
                 logger.info('Handling unique violation error %r', e)
 
                 self.type = Change.TYPE.update
-                self.target = disambiguate('_:', {k: v['@id'] if isinstance(v, dict) else v for k, v in self.change.items()}, self.target_type.model_class())
+                self.target = disambiguate('_:', resolved_change, self.target_type.model_class())
 
                 logger.info('Updating target to %r and type to update', self.target)
                 self.save()
