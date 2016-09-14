@@ -159,9 +159,9 @@ class Preprint(Parser):
         citation_author_email = ctx['citation_author_email']
 
     def get_contributors(self, link):
-        authors = link['citation_author'] if isinstance(link['citation_author'], list) else [link['citation_author']]
-        institutions = link['citation_author_institution'] if isinstance(link['citation_author_institution'], list) else [link['citation_author_institution']]
-        emails = link['citation_author_email'] if isinstance(link['citation_author_email'], list) else [link['citation_author_email']]
+        authors = link.get('citation_author', []) if isinstance(link.get('citation_author', []), list) else [link['citation_author']]
+        institutions = link.get('citation_author_institution', []) if isinstance(link.get('citation_author_institution', []), list) else [link['citation_author_institution']]
+        emails = link.get('citation_author_email', []) if isinstance(link.get('citation_author_email', []), list) else [link['citation_author_email']]
 
         contribs = []
         for author, email, institution in itertools.zip_longest(authors, emails, institutions):
