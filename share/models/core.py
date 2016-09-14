@@ -57,13 +57,13 @@ class ShareUserManager(BaseUserManager):
 
     def create_robot_user(self, username, robot, long_title='', home_page=''):
         try:
-            ShareUser.objects.get(robot=robot)
-        except ShareUser.DoesNotExist:
+            self.get(robot=robot)
+        except self.model.DoesNotExist:
             pass
         else:
             raise AssertionError('ShareUser for robot {} already exists.'.format(robot))
-        user = ShareUser()
-        user.set_unusable_password()
+        user = self.model()
+        ShareUser.set_unusable_password(user)
         user.username = username
         user.robot = robot
         user.long_title = long_title
@@ -111,6 +111,11 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
             'Designates whether this user should be treated as active. '
             'Unselect this instead of deleting accounts.'
         ),
+    )
+    is_trusted = models.BooleanField(
+        _('trusted'),
+        default=False,
+        help_text=_('Designates whether the user can push directly into the db.'),
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     robot = models.TextField(validators=[validators.MaxLengthValidator(40)], blank=True)

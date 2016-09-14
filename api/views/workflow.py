@@ -1,8 +1,13 @@
+import jsonschema
+
 from django.apps import apps
+from django.db import transaction
 
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
 
+from api import schemas
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
@@ -10,8 +15,11 @@ from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, Chang
 from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
 from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
+from share.harvest.harvester import Harvester
+from share.normalize.v1_push import V1Normalizer
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView', 'ModelSchemaView')
+
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView', 'ModelSchemaView', 'V1DataView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -234,3 +242,109 @@ class ModelSchemaView(views.APIView):
         model = apps.get_model('share', kwargs['model'])
         schema = JSONLDValidator().validator_for(model).schema
         return Response(schema)
+
+
+class V1DataView(views.APIView):
+    """View allowing sources to post SHARE v1 formatted metadata directly to the SHARE Dataset.
+
+    ## Submit Data in SHARE v1 Format
+    Please note that this endpoint is to ease the transition from SHARE v1 to SHARE v2 and sources
+    are encouraged to transition to submitting metadata in the SHARE v2 format.
+
+    Submitting data through the normalizeddata endpoint is strongly preferred as support for
+    the v1 format will not be continued.
+
+    v1 Format
+
+        For the full format please see https://github.com/erinspace/shareregistration/blob/master/push_endpoint/schemas.py
+
+        Required Fields: [
+            "title",
+            "contributors",
+            "uris",
+            "providerUpdatedDateTime"
+        ],
+
+    Create
+
+        Method:        POST
+        Body (JSON): {
+                        {
+                            "publisher":{
+                                "name": <publisher name>,
+                                "uri": <publisher uri>
+                            },
+                            "description": <description>,
+                            "contributors":[
+                                {
+                                    "name":<contributor name>,
+                                    "email": <email>,
+                                    "sameAs": <uri>
+                                },
+                                {
+                                    "name":<contributor name>
+                                }
+                            ],
+                            "title": <title>,
+                            "tags":[
+                                <tag>,
+                                <tag>
+                            ],
+                            "languages":[
+                                <language>
+                            ],
+                            "providerUpdatedDateTime": <time submitted>,
+                            "uris": {
+                                "canonicalUri": <uri>,
+                                "providerUris":[
+                                    <uri>
+                                ]
+                            }
+                        }
+
+                    }
+        Success:       200 OK
+    """
+    permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
+    serializer_class = NormalizedDataSerializer
+
+    def post(self, request, *args, **kwargs):
+
+        try:
+            jsonschema.validate(request.data, schemas.v1_push_schema)
+        except (jsonschema.exceptions.ValidationError) as error:
+            raise ParseError(detail=error.message)
+
+        try:
+            prelim_data = request.data
+        except ParseError as error:
+            return Response(
+                'Invalid JSON - {0}'.format(error.message),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        app_label = request.user.username
+
+        # store raw data, assuming you can only submit one at a time
+        raw = None
+        with transaction.atomic():
+            try:
+                doc_id = prelim_data['uris']['canonicalUri']
+            except KeyError:
+                return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+
+            raw = RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), request.user, app_label)
+
+        # normalize data
+        normalized_data = V1Normalizer({}).normalize(raw.data)
+        data = {}
+        data['source'] = request.user.id
+        data['normalized_data'] = normalized_data
+        serializer = NormalizedDataSerializer(data=data)
+
+        if serializer.is_valid():
+            nm_instance = serializer.save()
+            async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
+            return Response({'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
