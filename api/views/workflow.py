@@ -1,3 +1,5 @@
+import jsonschema
+
 from django.apps import apps
 from django.db import transaction
 
@@ -5,7 +7,7 @@ from rest_framework import viewsets, views, status
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 
-from api import parsers
+from api import schemas
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
@@ -305,9 +307,13 @@ class V1DataView(views.APIView):
     """
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
     serializer_class = NormalizedDataSerializer
-    parser_classes = (parsers.V1SchemaParser,)
 
     def post(self, request, *args, **kwargs):
+
+        try:
+            jsonschema.validate(request.data, schemas.v1_push_schema)
+        except (jsonschema.exceptions.ValidationError) as error:
+            raise ParseError(detail=error.message)
 
         try:
             prelim_data = request.data
