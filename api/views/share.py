@@ -2,6 +2,7 @@ from rest_framework import viewsets, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
+from django import http
 from django.views.generic.base import RedirectView
 
 from api.filters import ShareObjectFilterSet
@@ -187,8 +188,23 @@ class ShareUserView(views.APIView):
         return Response(ser.data)
 
 
+class HttpSmartResponseRedirect(http.HttpResponseRedirect):
+    status_code = 307
+
+
+class HttpSmartResponsePermanentRedirect(http.HttpResponsePermanentRedirect):
+    status_code = 308
+
+
 class APIVersionRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
-
         return '/api/v2/{}'.format(kwargs['path'])
+
+    def get(self, request, *args, **kwargs):
+        url = self.get_redirect_url(*args, **kwargs)
+        if url:
+            if self.permanent:
+                return HttpSmartResponsePermanentRedirect(url)
+            return HttpSmartResponseRedirect(url)
+        return http.HttpResponseGone()
