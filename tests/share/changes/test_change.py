@@ -199,18 +199,19 @@ class TestChangeSet:
             }, {
                 '@id': '_:def',
                 '@type': 'workidentifier',
-                'creative_work': {'@id': '_789', '@type': 'preprint'},
+                'creative_work': {'@id': '_:789', '@type': 'preprint'},
                 'identifier': {'@id': '_:abc', '@type': 'identifier'}
             }, {
                 '@id': '_:789',
                 '@type': 'preprint',
                 'title': 'All About Cats',
+                'identifiers': [{'@id': '_:def', '@type': 'workidentifier'}]
             }]
         })
 
         change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
 
-        preprint, _ = change_set.accept()
+        preprint = [o for o in change_set.accept() if isinstance(o, Preprint)][0]
 
         assert preprint.is_deleted is False
 
@@ -222,12 +223,13 @@ class TestChangeSet:
             }, {
                 '@id': '_:def',
                 '@type': 'workidentifier',
-                'creative_work': {'@id': '_789', '@type': 'preprint'},
+                'creative_work': {'@id': '_:789', '@type': 'preprint'},
                 'identifier': {'@id': '_:abc', '@type': 'identifier'}
             }, {
                 '@id': '_:789',
                 'is_deleted': True,
                 '@type': 'preprint',
+                'identifiers': [{'@id': '_:def', '@type': 'workidentifier'}]
             }]
         }), normalized_data_id).accept()
 
@@ -346,7 +348,7 @@ class TestChangeSet:
         assert e.value.message == 'Invalid subject: Felines'
 
     @pytest.mark.django_db
-    def test_update_work_type(self, change_ids, normalized_data_id):
+    def test_change_work_type(self, change_ids, normalized_data_id):
         '''
         A CreativeWork with an Identifier exists. Accept a new changeset
         with a Preprint with the same Identifier. The preprint should
@@ -361,6 +363,7 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'creativework',
                 'title': title,
+                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:foo',
                 '@type': 'workidentifier',
@@ -373,7 +376,7 @@ class TestChangeSet:
             }]
         }), normalized_data_id)
 
-        work, _ = original_change_set.accept()
+        work = [o for o in original_change_set.accept() if isinstance(o, CreativeWork)][0]
         id = work.id
 
         assert CreativeWork.objects.filter(id=id).count() == 1
@@ -382,7 +385,8 @@ class TestChangeSet:
         graph = ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
-                '@type': 'preprint'
+                '@type': 'preprint',
+                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:foo',
                 '@type': 'workidentifier',
@@ -418,10 +422,11 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'preprint',
                 'title': title,
+                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:foo',
                 '@type': 'workidentifier',
-                'creative_work': {'@id': '_:1234', '@type': 'creativework'},
+                'creative_work': {'@id': '_:1234', '@type': 'preprint'},
                 'identifier': {'@id': '_:2345', '@type': 'identifier'}
             }, {
                 '@id': '_:2345',
@@ -430,7 +435,7 @@ class TestChangeSet:
             }]
         }), normalized_data_id)
 
-        work, _ = original_change_set.accept()
+        work = [o for o in original_change_set.accept() if isinstance(o, Preprint)][0]
         id = work.id
 
         assert Preprint.objects.filter(id=id).count() == 1
@@ -444,6 +449,7 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'creativework',
                 'title': new_title,
+                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:foo',
                 '@type': 'workidentifier',
@@ -459,6 +465,6 @@ class TestChangeSet:
         change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
         change_set.accept()
 
-        assert Preprint.objects.filter(id=id).count() == 0
-        assert CreativeWork.objects.filter(title=new_title).count() == 1
+        assert Preprint.objects.filter(title=new_title).count() == 1
+        assert CreativeWork.objects.filter(title=new_title).count() == 0
         assert Preprint.objects.get(id=id).title == new_title

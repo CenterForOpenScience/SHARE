@@ -150,9 +150,9 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
         if self.attrs.get('identifiers'):
             for id in self.attrs.get('identifiers'):
                 try:
-                    identifier = Identifier.objects.select_related('creative_work').get(id=id)
-                    return identifier.creative_work
-                except WorkIdentifier.DoesNotExist:
+                    identifier = Identifier.objects.get(id=id)
+                    return identifier.abstractcreativework_set.first()
+                except Identifier.DoesNotExist:
                     pass
         return None
 

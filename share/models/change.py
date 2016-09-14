@@ -188,8 +188,13 @@ class Change(models.Model):
         return inst
 
     def _update(self, save=True):
-        # TODO update type for works
         self.target.change = self
+
+        new_type = self.change.pop('@type', None)
+        if new_type:
+            # TODO better
+            self.target.type = 'share.' + new_type
+
         self.target.__dict__.update(self._resolve_change())
         if save:
             self.target.save()

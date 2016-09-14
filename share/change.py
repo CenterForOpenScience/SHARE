@@ -79,6 +79,9 @@ class ChangeNode:
             if not ret['extra']:
                 del ret['extra']
 
+        if self.__new_type not in (self.type, 'creativework'):
+            ret['@type'] = self.__new_type
+
         return ret
 
     def __init__(self, node, disambiguate=True, extra_namespace=None):
@@ -90,6 +93,7 @@ class ChangeNode:
 
         self.id = str(node.pop('@id'))
         self.type = node.pop('@type').lower()
+        self.__new_type = self.type
         self.extra = node.pop('extra', {})
 
         self.__refs = [(self.id, self.type)]
@@ -142,7 +146,6 @@ class ChangeNode:
         }, self.model)
 
         if self.__instance:
-            # TODO if self.type is CreativeWork and instance is something else, update all refs accordingly (if this doesn't already happen)
             self.id = self.__instance.pk
             self.type = self.__instance._meta.model_name.lower()
             self.__refs.append((self.id, self.type))

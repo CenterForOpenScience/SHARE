@@ -5,8 +5,12 @@ from share.normalize.parsers import Parser
 from share.normalize import tools
 
 
-class PersonIdentifier(Parser):
+class Identifier(Parser):
     url = ctx
+
+
+class PersonIdentifier(Parser):
+    identifier = tools.Delegate(Identifier, ctx)
 
 
 class Person(Parser):
@@ -27,7 +31,7 @@ class Person(Parser):
         ctx.embeds.users.errors[0].meta.suffix,
     )
 
-    personidentifiers = tools.Map(tools.Delegate(PersonIdentifier), ctx.embeds.users.data.links.html)
+    identifiers = tools.Map(tools.Delegate(PersonIdentifier), ctx.embeds.users.data.links.html)
 
     class Extra:
         nodes = tools.Try(ctx.embeds.users.data.relationships.nodes.links.related.href)
@@ -71,12 +75,12 @@ class Association(Parser):
 
 
 class WorkIdentifier(Parser):
-    url = ctx
+    identifier = tools.Delegate(Identifier, ctx)
 
 
 class RelatedProject(Parser):
     schema = 'Project'
-    workidentifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx)
+    identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx)
 
 
 class ParentRelation(Parser):
@@ -96,7 +100,7 @@ class Project(Parser):
     date_updated = tools.ParseDate(ctx.attributes.date_modified)
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
     rights = tools.Maybe(ctx, 'attributes.node_license')
-    workidentifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx.links.html)
+    identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx.links.html)
     incoming_relations = tools.Map(
         tools.Delegate(ParentRelation),
         tools.RunPython('api_url_to_guid', tools.Try(ctx.relationships.parent.links.related.href))
