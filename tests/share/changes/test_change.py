@@ -10,7 +10,6 @@ from share.models import Preprint
 from share.models import Contributor
 from share.models import ChangeSet
 from share.models import Subject
-from share.models import WorkIdentifier
 from share.change import ChangeGraph
 
 
@@ -195,14 +194,17 @@ class TestChangeSet:
         graph = ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:abc',
-                '@type': 'workidentifier',
+                '@type': 'identifier',
                 'url': 'https://share.osf.io/faq',
-                'creative_work': {'@id': '_:789', '@type': 'preprint'},
+            }, {
+                '@id': '_:def',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_789', '@type': 'preprint'},
+                'identifier': {'@id': '_:abc', '@type': 'identifier'}
             }, {
                 '@id': '_:789',
                 '@type': 'preprint',
                 'title': 'All About Cats',
-                'workidentifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
             }]
         })
 
@@ -215,14 +217,17 @@ class TestChangeSet:
         ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:abc',
-                '@type': 'workidentifier',
+                '@type': 'identifier',
                 'url': 'https://share.osf.io/faq',
-                'creative_work': {'@id': '_:789', '@type': 'preprint'},
+            }, {
+                '@id': '_:def',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_789', '@type': 'preprint'},
+                'identifier': {'@id': '_:abc', '@type': 'identifier'}
             }, {
                 '@id': '_:789',
                 'is_deleted': True,
                 '@type': 'preprint',
-                'workidentifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
             }]
         }), normalized_data_id).accept()
 
@@ -343,8 +348,8 @@ class TestChangeSet:
     @pytest.mark.django_db
     def test_update_work_type(self, change_ids, normalized_data_id):
         '''
-        A CreativeWork with a WorkIdentifier exists. Accept a new changeset
-        with a Preprint with the same WorkIdentifier. The preprint should
+        A CreativeWork with an Identifier exists. Accept a new changeset
+        with a Preprint with the same Identifier. The preprint should
         disambiguate to the existing work, and the work's type should be
         updated to Preprint
         '''
@@ -356,18 +361,15 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'creativework',
                 'title': title,
-                'workidentifiers': [{
-                    '@id': '_:2345',
-                    '@type': 'workidentifier'
-                }]
+            }, {
+                '@id': '_:foo',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_:1234', '@type': 'creativework'},
+                'identifier': {'@id': '_:2345', '@type': 'identifier'}
             }, {
                 '@id': '_:2345',
-                '@type': 'workidentifier',
-                'url': url,
-                'creative_work': {
-                    '@id': '_:1234',
-                    '@type': 'creativework'
-                }
+                '@type': 'identifier',
+                'url': url
             }]
         }), normalized_data_id)
 
@@ -380,19 +382,16 @@ class TestChangeSet:
         graph = ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
-                '@type': 'preprint',
-                'workidentifiers': [{
-                    '@id': '_:2345',
-                    '@type': 'workidentifier'
-                }]
+                '@type': 'preprint'
+            }, {
+                '@id': '_:foo',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_:1234', '@type': 'preprint'},
+                'identifier': {'@id': '_:2345', '@type': 'identifier'}
             }, {
                 '@id': '_:2345',
-                '@type': 'workidentifier',
-                'url': url,
-                'creative_work': {
-                    '@id': '_:1234',
-                    '@type': 'preprint'
-                }
+                '@type': 'identifier',
+                'url': url
             }]
         }, normalized_data_id)
 
@@ -406,8 +405,8 @@ class TestChangeSet:
     @pytest.mark.django_db
     def test_generic_creative_work(self, change_ids, normalized_data_id):
         '''
-        A Preprint with a WorkIdentifier exists. Accept a changeset with a
-        CreativeWork with the same WorkIdentifier and a different title.
+        A Preprint with an Identifier exists. Accept a changeset with a
+        CreativeWork with the same Identifier and a different title.
         The Preprint's title should be updated to the new value, but its type
         should remain the same.
         '''
@@ -419,18 +418,15 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'preprint',
                 'title': title,
-                'workidentifiers': [{
-                    '@id': '_:2345',
-                    '@type': 'workidentifier'
-                }]
+            }, {
+                '@id': '_:foo',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_:1234', '@type': 'creativework'},
+                'identifier': {'@id': '_:2345', '@type': 'identifier'}
             }, {
                 '@id': '_:2345',
-                '@type': 'workidentifier',
-                'url': url,
-                'creative_work': {
-                    '@id': '_:1234',
-                    '@type': 'preprint'
-                }
+                '@type': 'identifier',
+                'url': url
             }]
         }), normalized_data_id)
 
@@ -448,18 +444,15 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'creativework',
                 'title': new_title,
-                'workidentifiers': [{
-                    '@id': '_:2345',
-                    '@type': 'workidentifier'
-                }]
+            }, {
+                '@id': '_:foo',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_:1234', '@type': 'creativework'},
+                'identifier': {'@id': '_:2345', '@type': 'identifier'}
             }, {
                 '@id': '_:2345',
-                '@type': 'workidentifier',
-                'url': url,
-                'creative_work': {
-                    '@id': '_:1234',
-                    '@type': 'creativework'
-                }
+                '@type': 'identifier',
+                'url': url
             }]
         })
 

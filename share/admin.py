@@ -17,8 +17,8 @@ from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.entities import Entity
-from share.models.meta import Venue, Award, Tag, Subject, WorkIdentifier, Relation
-from share.models.people import Contributor, Email, Person, PersonEmail, Affiliation, PersonIdentifier
+from share.models.meta import Venue, Award, Tag, Subject, Relation, Identifier
+from share.models.people import Contributor, Email, Person, PersonEmail, Affiliation
 from share.models.registration import ProviderRegistration
 from share.tasks import ApplyChangeSets
 
@@ -191,13 +191,12 @@ admin.site.register(AccessToken, AccessTokenAdmin)
 admin.site.register(Affiliation)
 admin.site.register(Person, PersonAdmin)
 admin.site.register(PersonEmail)
-admin.site.register(PersonIdentifier)
+admin.site.register(Identifier)
 admin.site.register(Relation)
 admin.site.register(Venue)
 admin.site.register(Award)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Subject)
-admin.site.register(WorkIdentifier)
 admin.site.register(ExtraData)
 admin.site.register(Contributor, ContributorAdmin)
 admin.site.register(Email)

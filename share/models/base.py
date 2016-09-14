@@ -66,6 +66,8 @@ class ShareObjectMeta(ModelBase):
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
         })
 
+        if 'priority' not in attrs:
+            attrs['priority'] = 0
         if name != 'ExtraData':
             attrs['extra'] = fields.ShareOneToOneField('ExtraData', null=True)
 

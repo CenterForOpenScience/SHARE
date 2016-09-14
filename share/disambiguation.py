@@ -2,7 +2,7 @@ import abc
 
 from django.core.exceptions import ValidationError
 
-from share.models import Tag, Person, Subject, Contributor, Association, Affiliation, PersonEmail, AbstractCreativeWork, WorkIdentifier, PersonIdentifier, Relation, RelationType
+from share.models import Tag, Person, Subject, Contributor, Association, Affiliation, PersonEmail, AbstractCreativeWork, Identifier, Relation, RelationType
 
 
 __all__ = ('disambiguate', )
@@ -93,8 +93,8 @@ class GenericDisambiguator(Disambiguator):
             return None
 
 
-class WorkIdentifierDisambiguator(Disambiguator):
-    FOR_MODEL = WorkIdentifier
+class IdentifierDisambiguator(Disambiguator):
+    FOR_MODEL = Identifier
 
     def disambiguate(self):
         if not self.attrs.get('url'):
@@ -103,10 +103,6 @@ class WorkIdentifierDisambiguator(Disambiguator):
             return self.model.objects.get(url=self.attrs['url'])
         except self.model.DoesNotExist:
             return None
-
-
-class PersonIdentifierDisambiguator(WorkIdentifierDisambiguator):
-    FOR_MODEL = PersonIdentifier
 
 
 class TagDisambiguator(Disambiguator):
@@ -151,10 +147,10 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
     # self.model could be a subclass of AbstractCreativeWork
 
     def disambiguate(self):
-        if self.attrs.get('workidentifiers'):
-            for id in self.attrs.get('workidentifiers'):
+        if self.attrs.get('identifiers'):
+            for id in self.attrs.get('identifiers'):
                 try:
-                    identifier = WorkIdentifier.objects.select_related('creative_work').get(id=id)
+                    identifier = Identifier.objects.select_related('creative_work').get(id=id)
                     return identifier.creative_work
                 except WorkIdentifier.DoesNotExist:
                     pass

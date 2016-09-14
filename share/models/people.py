@@ -1,11 +1,11 @@
 from django.db import models
 
-import furl
+from furl import furl
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
-__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Contributor', 'PersonIdentifier')
+__all__ = ('Person', 'Email', 'PersonEmail', 'Affiliation', 'Contributor')
 
 
 # Person Auxillary classes
@@ -18,15 +18,6 @@ class Email(ShareObject):
         return self.email
 
 
-class PersonIdentifier(ShareObject):
-    url = ShareURLField(unique=True)
-    person = ShareForeignKey('Person', related_name='%(class)ss')
-
-    def get_base_url(self):
-        url = furl.furl(self.url)
-        return '{}://{}'.format(url.scheme, url.host)
-
-
 # Actual Person
 
 class Person(ShareObject):
@@ -34,6 +25,7 @@ class Person(ShareObject):
     given_name = models.TextField(blank=True, db_index=True)  # first
     additional_name = models.TextField(blank=True, db_index=True)  # can be used for middle
     suffix = models.TextField(blank=True, db_index=True)
+    identifiers = ShareManyToManyField('Identifier', through='PersonIdentifier')
 
     emails = ShareManyToManyField(Email, through='PersonEmail')
     affiliations = ShareManyToManyField('Entity', through='Affiliation')
@@ -60,6 +52,14 @@ class Person(ShareObject):
 
 
 # Through Tables for Person
+
+class PersonIdentifier(ShareObject):
+    person = ShareForeignKey(Person)
+    identifier = ShareForeignKey('Identifier')
+
+    class Meta:
+        unique_together = ('person', 'identifier')
+
 
 class PersonEmail(ShareObject):
     email = ShareForeignKey(Email)

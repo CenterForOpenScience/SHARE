@@ -172,7 +172,6 @@ class ChangeGraph:
 
         if parse:
             self.__nodes = self.__sorter.sorted()
-            import pdb; pdb.set_trace()
 
         # TODO This could probably be more efficiant
         if disambiguate:

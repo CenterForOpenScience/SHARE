@@ -8,18 +8,21 @@ from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'WorkIdentifier', 'Relation', 'RelationType')
+__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation', 'RelationType')
 
 # TODO Rename this file
 
+class Identifier(ShareObject):
+    # Disambiguate identifiers before other nodes, so works and people can be
+    # disambiguated based on their identifiers
+    priority = 1
 
-class WorkIdentifier(ShareObject):
-    url = ShareURLField(unique=True)
-    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='%(class)ss')
+    # https://twitter.com/berniethoughts/
+    url = ShareURLField()
 
+    # https://twitter.com/
     def get_base_url(self):
-        url = furl.furl(self.url)
-        return '{}://{}'.format(url.scheme, url.host)
+        return furl(self.url).origin
 
 
 class RelationTypeManager(models.Manager):
@@ -86,6 +89,8 @@ class SubjectManager(models.Manager):
 
 
 class Subject(models.Model):
+    priority = 0
+
     lineages = JSONField(editable=False)
     parents = models.ManyToManyField('self')
     name = models.TextField(unique=True, db_index=True)
@@ -142,3 +147,11 @@ class ThroughSubjects(ShareObject):
 
     class Meta:
         unique_together = ('subject', 'creative_work')
+
+
+class WorkIdentifier(ShareObject):
+    creative_work = ShareForeignKey('AbstractCreativeWork')
+    identifier = ShareForeignKey('Identifier')
+
+    class Meta:
+        unique_together = ('creative_work', 'identifier')

@@ -106,16 +106,16 @@ class PersonEmailSerializer(BaseShareSerializer):
         model = models.PersonEmail
 
 
-class PersonIdentifierSerializer(BaseShareSerializer):
+class IdentifierSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.PersonIdentifier
+        model = models.Identifier
 
 
 class PersonSerializer(BaseShareSerializer):
     # no emails on purpose
-    person_identifiers = PersonIdentifierSerializer(sparse=True, many=True)
+    identifiers = IdentifierSerializer(sparse=True, many=True)
     affiliations = OrganizationSerializer(sparse=True, many=True)
     extra = ExtraDataSerializer()
 
@@ -175,13 +175,6 @@ class SubjectSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'lineages')
 
 
-class WorkIdentifierSerializer(BaseShareSerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(BaseShareSerializer.Meta):
-        model = models.WorkIdentifier
-
-
 class AbstractCreativeWorkSerializer(BaseShareSerializer):
     tags = TagSerializer(many=True)
     contributors = ContributorSerializer(source='contributor_set', many=True)
@@ -191,7 +184,7 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     funders = FunderSerializer(sparse=True, many=True)
     venues = VenueSerializer(sparse=True, many=True)
     awards = AwardSerializer(sparse=True, many=True)
-    work_identifiers = WorkIdentifierSerializer(many=True)
+    identifiers = IdentifierSerializer(many=True)
     relations = RelationSerializer(many=True)
     subjects = SubjectSerializer(many=True)
     extra = ExtraDataSerializer()
