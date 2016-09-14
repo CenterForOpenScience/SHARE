@@ -4,11 +4,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
 from share.models import Change
+from share.models import CreativeWork
 from share.models import Person
 from share.models import Preprint
 from share.models import Contributor
 from share.models import ChangeSet
 from share.models import Subject
+from share.models import WorkIdentifier
 from share.change import ChangeGraph
 
 
@@ -193,43 +195,34 @@ class TestChangeSet:
         graph = ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:abc',
-                '@type': 'link',
+                '@type': 'workidentifier',
                 'url': 'https://share.osf.io/faq',
-                'type': 'provider',
-            }, {
-                '@id': '_:456',
-                '@type': 'throughlinks',
-                'link': {'@id': '_:abc', '@type': 'link'},
                 'creative_work': {'@id': '_:789', '@type': 'preprint'},
             }, {
                 '@id': '_:789',
                 '@type': 'preprint',
                 'title': 'All About Cats',
+                'workidentifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
             }]
         })
 
         change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
 
-        link, preprint, _ = change_set.accept()
+        preprint, _ = change_set.accept()
 
         assert preprint.is_deleted is False
 
         ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:abc',
-                '@type': 'link',
-                'type': 'provider',
+                '@type': 'workidentifier',
                 'url': 'https://share.osf.io/faq',
-            }, {
-                '@id': '_:456',
-                '@type': 'throughlinks',
-                'link': {'@id': '_:abc', '@type': 'link'},
                 'creative_work': {'@id': '_:789', '@type': 'preprint'},
             }, {
                 '@id': '_:789',
                 'is_deleted': True,
                 '@type': 'preprint',
-                'links': [{'@id': '_:456', '@type': 'throughlinks'}]
+                'workidentifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
             }]
         }), normalized_data_id).accept()
 
@@ -326,7 +319,7 @@ class TestChangeSet:
         assert Preprint.objects.filter(subjects__name='Felines').first().title == 'All About Cats'
 
     @pytest.mark.django_db
-    def test_invalid_subject(self, normalized_data_id):
+    def test_invalid_subject(self):
         with pytest.raises(ValidationError) as e:
             ChangeGraph.from_jsonld({
                 '@graph': [{
@@ -346,3 +339,133 @@ class TestChangeSet:
             })
 
         assert e.value.message == 'Invalid subject: Felines'
+
+    @pytest.mark.django_db
+    def test_update_work_type(self, change_ids, normalized_data_id):
+        '''
+        A CreativeWork with a WorkIdentifier exists. Accept a new changeset
+        with a Preprint with the same WorkIdentifier. The preprint should
+        disambiguate to the existing work, and the work's type should be
+        updated to Preprint
+        '''
+        title = 'Ambiguous Earthquakes'
+        url = 'https://osf.io/special-snowflake'
+
+        original_change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'creativework',
+                'title': title,
+                'workidentifiers': [{
+                    '@id': '_:2345',
+                    '@type': 'workidentifier'
+                }]
+            }, {
+                '@id': '_:2345',
+                '@type': 'workidentifier',
+                'url': url,
+                'creative_work': {
+                    '@id': '_:1234',
+                    '@type': 'creativework'
+                }
+            }]
+        }), normalized_data_id)
+
+        work, _ = original_change_set.accept()
+        id = work.id
+
+        assert CreativeWork.objects.filter(id=id).count() == 1
+        assert Preprint.objects.filter(id=id).count() == 0
+
+        graph = ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'preprint',
+                'workidentifiers': [{
+                    '@id': '_:2345',
+                    '@type': 'workidentifier'
+                }]
+            }, {
+                '@id': '_:2345',
+                '@type': 'workidentifier',
+                'url': url,
+                'creative_work': {
+                    '@id': '_:1234',
+                    '@type': 'preprint'
+                }
+            }]
+        }, normalized_data_id)
+
+        change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
+        change_set.accept()
+
+        assert CreativeWork.objects.filter(id=id).count() == 0
+        assert Preprint.objects.filter(id=id).count() == 1
+        assert Preprint.objects.get(id=id).title == title
+
+    @pytest.mark.django_db
+    def test_generic_creative_work(self, change_ids, normalized_data_id):
+        '''
+        A Preprint with a WorkIdentifier exists. Accept a changeset with a
+        CreativeWork with the same WorkIdentifier and a different title.
+        The Preprint's title should be updated to the new value, but its type
+        should remain the same.
+        '''
+        title = 'Ambiguous Earthquakes'
+        url = 'https://osf.io/special-snowflake'
+
+        original_change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'preprint',
+                'title': title,
+                'workidentifiers': [{
+                    '@id': '_:2345',
+                    '@type': 'workidentifier'
+                }]
+            }, {
+                '@id': '_:2345',
+                '@type': 'workidentifier',
+                'url': url,
+                'creative_work': {
+                    '@id': '_:1234',
+                    '@type': 'preprint'
+                }
+            }]
+        }), normalized_data_id)
+
+        work, _ = original_change_set.accept()
+        id = work.id
+
+        assert Preprint.objects.filter(id=id).count() == 1
+        assert CreativeWork.objects.filter(id=id).count() == 0
+        assert Preprint.objects.get(id=id).title == title
+
+        new_title = 'Ambidextrous Earthquakes'
+
+        graph = ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'creativework',
+                'title': new_title,
+                'workidentifiers': [{
+                    '@id': '_:2345',
+                    '@type': 'workidentifier'
+                }]
+            }, {
+                '@id': '_:2345',
+                '@type': 'workidentifier',
+                'url': url,
+                'creative_work': {
+                    '@id': '_:1234',
+                    '@type': 'creativework'
+                }
+            }]
+        })
+
+        change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
+        change_set.accept()
+
+        assert Preprint.objects.filter(id=id).count() == 0
+        assert CreativeWork.objects.filter(title=new_title).count() == 1
+        assert Preprint.objects.get(id=id).title == new_title

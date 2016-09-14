@@ -108,12 +108,15 @@ class ChangeNode:
         if disambiguate:
             self._disambiguate()
 
-    def resolve_relations(self, mapper):
+    def resolve_through_relations(self, mapper):
         for key, relations in self.__reverse_relations.items():
-            resolved = [
-                next(x for x in mapper[r['@id'], r['@type'].lower()].related if x['@id'] != self.id)
-                for r in relations
-            ]
+            resolved = []
+            for relation in relations:
+                node = mapper[relation['@id'], relation['@type'].lower()]
+                for r in node.related:
+                    if r['@id'] != self.id:
+                        resolved.append(r)
+                        break
             self.reverse_relations[key] = resolved
             self.related += tuple(resolved)
 
@@ -165,10 +168,11 @@ class ChangeGraph:
         self.__sorter = NodeSorter(self)
 
         for node in self.__nodes:
-            node.resolve_relations(self.__map)
+            node.resolve_through_relations(self.__map)
 
         if parse:
             self.__nodes = self.__sorter.sorted()
+            import pdb; pdb.set_trace()
 
         # TODO This could probably be more efficiant
         if disambiguate:
@@ -194,7 +198,11 @@ class NodeSorter:
         self.__graph = graph
         self.__visted = set()
         self.__visiting = set()
-        self.__nodes = list(graph.nodes)
+        self.__nodes = sorted(
+            graph.nodes,
+            key=lambda n: n.model.priority,
+            reverse=True
+        )
 
     def sorted(self):
         if not self.__nodes:
