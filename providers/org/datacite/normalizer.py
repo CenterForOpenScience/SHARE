@@ -187,10 +187,10 @@ class Creator(Parser):
 
 
 class Funder(Parser):
+    name = tools.Try(ctx.contributorName)
     community_identifier = tools.Join(tools.Concat(tools.Try(ctx.nameIdentifier['@schemeURI']), tools.Try(ctx.nameIdentifier['#text'])), joiner='/')
 
     class Extra:
-        name = tools.Try(ctx.contributorName)
         name_identifier_scheme = tools.Try(ctx.nameIdentifier['@nameIdentifierScheme'])
         name_identifier_scheme_uri = tools.Try(ctx.nameIdentifier['@schemeURI'])
 

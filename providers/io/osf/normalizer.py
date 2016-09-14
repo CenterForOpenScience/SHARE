@@ -13,26 +13,46 @@ class ThroughIdentifiers(Parser):
 
 
 class Person(Parser):
-    given_name = ctx.embeds.users.data.attributes.given_name
-    family_name = ctx.embeds.users.data.attributes.family_name
-    additional_name = ctx.embeds.users.data.attributes.middle_names
-    suffix = ctx.embeds.users.data.attributes.suffix
-    url = ctx.embeds.users.data.links.html
-    identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), ctx.embeds.users.data.links.html)
+    given_name = tools.OneOf(
+        ctx.embeds.users.data.attributes.given_name,
+        ctx.embeds.users.errors[0].meta.given_name,
+    )
+    family_name = tools.OneOf(
+        ctx.embeds.users.data.attributes.family_name,
+        ctx.embeds.users.errors[0].meta.family_name,
+    )
+    additional_name = tools.OneOf(
+        ctx.embeds.users.data.attributes.middle_names,
+        ctx.embeds.users.errors[0].meta.middle_names,
+    )
+    suffix = tools.OneOf(
+        ctx.embeds.users.data.attributes.suffix,
+        ctx.embeds.users.errors[0].meta.suffix,
+    )
+
+    identifiers = tools.Map(
+        tools.Delegate(ThroughIdentifiers),
+        tools.Try(ctx.embeds.users.data.links.html),
+        tools.Try(ctx.embeds.users.data.links.profile_image),
+        tools.Try(ctx.embeds.users.errors[0].meta.profile_image)
+    )
 
     class Extra:
-        nodes = ctx.embeds.users.data.relationships.nodes.links.related.href
-        locale = ctx.embeds.users.data.attributes.locale
-        date_registered = ctx.embeds.users.data.attributes.date_registered
-        active = ctx.embeds.users.data.attributes.active
-        timezone = ctx.embeds.users.data.attributes.timezone
-        profile_image = ctx.embeds.users.data.links.profile_image
+        nodes = tools.Try(ctx.embeds.users.data.relationships.nodes.links.related.href)
+        locale = tools.Try(ctx.embeds.users.data.attributes.locale)
+        date_registered = tools.Try(ctx.embeds.users.data.attributes.date_registered)
+        active = tools.Try(ctx.embeds.users.data.attributes.active)
+        timezone = tools.Try(ctx.embeds.users.data.attributes.timezone)
+        profile_image = tools.Try(ctx.embeds.users.data.links.profile_image)
 
 
 class Contributor(Parser):
     person = tools.Delegate(Person, ctx)
     order_cited = ctx('index')
-    cited_name = ctx.embeds.users.data.attributes.full_name
+    cited_name = tools.OneOf(
+        ctx.embeds.users.data.attributes.full_name,
+        ctx.embeds.users.errors[0].meta.full_name,
+    )
 
 
 class Tag(Parser):

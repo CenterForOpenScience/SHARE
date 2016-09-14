@@ -82,7 +82,6 @@ class Registration(Parser):
         Maybe(ctx, 'embeds').affiliated_institutions.data
     )
     date_updated = ParseDate(ctx.attributes.date_modified)
-    subject = Delegate(Tag, ctx.attributes.category)
     tags = Map(Delegate(ThroughTags), ctx.attributes.tags)
     rights = Maybe(ctx, 'attributes.node_license')
     free_to_read_date = ParseDate(Maybe(ctx.attributes, 'embargo_end_date'))
