@@ -50,10 +50,21 @@ def add_suggest(obj):
 class IndexModelTask(ProviderTask):
 
     def do_run(self, model_name, ids):
-        es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
+        errors = []
         model = apps.get_model('share', model_name)
-        for resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids)):
-            logger.debug(resp)
+        es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
+
+        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids), raise_on_error=False):
+            if not ok:
+                logger.warning(resp)
+            else:
+                logger.debug(resp)
+
+            if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
+                errors.append(resp)
+
+        if errors:
+            raise Exception('Failed to index documents {}'.format(errors))
 
     def bulk_stream(self, model, ids):
         if not ids:
@@ -124,8 +135,18 @@ class IndexSourceTask(ProviderTask):
 
     def do_run(self):
         es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
-        for resp in helpers.streaming_bulk(es_client, self.bulk_stream()):
-            logger.debug(resp)
+        errors = []
+        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(), raise_on_error=False):
+            if not ok:
+                logger.warning(resp)
+            else:
+                logger.debug(resp)
+
+            if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
+                errors.append(resp)
+
+        if errors:
+            raise Exception('Failed to index documents {}'.format(errors))
 
     def bulk_stream(self):
         ShareUser = apps.get_model('share.ShareUser')
