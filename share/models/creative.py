@@ -18,6 +18,11 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     # this may need to be renamed later
     is_deleted = models.BooleanField(default=False)
 
+    # True for works that only exist because they were referenced by other works.
+    # Should be false if there's any information beyond an identifier.
+    # Don't put stubs in ES.
+    is_stub = models.BooleanField(default=False)
+
     contributors = ShareManyToManyField(Person, through='Contributor')
 
     awards = ShareManyToManyField(Award, through='ThroughAwards')

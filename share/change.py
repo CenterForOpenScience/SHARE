@@ -2,6 +2,7 @@ import copy
 import logging
 
 from django.apps import apps
+from django.core.exceptions import FieldDoesNotExist
 
 from share import disambiguation
 
@@ -57,12 +58,17 @@ class ChangeNode:
     @property
     def change(self):
         if self.is_merge:
-            return {**self.attrs, **self.relations, **self._reverse_relations}
+            return {**self.attrs, **self.relations, **self.__reverse_relations}
 
         if self.is_blank:
             ret = {**self.attrs, **self.relations}
             if self.extra:
                 ret['extra'] = self.extra
+            try:
+                if not ret and self.__reverse_relations and self.model._meta.get_field('is_stub'):
+                    ret['is_stub'] = True
+            except FieldDoesNotExist:
+                pass
             return ret
 
         if not self.instance:
@@ -79,6 +85,10 @@ class ChangeNode:
             if not ret['extra']:
                 del ret['extra']
 
+        if ret and getattr(self.instance, 'is_stub', False):
+            ret['is_stub'] = False
+
+        # CreativeWork is the catch-all or unknown type, so don't overwrite a more specific type
         if self.__new_type not in (self.type, 'creativework'):
             ret['@type'] = self.__new_type
 

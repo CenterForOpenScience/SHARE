@@ -7,6 +7,7 @@ from share.models import Change
 from share.models import CreativeWork
 from share.models import Person
 from share.models import Preprint
+from share.models import Publication
 from share.models import Contributor
 from share.models import ChangeSet
 from share.models import Subject
@@ -348,7 +349,7 @@ class TestChangeSet:
         assert e.value.message == 'Invalid subject: Felines'
 
     @pytest.mark.django_db
-    def test_change_work_type(self, change_ids, normalized_data_id):
+    def test_change_work_type(self, normalized_data_id):
         '''
         A CreativeWork with an Identifier exists. Accept a new changeset
         with a Preprint with the same Identifier. The preprint should
@@ -379,8 +380,8 @@ class TestChangeSet:
         work = [o for o in original_change_set.accept() if isinstance(o, CreativeWork)][0]
         id = work.id
 
-        assert CreativeWork.objects.filter(id=id).count() == 1
-        assert Preprint.objects.filter(id=id).count() == 0
+        assert CreativeWork.objects.count() == 1
+        assert Preprint.objects.count() == 0
 
         graph = ChangeGraph.from_jsonld({
             '@graph': [{
@@ -402,26 +403,26 @@ class TestChangeSet:
         change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
         change_set.accept()
 
-        assert CreativeWork.objects.filter(id=id).count() == 0
-        assert Preprint.objects.filter(id=id).count() == 1
+        assert CreativeWork.objects.count() == 0
+        assert Preprint.objects.count() == 1
         assert Preprint.objects.get(id=id).title == title
 
     @pytest.mark.django_db
-    def test_generic_creative_work(self, change_ids, normalized_data_id):
+    def test_generic_creative_work(self, normalized_data_id):
         '''
         A Preprint with an Identifier exists. Accept a changeset with a
         CreativeWork with the same Identifier and a different title.
         The Preprint's title should be updated to the new value, but its type
         should remain the same.
         '''
-        title = 'Ambiguous Earthquakes'
+        old_title = 'Ambiguous Earthquakes'
         url = 'https://osf.io/special-snowflake'
 
         original_change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'preprint',
-                'title': title,
+                'title': old_title,
                 'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:foo',
@@ -438,9 +439,9 @@ class TestChangeSet:
         work = [o for o in original_change_set.accept() if isinstance(o, Preprint)][0]
         id = work.id
 
-        assert Preprint.objects.filter(id=id).count() == 1
-        assert CreativeWork.objects.filter(id=id).count() == 0
-        assert Preprint.objects.get(id=id).title == title
+        assert Preprint.objects.count() == 1
+        assert CreativeWork.objects.count() == 0
+        assert Preprint.objects.get(id=id).title == old_title
 
         new_title = 'Ambidextrous Earthquakes'
 
@@ -465,6 +466,205 @@ class TestChangeSet:
         change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
         change_set.accept()
 
-        assert Preprint.objects.filter(title=new_title).count() == 1
-        assert CreativeWork.objects.filter(title=new_title).count() == 0
+        assert Preprint.objects.count() == 1
+        assert CreativeWork.objects.count() == 0
         assert Preprint.objects.get(id=id).title == new_title
+
+    @pytest.mark.django_db
+    def test_related_works(self, normalized_data_id):
+        '''
+        Create two works with a relation between them.
+        '''
+        url = 'https://osf.io/special-snowflake'
+
+        change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'preprint',
+                'title': 'Dogs are okay too',
+                'related_works': [{'@id': '_:foo', '@type': 'relation'}]
+            }, {
+                '@id': '_:2345',
+                '@type': 'creativework',
+                'title': 'Cats, tho',
+                'identifiers': [{'@id': '_:3456', '@type': 'workidentifier'}]
+            }, {
+                '@id': '_:foo',
+                '@type': 'relation',
+                'subject_work': {'@id': '_:1234', '@type': 'preprint'},
+                'object_work': {'@id': '_:2345', '@type': 'creativework'},
+                'relation_type': 'ridicules'
+            }, {
+                '@id': '_:3456',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_:2345', '@type': 'creativework'},
+                'identifier': {'@id': '_:4567', '@type': 'identifier'},
+            }, {
+                '@id': '_:4567',
+                '@type': 'identifier',
+                'url': url
+            }]
+        }), normalized_data_id)
+        change_set.accept()
+
+        assert Preprint.objects.count() == 1
+        assert CreativeWork.objects.count() == 1
+
+        p = Preprint.objects.first()
+        c = CreativeWork.objects.first()
+
+        assert p.related_works.count() == 1
+        assert p.related_works.first() == c
+        assert p.outgoing_relations.count() == 1
+        assert p.outgoing_relations.first().relation_type == 'ridicules'
+        assert p.outgoing_relations.first().object_work == c
+        assert c.incoming_relations.count() == 1
+        assert c.incoming_relations.first().relation_type == 'ridicules'
+        assert c.incoming_relations.first().subject_work == p
+
+    @pytest.mark.django_db
+    def test_add_relation_to_work(self, normalized_data_id):
+        '''
+        A work exists. Add a second work with a relation to the first work.
+        The first work should have the appropriate inverse relation to the
+        second work.
+        '''
+
+        url = 'https://osf.io/special-snowflake'
+        first_change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'publication',
+                'title': 'All About Cats',
+                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
+            }, {
+                '@id': '_:foo',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_:1234', '@type': 'publication'},
+                'identifier': {'@id': '_:2345', '@type': 'identifier'}
+            }, {
+                '@id': '_:2345',
+                '@type': 'identifier',
+                'url': url
+            }]
+        }), normalized_data_id)
+        first_change_set.accept()
+
+        assert Publication.objects.count() == 1
+
+        change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'preprint',
+                'title': 'Dogs are okay too',
+                'related_works': [{'@id': '_:foo', '@type': 'relation'}]
+            }, {
+                '@id': '_:foo',
+                '@type': 'relation',
+                'subject_work': {'@id': '_:1234', '@type': 'preprint'},
+                'object_work': {'@id': '_:2345', '@type': 'creativework'},
+                'relation_type': 'ridicules'
+            }, {
+                '@id': '_:2345',
+                '@type': 'creativework',
+                'title': '', # TODO make this unnecessary
+                'identifiers': [{'@id': '_:3456', '@type': 'workidentifier'}]
+            }, {
+                '@id': '_:3456',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_:2345', '@type': 'creativework'},
+                'identifier': {'@id': '_:4567', '@type': 'identifier'},
+            }, {
+                '@id': '_:4567',
+                '@type': 'identifier',
+                'url': url
+            }]
+        }), normalized_data_id)
+        change_set.accept()
+
+        assert Publication.objects.count() == 1
+        assert Preprint.objects.count() == 1
+
+        cat = Publication.objects.first()
+        dog = Preprint.objects.first()
+
+        assert dog.outgoing_relations.count() == 1
+        assert dog.outgoing_relations.first().relation_type == 'ridicules'
+        assert dog.outgoing_relations.first().object_work == cat
+        assert cat.incoming_relations.count() == 1
+        assert cat.incoming_relations.first().relation_type == 'ridicules'
+        assert cat.incoming_relations.first().subject_work == dog
+
+    @pytest.mark.django_db
+    def test_add_work_with_existing_relation(self, normalized_data_id):
+        '''
+        Harvest a work that has a relation to some work identified by a DOI.
+        The related work should be a CreativeWork with no information except
+        the one Identifier.
+        Then harvest a work with the same DOI. It should update the
+        CreativeWork's type and attributes instead of creating a new work.
+        '''
+
+        url = 'https://osf.io/special-snowflake'
+
+        change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'preprint',
+                'title': 'Dogs are okay',
+                'related_works': [{'@id': '_:foo', '@type': 'relation'}]
+            }, {
+                '@id': '_:foo',
+                '@type': 'relation',
+                'subject_work': {'@id': '_:1234', '@type': 'preprint'},
+                'object_work': {'@id': '_:2345', '@type': 'creativework'},
+                'relation_type': 'ridicules'
+            }, {
+                '@id': '_:2345',
+                '@type': 'creativework',
+                'title': '', # TODO make this unnecessary
+                'identifiers': [{'@id': '_:3456', '@type': 'workidentifier'}]
+            }, {
+                '@id': '_:3456',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_:2345', '@type': 'creativework'},
+                'identifier': {'@id': '_:4567', '@type': 'identifier'},
+            }, {
+                '@id': '_:4567',
+                '@type': 'identifier',
+                'url': url
+            }]
+        }), normalized_data_id)
+        change_set.accept()
+
+        first_change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'publication',
+                'title': 'All About Cats',
+                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
+            }, {
+                '@id': '_:foo',
+                '@type': 'workidentifier',
+                'creative_work': {'@id': '_:1234', '@type': 'publication'},
+                'identifier': {'@id': '_:2345', '@type': 'identifier'}
+            }, {
+                '@id': '_:2345',
+                '@type': 'identifier',
+                'url': url
+            }]
+        }), normalized_data_id)
+        first_change_set.accept()
+
+        assert Publication.objects.count() == 1
+        assert Preprint.objects.count() == 1
+
+        cat = Publication.objects.first()
+        dog = Preprint.objects.first()
+
+        assert dog.outgoing_relations.count() == 1
+        assert dog.outgoing_relations.first().relation_type == 'ridicules'
+        assert dog.outgoing_relations.first().object_work == cat
+        assert cat.incoming_relations.count() == 1
+        assert cat.incoming_relations.first().relation_type == 'ridicules'
+        assert cat.incoming_relations.first().subject_work == dog

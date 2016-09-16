@@ -80,6 +80,7 @@ class ChangeSet(models.Model):
 
     def accept(self, save=True):
         ret = []
+        change_order = [(c.node_id, c.target_type) for c in self.changes.all()]
         with transaction.atomic():
             for c in self.changes.all():
                 change_id = c.id
@@ -192,8 +193,8 @@ class Change(models.Model):
 
         new_type = self.change.pop('@type', None)
         if new_type:
-            # TODO better
-            self.target.type = 'share.' + new_type
+            # TODO is this enough?
+            self.target.type = 'share.{}'.format(new_type)
 
         self.target.__dict__.update(self._resolve_change())
         if save:
