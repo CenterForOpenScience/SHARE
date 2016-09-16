@@ -31,6 +31,9 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     subjects = ShareManyToManyField(Subject, related_name='subjected_%(class)s', through='ThroughSubjects')
     # Note: Null allows inserting of None but returns it as an empty string
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
+
+    related_works = ShareManyToManyField('AbstractCreativeWork', through='Relation', through_fields=('subject_work', 'object_work'), symmetrical=False)
+
     date_published = models.DateTimeField(null=True, db_index=True)
     date_updated = models.DateTimeField(null=True, db_index=True)
     free_to_read_type = ShareURLField(blank=True, db_index=True)
