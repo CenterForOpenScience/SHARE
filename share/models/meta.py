@@ -1,14 +1,15 @@
+import furl
+import json
+
 from django.db import models
 from django.db import IntegrityError
 from django.contrib.postgres.fields import JSONField
-
-import furl
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation', 'RelationType')
+__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation')
 
 # TODO Rename this file
 
@@ -25,30 +26,14 @@ class Identifier(ShareObject):
         return furl(self.url).origin
 
 
-class RelationTypeManager(models.Manager):
-    def get_by_natural_key(self, key):
-        return self.get(key=key)
-
-
-class RelationType(models.Model):
-    key = models.TextField(unique=True)
-    uri = models.TextField(blank=True)
-    # TODO? parent = models.ForeignKey('self')
-
-    objects = RelationTypeManager()
-
-    def natural_key(self):
-        return self.key
-
-    @staticmethod
-    def valid_natural_key(key):
-        return isinstance(key, str)
-
-
 class Relation(ShareObject):
+    with open('relation-types.json') as fobj:
+        # TODO add label to file
+        RELATION_TYPES = [(t['key'], t['uri']) for t in json.load(fobj)]
+
     subject_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
     object_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')
-    relation_type = models.ForeignKey(RelationType)
+    relation_type = models.TextField(choices=RELATION_TYPES, blank=True)
 
     class Meta:
         unique_together = ('subject_work', 'object_work', 'relation_type')

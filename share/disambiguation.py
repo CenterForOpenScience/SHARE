@@ -2,27 +2,18 @@ import abc
 
 from django.core.exceptions import ValidationError
 
-from share.models import Tag, Person, Subject, Contributor, Association, Affiliation, PersonEmail, AbstractCreativeWork, Identifier, Relation, RelationType
+from share.models import Tag, Person, Subject, Contributor, Association, Affiliation, PersonEmail, AbstractCreativeWork, Identifier, Relation
 
 
 __all__ = ('disambiguate', )
 
 
 def disambiguate(id, attrs, model):
-    for cls in all_subclasses(Disambiguator):
+    for cls in Disambiguator.__subclasses__():
         if getattr(cls, 'FOR_MODEL', None) == model._meta.concrete_model:
             return cls(id, attrs, model).find()
 
     return GenericDisambiguator(id, attrs, model).find()
-
-
-def all_subclasses(cls, subclasses=None):
-    if subclasses is None:
-        subclasses = set()
-    for subclass in cls.__subclasses__():
-        subclasses.add(subclass)
-        all_subclasses(subclass, subclasses)
-    return subclasses
 
 
 class Disambiguator(metaclass=abc.ABCMeta):
@@ -144,7 +135,6 @@ class SubjectDisambiguator(Disambiguator):
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
     FOR_MODEL = AbstractCreativeWork
-    # self.model could be a subclass of AbstractCreativeWork
 
     def disambiguate(self):
         if self.attrs.get('identifiers'):
@@ -165,7 +155,7 @@ class RelationDisambiguator(Disambiguator):
             'subject_work': self.attrs.get('subject_work'),
             'object_work': self.attrs.get('object_work')
         }
-        if self.attrs.get('relation_type'):
-            relation_type = RelationType.objects.get_by_natural_key(self.attrs.get('relation_type'))
+        relation_type = self.attrs.get('relation_type')
+        if relation_type:
             filters['relation_type'] = relation_type
         return Relation.objects.filter(**filters).first()
