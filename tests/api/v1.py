@@ -20,13 +20,6 @@ class TestV1PushProxy:
         "title": "Title"
     }
 
-    @pytest.fixture()
-    def trusted_user(self):
-        from share.models import ShareUser
-        user = ShareUser(username='tester', is_trusted=True)
-        user.save()
-        return user
-
     def test_invalid_data(self, client, trusted_user):
         data = {
             "providerUpdatedDateTime": "2016-08-25T11:37:40Z",

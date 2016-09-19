@@ -12,6 +12,9 @@ class RawDataSerializer(serializers.ModelSerializer):
 
 
 class NormalizedDataSerializer(serializers.ModelSerializer):
+
+    source = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = models.NormalizedData
         fields = ('created_at', 'normalized_data', 'source')

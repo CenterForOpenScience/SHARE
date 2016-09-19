@@ -152,7 +152,7 @@ def user_post_save(sender, instance, created, **kwargs):
     :param kwargs:
     :return:
     """
-    if created and not instance.is_robot and instance.username != settings.APPLICATION_USERNAME:
+    if created and not instance.is_robot and instance.username not in (settings.APPLICATION_USERNAME, settings.ANONYMOUS_USER_NAME):
         application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
         application = Application.objects.get(user=application_user)
         client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
@@ -225,7 +225,7 @@ class NormalizedData(models.Model):
     created_at = models.DateTimeField(null=True)
     raw = models.ForeignKey(RawData, null=True)
     # TODO Rename this to data
-    normalized_data = DateTimeAwareJSONField(default={}, validators=[JSONLDValidator(), ])
+    normalized_data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')
 

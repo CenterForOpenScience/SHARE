@@ -359,7 +359,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 # TODO REMOVE BEFORE PRODUCTION
 
-
+ANONYMOUS_USER_NAME = 'AnonymousUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
     'allauth.account.auth_backends.AuthenticationBackend',

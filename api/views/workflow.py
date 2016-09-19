@@ -115,15 +115,13 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         return NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
-        prelim_data = request.data
-        prelim_data['source'] = request.user.id
-        serializer = NormalizedDataSerializer(data=prelim_data)
+        serializer = NormalizedDataSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
             return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
         else:
-            return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChangeSetViewSet(viewsets.ModelViewSet):
