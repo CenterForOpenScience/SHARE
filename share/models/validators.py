@@ -3,29 +3,15 @@ import json
 import ujson
 from collections import OrderedDict
 
-import regex
-
 from jsonschema import exceptions
-from jsonschema import Draft4Validator
+from jsonschema import Draft4Validator, draft4_format_checker
 
 from django.db import connection
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 
-
-def is_valid_uri(value):
-    # uri = rfc3987.get_compiled_pattern('^%(URI)s$')
-    try:
-        assert regex.match(r'.+//:[^/]/+.*', value)
-        # assert uri.match(value)
-        # assert not rfc3987.get_compiled_pattern('^%(relative_ref)s$').match('#f#g')
-        # from unicodedata import lookup
-        # smp = 'urn:' + lookup('OLD ITALIC LETTER A')  # U+00010300
-        # assert not uri.match(smp)
-        # m = rfc3987.get_compiled_pattern('^%(IRI)s$').match(smp)
-    except BaseException as ex:
-        raise ValidationError(ex)
+from share.models.fields import ShareURLField
 
 
 def is_valid_jsonld(value):
@@ -137,6 +123,9 @@ class JSONLDValidator:
         }
         if schema['type'] == 'string' and not field.blank:
             schema['minLength'] = 1
+        if isinstance(field, ShareURLField):
+            schema['format'] = 'uri'
+
         return schema
 
     def validator_for(self, model):
@@ -162,4 +151,4 @@ class JSONLDValidator:
 
             schema['properties'][field.name] = self.json_schema_for_field(field)
 
-        return JSONLDValidator.__schema_cache.setdefault(model, Draft4Validator(schema))
+        return JSONLDValidator.__schema_cache.setdefault(model, Draft4Validator(schema, format_checker=draft4_format_checker))
