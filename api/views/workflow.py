@@ -336,9 +336,8 @@ class V1DataView(views.APIView):
         # normalize data
         normalized_data = V1Normalizer({}).normalize(raw.data)
         data = {}
-        data['source'] = request.user.id
         data['normalized_data'] = normalized_data
-        serializer = NormalizedDataSerializer(data=data)
+        serializer = NormalizedDataSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():
             nm_instance = serializer.save()
