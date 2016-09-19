@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, URIField, ShareURLField, ShareManyToManyField
+from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 from share.apps import ShareConfig as share_config
 
 
@@ -42,7 +42,7 @@ class Tag(ShareObject):
 
 
 class Link(ShareObject):
-    url = URIField(db_index=True)
+    url = ShareURLField(db_index=True)
     type = models.TextField(choices=share_config.link_type_choices)
 
     def __str__(self):

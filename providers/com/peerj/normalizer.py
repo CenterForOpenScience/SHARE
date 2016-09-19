@@ -2,14 +2,8 @@ import arrow
 
 import dateparser
 
-from share.normalize import Parser, Static, Delegate, RunPython, ParseName, Normalizer, Concat, Map, ctx, Try, Subjects
+from share.normalize import Parser, Delegate, RunPython, ParseName, Normalizer, Map, ctx, Try, Subjects
 from share.normalize.utils import format_doi_as_url
-
-
-class ISSN(Parser):
-    schema = 'Link'
-    url = ctx
-    type = Static('issn')
 
 
 class Email(Parser):
@@ -79,14 +73,11 @@ class CreativeWork(Parser):
     title = ctx.title
     description = Try(ctx.description)
     contributors = Map(Delegate(Contributor), ctx.author)
-    links = Concat(
-        Delegate(ThroughLinks.using(link=Delegate(ISSN)), ctx.issn),
-        Map(
-            Delegate(ThroughLinks),
-            ctx.pdf_url,
-            RunPython('format_doi', ctx.doi),
-            ctx.fulltext_html_url
-        )
+    links = Map(
+        Delegate(ThroughLinks),
+        ctx.pdf_url,
+        RunPython('format_doi', ctx.doi),
+        ctx.fulltext_html_url
     )
     publishers = Map(
         Delegate(Association.using(entity=Delegate(Publisher))),
@@ -114,6 +105,7 @@ class CreativeWork(Parser):
         journal_title = Try(ctx.journal_title)
         journal_abbrev = Try(ctx.journal_abbrev)
         description_html = Try(ctx['description-html'])
+        issn = Try(ctx.issn)
 
     def format_doi(self, doi):
         return format_doi_as_url(self, doi)
