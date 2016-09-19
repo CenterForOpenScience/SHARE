@@ -497,7 +497,7 @@ class StaticLink(AbstractLink):
 
 class MapSubjectLink(AbstractLink):
 
-    with open('synonyms.json') as fobj:
+    with open('./share/models/synonyms.json') as fobj:
         MAPPING = json.load(fobj)
 
     def execute(self, obj):

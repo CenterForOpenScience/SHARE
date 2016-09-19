@@ -27,7 +27,7 @@ class Identifier(ShareObject):
 
 
 class Relation(ShareObject):
-    with open('relation-types.json') as fobj:
+    with open('./share/models/relation-types.json') as fobj:
         # TODO add label to file
         RELATION_TYPES = [(t['key'], t['uri']) for t in json.load(fobj)]
 

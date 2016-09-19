@@ -4,7 +4,8 @@ from functools import reduce
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 
-from share.normalize.links import Context, AbstractLink
+from share.normalize.links import Context
+from share.normalize.links import AbstractLink
 
 
 # NOTE: Context is a thread local singleton
@@ -63,16 +64,12 @@ class Parser(metaclass=ParserMeta):
 
     def validate(self, field, value):
         if field.is_relation:
-            if field.one_to_many or field.rel.many_to_many:
-                if not isinstance(value, (list, tuple)):
-                    raise Exception('Values for field {} must be lists. Found {}'.format(field, value))
+            if field.rel.many_to_many:
+                assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
             else:
-                if not (isinstance(value, dict) and '@id' in value and '@type' in value):
-                    if not (hasattr(field.rel.model, 'valid_natural_key') and field.rel.model.valid_natural_key(value)):
-                        raise Exception('Values for field {} must be a dictionary with keys @id and @type or a valid natural key. Found {}'.format(field, value))
+                assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
         else:
-            if isinstance(value, dict):
-                raise Exception('Value for non-relational field {} must be a primitive type. Found {}'.format(field, value))
+            assert not isinstance(value, dict), 'Value for non-relational field {} must be a primative type. Found {}'.format(field, value)
 
     def parse(self):
         if (self.context, self.schema) in ctx.pool:
@@ -91,10 +88,9 @@ class Parser(metaclass=ParserMeta):
 
             value = chain.run(self.context)
 
-            if value and field.is_relation and (field.one_to_many or field.rel.many_to_many):
+            if value and field.is_relation and field.rel.many_to_many:
                 for v in value:
-                    name = field.field.name if field.one_to_many else field.m2m_field_name()
-                    ctx.pool[v][name] = self.ref
+                    ctx.pool[v][field.m2m_field_name()] = self.ref
 
             if value is not None:
                 self.validate(field, value)

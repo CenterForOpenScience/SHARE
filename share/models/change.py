@@ -80,7 +80,6 @@ class ChangeSet(models.Model):
 
     def accept(self, save=True):
         ret = []
-        change_order = [(c.node_id, c.target_type) for c in self.changes.all()]
         with transaction.atomic():
             for c in self.changes.all():
                 change_id = c.id

@@ -5,7 +5,7 @@ from .normalizer import CrossRefNormalizer
 
 class AppConfig(ProviderAppConfig):
     name = 'providers.org.crossref'
-    version = '0.0.2'
+    version = '0.0.1'
     title = 'crossref'
     long_title = 'CrossRef'
     home_page = 'http://www.crossref.org'

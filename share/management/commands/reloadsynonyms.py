@@ -12,7 +12,7 @@ class Command(BaseCommand):
         count = 0
 
         synonyms = {}
-        with open('share/fixtures/subjects.json') as fobj:
+        with open('share/models/subjects.json') as fobj:
             for subject in json.load(fobj):
                 synonyms[subject['name'].lower().strip()] = [subject['name']]
 
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                         synonyms.setdefault(syn.lower().strip(), []).append(key)
                         count += 1
 
-        with open('synonyms.json', 'w') as fobj:
+        with open('share/models/synonyms.json', 'w') as fobj:
             json.dump(synonyms, fobj)
 
         self.stdout.write('Loaded {} synonyms into synonyms.json'.format(count))
