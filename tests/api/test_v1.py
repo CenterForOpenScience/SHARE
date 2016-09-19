@@ -76,3 +76,11 @@ class TestV1PushProxy:
 
     def test_get(self, client):
         assert client.get('/api/v1/share/data/').status_code == 405
+
+    def test_token_auth(self, client, trusted_user):
+        assert client.post(
+            '/api/v1/share/data/',
+            json.dumps({}),
+            content_type='application/json',
+            HTTP_AUTHORIZATION='Token ' + trusted_user.accesstoken_set.first().token
+        ).status_code == 400

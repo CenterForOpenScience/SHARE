@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 
 from api import schemas
+from api.authentication import APIV1TokenBackPortAuthentication
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
@@ -303,6 +304,7 @@ class V1DataView(views.APIView):
                     }
         Success:       200 OK
     """
+    authentication_classes = (APIV1TokenBackPortAuthentication, )
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
     serializer_class = NormalizedDataSerializer
 
