@@ -59,6 +59,21 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(ser.data)
 
 
+class RelationsViewSet(viewsets.ReadOnlyModelViewSet):
+    @detail_route(methods=['get'])
+    def relations(self, request, pk=None):
+        if pk is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        obj = self.get_object()
+        relations = obj.outgoing_relations.all() | obj.incoming_relations.all()
+        page = self.paginate_queryset(relations)
+        if page is not None:
+            ser = serializers.RelationSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(ser.data)
+        ser = serializers.RelationSerializer(relations, many=True, context={'request': request})
+        return Response(ser.data)
+
+
 class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, viewsets.ReadOnlyModelViewSet):
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
@@ -171,7 +186,7 @@ class APIVersionRedirectView(RedirectView):
 
 
 def make_creative_work_view_set_class(model):
-    class CreativeWorkViewSet(ShareObjectViewSet):
+    class CreativeWorkViewSet(RelationsViewSet, ShareObjectViewSet):
         serializer_class = serializers.make_creative_work_serializer_class(model)
         queryset = serializer_class.Meta.model.objects.all().select_related('extra')
     return CreativeWorkViewSet

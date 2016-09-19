@@ -3,6 +3,7 @@ from functools import reduce
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
+from django.db.models import ManyToOneRel
 
 from share.normalize.links import Context
 from share.normalize.links import AbstractLink

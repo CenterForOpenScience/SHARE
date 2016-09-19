@@ -71,8 +71,8 @@ class VenueSerializer(BaseShareSerializer):
 
 
 class RelationSerializer(BaseShareSerializer):
+    # subject_work and object_work set below because circular reference
     extra = ExtraDataSerializer()
-    link_type = serializers.CharField(source='type')
 
     class Meta(BaseShareSerializer.Meta):
         model = models.Relation
@@ -189,6 +189,9 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     subjects = SubjectSerializer(many=True)
     extra = ExtraDataSerializer()
 
+    class Meta:
+        model = models.AbstractCreativeWork
+
 
 def make_creative_work_serializer_class(model):
     if isinstance(model, str):
@@ -200,3 +203,7 @@ def make_creative_work_serializer_class(model):
 
     CreativeWorkSerializer.Meta.model = model
     return CreativeWorkSerializer
+
+
+RelationSerializer.subject_work = AbstractCreativeWorkSerializer(sparse=True)
+RelationSerializer.object_work = AbstractCreativeWorkSerializer(sparse=True)

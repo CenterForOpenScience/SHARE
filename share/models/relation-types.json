@@ -4,6 +4,10 @@
         "uri": ""
     },
     {
+        "key": "is_child_to",
+        "uri": ""
+    },
+    {
         "key": "is_supplemented_by",
         "uri": ""
     },

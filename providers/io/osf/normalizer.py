@@ -79,14 +79,15 @@ class WorkIdentifier(Parser):
 
 
 class RelatedProject(Parser):
-    schema = 'Project'
+    # Don't save it as a Project, it could be a Preprint
+    schema = 'CreativeWork'
     identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx)
 
 
 class ParentRelation(Parser):
     schema = 'Relation'
-    subject_work = tools.Delegate(RelatedProject, ctx)
-    relation_type = tools.Static('is_parent_to')
+    object_work = tools.Delegate(RelatedProject, ctx)
+    relation_type = tools.Static('is_child_to')
 
 
 class Project(Parser):
@@ -101,7 +102,7 @@ class Project(Parser):
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
     rights = tools.Maybe(ctx, 'attributes.node_license')
     identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx.links.html)
-    incoming_relations = tools.Map(
+    related_works = tools.Map(
         tools.Delegate(ParentRelation),
         tools.RunPython('api_url_to_guid', tools.Try(ctx.relationships.parent.links.related.href))
     )

@@ -19,7 +19,7 @@ class Identifier(ShareObject):
     priority = 1
 
     # https://twitter.com/berniethoughts/
-    url = ShareURLField()
+    url = ShareURLField(unique=True)
 
     # https://twitter.com/
     def get_base_url(self):
