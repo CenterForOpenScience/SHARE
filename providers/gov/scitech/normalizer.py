@@ -23,7 +23,7 @@ class PersonEmail(Parser):
 
 class Identifier(Parser):
     base_url = Static('https://orcid.org/')
-    url = ctx
+    url = Orcid(ctx)
 
 
 class ThroughIdentifiers(Parser):

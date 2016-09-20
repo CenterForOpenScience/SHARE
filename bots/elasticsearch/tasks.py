@@ -80,8 +80,12 @@ class IndexModelTask(ProviderTask):
                     yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
-        qs = model.objects.filter(id__in=ids)
-        for inst in qs.all():
+        if model is Person:
+            for blob in util.fetch_person(ids):
+                yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
+            return
+
+        for inst in model.objects.filter(id__in=ids):
             # if inst.is_delete:  # TODO
             #     yield {'_id': inst.pk, '_op_type': 'delete', **opts}
             yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
