@@ -67,12 +67,12 @@ class ThroughAwards:
 
 class Institution(Parser):
 
-    name = ctx
+    name = ctx.name
 
 
 class Organization(Parser):
 
-    name = ctx
+    name = ctx.name
 
 
 class Association(Parser):
