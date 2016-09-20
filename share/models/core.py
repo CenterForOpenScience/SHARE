@@ -122,16 +122,6 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     long_title = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
     home_page = ShareURLField(blank=True)
 
-    def get_short_name(self):
-        return self.robot if self.is_robot else self.username
-
-    def get_full_name(self):
-        return '{} {}'.format(self.first_name, self.last_name)
-
-    @property
-    def is_robot(self):
-        return self.robot != ''
-
     objects = ShareUserManager()
 
     USERNAME_FIELD = 'username'
@@ -139,6 +129,19 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = _('Share user')
         verbose_name_plural = _('Share users')
+
+    @property
+    def is_robot(self):
+        return self.robot != ''
+
+    def get_short_name(self):
+        return self.robot if self.is_robot else self.username
+
+    def get_full_name(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.username)
 
 
 @receiver(post_save, sender=ShareUser, dispatch_uid='share.share.models.share_user_post_save_handler')
