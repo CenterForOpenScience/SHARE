@@ -2,6 +2,7 @@ from collections import deque
 from functools import reduce
 import json
 import logging
+import re
 import threading
 
 import xmltodict
@@ -17,7 +18,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid')
 
 
 #### Public API ####
@@ -84,6 +85,12 @@ def Subjects(*chains):
 
 def OneOf(*chains):
     return OneOfLink(*chains)
+
+
+def Orcid(chain=None):
+    if chain:
+        return chain + OrcidLink()
+    return OrcidLink()
 
 
 ### /Public API
@@ -507,3 +514,38 @@ class OneOfLink(AbstractLink):
                 errors.append(e)
 
         raise Exception('All chains failed {}'.format(errors))
+
+
+class OrcidLink(AbstractLink):
+    """Reformat Orcids to the cannonical form
+    https://orcid.org/xxx-xxxx-xxxx-xxxx
+
+    0000000248692419
+    0000-0002-4869-2419
+    https://orcid.org/0000-0002-4869-2419
+
+    Any of the above would be transformed into https://orcid.org/0000-0002-4869-2419
+    """
+
+    ORCID_URL = 'https://orcid.org/'
+    ORCID_RE = re.compile(r'(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|X))')
+
+    def checksum(self, digits):
+        # ORCID Checksum  http://support.orcid.org/knowledgebase/articles/116780-structure-of-the-orcid-identifier
+        total, checksum = 0, digits[-1]
+        for digit in digits[:-1]:
+            total = (total + int(digit)) * 2
+        check = 12 - (total % 11) % 11
+        if check == 10:
+            check = 'X'
+        if str(check) != checksum:
+            raise ValueError('{} is not a valid ORCID. Failed checksum'.format(digits))
+
+    def execute(self, obj):
+        if not isinstance(obj, str):
+            raise TypeError('{} is not of type str'.format(obj))
+        match = re.search(self.ORCID_RE, obj)
+        if not match:
+            raise ValueError('{} cannot be expressed as an orcid'.format(obj))
+        self.checksum(''.join(match.groups()))
+        return '{}{}-{}-{}-{}'.format(self.ORCID_URL, *match.groups())
