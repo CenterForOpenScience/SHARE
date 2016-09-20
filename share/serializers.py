@@ -17,14 +17,18 @@ class BaseShareSerializer(serializers.ModelSerializer):
         if sparse:
             # clear the fields if they asked for sparse
             self.fields.clear()
-            self.fields['id'] = serializers.IntegerField()
-
         else:
             # remove hidden fields
             excluded_fields = ['change', 'uuid', 'sources']
             for field_name in tuple(self.fields.keys()):
                 if 'version' in field_name or field_name in excluded_fields:
                     self.fields.pop(field_name)
+
+            if not version_serializer:
+                # add links to related objects
+                self.fields.update({
+                    'links': fields.LinksField(links=self.Meta.links, source='*')
+                })
 
         # version specific fields
         if version_serializer:
@@ -35,24 +39,22 @@ class BaseShareSerializer(serializers.ModelSerializer):
 
         # add fields with improper names
         self.fields.update({
-            '@id': serializers.HyperlinkedIdentityField(
-                # view-name: person-detail
-                'api:{}-detail'.format(self.Meta.model._meta.model_name),
-                lookup_field='pk'
-            ),
+            '@id': fields.DetailUrlField(),
             '@type': fields.TypeField(),
+            # TODO make ember-share understand @tributes and remove these
+            'id': serializers.IntegerField(),
             'type': fields.TypeField(),
-            'object_id': fields.ObjectIDField(source='uuid'),
         })
 
     class Meta:
-        pass
+        links = ('versions', 'changes', 'rawdata')
 
 
 class ExtraDataSerializer(BaseShareSerializer):
     data = serializers.JSONField()
 
     class Meta(BaseShareSerializer.Meta):
+        links = ()
         model = models.ExtraData
 
 
@@ -68,14 +70,6 @@ class VenueSerializer(BaseShareSerializer):
 
     class Meta(BaseShareSerializer.Meta):
         model = models.Venue
-
-
-class RelationSerializer(BaseShareSerializer):
-    # subject_work and object_work set below because circular reference
-    extra = ExtraDataSerializer()
-
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Relation
 
 
 class OrganizationSerializer(EntitySerializer):
@@ -185,12 +179,12 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     venues = VenueSerializer(sparse=True, many=True)
     awards = AwardSerializer(sparse=True, many=True)
     identifiers = IdentifierSerializer(many=True)
-    relations = RelationSerializer(many=True)
     subjects = SubjectSerializer(many=True)
     extra = ExtraDataSerializer()
 
-    class Meta:
+    class Meta(BaseShareSerializer.Meta):
         model = models.AbstractCreativeWork
+        links = ('versions', 'changes', 'rawdata', 'relations')
 
 
 def make_creative_work_serializer_class(model):
@@ -198,12 +192,17 @@ def make_creative_work_serializer_class(model):
         model = apps.get_model('share', model)
 
     class CreativeWorkSerializer(AbstractCreativeWorkSerializer):
-        class Meta(BaseShareSerializer.Meta):
-            model = None
+        class Meta(AbstractCreativeWorkSerializer.Meta):
+            pass
 
     CreativeWorkSerializer.Meta.model = model
     return CreativeWorkSerializer
 
 
-RelationSerializer.subject_work = AbstractCreativeWorkSerializer(sparse=True)
-RelationSerializer.object_work = AbstractCreativeWorkSerializer(sparse=True)
+class RelationSerializer(BaseShareSerializer):
+    subject_work = AbstractCreativeWorkSerializer(sparse=True)
+    object_work = AbstractCreativeWorkSerializer(sparse=True)
+    extra = ExtraDataSerializer()
+
+    class Meta(BaseShareSerializer.Meta):
+        model = models.Relation
