@@ -1,3 +1,4 @@
+import uuid
 import itertools
 
 from django.db import connection
@@ -18,56 +19,54 @@ def unique_by(key, values):
     return list(ret.values())
 
 
-def fetch_person(pk):
-    with connection.cursor() as c:
-        c.execute('''
-            SELECT
-            share_person.suffix
-            , share_person.given_name
-            , share_person.family_name
-            , share_person.additional_name
-            , share_identifier.url
-            , share_identifier.base_url
-            , share_shareuser.long_title
-            FROM share_person
-            left JOIN share_throughidentifiers ON share_person.id = share_throughidentifiers.person_id
-            left JOIN share_identifier ON share_throughidentifiers.identifier_id = share_identifier.id
-            left JOIN share_person_sources ON share_person.id = share_person_sources.person_id
-            left JOIN share_shareuser ON share_shareuser.id = share_person_sources.shareuser_id
-            WHERE share_person.id = %s
-        ''', (pk, ))
+def fetch_person(pks):
+    if connection.connection is None:
+        connection.cursor()
 
-        data = c.fetchall()
+    with transaction.atomic():
+        with connection.connection.cursor(str(uuid.uuid4())) as c:
+            c.execute('''
+                SELECT json_build_object(
+                    'id', person.id
+                    , 'type', 'person'
+                    , 'given_name', person.given_name
+                    , 'family_name', person.family_name
+                    , 'additional_name', person.additional_name
+                    , 'sources', sources
+                    , 'identifiers', COALESCE(identifiers, '[]' :: JSON)
+                )
+                FROM share_person AS person
+                LEFT JOIN LATERAL (
+                            SELECT json_agg(json_build_object('id', identifier.id, 'base_url', identifier.base_url, 'url',
+                                                            identifier.url)) AS identifiers
+                            FROM share_throughidentifiers AS throughidentifier
+                            JOIN share_identifier AS identifier ON throughidentifier.identifier_id = identifier.id
+                            WHERE throughidentifier.person_id = person.id) AS identifiers ON TRUE
+                LEFT JOIN LATERAL (
+                            SELECT json_agg(
+                                json_build_object('id', entity.id, 'type', entity.type, 'name', entity.name, 'url', entity.url,
+                                                'location', entity.location))
+                            FROM share_affiliation AS affiliation
+                            JOIN share_entity AS entity ON affiliation.entity_id = entity.id
+                            WHERE affiliation.person_id = person.id
 
-    (
-        suffix, given_name, family_name, additional_name,
-        urls, base_urls,
-        # entity_ids, entity_types, entity_names, entity_urls, entity_locations,
-        sources
-    ) = zip(*data)
+                            ) AS affiliations ON TRUE
+                LEFT JOIN LATERAL (
+                            SELECT array_agg(source.long_title) AS sources
+                            FROM share_person_sources AS throughsources
+                            JOIN share_shareuser AS source ON throughsources.shareuser_id = source.id
+                            WHERE throughsources.person_id = person.id
+                            ) AS sources ON TRUE
+                WHERE person.id in %s
+            ''', (tuple(pks), ))
 
-    return {
-        'id': pk,
-        'type': 'person',
-        'name': ' '.join(x for x in [given_name[0], family_name[0], additional_name[0], suffix[0]] if x),
-        'suffix': suffix[0],
-        'given_name': given_name[0],
-        'family_name': family_name[0],
-        'additional_name': additional_name[0],
-        'identifiers': [
-            link for link in
-            unique_by('url', sql_to_dict(('url', 'base_url'), (urls, base_urls)))
-            if link['url']
-        ],
-        # 'affiliations': [
-        #     entity for entity in
-        #     unique_by('id', sql_to_dict(
-        #         ('id', 'type', 'name', 'url', 'location'),
-        #         (entity_ids, entity_types, entity_names, entity_urls, entity_locations)
-        #     )) if entity['id']
-        # ],
-        'sources': sorted(set(sources)),
-    }
+            while True:
+                data = c.fetchone()
+
+                if not data:
+                    return
+
+                yield data[0]
 
 
 def fetch_abstractcreativework(pks):
@@ -75,7 +74,7 @@ def fetch_abstractcreativework(pks):
         connection.cursor()
 
     with transaction.atomic():
-        with connection.connection.cursor('name_is_required') as c:
+        with connection.connection.cursor(str(uuid.uuid4())) as c:
             c.execute('''
                 SELECT json_build_object(
                 'id', creativework.id

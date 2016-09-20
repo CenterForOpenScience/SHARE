@@ -45,7 +45,7 @@ class Affiliation(Parser):
 
 
 class Identifier(Parser):
-    url = ctx
+    url = Orcid(ctx)
     base_url = Static('https://orcid.org')
 
 
