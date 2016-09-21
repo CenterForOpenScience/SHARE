@@ -56,6 +56,16 @@ class ChangeNode:
         return self.__refs
 
     @property
+    def new_type(self):
+        return self.__new_type or self.type
+
+    @new_type.setter
+    def new_type(self, value):
+        # CreativeWork is the catch-all/unknown type. Don't overwrite a more specific type
+        if value != 'creativework':
+            self.__new_type = value
+
+    @property
     def change(self):
         if self.is_merge:
             return {**self.attrs, **self.relations, **self.__reverse_relations}
@@ -88,9 +98,8 @@ class ChangeNode:
         if ret and getattr(self.instance, 'is_stub', False):
             ret['is_stub'] = False
 
-        # CreativeWork is the catch-all or unknown type, so don't overwrite a more specific type
-        if self.__new_type not in (self.type, 'creativework'):
-            ret['@type'] = self.__new_type
+        if self.new_type != self.type:
+            ret['@type'] = self.new_type
 
         return ret
 
@@ -99,11 +108,11 @@ class ChangeNode:
         self.__change = None
         self.__instance = None
         self.__extra_namespace = None
+        self.__new_type = None
         node = copy.deepcopy(self.__raw)
 
         self.id = str(node.pop('@id'))
         self.type = node.pop('@type').lower()
-        self.__new_type = self.type
         self.extra = node.pop('extra', {})
 
         self.__refs = [(self.id, self.type)]
@@ -139,7 +148,7 @@ class ChangeNode:
             try:
                 node = mapper[(v['@id'], v['@type'].lower())]
                 v['@id'] = node.id
-                v['@type'] = node.type
+                v['@type'] = node.new_type
             except KeyError:
                 pass
         for k, values in self.reverse_relations.items():

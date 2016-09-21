@@ -177,6 +177,8 @@ class Change(models.Model):
             except IntegrityError as e:
                 from share.disambiguation import disambiguate
                 logger.info('Handling unique violation error %r', e)
+                if self.target_type.model == 'identifier':
+                    raise Exception('Race condition: Identifier collision should have been handled in disambiguation. Roll back and try again.')
 
                 self.type = Change.TYPE.update
                 self.target = disambiguate('_:', resolved_change, self.target_type.model_class())
