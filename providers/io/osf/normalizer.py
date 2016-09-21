@@ -87,7 +87,7 @@ class RelatedProject(Parser):
 class ParentRelation(Parser):
     schema = 'Relation'
     object_work = tools.Delegate(RelatedProject, ctx)
-    relation_type = tools.Static('is_child_to')
+    relation_type = tools.Static('is_part_of')
 
 
 class Project(Parser):

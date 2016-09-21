@@ -1,18 +1,10 @@
 [
     {
-        "key": "is_parent_to",
+        "key": "is_part_of",
         "uri": ""
     },
     {
-        "key": "is_child_to",
-        "uri": ""
-    },
-    {
-        "key": "is_supplemented_by",
-        "uri": ""
-    },
-    {
-        "key": "is_derived_from",
+        "key": "is_supplement_to",
         "uri": ""
     },
     {
