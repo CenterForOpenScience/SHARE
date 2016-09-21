@@ -51,7 +51,7 @@ def parse_date(s):
 
 
 class CreativeWorksRSS(Feed):
-    link = '{}api/v2/rss/'.format(settings.SHARE_API_URL)
+    link = '{}api/v2/rss/'.format(settings.SHARE_WEB_URL)
     description = 'Updates to the SHARE open dataset'
     author_name = 'SHARE'
 
@@ -112,4 +112,4 @@ class CreativeWorksRSS(Feed):
 class CreativeWorksAtom(CreativeWorksRSS):
     feed_type = Atom1Feed
     subtitle = CreativeWorksRSS.description
-    link = '{}api/v2/atom/'.format(settings.SHARE_API_URL)
+    link = '{}api/v2/atom/'.format(settings.SHARE_WEB_URL)
