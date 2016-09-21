@@ -1,15 +1,14 @@
 import pytest
 
-from share.models import Link
-from share.models import CreativeWork
-from share.models.meta import ThroughLinks
+from share.models import Identifier, CreativeWork
+from share.models.meta import WorkIdentifier
 from share.disambiguation import disambiguate
 
 
 class TestAbstractWork:
 
     @pytest.mark.django_db
-    def test_disambiguates(self, change_ids):
+    def test_does_not_disambiguate_without_identifier(self, change_ids):
         oldWork = CreativeWork.objects.create(
             title='all about giraffes',
             description='see here is the the thing about giraffes',
@@ -17,10 +16,7 @@ class TestAbstractWork:
         )
         disWork = disambiguate('_:', {'title': 'all about giraffes'}, CreativeWork)
 
-        assert disWork is not None
-        assert disWork.id == oldWork.id
-        assert disWork.title == oldWork.title
-        assert disWork.description == oldWork.description
+        assert disWork is None
 
     @pytest.mark.django_db
     def test_does_not_disambiguate(self, change_ids):
@@ -45,24 +41,24 @@ class TestAbstractWork:
         assert disWork is None
 
     @pytest.mark.django_db
-    def test_links_disambiguate(self, change_ids):
+    def test_identifier_disambiguate(self, change_ids):
         cw = CreativeWork.objects.create(
             title='All about cats',
             description='see here is the the thing about emptiness',
             change_id=change_ids.get()
         )
 
-        link = Link.objects.create(url='http://share.osf.io/cats', type='provider', change_id=change_ids.get())
+        identifier = Identifier.objects.create(url='http://share.osf.io/cats', change_id=change_ids.get())
 
-        ThroughLinks.objects.create(
-            link=link,
+        WorkIdentifier.objects.create(
+            identifier=identifier,
             creative_work=cw,
             change_id=change_ids.get(),
-            link_version=link.versions.first(),
+            identifier_version=identifier.versions.first(),
             creative_work_version=cw.versions.first(),
         )
 
-        assert disambiguate('_:', {'links': [link.pk]}, CreativeWork) == cw
+        assert disambiguate('_:', {'identifiers': [identifier.pk]}, CreativeWork) == cw
 
 
 class TestAffiliations:

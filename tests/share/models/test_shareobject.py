@@ -4,7 +4,7 @@ from share.models import Person
 from share.models import Preprint
 from share.models import Article
 from share.models import Identifier
-from share.models.people import ThroughIdentifiers
+from share.models.people import PersonIdentifier
 from share.models.base import ShareObject
 from share.management.commands.maketriggermigrations import Command
 
@@ -80,12 +80,12 @@ class TestVersioning:
 
     @pytest.mark.django_db
     def test_relations(self, john_doe, change_ids):
-        ident = Identifier.objects.create(base_url='http://dinosaurs.sexy/', url='http://dinosaurs.sexy/john_doe', change_id=change_ids.get())
+        ident = Identifier.objects.create(url='http://dinosaurs.sexy/john_doe', change_id=change_ids.get())
 
         ident.refresh_from_db()
         john_doe.refresh_from_db()
 
-        through = ThroughIdentifiers.objects.create(
+        through = PersonIdentifier.objects.create(
             person=john_doe,
             identifier=ident,
             person_version=john_doe.version,
@@ -103,12 +103,12 @@ class TestVersioning:
 
     @pytest.mark.django_db
     def test_relations_related_changed(self, john_doe, change_ids):
-        ident = Identifier.objects.create(base_url='http://dinosaurs.sexy/', url='http://dinosaurs.sexy/john_doe', change_id=change_ids.get())
+        ident = Identifier.objects.create(url='http://dinosaurs.sexy/john_doe', change_id=change_ids.get())
 
         ident.refresh_from_db()
         john_doe.refresh_from_db()
 
-        through = ThroughIdentifiers.objects.create(
+        through = PersonIdentifier.objects.create(
             person=john_doe,
             identifier=ident,
             person_version=john_doe.version,

@@ -383,7 +383,7 @@ class TestChangeSet:
         assert CreativeWork.objects.count() == 1
         assert Preprint.objects.count() == 0
 
-        graph = ChangeGraph.from_jsonld({
+        change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'preprint',
@@ -398,9 +398,8 @@ class TestChangeSet:
                 '@type': 'identifier',
                 'url': url
             }]
-        }, normalized_data_id)
+        }), normalized_data_id)
 
-        change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
         change_set.accept()
 
         assert CreativeWork.objects.count() == 0
@@ -531,7 +530,7 @@ class TestChangeSet:
         '''
 
         url = 'https://osf.io/special-snowflake'
-        first_change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'publication',
@@ -547,8 +546,7 @@ class TestChangeSet:
                 '@type': 'identifier',
                 'url': url
             }]
-        }), normalized_data_id)
-        first_change_set.accept()
+        }), normalized_data_id).accept()
 
         assert Publication.objects.count() == 1
 
@@ -567,7 +565,6 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
-                'title': '', # TODO make this unnecessary
                 'identifiers': [{'@id': '_:3456', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:3456',
@@ -584,6 +581,7 @@ class TestChangeSet:
 
         assert Publication.objects.count() == 1
         assert Preprint.objects.count() == 1
+        assert CreativeWork.objects.count() == 0
 
         cat = Publication.objects.first()
         dog = Preprint.objects.first()
@@ -607,7 +605,7 @@ class TestChangeSet:
 
         url = 'https://osf.io/special-snowflake'
 
-        change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'preprint',
@@ -622,7 +620,6 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
-                'title': '', # TODO make this unnecessary
                 'identifiers': [{'@id': '_:3456', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:3456',
@@ -634,10 +631,13 @@ class TestChangeSet:
                 '@type': 'identifier',
                 'url': url
             }]
-        }), normalized_data_id)
-        change_set.accept()
+        }), normalized_data_id).accept()
 
-        first_change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+        assert CreativeWork.objects.count() == 1
+        assert Preprint.objects.count() == 1
+        assert Publication.objects.count() == 0
+
+        ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'publication',
@@ -653,9 +653,9 @@ class TestChangeSet:
                 '@type': 'identifier',
                 'url': url
             }]
-        }), normalized_data_id)
-        first_change_set.accept()
+        }), normalized_data_id).accept()
 
+        assert CreativeWork.objects.count() == 0
         assert Publication.objects.count() == 1
         assert Preprint.objects.count() == 1
 

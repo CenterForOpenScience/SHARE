@@ -55,41 +55,39 @@ class TestChange:
         assert change_set.status == ChangeSet.STATUS.accepted
 
     def test_update_creative_work(self, change_factory):
-        link, preprint, _ = change_factory.from_graph({
+        identifier, preprint, _ = change_factory.from_graph({
             '@graph': [{
                 '@id': '_:1234',
-                '@type': 'link',
-                'type': 'provider',
+                '@type': 'identifier',
                 'url': 'https://share.osf.io',
             }, {
                 '@id': '_:5678',
-                '@type': 'ThroughLinks',
-                'link': {'@id': '_:1234', '@type': 'link'},
+                '@type': 'WorkIdentifier',
+                'identifier': {'@id': '_:1234', '@type': 'identifier'},
                 'creative_work': {'@id': '_:890', '@type': 'preprint'},
             }, {
                 '@id': '_:890',
                 '@type': 'preprint',
                 'title': 'All about Cats and more',
-                'links': [{'@id': '_:5678', '@type': 'ThroughLinks'}]
+                'identifiers': [{'@id': '_:5678', '@type': 'WorkIdentifier'}]
             }]
         }).accept()
 
         change_set = change_factory.from_graph({
             '@graph': [{
                 '@id': '_:1234',
-                '@type': 'link',
-                'type': 'provider',
+                '@type': 'identifier',
                 'url': 'https://share.osf.io',
             }, {
                 '@id': '_:5678',
-                '@type': 'ThroughLinks',
-                'link': {'@id': '_:1234', '@type': 'link'},
+                '@type': 'workidentifier',
+                'identifier': {'@id': '_:1234', '@type': 'identifier'},
                 'creative_work': {'@id': '_:890', '@type': 'preprint'},
             }, {
                 '@id': '_:890',
                 '@type': 'preprint',
                 'title': 'JUST ABOUT CATS',
-                'links': [{'@id': '_:5678', '@type': 'ThroughLinks'}],
+                'identifiers': [{'@id': '_:5678', '@type': 'workidentifier'}],
             }]
         }, disambiguate=True)
 

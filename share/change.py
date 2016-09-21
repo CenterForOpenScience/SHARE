@@ -62,8 +62,7 @@ class ChangeNode:
     @new_type.setter
     def new_type(self, value):
         # CreativeWork is the catch-all/unknown type. Don't overwrite a more specific type
-        if value != 'creativework':
-            self.__new_type = value
+        self.__new_type = value if value != 'creativework' else None
 
     @property
     def change(self):
@@ -108,11 +107,11 @@ class ChangeNode:
         self.__change = None
         self.__instance = None
         self.__extra_namespace = None
-        self.__new_type = None
         node = copy.deepcopy(self.__raw)
 
         self.id = str(node.pop('@id'))
         self.type = node.pop('@type').lower()
+        self.new_type = self.type
         self.extra = node.pop('extra', {})
 
         self.__refs = [(self.id, self.type)]
