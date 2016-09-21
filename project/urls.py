@@ -29,11 +29,14 @@ urlpatterns = [
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^accounts/', include('allauth.urls')),
-
-    url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
     url(r'^$', RedirectView.as_view(url='{}/'.format(settings.EMBER_SHARE_PREFIX))),
     url(r'^favicon.ico$', RedirectView.as_view(
         url=staticfiles_storage.url('favicon.ico'),
         permanent=False
     ), name="favicon"),
 ]
+
+if settings.DEBUG:
+    urlpatterns.extend([
+        url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL))
+    ])

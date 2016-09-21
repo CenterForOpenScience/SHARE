@@ -1,12 +1,14 @@
+from xml.sax.saxutils import escape
+import datetime
+import json
+import re
+
+import requests
+
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
 
-import bleach
-import dateparser
-import json
-import re
-import requests
 
 RESULTS_PER_PAGE = 250
 
@@ -25,14 +27,14 @@ RE_XML_ILLEGAL_COMPILED = re.compile(RE_XML_ILLEGAL)
 def sanitize_for_xml(s):
     if s:
         s = RE_XML_ILLEGAL_COMPILED.sub('', s)
-        return bleach.clean(s, strip=True, tags=[], attributes=[], styles=[])
+        return escape(s)
     return s
 
 
 class CreativeWorksRSS(Feed):
-    link = '/'
+    link = '{}api/v2/rss/'.format(settings.SHARE_API_URL)
     description = 'Updates to the SHARE open dataset'
-    author_name = 'COS'
+    author_name = 'SHARE'
 
     def title(self, obj):
         query = json.dumps(obj.get('query', 'All'))
@@ -74,15 +76,19 @@ class CreativeWorksRSS(Feed):
 
     def item_link(self, item):
         # Link to SHARE curate page
-        return '{}{}/curate/{}/{}'.format(settings.SHARE_API_URL, settings.EMBER_SHARE_PREFIX, item.get('type'), item.get('id'))
+        return '{}curate/{}/{}'.format(settings.SHARE_WEB_URL, item.get('type'), item.get('id'))
 
     def item_pubdate(self, item):
         pubdate = item.get('date')
-        return dateparser.parse(pubdate) if pubdate else None
+        if not pubdate:
+            return None
+        return datetime.datetime.strptime(pubdate.replace('+00:', '+00'), '%Y-%m-%dT%H:%M:%S.%f%z')
 
     def item_updateddate(self, item):
         updateddate = item.get('date_updated')
-        return dateparser.parse(updateddate) if updateddate else None
+        if not updateddate:
+            return None
+        return datetime.datetime.strptime(updateddate.replace('+00:', '+00'), '%Y-%m-%dT%H:%M:%S.%f%z')
 
     def item_categories(self, item):
         categories = item.get('subjects', [])
@@ -93,3 +99,4 @@ class CreativeWorksRSS(Feed):
 class CreativeWorksAtom(CreativeWorksRSS):
     feed_type = Atom1Feed
     subtitle = CreativeWorksRSS.description
+    link = '{}api/v2/atom/'.format(settings.SHARE_API_URL)
