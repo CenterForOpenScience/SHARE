@@ -1,14 +1,17 @@
+
 from xml.sax.saxutils import escape
 import datetime
 import json
+import logging
 import re
-
 import requests
 
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
 
+
+logger = logging.getLogger(__name__)
 
 RESULTS_PER_PAGE = 250
 
@@ -29,6 +32,22 @@ def sanitize_for_xml(s):
         s = RE_XML_ILLEGAL_COMPILED.sub('', s)
         return escape(s)
     return s
+
+
+def parse_date(s):
+    if not s:
+        return None
+    s = s.replace('+00:', '00')
+    try:
+        return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f%z')
+    except ValueError:
+        pass
+    try:
+        return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S%z')
+    except ValueError:
+        pass
+    logger.warning('Could not parse data %s', s)
+    return None
 
 
 class CreativeWorksRSS(Feed):
@@ -79,16 +98,10 @@ class CreativeWorksRSS(Feed):
         return '{}curate/{}/{}'.format(settings.SHARE_WEB_URL, item.get('type'), item.get('id'))
 
     def item_pubdate(self, item):
-        pubdate = item.get('date')
-        if not pubdate:
-            return None
-        return datetime.datetime.strptime(pubdate.replace('+00:', '+00'), '%Y-%m-%dT%H:%M:%S.%f%z')
+        return parse_date(item.get('date'))
 
     def item_updateddate(self, item):
-        updateddate = item.get('date_updated')
-        if not updateddate:
-            return None
-        return datetime.datetime.strptime(updateddate.replace('+00:', '+00'), '%Y-%m-%dT%H:%M:%S.%f%z')
+        return parse_date(item.get('date_updated'))
 
     def item_categories(self, item):
         categories = item.get('subjects', [])
