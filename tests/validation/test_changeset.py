@@ -212,9 +212,8 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'Link',
+                '@type': 'Identifier',
                 'url': 'giraffe',
-                'type': 'misc',
             }]
         }
     }, {
@@ -222,9 +221,8 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'Link',
+                '@type': 'identifier',
                 'url': 'https://share.osf.io/foo',
-                'type': 'misc',
             }]
         }
     }]
