@@ -235,7 +235,6 @@ class SchemaView(views.APIView):
     - [WorkIdentifier](/api/schema/WorkIdentifier)
     - [ThroughAwardEntities](/api/schema/ThroughAwardEntities)
     - [ThroughAwards](/api/schema/ThroughAwards)
-    - [ThroughLinks](/api/schema/ThroughLinks)
     - [ThroughSubjects](/api/schema/ThroughSubjects)
     - [ThroughTags](/api/schema/ThroughTags)
     - [ThroughVenues](/api/schema/ThroughVenues)
