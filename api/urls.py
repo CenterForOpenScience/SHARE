@@ -66,5 +66,6 @@ urlpatterns = [
     url(r'userinfo/?', views.ShareUserView.as_view(), name='userinfo'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
-    url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema')
+    url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema'),
+    url(r'relationtypes/?', views.RelationTypesView.as_view(), name='relationtypes')
 ] + router.urls

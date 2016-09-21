@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import viewsets, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
@@ -157,6 +159,14 @@ class RelationViewSet(ShareObjectViewSet):
     queryset = serializer_class.Meta.model.objects.all().select_related(
         'extra'
     )
+
+
+class RelationTypesView(views.APIView):
+    with open('./share/models/relation-types.json') as fobj:
+        RELATION_TYPES = json.load(fobj)
+
+    def get(self, request, *args, **kwargs):
+        return Response(self.RELATION_TYPES)
 
 
 class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
