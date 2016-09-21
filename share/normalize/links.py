@@ -546,8 +546,8 @@ class OrcidLink(AbstractLink):
         # ORCID Checksum  http://support.orcid.org/knowledgebase/articles/116780-structure-of-the-orcid-identifier
         total, checksum = 0, digits[-1]
         for digit in digits[:-1]:
-            total = (total + int(digit)) * 2
-        check = 12 - (total % 11) % 11
+            total = (total + int(digit, 36)) * 2
+        check = (12 - (total % 11)) % 11
         if check == 10:
             check = 'X'
         if str(check) != checksum:
