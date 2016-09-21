@@ -112,7 +112,14 @@ class PersonDisambiguator(Disambiguator):
     FOR_MODEL = Person
 
     def disambiguate(self):
-        # TODO disambiguate on identifiers (only?)
+        if self.attrs.get('identifiers'):
+            for id in self.attrs.get('identifiers'):
+                try:
+                    identifier = Identifier.objects.get(id=id)
+                    return identifier.person_set.first()
+                except Identifier.DoesNotExist:
+                    pass
+
         return Person.objects.filter(
             suffix=self.attrs.get('suffix', ''),
             given_name=self.attrs.get('given_name', ''),
