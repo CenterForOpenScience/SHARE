@@ -9,7 +9,7 @@ class TestAbstractWork:
 
     @pytest.mark.django_db
     def test_does_not_disambiguate_without_identifier(self, change_ids):
-        oldWork = CreativeWork.objects.create(
+        CreativeWork.objects.create(
             title='all about giraffes',
             description='see here is the the thing about giraffes',
             change_id=change_ids.get()

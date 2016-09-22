@@ -13,6 +13,7 @@ __all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation')
 
 # TODO Rename this file
 
+
 class Identifier(ShareObject):
     # https://twitter.com/berniethoughts/
     url = ShareURLField(unique=True)

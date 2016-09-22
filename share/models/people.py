@@ -1,7 +1,5 @@
 from django.db import models
 
-from furl import furl
-
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
