@@ -19,6 +19,7 @@ from share.models.creative import AbstractCreativeWork
 from share.models.entities import Entity
 from share.models.meta import Venue, Award, Tag, Link, Subject
 from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
+from share.models.registration import ProviderRegistration
 from share.tasks import ApplyChangeSets
 
 
@@ -179,6 +180,15 @@ class AccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'user', 'scope')
 
 
+class ProviderRegistrationAdmin(admin.ModelAdmin):
+    list_display = ('direct_source', 'source_name', 'status_', 'submitted_at', 'submitted_by')
+    list_filter = ('direct_source', 'status',)
+    readonly_fields = ('submitted_at', 'submitted_by',)
+
+    def status_(self, obj):
+        return ProviderRegistration.STATUS[obj.status].title()
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -203,3 +213,5 @@ admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(ShareUser)
+
+admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)

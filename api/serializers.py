@@ -11,6 +11,16 @@ class RawDataSerializer(serializers.ModelSerializer):
         fields = ('id', 'source', 'app_label', 'provider_doc_id', 'data', 'sha256', 'date_seen', 'date_harvested')
 
 
+class ProviderRegistrationSerializer(serializers.ModelSerializer):
+    status = serializers.IntegerField(read_only=True)
+    submitted_at = serializers.DateTimeField(read_only=True)
+    submitted_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = models.ProviderRegistration
+        fields = '__all__'
+
+
 class NormalizedDataSerializer(serializers.ModelSerializer):
 
     source = serializers.HiddenField(default=serializers.CurrentUserDefault())
