@@ -49,14 +49,7 @@ class Person(Parser):
     given_name = Maybe(ctx, 'given')
     family_name = Maybe(ctx, 'family')
     affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
-    personidentifiers = Map(Delegate(PersonIdentifier), Maybe(ctx, 'ORCID'))
-
-
-class WorkIdentifier(Parser):
-    url = RunPython('format_doi_as_url', ctx)
-
-    def format_doi_as_url(self, doi):
-        return format_doi_as_url(self, doi)
+    identifiers = Map(Delegate(PersonIdentifier), Maybe(ctx, 'ORCID'))
 
 
 class Contributor(Parser):
@@ -69,6 +62,18 @@ class Contributor(Parser):
         ),
         joiner=' '
     )
+
+
+class DoiIdentifier(Parser):
+    schema = 'Identifier'
+    url = RunPython('format_doi_as_url', ctx)
+
+    def format_doi_as_url(self, doi):
+        return format_doi_as_url(self, doi)
+
+
+class WorkIdentifier(Parser):
+    identifier = Delegate(DoiIdentifier, ctx)
 
 
 class Tag(Parser):
