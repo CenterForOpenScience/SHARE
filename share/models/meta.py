@@ -14,10 +14,6 @@ __all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation')
 # TODO Rename this file
 
 class Identifier(ShareObject):
-    # Disambiguate identifiers before other nodes, so works and people can be
-    # disambiguated based on their identifiers
-    priority = 1
-
     # https://twitter.com/berniethoughts/
     url = ShareURLField(unique=True)
 
@@ -74,8 +70,6 @@ class SubjectManager(models.Manager):
 
 
 class Subject(models.Model):
-    priority = 0
-
     lineages = JSONField(editable=False)
     parents = models.ManyToManyField('self')
     name = models.TextField(unique=True, db_index=True)

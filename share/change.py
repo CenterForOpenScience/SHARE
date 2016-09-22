@@ -218,10 +218,11 @@ class NodeSorter:
         self.__graph = graph
         self.__visted = set()
         self.__visiting = set()
+
+        # visit identifiers first
         self.__nodes = sorted(
             graph.nodes,
-            key=lambda n: n.model.priority,
-            reverse=True
+            key=lambda n: n.type != 'identifier'
         )
 
     def sorted(self):
