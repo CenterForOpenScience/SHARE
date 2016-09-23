@@ -1,7 +1,6 @@
 import re
 
 from share.normalize import *
-from share.normalize.utils import format_doi_as_url
 
 
 class Organization(Parser):
@@ -50,14 +49,8 @@ class Contributor(Parser):
 
 
 class Link(Parser):
-    url = RunPython('format_doi', ctx)
-    type = RunPython('get_link_type', ctx)
-
-    def get_link_type(self, link):
-        return 'doi'
-
-    def format_doi(self, doi):
-        return format_doi_as_url(self, doi)
+    url = DOI(ctx)
+    type = Static('doi')
 
 
 class ThroughLinks(Parser):

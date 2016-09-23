@@ -81,7 +81,7 @@ class CreativeWork(Parser):
     description = ctx.description
     contributors = Map(Delegate(Contributor), ctx.authors)
     date_published = RunPython('parse_date', ctx.published_date)
-    links = Map(Delegate(ThroughLinks), ctx.url, ctx.DOI, ctx.links)
+    links = Map(Delegate(ThroughLinks), ctx.url, DOI(ctx.DOI), ctx.links)
 
     class Extra:
         modified = RunPython('parse_date', ctx.modified_date)
@@ -99,7 +99,7 @@ class DataSet(Parser):
 
     links = Concat(
         Map(Delegate(ThroughLinks.using(link=Delegate(FileLink))), ctx.files),
-        Map(Delegate(ThroughLinks), ctx.figshare_url, ctx.doi, ctx.publisher_doi)
+        Map(Delegate(ThroughLinks), ctx.figshare_url, DOI(ctx.doi), DOI(ctx.publisher_doi))
     )
 
     tags = Map(

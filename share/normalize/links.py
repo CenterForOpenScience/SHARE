@@ -18,7 +18,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI')
 
 
 #### Public API ####
@@ -92,6 +92,11 @@ def Orcid(chain=None):
         return chain + OrcidLink()
     return OrcidLink()
 
+
+def DOI(chain=None):
+    if chain:
+        return chain + DOILink()
+    return DOILink()
 
 ### /Public API
 
@@ -549,3 +554,26 @@ class OrcidLink(AbstractLink):
             raise ValueError('{} cannot be expressed as an orcid'.format(obj))
         self.checksum(''.join(match.groups()))
         return '{}{}-{}-{}-{}'.format(self.ORCID_URL, *match.groups())
+
+
+class DOILink(AbstractLink):
+    """Reformt DOIs to the cannonical form
+
+    * All DOIs will be valid URIs
+    * All DOIs will use https
+    * All DOI paths will be uppercased
+
+    Reference:
+        https://www.doi.org/doi_handbook/2_Numbering.html
+        https://stackoverflow.com/questions/27910/finding-a-doi-in-a-document-or-page
+    """
+    DOI_URL = 'http://dx.doi.org/'
+    DOI_RE = r'\b(10\.\d{4,}(?:\.\d+)*/\S+(?:(?!["&\'<>])\S))\b'
+
+    def execute(self, obj):
+        if not isinstance(obj, str):
+            raise TypeError('{} is not of type str'.format(obj))
+        match = re.search(self.DOI_RE, obj.upper())
+        if not match:
+            raise ValueError('{} is not a valid DOI'.format(obj))
+        return '{}{}'.format(self.DOI_URL, *match.groups())
