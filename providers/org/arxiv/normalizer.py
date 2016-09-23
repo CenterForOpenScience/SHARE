@@ -1,7 +1,6 @@
 from share.normalize import ctx
 from share.normalize import tools
 from share.normalize.parsers import Parser
-from share.normalize.utils import format_doi_as_url
 
 
 class Link(Parser):
@@ -18,7 +17,7 @@ class Link(Parser):
     def format_link(self, link):
         link_type = self.get_link_type(link)
         if link_type == 'doi':
-            return format_doi_as_url(self, link)
+            return tools.DOI().execute(link)
         return link
 
 

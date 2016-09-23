@@ -2,8 +2,7 @@ import arrow
 
 import dateparser
 
-from share.normalize import Parser, Delegate, RunPython, ParseName, Normalizer, Map, ctx, Try, Subjects
-from share.normalize.utils import format_doi_as_url
+from share.normalize import Parser, Delegate, RunPython, ParseName, Normalizer, Map, ctx, Try, Subjects, DOI
 
 
 class Email(Parser):
@@ -76,7 +75,7 @@ class CreativeWork(Parser):
     links = Map(
         Delegate(ThroughLinks),
         ctx.pdf_url,
-        RunPython('format_doi', ctx.doi),
+        DOI(ctx.doi),
         ctx.fulltext_html_url
     )
     publishers = Map(
@@ -106,9 +105,6 @@ class CreativeWork(Parser):
         journal_abbrev = Try(ctx.journal_abbrev)
         description_html = Try(ctx['description-html'])
         issn = Try(ctx.issn)
-
-    def format_doi(self, doi):
-        return format_doi_as_url(self, doi)
 
     def parse_date(self, date_str):
         return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
