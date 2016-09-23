@@ -200,8 +200,8 @@ def make_creative_work_serializer_class(model):
 
 
 class RelationSerializer(BaseShareSerializer):
-    subject_work = AbstractCreativeWorkSerializer(sparse=True)
-    object_work = AbstractCreativeWorkSerializer(sparse=True)
+    from_work = AbstractCreativeWorkSerializer(sparse=True)
+    to_work = AbstractCreativeWorkSerializer(sparse=True)
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):

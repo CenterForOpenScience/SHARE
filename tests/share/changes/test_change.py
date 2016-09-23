@@ -490,8 +490,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:foo',
                 '@type': 'relation',
-                'subject_work': {'@id': '_:1234', '@type': 'preprint'},
-                'object_work': {'@id': '_:2345', '@type': 'creativework'},
+                'from_work': {'@id': '_:1234', '@type': 'preprint'},
+                'to_work': {'@id': '_:2345', '@type': 'creativework'},
                 'relation_type': 'ridicules'
             }, {
                 '@id': '_:3456',
@@ -516,10 +516,10 @@ class TestChangeSet:
         assert p.related_works.first() == c
         assert p.outgoing_relations.count() == 1
         assert p.outgoing_relations.first().relation_type == 'ridicules'
-        assert p.outgoing_relations.first().object_work == c
+        assert p.outgoing_relations.first().to_work == c
         assert c.incoming_relations.count() == 1
         assert c.incoming_relations.first().relation_type == 'ridicules'
-        assert c.incoming_relations.first().subject_work == p
+        assert c.incoming_relations.first().from_work == p
 
     @pytest.mark.django_db
     def test_add_relation_to_work(self, normalized_data_id):
@@ -559,8 +559,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:foo',
                 '@type': 'relation',
-                'subject_work': {'@id': '_:1234', '@type': 'preprint'},
-                'object_work': {'@id': '_:2345', '@type': 'creativework'},
+                'from_work': {'@id': '_:1234', '@type': 'preprint'},
+                'to_work': {'@id': '_:2345', '@type': 'creativework'},
                 'relation_type': 'ridicules'
             }, {
                 '@id': '_:2345',
@@ -588,10 +588,10 @@ class TestChangeSet:
 
         assert dog.outgoing_relations.count() == 1
         assert dog.outgoing_relations.first().relation_type == 'ridicules'
-        assert dog.outgoing_relations.first().object_work == cat
+        assert dog.outgoing_relations.first().to_work == cat
         assert cat.incoming_relations.count() == 1
         assert cat.incoming_relations.first().relation_type == 'ridicules'
-        assert cat.incoming_relations.first().subject_work == dog
+        assert cat.incoming_relations.first().from_work == dog
 
     @pytest.mark.django_db
     def test_add_work_with_existing_relation(self, normalized_data_id):
@@ -614,8 +614,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:foo',
                 '@type': 'relation',
-                'subject_work': {'@id': '_:1234', '@type': 'preprint'},
-                'object_work': {'@id': '_:2345', '@type': 'creativework'},
+                'from_work': {'@id': '_:1234', '@type': 'preprint'},
+                'to_work': {'@id': '_:2345', '@type': 'creativework'},
                 'relation_type': 'ridicules'
             }, {
                 '@id': '_:2345',
@@ -664,7 +664,7 @@ class TestChangeSet:
 
         assert dog.outgoing_relations.count() == 1
         assert dog.outgoing_relations.first().relation_type == 'ridicules'
-        assert dog.outgoing_relations.first().object_work == cat
+        assert dog.outgoing_relations.first().to_work == cat
         assert cat.incoming_relations.count() == 1
         assert cat.incoming_relations.first().relation_type == 'ridicules'
-        assert cat.incoming_relations.first().subject_work == dog
+        assert cat.incoming_relations.first().from_work == dog

@@ -159,8 +159,8 @@ class RelationDisambiguator(Disambiguator):
 
     def disambiguate(self):
         filters = {
-            'subject_work': self.attrs.get('subject_work'),
-            'object_work': self.attrs.get('object_work')
+            'from_work': self.attrs.get('from_work'),
+            'to_work': self.attrs.get('to_work')
         }
         relation_type = self.attrs.get('relation_type')
         if relation_type:

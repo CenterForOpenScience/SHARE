@@ -28,12 +28,12 @@ class Relation(ShareObject):
         # TODO add label to file
         RELATION_TYPES = [(t['key'], t['uri']) for t in json.load(fobj)]
 
-    subject_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
-    object_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')
+    from_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
+    to_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')
     relation_type = models.TextField(choices=RELATION_TYPES, blank=True)
 
     class Meta:
-        unique_together = ('subject_work', 'object_work', 'relation_type')
+        unique_together = ('from_work', 'to_work', 'relation_type')
 
 
 class Venue(ShareObject):
