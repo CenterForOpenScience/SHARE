@@ -3,7 +3,6 @@ import itertools
 from share.normalize import ctx
 from share.normalize import tools
 from share.normalize.parsers import Parser
-from share.normalize.utils import format_doi_as_url
 
 
 class Publisher(Parser):
@@ -16,13 +15,9 @@ class Association(Parser):
 
 class DoiLink(Parser):
     schema = 'Link'
-
-    url = tools.RunPython('format_doi', ctx)
+    url = tools.DOI(ctx)
     # identifier will always be DOI
     type = tools.Static('doi')
-
-    def format_doi(self, doi):
-        return format_doi_as_url(self, doi)
 
 
 class DoiThroughLinks(Parser):

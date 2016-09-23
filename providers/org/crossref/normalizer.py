@@ -1,6 +1,5 @@
 from share.normalize import *
 from share.normalize import links
-from share.normalize.utils import format_doi_as_url
 
 
 class Link(Parser):
@@ -86,9 +85,6 @@ class CreativeWork(Parser):
     https://github.com/CrossRef/rest-api-doc/blob/master/api_format.md
     """
 
-    def format_doi_as_url(self, doi):
-        return format_doi_as_url(self, doi)
-
     title = Maybe(ctx, 'title')[0]
     description = Maybe(ctx, 'subtitle')[0]
     date_updated = ParseDate(Try(ctx.deposited['date-time']))
@@ -97,10 +93,7 @@ class CreativeWork(Parser):
         Delegate(Contributor),
         Maybe(ctx, 'author')
     )
-    links = Map(
-        Delegate(ThroughLinks),
-        RunPython('format_doi_as_url', ctx.DOI)
-    )
+    links = Map(Delegate(ThroughLinks), DOI(ctx.DOI))
     publishers = Map(
         Delegate(Association.using(entity=Delegate(Publisher))),
         ctx.publisher

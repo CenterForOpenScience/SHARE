@@ -1,11 +1,3 @@
-from django.conf import settings
-
-
-def format_doi_as_url(self, doi):
-    plain_doi = doi.replace('doi:', '').replace('DOI:', '').strip()
-    return settings.DOI_BASE_URL + plain_doi
-
-
 def format_address(self, address1='', address2='', city='', state_or_province='', postal_code='', country=''):
     if address1 and address2 and city and state_or_province and postal_code and country:
         return '{}\n{}\n{}, {} {}\n{}'.format(address1, address2, city, state_or_province, postal_code, country)
