@@ -6,6 +6,7 @@ import uuid
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.conf import settings
+from django.db import transaction
 from django.db.models.base import ModelBase
 from fuzzycount import FuzzyCountManager
 
@@ -154,3 +155,31 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
 
     class Meta:
         abstract = True
+
+    def administrative_change(self, **kwargs):
+        from share.models import Change
+        from share.models import ChangeSet
+        from share.models import NormalizedData
+        from share.models import ShareUser
+
+        with transaction.atomic():
+            assert kwargs, 'Don\'t make empty changes'
+
+            nd = NormalizedData.objects.create(
+                source=ShareUser.objects.get(username='system'),
+                normalized_data={
+                    '@graph': [{'@id': self.pk, '@type': self._meta.model_name, **kwargs}]
+                }
+            )
+
+            cs = ChangeSet.objects.create(normalized_data=nd, status=ChangeSet.STATUS.accepted)
+            change = Change.objects.create(change={}, node_id=str(self.pk), type=Change.TYPE.update, target=self, target_version=self.version, change_set=cs)
+
+            acceptable_fields = set(f.name for f in self._meta.get_fields())
+            for key, value in kwargs.items():
+                if key not in acceptable_fields:
+                    raise AttributeError(key)
+                setattr(self, key, value)
+            self.change = change
+
+            self.save()

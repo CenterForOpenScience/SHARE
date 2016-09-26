@@ -1,6 +1,7 @@
 import pytest
 
 from share.models import Person, NormalizedData, Change, ChangeSet
+from share.models import Publication
 from share.models import ShareUser
 from share.change import ChangeNode, ChangeGraph
 
@@ -74,3 +75,8 @@ def john_doe(share_source, change_ids):
 @pytest.fixture
 def jane_doe(share_source, change_ids):
     return Person.objects.create(given_name='Jane', family_name='Doe', change_id=change_ids.get())
+
+
+@pytest.fixture
+def all_about_anteaters(share_source, change_ids):
+    return Publication.objects.create(title='All about Anteaters', change_id=change_ids.get())
