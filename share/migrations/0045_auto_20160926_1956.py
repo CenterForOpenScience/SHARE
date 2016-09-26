@@ -12,7 +12,7 @@ import share.models.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0043_auto_20160830_2102'),
+        ('share', '0044_auto_20160923_1519'),
     ]
 
     operations = [
