@@ -2,7 +2,7 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework import serializers
 
 from share import models
-from share.models import ChangeSet
+from share.models import ChangeSet, ProviderRegistration
 
 
 class RawDataSerializer(serializers.ModelSerializer):
@@ -12,9 +12,12 @@ class RawDataSerializer(serializers.ModelSerializer):
 
 
 class ProviderRegistrationSerializer(serializers.ModelSerializer):
-    status = serializers.IntegerField(read_only=True)
+    status = serializers.SerializerMethodField()
     submitted_at = serializers.DateTimeField(read_only=True)
     submitted_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    def get_status(self, obj):
+        return ProviderRegistration.STATUS[obj.status]
 
     class Meta:
         model = models.ProviderRegistration
