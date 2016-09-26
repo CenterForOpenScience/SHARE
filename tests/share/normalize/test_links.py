@@ -1,4 +1,5 @@
 import pytest
+import rfc3987
 
 from share.normalize.links import DOILink
 from share.normalize.links import OrcidLink
@@ -33,6 +34,7 @@ def test_orcid_link(orcid, result):
     ('0.5517/ccdc.csd.cc1lj81f', ValueError('0.5517/ccdc.csd.cc1lj81f is not a valid DOI')),
     ('10.5517ccdc.csd.cc1lj81f', ValueError('10.5517ccdc.csd.cc1lj81f is not a valid DOI')),
     ('10.517ccdc.csd.cc1lj81f', ValueError('10.517ccdc.csd.cc1lj81f is not a valid DOI')),
+    ('10.517/ccdc.csd.cc1lj81f', ValueError('10.517/ccdc.csd.cc1lj81f is not a valid DOI')),
     ('10.517ccdc.csd.c>c1lj81f', ValueError('10.517ccdc.csd.c>c1lj81f is not a valid DOI')),
     ('10.5517/ccdc.csd.cc1lj81f', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
     ('   10.5517/ccdc.csd.cc1lj81f', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
@@ -41,7 +43,8 @@ def test_orcid_link(orcid, result):
     ('doi:10.5517/ccdc.csd.cc1lj81f', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
     ('The DOI is 10.5517/ccdc.csd.cc1lj81f', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
     ('10.5517/ccdc.csd.cc1lj81f\n', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
-    ('https://dx.doi.org/10.1674/0003-0031(1998)140[0358:CAPWBS]2.0.CO;2', 'http://dx.doi.org/10.1674/0003-0031(1998)140[0358:CAPWBS]2.0.CO;2'),
+    ('https://dx.doi.org/10.1674/0003-0031(1998)140[0358:CAPWBS]2.0.CO;2', 'http://dx.doi.org/10.1674/0003-0031(1998)140%5B0358:CAPWBS%5D2.0.CO;2'),
+    ('http://dx.doi.org/10.1002/1096-8644(200101)114:1<18::AID-AJPA1002>3.0.CO;2-2', 'http://dx.doi.org/10.1002/1096-8644(200101)114:1%3C18::AID-AJPA1002%3E3.0.CO;2-2'),
 ])
 def test_doi_link(doi, result):
     if isinstance(result, Exception):
@@ -49,4 +52,5 @@ def test_doi_link(doi, result):
             DOILink().execute(doi)
         assert e.value.args == result.args
     else:
+        assert rfc3987.parse(result)  # Extra URL validation
         assert DOILink().execute(doi) == result

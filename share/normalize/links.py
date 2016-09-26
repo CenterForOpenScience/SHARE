@@ -1,3 +1,4 @@
+import furl
 from collections import deque
 from functools import reduce
 import json
@@ -566,6 +567,9 @@ class DOILink(AbstractLink):
     Reference:
         https://www.doi.org/doi_handbook/2_Numbering.html
         https://stackoverflow.com/questions/27910/finding-a-doi-in-a-document-or-page
+
+    While having characters like <>[] in URLs is technically valid, rfc3987 does not seem to like.
+    For that reason we escape them here using furl. The regex ensure we won't pick up invalid URLS
     """
     DOI_URL = 'http://dx.doi.org/'
     DOI_RE = r'\b(10\.\d{4,}(?:\.\d+)*/\S+(?:(?!["&\'<>])\S))\b'
@@ -576,4 +580,4 @@ class DOILink(AbstractLink):
         match = re.search(self.DOI_RE, obj.upper())
         if not match:
             raise ValueError('{} is not a valid DOI'.format(obj))
-        return '{}{}'.format(self.DOI_URL, *match.groups())
+        return furl.furl('{}{}'.format(self.DOI_URL, *match.groups())).url
