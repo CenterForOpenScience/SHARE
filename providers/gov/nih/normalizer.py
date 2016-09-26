@@ -47,15 +47,14 @@ class Funder(Parser):
     # The full name of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
     name = ctx.IC_NAME
 
-    # The organizational code of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
-    community_identifier = RunPython('filter_nil', ctx.ADMINISTERING_IC)
-
     def filter_nil(self, obj):
         if isinstance(obj, dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
             return None
         return obj
 
     class Extra:
+        # The organizational code of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
+        acronym = RunPython('filter_nil', ctx.ADMINISTERING_IC)
         funding_ics = ctx.FUNDING_ICs
         funding_mechanism = ctx.FUNDING_MECHANISM
 
