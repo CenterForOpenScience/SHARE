@@ -22,12 +22,6 @@ class ProviderRegistration(models.Model):
     contact_email = models.EmailField()
     contact_affiliation = models.TextField(max_length=300)
 
-    meta_tos = models.BooleanField(default=False)
-    meta_rights = models.BooleanField(default=False)
-    meta_privacy = models.BooleanField(default=False)
-    meta_sharing = models.BooleanField(default=False)
-    meta_license = models.BooleanField(default=False)
-
     direct_source = models.BooleanField(default=False)
 
     source_name = models.TextField(max_length=300)
