@@ -21,6 +21,10 @@ __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)
 
 
+class IdentifierConflictError(Exception):
+    pass
+
+
 class ChangeSetManager(FuzzyCountManager):
 
     def from_graph(self, graph, normalized_data_id):
@@ -178,7 +182,7 @@ class Change(models.Model):
                 from share.disambiguation import disambiguate
                 logger.info('Handling unique violation error %r', e)
                 if self.target_type.model == 'identifier':
-                    raise Exception('Race condition: Identifier collision should have been handled in disambiguation. Roll back and try again.')
+                    raise IdentifierConflictError()
 
                 self.type = Change.TYPE.update
                 self.target = disambiguate('_:', resolved_change, self.target_type.model_class())
