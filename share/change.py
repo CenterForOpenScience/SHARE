@@ -56,6 +56,10 @@ class ChangeNode:
         return self.__refs
 
     @property
+    def is_skippable(self):
+        return (self.is_merge or self.instance) and not self.change
+
+    @property
     def new_type(self):
         return self.__new_type or self.type
 
@@ -73,11 +77,6 @@ class ChangeNode:
             ret = {**self.attrs, **self.relations}
             if self.extra:
                 ret['extra'] = self.extra
-            try:
-                if not ret and self.__reverse_relations and self.model._meta.get_field('is_stub'):
-                    ret['is_stub'] = True
-            except FieldDoesNotExist:
-                pass
             return ret
 
         if not self.instance:
@@ -93,9 +92,6 @@ class ChangeNode:
 
             if not ret['extra']:
                 del ret['extra']
-
-        if ret and getattr(self.instance, 'is_stub', False):
-            ret['is_stub'] = False
 
         if self.new_type != self.type:
             ret['@type'] = self.new_type
@@ -218,12 +214,7 @@ class NodeSorter:
         self.__graph = graph
         self.__visted = set()
         self.__visiting = set()
-
-        # visit identifiers first
-        self.__nodes = sorted(
-            graph.nodes,
-            key=lambda n: n.type != 'identifier'
-        )
+        self.__nodes = list(graph.nodes)
 
     def sorted(self):
         if not self.__nodes:

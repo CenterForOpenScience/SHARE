@@ -17,16 +17,13 @@ __all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation')
 class Identifier(ShareObject):
     # https://twitter.com/berniethoughts/
     url = ShareURLField(unique=True)
-
-    # https://twitter.com/
-    def get_base_url(self):
-        return furl(self.url).origin
+    domain = models.TextField()
 
 
 class Relation(ShareObject):
     with open('./share/models/relation-types.json') as fobj:
         # TODO add label to file
-        RELATION_TYPES = [(t['key'], t['uri']) for t in json.load(fobj)]
+        RELATION_TYPES = [(t['key'], t['key']) for t in json.load(fobj)]
 
     from_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
     to_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')

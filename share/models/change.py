@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class ChangeSetManager(FuzzyCountManager):
 
     def from_graph(self, graph, normalized_data_id):
-        if all(not n.change for n in graph.nodes):
+        if all(n.is_skippable for n in graph.nodes):
             logger.debug('No changes detected in {!r}, skipping.'.format(graph))
             return None
 
@@ -43,7 +43,7 @@ class ChangeManager(FuzzyCountManager):
         # Subjects may not be changed
         # This case is only reached when a synoynm is sent up
         # TODO Fix this in a better way 2016-08-23 @chrisseto
-        if not node.change or node.model == apps.get_model('share', 'subject'):
+        if node.is_skippable or node.model == apps.get_model('share', 'subject'):
             logger.debug('No changes detected in {!r}, skipping.'.format(node))
             return None
 
@@ -194,8 +194,7 @@ class Change(models.Model):
 
         new_type = self.change.pop('@type', None)
         if new_type:
-            # TODO is this enough?
-            self.target.type = 'share.{}'.format(new_type)
+            self.target.recast('share.{}'.format(new_type))
 
         self.target.__dict__.update(self._resolve_change())
         if save:
