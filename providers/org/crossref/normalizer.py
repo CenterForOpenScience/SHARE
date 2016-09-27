@@ -1,6 +1,5 @@
 from share.normalize import *
 from share.normalize import links
-from share.normalize.utils import format_doi_as_url
 
 
 class Link(Parser):
@@ -45,7 +44,7 @@ class Affiliation(Parser):
 
 
 class Identifier(Parser):
-    url = ctx
+    url = Orcid(ctx)
     base_url = Static('https://orcid.org')
 
 
@@ -76,30 +75,25 @@ class Tag(Parser):
     name = ctx
 
 
+class ThroughTags(Parser):
+    tag = Delegate(Tag, ctx)
+
+
 class CreativeWork(Parser):
     """
     Documentation for CrossRef's metadata can be found here:
     https://github.com/CrossRef/rest-api-doc/blob/master/api_format.md
     """
 
-    def format_doi_as_url(self, doi):
-        return format_doi_as_url(self, doi)
-
     title = Maybe(ctx, 'title')[0]
     description = Maybe(ctx, 'subtitle')[0]
-    subject = Delegate(Tag, Maybe(ctx, 'subject')[0])
     date_updated = ParseDate(Try(ctx.deposited['date-time']))
 
     contributors = Map(
         Delegate(Contributor),
         Maybe(ctx, 'author')
     )
-    links = Map(
-        Delegate(ThroughLinks),
-        RunPython('format_doi_as_url', ctx.DOI),
-        ctx.member,
-        ctx.prefix
-    )
+    links = Map(Delegate(ThroughLinks), DOI(ctx.DOI))
     publishers = Map(
         Delegate(Association.using(entity=Delegate(Publisher))),
         ctx.publisher
@@ -107,6 +101,11 @@ class CreativeWork(Parser):
     funders = Map(
         Delegate(Association.using(entity=Delegate(Funder))),
         Maybe(ctx, 'funder')
+    )
+    # TODO These are "a controlled vocabulary from Sci-Val", map to Subjects!
+    tags = Map(
+        Delegate(ThroughTags),
+        Maybe(ctx, 'subject')
     )
 
     class Extra:
@@ -124,6 +123,7 @@ class CreativeWork(Parser):
         issn = Maybe(ctx, 'issn')
         issue = Maybe(ctx, 'issue')
         reference_count = ctx['reference-count']
+        member = Maybe(ctx, 'member')
         page = Maybe(ctx, 'page')
         published_online = Maybe(ctx, 'published-online')
         published_print = Maybe(ctx, 'published-print')
@@ -133,3 +133,23 @@ class CreativeWork(Parser):
         translator = Maybe(ctx, 'translator')
         type = ctx.type
         volume = Maybe(ctx, 'volume')
+
+
+class Publication(CreativeWork):
+    pass
+
+
+# TODO when DataSet is added
+# class DataSet(CreativeWork):
+#     pass
+
+
+class CrossRefNormalizer(Normalizer):
+    def do_normalize(self, data):
+        unwrapped = self.unwrap_data(data)
+
+        if unwrapped['type'] == 'journal-article':
+            return Publication(unwrapped).parse()
+        # if unwrapped['type'] == 'dataset':
+        #    return DataSet(unwrapped).parse()
+        return CreativeWork(unwrapped).parse()

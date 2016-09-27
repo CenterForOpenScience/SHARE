@@ -5,7 +5,6 @@ from lxml import etree
 from share.normalize import ctx, tools
 from share.normalize.parsers import Parser
 from share.normalize.normalizer import Normalizer
-from share.normalize.utils import format_doi_as_url
 
 
 logger = logging.getLogger(__name__)
@@ -33,9 +32,7 @@ class OAILink(Parser):
     def format_link(self, link):
         link_type = self.get_link_type(link)
         if link_type == 'doi':
-            if 'http' in link:
-                return link
-            return format_doi_as_url(self, link)
+            return tools.DOI().execute(link)
         return link
 
 
@@ -43,6 +40,18 @@ class OAIThroughLinks(Parser):
     schema = 'ThroughLinks'
 
     link = tools.Delegate(OAILink, ctx)
+
+
+class OAISubject(Parser):
+    schema = 'Subject'
+
+    name = ctx
+
+
+class OAIThroughSubjects(Parser):
+    schema = 'ThroughSubjects'
+
+    subject = tools.Delegate(OAISubject, ctx)
 
 
 class OAIPerson(Parser):
@@ -97,7 +106,15 @@ class OAIThroughTags(Parser):
 
 
 class OAICreativeWork(Parser):
-    schema = 'CreativeWork'
+    @property
+    def schema(self):
+        try:
+            resourceType = self.context['record']['metadata']['dc']['dc:type']
+            if resourceType == 'preprint':
+                return 'Preprint'
+            return 'CreativeWork'
+        except (KeyError, ValueError):
+            return 'CreativeWork'
 
     ORGANIZATION_KEYWORDS = (
         'the',
@@ -158,6 +175,19 @@ class OAICreativeWork(Parser):
                 tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
             ),
             'organization'
+        )
+    )
+
+    subjects = tools.Map(
+        tools.Delegate(OAIThroughSubjects),
+        tools.Subjects(
+            tools.Map(
+                tools.RunPython('tokenize'),
+                tools.Try(ctx['record']['header']['setSpec']),
+                tools.Try(ctx['record']['metadata']['dc']['dc:type']),
+                tools.Try(ctx['record']['metadata']['dc']['dc:format']),
+                tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+            )
         )
     )
 
@@ -271,6 +301,12 @@ class OAICreativeWork(Parser):
             else:
                 raise Exception(datum)
         return fixed
+
+    def tokenize(self, data):
+        tokens = []
+        for item in data:
+            tokens.extend([x.strip() for x in re.split('(?: - )|\.', data) if x])
+        return tokens
 
     def get_relation(self, ctx):
         if not ctx['record'].get('metadata'):

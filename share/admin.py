@@ -17,7 +17,7 @@ from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.entities import Entity
-from share.models.meta import Venue, Award, Tag, Link, Subject, SubjectSynonym
+from share.models.meta import Venue, Award, Tag, Link, Subject
 from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
 from share.tasks import ApplyChangeSets
 
@@ -179,21 +179,6 @@ class AccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'user', 'scope')
 
 
-class SubjectSynonymInline(admin.TabularInline):
-    model = SubjectSynonym
-
-    def has_add_permission(self, request, obj=None):
-            return False
-
-    def has_delete_permission(self, request, obj=None):
-            return False
-
-
-class SubjectAdmin(admin.ModelAdmin):
-    inlines = [
-        SubjectSynonymInline
-    ]
-
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -205,7 +190,7 @@ admin.site.register(Venue)
 admin.site.register(Award)
 admin.site.register(Link, LinkAdmin)
 admin.site.register(Tag, TagAdmin)
-admin.site.register(Subject, SubjectAdmin)
+admin.site.register(Subject)
 admin.site.register(ExtraData)
 admin.site.register(Contributor, ContributorAdmin)
 admin.site.register(Email)

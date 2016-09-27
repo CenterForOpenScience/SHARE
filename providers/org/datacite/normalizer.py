@@ -3,7 +3,6 @@ import logging
 
 from share.normalize import ctx, tools
 from share.normalize.parsers import Parser
-from share.normalize.utils import format_doi_as_url
 
 
 logger = logging.getLogger(__name__)
@@ -30,17 +29,8 @@ def force_text(data):
 
 
 class Link(Parser):
-    url = tools.RunPython(
-        'format_link',
-        tools.RunPython(
-            force_text,
-            ctx
-        )
-    )
+    url = tools.DOI(tools.RunPython(force_text, ctx))
     type = tools.Static('doi')
-
-    def format_link(self, link):
-        return format_doi_as_url(self, link)
 
 
 class AlternateLink(Parser):
@@ -187,10 +177,10 @@ class Creator(Parser):
 
 
 class Funder(Parser):
+    name = tools.Try(ctx.contributorName)
     community_identifier = tools.Join(tools.Concat(tools.Try(ctx.nameIdentifier['@schemeURI']), tools.Try(ctx.nameIdentifier['#text'])), joiner='/')
 
     class Extra:
-        name = tools.Try(ctx.contributorName)
         name_identifier_scheme = tools.Try(ctx.nameIdentifier['@nameIdentifierScheme'])
         name_identifier_scheme_uri = tools.Try(ctx.nameIdentifier['@schemeURI'])
 

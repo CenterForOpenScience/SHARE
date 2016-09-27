@@ -155,6 +155,8 @@ INSTALLED_APPS = [
     'providers.edu.vtech',
     'providers.edu.wash_state_u',
     'providers.edu.waynestate',
+    'providers.edu.wisconsin',
+    'providers.edu.wm',
     'providers.edu.wustlopenscholarship',
     'providers.et.edu.addis_ababa',
     'providers.eu.econstor',
@@ -174,11 +176,13 @@ INSTALLED_APPS = [
     'providers.io.osf.preprints',
     'providers.io.osf.registrations',
     'providers.io.socarxiv',
+    'providers.io.psyarxiv',
     # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai',
     'providers.org.bhl',
     'providers.org.biorxiv',
+    'providers.org.biorxiv.rss',
     'providers.org.cogprints',
     'providers.org.crossref',
     'providers.org.datacite',
@@ -342,12 +346,12 @@ if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
 # else:
 INSTALLED_APPS += [
-    'raven.contrib.django.raven_compat',
+    # 'raven.contrib.django.raven_compat',
 ]
-RAVEN_CONFIG = {
-    'dsn': os.environ.get('SENTRY_DSN', None),
-    'release': os.environ.get('GIT_COMMIT', None),
-}
+# RAVEN_CONFIG = {
+#   'dsn': os.environ.get('SENTRY_DSN', None),
+#   'release': os.environ.get('GIT_COMMIT', None),
+# }
 
 
 # TODO REMOVE BEFORE PRODUCTION
@@ -356,7 +360,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 # TODO REMOVE BEFORE PRODUCTION
 
-
+ANONYMOUS_USER_NAME = 'AnonymousUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -420,6 +424,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 
+CELERY_ACKS_LATE = True
 CELERY_TRACK_STARTED = True
 CELERY_RESULT_PERSISTENT = True
 CELERY_SEND_EVENTS = True
@@ -436,14 +441,21 @@ MED_QUEUE = 'med'
 HIGH_QUEUE = 'high'
 
 LOW_PRI_MODULES = {
-    'share.tasks.NormalizerTask',
-}
-
-MED_PRI_MODULES = {
     'share.tasks.HarvesterTask',
 }
 
+# Default priority is implicit
+# DEFAULT_PRI_MODULES = {
+#     'share.tasks.NormalizerTask',
+# }
+
+MED_PRI_MODULES = {
+    'share.tasks.MakeJsonPatches',
+}
+
 HIGH_PRI_MODULES = {
+    'share.tasks.BotTask',
+    'bots.elasticsearch',
 }
 
 CELERY_QUEUES = (
@@ -515,12 +527,15 @@ LOGGING = {
 
 
 # Custom Settings
-PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
-EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
-EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share')
-SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
-OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1
+PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
+
+EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share' if DEBUG else '')
+EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
+SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
+SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', SHARE_API_URL + EMBER_SHARE_PREFIX).rstrip('/') + '/'
+
+OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 
 # API KEYS

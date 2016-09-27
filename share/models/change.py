@@ -25,7 +25,7 @@ class ChangeSetManager(FuzzyCountManager):
 
     def from_graph(self, graph, normalized_data_id):
         if all(not n.change for n in graph.nodes):
-            logger.info('No changes detected in {!r}, skipping.'.format(graph))
+            logger.debug('No changes detected in {!r}, skipping.'.format(graph))
             return None
 
         cs = ChangeSet(normalized_data_id=normalized_data_id)
@@ -44,7 +44,7 @@ class ChangeManager(FuzzyCountManager):
         # This case is only reached when a synoynm is sent up
         # TODO Fix this in a better way 2016-08-23 @chrisseto
         if not node.change or node.model == apps.get_model('share', 'subject'):
-            logger.info('No changes detected in {!r}, skipping.'.format(node))
+            logger.debug('No changes detected in {!r}, skipping.'.format(node))
             return None
 
         attrs = {
@@ -123,6 +123,7 @@ class Change(models.Model):
         ordering = ('pk', )
         index_together = (
             ('node_id', 'change_set', 'target_type',),
+            ('target_type', 'target_id'),
         )
 
     def get_requirements(self):
@@ -165,7 +166,8 @@ class Change(models.Model):
         return self._merge(save=save)
 
     def _create(self, save=True):
-        inst = self.target_type.model_class()(change=self, **self._resolve_change())
+        resolved_change = self._resolve_change()
+        inst = self.target_type.model_class()(change=self, **resolved_change)
         if save:
             try:
                 with transaction.atomic():
@@ -177,7 +179,7 @@ class Change(models.Model):
                 logger.info('Handling unique violation error %r', e)
 
                 self.type = Change.TYPE.update
-                self.target = disambiguate('_:', self.change, self.target_type.model_class())
+                self.target = disambiguate('_:', resolved_change, self.target_type.model_class())
 
                 logger.info('Updating target to %r and type to update', self.target)
                 self.save()

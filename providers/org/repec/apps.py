@@ -9,4 +9,3 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://repec.org/'
     url = 'http://oai.repec.org'
     time_granularity = False
-    emitted_type = 'preprint'

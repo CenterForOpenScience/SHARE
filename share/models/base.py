@@ -6,6 +6,7 @@ import uuid
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.conf import settings
+from django.db import transaction
 from django.db.models.base import ModelBase
 from fuzzycount import FuzzyCountManager
 
@@ -36,7 +37,7 @@ class ShareObjectMeta(ModelBase):
     share_attrs = {
         'sources': lambda: models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s', editable=False),
         'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False),
-        'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False),
+        'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True),
         'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False),
         'uuid': lambda: models.UUIDField(default=uuid.uuid4, editable=False)
     }
@@ -45,17 +46,13 @@ class ShareObjectMeta(ModelBase):
         if (models.Model in bases and attrs['Meta'].abstract) or len(bases) > 1:
             return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 
-        if hasattr(attrs.get('Meta'), 'db_table'):
-            delattr(attrs['Meta'], 'db_table')
-
         version_attrs = {}
         for key, val in attrs.items():
             if isinstance(val, models.Field) and val.unique:
                 val = copy.deepcopy(val)
                 val._unique = False
-            if key == 'Meta' and hasattr(val, 'unique_together'):
-                val = copy.deepcopy(val)
-                delattr(val, 'unique_together')
+            if key == 'Meta':
+                val = type('VersionMeta', (val, ), {'unique_together': None, 'db_table': None})
             version_attrs[key] = val
 
         # TODO Fix this in some non-horrid fashion
@@ -154,7 +151,35 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
     objects = FuzzyCountManager()
     versions = VersionManager()
-    changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id')
+    changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=False)
 
     class Meta:
         abstract = True
+
+    def administrative_change(self, **kwargs):
+        from share.models import Change
+        from share.models import ChangeSet
+        from share.models import NormalizedData
+        from share.models import ShareUser
+
+        with transaction.atomic():
+            assert kwargs, 'Don\'t make empty changes'
+
+            nd = NormalizedData.objects.create(
+                source=ShareUser.objects.get(username='system'),
+                normalized_data={
+                    '@graph': [{'@id': self.pk, '@type': self._meta.model_name, **kwargs}]
+                }
+            )
+
+            cs = ChangeSet.objects.create(normalized_data=nd, status=ChangeSet.STATUS.accepted)
+            change = Change.objects.create(change={}, node_id=str(self.pk), type=Change.TYPE.update, target=self, target_version=self.version, change_set=cs)
+
+            acceptable_fields = set(f.name for f in self._meta.get_fields())
+            for key, value in kwargs.items():
+                if key not in acceptable_fields:
+                    raise AttributeError(key)
+                setattr(self, key, value)
+            self.change = change
+
+            self.save()

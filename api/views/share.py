@@ -2,6 +2,9 @@ from rest_framework import viewsets, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
+from django import http
+from django.views.generic.base import RedirectView
+
 from api.filters import ShareObjectFilterSet
 from share import serializers
 from api import serializers as api_serializers
@@ -46,7 +49,7 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
             data.append(obj.change.change_set.normalized_data.raw)
         else:
             changes = obj.changes.all()
-            data = [change.changeset.normalized_data.raw for change in changes]
+            data = [change.change_set.normalized_data.raw for change in changes]
 
         page = self.paginate_queryset(data)
         if page is not None:
@@ -183,3 +186,25 @@ class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
         ser = api_serializers.ShareUserSerializer(request.user, token=True)
         return Response(ser.data)
+
+
+class HttpSmartResponseRedirect(http.HttpResponseRedirect):
+    status_code = 307
+
+
+class HttpSmartResponsePermanentRedirect(http.HttpResponsePermanentRedirect):
+    status_code = 308
+
+
+class APIVersionRedirectView(RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+        return '/api/v2/{}'.format(kwargs['path'])
+
+    def get(self, request, *args, **kwargs):
+        url = self.get_redirect_url(*args, **kwargs)
+        if url:
+            if self.permanent:
+                return HttpSmartResponsePermanentRedirect(url)
+            return HttpSmartResponseRedirect(url)
+        return http.HttpResponseGone()

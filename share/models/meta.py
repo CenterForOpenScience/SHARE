@@ -3,11 +3,11 @@ from django.db import IntegrityError
 from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, URIField, ShareURLField, ShareManyToManyField
+from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject', 'SubjectSynonym')
+__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject')
 
 # TODO Rename this file
 
@@ -25,7 +25,7 @@ class Venue(ShareObject):
 class Award(ShareObject):
     # ScholarlyArticle has an award object
     # it's just a text field, I assume our 'description' covers it.
-    award = ShareURLField(blank=True)
+    name = models.TextField(blank=True)
     description = models.TextField(blank=True)
     url = ShareURLField(blank=True)
     entities = ShareManyToManyField('Entity', through='ThroughAwardEntities')
@@ -42,11 +42,16 @@ class Tag(ShareObject):
 
 
 class Link(ShareObject):
-    url = URIField(db_index=True)
+    url = ShareURLField(db_index=True)
     type = models.TextField(choices=share_config.link_type_choices)
 
     def __str__(self):
         return self.url
+
+
+class SubjectManager(models.Manager):
+    def get_by_natural_key(self, subject):
+        return self.get(name=subject)
 
 
 class Subject(models.Model):
@@ -54,31 +59,22 @@ class Subject(models.Model):
     parents = models.ManyToManyField('self')
     name = models.TextField(unique=True, db_index=True)
 
+    objects = SubjectManager()
+
     def __str__(self):
+        return self.name
+
+    def natural_key(self):
         return self.name
 
     def save(self):
         raise IntegrityError('Subjects are an immutable set! Do it in bulk, if you must.')
 
 
-class SubjectSynonym(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='synonyms')
-    synonym = models.TextField(db_index=True)
-
-    def __str__(self):
-        return self.synonym
-
-    def save(self):
-        raise IntegrityError('Subjects synonyms are an immutable set! Do it in bulk, if you must.')
-
-    class Meta:
-        unique_together = ('subject', 'synonym')
-
-
 # Through Tables for all the things
 
 class ThroughLinks(ShareObject):
-    link = ShareForeignKey(Link)
+    link = ShareForeignKey(Link, on_delete=models.CASCADE)
     creative_work = ShareForeignKey('AbstractCreativeWork')
 
     class Meta:

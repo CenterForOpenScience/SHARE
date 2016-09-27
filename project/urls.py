@@ -20,17 +20,24 @@ from django.views.generic.base import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
 from revproxy.views import ProxyView
 
+from api.views import APIVersionRedirectView
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^api/', include('api.urls', namespace='api')),
+    url(r'^api/v2/', include('api.urls', namespace='api')),
+    url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
+    url(r'^api/v1/', include('api.urls_v1', namespace='api_v1')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^accounts/', include('allauth.urls')),
-
-    url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
     url(r'^$', RedirectView.as_view(url='{}/'.format(settings.EMBER_SHARE_PREFIX))),
     url(r'^favicon.ico$', RedirectView.as_view(
         url=staticfiles_storage.url('favicon.ico'),
         permanent=False
     ), name="favicon"),
 ]
+
+if settings.DEBUG:
+    urlpatterns.extend([
+        url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL))
+    ])

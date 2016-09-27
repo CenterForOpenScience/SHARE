@@ -7,7 +7,6 @@ import datetime
 from typing import Tuple
 from typing import Union
 from typing import Iterator
-from collections import OrderedDict
 
 import arrow
 import requests
@@ -91,7 +90,7 @@ class Harvester(metaclass=abc.ABCMeta):
             assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
             for doc_id, datum in rawdata:
-                stored.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source))
+                stored.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source, self.config.label))
 
         return stored
 
@@ -124,12 +123,7 @@ class Harvester(metaclass=abc.ABCMeta):
         Returns:
             str: json.dumpsed ordered dictionary
         """
-        def order_json(data: dict) -> OrderedDict:
-            return OrderedDict(sorted([
-                (key, order_json(value) if isinstance(value, dict) else value)
-                for key, value in data.items()
-            ], key=lambda x: x[0]))
-        return json.dumps(order_json(data), indent=4 if pretty else None).encode()
+        return json.dumps(data, sort_keys=True, indent=4 if pretty else None).encode()
 
     def _validate_dates(self, start_date, end_date):
         assert not (bool(start_date) ^ bool(end_date)), 'Must specify both a start and end date or neither'

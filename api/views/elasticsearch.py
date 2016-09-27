@@ -27,7 +27,7 @@ class ElasticSearchView(views.APIView):
             query_params=request.query_params,
         ).add(path=url_bits.split('/'))
         resp = requests.get(es_url)
-        return Response(data=resp.json(), headers={'Content-Type': 'application/json'})
+        return Response(status=resp.status_code, data=resp.json(), headers={'Content-Type': 'application/json'})
 
     def post(self, request, *args, url_bits='', **kwargs):
         es_url = furl(settings.ELASTICSEARCH_URL).add(
@@ -35,4 +35,4 @@ class ElasticSearchView(views.APIView):
             query_params=request.query_params,
         ).add(path=url_bits.split('/'))
         resp = requests.post(es_url, json=request.data)
-        return Response(data=resp.json(), headers={'Content-Type': 'application/json'})
+        return Response(status=resp.status_code, data=resp.json(), headers={'Content-Type': 'application/json'})

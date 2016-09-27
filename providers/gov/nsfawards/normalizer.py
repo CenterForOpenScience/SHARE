@@ -23,6 +23,7 @@ class Association(Parser):
 
 
 class Award(Parser):
+    name = tools.Try(ctx.awardeeName)
     description = ctx.fundsObligatedAmt
     url = tools.RunPython('format_url', ctx)
 
@@ -32,7 +33,6 @@ class Award(Parser):
     class Extra:
         awardee_city = ctx.awardeeCity
         funds_obligated_amt = ctx.fundsObligatedAmt
-        name = tools.Try(ctx.awardeeName)
         awardee_city = ctx.awardeeCity
         awardee_state_code = tools.Try(ctx.awardeeStateCode)
 
@@ -56,7 +56,7 @@ class ThroughVenues(Parser):
 
 class Link(Parser):
     url = tools.RunPython('format_url', ctx)
-    type = 'provider'
+    type = tools.Static('provider')
 
     def format_url(self, ctx):
         return 'https://www.nsf.gov/awardsearch/showAward?AWD_ID={}'.format(ctx['id'])
