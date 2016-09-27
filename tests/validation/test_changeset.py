@@ -214,6 +214,16 @@ class TestJSONLDValidator:
                 '@id': '_:123',
                 '@type': 'Identifier',
                 'url': 'giraffe',
+                'domain': 'foo'
+            }]
+        }
+    }, {
+        'out': "'domain' is a required property at /@graph/0",
+        'in': {
+            '@graph': [{
+                '@id': '_:123',
+                '@type': 'Identifier',
+                'url': 'https://share.osf.io/foo',
             }]
         }
     }, {
@@ -223,6 +233,7 @@ class TestJSONLDValidator:
                 '@id': '_:123',
                 '@type': 'identifier',
                 'url': 'https://share.osf.io/foo',
+                'domain': 'share.osf.io'
             }]
         }
     }]

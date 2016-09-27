@@ -64,18 +64,6 @@ class Contributor(Parser):
     )
 
 
-class DoiIdentifier(Parser):
-    schema = 'Identifier'
-    url = RunPython('format_doi_as_url', ctx)
-
-    def format_doi_as_url(self, doi):
-        return format_doi_as_url(self, doi)
-
-
-class WorkIdentifier(Parser):
-    identifier = Delegate(DoiIdentifier, ctx)
-
-
 class Tag(Parser):
     name = ctx
 

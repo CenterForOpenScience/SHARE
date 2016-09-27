@@ -91,7 +91,7 @@ class RelatedProject(Parser):
 class ProjectRelation(Parser):
     schema = 'Relation'
     relation_type = Static('is_derived_from')
-    object_work = Delegate(RelatedProject, ctx)
+    to_work = Delegate(RelatedProject, ctx)
 
 
 class Preprint(Parser):

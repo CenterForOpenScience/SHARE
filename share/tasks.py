@@ -9,7 +9,6 @@ import requests
 from django.apps import apps
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db import transaction
 
 from share.change import ChangeGraph
 from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
@@ -142,12 +141,11 @@ class MakeJsonPatches(celery.Task):
 
     def build_change_set(self, normalized):
         try:
-            with transaction.atomic():
-                cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
-                if cs and (normalized.source.is_robot or normalized.source.is_trusted):
-                    # TODO: verify change set is not overwriting user created object
-                    cs.accept()
-                return cs
+            cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
+            if cs and (normalized.source.is_robot or normalized.source.is_trusted):
+                # TODO: verify change set is not overwriting user created object
+                cs.accept()
+            return cs
         except IdentifierConflictError:
             logger.info('Identifier conflict indicates a race condition. Retrying make JSON patches for %s', normalized)
             return None

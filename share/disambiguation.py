@@ -146,7 +146,7 @@ class RelationDisambiguator(Disambiguator):
             'to_work': self.attrs.get('to_work')
         }
         relation_type = self.attrs.get('relation_type')
-        if relation_type != 'unknown':
+        if relation_type != models.Relation.RELATION_TYPES.unknown:
             filters['relation_type'] = relation_type
         try:
             return models.Relation.objects.filter(**filters)[0]

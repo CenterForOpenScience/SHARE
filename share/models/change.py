@@ -91,6 +91,8 @@ class ChangeSet(models.Model):
                 source = self.normalized_data.source
                 try:
                     ret.append(c.accept(save=save))
+                except IdentifierConflictError as ex:
+                    raise ex
                 except Exception as ex:
                     logger.error('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
                     raise ex

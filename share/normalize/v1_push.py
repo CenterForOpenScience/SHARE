@@ -10,6 +10,7 @@ THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 class Identifier(Parser):
 
     url = ctx
+    domain = tools.Domain(ctx)
 
 
 class WorkIdentifier(Parser):
@@ -73,12 +74,7 @@ class PersonEmail(Parser):
     email = tools.Delegate(Email, ctx)
 
 
-class Identifier(Parser):
-
-    url = ctx
-
-
-class ThroughIdentifiers(Parser):
+class PersonIdentifier(Parser):
 
     identifier = tools.Delegate(Identifier, ctx)
 
@@ -100,7 +96,7 @@ class Person(Parser):
     )
 
     identifiers = tools.Map(
-        tools.Delegate(ThroughIdentifiers),
+        tools.Delegate(PersonIdentifier),
         tools.Try(ctx.sameAs)
     )
 

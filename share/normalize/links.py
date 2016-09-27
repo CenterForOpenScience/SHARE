@@ -19,7 +19,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'Domain')
 
 
 #### Public API ####
@@ -98,6 +98,12 @@ def DOI(chain=None):
     if chain:
         return chain + DOILink()
     return DOILink()
+
+
+def Domain(chain=None):
+    if chain:
+        return chain + DomainLink()
+    return DomainLink()
 
 ### /Public API
 
@@ -593,3 +599,14 @@ class DOILink(AbstractLink):
         if not match:
             raise ValueError('{} is not a valid DOI'.format(obj))
         return furl.furl('{}{}'.format(self.DOI_URL, *match.groups())).url
+
+
+class DomainLink(AbstractLink):
+    """
+    Return the domain for a given URL
+    """
+
+    def execute(self, obj):
+        if not isinstance(obj, str):
+            raise TypeError('{} is not of type str'.format(obj))
+        return furl.furl(obj).host

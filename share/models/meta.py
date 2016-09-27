@@ -1,5 +1,8 @@
 import furl
+
 import json
+
+from model_utils import Choices
 
 from django.db import models
 from django.db import IntegrityError
@@ -22,8 +25,7 @@ class Identifier(ShareObject):
 
 class Relation(ShareObject):
     with open('./share/models/relation-types.json') as fobj:
-        # TODO add label to file
-        RELATION_TYPES = [(t['key'], t['key']) for t in json.load(fobj)]
+        RELATION_TYPES = Choices(*[t['key'] for t in json.load(fobj)])
 
     from_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
     to_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')

@@ -7,6 +7,7 @@ from share.normalize import tools
 
 class Identifier(Parser):
     url = ctx
+    domain = tools.Domain(ctx)
 
 
 class PersonIdentifier(Parser):
@@ -86,7 +87,7 @@ class RelatedProject(Parser):
 
 class ParentRelation(Parser):
     schema = 'Relation'
-    object_work = tools.Delegate(RelatedProject, ctx)
+    to_work = tools.Delegate(RelatedProject, ctx)
     relation_type = tools.Static('is_part_of')
 
 
