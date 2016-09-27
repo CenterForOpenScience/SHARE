@@ -3,87 +3,93 @@ import arrow
 from share.normalize import ctx
 from share.normalize.tools import *
 from share.normalize.parsers import Parser
+from share.normalize.utils import format_doi_as_url
+
+
+class Link(Parser):
+    name = ctx
+    url = RunPython('format_doi', RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']
+                    ['article-id'], '@pub-id-type', 'doi'))
+
+    def format_doi(self, doi):
+        return format_doi_as_url(self, doi)
+
+
+class ThroughLinks(Parser):
+    Delegate(Link, ctx)
 
 
 class Affiliation(Parser):
     pass
 
 
-class Identifier(Parser):
-    base_url = Try(ctx['@schemeURI'])
-    url = Join(Concat(Try(ctx['@schemeURI']), Try(ctx['#text'])), joiner='/')
-
-
-class ThroughIdentifiers(Parser):
-    identifier = Delegate(Identifier, ctx)
-
-
-class ThroughContributor(Parser):
-    schema = 'Person'
-
-    name = ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib']
-
-    suffix = name['suffix']
-    family_name = name['surname']
-    given_name = name['given-names']
+class Institution(Parser):
+    schema = 'Institution'
+    name = ctx
 
 
 class Person(Parser):
-    # front['article-meta']['contrib-group']['contrib'][1]['name']['surname']
-    name = ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib']
-
-    suffix = ctx['suffix']
-    family_name = ctx['surname']
-    given_name = ctx['given-names']
+    suffix = Try(ctx['name']['suffix'])
+    family_name = ctx['name']['surname']
+    given_name = ctx['name']['given-names']
 
 
 class Contributor(Parser):
-
     person = Delegate(Person, ctx)
-
-
-class ContributorInstitution(Parser):
-    schema = 'Institution'
-
-    name = ctx
-
-    # class Extra:
-    #     contributor_type = Try(ctx.contributorType)
+    # order_cited = ctx('index')
+    cited_name = ctx['name']['surname']
 
 
 class Publisher(Parser):
     name = ctx
 
 
+class Funder(Parser):
+    name = ctx
+
+
 class Association(Parser):
-    pass
+    entity = Delegate(Publisher, ctx)
 
 
 class Tag(Parser):
-    name = ctx
+    name = ctx.record.metadata.article.front['article-meta']['kwd-group']['kwd']
 
 
 class ThroughTags(Parser):
     tag = Delegate(Tag, ctx)
 
 
-class CreativeWork(Parser):
+class Publication(Parser):
     title = ctx.record.metadata.article.front['article-meta']['title-group']['article-title']
-    description = ctx.record.metadata.article.front['article-meta']['abstract']['p']
-    # Journal title
-    # Publisher
-    # pubmed id
-    # doi
-    # contributors - surname, given name, institution, contrib type
+    description = OneOf(
+        ctx.record.metadata.article.front['article-meta']['abstract']['p'],
+        ctx.record.metadata.article.front['article-meta']['abstract']['sec']['p']
+    )
 
-    date_published = RunPython('get_date', ctx.record.metadata.article.front['article-meta']['pub-date'])
+    publishers = Map(
+        Delegate(Association.using(entity=Delegate(Publisher))),
+        ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name']
+    )
+    funders = Try(Map(
+        Delegate(Association.using(entity=Delegate(Funder))),
+        ctx.record.metadata.article.front['article-meta']['funding-group']['award-group']['funding-source']
+    ))
 
-    # volume, issue, fpage, lpage
-    # accepted date
-    # copyright, copyright year
-    # license =
-    ##### abstract
-    # keywords
+    tags = Try(Map(Delegate(ThroughTags), ctx))
+
+    date_published = RunPython('get_published_date', ctx.record.metadata.article.front['article-meta']['pub-date'])
+
+    links = Map(Delegate(ThroughLinks), ctx)
+
+    rights = ctx.record.metadata.article.front['article-meta']['permissions']['license']['license-p']
+
+    contributors = Map(Delegate(Contributor), ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])
+
+    # institutions = Map()
+
+    # institutions
+    # funding
 
 
     # contributors = Map(
@@ -140,74 +146,40 @@ class CreativeWork(Parser):
     #         'organization'
     #     )
     # )
-    #
-    # tags = Map(
-    #     Delegate(OAIThroughTags),
-    #     RunPython(
-    #         'force_text',
-    #         Concat(
-    #             Try(ctx['record']['header']['setSpec']),
-    #             Try(ctx['record']['metadata']['dc']['dc:type']),
-    #             Try(ctx['record']['metadata']['dc']['dc:format']),
-    #             Try(ctx['record']['metadata']['dc']['dc:subject']),
-    #         )
-    #     )
-    # )
-    #
-    # links = Map(
-    #     Delegate(OAIThroughLinks),
-    #     RunPython(
-    #         'get_links',
-    #         Concat(
-    #             Try(ctx['record']['metadata']['dc']['dc:identifier']),
-    #             Maybe(Maybe(ctx['record'], 'metadata')['dc'], 'dc:relation')
-    #         )
-    #     )
-    # )
-    #
-    # date_updated = ParseDate(ctx['record']['header']['datestamp'])
-    #
+
     class Extra:
+        correspondence = Try(ctx.record.metadata.article.front['article-meta']['author-notes']['corresp']['email'])
+        journal = ctx.record.metadata.article.front['journal-meta']['journal-title-group']['journal-title']
+        in_print = Try(RunPython('get_print_information'))
         issn = Try(RunPython('get_issns', ctx.record.metadata.article.front['journal-meta']['issn']))
-    #     """
-    #     Fields that are combined in the base parser are relisted as singular elements that match
-    #     their original entry to preserve raw data structure.
-    #     """
-    #     # An entity responsible for making contributions to the resource.
-    #     contributor = Maybe(Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
-    #
-    #     # The spatial or temporal topic of the resource, the spatial applicability of the resource,
-    #     # or the jurisdiction under which the resource is relevant.
-    #     coverage = Maybe(Maybe(ctx['record'], 'metadata')['dc'], 'dc:coverage')
-    #
-    #     # An entity primarily responsible for making the resource.
-    #     creator = Maybe(Maybe(ctx['record'], 'metadata')['dc'], 'dc:creator')
-    #
-    #     # A point or period of time associated with an event in the lifecycle of the resource.
-    #     dates = Maybe(Maybe(ctx['record'], 'metadata')['dc'], 'dc:date')
-    #
-    #     # The file format, physical medium, or dimensions of the resource.
-    #     resource_format = Maybe(Maybe(ctx['record'], 'metadata')['dc'], 'dc:format')
-    #
-    #     # An unambiguous reference to the resource within a given context.
-    #     identifiers = Concat(
-    #         Try(ctx['record']['metadata']['dc']['dc:identifier']),
-    #         Maybe(ctx['record']['header'], 'identifier')
-    #     )
-    #
-    #     # A related resource.
-    #     relation = RunPython('get_relation', ctx)
-    #
-    #     # A related resource from which the described resource is derived.
-    #     source = Maybe(Maybe(ctx['record'], 'metadata')['dc'], 'dc:source')
-    #
-    #     # The nature or genre of the resource.
-    #     resource_type = Try(ctx.record.metadata.dc['dc:type'])
-    #
-    #     set_spec = Maybe(ctx.record.header, 'setSpec')
-    #
-    #     # Language also stored in the Extra class in case the language reported cannot be parsed by ParseLanguage
-    #     language = Try(ctx.record.metadata.dc['dc:language'])
+        doi = RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']['article-id'],
+                        '@pub-id-type', 'doi')
+        pubmed_id = Try(RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']['article-id'],
+                        '@pub-id-type', 'pmcid'))
+        copyright = ctx.record.metadata.article.front['article-meta']['permissions']['copyright-statement']['#text']
+        copyright_year = ctx.record.metadata.article.front['article-meta']['permissions']['copyright-year']
+
+    # def compose_name(self, suffix, surname, given):
+    #     return ' '.join([given, surname, suffix])
+
+    # For ordered dicts
+    def get_list_element(self, ordered_dict, attribute='', value=''):
+        if attribute:
+            for item in ordered_dict:
+                if item[attribute] == value:
+                    return item['#text']
+        else:
+            results = []
+            for item in ordered_dict:
+                results.append(item['#text'])
+            return results
+
+    def get_name(self, person):
+        given_name = person['given_names']
+        surname = person['surname']
+        suffix = Try(person['suffix'])
+        print(given_name + ' ' + surname + ' ' + suffix)
+        return given_name + ' ' + surname + ' ' + suffix
 
     def get_issns(self, list_):
         issns = {}
@@ -215,7 +187,14 @@ class CreativeWork(Parser):
             issns[item['@pub-type']] = item['#text']
         return issns
 
-    def get_date(self, list_):
+    def get_published_date(self, list_):
         for item in list_:
             if item['@pub-type'] == 'epub':
                 return str(arrow.get(int(item['year']), int(item['month']), int(item['day'])))
+
+    def get_print_information(self):
+        volume = ctx.record.metadata.article.front['article-meta']['volume']
+        issue = ctx.record.metadata.article.front['article-meta']['issue']
+        fpage = ctx.record.metadata.article.front['article-meta']['fpage']
+        lpage = ctx.record.metadata.article.front['article-meta']['lpage']
+        return "This work appeared in volume {} issue {} from pages {} - {}.".format(volume, issue, fpage, lpage)
