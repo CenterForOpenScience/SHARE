@@ -2,7 +2,6 @@ import copy
 import logging
 
 from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist
 
 from share import disambiguation
 

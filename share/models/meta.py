@@ -1,5 +1,3 @@
-import furl
-
 import json
 
 from model_utils import Choices

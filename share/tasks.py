@@ -150,7 +150,7 @@ class MakeJsonPatches(celery.Task):
             logger.info('Identifier conflict indicates a race condition. Retrying make JSON patches for %s', normalized)
             return None
         except Exception as e:
-            logger.exception('Failed make json patches (%d)', normalized_id)
+            logger.exception('Failed make json patches (%d)', normalized.id)
             raise self.retry(countdown=10, exc=e)
 
 
