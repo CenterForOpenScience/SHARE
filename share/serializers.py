@@ -189,13 +189,6 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
 
 
-class Link(BaseShareSerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Link
-
-
 def make_creative_work_serializer_class(model):
     if isinstance(model, str):
         model = apps.get_model('share', model)
@@ -206,3 +199,10 @@ def make_creative_work_serializer_class(model):
 
     CreativeWorkSerializer.Meta.model = model
     return CreativeWorkSerializer
+
+
+class Link(BaseShareSerializer):
+    extra = ExtraDataSerializer()
+
+    class Meta(BaseShareSerializer.Meta):
+        model = models.Link

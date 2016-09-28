@@ -6,11 +6,14 @@ from api import views
 
 router = DefaultRouter()
 
+
 def register_route(prefix, viewset):
     router.register(prefix, viewset, base_name=viewset.serializer_class.Meta.model._meta.model_name)
 
+
 def register_creative_work_route(prefix, model):
     register_route(prefix, views.make_creative_work_view_set_class(model))
+
 
 # share routes
 register_route(r'extras', views.ExtraDataViewSet)
