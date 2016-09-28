@@ -6,6 +6,9 @@ from api import views
 
 router = DefaultRouter()
 
+def register_route(prefix, viewset):
+    router.register(prefix, viewset, base_name=viewset.serializer_class.Meta.model._meta.model_name)
+
 # share routes
 router.register(r'extras', views.ExtraDataViewSet, base_name=views.ExtraDataViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'entities', views.EntityViewSet, base_name=views.EntityViewSet.serializer_class.Meta.model._meta.model_name)
@@ -22,11 +25,25 @@ router.register(r'awards', views.AwardViewSet, base_name=views.AwardViewSet.seri
 router.register(r'tags', views.TagViewSet, base_name=views.TagViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'subjects', views.SubjectViewSet, base_name=views.SubjectViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'links', views.LinkViewSet, base_name=views.LinkViewSet.serializer_class.Meta.model._meta.model_name)
+
 router.register(r'creativeworks', views.CreativeWorkViewSet, base_name=views.CreativeWorkViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'articles', views.ArticleViewSet, base_name=views.ArticleViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'books', views.BookViewSet, base_name=views.BookViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'conferencepapers', views.ConferencePaperViewSet, base_name=views.ConferencePaperViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'datasets', views.DatasetViewSet, base_name=views.DatasetViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'dissertations', views.DissertationViewSet, base_name=views.DissertationViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'publications', views.PublicationViewSet, base_name=views.PublicationViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'projects', views.ProjectViewSet, base_name=views.ProjectViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'manuscripts', views.ManuscriptViewSet, base_name=views.ManuscriptViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
 
 # registration route
 router.register(r'registrations', views.ProviderRegistrationViewSet, base_name=views.ProviderRegistrationViewSet.serializer_class.Meta.model._meta.model_name)
