@@ -50,7 +50,7 @@ class Contributor(Parser):
     order_cited = ctx('index')
 
 
-class Publication(Parser):
+class Article(Parser):
     title = ctx.title
     contributors = Map(Delegate(Contributor), ctx.creators)
     description = ctx.abstract

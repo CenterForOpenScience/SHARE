@@ -135,21 +135,51 @@ class CreativeWork(Parser):
         volume = Maybe(ctx, 'volume')
 
 
-class Publication(CreativeWork):
+class Article(CreativeWork):
     pass
 
 
-# TODO when DataSet is added
-# class DataSet(CreativeWork):
-#     pass
+class Book(CreativeWork):
+    pass
+
+
+class ConferencePaper(CreativeWork):
+    pass
+
+
+class Dataset(CreativeWork):
+    pass
+
+
+class Dissertation(CreativeWork):
+    pass
+
+
+class Preprint(CreativeWork):
+    pass
+
+
+class Report(CreativeWork):
+    pass
+
+
+class Section(CreativeWork):
+    pass
 
 
 class CrossRefNormalizer(Normalizer):
     def do_normalize(self, data):
         unwrapped = self.unwrap_data(data)
 
-        if unwrapped['type'] == 'journal-article':
-            return Publication(unwrapped).parse()
-        # if unwrapped['type'] == 'dataset':
-        #    return DataSet(unwrapped).parse()
-        return CreativeWork(unwrapped).parse()
+        parser = {
+            'journal-article': Article,
+            'book': Book,
+            'proceedings-article': ConferencePaper,
+            'dataset': Dataset,
+            'dissertation': Dissertation,
+            'preprint': Preprint,
+            'report': Report,
+            'book-section': Section,
+        }.get(unwrapped['type']) or CreativeWork
+
+        return parser(unwrapped).parse()

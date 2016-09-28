@@ -91,7 +91,7 @@ class Project(AbstractCreativeWork):
     pass
 
 
-class Registration(AbstractCreativeWork):
+class ProjectRegistration(AbstractCreativeWork):
     pass
 
 

@@ -80,7 +80,7 @@ class Harvester(metaclass=abc.ABCMeta):
         """
         return start_date, end_date
 
-    def harvest(self, start_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], end_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], shift_range: bool=True) -> list:
+    def harvest(self, start_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], end_date: [datetime.datetime, datetime.timedelta, arrow.Arrow], shift_range: bool=True, limit: int=None) -> list:
         from share.models import RawData
         start_date, end_date = self._validate_dates(start_date, end_date)
 
@@ -91,6 +91,8 @@ class Harvester(metaclass=abc.ABCMeta):
 
             for doc_id, datum in rawdata:
                 stored.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source, self.config.label))
+                if limit is not None and len(stored) >= limit:
+                    break
 
         return stored
 

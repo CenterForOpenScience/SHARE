@@ -9,4 +9,4 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://www.nature.com/'
     url = 'http://www.nature.com/oai/request'
     time_granularity = False
-    emitted_type = 'publication'
+    emitted_type = 'article'

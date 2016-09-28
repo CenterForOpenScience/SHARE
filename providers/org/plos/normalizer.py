@@ -40,7 +40,7 @@ class Association(Parser):
     entity = Delegate(Publisher, ctx)
 
 
-class Publication(Parser):
+class Article(Parser):
 
     title = XPath(ctx, "str[@name='title_display']").str['#text']
     description = XPath(ctx, "arr[@name='abstract']/str").str

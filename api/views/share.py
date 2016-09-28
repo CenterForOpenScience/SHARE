@@ -147,41 +147,6 @@ class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class CreativeWorkViewSet(ShareObjectViewSet):
-    serializer_class = serializers.CreativeWorkSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related(
-        'extra'
-    )
-
-
-class PreprintViewSet(ShareObjectViewSet):
-    serializer_class = serializers.PreprintSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related(
-        'extra'
-    )
-
-
-class PublicationViewSet(ShareObjectViewSet):
-    serializer_class = serializers.PublicationSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related(
-        'extra'
-    )
-
-
-class ProjectViewSet(ShareObjectViewSet):
-    serializer_class = serializers.ProjectSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related(
-        'extra'
-    )
-
-
-class ManuscriptViewSet(ShareObjectViewSet):
-    serializer_class = serializers.ManuscriptSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related(
-        'extra'
-    )
-
-
 class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
         ser = api_serializers.ShareUserSerializer(request.user, token=True)
@@ -208,3 +173,10 @@ class APIVersionRedirectView(RedirectView):
                 return HttpSmartResponsePermanentRedirect(url)
             return HttpSmartResponseRedirect(url)
         return http.HttpResponseGone()
+
+
+def make_creative_work_view_set_class(model):
+    class CreativeWorkViewSet(ShareObjectViewSet):
+        serializer_class = serializers.make_creative_work_serializer_class(model)
+        queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+    return CreativeWorkViewSet
