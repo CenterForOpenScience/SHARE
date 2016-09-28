@@ -6,3 +6,4 @@ from share.models.celery import *  # noqa
 from share.models.entities import *  # noqa
 from share.models.creative import *  # noqa
 from share.models.base import ExtraData  # noqa
+from share.models.registration import *  # noqa
