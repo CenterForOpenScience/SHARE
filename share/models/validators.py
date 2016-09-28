@@ -118,7 +118,7 @@ class JSONLDValidator:
             return rel
         if field.choices:
             return {
-                'enum': [c[0] for c in field.choices],
+                'enum': [c[1] for c in field.choices],
                 'description': field.description
             }
 

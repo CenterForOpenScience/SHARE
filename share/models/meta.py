@@ -18,6 +18,8 @@ __all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation')
 class Identifier(ShareObject):
     # https://twitter.com/berniethoughts/
     url = ShareURLField(unique=True)
+
+    # twitter.com
     domain = models.TextField()
 
 

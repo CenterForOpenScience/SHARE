@@ -212,7 +212,7 @@ class TestChangeSet:
 
         change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
 
-        preprint = [o for o in change_set.accept() if isinstance(o, Preprint)][0]
+        link, preprint, _ = change_set.accept()
 
         assert preprint.is_deleted is False
 
@@ -373,13 +373,15 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'identifier',
-                'url': url
+                'url': url,
+                'domain': 'foo'
             }]
         }), normalized_data_id)
 
-        work = [o for o in original_change_set.accept() if isinstance(o, CreativeWork)][0]
+        identifier, work, _ = original_change_set.accept()
         id = work.id
 
+        assert identifier.url == url
         assert CreativeWork.objects.count() == 1
         assert Preprint.objects.count() == 0
 
@@ -431,13 +433,15 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'identifier',
-                'url': url
+                'url': url,
+                'domain': 'foo'
             }]
         }), normalized_data_id)
 
-        work = [o for o in original_change_set.accept() if isinstance(o, Preprint)][0]
-        id = work.id
+        identifier, preprint, _ = original_change_set.accept()
+        id = preprint.id
 
+        assert identifier.url == url
         assert Preprint.objects.count() == 1
         assert CreativeWork.objects.count() == 0
         assert Preprint.objects.get(id=id).title == old_title
@@ -458,7 +462,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'identifier',
-                'url': url
+                'url': url,
+                'domain': 'foo'
             }]
         })
 

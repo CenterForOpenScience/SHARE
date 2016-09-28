@@ -148,6 +148,8 @@ class MakeJsonPatches(celery.Task):
             return cs
         except IdentifierConflictError:
             logger.info('Identifier conflict indicates a race condition. Retrying make JSON patches for %s', normalized)
+            if cs.id:
+                ChangeSet.objects.filter(id=cs.id).update(status=ChangeSet.STATUS.rejected)
             return None
         except Exception as e:
             logger.exception('Failed make json patches (%d)', normalized.id)

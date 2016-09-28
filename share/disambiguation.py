@@ -3,6 +3,7 @@ import abc
 from django.core.exceptions import ValidationError
 
 from share import models
+from share.models.people import PersonIdentifier
 from share.models.meta import WorkIdentifier
 
 
@@ -101,13 +102,12 @@ class PersonDisambiguator(Disambiguator):
     FOR_MODEL = models.Person
 
     def disambiguate(self):
-        if self.attrs.get('identifiers'):
-            for id in self.attrs.get('identifiers'):
-                try:
-                    identifier = models.Identifier.objects.get(id=id)
-                    return identifier.person_set.all()[0]
-                except models.Identifier.DoesNotExist:
-                    pass
+        for id in self.attrs.get('identifiers', ()):
+            try:
+                person_identifier = PersonIdentifier.objects.get(identifier=id)
+                return person_identifier.person
+            except PersonIdentifier.DoesNotExist:
+                pass
         return None
 
 
@@ -127,13 +127,12 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
     FOR_MODEL = models.AbstractCreativeWork
 
     def disambiguate(self):
-        if self.attrs.get('identifiers'):
-            for id in self.attrs.get('identifiers'):
-                try:
-                    work_identifier = WorkIdentifier.objects.filter(identifier=id)[0]
-                    return work_identifier.creative_work
-                except IndexError:
-                    pass
+        for id in self.attrs.get('identifiers', ()):
+            try:
+                work_identifier = WorkIdentifier.objects.get(identifier=id)
+                return work_identifier.creative_work
+            except WorkIdentifier.DoesNotExist:
+                pass
         return None
 
 
