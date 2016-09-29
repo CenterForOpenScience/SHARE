@@ -29,7 +29,7 @@ class Relation(ShareObject):
 
     from_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
     to_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')
-    relation_type = models.TextField(choices=RELATION_TYPES, blank=True)
+    relation_type = models.TextField(choices=RELATION_TYPES)
 
     class Meta:
         unique_together = ('from_work', 'to_work', 'relation_type')
