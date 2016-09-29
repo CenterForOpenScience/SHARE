@@ -64,12 +64,12 @@ class Parser(metaclass=ParserMeta):
 
     def validate(self, field, value):
         if field.is_relation:
-            if field.rel.many_to_many:
+            if field.one_to_many or field.rel.many_to_many:
                 assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
             else:
                 assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
         else:
-            assert not isinstance(value, dict), 'Value for non-relational field {} must be a primative type. Found {}'.format(field, value)
+            assert not isinstance(value, dict), 'Value for non-relational field {} must be a primitive type. Found {}'.format(field, value)
 
     def parse(self):
         if (self.context, self.schema) in ctx.pool:
@@ -88,9 +88,10 @@ class Parser(metaclass=ParserMeta):
 
             value = chain.run(self.context)
 
-            if value and field.is_relation and field.rel.many_to_many:
+            if value and field.is_relation and (field.one_to_many or field.rel.many_to_many):
                 for v in value:
-                    ctx.pool[v][field.m2m_field_name()] = self.ref
+                    field_name = field.field.name if field.one_to_many else field.m2m_field_name()
+                    ctx.pool[v][field_name] = self.ref
 
             if value is not None:
                 self.validate(field, value)

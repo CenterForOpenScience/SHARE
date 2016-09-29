@@ -7,7 +7,6 @@ from share.normalize import tools
 
 class Identifier(Parser):
     url = ctx
-    domain = tools.Domain(ctx)
 
 
 class PersonIdentifier(Parser):

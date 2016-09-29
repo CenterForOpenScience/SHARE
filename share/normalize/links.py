@@ -19,7 +19,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'Domain')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'Email')
 
 
 #### Public API ####
@@ -100,10 +100,10 @@ def DOI(chain=None):
     return DOILink()
 
 
-def Domain(chain=None):
+def Email(chain=None):
     if chain:
-        return chain + DomainLink()
-    return DomainLink()
+        return chain + URILink()
+    return URILink()
 
 ### /Public API
 
@@ -542,16 +542,16 @@ class OneOfLink(AbstractLink):
 
 class OrcidLink(AbstractLink):
     """Reformat Orcids to the cannonical form
-    https://orcid.org/xxx-xxxx-xxxx-xxxx
+    http://orcid.org/xxxx-xxxx-xxxx-xxxx
 
     0000000248692419
     0000-0002-4869-2419
-    https://orcid.org/0000-0002-4869-2419
+    http://orcid.org/0000-0002-4869-2419
 
-    Any of the above would be transformed into https://orcid.org/0000-0002-4869-2419
+    Any of the above would be transformed into http://orcid.org/0000-0002-4869-2419
     """
 
-    ORCID_URL = 'https://orcid.org/'
+    ORCID_URL = 'http://orcid.org/'
     ORCID_RE = re.compile(r'(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|X))')
 
     def checksum(self, digits):
@@ -579,7 +579,7 @@ class DOILink(AbstractLink):
     """Reformt DOIs to the cannonical form
 
     * All DOIs will be valid URIs
-    * All DOIs will use https
+    * All DOIs will use http
     * All DOI paths will be uppercased
 
     Reference:
@@ -601,12 +601,12 @@ class DOILink(AbstractLink):
         return furl.furl('{}{}'.format(self.DOI_URL, *match.groups())).url
 
 
-class DomainLink(AbstractLink):
+class EmailLink(AbstractLink):
     """
-    Return the domain for a given URL
+    Take an email and return it as a URI with scheme `mailto`
     """
 
     def execute(self, obj):
         if not isinstance(obj, str):
             raise TypeError('{} is not of type str'.format(obj))
-        return furl.furl(obj).host
+        return 'mailto:{}'.format(obj)

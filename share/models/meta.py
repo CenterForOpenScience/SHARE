@@ -1,3 +1,4 @@
+import furl
 import json
 
 from model_utils import Choices
@@ -16,11 +17,20 @@ __all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation')
 
 
 class Identifier(ShareObject):
-    # https://twitter.com/berniethoughts/
-    url = ShareURLField(unique=True)
+    # http://twitter.com/berniethoughts/, mailto://contact@cos.io
+    uri = ShareURLField(unique=True)
 
-    # twitter.com
-    domain = models.TextField()
+    # twitter.com, cos.io
+    host = models.TextField(editable=False)
+
+    # http, mailto
+    scheme = models.TextField(editable=False)
+
+    def save(self, *args, **kwargs):
+        f = furl(self.uri)
+        self.host = f.host
+        self.scheme = f.scheme
+        super(Identifier, self).save(*args, **kwargs)
 
 
 class Relation(ShareObject):

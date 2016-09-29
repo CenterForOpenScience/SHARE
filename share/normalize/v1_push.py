@@ -10,7 +10,6 @@ THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 class Identifier(Parser):
 
     url = ctx
-    domain = tools.Domain(ctx)
 
 
 class WorkIdentifier(Parser):

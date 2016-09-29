@@ -104,8 +104,14 @@ class ChangeNode:
 
         # JSON-LD variables are all prefixed with '@'s
         self.context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
-        # Any nested data type is a relation in the current JSON-LD schema
-        self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, dict)}
+
+        # Models with a unique field that is not a foreign key are assumed to 
+        # disambiguate on that, and therefore don't depend on their relations
+        if any(f.unique and not f.is_relation for f in self.model._meta.get_fields()):
+            self.relations = {}
+        else:
+            # Any nested data type is a relation in the current JSON-LD schema
+            self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, dict)}
         self.related = tuple(self.relations.values())
 
         self.reverse_relations = {}  # Resolved through relations to be populated later
@@ -116,15 +122,16 @@ class ChangeNode:
         if disambiguate:
             self._disambiguate()
 
-    def resolve_through_relations(self, mapper):
+    def resolve_relations(self, mapper):
         for key, relations in self.__reverse_relations.items():
             resolved = []
             for relation in relations:
                 node = mapper[relation['@id'], relation['@type'].lower()]
-                for r in node.related:
-                    if r['@id'] != self.id:
-                        resolved.append(r)
-                        break
+                node_related = {r['@id']:r for r in node.related if r['@id'] != self.id}
+                if node_related:
+                    resolved.extend(node_related.values())
+                else:
+                    resolved.append(node.ref)
             self.reverse_relations[key] = resolved
             self.related += tuple(resolved)
 
@@ -177,7 +184,7 @@ class ChangeGraph:
         self.__sorter = NodeSorter(self)
 
         for node in self.__nodes:
-            node.resolve_through_relations(self.__map)
+            node.resolve_relations(self.__map)
 
         if parse:
             self.__nodes = self.__sorter.sorted()

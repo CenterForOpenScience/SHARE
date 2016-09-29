@@ -29,7 +29,6 @@ class Affiliation(Parser):
 
 class Identifier(Parser):
     url = ctx
-    domain = Domain(ctx)
 
 
 class PersonIdentifier(Parser):
