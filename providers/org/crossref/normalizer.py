@@ -1,5 +1,3 @@
-import furl
-
 from share.normalize import *
 from share.normalize import links
 
@@ -31,10 +29,7 @@ class Affiliation(Parser):
 
 class Identifier(Parser):
     url = ctx
-    domain = RunPython('get_domain', ctx)
-
-    def get_domain(self, url):
-        return furl.furl(url).host
+    domain = Domain(ctx)
 
 
 class PersonIdentifier(Parser):
