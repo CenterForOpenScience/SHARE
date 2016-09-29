@@ -6,14 +6,21 @@ from share.normalize.parsers import Parser
 
 
 class Link(Parser):
-    Schema = 'Link'
-    url = DOI(XPath(ctx.record.metadata.article.front['article-meta']['article-id'], "str[@pub-id-type='doi']"))
-    # url = DOI(RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']['article-id'],
-    #                     '@pub-id-type', 'doi'))
+    url = DOI(RunPython('get_list_element', ctx.metadata.article.front['article-meta']['article-id'], '@pub-id-type', 'doi'))
+
+    def get_list_element(self, ordered_dict, attribute='', value=''):
+        if attribute:
+            for item in ordered_dict:
+                if item[attribute] == value:
+                    return item['#text']
+        else:
+            results = []
+            for item in ordered_dict:
+                results.append(item['#text'])
+            return results
 
 
 class ThroughLinks(Parser):
-    Schema = 'ThroughLinks'
     link = Delegate(Link, ctx)
 
 
@@ -22,7 +29,6 @@ class Affiliation(Parser):
 
 
 class Institution(Parser):
-    schema = 'Institution'
     name = ctx
 
 
@@ -31,10 +37,36 @@ class Person(Parser):
     family_name = ctx['name']['surname']
     given_name = ctx['name']['given-names']
 
+    affiliations = Try(Map(
+        Delegate(Affiliation.using(entity=Delegate(Institution))),
+        RunPython('get_contrib_institution', ctx['xref']['sup'])
+        ))
+
+    class Extra:
+        id = RunPython('get_list_element', ctx['xref'], '@ref-type', 'aff')
+        affiliate = RunPython('get_contrib_institution', ctx)
+
+    def get_list_element(self, ordered_dict, attribute='', value=''):
+        if type(ordered_dict) is list:
+            for item in ordered_dict:
+                if item[attribute] == value:
+                    return int(item['#text'])
+        else:
+            if ordered_dict[attribute] == value:
+                return int(ordered_dict['#text'])
+
+    def get_contrib_institution(self, number):
+        for affiliate in ctx.record.metadata.article.front['article-meta']['contrib-group']:
+            try:
+                print(affiliate['institution'])
+                print(affiliate['label'])
+            except:
+                pass
+
+
 
 class Contributor(Parser):
     person = Delegate(Person, ctx)
-    # order_cited = ctx('index')
     cited_name = ctx['name']['surname']
 
 
@@ -76,10 +108,9 @@ class Publication(Parser):
 
     tags = Try(Map(Delegate(ThroughTags), ctx))
 
-    # date_published = RunPython('get_published_date', ctx.record.metadata.article.front['article-meta']['pub-date'])
-    # date_published = Concat(XPath(ctx.record.metadata.article.front['article-meta']['pub-date'], "str[@pub-type='epub']"))
+    date_published = RunPython('get_published_date', ctx.record.metadata.article.front['article-meta']['pub-date'])
 
-    # links = Map(Delegate(ThroughLinks), ctx)
+    links = Map(Delegate(ThroughLinks), ctx.record)
 
     rights = Concat(ctx.record.metadata.article.front['article-meta']['permissions']['license']['license-p'])
 
@@ -153,10 +184,8 @@ class Publication(Parser):
         issn = Try(RunPython('get_issns', ctx.record.metadata.article.front['journal-meta']['issn']))
         doi = RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']['article-id'],
                         '@pub-id-type', 'doi')
-        # doi = XPath(ctx.record.metadata.article.front['article-meta']['article-id']['#text'], "str[@pub-id-type='doi']")
         pubmed_id = Try(RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']['article-id'],
                         '@pub-id-type', 'pmcid'))
-        # pubmed_id = XPath(ctx.record.metadata.article.front['article-meta']['article-id'], "str[@pub-id-type='pmcid']")
         copyright = ctx.record.metadata.article.front['article-meta']['permissions']['copyright-statement']['#text']
         copyright_year = ctx.record.metadata.article.front['article-meta']['permissions']['copyright-year']
 
@@ -167,6 +196,7 @@ class Publication(Parser):
 
     # def compose_name(self, suffix, surname, given):
     #     return ' '.join([given, surname, suffix])
+
 
     # For ordered dicts
     def get_list_element(self, ordered_dict, attribute='', value=''):
