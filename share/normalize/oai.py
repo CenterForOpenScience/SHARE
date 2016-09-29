@@ -364,8 +364,8 @@ class OAIPreprint(OAICreativeWork):
     schema = 'Preprint'
 
 
-class OAIPublication(OAICreativeWork):
-    schema = 'Publication'
+class OAIArticle(OAICreativeWork):
+    schema = 'Article'
 
 
 class OAINormalizer(Normalizer):
@@ -374,7 +374,7 @@ class OAINormalizer(Normalizer):
     def root_parser(self):
         parser = {
             'preprint': OAIPreprint,
-            'publication': OAIPublication,
+            'article': OAIArticle,
             'creativework': OAICreativeWork,
         }[self.config.emitted_type.lower()]
 

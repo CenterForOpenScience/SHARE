@@ -73,7 +73,7 @@ class ThroughLinks(Parser):
     link = Delegate(Link, ctx)
 
 
-class Registration(Parser):
+class ProjectRegistration(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
     contributors = Map(Delegate(Contributor), ctx['contributors'])

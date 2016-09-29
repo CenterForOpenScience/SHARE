@@ -9,4 +9,4 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'eprints.rclis.org'
     url = 'http://eprints.rclis.org/cgi/oai2'
     time_granularity = False
-    emitted_type = 'publication'
+    emitted_type = 'article'

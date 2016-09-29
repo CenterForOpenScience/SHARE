@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from django.apps import apps
+
 from api import fields
 from share import models
 
@@ -187,29 +189,16 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
 
 
-class CreativeWorkSerializer(AbstractCreativeWorkSerializer):
-    class Meta(BaseShareSerializer.Meta):
-        model = models.CreativeWork
+def make_creative_work_serializer_class(model):
+    if isinstance(model, str):
+        model = apps.get_model('share', model)
 
+    class CreativeWorkSerializer(AbstractCreativeWorkSerializer):
+        class Meta(BaseShareSerializer.Meta):
+            model = None
 
-class PreprintSerializer(AbstractCreativeWorkSerializer):
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Preprint
-
-
-class PublicationSerializer(AbstractCreativeWorkSerializer):
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Publication
-
-
-class ProjectSerializer(AbstractCreativeWorkSerializer):
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Project
-
-
-class ManuscriptSerializer(AbstractCreativeWorkSerializer):
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Manuscript
+    CreativeWorkSerializer.Meta.model = model
+    return CreativeWorkSerializer
 
 
 class Link(BaseShareSerializer):

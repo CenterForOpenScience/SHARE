@@ -190,12 +190,23 @@ class SchemaView(views.APIView):
     Each node in the submitted `@graph` is validated by a model schema determined by its `@type`.
 
     ### Work types
-    - [Publication](/api/schema/Publication)
-    - [Project](/api/schema/Project)
-    - [Preprint](/api/schema/Preprint)
-    - [Registration](/api/schema/Registration)
-    - [Manuscript](/api/schema/Manuscript)
     - [CreativeWork](/api/schema/CreativeWork)
+    - [Article](/api/schema/Article)
+    - [Book](/api/schema/Book)
+    - [ConferencePaper](/api/schema/ConferencePaper)
+    - [Dataset](/api/schema/Dataset)
+    - [Dissertation](/api/schema/Dissertation)
+    - [Lesson](/api/schema/Lesson)
+    - [Poster](/api/schema/Poster)
+    - [Preprint](/api/schema/Preprint)
+    - [Presentation](/api/schema/Presentation)
+    - [Project](/api/schema/Project)
+    - [ProjectRegistration](/api/schema/ProjectRegistration)
+    - [Report](/api/schema/Report)
+    - [Section](/api/schema/Section)
+    - [Software](/api/schema/Software)
+    - [Thesis](/api/schema/Thesis)
+    - [WorkingPaper](/api/schema/WorkingPaper)
 
     ### People
     - [Person](/api/schema/Person)

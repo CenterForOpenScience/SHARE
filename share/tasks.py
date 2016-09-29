@@ -55,7 +55,7 @@ class ProviderTask(celery.Task):
 
 class HarvesterTask(ProviderTask):
 
-    def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None):
+    def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None, limit: int=None):
         if self.config.disabled:
             raise Exception('Harvester {} is disabled. Either enable it or disable it\'s celery beat entry'.format(self.config))
 
@@ -70,7 +70,7 @@ class HarvesterTask(ProviderTask):
 
         try:
             logger.info('Starting harvester run for %s %s - %s', self.config.label, start, end)
-            raws = harvester.harvest(start, end)
+            raws = harvester.harvest(start, end, limit=limit)
             logger.info('Collected %d data blobs from %s', len(raws), self.config.label)
         except Exception as e:
             logger.exception('Failed harvester task (%s, %s, %s)', self.config.label, start, end)

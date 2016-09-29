@@ -2,7 +2,7 @@ import pytest
 
 from share.models import Person
 from share.models import Preprint
-from share.models import Publication
+from share.models import Article
 from share.models import Identifier
 from share.models.people import ThroughIdentifiers
 from share.models.base import ShareObject
@@ -159,10 +159,10 @@ class TestAdministrativeChange:
     def test_transition_types(self, all_about_anteaters):
         all_about_anteaters.refresh_from_db()  # load version
 
-        assert all_about_anteaters.type == 'share.publication'
+        assert all_about_anteaters.type == 'share.article'
         all_about_anteaters.administrative_change(type='share.preprint')
         assert all_about_anteaters.type == 'share.preprint'
 
-        with pytest.raises(Publication.DoesNotExist):
+        with pytest.raises(Article.DoesNotExist):
             all_about_anteaters.refresh_from_db()
         assert Preprint.objects.get(pk=all_about_anteaters.pk)

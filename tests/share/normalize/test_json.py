@@ -38,7 +38,7 @@ class Contributor(Parser):
     person = Delegate(Person, ctx)
 
 
-class Manuscript(Parser):
+class Article(Parser):
     title = ctx.title
     description = ctx.description
     # publish_date = ParseDate(ctx.published_date)
@@ -52,5 +52,5 @@ class Manuscript(Parser):
 class TestParser:
 
     def test_parser(self):
-        parsed = Manuscript(EXAMPLE).parse()
+        parsed = Article(EXAMPLE).parse()
         assert ctx.pool[parsed]['extra'] == {'type': 'paper', 'defined_type': 'paper'}

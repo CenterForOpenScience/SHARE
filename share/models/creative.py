@@ -46,7 +46,36 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
 # Subclasses/Types of Creative Work
 
+# Catch-all type
 class CreativeWork(AbstractCreativeWork):
+    pass
+
+
+class Article(AbstractCreativeWork):
+    pass
+
+
+class Book(AbstractCreativeWork):
+    pass
+
+
+class ConferencePaper(AbstractCreativeWork):
+    pass
+
+
+class Dataset(AbstractCreativeWork):
+    pass
+
+
+class Dissertation(AbstractCreativeWork):
+    pass
+
+
+class Lesson(AbstractCreativeWork):
+    pass
+
+
+class Poster(AbstractCreativeWork):
     pass
 
 
@@ -54,11 +83,7 @@ class Preprint(AbstractCreativeWork):
     pass
 
 
-class Manuscript(AbstractCreativeWork):
-    pass
-
-
-class Publication(AbstractCreativeWork):
+class Presentation(AbstractCreativeWork):
     pass
 
 
@@ -66,7 +91,27 @@ class Project(AbstractCreativeWork):
     pass
 
 
-class Registration(AbstractCreativeWork):
+class ProjectRegistration(AbstractCreativeWork):
+    pass
+
+
+class Report(AbstractCreativeWork):
+    pass
+
+
+class Section(AbstractCreativeWork):
+    pass
+
+
+class Software(AbstractCreativeWork):
+    pass
+
+
+class Thesis(AbstractCreativeWork):
+    pass
+
+
+class WorkingPaper(AbstractCreativeWork):
     pass
 
 
