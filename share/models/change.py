@@ -7,7 +7,6 @@ from fuzzycount import FuzzyCountManager
 from django.apps import apps
 from django.db import models
 from django.db import transaction
-from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
@@ -19,10 +18,6 @@ from share.models import NormalizedData
 
 __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)
-
-
-class IdentifierConflictError(Exception):
-    pass
 
 
 class ChangeSetManager(FuzzyCountManager):
@@ -91,10 +86,8 @@ class ChangeSet(models.Model):
                 source = self.normalized_data.source
                 try:
                     ret.append(c.accept(save=save))
-                except IdentifierConflictError as ex:
-                    raise ex
                 except Exception as ex:
-                    logger.error('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
+                    logger.warn('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
                     raise ex
             self.status = ChangeSet.STATUS.accepted
             if save:
@@ -175,24 +168,10 @@ class Change(models.Model):
         resolved_change = self._resolve_change()
         inst = self.target_type.model_class()(change=self, **resolved_change)
         if save:
-            try:
-                with transaction.atomic():
-                    inst.save()
-                    self.target_id = inst.id
-                    self.save()
-            except IntegrityError as e:
-                from share.disambiguation import disambiguate
-                logger.info('Handling unique violation error %r', e)
-                if self.target_type.model == 'identifier':
-                    raise IdentifierConflictError()
-
-                self.type = Change.TYPE.update
-                self.target = disambiguate('_:', resolved_change, self.target_type.model_class())
-
-                logger.info('Updating target to %r and type to update', self.target)
+            with transaction.atomic():
+                inst.save()
+                self.target_id = inst.id
                 self.save()
-
-                return self._update(save=save)
         return inst
 
     def _update(self, save=True):

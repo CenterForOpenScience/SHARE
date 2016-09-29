@@ -12,7 +12,6 @@ from django.core.urlresolvers import reverse
 
 from share.change import ChangeGraph
 from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
-from share.models.change import IdentifierConflictError
 
 
 logger = logging.getLogger(__name__)
@@ -133,27 +132,17 @@ class MakeJsonPatches(celery.Task):
             started_by = ShareUser.objects.get(pk=started_by_id)
         logger.info('%s started make JSON patches for %s at %s', started_by, normalized, datetime.datetime.utcnow().isoformat())
 
-        while True:
-            if self.build_change_set(normalized):
-                break
-
-        logger.info('Finished make JSON patches for %s by %s at %s', normalized, started_by, datetime.datetime.utcnow().isoformat())
-
-    def build_change_set(self, normalized):
         try:
             cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
             if cs and (normalized.source.is_robot or normalized.source.is_trusted):
                 # TODO: verify change set is not overwriting user created object
                 cs.accept()
-            return cs
-        except IdentifierConflictError:
-            logger.info('Identifier conflict indicates a race condition. Retrying make JSON patches for %s', normalized)
-            if cs.id:
-                ChangeSet.objects.filter(id=cs.id).update(status=ChangeSet.STATUS.rejected)
-            return None
         except Exception as e:
-            logger.exception('Failed make json patches (%d)', normalized.id)
+            if cs.id:
+                cs.delete()
             raise self.retry(countdown=10, exc=e)
+
+        logger.info('Finished make JSON patches for %s by %s at %s', normalized, started_by, datetime.datetime.utcnow().isoformat())
 
 
 class BotTask(ProviderTask):
