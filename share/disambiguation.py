@@ -3,9 +3,6 @@ import abc
 from django.core.exceptions import ValidationError
 
 from share import models
-from share.models.people import PersonIdentifier
-from share.models.meta import WorkIdentifier
-
 
 __all__ = ('disambiguate', )
 
@@ -74,28 +71,30 @@ class GenericDisambiguator(Disambiguator):
             return None
 
 
-class IdentifierDisambiguator(Disambiguator):
-    FOR_MODEL = models.Identifier
-
+class UniqueAttrDisambiguator(Disambiguator):
     def disambiguate(self):
-        if not self.attrs.get('url'):
+        if not self.attrs.get(self.unique_attr):
             return None
         try:
-            return self.model.objects.get(url=self.attrs['url'])
+            query = {self.unique_attr: self.attrs[self.unique_attr]}
+            return self.model.objects.get(**query)
         except self.model.DoesNotExist:
             return None
 
 
-class TagDisambiguator(Disambiguator):
-    FOR_MODEL = models.Tag
+class CreativeWorkIdentifierDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.CreativeWorkIdentifier
+    unique_attr = 'uri'
 
-    def disambiguate(self):
-        if not self.attrs.get('name'):
-            return None
-        try:
-            return models.Tag.objects.get(name=self.attrs['name'])
-        except models.Tag.DoesNotExist:
-            return None
+
+class PersonIdentifierDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.PersonIdentifier
+    unique_attr = 'uri'
+
+
+class TagDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.Tag
+    unique_attr = 'name'
 
 
 class PersonDisambiguator(Disambiguator):
@@ -104,9 +103,9 @@ class PersonDisambiguator(Disambiguator):
     def disambiguate(self):
         for id in self.attrs.get('identifiers', ()):
             try:
-                person_identifier = PersonIdentifier.objects.get(identifier=id)
-                return person_identifier.person
-            except PersonIdentifier.DoesNotExist:
+                identifier = models.PersonIdentifier.objects.get(id=id)
+                return identifier.person
+            except models.PersonIdentifier.DoesNotExist:
                 pass
         return None
 
@@ -129,9 +128,9 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
     def disambiguate(self):
         for id in self.attrs.get('identifiers', ()):
             try:
-                work_identifier = WorkIdentifier.objects.get(identifier=id)
-                return work_identifier.creative_work
-            except WorkIdentifier.DoesNotExist:
+                identifier = models.CreativeWorkIdentifier.objects.get(id=id)
+                return identifier.creative_work
+            except models.CreativeWorkIdentifier.DoesNotExist:
                 pass
         return None
 

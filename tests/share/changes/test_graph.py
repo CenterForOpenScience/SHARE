@@ -150,6 +150,24 @@ class TestChangeGraph:
         assert graph.nodes[1].id == '_:91011'
         assert graph.nodes[2].id == '_:5678'
 
+    def test_topological_sort_many_to_one(self):
+        graph = ChangeGraph.from_jsonld({
+            '@graph': [{
+                '@id': '_:91011',
+                '@type': 'preprint',
+                'identifiers': [{'@id': '_:5678', '@type': 'identifier'}]
+            }, {
+                '@id': '_:5678',
+                '@type': 'workidentifier',
+                'uri': 'mailto:gandhi@dinosaurs.sexy'
+                'creative_work': {'@id': '_91011', '@type': 'preprint'}
+            }]
+        }, disambiguate=False)
+
+        assert len(graph.nodes) == 2
+        assert graph.nodes[0].id == '_:5678'
+        assert graph.nodes[1].id == '_:91011'
+
     def test_topological_sort_unchanged(self):
         graph = ChangeGraph.from_jsonld({
             '@graph': [{

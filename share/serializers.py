@@ -100,16 +100,25 @@ class PersonEmailSerializer(BaseShareSerializer):
         model = models.PersonEmail
 
 
-class IdentifierSerializer(BaseShareSerializer):
+class CreativeWorkIdentifierSerializer(BaseShareSerializer):
+    # TODO filter/obfuscate mailto identifiers
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.Identifier
+        model = models.CreativeWorkIdentifier
+
+
+class PersonIdentifierSerializer(BaseShareSerializer):
+    # TODO filter/obfuscate mailto identifiers
+    extra = ExtraDataSerializer()
+
+    class Meta(BaseShareSerializer.Meta):
+        model = models.PersonIdentifier
 
 
 class PersonSerializer(BaseShareSerializer):
     # no emails on purpose
-    identifiers = IdentifierSerializer(sparse=True, many=True)
+    identifiers = PersonIdentifierSerializer(many=True)
     affiliations = OrganizationSerializer(sparse=True, many=True)
     extra = ExtraDataSerializer()
 
@@ -178,7 +187,7 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     funders = FunderSerializer(sparse=True, many=True)
     venues = VenueSerializer(sparse=True, many=True)
     awards = AwardSerializer(sparse=True, many=True)
-    identifiers = IdentifierSerializer(many=True)
+    identifiers = CreativeWorkIdentifierSerializer(many=True)
     subjects = SubjectSerializer(many=True)
     extra = ExtraDataSerializer()
 

@@ -1,4 +1,3 @@
-import furl
 import json
 
 from model_utils import Choices
@@ -11,26 +10,9 @@ from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Identifier', 'Relation')
+__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Relation')
 
 # TODO Rename this file
-
-
-class Identifier(ShareObject):
-    # http://twitter.com/berniethoughts/, mailto://contact@cos.io
-    uri = ShareURLField(unique=True)
-
-    # twitter.com, cos.io
-    host = models.TextField(editable=False)
-
-    # http, mailto
-    scheme = models.TextField(editable=False)
-
-    def save(self, *args, **kwargs):
-        f = furl(self.uri)
-        self.host = f.host
-        self.scheme = f.scheme
-        super(Identifier, self).save(*args, **kwargs)
 
 
 class Relation(ShareObject):
@@ -136,11 +118,3 @@ class ThroughSubjects(ShareObject):
 
     class Meta:
         unique_together = ('subject', 'creative_work')
-
-
-class WorkIdentifier(ShareObject):
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-    identifier = ShareForeignKey('Identifier')
-
-    class Meta:
-        unique_together = ('creative_work', 'identifier')

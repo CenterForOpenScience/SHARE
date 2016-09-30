@@ -12,7 +12,6 @@ from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLF
 class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     title = models.TextField(blank=True)
     description = models.TextField(blank=True)
-    identifiers = ShareManyToManyField('Identifier', through='WorkIdentifier')
 
     # Used to determine if something should be surfaced in ES or not
     # this may need to be renamed later

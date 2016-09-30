@@ -113,8 +113,13 @@ class InstitutionViewSet(ShareObjectViewSet):
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
-class IdentifierViewSet(ShareObjectViewSet):
-    serializer_class = serializers.IdentifierSerializer
+class CreativeWorkIdentifierViewSet(ShareObjectViewSet):
+    serializer_class = serializers.CreativeWorkIdentifierSerializer
+    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+
+
+class PersonIdentifierViewSet(ShareObjectViewSet):
+    serializer_class = serializers.PersonIdentifierSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 

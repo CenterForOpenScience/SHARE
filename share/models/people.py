@@ -23,7 +23,6 @@ class Person(ShareObject):
     given_name = models.TextField(blank=True, db_index=True)  # first
     additional_name = models.TextField(blank=True, db_index=True)  # can be used for middle
     suffix = models.TextField(blank=True, db_index=True)
-    identifiers = ShareManyToManyField('Identifier', through='PersonIdentifier')
 
     emails = ShareManyToManyField(Email, through='PersonEmail')
     affiliations = ShareManyToManyField('Entity', through='Affiliation')
@@ -50,14 +49,6 @@ class Person(ShareObject):
 
 
 # Through Tables for Person
-
-class PersonIdentifier(ShareObject):
-    person = ShareForeignKey(Person)
-    identifier = ShareForeignKey('Identifier')
-
-    class Meta:
-        unique_together = ('person', 'identifier')
-
 
 class PersonEmail(ShareObject):
     email = ShareForeignKey(Email)
