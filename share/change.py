@@ -107,7 +107,7 @@ class ChangeNode:
 
         # Models with a unique field that is not a foreign key are assumed to 
         # disambiguate on that, and therefore don't depend on their relations
-        if any(f.unique and not f.is_relation for f in self.model._meta.get_fields()):
+        if any(not f.is_relation and f.unique for f in self.model._meta.get_fields()):
             self.relations = {}
         else:
             # Any nested data type is a relation in the current JSON-LD schema
@@ -127,9 +127,9 @@ class ChangeNode:
             resolved = []
             for relation in relations:
                 node = mapper[relation['@id'], relation['@type'].lower()]
-                node_related = {r['@id']:r for r in node.related if r['@id'] != self.id}
-                if node_related:
-                    resolved.extend(node_related.values())
+                through_relations = {r['@id']:r for r in node.related if r['@id'] != self.id}
+                if through_relations:
+                    resolved.extend(through_relations.values())
                 else:
                     resolved.append(node.ref)
             self.reverse_relations[key] = resolved

@@ -71,30 +71,40 @@ class GenericDisambiguator(Disambiguator):
             return None
 
 
-class UniqueAttrDisambiguator(Disambiguator):
+class CreativeWorkIdentifierDisambiguator(Disambiguator):
+    FOR_MODEL = models.CreativeWorkIdentifier
+
     def disambiguate(self):
-        if not self.attrs.get(self.unique_attr):
+        if not self.attrs.get('uri'):
             return None
         try:
-            query = {self.unique_attr: self.attrs[self.unique_attr]}
-            return self.model.objects.get(**query)
+            return self.model.objects.get(uri=self.attrs['uri'])
         except self.model.DoesNotExist:
             return None
 
 
-class CreativeWorkIdentifierDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.CreativeWorkIdentifier
-    unique_attr = 'uri'
-
-
-class PersonIdentifierDisambiguator(UniqueAttrDisambiguator):
+class PersonIdentifierDisambiguator(Disambiguator):
     FOR_MODEL = models.PersonIdentifier
-    unique_attr = 'uri'
+
+    def disambiguate(self):
+        if not self.attrs.get('uri'):
+            return None
+        try:
+            return self.model.objects.get(uri=self.attrs['uri'])
+        except self.model.DoesNotExist:
+            return None
 
 
-class TagDisambiguator(UniqueAttrDisambiguator):
+class TagDisambiguator(Disambiguator):
     FOR_MODEL = models.Tag
-    unique_attr = 'name'
+
+    def disambiguate(self):
+        if not self.attrs.get('name'):
+            return None
+        try:
+            return self.model.objects.get(name=self.attrs['name'])
+        except self.model.DoesNotExist:
+            return None
 
 
 class PersonDisambiguator(Disambiguator):

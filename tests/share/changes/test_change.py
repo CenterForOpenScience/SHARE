@@ -7,7 +7,7 @@ from share.models import Change
 from share.models import CreativeWork
 from share.models import Person
 from share.models import Preprint
-from share.models import Publication
+from share.models import Article
 from share.models import Contributor
 from share.models import ChangeSet
 from share.models import Subject
@@ -195,18 +195,13 @@ class TestChangeSet:
         graph = ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:abc',
-                '@type': 'identifier',
-                'url': 'https://share.osf.io/faq',
-            }, {
-                '@id': '_:def',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:789', '@type': 'preprint'},
-                'identifier': {'@id': '_:abc', '@type': 'identifier'}
+                '@type': 'creativeworkidentifier',
+                'uri': 'http://osf.io/faq',
             }, {
                 '@id': '_:789',
                 '@type': 'preprint',
                 'title': 'All About Cats',
-                'identifiers': [{'@id': '_:def', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:abc', '@type': 'creativeworkidentifier'}]
             }]
         })
 
@@ -538,13 +533,13 @@ class TestChangeSet:
         ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
-                '@type': 'publication',
+                '@type': 'article',
                 'title': 'All About Cats',
                 'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:foo',
                 '@type': 'workidentifier',
-                'creative_work': {'@id': '_:1234', '@type': 'publication'},
+                'creative_work': {'@id': '_:1234', '@type': 'article'},
                 'identifier': {'@id': '_:2345', '@type': 'identifier'}
             }, {
                 '@id': '_:2345',
@@ -553,7 +548,7 @@ class TestChangeSet:
             }]
         }), normalized_data_id).accept()
 
-        assert Publication.objects.count() == 1
+        assert Article.objects.count() == 1
 
         change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
@@ -584,11 +579,11 @@ class TestChangeSet:
         }), normalized_data_id)
         change_set.accept()
 
-        assert Publication.objects.count() == 1
+        assert Article.objects.count() == 1
         assert Preprint.objects.count() == 1
         assert CreativeWork.objects.count() == 0
 
-        cat = Publication.objects.first()
+        cat = Article.objects.first()
         dog = Preprint.objects.first()
 
         assert dog.outgoing_relations.count() == 1
@@ -640,18 +635,18 @@ class TestChangeSet:
 
         assert CreativeWork.objects.count() == 1
         assert Preprint.objects.count() == 1
-        assert Publication.objects.count() == 0
+        assert Article.objects.count() == 0
 
         ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
-                '@type': 'publication',
+                '@type': 'article',
                 'title': 'All About Cats',
                 'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:foo',
                 '@type': 'workidentifier',
-                'creative_work': {'@id': '_:1234', '@type': 'publication'},
+                'creative_work': {'@id': '_:1234', '@type': 'article'},
                 'identifier': {'@id': '_:2345', '@type': 'identifier'}
             }, {
                 '@id': '_:2345',
@@ -661,10 +656,10 @@ class TestChangeSet:
         }), normalized_data_id).accept()
 
         assert CreativeWork.objects.count() == 0
-        assert Publication.objects.count() == 1
+        assert Article.objects.count() == 1
         assert Preprint.objects.count() == 1
 
-        cat = Publication.objects.first()
+        cat = Article.objects.first()
         dog = Preprint.objects.first()
 
         assert dog.outgoing_relations.count() == 1

@@ -5,12 +5,8 @@ from share.normalize.parsers import Parser
 from share.normalize import tools
 
 
-class Identifier(Parser):
-    url = ctx
-
-
 class PersonIdentifier(Parser):
-    identifier = tools.Delegate(Identifier, ctx)
+    uri = ctx
 
 
 class Person(Parser):
@@ -31,7 +27,7 @@ class Person(Parser):
         ctx.embeds.users.errors[0].meta.suffix,
     )
 
-    identifiers = tools.Map(tools.Delegate(PersonIdentifier), ctx.embeds.users.data.links.html)
+    personidentifiers = tools.Map(tools.Delegate(PersonIdentifier), ctx.embeds.users.data.links.html)
 
     class Extra:
         nodes = tools.Try(ctx.embeds.users.data.relationships.nodes.links.related.href)
@@ -74,14 +70,14 @@ class Association(Parser):
     pass
 
 
-class WorkIdentifier(Parser):
-    identifier = tools.Delegate(Identifier, ctx)
+class CreativeWorkIdentifier(Parser):
+    uri = ctx
 
 
 class RelatedProject(Parser):
     # Don't save it as a Project, it could be a Preprint
     schema = 'CreativeWork'
-    identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx)
+    creativeworkidentifiers = tools.Map(tools.Delegate(CreativeWorkIdentifier), ctx)
 
 
 class ParentRelation(Parser):
@@ -101,7 +97,7 @@ class Project(Parser):
     date_updated = tools.ParseDate(ctx.attributes.date_modified)
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
     rights = tools.Maybe(ctx, 'attributes.node_license')
-    identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx.links.html)
+    creativeworkidentifiers = tools.Map(tools.Delegate(CreativeWorkIdentifier), ctx.links.html)
     related_works = tools.Map(
         tools.Delegate(ParentRelation),
         tools.RunPython('api_url_to_guid', tools.Try(ctx.relationships.parent.links.related.href))

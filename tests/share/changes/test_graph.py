@@ -159,7 +159,7 @@ class TestChangeGraph:
             }, {
                 '@id': '_:5678',
                 '@type': 'workidentifier',
-                'uri': 'mailto:gandhi@dinosaurs.sexy'
+                'uri': 'mailto:gandhi@dinosaurs.sexy',
                 'creative_work': {'@id': '_91011', '@type': 'preprint'}
             }]
         }, disambiguate=False)
