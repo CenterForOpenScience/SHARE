@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
 
 from api import schemas
+from api.authentication import APIV1TokenBackPortAuthentication
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
@@ -115,15 +116,13 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         return NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
-        prelim_data = request.data
-        prelim_data['source'] = request.user.id
-        serializer = NormalizedDataSerializer(data=prelim_data)
+        serializer = NormalizedDataSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
             return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
         else:
-            return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChangeSetViewSet(viewsets.ModelViewSet):
@@ -305,6 +304,7 @@ class V1DataView(views.APIView):
                     }
         Success:       200 OK
     """
+    authentication_classes = (APIV1TokenBackPortAuthentication, )
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
     serializer_class = NormalizedDataSerializer
 
@@ -338,9 +338,8 @@ class V1DataView(views.APIView):
         # normalize data
         normalized_data = V1Normalizer({}).normalize(raw.data)
         data = {}
-        data['source'] = request.user.id
         data['normalized_data'] = normalized_data
-        serializer = NormalizedDataSerializer(data=data)
+        serializer = NormalizedDataSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():
             nm_instance = serializer.save()

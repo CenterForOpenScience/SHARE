@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, URIField, ShareURLField, ShareManyToManyField
+from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 from share.apps import ShareConfig as share_config
 
 
@@ -25,7 +25,7 @@ class Venue(ShareObject):
 class Award(ShareObject):
     # ScholarlyArticle has an award object
     # it's just a text field, I assume our 'description' covers it.
-    award = ShareURLField(blank=True)
+    name = models.TextField(blank=True)
     description = models.TextField(blank=True)
     url = ShareURLField(blank=True)
     entities = ShareManyToManyField('Entity', through='ThroughAwardEntities')
@@ -42,7 +42,7 @@ class Tag(ShareObject):
 
 
 class Link(ShareObject):
-    url = URIField(db_index=True)
+    url = ShareURLField(db_index=True)
     type = models.TextField(choices=share_config.link_type_choices)
 
     def __str__(self):

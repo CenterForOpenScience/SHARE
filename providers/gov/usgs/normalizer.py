@@ -1,5 +1,4 @@
 from share.normalize import *
-from share.normalize.utils import format_doi_as_url
 
 
 class Person(Parser):
@@ -47,7 +46,7 @@ class CreativeWork(Parser):
     contributors = Map(Delegate(Contributor), Maybe(Maybe(ctx, 'contributors'), 'authors'))
     links = Map(
         Delegate(ThroughLinks),
-        RunPython('format_doi_as_url', Maybe(ctx, 'doi')),
+        DOI(Maybe(ctx, 'doi')),
         RunPython('get_links', ctx.links),
         RunPython('format_usgs_id_as_url', ctx.id)
     )
@@ -69,9 +68,6 @@ class CreativeWork(Parser):
         state = Maybe(ctx, 'state')
         type = Maybe(ctx, 'type')
         volume = Maybe(ctx, 'volume')
-
-    def format_doi_as_url(self, doi):
-        return format_doi_as_url(self, doi)
 
     def format_usgs_id_as_url(self, id):
         return 'https://pubs.er.usgs.gov/publication/{}'.format(id)

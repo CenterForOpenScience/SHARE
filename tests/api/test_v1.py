@@ -1,6 +1,10 @@
 import json
 import pytest
 
+from django.test import override_settings
+
+from share.models import ChangeSet
+
 
 @pytest.mark.django_db
 class TestV1PushProxy:
@@ -19,13 +23,6 @@ class TestV1PushProxy:
         ],
         "title": "Title"
     }
-
-    @pytest.fixture()
-    def trusted_user(self):
-        from share.models import ShareUser
-        user = ShareUser(username='tester', is_trusted=True)
-        user.save()
-        return user
 
     def test_invalid_data(self, client, trusted_user):
         data = {
@@ -49,6 +46,7 @@ class TestV1PushProxy:
             HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token
         ).status_code == 400
 
+    @override_settings(CELERY_ALWAYS_EAGER=True)
     def test_valid_data(self, client, trusted_user):
 
         assert client.post(
@@ -57,6 +55,17 @@ class TestV1PushProxy:
             content_type='application/json',
             HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token
         ).status_code == 202
+
+        qs = ChangeSet.objects.filter(
+            normalized_data__source=trusted_user.id
+        )
+
+        qs_accepted = ChangeSet.objects.filter(
+            normalized_data__source=trusted_user.id,
+            status=ChangeSet.STATUS.accepted
+        )
+
+        assert len(qs) == len(qs_accepted)
 
     def test_unauthorized(self, client):
         assert client.post(
@@ -67,3 +76,11 @@ class TestV1PushProxy:
 
     def test_get(self, client):
         assert client.get('/api/v1/share/data/').status_code == 405
+
+    def test_token_auth(self, client, trusted_user):
+        assert client.post(
+            '/api/v1/share/data/',
+            json.dumps({}),
+            content_type='application/json',
+            HTTP_AUTHORIZATION='Token ' + trusted_user.accesstoken_set.first().token
+        ).status_code == 400

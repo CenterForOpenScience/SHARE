@@ -1,8 +1,23 @@
 import pytest
 
+from django.core.management import call_command
+
 from share.models import Person, NormalizedData, Change, ChangeSet
+from share.models import Publication
 from share.models import ShareUser
 from share.change import ChangeNode, ChangeGraph
+
+
+@pytest.fixture(autouse=True)
+def apply_test_settings(settings):
+    settings.CELERY_ALWAYS_EAGER = True
+
+
+@pytest.fixture
+def trusted_user():
+    user = ShareUser(username='trusted_tester', is_trusted=True)
+    user.save()
+    return user
 
 
 @pytest.fixture
@@ -14,7 +29,7 @@ def share_source():
 
 @pytest.fixture
 def normalized_data(share_source):
-    normalized_data = NormalizedData(source=share_source)
+    normalized_data = NormalizedData(source=share_source, normalized_data={})
     normalized_data.save()
     return normalized_data
 
@@ -74,3 +89,14 @@ def john_doe(share_source, change_ids):
 @pytest.fixture
 def jane_doe(share_source, change_ids):
     return Person.objects.create(given_name='Jane', family_name='Doe', change_id=change_ids.get())
+
+
+@pytest.fixture
+def all_about_anteaters(share_source, change_ids):
+    return Publication.objects.create(title='All about Anteaters', change_id=change_ids.get())
+
+
+@pytest.fixture
+def django_db_setup(django_db_setup, django_db_blocker):
+    with django_db_blocker.unblock():
+        call_command('loaddata', 'tests/initial-data.yaml')

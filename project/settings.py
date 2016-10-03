@@ -360,7 +360,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 # TODO REMOVE BEFORE PRODUCTION
 
-
+ANONYMOUS_USER_NAME = 'AnonymousUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -527,12 +527,15 @@ LOGGING = {
 
 
 # Custom Settings
-PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
-EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
-EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share')
-SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
-OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 SITE_ID = 1
+PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
+
+EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share' if DEBUG else '')
+EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
+SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
+SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', SHARE_API_URL + EMBER_SHARE_PREFIX).rstrip('/') + '/'
+
+OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 
 # API KEYS

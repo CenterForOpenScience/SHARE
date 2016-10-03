@@ -1,7 +1,9 @@
+import furl
 from collections import deque
 from functools import reduce
 import json
 import logging
+import re
 import threading
 
 import xmltodict
@@ -17,7 +19,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI')
 
 
 #### Public API ####
@@ -85,6 +87,17 @@ def Subjects(*chains):
 def OneOf(*chains):
     return OneOfLink(*chains)
 
+
+def Orcid(chain=None):
+    if chain:
+        return chain + OrcidLink()
+    return OrcidLink()
+
+
+def DOI(chain=None):
+    if chain:
+        return chain + DOILink()
+    return DOILink()
 
 ### /Public API
 
@@ -224,14 +237,10 @@ class Context(AnchorLink):
         }
 
     def __init__(self):
+        if not hasattr(Context.__CONTEXT, '_ctxdict'):
+            Context.__CONTEXT._ctxdict = {}
+            self.clear()
         super().__init__()
-
-        if hasattr(Context.__CONTEXT, '_ctxdict'):
-            self.__dict__ = Context.__CONTEXT._ctxdict
-            return
-
-        Context.__CONTEXT._ctxdict = self.__dict__
-        self.clear()
 
     def clear(self):
         self.graph = []
@@ -242,6 +251,22 @@ class Context(AnchorLink):
 
     def __add__(self, step):
         return AnchorLink() + step
+
+    def __radd__(self, other):
+        raise NotImplementedError
+
+    def __setattr__(self, name, value):
+        if not hasattr(Context.__CONTEXT, '_ctxdict'):
+            self.__init__()
+        Context.__CONTEXT._ctxdict[name] = value
+
+    def __getattr__(self, name):
+        if not hasattr(Context.__CONTEXT, '_ctxdict'):
+            self.__init__()
+        try:
+            return Context.__CONTEXT._ctxdict[name]
+        except KeyError:
+            return super().__getattr__(name)
 
 
 class NameParserLink(AbstractLink):
@@ -507,3 +532,64 @@ class OneOfLink(AbstractLink):
                 errors.append(e)
 
         raise Exception('All chains failed {}'.format(errors))
+
+
+class OrcidLink(AbstractLink):
+    """Reformat Orcids to the cannonical form
+    https://orcid.org/xxx-xxxx-xxxx-xxxx
+
+    0000000248692419
+    0000-0002-4869-2419
+    https://orcid.org/0000-0002-4869-2419
+
+    Any of the above would be transformed into https://orcid.org/0000-0002-4869-2419
+    """
+
+    ORCID_URL = 'https://orcid.org/'
+    ORCID_RE = re.compile(r'(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|X))')
+
+    def checksum(self, digits):
+        # ORCID Checksum  http://support.orcid.org/knowledgebase/articles/116780-structure-of-the-orcid-identifier
+        total, checksum = 0, digits[-1]
+        for digit in digits[:-1]:
+            total = (total + int(digit, 36)) * 2
+        check = (12 - (total % 11)) % 11
+        if check == 10:
+            check = 'X'
+        if str(check) != checksum:
+            raise ValueError('{} is not a valid ORCID. Failed checksum'.format(digits))
+
+    def execute(self, obj):
+        if not isinstance(obj, str):
+            raise TypeError('{} is not of type str'.format(obj))
+        match = re.search(self.ORCID_RE, obj)
+        if not match:
+            raise ValueError('{} cannot be expressed as an orcid'.format(obj))
+        self.checksum(''.join(match.groups()))
+        return '{}{}-{}-{}-{}'.format(self.ORCID_URL, *match.groups())
+
+
+class DOILink(AbstractLink):
+    """Reformt DOIs to the cannonical form
+
+    * All DOIs will be valid URIs
+    * All DOIs will use https
+    * All DOI paths will be uppercased
+
+    Reference:
+        https://www.doi.org/doi_handbook/2_Numbering.html
+        https://stackoverflow.com/questions/27910/finding-a-doi-in-a-document-or-page
+
+    While having characters like <>[] in URLs is technically valid, rfc3987 does not seem to like.
+    For that reason we escape them here using furl. The regex ensure we won't pick up invalid URLS
+    """
+    DOI_URL = 'http://dx.doi.org/'
+    DOI_RE = r'\b(10\.\d{4,}(?:\.\d+)*/\S+(?:(?!["&\'<>])\S))\b'
+
+    def execute(self, obj):
+        if not isinstance(obj, str):
+            raise TypeError('{} is not of type str'.format(obj))
+        match = re.search(self.DOI_RE, obj.upper())
+        if not match:
+            raise ValueError('{} is not a valid DOI'.format(obj))
+        return furl.furl('{}{}'.format(self.DOI_URL, *match.groups())).url

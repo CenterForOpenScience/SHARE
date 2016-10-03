@@ -5,7 +5,6 @@ from lxml import etree
 from share.normalize import ctx, tools
 from share.normalize.parsers import Parser
 from share.normalize.normalizer import Normalizer
-from share.normalize.utils import format_doi_as_url
 
 
 logger = logging.getLogger(__name__)
@@ -33,9 +32,7 @@ class OAILink(Parser):
     def format_link(self, link):
         link_type = self.get_link_type(link)
         if link_type == 'doi':
-            if 'http' in link:
-                return link
-            return format_doi_as_url(self, link)
+            return tools.DOI().execute(link)
         return link
 
 

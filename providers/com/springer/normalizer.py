@@ -1,12 +1,6 @@
 from share.normalize import *  # noqa
 
 
-class ISSN(Parser):
-    schema = 'Link'
-    url = ctx
-    type = Static('issn')
-
-
 class Link(Parser):
     url = ctx.value
     type = RunPython('get_link_type', ctx.value)
@@ -62,10 +56,7 @@ class Publication(Parser):
     description = ctx.abstract
     date_published = ParseDate(ctx.publicationDate)
     tags = Map(Delegate(ThroughTags), Maybe(ctx, 'genre'))
-    links = Concat(
-        Map(Delegate(ThroughLinks), ctx.url),
-        Delegate(ThroughLinks.using(link=Delegate(ISSN)), Maybe(ctx, 'issn'))
-    )
+    links = Map(Delegate(ThroughLinks), ctx.url)
     publishers = Map(Delegate(Association), Maybe(ctx, 'publicationName'), Maybe(ctx, 'publisher'))
     rights = ctx.copyright
 
@@ -77,3 +68,4 @@ class Publication(Parser):
         starting_page = ctx.startingPage
         topicalCollection = Try(ctx.topicalCollection)
         journalid = Try(ctx.journalid)
+        issn = Try(ctx.issn)
