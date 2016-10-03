@@ -105,13 +105,8 @@ class ChangeNode:
         # JSON-LD variables are all prefixed with '@'s
         self.context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
 
-        # Models with a unique field that is not a foreign key are assumed to 
-        # disambiguate on that, and therefore don't depend on their relations
-        if any(not f.is_relation and f.unique for f in self.model._meta.get_fields()):
-            self.relations = {}
-        else:
-            # Any nested data type is a relation in the current JSON-LD schema
-            self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, dict)}
+        # Any nested data type is a relation in the current JSON-LD schema
+        self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, dict)}
         self.related = tuple(self.relations.values())
 
         self.reverse_relations = {}  # Resolved through relations to be populated later
@@ -130,8 +125,6 @@ class ChangeNode:
                 through_relations = {r['@id']:r for r in node.related if r['@id'] != self.id}
                 if through_relations:
                     resolved.extend(through_relations.values())
-                else:
-                    resolved.append(node.ref)
             self.reverse_relations[key] = resolved
             self.related += tuple(resolved)
 
@@ -191,7 +184,7 @@ class ChangeGraph:
 
         # TODO This could probably be more efficiant
         if disambiguate:
-            for n in self.__nodes:
+            for n in sorted(self.__nodes, key=lambda n: 'identifier' not in n.type):
                 n.update_relations(self.__map)
                 n._disambiguate()
                 for ref in n.refs:

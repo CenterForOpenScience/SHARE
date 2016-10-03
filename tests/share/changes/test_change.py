@@ -201,7 +201,7 @@ class TestChangeSet:
                 '@id': '_:789',
                 '@type': 'preprint',
                 'title': 'All About Cats',
-                'identifiers': [{'@id': '_:abc', '@type': 'creativeworkidentifier'}]
+                'creativeworkidentifiers': [{'@id': '_:abc', '@type': 'creativeworkidentifier'}]
             }]
         })
 
@@ -214,18 +214,13 @@ class TestChangeSet:
         ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:abc',
-                '@type': 'identifier',
-                'url': 'https://share.osf.io/faq',
-            }, {
-                '@id': '_:def',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:789', '@type': 'preprint'},
-                'identifier': {'@id': '_:abc', '@type': 'identifier'}
+                '@type': 'creativeworkidentifier',
+                'uri': 'https://share.osf.io/faq',
             }, {
                 '@id': '_:789',
                 'is_deleted': True,
                 '@type': 'preprint',
-                'identifiers': [{'@id': '_:def', '@type': 'workidentifier'}]
+                'creativeworkidentifiers': [{'@id': '_:abc', '@type': 'creativeworkidentifier'}]
             }]
         }), normalized_data_id).accept()
 
@@ -352,31 +347,25 @@ class TestChangeSet:
         updated to Preprint
         '''
         title = 'Ambiguous Earthquakes'
-        url = 'https://osf.io/special-snowflake'
+        uri = 'https://osf.io/special-snowflake'
 
         original_change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'creativework',
                 'title': title,
-                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
-            }, {
-                '@id': '_:foo',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:1234', '@type': 'creativework'},
-                'identifier': {'@id': '_:2345', '@type': 'identifier'}
+                'creativeworkidentifiers': [{'@id': '_:2345', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:2345',
-                '@type': 'identifier',
-                'url': url,
-                'domain': 'foo'
+                '@type': 'creativeworkidentifier',
+                'uri': uri
             }]
         }), normalized_data_id)
 
         identifier, work, _ = original_change_set.accept()
         id = work.id
 
-        assert identifier.url == url
+        assert identifier.uri == uri
         assert CreativeWork.objects.count() == 1
         assert Preprint.objects.count() == 0
 
@@ -384,16 +373,11 @@ class TestChangeSet:
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'preprint',
-                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
-            }, {
-                '@id': '_:foo',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:1234', '@type': 'preprint'},
-                'identifier': {'@id': '_:2345', '@type': 'identifier'}
+                'creativeworkidentifiers': [{'@id': '_:2345', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:2345',
-                '@type': 'identifier',
-                'url': url
+                '@type': 'creativeworkidentifier',
+                'uri': uri
             }]
         }), normalized_data_id)
 
@@ -412,31 +396,25 @@ class TestChangeSet:
         should remain the same.
         '''
         old_title = 'Ambiguous Earthquakes'
-        url = 'https://osf.io/special-snowflake'
+        uri = 'https://osf.io/special-snowflake'
 
         original_change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'preprint',
                 'title': old_title,
-                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
-            }, {
-                '@id': '_:foo',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:1234', '@type': 'preprint'},
-                'identifier': {'@id': '_:2345', '@type': 'identifier'}
+                'creativeworkidentifiers': [{'@id': '_:2345', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:2345',
-                '@type': 'identifier',
-                'url': url,
-                'domain': 'foo'
+                '@type': 'creativeworkidentifier',
+                'uri': uri,
             }]
         }), normalized_data_id)
 
         identifier, preprint, _ = original_change_set.accept()
         id = preprint.id
 
-        assert identifier.url == url
+        assert identifier.uri == uri
         assert Preprint.objects.count() == 1
         assert CreativeWork.objects.count() == 0
         assert Preprint.objects.get(id=id).title == old_title
@@ -448,17 +426,11 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'creativework',
                 'title': new_title,
-                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
-            }, {
-                '@id': '_:foo',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:1234', '@type': 'creativework'},
-                'identifier': {'@id': '_:2345', '@type': 'identifier'}
+                'creativeworkidentifiers': [{'@id': '_:foo', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:2345',
-                '@type': 'identifier',
-                'url': url,
-                'domain': 'foo'
+                '@type': 'creativeworkidentifier',
+                'uri': uri,
             }]
         })
 
@@ -474,7 +446,7 @@ class TestChangeSet:
         '''
         Create two works with a relation between them.
         '''
-        url = 'https://osf.io/special-snowflake'
+        uri = 'https://osf.io/special-snowflake'
 
         change_set = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
@@ -486,7 +458,7 @@ class TestChangeSet:
                 '@id': '_:2345',
                 '@type': 'creativework',
                 'title': 'Cats, tho',
-                'identifiers': [{'@id': '_:3456', '@type': 'workidentifier'}]
+                'creativeworkidentifiers': [{'@id': '_:4567', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:foo',
                 '@type': 'relation',
@@ -494,14 +466,9 @@ class TestChangeSet:
                 'to_work': {'@id': '_:2345', '@type': 'creativework'},
                 'relation_type': 'ridicules'
             }, {
-                '@id': '_:3456',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:2345', '@type': 'creativework'},
-                'identifier': {'@id': '_:4567', '@type': 'identifier'},
-            }, {
                 '@id': '_:4567',
-                '@type': 'identifier',
-                'url': url
+                '@type': 'creativeworkidentifier',
+                'uri': uri
             }]
         }), normalized_data_id)
         change_set.accept()
@@ -529,22 +496,17 @@ class TestChangeSet:
         second work.
         '''
 
-        url = 'https://osf.io/special-snowflake'
+        uri = 'https://osf.io/special-snowflake'
         ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'article',
                 'title': 'All About Cats',
-                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
-            }, {
-                '@id': '_:foo',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:1234', '@type': 'article'},
-                'identifier': {'@id': '_:2345', '@type': 'identifier'}
+                'creativeworkidentifiers': [{'@id': '_:2345', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:2345',
-                '@type': 'identifier',
-                'url': url
+                '@type': 'creativeworkidentifier',
+                'uri': uri
             }]
         }), normalized_data_id).accept()
 
@@ -565,16 +527,11 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
-                'identifiers': [{'@id': '_:3456', '@type': 'workidentifier'}]
-            }, {
-                '@id': '_:3456',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:2345', '@type': 'creativework'},
-                'identifier': {'@id': '_:4567', '@type': 'identifier'},
+                'creativeworkidentifiers': [{'@id': '_:4567', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:4567',
-                '@type': 'identifier',
-                'url': url
+                '@type': 'creativeworkidentifier',
+                'uri': uri
             }]
         }), normalized_data_id)
         change_set.accept()
@@ -603,7 +560,7 @@ class TestChangeSet:
         CreativeWork's type and attributes instead of creating a new work.
         '''
 
-        url = 'https://osf.io/special-snowflake'
+        uri = 'https://osf.io/special-snowflake'
 
         ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
             '@graph': [{
@@ -620,16 +577,11 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
-                'identifiers': [{'@id': '_:3456', '@type': 'workidentifier'}]
-            }, {
-                '@id': '_:3456',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:2345', '@type': 'creativework'},
-                'identifier': {'@id': '_:4567', '@type': 'identifier'},
+                'creativeworkidentifiers': [{'@id': '_:3456', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:4567',
-                '@type': 'identifier',
-                'url': url
+                '@type': 'creativeworkidentifier',
+                'uri': uri
             }]
         }), normalized_data_id).accept()
 
@@ -642,16 +594,11 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'article',
                 'title': 'All About Cats',
-                'identifiers': [{'@id': '_:foo', '@type': 'workidentifier'}]
-            }, {
-                '@id': '_:foo',
-                '@type': 'workidentifier',
-                'creative_work': {'@id': '_:1234', '@type': 'article'},
-                'identifier': {'@id': '_:2345', '@type': 'identifier'}
+                'creativeworkidentifiers': [{'@id': '_:foo', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:2345',
-                '@type': 'identifier',
-                'url': url
+                '@type': 'creativeworkidentifier',
+                'uri': uri
             }]
         }), normalized_data_id).accept()
 

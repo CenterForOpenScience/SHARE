@@ -57,37 +57,27 @@ class TestChange:
     def test_update_creative_work(self, change_factory):
         identifier, preprint, _ = change_factory.from_graph({
             '@graph': [{
-                '@id': '_:1234',
-                '@type': 'identifier',
-                'url': 'https://share.osf.io',
-            }, {
                 '@id': '_:5678',
-                '@type': 'WorkIdentifier',
-                'identifier': {'@id': '_:1234', '@type': 'identifier'},
-                'creative_work': {'@id': '_:890', '@type': 'preprint'},
+                '@type': 'creativeworkidentifier',
+                'uri': 'https://share.osf.io',
             }, {
                 '@id': '_:890',
                 '@type': 'preprint',
                 'title': 'All about Cats and more',
-                'identifiers': [{'@id': '_:5678', '@type': 'WorkIdentifier'}]
+                'creativeworkidentifiers': [{'@id': '_:5678', '@type': 'creativeworkidentifier'}]
             }]
         }).accept()
 
         change_set = change_factory.from_graph({
             '@graph': [{
                 '@id': '_:1234',
-                '@type': 'identifier',
-                'url': 'https://share.osf.io',
-            }, {
-                '@id': '_:5678',
-                '@type': 'workidentifier',
-                'identifier': {'@id': '_:1234', '@type': 'identifier'},
-                'creative_work': {'@id': '_:890', '@type': 'preprint'},
+                '@type': 'creativeworkidentifier',
+                'uri': 'https://share.osf.io',
             }, {
                 '@id': '_:890',
                 '@type': 'preprint',
                 'title': 'JUST ABOUT CATS',
-                'identifiers': [{'@id': '_:5678', '@type': 'workidentifier'}],
+                'identifiers': [{'@id': '_:1234', '@type': 'creativeworkidentifier'}],
             }]
         }, disambiguate=True)
 

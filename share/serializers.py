@@ -118,7 +118,7 @@ class PersonIdentifierSerializer(BaseShareSerializer):
 
 class PersonSerializer(BaseShareSerializer):
     # no emails on purpose
-    identifiers = PersonIdentifierSerializer(many=True)
+    personidentifiers = PersonIdentifierSerializer(many=True)
     affiliations = OrganizationSerializer(sparse=True, many=True)
     extra = ExtraDataSerializer()
 
@@ -187,7 +187,7 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     funders = FunderSerializer(sparse=True, many=True)
     venues = VenueSerializer(sparse=True, many=True)
     awards = AwardSerializer(sparse=True, many=True)
-    identifiers = CreativeWorkIdentifierSerializer(many=True)
+    creativeworkidentifiers = CreativeWorkIdentifierSerializer(many=True)
     subjects = SubjectSerializer(many=True)
     extra = ExtraDataSerializer()
 

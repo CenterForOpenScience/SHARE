@@ -212,18 +212,8 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'Identifier',
-                'url': 'giraffe',
-                'domain': 'foo'
-            }]
-        }
-    }, {
-        'out': "'domain' is a required property at /@graph/0",
-        'in': {
-            '@graph': [{
-                '@id': '_:123',
-                '@type': 'Identifier',
-                'url': 'https://share.osf.io/foo',
+                '@type': 'CreativeWorkIdentifier',
+                'uri': 'giraffe',
             }]
         }
     }, {
@@ -231,9 +221,8 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'identifier',
-                'url': 'https://share.osf.io/foo',
-                'domain': 'share.osf.io'
+                '@type': 'creativeworkidentifier',
+                'uri': 'https://share.osf.io/foo',
             }]
         }
     }]

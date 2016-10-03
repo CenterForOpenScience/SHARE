@@ -139,8 +139,8 @@ class MakeJsonPatches(celery.Task):
                 # TODO: verify change set is not overwriting user created object
                 cs.accept()
         except Exception as e:
-            if cs and cs.id:
-                cs.delete()
+            #if cs and cs.id:
+                #cs.delete()
             raise self.retry(countdown=10, exc=e)
 
         logger.info('Finished make JSON patches for %s by %s at %s', normalized, started_by, datetime.datetime.utcnow().isoformat())

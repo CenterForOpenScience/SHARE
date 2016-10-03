@@ -1,4 +1,4 @@
-import furl
+from furl import furl
 
 from django.db import models
 
@@ -45,7 +45,7 @@ class CreativeWorkIdentifier(ShareObject):
         f = furl(self.uri)
         self.host = f.host
         self.scheme = f.scheme
-        super(Identifier, self).save(*args, **kwargs)
+        super(CreativeWorkIdentifier, self).save(*args, **kwargs)
 
 
 
@@ -65,5 +65,5 @@ class PersonIdentifier(ShareObject):
         f = furl(self.uri)
         self.host = f.host
         self.scheme = f.scheme
-        super(Identifier, self).save(*args, **kwargs)
+        super(PersonIdentifier, self).save(*args, **kwargs)
 

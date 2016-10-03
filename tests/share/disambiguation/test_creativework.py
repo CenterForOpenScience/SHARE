@@ -1,7 +1,6 @@
 import pytest
 
-from share.models import Identifier, CreativeWork
-from share.models.meta import WorkIdentifier
+from share.models import CreativeWorkIdentifier, CreativeWork
 from share.disambiguation import disambiguate
 
 
@@ -48,17 +47,13 @@ class TestAbstractWork:
             change_id=change_ids.get()
         )
 
-        identifier = Identifier.objects.create(url='http://share.osf.io/cats', change_id=change_ids.get())
-
-        WorkIdentifier.objects.create(
-            identifier=identifier,
+        identifier = CreativeWorkIdentifier.objects.create(
+            uri='http://share.osf.io/cats',
             creative_work=cw,
-            change_id=change_ids.get(),
-            identifier_version=identifier.versions.first(),
             creative_work_version=cw.versions.first(),
-        )
+            change_id=change_ids.get())
 
-        assert disambiguate('_:', {'identifiers': [identifier.pk]}, CreativeWork) == cw
+        assert disambiguate('_:', {'creativeworkidentifiers': [identifier.pk]}, CreativeWork) == cw
 
 
 class TestAffiliations:

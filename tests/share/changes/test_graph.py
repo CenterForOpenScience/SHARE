@@ -155,10 +155,10 @@ class TestChangeGraph:
             '@graph': [{
                 '@id': '_:91011',
                 '@type': 'preprint',
-                'identifiers': [{'@id': '_:5678', '@type': 'identifier'}]
+                'creativeworkidentifiers': [{'@id': '_:5678', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:5678',
-                '@type': 'workidentifier',
+                '@type': 'creativeworkidentifier',
                 'uri': 'mailto:gandhi@dinosaurs.sexy',
                 'creative_work': {'@id': '_91011', '@type': 'preprint'}
             }]

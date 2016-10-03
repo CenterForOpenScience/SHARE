@@ -1,7 +1,6 @@
 import pytest
 
-from share.models import Identifier, Person
-from share.models.people import PersonIdentifier
+from share.models import PersonIdentifier, Person
 from share.disambiguation import disambiguate
 
 
@@ -14,17 +13,13 @@ class TestPerson:
 
     @pytest.mark.django_db
     def test_identifier_disambiguates(self, jane_doe, change_ids):
-        identifier = Identifier.objects.create(url='http://osf.io/jane', change_id=change_ids.get())
-
-        PersonIdentifier.objects.create(
-            identifier=identifier,
+        identifier = PersonIdentifier.objects.create(
+            uri='http://osf.io/jane',
             person=jane_doe,
-            change_id=change_ids.get(),
-            identifier_version=identifier.versions.first(),
             person_version=jane_doe.versions.first(),
-        )
+            change_id=change_ids.get())
 
-        assert disambiguate('_:', {'identifiers': [identifier.pk]}, Person) == jane_doe
+        assert disambiguate('_:', {'personidentifiers': [identifier.pk]}, Person) == jane_doe
 
 
 class TestAffiliations:
