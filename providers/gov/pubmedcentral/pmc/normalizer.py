@@ -41,6 +41,8 @@ class Person(Parser):
             Static(None)
         )
         contrib_id = Try(Orcid(ctx['contrib-id']))
+        role = Try(ctx['role'])
+        degrees = Try(ctx['degrees'])
 
 
 class Contributor(Parser):
@@ -87,16 +89,25 @@ class Publication(Parser):
         Static(None)
     )
 
-    publishers = Try(Map(
-        Delegate(Association.using(entity=Delegate(Publisher))),
-        ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name']
-    ))
-    funders = Try(Map(
-        Delegate(Association.using(entity=Delegate(Funder))),
-        ctx.record.metadata.article.front['article-meta']['funding-group']['award-group']['funding-source']
-    ))
+    publishers = OneOf(
+        Map(
+            Delegate(Association.using(entity=Delegate(Publisher))),
+            Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name'])
+        ),
+        Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name'])
+    )
+    funders = OneOf(
+        Map(
+            Delegate(Association.using(entity=Delegate(Funder))),
+            Try(ctx.record.metadata.article.front['article-meta']['funding-group']['award-group']['funding-source'])
+        ),
+        Try(ctx.record.metadata.article.front['article-meta']['funding-group']['award-group']['funding-source'])
+    )
 
-    tags = Try(Map(Delegate(ThroughTags), ctx.record.metadata.article.front['article-meta']['kwd-group']['kwd']))
+    tags = Map(
+        Delegate(ThroughTags),
+        Try(ctx.record.metadata.article.front['article-meta']['kwd-group']['kwd'])
+    )
 
     date_published = RunPython(
         'get_published_date',
@@ -107,10 +118,13 @@ class Publication(Parser):
 
     rights = Try(ctx.record.metadata.article.front['article-meta']['permissions']['license']['license-p']['#text'])
 
-    contributors = Try(Map(
-        Delegate(Contributor),
-        ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib']
-    ))
+    contributors = OneOf(
+        Map(
+            Delegate(Contributor),
+            Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])
+        ),
+        Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])
+    )
 
     class Extra:
         correspondence = OneOf(
