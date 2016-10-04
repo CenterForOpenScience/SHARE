@@ -128,12 +128,6 @@ class IndexModelTask(ProviderTask):
         }
         return add_suggest(serialized_subject) if suggest else serialized_subject
 
-    def serialize_link(self, link):
-        return {
-            'type': safe_substr(link.type),
-            'url': safe_substr(link.url),
-        }
-
 
 class IndexSourceTask(ProviderTask):
 

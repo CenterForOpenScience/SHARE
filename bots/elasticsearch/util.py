@@ -37,10 +37,9 @@ def fetch_person(pks):
                 )
                 FROM share_person AS person
                 LEFT JOIN LATERAL (
-                            SELECT json_agg(json_build_object('id', identifier.id, 'url', identifier.url)) AS identifiers
-                            FROM share_personidentifier AS throughidentifier
-                            JOIN share_identifier AS identifier ON throughidentifier.identifier_id = identifier.id
-                            WHERE throughidentifier.person_id = person.id) AS identifiers ON TRUE
+                            SELECT json_agg(json_build_object('id', identifier.id, 'uri', identifier.uri)) AS identifiers
+                            FROM share_personidentifier AS identifier
+                            WHERE identifier.person_id = person.id) AS identifiers ON TRUE
                 LEFT JOIN LATERAL (
                             SELECT json_agg(
                                 json_build_object('id', entity.id, 'type', entity.type, 'name', entity.name, 'url', entity.url,
@@ -100,10 +99,9 @@ def fetch_abstractcreativework(pks):
                     WHERE association.creative_work_id = creativework.id
                 ) AS associations ON true
                 LEFT JOIN LATERAL (
-                    SELECT array_agg(identifier.url) as identifiers
-                    FROM share_workidentifier AS throughidentifier
-                    JOIN share_identifier AS identifier ON throughidentifier.identifier_id = identifier.id
-                    WHERE throughidentifier.creative_work_id = creativework.id
+                    SELECT array_agg(identifier.uri) as identifiers
+                    FROM share_creativeworkidentifier AS identifier
+                    WHERE identifier.creative_work_id = creativework.id
                 ) AS links ON true
                 LEFT JOIN LATERAL (
                     SELECT array_agg(source.long_title) AS sources
@@ -138,10 +136,9 @@ def fetch_abstractcreativework(pks):
                     FROM share_contributor AS contributor
                     JOIN share_person AS person ON contributor.person_id = person.id
                     LEFT JOIN LATERAL (
-                        SELECT array_agg(identifier.url) AS identifiers
-                        FROM share_personidentifier AS throughidentifier
-                        JOIN share_identifier as identifier ON throughidentifier.identifier_id = identifier.id
-                        WHERE throughidentifier.person_id = person.id
+                        SELECT array_agg(identifier.uri) AS identifiers
+                        FROM share_personidentifier AS identifier
+                        WHERE identifier.person_id = person.id
                     ) AS identifiers ON true
                     WHERE contributor.creative_work_id = creativework.id
                 ) AS contributors ON true
