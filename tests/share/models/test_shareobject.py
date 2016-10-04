@@ -96,7 +96,7 @@ class TestVersioning:
 
     @pytest.mark.django_db
     def test_relations_related_changed(self, john_doe, change_ids):
-        ident = Identifier.objects.create(
+        ident = PersonIdentifier.objects.create(
             uri='http://dinosaurs.sexy/john_doe',
             person=john_doe,
             person_version=john_doe.version,
@@ -111,7 +111,7 @@ class TestVersioning:
         john_doe.save()
         john_doe.refresh_from_db()
 
-        assert john_doe.identifiers.count() == 1
+        assert john_doe.personidentifiers.count() == 1
 
         assert john_doe == ident.person
         assert john_doe.version != ident.person_version
