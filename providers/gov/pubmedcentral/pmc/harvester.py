@@ -8,7 +8,7 @@ class PMCHarvester(OAIHarvester):
     def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> list:
         url = furl(self.url)
         url.args['verb'] = 'ListRecords'
-        url.args['metadataPrefix'] = 'pmc'
+        url.args['metadataPrefix'] = 'pmc_fm'
 
         if self.time_granularity:
             url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00') + 'Z'
