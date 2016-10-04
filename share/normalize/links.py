@@ -102,8 +102,8 @@ def DOI(chain=None):
 
 def Email(chain=None):
     if chain:
-        return chain + URILink()
-    return URILink()
+        return chain + EmailLink()
+    return EmailLink()
 
 ### /Public API
 

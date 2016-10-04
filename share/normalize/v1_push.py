@@ -7,14 +7,9 @@ from share.normalize.normalizer import Normalizer
 THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 
 
-class Identifier(Parser):
+class CreativeWorkIdentifier(Parser):
 
-    url = ctx
-
-
-class WorkIdentifier(Parser):
-
-    identifier = tools.Delegate(Identifier, ctx)
+    uri = ctx
 
 
 class Publisher(Parser):
@@ -75,7 +70,7 @@ class PersonEmail(Parser):
 
 class PersonIdentifier(Parser):
 
-    identifier = tools.Delegate(Identifier, ctx)
+    uri = ctx
 
 
 class Person(Parser):
@@ -94,7 +89,7 @@ class Person(Parser):
         tools.Try(ctx.affiliation)
     )
 
-    identifiers = tools.Map(
+    personidentifiers = tools.Map(
         tools.Delegate(PersonIdentifier),
         tools.Try(ctx.sameAs)
     )
@@ -190,9 +185,9 @@ class CreativeWork(Parser):
         tools.Try(ctx.languages[0]),
     )
 
-    identifiers = tools.Concat(
+    creativeworkidentifiers = tools.Concat(
         tools.Map(
-            tools.Delegate(WorkIdentifier),
+            tools.Delegate(CreativeWorkIdentifier),
             tools.Try(ctx.uris.canonicalUri),
             tools.Try(ctx.uris.descriptorUris),
             tools.Try(ctx.uris.objectUris),

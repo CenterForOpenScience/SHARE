@@ -54,8 +54,7 @@ class Command(BaseCommand):
         concrete_fields.remove('NEW.id')
         concrete_fields.remove('NEW.version_id')
 
-        if len(version_fields) != len(concrete_fields):
-            import pdb; pdb.set_trace()
+        assert len(version_fields) == len(concrete_fields)
 
         return concrete_fields, version_fields
 

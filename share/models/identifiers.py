@@ -2,14 +2,14 @@ from furl import furl
 
 from django.db import models
 
-from share.models.base import ShareObject, ShareObjectVersion
+from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 
 __all__ = ('CreativeWorkIdentifier', 'PersonIdentifier')
 
 
 # TODO common interface
-#class Identifier(ShareObject):
+# class Identifier(ShareObject):
 #    # http://twitter.com/berniethoughts/, mailto://contact@cos.io
 #    uri = ShareURLField(unique=True)
 #
@@ -20,6 +20,7 @@ __all__ = ('CreativeWorkIdentifier', 'PersonIdentifier')
 #    scheme = models.TextField(editable=False)
 #
 #    def save(self, *args, **kwargs):
+#        # TODO special case for `urn:ISSN:1234-1234`? or our own parser?
 #        f = furl(self.uri)
 #        self.host = f.host
 #        self.scheme = f.scheme
@@ -30,15 +31,9 @@ __all__ = ('CreativeWorkIdentifier', 'PersonIdentifier')
 
 
 class CreativeWorkIdentifier(ShareObject):
-    # http://twitter.com/berniethoughts/, mailto://contact@cos.io
     uri = ShareURLField(unique=True)
-
-    # twitter.com, cos.io
     host = models.TextField(editable=False)
-
-    # http, mailto
     scheme = models.TextField(editable=False)
-
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='%(class)ss')
 
     def save(self, *args, **kwargs):
@@ -48,17 +43,10 @@ class CreativeWorkIdentifier(ShareObject):
         super(CreativeWorkIdentifier, self).save(*args, **kwargs)
 
 
-
 class PersonIdentifier(ShareObject):
-    # http://twitter.com/berniethoughts/, mailto://contact@cos.io
     uri = ShareURLField(unique=True)
-
-    # twitter.com, cos.io
     host = models.TextField(editable=False)
-
-    # http, mailto
     scheme = models.TextField(editable=False)
-
     person = ShareForeignKey('Person', related_name='%(class)ss')
 
     def save(self, *args, **kwargs):
@@ -66,4 +54,3 @@ class PersonIdentifier(ShareObject):
         self.host = f.host
         self.scheme = f.scheme
         super(PersonIdentifier, self).save(*args, **kwargs)
-

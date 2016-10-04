@@ -197,6 +197,7 @@ class TestChangeSet:
                 '@id': '_:abc',
                 '@type': 'creativeworkidentifier',
                 'uri': 'http://osf.io/faq',
+                'creative_work': {'@id': '_:789', '@type': 'preprint'}
             }, {
                 '@id': '_:789',
                 '@type': 'preprint',
@@ -207,7 +208,7 @@ class TestChangeSet:
 
         change_set = ChangeSet.objects.from_graph(graph, normalized_data_id)
 
-        link, preprint, _ = change_set.accept()
+        preprint, identifier = change_set.accept()
 
         assert preprint.is_deleted is False
 
@@ -215,7 +216,8 @@ class TestChangeSet:
             '@graph': [{
                 '@id': '_:abc',
                 '@type': 'creativeworkidentifier',
-                'uri': 'https://share.osf.io/faq',
+                'uri': 'http://osf.io/faq',
+                'creative_work': {'@id': '_:789', '@type': 'preprint'}
             }, {
                 '@id': '_:789',
                 'is_deleted': True,
@@ -358,11 +360,12 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativeworkidentifier',
-                'uri': uri
+                'uri': uri,
+                'creative_work': {'@id': '_:1234', '@type': 'creativework'}
             }]
         }), normalized_data_id)
 
-        identifier, work, _ = original_change_set.accept()
+        work, identifier = original_change_set.accept()
         id = work.id
 
         assert identifier.uri == uri
@@ -377,7 +380,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativeworkidentifier',
-                'uri': uri
+                'uri': uri,
+                'creative_work': {'@id': '_:1234', '@type': 'preprint'}
             }]
         }), normalized_data_id)
 
@@ -408,10 +412,11 @@ class TestChangeSet:
                 '@id': '_:2345',
                 '@type': 'creativeworkidentifier',
                 'uri': uri,
+                'creative_work': {'@id': '_:1234', '@type': 'preprint'}
             }]
         }), normalized_data_id)
 
-        identifier, preprint, _ = original_change_set.accept()
+        preprint, identifier = original_change_set.accept()
         id = preprint.id
 
         assert identifier.uri == uri
@@ -426,11 +431,12 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'creativework',
                 'title': new_title,
-                'creativeworkidentifiers': [{'@id': '_:foo', '@type': 'creativeworkidentifier'}]
+                'creativeworkidentifiers': [{'@id': '_:2345', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:2345',
                 '@type': 'creativeworkidentifier',
                 'uri': uri,
+                'creative_work': {'@id': '_:1234', '@type': 'creativework'}
             }]
         })
 
@@ -468,7 +474,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:4567',
                 '@type': 'creativeworkidentifier',
-                'uri': uri
+                'uri': uri,
+                'creative_work': {'@id': '_:2345', '@type': 'creativework'}
             }]
         }), normalized_data_id)
         change_set.accept()
@@ -506,7 +513,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativeworkidentifier',
-                'uri': uri
+                'uri': uri,
+                'creative_work': {'@id': '_:1234', '@type': 'article'}
             }]
         }), normalized_data_id).accept()
 
@@ -531,7 +539,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:4567',
                 '@type': 'creativeworkidentifier',
-                'uri': uri
+                'uri': uri,
+                'creative_work': {'@id': '_:2345', '@type': 'creativework'}
             }]
         }), normalized_data_id)
         change_set.accept()
@@ -577,11 +586,12 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
-                'creativeworkidentifiers': [{'@id': '_:3456', '@type': 'creativeworkidentifier'}]
+                'creativeworkidentifiers': [{'@id': '_:4567', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:4567',
                 '@type': 'creativeworkidentifier',
-                'uri': uri
+                'uri': uri,
+                'creative_work': {'@id': '_:2345', '@type': 'creativework'}
             }]
         }), normalized_data_id).accept()
 
@@ -594,11 +604,12 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'article',
                 'title': 'All About Cats',
-                'creativeworkidentifiers': [{'@id': '_:foo', '@type': 'creativeworkidentifier'}]
+                'creativeworkidentifiers': [{'@id': '_:2345', '@type': 'creativeworkidentifier'}]
             }, {
                 '@id': '_:2345',
                 '@type': 'creativeworkidentifier',
-                'uri': uri
+                'uri': uri,
+                'creative_work': {'@id': '_:1234', '@type': 'article'}
             }]
         }), normalized_data_id).accept()
 

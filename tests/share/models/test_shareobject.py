@@ -80,7 +80,7 @@ class TestVersioning:
     @pytest.mark.django_db
     def test_relations(self, john_doe, change_ids):
         ident = PersonIdentifier.objects.create(
-            uri='http://dinosaurs.sexy/john_doe', 
+            uri='http://dinosaurs.sexy/john_doe',
             person=john_doe,
             person_version=john_doe.version,
             change_id=change_ids.get()

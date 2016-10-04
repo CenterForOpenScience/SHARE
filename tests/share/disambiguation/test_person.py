@@ -1,14 +1,14 @@
 import pytest
 
 from share.models import PersonIdentifier, Person
-from share.disambiguation import disambiguate
+from share.disambiguation import PersonDisambiguator
 
 
 class TestPerson:
 
     @pytest.mark.django_db
     def test_does_not_disambiguate_without_identifier(self, john_doe):
-        disPerson = disambiguate('_:', {'family_name': 'Doe', 'given_name': 'John'}, Person)
+        disPerson = PersonDisambiguator('_:', {'family_name': 'Doe', 'given_name': 'John'}, Person).find()
         assert disPerson is None
 
     @pytest.mark.django_db
@@ -19,7 +19,9 @@ class TestPerson:
             person_version=jane_doe.versions.first(),
             change_id=change_ids.get())
 
-        assert disambiguate('_:', {'personidentifiers': [identifier.pk]}, Person) == jane_doe
+        disPerson = PersonDisambiguator('_:', {'personidentifiers': [identifier.pk]}, Person).find()
+
+        assert disPerson == jane_doe
 
 
 class TestAffiliations:

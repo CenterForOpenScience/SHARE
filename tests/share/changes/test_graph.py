@@ -14,7 +14,7 @@ class TestChangeNode:
             '@type': 'person',
             'given_name': 'Doe',
             'family_name': 'Jane',
-        }, disambiguate=False)
+        })
 
         assert node.id == '_:1234'
         assert node.type == 'person'
@@ -25,7 +25,7 @@ class TestChangeNode:
         node = ChangeNode.from_jsonld({
             '@id': 1234,
             '@type': 'person',
-        }, disambiguate=False)
+        })
 
         assert node.is_blank is False
 
@@ -36,7 +36,7 @@ class TestChangeNode:
             'given_name': 'Doe',
             'family_name': 'Jane',
             'extra': {'likes': ['cats']}
-        }, disambiguate=False)
+        })
 
         assert 'extra' not in node.attrs
         assert node.extra == {'likes': ['cats']}
@@ -50,7 +50,7 @@ class TestChangeNode:
     #             {'@type': 'Person', '@id': '5827'},
     #             {'@type': 'Person', '@id': '0847'}
     #         ]
-    #     }, disambiguate=False)
+    #     })
 
     #     assert node.relations == {'into': {'@type': 'Person', '@id': '1234'}}
     #     assert node._reverse_relations == {
@@ -65,7 +65,7 @@ class TestChangeNode:
             '@id': '_:5678',
             '@type': 'contributor',
             '@context': {'schema': 'www.example.com'},
-        }, disambiguate=False)
+        })
 
         assert node.context == {'@context': {'schema': 'www.example.com'}}
 
@@ -77,7 +77,7 @@ class TestChangeNode:
                 '@id': '_:1234',
                 '@type': 'person'
             }
-        }, disambiguate=False)
+        })
 
         assert node.attrs == {}
         assert len(node.relations) == 1
@@ -165,8 +165,8 @@ class TestChangeGraph:
         }, disambiguate=False)
 
         assert len(graph.nodes) == 2
-        assert graph.nodes[0].id == '_:5678'
-        assert graph.nodes[1].id == '_:91011'
+        assert graph.nodes[0].id == '_:91011'
+        assert graph.nodes[1].id == '_:5678'
 
     def test_topological_sort_unchanged(self):
         graph = ChangeGraph.from_jsonld({

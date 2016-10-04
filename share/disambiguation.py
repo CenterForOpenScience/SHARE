@@ -1,21 +1,47 @@
-import abc
-
 from django.core.exceptions import ValidationError
 
 from share import models
 
-__all__ = ('disambiguate', )
+__all__ = ('GraphDisambiguator', )
 
 
-def disambiguate(id, attrs, model):
-    for cls in Disambiguator.__subclasses__():
-        if getattr(cls, 'FOR_MODEL', None) == model._meta.concrete_model:
-            return cls(id, attrs, model).find()
+class GraphDisambiguator:
+    def __init__(self):
+        self.__disambiguator_map = {}
+        self._gather_disambiguators(Disambiguator)
 
-    return GenericDisambiguator(id, attrs, model).find()
+    def disambiguate(self, change_graph):
+        nodes = sorted(change_graph.nodes, key=self._disambiguweight, reverse=True)
+        for n in nodes:
+            n.update_relations(change_graph.node_map)
+            if n.is_merge:
+                continue
+            n.instance = self.instance_for_node(n)
+            for ref in n.refs:
+                change_graph.node_map[ref] = n
+
+    def instance_for_node(self, node):
+        NodeDisambiguator = self.__disambiguator_map.get(node.model._meta.concrete_model, GenericDisambiguator)
+        return NodeDisambiguator(node.id, node.resolved_attrs, node.model).find()
+
+    def _disambiguweight(self, node):
+        # Models with exactly 1 foreign key field (excluding those added by
+        # ShareObjectMeta) are disambiguated first, because they might be used
+        # to uniquely identify the object they point to. Then do the models with
+        # 0 FKs, then 2, 3, etc.
+        ignored = {'same_as', 'extra'}
+        fk_count = sum(1 for f in node.model._meta.get_fields() if f.editable and (f.many_to_one or f.one_to_one) and f.name not in ignored)
+        return fk_count if fk_count == 1 else -fk_count
+
+    def _gather_disambiguators(self, base):
+        for cls in base.__subclasses__():
+            for_model = getattr(cls, 'FOR_MODEL', None)
+            if for_model:
+                self.__disambiguator_map[for_model] = cls
+            self._gather_disambiguators(cls)
 
 
-class Disambiguator(metaclass=abc.ABCMeta):
+class Disambiguator():
 
     def __init__(self, id, attrs, model):
         self.id = id
@@ -24,9 +50,8 @@ class Disambiguator(metaclass=abc.ABCMeta):
         self.attrs = {k: v for k, v in attrs.items() if v}
         self.is_blank = isinstance(id, str) and id.startswith('_:')
 
-    @abc.abstractmethod
     def disambiguate(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def find(self):
         if self.id and not self.is_blank:
@@ -71,47 +96,53 @@ class GenericDisambiguator(Disambiguator):
             return None
 
 
-class CreativeWorkIdentifierDisambiguator(Disambiguator):
+class UniqueAttrDisambiguator(Disambiguator):
+    @property
+    def unique_attr(self):
+        raise NotImplementedError()
+
+    def not_found(self):
+        return None
+
+    def disambiguate(self):
+        attr = self.attrs.get(self.unique_attr)
+        if not attr:
+            return None
+        try:
+            query = {self.unique_attr: attr}
+            return self.model.objects.get(**query)
+        except self.model.DoesNotExist:
+            return self.not_found()
+
+
+class CreativeWorkIdentifierDisambiguator(UniqueAttrDisambiguator):
     FOR_MODEL = models.CreativeWorkIdentifier
-
-    def disambiguate(self):
-        if not self.attrs.get('uri'):
-            return None
-        try:
-            return self.model.objects.get(uri=self.attrs['uri'])
-        except self.model.DoesNotExist:
-            return None
+    unique_attr = 'uri'
 
 
-class PersonIdentifierDisambiguator(Disambiguator):
+class PersonIdentifierDisambiguator(UniqueAttrDisambiguator):
     FOR_MODEL = models.PersonIdentifier
-
-    def disambiguate(self):
-        if not self.attrs.get('uri'):
-            return None
-        try:
-            return self.model.objects.get(uri=self.attrs['uri'])
-        except self.model.DoesNotExist:
-            return None
+    unique_attr = 'uri'
 
 
-class TagDisambiguator(Disambiguator):
+class TagDisambiguator(UniqueAttrDisambiguator):
     FOR_MODEL = models.Tag
+    unique_attr = 'name'
 
-    def disambiguate(self):
-        if not self.attrs.get('name'):
-            return None
-        try:
-            return self.model.objects.get(name=self.attrs['name'])
-        except self.model.DoesNotExist:
-            return None
+
+class SubjectDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.Subject
+    unique_attr = 'name'
+
+    def not_found(self):
+        raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
 
 
 class PersonDisambiguator(Disambiguator):
     FOR_MODEL = models.Person
 
     def disambiguate(self):
-        for id in self.attrs.get('identifiers', ()):
+        for id in self.attrs.get('personidentifiers', ()):
             try:
                 identifier = models.PersonIdentifier.objects.get(id=id)
                 return identifier.person
@@ -120,23 +151,11 @@ class PersonDisambiguator(Disambiguator):
         return None
 
 
-class SubjectDisambiguator(Disambiguator):
-    FOR_MODEL = models.Subject
-
-    def disambiguate(self):
-        if not self.attrs.get('name'):
-            return None
-        try:
-            return models.Subject.objects.get(name=self.attrs['name'])
-        except models.Subject.DoesNotExist:
-            raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
-
-
 class AbstractCreativeWorkDisambiguator(Disambiguator):
     FOR_MODEL = models.AbstractCreativeWork
 
     def disambiguate(self):
-        for id in self.attrs.get('identifiers', ()):
+        for id in self.attrs.get('creativeworkidentifiers', ()):
             try:
                 identifier = models.CreativeWorkIdentifier.objects.get(id=id)
                 return identifier.creative_work
