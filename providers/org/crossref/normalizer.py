@@ -27,23 +27,19 @@ class Affiliation(Parser):
     pass
 
 
-class Identifier(Parser):
-    url = ctx
-
-
 class PersonIdentifier(Parser):
-    identifier = Delegate(Identifier, Orcid(ctx))
+    uri = Orcid(ctx)
 
 
-class WorkIdentifier(Parser):
-    identifier = Delegate(Identifier, DOI(ctx))
+class CreativeWorkIdentifier(Parser):
+    uri = DOI(ctx)
 
 
 class Person(Parser):
     given_name = Maybe(ctx, 'given')
     family_name = Maybe(ctx, 'family')
     affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
-    identifiers = Map(Delegate(PersonIdentifier), Maybe(ctx, 'ORCID'))
+    personidentifiers = Map(Delegate(PersonIdentifier), Maybe(ctx, 'ORCID'))
 
 
 class Contributor(Parser):
@@ -81,7 +77,7 @@ class CreativeWork(Parser):
         Maybe(ctx, 'author')
     )
 
-    identifiers = Map(Delegate(WorkIdentifier), ctx.DOI)
+    creativeworkidentifiers = Map(Delegate(CreativeWorkIdentifier), ctx.DOI)
 
     publishers = Map(
         Delegate(Association.using(entity=Delegate(Publisher))),
