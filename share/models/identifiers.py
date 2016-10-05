@@ -8,7 +8,9 @@ from share.models.fields import ShareForeignKey, ShareURLField
 __all__ = ('CreativeWorkIdentifier', 'PersonIdentifier')
 
 
-# TODO common interface
+# TODO Common interface, so we're not duplicating code. Doesn't work because
+# ShareObjectMeta doesn't look at bases when building Version classes.
+#
 # class Identifier(ShareObject):
 #    # http://twitter.com/berniethoughts/, mailto://contact@cos.io
 #    uri = ShareURLField(unique=True)
@@ -20,7 +22,6 @@ __all__ = ('CreativeWorkIdentifier', 'PersonIdentifier')
 #    scheme = models.TextField(editable=False)
 #
 #    def save(self, *args, **kwargs):
-#        # TODO special case for `urn:ISSN:1234-1234`? or our own parser?
 #        f = furl(self.uri)
 #        self.host = f.host
 #        self.scheme = f.scheme

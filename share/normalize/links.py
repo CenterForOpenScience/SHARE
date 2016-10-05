@@ -19,7 +19,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'Email')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI')
 
 
 #### Public API ####
@@ -98,12 +98,6 @@ def DOI(chain=None):
     if chain:
         return chain + DOILink()
     return DOILink()
-
-
-def Email(chain=None):
-    if chain:
-        return chain + EmailLink()
-    return EmailLink()
 
 ### /Public API
 
@@ -542,16 +536,16 @@ class OneOfLink(AbstractLink):
 
 class OrcidLink(AbstractLink):
     """Reformat Orcids to the cannonical form
-    http://orcid.org/xxxx-xxxx-xxxx-xxxx
+    https://orcid.org/xxx-xxxx-xxxx-xxxx
 
     0000000248692419
     0000-0002-4869-2419
-    http://orcid.org/0000-0002-4869-2419
+    https://orcid.org/0000-0002-4869-2419
 
-    Any of the above would be transformed into http://orcid.org/0000-0002-4869-2419
+    Any of the above would be transformed into https://orcid.org/0000-0002-4869-2419
     """
 
-    ORCID_URL = 'http://orcid.org/'
+    ORCID_URL = 'https://orcid.org/'
     ORCID_RE = re.compile(r'(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|X))')
 
     def checksum(self, digits):
@@ -579,7 +573,7 @@ class DOILink(AbstractLink):
     """Reformt DOIs to the cannonical form
 
     * All DOIs will be valid URIs
-    * All DOIs will use http
+    * All DOIs will use https
     * All DOI paths will be uppercased
 
     Reference:
@@ -599,14 +593,3 @@ class DOILink(AbstractLink):
         if not match:
             raise ValueError('{} is not a valid DOI'.format(obj))
         return furl.furl('{}{}'.format(self.DOI_URL, *match.groups())).url
-
-
-class EmailLink(AbstractLink):
-    """
-    Take an email and return it as a URI with scheme `mailto`
-    """
-
-    def execute(self, obj):
-        if not isinstance(obj, str):
-            raise TypeError('{} is not of type str'.format(obj))
-        return 'mailto:{}'.format(obj)
