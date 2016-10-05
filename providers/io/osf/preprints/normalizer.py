@@ -3,6 +3,10 @@ from share.normalize.normalizer import Normalizer
 from share.normalize import Delegate, Map, ctx, Try, ParseDate, OneOf, Static
 
 
+class PersonIdentifier(Parser):
+    uri = ctx
+
+
 class Person(Parser):
     given_name = OneOf(
         ctx.embeds.users.data.attributes.given_name,
@@ -20,7 +24,7 @@ class Person(Parser):
         ctx.embeds.users.data.attributes.suffix,
         ctx.embeds.users.errors[0].meta.suffix,
     )
-    # identifiers = Map( Delegate(URIIdentifier), Try(ctx.embeds.users.data.links.html))
+    personidentifiers = Map(Delegate(PersonIdentifier), Try(ctx.embeds.users.data.links.html))
 
     class Extra:
         nodes = Try(ctx.embeds.users.data.relationships.nodes.links.related.href)
@@ -63,14 +67,6 @@ class Institution(Parser):
         description = ctx.attributes.description
 
 
-class Publisher(Parser):
-    name = ctx
-
-
-class Association(Parser):
-    pass
-
-
 class Subject(Parser):
     name = ctx.text
 
@@ -79,19 +75,8 @@ class ThroughSubjects(Parser):
     subject = Delegate(Subject, ctx)
 
 
-class WorkIdentifier(Parser):
-    url = ctx
-
-
-class RelatedProject(Parser):
-    schema = 'Project'
-    workidentifiers = Map(Delegate(WorkIdentifier), ctx)
-
-
-class ProjectRelation(Parser):
-    schema = 'Relation'
-    relation_type = Static('is_derived_from')
-    to_work = Delegate(RelatedProject, ctx)
+class CreativeWorkIdentifier(Parser):
+    uri = ctx
 
 
 class Preprint(Parser):
@@ -102,16 +87,14 @@ class Preprint(Parser):
     date_published = ParseDate(ctx.attributes.date_created)
     # NOTE: OSF has a direct mapping to SHARE's taxonomy. Subjects() is not needed
     subjects = Map(Delegate(ThroughSubjects), ctx.attributes.subjects)
-    identifiers = Map(
-        Delegate(WorkIdentifier),
+    creativeworkidentifiers = Map(
+        Delegate(CreativeWorkIdentifier),
         ctx.links.self,
+        ctx.links.html,
         Try(ctx.links.doi)
     )
     tags = Map(Delegate(ThroughTags), Try(ctx.attributes.tags))
     rights = Try(ctx.attributes.node_license)
-    # TODO check whether a preprint project could be nabbed by the io.osf harvester.
-    # If not, add ctx.links.html as an identifier instead.
-    outgoing_relations = Map(Delegate(ProjectRelation), ctx.links.html)
 
     class Extra:
         files = ctx.relationships.files.links.related.href
