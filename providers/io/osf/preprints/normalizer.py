@@ -1,6 +1,6 @@
 from share.normalize.parsers import Parser
 from share.normalize.normalizer import Normalizer
-from share.normalize import Delegate, Map, ctx, Try, ParseDate, OneOf, Static
+from share.normalize import Delegate, Map, ctx, Try, ParseDate, OneOf
 
 
 class PersonIdentifier(Parser):
