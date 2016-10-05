@@ -55,6 +55,12 @@ class ProviderTask(celery.Task):
 
 class HarvesterTask(ProviderTask):
 
+    def apply_async(self, targs=None, tkwargs=None, **kwargs):
+        tkwargs = tkwargs or {}
+        tkwargs.setdefault('end', datetime.datetime.utcnow().isoformat())
+        tkwargs.setdefault('start', (datetime.datetime.utcnow() + datetime.timedelta(-1)).isoformat())
+        return super().apply_async(targs, tkwargs, **kwargs)
+
     def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None):
         if self.config.disabled:
             raise Exception('Harvester {} is disabled. Either enable it or disable it\'s celery beat entry'.format(self.config))
