@@ -120,13 +120,13 @@ class UniqueAttrDisambiguator(Disambiguator):
             return self.not_found()
 
 
-class CreativeWorkIdentifierDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.CreativeWorkIdentifier
+class WorkIdentifierDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.WorkIdentifier
     unique_attr = 'uri'
 
 
-class PersonIdentifierDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.PersonIdentifier
+class EntityIdentifierDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.EntityIdentifier
     unique_attr = 'uri'
 
 
@@ -143,23 +143,23 @@ class SubjectDisambiguator(UniqueAttrDisambiguator):
         raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
 
 
-class PersonDisambiguator(Disambiguator):
-    FOR_MODEL = models.Person
+class EntityDisambiguator(Disambiguator):
+    FOR_MODEL = models.Entity
 
     def disambiguate(self):
-        people = []
-        for id in self.attrs.get('personidentifiers', ()):
+        entities = []
+        for id in self.attrs.get('entityidentifiers', ()):
             try:
-                identifier = models.PersonIdentifier.objects.get(id=id)
-                people.append(identifier.person)
-            except models.PersonIdentifier.DoesNotExist:
+                identifier = models.EntityIdentifier.objects.get(id=id)
+                entities.append(identifier.entity)
+            except models.EntityIdentifier.DoesNotExist:
                 pass
-        if not people:
+        if not entities:
             return None
-        elif len(people) == 1:
-            return people[0]
+        elif len(entities) == 1:
+            return entities[0]
         else:
-            return people
+            return entities
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
@@ -167,11 +167,11 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
 
     def disambiguate(self):
         works = []
-        for id in self.attrs.get('creativeworkidentifiers', ()):
+        for id in self.attrs.get('workidentifiers', ()):
             try:
-                identifier = models.CreativeWorkIdentifier.objects.get(id=id)
+                identifier = models.WorkIdentifier.objects.get(id=id)
                 works.append(identifier.creative_work)
-            except models.CreativeWorkIdentifier.DoesNotExist:
+            except models.WorkIdentifier.DoesNotExist:
                 pass
         if not works:
             return None
@@ -181,8 +181,8 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
             return works
 
 
-class RelationDisambiguator(Disambiguator):
-    FOR_MODEL = models.Relation
+class WorkRelationDisambiguator(Disambiguator):
+    FOR_MODEL = models.WorkRelation
 
     def disambiguate(self):
         filters = {

@@ -208,34 +208,26 @@ class SchemaView(views.APIView):
     - [Thesis](/api/schema/Thesis)
     - [WorkingPaper](/api/schema/WorkingPaper)
 
-    ### People
-    - [Person](/api/schema/Person)
-
     ### Entities
+    - [Person](/api/schema/Person)
     - [Institution](/api/schema/Institution)
-    - [Publisher](/api/schema/Publisher)
-    - [Funder](/api/schema/Funder)
     - [Organization](/api/schema/Organization)
 
     ### Identifiers
-    - [PersonIdentifier](/api/schema/PersonIdentifier)
+    - [EntityIdentifier](/api/schema/EntityIdentifier)
     - [CreativeWorkIdentifier](/api/schema/CreativeWorkIdentifier)
 
     ### Other
     - [Award](/api/schema/Award)
-    - [Email](/api/schema/Email)
-    - [Relation](/api/schema/Relation)
     - [Subject](/api/schema/Subject)
     - [Tag](/api/schema/Tag)
     - [Venue](/api/schema/Venue)
 
     ### Relationships between nodes
-    - [Affiliation](/api/schema/Affiliation)
-    - [Association](/api/schema/Association)
-    - [Contributor](/api/schema/Contributor)
-    - [PersonEmail](/api/schema/PersonEmail)
-    - [ThroughAwardEntities](/api/schema/ThroughAwardEntities)
-    - [ThroughAwards](/api/schema/ThroughAwards)
+    - [EntityRelation](/api/schema/EntityRelation)
+    - [WorkRelation](/api/schema/WorkRelation)
+    - [Contribution](/api/schema/Contribution)
+    - [ThroughContributionAwards](/api/schema/ThroughContributionAwards)
     - [ThroughSubjects](/api/schema/ThroughSubjects)
     - [ThroughTags](/api/schema/ThroughTags)
     - [ThroughVenues](/api/schema/ThroughVenues)

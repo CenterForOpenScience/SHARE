@@ -1,7 +1,3 @@
-import json
-
-from model_utils import Choices
-
 from django.db import models
 from django.db import IntegrityError
 from django.contrib.postgres.fields import JSONField
@@ -10,21 +6,9 @@ from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Relation')
+__all__ = ('Venue', 'Tag', 'Subject')
 
 # TODO Rename this file
-
-
-class Relation(ShareObject):
-    with open('./share/models/relation-types.json') as fobj:
-        RELATION_TYPES = Choices(*[t['key'] for t in json.load(fobj)])
-
-    from_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
-    to_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')
-    relation_type = models.TextField(choices=RELATION_TYPES)
-
-    class Meta:
-        unique_together = ('from_work', 'to_work', 'relation_type')
 
 
 class Venue(ShareObject):
@@ -35,18 +19,6 @@ class Venue(ShareObject):
 
     def __str__(self):
         return self.name
-
-
-class Award(ShareObject):
-    # ScholarlyArticle has an award object
-    # it's just a text field, I assume our 'description' covers it.
-    name = models.TextField(blank=True)
-    description = models.TextField(blank=True)
-    url = ShareURLField(blank=True)
-    entities = ShareManyToManyField('Entity', through='ThroughAwardEntities')
-
-    def __str__(self):
-        return self.description
 
 
 class Tag(ShareObject):
@@ -88,28 +60,12 @@ class ThroughVenues(ShareObject):
         unique_together = ('venue', 'creative_work')
 
 
-class ThroughAwards(ShareObject):
-    award = ShareForeignKey(Award)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-
-    class Meta:
-        unique_together = ('award', 'creative_work')
-
-
 class ThroughTags(ShareObject):
     tag = ShareForeignKey(Tag)
     creative_work = ShareForeignKey('AbstractCreativeWork')
 
     class Meta:
         unique_together = ('tag', 'creative_work')
-
-
-class ThroughAwardEntities(ShareObject):
-    award = ShareForeignKey('Award')
-    entity = ShareForeignKey('Entity')
-
-    class Meta:
-        unique_together = ('award', 'entity')
 
 
 class ThroughSubjects(ShareObject):

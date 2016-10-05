@@ -11,54 +11,63 @@ def register_route(prefix, viewset):
     router.register(prefix, viewset, base_name=viewset.serializer_class.Meta.model._meta.model_name)
 
 
-def register_creative_work_route(prefix, model):
-    register_route(prefix, views.make_creative_work_view_set_class(model))
+def register_creative_work_route(model_name):
+    register_route(model_name, views.make_creative_work_view_set_class(model_name))
 
 
-# share routes
-register_route(r'extras', views.ExtraDataViewSet)
-register_route(r'entities', views.EntityViewSet)
-register_route(r'venues', views.VenueViewSet)
-register_route(r'organizations', views.OrganizationViewSet)
-register_route(r'publishers', views.PublisherViewSet)
-register_route(r'institutions', views.InstitutionViewSet)
-register_route(r'personidentifiers', views.PersonIdentifierViewSet)
-register_route(r'creativeworkidentifiers', views.CreativeWorkIdentifierViewSet)
-register_route(r'people', views.PersonViewSet)
-register_route(r'affiliations', views.AffiliationViewSet)
-register_route(r'contributors', views.ContributorViewSet)
-register_route(r'funders', views.FunderViewSet)
-register_route(r'awards', views.AwardViewSet)
-register_route(r'tags', views.TagViewSet)
-register_route(r'subjects', views.SubjectViewSet)
-register_creative_work_route(r'creativeworks', 'creativework')
-register_creative_work_route(r'articles', 'article')
-register_creative_work_route(r'books', 'book')
-register_creative_work_route(r'conferencepapers', 'conferencepaper')
-register_creative_work_route(r'datasets', 'dataset')
-register_creative_work_route(r'dissertations', 'dissertation')
-register_creative_work_route(r'lessons', 'lesson')
-register_creative_work_route(r'posters', 'poster')
-register_creative_work_route(r'preprints', 'preprint')
-register_creative_work_route(r'presentations', 'presentation')
-register_creative_work_route(r'projects', 'project')
-register_creative_work_route(r'projectregistrations', 'projectregistration')
-register_creative_work_route(r'reports', 'report')
-register_creative_work_route(r'sections', 'section')
-register_creative_work_route(r'software', 'software')
-register_creative_work_route(r'theses', 'thesis')
-register_creative_work_route(r'workingpapers', 'workingpaper')
+# creative work routes
+register_creative_work_route(r'creativework')
+register_creative_work_route(r'article')
+register_creative_work_route(r'book')
+register_creative_work_route(r'conferencepaper')
+register_creative_work_route(r'dataset')
+register_creative_work_route(r'dissertation')
+register_creative_work_route(r'lesson')
+register_creative_work_route(r'poster')
+register_creative_work_route(r'preprint')
+register_creative_work_route(r'presentation')
+register_creative_work_route(r'project')
+register_creative_work_route(r'projectregistration')
+register_creative_work_route(r'report')
+register_creative_work_route(r'section')
+register_creative_work_route(r'software')
+register_creative_work_route(r'thesis')
+register_creative_work_route(r'workingpaper')
+
+# creative work attributes
+register_route(r'tag', views.TagViewSet)
+register_route(r'subject', views.SubjectViewSet)
+register_route(r'venue', views.VenueViewSet)
+register_route(r'extra', views.ExtraDataViewSet)
+
+# entity routes
+register_route(r'person', views.PersonViewSet)
+register_route(r'organization', views.OrganizationViewSet)
+register_route(r'institution', views.InstitutionViewSet)
+
+# identifier routes
+register_route(r'entityidentifier', views.EntityIdentifierViewSet)
+register_route(r'workidentifier', views.WorkIdentifierViewSet)
+
+# relation routes
+register_route(r'entityrelation', views.EntityRelationViewSet)
+register_route(r'workrelation', views.WorkRelationViewSet)
+register_route(r'contribution', views.ContributorViewSet)
+register_route(r'award', views.AwardViewSet)
+register_route(r'entityrelationtype', views.EntityRelationTypeViewSet)
+register_route(r'workrelationtype', views.WorkRelationTypeViewSet)
+register_route(r'contributiontype', views.ContributorTypeViewSet)
 
 # registration route
 register_route(r'registrations', views.ProviderRegistrationViewSet)
 
 # workflow routes
 register_route(r'normalizeddata', views.NormalizedDataViewSet)
-register_route(r'changesets', views.ChangeSetViewSet)
-register_route(r'changes', views.ChangeViewSet)
+register_route(r'changeset', views.ChangeSetViewSet)
+register_route(r'change', views.ChangeViewSet)
 register_route(r'rawdata', views.RawDataViewSet)
-register_route(r'users', views.ShareUserViewSet)
-register_route(r'providers', views.ProviderViewSet)
+register_route(r'user', views.ShareUserViewSet)
+register_route(r'provider', views.ProviderViewSet)
 
 urlpatterns = [
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
@@ -67,5 +76,5 @@ urlpatterns = [
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
     url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema'),
-    url(r'relationtypes/?', views.RelationTypesView.as_view(), name='relationtypes')
+    url(r'relationtype/?', views.RelationTypesView.as_view(), name='relationtypes')
 ] + router.urls
