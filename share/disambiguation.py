@@ -16,7 +16,12 @@ class GraphDisambiguator:
             n.update_relations(change_graph.node_map)
             if n.is_merge:
                 continue
-            n.instance = self.instance_for_node(n)
+            instance = self.instance_for_node(n)
+            if isinstance(instance, list):
+                # TODO after merging is fixed, add mergeaction change to graph
+                raise NotImplementedError()
+            else:
+                n.instance = instance
             for ref in n.refs:
                 change_graph.node_map[ref] = n
 
@@ -105,11 +110,11 @@ class UniqueAttrDisambiguator(Disambiguator):
         return None
 
     def disambiguate(self):
-        attr = self.attrs.get(self.unique_attr)
-        if not attr:
+        value = self.attrs.get(self.unique_attr)
+        if not value:
             return None
         try:
-            query = {self.unique_attr: attr}
+            query = {self.unique_attr: value}
             return self.model.objects.get(**query)
         except self.model.DoesNotExist:
             return self.not_found()
@@ -142,26 +147,38 @@ class PersonDisambiguator(Disambiguator):
     FOR_MODEL = models.Person
 
     def disambiguate(self):
+        people = []
         for id in self.attrs.get('personidentifiers', ()):
             try:
                 identifier = models.PersonIdentifier.objects.get(id=id)
-                return identifier.person
+                people.append(identifier.person)
             except models.PersonIdentifier.DoesNotExist:
                 pass
-        return None
+        if not people:
+            return None
+        elif len(people) == 1:
+            return people[0]
+        else:
+            return people
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
     FOR_MODEL = models.AbstractCreativeWork
 
     def disambiguate(self):
+        works = []
         for id in self.attrs.get('creativeworkidentifiers', ()):
             try:
                 identifier = models.CreativeWorkIdentifier.objects.get(id=id)
-                return identifier.creative_work
+                works.append(identifier.creative_work)
             except models.CreativeWorkIdentifier.DoesNotExist:
                 pass
-        return None
+        if not works:
+            return None
+        elif len(works) == 1:
+            return works[0]
+        else:
+            return works
 
 
 class RelationDisambiguator(Disambiguator):

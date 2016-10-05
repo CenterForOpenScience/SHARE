@@ -35,6 +35,40 @@ class TestAbstractWork:
 
         assert disWork == cw
 
+    @pytest.mark.django_db
+    def test_disambiguate_to_multiple(self, change_ids):
+        uri1 = 'http://share.osf.io/cats',
+        uri2 = 'http://osf.io/cats',
+
+        cw1 = CreativeWork.objects.create(
+            title='All about cats',
+            description='see here is the the thing about emptiness',
+            change_id=change_ids.get()
+        )
+        identifier1 = CreativeWorkIdentifier.objects.create(
+            uri=uri1,
+            creative_work=cw1,
+            creative_work_version=cw1.versions.first(),
+            change_id=change_ids.get())
+
+
+        cw2 = CreativeWork.objects.create(
+            title='All about cats',
+            description='see here is the the thing about emptiness',
+            change_id=change_ids.get()
+        )
+        identifier2 = CreativeWorkIdentifier.objects.create(
+            uri=uri2,
+            creative_work=cw2,
+            creative_work_version=cw2.versions.first(),
+            change_id=change_ids.get())
+
+        disWorks = AbstractCreativeWorkDisambiguator('_:', {'creativeworkidentifiers': [identifier1.pk, identifier2.pk]}, CreativeWork).find()
+
+        assert isinstance(disWorks, list)
+        assert disWorks[0] == cw1
+        assert disWorks[1] == cw2
+
 
 class TestAffiliations:
 
