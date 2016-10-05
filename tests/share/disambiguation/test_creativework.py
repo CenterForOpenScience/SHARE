@@ -51,7 +51,6 @@ class TestAbstractWork:
             creative_work_version=cw1.versions.first(),
             change_id=change_ids.get())
 
-
         cw2 = CreativeWork.objects.create(
             title='All about cats',
             description='see here is the the thing about emptiness',
