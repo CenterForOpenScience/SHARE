@@ -545,7 +545,7 @@ class OrcidLink(AbstractLink):
     Any of the above would be transformed into https://orcid.org/0000-0002-4869-2419
     """
 
-    ORCID_URL = 'http://orcid.org/'
+    ORCID_URL = 'https://orcid.org/'
     ORCID_RE = re.compile(r'(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|X))')
 
     def checksum(self, digits):
