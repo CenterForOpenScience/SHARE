@@ -52,7 +52,10 @@ class Contributor(Parser):
 
 class ContributorOrganization(Parser):
     schema = 'Organization'
-    name = ctx['collab']
+    name = OneOf(
+        ctx['collab']['#text'],
+        ctx['collab']
+    )
 
 
 class Publisher(Parser):
@@ -96,16 +99,16 @@ class Publication(Parser):
 
     publishers = Map(
             Delegate(Association.using(entity=Delegate(Publisher))),
-            Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name'])
+            Concat(Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name']))
         )
     funders = Map(
             Delegate(Association.using(entity=Delegate(Funder))),
-            Try(ctx.record.metadata.article.front['article-meta']['funding-group']['award-group']['funding-source'])
+            Concat(Try(ctx.record.metadata.article.front['article-meta']['funding-group']['award-group']['funding-source']))
         )
 
     tags = Map(
         Delegate(ThroughTags),
-        Try(ctx.record.metadata.article.front['article-meta']['kwd-group']['kwd'])
+        Concat(Try(ctx.record.metadata.article.front['article-meta']['kwd-group']['kwd']))
     )
 
     date_published = RunPython(
@@ -121,14 +124,14 @@ class Publication(Parser):
         Delegate(Contributor),
         RunPython(
             'get_contributors',
-            Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib']),
+            Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
             'person'
         )),
         Map(
             Delegate(Association.using(entity=Delegate(ContributorOrganization))),
             RunPython(
                 'get_contributors',
-                Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib']),
+                Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
                 'organization'
             )
         ))
@@ -157,6 +160,7 @@ class Publication(Parser):
 
     def get_contributors(self, ctx, type):
         results = []
+
         if type == 'person':
             for contributor in ctx:
                 try:
