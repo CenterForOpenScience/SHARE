@@ -50,6 +50,11 @@ class Contributor(Parser):
     cited_name = ctx['name']['surname']
 
 
+class ContributorOrganization(Parser):
+    schema = 'Organization'
+    name = ctx['collab']
+
+
 class Publisher(Parser):
     name = ctx
 
@@ -89,20 +94,14 @@ class Publication(Parser):
         Static(None)
     )
 
-    publishers = OneOf(
-        Map(
+    publishers = Map(
             Delegate(Association.using(entity=Delegate(Publisher))),
             Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name'])
-        ),
-        Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name'])
-    )
-    funders = OneOf(
-        Map(
+        )
+    funders = Map(
             Delegate(Association.using(entity=Delegate(Funder))),
             Try(ctx.record.metadata.article.front['article-meta']['funding-group']['award-group']['funding-source'])
-        ),
-        Try(ctx.record.metadata.article.front['article-meta']['funding-group']['award-group']['funding-source'])
-    )
+        )
 
     tags = Map(
         Delegate(ThroughTags),
@@ -118,13 +117,21 @@ class Publication(Parser):
 
     rights = Try(ctx.record.metadata.article.front['article-meta']['permissions']['license']['license-p']['#text'])
 
-    contributors = OneOf(
+    contributors = Concat(Map(
+        Delegate(Contributor),
+        RunPython(
+            'get_contributors',
+            Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib']),
+            'person'
+        )),
         Map(
-            Delegate(Contributor),
-            Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])
-        ),
-        Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])
-    )
+            Delegate(Association.using(entity=Delegate(ContributorOrganization))),
+            RunPython(
+                'get_contributors',
+                Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib']),
+                'organization'
+            )
+        ))
 
     class Extra:
         correspondence = OneOf(
@@ -148,14 +155,23 @@ class Publication(Parser):
         epub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'epub')
         ppub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'ppub')
 
-    def extract_abstract(self, *args):
-        for i in range(len(args)):
-            try:
-                arg = args[i]
-                if isinstance(arg, str) or arg is None:
-                    return arg
-            except:
-                continue
+    def get_contributors(self, ctx, type):
+        results = []
+        if type == 'person':
+            for contributor in ctx:
+                try:
+                    contributor['name']
+                    results.append(contributor)
+                except:
+                    pass
+        if type == 'organization':
+            for contributor in ctx:
+                try:
+                    contributor['collab']
+                    results.append(contributor)
+                except:
+                    pass
+        return results
 
     # For ordered dicts
     def get_list_element(self, ordered_dict, attribute='', value=''):
@@ -168,13 +184,6 @@ class Publication(Parser):
             for item in ordered_dict:
                 results.append(item['#text'])
             return results
-
-    def get_name(self, person):
-        given_name = person['given_names']
-        surname = person['surname']
-        suffix = Try(person['suffix'])
-        print(given_name + ' ' + surname + ' ' + suffix)
-        return given_name + ' ' + surname + ' ' + suffix
 
     def get_issns(self, list_):
         issns = {}
