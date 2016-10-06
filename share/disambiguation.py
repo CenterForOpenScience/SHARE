@@ -181,18 +181,54 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
             return works
 
 
-class WorkRelationDisambiguator(Disambiguator):
-    FOR_MODEL = models.WorkRelation
+class RelationDisambiguator(Disambiguator):
+    @property
+    def from_field(self):
+        raise NotImplementedError()
+
+    @property
+    def to_field(self):
+        raise NotImplementedError()
+
+    @property
+    def type_field(self):
+        return 'relation_type'
 
     def disambiguate(self):
-        filters = {
-            'from_work': self.attrs.get('from_work'),
-            'to_work': self.attrs.get('to_work')
-        }
-        relation_type = self.attrs.get('relation_type')
-        if relation_type != models.Relation.RELATION_TYPES.unknown:
-            filters['relation_type'] = relation_type
-        try:
-            return models.Relation.objects.filter(**filters)[0]
-        except IndexError:
+        # TODO add nuance in relation types:
+        #   - "unknown" should match anything
+        #   - if a less specific type exists, match it and update?
+        #   - if a more specific type exists, match it and don't update?
+        from_ref = self.attrs.get(self.from_field)
+        to_ref = self.attrs.get(self.to_field)
+        if not from_ref or not to_ref:
             return None
+
+        query = {
+            self.from_field: from_ref['@id'],
+            self.to_field: to_ref['@id'],
+            '{}__name'.format(self.type_field): self.attrs[self.type_field]
+        }
+        try:
+            return self.model.objects.get(**query)
+        except (self.model.DoesNotExist, self.model.MultipleObjectsReturned):
+            return None
+
+
+class EntityRelationDisambiguator(RelationDisambiguator):
+    FOR_MODEL = models.EntityRelation
+    from_field = 'from_entity'
+    to_field = 'to_entity'
+
+
+class WorkRelationDisambiguator(RelationDisambiguator):
+    FOR_MODEL = models.WorkRelation
+    from_field = 'from_work'
+    to_field = 'to_work'
+
+
+class ContributionDisambiguator(RelationDisambiguator):
+    FOR_MODEL = models.Contribution
+    from_field = 'creative_work'
+    to_field = 'entity'
+    type_field = 'contribution_type'
