@@ -16,10 +16,11 @@ from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
-from share.models.entities import Entity
-from share.models.meta import Venue, Award, Tag, Subject, Relation
-from share.models.people import Contributor, Email, Person, PersonEmail, Affiliation
+from share.models.entities import AbstractEntity
+from share.models.identifiers import WorkIdentifier, EntityIdentifier
+from share.models.meta import Venue, Tag, Subject
 from share.models.registration import ProviderRegistration
+from share.models.relations import WorkRelation, EntityRelation, Contribution, Award
 from share.tasks import ApplyChangeSets
 
 
@@ -63,14 +64,6 @@ class ChangeSetAdmin(admin.ModelAdmin):
 
     def status_(self, obj):
         return ChangeSet.STATUS[obj.status].title()
-
-
-class PersonAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'given_name', 'family_name', 'works')
-    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
-
-    def works(self, obj):
-        return obj.contributor_set.count()
 
 
 class AppLabelFilter(admin.SimpleListFilter):
@@ -154,14 +147,10 @@ class AbstractCreativeWorkAdmin(admin.ModelAdmin):
     num_contributors.short_description = 'Contributors'
 
 
-class EntityAdmin(admin.ModelAdmin):
+class AbstractEntityAdmin(admin.ModelAdmin):
     list_display = ('type', 'name')
     list_filter = ('type',)
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
-
-
-class ContributorAdmin(admin.ModelAdmin):
-    raw_id_fields = ('change', 'extra', 'extra_version', 'creative_work', 'creative_work_version', 'same_as', 'same_as_version', 'person', 'person_version',)
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -188,22 +177,23 @@ class ProviderRegistrationAdmin(admin.ModelAdmin):
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
-admin.site.register(Affiliation)
-admin.site.register(Person, PersonAdmin)
-admin.site.register(PersonEmail)
-admin.site.register(Relation)
+admin.site.register(EntityRelation)
+admin.site.register(WorkRelation)
+admin.site.register(Contribution)
+
+admin.site.register(EntityIdentifier)
+admin.site.register(WorkIdentifier)
+
 admin.site.register(Venue)
 admin.site.register(Award)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Subject)
 admin.site.register(ExtraData)
-admin.site.register(Contributor, ContributorAdmin)
-admin.site.register(Email)
 admin.site.register(RawData, RawDataAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 
-admin.site.register(Entity, EntityAdmin)
+admin.site.register(AbstractEntity, AbstractEntityAdmin)
 admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)

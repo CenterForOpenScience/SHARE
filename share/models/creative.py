@@ -1,9 +1,8 @@
 from django.db import models
 
 from share.models.base import ShareObject
-from share.models.people import Person
 from share.models.base import TypedShareObjectMeta
-from share.models.meta import Venue, Award, Tag, Subject
+from share.models.meta import Venue, Tag, Subject
 from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
 
 
@@ -25,7 +24,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
-    related_works = ShareManyToManyField('AbstractCreativeWork', through='Relation', through_fields=('from_work', 'to_work'), symmetrical=False)
+    related_works = ShareManyToManyField('AbstractCreativeWork', through='WorkRelation', through_fields=('from_work', 'to_work'), symmetrical=False)
 
     date_published = models.DateTimeField(null=True, db_index=True)
     date_updated = models.DateTimeField(null=True, db_index=True)

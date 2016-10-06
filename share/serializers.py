@@ -79,13 +79,6 @@ class OrganizationSerializer(EntitySerializer):
         model = models.Organization
 
 
-class PublisherSerializer(EntitySerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(EntitySerializer.Meta):
-        model = models.Publisher
-
-
 class InstitutionSerializer(EntitySerializer):
     extra = ExtraDataSerializer()
 
@@ -93,38 +86,27 @@ class InstitutionSerializer(EntitySerializer):
         model = models.Institution
 
 
-class PersonEmailSerializer(BaseShareSerializer):
+class PersonSerializer(EntitySerializer):
     extra = ExtraDataSerializer()
 
-    class Meta(BaseShareSerializer.Meta):
-        model = models.PersonEmail
+    class Meta(EntitySerializer.Meta):
+        model = models.Person
 
 
-class CreativeWorkIdentifierSerializer(BaseShareSerializer):
+class WorkIdentifierSerializer(BaseShareSerializer):
     # TODO filter/obfuscate mailto identifiers
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.CreativeWorkIdentifier
+        model = models.WorkIdentifier
 
 
-class PersonIdentifierSerializer(BaseShareSerializer):
+class EntityIdentifierSerializer(BaseShareSerializer):
     # TODO filter/obfuscate mailto identifiers
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
         model = models.PersonIdentifier
-
-
-class PersonSerializer(BaseShareSerializer):
-    # no emails on purpose
-    personidentifiers = PersonIdentifierSerializer(many=True)
-    affiliations = OrganizationSerializer(sparse=True, many=True)
-    extra = ExtraDataSerializer()
-
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Person
-        exclude = ('emails',)
 
 
 class AffiliationSerializer(BaseShareSerializer):
@@ -150,16 +132,8 @@ class ContributorSerializer(BaseShareSerializer):
         exclude = ('creative_work',)
 
 
-class FunderSerializer(EntitySerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(EntitySerializer.Meta):
-        model = models.Funder
-
-
 class AwardSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
-    entities = EntitySerializer(many=True)
 
     class Meta(BaseShareSerializer.Meta):
         model = models.Award

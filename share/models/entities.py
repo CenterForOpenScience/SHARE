@@ -34,6 +34,11 @@ class Person(AbstractEntity):
     def get_full_name(self):
         return ' '.join(x for x in [self.given_name, self.family_name, self.additional_name, self.suffix] if x)
 
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.get_full_name()
+        super(Person, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = 'People'
         index_together = (
