@@ -4,7 +4,7 @@ from typing import Tuple
 from typing import Union
 from typing import Iterator
 
-import arrow
+import pendulum
 from furl import furl
 from django.conf import settings
 
@@ -19,7 +19,7 @@ class PreprintHarvester(OSFHarvester):
         super().__init__(*args, **kwargs)
         self.url = '{}v2/preprint_providers/osf/preprints/'.format(settings.OSF_API_URL)
 
-    def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
+    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
 
         url = furl(self.url)
 

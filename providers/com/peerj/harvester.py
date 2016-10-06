@@ -1,4 +1,4 @@
-import arrow
+import pendulum
 from furl import furl
 
 import logging
@@ -13,7 +13,7 @@ class PeerJHarvester(Harvester):
         self.base_url = 'https://peerj.com/articles/index.json'
         self.base_preprint_url = 'https://peerj.com/preprints/index.json'
 
-    def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow):
+    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum):
 
         return self.fetch_records(self.base_url, start_date, end_date)
 
@@ -32,10 +32,10 @@ class PeerJHarvester(Harvester):
             records = self.requests.get(url).json()
 
             for record in records['_items']:
-                if arrow.get(record['date']) < start_date:
+                if pendulum.parse(record['date']) < start_date:
                     return
 
-                if arrow.get(record['date']) > end_date:
+                if pendulum.parse(record['date']) > end_date:
                     continue
 
                 yield (preprint + record['identifiers']['peerj'], record)

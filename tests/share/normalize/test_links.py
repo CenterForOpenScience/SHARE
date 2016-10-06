@@ -1,8 +1,35 @@
 import pytest
 import rfc3987
 
-from share.normalize.links import DOILink
-from share.normalize.links import OrcidLink
+import calendar
+
+from share.normalize.links import DOILink, OrcidLink, DateParserLink
+
+
+@pytest.mark.parametrize('date, result', [
+    (None, None),
+    ('0059-11-01T00:00:00Z', ValueError('0059-11-01T00:00:00Z is before the lower bound 1200-01-01T00:00:00+00:00.')),
+    ('20010101', '2001-01-01T00:00:00+00:00'),
+    ('2013', '2013-01-01T00:00:00+00:00'),
+    ('03:04, 19 Nov, 2014', '2014-11-19T03:04:00+00:00'),
+    ('invalid date', ValueError('Unknown string format')),
+    ('2001-1-01', '2001-01-01T00:00:00+00:00'),
+    ('2001-2-30', ValueError('day is out of range for month')),
+    ('14/2001', calendar.IllegalMonthError(14)),
+    ('11/20/1990', '1990-11-20T00:00:00+00:00'),
+    ('1990-11-20T00:00:00Z', '1990-11-20T00:00:00+00:00'),
+    ('19 Nov, 2014', '2014-11-19T00:00:00+00:00'),
+    ('Nov 2012', '2012-11-01T00:00:00+00:00'),
+    ('January 1 2014', '2014-01-01T00:00:00+00:00'),
+    ('3009-11-01T00:00:00Z', ValueError('3009-11-01T00:00:00Z is more than 100 years in the future.'))
+])
+def test_dateparser_link(date, result):
+    if isinstance(result, Exception):
+        with pytest.raises(type(result)) as e:
+            DateParserLink().execute(date)
+        assert e.value.args == result.args
+    else:
+        assert DateParserLink().execute(date) == result
 
 
 @pytest.mark.parametrize('orcid, result', [
