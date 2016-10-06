@@ -167,3 +167,7 @@ class TestPostProviderRegistration:
             kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
 
         assert response == client.post('/api/v2/registrations/', *args, **kwargs)
+
+    @pytest.mark.django_db
+    def test_get_data(self, client):
+        assert client.get('/api/v2/registrations/').status_code == 401
