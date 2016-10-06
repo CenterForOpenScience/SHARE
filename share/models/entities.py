@@ -4,16 +4,16 @@ from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.fields import ShareManyToManyField, ShareURLField
 
-__all__ = ('Entity', 'Person', 'Organization', 'Institution')
+__all__ = ('AbstractEntity', 'Person', 'Organization', 'Institution')
 
 
-class Entity(ShareObject, metaclass=TypedShareObjectMeta):
+class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
     name = models.TextField()
     location = models.TextField(blank=True)
-    related_entities = ShareManyToManyField('Entity'
+    related_entities = ShareManyToManyField('AbstractEntity', through='EntityRelation', through_fields=('from_entity', 'to_entity'), symmetrical=False)
 
     class Meta:
-        verbose_name_plural = 'Entities'
+        verbose_name_plural = 'AbstractEntities'
         index_together = (
             ('type', 'name',)
         )
@@ -22,7 +22,7 @@ class Entity(ShareObject, metaclass=TypedShareObjectMeta):
         return self.name
 
 
-class Person(Entity):
+class Person(AbstractEntity):
     family_name = models.TextField(blank=True, db_index=True)  # last
     given_name = models.TextField(blank=True, db_index=True)  # first
     additional_name = models.TextField(blank=True, db_index=True)  # can be used for middle
@@ -41,9 +41,9 @@ class Person(Entity):
         )
 
 
-class Organization(Entity):
+class Organization(AbstractEntity):
     pass
 
 
-class Institution(Entity):
+class Institution(AbstractEntity):
     pass

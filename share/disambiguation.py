@@ -144,7 +144,7 @@ class SubjectDisambiguator(UniqueAttrDisambiguator):
 
 
 class EntityDisambiguator(Disambiguator):
-    FOR_MODEL = models.Entity
+    FOR_MODEL = models.AbstractEntity
 
     def disambiguate(self):
         entities = []

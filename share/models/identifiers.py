@@ -5,7 +5,7 @@ from django.db import models
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 
-__all__ = ('CreativeWorkIdentifier', 'EntityIdentifier')
+__all__ = ('WorkIdentifier', 'EntityIdentifier')
 
 
 # TODO Common interface, so we're not duplicating code. Doesn't work because
@@ -31,7 +31,7 @@ __all__ = ('CreativeWorkIdentifier', 'EntityIdentifier')
 #        abstract = True
 
 
-class CreativeWorkIdentifier(ShareObject):
+class WorkIdentifier(ShareObject):
     uri = ShareURLField(unique=True)
     host = models.TextField(editable=False)
     scheme = models.TextField(editable=False)
@@ -41,14 +41,14 @@ class CreativeWorkIdentifier(ShareObject):
         f = furl(self.uri)
         self.host = f.host
         self.scheme = f.scheme
-        super(CreativeWorkIdentifier, self).save(*args, **kwargs)
+        super(WorkIdentifier, self).save(*args, **kwargs)
 
 
 class EntityIdentifier(ShareObject):
     uri = ShareURLField(unique=True)
     host = models.TextField(editable=False)
     scheme = models.TextField(editable=False)
-    entity = ShareForeignKey('Entity', related_name='%(class)ss')
+    entity = ShareForeignKey('AbstractEntity', related_name='%(class)ss')
 
     def save(self, *args, **kwargs):
         f = furl(self.uri)

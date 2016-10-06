@@ -62,7 +62,7 @@ class EntitySerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.Entity
+        model = models.AbstractEntity
 
 
 class VenueSerializer(BaseShareSerializer):

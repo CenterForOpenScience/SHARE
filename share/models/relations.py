@@ -22,8 +22,8 @@ class WorkRelation(ShareObject):
 
 
 class EntityRelation(ShareObject):
-    from_entity = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
-    to_entity = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')
+    from_entity = ShareForeignKey('AbstractEntity', related_name='outgoing_%(class)ss')
+    to_entity = ShareForeignKey('AbstractEntity', related_name='incoming_%(class)ss')
     relation_type = models.ForeignKey('EntityRelationType')
 
     class Meta:
@@ -31,7 +31,7 @@ class EntityRelation(ShareObject):
 
 
 class Contribution(ShareObject):
-    entity = ShareForeignKey(Entity)
+    entity = ShareForeignKey('AbstractEntity')
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='%(class)ss')
     contribution_type = models.ForeignKey('ContributionType', related_name='%(class)ss')
 
@@ -40,7 +40,6 @@ class Contribution(ShareObject):
     order_cited = models.PositiveIntegerField(null=True)
 
     awards = ShareManyToManyField('Award', through='ThroughContributionAwards')
-
 
     class Meta:
         # TODO also contribution_type? Do we want to let one entity contribute in multiple ways?
