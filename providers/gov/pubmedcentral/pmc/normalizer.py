@@ -155,6 +155,7 @@ class Publication(Parser):
             ctx.record.metadata.article.front['article-meta']['permissions']['copyright-statement'],
             Static(None)
         )
+        copyright_year = Try(ctx.record.metadata.article.front['article-meta']['permissions']['copyright-year'])
         epub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'epub')
         ppub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'ppub')
 
