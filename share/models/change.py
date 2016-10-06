@@ -189,6 +189,11 @@ class Change(models.Model):
 
     def _update(self, save=True):
         self.target.change = self
+
+        new_type = self.change.pop('@type', None)
+        if new_type:
+            self.target.recast('share.{}'.format(new_type))
+
         self.target.__dict__.update(self._resolve_change())
         if save:
             self.target.save()

@@ -37,6 +37,16 @@ class ChangeNode:
     def instance(self):
         return self.__instance
 
+    @instance.setter
+    def instance(self, instance):
+        if instance:
+            self.id = instance.pk
+            self.type = instance._meta.model_name.lower()
+            if self.type != self.new_type and self.new_type == 'creativework':
+                self.new_type = self.type
+            self.__refs.append((self.id, self.type))
+        self.__instance = instance
+
     @property
     def is_blank(self):
         # JSON-LD Blank Node ids start with "_:"
@@ -79,6 +89,9 @@ class ChangeNode:
             if not ret['extra']:
                 del ret['extra']
 
+        if self.new_type != self.type:
+            ret['@type'] = self.new_type
+
         return ret
 
     def __init__(self, node, disambiguate=True, extra_namespace=None):
@@ -90,6 +103,7 @@ class ChangeNode:
 
         self.id = str(node.pop('@id'))
         self.type = node.pop('@type').lower()
+        self.new_type = self.type
         self.extra = node.pop('extra', {})
 
         self.__refs = [(self.id, self.type)]
@@ -122,7 +136,7 @@ class ChangeNode:
             try:
                 node = mapper[(v['@id'], v['@type'].lower())]
                 v['@id'] = node.id
-                v['@type'] = node.type
+                v['@type'] = node.new_type
             except KeyError:
                 pass
         for k, values in self.reverse_relations.items():
@@ -132,16 +146,11 @@ class ChangeNode:
         if self.is_merge:
             return None
 
-        self.__instance = disambiguation.disambiguate(self.id, {
+        self.instance = disambiguation.disambiguate(self.id, {
             **self.attrs,
             **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')},
             **{k: [x['@id'] for x in v if not str(x['@id']).startswith('_:')] for k, v in self.reverse_relations.items() if any(not str(x['@id']).startswith('_:') for x in v)},
         }, self.model)
-
-        if self.__instance:
-            self.id = self.__instance.pk
-            self.type = self.__instance._meta.model_name.lower()
-            self.__refs.append((self.id, self.type))
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.model, self.instance)

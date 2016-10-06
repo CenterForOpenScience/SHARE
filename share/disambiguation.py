@@ -40,7 +40,7 @@ class Disambiguator(metaclass=abc.ABCMeta):
 
     def find(self):
         if self.id and not self.is_blank:
-            return self.model.objects.get(pk=self.id)
+            return self.model._meta.concrete_model.objects.get(pk=self.id)
         return self.disambiguate()
 
 
