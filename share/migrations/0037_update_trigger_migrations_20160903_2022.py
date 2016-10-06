@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('share', '0002_create_share_user'),
-        ('share', '0035_auto_20160903_1923'),
+        ('share', '0036_auto_20160903_1923'),
     ]
 
     operations = [

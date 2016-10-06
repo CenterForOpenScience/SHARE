@@ -9,7 +9,7 @@ import share.models.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0039_auto_20160909_1910')
+        ('share', '0042_auto_20160825_1604')
     ]
 
     operations = [

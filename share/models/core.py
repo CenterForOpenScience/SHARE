@@ -57,13 +57,13 @@ class ShareUserManager(BaseUserManager):
 
     def create_robot_user(self, username, robot, long_title='', home_page=''):
         try:
-            ShareUser.objects.get(robot=robot)
-        except ShareUser.DoesNotExist:
+            self.get(robot=robot)
+        except self.model.DoesNotExist:
             pass
         else:
             raise AssertionError('ShareUser for robot {} already exists.'.format(robot))
-        user = ShareUser()
-        user.set_unusable_password()
+        user = self.model()
+        ShareUser.set_unusable_password(user)
         user.username = username
         user.robot = robot
         user.long_title = long_title
@@ -112,20 +112,15 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
             'Unselect this instead of deleting accounts.'
         ),
     )
+    is_trusted = models.BooleanField(
+        _('trusted'),
+        default=False,
+        help_text=_('Designates whether the user can push directly into the db.'),
+    )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     robot = models.TextField(validators=[validators.MaxLengthValidator(40)], blank=True)
     long_title = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
     home_page = ShareURLField(blank=True)
-
-    def get_short_name(self):
-        return self.robot if self.is_robot else self.username
-
-    def get_full_name(self):
-        return '{} {}'.format(self.first_name, self.last_name)
-
-    @property
-    def is_robot(self):
-        return self.robot != ''
 
     objects = ShareUserManager()
 
@@ -134,6 +129,19 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = _('Share user')
         verbose_name_plural = _('Share users')
+
+    @property
+    def is_robot(self):
+        return self.robot != ''
+
+    def get_short_name(self):
+        return self.robot if self.is_robot else self.username
+
+    def get_full_name(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.username)
 
 
 @receiver(post_save, sender=ShareUser, dispatch_uid='share.share.models.share_user_post_save_handler')
@@ -147,7 +155,7 @@ def user_post_save(sender, instance, created, **kwargs):
     :param kwargs:
     :return:
     """
-    if created and not instance.is_robot and instance.username != settings.APPLICATION_USERNAME:
+    if created and not instance.is_robot and instance.username not in (settings.APPLICATION_USERNAME, settings.ANONYMOUS_USER_NAME):
         application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
         application = Application.objects.get(user=application_user)
         client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
@@ -220,7 +228,7 @@ class NormalizedData(models.Model):
     created_at = models.DateTimeField(null=True)
     raw = models.ForeignKey(RawData, null=True)
     # TODO Rename this to data
-    normalized_data = DateTimeAwareJSONField(default={}, validators=[JSONLDValidator(), ])
+    normalized_data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')
 

@@ -237,14 +237,10 @@ class Context(AnchorLink):
         }
 
     def __init__(self):
+        if not hasattr(Context.__CONTEXT, '_ctxdict'):
+            Context.__CONTEXT._ctxdict = {}
+            self.clear()
         super().__init__()
-
-        if hasattr(Context.__CONTEXT, '_ctxdict'):
-            self.__dict__ = Context.__CONTEXT._ctxdict
-            return
-
-        Context.__CONTEXT._ctxdict = self.__dict__
-        self.clear()
 
     def clear(self):
         self.graph = []
@@ -255,6 +251,22 @@ class Context(AnchorLink):
 
     def __add__(self, step):
         return AnchorLink() + step
+
+    def __radd__(self, other):
+        raise NotImplementedError
+
+    def __setattr__(self, name, value):
+        if not hasattr(Context.__CONTEXT, '_ctxdict'):
+            self.__init__()
+        Context.__CONTEXT._ctxdict[name] = value
+
+    def __getattr__(self, name):
+        if not hasattr(Context.__CONTEXT, '_ctxdict'):
+            self.__init__()
+        try:
+            return Context.__CONTEXT._ctxdict[name]
+        except KeyError:
+            return super().__getattr__(name)
 
 
 class NameParserLink(AbstractLink):

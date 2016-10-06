@@ -49,7 +49,7 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
             data.append(obj.change.change_set.normalized_data.raw)
         else:
             changes = obj.changes.all()
-            data = [change.changeset.normalized_data.raw for change in changes]
+            data = [change.change_set.normalized_data.raw for change in changes]
 
         page = self.paginate_queryset(data)
         if page is not None:

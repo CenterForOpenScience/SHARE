@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0037_dedup_through_tables'),
+        ('share', '0038_dedup_through_tables'),
     ]
 
     operations = [

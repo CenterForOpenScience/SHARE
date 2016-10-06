@@ -95,7 +95,7 @@ def ReplaceUsers(to_user, *from_users):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0041_auto_20160923_1519'),
+        ('share', '0045_auto_20160927_1436'),
     ]
 
     operations = [

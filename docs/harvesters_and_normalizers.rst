@@ -18,7 +18,9 @@ Installation (inside a virtual environment)::
 
     pip install -r requirements.txt
 
-    docker-compose up -d rabbitmq postgres
+    // Creates and starts containers for elasticsearch, rabbitmq, and postgres
+    docker-compose up -d web
+
     ./up.sh
     ---------------- or ----------------
     pg
@@ -156,7 +158,7 @@ Adding a new provider
 Best practices for OAI providers
 """"""""""""""""""""""""""""""""
 
-If the provider follows OAI standards and using the `oai_dc` metadata prefix, then the provider's ``apps.py`` should begin like this:
+If the provider follows OAI standards and uses the `oai_dc` metadata prefix, then the provider's ``apps.py`` should begin like this:
 
 
 .. code-block:: python
@@ -255,6 +257,11 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
 
     To avoid excessive nesting use the :ref:`Try link <try-reference>`
 
+- OneOf
+    To specify two possible paths for a single value::
+
+        tools.OneOf(<chain_option_1>, <chain_option_2>)
+
 - ParseDate
     To determine a date from a string::
 
@@ -296,6 +303,11 @@ Tools are defined in ``SHARE/share/normalize/links.py`` but are imported as ``to
     To define a static field::
 
         tools.Static(<static_value>)
+
+- Subjects
+    To map a subject to the PLOS taxonomy based on defined mappings::
+
+        tools.Subjects(<subject_string>)
 
 .. _try-reference:
 

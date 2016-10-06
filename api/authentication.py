@@ -1,4 +1,5 @@
 from rest_framework.authentication import SessionAuthentication
+from oauth2_provider.ext.rest_framework import OAuth2Authentication
 
 
 class NonCSRFSessionAuthentication(SessionAuthentication):
@@ -19,3 +20,12 @@ class NonCSRFSessionAuthentication(SessionAuthentication):
 
         # CSRF passed with authenticated user
         return (user, None)
+
+
+class APIV1TokenBackPortAuthentication(OAuth2Authentication):
+
+    def authenticate(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION')
+        if token and isinstance(token, str):
+            request.META['HTTP_AUTHORIZATION'] = token.replace('Token', 'Bearer')
+        return super().authenticate(request)

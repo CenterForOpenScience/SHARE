@@ -140,7 +140,7 @@ class MakeJsonPatches(celery.Task):
 
         try:
             cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
-            if cs and normalized.source.is_robot:
+            if cs and (normalized.source.is_robot or normalized.source.is_trusted):
                 # TODO: verify change set is not overwriting user created object
                 cs.accept()
         except Exception as e:

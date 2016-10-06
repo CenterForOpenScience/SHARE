@@ -70,6 +70,7 @@ class VenueSerializer(BaseShareSerializer):
 
 class LinkSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
+    link_type = serializers.CharField(source='type')
 
     class Meta(BaseShareSerializer.Meta):
         model = models.Link
