@@ -42,8 +42,6 @@ class ChangeNode:
         if instance:
             self.id = instance.pk
             self.type = instance._meta.model_name.lower()
-            if self.type != self.new_type and self.new_type == 'creativework':
-                self.new_type = self.type
             self.__refs.append((self.id, self.type))
         self.__instance = instance
 
@@ -89,8 +87,9 @@ class ChangeNode:
             if not ret['extra']:
                 del ret['extra']
 
-        if self.new_type != self.type:
-            ret['@type'] = self.new_type
+        new_type = self.__refs[0][1]
+        if new_type != self.type and new_type != 'creativework':
+            ret['@type'] = new_type
 
         return ret
 
@@ -103,7 +102,6 @@ class ChangeNode:
 
         self.id = str(node.pop('@id'))
         self.type = node.pop('@type').lower()
-        self.new_type = self.type
         self.extra = node.pop('extra', {})
 
         self.__refs = [(self.id, self.type)]
@@ -136,7 +134,7 @@ class ChangeNode:
             try:
                 node = mapper[(v['@id'], v['@type'].lower())]
                 v['@id'] = node.id
-                v['@type'] = node.new_type
+                v['@type'] = node.type
             except KeyError:
                 pass
         for k, values in self.reverse_relations.items():
