@@ -1,7 +1,7 @@
 import os
+import time
 from concurrent import futures
 
-import furl
 import requests
 
 from django.db import connections, transaction
@@ -23,11 +23,13 @@ connections._databases['migration_source'] = {
 
 
 def push_data(pk, doc_id, record, source, token, base_url):
-    print('Submitting ({}) {} for user {!r}'.format(pk, doc_id, source))
-    resp = requests.post('{}/api/v1/share/data/'.format(base_url.rstrip('/')), data=record, headers={
+    resp = requests.post('{}/api/v1/share/data/'.format(base_url.rstrip('/')), data='{{"jsonData": {}}}'.format(record), headers={
         'Content-Type': 'application/json',
         'Authorization': 'Bearer {}'.format(token)
     })
+    if resp.status_code // 100 != 2:
+        print('Failed submitting ({}) {} for user {!r}'.format(pk, doc_id, source))
+        print(resp.json)
     resp.raise_for_status()
     return resp
 
@@ -124,6 +126,7 @@ class Command(BaseCommand):
                     , key
                     , url
                     , longname
+                    , shortname
                     , favicon_dataurl
                     FROM push_endpoint_provider AS provider
                         JOIN auth_user ON provider.user_id = auth_user.id
@@ -134,11 +137,11 @@ class Command(BaseCommand):
 
         sources = []
         with transaction.atomic():
-            for (pk, apikey, base_url, longname, favicon_dataurl) in providers:
-                start, *_, end = furl.furl(base_url).host.split('.')
-                username = '{}.{}'.format(end, start)
+            for (pk, apikey, base_url, longname, shortname, favicon_dataurl) in providers:
+                username = '{}.{}'.format(base_url.split('.')[-1].strip('/'), shortname)
                 try:
                     source = ShareUser.objects.get(username=username)
+                    print('Loaded user {!r}'.format(source))
                 except ShareUser.DoesNotExist:
                     source = ShareUser.objects.create_user(username, long_title=longname, home_page=base_url, is_trusted=True)
                     source.set_unusable_password()
@@ -146,7 +149,7 @@ class Command(BaseCommand):
                     token.token = apikey
                     token.save()
 
-                print('Created new user {!r}'.format(source))
+                    print('Created new user {!r}'.format(source))
                 sources.append((pk, source))
 
         with transaction.atomic(using='migration_source'):
@@ -155,18 +158,18 @@ class Command(BaseCommand):
                 print('Loading documents for user {!r}'.format(source))
 
                 with connection.connection.cursor('provider_migration') as cursor:
-                    fs = []
+                    cursor.execute('SELECT COUNT(*) FROM push_endpoint_pusheddata WHERE provider_id = %s', (pk, ))
+                    done, count = 0, cursor.fetchall()[0][0]
+
+                start = time.time()
+                with connection.connection.cursor('provider_migration') as cursor:
                     cursor.execute('SELECT id, "docID", "jsonData" FROM push_endpoint_pusheddata WHERE provider_id = %s', (pk, ))
-                    with futures.ThreadPoolExecutor(max_workers=20) as e:
-                        while True:
-                            records = cursor.fetchmany(size=cursor.itersize)
-                            if not records:
-                                break
-
+                    while True:
+                        print('[{:02d}:{:02d}] {:.2f}% ({} / {})'.format(int(time.time() - start) // 60, int(time.time() - start) % 60, (done / count) * 100, done, count))
+                        records = cursor.fetchmany(size=500)
+                        if not records:
+                            break
+                        with futures.ThreadPoolExecutor(max_workers=20) as e:
                             for pk, doc_id, record in records:
-                                fs.append(e.submit(push_data, pk, doc_id, record, source, token, url))
-
-                        for fut in futures.wait(fs, return_when=futures.FIRST_EXCEPTION)[1]:
-                            if fut.exception():
-                                e.shutdown(wait=False)
-                                raise fut.exception()
+                                e.submit(push_data, pk, doc_id, record, source, token, url)
+                        done += len(records)

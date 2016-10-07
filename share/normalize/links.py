@@ -111,6 +111,9 @@ class DictHashingDict:
     def get(self, key, *args):
         return self.__inner.get(self._hash(key), *args)
 
+    def pop(self, key, *args):
+        return self.__inner.pop(self._hash(key), *args)
+
     def __getitem__(self, key):
         return self.__inner[self._hash(key)]
 
