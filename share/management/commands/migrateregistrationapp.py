@@ -29,7 +29,7 @@ def push_data(pk, doc_id, record, source, token, base_url):
     })
     if resp.status_code // 100 != 2:
         print('Failed submitting ({}) {} for user {!r}'.format(pk, doc_id, source))
-        print(resp.json)
+        print(resp.json())
     resp.raise_for_status()
     return resp
 
