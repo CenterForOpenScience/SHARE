@@ -8,29 +8,12 @@ THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 
 
 class Link(Parser):
-
-    url = ctx
-    type = tools.Static('url')
-
-
-class ProviderLink(Parser):
-
-    schema = 'Link'
-
     url = ctx
     type = tools.Static('provider')
 
 
 class ThroughLinks(Parser):
-
     link = tools.Delegate(Link, ctx)
-
-
-class ProviderThroughLinks(Parser):
-
-    schema = 'ThroughLinks'
-
-    link = tools.Delegate(ProviderLink, ctx)
 
 
 class Publisher(Parser):
@@ -38,7 +21,8 @@ class Publisher(Parser):
     name = ctx.name
     url = tools.OneOf(
         ctx.uri,
-        tools.Join(ctx.sameAs)
+        tools.Join(ctx.sameAs),
+        tools.Static(None),
     )
 
     class Extra:
@@ -188,6 +172,8 @@ class CreativeWork(Parser):
         )
     )
 
+    is_deleted = tools.RunPython('_is_deleted', tools.Try(ctx.otherProperties))
+
     date_updated = tools.ParseDate(tools.Try(ctx.providerUpdatedDateTime))
 
     description = tools.Try(ctx.description)
@@ -211,16 +197,16 @@ class CreativeWork(Parser):
         tools.Try(ctx.languages[0]),
     )
 
-    links = tools.Concat(
-        tools.Map(
-            tools.Delegate(ThroughLinks),
-            tools.Try(ctx.uris.canonicalUri),
-            tools.Try(ctx.uris.descriptorUris),
-            tools.Try(ctx.uris.objectUris)
-        ),
-        tools.Map(
-            tools.Delegate(ProviderThroughLinks),
-            tools.Try(ctx.uris.providerUris),
+    links = tools.Map(
+        tools.Delegate(ThroughLinks),
+        tools.RunPython(
+            'unique',
+            tools.Concat(
+                tools.Try(ctx.uris.canonicalUri),
+                tools.Try(ctx.uris.providerUris),
+                tools.Try(ctx.uris.descriptorUris),
+                tools.Try(ctx.uris.objectUris)
+            )
         )
     )
 
@@ -325,6 +311,15 @@ class CreativeWork(Parser):
             else:
                 if word.search(string):
                     return True
+        return False
+
+    def unique(self, items):
+        return list(sorted(set(items)))
+
+    def _is_deleted(self, properties):
+        for prop in properties or []:
+            if prop['name'] == 'status':
+                return 'deleted' in prop['properties'].get('status', [])
         return False
 
 
