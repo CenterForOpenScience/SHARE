@@ -1,5 +1,6 @@
 import abc
 import json
+from collections import OrderedDict
 
 import xmltodict
 
@@ -35,7 +36,7 @@ class Normalizer(metaclass=abc.ABCMeta):
         if data.startswith('<'):
             return xmltodict.parse(data, process_namespaces=True, namespaces=self.namespaces)
         else:
-            return json.loads(data)
+            return json.loads(data, object_pairs_hook=OrderedDict)
 
     def get_root_parser(self):
         if self.root_parser:

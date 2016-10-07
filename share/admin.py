@@ -181,7 +181,7 @@ class AccessTokenAdmin(admin.ModelAdmin):
 
 
 class ProviderRegistrationAdmin(admin.ModelAdmin):
-    list_display = ('direct_source', 'source_name', 'status_', 'submitted_at', 'submitted_by')
+    list_display = ('source_name', 'status_', 'submitted_at', 'submitted_by', 'direct_source')
     list_filter = ('direct_source', 'status',)
     readonly_fields = ('submitted_at', 'submitted_by',)
 
