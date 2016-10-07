@@ -199,15 +199,15 @@ class RelationDisambiguator(Disambiguator):
         #   - "unknown" should match anything
         #   - if a less specific type exists, match it and update?
         #   - if a more specific type exists, match it and don't update?
-        from_ref = self.attrs.get(self.from_field)
-        to_ref = self.attrs.get(self.to_field)
-        if not from_ref or not to_ref:
+        from_id = self.attrs.get(self.from_field)
+        to_id = self.attrs.get(self.to_field)
+        if not from_id or not to_id:
             return None
 
         query = {
-            self.from_field: from_ref['@id'],
-            self.to_field: to_ref['@id'],
-            '{}__name'.format(self.type_field): self.attrs[self.type_field]
+            self.from_field: from_id,
+            self.to_field: to_id,
+            self.type_field: self.attrs[self.type_field]
         }
         try:
             return self.model.objects.get(**query)
@@ -232,3 +232,27 @@ class ContributionDisambiguator(RelationDisambiguator):
     from_field = 'creative_work'
     to_field = 'entity'
     type_field = 'contribution_type'
+
+
+class WorkRelationTypeDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.WorkRelationType
+    unique_attr = 'name'
+
+    def not_found(self):
+        raise ValidationError('Invalid work relation type: {}'.format(self.attrs['name']))
+
+
+class EntityRelationTypeDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.EntityRelationType
+    unique_attr = 'name'
+
+    def not_found(self):
+        raise ValidationError('Invalid entity relation type: {}'.format(self.attrs['name']))
+
+
+class ContributionTypeDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.ContributionType
+    unique_attr = 'name'
+
+    def not_found(self):
+        raise ValidationError('Invalid contribution type: {}'.format(self.attrs['name']))

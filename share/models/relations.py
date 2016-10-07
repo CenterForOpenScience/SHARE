@@ -65,24 +65,10 @@ class ThroughContributionAwards(ShareObject):
         unique_together = ('contribution', 'award')
 
 
-class RelationTypeManager(models.Manager):
-    def get_by_natural_key(self, key):
-        return self.get(name=key)
-
-
 class AbstractRelationType(MPTTModel):
     name = models.TextField(unique=True)
     uris = JSONField(editable=False)
     parent = TreeForeignKey('self', null=True, related_name='children', db_index=True, editable=False)
-
-    objects = RelationTypeManager()
-
-    def natural_key(self):
-        return self.name
-
-    @staticmethod
-    def natural_key_field():
-        return 'name'
 
     class Meta:
         abstract = True
