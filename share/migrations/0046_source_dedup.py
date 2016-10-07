@@ -59,6 +59,8 @@ def ReplaceUsers(to_user, *from_users):
 
     for table in SOURCES_TABLES:
         column = table.split('_')[1]+ '_id'
+        # Add back in when travis gets postgres 9.5+
+        # IN (SELECT id FROM share_shareuser WHERE robot IN {targets}) ON CONFLICT DO NOTHING;
         sql += '''
             INSERT INTO
                 {table} ({column},  shareuser_id)
@@ -66,7 +68,7 @@ def ReplaceUsers(to_user, *from_users):
                 {column}, (SELECT id FROM share_shareuser WHERE robot='providers.{to_user}')
             FROM
                 {table} WHERE shareuser_id
-            IN (SELECT id FROM share_shareuser WHERE robot IN {targets}) ON CONFLICT DO NOTHING;
+            IN (SELECT id FROM share_shareuser WHERE robot IN {targets});
 
             DELETE FROM
                 {table}

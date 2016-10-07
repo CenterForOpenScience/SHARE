@@ -2,8 +2,6 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from oauth2_provider.ext.rest_framework import TokenHasScope
-
 from api.serializers import ProviderRegistrationSerializer
 from share.models import ProviderRegistration
 
