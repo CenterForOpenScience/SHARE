@@ -33,8 +33,8 @@ class EntityRelation(ShareObject):
 
 class Contribution(ShareObject):
     entity = ShareForeignKey('AbstractEntity')
-    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='%(class)ss')
-    contribution_type = TreeForeignKey('ContributionType', related_name='%(class)ss')
+    creative_work = ShareForeignKey('AbstractCreativeWork')
+    contribution_type = TreeForeignKey('ContributionType')
 
     cited_name = models.TextField(blank=True)
     bibliographic = models.BooleanField(default=True)

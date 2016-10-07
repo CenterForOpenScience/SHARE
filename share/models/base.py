@@ -46,14 +46,7 @@ class ShareObjectMeta(ModelBase):
         if (models.Model in bases and attrs['Meta'].abstract) or len(bases) > 1:
             return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 
-        version_attrs = {}
-        for key, val in attrs.items():
-            if isinstance(val, models.Field) and val.unique:
-                val = copy.deepcopy(val)
-                val._unique = False
-            if key == 'Meta':
-                val = type('VersionMeta', (val, ), {'unique_together': None, 'db_table': None})
-            version_attrs[key] = val
+        version_attrs = cls.__version_attrs(bases[0], attrs)
 
         # TODO Fix this in some non-horrid fashion
         if name != 'ExtraData':
@@ -82,6 +75,24 @@ class ShareObjectMeta(ModelBase):
         inspect.stack()[1].frame.f_globals.update({concrete.VersionModel.__name__: concrete.VersionModel})
 
         return concrete
+
+    def __version_attrs(base, attrs):
+        version_attrs = {}
+        for key, val in attrs.items():
+            if isinstance(val, models.Field) and val.unique:
+                val = copy.deepcopy(val)
+                val._unique = False
+            if key == 'Meta':
+                val = type('VersionMeta', (val, ), {'unique_together': None, 'db_table': None})
+            version_attrs[key] = val
+
+        if hasattr(base, '_meta'):
+            base_fields = base._meta.get_fields()
+            import pdb; pdb.set_trace
+
+        return version_attrs
+
+
 
 
 class TypedShareObjectMeta(ShareObjectMeta, typedmodels.TypedModelMetaclass):

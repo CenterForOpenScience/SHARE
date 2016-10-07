@@ -4,7 +4,7 @@ from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.fields import ShareManyToManyField, ShareURLField
 
-__all__ = ('AbstractEntity', 'Person', 'Organization', 'Institution')
+#__all__ = ('AbstractEntity', 'Person', 'Organization', 'Institution')
 
 
 class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
@@ -39,11 +39,11 @@ class Person(AbstractEntity):
             self.name = self.get_full_name()
         super(Person, self).save(*args, **kwargs)
 
-    class Meta:
-        verbose_name_plural = 'People'
-        index_together = (
-            ('family_name', 'given_name', 'additional_name', 'suffix')
-        )
+#    class Meta:
+#        verbose_name_plural = 'People'
+        #index_together = (
+        #    ('family_name', 'given_name', 'additional_name', 'suffix')
+        #)
 
 
 class Organization(AbstractEntity):
