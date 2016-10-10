@@ -8,4 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Cornell University'
     home_page = 'https://ecommons.cornell.edu'
     url = 'https://ecommons.cornell.edu/dspace-oai/request'
-    approved_sets = [u'https://ecommons.cornell.edu/dspace-oai/request?verb=ListRecords&metadataPrefix=oai_dc&set=col_1813_47']
+    approved_sets = ['com_1813_35']
