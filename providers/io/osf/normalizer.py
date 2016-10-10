@@ -5,7 +5,7 @@ from share.normalize.parsers import Parser
 from share.normalize import tools
 
 
-class PersonIdentifier(Parser):
+class EntityIdentifier(Parser):
     uri = ctx
 
 
@@ -27,7 +27,7 @@ class Person(Parser):
         ctx.embeds.users.errors[0].meta.suffix,
     )
 
-    personidentifiers = tools.Map(tools.Delegate(PersonIdentifier), ctx.embeds.users.data.links.html)
+    entityidentifiers = tools.Map(tools.Delegate(EntityIdentifier), ctx.embeds.users.data.links.html)
 
     class Extra:
         nodes = tools.Try(ctx.embeds.users.data.relationships.nodes.links.related.href)
@@ -38,9 +38,9 @@ class Person(Parser):
         profile_image = tools.Try(ctx.embeds.users.data.links.profile_image)
 
 
-class Contributor(Parser):
-    person = tools.Delegate(Person, ctx)
-    order_cited = ctx('index')
+class Contribution(Parser):
+    order_cited = ctx.attributes.index
+    bibliographic = ctx.attributes.bibliographic
     cited_name = tools.OneOf(
         ctx.embeds.users.data.attributes.full_name,
         ctx.embeds.users.errors[0].meta.full_name,
@@ -57,7 +57,7 @@ class ThroughTags(Parser):
 
 class Institution(Parser):
     name = ctx.attributes.name
-    url = ctx.links.self
+    entityidentifiers = tools.Map(Delegate(EntityIdentifier), ctx.links.self)
 
     class Extra:
         nodes = ctx.relationships.nodes.links.related.href
@@ -66,12 +66,9 @@ class Institution(Parser):
         description = ctx.attributes.description
 
 
-class Association(Parser):
-    pass
-
-
 class CreativeWorkIdentifier(Parser):
     uri = ctx
+    #uri = tools.IRILink(ctx)
 
 
 class RelatedProject(Parser):
@@ -80,8 +77,8 @@ class RelatedProject(Parser):
     creativeworkidentifiers = tools.Map(tools.Delegate(CreativeWorkIdentifier), ctx)
 
 
-class ParentRelation(Parser):
-    schema = 'Relation'
+class ParentWorkRelation(Parser):
+    schema = 'WorkRelation'
     to_work = tools.Delegate(RelatedProject, ctx)
     relation_type = tools.Static('is_part_of')
 
@@ -89,9 +86,9 @@ class ParentRelation(Parser):
 class Project(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
-    contributors = tools.Map(tools.Delegate(Contributor), ctx['contributors'])
+    contributors = tools.Map(Contribution.using(entity=tools.Delegate(Person), contribution_type=tolos.Static('cited_contributor')), ctx['contributors'])
     institutions = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Institution))),
+        tools.Delegate(Contribution.using(entity=tools.Delegate(Institution), contribution_type=tools.Static('affiliation'))),
         ctx.embeds.affiliated_institutions.data
     )
     date_updated = tools.ParseDate(ctx.attributes.date_modified)
@@ -99,7 +96,7 @@ class Project(Parser):
     rights = tools.Maybe(ctx, 'attributes.node_license')
     creativeworkidentifiers = tools.Map(tools.Delegate(CreativeWorkIdentifier), ctx.links.html)
     related_works = tools.Map(
-        tools.Delegate(ParentRelation),
+        tools.Delegate(ParentWorkRelation),
         tools.RunPython('api_url_to_guid', tools.Try(ctx.relationships.parent.links.related.href))
     )
 

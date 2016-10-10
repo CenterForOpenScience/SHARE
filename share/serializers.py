@@ -58,11 +58,32 @@ class ExtraDataSerializer(BaseShareSerializer):
         model = models.ExtraData
 
 
-class EntitySerializer(BaseShareSerializer):
+class AbstractEntitySerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.Entity
+        model = models.AbstractEntity
+
+
+class OrganizationSerializer(AbstractEntitySerializer):
+    extra = ExtraDataSerializer()
+
+    class Meta(AbstractEntitySerializer.Meta):
+        model = models.Organization
+
+
+class InstitutionSerializer(AbstractEntitySerializer):
+    extra = ExtraDataSerializer()
+
+    class Meta(AbstractEntitySerializer.Meta):
+        model = models.Institution
+
+
+class PersonSerializer(AbstractEntitySerializer):
+    extra = ExtraDataSerializer()
+
+    class Meta(AbstractEntitySerializer.Meta):
+        model = models.Person
 
 
 class VenueSerializer(BaseShareSerializer):
@@ -72,94 +93,37 @@ class VenueSerializer(BaseShareSerializer):
         model = models.Venue
 
 
-class OrganizationSerializer(EntitySerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(EntitySerializer.Meta):
-        model = models.Organization
-
-
-class PublisherSerializer(EntitySerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(EntitySerializer.Meta):
-        model = models.Publisher
-
-
-class InstitutionSerializer(EntitySerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(EntitySerializer.Meta):
-        model = models.Institution
-
-
-class PersonEmailSerializer(BaseShareSerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(BaseShareSerializer.Meta):
-        model = models.PersonEmail
-
-
-class CreativeWorkIdentifierSerializer(BaseShareSerializer):
+class WorkIdentifierSerializer(BaseShareSerializer):
     # TODO filter/obfuscate mailto identifiers
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.CreativeWorkIdentifier
+        model = models.WorkIdentifier
 
 
-class PersonIdentifierSerializer(BaseShareSerializer):
+class EntityIdentifierSerializer(BaseShareSerializer):
     # TODO filter/obfuscate mailto identifiers
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.PersonIdentifier
+        model = models.EntityIdentifier
 
 
-class PersonSerializer(BaseShareSerializer):
-    # no emails on purpose
-    personidentifiers = PersonIdentifierSerializer(many=True)
-    affiliations = OrganizationSerializer(sparse=True, many=True)
-    extra = ExtraDataSerializer()
-
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Person
-        exclude = ('emails',)
-
-
-class AffiliationSerializer(BaseShareSerializer):
-    person = PersonSerializer(sparse=True)
-    organization = OrganizationSerializer(sparse=True)
-    extra = ExtraDataSerializer()
-
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Affiliation
-
-
-class ContributorSerializer(BaseShareSerializer):
-    person = PersonSerializer()
-    cited_name = serializers.ReadOnlyField(source='contributor.cited_name')
-    order_cited = serializers.ReadOnlyField(source='contributor.order_cited')
-    url = serializers.ReadOnlyField(source='contributor.url')
+class ContributionSerializer(BaseShareSerializer):
+    entity = AbstractEntitySerializer(sparse=True)
+    cited_name = serializers.ReadOnlyField(source='contribution.cited_name')
+    order_cited = serializers.ReadOnlyField(source='contribution.order_cited')
     extra = ExtraDataSerializer()
     # TODO find a way to do this, or don't
     # creative_work = CreativeWorkSerializer(sparse=True)
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.Contributor
+        model = models.Contribution
         exclude = ('creative_work',)
-
-
-class FunderSerializer(EntitySerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(EntitySerializer.Meta):
-        model = models.Funder
 
 
 class AwardSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
-    entities = EntitySerializer(many=True)
 
     class Meta(BaseShareSerializer.Meta):
         model = models.Award
@@ -179,16 +143,13 @@ class SubjectSerializer(serializers.ModelSerializer):
 
 
 class AbstractCreativeWorkSerializer(BaseShareSerializer):
-    tags = TagSerializer(many=True)
-    contributors = ContributorSerializer(source='contributor_set', many=True)
-    institutions = InstitutionSerializer(sparse=True, many=True)
-    organizations = OrganizationSerializer(sparse=True, many=True)
-    publishers = PublisherSerializer(sparse=True, many=True)
-    funders = FunderSerializer(sparse=True, many=True)
-    venues = VenueSerializer(sparse=True, many=True)
-    awards = AwardSerializer(sparse=True, many=True)
-    creativeworkidentifiers = CreativeWorkIdentifierSerializer(many=True)
     subjects = SubjectSerializer(many=True)
+    tags = TagSerializer(many=True)
+    venues = VenueSerializer(sparse=True, many=True)
+
+    contributors = ContributionSerializer(source='contribution_set', many=True)
+
+    identifiers = WorkIdentifierSerializer(source='creativeworkidentifiers', many=True)
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
@@ -208,10 +169,44 @@ def make_creative_work_serializer_class(model):
     return CreativeWorkSerializer
 
 
-class RelationSerializer(BaseShareSerializer):
+# TODO relation types
+class WorkRelationSerializer(BaseShareSerializer):
     from_work = AbstractCreativeWorkSerializer(sparse=True)
     to_work = AbstractCreativeWorkSerializer(sparse=True)
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.Relation
+        model = models.WorkRelation
+
+
+class EntityRelationSerializer(BaseShareSerializer):
+    from_work = AbstractEntitySerializer(sparse=True)
+    to_work = AbstractEntitySerializer(sparse=True)
+    extra = ExtraDataSerializer()
+
+    class Meta(BaseShareSerializer.Meta):
+        model = models.EntityRelation
+
+
+class WorkRelationTypeSerializer(serializers.ModelSerializer):
+    parent = serializers.StringRelatedField()
+
+    class Meta:
+        model = models.WorkRelationType
+        fields = ('id', 'name', 'uris', 'parent')
+
+
+class EntityRelationTypeSerializer(serializers.ModelSerializer):
+    parent = serializers.StringRelatedField()
+
+    class Meta:
+        model = models.EntityRelationType
+        fields = ('id', 'name', 'uris', 'parent')
+
+
+class ContributionTypeSerializer(serializers.ModelSerializer):
+    parent = serializers.StringRelatedField()
+
+    class Meta:
+        model = models.ContributionType
+        fields = ('id', 'name', 'uris', 'parent')

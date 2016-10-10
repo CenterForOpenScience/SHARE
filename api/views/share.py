@@ -61,19 +61,20 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(ser.data)
 
 
-class RelationsViewSet(viewsets.ReadOnlyModelViewSet):
-    @detail_route(methods=['get'])
-    def relations(self, request, pk=None):
-        if pk is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        obj = self.get_object()
-        relations = obj.outgoing_relations.all() | obj.incoming_relations.all()
-        page = self.paginate_queryset(relations)
-        if page is not None:
-            ser = serializers.RelationSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(ser.data)
-        ser = serializers.RelationSerializer(relations, many=True, context={'request': request})
-        return Response(ser.data)
+# TODO generic relations viewset?
+#class RelationsViewSet(viewsets.ReadOnlyModelViewSet):
+#    @detail_route(methods=['get'])
+#    def relations(self, request, pk=None):
+#        if pk is None:
+#            return Response(status=status.HTTP_400_BAD_REQUEST)
+#        obj = self.get_object()
+#        relations = obj.outgoing_relations.all() | obj.incoming_relations.all()
+#        page = self.paginate_queryset(relations)
+#        if page is not None:
+#            ser = serializers.RelationSerializer(page, many=True, context={'request': request})
+#            return self.get_paginated_response(ser.data)
+#        ser = serializers.RelationSerializer(relations, many=True, context={'request': request})
+#        return Response(ser.data)
 
 
 class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, viewsets.ReadOnlyModelViewSet):
@@ -82,19 +83,40 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
     filter_class = ShareObjectFilterSet
 
 
+def make_creative_work_view_set_class(model):
+    class CreativeWorkViewSet(ShareObjectViewSet):
+        serializer_class = serializers.make_creative_work_serializer_class(model)
+        queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+    return CreativeWorkViewSet
+
+
+# Creative work attributes
+
+class TagViewSet(ShareObjectViewSet):
+    serializer_class = serializers.TagSerializer
+    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+
+
+class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.SubjectSerializer
+    queryset = serializer_class.Meta.model.objects.all()
+
+
+class VenueViewSet(ShareObjectViewSet):
+    serializer_class = serializers.VenueSerializer
+    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+
+
 class ExtraDataViewSet(ShareObjectViewSet):
     serializer_class = serializers.ExtraDataSerializer
     queryset = serializer_class.Meta.model.objects.all()
     filter_class = None
 
 
-class EntityViewSet(ShareObjectViewSet):
-    serializer_class = serializers.EntitySerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+# Entities
 
-
-class VenueViewSet(ShareObjectViewSet):
-    serializer_class = serializers.VenueSerializer
+class PersonViewSet(ShareObjectViewSet):
+    serializer_class = serializers.PersonSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
@@ -103,50 +125,38 @@ class OrganizationViewSet(ShareObjectViewSet):
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
-class PublisherViewSet(ShareObjectViewSet):
-    serializer_class = serializers.PublisherSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
 class InstitutionViewSet(ShareObjectViewSet):
     serializer_class = serializers.InstitutionSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
-class CreativeWorkIdentifierViewSet(ShareObjectViewSet):
-    serializer_class = serializers.CreativeWorkIdentifierSerializer
+# Identifiers
+
+class EntityIdentifierViewSet(ShareObjectViewSet):
+    serializer_class = serializers.EntityIdentifierSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
-class PersonIdentifierViewSet(ShareObjectViewSet):
-    serializer_class = serializers.PersonIdentifierSerializer
+class WorkIdentifierViewSet(ShareObjectViewSet):
+    serializer_class = serializers.WorkIdentifierSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
-class PersonViewSet(ShareObjectViewSet):
-    serializer_class = serializers.PersonSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related(
-        'extra'
-    ).prefetch_related(
-        'emails',
-        'affiliations',
-        'identifiers'
-    )
+# Relations
 
-
-class AffiliationViewSet(ShareObjectViewSet):
-    serializer_class = serializers.AffiliationSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra', 'person', 'entity')
-
-
-class ContributorViewSet(ShareObjectViewSet):
-    serializer_class = serializers.ContributorSerializer
-    queryset = serializer_class.Meta.model.objects.select_related('extra', 'person', 'creative_work')
-
-
-class FunderViewSet(ShareObjectViewSet):
-    serializer_class = serializers.FunderSerializer
+class EntityRelationViewSet(ShareObjectViewSet):
+    serializer_class = serializers.EntityRelationSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+
+
+class WorkRelationViewSet(ShareObjectViewSet):
+    serializer_class = serializers.WorkRelationSerializer
+    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+
+
+class ContributionViewSet(ShareObjectViewSet):
+    serializer_class = serializers.ContributionSerializer
+    queryset = serializer_class.Meta.model.objects.select_related('extra', 'entity', 'creative_work')
 
 
 class AwardViewSet(ShareObjectViewSet):
@@ -154,30 +164,22 @@ class AwardViewSet(ShareObjectViewSet):
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
-class TagViewSet(ShareObjectViewSet):
-    serializer_class = serializers.TagSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
-class RelationViewSet(ShareObjectViewSet):
-    serializer_class = serializers.RelationSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related(
-        'extra'
-    )
-
-
-class RelationTypesView(views.APIView):
-    with open('./share/models/relation-types.json') as fobj:
-        RELATION_TYPES = json.load(fobj)
-
-    def get(self, request, *args, **kwargs):
-        return Response(self.RELATION_TYPES)
-
-
-class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.SubjectSerializer
+class EntityRelationTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.EntityRelationTypeSerializer
     queryset = serializer_class.Meta.model.objects.all()
 
+
+class WorkRelationTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.WorkRelationTypeSerializer
+    queryset = serializer_class.Meta.model.objects.all()
+
+
+class ContributionTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.ContributionTypeSerializer
+    queryset = serializer_class.Meta.model.objects.all()
+
+
+# Other
 
 class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
@@ -205,10 +207,3 @@ class APIVersionRedirectView(RedirectView):
                 return HttpSmartResponsePermanentRedirect(url)
             return HttpSmartResponseRedirect(url)
         return http.HttpResponseGone()
-
-
-def make_creative_work_view_set_class(model):
-    class CreativeWorkViewSet(RelationsViewSet, ShareObjectViewSet):
-        serializer_class = serializers.make_creative_work_serializer_class(model)
-        queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-    return CreativeWorkViewSet

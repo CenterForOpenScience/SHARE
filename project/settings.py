@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'revproxy',
+    'mptt',
 
     'allauth',
     'allauth.account',

@@ -120,13 +120,13 @@ class UniqueAttrDisambiguator(Disambiguator):
             return self.not_found()
 
 
-class CreativeWorkIdentifierDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.CreativeWorkIdentifier
+class WorkIdentifierDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.WorkIdentifier
     unique_attr = 'uri'
 
 
-class PersonIdentifierDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.PersonIdentifier
+class EntityIdentifierDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.EntityIdentifier
     unique_attr = 'uri'
 
 
@@ -143,23 +143,23 @@ class SubjectDisambiguator(UniqueAttrDisambiguator):
         raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
 
 
-class PersonDisambiguator(Disambiguator):
-    FOR_MODEL = models.Person
+class EntityDisambiguator(Disambiguator):
+    FOR_MODEL = models.AbstractEntity
 
     def disambiguate(self):
-        people = []
-        for id in self.attrs.get('personidentifiers', ()):
+        entities = []
+        for id in self.attrs.get('entityidentifiers', ()):
             try:
-                identifier = models.PersonIdentifier.objects.get(id=id)
-                people.append(identifier.person)
-            except models.PersonIdentifier.DoesNotExist:
+                identifier = models.EntityIdentifier.objects.get(id=id)
+                entities.append(identifier.entity)
+            except models.EntityIdentifier.DoesNotExist:
                 pass
-        if not people:
+        if not entities:
             return None
-        elif len(people) == 1:
-            return people[0]
+        elif len(entities) == 1:
+            return entities[0]
         else:
-            return people
+            return entities
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
@@ -167,11 +167,11 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
 
     def disambiguate(self):
         works = []
-        for id in self.attrs.get('creativeworkidentifiers', ()):
+        for id in self.attrs.get('workidentifiers', ()):
             try:
-                identifier = models.CreativeWorkIdentifier.objects.get(id=id)
+                identifier = models.WorkIdentifier.objects.get(id=id)
                 works.append(identifier.creative_work)
-            except models.CreativeWorkIdentifier.DoesNotExist:
+            except models.WorkIdentifier.DoesNotExist:
                 pass
         if not works:
             return None
@@ -182,17 +182,77 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
 
 
 class RelationDisambiguator(Disambiguator):
-    FOR_MODEL = models.Relation
+    @property
+    def from_field(self):
+        raise NotImplementedError()
+
+    @property
+    def to_field(self):
+        raise NotImplementedError()
+
+    @property
+    def type_field(self):
+        return 'relation_type'
 
     def disambiguate(self):
-        filters = {
-            'from_work': self.attrs.get('from_work'),
-            'to_work': self.attrs.get('to_work')
-        }
-        relation_type = self.attrs.get('relation_type')
-        if relation_type != models.Relation.RELATION_TYPES.unknown:
-            filters['relation_type'] = relation_type
-        try:
-            return models.Relation.objects.filter(**filters)[0]
-        except IndexError:
+        # TODO add nuance in relation types:
+        #   - "unknown" should match anything
+        #   - if a less specific type exists, match it and update?
+        #   - if a more specific type exists, match it and don't update?
+        from_id = self.attrs.get(self.from_field)
+        to_id = self.attrs.get(self.to_field)
+        if not from_id or not to_id:
             return None
+
+        query = {
+            self.from_field: from_id,
+            self.to_field: to_id,
+            self.type_field: self.attrs[self.type_field]
+        }
+        try:
+            return self.model.objects.get(**query)
+        except (self.model.DoesNotExist, self.model.MultipleObjectsReturned):
+            return None
+
+
+class EntityRelationDisambiguator(RelationDisambiguator):
+    FOR_MODEL = models.EntityRelation
+    from_field = 'from_entity'
+    to_field = 'to_entity'
+
+
+class WorkRelationDisambiguator(RelationDisambiguator):
+    FOR_MODEL = models.WorkRelation
+    from_field = 'from_work'
+    to_field = 'to_work'
+
+
+class ContributionDisambiguator(RelationDisambiguator):
+    FOR_MODEL = models.Contribution
+    from_field = 'creative_work'
+    to_field = 'entity'
+    type_field = 'contribution_type'
+
+
+class WorkRelationTypeDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.WorkRelationType
+    unique_attr = 'name'
+
+    def not_found(self):
+        raise ValidationError('Invalid work relation type: {}'.format(self.attrs['name']))
+
+
+class EntityRelationTypeDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.EntityRelationType
+    unique_attr = 'name'
+
+    def not_found(self):
+        raise ValidationError('Invalid entity relation type: {}'.format(self.attrs['name']))
+
+
+class ContributionTypeDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.ContributionType
+    unique_attr = 'name'
+
+    def not_found(self):
+        raise ValidationError('Invalid contribution type: {}'.format(self.attrs['name']))
