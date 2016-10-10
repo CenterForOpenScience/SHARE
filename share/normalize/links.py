@@ -287,8 +287,8 @@ class DateParserLink(AbstractLink):
                 raise ValueError('{} is before the lower bound {}.'.format(obj, self.LOWER_BOUND.isoformat()))
             if date > self.UPPER_BOUND:
                 raise ValueError('{} is more than 100 years in the future.'.format(obj))
-            return date.isoformat()
-        return None
+            return date.in_tz('UTC').isoformat()
+        raise ValueError('{} is not a valid date.'.format(obj))
 
 
 class LanguageParserLink(AbstractLink):
