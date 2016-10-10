@@ -6,9 +6,12 @@ from django.core.exceptions import ValidationError
 from share.models import Change
 from share.models import Person
 from share.models import Preprint
+from share.models import Publication
 from share.models import Contributor
 from share.models import ChangeSet
 from share.models import Subject
+from share.models import Institution
+from share.models import Organization
 from share.change import ChangeGraph
 
 
@@ -346,3 +349,74 @@ class TestChangeSet:
             })
 
         assert e.value.message == 'Invalid subject: Felines'
+
+    @pytest.mark.django_db
+    def test_change_work_type(self, change_factory, all_about_anteaters):
+        cs = change_factory.from_graph({
+            '@graph': [{
+                '@id': all_about_anteaters.id,
+                '@type': 'preprint'
+            }]
+        }, disambiguate=True)
+
+        assert Publication.objects.count() == 1
+        assert Preprint.objects.count() == 0
+
+        (preprint,) = cs.accept()
+
+        assert preprint.type == 'share.preprint'
+        assert preprint.id == all_about_anteaters.id
+        assert preprint.title == all_about_anteaters.title
+        assert Publication.objects.count() == 0
+        assert Preprint.objects.count() == 1
+
+    @pytest.mark.django_db
+    def test_ignore_generic_work_type(self, change_factory, all_about_anteaters):
+        cs = change_factory.from_graph({
+            '@graph': [{
+                '@id': all_about_anteaters.id,
+                '@type': 'creativework'
+            }]
+        }, disambiguate=True)
+
+        assert cs is None
+
+    @pytest.mark.django_db
+    def test_work_type_stays_nongeneric(self, change_factory, all_about_anteaters):
+        new_title = 'Some about Anteaters'
+        cs = change_factory.from_graph({
+            '@graph': [{
+                '@id': all_about_anteaters.id,
+                '@type': 'creativework',
+                'title': new_title
+            }]
+        }, disambiguate=True)
+
+        assert all_about_anteaters.type == 'share.publication'
+        assert Publication.objects.count() == 1
+
+        cs.accept()
+        all_about_anteaters.refresh_from_db()
+
+        assert all_about_anteaters.type == 'share.publication'
+        assert all_about_anteaters.title == new_title
+
+    @pytest.mark.django_db
+    def test_change_entity_type(self, change_factory, university_of_whales):
+        cs = change_factory.from_graph({
+            '@graph': [{
+                '@id': university_of_whales.id,
+                '@type': 'organization'
+            }]
+        }, disambiguate=True)
+
+        assert Institution.objects.count() == 1
+        assert Organization.objects.count() == 0
+
+        (org,) = cs.accept()
+
+        assert org.type == 'share.organization'
+        assert org.id == university_of_whales.id
+        assert org.name == university_of_whales.name
+        assert Institution.objects.count() == 0
+        assert Organization.objects.count() == 1
