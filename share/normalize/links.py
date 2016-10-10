@@ -277,7 +277,7 @@ class NameParserLink(AbstractLink):
 
 class DateParserLink(AbstractLink):
     LOWER_BOUND = pendulum.create(1200, 1, 1)
-    UPPER_BOUND = pendulum.now().add(years=100)
+    UPPER_BOUND = pendulum.today().add(years=100)
     DEFAULT = pendulum.create(2016, 1, 1)
 
     def execute(self, obj):
@@ -286,7 +286,7 @@ class DateParserLink(AbstractLink):
             if date < self.LOWER_BOUND:
                 raise ValueError('{} is before the lower bound {}.'.format(obj, self.LOWER_BOUND.isoformat()))
             if date > self.UPPER_BOUND:
-                raise ValueError('{} is more than 100 years in the future.'.format(obj))
+                raise ValueError('{} is after the upper bound {}.'.format(obj, self.UPPER_BOUND.isoformat()))
             return date.in_tz('UTC').isoformat()
         raise ValueError('{} is not a valid date.'.format(obj))
 

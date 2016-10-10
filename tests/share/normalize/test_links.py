@@ -1,9 +1,12 @@
 import pytest
 import rfc3987
-
 import calendar
 
+import pendulum
+
 from share.normalize.links import DOILink, OrcidLink, DateParserLink
+
+UPPER_BOUND = pendulum.today().add(years=100).isoformat()
 
 
 @pytest.mark.parametrize('date, result', [
@@ -21,7 +24,7 @@ from share.normalize.links import DOILink, OrcidLink, DateParserLink
     ('19 Nov, 2014', '2014-11-19T00:00:00+00:00'),
     ('Nov 2012', '2012-11-01T00:00:00+00:00'),
     ('January 1 2014', '2014-01-01T00:00:00+00:00'),
-    ('3009-11-01T00:00:00Z', ValueError('3009-11-01T00:00:00Z is more than 100 years in the future.')),
+    ('3009-11-01T00:00:00Z', ValueError('3009-11-01T00:00:00Z is after the upper bound ' + UPPER_BOUND + '.')),
     ('2016-01-01T15:03:04-05:00', '2016-01-01T20:03:04+00:00'),
     ('2016-01-01T15:03:04+5:00', '2016-01-01T10:03:04+00:00'),
     ('2016-01-01T15:03:04-3', '2016-01-01T18:03:04+00:00'),
