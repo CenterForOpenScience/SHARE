@@ -3,7 +3,7 @@ import pytest
 from django.core.management import call_command
 
 from share.models import Person, NormalizedData, Change, ChangeSet
-from share.models import Publication
+from share.models import Publication, Institution
 from share.models import ShareUser
 from share.change import ChangeNode, ChangeGraph
 
@@ -94,6 +94,11 @@ def jane_doe(share_source, change_ids):
 @pytest.fixture
 def all_about_anteaters(share_source, change_ids):
     return Publication.objects.create(title='All about Anteaters', change_id=change_ids.get())
+
+
+@pytest.fixture
+def university_of_whales(change_ids):
+    return Institution.objects.create(name='University of Whales', change_id=change_ids.get())
 
 
 @pytest.fixture

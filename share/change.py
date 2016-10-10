@@ -37,6 +37,14 @@ class ChangeNode:
     def instance(self):
         return self.__instance
 
+    @instance.setter
+    def instance(self, instance):
+        if instance:
+            self.id = instance.pk
+            self.type = instance._meta.model_name.lower()
+            self.__refs.append((self.id, self.type))
+        self.__instance = instance
+
     @property
     def is_blank(self):
         # JSON-LD Blank Node ids start with "_:"
@@ -78,6 +86,10 @@ class ChangeNode:
 
             if not ret['extra']:
                 del ret['extra']
+
+        new_type = self.__refs[0][1]
+        if new_type != self.type and new_type != 'creativework':
+            ret['@type'] = new_type
 
         return ret
 
@@ -132,16 +144,11 @@ class ChangeNode:
         if self.is_merge:
             return None
 
-        self.__instance = disambiguation.disambiguate(self.id, {
+        self.instance = disambiguation.disambiguate(self.id, {
             **self.attrs,
             **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')},
             **{k: [x['@id'] for x in v if not str(x['@id']).startswith('_:')] for k, v in self.reverse_relations.items() if any(not str(x['@id']).startswith('_:') for x in v)},
         }, self.model)
-
-        if self.__instance:
-            self.id = self.__instance.pk
-            self.type = self.__instance._meta.model_name.lower()
-            self.__refs.append((self.id, self.type))
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.model, self.instance)
