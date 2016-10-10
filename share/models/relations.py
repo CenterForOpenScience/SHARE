@@ -70,6 +70,9 @@ class AbstractRelationType(MPTTModel):
     uris = JSONField(editable=False)
     parent = TreeForeignKey('self', null=True, related_name='children', db_index=True, editable=False)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         abstract = True
 

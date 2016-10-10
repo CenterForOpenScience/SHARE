@@ -54,9 +54,9 @@ register_route(r'entityrelation', views.EntityRelationViewSet)
 register_route(r'workrelation', views.WorkRelationViewSet)
 register_route(r'contribution', views.ContributionViewSet)
 register_route(r'award', views.AwardViewSet)
-#register_route(r'entityrelationtype', views.EntityRelationTypeViewSet)
-#register_route(r'workrelationtype', views.WorkRelationTypeViewSet)
-#register_route(r'contributiontype', views.ContributorTypeViewSet)
+register_route(r'entityrelationtype', views.EntityRelationTypeViewSet)
+register_route(r'workrelationtype', views.WorkRelationTypeViewSet)
+register_route(r'contributiontype', views.ContributionTypeViewSet)
 
 # registration route
 register_route(r'registrations', views.ProviderRegistrationViewSet)
@@ -76,5 +76,4 @@ urlpatterns = [
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
     url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema'),
-    #url(r'relationtype/?', views.RelationTypesView.as_view(), name='relationtypes')
 ] + router.urls

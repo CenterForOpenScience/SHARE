@@ -113,7 +113,6 @@ class ContributionSerializer(BaseShareSerializer):
     entity = AbstractEntitySerializer(sparse=True)
     cited_name = serializers.ReadOnlyField(source='contribution.cited_name')
     order_cited = serializers.ReadOnlyField(source='contribution.order_cited')
-    url = serializers.ReadOnlyField(source='contribution.url')
     extra = ExtraDataSerializer()
     # TODO find a way to do this, or don't
     # creative_work = CreativeWorkSerializer(sparse=True)
@@ -189,10 +188,25 @@ class EntityRelationSerializer(BaseShareSerializer):
         model = models.EntityRelation
 
 
-class ContributionSerializer(BaseShareSerializer):
-    creative_work = AbstractCreativeWorkSerializer(sparse=True)
-    entity = AbstractEntitySerializer(sparse=True)
-    extra = ExtraDataSerializer()
+class WorkRelationTypeSerializer(serializers.ModelSerializer):
+    parent = serializers.StringRelatedField()
 
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Contribution
+    class Meta:
+        model = models.WorkRelationType
+        fields = ('id', 'name', 'uris', 'parent')
+
+
+class EntityRelationTypeSerializer(serializers.ModelSerializer):
+    parent = serializers.StringRelatedField()
+
+    class Meta:
+        model = models.EntityRelationType
+        fields = ('id', 'name', 'uris', 'parent')
+
+
+class ContributionTypeSerializer(serializers.ModelSerializer):
+    parent = serializers.StringRelatedField()
+
+    class Meta:
+        model = models.ContributionType
+        fields = ('id', 'name', 'uris', 'parent')

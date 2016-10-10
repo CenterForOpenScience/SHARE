@@ -4,7 +4,7 @@ from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.fields import ShareManyToManyField, ShareURLField
 
-#__all__ = ('AbstractEntity', 'Person', 'Organization', 'Institution')
+__all__ = ('AbstractEntity', 'Person', 'Organization', 'Institution')
 
 
 class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
@@ -35,15 +35,17 @@ class Person(AbstractEntity):
         return ' '.join(x for x in [self.given_name, self.family_name, self.additional_name, self.suffix] if x)
 
     def save(self, *args, **kwargs):
+        # TODO better way of reconciling Entity.name with Person.{family,given,additional}_name?
         if not self.name:
             self.name = self.get_full_name()
         super(Person, self).save(*args, **kwargs)
 
+# TODO if Person.Meta is defined, system check complains "(models.E017) Proxy model 'Person' contains model fields."
 #    class Meta:
 #        verbose_name_plural = 'People'
-        #index_together = (
-        #    ('family_name', 'given_name', 'additional_name', 'suffix')
-        #)
+#        index_together = (
+#            ('family_name', 'given_name', 'additional_name', 'suffix')
+#        )
 
 
 class Organization(AbstractEntity):
