@@ -2,7 +2,7 @@ import abc
 import logging
 import datetime
 
-import arrow
+import pendulum
 import celery
 import requests
 
@@ -68,9 +68,9 @@ class HarvesterTask(ProviderTask):
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
         if type(end) is str:
-            end = arrow.get(end).datetime
+            end = pendulum.parse(end)
         if type(start) is str:
-            start = arrow.get(start).datetime
+            start = pendulum.parse(start)
 
         harvester = self.config.harvester(self.config)
 

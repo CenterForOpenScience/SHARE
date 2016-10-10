@@ -1,4 +1,4 @@
-import arrow
+import pendulum
 import datetime
 
 from django.apps import apps
@@ -34,8 +34,8 @@ class Command(BaseCommand):
             task_kwargs['end'] = datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))
             task_kwargs['start'] = datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])
         else:
-            task_kwargs['start'] = arrow.get(options['start']) if options.get('start') else arrow.utcnow() - datetime.timedelta(days=int(options['days_back'] or 1))
-            task_kwargs['end'] = arrow.get(options['end']) if options.get('end') else arrow.utcnow()
+            task_kwargs['start'] = pendulum.parse(options['start']) if options.get('start') else pendulum.utcnow() - datetime.timedelta(days=int(options['days_back'] or 1))
+            task_kwargs['end'] = pendulum.parse(options['end']) if options.get('end') else pendulum.utcnow()
 
         task_kwargs['end'] = task_kwargs['end'].isoformat() + 'Z'
         task_kwargs['start'] = task_kwargs['start'].isoformat() + 'Z'

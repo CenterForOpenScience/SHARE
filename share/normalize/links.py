@@ -5,10 +5,11 @@ import json
 import logging
 import re
 import threading
+import dateutil
 
 import xmltodict
 
-import arrow
+import pendulum
 
 from lxml import etree
 
@@ -278,10 +279,19 @@ class NameParserLink(AbstractLink):
 
 
 class DateParserLink(AbstractLink):
+    LOWER_BOUND = pendulum.create(1200, 1, 1)
+    UPPER_BOUND = pendulum.today().add(years=100)
+    DEFAULT = pendulum.create(2016, 1, 1)
+
     def execute(self, obj):
         if obj:
-            return arrow.get(obj).to('UTC').isoformat()
-        return None
+            date = dateutil.parser.parse(obj, default=self.DEFAULT)
+            if date < self.LOWER_BOUND:
+                raise ValueError('{} is before the lower bound {}.'.format(obj, self.LOWER_BOUND.isoformat()))
+            if date > self.UPPER_BOUND:
+                raise ValueError('{} is after the upper bound {}.'.format(obj, self.UPPER_BOUND.isoformat()))
+            return date.in_tz('UTC').isoformat()
+        raise ValueError('{} is not a valid date.'.format(obj))
 
 
 class LanguageParserLink(AbstractLink):

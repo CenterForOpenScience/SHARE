@@ -22,7 +22,7 @@ import json
 from pprint import pprint
 from datetime import timedelta
 
-import arrow
+import pendulum
 from docopt import docopt
 
 import django
@@ -65,8 +65,8 @@ def harvest(args, argv):
         args['--out'] = args['--out'] or os.path.join(os.curdir, config.label)
         os.makedirs(args['--out'], exist_ok=True)
 
-    start_date = arrow.get(args['--start']) if args.get('--start') else arrow.utcnow() - timedelta(days=int(args['--days-back']))
-    end_date = arrow.get(args['--end']) if args.get('--end') else arrow.utcnow()
+    start_date = pendulum.parse(args['--start']) if args.get('--start') else pendulum.utcnow() - timedelta(days=int(args['--days-back']))
+    end_date = pendulum.parse(args['--end']) if args.get('--end') else pendulum.utcnow()
 
     for doc_id, data in harvester.raw(start_date, end_date, limit=int(args['--limit']) if args['--limit'] else None):
         if args['--print']:

@@ -3,7 +3,7 @@ from typing import Tuple
 from typing import Union
 from typing import Iterator
 
-import arrow
+import pendulum
 from furl import furl
 
 from providers.io.osf.harvester import OSFHarvester
@@ -17,7 +17,7 @@ class OSFRegistrationsHarvester(OSFHarvester):
         super().__init__(*args, **kwargs)
         self.url = 'https://api.osf.io/v2/registrations/'
 
-    def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
+    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
 
         url = furl(self.url)
 
