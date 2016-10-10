@@ -160,6 +160,5 @@ class JSONLDValidator:
         fields = model._meta.get_fields()
         allowed_fields = [f for f in fields if f.editable and f.name not in excluded]
         # Include one-to-many relations to models with no other relations
-        # TODO better way to exclude versions?
-        allowed_fields.extend(f for f in fields if f.one_to_many and f.name not in excluded and 'version' not in f.name and not [rf for rf in f.related_model._meta.get_fields() if rf.editable and rf.is_relation and rf.rel != f and rf.name not in excluded])
+        allowed_fields.extend(f for f in fields if f.one_to_many and f.name not in excluded and hasattr(f.related_model, 'VersionModel') and not [rf for rf in f.related_model._meta.get_fields() if rf.editable and rf.is_relation and rf.rel != f and rf.name not in excluded])
         return allowed_fields

@@ -43,11 +43,8 @@ class ShareObjectMeta(ModelBase):
     }
 
     def __new__(cls, name, bases, attrs):
-        try:
-            if attrs['Meta'].abstract or len(bases) > 1:
-                return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
-        except (KeyError, AttributeError):
-            pass
+        if (models.Model in bases and attrs['Meta'].abstract) or len(bases) > 1:
+            return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 
         version_attrs = {}
         for key, val in attrs.items():
