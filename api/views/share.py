@@ -61,6 +61,7 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(ser.data)
 
 
+# TODO generic relations viewset?
 #class RelationsViewSet(viewsets.ReadOnlyModelViewSet):
 #    @detail_route(methods=['get'])
 #    def relations(self, request, pk=None):
