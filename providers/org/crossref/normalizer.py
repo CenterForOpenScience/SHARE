@@ -2,22 +2,6 @@ from share.normalize import *
 from share.normalize import links
 
 
-class Link(Parser):
-    url = ctx
-    type = RunPython('get_link_type', ctx)
-
-    def get_link_type(self, link):
-        if 'dx.doi.org' in link:
-            return 'doi'
-        if 'id.crossref.org' in link:
-            return 'provider'
-        return 'misc'
-
-
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
-
-
 class Publisher(Parser):
     name = ctx
 
@@ -43,20 +27,19 @@ class Affiliation(Parser):
     pass
 
 
-class Identifier(Parser):
-    url = Orcid(ctx)
-    base_url = Static('https://orcid.org')
+class PersonIdentifier(Parser):
+    uri = Orcid(ctx)
 
 
-class ThroughIdentifiers(Parser):
-    identifier = Delegate(Identifier, ctx)
+class CreativeWorkIdentifier(Parser):
+    uri = DOI(ctx)
 
 
 class Person(Parser):
     given_name = Maybe(ctx, 'given')
     family_name = Maybe(ctx, 'family')
     affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
-    identifiers = Map(Delegate(ThroughIdentifiers), Maybe(ctx, 'ORCID'))
+    personidentifiers = Map(Delegate(PersonIdentifier), Maybe(ctx, 'ORCID'))
 
 
 class Contributor(Parser):
@@ -93,7 +76,9 @@ class CreativeWork(Parser):
         Delegate(Contributor),
         Maybe(ctx, 'author')
     )
-    links = Map(Delegate(ThroughLinks), DOI(ctx.DOI))
+
+    creativeworkidentifiers = Map(Delegate(CreativeWorkIdentifier), ctx.DOI)
+
     publishers = Map(
         Delegate(Association.using(entity=Delegate(Publisher))),
         ctx.publisher
@@ -115,18 +100,17 @@ class CreativeWork(Parser):
         chair = Maybe(ctx, 'chair')
         container_title = Maybe(ctx, 'container-title')
         date_created = ParseDate(Try(ctx.created['date-time']))
-        # TODO move date_published out of extra?
         date_published = Maybe(ctx, 'issued')
         editor = Maybe(ctx, 'editor')
         licenses = Maybe(ctx, 'license')
         isbn = Maybe(ctx, 'isbn')
         issn = Maybe(ctx, 'issn')
         issue = Maybe(ctx, 'issue')
-        reference_count = ctx['reference-count']
         member = Maybe(ctx, 'member')
         page = Maybe(ctx, 'page')
         published_online = Maybe(ctx, 'published-online')
         published_print = Maybe(ctx, 'published-print')
+        reference_count = ctx['reference-count']
         subjects = Maybe(ctx, 'subject')
         subtitles = Maybe(ctx, 'subtitle')
         titles = ctx.title

@@ -7,7 +7,6 @@ from fuzzycount import FuzzyCountManager
 from django.apps import apps
 from django.db import models
 from django.db import transaction
-from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
@@ -24,7 +23,7 @@ logger = logging.getLogger(__name__)
 class ChangeSetManager(FuzzyCountManager):
 
     def from_graph(self, graph, normalized_data_id):
-        if all(not n.change for n in graph.nodes):
+        if all(n.is_skippable for n in graph.nodes):
             logger.debug('No changes detected in {!r}, skipping.'.format(graph))
             return None
 
@@ -43,7 +42,7 @@ class ChangeManager(FuzzyCountManager):
         # Subjects may not be changed
         # This case is only reached when a synoynm is sent up
         # TODO Fix this in a better way 2016-08-23 @chrisseto
-        if not node.change or node.model == apps.get_model('share', 'subject'):
+        if node.is_skippable or node.model == apps.get_model('share', 'subject'):
             logger.debug('No changes detected in {!r}, skipping.'.format(node))
             return None
 
@@ -88,7 +87,7 @@ class ChangeSet(models.Model):
                 try:
                     ret.append(c.accept(save=save))
                 except Exception as ex:
-                    logger.error('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
+                    logger.warn('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
                     raise ex
             self.status = ChangeSet.STATUS.accepted
             if save:
@@ -169,26 +168,19 @@ class Change(models.Model):
         resolved_change = self._resolve_change()
         inst = self.target_type.model_class()(change=self, **resolved_change)
         if save:
-            try:
-                with transaction.atomic():
-                    inst.save()
-                    self.target_id = inst.id
-                    self.save()
-            except IntegrityError as e:
-                from share.disambiguation import disambiguate
-                logger.info('Handling unique violation error %r', e)
-
-                self.type = Change.TYPE.update
-                self.target = disambiguate('_:', resolved_change, self.target_type.model_class())
-
-                logger.info('Updating target to %r and type to update', self.target)
+            with transaction.atomic():
+                inst.save()
+                self.target_id = inst.id
                 self.save()
-
-                return self._update(save=save)
         return inst
 
     def _update(self, save=True):
         self.target.change = self
+
+        new_type = self.change.pop('@type', None)
+        if new_type:
+            self.target.recast('share.{}'.format(new_type))
+
         self.target.__dict__.update(self._resolve_change())
         if save:
             self.target.save()

@@ -212,9 +212,22 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'Link',
-                'url': 'giraffe',
-                'type': 'misc',
+                '@type': 'CreativeWorkIdentifier',
+                'uri': 'giraffe',
+                'creative_work': {'@id': '_:234', '@type': 'creativework'}
+            }, {
+                '@id': '_:234',
+                '@type': 'creativework',
+                'title': 'Giraffes are tall'
+            }]
+        }
+    }, {
+        'out': "'creative_work' is a required property at /@graph/0",
+        'in': {
+            '@graph': [{
+                '@id': '_:123',
+                '@type': 'creativeworkidentifier',
+                'uri': 'https://share.osf.io/foo',
             }]
         }
     }, {
@@ -222,9 +235,13 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'Link',
-                'url': 'https://share.osf.io/foo',
-                'type': 'misc',
+                '@type': 'CreativeWorkIdentifier',
+                'uri': 'https://share.osf.io/foo',
+                'creative_work': {'@id': '_:234', '@type': 'creativework'}
+            }, {
+                '@id': '_:234',
+                '@type': 'creativework',
+                'title': 'Giraffes are tall'
             }]
         }
     }]

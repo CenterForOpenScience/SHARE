@@ -1,15 +1,12 @@
+import re
+
 from share.normalize import ctx
 from share.normalize.parsers import Parser
 from share.normalize import tools
 
 
-class Identifier(Parser):
-    url = ctx
-    base_url = tools.Static('https://osf.io/')
-
-
-class ThroughIdentifiers(Parser):
-    identifier = tools.Delegate(Identifier, ctx)
+class PersonIdentifier(Parser):
+    uri = ctx
 
 
 class Person(Parser):
@@ -30,12 +27,7 @@ class Person(Parser):
         ctx.embeds.users.errors[0].meta.suffix,
     )
 
-    identifiers = tools.Map(
-        tools.Delegate(ThroughIdentifiers),
-        tools.Try(ctx.embeds.users.data.links.html),
-        tools.Try(ctx.embeds.users.data.links.profile_image),
-        tools.Try(ctx.embeds.users.errors[0].meta.profile_image)
-    )
+    personidentifiers = tools.Map(tools.Delegate(PersonIdentifier), ctx.embeds.users.data.links.html)
 
     class Extra:
         nodes = tools.Try(ctx.embeds.users.data.relationships.nodes.links.related.href)
@@ -78,13 +70,20 @@ class Association(Parser):
     pass
 
 
-class Link(Parser):
-    url = ctx
-    type = tools.Static('provider')
+class CreativeWorkIdentifier(Parser):
+    uri = ctx
 
 
-class ThroughLinks(Parser):
-    link = tools.Delegate(Link, ctx)
+class RelatedProject(Parser):
+    # Don't save it as a Project, it could be a Preprint
+    schema = 'CreativeWork'
+    creativeworkidentifiers = tools.Map(tools.Delegate(CreativeWorkIdentifier), ctx)
+
+
+class ParentRelation(Parser):
+    schema = 'Relation'
+    to_work = tools.Delegate(RelatedProject, ctx)
+    relation_type = tools.Static('is_part_of')
 
 
 class Project(Parser):
@@ -98,12 +97,24 @@ class Project(Parser):
     date_updated = tools.ParseDate(ctx.attributes.date_modified)
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
     rights = tools.Maybe(ctx, 'attributes.node_license')
-    links = tools.Map(tools.Delegate(ThroughLinks), ctx.links.html)
+    creativeworkidentifiers = tools.Map(tools.Delegate(CreativeWorkIdentifier), ctx.links.html)
+    related_works = tools.Map(
+        tools.Delegate(ParentRelation),
+        tools.RunPython('api_url_to_guid', tools.Try(ctx.relationships.parent.links.related.href))
+    )
+
+    def api_url_to_guid(self, url):
+        # If only there were relationships.parent.links.related.html in addition to href
+        match = re.fullmatch(r'https://api.osf.io/v2/nodes/(\w+)/', url)
+        if match:
+            guid = match.group(1)
+            return 'https://osf.io/{}/'.format(guid)
+        return None
 
     class Extra:
         date_created = tools.ParseDate(ctx.attributes.date_created)
         files = ctx.relationships.files.links.related.href
-        parent = tools.Maybe(ctx, 'relationships.parent.links.related.href')
+        parent = tools.Try(ctx.relationships.parent.links.related.href)
         forks = ctx.relationships.forks.links.related.href
         root = ctx.relationships.root.links.related.href
         comments = ctx.relationships.comments.links.related.href

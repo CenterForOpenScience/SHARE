@@ -9,6 +9,7 @@ import requests
 from django.apps import apps
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db import transaction
 
 from share.change import ChangeGraph
 from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
@@ -133,12 +134,12 @@ class MakeJsonPatches(celery.Task):
         logger.info('%s started make JSON patches for %s at %s', started_by, normalized, datetime.datetime.utcnow().isoformat())
 
         try:
-            cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
-            if cs and (normalized.source.is_robot or normalized.source.is_trusted):
-                # TODO: verify change set is not overwriting user created object
-                cs.accept()
+            with transaction.atomic():
+                cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
+                if cs and (normalized.source.is_robot or normalized.source.is_trusted):
+                    # TODO: verify change set is not overwriting user created object
+                    cs.accept()
         except Exception as e:
-            logger.exception('Failed make json patches (%d)', normalized_id)
             raise self.retry(countdown=10, exc=e)
 
         logger.info('Finished make JSON patches for %s by %s at %s', normalized, started_by, datetime.datetime.utcnow().isoformat())

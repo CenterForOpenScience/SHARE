@@ -217,11 +217,14 @@ class SchemaView(views.APIView):
     - [Funder](/api/schema/Funder)
     - [Organization](/api/schema/Organization)
 
+    ### Identifiers
+    - [PersonIdentifier](/api/schema/PersonIdentifier)
+    - [CreativeWorkIdentifier](/api/schema/CreativeWorkIdentifier)
+
     ### Other
     - [Award](/api/schema/Award)
     - [Email](/api/schema/Email)
-    - [Identifier](/api/schema/Identifier)
-    - [Link](/api/schema/Link)
+    - [Relation](/api/schema/Relation)
     - [Subject](/api/schema/Subject)
     - [Tag](/api/schema/Tag)
     - [Venue](/api/schema/Venue)
@@ -233,8 +236,6 @@ class SchemaView(views.APIView):
     - [PersonEmail](/api/schema/PersonEmail)
     - [ThroughAwardEntities](/api/schema/ThroughAwardEntities)
     - [ThroughAwards](/api/schema/ThroughAwards)
-    - [ThroughIdentifiers](/api/schema/ThroughIdentifiers)
-    - [ThroughLinks](/api/schema/ThroughLinks)
     - [ThroughSubjects](/api/schema/ThroughSubjects)
     - [ThroughTags](/api/schema/ThroughTags)
     - [ThroughVenues](/api/schema/ThroughVenues)

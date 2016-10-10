@@ -1,5 +1,7 @@
 import pytest
 
+from django.db import IntegrityError
+
 from share.models import Tag
 from share.models import Person
 from share.models import AbstractCreativeWork
@@ -55,41 +57,31 @@ class TestChange:
         assert change_set.status == ChangeSet.STATUS.accepted
 
     def test_update_creative_work(self, change_factory):
-        link, preprint, _ = change_factory.from_graph({
+        preprint, identifier = change_factory.from_graph({
             '@graph': [{
-                '@id': '_:1234',
-                '@type': 'link',
-                'type': 'provider',
-                'url': 'https://share.osf.io',
-            }, {
                 '@id': '_:5678',
-                '@type': 'ThroughLinks',
-                'link': {'@id': '_:1234', '@type': 'link'},
-                'creative_work': {'@id': '_:890', '@type': 'preprint'},
+                '@type': 'creativeworkidentifier',
+                'uri': 'http://share.osf.io',
+                'creative_work': {'@id': '_:890', '@type': 'preprint'}
             }, {
                 '@id': '_:890',
                 '@type': 'preprint',
                 'title': 'All about Cats and more',
-                'links': [{'@id': '_:5678', '@type': 'ThroughLinks'}]
+                'creativeworkidentifiers': [{'@id': '_:5678', '@type': 'creativeworkidentifier'}]
             }]
         }).accept()
 
         change_set = change_factory.from_graph({
             '@graph': [{
                 '@id': '_:1234',
-                '@type': 'link',
-                'type': 'provider',
-                'url': 'https://share.osf.io',
-            }, {
-                '@id': '_:5678',
-                '@type': 'ThroughLinks',
-                'link': {'@id': '_:1234', '@type': 'link'},
-                'creative_work': {'@id': '_:890', '@type': 'preprint'},
+                '@type': 'creativeworkidentifier',
+                'uri': 'http://share.osf.io',
+                'creative_work': {'@id': '_:890', '@type': 'preprint'}
             }, {
                 '@id': '_:890',
                 '@type': 'preprint',
                 'title': 'JUST ABOUT CATS',
-                'links': [{'@id': '_:5678', '@type': 'ThroughLinks'}],
+                'creativeworkidentifiers': [{'@id': '_:1234', '@type': 'creativeworkidentifier'}],
             }]
         }, disambiguate=True)
 
@@ -234,8 +226,8 @@ class TestChangeGraph:
 
         assert jane_doe.given_name == 'John'
 
-    def test_handles_unique_violation(self, change_factory, change_ids):
-        tag = Tag.objects.create(name='MyCoolTag', change_id=change_ids.get())
+    def test_unique_violation_raises(self, change_factory, change_ids):
+        Tag.objects.create(name='MyCoolTag', change_id=change_ids.get())
 
         change_set = change_factory.from_graph({
             '@graph': [{
@@ -243,6 +235,7 @@ class TestChangeGraph:
                 '@id': '_:1234',
                 'name': 'MyCoolTag'
             }]
-        })
+        }, disambiguate=False)
 
-        assert change_set.accept()[0] == tag
+        with pytest.raises(IntegrityError):
+            change_set.accept()

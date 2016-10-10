@@ -22,7 +22,8 @@ register_route(r'venues', views.VenueViewSet)
 register_route(r'organizations', views.OrganizationViewSet)
 register_route(r'publishers', views.PublisherViewSet)
 register_route(r'institutions', views.InstitutionViewSet)
-register_route(r'identifiers', views.IdentifierViewSet)
+register_route(r'personidentifiers', views.PersonIdentifierViewSet)
+register_route(r'creativeworkidentifiers', views.CreativeWorkIdentifierViewSet)
 register_route(r'people', views.PersonViewSet)
 register_route(r'affiliations', views.AffiliationViewSet)
 register_route(r'contributors', views.ContributorViewSet)
@@ -30,7 +31,6 @@ register_route(r'funders', views.FunderViewSet)
 register_route(r'awards', views.AwardViewSet)
 register_route(r'tags', views.TagViewSet)
 register_route(r'subjects', views.SubjectViewSet)
-register_route(r'links', views.LinkViewSet)
 register_creative_work_route(r'creativeworks', 'creativework')
 register_creative_work_route(r'articles', 'article')
 register_creative_work_route(r'books', 'book')
@@ -66,5 +66,6 @@ urlpatterns = [
     url(r'userinfo/?', views.ShareUserView.as_view(), name='userinfo'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
-    url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema')
+    url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema'),
+    url(r'relationtypes/?', views.RelationTypesView.as_view(), name='relationtypes')
 ] + router.urls

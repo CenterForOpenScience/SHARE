@@ -1,0 +1,182 @@
+[
+    {
+        "key": "unknown",
+        "uris": []
+    },
+    {
+        "key": "is_part_of",
+        "uris": []
+    },
+    {
+        "key": "is_supplement_to",
+        "uris": []
+    },
+    {
+        "key": "cites",
+        "uris": ["http://purl.org/spar/cito/cites"]
+    },
+    {
+        "key": "agrees_with",
+        "uris": ["http://purl.org/spar/cito/agreesWith"]
+    },
+    {
+        "key": "cites_as_authority",
+        "uris": ["http://purl.org/spar/cito/citesAsAuthority"]
+    },
+    {
+        "key": "cites_as_data_source",
+        "uris": ["http://purl.org/spar/cito/citesAsDataSource"]
+    },
+    {
+        "key": "cites_as_evidence",
+        "uris": ["http://purl.org/spar/cito/citesAsEvidence"]
+    },
+    {
+        "key": "cites_as_metadata_document",
+        "uris": ["http://purl.org/spar/cito/citesAsMetadataDocument"]
+    },
+    {
+        "key": "cites_as_potential_solution",
+        "uris": ["http://purl.org/spar/cito/citesAsPotentialSolution"]
+    },
+    {
+        "key": "cites_as_recommended_reading",
+        "uris": ["http://purl.org/spar/cito/citesAsRecommendedReading"]
+    },
+    {
+        "key": "cites_as_related",
+        "uris": ["http://purl.org/spar/cito/citesAsRelated"]
+    },
+    {
+        "key": "cites_as_source_document",
+        "uris": ["http://purl.org/spar/cito/citesAsSourceDocument"]
+    },
+    {
+        "key": "cites_for_information",
+        "uris": ["http://purl.org/spar/cito/citesForInformation"]
+    },
+    {
+        "key": "compiles",
+        "uris": ["http://purl.org/spar/cito/compiles"]
+    },
+    {
+        "key": "confirms",
+        "uris": ["http://purl.org/spar/cito/confirms"]
+    },
+    {
+        "key": "contains_assertion_from",
+        "uris": ["http://purl.org/spar/cito/containsAssertionFrom"]
+    },
+    {
+        "key": "corrects",
+        "uris": ["http://purl.org/spar/cito/corrects"]
+    },
+    {
+        "key": "credits",
+        "uris": ["http://purl.org/spar/cito/credits"]
+    },
+    {
+        "key": "critiques",
+        "uris": ["http://purl.org/spar/cito/critiques"]
+    },
+    {
+        "key": "derides",
+        "uris": ["http://purl.org/spar/cito/derides"]
+    },
+    {
+        "key": "describes",
+        "uris": ["http://purl.org/spar/cito/describes"]
+    },
+    {
+        "key": "disagrees_with",
+        "uris": ["http://purl.org/spar/cito/disagreesWith"]
+    },
+    {
+        "key": "discusses",
+        "uris": ["http://purl.org/spar/cito/discusses"]
+    },
+    {
+        "key": "disputes",
+        "uris": ["http://purl.org/spar/cito/disputes"]
+    },
+    {
+        "key": "documents",
+        "uris": ["http://purl.org/spar/cito/documents"]
+    },
+    {
+        "key": "extends",
+        "uris": ["http://purl.org/spar/cito/extends"]
+    },
+    {
+        "key": "includes_excerpt_from",
+        "uris": ["http://purl.org/spar/cito/includesExcerptFrom"]
+    },
+    {
+        "key": "includes_quotation_from",
+        "uris": ["http://purl.org/spar/cito/includesQuotationFrom"]
+    },
+    {
+        "key": "obtains_background_from",
+        "uris": ["http://purl.org/spar/cito/obtainsBackgroundFrom"]
+    },
+    {
+        "key": "obtains_support_from",
+        "uris": ["http://purl.org/spar/cito/obtainsSupportFrom"]
+    },
+    {
+        "key": "parodies",
+        "uris": ["http://purl.org/spar/cito/parodies"]
+    },
+    {
+        "key": "plagiarizes",
+        "uris": ["http://purl.org/spar/cito/plagiarizes"]
+    },
+    {
+        "key": "qualifies",
+        "uris": ["http://purl.org/spar/cito/qualifies"]
+    },
+    {
+        "key": "refutes",
+        "uris": ["http://purl.org/spar/cito/refutes"]
+    },
+    {
+        "key": "replies_to",
+        "uris": ["http://purl.org/spar/cito/repliesTo"]
+    },
+    {
+        "key": "retracts",
+        "uris": ["http://purl.org/spar/cito/retracts"]
+    },
+    {
+        "key": "reviews",
+        "uris": ["http://purl.org/spar/cito/reviews"]
+    },
+    {
+        "key": "ridicules",
+        "uris": ["http://purl.org/spar/cito/ridicules"]
+    },
+    {
+        "key": "speculates_on",
+        "uris": ["http://purl.org/spar/cito/speculatesOn"]
+    },
+    {
+        "key": "supports",
+        "uris": ["http://purl.org/spar/cito/supports"]
+    },
+    {
+        "key": "updates",
+        "uris": ["http://purl.org/spar/cito/updates"]
+    },
+    {
+        "key": "uses_conclusions_from",
+        "uris": ["http://purl.org/spar/cito/usesConclusionsFrom"]
+    },
+    {
+        "key": "uses_data_from",
+        "uris": ["http://purl.org/spar/cito/usesDataFrom"]
+    },
+    {
+        "key": "uses_method_in",
+        "uris": ["http://purl.org/spar/cito/usesMethodIn"]
+    }
+]

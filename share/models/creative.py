@@ -22,8 +22,6 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     awards = ShareManyToManyField(Award, through='ThroughAwards')
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
-    links = ShareManyToManyField('Link', through='ThroughLinks')
-
     funders = ShareManyToManyField('Funder', through='Association')
     publishers = ShareManyToManyField('Publisher', through='Association')
     institutions = ShareManyToManyField('Institution', through='Association')
@@ -32,6 +30,9 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     subjects = ShareManyToManyField(Subject, related_name='subjected_%(class)s', through='ThroughSubjects')
     # Note: Null allows inserting of None but returns it as an empty string
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
+
+    related_works = ShareManyToManyField('AbstractCreativeWork', through='Relation', through_fields=('from_work', 'to_work'), symmetrical=False)
+
     date_published = models.DateTimeField(null=True, db_index=True)
     date_updated = models.DateTimeField(null=True, db_index=True)
     free_to_read_type = ShareURLField(blank=True, db_index=True)

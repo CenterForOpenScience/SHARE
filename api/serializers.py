@@ -35,10 +35,11 @@ class NormalizedDataSerializer(serializers.ModelSerializer):
 
 class ChangeSerializer(serializers.ModelSerializer):
     self = serializers.HyperlinkedIdentityField(view_name='api:change-detail')
+    target_type = serializers.StringRelatedField()
 
     class Meta:
         model = models.Change
-        fields = ('self', 'id', 'change', 'node_id', 'type', 'target_version', 'target_type', 'target_id')
+        fields = ('self', 'id', 'change', 'node_id', 'type', 'target_type', 'target_id')
 
 
 class ShareUserSerializer(serializers.ModelSerializer):

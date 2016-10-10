@@ -1,15 +1,30 @@
+import json
+
+from model_utils import Choices
+
 from django.db import models
 from django.db import IntegrityError
 from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
-from share.apps import ShareConfig as share_config
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject')
+__all__ = ('Venue', 'Award', 'Tag', 'Subject', 'Relation')
 
 # TODO Rename this file
+
+
+class Relation(ShareObject):
+    with open('./share/models/relation-types.json') as fobj:
+        RELATION_TYPES = Choices(*[t['key'] for t in json.load(fobj)])
+
+    from_work = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_%(class)ss')
+    to_work = ShareForeignKey('AbstractCreativeWork', related_name='incoming_%(class)ss')
+    relation_type = models.TextField(choices=RELATION_TYPES)
+
+    class Meta:
+        unique_together = ('from_work', 'to_work', 'relation_type')
 
 
 class Venue(ShareObject):
@@ -41,14 +56,6 @@ class Tag(ShareObject):
         return self.name
 
 
-class Link(ShareObject):
-    url = ShareURLField(db_index=True)
-    type = models.TextField(choices=share_config.link_type_choices)
-
-    def __str__(self):
-        return self.url
-
-
 class SubjectManager(models.Manager):
     def get_by_natural_key(self, subject):
         return self.get(name=subject)
@@ -72,14 +79,6 @@ class Subject(models.Model):
 
 
 # Through Tables for all the things
-
-class ThroughLinks(ShareObject):
-    link = ShareForeignKey(Link, on_delete=models.CASCADE)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-
-    class Meta:
-        unique_together = ('link', 'creative_work')
-
 
 class ThroughVenues(ShareObject):
     venue = ShareForeignKey(Venue)

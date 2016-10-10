@@ -37,11 +37,9 @@ def fetch_person(pks):
                 )
                 FROM share_person AS person
                 LEFT JOIN LATERAL (
-                            SELECT json_agg(json_build_object('id', identifier.id, 'base_url', identifier.base_url, 'url',
-                                                            identifier.url)) AS identifiers
-                            FROM share_throughidentifiers AS throughidentifier
-                            JOIN share_identifier AS identifier ON throughidentifier.identifier_id = identifier.id
-                            WHERE throughidentifier.person_id = person.id) AS identifiers ON TRUE
+                            SELECT json_agg(json_build_object('id', identifier.id, 'uri', identifier.uri)) AS identifiers
+                            FROM share_personidentifier AS identifier
+                            WHERE identifier.person_id = person.id) AS identifiers ON TRUE
                 LEFT JOIN LATERAL (
                             SELECT json_agg(
                                 json_build_object('id', entity.id, 'type', entity.type, 'name', entity.name, 'url', entity.url,
@@ -88,7 +86,7 @@ def fetch_abstractcreativework(pks):
                 , 'date_updated', creativework.date_updated
                 , 'date_published', creativework.date_published
                 , 'tags', COALESCE(tags, '{}')
-                , 'links', COALESCE(links, '{}')
+                , 'identifiers', COALESCE(identifiers, '{}')
                 , 'sources', sources
                 , 'subjects', COALESCE(subjects, '{}')
                 , 'associations', COALESCE(associations, '{}')
@@ -101,10 +99,9 @@ def fetch_abstractcreativework(pks):
                     WHERE association.creative_work_id = creativework.id
                 ) AS associations ON true
                 LEFT JOIN LATERAL (
-                    SELECT json_agg(json_build_object('type', link.type, 'url', link.url)) as links
-                    FROM share_throughlinks AS throughlink
-                    JOIN share_link AS link ON throughlink.link_id = link.id
-                    WHERE throughlink.creative_work_id = creativework.id
+                    SELECT array_agg(identifier.uri) as identifiers
+                    FROM share_creativeworkidentifier AS identifier
+                    WHERE identifier.creative_work_id = creativework.id
                 ) AS links ON true
                 LEFT JOIN LATERAL (
                     SELECT array_agg(source.long_title) AS sources
@@ -134,15 +131,14 @@ def fetch_abstractcreativework(pks):
                         , 'family_name', person.family_name
                         , 'additional_name', person.additional_name
                         , 'suffix', person.suffix
-                        , 'identifiers', COALESCE(identifiers, '[]'::json)
+                        , 'identifiers', COALESCE(identifiers, '{}')
                     )) AS contributors
                     FROM share_contributor AS contributor
                     JOIN share_person AS person ON contributor.person_id = person.id
                     LEFT JOIN LATERAL (
-                        SELECT json_agg(json_build_object('url', identifier.url, 'base_url', identifier.base_url)) AS identifiers
-                        FROM share_throughidentifiers AS throughidentifier
-                        JOIN share_identifier as identifier ON throughidentifier.identifier_id = identifier.id
-                        WHERE throughidentifier.person_id = person.id
+                        SELECT array_agg(identifier.uri) AS identifiers
+                        FROM share_personidentifier AS identifier
+                        WHERE identifier.person_id = person.id
                     ) AS identifiers ON true
                     WHERE contributor.creative_work_id = creativework.id
                 ) AS contributors ON true
@@ -168,7 +164,7 @@ def fetch_abstractcreativework(pks):
 
                 data['lists'] = {
                     **associations,
-                    'links': data.pop('links', []),
+                    'identifiers': data.pop('identifiers', []),
                     'contributors': sorted(data.pop('contributors', []), key=lambda x: x['order_cited']),
                 }
 

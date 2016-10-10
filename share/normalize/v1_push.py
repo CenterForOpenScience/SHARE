@@ -7,30 +7,9 @@ from share.normalize.normalizer import Normalizer
 THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 
 
-class Link(Parser):
+class CreativeWorkIdentifier(Parser):
 
-    url = ctx
-    type = tools.Static('url')
-
-
-class ProviderLink(Parser):
-
-    schema = 'Link'
-
-    url = ctx
-    type = tools.Static('provider')
-
-
-class ThroughLinks(Parser):
-
-    link = tools.Delegate(Link, ctx)
-
-
-class ProviderThroughLinks(Parser):
-
-    schema = 'ThroughLinks'
-
-    link = tools.Delegate(ProviderLink, ctx)
+    uri = ctx
 
 
 class Publisher(Parser):
@@ -89,14 +68,9 @@ class PersonEmail(Parser):
     email = tools.Delegate(Email, ctx)
 
 
-class Identifier(Parser):
+class PersonIdentifier(Parser):
 
-    url = ctx
-
-
-class ThroughIdentifiers(Parser):
-
-    identifier = tools.Delegate(Identifier, ctx)
+    uri = ctx
 
 
 class Person(Parser):
@@ -115,8 +89,8 @@ class Person(Parser):
         tools.Try(ctx.affiliation)
     )
 
-    identifiers = tools.Map(
-        tools.Delegate(ThroughIdentifiers),
+    personidentifiers = tools.Map(
+        tools.Delegate(PersonIdentifier),
         tools.Try(ctx.sameAs)
     )
 
@@ -211,15 +185,12 @@ class CreativeWork(Parser):
         tools.Try(ctx.languages[0]),
     )
 
-    links = tools.Concat(
+    creativeworkidentifiers = tools.Concat(
         tools.Map(
-            tools.Delegate(ThroughLinks),
+            tools.Delegate(CreativeWorkIdentifier),
             tools.Try(ctx.uris.canonicalUri),
             tools.Try(ctx.uris.descriptorUris),
-            tools.Try(ctx.uris.objectUris)
-        ),
-        tools.Map(
-            tools.Delegate(ProviderThroughLinks),
+            tools.Try(ctx.uris.objectUris),
             tools.Try(ctx.uris.providerUris),
         )
     )
