@@ -70,10 +70,7 @@ class GenericDisambiguator(Disambiguator):
     def is_through_table(self):
         # TODO fix this...
         return 'Through' in self.model.__name__ or self.model in {
-            models.Contributor,
-            models.Association,
-            models.Affiliation,
-            models.PersonEmail,
+            models.Contribution,
         }
 
     def disambiguate(self):
@@ -143,7 +140,7 @@ class SubjectDisambiguator(UniqueAttrDisambiguator):
         raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
 
 
-class EntityDisambiguator(Disambiguator):
+class AbstractEntityDisambiguator(Disambiguator):
     FOR_MODEL = models.AbstractEntity
 
     def disambiguate(self):
@@ -207,7 +204,7 @@ class RelationDisambiguator(Disambiguator):
         query = {
             self.from_field: from_id,
             self.to_field: to_id,
-            self.type_field: self.attrs[self.type_field]
+            '{}__name'.format(self.type_field): self.attrs[self.type_field]
         }
         try:
             return self.model.objects.get(**query)
@@ -225,34 +222,3 @@ class WorkRelationDisambiguator(RelationDisambiguator):
     FOR_MODEL = models.WorkRelation
     from_field = 'from_work'
     to_field = 'to_work'
-
-
-class ContributionDisambiguator(RelationDisambiguator):
-    FOR_MODEL = models.Contribution
-    from_field = 'creative_work'
-    to_field = 'entity'
-    type_field = 'contribution_type'
-
-
-class WorkRelationTypeDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.WorkRelationType
-    unique_attr = 'name'
-
-    def not_found(self):
-        raise ValidationError('Invalid work relation type: {}'.format(self.attrs['name']))
-
-
-class EntityRelationTypeDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.EntityRelationType
-    unique_attr = 'name'
-
-    def not_found(self):
-        raise ValidationError('Invalid entity relation type: {}'.format(self.attrs['name']))
-
-
-class ContributionTypeDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.ContributionType
-    unique_attr = 'name'
-
-    def not_found(self):
-        raise ValidationError('Invalid contribution type: {}'.format(self.attrs['name']))

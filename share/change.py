@@ -66,7 +66,7 @@ class ChangeNode:
 
     @property
     def is_skippable(self):
-        return (self.is_merge or self.instance) and not self.change
+        return self.is_merge or (self.instance and not self.change)
 
     @property
     def resolved_attrs(self):

@@ -62,24 +62,25 @@ class Organization(Parser):
     name = ctx
 
 
-class Affiliation(Parser):
-    entity = Delegate(Organization, ctx)
+class EntityRelation(Parser):
+    to_entity = Delegate(Organization, ctx)
+    relation_type = 'is_affiliated_with'
 
 
 class Person(Parser):
-    affiliations = Map(Delegate(Affiliation), ctx.affiliation)
+    related_entities = Map(Delegate(EntityRelation), ctx.affiliation)
     given_name = ParseName(ctx.name).first
     family_name = ParseName(ctx.name).last
 
 
-class Contributor(Parser):
-    person = Delegate(Person, ctx)
+class Contribution(Parser):
+    entity = Delegate(Person, ctx)
 
 
 class Preprint(Parser):
     title = ctx.entry.title
     description = ctx.entry.summary
-    contributors = Map(Delegate(Contributor), ctx.entry.author)
+    contributors = Map(Delegate(Contribution), ctx.entry.author)
 
     class Extra:
         comment = ctx.entry.comment

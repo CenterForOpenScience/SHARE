@@ -1,5 +1,3 @@
-import json
-
 from rest_framework import viewsets, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
@@ -62,7 +60,7 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 # TODO generic relations viewset?
-#class RelationsViewSet(viewsets.ReadOnlyModelViewSet):
+# class RelationsViewSet(viewsets.ReadOnlyModelViewSet):
 #    @detail_route(methods=['get'])
 #    def relations(self, request, pk=None):
 #        if pk is None:
@@ -171,11 +169,6 @@ class EntityRelationTypeViewSet(viewsets.ReadOnlyModelViewSet):
 
 class WorkRelationTypeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.WorkRelationTypeSerializer
-    queryset = serializer_class.Meta.model.objects.all()
-
-
-class ContributionTypeViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ContributionTypeSerializer
     queryset = serializer_class.Meta.model.objects.all()
 
 

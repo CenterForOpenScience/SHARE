@@ -3,7 +3,7 @@ from django.db import models
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.meta import Venue, Tag, Subject
-from share.models.fields import ShareForeignKey, ShareManyToManyField, ShareURLField
+from share.models.fields import ShareManyToManyField, ShareURLField
 
 
 # Base Creative Work class
@@ -19,7 +19,6 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     contributors = ShareManyToManyField('AbstractEntity', through='Contribution')
 
     subjects = ShareManyToManyField(Subject, related_name='subjected_%(class)s', through='ThroughSubjects')
-    # Note: Null allows inserting of None but returns it as an empty string
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
 
     venues = ShareManyToManyField(Venue, through='ThroughVenues')

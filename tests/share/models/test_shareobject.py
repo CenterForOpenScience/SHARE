@@ -3,7 +3,7 @@ import pytest
 from share.models import Person
 from share.models import Preprint
 from share.models import Article
-from share.models import PersonIdentifier
+from share.models import EntityIdentifier
 from share.models.base import ShareObject
 from share.management.commands.maketriggermigrations import Command
 
@@ -16,12 +16,12 @@ def test_build_trigger():
     procedure, trigger = trigger_build.build_operations(Person)
 
     assert trigger.reversible is True
-    assert 'DROP TRIGGER share_person_change' in trigger.reverse_sql
-    assert 'DROP TRIGGER IF EXISTS share_person_change' in trigger.sql
+    assert 'DROP TRIGGER share_abstractentity_change' in trigger.reverse_sql
+    assert 'DROP TRIGGER IF EXISTS share_abstractentity_change' in trigger.sql
 
     assert procedure.reversible is True
-    assert 'DROP FUNCTION before_share_person_change' in procedure.reverse_sql
-    assert 'CREATE OR REPLACE FUNCTION before_share_person_change' in procedure.sql
+    assert 'DROP FUNCTION before_share_abstractentity_change' in procedure.reverse_sql
+    assert 'CREATE OR REPLACE FUNCTION before_share_abstractentity_change' in procedure.sql
 
 
 class TestVersioning:
@@ -79,27 +79,27 @@ class TestVersioning:
 
     @pytest.mark.django_db
     def test_relations(self, john_doe, change_ids):
-        ident = PersonIdentifier.objects.create(
+        ident = EntityIdentifier.objects.create(
             uri='http://dinosaurs.sexy/john_doe',
-            person=john_doe,
-            person_version=john_doe.version,
+            entity=john_doe,
+            entity_version=john_doe.version,
             change_id=change_ids.get()
         )
 
         ident.refresh_from_db()
         john_doe.refresh_from_db()
 
-        assert john_doe.personidentifiers.count() == 1
+        assert john_doe.entityidentifiers.count() == 1
 
-        assert john_doe == ident.person
-        assert john_doe.version == ident.person_version
+        assert john_doe == ident.entity
+        assert john_doe.version == ident.entity_version
 
     @pytest.mark.django_db
     def test_relations_related_changed(self, john_doe, change_ids):
-        ident = PersonIdentifier.objects.create(
+        ident = EntityIdentifier.objects.create(
             uri='http://dinosaurs.sexy/john_doe',
-            person=john_doe,
-            person_version=john_doe.version,
+            entity=john_doe,
+            entity_version=john_doe.version,
             change_id=change_ids.get()
         )
 
@@ -111,13 +111,13 @@ class TestVersioning:
         john_doe.save()
         john_doe.refresh_from_db()
 
-        assert john_doe.personidentifiers.count() == 1
+        assert john_doe.entityidentifiers.count() == 1
 
-        assert john_doe == ident.person
-        assert john_doe.version != ident.person_version
-        assert john_doe.versions.last() == ident.person_version
+        assert john_doe == ident.entity
+        assert john_doe.version != ident.entity_version
+        assert john_doe.versions.last() == ident.entity_version
 
-        assert ident == john_doe.personidentifiers.first()
+        assert ident == john_doe.entityidentifiers.first()
 
 
 @pytest.mark.django_db

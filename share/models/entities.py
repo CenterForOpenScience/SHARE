@@ -2,13 +2,13 @@ from django.db import models
 
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
-from share.models.fields import ShareManyToManyField, ShareURLField
+from share.models.fields import ShareManyToManyField
 
 __all__ = ('AbstractEntity', 'Person', 'Organization', 'Institution')
 
 
 class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
-    name = models.TextField()
+    name = models.TextField(blank=True)
     location = models.TextField(blank=True)
     related_entities = ShareManyToManyField('AbstractEntity', through='EntityRelation', through_fields=('from_entity', 'to_entity'), symmetrical=False)
 

@@ -4,6 +4,7 @@ from django.core.management import call_command
 
 from share.models import Person, NormalizedData, Change, ChangeSet
 from share.models import Article
+from share.models import WorkRelationType, EntityRelationType
 from share.models import ShareUser
 from share.change import ChangeNode, ChangeGraph
 
@@ -98,6 +99,16 @@ def jane_doe(share_source, change_ids):
 @pytest.fixture
 def all_about_anteaters(share_source, change_ids):
     return Article.objects.create(title='All about Anteaters', change_id=change_ids.get())
+
+
+@pytest.fixture
+def work_relation_type():
+    return WorkRelationType.objects.create(name='ridicules')
+
+
+@pytest.fixture
+def entity_relation_type():
+    return EntityRelationType.objects.create(name='is_employed_by')
 
 
 @pytest.fixture
