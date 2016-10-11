@@ -164,18 +164,13 @@ class Publication(Parser):
 
         if type == 'person':
             for contributor in ctx:
-                try:
-                    contributor['name']
+                if 'name' in contributor:
                     results.append(contributor)
-                except:
-                    pass
+
         if type == 'organization':
             for contributor in ctx:
-                try:
-                    contributor['collab']
+                if 'collab' in contributor:
                     results.append(contributor)
-                except:
-                    pass
         return results
 
     # For ordered dicts

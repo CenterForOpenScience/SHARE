@@ -15,12 +15,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            code=share.robot.RobotUserMigration('gov.pubmedcentral.pmc'),
-        ),
-        migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('gov.pubmedcentral.pmc'),
-        ),
-        migrations.RunPython(
             code=share.robot.RobotScheduleMigration('gov.pubmedcentral.pmc'),
         ),
     ]
