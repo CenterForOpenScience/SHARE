@@ -28,6 +28,7 @@ class OSFHarvester(Harvester):
         url.args['embed'] = 'affiliated_institutions'
         url.args['filter[date_modified][gt]'] = start_date.date().isoformat()
         url.args['filter[date_modified][lt]'] = end_date.date().isoformat()
+        url.args['filter[preprint][eq]'] = 'false'
 
         return self.fetch_records(url)
 
