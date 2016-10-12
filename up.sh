@@ -34,8 +34,8 @@ python manage.py makemigrations
 python manage.py migrate
 python manage.py loaddata ./share/models/initial_data.yaml
 python manage.py addsubjects ./share/models/subjects.json
-python manage.py addworkrelationtypes ./share/models/work-relation-types.json
-python manage.py addentityrelationtypes ./share/models/entity-relation-types.json
+python manage.py addrelationtypes WorkRelationType ./share/models/work-relation-types.json
+python manage.py addrelationtypes EntityRelationType ./share/models/entity-relation-types.json
 
 if [ -n "$BACKUP" ]; then
     python manage.py loaddata share_rawdata.json.gz
