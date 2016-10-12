@@ -1,16 +1,16 @@
-import json
-
-from model_utils import Choices
-
-from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from mptt.models import MPTTModel, TreeForeignKey
 
 from share.models.base import ShareObject
+from share.models.base import TypedShareObjectMeta
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 
-__all__ = ('WorkRelation', 'EntityRelation', 'Contribution', 'Award', 'WorkRelationType', 'EntityRelationType', 'ContributionType')
+
+__all__ = ('WorkRelation', 'EntityRelation', 'Contribution', 'Award', 'WorkRelationType', 'EntityRelationType', 'ThroughContribution')
 
 
 class WorkRelation(ShareObject):
@@ -31,19 +31,47 @@ class EntityRelation(ShareObject):
         unique_together = ('from_entity', 'to_entity', 'relation_type')
 
 
-class Contribution(ShareObject):
-    entity = ShareForeignKey('AbstractEntity')
+class Contribution(ShareObject, metaclass=TypedShareObjectMeta):
     creative_work = ShareForeignKey('AbstractCreativeWork')
-    contribution_type = TreeForeignKey('ContributionType')
+    entity = ShareForeignKey('AbstractEntity')
 
-    cited_name = models.TextField(blank=True)
     bibliographic = models.BooleanField(default=True)
+    cited_as = models.TextField(blank=True)
     order_cited = models.PositiveIntegerField(null=True)
 
+    class Meta:
+        unique_together = ('entity', 'creative_work', 'type')
+
+
+class ThroughContribution(ShareObject):
+    origin = ShareForeignKey(Contribution, related_name='+')
+    destination = ShareForeignKey(Contribution, related_name='+')
+
+    def clean(self):
+        if self.origin.creative_work != self.destination.creative_work:
+            raise ValidationError(_('ThroughContributions must contribute to the same AbstractCreativeWork'))
+        if self.origin.entity == self.destination.entity:
+            raise ValidationError(_('A contributor may not contribute through itself'))
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
+
+
+class CollaboratorContribution(Contribution):
+    contributed_through = ShareManyToManyField('Contribution', symmetrical=False, through='ThroughContribution', through_fields=('origin', 'destination'))
+
+
+class FunderContribution(Contribution):
     awards = ShareManyToManyField('Award', through='ThroughContributionAwards')
 
-    class Meta:
-        unique_together = ('entity', 'creative_work', 'contribution_type')
+
+class PublisherContribution(Contribution):
+    pass
+
+
+class HostContribution(Contribution):
+    pass
 
 
 class Award(ShareObject):

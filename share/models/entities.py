@@ -47,6 +47,9 @@ class Person(AbstractEntity):
 #            ('family_name', 'given_name', 'additional_name', 'suffix')
 #        )
 
+class Consortium(AbstractEntity):
+    pass
+
 
 class Organization(AbstractEntity):
     pass
