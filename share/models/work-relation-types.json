@@ -15,8 +15,8 @@
         "parent": null
     },
     {
-        "name": "is_derived_from",
-        "uris": [],
+        "name": "was_derived_from",
+        "uris": ["http://www.w3.org/ns/prov#wasDerivedFrom"],
         "parent": null
     },
     {
