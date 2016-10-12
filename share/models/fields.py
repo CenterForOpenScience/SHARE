@@ -405,11 +405,6 @@ class ShareManyToManyField(TypedManyToManyField):
         return self.__kwargs
 
 
-class URIField(models.TextField):
-    def __init__(self, *args, **kwargs):
-        super(URIField, self).__init__(*args, **kwargs)
-
-
 class ShareURLField(models.TextField):
     default_validators = [validators.URLValidator()]
     description = _("URL")
