@@ -24,4 +24,3 @@ class Migration(migrations.Migration):
             code=share.robot.RobotScheduleMigration('edu.cornell'),
         ),
     ]
-
