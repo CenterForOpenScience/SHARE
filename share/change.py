@@ -178,7 +178,7 @@ class ChangeGraph:
     def __init__(self, nodes, parse=True):
         self.__nodes = nodes
         self.__map = {ref: n for n in nodes for ref in n.refs}
-        self.__sorter = TopographicalSorter(self, dependencies=lambda n: [self.get_node(r['@id'], r['@type']) for r in n.related])
+        self.__sorter = TopographicalSorter(nodes, dependencies=lambda n: [self.get_node(r['@id'], r['@type']) for r in n.related])
 
         for node in self.__nodes:
             node.resolve_relations(self.__map)
