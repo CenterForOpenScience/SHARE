@@ -1,10 +1,12 @@
-import furl
 from collections import deque
 from functools import reduce
 import json
 import logging
 import re
 import threading
+import urllib
+
+import rfc3987
 
 import xmltodict
 
@@ -152,7 +154,7 @@ class AbstractLink:
 
     # Transformation logic goes here
     def execute(self, obj):
-        raise NotImplemented
+        raise NotImplementedError()
 
     # Add a link into an existing chain
     def __add__(self, step):
@@ -197,7 +199,7 @@ class AbstractLink:
     # ctx.root.nextelement[0].first_item_attribute
     def __getattr__(self, name):
         if name[0] == '_':
-            raise Exception(
+            raise AttributeError(
                 '{} has no attribute {}\n'
                 'NOTE: "_"s are reserved for accessing private attributes\n'
                 'Use dictionary notation to access elements beginning with "_"s\n'.format(self, name)
@@ -253,7 +255,7 @@ class Context(AnchorLink):
         return AnchorLink() + step
 
     def __radd__(self, other):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def __setattr__(self, name, value):
         if not hasattr(Context.__CONTEXT, '_ctxdict'):
@@ -534,7 +536,142 @@ class OneOfLink(AbstractLink):
         raise Exception('All chains failed {}'.format(errors))
 
 
-class OrcidLink(AbstractLink):
+class AbstractIRILink(AbstractLink):
+    """Normalize IRIs
+
+    """
+    RULES = 'absolute_IRI'
+    SAFE_SEGMENT_CHARS = ":@-._~!$&'()*+,;="  # https://github.com/gruns/furl/blob/master/furl/furl.py#L385
+
+    @classmethod
+    def hint(cls, obj):
+        """A percentage expressed as a float of how likely a the given object can be parsed as this class
+        """
+        raise NotImplementedError()
+
+    def execute(self, obj):
+        if not isinstance(obj, str):
+            raise TypeError('\'{}\' is not of type str.'.format(obj))
+
+        parsed = self._parse(obj)
+        parsed = self._process(**parsed)
+        return rfc3987.parse(rfc3987.compose(**parsed))
+
+    def _parse(self, obj):
+        return rfc3987.parse(obj, self.RULES)
+
+    def _process(self, **attrs):
+        for key in sorted(attrs.keys()):
+            if hasattr(self, '_process_' + key):
+                attrs[key] = getattr(self, '_process_' + key)(attrs[key])
+        return attrs
+
+    def _process_scheme(self, scheme):
+        return scheme.lower()
+
+    def _process_authority(self, authority):
+        return authority.lower()
+
+    def _process_path(self, path):
+        return path
+
+    def _process_query(self, query):
+        return query
+
+    def _process_fragment(self, fragment):
+        return None
+
+    def _process_port(self, path):
+        return path
+
+
+class ISSNLink(AbstractIRILink):
+
+    ISSN_RE = re.compile(r'(?:^|[^-\d])(\d{4})-(\d{3}[\dxX])\s*$')
+
+    @classmethod
+    def hint(cls, obj):
+        if re.search(cls.ISSN_RE, obj):
+            return 1.0
+        return int('issn' in obj) * 0.35
+
+    @classmethod
+    def checksum(cls, digits):
+        total, checksum = 0, digits[-1]
+        for i, digit in enumerate(digits[:-1]):
+            total += (8 - i) * int(digit)
+        actual = (11 - (total % 11)) % 11
+        if actual == 10:
+            actual = 'X'
+        if checksum != str(actual):
+            raise ValueError('\'{}\' is not a valid ISSN; failed checksum.'.format(digits))
+
+    def _parse(self, obj):
+        match = re.search(self.ISSN_RE, obj.upper())
+        if not match:
+            raise ValueError('\'{}\' cannot be expressed as an ISSN.'.format(obj))
+        self.checksum(''.join(match.groups()))
+
+        return {
+            'scheme': 'urn',
+            'authority': 'ISSN',
+            'path': '/{}-{}'.format(*match.groups())
+        }
+
+
+class ISNILink(AbstractIRILink):
+    DOMAIN = 'isni.org'
+    SCHEME = 'http'
+
+    FORMAT = 'ISNI'
+    FORMAT_STR = '/{}{}{}{}'
+
+    BOUNDS = (
+        # (lower, upper)
+        (None, 150000007),
+        (350000001, None),
+    )
+
+    ISNI_RE = re.compile(r'(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|[xX]))')
+
+    @classmethod
+    def hint(cls, obj):
+        try:
+            cls().execute(obj)
+        except ValueError:
+            return 0
+        return 1.0
+
+    @classmethod
+    def checksum(cls, digits):
+        total, checksum = 0, digits[-1]
+        for digit in digits[:-1]:
+            total = (total + int(digit, 36)) * 2
+        check = (12 - (total % 11)) % 11
+        literal = (int(digits[:-1]) * 10) + check
+        if check == 10:
+            check = 'X'
+        if str(check) != checksum:
+            raise ValueError('\'{}\' is not a valid {}; failed checksum.'.format(digits, cls.FORMAT))
+        for lower, upper in cls.BOUNDS:
+            if (not lower or lower < literal) and (not upper or upper > literal):
+                return
+        raise ValueError('\'{0}\' is outside reserved {1} range.'.format(digits, cls.FORMAT, lower, upper))
+
+    def _parse(self, obj):
+        match = re.search(self.ISNI_RE, obj.upper())
+        if not match:
+            raise ValueError('\'{}\' cannot be expressed as an {}.'.format(obj, self.FORMAT))
+        self.checksum(''.join(match.groups()))
+
+        return {
+            'scheme': self.SCHEME,
+            'authority': self.DOMAIN,
+            'path': self.FORMAT_STR.format(*match.groups())
+        }
+
+
+class OrcidLink(ISNILink):
     """Reformat Orcids to the cannonical form
     https://orcid.org/xxx-xxxx-xxxx-xxxx
 
@@ -543,33 +680,21 @@ class OrcidLink(AbstractLink):
     https://orcid.org/0000-0002-4869-2419
 
     Any of the above would be transformed into https://orcid.org/0000-0002-4869-2419
+
+    ORCID is a subset of the International Standard Name Identifier (ISNI) in the range 0000-0001-5000-0007 to 0000-0003-5000-0001.
     """
+    DOMAIN = 'orcid.org'
+    SCHEME = 'http'
 
-    ORCID_URL = 'https://orcid.org/'
-    ORCID_RE = re.compile(r'(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|X))')
+    FORMAT = 'ORCID'
+    FORMAT_STR = '/{}-{}-{}-{}'
 
-    def checksum(self, digits):
-        # ORCID Checksum  http://support.orcid.org/knowledgebase/articles/116780-structure-of-the-orcid-identifier
-        total, checksum = 0, digits[-1]
-        for digit in digits[:-1]:
-            total = (total + int(digit, 36)) * 2
-        check = (12 - (total % 11)) % 11
-        if check == 10:
-            check = 'X'
-        if str(check) != checksum:
-            raise ValueError('{} is not a valid ORCID. Failed checksum'.format(digits))
-
-    def execute(self, obj):
-        if not isinstance(obj, str):
-            raise TypeError('{} is not of type str'.format(obj))
-        match = re.search(self.ORCID_RE, obj)
-        if not match:
-            raise ValueError('{} cannot be expressed as an orcid'.format(obj))
-        self.checksum(''.join(match.groups()))
-        return '{}{}-{}-{}-{}'.format(self.ORCID_URL, *match.groups())
+    BOUNDS = (
+        (150000007, 350000001),
+    )
 
 
-class DOILink(AbstractLink):
+class DOILink(AbstractIRILink):
     """Reformt DOIs to the cannonical form
 
     * All DOIs will be valid URIs
@@ -583,13 +708,110 @@ class DOILink(AbstractLink):
     While having characters like <>[] in URLs is technically valid, rfc3987 does not seem to like.
     For that reason we escape them here using furl. The regex ensure we won't pick up invalid URLS
     """
-    DOI_URL = 'http://dx.doi.org/'
+
+    DOI_SCHEME = 'http'
+    DOI_DOMAIN = 'dx.doi.org'
     DOI_RE = r'\b(10\.\d{4,}(?:\.\d+)*/\S+(?:(?!["&\'<>])\S))\b'
+
+    @classmethod
+    def hint(cls, obj):
+        return int('10.' in obj) * .5 + int('doi' in obj) * .5
+
+    def _process_scheme(self, _):
+        return self.DOI_SCHEME
+
+    def _process_authority(self, _):
+        return self.DOI_DOMAIN
+
+    def _parse(self, obj):
+        match = re.search(self.DOI_RE, obj.upper())
+        if not match:
+            raise ValueError('\'{}\' is not a valid DOI.'.format(obj))
+        return {
+            'scheme': None,
+            'authority': None,
+            'path': '/' + '/'.join(urllib.parse.quote(x, safe=self.SAFE_SEGMENT_CHARS) for x in match.group().split('/'))
+        }
+
+
+class URLLink(AbstractIRILink):
+    PORTS = {80, 443, 20, 989}
+    SCHEMES = {'http', 'https', 'ftp', 'ftps'}
+    URL_RE = re.compile(r'[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')
+
+    @classmethod
+    def hint(cls, obj):
+        if cls.URL_RE.search(obj) is not None:
+            return 0.25
+        return 0
+
+    def _process_scheme(self, scheme):
+        scheme = scheme.lower()
+        if scheme not in self.SCHEMES:
+            raise ValueError('\'{}\' is not a valid scheme for URLs.'.format(scheme))
+        return scheme.rstrip('s')  # Standardize on non-secure
+
+    def _process_query(self, query):
+        return query  # TODO Order me
+
+    def _process_authority(self, authority):
+        authority = super()._process_authority(authority)
+        if ':' in authority:
+            authority, port = authority.split(':')
+        else:
+            port = None
+        if port and int(port) not in self.PORTS:
+            raise ValueError('\'{}\' is not a valid port for URLs.'.format(port))
+        return authority
+
+
+class EmailLink(AbstractIRILink):
+
+    EMAIL_RE = re.compile(r'(?P<scheme>mailto:)?(?P<mailbox>[a-zA-Z0-9_.+-]+)@(?P<authority>[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)')  # http://emailregex.com/
+
+    @classmethod
+    def hint(self, obj):
+        if 'mailto:' in obj:
+            return 1.0
+        if '@' in obj:
+            return 0.35
+        return 0.0
 
     def execute(self, obj):
         if not isinstance(obj, str):
-            raise TypeError('{} is not of type str'.format(obj))
-        match = re.search(self.DOI_RE, obj.upper())
-        if not match:
-            raise ValueError('{} is not a valid DOI'.format(obj))
-        return furl.furl('{}{}'.format(self.DOI_URL, *match.groups())).url
+            raise TypeError('\'{}\' is not of type str.'.format(obj))
+        emails = self.EMAIL_RE.findall(obj)
+        if len(emails) < 1:
+            raise ValueError('\'{}\'is not a valid email address.'.format(obj))
+        if len(emails) > 1:
+            raise ValueError('Found many email addresses in \'{}\'.'.format(obj))
+        return {
+            'scheme': 'mailto',
+            'authority': emails[0][2],
+            'IRI': 'mailto:{1}@{2}'.format(*emails[0])
+        }
+
+
+class IRILink(AbstractLink):
+
+    @classmethod
+    def iri_links(cls, base=AbstractIRILink):
+        for link in base.__subclasses__():
+            yield link
+            yield from cls.iri_links(link)
+
+    def execute(self, obj):
+        if not isinstance(obj, str):
+            raise TypeError('\'{}\' is not of type str.'.format(obj))
+
+        final = (None, 0.0)
+        for link in self.iri_links():
+            hint = link.hint(obj)
+            if hint and hint > final[1]:
+                final = (link, hint)
+            if hint == 1.0:
+                break
+
+        if not final[0]:
+            raise ValueError('\'{}\' could not be identified as an Identifier.'.format(obj))
+        return final[0]().execute(obj)
