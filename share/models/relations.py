@@ -1,16 +1,12 @@
-import json
-
-from model_utils import Choices
-
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import ArrayField
 
 from mptt.models import MPTTModel, TreeForeignKey
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 
-__all__ = ('WorkRelation', 'EntityRelation', 'Contribution', 'Award', 'WorkRelationType', 'EntityRelationType', 'ContributionType')
+__all__ = ('WorkRelation', 'EntityRelation', 'Contribution', 'Award', 'WorkRelationType', 'EntityRelationType')
 
 
 class WorkRelation(ShareObject):
@@ -34,7 +30,6 @@ class EntityRelation(ShareObject):
 class Contribution(ShareObject):
     entity = ShareForeignKey('AbstractEntity')
     creative_work = ShareForeignKey('AbstractCreativeWork')
-    contribution_type = TreeForeignKey('ContributionType')
 
     cited_name = models.TextField(blank=True)
     bibliographic = models.BooleanField(default=True)
@@ -43,7 +38,7 @@ class Contribution(ShareObject):
     awards = ShareManyToManyField('Award', through='ThroughContributionAwards')
 
     class Meta:
-        unique_together = ('entity', 'creative_work', 'contribution_type')
+        unique_together = ('entity', 'creative_work')
 
 
 class Award(ShareObject):
@@ -65,13 +60,29 @@ class ThroughContributionAwards(ShareObject):
         unique_together = ('contribution', 'award')
 
 
+class RelationTypeManager(models.Manager):
+    def get_by_natural_key(self, key):
+        return self.get(name=key)
+
+
 class AbstractRelationType(MPTTModel):
     name = models.TextField(unique=True)
-    uris = JSONField(editable=False)
+    uris = ArrayField(models.TextField(), editable=False, default=list)
     parent = TreeForeignKey('self', null=True, related_name='children', db_index=True, editable=False)
 
-    def __str__(self):
+    objects = RelationTypeManager()
+
+    def natural_key(self):
         return self.name
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.name == other
+        return super(AbstractRelationType, self).__eq__(other)
+
+    @staticmethod
+    def natural_key_field():
+        return 'name'
 
     class Meta:
         abstract = True
@@ -82,8 +93,4 @@ class EntityRelationType(AbstractRelationType):
 
 
 class WorkRelationType(AbstractRelationType):
-    pass
-
-
-class ContributionType(AbstractRelationType):
     pass

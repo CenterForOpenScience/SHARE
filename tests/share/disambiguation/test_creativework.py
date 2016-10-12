@@ -1,6 +1,6 @@
 import pytest
 
-from share.models import CreativeWorkIdentifier, CreativeWork
+from share.models import WorkIdentifier, CreativeWork
 from share.disambiguation import AbstractCreativeWorkDisambiguator
 
 
@@ -25,13 +25,13 @@ class TestAbstractWork:
             change_id=change_ids.get()
         )
 
-        identifier = CreativeWorkIdentifier.objects.create(
+        identifier = WorkIdentifier.objects.create(
             uri='http://share.osf.io/cats',
             creative_work=cw,
             creative_work_version=cw.versions.first(),
             change_id=change_ids.get())
 
-        disWork = AbstractCreativeWorkDisambiguator('_:', {'creativeworkidentifiers': [identifier.pk]}, CreativeWork).find()
+        disWork = AbstractCreativeWorkDisambiguator('_:', {'workidentifiers': [identifier.pk]}, CreativeWork).find()
 
         assert disWork == cw
 
@@ -45,7 +45,7 @@ class TestAbstractWork:
             description='see here is the the thing about emptiness',
             change_id=change_ids.get()
         )
-        identifier1 = CreativeWorkIdentifier.objects.create(
+        identifier1 = WorkIdentifier.objects.create(
             uri=uri1,
             creative_work=cw1,
             creative_work_version=cw1.versions.first(),
@@ -56,13 +56,13 @@ class TestAbstractWork:
             description='see here is the the thing about emptiness',
             change_id=change_ids.get()
         )
-        identifier2 = CreativeWorkIdentifier.objects.create(
+        identifier2 = WorkIdentifier.objects.create(
             uri=uri2,
             creative_work=cw2,
             creative_work_version=cw2.versions.first(),
             change_id=change_ids.get())
 
-        disWorks = AbstractCreativeWorkDisambiguator('_:', {'creativeworkidentifiers': [identifier1.pk, identifier2.pk]}, CreativeWork).find()
+        disWorks = AbstractCreativeWorkDisambiguator('_:', {'workidentifiers': [identifier1.pk, identifier2.pk]}, CreativeWork).find()
 
         assert isinstance(disWorks, list)
         assert disWorks[0] == cw1

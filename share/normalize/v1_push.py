@@ -185,7 +185,7 @@ class CreativeWork(Parser):
         tools.Try(ctx.languages[0]),
     )
 
-    creativeworkidentifiers = tools.Concat(
+    workidentifiers = tools.Concat(
         tools.Map(
             tools.Delegate(CreativeWorkIdentifier),
             tools.Try(ctx.uris.canonicalUri),

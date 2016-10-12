@@ -212,7 +212,7 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'CreativeWorkIdentifier',
+                '@type': 'WorkIdentifier',
                 'uri': 'giraffe',
                 'creative_work': {'@id': '_:234', '@type': 'creativework'}
             }, {
@@ -226,7 +226,7 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'creativeworkidentifier',
+                '@type': 'workidentifier',
                 'uri': 'https://share.osf.io/foo',
             }]
         }
@@ -235,7 +235,7 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'CreativeWorkIdentifier',
+                '@type': 'WorkIdentifier',
                 'uri': 'https://share.osf.io/foo',
                 'creative_work': {'@id': '_:234', '@type': 'creativework'}
             }, {

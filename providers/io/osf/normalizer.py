@@ -57,7 +57,7 @@ class ThroughTags(Parser):
 
 class Institution(Parser):
     name = ctx.attributes.name
-    entityidentifiers = tools.Map(Delegate(EntityIdentifier), ctx.links.self)
+    entityidentifiers = tools.Map(tools.Delegate(EntityIdentifier), ctx.links.self)
 
     class Extra:
         nodes = ctx.relationships.nodes.links.related.href
@@ -68,7 +68,7 @@ class Institution(Parser):
 
 class CreativeWorkIdentifier(Parser):
     uri = ctx
-    #uri = tools.IRILink(ctx)
+    # uri = tools.IRILink(ctx)
 
 
 class RelatedProject(Parser):
@@ -86,9 +86,9 @@ class ParentWorkRelation(Parser):
 class Project(Parser):
     title = ctx.attributes.title
     description = ctx.attributes.description
-    contributors = tools.Map(Contribution.using(entity=tools.Delegate(Person), contribution_type=tolos.Static('cited_contributor')), ctx['contributors'])
+    contributors = tools.Map(Contribution.using(entity=tools.Delegate(Person)), ctx['contributors'])
     institutions = tools.Map(
-        tools.Delegate(Contribution.using(entity=tools.Delegate(Institution), contribution_type=tools.Static('affiliation'))),
+        tools.Delegate(Contribution.using(entity=tools.Delegate(Institution))),
         ctx.embeds.affiliated_institutions.data
     )
     date_updated = tools.ParseDate(ctx.attributes.date_modified)

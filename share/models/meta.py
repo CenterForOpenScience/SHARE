@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
+from share.models.fields import ShareForeignKey, ShareURLField
 
 
 __all__ = ('Venue', 'Tag', 'Subject')

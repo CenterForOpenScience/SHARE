@@ -202,11 +202,3 @@ class EntityRelationTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EntityRelationType
         fields = ('id', 'name', 'uris', 'parent')
-
-
-class ContributionTypeSerializer(serializers.ModelSerializer):
-    parent = serializers.StringRelatedField()
-
-    class Meta:
-        model = models.ContributionType
-        fields = ('id', 'name', 'uris', 'parent')
