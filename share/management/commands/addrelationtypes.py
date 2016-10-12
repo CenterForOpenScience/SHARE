@@ -3,10 +3,8 @@ import json
 
 from django.apps import apps
 from django.core.management.base import BaseCommand
-from django.db import connection
 from django.db import transaction
 
-from share.models import EntityRelationType
 from share.util import TopographicalSorter
 
 
@@ -23,8 +21,7 @@ class Command(BaseCommand):
         types = json.load(options['types-file'])
 
         self.stdout.write('Saving {} {}s...'.format(len(types), model_name))
-        with transaction.atomic():
-            self.save_relation_types(type_model, types)
+        self.save_relation_types(type_model, types)
 
     @transaction.atomic
     def save_relation_types(self, type_model, types):
@@ -36,4 +33,3 @@ class Command(BaseCommand):
                 t['parent_id'] = type_ids[parent]
             (rt, _) = type_model.objects.update_or_create(name=t['name'], defaults=t)
             type_ids[rt.name] = rt.id
-

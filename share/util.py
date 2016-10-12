@@ -17,7 +17,7 @@ class TopographicalSorter:
         self.__visiting = set()
         self.__dependencies = dependencies
         self.__key = key
-        self.__node_map = {key(n):n for n in nodes} if key else None
+        self.__node_map = {key(n): n for n in nodes} if key else None
 
     def sorted(self):
         if not self.__nodes:
@@ -45,6 +45,6 @@ class TopographicalSorter:
         self.__visited.add(key)
         self.__sorted.append(node)
         self.__visiting.remove(key)
-    
+
     def __get_node(self, key):
         return self.__node_map[key] if self.__node_map else key
