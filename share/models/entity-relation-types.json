@@ -1,0 +1,22 @@
+[
+    {
+        "name": "unknown",
+        "uris": [],
+        "parent": null
+    },
+    {
+        "name": "is_part_of",
+        "uris": [],
+        "parent": null
+    },
+    {
+        "name": "is_affiliated_with",
+        "uris": [],
+        "parent": null
+    },
+    {
+        "name": "is_employed_by",
+        "uris": [],
+        "parent": "is_affiliated_with"
+    }
+]

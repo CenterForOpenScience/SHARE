@@ -75,6 +75,9 @@ class AbstractRelationType(MPTTModel):
     def natural_key(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
     def __eq__(self, other):
         if isinstance(other, str):
             return self.name == other

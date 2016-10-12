@@ -1,0 +1,232 @@
+[
+    {
+        "name": "unknown",
+        "uris": [],
+        "parent": null
+    },
+    {
+        "name": "is_part_of",
+        "uris": [],
+        "parent": null
+    },
+    {
+        "name": "is_supplement_to",
+        "uris": [],
+        "parent": null
+    },
+    {
+        "name": "was_derived_from",
+        "uris": ["http://www.w3.org/ns/prov#wasDerivedFrom"],
+        "parent": null
+    },
+    {
+        "name": "cites",
+        "uris": ["http://purl.org/spar/cito/cites"],
+        "parent": null
+    },
+    {
+        "name": "agrees_with",
+        "uris": ["http://purl.org/spar/cito/agreesWith"],
+        "parent": "cites"
+    },
+    {
+        "name": "cites_as_authority",
+        "uris": ["http://purl.org/spar/cito/citesAsAuthority"],
+        "parent": "cites"
+    },
+    {
+        "name": "cites_as_data_source",
+        "uris": ["http://purl.org/spar/cito/citesAsDataSource"],
+        "parent": "cites"
+    },
+    {
+        "name": "cites_as_evidence",
+        "uris": ["http://purl.org/spar/cito/citesAsEvidence"],
+        "parent": "cites"
+    },
+    {
+        "name": "cites_as_metadata_document",
+        "uris": ["http://purl.org/spar/cito/citesAsMetadataDocument"],
+        "parent": "cites"
+    },
+    {
+        "name": "cites_as_potential_solution",
+        "uris": ["http://purl.org/spar/cito/citesAsPotentialSolution"],
+        "parent": "cites"
+    },
+    {
+        "name": "cites_as_recommended_reading",
+        "uris": ["http://purl.org/spar/cito/citesAsRecommendedReading"],
+        "parent": "cites"
+    },
+    {
+        "name": "cites_as_related",
+        "uris": ["http://purl.org/spar/cito/citesAsRelated"],
+        "parent": "cites"
+    },
+    {
+        "name": "cites_as_source_document",
+        "uris": ["http://purl.org/spar/cito/citesAsSourceDocument"],
+        "parent": "cites"
+    },
+    {
+        "name": "cites_for_information",
+        "uris": ["http://purl.org/spar/cito/citesForInformation"],
+        "parent": "cites"
+    },
+    {
+        "name": "compiles",
+        "uris": ["http://purl.org/spar/cito/compiles"],
+        "parent": "cites"
+    },
+    {
+        "name": "confirms",
+        "uris": ["http://purl.org/spar/cito/confirms"],
+        "parent": "cites"
+    },
+    {
+        "name": "contains_assertion_from",
+        "uris": ["http://purl.org/spar/cito/containsAssertionFrom"],
+        "parent": "cites"
+    },
+    {
+        "name": "corrects",
+        "uris": ["http://purl.org/spar/cito/corrects"],
+        "parent": "cites"
+    },
+    {
+        "name": "credits",
+        "uris": ["http://purl.org/spar/cito/credits"],
+        "parent": "cites"
+    },
+    {
+        "name": "critiques",
+        "uris": ["http://purl.org/spar/cito/critiques"],
+        "parent": "cites"
+    },
+    {
+        "name": "derides",
+        "uris": ["http://purl.org/spar/cito/derides"],
+        "parent": "cites"
+    },
+    {
+        "name": "describes",
+        "uris": ["http://purl.org/spar/cito/describes"],
+        "parent": "cites"
+    },
+    {
+        "name": "disagrees_with",
+        "uris": ["http://purl.org/spar/cito/disagreesWith"],
+        "parent": "cites"
+    },
+    {
+        "name": "discusses",
+        "uris": ["http://purl.org/spar/cito/discusses"],
+        "parent": "cites"
+    },
+    {
+        "name": "disputes",
+        "uris": ["http://purl.org/spar/cito/disputes"],
+        "parent": "cites"
+    },
+    {
+        "name": "documents",
+        "uris": ["http://purl.org/spar/cito/documents"],
+        "parent": "cites"
+    },
+    {
+        "name": "extends",
+        "uris": ["http://purl.org/spar/cito/extends"],
+        "parent": "cites"
+    },
+    {
+        "name": "includes_excerpt_from",
+        "uris": ["http://purl.org/spar/cito/includesExcerptFrom"],
+        "parent": "cites"
+    },
+    {
+        "name": "includes_quotation_from",
+        "uris": ["http://purl.org/spar/cito/includesQuotationFrom"],
+        "parent": "cites"
+    },
+    {
+        "name": "obtains_background_from",
+        "uris": ["http://purl.org/spar/cito/obtainsBackgroundFrom"],
+        "parent": "cites"
+    },
+    {
+        "name": "obtains_support_from",
+        "uris": ["http://purl.org/spar/cito/obtainsSupportFrom"],
+        "parent": "cites"
+    },
+    {
+        "name": "parodies",
+        "uris": ["http://purl.org/spar/cito/parodies"],
+        "parent": "cites"
+    },
+    {
+        "name": "plagiarizes",
+        "uris": ["http://purl.org/spar/cito/plagiarizes"],
+        "parent": "cites"
+    },
+    {
+        "name": "qualifies",
+        "uris": ["http://purl.org/spar/cito/qualifies"],
+        "parent": "cites"
+    },
+    {
+        "name": "refutes",
+        "uris": ["http://purl.org/spar/cito/refutes"],
+        "parent": "cites"
+    },
+    {
+        "name": "replies_to",
+        "uris": ["http://purl.org/spar/cito/repliesTo"],
+        "parent": "cites"
+    },
+    {
+        "name": "retracts",
+        "uris": ["http://purl.org/spar/cito/retracts"],
+        "parent": "cites"
+    },
+    {
+        "name": "reviews",
+        "uris": ["http://purl.org/spar/cito/reviews"],
+        "parent": "cites"
+    },
+    {
+        "name": "ridicules",
+        "uris": ["http://purl.org/spar/cito/ridicules"],
+        "parent": "cites"
+    },
+    {
+        "name": "speculates_on",
+        "uris": ["http://purl.org/spar/cito/speculatesOn"],
+        "parent": "cites"
+    },
+    {
+        "name": "supports",
+        "uris": ["http://purl.org/spar/cito/supports"],
+        "parent": "cites"
+    },
+    {
+        "name": "updates",
+        "uris": ["http://purl.org/spar/cito/updates"],
+        "parent": "cites"
+    },
+    {
+        "name": "uses_conclusions_from",
+        "uris": ["http://purl.org/spar/cito/usesConclusionsFrom"],
+        "parent": "cites"
+    },
+    {
+        "name": "uses_data_from",
+        "uris": ["http://purl.org/spar/cito/usesDataFrom"],
+        "parent": "cites"
+    },
+    {
+        "name": "uses_method_in",
+        "uris": ["http://purl.org/spar/cito/usesMethodIn"],
+        "parent": "cites"
+    }
+]

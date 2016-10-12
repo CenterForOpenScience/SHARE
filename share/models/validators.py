@@ -14,10 +14,6 @@ from django.utils.deconstruct import deconstructible
 from share.models.fields import ShareURLField
 
 
-def is_valid_jsonld(value):
-    raise Exception('Deprecated; use JSONLDValidator')
-
-
 @deconstructible
 class JSONLDValidator:
 
