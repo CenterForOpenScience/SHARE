@@ -1,13 +1,11 @@
-import re
-import os
-import yaml
-
 from django.db import models
 
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.meta import Venue, Tag, Subject
 from share.models.fields import ShareManyToManyField, ShareURLField
+
+from share.util import ModelGenerator
 
 
 # Base Creative Work class
@@ -41,23 +39,5 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
         return self.title
 
 
-def generate_models(models, base):
-    for (name, m) in models.items():
-        # TODO process fields
-        fields = m.get('fields', {})
-        children = m.get('children', {})
-
-        model = type(name, (base,), {
-            **fields,
-            '__qualname__': name,
-            '__module__': base.__module__
-        })
-        globals()[name] = model
-        generate_models(children, model)
-
-
-subtypes_file = re.sub(r'\.py$', '.yaml', os.path.abspath(__file__))
-with open(subtypes_file) as fobj:
-    subtypes = yaml.load(fobj)
-
-generate_models(subtypes, AbstractCreativeWork)
+generator = ModelGenerator()
+globals().update(generator.generate_subclasses_from_yaml(__file__, AbstractCreativeWork))

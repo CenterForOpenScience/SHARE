@@ -6,8 +6,9 @@ CreativeWork:
         Dataset: {}
         Dissertation: {}
         Lesson: {}
-        Presentation: {}
         Poster: {}
+        Preprint: {}
+        Presentation: {}
         Project: {}
         ProjectRegistration: {}
         Report: {}
@@ -15,5 +16,3 @@ CreativeWork:
         Software: {}
         Thesis: {}
         WorkingPaper: {}
-        Preprint: {}
-
