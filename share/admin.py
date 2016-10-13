@@ -20,7 +20,9 @@ from share.models.entities import AbstractEntity
 from share.models.identifiers import WorkIdentifier, EntityIdentifier
 from share.models.meta import Venue, Tag, Subject
 from share.models.registration import ProviderRegistration
-from share.models.relations import WorkRelation, EntityRelation, Contribution, Award
+from share.models.work_relations import AbstractWorkRelation
+from share.models.entity_relations import AbstractEntityRelation
+from share.models.contributions import AbstractContribution, Award
 from share.tasks import ApplyChangeSets
 
 
@@ -177,9 +179,9 @@ class ProviderRegistrationAdmin(admin.ModelAdmin):
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
-admin.site.register(EntityRelation)
-admin.site.register(WorkRelation)
-admin.site.register(Contribution)
+admin.site.register(AbstractEntityRelation)
+admin.site.register(AbstractWorkRelation)
+admin.site.register(AbstractContribution)
 
 admin.site.register(EntityIdentifier)
 admin.site.register(WorkIdentifier)

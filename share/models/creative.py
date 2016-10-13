@@ -25,7 +25,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
-    related_works = ShareManyToManyField('AbstractCreativeWork', through='WorkRelation', through_fields=('from_work', 'to_work'), symmetrical=False)
+    related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('from_work', 'to_work'), symmetrical=False)
 
     date_published = models.DateTimeField(null=True, db_index=True)
     date_updated = models.DateTimeField(null=True, db_index=True)

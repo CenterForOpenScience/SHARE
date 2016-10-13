@@ -3,7 +3,7 @@ from django.db import models
 from share.models.base import ShareObject, TypedShareObjectMeta
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 
-from share.utils import ModelGenerator
+from share.util import ModelGenerator
 
 
 class AbstractContribution(ShareObject, metaclass=TypedShareObjectMeta):
@@ -19,8 +19,8 @@ class AbstractContribution(ShareObject, metaclass=TypedShareObjectMeta):
 
 
 class ThroughContribution(ShareObject):
-    origin = ShareForeignKey(Contribution, related_name='+')
-    destination = ShareForeignKey(Contribution, related_name='+')
+    origin = ShareForeignKey(AbstractContribution, related_name='+')
+    destination = ShareForeignKey(AbstractContribution, related_name='+')
 
     def clean(self):
         if self.origin.creative_work != self.destination.creative_work:
@@ -45,7 +45,7 @@ class Award(ShareObject):
 
 
 class ThroughContributionAwards(ShareObject):
-    contribution = ShareForeignKey(Contribution)
+    contribution = ShareForeignKey(AbstractContribution)
     award = ShareForeignKey(Award)
 
     class Meta:
