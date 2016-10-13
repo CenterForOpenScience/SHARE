@@ -29,14 +29,14 @@ def create_graph_dependencies():
             'family_name': 'Doe',
         }, {
             '@id': '_:456',
-            '@type': 'contribution',
+            '@type': 'collaboratorcontribution',
             'entity': {'@id': '_:123', '@type': 'person'},
             'creative_work': {'@id': '_:789', '@type': 'preprint'},
         }, {
             '@id': '_:789',
             '@type': 'preprint',
             'title': 'All About Cats',
-            'contributors': [{'@id': '_:456', '@type': 'contribution'}]
+            'contributors': [{'@id': '_:456', '@type': 'collaboratorcontribution'}]
         }]
     }, disambiguate=False)
 
@@ -151,7 +151,7 @@ class TestChangeSet:
 
         assert isinstance(changed[0], models.Person)
         assert isinstance(changed[1], models.Preprint)
-        assert isinstance(changed[2], models.Contribution)
+        assert isinstance(changed[2], models.CollaboratorContribution)
 
         assert None not in [c.pk for c in changed]
 
@@ -164,7 +164,7 @@ class TestChangeSet:
                 'given_name': 'Jane',
             }, {
                 '@id': '_:456',
-                '@type': 'contribution',
+                '@type': 'collaboratorcontribution',
                 'entity': {'@id': john_doe.pk, '@type': 'person'},
                 'creative_work': {'@id': '_:789', '@type': 'preprint'},
             }, {
@@ -181,8 +181,8 @@ class TestChangeSet:
         john_doe.refresh_from_db()
 
         assert john_doe.given_name == 'Jane'
-        assert models.Preprint.objects.filter(contribution__entity=john_doe).count() == 1
-        assert models.Preprint.objects.filter(contribution__entity=john_doe).first().title == 'All About Cats'
+        assert models.Preprint.objects.filter(abstractcontribution__entity=john_doe).count() == 1
+        assert models.Preprint.objects.filter(abstractcontribution__entity=john_doe).first().title == 'All About Cats'
 
     @pytest.mark.django_db
     def test_can_delete_work(self, john_doe, normalized_data_id):
@@ -363,7 +363,7 @@ class TestChangeSet:
         id = work.id
 
         assert identifier.uri == uri
-        assert models.CreativeWork.objects.count() == 1
+        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 1
         assert models.Preprint.objects.count() == 0
 
         change_set = models.ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
@@ -381,7 +381,7 @@ class TestChangeSet:
 
         change_set.accept()
 
-        assert models.CreativeWork.objects.count() == 0
+        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
         assert models.Preprint.objects.count() == 1
         assert models.Preprint.objects.get(id=id).title == title
 
@@ -415,7 +415,7 @@ class TestChangeSet:
 
         assert identifier.uri == uri
         assert models.Preprint.objects.count() == 1
-        assert models.CreativeWork.objects.count() == 0
+        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
         assert models.Preprint.objects.get(id=id).title == old_title
 
         new_title = 'Ambidextrous Earthquakes'
@@ -438,11 +438,11 @@ class TestChangeSet:
         change_set.accept()
 
         assert models.Preprint.objects.count() == 1
-        assert models.CreativeWork.objects.count() == 0
+        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
         assert models.Preprint.objects.get(id=id).title == new_title
 
     @pytest.mark.django_db
-    def test_related_works(self, normalized_data_id, work_relation_type):
+    def test_related_works(self, normalized_data_id):
         '''
         Create two works with a relation between them.
         '''
@@ -453,7 +453,7 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'preprint',
                 'title': 'Dogs are okay too',
-                'related_works': [{'@id': '_:foo', '@type': 'workrelation'}]
+                'related_works': [{'@id': '_:foo', '@type': 'cites'}]
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
@@ -461,10 +461,9 @@ class TestChangeSet:
                 'workidentifiers': [{'@id': '_:4567', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:foo',
-                '@type': 'workrelation',
+                '@type': 'cites',
                 'from_work': {'@id': '_:1234', '@type': 'preprint'},
                 'to_work': {'@id': '_:2345', '@type': 'creativework'},
-                'relation_type': work_relation_type.name,
             }, {
                 '@id': '_:4567',
                 '@type': 'workidentifier',
@@ -475,22 +474,22 @@ class TestChangeSet:
         change_set.accept()
 
         assert models.Preprint.objects.count() == 1
-        assert models.CreativeWork.objects.count() == 1
+        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 1
 
         p = models.Preprint.objects.first()
         c = models.CreativeWork.objects.first()
 
         assert p.related_works.count() == 1
         assert p.related_works.first() == c
-        assert p.outgoing_workrelations.count() == 1
-        assert p.outgoing_workrelations.first().relation_type.name == 'ridicules'
-        assert p.outgoing_workrelations.first().to_work == c
-        assert c.incoming_workrelations.count() == 1
-        assert c.incoming_workrelations.first().relation_type.name == 'ridicules'
-        assert c.incoming_workrelations.first().from_work == p
+        assert p.outgoing_abstractworkrelations.count() == 1
+        assert p.outgoing_abstractworkrelations.first()._meta.model_name == 'cites'
+        assert p.outgoing_abstractworkrelations.first().to_work == c
+        assert c.incoming_abstractworkrelations.count() == 1
+        assert c.incoming_abstractworkrelations.first()._meta.model_name == 'cites'
+        assert c.incoming_abstractworkrelations.first().from_work == p
 
     @pytest.mark.django_db
-    def test_add_relation_to_work(self, normalized_data_id, work_relation_type):
+    def test_add_relation_to_work(self, normalized_data_id):
         '''
         A work exists. Add a second work with a relation to the first work.
         The first work should have the appropriate inverse relation to the
@@ -519,13 +518,12 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'preprint',
                 'title': 'Dogs are okay too',
-                'related_works': [{'@id': '_:foo', '@type': 'workrelation'}]
+                'related_works': [{'@id': '_:foo', '@type': 'cites'}]
             }, {
                 '@id': '_:foo',
-                '@type': 'workrelation',
+                '@type': 'cites',
                 'from_work': {'@id': '_:1234', '@type': 'preprint'},
                 'to_work': {'@id': '_:2345', '@type': 'creativework'},
-                'relation_type': work_relation_type.name,
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
@@ -541,20 +539,20 @@ class TestChangeSet:
 
         assert models.Article.objects.count() == 1
         assert models.Preprint.objects.count() == 1
-        assert models.CreativeWork.objects.count() == 0
+        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
 
         cat = models.Article.objects.first()
         dog = models.Preprint.objects.first()
 
-        assert dog.outgoing_workrelations.count() == 1
-        assert dog.outgoing_workrelations.first().relation_type.name == 'ridicules'
-        assert dog.outgoing_workrelations.first().to_work == cat
-        assert cat.incoming_workrelations.count() == 1
-        assert cat.incoming_workrelations.first().relation_type.name == 'ridicules'
-        assert cat.incoming_workrelations.first().from_work == dog
+        assert dog.outgoing_abstractworkrelations.count() == 1
+        assert dog.outgoing_abstractworkrelations.first()._meta.model_name == 'cites'
+        assert dog.outgoing_abstractworkrelations.first().to_work == cat
+        assert cat.incoming_abstractworkrelations.count() == 1
+        assert cat.incoming_abstractworkrelations.first()._meta.model_name == 'cites'
+        assert cat.incoming_abstractworkrelations.first().from_work == dog
 
     @pytest.mark.django_db
-    def test_add_work_with_existing_relation(self, normalized_data_id, work_relation_type):
+    def test_add_work_with_existing_relation(self, normalized_data_id):
         '''
         Harvest a work that has a relation to some work identified by a DOI.
         The related work should be a CreativeWork with no information except
@@ -570,13 +568,12 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'preprint',
                 'title': 'Dogs are okay',
-                'related_works': [{'@id': '_:foo', '@type': 'workrelation'}]
+                'related_works': [{'@id': '_:foo', '@type': 'cites'}]
             }, {
                 '@id': '_:foo',
-                '@type': 'workrelation',
+                '@type': 'cites',
                 'from_work': {'@id': '_:1234', '@type': 'preprint'},
                 'to_work': {'@id': '_:2345', '@type': 'creativework'},
-                'relation_type': work_relation_type.name,
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
@@ -589,7 +586,7 @@ class TestChangeSet:
             }]
         }), normalized_data_id).accept()
 
-        assert models.CreativeWork.objects.count() == 1
+        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 1
         assert models.Preprint.objects.count() == 1
         assert models.Article.objects.count() == 0
 
@@ -607,16 +604,16 @@ class TestChangeSet:
             }]
         }), normalized_data_id).accept()
 
-        assert models.CreativeWork.objects.count() == 0
+        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
         assert models.Article.objects.count() == 1
         assert models.Preprint.objects.count() == 1
 
         cat = models.Article.objects.first()
         dog = models.Preprint.objects.first()
 
-        assert dog.outgoing_workrelations.count() == 1
-        assert dog.outgoing_workrelations.first().relation_type.name == 'ridicules'
-        assert dog.outgoing_workrelations.first().to_work == cat
-        assert cat.incoming_workrelations.count() == 1
-        assert cat.incoming_workrelations.first().relation_type.name == 'ridicules'
-        assert cat.incoming_workrelations.first().from_work == dog
+        assert dog.outgoing_abstractworkrelations.count() == 1
+        assert dog.outgoing_abstractworkrelations.first()._meta.model_name == 'cites'
+        assert dog.outgoing_abstractworkrelations.first().to_work == cat
+        assert cat.incoming_abstractworkrelations.count() == 1
+        assert cat.incoming_abstractworkrelations.first()._meta.model_name == 'cites'
+        assert cat.incoming_abstractworkrelations.first().from_work == dog
