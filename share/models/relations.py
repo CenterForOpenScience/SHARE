@@ -27,39 +27,6 @@ class EntityRelation(ShareObject):
         unique_together = ('from_entity', 'to_entity', 'relation_type')
 
 
-class Contribution(ShareObject):
-    entity = ShareForeignKey('AbstractEntity')
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-
-    cited_name = models.TextField(blank=True)
-    bibliographic = models.BooleanField(default=True)
-    order_cited = models.PositiveIntegerField(null=True)
-
-    awards = ShareManyToManyField('Award', through='ThroughContributionAwards')
-
-    class Meta:
-        unique_together = ('entity', 'creative_work')
-
-
-class Award(ShareObject):
-    # ScholarlyArticle has an award object
-    # it's just a text field, I assume our 'description' covers it.
-    name = models.TextField(blank=True)
-    description = models.TextField(blank=True)
-    url = ShareURLField(blank=True)
-
-    def __str__(self):
-        return self.description
-
-
-class ThroughContributionAwards(ShareObject):
-    contribution = ShareForeignKey(Contribution)
-    award = ShareForeignKey(Award)
-
-    class Meta:
-        unique_together = ('contribution', 'award')
-
-
 class RelationTypeManager(models.Manager):
     def get_by_natural_key(self, key):
         return self.get(name=key)

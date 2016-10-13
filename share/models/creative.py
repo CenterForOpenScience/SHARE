@@ -40,4 +40,4 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
 
 generator = ModelGenerator()
-globals().update(generator.generate_subclasses_from_yaml(__file__, AbstractCreativeWork))
+globals().update(generator.subclasses_from_yaml(__file__, AbstractCreativeWork))

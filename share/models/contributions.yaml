@@ -1,0 +1,19 @@
+CollaboratorContribution:
+    fields:
+        contributed_through:
+            type: m2m
+            kwargs:
+                model: Contribution
+                symmetrical: false
+                through: ThroughContribution
+                through_fields: ['origin', 'destination']
+FunderContribution:
+    fields:
+        awards:
+            type: m2m
+            kwargs:
+                model: Award
+                through: ThroughContributionAwards
+PublisherContribution: {}
+HostContribution: {}
+

@@ -15,4 +15,4 @@ Person:
     children: {}
 Organization: {}
 Institution: {}
-#Consortium: {}
+Consortium: {}

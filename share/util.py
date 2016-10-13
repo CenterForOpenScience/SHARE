@@ -58,7 +58,7 @@ class ModelGenerator:
     def __init__(self, field_types={}):
         self.__field_types = field_types
 
-    def generate_subclasses_from_yaml(self, file_name, base):
+    def subclasses_from_yaml(self, file_name, base):
         subtypes_file = re.sub(r'\.py$', '.yaml', os.path.abspath(file_name))
         with open(subtypes_file) as fobj:
             model_specs = yaml.load(fobj)

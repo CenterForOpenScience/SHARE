@@ -6,8 +6,6 @@ from share.models.fields import ShareManyToManyField
 
 from share.util import ModelGenerator
 
-__all__ = ('AbstractEntity', 'Person', 'Organization', 'Institution')
-
 
 class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
     name = models.TextField(blank=True)
@@ -24,5 +22,7 @@ class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
         return self.name
 
 
-generator = ModelGenerator(field_types={ 'text': models.TextField })
-globals().update(generator.generate_subclasses_from_yaml(__file__, AbstractEntity))
+generator = ModelGenerator(field_types={
+    'text': models.TextField
+})
+globals().update(generator.subclasses_from_yaml(__file__, AbstractEntity))
