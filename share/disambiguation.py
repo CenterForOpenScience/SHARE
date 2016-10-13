@@ -69,8 +69,10 @@ class GenericDisambiguator(Disambiguator):
     @property
     def is_through_table(self):
         # TODO fix this...
-        return 'Through' in self.model.__name__ or self.model in {
+        return 'Through' in self.model.__name__ or self.model._meta.concrete_model in {
             models.AbstractContribution,
+            models.AbstractEntityRelation,
+            models.AbstractWorkRelation,
         }
 
     def disambiguate(self):
@@ -176,49 +178,3 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
             return works[0]
         else:
             return works
-
-
-class RelationDisambiguator(Disambiguator):
-    @property
-    def from_field(self):
-        raise NotImplementedError()
-
-    @property
-    def to_field(self):
-        raise NotImplementedError()
-
-    @property
-    def type_field(self):
-        return 'relation_type'
-
-    def disambiguate(self):
-        # TODO add nuance in relation types:
-        #   - "unknown" should match anything
-        #   - if a less specific type exists, match it and update?
-        #   - if a more specific type exists, match it and don't update?
-        from_id = self.attrs.get(self.from_field)
-        to_id = self.attrs.get(self.to_field)
-        if not from_id or not to_id:
-            return None
-
-        query = {
-            self.from_field: from_id,
-            self.to_field: to_id,
-            '{}__name'.format(self.type_field): self.attrs[self.type_field]
-        }
-        try:
-            return self.model.objects.get(**query)
-        except (self.model.DoesNotExist, self.model.MultipleObjectsReturned):
-            return None
-
-
-class EntityRelationDisambiguator(RelationDisambiguator):
-    FOR_MODEL = models.AbstractEntityRelation
-    from_field = 'from_entity'
-    to_field = 'to_entity'
-
-
-class WorkRelationDisambiguator(RelationDisambiguator):
-    FOR_MODEL = models.AbstractWorkRelation
-    from_field = 'from_work'
-    to_field = 'to_work'
