@@ -1,0 +1,87 @@
+IsPartOf: {}
+IsSupplementTo: {}
+IsDerivedFrom: {}
+Cites: {}
+UnknownWorkRelation: {}
+#        -   name: agrees_with
+#            uris: ['http://purl.org/spar/cito/agreesWith']
+#        -   name: cites_as_authority
+#            uris: ['http://purl.org/spar/cito/citesAsAuthority']
+#        -   name: cites_as_data_source
+#            uris: ['http://purl.org/spar/cito/citesAsDataSource']
+#        -   name: cites_as_evidence
+#            uris: ['http://purl.org/spar/cito/citesAsEvidence']
+#        -   name: cites_as_metadata_document
+#            uris: ['http://purl.org/spar/cito/citesAsMetadataDocument']
+#        -   name: cites_as_potential_solution
+#            uris: ['http://purl.org/spar/cito/citesAsPotentialSolution']
+#        -   name: cites_as_recommended_reading
+#            uris: ['http://purl.org/spar/cito/citesAsRecommendedReading']
+#        -   name: cites_as_related
+#            uris: ['http://purl.org/spar/cito/citesAsRelated']
+#        -   name: cites_as_source_document
+#            uris: ['http://purl.org/spar/cito/citesAsSourceDocument']
+#        -   name: cites_for_information
+#            uris: ['http://purl.org/spar/cito/citesForInformation']
+#        -   name: compiles
+#            uris: ['http://purl.org/spar/cito/compiles']
+#        -   name: confirms
+#            uris: ['http://purl.org/spar/cito/confirms']
+#        -   name: contains_assertion_from
+#            uris: ['http://purl.org/spar/cito/containsAssertionFrom']
+#        -   name: corrects
+#            uris: ['http://purl.org/spar/cito/corrects']
+#        -   name: credits
+#            uris: ['http://purl.org/spar/cito/credits']
+#        -   name: critiques
+#            uris: ['http://purl.org/spar/cito/critiques']
+#        -   name: derides
+#            uris: ['http://purl.org/spar/cito/derides']
+#        -   name: describes
+#            uris: ['http://purl.org/spar/cito/describes']
+#        -   name: disagrees_with
+#            uris: ['http://purl.org/spar/cito/disagreesWith']
+#        -   name: discusses
+#            uris: ['http://purl.org/spar/cito/discusses']
+#        -   name: disputes
+#            uris: ['http://purl.org/spar/cito/disputes']
+#        -   name: documents
+#            uris: ['http://purl.org/spar/cito/documents']
+#        -   name: extends
+#            uris: ['http://purl.org/spar/cito/extends']
+#        -   name: includes_excerpt_from
+#            uris: ['http://purl.org/spar/cito/includesExcerptFrom']
+#        -   name: includes_quotation_from
+#            uris: ['http://purl.org/spar/cito/includesQuotationFrom']
+#        -   name: obtains_background_from
+#            uris: ['http://purl.org/spar/cito/obtainsBackgroundFrom']
+#        -   name: obtains_support_from
+#            uris: ['http://purl.org/spar/cito/obtainsSupportFrom']
+#        -   name: parodies
+#            uris: ['http://purl.org/spar/cito/parodies']
+#        -   name: plagiarizes
+#            uris: ['http://purl.org/spar/cito/plagiarizes']
+#        -   name: qualifies
+#            uris: ['http://purl.org/spar/cito/qualifies']
+#        -   name: refutes
+#            uris: ['http://purl.org/spar/cito/refutes']
+#        -   name: replies_to
+#            uris: ['http://purl.org/spar/cito/repliesTo']
+#        -   name: retracts
+#            uris: ['http://purl.org/spar/cito/retracts']
+#        -   name: reviews
+#            uris: ['http://purl.org/spar/cito/reviews']
+#        -   name: ridicules
+#            uris: ['http://purl.org/spar/cito/ridicules']
+#        -   name: speculates_on
+#            uris: ['http://purl.org/spar/cito/speculatesOn']
+#        -   name: supports
+#            uris: ['http://purl.org/spar/cito/supports']
+#        -   name: updates
+#            uris: ['http://purl.org/spar/cito/updates']
+#        -   name: uses_conclusions_from
+#            uris: ['http://purl.org/spar/cito/usesConclusionsFrom']
+#        -   name: uses_data_from
+#            uris: ['http://purl.org/spar/cito/usesDataFrom']
+#        -   name: uses_method_in
+#            uris: ['http://purl.org/spar/cito/usesMethodIn']
