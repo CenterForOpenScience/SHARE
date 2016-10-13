@@ -1,5 +1,6 @@
 from share.provider import OAIProviderAppConfig
 
+
 class AppConfig(OAIProviderAppConfig):
     name = 'providers.org.seafdec'
     version = '0.0.1'
