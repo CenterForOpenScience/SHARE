@@ -70,7 +70,7 @@ class GenericDisambiguator(Disambiguator):
     def is_through_table(self):
         # TODO fix this...
         return 'Through' in self.model.__name__ or self.model in {
-            models.Contribution,
+            models.AbstractContribution,
         }
 
     def disambiguate(self):
