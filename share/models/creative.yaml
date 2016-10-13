@@ -1,0 +1,19 @@
+CreativeWork:
+    children:
+        Article: {}
+        ConferencePaper: {}
+        Book: {}
+        Dataset: {}
+        Dissertation: {}
+        Lesson: {}
+        Presentation: {}
+        Poster: {}
+        Project: {}
+        ProjectRegistration: {}
+        Report: {}
+        Section: {}
+        Software: {}
+        Thesis: {}
+        WorkingPaper: {}
+        Preprint: {}
+

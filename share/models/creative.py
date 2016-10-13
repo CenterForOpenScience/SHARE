@@ -1,3 +1,7 @@
+import re
+import os
+import yaml
+
 from django.db import models
 
 from share.models.base import ShareObject
@@ -37,72 +41,23 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
         return self.title
 
 
-# Subclasses/Types of Creative Work
+def generate_models(models, base):
+    for (name, m) in models.items():
+        # TODO process fields
+        fields = m.get('fields', {})
+        children = m.get('children', {})
 
-# Catch-all type
-class CreativeWork(AbstractCreativeWork):
-    pass
-
-
-class Article(AbstractCreativeWork):
-    pass
-
-
-class Book(AbstractCreativeWork):
-    pass
-
-
-class ConferencePaper(AbstractCreativeWork):
-    pass
+        model = type(name, (base,), {
+            **fields,
+            '__qualname__': name,
+            '__module__': base.__module__
+        })
+        globals()[name] = model
+        generate_models(children, model)
 
 
-class Dataset(AbstractCreativeWork):
-    pass
+subtypes_file = re.sub(r'\.py$', '.yaml', os.path.abspath(__file__))
+with open(subtypes_file) as fobj:
+    subtypes = yaml.load(fobj)
 
-
-class Dissertation(AbstractCreativeWork):
-    pass
-
-
-class Lesson(AbstractCreativeWork):
-    pass
-
-
-class Poster(AbstractCreativeWork):
-    pass
-
-
-class Preprint(AbstractCreativeWork):
-    pass
-
-
-class Presentation(AbstractCreativeWork):
-    pass
-
-
-class Project(AbstractCreativeWork):
-    pass
-
-
-class ProjectRegistration(AbstractCreativeWork):
-    pass
-
-
-class Report(AbstractCreativeWork):
-    pass
-
-
-class Section(AbstractCreativeWork):
-    pass
-
-
-class Software(AbstractCreativeWork):
-    pass
-
-
-class Thesis(AbstractCreativeWork):
-    pass
-
-
-class WorkingPaper(AbstractCreativeWork):
-    pass
+generate_models(subtypes, AbstractCreativeWork)
