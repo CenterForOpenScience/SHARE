@@ -5,15 +5,13 @@ from django.apps import apps
 
 from share.disambiguation import GraphDisambiguator
 
+from share.util import TopographicalSorter
+
 
 logger = logging.getLogger(__name__)
 
 
 class GraphParsingException(Exception):
-    pass
-
-
-class CyclicalDependency(GraphParsingException):
     pass
 
 
@@ -181,7 +179,7 @@ class ChangeGraph:
     def __init__(self, nodes, parse=True):
         self.__nodes = nodes
         self.__map = {ref: n for n in nodes for ref in n.refs}
-        self.__sorter = NodeSorter(self)
+        self.__sorter = TopographicalSorter(nodes, dependencies=lambda n: [self.get_node(r['@id'], r['@type']) for r in n.related])
 
         for node in self.__nodes:
             node.resolve_relations(self.__map)
@@ -196,40 +194,3 @@ class ChangeGraph:
             if str(id).startswith('_:'):
                 raise UnresolvableReference('Unresolvable reference @id: {!r}, @type: {!r}'.format(id, type))
         return None  # External reference to an already existing object
-
-
-class NodeSorter:
-
-    def __init__(self, graph):
-        self.__sorted = []
-        self.__graph = graph
-        self.__visted = set()
-        self.__visiting = set()
-        self.__nodes = list(graph.nodes)
-
-    def sorted(self):
-        if not self.__nodes:
-            return self.__sorted
-
-        while self.__nodes:
-            n = self.__nodes.pop(0)
-            self.__visit(n)
-
-        return self.__sorted
-
-    def __visit(self, node):
-        if node in self.__visiting:
-            raise CyclicalDependency(node, self.__visiting)
-
-        if node in self.__visted:
-            return
-
-        self.__visiting.add(node)
-        for relation in node.related:
-            n = self.__graph.get_node(relation['@id'], relation['@type'])
-            if n:
-                self.__visit(n)
-
-        self.__visted.add(node)
-        self.__sorted.append(node)
-        self.__visiting.remove(node)

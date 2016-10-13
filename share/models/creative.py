@@ -18,7 +18,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     # this may need to be renamed later
     is_deleted = models.BooleanField(default=False)
 
-    contributors = ShareManyToManyField('AbstractEntity', through='Contribution')
+    contributors = ShareManyToManyField('AbstractEntity', through='AbstractContribution')
 
     subjects = ShareManyToManyField(Subject, related_name='subjected_%(class)s', through='ThroughSubjects')
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')

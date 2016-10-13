@@ -1,5 +1,5 @@
 from share.models.base import ShareObject, TypedShareObjectMeta
-from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
+from share.models.fields import ShareForeignKey
 
 from share.util import ModelGenerator
 

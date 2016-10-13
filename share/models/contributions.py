@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from share.models.base import ShareObject, TypedShareObjectMeta
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField

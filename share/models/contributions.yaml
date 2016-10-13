@@ -3,7 +3,7 @@ CollaboratorContribution:
         contributed_through:
             type: m2m
             kwargs:
-                model: Contribution
+                model: AbstractContribution
                 symmetrical: false
                 through: ThroughContribution
                 through_fields: ['origin', 'destination']

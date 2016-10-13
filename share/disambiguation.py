@@ -213,12 +213,12 @@ class RelationDisambiguator(Disambiguator):
 
 
 class EntityRelationDisambiguator(RelationDisambiguator):
-    FOR_MODEL = models.EntityRelation
+    FOR_MODEL = models.AbstractEntityRelation
     from_field = 'from_entity'
     to_field = 'to_entity'
 
 
 class WorkRelationDisambiguator(RelationDisambiguator):
-    FOR_MODEL = models.WorkRelation
+    FOR_MODEL = models.AbstractWorkRelation
     from_field = 'from_work'
     to_field = 'to_work'
