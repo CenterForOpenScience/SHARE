@@ -58,15 +58,20 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         Method:        POST
         Body (JSON):   {
                         'data': {
-                            '@graph': [{
-                                '@type': <type of document, exp: person>,
-                                '@id': <_:random>,
-                                <attribute_name>: <value>,
-                                <relationship_name>: {
-                                    '@type': <type>,
-                                    '@id': <id>
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': <type of document, exp: person>,
+                                        '@id': <_:random>,
+                                        <attribute_name>: <value>,
+                                        <relationship_name>: {
+                                            '@type': <type>,
+                                            '@id': <id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
@@ -76,15 +81,20 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         Method:        POST
         Body (JSON):   {
                         'data': {
-                            '@graph': [{
-                                '@type': <type of document, exp: person>,
-                                '@id': <id>,
-                                <attribute_name>: <value>,
-                                <relationship_name>: {
-                                    '@type': <type>,
-                                    '@id': <id>
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': <type of document, exp: person>,
+                                        '@id': <id>,
+                                        <attribute_name>: <value>,
+                                        <relationship_name>: {
+                                            '@type': <type>,
+                                            '@id': <id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
@@ -94,18 +104,23 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         Method:        POST
         Body (JSON):   {
                         'data': {
-                            '@graph': [{
-                                '@type': 'mergeAction',
-                                '@id': <_:random>,
-                                'into': {
-                                    '@type': <type of document>,
-                                    '@id': <doc id>
-                                },
-                                'from': {
-                                    '@type': <same type of document>,
-                                    '@id': <doc id>
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': 'mergeAction',
+                                        '@id': <_:random>,
+                                        'into': {
+                                            '@type': <type of document>,
+                                            '@id': <doc id>
+                                        },
+                                        'from': {
+                                            '@type': <same type of document>,
+                                            '@id': <doc id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
