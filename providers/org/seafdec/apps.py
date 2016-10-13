@@ -1,7 +1,7 @@
 from share.provider import OAIProviderAppConfig
 
 class AppConfig(OAIProviderAppConfig):
-    name = 'providers.ph.org.seafdec'
+    name = 'providers.org.seafdec'
     version = '0.0.1'
     title = 'seafdec'
     long_title = 'SEAFDEC/AQD Institutional Repository'

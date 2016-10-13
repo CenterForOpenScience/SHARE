@@ -1,4 +1,4 @@
-default_app_config = 'providers.ph.org.seafdec.apps.AppConfig'
+default_app_config = 'providers.org.seafdec.apps.AppConfig'
 
 """
 Example record:

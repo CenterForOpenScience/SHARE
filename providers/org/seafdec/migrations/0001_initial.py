@@ -15,12 +15,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            code=share.robot.RobotUserMigration('ph.org.seafdec'),
+            code=share.robot.RobotUserMigration('org.seafdec'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('ph.org.seafdec'),
+            code=share.robot.RobotOauthTokenMigration('org.seafdec'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotScheduleMigration('ph.org.seafdec'),
+            code=share.robot.RobotScheduleMigration('org.seafdec'),
         ),
     ]
