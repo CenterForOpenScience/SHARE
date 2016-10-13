@@ -63,100 +63,238 @@ class TestPostProviderRegistration:
 
     POST_CASES = [{
         'authorized': False,
-        'out': Response(401, json={'detail': 'Authentication credentials were not provided.'}),
-        'in': requests.Request('POST', data=None)
+        'out': Response(401, json={'errors': [{
+            'detail': 'Authentication credentials were not provided.',
+            'source': {'pointer': '/data'},
+            'status': '401'
+        }]}),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={'data': 'bar'})
     }, {
         'authorized': False,
-        'out': Response(401, json={'detail': 'Authentication credentials were not provided.'}),
-        'in': requests.Request('POST', json={'Foo': 'bar'})
+        'out': Response(401, json={'errors': [{
+            'detail': 'Authentication credentials were not provided.',
+            'source': {'pointer': '/data'},
+            'status': '401'
+        }]}),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={
+            'data': {
+                'type': 'ProviderRegistration',
+                'attributes': {
+                    'contactName': 'Test'
+                }
+            }
+        })
     }, {
         'authorized': False,
-        'out': Response(401, json={'detail': 'Authentication credentials were not provided.'}),
-        'in': requests.Request('POST', json={'contact_name': 'Test'})
+        'out': Response(401, json={'errors': [{
+            'detail': 'Authentication credentials were not provided.',
+            'source': {'pointer': '/data'},
+            'status': '401'
+        }]}),
+        'in': requests.Request(
+            'POST',
+            json={
+                'data': {
+                    'type': 'ProviderRegistration',
+                    'attributes': {'contactName': 'Test'}
+                }
+            },
+            headers={'Authorization': 'Foo'}
+        )
     }, {
-        'authorized': False,
-        'out': Response(401, json={'detail': 'Authentication credentials were not provided.'}),
-        'in': requests.Request('POST', json={'contact_name': 'Test'}, headers={'Authorization': 'Foo'})
+        'out': Response(400, json={'errors': [{
+            'detail': 'Received document does not contain primary data',
+            'source': {'pointer': '/data'}, 'status': '400'}
+        ]}),
+        'in': requests.Request('POST', json={'data': {}})
     }, {
-        'out': Response(400, json={'errors': {
-            'contact_affiliation': ['This field is required.'],
-            'contact_email': ['This field is required.'],
-            'contact_name': ['This field is required.'],
-            'source_description': ['This field is required.'],
-            'source_name': ['This field is required.']
-        }}),
-        'in': requests.Request('POST', json={})
+        'out': Response(409, json={'errors': [{
+            'detail': 'The resource object\'s type (None) is not the type that constitute the collection represented by the endpoint (ProviderRegistration).',
+            'source': {'pointer': '/data'},
+            'status': '409'
+        }]}),
+        'in': requests.Request('POST', json={
+            'data': {
+                'attributes': {}
+            }
+        })
     }, {
-        'out': Response(400, json={'detail': 'JSON parse error - Expected object or value'}),
+        'out': Response(400, json={
+            'errors': [
+                {
+                    'detail': 'This field is required.',
+                    'source': {'pointer': '/data/attributes/contactAffiliation'},
+                    'status': '400'
+                },
+                {
+                    'detail': 'This field is required.',
+                    'source': {'pointer': '/data/attributes/contactEmail'},
+                    'status': '400'},
+                {
+                    'detail': 'This field is required.',
+                    'source': {'pointer': '/data/attributes/contactName'},
+                    'status': '400'
+                },
+                {
+                    'detail': 'This field is required.',
+                    'source': {'pointer': '/data/attributes/sourceDescription'},
+                    'status': '400'
+                },
+                {
+                    'detail': 'This field is required.',
+                    'source': {'pointer': '/data/attributes/sourceName'},
+                    'status': '400'
+                }
+            ]
+        }),
+        'in': requests.Request('POST', json={
+            'data': {
+                'type': 'ProviderRegistration',
+                'attributes': {}
+            }
+        })
+    }, {
+        'out': Response(400, json={'errors': [
+            {
+                'detail': 'JSON parse error - Expecting value: line 1 column 1 (char 0)',
+                'source': {'pointer': '/data'},
+                'status': '400'
+            }
+        ]}),
         'in': requests.Request('POST', data='<html!>')
     }, {
-        'out': Response(400, json={'errors': {'contact_email': ['Enter a valid email address.']}}),
+        'out': Response(400, json={'errors': [
+            {
+                'detail': 'Enter a valid email address.',
+                'source': {'pointer': '/data/attributes/contactEmail'},
+                'status': '400'
+            },
+        ]}),
         'in': requests.Request('POST', json={
-            'contact_affiliation': 'Test',
-            'contact_email': 'Bad email',
-            'contact_name': 'Test',
-            'source_description': 'Test',
-            'source_name': 'Test'
+            'data': {
+                'type': 'ProviderRegistration',
+                'attributes': {
+                    'contact_affiliation': 'Test',
+                    'contact_email': 'Bad email',
+                    'contact_name': 'Test',
+                    'source_description': 'Test',
+                    'source_name': 'Test'
+                }
+            }
         })
     }, {
-        'out': Response(201, keys={'registration_id'}),
+        'out': Response(201, keys={'data'}),
         'in': requests.Request('POST', json={
-            'contact_affiliation': 'Test',
-            'contact_email': 'good@email.com',
-            'contact_name': 'Test',
-            'source_description': 'Test',
-            'source_name': 'Test'
+            'data': {
+                'type': 'ProviderRegistration',
+                'attributes': {
+                    'contact_affiliation': 'Test',
+                    'contact_email': 'good@email.com',
+                    'contact_name': 'Test',
+                    'source_description': 'Test',
+                    'source_name': 'Test'
+                }
+            }
         })
     }, {
-        'out': Response(400, json={'errors': {'source_base_url': ['Enter a valid URL.']}}),
+        'out': Response(400, json={'errors': [
+            {
+                'detail': 'Enter a valid URL.',
+                'source': {'pointer': '/data/attributes/sourceBaseUrl'},
+                'status': '400'
+            }
+        ]}),
         'in': requests.Request('POST', json={
-            'contact_affiliation': 'Test',
-            'contact_email': 'good@email.com',
-            'contact_name': 'Test',
-            'source_description': 'Test',
-            'source_name': 'Test',
-            'source_base_url': 'bad url'
+            'data': {
+                'type': 'ProviderRegistration',
+                'attributes': {
+                    'contact_affiliation': 'Test',
+                    'contact_email': 'good@email.com',
+                    'contact_name': 'Test',
+                    'source_description': 'Test',
+                    'source_name': 'Test',
+                    'source_base_url': 'bad url'
+                }
+            }
         })
     }, {
-        'out': Response(201, keys={'registration_id'}),
+        'out': Response(201, keys={'data'}),
         'in': requests.Request('POST', json={
-            'contact_affiliation': 'Test',
-            'contact_email': 'good@email.com',
-            'contact_name': 'Test',
-            'source_description': 'Test',
-            'source_name': 'Test',
-            'source_base_url': 'https://www.goodurl.com'
+            'data': {
+                'type': 'ProviderRegistration',
+                'attributes': {
+                    'contact_affiliation': 'Test',
+                    'contact_email': 'good@email.com',
+                    'contact_name': 'Test',
+                    'source_description': 'Test',
+                    'source_name': 'Test',
+                    'source_base_url': 'https://www.goodurl.com'
+                }
+            }
         })
     }, {
-        'out': Response(400, json={'errors': {
-            'contact_affiliation': ['Ensure this field has no more than 300 characters.'],
-            'contact_name': ['Ensure this field has no more than 300 characters.'],
-            'source_description': ['Ensure this field has no more than 1000 characters.'],
-            'source_name': ['Ensure this field has no more than 300 characters.'],
-            'source_rate_limit': ['Ensure this field has no more than 300 characters.'],
-            'source_documentation': ['Ensure this field has no more than 300 characters.'],
-            'source_preferred_metadata_prefix': ['Ensure this field has no more than 300 characters.'],
-            'source_disallowed_sets': ['Ensure this field has no more than 300 characters.'],
-            'source_additional_info': ['Ensure this field has no more than 1000 characters.']
-        }}),
+        'out': Response(400, json={'errors': [
+            {
+                'detail': 'Ensure this field has no more than 300 characters.',
+                'source': {'pointer': '/data/attributes/contactAffiliation'},
+                'status': '400'
+            }, {
+                'detail': 'Ensure this field has no more than 300 characters.',
+                'source': {'pointer': '/data/attributes/contactName'},
+                'status': '400'
+            }, {
+                'detail': 'Ensure this field has no more than 1000 characters.',
+                'source': {'pointer': '/data/attributes/sourceAdditionalInfo'},
+                'status': '400'
+            }, {
+                'detail': 'Ensure this field has no more than 1000 characters.',
+                'source': {'pointer': '/data/attributes/sourceDescription'},
+                'status': '400'
+            }, {
+                'detail': 'Ensure this field has no more than 300 characters.',
+                'source': {'pointer': '/data/attributes/sourceDisallowedSets'},
+                'status': '400'
+            }, {
+                'detail': 'Ensure this field has no more than 300 characters.',
+                'source': {'pointer': '/data/attributes/sourceDocumentation'},
+                'status': '400'
+            }, {
+                'detail': 'Ensure this field has no more than 300 characters.',
+                'source': {'pointer': '/data/attributes/sourceName'},
+                'status': '400'
+            }, {
+                'detail': 'Ensure this field has no more than 300 characters.',
+                'source': {'pointer': '/data/attributes/sourcePreferredMetadataPrefix'},
+                'status': '400'
+            }, {
+                'detail': 'Ensure this field has no more than 300 characters.',
+                'source': {'pointer': '/data/attributes/sourceRateLimit'},
+                'status': '400'
+            }
+        ]}),
         'in': requests.Request('POST', json={
-            'contact_affiliation': LONG_MESSAGE,
-            'contact_email': 'good@email.com',
-            'contact_name': LONG_MESSAGE,
-            'source_description': LONGER_MESSAGE,
-            'source_name': LONG_MESSAGE,
-            'source_rate_limit': LONG_MESSAGE,
-            'source_documentation': LONG_MESSAGE,
-            'source_preferred_metadata_prefix': LONG_MESSAGE,
-            'source_disallowed_sets': LONG_MESSAGE,
-            'source_additional_info': LONGER_MESSAGE
+            'data': {
+                'type': 'ProviderRegistration',
+                'attributes': {
+                    'contact_affiliation': LONG_MESSAGE,
+                    'contact_email': 'good@email.com',
+                    'contact_name': LONG_MESSAGE,
+                    'source_description': LONGER_MESSAGE,
+                    'source_name': LONG_MESSAGE,
+                    'source_rate_limit': LONG_MESSAGE,
+                    'source_documentation': LONG_MESSAGE,
+                    'source_preferred_metadata_prefix': LONG_MESSAGE,
+                    'source_disallowed_sets': LONG_MESSAGE,
+                    'source_additional_info': LONGER_MESSAGE
+                }
+            }
         })
     }]
 
     @pytest.mark.django_db
     @pytest.mark.parametrize('_request, response, authorized', [(case['in'], case['out'], case.get('authorized', True)) for case in POST_CASES])
     def test_post_data(self, trusted_user, client, _request, response, authorized):
-        args, kwargs = (), {'content_type': 'application/json'}
+        args, kwargs = (), {'content_type': 'application/vnd.api+json'}
 
         if _request.data:
             kwargs['data'] = _request.data

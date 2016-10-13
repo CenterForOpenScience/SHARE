@@ -1,4 +1,6 @@
-from rest_framework import serializers
+from collections import OrderedDict
+
+from rest_framework_json_api import serializers
 
 from api import fields
 from share import models
@@ -33,18 +35,21 @@ class BaseShareSerializer(serializers.ModelSerializer):
 
         # add fields with improper names
         self.fields.update({
-            '@id': serializers.HyperlinkedIdentityField(
-                # view-name: person-detail
-                'api:{}-detail'.format(self.Meta.model._meta.model_name),
-                lookup_field='pk'
-            ),
-            '@type': fields.TypeField(),
             'type': fields.TypeField(),
             'object_id': fields.ObjectIDField(source='uuid'),
         })
 
     class Meta:
         pass
+
+    # http://stackoverflow.com/questions/27015931/remove-null-fields-from-django-rest-framework-response
+    def to_representation(self, instance):
+        def not_none(value):
+            return value is not None
+
+        ret = super(BaseShareSerializer, self).to_representation(instance)
+        ret = OrderedDict(list(filter(lambda x: not_none(x[1]), ret.items())))
+        return ret
 
 
 class ExtraDataSerializer(BaseShareSerializer):

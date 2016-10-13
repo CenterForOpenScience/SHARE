@@ -27,26 +27,119 @@ class TestPostNormalizedData:
 
     POST_CASES = [{
         'authorized': False,
-        'out': Response(401, json={'detail': 'Authentication credentials were not provided.'}),
-        'in': requests.Request('POST', data=None)
+        'out': Response(401, json={'errors': [{
+            'detail': 'Authentication credentials were not provided.',
+            'source': {'pointer': '/data'},
+            'status': '401'
+        }]}),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={'data': 'bar'})
     }, {
         'authorized': False,
-        'out': Response(401, json={'detail': 'Authentication credentials were not provided.'}),
-        'in': requests.Request('POST', json={'Foo': 'bar'})
+        'out': Response(401, json={'errors': [{
+            'detail': 'Authentication credentials were not provided.',
+            'source': {'pointer': '/data'},
+            'status': '401'
+        }]}),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    '@graph': [{'@type': 'person', 'given_name': 'Jim'}]
+                }
+            }
+        })
     }, {
         'authorized': False,
-        'out': Response(401, json={'detail': 'Authentication credentials were not provided.'}),
-        'in': requests.Request('POST', json={'@graph': [{'@type': 'person', 'given_name': 'Jim'}]})
+        'out': Response(401, json={'errors': [{
+            'detail': 'Authentication credentials were not provided.',
+            'source': {'pointer': '/data'},
+            'status': '401'
+        }]}),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json', 'Authorization': 'Foo'}, json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    '@graph': [{'@type': 'person', 'given_name': 'Jim'}]
+                }
+            }
+        })
     }, {
-        'authorized': False,
-        'out': Response(401, json={'detail': 'Authentication credentials were not provided.'}),
-        'in': requests.Request('POST', json={'@graph': [{'@type': 'person', 'given_name': 'Jim'}]}, headers={'Authorization': 'Foo'})
+        'out': Response(400, json={'errors': [{
+            'detail': 'Received document does not contain primary data',
+            'source': {'pointer': '/data'},
+            'status': '400'
+        }]}),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={})
+    }, {
+        'out': Response(400, json={'errors': [{
+            'detail': 'JSON parse error - Expecting value: line 1 column 1 (char 0)',
+            'source': {'pointer': '/data'},
+            'status': '400'
+        }]}),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, data='<html!>')
+    }, {
+        'out': Response(400, json={
+            'errors': [
+                {
+                    'detail': '@graph may not be empty',
+                    'source': {'pointer': '/data/attributes/data'},
+                    'status': '400'
+                }
+            ]
+        }),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    'data': {'@graph': []}
+                }
+            }
+        })
+    }, {
+        'out': Response(202, keys={'data'}),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    'data': {
+                        '@graph': [{
+                            '@id': '_:100',
+                            '@type': 'Person',
+                            'given_name': 'Jim',
+                        }]
+                    }
+                }
+            }
+        })
+    }, {
+        'out': Response(400, json={
+            'errors': [
+                {
+                    'detail': "'@id' is a required property at /@graph/0",
+                    'source': {'pointer': '/data/attributes/data'},
+                    'status': '400'
+                }
+            ]
+        }),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    'data': {
+                        '@graph': [{
+                            '@type': 'Person',
+                            'given_name': 'Jim',
+                        }]
+                    }
+                }
+            }
+        })
     }]
 
     @pytest.mark.django_db
     @pytest.mark.parametrize('_request, response, authorized', [(case['in'], case['out'], case.get('authorized', True)) for case in POST_CASES])
     def test_post_data(self, trusted_user, client, _request, response, authorized):
-        args, kwargs = (), {'content_type': 'application/json'}
+        args, kwargs = (), {'content_type': 'application/vnd.api+json'}
 
         if _request.data:
             kwargs['data'] = _request.data

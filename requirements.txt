@@ -19,6 +19,7 @@ git+https://github.com/stephenmcd/django-postgres-fuzzycount.git@686053fe130c742
 # django-typed-models==0.5.0
 git+https://github.com/craigds/django-typed-models.git@7c1eaec06e4a5db188b58cee5d86fae6897208b1
 djangorestframework==3.4.0
+djangorestframework-jsonapi==2.1.1
 feedparser==5.2.1
 flower==0.9.1
 furl==0.4.95
