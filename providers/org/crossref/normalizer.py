@@ -68,6 +68,20 @@ class CreativeWork(Parser):
     https://github.com/CrossRef/rest-api-doc/blob/master/api_format.md
     """
 
+    def get_schema(self, type):
+        return {
+            'journal-article': 'Article',
+            'book': 'Book',
+            'proceedings-article': 'ConferencePaper',
+            'dataset': 'Dataset',
+            'dissertation': 'Dissertation',
+            'preprint': 'Preprint',
+            'report': 'Report',
+            'book-section': 'Section',
+        }.get(type) or 'CreativeWork'
+
+    schema = RunPython('get_schema', ctx.type)
+
     title = Maybe(ctx, 'title')[0]
     description = Maybe(ctx, 'subtitle')[0]
     date_updated = ParseDate(Try(ctx.deposited['date-time']))
@@ -117,53 +131,3 @@ class CreativeWork(Parser):
         translator = Maybe(ctx, 'translator')
         type = ctx.type
         volume = Maybe(ctx, 'volume')
-
-
-class Article(CreativeWork):
-    pass
-
-
-class Book(CreativeWork):
-    pass
-
-
-class ConferencePaper(CreativeWork):
-    pass
-
-
-class Dataset(CreativeWork):
-    pass
-
-
-class Dissertation(CreativeWork):
-    pass
-
-
-class Preprint(CreativeWork):
-    pass
-
-
-class Report(CreativeWork):
-    pass
-
-
-class Section(CreativeWork):
-    pass
-
-
-class CrossRefNormalizer(Normalizer):
-    def do_normalize(self, data):
-        unwrapped = self.unwrap_data(data)
-
-        parser = {
-            'journal-article': Article,
-            'book': Book,
-            'proceedings-article': ConferencePaper,
-            'dataset': Dataset,
-            'dissertation': Dissertation,
-            'preprint': Preprint,
-            'report': Report,
-            'book-section': Section,
-        }.get(unwrapped['type']) or CreativeWork
-
-        return parser(unwrapped).parse()
