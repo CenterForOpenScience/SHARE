@@ -2,8 +2,8 @@ import pytest
 
 from share.change import ChangeNode
 from share.change import ChangeGraph
-from share.change import CyclicalDependency
 from share.change import UnresolvableReference
+from share.util import CyclicalDependency
 
 
 class TestChangeNode:

@@ -1,0 +1,18 @@
+Person:
+    fields:
+        family_name:
+            type: text
+            kwargs: { blank: true, db_index: true }
+        given_name:
+            type: text
+            kwargs: { blank: true, db_index: true }
+        additional_name:
+            type: text
+            kwargs: { blank: true, db_index: true }
+        suffix:
+            type: text
+            kwargs: { blank: true, db_index: true }
+    children: {}
+Organization: {}
+Institution: {}
+Consortium: {}

@@ -54,8 +54,6 @@ register_route(r'entityrelation', views.EntityRelationViewSet)
 register_route(r'workrelation', views.WorkRelationViewSet)
 register_route(r'contribution', views.ContributionViewSet)
 register_route(r'award', views.AwardViewSet)
-register_route(r'entityrelationtype', views.EntityRelationTypeViewSet)
-register_route(r'workrelationtype', views.WorkRelationTypeViewSet)
 
 # registration route
 register_route(r'registrations', views.ProviderRegistrationViewSet)

@@ -7,4 +7,6 @@ from share.models.creative import *  # noqa
 from share.models.base import ExtraData  # noqa
 from share.models.registration import *  # noqa
 from share.models.identifiers import *  # noqa
-from share.models.relations import * # noqa
+from share.models.work_relations import * # noqa
+from share.models.entity_relations import * # noqa
+from share.models.contributions import * # noqa

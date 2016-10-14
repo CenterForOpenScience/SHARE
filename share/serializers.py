@@ -118,7 +118,7 @@ class ContributionSerializer(BaseShareSerializer):
     # creative_work = CreativeWorkSerializer(sparse=True)
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.Contribution
+        model = models.AbstractContribution
         exclude = ('creative_work',)
 
 
@@ -176,7 +176,7 @@ class WorkRelationSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.WorkRelation
+        model = models.AbstractWorkRelation
 
 
 class EntityRelationSerializer(BaseShareSerializer):
@@ -185,20 +185,4 @@ class EntityRelationSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.EntityRelation
-
-
-class WorkRelationTypeSerializer(serializers.ModelSerializer):
-    parent = serializers.StringRelatedField()
-
-    class Meta:
-        model = models.WorkRelationType
-        fields = ('id', 'name', 'uris', 'parent')
-
-
-class EntityRelationTypeSerializer(serializers.ModelSerializer):
-    parent = serializers.StringRelatedField()
-
-    class Meta:
-        model = models.EntityRelationType
-        fields = ('id', 'name', 'uris', 'parent')
+        model = models.AbstractEntityRelation

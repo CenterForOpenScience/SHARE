@@ -162,16 +162,6 @@ class AwardViewSet(ShareObjectViewSet):
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
-class EntityRelationTypeViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.EntityRelationTypeSerializer
-    queryset = serializer_class.Meta.model.objects.all()
-
-
-class WorkRelationTypeViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.WorkRelationTypeSerializer
-    queryset = serializer_class.Meta.model.objects.all()
-
-
 # Other
 
 class ShareUserView(views.APIView):

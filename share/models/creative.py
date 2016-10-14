@@ -5,6 +5,8 @@ from share.models.base import TypedShareObjectMeta
 from share.models.meta import Venue, Tag, Subject
 from share.models.fields import ShareManyToManyField, ShareURLField
 
+from share.util import ModelGenerator
+
 
 # Base Creative Work class
 
@@ -16,14 +18,14 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     # this may need to be renamed later
     is_deleted = models.BooleanField(default=False)
 
-    contributors = ShareManyToManyField('AbstractEntity', through='Contribution')
+    contributors = ShareManyToManyField('AbstractEntity', through='AbstractContribution')
 
     subjects = ShareManyToManyField(Subject, related_name='subjected_%(class)s', through='ThroughSubjects')
     tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
 
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
-    related_works = ShareManyToManyField('AbstractCreativeWork', through='WorkRelation', through_fields=('from_work', 'to_work'), symmetrical=False)
+    related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('from_work', 'to_work'), symmetrical=False)
 
     date_published = models.DateTimeField(null=True, db_index=True)
     date_updated = models.DateTimeField(null=True, db_index=True)
@@ -37,72 +39,5 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
         return self.title
 
 
-# Subclasses/Types of Creative Work
-
-# Catch-all type
-class CreativeWork(AbstractCreativeWork):
-    pass
-
-
-class Article(AbstractCreativeWork):
-    pass
-
-
-class Book(AbstractCreativeWork):
-    pass
-
-
-class ConferencePaper(AbstractCreativeWork):
-    pass
-
-
-class Dataset(AbstractCreativeWork):
-    pass
-
-
-class Dissertation(AbstractCreativeWork):
-    pass
-
-
-class Lesson(AbstractCreativeWork):
-    pass
-
-
-class Poster(AbstractCreativeWork):
-    pass
-
-
-class Preprint(AbstractCreativeWork):
-    pass
-
-
-class Presentation(AbstractCreativeWork):
-    pass
-
-
-class Project(AbstractCreativeWork):
-    pass
-
-
-class ProjectRegistration(AbstractCreativeWork):
-    pass
-
-
-class Report(AbstractCreativeWork):
-    pass
-
-
-class Section(AbstractCreativeWork):
-    pass
-
-
-class Software(AbstractCreativeWork):
-    pass
-
-
-class Thesis(AbstractCreativeWork):
-    pass
-
-
-class WorkingPaper(AbstractCreativeWork):
-    pass
+generator = ModelGenerator()
+globals().update(generator.subclasses_from_yaml(__file__, AbstractCreativeWork))
