@@ -1,3 +1,4 @@
+import re
 import uuid
 from functools import reduce
 
@@ -98,7 +99,7 @@ class Parser(metaclass=ParserMeta):
 
             if value is not None:
                 self.validate(field, value)
-                inst[key] = value
+                inst[key] = self._normalize_white_space(value)
 
         inst['extra'] = {}
         for key, chain in self._extra.items():
@@ -115,3 +116,8 @@ class Parser(metaclass=ParserMeta):
 
         # Return only a reference to the parsed object to avoid circular data structures
         return self.ref
+
+    def _normalize_white_space(self, value):
+        if not isinstance(value, str):
+            return value
+        return re.sub(r'\s+', ' ', value.strip())
