@@ -33,7 +33,7 @@ router.register(r'manuscripts', views.ManuscriptViewSet, base_name=views.Manuscr
 router.register(r'registrations', views.ProviderRegistrationViewSet, base_name=views.ProviderRegistrationViewSet.serializer_class.Meta.model._meta.model_name)
 
 # workflow routes
-router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name=views.NormalizedDataViewSet.serializer_class.Meta.model._meta.model_name)
+router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='NormalizedData')
 router.register(r'changesets', views.ChangeSetViewSet, base_name=views.ChangeSetViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'changes', views.ChangeViewSet, base_name=views.ChangeViewSet.serializer_class.Meta.model._meta.model_name)
 router.register(r'rawdata', views.RawDataViewSet, base_name=views.RawDataViewSet.serializer_class.Meta.model._meta.model_name)

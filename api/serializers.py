@@ -24,13 +24,22 @@ class ProviderRegistrationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class NormalizedDataSerializer(serializers.ModelSerializer):
+class FullNormalizedDataSerializer(serializers.ModelSerializer):
 
     source = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = models.NormalizedData
-        fields = ('created_at', 'normalized_data', 'source')
+        fields = ('normalized_data', 'source', 'raw')
+
+
+class BasicNormalizedDataSerializer(serializers.ModelSerializer):
+
+    source = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = models.NormalizedData
+        fields = ('normalized_data', 'source')
 
 
 class ChangeSerializer(serializers.ModelSerializer):

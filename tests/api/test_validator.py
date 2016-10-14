@@ -187,11 +187,18 @@ class TestValidator:
     }, {
         'out': Response(400, json={'errors': {'normalized_data': ["Additional properties are not allowed ('isni' was unexpected) at /@graph/0"]}}),
         'in': requests.Request('POST', json={'normalized_data': valid_work_invalid_entity_field})
+    }, {
+        # does not break because the raw information is not processed
+        'out': Response(202, keys={'normalized_id', 'task_id'}),
+        'in': requests.Request('POST', json={
+            'normalized_data': valid_work_valid_entity,
+            'raw': 'invalid_pk'
+        })
     }]
 
     @pytest.mark.django_db
-    @pytest.mark.parametrize('_request, response, authorized', [(case['in'], case['out'], case.get('authorized', True)) for case in POST_CASES])
-    def test_validator(self, trusted_user, client, _request, response, authorized):
+    @pytest.mark.parametrize('_request, response', [(case['in'], case['out']) for case in POST_CASES])
+    def test_validator(self, trusted_user, client, _request, response):
         args, kwargs = (), {'content_type': 'application/json'}
 
         if _request.data:
@@ -199,7 +206,25 @@ class TestValidator:
         elif _request.json is not None:
             kwargs['data'] = json.dumps(_request.json)
 
-        if authorized:
-            kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
+        kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
+
+        assert response == client.post('/api/v2/normalizeddata/', *args, **kwargs)
+
+    @pytest.mark.django_db
+    def test_robot_validator(self, robot_user, raw_data_id, client):
+        args, kwargs = (), {'content_type': 'application/json'}
+
+        response = Response(202, keys={'normalized_id', 'task_id'})
+        _request = requests.Request('POST', json={
+            'normalized_data': valid_work_valid_entity,
+            'raw': raw_data_id
+        })
+
+        if _request.data:
+            kwargs['data'] = _request.data
+        elif _request.json is not None:
+            kwargs['data'] = json.dumps(_request.json)
+
+        kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(robot_user.accesstoken_set.first())
 
         assert response == client.post('/api/v2/normalizeddata/', *args, **kwargs)

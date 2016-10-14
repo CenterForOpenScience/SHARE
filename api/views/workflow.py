@@ -11,8 +11,8 @@ from api import schemas
 from api.authentication import APIV1TokenBackPortAuthentication
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
-from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
-    ShareUserSerializer, ProviderSerializer
+from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, ChangeSetSerializer, \
+    ChangeSerializer, RawDataSerializer, ShareUserSerializer, ProviderSerializer
 from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
 from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
@@ -109,14 +109,18 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         Success:       200 OK
     """
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
-    serializer_class = NormalizedDataSerializer
     required_scopes = ['upload_normalized_manuscript', ]
+
+    def get_serializer_class(self):
+        if self.request.user.is_robot:
+            return FullNormalizedDataSerializer
+        return BasicNormalizedDataSerializer
 
     def get_queryset(self):
         return NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
-        serializer = NormalizedDataSerializer(data=request.data, context={'request': request})
+        serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         if serializer.is_valid():
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
@@ -307,7 +311,7 @@ class V1DataView(views.APIView):
     """
     authentication_classes = (APIV1TokenBackPortAuthentication, )
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
-    serializer_class = NormalizedDataSerializer
+    serializer_class = BasicNormalizedDataSerializer
 
     def post(self, request, *args, **kwargs):
 
@@ -340,7 +344,7 @@ class V1DataView(views.APIView):
         normalized_data = V1Normalizer({}).normalize(raw.data)
         data = {}
         data['normalized_data'] = normalized_data
-        serializer = NormalizedDataSerializer(data=data, context={'request': request})
+        serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():
             nm_instance = serializer.save()

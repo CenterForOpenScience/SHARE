@@ -1,8 +1,14 @@
 import pytest
+import random
+import string
+import datetime
 
 from django.core.management import call_command
+from django.utils import timezone
+from django.conf import settings
+from oauth2_provider.models import AccessToken, Application
 
-from share.models import Person, NormalizedData, Change, ChangeSet
+from share.models import Person, NormalizedData, Change, ChangeSet, RawData
 from share.models import Publication, Institution
 from share.models import ShareUser
 from share.change import ChangeNode, ChangeGraph
@@ -21,10 +27,39 @@ def trusted_user():
 
 
 @pytest.fixture
+def robot_user():
+    username = 'robot_tester'
+    user = ShareUser.objects.create_robot_user(username=username, robot='Tester')
+    application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+    application = Application.objects.get(user=application_user)
+    client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
+    AccessToken.objects.create(
+        user=user,
+        application=application,
+        expires=(timezone.now() + datetime.timedelta(weeks=20 * 52)),  # 20 yrs
+        scope=settings.HARVESTER_SCOPES,
+        token=client_secret
+    )
+    return user
+
+
+@pytest.fixture
 def share_source():
     source = ShareUser(username='tester')
     source.save()
     return source
+
+
+@pytest.fixture
+def raw_data(share_source):
+    raw_data = RawData(source=share_source, data={})
+    raw_data.save()
+    return raw_data
+
+
+@pytest.fixture
+def raw_data_id(raw_data):
+    return raw_data.id
 
 
 @pytest.fixture
