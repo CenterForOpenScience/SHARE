@@ -65,7 +65,9 @@ class JSONLDValidator:
 
     def validate_node(self, value, refs, nodes):
         model = apps.app_configs['share'].models.get(value['@type'].lower())
-        if model is None:
+
+        # concrete model is not valid for typed models
+        if model is None or (model._meta.proxied_children and model == model._meta.concrete_model):
             raise ValidationError("'{}' is not a valid type".format(value['@type']))
 
         self.validator_for(model).validate(value)

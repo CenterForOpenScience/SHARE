@@ -41,34 +41,6 @@ class TestPostNormalizedData:
         'authorized': False,
         'out': Response(401, json={'detail': 'Authentication credentials were not provided.'}),
         'in': requests.Request('POST', json={'@graph': [{'@type': 'person', 'given_name': 'Jim'}]}, headers={'Authorization': 'Foo'})
-    }, {
-        'out': Response(400, json={'errors': {'normalized_data': ['This field is required.']}}),
-        'in': requests.Request('POST', json={})
-    }, {
-        'out': Response(400, json={'detail': 'JSON parse error - Expected object or value'}),
-        'in': requests.Request('POST', data='<html!>')
-    }, {
-        'out': Response(400, json={'errors': {'normalized_data': ['@graph may not be empty']}}),
-        'in': requests.Request('POST', json={'normalized_data': {
-            '@graph': []
-        }})
-    }, {
-        'out': Response(202, keys={'normalized_id', 'task_id'}),
-        'in': requests.Request('POST', json={'normalized_data': {
-            '@graph': [{
-                '@id': '_:100',
-                '@type': 'Person',
-                'given_name': 'Jim',
-            }]
-        }})
-    }, {
-        'out': Response(400, json={'errors': {'normalized_data': ["'@id' is a required property at /@graph/0"]}}),
-        'in': requests.Request('POST', json={'normalized_data': {
-            '@graph': [{
-                '@type': 'Person',
-                'given_name': 'Jim',
-            }]
-        }})
     }]
 
     @pytest.mark.django_db

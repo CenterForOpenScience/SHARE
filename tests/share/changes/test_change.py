@@ -617,3 +617,54 @@ class TestChangeSet:
         assert cat.incoming_creative_work_relations.count() == 1
         assert cat.incoming_creative_work_relations.first()._meta.model_name == 'cites'
         assert cat.incoming_creative_work_relations.first().subject == dog
+
+    @pytest.mark.django_db
+    def test_ignore_generic_work_type(self, change_factory, all_about_anteaters):
+        cs = change_factory.from_graph({
+            '@graph': [{
+                '@id': all_about_anteaters.id,
+                '@type': 'creativework'
+            }]
+        }, disambiguate=True)
+
+        assert cs is None
+
+    @pytest.mark.django_db
+    def test_work_type_stays_nongeneric(self, change_factory, all_about_anteaters):
+        new_title = 'Some about Anteaters'
+        cs = change_factory.from_graph({
+            '@graph': [{
+                '@id': all_about_anteaters.id,
+                '@type': 'creativework',
+                'title': new_title
+            }]
+        }, disambiguate=True)
+
+        assert all_about_anteaters.type == 'share.article'
+        assert models.Publication.objects.count() == 1
+
+        cs.accept()
+        all_about_anteaters.refresh_from_db()
+
+        assert all_about_anteaters.type == 'share.article'
+        assert all_about_anteaters.title == new_title
+
+    @pytest.mark.django_db
+    def test_change_entity_type(self, change_factory, university_of_whales):
+        cs = change_factory.from_graph({
+            '@graph': [{
+                '@id': university_of_whales.id,
+                '@type': 'organization'
+            }]
+        }, disambiguate=True)
+
+        assert models.Institution.objects.count() == 1
+        assert models.Organization.objects.count() == 0
+
+        (org,) = cs.accept()
+
+        assert org.type == 'share.organization'
+        assert org.id == university_of_whales.id
+        assert org.name == university_of_whales.name
+        assert models.Institution.objects.count() == 0
+        assert models.Organization.objects.count() == 1

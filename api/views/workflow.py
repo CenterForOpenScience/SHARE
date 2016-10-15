@@ -273,38 +273,39 @@ class V1DataView(views.APIView):
         Method:        POST
         Body (JSON): {
                         {
-                            "publisher":{
-                                "name": <publisher name>,
-                                "uri": <publisher uri>
-                            },
-                            "description": <description>,
-                            "contributors":[
-                                {
-                                    "name":<contributor name>,
-                                    "email": <email>,
-                                    "sameAs": <uri>
+                            "jsonData": {
+                                "publisher":{
+                                    "name": <publisher name>,
+                                    "uri": <publisher uri>
                                 },
-                                {
-                                    "name":<contributor name>
+                                "description": <description>,
+                                "contributors":[
+                                    {
+                                        "name":<contributor name>,
+                                        "email": <email>,
+                                        "sameAs": <uri>
+                                    },
+                                    {
+                                        "name":<contributor name>
+                                    }
+                                ],
+                                "title": <title>,
+                                "tags":[
+                                    <tag>,
+                                    <tag>
+                                ],
+                                "languages":[
+                                    <language>
+                                ],
+                                "providerUpdatedDateTime": <time submitted>,
+                                "uris": {
+                                    "canonicalUri": <uri>,
+                                    "providerUris":[
+                                        <uri>
+                                    ]
                                 }
-                            ],
-                            "title": <title>,
-                            "tags":[
-                                <tag>,
-                                <tag>
-                            ],
-                            "languages":[
-                                <language>
-                            ],
-                            "providerUpdatedDateTime": <time submitted>,
-                            "uris": {
-                                "canonicalUri": <uri>,
-                                "providerUris":[
-                                    <uri>
-                                ]
                             }
                         }
-
                     }
         Success:       200 OK
     """
@@ -320,7 +321,7 @@ class V1DataView(views.APIView):
             raise ParseError(detail=error.message)
 
         try:
-            prelim_data = request.data
+            prelim_data = request.data['jsonData']
         except ParseError as error:
             return Response(
                 'Invalid JSON - {0}'.format(error.message),

@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
-from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import ProviderRegistrationSerializer
 from share.models import ProviderRegistration
 
@@ -32,7 +32,7 @@ class ProviderRegistrationViewSet(viewsets.ModelViewSet):
 
         Success:       201 CREATED
     """
-    permission_classes = (ReadOnlyOrTokenHasScopeOrIsAuthenticated, )
+    permission_classes = (IsAuthenticated, )
     serializer_class = ProviderRegistrationSerializer
 
     def get_queryset(self):

@@ -2,7 +2,7 @@ import abc
 import logging
 import datetime
 
-import arrow
+import pendulum
 import celery
 import requests
 
@@ -56,6 +56,12 @@ class ProviderTask(celery.Task):
 
 class HarvesterTask(ProviderTask):
 
+    def apply_async(self, targs=None, tkwargs=None, **kwargs):
+        tkwargs = tkwargs or {}
+        tkwargs.setdefault('end', datetime.datetime.utcnow().isoformat())
+        tkwargs.setdefault('start', (datetime.datetime.utcnow() + datetime.timedelta(-1)).isoformat())
+        return super().apply_async(targs, tkwargs, **kwargs)
+
     def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None, limit: int=None):
         if self.config.disabled:
             raise Exception('Harvester {} is disabled. Either enable it or disable it\'s celery beat entry'.format(self.config))
@@ -63,9 +69,9 @@ class HarvesterTask(ProviderTask):
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
         if type(end) is str:
-            end = arrow.get(end).datetime
+            end = pendulum.parse(end)
         if type(start) is str:
-            start = arrow.get(start).datetime
+            start = pendulum.parse(start)
 
         harvester = self.config.harvester(self.config)
 

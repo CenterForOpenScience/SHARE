@@ -274,7 +274,7 @@ class Change(models.Model):
                 change__node_id=ref['@id'],
                 change__change_set=self.change_set,
             )
-        return model.objects.get(pk=ref['@id'])
+        return model._meta.concrete_model.objects.get(pk=ref['@id'])
 
     def _resolve_str(self, key, value):
         field = self.target_type.model_class()._meta.get_field(key)

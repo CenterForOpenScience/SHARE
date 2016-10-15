@@ -1,8 +1,4 @@
-import arrow
-
-import dateparser
-
-from share.normalize import Parser, Delegate, RunPython, ParseName, Normalizer, Map, ctx, Try, Subjects, DOI
+from share.normalize import Parser, Delegate, RunPython, ParseDate, ParseName, Normalizer, Map, ctx, Try, Subjects, DOI
 
 
 class Email(Parser):
@@ -86,7 +82,7 @@ class CreativeWork(Parser):
         Delegate(Association.using(entity=Delegate(Institution))),
         RunPython('get_author_institute', ctx)
     )
-    date_published = RunPython('parse_date', ctx.date)
+    date_published = ParseDate(ctx.date)
     language = ctx.language
     tags = Map(
         Delegate(ThroughTags),
@@ -96,7 +92,7 @@ class CreativeWork(Parser):
     subjects = Map(Delegate(ThroughSubjects), Subjects(ctx.subjects))
 
     class Extra:
-        modified = RunPython('parse_date', ctx.date)
+        modified = ParseDate(ctx.date)
         subjects = Try(ctx.subjects)
         identifiers = ctx.identifiers
         volume = Try(ctx.volume)
@@ -105,9 +101,6 @@ class CreativeWork(Parser):
         journal_abbrev = Try(ctx.journal_abbrev)
         description_html = Try(ctx['description-html'])
         issn = Try(ctx.issn)
-
-    def parse_date(self, date_str):
-        return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
 
     def get_author_institute(self, context):
         # read into a set while preserving order and passed back to erase duplicates

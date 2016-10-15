@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.routers import DefaultRouter
 
 from api import views
@@ -69,7 +70,7 @@ register_route(r'provider', views.ProviderViewSet)
 urlpatterns = [
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
     url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
-    url(r'userinfo/?', views.ShareUserView.as_view(), name='userinfo'),
+    url(r'userinfo/?', ensure_csrf_cookie(views.ShareUserView.as_view()), name='userinfo'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
     url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema'),

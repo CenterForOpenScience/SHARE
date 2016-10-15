@@ -10,22 +10,24 @@ from share.models import ChangeSet
 class TestV1PushProxy:
 
     valid_data = {
-        "providerUpdatedDateTime": "2016-08-25T11:37:40Z",
-        "uris": {
-            "canonicalUri": "https://provider.domain/files/7d2792031",
-            "providerUris": ["https://provider.domain/files/7d2792031"]
-        },
-        "contributors": [
-            {"name": "Person1", "email": "one@provider.domain"},
-            {"name": "Person2", "email": "two@provider.domain"},
-            {"name": "Person3", "email": "three@provider.domain"},
-            {"name": "Person4", "email": "four@provider.domain"}
-        ],
-        "title": "Title"
+        "jsonData": {
+            "providerUpdatedDateTime": "2016-08-25T11:37:40Z",
+            "uris": {
+                "canonicalUri": "https://provider.domain/files/7d2792031",
+                "providerUris": ["https://provider.domain/files/7d2792031"]
+            },
+            "contributors": [
+                {"name": "Person1", "email": "one@provider.domain"},
+                {"name": "Person2", "email": "two@provider.domain"},
+                {"name": "Person3", "email": "three@provider.domain"},
+                {"name": "Person4", "email": "four@provider.domain"}
+            ],
+            "title": "Title"
+        }
     }
 
-    def test_invalid_data(self, client, trusted_user):
-        data = {
+    @pytest.mark.parametrize('data', [{
+        "jsonData": {
             "providerUpdatedDateTime": "2016-08-25T11:37:40Z",
             "uris": {
                 "providerUris": ["https://provider.domain/files/7d2792031"]
@@ -38,7 +40,22 @@ class TestV1PushProxy:
             ],
             "title": "Title"
         }
-
+    }, {
+    }, {
+        "providerUpdatedDateTime": "2016-08-25T11:37:40Z",
+        "uris": {
+            "providerUris": ["https://provider.domain/files/7d2792031"]
+        },
+        "contributors": [
+            {"name": "Person1", "email": "one@provider.domain"},
+            {"name": "Person2", "email": "two@provider.domain"},
+            {"name": "Person3", "email": "three@provider.domain"},
+            {"name": "Person4", "email": "four@provider.domain"}
+        ],
+        "title": "Title"
+    }
+    ])
+    def test_invalid_data(self, client, trusted_user, data):
         assert client.post(
             '/api/v1/share/data/',
             json.dumps(data),
