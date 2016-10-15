@@ -10,7 +10,7 @@ from share.util import ModelGenerator
 class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
     name = models.TextField(blank=True)
     location = models.TextField(blank=True)
-    related_entities = ShareManyToManyField('AbstractEntity', through='AbstractEntityRelation', through_fields=('from_entity', 'to_entity'), symmetrical=False)
+    related_entities = ShareManyToManyField('AbstractEntity', through='AbstractEntityRelation', through_fields=('subject', 'related'), symmetrical=False)
 
     class Meta:
         verbose_name_plural = 'AbstractEntities'

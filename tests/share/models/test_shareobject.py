@@ -89,7 +89,7 @@ class TestVersioning:
         ident.refresh_from_db()
         john_doe.refresh_from_db()
 
-        assert john_doe.entityidentifiers.count() == 1
+        assert john_doe.identifiers.count() == 1
 
         assert john_doe == ident.entity
         assert john_doe.version == ident.entity_version
@@ -111,13 +111,13 @@ class TestVersioning:
         john_doe.save()
         john_doe.refresh_from_db()
 
-        assert john_doe.entityidentifiers.count() == 1
+        assert john_doe.identifiers.count() == 1
 
         assert john_doe == ident.entity
         assert john_doe.version != ident.entity_version
         assert john_doe.versions.last() == ident.entity_version
 
-        assert ident == john_doe.entityidentifiers.first()
+        assert ident == john_doe.identifiers.first()
 
 
 @pytest.mark.django_db

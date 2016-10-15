@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from share.models.base import ShareObject, TypedShareObjectMeta
+from share.models.base import ShareObject, ShareObjectVersion, TypedShareObjectMeta
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 
 from share.util import ModelGenerator
@@ -17,17 +17,18 @@ class AbstractContribution(ShareObject, metaclass=TypedShareObjectMeta):
     order_cited = models.PositiveIntegerField(null=True)
 
     class Meta:
+        default_related_name = 'contributions'
         unique_together = ('entity', 'creative_work', 'type')
 
 
 class ThroughContribution(ShareObject):
-    origin = ShareForeignKey(AbstractContribution, related_name='+')
-    destination = ShareForeignKey(AbstractContribution, related_name='+')
+    subject = ShareForeignKey(AbstractContribution, related_name='+')
+    related = ShareForeignKey(AbstractContribution, related_name='+')
 
     def clean(self):
-        if self.origin.creative_work != self.destination.creative_work:
+        if self.subject.creative_work != self.related.creative_work:
             raise ValidationError(_('ThroughContributions must contribute to the same AbstractCreativeWork'))
-        if self.origin.entity == self.destination.entity:
+        if self.subject.entity == self.related.entity:
             raise ValidationError(_('A contributor may not contribute through itself'))
 
     def save(self, *args, **kwargs):
@@ -58,3 +59,5 @@ generator = ModelGenerator(field_types={
     'm2m': ShareManyToManyField
 })
 globals().update(generator.subclasses_from_yaml(__file__, AbstractContribution))
+
+__all__ = tuple(key for key, value in globals().items() if isinstance(value, type) and issubclass(value, (ShareObject, ShareObjectVersion)))

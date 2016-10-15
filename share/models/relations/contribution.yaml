@@ -1,0 +1,22 @@
+Contribution:
+  children:
+
+    CollaboratorContribution:
+        fields:
+            contributed_through:
+                type: m2m
+                kwargs:
+                    model: AbstractContribution
+                    symmetrical: false
+                    through: ThroughContribution
+                    through_fields: ['subject', 'related']
+
+    FunderContribution:
+        fields:
+            awards:
+                type: m2m
+                kwargs:
+                    model: Award
+                    through: ThroughContributionAwards
+    PublisherContribution: {}
+    HostContribution: {}

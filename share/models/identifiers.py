@@ -35,7 +35,7 @@ class WorkIdentifier(ShareObject):
     uri = ShareURLField(unique=True)
     host = models.TextField(editable=False)
     scheme = models.TextField(editable=False)
-    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='%(class)ss')
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='identifiers')
 
     def save(self, *args, **kwargs):
         f = furl(self.uri)
@@ -48,7 +48,7 @@ class EntityIdentifier(ShareObject):
     uri = ShareURLField(unique=True)
     host = models.TextField(editable=False)
     scheme = models.TextField(editable=False)
-    entity = ShareForeignKey('AbstractEntity', related_name='%(class)ss')
+    entity = ShareForeignKey('AbstractEntity', related_name='identifiers')
 
     def save(self, *args, **kwargs):
         f = furl(self.uri)

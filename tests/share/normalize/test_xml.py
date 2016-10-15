@@ -63,7 +63,7 @@ class Organization(Parser):
 
 
 class IsAffiliatedWith(Parser):
-    to_entity = Delegate(Organization, ctx)
+    related = Delegate(Organization, ctx)
 
 
 class Person(Parser):

@@ -15,45 +15,45 @@ def register_creative_work_route(model_name):
     register_route(model_name, views.make_creative_work_view_set_class(model_name))
 
 
-# creative work routes
-register_creative_work_route(r'creativework')
-register_creative_work_route(r'article')
-register_creative_work_route(r'book')
-register_creative_work_route(r'conferencepaper')
-register_creative_work_route(r'dataset')
-register_creative_work_route(r'dissertation')
-register_creative_work_route(r'lesson')
-register_creative_work_route(r'poster')
-register_creative_work_route(r'preprint')
-register_creative_work_route(r'presentation')
-register_creative_work_route(r'project')
-register_creative_work_route(r'projectregistration')
-register_creative_work_route(r'report')
-register_creative_work_route(r'section')
-register_creative_work_route(r'software')
-register_creative_work_route(r'thesis')
-register_creative_work_route(r'workingpaper')
+# # creative work routes
+# register_creative_work_route(r'creativework')
+# register_creative_work_route(r'article')
+# register_creative_work_route(r'book')
+# register_creative_work_route(r'conferencepaper')
+# register_creative_work_route(r'dataset')
+# register_creative_work_route(r'dissertation')
+# register_creative_work_route(r'lesson')
+# register_creative_work_route(r'poster')
+# register_creative_work_route(r'preprint')
+# register_creative_work_route(r'presentation')
+# register_creative_work_route(r'project')
+# register_creative_work_route(r'projectregistration')
+# register_creative_work_route(r'report')
+# register_creative_work_route(r'section')
+# register_creative_work_route(r'software')
+# register_creative_work_route(r'thesis')
+# register_creative_work_route(r'workingpaper')
 
-# creative work attributes
-register_route(r'tag', views.TagViewSet)
-register_route(r'subject', views.SubjectViewSet)
-register_route(r'venue', views.VenueViewSet)
-register_route(r'extra', views.ExtraDataViewSet)
+# # creative work attributes
+# register_route(r'tag', views.TagViewSet)
+# register_route(r'subject', views.SubjectViewSet)
+# register_route(r'venue', views.VenueViewSet)
+# register_route(r'extra', views.ExtraDataViewSet)
 
-# entity routes
-register_route(r'person', views.PersonViewSet)
-register_route(r'organization', views.OrganizationViewSet)
-register_route(r'institution', views.InstitutionViewSet)
+# # entity routes
+# register_route(r'person', views.PersonViewSet)
+# register_route(r'organization', views.OrganizationViewSet)
+# register_route(r'institution', views.InstitutionViewSet)
 
-# identifier routes
-register_route(r'entityidentifier', views.EntityIdentifierViewSet)
-register_route(r'workidentifier', views.WorkIdentifierViewSet)
+# # identifier routes
+# register_route(r'entityidentifier', views.EntityIdentifierViewSet)
+# register_route(r'workidentifier', views.WorkIdentifierViewSet)
 
-# relation routes
-register_route(r'entityrelation', views.EntityRelationViewSet)
-register_route(r'workrelation', views.WorkRelationViewSet)
-register_route(r'contribution', views.ContributionViewSet)
-register_route(r'award', views.AwardViewSet)
+# # relation routes
+# register_route(r'entityrelation', views.EntityRelationViewSet)
+# register_route(r'workrelation', views.WorkRelationViewSet)
+# register_route(r'contribution', views.ContributionViewSet)
+# register_route(r'award', views.AwardViewSet)
 
 # registration route
 register_route(r'registrations', views.ProviderRegistrationViewSet)

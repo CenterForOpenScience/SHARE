@@ -462,8 +462,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:foo',
                 '@type': 'cites',
-                'from_work': {'@id': '_:1234', '@type': 'preprint'},
-                'to_work': {'@id': '_:2345', '@type': 'creativework'},
+                'subject': {'@id': '_:1234', '@type': 'preprint'},
+                'related': {'@id': '_:2345', '@type': 'creativework'},
             }, {
                 '@id': '_:4567',
                 '@type': 'workidentifier',
@@ -481,15 +481,15 @@ class TestChangeSet:
 
         assert p.related_works.count() == 1
         assert p.related_works.first() == c
-        assert p.outgoing_abstractworkrelations.count() == 1
-        assert p.outgoing_abstractworkrelations.first()._meta.model_name == 'cites'
-        assert p.outgoing_abstractworkrelations.first().to_work == c
-        assert c.incoming_abstractworkrelations.count() == 1
-        assert c.incoming_abstractworkrelations.first()._meta.model_name == 'cites'
-        assert c.incoming_abstractworkrelations.first().from_work == p
+        assert p.outgoing_creative_work_relations.count() == 1
+        assert p.outgoing_creative_work_relations.first()._meta.model_name == 'cites'
+        assert p.outgoing_creative_work_relations.first().related == c
+        assert c.incoming_creative_work_relations.count() == 1
+        assert c.incoming_creative_work_relations.first()._meta.model_name == 'cites'
+        assert c.incoming_creative_work_relations.first().subject == p
 
     @pytest.mark.django_db
-    def test_add_relation_to_work(self, normalized_data_id):
+    def test_add_relation_related(self, normalized_data_id):
         '''
         A work exists. Add a second work with a relation to the first work.
         The first work should have the appropriate inverse relation to the
@@ -522,8 +522,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:foo',
                 '@type': 'cites',
-                'from_work': {'@id': '_:1234', '@type': 'preprint'},
-                'to_work': {'@id': '_:2345', '@type': 'creativework'},
+                'subject': {'@id': '_:1234', '@type': 'preprint'},
+                'related': {'@id': '_:2345', '@type': 'creativework'},
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
@@ -544,12 +544,12 @@ class TestChangeSet:
         cat = models.Article.objects.first()
         dog = models.Preprint.objects.first()
 
-        assert dog.outgoing_abstractworkrelations.count() == 1
-        assert dog.outgoing_abstractworkrelations.first()._meta.model_name == 'cites'
-        assert dog.outgoing_abstractworkrelations.first().to_work == cat
-        assert cat.incoming_abstractworkrelations.count() == 1
-        assert cat.incoming_abstractworkrelations.first()._meta.model_name == 'cites'
-        assert cat.incoming_abstractworkrelations.first().from_work == dog
+        assert dog.outgoing_creative_work_relations.count() == 1
+        assert dog.outgoing_creative_work_relations.first()._meta.model_name == 'cites'
+        assert dog.outgoing_creative_work_relations.first().related == cat
+        assert cat.incoming_creative_work_relations.count() == 1
+        assert cat.incoming_creative_work_relations.first()._meta.model_name == 'cites'
+        assert cat.incoming_creative_work_relations.first().subject == dog
 
     @pytest.mark.django_db
     def test_add_work_with_existing_relation(self, normalized_data_id):
@@ -572,8 +572,8 @@ class TestChangeSet:
             }, {
                 '@id': '_:foo',
                 '@type': 'cites',
-                'from_work': {'@id': '_:1234', '@type': 'preprint'},
-                'to_work': {'@id': '_:2345', '@type': 'creativework'},
+                'subject': {'@id': '_:1234', '@type': 'preprint'},
+                'related': {'@id': '_:2345', '@type': 'creativework'},
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
@@ -611,9 +611,9 @@ class TestChangeSet:
         cat = models.Article.objects.first()
         dog = models.Preprint.objects.first()
 
-        assert dog.outgoing_abstractworkrelations.count() == 1
-        assert dog.outgoing_abstractworkrelations.first()._meta.model_name == 'cites'
-        assert dog.outgoing_abstractworkrelations.first().to_work == cat
-        assert cat.incoming_abstractworkrelations.count() == 1
-        assert cat.incoming_abstractworkrelations.first()._meta.model_name == 'cites'
-        assert cat.incoming_abstractworkrelations.first().from_work == dog
+        assert dog.outgoing_creative_work_relations.count() == 1
+        assert dog.outgoing_creative_work_relations.first()._meta.model_name == 'cites'
+        assert dog.outgoing_creative_work_relations.first().related == cat
+        assert cat.incoming_creative_work_relations.count() == 1
+        assert cat.incoming_creative_work_relations.first()._meta.model_name == 'cites'
+        assert cat.incoming_creative_work_relations.first().subject == dog

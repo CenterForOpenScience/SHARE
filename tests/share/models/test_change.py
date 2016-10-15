@@ -17,25 +17,25 @@ def ld_graph():
         '@graph': [
             {'@id': '_:d486fd737bea4fbe9566b7a2842651ef', '@type': 'Organization', 'name': 'Department of Physics'},
 
-            {'@id': '_:c4f10e02785a4b4d878f48d08ffc7fce', 'to_entity': {'@type': 'Organization', '@id': '_:d486fd737bea4fbe9566b7a2842651ef'}, '@type': 'IsAffiliatedWith', 'from_entity': {'@type': 'Person', '@id': '_:7e742fa3377e4f119e36f8629144a0bc'}},
+            {'@id': '_:c4f10e02785a4b4d878f48d08ffc7fce', 'related': {'@type': 'Organization', '@id': '_:d486fd737bea4fbe9566b7a2842651ef'}, '@type': 'IsAffiliatedWith', 'subject': {'@type': 'Person', '@id': '_:7e742fa3377e4f119e36f8629144a0bc'}},
             {'@id': '_:7e742fa3377e4f119e36f8629144a0bc', 'related_entities': [{'@type': 'IsAffiliatedWith', '@id': '_:c4f10e02785a4b4d878f48d08ffc7fce'}], '@type': 'Person', 'family_name': 'Prendergast', 'given_name': 'David'},
             {'@id': '_:687a4ba2cbd54ab7a2f2c3cd1777ea8a', '@type': 'CollaboratorContribution', 'creative_work': {'@type': 'Article', '@id': '_:6203fec461bb4b3fa956772acbd9c50d'}, 'entity': {'@type': 'Person', '@id': '_:7e742fa3377e4f119e36f8629144a0bc'}},
 
             {'@id': '_:69e859cefed140bd9b717c5b610d300c', '@type': 'Organization', 'name': 'NMRC, University College, Cork, Ireland'},
 
-            {'@id': '_:2fd829eeda214adca2d4d34d02b10328', 'to_entity': {'@type': 'Organization', '@id': '_:69e859cefed140bd9b717c5b610d300c'}, '@type': 'IsAffiliatedWith', 'from_entity': {'@type': 'Person', '@id': '_:ed3cc2a50f6d499db933a28d16bca5d6'}},
+            {'@id': '_:2fd829eeda214adca2d4d34d02b10328', 'related': {'@type': 'Organization', '@id': '_:69e859cefed140bd9b717c5b610d300c'}, '@type': 'IsAffiliatedWith', 'subject': {'@type': 'Person', '@id': '_:ed3cc2a50f6d499db933a28d16bca5d6'}},
             {'@id': '_:ed3cc2a50f6d499db933a28d16bca5d6', 'related_entities': [{'@type': 'IsAffiliatedWith', '@id': '_:2fd829eeda214adca2d4d34d02b10328'}], '@type': 'Person', 'family_name': 'Nolan', 'given_name': 'M.'},
             {'@id': '_:27961f3c7c644101a500772477aff304', '@type': 'CollaboratorContribution', 'creative_work': {'@type': 'Article', '@id': '_:6203fec461bb4b3fa956772acbd9c50d'}, 'entity': {'@type': 'Person', '@id': '_:ed3cc2a50f6d499db933a28d16bca5d6'}},
 
-            {'@id': '_:d4f10e02785a4b4d878f48d08ffc7fce', 'to_entity': {'@type': 'Organization', '@id': '_:d486fd737bea4fbe9566b7a2842651ef'}, '@type': 'IsAffiliatedWith', 'from_entity': {'@type': 'Person', '@id': '_:9a1386475d314b9bb524931e24361aaa'}},
+            {'@id': '_:d4f10e02785a4b4d878f48d08ffc7fce', 'related': {'@type': 'Organization', '@id': '_:d486fd737bea4fbe9566b7a2842651ef'}, '@type': 'IsAffiliatedWith', 'subject': {'@type': 'Person', '@id': '_:9a1386475d314b9bb524931e24361aaa'}},
             {'@id': '_:9a1386475d314b9bb524931e24361aaa', 'related_entities': [{'@type': 'IsAffiliatedWith', '@id': '_:d4f10e02785a4b4d878f48d08ffc7fce'}], '@type': 'Person', 'family_name': 'Filippi', 'given_name': 'Claudia'},
             {'@id': '_:bf7726af4542405888463c796e5b7686', '@type': 'CollaboratorContribution', 'creative_work': {'@type': 'Article', '@id': '_:6203fec461bb4b3fa956772acbd9c50d'}, 'entity': {'@type': 'Person', '@id': '_:9a1386475d314b9bb524931e24361aaa'}},
 
-            {'@id': '_:e4f10e02785a4b4d878f48d08ffc7fce', 'to_entity': {'@type': 'Organization', '@id': '_:d486fd737bea4fbe9566b7a2842651ef'}, '@type': 'IsAffiliatedWith', 'from_entity': {'@type': 'Person', '@id': '_:78639db07e2e4ee88b422a8920d8a095'}},
+            {'@id': '_:e4f10e02785a4b4d878f48d08ffc7fce', 'related': {'@type': 'Organization', '@id': '_:d486fd737bea4fbe9566b7a2842651ef'}, '@type': 'IsAffiliatedWith', 'subject': {'@type': 'Person', '@id': '_:78639db07e2e4ee88b422a8920d8a095'}},
             {'@id': '_:78639db07e2e4ee88b422a8920d8a095', 'related_entities': [{'@type': 'IsAffiliatedWith', '@id': '_:e4f10e02785a4b4d878f48d08ffc7fce'}], '@type': 'Person', 'family_name': 'Fahy', 'given_name': 'Stephen'},
             {'@id': '_:18d151204d7c431388a7e516defab1bc', '@type': 'CollaboratorContribution', 'creative_work': {'@type': 'Article', '@id': '_:6203fec461bb4b3fa956772acbd9c50d'}, 'entity': {'@type': 'Person', '@id': '_:78639db07e2e4ee88b422a8920d8a095'}},
 
-            {'@id': '_:5fd829eeda214adca2d4d34d02b10328', 'to_entity': {'@type': 'Organization', '@id': '_:69e859cefed140bd9b717c5b610d300c'}, '@type': 'IsAffiliatedWith', 'from_entity': {'@type': 'Person', '@id': '_:f4cec0271c7d4085bac26dbb2b32a002'}},
+            {'@id': '_:5fd829eeda214adca2d4d34d02b10328', 'related': {'@type': 'Organization', '@id': '_:69e859cefed140bd9b717c5b610d300c'}, '@type': 'IsAffiliatedWith', 'subject': {'@type': 'Person', '@id': '_:f4cec0271c7d4085bac26dbb2b32a002'}},
             {'@id': '_:f4cec0271c7d4085bac26dbb2b32a002', 'related_entities': [{'@type': 'IsAffiliatedWith', '@id': '_:5fd829eeda214adca2d4d34d02b10328'}], '@type': 'Person', 'family_name': 'Greer', 'given_name': 'J.'},
             {'@id': '_:a17f28109536459ca02d99bf777400ae', '@type': 'CollaboratorContribution', 'creative_work': {'@type': 'Article', '@id': '_:6203fec461bb4b3fa956772acbd9c50d'}, 'entity': {'@type': 'Person', '@id': '_:f4cec0271c7d4085bac26dbb2b32a002'}},
 

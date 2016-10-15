@@ -11,18 +11,18 @@ from django.contrib import messages
 from django.contrib.admin.views.main import ChangeList
 
 from share.robot import RobotAppConfig
-from share.models.base import ExtraData
+# from share.models.base import ExtraData
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
-from share.models.creative import AbstractCreativeWork
-from share.models.entities import AbstractEntity
-from share.models.identifiers import WorkIdentifier, EntityIdentifier
-from share.models.meta import Venue, Tag, Subject
+# from share.models.creative import AbstractCreativeWork
+# from share.models.entities import AbstractEntity
+# from share.models.identifiers import WorkIdentifier, EntityIdentifier
+# from share.models.meta import Venue, Tag, Subject
 from share.models.registration import ProviderRegistration
-from share.models.work_relations import AbstractWorkRelation
-from share.models.entity_relations import AbstractEntityRelation
-from share.models.contributions import AbstractContribution, Award
+# from share.models.work_relations import AbstractWorkRelation
+# from share.models.entity_relations import AbstractEntityRelation
+# from share.models.contributions import AbstractContribution, Award
 from share.tasks import ApplyChangeSets
 
 
@@ -179,24 +179,24 @@ class ProviderRegistrationAdmin(admin.ModelAdmin):
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
-admin.site.register(AbstractEntityRelation)
-admin.site.register(AbstractWorkRelation)
-admin.site.register(AbstractContribution)
+# admin.site.register(AbstractEntityRelation)
+# admin.site.register(AbstractWorkRelation)
+# admin.site.register(AbstractContribution)
 
-admin.site.register(EntityIdentifier)
-admin.site.register(WorkIdentifier)
+# admin.site.register(EntityIdentifier)
+# admin.site.register(WorkIdentifier)
 
-admin.site.register(Venue)
-admin.site.register(Award)
-admin.site.register(Tag, TagAdmin)
-admin.site.register(Subject)
-admin.site.register(ExtraData)
+# admin.site.register(Venue)
+# admin.site.register(Award)
+# admin.site.register(Tag, TagAdmin)
+# admin.site.register(Subject)
+# admin.site.register(ExtraData)
 admin.site.register(RawData, RawDataAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 
-admin.site.register(AbstractEntity, AbstractEntityAdmin)
-admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
+# admin.site.register(AbstractEntity, AbstractEntityAdmin)
+# admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(ShareUser)

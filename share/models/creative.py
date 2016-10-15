@@ -20,12 +20,12 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     contributors = ShareManyToManyField('AbstractEntity', through='AbstractContribution')
 
-    subjects = ShareManyToManyField(Subject, related_name='subjected_%(class)s', through='ThroughSubjects')
-    tags = ShareManyToManyField(Tag, related_name='tagged_%(class)s', through='ThroughTags')
+    subjects = ShareManyToManyField(Subject, related_name='subjected_works', through='ThroughSubjects')
+    tags = ShareManyToManyField(Tag, related_name='tagged_works', through='ThroughTags')
 
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
-    related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('from_work', 'to_work'), symmetrical=False)
+    related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('subject', 'related'), symmetrical=False)
 
     date_published = models.DateTimeField(null=True, db_index=True)
     date_updated = models.DateTimeField(null=True, db_index=True)
@@ -37,7 +37,6 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     def __str__(self):
         return self.title
-
 
 generator = ModelGenerator()
 globals().update(generator.subclasses_from_yaml(__file__, AbstractCreativeWork))

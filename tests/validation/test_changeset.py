@@ -69,7 +69,7 @@ class TestJSONLDValidator:
             '@graph': [{'@id': '', '@type': 'Dinosaurs'}]
         }
     }, {
-        'out': "'Tag' is not one of ['ARTICLE', 'Article', 'BOOK', 'Book', 'CONFERENCEPAPER', 'CREATIVEWORK', 'ConferencePaper', 'CreativeWork', 'DATASET', 'DISSERTATION', 'Dataset', 'Dissertation', 'LESSON', 'Lesson', 'POSTER', 'PREPRINT', 'PRESENTATION', 'PROJECT', 'PROJECTREGISTRATION', 'Poster', 'Preprint', 'Presentation', 'Project', 'ProjectRegistration', 'REPORT', 'Report', 'SECTION', 'SOFTWARE', 'Section', 'Software', 'THESIS', 'Thesis', 'WORKINGPAPER', 'WorkingPaper', 'article', 'book', 'conferencepaper', 'creativework', 'dataset', 'dissertation', 'lesson', 'poster', 'preprint', 'presentation', 'project', 'projectregistration', 'report', 'section', 'software', 'thesis', 'workingpaper'] at /@graph/0",
+        'out': re.compile(r"'Tag' is not one of \[('\w+', )+'\w+'\] at /@graph/0"),
         'in': {
             '@graph': [{
                 '@id': '_:123',

@@ -75,6 +75,7 @@ class ModelGenerator:
                 '__module__': base.__module__
             })
             models[name] = model
+            models[model.VersionModel.__name__] = model.VersionModel
 
             children = mspec.get('children')
             if children:

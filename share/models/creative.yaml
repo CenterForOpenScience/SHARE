@@ -1,19 +1,29 @@
 CreativeWork:
     children:
-        Article: {}
-        ConferencePaper: {}
-        Book: {}
-        Dataset: {}
-        Dissertation: {}
-        Lesson: {}
+        DataSet: {}
+        # Image:
+        #     children:
+        #         Diagram: {}
+        #         Drawing: {}
+        #         Figure: {}
+        #         Photo: {}
+        #         Plot: {}
+        # Lesson: {}
         Poster: {}
-        Presentation: {}
-        Project: {}
-        ProjectRegistration: {}
-        Report: {}
-        Section: {}
-        Software: {}
-        Thesis: {}
-        WorkingPaper:
+        Publication:
             children:
+                Article: {}
+                Book: {}
+                ConferencePaper: {}
+                Deliverable: {}
+                Dissertation: {}
                 Preprint: {}
+                Project: {}
+                Registration: {}
+                Report: {}
+                Section: {}
+                Thesis: {}
+                WorkingPaper: {}
+        Presentation: {}
+        Software: {}
+        # Video: {}
