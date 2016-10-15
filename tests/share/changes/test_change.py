@@ -181,8 +181,8 @@ class TestChangeSet:
         john_doe.refresh_from_db()
 
         assert john_doe.given_name == 'Jane'
-        assert models.Preprint.objects.filter(abstractcontribution__entity=john_doe).count() == 1
-        assert models.Preprint.objects.filter(abstractcontribution__entity=john_doe).first().title == 'All About Cats'
+        assert models.Preprint.objects.filter(contributions__entity=john_doe).count() == 1
+        assert models.Preprint.objects.filter(contributions__entity=john_doe).first().title == 'All About Cats'
 
     @pytest.mark.django_db
     def test_can_delete_work(self, john_doe, normalized_data_id):

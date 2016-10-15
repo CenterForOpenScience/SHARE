@@ -33,7 +33,6 @@ class ShareObjectMeta(ModelBase):
     # This if effectively the "ShareBaseClass"
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
-        'sources': lambda: models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s', editable=False),
         'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False),
         'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True),
         'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False),

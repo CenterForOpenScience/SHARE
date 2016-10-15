@@ -1,20 +1,20 @@
 Entity:
     children:
+        Consortium: {}
+        Institution: {}
+        Organization: {}
         Person:
             fields:
                 family_name:
                     type: text
-                    kwargs: { blank: true, db_index: true }
+                    kwargs: { blank: true }
                 given_name:
                     type: text
-                    kwargs: { blank: true, db_index: true }
+                    kwargs: { blank: true }
                 additional_name:
                     type: text
-                    kwargs: { blank: true, db_index: true }
+                    kwargs: { blank: true }
                 suffix:
                     type: text
-                    kwargs: { blank: true, db_index: true }
+                    kwargs: { blank: true }
             children: {}
-        Organization: {}
-        Institution: {}
-        Consortium: {}

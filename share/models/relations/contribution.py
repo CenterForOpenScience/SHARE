@@ -9,15 +9,14 @@ from share.util import ModelGenerator
 
 
 class AbstractContribution(ShareObject, metaclass=TypedShareObjectMeta):
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-    entity = ShareForeignKey('AbstractEntity')
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='contributions')
+    entity = ShareForeignKey('AbstractEntity', related_name='contributed')
 
     bibliographic = models.BooleanField(default=True)
     cited_as = models.TextField(blank=True)
     order_cited = models.PositiveIntegerField(null=True)
 
     class Meta:
-        default_related_name = 'contributions'
         unique_together = ('entity', 'creative_work', 'type')
 
 
