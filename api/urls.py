@@ -60,12 +60,13 @@ def register_creative_work_route(model_name):
 register_route(r'registrations', views.ProviderRegistrationViewSet)
 
 # workflow routes
-register_route(r'normalizeddata', views.NormalizedDataViewSet)
 register_route(r'changeset', views.ChangeSetViewSet)
 register_route(r'change', views.ChangeViewSet)
 register_route(r'rawdata', views.RawDataViewSet)
 register_route(r'user', views.ShareUserViewSet)
 register_route(r'provider', views.ProviderViewSet)
+
+router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='NormalizedData')
 
 urlpatterns = [
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),

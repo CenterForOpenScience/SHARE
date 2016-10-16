@@ -296,11 +296,30 @@ class TestValidator:
             }]
         }),
         'in': requests.Request('POST', json=valid_work_invalid_entity_field)
+    }, {
+        'out': Response(400, json={'errors': [{
+            'detail': "Additional properties are not allowed ('family_name' was unexpected) at /@graph/0",
+            'source': {'pointer': '/data/attributes/data'},
+            'status': '400'
+        }]}),
+        'in': requests.Request('POST', json=valid_work_invalid_entity_field)
+    }, {
+        # does not break because the raw information is not processed
+        'out': Response(202, keys={'data'}),
+        'in': requests.Request('POST', json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    'raw': {'type': 'RawData', 'id': 'invalid_id'},
+                    'data': valid_work_valid_entity['data']['attributes']['data']
+                }
+            }
+        })
     }]
 
     @pytest.mark.django_db
-    @pytest.mark.parametrize('_request, response, authorized', [(case['in'], case['out'], case.get('authorized', True)) for case in POST_CASES])
-    def test_validator(self, trusted_user, client, _request, response, authorized):
+    @pytest.mark.parametrize('_request, response', [(case['in'], case['out']) for case in POST_CASES])
+    def test_validator(self, trusted_user, client, _request, response):
         args, kwargs = (), {'content_type': 'application/vnd.api+json'}
 
         if _request.data:
@@ -308,7 +327,34 @@ class TestValidator:
         elif _request.json is not None:
             kwargs['data'] = json.dumps(_request.json)
 
-        if authorized:
-            kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
+        kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
 
         assert response == client.post('/api/v2/normalizeddata/', *args, **kwargs)
+
+    @pytest.mark.django_db
+    def test_robot_validator(self, robot_user, raw_data_id, client):
+        args, kwargs = (), {'content_type': 'application/vnd.api+json'}
+
+        _request = requests.Request('POST', json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    'raw': {'type': 'RawData', 'id': raw_data_id},
+                    'data': valid_work_valid_entity['data']['attributes']['data']
+                }
+            }
+        })
+
+        if _request.data:
+            kwargs['data'] = _request.data
+        elif _request.json is not None:
+            kwargs['data'] = json.dumps(_request.json)
+
+        kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(robot_user.accesstoken_set.first())
+
+        response = client.post('/api/v2/normalizeddata/', *args, **kwargs)
+
+        assert response.status_code == 202
+        assert response.json()['data']['id'] is not None
+        assert response.json()['data']['type'] == 'NormalizedData'
+        assert response.json()['data']['attributes'].keys() == {'task'}
