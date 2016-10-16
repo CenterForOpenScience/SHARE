@@ -25,28 +25,28 @@ invalid_proxy_work = {
 valid_work_valid_entity = {
     '@graph': [
         {
-            '@type': 'Publisher',
+            '@type': 'Organization',
             '@id': '_:697f809c05ea4a6fba7cff3beb1ad316',
             'name': 'Publishing Group'
         },
         {
             'entity': {
                 '@id': '_:697f809c05ea4a6fba7cff3beb1ad316',
-                '@type': 'Publisher'
+                '@type': 'Organization'
             },
             'creative_work': {
                 '@id': '_:1bf1bf86939d433d96402090c33251d6',
-                '@type': 'Publication'
+                '@type': 'Article'
             },
             '@id': '_:76c520ec6fe54d5097c2413886ff027e',
-            '@type': 'Association'
+            '@type': 'PublishingContribution'
         },
         {
-            '@type': 'Publication',
+            '@type': 'Article',
             'title': 'Publisher',
-            'publishers': [{
+            'related_entities': [{
                 '@id': '_:76c520ec6fe54d5097c2413886ff027e',
-                '@type': 'Association'
+                '@type': 'PublishingContribution'
             }],
             '@id': '_:1bf1bf86939d433d96402090c33251d6',
         }
@@ -63,21 +63,21 @@ valid_work_invalid_entity = {
         {
             'entity': {
                 '@id': '_:697f809c05ea4a6fba7cff3beb1ad316',
-                '@type': 'Entity'
+                '@type': 'AbstractEntity'
             },
             'creative_work': {
                 '@id': '_:1bf1bf86939d433d96402090c33251d6',
-                '@type': 'Publication'
+                '@type': 'Article'
             },
             '@id': '_:76c520ec6fe54d5097c2413886ff027e',
-            '@type': 'Association'
+            '@type': 'PublishingContribution'
         },
         {
             '@type': 'Publication',
             'title': 'Publisher',
             'publishers': [{
                 '@id': '_:76c520ec6fe54d5097c2413886ff027e',
-                '@type': 'Association'
+                '@type': 'PublishingContribution'
             }],
             '@id': '_:1bf1bf86939d433d96402090c33251d6',
         }
@@ -169,11 +169,12 @@ class TestValidator:
         }})
     }, {
         'out': Response(400, json={'errors': {'normalized_data': [
-            "'Entity' is not one of ['FUNDER', 'Funder', " +
-            "'INSTITUTION', 'Institution', 'ORGANIZATION', " +
-            "'Organization', 'PUBLISHER', 'Publisher', " +
-            "'funder', 'institution', 'organization', " +
-            "'publisher'] at /@graph/1"]}}),
+            "'AbstractEntity' is not one of ["
+            "'CONSORTIUM', 'Consortium', 'ENTITY', 'Entity', "
+            "'INSTITUTION', 'Institution', 'ORGANIZATION', "
+            "'Organization', 'PERSON', 'Person', 'consortium', "
+            "'entity', 'institution', 'organization', 'person'"
+            "] at /@graph/1"]}}),
         'in': requests.Request('POST', json={'normalized_data': valid_work_invalid_entity})
     }, {
         'out': Response(400, json={'errors': {'normalized_data': ["'AbstractCreativeWork' is not a valid type"]}}),
@@ -185,7 +186,7 @@ class TestValidator:
         'out': Response(202, keys={'normalized_id', 'task_id'}),
         'in': requests.Request('POST', json={'normalized_data': valid_work_valid_entity})
     }, {
-        'out': Response(400, json={'errors': {'normalized_data': ["Additional properties are not allowed ('isni' was unexpected) at /@graph/0"]}}),
+        'out': Response(400, json={'errors': {'normalized_data': ["Additional properties are not allowed ('family_name' was unexpected) at /@graph/0"]}}),
         'in': requests.Request('POST', json={'normalized_data': valid_work_invalid_entity_field})
     }]
 

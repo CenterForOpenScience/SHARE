@@ -152,9 +152,9 @@ class WorkRelationViewSet(ShareObjectViewSet):
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
-class ContributionViewSet(ShareObjectViewSet):
-    serializer_class = serializers.ContributionSerializer
-    queryset = serializer_class.Meta.model.objects.select_related('extra', 'entity', 'creative_work')
+# class ContributionViewSet(ShareObjectViewSet):
+#     serializer_class = serializers.ContributionSerializer
+#     queryset = serializer_class.Meta.model.objects.select_related('extra', 'entity', 'creative_work')
 
 
 class AwardViewSet(ShareObjectViewSet):

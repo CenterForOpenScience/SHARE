@@ -11,6 +11,7 @@ class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
     name = models.TextField(blank=True)
     location = models.TextField(blank=True)
     related_entities = ShareManyToManyField('AbstractEntity', through='AbstractEntityRelation', through_fields=('subject', 'related'), symmetrical=False)
+    related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractEntityWorkRelation')
 
     class Meta:
         verbose_name_plural = 'AbstractEntities'

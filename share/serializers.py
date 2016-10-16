@@ -109,17 +109,17 @@ class EntityIdentifierSerializer(BaseShareSerializer):
         model = models.EntityIdentifier
 
 
-class ContributionSerializer(BaseShareSerializer):
-    entity = AbstractEntitySerializer(sparse=True)
-    cited_name = serializers.ReadOnlyField(source='contribution.cited_name')
-    order_cited = serializers.ReadOnlyField(source='contribution.order_cited')
-    extra = ExtraDataSerializer()
-    # TODO find a way to do this, or don't
-    # creative_work = CreativeWorkSerializer(sparse=True)
+# class ContributionSerializer(BaseShareSerializer):
+#     entity = AbstractEntitySerializer(sparse=True)
+#     cited_name = serializers.ReadOnlyField(source='contribution.cited_name')
+#     order_cited = serializers.ReadOnlyField(source='contribution.order_cited')
+#     extra = ExtraDataSerializer()
+#     # TODO find a way to do this, or don't
+#     # creative_work = CreativeWorkSerializer(sparse=True)
 
-    class Meta(BaseShareSerializer.Meta):
-        model = models.AbstractContribution
-        exclude = ('creative_work',)
+#     class Meta(BaseShareSerializer.Meta):
+#         model = models.AbstractContribution
+#         exclude = ('creative_work',)
 
 
 class AwardSerializer(BaseShareSerializer):
@@ -147,7 +147,7 @@ class AbstractCreativeWorkSerializer(BaseShareSerializer):
     tags = TagSerializer(many=True)
     venues = VenueSerializer(sparse=True, many=True)
 
-    contributors = ContributionSerializer(source='contribution_set', many=True)
+    # contributors = ContributionSerializer(source='contribution_set', many=True)
 
     identifiers = WorkIdentifierSerializer(source='creativeworkidentifiers', many=True)
     extra = ExtraDataSerializer()

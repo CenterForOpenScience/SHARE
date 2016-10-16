@@ -8,9 +8,9 @@ from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyF
 from share.util import ModelGenerator
 
 
-class AbstractContribution(ShareObject, metaclass=TypedShareObjectMeta):
-    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='contributions')
-    entity = ShareForeignKey('AbstractEntity', related_name='contributed')
+class AbstractEntityWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='entity_relations')
+    entity = ShareForeignKey('AbstractEntity', related_name='work_relations')
 
     bibliographic = models.BooleanField(default=True)
     cited_as = models.TextField(blank=True)
@@ -21,8 +21,8 @@ class AbstractContribution(ShareObject, metaclass=TypedShareObjectMeta):
 
 
 class ThroughContribution(ShareObject):
-    subject = ShareForeignKey(AbstractContribution, related_name='+')
-    related = ShareForeignKey(AbstractContribution, related_name='+')
+    subject = ShareForeignKey(AbstractEntityWorkRelation, related_name='+')
+    related = ShareForeignKey(AbstractEntityWorkRelation, related_name='+')
 
     def clean(self):
         if self.subject.creative_work != self.related.creative_work:
@@ -47,7 +47,7 @@ class Award(ShareObject):
 
 
 class ThroughContributionAwards(ShareObject):
-    contribution = ShareForeignKey(AbstractContribution)
+    contribution = ShareForeignKey(AbstractEntityWorkRelation)
     award = ShareForeignKey(Award)
 
     class Meta:
@@ -57,6 +57,6 @@ class ThroughContributionAwards(ShareObject):
 generator = ModelGenerator(field_types={
     'm2m': ShareManyToManyField
 })
-globals().update(generator.subclasses_from_yaml(__file__, AbstractContribution))
+globals().update(generator.subclasses_from_yaml(__file__, AbstractEntityWorkRelation))
 
 __all__ = tuple(key for key, value in globals().items() if isinstance(value, type) and issubclass(value, (ShareObject, ShareObjectVersion)))

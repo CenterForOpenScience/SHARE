@@ -29,14 +29,14 @@ def create_graph_dependencies():
             'family_name': 'Doe',
         }, {
             '@id': '_:456',
-            '@type': 'collaboratorcontribution',
+            '@type': 'Contribution',
             'entity': {'@id': '_:123', '@type': 'person'},
             'creative_work': {'@id': '_:789', '@type': 'preprint'},
         }, {
             '@id': '_:789',
             '@type': 'preprint',
             'title': 'All About Cats',
-            'contributors': [{'@id': '_:456', '@type': 'collaboratorcontribution'}]
+            'related_entities': [{'@id': '_:456', '@type': 'contribution'}]
         }]
     }, disambiguate=False)
 
@@ -151,7 +151,7 @@ class TestChangeSet:
 
         assert isinstance(changed[0], models.Person)
         assert isinstance(changed[1], models.Preprint)
-        assert isinstance(changed[2], models.CollaboratorContribution)
+        assert isinstance(changed[2], models.Contribution)
 
         assert None not in [c.pk for c in changed]
 
@@ -164,7 +164,7 @@ class TestChangeSet:
                 'given_name': 'Jane',
             }, {
                 '@id': '_:456',
-                '@type': 'collaboratorcontribution',
+                '@type': 'Contribution',
                 'entity': {'@id': john_doe.pk, '@type': 'person'},
                 'creative_work': {'@id': '_:789', '@type': 'preprint'},
             }, {
@@ -181,8 +181,8 @@ class TestChangeSet:
         john_doe.refresh_from_db()
 
         assert john_doe.given_name == 'Jane'
-        assert models.Preprint.objects.filter(contributions__entity=john_doe).count() == 1
-        assert models.Preprint.objects.filter(contributions__entity=john_doe).first().title == 'All About Cats'
+        assert models.Preprint.objects.filter(entity_relations__entity=john_doe).count() == 1
+        assert models.Preprint.objects.filter(entity_relations__entity=john_doe).first().title == 'All About Cats'
 
     @pytest.mark.django_db
     def test_can_delete_work(self, john_doe, normalized_data_id):

@@ -101,24 +101,24 @@ class AbstractCreativeWorkFactory(TypedShareObjectFactory):
 
         if isinstance(extracted, int):
             for _ in range(0, extracted):
-                ContributionFactory(creative_work=self)
+                EntityWorkRelationFactory(creative_work=self)
 
 
-class ContributionFactory(TypedShareObjectFactory):
+class EntityWorkRelationFactory(TypedShareObjectFactory):
     entity = factory.SubFactory(EntityFactory)
     creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
     class Meta:
-        model = models.Contribution
+        model = models.EntityWorkRelation
 
 
 class PreprintFactory(AbstractCreativeWorkFactory):
     type = 'share.preprint'
 
 
-class ThroughContributionFactory(ShareObjectFactory):
-    subject = factory.SubFactory(ContributionFactory)
-    related = factory.SubFactory(ContributionFactory)
+class ThroughEntityWorkRelationFactory(ShareObjectFactory):
+    subject = factory.SubFactory(EntityWorkRelationFactory)
+    related = factory.SubFactory(EntityWorkRelationFactory)
 
     class Meta:
         model = models.ThroughContribution

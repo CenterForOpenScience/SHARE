@@ -4,51 +4,52 @@ from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from share import models
 from tests.share.models import factories
 
 
 @pytest.mark.django_db
-class TestAbstractContribution:
+class TestAbstractEntityWorkRelation:
 
     def test_exists(self):
         x = factories.PreprintFactory(contributions=5)
-        assert x.contributors.count() == 5
-        for contribution in x.contributions.all():
+        assert x.related_entities.count() == 5
+        for contribution in x.entity_relations.all():
             assert contribution.creative_work == x
-            assert contribution.entity._meta.concrete_model is models.AbstractEntity
+            assert list(contribution.entity.related_works.all()) == [x]
 
     def test_unique(self):
         pp = factories.PreprintFactory()
         person = factories.EntityFactory(type='share.person')
-        factories.ContributionFactory(creative_work=pp, entity=person, type='share.collaboratorcontribution')
+        factories.EntityWorkRelationFactory(creative_work=pp, entity=person, type='share.contribution')
 
         with pytest.raises(IntegrityError):
-            factories.ContributionFactory(creative_work=pp, entity=person, type='share.collaboratorcontribution')
+            factories.EntityWorkRelationFactory(creative_work=pp, entity=person, type='share.contribution')
 
     def test_many_contribution_types(self):
         pp = factories.PreprintFactory(contributions=0)
         person = factories.EntityFactory(type='share.person')
-        funding = factories.ContributionFactory(creative_work=pp, entity=person, type='share.fundercontribution')
+        funding = factories.EntityWorkRelationFactory(creative_work=pp, entity=person, type='share.fundingcontribution')
 
-        assert pp.contributors.count() == 1
+        assert pp.related_entities.count() == 1
+        assert pp.entity_relations.count() == 1
 
-        collaboration = factories.ContributionFactory(creative_work=pp, entity=person, type='share.collaboratorcontribution')
+        collaboration = factories.EntityWorkRelationFactory(creative_work=pp, entity=person, type='share.contribution')
 
         assert funding != collaboration
-        assert pp.contributors.count() == 2
+        assert pp.related_entities.count() == 2
+        assert pp.entity_relations.count() == 2
 
 
 @pytest.mark.django_db
-class TestThroughContribution:
+class TestThroughEntityWorkRelation:
 
     def test_exists(self):
         pp = factories.PreprintFactory(contributions=0)
         person = factories.EntityFactory(type='share.person')
         consortium = factories.EntityFactory(type='share.consortium')
-        consortium_collaboration = factories.ContributionFactory(creative_work=pp, entity=consortium, type='share.collaboratorcontribution')
-        collaboration = factories.ContributionFactory(creative_work=pp, entity=person, type='share.collaboratorcontribution')
-        factories.ThroughContributionFactory(subject=collaboration, related=consortium_collaboration, change=factories.ChangeFactory())
+        consortium_collaboration = factories.EntityWorkRelationFactory(creative_work=pp, entity=consortium, type='share.contribution')
+        collaboration = factories.EntityWorkRelationFactory(creative_work=pp, entity=person, type='share.contribution')
+        factories.ThroughEntityWorkRelationFactory(subject=collaboration, related=consortium_collaboration, change=factories.ChangeFactory())
 
         assert list(collaboration.contributed_through.all()) == [consortium_collaboration]
 
@@ -58,18 +59,18 @@ class TestThroughContribution:
         person = factories.EntityFactory(type='share.person')
         consortium = factories.EntityFactory(type='share.consortium')
 
-        consortium_collaboration = factories.ContributionFactory(creative_work=pp1, entity=consortium, type='share.collaboratorcontribution')
-        collaboration = factories.ContributionFactory(creative_work=pp2, entity=person, type='share.collaboratorcontribution')
+        consortium_collaboration = factories.EntityWorkRelationFactory(creative_work=pp1, entity=consortium, type='share.contribution')
+        collaboration = factories.EntityWorkRelationFactory(creative_work=pp2, entity=person, type='share.contribution')
 
         with pytest.raises(ValidationError) as e:
-            factories.ThroughContributionFactory(subject=collaboration, related=consortium_collaboration)
+            factories.ThroughEntityWorkRelationFactory(subject=collaboration, related=consortium_collaboration)
         assert e.value.args == (_('ThroughContributions must contribute to the same AbstractCreativeWork'), None, None)
 
     def test_cannot_be_self(self):
         pp = factories.PreprintFactory(contributions=0)
         person = factories.EntityFactory(type='share.person')
-        collaboration = factories.ContributionFactory(creative_work=pp, entity=person, type='share.collaboratorcontribution')
+        collaboration = factories.EntityWorkRelationFactory(creative_work=pp, entity=person, type='share.contribution')
 
         with pytest.raises(ValidationError) as e:
-            factories.ThroughContributionFactory(subject=collaboration, related=collaboration)
+            factories.ThroughEntityWorkRelationFactory(subject=collaboration, related=collaboration)
         assert e.value.args == (_('A contributor may not contribute through itself'), None, None)
