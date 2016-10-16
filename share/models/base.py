@@ -168,7 +168,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
 
             nd = NormalizedData.objects.create(
                 source=ShareUser.objects.get(username='system'),
-                normalized_data={
+                data={
                     '@graph': [{'@id': self.pk, '@type': self._meta.model_name, **kwargs}]
                 }
             )

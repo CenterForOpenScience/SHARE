@@ -6,6 +6,8 @@ from django.db import transaction
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
 
 from api import schemas
 from api.authentication import APIV1TokenBackPortAuthentication
@@ -55,16 +57,21 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        'normalized_data': {
-                            '@graph': [{
-                                '@type': <type of document, exp: person>,
-                                '@id': <_:random>,
-                                <attribute_name>: <value>,
-                                <relationship_name>: {
-                                    '@type': <type>,
-                                    '@id': <id>
+                        'data': {
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': <type of document, exp: person>,
+                                        '@id': <_:random>,
+                                        <attribute_name>: <value>,
+                                        <relationship_name>: {
+                                            '@type': <type>,
+                                            '@id': <id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
@@ -73,16 +80,21 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        'normalized_data': {
-                            '@graph': [{
-                                '@type': <type of document, exp: person>,
-                                '@id': <id>,
-                                <attribute_name>: <value>,
-                                <relationship_name>: {
-                                    '@type': <type>,
-                                    '@id': <id>
+                        'data': {
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': <type of document, exp: person>,
+                                        '@id': <id>,
+                                        <attribute_name>: <value>,
+                                        <relationship_name>: {
+                                            '@type': <type>,
+                                            '@id': <id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
@@ -91,19 +103,24 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        'normalized_data': {
-                            '@graph': [{
-                                '@type': 'mergeAction',
-                                '@id': <_:random>,
-                                'into': {
-                                    '@type': <type of document>,
-                                    '@id': <doc id>
-                                },
-                                'from': {
-                                    '@type': <same type of document>,
-                                    '@id': <doc id>
+                        'data': {
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': 'mergeAction',
+                                        '@id': <_:random>,
+                                        'into': {
+                                            '@type': <type of document>,
+                                            '@id': <doc id>
+                                        },
+                                        'from': {
+                                            '@type': <same type of document>,
+                                            '@id': <doc id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
@@ -117,12 +134,10 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = NormalizedDataSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
             return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
-        else:
-            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChangeSetViewSet(viewsets.ModelViewSet):
@@ -312,6 +327,8 @@ class V1DataView(views.APIView):
     authentication_classes = (APIV1TokenBackPortAuthentication, )
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
     serializer_class = NormalizedDataSerializer
+    renderer_classes = (JSONRenderer, )
+    parser_classes = (JSONParser,)
 
     def post(self, request, *args, **kwargs):
 
@@ -343,7 +360,7 @@ class V1DataView(views.APIView):
         # normalize data
         normalized_data = V1Normalizer({}).normalize(raw.data)
         data = {}
-        data['normalized_data'] = normalized_data
+        data['data'] = normalized_data
         serializer = NormalizedDataSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():

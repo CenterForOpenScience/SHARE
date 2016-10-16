@@ -11,7 +11,7 @@ class JSONLDParser(JSONParser):
     """
     Parses JSON-serialized data.
     """
-    media_type = 'application/json'
+    media_type = 'application/vnd.api+json'
     renderer_class = renderers.JSONRenderer
 
     def parse(self, stream, media_type=None, parser_context=None):

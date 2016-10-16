@@ -17,7 +17,7 @@ class ShareUserFactory(DjangoModelFactory):
 
 
 class NormalizedDataFactory(DjangoModelFactory):
-    normalized_data = {}
+    data = {}
     source = factory.SubFactory(ShareUserFactory)
 
     class Meta:

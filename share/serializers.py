@@ -1,4 +1,6 @@
-from rest_framework import serializers
+from collections import OrderedDict
+
+from rest_framework_json_api import serializers
 
 from django.apps import apps
 
@@ -39,15 +41,20 @@ class BaseShareSerializer(serializers.ModelSerializer):
 
         # add fields with improper names
         self.fields.update({
-            '@id': fields.DetailUrlField(),
-            '@type': fields.TypeField(),
-            # TODO make ember-share understand @tributes and remove these
-            'id': serializers.IntegerField(),
             'type': fields.TypeField(),
         })
 
     class Meta:
         links = ('versions', 'changes', 'rawdata')
+
+    # http://stackoverflow.com/questions/27015931/remove-null-fields-from-django-rest-framework-response
+    def to_representation(self, instance):
+        def not_none(value):
+            return value is not None
+
+        ret = super(BaseShareSerializer, self).to_representation(instance)
+        ret = OrderedDict(list(filter(lambda x: not_none(x[1]), ret.items())))
+        return ret
 
 
 class ExtraDataSerializer(BaseShareSerializer):

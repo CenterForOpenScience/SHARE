@@ -111,7 +111,7 @@ class NormalizerTask(ProviderTask):
             normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
             resp = requests.post(normalized_data_url, json={
                 'created_at': datetime.datetime.utcnow().isoformat(),
-                'normalized_data': graph,
+                'data': graph,
             }, headers={'Authorization': self.config.authorization()})
         except Exception as e:
             logger.exception('Failed normalizer task (%s, %d)', self.config.label, raw_id)
@@ -141,7 +141,7 @@ class MakeJsonPatches(celery.Task):
 
         try:
             with transaction.atomic():
-                cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
+                cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.data, extra_namespace=normalized.source.username), normalized.id)
                 if cs and (normalized.source.is_robot or normalized.source.is_trusted):
                     # TODO: verify change set is not overwriting user created object
                     cs.accept()

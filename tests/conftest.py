@@ -1,4 +1,5 @@
 import pytest
+import json
 
 from django.core.management import call_command
 
@@ -6,6 +7,22 @@ from share.models import Person, NormalizedData, Change, ChangeSet
 from share.models import Article, Institution
 from share.models import ShareUser
 from share.change import ChangeNode, ChangeGraph
+
+
+@pytest.fixture()
+def client():
+    from django.test.client import Client
+
+    class JSONAPIClient(Client):
+        def _parse_json(self, response, **extra):
+            if 'application/vnd.api+json' not in response.get('Content-Type'):
+                raise ValueError(
+                    'Content-Type header is "{0}", not "application/vnd.api+json"'
+                    .format(response.get('Content-Type'))
+                )
+            return json.loads(response.content.decode(), **extra)
+
+    return JSONAPIClient()
 
 
 @pytest.fixture(autouse=True)
@@ -29,7 +46,7 @@ def share_source():
 
 @pytest.fixture
 def normalized_data(share_source):
-    normalized_data = NormalizedData(source=share_source, normalized_data={})
+    normalized_data = NormalizedData(source=share_source, data={})
     normalized_data.save()
     return normalized_data
 
@@ -58,7 +75,7 @@ def change_node():
 def change_factory(share_source, change_set, change_node):
     class ChangeFactory:
         def from_graph(self, graph, disambiguate=False):
-            nd = NormalizedData.objects.create(normalized_data=graph, source=share_source)
+            nd = NormalizedData.objects.create(data=graph, source=share_source)
             return ChangeSet.objects.from_graph(
                 ChangeGraph.from_jsonld(
                     graph,
