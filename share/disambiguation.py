@@ -70,8 +70,8 @@ class GenericDisambiguator(Disambiguator):
     def is_through_table(self):
         # TODO fix this...
         return 'Through' in self.model.__name__ or self.model._meta.concrete_model in {
-            models.EntityWorkRelation,
-            models.AbstractEntityRelation,
+            models.AgentWorkRelation,
+            models.AbstractAgentRelation,
             models.AbstractWorkRelation,
         }
 
@@ -124,8 +124,8 @@ class WorkIdentifierDisambiguator(UniqueAttrDisambiguator):
     unique_attr = 'uri'
 
 
-class EntityIdentifierDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.EntityIdentifier
+class AgentIdentifierDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.AgentIdentifier
     unique_attr = 'uri'
 
 
@@ -142,23 +142,23 @@ class SubjectDisambiguator(UniqueAttrDisambiguator):
         raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
 
 
-class AbstractEntityDisambiguator(Disambiguator):
-    FOR_MODEL = models.AbstractEntity
+class AbstractAgentDisambiguator(Disambiguator):
+    FOR_MODEL = models.AbstractAgent
 
     def disambiguate(self):
-        entities = []
-        for id in self.attrs.get('entityidentifiers', ()):
+        agents = []
+        for id in self.attrs.get('agentidentifiers', ()):
             try:
-                identifier = models.EntityIdentifier.objects.get(id=id)
-                entities.append(identifier.entity)
-            except models.EntityIdentifier.DoesNotExist:
+                identifier = models.AgentIdentifier.objects.get(id=id)
+                agents.append(identifier.agent)
+            except models.AgentIdentifier.DoesNotExist:
                 pass
-        if not entities:
+        if not agents:
             return None
-        elif len(entities) == 1:
-            return entities[0]
+        elif len(agents) == 1:
+            return agents[0]
         else:
-            return entities
+            return agents
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):

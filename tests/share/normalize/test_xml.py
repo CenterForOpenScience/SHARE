@@ -67,19 +67,19 @@ class IsAffiliatedWith(Parser):
 
 
 class Person(Parser):
-    related_entities = Map(Delegate(IsAffiliatedWith), ctx.affiliation)
+    related_agents = Map(Delegate(IsAffiliatedWith), ctx.affiliation)
     given_name = ParseName(ctx.name).first
     family_name = ParseName(ctx.name).last
 
 
 class Contribution(Parser):
-    entity = Delegate(Person, ctx)
+    agent = Delegate(Person, ctx)
 
 
 class Preprint(Parser):
     title = ctx.entry.title
     description = ctx.entry.summary
-    related_entities = Map(Delegate(Contribution), ctx.entry.author)
+    related_agents = Map(Delegate(Contribution), ctx.entry.author)
 
     class Extra:
         comment = ctx.entry.comment

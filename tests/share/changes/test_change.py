@@ -30,13 +30,13 @@ def create_graph_dependencies():
         }, {
             '@id': '_:456',
             '@type': 'Contribution',
-            'entity': {'@id': '_:123', '@type': 'person'},
+            'agent': {'@id': '_:123', '@type': 'person'},
             'creative_work': {'@id': '_:789', '@type': 'preprint'},
         }, {
             '@id': '_:789',
             '@type': 'preprint',
             'title': 'All About Cats',
-            'related_entities': [{'@id': '_:456', '@type': 'contribution'}]
+            'related_agents': [{'@id': '_:456', '@type': 'contribution'}]
         }]
     }, disambiguate=False)
 
@@ -93,7 +93,7 @@ class TestChange:
         assert person.change == change
         assert person.given_name == 'Jane'
         assert person.family_name == 'Doe'
-        assert change.affected_abstractentity == person
+        assert change.affected_abstractagent == person
 
     @pytest.mark.django_db
     def test_create_accept_no_save(self, create_graph, change_set):
@@ -141,7 +141,7 @@ class TestChangeSet:
         assert change_set.changes.all()[2].node_id == '_:456'
 
         assert change_set.changes.last().change == {
-            'entity': {'@id': '_:123', '@type': 'person'},
+            'agent': {'@id': '_:123', '@type': 'person'},
             'creative_work': {'@id': '_:789', '@type': 'preprint'},
         }
 
@@ -165,7 +165,7 @@ class TestChangeSet:
             }, {
                 '@id': '_:456',
                 '@type': 'Contribution',
-                'entity': {'@id': john_doe.pk, '@type': 'person'},
+                'agent': {'@id': john_doe.pk, '@type': 'person'},
                 'creative_work': {'@id': '_:789', '@type': 'preprint'},
             }, {
                 '@id': '_:789',
@@ -181,8 +181,8 @@ class TestChangeSet:
         john_doe.refresh_from_db()
 
         assert john_doe.given_name == 'Jane'
-        assert models.Preprint.objects.filter(entity_relations__entity=john_doe).count() == 1
-        assert models.Preprint.objects.filter(entity_relations__entity=john_doe).first().title == 'All About Cats'
+        assert models.Preprint.objects.filter(agent_relations__agent=john_doe).count() == 1
+        assert models.Preprint.objects.filter(agent_relations__agent=john_doe).first().title == 'All About Cats'
 
     @pytest.mark.django_db
     def test_can_delete_work(self, john_doe, normalized_data_id):
@@ -650,7 +650,7 @@ class TestChangeSet:
         assert all_about_anteaters.title == new_title
 
     @pytest.mark.django_db
-    def test_change_entity_type(self, change_factory, university_of_whales):
+    def test_change_agent_type(self, change_factory, university_of_whales):
         cs = change_factory.from_graph({
             '@graph': [{
                 '@id': university_of_whales.id,

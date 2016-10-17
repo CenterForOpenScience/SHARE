@@ -65,31 +65,31 @@ class ExtraDataSerializer(BaseShareSerializer):
         model = models.ExtraData
 
 
-class AbstractEntitySerializer(BaseShareSerializer):
+class AbstractAgentSerializer(BaseShareSerializer):
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.AbstractEntity
+        model = models.AbstractAgent
 
 
-class OrganizationSerializer(AbstractEntitySerializer):
+class OrganizationSerializer(AbstractAgentSerializer):
     extra = ExtraDataSerializer()
 
-    class Meta(AbstractEntitySerializer.Meta):
+    class Meta(AbstractAgentSerializer.Meta):
         model = models.Organization
 
 
-class InstitutionSerializer(AbstractEntitySerializer):
+class InstitutionSerializer(AbstractAgentSerializer):
     extra = ExtraDataSerializer()
 
-    class Meta(AbstractEntitySerializer.Meta):
+    class Meta(AbstractAgentSerializer.Meta):
         model = models.Institution
 
 
-class PersonSerializer(AbstractEntitySerializer):
+class PersonSerializer(AbstractAgentSerializer):
     extra = ExtraDataSerializer()
 
-    class Meta(AbstractEntitySerializer.Meta):
+    class Meta(AbstractAgentSerializer.Meta):
         model = models.Person
 
 
@@ -108,16 +108,16 @@ class WorkIdentifierSerializer(BaseShareSerializer):
         model = models.WorkIdentifier
 
 
-class EntityIdentifierSerializer(BaseShareSerializer):
+class AgentIdentifierSerializer(BaseShareSerializer):
     # TODO filter/obfuscate mailto identifiers
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.EntityIdentifier
+        model = models.AgentIdentifier
 
 
 # class ContributionSerializer(BaseShareSerializer):
-#     entity = AbstractEntitySerializer(sparse=True)
+#     agent = AbstractAgentSerializer(sparse=True)
 #     cited_name = serializers.ReadOnlyField(source='contribution.cited_name')
 #     order_cited = serializers.ReadOnlyField(source='contribution.order_cited')
 #     extra = ExtraDataSerializer()
@@ -186,10 +186,10 @@ class WorkRelationSerializer(BaseShareSerializer):
         model = models.AbstractWorkRelation
 
 
-class EntityRelationSerializer(BaseShareSerializer):
-    from_work = AbstractEntitySerializer(sparse=True)
-    to_work = AbstractEntitySerializer(sparse=True)
+class AgentRelationSerializer(BaseShareSerializer):
+    from_work = AbstractAgentSerializer(sparse=True)
+    to_work = AbstractAgentSerializer(sparse=True)
     extra = ExtraDataSerializer()
 
     class Meta(BaseShareSerializer.Meta):
-        model = models.AbstractEntityRelation
+        model = models.AbstractAgentRelation

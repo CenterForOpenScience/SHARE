@@ -42,10 +42,10 @@ def fetch_person(pks):
                             WHERE identifier.person_id = person.id) AS identifiers ON TRUE
                 LEFT JOIN LATERAL (
                             SELECT json_agg(
-                                json_build_object('id', entity.id, 'type', entity.type, 'name', entity.name, 'url', entity.url,
-                                                'location', entity.location))
+                                json_build_object('id', agent.id, 'type', agent.type, 'name', agent.name, 'url', agent.url,
+                                                'location', agent.location))
                             FROM share_affiliation AS affiliation
-                            JOIN share_entity AS entity ON affiliation.entity_id = entity.id
+                            JOIN share_agent AS agent ON affiliation.agent_id = agent.id
                             WHERE affiliation.person_id = person.id
 
                             ) AS affiliations ON TRUE
@@ -93,9 +93,9 @@ def fetch_abstractcreativework(pks):
                 , 'contributors', COALESCE(contributors, '{}'))
                 FROM share_abstractcreativework AS creativework
                 LEFT JOIN LATERAL(
-                    SELECT json_agg(json_build_object('id', entity.id, 'type', entity.type, 'name', entity.name)) as associations
+                    SELECT json_agg(json_build_object('id', agent.id, 'type', agent.type, 'name', agent.name)) as associations
                     FROM share_association AS association
-                    JOIN share_entity AS entity ON association.entity_id = entity.id
+                    JOIN share_agent AS agent ON association.agent_id = agent.id
                     WHERE association.creative_work_id = creativework.id
                 ) AS associations ON true
                 LEFT JOIN LATERAL (

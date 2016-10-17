@@ -10,11 +10,10 @@ from share.util import ModelGenerator
 class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
     name = models.TextField(blank=True)
     location = models.TextField(blank=True)
-    related_entities = ShareManyToManyField('AbstractAgent', through='AbstractAgentRelation', through_fields=('subject', 'related'), symmetrical=False)
+    related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentRelation', through_fields=('subject', 'related'), symmetrical=False)
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractAgentWorkRelation')
 
     class Meta:
-        verbose_name_plural = 'AbstractEntities'
         index_together = (
             ('type', 'name',)
         )
