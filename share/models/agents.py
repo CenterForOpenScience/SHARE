@@ -8,6 +8,12 @@ from share.util import ModelGenerator
 
 
 class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
+    """
+    An Agent is a thing that has the power to act, to make decisions,
+    to produce or contribute to the production of creative works.
+    Either an individual person or a group of people.
+    """
+
     name = models.TextField(blank=True)
     location = models.TextField(blank=True)
     related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentRelation', through_fields=('subject', 'related'), symmetrical=False)
