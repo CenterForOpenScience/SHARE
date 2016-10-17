@@ -1,5 +1,6 @@
-IsAffiliatedWith:
+AgentRelation:
     children:
-        IsEmployedBy: {}
-        IsMemberOf: {}
-UnknownAgentRelation: {}
+        IsAffiliatedWith:
+            children:
+                IsEmployedBy: {}
+                IsMemberOf: {}
