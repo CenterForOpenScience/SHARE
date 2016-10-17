@@ -1,5 +1,0 @@
-IsAffiliatedWith:
-    children:
-        IsEmployedBy: {}
-        IsMemberOf: {}
-UnknownEntityRelation: {}

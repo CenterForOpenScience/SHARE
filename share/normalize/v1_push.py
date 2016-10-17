@@ -85,7 +85,7 @@ class Person(Parser):
         tools.Try(ctx.email)
     )
     affiliations = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Organization))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Organization))),
         tools.Try(ctx.affiliation)
     )
 
@@ -169,12 +169,12 @@ class CreativeWork(Parser):
     description = tools.Try(ctx.description)
 
     funders = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Funder))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Funder))),
         tools.Try(ctx.sponsorships.sponsor)
     )
 
     institutions = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Institution))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Institution))),
         tools.RunPython(
             'get_contributors',
             tools.Try(ctx.contributors),
@@ -201,7 +201,7 @@ class CreativeWork(Parser):
     )
 
     organizations = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Organization))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Organization))),
         tools.RunPython(
             'get_contributors',
             tools.Try(ctx.contributors),
@@ -211,7 +211,7 @@ class CreativeWork(Parser):
 
     # unsure how to tell difference between person and org
     publishers = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Publisher))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Publisher))),
         tools.Try(ctx.publisher)
     )
 
@@ -256,12 +256,12 @@ class CreativeWork(Parser):
 
         version = tools.Try(ctx.version)
 
-    def get_contributors(self, options, entity):
+    def get_contributors(self, options, agent):
         """
-        Returns list of organization, institutions, or contributors names based on entity type.
+        Returns list of organization, institutions, or contributors names based on agent type.
         """
 
-        if entity == 'organization':
+        if agent == 'organization':
             organizations = [
                 value for value in options if
                 (
@@ -271,7 +271,7 @@ class CreativeWork(Parser):
                 )
             ]
             return organizations
-        elif entity == 'institution':
+        elif agent == 'institution':
             institutions = [
                 value for value in options if
                 (
@@ -280,7 +280,7 @@ class CreativeWork(Parser):
                 )
             ]
             return institutions
-        elif entity == 'contributor':
+        elif agent == 'contributor':
             people = [
                 value for value in options if
                 (

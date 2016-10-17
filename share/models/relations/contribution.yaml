@@ -1,11 +1,11 @@
-EntityWorkRelation:
+AgentWorkRelation:
     children:
       Contribution:
           fields:
               contributed_through:
                   type: m2m
                   kwargs:
-                      model: AbstractEntityWorkRelation
+                      model: AbstractAgentWorkRelation
                       symmetrical: false
                       through: ThroughContribution
                       through_fields: ['subject', 'related']

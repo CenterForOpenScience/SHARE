@@ -16,12 +16,12 @@ from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
 # from share.models.creative import AbstractCreativeWork
-# from share.models.entities import AbstractEntity
-# from share.models.identifiers import WorkIdentifier, EntityIdentifier
+# from share.models.agents import AbstractAgent
+# from share.models.identifiers import WorkIdentifier, AgentIdentifier
 # from share.models.meta import Venue, Tag, Subject
 from share.models.registration import ProviderRegistration
 # from share.models.work_relations import AbstractWorkRelation
-# from share.models.entity_relations import AbstractEntityRelation
+# from share.models.agent_relations import AbstractAgentRelation
 # from share.models.contributions import AbstractContribution, Award
 from share.tasks import ApplyChangeSets
 
@@ -149,7 +149,7 @@ class AbstractCreativeWorkAdmin(admin.ModelAdmin):
     num_contributors.short_description = 'Contributors'
 
 
-class AbstractEntityAdmin(admin.ModelAdmin):
+class AbstractAgentAdmin(admin.ModelAdmin):
     list_display = ('type', 'name')
     list_filter = ('type',)
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
@@ -179,11 +179,11 @@ class ProviderRegistrationAdmin(admin.ModelAdmin):
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
-# admin.site.register(AbstractEntityRelation)
+# admin.site.register(AbstractAgentRelation)
 # admin.site.register(AbstractWorkRelation)
 # admin.site.register(AbstractContribution)
 
-# admin.site.register(EntityIdentifier)
+# admin.site.register(AgentIdentifier)
 # admin.site.register(WorkIdentifier)
 
 # admin.site.register(Venue)
@@ -195,7 +195,7 @@ admin.site.register(RawData, RawDataAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 
-# admin.site.register(AbstractEntity, AbstractEntityAdmin)
+# admin.site.register(AbstractAgent, AbstractAgentAdmin)
 # admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)

@@ -36,7 +36,7 @@ invalid_proxy_work = {
     }
 }
 
-valid_work_valid_entity = {
+valid_work_valid_agent = {
     'data': {
         'type': 'NormalizedData',
         'attributes': {
@@ -48,7 +48,7 @@ valid_work_valid_entity = {
                         'name': 'Publishing Group'
                     },
                     {
-                        'entity': {
+                        'agent': {
                             '@id': '_:697f809c05ea4a6fba7cff3beb1ad316',
                             '@type': 'Organization'
                         },
@@ -62,7 +62,7 @@ valid_work_valid_entity = {
                     {
                         '@type': 'Article',
                         'title': 'Publisher',
-                        'related_entities': [{
+                        'related_agents': [{
                             '@id': '_:76c520ec6fe54d5097c2413886ff027e',
                             '@type': 'PublishingContribution'
                         }],
@@ -74,7 +74,7 @@ valid_work_valid_entity = {
     }
 }
 
-valid_work_invalid_entity = {
+valid_work_invalid_agent = {
     'data': {
         'type': 'NormalizedData',
         'attributes': {
@@ -86,9 +86,9 @@ valid_work_invalid_entity = {
                         'name': 'Publishing Group'
                     },
                     {
-                        'entity': {
+                        'agent': {
                             '@id': '_:697f809c05ea4a6fba7cff3beb1ad316',
-                            '@type': 'AbstractEntity',
+                            '@type': 'AbstractAgent',
                         },
                         'creative_work': {
                             '@id': '_:1bf1bf86939d433d96402090c33251d6',
@@ -100,7 +100,7 @@ valid_work_invalid_entity = {
                     {
                         '@type': 'Article',
                         'title': 'Publisher',
-                        'related_entities': [{
+                        'related_agents': [{
                             '@id': '_:76c520ec6fe54d5097c2413886ff027e',
                             '@type': 'Organization'
                         }],
@@ -112,7 +112,7 @@ valid_work_invalid_entity = {
     }
 }
 
-valid_work_invalid_entity_field = {
+valid_work_invalid_agent_field = {
     'data': {
         'type': 'NormalizedData',
         'attributes': {
@@ -125,7 +125,7 @@ valid_work_invalid_entity_field = {
                         'family_name': 'Person Field'
                     },
                     {
-                        'entity': {
+                        'agent': {
                             '@id': '_:697f809c05ea4a6fba7cff3beb1ad316',
                             '@type': 'Organization'
                         },
@@ -255,17 +255,17 @@ class TestValidator:
     }, {
         'out': Response(400, json={
             'errors': [{
-                'detail': "'AbstractEntity' is not one of ["
-                    "'CONSORTIUM', 'Consortium', 'ENTITY', 'Entity', "
-                    "'INSTITUTION', 'Institution', 'ORGANIZATION', "
-                    "'Organization', 'PERSON', 'Person', 'consortium', "
-                    "'entity', 'institution', 'organization', 'person'"
-                    "] at /@graph/1",
+                'detail': "'AbstractAgent' is not one of ["
+                          "'AGENT', 'Agent', 'CONSORTIUM', 'Consortium', "
+                          "'INSTITUTION', 'Institution', 'ORGANIZATION', "
+                          "'Organization', 'PERSON', 'Person', 'agent', "
+                          "'consortium', 'institution', 'organization', 'person'"
+                          "] at /@graph/1",
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'
             }]
         }),
-        'in': requests.Request('POST', json=valid_work_invalid_entity)
+        'in': requests.Request('POST', json=valid_work_invalid_agent)
     }, {
         'out': Response(400, json={
             'errors': [{
@@ -286,7 +286,7 @@ class TestValidator:
         'in': requests.Request('POST', json=invalid_work)
     }, {
         'out': Response(202, keys={'data'}),
-        'in': requests.Request('POST', json=valid_work_valid_entity)
+        'in': requests.Request('POST', json=valid_work_valid_agent)
     }, {
         'out': Response(400, json={
             'errors': [{
@@ -295,14 +295,14 @@ class TestValidator:
                 'status': '400'
             }]
         }),
-        'in': requests.Request('POST', json=valid_work_invalid_entity_field)
+        'in': requests.Request('POST', json=valid_work_invalid_agent_field)
     }, {
         'out': Response(400, json={'errors': [{
             'detail': "Additional properties are not allowed ('family_name' was unexpected) at /@graph/0",
             'source': {'pointer': '/data/attributes/data'},
             'status': '400'
         }]}),
-        'in': requests.Request('POST', json=valid_work_invalid_entity_field)
+        'in': requests.Request('POST', json=valid_work_invalid_agent_field)
     }, {
         # does not break because the raw information is not processed
         'out': Response(202, keys={'data'}),
@@ -311,7 +311,7 @@ class TestValidator:
                 'type': 'NormalizedData',
                 'attributes': {
                     'raw': {'type': 'RawData', 'id': 'invalid_id'},
-                    'data': valid_work_valid_entity['data']['attributes']['data']
+                    'data': valid_work_valid_agent['data']['attributes']['data']
                 }
             }
         })
@@ -340,7 +340,7 @@ class TestValidator:
                 'type': 'NormalizedData',
                 'attributes': {
                     'raw': {'type': 'RawData', 'id': raw_data_id},
-                    'data': valid_work_valid_entity['data']['attributes']['data']
+                    'data': valid_work_valid_agent['data']['attributes']['data']
                 }
             }
         })

@@ -77,13 +77,13 @@ class TypedShareObjectFactory(ShareObjectFactory):
         return random.choice([m.label.lower() for m in stub._LazyStub__model_class._meta.model._meta.concrete_model._meta.proxied_children])
 
 
-class EntityFactory(TypedShareObjectFactory):
+class AgentFactory(TypedShareObjectFactory):
     name = factory.Faker('company')
     given_name = factory.Faker('first_name')
     family_name = factory.Faker('last_name')
 
     class Meta:
-        model = models.AbstractEntity
+        model = models.AbstractAgent
 
 
 class AbstractCreativeWorkFactory(TypedShareObjectFactory):
@@ -101,24 +101,24 @@ class AbstractCreativeWorkFactory(TypedShareObjectFactory):
 
         if isinstance(extracted, int):
             for _ in range(0, extracted):
-                EntityWorkRelationFactory(creative_work=self)
+                AgentWorkRelationFactory(creative_work=self)
 
 
-class EntityWorkRelationFactory(TypedShareObjectFactory):
-    entity = factory.SubFactory(EntityFactory)
+class AgentWorkRelationFactory(TypedShareObjectFactory):
+    agent = factory.SubFactory(AgentFactory)
     creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
     class Meta:
-        model = models.EntityWorkRelation
+        model = models.AgentWorkRelation
 
 
 class PreprintFactory(AbstractCreativeWorkFactory):
     type = 'share.preprint'
 
 
-class ThroughEntityWorkRelationFactory(ShareObjectFactory):
-    subject = factory.SubFactory(EntityWorkRelationFactory)
-    related = factory.SubFactory(EntityWorkRelationFactory)
+class ThroughAgentWorkRelationFactory(ShareObjectFactory):
+    subject = factory.SubFactory(AgentWorkRelationFactory)
+    related = factory.SubFactory(AgentWorkRelationFactory)
 
     class Meta:
         model = models.ThroughContribution

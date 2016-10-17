@@ -111,7 +111,7 @@ class ExtraDataViewSet(ShareObjectViewSet):
     filter_class = None
 
 
-# Entities
+# Agents
 
 class PersonViewSet(ShareObjectViewSet):
     serializer_class = serializers.PersonSerializer
@@ -130,8 +130,8 @@ class InstitutionViewSet(ShareObjectViewSet):
 
 # Identifiers
 
-class EntityIdentifierViewSet(ShareObjectViewSet):
-    serializer_class = serializers.EntityIdentifierSerializer
+class AgentIdentifierViewSet(ShareObjectViewSet):
+    serializer_class = serializers.AgentIdentifierSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
@@ -142,8 +142,8 @@ class WorkIdentifierViewSet(ShareObjectViewSet):
 
 # Relations
 
-class EntityRelationViewSet(ShareObjectViewSet):
-    serializer_class = serializers.EntityRelationSerializer
+class AgentRelationViewSet(ShareObjectViewSet):
+    serializer_class = serializers.AgentRelationSerializer
     queryset = serializer_class.Meta.model.objects.all().select_related('extra')
 
 
@@ -154,7 +154,7 @@ class WorkRelationViewSet(ShareObjectViewSet):
 
 # class ContributionViewSet(ShareObjectViewSet):
 #     serializer_class = serializers.ContributionSerializer
-#     queryset = serializer_class.Meta.model.objects.select_related('extra', 'entity', 'creative_work')
+#     queryset = serializer_class.Meta.model.objects.select_related('extra', 'agent', 'creative_work')
 
 
 class AwardViewSet(ShareObjectViewSet):

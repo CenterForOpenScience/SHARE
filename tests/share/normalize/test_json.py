@@ -35,14 +35,14 @@ class Person(Parser):
 
 
 class Contribution(Parser):
-    entity = Delegate(Person, ctx)
+    agent = Delegate(Person, ctx)
 
 
 class Article(Parser):
     title = ctx.title
     description = ctx.description
     # publish_date = ParseDate(ctx.published_date)
-    related_entities = Map(Delegate(Contribution, ctx.authors))
+    related_agents = Map(Delegate(Contribution, ctx.authors))
 
     class Extra:
         type = ctx.defined_type

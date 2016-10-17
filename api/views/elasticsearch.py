@@ -16,7 +16,7 @@ class ElasticSearchView(views.APIView):
     - [Person](/api/search/person/_search) - people who are contributors to documents harvested
     - [Tag](/api/search/tag/_search) - tags placed on documents
     - [Source](/api/search/source/_search) - data sources
-    - [Entity](/api/search/entity/_search) - institutions, organizations, publishers, and funders
+    - [Agent](/api/search/agent/_search) - institutions, organizations, publishers, and funders
     """
     authentication_classes = [authentication.NonCSRFSessionAuthentication, ]
     permission_classes = [AllowAny, ]

@@ -1,4 +1,4 @@
-Entity:
+Agent:
     children:
         Consortium: {}
         Institution: {}

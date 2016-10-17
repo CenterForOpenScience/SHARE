@@ -41,17 +41,17 @@ def register_creative_work_route(model_name):
 # register_route(r'venue', views.VenueViewSet)
 # register_route(r'extra', views.ExtraDataViewSet)
 
-# # entity routes
+# # agent routes
 # register_route(r'person', views.PersonViewSet)
 # register_route(r'organization', views.OrganizationViewSet)
 # register_route(r'institution', views.InstitutionViewSet)
 
 # # identifier routes
-# register_route(r'entityidentifier', views.EntityIdentifierViewSet)
+# register_route(r'agentidentifier', views.AgentIdentifierViewSet)
 # register_route(r'workidentifier', views.WorkIdentifierViewSet)
 
 # # relation routes
-# register_route(r'entityrelation', views.EntityRelationViewSet)
+# register_route(r'agentrelation', views.AgentRelationViewSet)
 # register_route(r'workrelation', views.WorkRelationViewSet)
 # register_route(r'contribution', views.ContributionViewSet)
 # register_route(r'award', views.AwardViewSet)

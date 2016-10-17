@@ -3,7 +3,7 @@ import pytest
 from share.models import Person
 from share.models import Preprint
 from share.models import Article
-from share.models import EntityIdentifier
+from share.models import AgentIdentifier
 from share.models.base import ShareObject
 from share.management.commands.maketriggermigrations import Command
 
@@ -16,12 +16,12 @@ def test_build_trigger():
     procedure, trigger = trigger_build.build_operations(Person)
 
     assert trigger.reversible is True
-    assert 'DROP TRIGGER share_abstractentity_change' in trigger.reverse_sql
-    assert 'DROP TRIGGER IF EXISTS share_abstractentity_change' in trigger.sql
+    assert 'DROP TRIGGER share_abstractagent_change' in trigger.reverse_sql
+    assert 'DROP TRIGGER IF EXISTS share_abstractagent_change' in trigger.sql
 
     assert procedure.reversible is True
-    assert 'DROP FUNCTION before_share_abstractentity_change' in procedure.reverse_sql
-    assert 'CREATE OR REPLACE FUNCTION before_share_abstractentity_change' in procedure.sql
+    assert 'DROP FUNCTION before_share_abstractagent_change' in procedure.reverse_sql
+    assert 'CREATE OR REPLACE FUNCTION before_share_abstractagent_change' in procedure.sql
 
 
 class TestVersioning:
@@ -79,10 +79,10 @@ class TestVersioning:
 
     @pytest.mark.django_db
     def test_relations(self, john_doe, change_ids):
-        ident = EntityIdentifier.objects.create(
+        ident = AgentIdentifier.objects.create(
             uri='http://dinosaurs.sexy/john_doe',
-            entity=john_doe,
-            entity_version=john_doe.version,
+            agent=john_doe,
+            agent_version=john_doe.version,
             change_id=change_ids.get()
         )
 
@@ -91,15 +91,15 @@ class TestVersioning:
 
         assert john_doe.identifiers.count() == 1
 
-        assert john_doe == ident.entity
-        assert john_doe.version == ident.entity_version
+        assert john_doe == ident.agent
+        assert john_doe.version == ident.agent_version
 
     @pytest.mark.django_db
     def test_relations_related_changed(self, john_doe, change_ids):
-        ident = EntityIdentifier.objects.create(
+        ident = AgentIdentifier.objects.create(
             uri='http://dinosaurs.sexy/john_doe',
-            entity=john_doe,
-            entity_version=john_doe.version,
+            agent=john_doe,
+            agent_version=john_doe.version,
             change_id=change_ids.get()
         )
 
@@ -113,9 +113,9 @@ class TestVersioning:
 
         assert john_doe.identifiers.count() == 1
 
-        assert john_doe == ident.entity
-        assert john_doe.version != ident.entity_version
-        assert john_doe.versions.last() == ident.entity_version
+        assert john_doe == ident.agent
+        assert john_doe.version != ident.agent_version
+        assert john_doe.versions.last() == ident.agent_version
 
         assert ident == john_doe.identifiers.first()
 

@@ -131,7 +131,7 @@ class OAICreativeWork(Parser):
     description = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:description'])))
 
     publishers = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIPublisher))),
+        tools.Delegate(OAIAssociation.using(agent=tools.Delegate(OAIPublisher))),
         tools.Map(tools.RunPython('force_text'), tools.Try(ctx.record.metadata.dc['dc:publisher']))
     )
 
@@ -155,7 +155,7 @@ class OAICreativeWork(Parser):
     )
 
     institutions = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIInstitution))),
+        tools.Delegate(OAIAssociation.using(agent=tools.Delegate(OAIInstitution))),
         tools.RunPython(
             'get_contributors',
             tools.Concat(
@@ -167,7 +167,7 @@ class OAICreativeWork(Parser):
     )
 
     organizations = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIOrganization))),
+        tools.Delegate(OAIAssociation.using(agent=tools.Delegate(OAIOrganization))),
         tools.RunPython(
             'get_contributors',
             tools.Concat(
@@ -222,14 +222,14 @@ class OAICreativeWork(Parser):
         Fields that are combined in the base parser are relisted as singular elements that match
         their original entry to preserve raw data structure.
         """
-        # An entity responsible for making contributions to the resource.
+        # An agent responsible for making contributions to the resource.
         contributor = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
 
         # The spatial or temporal topic of the resource, the spatial applicability of the resource,
         # or the jurisdiction under which the resource is relevant.
         coverage = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:coverage')
 
-        # An entity primarily responsible for making the resource.
+        # An agent primarily responsible for making the resource.
         creator = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:creator')
 
         # A point or period of time associated with an event in the lifecycle of the resource.
@@ -316,13 +316,13 @@ class OAICreativeWork(Parser):
             return relation['#text']
         return relation
 
-    def get_contributors(self, options, entity):
+    def get_contributors(self, options, agent):
         """
-        Returns list of organization, institutions, or contributors names based on entity type.
+        Returns list of organization, institutions, or contributors names based on agent type.
         """
         options = [o if isinstance(o, str) else o['#text'] for o in options]
 
-        if entity == 'organization':
+        if agent == 'organization':
             organizations = [
                 value for value in options if
                 (
@@ -332,7 +332,7 @@ class OAICreativeWork(Parser):
                 )
             ]
             return organizations
-        elif entity == 'institution':
+        elif agent == 'institution':
             institutions = [
                 value for value in options if
                 (
@@ -341,7 +341,7 @@ class OAICreativeWork(Parser):
                 )
             ]
             return institutions
-        elif entity == 'contributor':
+        elif agent == 'contributor':
             people = [
                 value for value in options if
                 (

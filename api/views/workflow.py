@@ -233,13 +233,13 @@ class SchemaView(views.APIView):
     - [Thesis](/api/schema/Thesis)
     - [WorkingPaper](/api/schema/WorkingPaper)
 
-    ### Entities
+    ### Agents
     - [Person](/api/schema/Person)
     - [Institution](/api/schema/Institution)
     - [Organization](/api/schema/Organization)
 
     ### Identifiers
-    - [EntityIdentifier](/api/schema/EntityIdentifier)
+    - [AgentIdentifier](/api/schema/AgentIdentifier)
     - [CreativeWorkIdentifier](/api/schema/CreativeWorkIdentifier)
 
     ### Other
@@ -249,7 +249,7 @@ class SchemaView(views.APIView):
     - [Venue](/api/schema/Venue)
 
     ### Relationships between nodes
-    - [EntityRelation](/api/schema/EntityRelation)
+    - [AgentRelation](/api/schema/AgentRelation)
     - [WorkRelation](/api/schema/WorkRelation)
     - [Contribution](/api/schema/Contribution)
     - [ThroughContributionAwards](/api/schema/ThroughContributionAwards)
