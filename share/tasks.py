@@ -69,9 +69,9 @@ class HarvesterTask(ProviderTask):
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
         if type(end) is str:
-            end = pendulum.parse(end)
+            end = pendulum.parse(end.rstrip('Z'))  # TODO Fix me
         if type(start) is str:
-            start = pendulum.parse(start)
+            start = pendulum.parse(start.rstrip('Z'))  # TODO Fix Me
 
         harvester = self.config.harvester(self.config)
 
@@ -110,9 +110,14 @@ class NormalizerTask(ProviderTask):
 
             normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
             resp = requests.post(normalized_data_url, json={
-                'created_at': datetime.datetime.utcnow().isoformat(),
-                'data': graph,
-            }, headers={'Authorization': self.config.authorization()})
+                'data': {
+                    'type': 'NormalizedData',
+                    'attributes': {
+                        'data': graph,
+                        'raw': {'type': 'RawData', 'id': raw_id}
+                    }
+                }
+            }, headers={'Authorization': self.config.authorization(), 'Content-Type': 'application/vnd.api+json'})
         except Exception as e:
             logger.exception('Failed normalizer task (%s, %d)', self.config.label, raw_id)
             raise self.retry(countdown=10, exc=e)
@@ -121,9 +126,9 @@ class NormalizerTask(ProviderTask):
             raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content)))
 
         # attach task
-        normalized_id = resp.json()['normalized_id']
+        normalized_id = resp.json()['data']['id']
         normalized = NormalizedData.objects.get(pk=normalized_id)
-        normalized.raw = raw
+        # TODO Set Task via the API
         normalized.tasks.add(self.task)
         normalized.save()
 

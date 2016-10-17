@@ -2,6 +2,29 @@ import re
 import os
 import yaml
 
+from django.contrib.contenttypes.models import ContentType
+
+
+class IDObfuscator:
+    NUM = 0xDEADBEEF
+    MOD = 10000000000
+    MOD_INV = 0x17A991C0F
+    # Match HHHHH-HHH-HHH Where H is any hexidecimal digit
+    ID_RE = re.compile(r'([0-9A-Fa-f]{2})([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})')
+
+    @classmethod
+    def encode(cls, instance):
+        model_id = ContentType.objects.get_for_model(type(instance)).id
+        encoded = '{:09X}'.format(instance.pk * cls.NUM % cls.MOD)
+        return '{:02X}{}-{}-{}'.format(model_id, encoded[:3], encoded[3:6], encoded[6:])
+
+    @classmethod
+    def decode(cls, id):
+        match = cls.ID_RE.match(id)
+        assert match, '"{}" is not a valid ID'.format(id)
+        model_id, *pks = match.groups()
+        return ContentType.objects.get(pk=int(model_id, 16)), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
+
 
 class CyclicalDependency(Exception):
     pass

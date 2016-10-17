@@ -2,50 +2,43 @@ from share.normalize import *
 from share.normalize import links
 
 
-class Publisher(Parser):
-    name = ctx
-
-
-class Funder(Parser):
-    name = ctx.name
-
-    class Extra:
-        doi = Maybe(ctx, 'DOI')
-        award = Maybe(ctx, 'award')
-        doi_asserted_by = Maybe(ctx, 'doi-asserted-by')
-
-
-class Association(Parser):
-    pass
-
-
 class Organization(Parser):
-    name = Maybe(ctx, 'name')
+    name = OneOf(Try(ctx.name), ctx)
+
+    # class Extra:
+    #     doi = Maybe(ctx, 'DOI')
+    #     award = Maybe(ctx, 'award')
+    #     doi_asserted_by = Maybe(ctx, 'doi-asserted-by')
 
 
-class Affiliation(Parser):
-    pass
+class FundingContribution(Parser):
+    entity = Delegate(Organization, ctx)
+
+
+class PublishingContribution(Parser):
+    entity = Delegate(Organization, ctx)
 
 
 class PersonIdentifier(Parser):
     uri = Orcid(ctx)
 
 
-class CreativeWorkIdentifier(Parser):
+class WorkIdentifier(Parser):
     uri = DOI(ctx)
 
 
 class Person(Parser):
     given_name = Maybe(ctx, 'given')
     family_name = Maybe(ctx, 'family')
-    affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
-    personidentifiers = Map(Delegate(PersonIdentifier), Maybe(ctx, 'ORCID'))
+    # affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
+    identifiers = Map(Delegate(PersonIdentifier), Maybe(ctx, 'ORCID'))
 
 
-class Contributor(Parser):
-    person = Delegate(Person, ctx)
+class Contribution(Parser):
+    entity = Delegate(Person, ctx)
     order_cited = ctx('index')
-    cited_name = links.Join(
+
+    cited_as = links.Join(
         Concat(
             Maybe(ctx, 'given'),
             Maybe(ctx, 'family')
@@ -86,21 +79,26 @@ class CreativeWork(Parser):
     description = Maybe(ctx, 'subtitle')[0]
     date_updated = ParseDate(Try(ctx.deposited['date-time']))
 
-    contributors = Map(
-        Delegate(Contributor),
-        Maybe(ctx, 'author')
-    )
+    # contributors = Map(
+    #     Delegate(Contributor),
+    #     Maybe(ctx, 'author')
+    # )
 
-    creativeworkidentifiers = Map(Delegate(CreativeWorkIdentifier), ctx.DOI)
+    identifiers = Map(Delegate(WorkIdentifier), ctx.DOI)
 
-    publishers = Map(
-        Delegate(Association.using(entity=Delegate(Publisher))),
-        ctx.publisher
+    related_entities = Concat(
+        Map(Delegate(Contribution), Try(ctx.author)),
+        Map(Delegate(PublishingContribution), ctx.publisher),
+        Map(Delegate(FundingContribution), Try(ctx.funder)),
     )
-    funders = Map(
-        Delegate(Association.using(entity=Delegate(Funder))),
-        Maybe(ctx, 'funder')
-    )
+    # publishers = Map(
+    #     Delegate(Association.using(entity=Delegate(Publisher))),
+    #     ctx.publisher
+    # )
+    # funders = Map(
+    #     Delegate(Association.using(entity=Delegate(Funder))),
+    #     Maybe(ctx, 'funder')
+    # )
     # TODO These are "a controlled vocabulary from Sci-Val", map to Subjects!
     tags = Map(
         Delegate(ThroughTags),

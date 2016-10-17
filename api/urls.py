@@ -66,7 +66,7 @@ register_route(r'rawdata', views.RawDataViewSet)
 register_route(r'user', views.ShareUserViewSet)
 register_route(r'provider', views.ProviderViewSet)
 
-router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='NormalizedData')
+router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='normalizeddata')
 
 urlpatterns = [
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
