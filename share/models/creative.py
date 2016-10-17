@@ -26,7 +26,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
-    related_entities = ShareManyToManyField('AbstractEntity', through='AbstractEntityWorkRelation')
+    related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentWorkRelation')
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('subject', 'related'), symmetrical=False)
 
     def __str__(self):

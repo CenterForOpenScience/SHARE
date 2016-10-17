@@ -8,26 +8,26 @@ from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyF
 from share.util import ModelGenerator
 
 
-class AbstractEntityWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
-    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='entity_relations')
-    entity = ShareForeignKey('AbstractEntity', related_name='work_relations')
+class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='agent_relations')
+    agent = ShareForeignKey('AbstractAgent', related_name='work_relations')
 
     bibliographic = models.BooleanField(default=True)
     cited_as = models.TextField(blank=True)
     order_cited = models.PositiveIntegerField(null=True)
 
     class Meta:
-        unique_together = ('entity', 'creative_work', 'type')
+        unique_together = ('agent', 'creative_work', 'type')
 
 
 class ThroughContribution(ShareObject):
-    subject = ShareForeignKey(AbstractEntityWorkRelation, related_name='+')
-    related = ShareForeignKey(AbstractEntityWorkRelation, related_name='+')
+    subject = ShareForeignKey(AbstractAgentWorkRelation, related_name='+')
+    related = ShareForeignKey(AbstractAgentWorkRelation, related_name='+')
 
     def clean(self):
         if self.subject.creative_work != self.related.creative_work:
             raise ValidationError(_('ThroughContributions must contribute to the same AbstractCreativeWork'))
-        if self.subject.entity == self.related.entity:
+        if self.subject.agent == self.related.agent:
             raise ValidationError(_('A contributor may not contribute through itself'))
 
     def save(self, *args, **kwargs):
@@ -47,7 +47,7 @@ class Award(ShareObject):
 
 
 class ThroughContributionAwards(ShareObject):
-    contribution = ShareForeignKey(AbstractEntityWorkRelation)
+    contribution = ShareForeignKey(AbstractAgentWorkRelation)
     award = ShareForeignKey(Award)
 
     class Meta:
@@ -57,6 +57,6 @@ class ThroughContributionAwards(ShareObject):
 generator = ModelGenerator(field_types={
     'm2m': ShareManyToManyField
 })
-globals().update(generator.subclasses_from_yaml(__file__, AbstractEntityWorkRelation))
+globals().update(generator.subclasses_from_yaml(__file__, AbstractAgentWorkRelation))
 
 __all__ = tuple(key for key, value in globals().items() if isinstance(value, type) and issubclass(value, (ShareObject, ShareObjectVersion)))

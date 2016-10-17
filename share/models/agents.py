@@ -7,11 +7,11 @@ from share.models.fields import ShareManyToManyField
 from share.util import ModelGenerator
 
 
-class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
+class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
     name = models.TextField(blank=True)
     location = models.TextField(blank=True)
-    related_entities = ShareManyToManyField('AbstractEntity', through='AbstractEntityRelation', through_fields=('subject', 'related'), symmetrical=False)
-    related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractEntityWorkRelation')
+    related_entities = ShareManyToManyField('AbstractAgent', through='AbstractAgentRelation', through_fields=('subject', 'related'), symmetrical=False)
+    related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractAgentWorkRelation')
 
     class Meta:
         verbose_name_plural = 'AbstractEntities'
@@ -26,4 +26,4 @@ class AbstractEntity(ShareObject, metaclass=TypedShareObjectMeta):
 generator = ModelGenerator(field_types={
     'text': models.TextField
 })
-globals().update(generator.subclasses_from_yaml(__file__, AbstractEntity))
+globals().update(generator.subclasses_from_yaml(__file__, AbstractAgent))

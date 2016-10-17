@@ -5,7 +5,7 @@ from django.db import models
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 
-__all__ = ('WorkIdentifier', 'EntityIdentifier')
+__all__ = ('WorkIdentifier', 'AgentIdentifier')
 
 
 # TODO Common interface, so we're not duplicating code. Doesn't work because
@@ -44,14 +44,14 @@ class WorkIdentifier(ShareObject):
         super(WorkIdentifier, self).save(*args, **kwargs)
 
 
-class EntityIdentifier(ShareObject):
+class AgentIdentifier(ShareObject):
     uri = ShareURLField(unique=True)
     host = models.TextField(editable=False)
     scheme = models.TextField(editable=False)
-    entity = ShareForeignKey('AbstractEntity', related_name='identifiers')
+    agent = ShareForeignKey('AbstractAgent', related_name='identifiers')
 
     def save(self, *args, **kwargs):
         f = furl(self.uri)
         self.host = f.host
         self.scheme = f.scheme
-        super(EntityIdentifier, self).save(*args, **kwargs)
+        super(AgentIdentifier, self).save(*args, **kwargs)
