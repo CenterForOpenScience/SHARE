@@ -1,14 +1,28 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+import jsonschema
 
+from django.apps import apps
+from django.db import transaction
+
+from rest_framework import viewsets, views, status
+from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
+
+from api import schemas
+from api.authentication import APIV1TokenBackPortAuthentication
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
-from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
-    ShareUserSerializer, ProviderSerializer
+from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, ChangeSetSerializer, \
+    ChangeSerializer, RawDataSerializer, ShareUserSerializer, ProviderSerializer
 from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
+from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
+from share.harvest.harvester import Harvester
+from share.normalize.v1_push import V1Normalizer
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet')
+
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView', 'ModelSchemaView', 'V1DataView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -43,16 +57,21 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        'normalized_data': {
-                            '@graph': [{
-                                '@type': <type of document, exp: person>,
-                                '@id': <_:random>,
-                                <attribute_name>: <value>,
-                                <relationship_name>: {
-                                    '@type': <type>,
-                                    '@id': <id>
+                        'data': {
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': <type of document, exp: person>,
+                                        '@id': <_:random>,
+                                        <attribute_name>: <value>,
+                                        <relationship_name>: {
+                                            '@type': <type>,
+                                            '@id': <id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
@@ -61,16 +80,21 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        'normalized_data': {
-                            '@graph': [{
-                                '@type': <type of document, exp: person>,
-                                '@id': <id>,
-                                <attribute_name>: <value>,
-                                <relationship_name>: {
-                                    '@type': <type>,
-                                    '@id': <id>
+                        'data': {
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': <type of document, exp: person>,
+                                        '@id': <id>,
+                                        <attribute_name>: <value>,
+                                        <relationship_name>: {
+                                            '@type': <type>,
+                                            '@id': <id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
@@ -79,40 +103,51 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        'normalized_data': {
-                            '@graph': [{
-                                '@type': 'mergeAction',
-                                '@id': <_:random>,
-                                'into': {
-                                    '@type': <type of document>,
-                                    '@id': <doc id>
-                                },
-                                'from': {
-                                    '@type': <same type of document>,
-                                    '@id': <doc id>
+                        'data': {
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': 'mergeAction',
+                                        '@id': <_:random>,
+                                        'into': {
+                                            '@type': <type of document>,
+                                            '@id': <doc id>
+                                        },
+                                        'from': {
+                                            '@type': <same type of document>,
+                                            '@id': <doc id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
     """
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
-    serializer_class = NormalizedDataSerializer
     required_scopes = ['upload_normalized_manuscript', ]
+    resource_name = 'NormalizedData'
+
+    def get_serializer_class(self):
+        if self.request.user.is_robot:
+            return FullNormalizedDataSerializer
+        return BasicNormalizedDataSerializer
 
     def get_queryset(self):
         return NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
-        prelim_data = request.data
-        prelim_data['source'] = request.user.id
-        serializer = NormalizedDataSerializer(data=prelim_data)
-        if serializer.is_valid():
+        serializer = self.get_serializer_class()(data=request.data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
-            return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
-        else:
-            return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+            # TODO Fix Me
+            return Response({
+                'id': nm_instance.id,
+                'type': 'NormalizedData',
+                'attributes': {'task': async_result.id}
+            }, status=status.HTTP_202_ACCEPTED)
 
 
 class ChangeSetViewSet(viewsets.ModelViewSet):
@@ -168,3 +203,179 @@ class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
             ).distinct('id')
         else:
             return RawData.objects.all()
+
+
+class SchemaView(views.APIView):
+    """
+    Schema used to validate changes or additions to the SHARE dataset.
+
+    To submit changes, see [`/api/normalizeddata`](/api/normalizeddata)
+
+    ## Model schemas
+    Each node in the submitted `@graph` is validated by a model schema determined by its `@type`.
+
+    ### Work types
+    - [CreativeWork](/api/schema/CreativeWork)
+    - [Article](/api/schema/Article)
+    - [Book](/api/schema/Book)
+    - [ConferencePaper](/api/schema/ConferencePaper)
+    - [Dataset](/api/schema/Dataset)
+    - [Dissertation](/api/schema/Dissertation)
+    - [Lesson](/api/schema/Lesson)
+    - [Poster](/api/schema/Poster)
+    - [Preprint](/api/schema/Preprint)
+    - [Presentation](/api/schema/Presentation)
+    - [Project](/api/schema/Project)
+    - [ProjectRegistration](/api/schema/ProjectRegistration)
+    - [Report](/api/schema/Report)
+    - [Section](/api/schema/Section)
+    - [Software](/api/schema/Software)
+    - [Thesis](/api/schema/Thesis)
+    - [WorkingPaper](/api/schema/WorkingPaper)
+
+    ### Agents
+    - [Person](/api/schema/Person)
+    - [Institution](/api/schema/Institution)
+    - [Organization](/api/schema/Organization)
+
+    ### Identifiers
+    - [AgentIdentifier](/api/schema/AgentIdentifier)
+    - [CreativeWorkIdentifier](/api/schema/CreativeWorkIdentifier)
+
+    ### Other
+    - [Award](/api/schema/Award)
+    - [Subject](/api/schema/Subject)
+    - [Tag](/api/schema/Tag)
+    - [Venue](/api/schema/Venue)
+
+    ### Relationships between nodes
+    - [AgentRelation](/api/schema/AgentRelation)
+    - [WorkRelation](/api/schema/WorkRelation)
+    - [Contribution](/api/schema/Contribution)
+    - [ThroughContributionAwards](/api/schema/ThroughContributionAwards)
+    - [ThroughSubjects](/api/schema/ThroughSubjects)
+    - [ThroughTags](/api/schema/ThroughTags)
+    - [ThroughVenues](/api/schema/ThroughVenues)
+    """
+    def get(self, request, *args, **kwargs):
+        schema = JSONLDValidator.jsonld_schema.schema
+        return Response(schema)
+
+
+class ModelSchemaView(views.APIView):
+    """
+    Schema used to validate submitted changes of matching `@type`. See [`/api/schema`](/api/schema)
+    """
+    def get(self, request, *args, **kwargs):
+        model = apps.get_model('share', kwargs['model'])
+        schema = JSONLDValidator().validator_for(model).schema
+        return Response(schema)
+
+
+class V1DataView(views.APIView):
+    """View allowing sources to post SHARE v1 formatted metadata directly to the SHARE Dataset.
+
+    ## Submit Data in SHARE v1 Format
+    Please note that this endpoint is to ease the transition from SHARE v1 to SHARE v2 and sources
+    are encouraged to transition to submitting metadata in the SHARE v2 format.
+
+    Submitting data through the normalizeddata endpoint is strongly preferred as support for
+    the v1 format will not be continued.
+
+    v1 Format
+
+        For the full format please see https://github.com/erinspace/shareregistration/blob/master/push_endpoint/schemas.py
+
+        Required Fields: [
+            "title",
+            "contributors",
+            "uris",
+            "providerUpdatedDateTime"
+        ],
+
+    Create
+
+        Method:        POST
+        Body (JSON): {
+                        {
+                            "jsonData": {
+                                "publisher":{
+                                    "name": <publisher name>,
+                                    "uri": <publisher uri>
+                                },
+                                "description": <description>,
+                                "contributors":[
+                                    {
+                                        "name":<contributor name>,
+                                        "email": <email>,
+                                        "sameAs": <uri>
+                                    },
+                                    {
+                                        "name":<contributor name>
+                                    }
+                                ],
+                                "title": <title>,
+                                "tags":[
+                                    <tag>,
+                                    <tag>
+                                ],
+                                "languages":[
+                                    <language>
+                                ],
+                                "providerUpdatedDateTime": <time submitted>,
+                                "uris": {
+                                    "canonicalUri": <uri>,
+                                    "providerUris":[
+                                        <uri>
+                                    ]
+                                }
+                            }
+                        }
+                    }
+        Success:       200 OK
+    """
+    authentication_classes = (APIV1TokenBackPortAuthentication, )
+    permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
+    serializer_class = BasicNormalizedDataSerializer
+    renderer_classes = (JSONRenderer, )
+    parser_classes = (JSONParser,)
+
+    def post(self, request, *args, **kwargs):
+
+        try:
+            jsonschema.validate(request.data, schemas.v1_push_schema)
+        except (jsonschema.exceptions.ValidationError) as error:
+            raise ParseError(detail=error.message)
+
+        try:
+            prelim_data = request.data['jsonData']
+        except ParseError as error:
+            return Response(
+                'Invalid JSON - {0}'.format(error.message),
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        app_label = request.user.username
+
+        # store raw data, assuming you can only submit one at a time
+        raw = None
+        with transaction.atomic():
+            try:
+                doc_id = prelim_data['uris']['canonicalUri']
+            except KeyError:
+                return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+
+            raw = RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), request.user, app_label)
+
+        # normalize data
+        normalized_data = V1Normalizer({}).normalize(raw.data)
+        data = {}
+        data['data'] = normalized_data
+        serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})
+
+        if serializer.is_valid():
+            nm_instance = serializer.save()
+            async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
+            return Response({'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)

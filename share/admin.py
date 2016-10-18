@@ -11,14 +11,18 @@ from django.contrib import messages
 from django.contrib.admin.views.main import ChangeList
 
 from share.robot import RobotAppConfig
-from share.models.base import ExtraData
+# from share.models.base import ExtraData
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
 from share.models.core import RawData, NormalizedData, ShareUser
-from share.models.creative import AbstractCreativeWork
-from share.models.entities import Entity
-from share.models.meta import Venue, Award, Tag, Link, Subject, SubjectSynonym
-from share.models.people import Identifier, Contributor, Email, Person, PersonEmail, Affiliation
+# from share.models.creative import AbstractCreativeWork
+# from share.models.agents import AbstractAgent
+# from share.models.identifiers import WorkIdentifier, AgentIdentifier
+# from share.models.meta import Venue, Tag, Subject
+from share.models.registration import ProviderRegistration
+# from share.models.work_relations import AbstractWorkRelation
+# from share.models.agent_relations import AbstractAgentRelation
+# from share.models.contributions import AbstractContribution, Award
 from share.tasks import ApplyChangeSets
 
 
@@ -62,14 +66,6 @@ class ChangeSetAdmin(admin.ModelAdmin):
 
     def status_(self, obj):
         return ChangeSet.STATUS[obj.status].title()
-
-
-class PersonAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'given_name', 'family_name', 'works')
-    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
-
-    def works(self, obj):
-        return obj.contributor_set.count()
 
 
 class AppLabelFilter(admin.SimpleListFilter):
@@ -153,22 +149,14 @@ class AbstractCreativeWorkAdmin(admin.ModelAdmin):
     num_contributors.short_description = 'Contributors'
 
 
-class EntityAdmin(admin.ModelAdmin):
+class AbstractAgentAdmin(admin.ModelAdmin):
     list_display = ('type', 'name')
     list_filter = ('type',)
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
 
 
-class ContributorAdmin(admin.ModelAdmin):
-    raw_id_fields = ('change', 'extra', 'extra_version', 'creative_work', 'creative_work_version', 'same_as', 'same_as_version', 'person', 'person_version',)
-
-
 class TagAdmin(admin.ModelAdmin):
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
-
-
-class LinkAdmin(admin.ModelAdmin):
-    raw_id_fields = ('change', 'same_as', 'same_as_version', 'extra', 'extra_version',)
 
 
 class RawDataAdmin(admin.ModelAdmin):
@@ -179,42 +167,38 @@ class AccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'user', 'scope')
 
 
-class SubjectSynonymInline(admin.TabularInline):
-    model = SubjectSynonym
+class ProviderRegistrationAdmin(admin.ModelAdmin):
+    list_display = ('source_name', 'status_', 'submitted_at', 'submitted_by', 'direct_source')
+    list_filter = ('direct_source', 'status',)
+    readonly_fields = ('submitted_at', 'submitted_by',)
 
-    def has_add_permission(self, request, obj=None):
-            return False
+    def status_(self, obj):
+        return ProviderRegistration.STATUS[obj.status].title()
 
-    def has_delete_permission(self, request, obj=None):
-            return False
-
-
-class SubjectAdmin(admin.ModelAdmin):
-    inlines = [
-        SubjectSynonymInline
-    ]
 
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
-admin.site.register(Affiliation)
-admin.site.register(Person, PersonAdmin)
-admin.site.register(PersonEmail)
-admin.site.register(Identifier)
-admin.site.register(Venue)
-admin.site.register(Award)
-admin.site.register(Link, LinkAdmin)
-admin.site.register(Tag, TagAdmin)
-admin.site.register(Subject, SubjectAdmin)
-admin.site.register(ExtraData)
-admin.site.register(Contributor, ContributorAdmin)
-admin.site.register(Email)
+# admin.site.register(AbstractAgentRelation)
+# admin.site.register(AbstractWorkRelation)
+# admin.site.register(AbstractContribution)
+
+# admin.site.register(AgentIdentifier)
+# admin.site.register(WorkIdentifier)
+
+# admin.site.register(Venue)
+# admin.site.register(Award)
+# admin.site.register(Tag, TagAdmin)
+# admin.site.register(Subject)
+# admin.site.register(ExtraData)
 admin.site.register(RawData, RawDataAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 
-admin.site.register(Entity, EntityAdmin)
-admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
+# admin.site.register(AbstractAgent, AbstractAgentAdmin)
+# admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(ShareUser)
+
+admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)

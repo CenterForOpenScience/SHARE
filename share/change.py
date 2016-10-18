@@ -3,17 +3,15 @@ import logging
 
 from django.apps import apps
 
-from share import disambiguation
+from share.disambiguation import GraphDisambiguator
+
+from share.util import TopographicalSorter
 
 
 logger = logging.getLogger(__name__)
 
 
 class GraphParsingException(Exception):
-    pass
-
-
-class CyclicalDependency(GraphParsingException):
     pass
 
 
@@ -24,8 +22,8 @@ class UnresolvableReference(GraphParsingException):
 class ChangeNode:
 
     @classmethod
-    def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
-        return ChangeNode(ld_graph, disambiguate=disambiguate, extra_namespace=extra_namespace)
+    def from_jsonld(self, ld_graph, extra_namespace=None):
+        return ChangeNode(ld_graph, extra_namespace=extra_namespace)
 
     @property
     def model(self):
@@ -37,6 +35,16 @@ class ChangeNode:
     def instance(self):
         return self.__instance
 
+    @instance.setter
+    def instance(self, instance):
+        if instance:
+            self.id = instance.pk
+            self.type = instance._meta.model_name.lower()
+            if self.type != self.new_type and self.new_type == 'creativework':
+                self.new_type = self.type
+            self.__refs.append((self.id, self.type))
+        self.__instance = instance
+
     @property
     def is_blank(self):
         # JSON-LD Blank Node ids start with "_:"
@@ -47,13 +55,29 @@ class ChangeNode:
         return self.type.lower() == 'mergeaction'
 
     @property
+    def ref(self):
+        return {'@id': self.id, '@type': self.type}
+
+    @property
     def refs(self):
         return self.__refs
 
     @property
+    def is_skippable(self):
+        return self.is_merge or (self.instance and not self.change)
+
+    @property
+    def resolved_attrs(self):
+        return {
+            **self.attrs,
+            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')},
+            **{k: [x['@id'] for x in v if not str(x['@id']).startswith('_:')] for k, v in self.reverse_relations.items() if any(not str(x['@id']).startswith('_:') for x in v)},
+        }
+
+    @property
     def change(self):
         if self.is_merge:
-            return {**self.attrs, **self.relations, **self._reverse_relations}
+            return {**self.attrs, **self.relations, **self.__reverse_relations}
 
         if self.is_blank:
             ret = {**self.attrs, **self.relations}
@@ -75,9 +99,12 @@ class ChangeNode:
             if not ret['extra']:
                 del ret['extra']
 
+        if self.new_type != self.type:
+            ret['@type'] = self.new_type
+
         return ret
 
-    def __init__(self, node, disambiguate=True, extra_namespace=None):
+    def __init__(self, node, extra_namespace=None):
         self.__raw = node
         self.__change = None
         self.__instance = None
@@ -86,44 +113,46 @@ class ChangeNode:
 
         self.id = str(node.pop('@id'))
         self.type = node.pop('@type').lower()
+        self.new_type = self.type
         self.extra = node.pop('extra', {})
 
         self.__refs = [(self.id, self.type)]
 
         # JSON-LD variables are all prefixed with '@'s
         self.context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
+
         # Any nested data type is a relation in the current JSON-LD schema
         self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, dict)}
         self.related = tuple(self.relations.values())
-        self._reverse_relations = {k: tuple(node.pop(k)) for k, v in tuple(node.items()) if isinstance(v, (list, tuple))}
 
-        if self.is_merge:
-            self.related += sum(self._reverse_relations.values(), tuple())
+        self.reverse_relations = {}  # Resolved through relations to be populated later
+        self.__reverse_relations = {k: tuple(node.pop(k)) for k, v in tuple(node.items()) if isinstance(v, (list, tuple))}
 
         self.attrs = node
 
-        if disambiguate:
-            self._disambiguate()
+    def resolve_relations(self, mapper):
+        for key, relations in self.__reverse_relations.items():
+            resolved = []
+            for relation in relations:
+                node = mapper[relation['@id'], relation['@type'].lower()]
+                through_relations = [r for r in node.related if r['@id'] != self.id]
+                if through_relations:
+                    resolved.extend(through_relations)
+                    self.related += tuple(through_relations)
+                else:
+                    resolved.append(node.ref)
+            self.reverse_relations[key] = resolved
 
     def update_relations(self, mapper):
         for v in self.relations.values():
             try:
                 node = mapper[(v['@id'], v['@type'].lower())]
                 v['@id'] = node.id
-                v['@type'] = node.type
+                v['@type'] = node.new_type
             except KeyError:
                 pass
-
-    def _disambiguate(self):
-        if self.is_merge:
-            return None
-        self.__instance = disambiguation.disambiguate(self.id, {
-            **self.attrs,
-            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')}
-        }, self.model)
-        if self.__instance:
-            self.id = self.__instance.pk
-            self.__refs.append((self.id, self.type))
+        for k, values in self.reverse_relations.items():
+            self.reverse_relations[k] = [mapper.get((v['@id'], v['@type'].lower()), (v['@id'], v['@type'].lower())).ref for v in values]
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.model, self.instance)
@@ -133,28 +162,30 @@ class ChangeGraph:
 
     @classmethod
     def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
-        nodes = [ChangeNode.from_jsonld(obj, disambiguate=disambiguate, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
-        return ChangeGraph(nodes, disambiguate=disambiguate)
+        nodes = [ChangeNode.from_jsonld(obj, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
+        graph = ChangeGraph(nodes)
+        if disambiguate:
+            GraphDisambiguator().disambiguate(graph)
+        return graph
 
     @property
     def nodes(self):
         return self.__nodes
 
-    def __init__(self, nodes, parse=True, disambiguate=True):
+    @property
+    def node_map(self):
+        return self.__map
+
+    def __init__(self, nodes, parse=True):
         self.__nodes = nodes
         self.__map = {ref: n for n in nodes for ref in n.refs}
-        self.__sorter = NodeSorter(self)
+        self.__sorter = TopographicalSorter(nodes, dependencies=lambda n: [self.get_node(r['@id'], r['@type']) for r in n.related])
+
+        for node in self.__nodes:
+            node.resolve_relations(self.__map)
 
         if parse:
             self.__nodes = self.__sorter.sorted()
-
-        # TODO This could probably be more efficiant
-        if disambiguate:
-            for n in self.__nodes:
-                n.update_relations(self.__map)
-                n._disambiguate()
-                for ref in n.refs:
-                    self.__map[ref] = n
 
     def get_node(self, id, type):
         try:
@@ -163,40 +194,3 @@ class ChangeGraph:
             if str(id).startswith('_:'):
                 raise UnresolvableReference('Unresolvable reference @id: {!r}, @type: {!r}'.format(id, type))
         return None  # External reference to an already existing object
-
-
-class NodeSorter:
-
-    def __init__(self, graph):
-        self.__sorted = []
-        self.__graph = graph
-        self.__visted = set()
-        self.__visiting = set()
-        self.__nodes = list(graph.nodes)
-
-    def sorted(self):
-        if not self.__nodes:
-            return self.__sorted
-
-        while self.__nodes:
-            n = self.__nodes.pop(0)
-            self.__visit(n)
-
-        return self.__sorted
-
-    def __visit(self, node):
-        if node in self.__visiting:
-            raise CyclicalDependency()
-
-        if node in self.__visted:
-            return
-
-        self.__visiting.add(node)
-        for relation in node.related:
-            n = self.__graph.get_node(relation['@id'], relation['@type'])
-            if n:
-                self.__visit(n)
-
-        self.__visted.add(node)
-        self.__sorted.append(node)
-        self.__visiting.remove(node)

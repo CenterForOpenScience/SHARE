@@ -38,9 +38,7 @@ Setup::
 
     pip install -r requirements.txt
 
-    docker-compose up -d rabbitmq postgres
-
-    // Or try:
+    // Creates and starts containers for elasticsearch, rabbitmq, and postgres
     docker-compose up -d web
 
     ./up.sh
@@ -54,7 +52,7 @@ Run a harvester::
 
     python manage.py harvest domain.providername --async
 
-To see a list of all providers, as well as their names for harvesting, visit https://staging-share.osf.io/api/providers/
+To see a list of all providers, as well as their names for harvesting, visit https://share.osf.io/api/providers/
 
 For more information, see the section on :ref:`Harvesters and Normalizers <harvesters-and-normalizers>`.
 

@@ -148,11 +148,22 @@ Creative Work
 
  **Subclasses:**
 
+- ``Article``
+- ``Book``
+- ``ConferencePaper``
+- ``Dataset``
+- ``Dissertation``
+- ``Lesson``
+- ``Poster``
 - ``Preprint``
-- ``Manuscript``
-- ``Publication``
+- ``Presentation``
 - ``Project``
-- ``Registration``
+- ``ProjectRegistration``
+- ``Report``
+- ``Section``
+- ``Software``
+- ``Thesis``
+- ``WorkingPaper``
 
 
 Person

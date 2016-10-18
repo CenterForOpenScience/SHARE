@@ -1,7 +1,6 @@
 import re
 
 from share.normalize import *  # noqa
-from share.normalize.utils import format_doi_as_url
 
 
 class Person(Parser):
@@ -41,10 +40,7 @@ class Association(Parser):
     entity = Delegate(Publisher, ctx)
 
 
-class Publication(Parser):
-
-    def format_doi_as_url(self, doi):
-        return format_doi_as_url(self, doi)
+class Article(Parser):
 
     title = XPath(ctx, "str[@name='title_display']").str['#text']
     description = XPath(ctx, "arr[@name='abstract']/str").str
@@ -58,10 +54,7 @@ class Publication(Parser):
     )
     links = Map(
         Delegate(ThroughLinks),
-        RunPython(
-            'format_doi_as_url',
-            XPath(ctx, "str[@name='id']").str['#text'],
-        ),
+        DOI(XPath(ctx, "str[@name='id']").str['#text']),
         XPath(ctx, "str[@name='eissn']").str['#text']
     )
     date_published = ParseDate(XPath(ctx, "date[@name='publication_date']").date['#text'])

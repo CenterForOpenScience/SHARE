@@ -1,0 +1,29 @@
+CreativeWork:
+    children:
+        DataSet: {}
+        # Image:
+        #     children:
+        #         Diagram: {}
+        #         Drawing: {}
+        #         Figure: {}
+        #         Photo: {}
+        #         Plot: {}
+        # Lesson: {}
+        Poster: {}
+        Publication:
+            children:
+                Article: {}
+                Book: {}
+                ConferencePaper: {}
+                Deliverable: {}
+                Dissertation: {}
+                Preprint: {}
+                Project: {}
+                Registration: {}
+                Report: {}
+                Section: {}
+                Thesis: {}
+                WorkingPaper: {}
+        Presentation: {}
+        Software: {}
+        # Video: {}

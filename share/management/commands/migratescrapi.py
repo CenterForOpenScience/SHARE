@@ -3,7 +3,7 @@ import os
 from collections import OrderedDict
 from hashlib import sha256
 
-import arrow
+import pendulum
 
 from django.db import connections, transaction
 from django.apps import apps
@@ -188,10 +188,11 @@ class Command(BaseCommand):
                                     if raw is None or raw == 'null' or raw['timestamps'] is None or raw['timestamps']['harvestFinished'] is None:
                                         print('{} -> {}: {} : raw is null'.format(source, target, doc_id))
                                         continue
-                                    harvest_finished = arrow.get(raw['timestamps']['harvestFinished'])
+                                    harvest_finished = pendulum.parse(raw['timestamps']['harvestFinished'])
                                     data = raw['doc'].encode()
                                     bulk.append(RawData(
                                         source=config.user,
+                                        app_label=config.label,
                                         provider_doc_id=doc_id,
                                         sha256=sha256(data).hexdigest(),
                                         data=data,

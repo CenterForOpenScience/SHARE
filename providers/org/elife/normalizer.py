@@ -1,7 +1,6 @@
 import datetime
 
 from share.normalize import *  # noqa
-from share.normalize.utils import format_doi_as_url
 
 
 def text(obj):
@@ -89,7 +88,7 @@ class CreativeWork(Parser):
     )
     links = Map(
         Delegate(ThroughLinks),
-        RunPython('format_doi_url', RunPython(text, XPath(ctx, '//article-id[@pub-id-type="doi"]')[0]['article-id']))
+        DOI(RunPython(text, XPath(ctx, '//article-id[@pub-id-type="doi"]')[0]['article-id']))
     )
 
     class Extra:
@@ -100,6 +99,3 @@ class CreativeWork(Parser):
         month = ctx.get('month')
         year = ctx.get('year')
         return datetime.date(int(year), int(month), int(day))
-
-    def format_doi_url(self, doi):
-        return format_doi_as_url(self, doi)

@@ -16,8 +16,6 @@ from django.db.models.fields.related import resolve_relation
 from django.utils.translation import ugettext_lazy as _
 from psycopg2.extras import Json
 
-from share.models.validators import is_valid_uri
-
 
 class DateTimeAwareJSONEncoder(DjangoJSONEncoder):
     def default(self, o):
@@ -95,17 +93,17 @@ JSONField.register_lookup(lookups.HasAnyKeys)
 
 class ShareOneToOneField(models.OneToOneField):
     def __init__(self, model, **kwargs):
-        self.__kwargs = kwargs
+        self._kwargs = kwargs
         super().__init__(model, **kwargs)
 
     def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
+        actual = self.__class__.mro()[1](self.remote_field.model, **self._kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self._kwargs)
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self._kwargs)
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
@@ -115,17 +113,17 @@ class ShareOneToOneField(models.OneToOneField):
 class ShareForeignKey(models.ForeignKey):
 
     def __init__(self, model, **kwargs):
-        self.__kwargs = kwargs
+        self._kwargs = kwargs
         super().__init__(model, **kwargs)
 
     def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
+        actual = self.__class__.mro()[1](self.remote_field.model, **self._kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **{**self._kwargs, 'related_name': '+'})
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **{**self._kwargs, 'related_name': '+'})
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
@@ -376,27 +374,41 @@ class TypedManyToManyField(models.ManyToManyField):
 class ShareManyToManyField(TypedManyToManyField):
 
     def __init__(self, model, **kwargs):
-        self.__kwargs = kwargs
+        self._kwargs = kwargs
         super().__init__(model, **kwargs)
 
     def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[1](self.remote_field.model, **self.__kwargs)
+        actual = self.__class__.mro()[1](self.remote_field.model, **self._get_kwargs(cls))
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self._get_kwargs(cls, version_field=True))
         elif hasattr(self.remote_field.model, 'VersionModel'):
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self.__kwargs)
+            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self._get_kwargs(cls, version_field=True))
         else:
             return
+
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
 
         actual._share_version_field = version
 
+    def _get_kwargs(self, cls, version_field=False):
+        kwargs = {**self._kwargs}
+        through_fields = kwargs.get('through_fields', None)
+
+        if version_field:
+            kwargs['related_name'] = '+'
+
+        if through_fields:
+            through_fields = (
+                '{}_version'.format(through_fields[0]) if 'version' in cls._meta.model_name else through_fields[0],
+                '{}_version'.format(through_fields[1]) if version_field else through_fields[1]
+            )
+            kwargs['through_fields'] = through_fields
+        return kwargs
+
 
 class URIField(models.TextField):
-    default_validators = [is_valid_uri, ]
-
     def __init__(self, *args, **kwargs):
         super(URIField, self).__init__(*args, **kwargs)
 

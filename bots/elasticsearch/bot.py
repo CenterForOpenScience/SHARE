@@ -56,7 +56,7 @@ class ElasticSearchBot(Bot):
                 }
             }
         },
-        'entity': {
+        'agent': {
             'properties': {
                 'suggest': SUGGEST_MAPPING
             }

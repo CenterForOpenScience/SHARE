@@ -19,7 +19,7 @@ class ParserMeta(type):
         # Enabled inheritance in parsers.
         parsers = reduce(lambda acc, val: {**acc, **getattr(val, 'parsers', {})}, bases[::-1], {})
         for key, value in tuple(attrs.items()):
-            if isinstance(value, AbstractLink):
+            if isinstance(value, AbstractLink) and key != 'schema':
                 parsers[key] = attrs.pop(key).chain()[0]
         attrs['parsers'] = parsers
 
@@ -52,45 +52,51 @@ class Parser(metaclass=ParserMeta):
     def schema(self):
         return self.__class__.__name__.lower()
 
-    @property
-    def model(self):
-        return apps.get_model('share', self.schema)
-
     def __init__(self, context, config=None):
         self.config = config or ctx._config
         self.context = context
         self.id = '_:' + uuid.uuid4().hex
-        self.ref = {'@id': self.id, '@type': self.schema}
 
     def validate(self, field, value):
         if field.is_relation:
-            if field.rel.many_to_many:
+            if field.one_to_many or field.rel.many_to_many:
                 assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
             else:
-                assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
+                if hasattr(field.rel.model, 'natural_key_field'):
+                    assert isinstance(value, str), 'Values for field {} must be a valid natural key for model {}. Found {}'.format(field, field.rel.model, value)
+                else:
+                    assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
         else:
-            assert not isinstance(value, dict), 'Value for non-relational field {} must be a primative type. Found {}'.format(field, value)
+            assert not isinstance(value, dict), 'Value for non-relational field {} must be a primitive type. Found {}'.format(field, value)
 
     def parse(self):
-        if (self.context, self.schema) in ctx.pool:
-            return ctx.pool[self.context, self.schema]
+        prev, Context().parser = Context().parser, self
+        if isinstance(self.schema, AbstractLink):
+            schema = self.schema.chain()[0].run(self.context).lower()
+        else:
+            schema = self.schema
+
+        if (self.context, schema) in ctx.pool:
+            return ctx.pool[self.context, schema]
+
+        model = apps.get_model('share', schema)
+        self.ref = {'@id': self.id, '@type': schema}
 
         inst = {**self.ref}  # Shorthand for copying inst
-        ctx.pool[self.context, self.schema] = self.ref
-
-        prev, Context().parser = Context().parser, self
+        ctx.pool[self.context, schema] = self.ref
 
         for key, chain in self.parsers.items():
             try:
-                field = self.model._meta.get_field(key)
+                field = model._meta.get_field(key)
             except FieldDoesNotExist:
-                raise Exception('Tried to parse value {} which does not exist on {}'.format(key, self.model))
+                raise Exception('Tried to parse value {} which does not exist on {}'.format(key, model))
 
             value = chain.run(self.context)
 
-            if value and field.is_relation and field.rel.many_to_many:
+            if value and field.is_relation and (field.one_to_many or field.rel.many_to_many):
                 for v in value:
-                    ctx.pool[v][field.m2m_field_name()] = self.ref
+                    field_name = field.field.name if field.one_to_many else field.m2m_field_name()
+                    ctx.pool[v][field_name] = self.ref
 
             if value is not None:
                 self.validate(field, value)

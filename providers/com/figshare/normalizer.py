@@ -1,7 +1,3 @@
-import arrow
-
-import dateparser
-
 from share.normalize import *  # noqa
 
 
@@ -80,26 +76,23 @@ class CreativeWork(Parser):
     title = ctx.title
     description = ctx.description
     contributors = Map(Delegate(Contributor), ctx.authors)
-    date_published = RunPython('parse_date', ctx.published_date)
-    links = Map(Delegate(ThroughLinks), ctx.url, ctx.DOI, ctx.links)
+    date_published = ParseDate(ctx.published_date)
+    links = Map(Delegate(ThroughLinks), ctx.url, DOI(ctx.DOI), ctx.links)
 
     class Extra:
-        modified = RunPython('parse_date', ctx.modified_date)
-
-    def parse_date(self, date_str):
-        return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
+        modified = ParseDate(ctx.modified_date)
 
 
 class DataSet(Parser):
     schema = 'CreativeWork'
     title = ctx.title
     description = ctx.description_nohtml
-    date_published = RunPython('parse_date', ctx.published_date)
+    date_published = ParseDate(ctx.published_date)
     contributors = Map(Delegate(DataSetContributor), ctx.owner, ctx.authors)
 
     links = Concat(
         Map(Delegate(ThroughLinks.using(link=Delegate(FileLink))), ctx.files),
-        Map(Delegate(ThroughLinks), ctx.figshare_url, ctx.doi, ctx.publisher_doi)
+        Map(Delegate(ThroughLinks), ctx.figshare_url, DOI(ctx.doi), DOI(ctx.publisher_doi))
     )
 
     tags = Map(
@@ -115,9 +108,6 @@ class DataSet(Parser):
         article_id = ctx.article_id
         defined_type = ctx.defined_type
         citation = ctx.publisher_citation
-
-    def parse_date(self, date_str):
-        return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
 
 
 class FigshareNormalizer(Normalizer):

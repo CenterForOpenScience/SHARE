@@ -5,7 +5,6 @@ from lxml import etree
 from share.normalize import ctx, tools
 from share.normalize.parsers import Parser
 from share.normalize.normalizer import Normalizer
-from share.normalize.utils import format_doi_as_url
 
 
 logger = logging.getLogger(__name__)
@@ -33,9 +32,7 @@ class OAILink(Parser):
     def format_link(self, link):
         link_type = self.get_link_type(link)
         if link_type == 'doi':
-            if 'http' in link:
-                return link
-            return format_doi_as_url(self, link)
+            return tools.DOI().execute(link)
         return link
 
 
@@ -43,6 +40,18 @@ class OAIThroughLinks(Parser):
     schema = 'ThroughLinks'
 
     link = tools.Delegate(OAILink, ctx)
+
+
+class OAISubject(Parser):
+    schema = 'Subject'
+
+    name = ctx
+
+
+class OAIThroughSubjects(Parser):
+    schema = 'ThroughSubjects'
+
+    subject = tools.Delegate(OAISubject, ctx)
 
 
 class OAIPerson(Parser):
@@ -97,7 +106,15 @@ class OAIThroughTags(Parser):
 
 
 class OAICreativeWork(Parser):
-    schema = 'CreativeWork'
+    @property
+    def schema(self):
+        try:
+            resourceType = self.context['record']['metadata']['dc']['dc:type']
+            if resourceType == 'preprint':
+                return 'Preprint'
+            return 'CreativeWork'
+        except (KeyError, ValueError):
+            return 'CreativeWork'
 
     ORGANIZATION_KEYWORDS = (
         'the',
@@ -114,7 +131,7 @@ class OAICreativeWork(Parser):
     description = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:description'])))
 
     publishers = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIPublisher))),
+        tools.Delegate(OAIAssociation.using(agent=tools.Delegate(OAIPublisher))),
         tools.Map(tools.RunPython('force_text'), tools.Try(ctx.record.metadata.dc['dc:publisher']))
     )
 
@@ -138,7 +155,7 @@ class OAICreativeWork(Parser):
     )
 
     institutions = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIInstitution))),
+        tools.Delegate(OAIAssociation.using(agent=tools.Delegate(OAIInstitution))),
         tools.RunPython(
             'get_contributors',
             tools.Concat(
@@ -150,7 +167,7 @@ class OAICreativeWork(Parser):
     )
 
     organizations = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIOrganization))),
+        tools.Delegate(OAIAssociation.using(agent=tools.Delegate(OAIOrganization))),
         tools.RunPython(
             'get_contributors',
             tools.Concat(
@@ -158,6 +175,19 @@ class OAICreativeWork(Parser):
                 tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
             ),
             'organization'
+        )
+    )
+
+    subjects = tools.Map(
+        tools.Delegate(OAIThroughSubjects),
+        tools.Subjects(
+            tools.Map(
+                tools.RunPython('tokenize'),
+                tools.Try(ctx['record']['header']['setSpec']),
+                tools.Try(ctx['record']['metadata']['dc']['dc:type']),
+                tools.Try(ctx['record']['metadata']['dc']['dc:format']),
+                tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+            )
         )
     )
 
@@ -192,14 +222,14 @@ class OAICreativeWork(Parser):
         Fields that are combined in the base parser are relisted as singular elements that match
         their original entry to preserve raw data structure.
         """
-        # An entity responsible for making contributions to the resource.
+        # An agent responsible for making contributions to the resource.
         contributor = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
 
         # The spatial or temporal topic of the resource, the spatial applicability of the resource,
         # or the jurisdiction under which the resource is relevant.
         coverage = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:coverage')
 
-        # An entity primarily responsible for making the resource.
+        # An agent primarily responsible for making the resource.
         creator = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:creator')
 
         # A point or period of time associated with an event in the lifecycle of the resource.
@@ -272,6 +302,12 @@ class OAICreativeWork(Parser):
                 raise Exception(datum)
         return fixed
 
+    def tokenize(self, data):
+        tokens = []
+        for item in data:
+            tokens.extend([x.strip() for x in re.split('(?: - )|\.', data) if x])
+        return tokens
+
     def get_relation(self, ctx):
         if not ctx['record'].get('metadata'):
             return []
@@ -280,13 +316,13 @@ class OAICreativeWork(Parser):
             return relation['#text']
         return relation
 
-    def get_contributors(self, options, entity):
+    def get_contributors(self, options, agent):
         """
-        Returns list of organization, institutions, or contributors names based on entity type.
+        Returns list of organization, institutions, or contributors names based on agent type.
         """
         options = [o if isinstance(o, str) else o['#text'] for o in options]
 
-        if entity == 'organization':
+        if agent == 'organization':
             organizations = [
                 value for value in options if
                 (
@@ -296,7 +332,7 @@ class OAICreativeWork(Parser):
                 )
             ]
             return organizations
-        elif entity == 'institution':
+        elif agent == 'institution':
             institutions = [
                 value for value in options if
                 (
@@ -305,7 +341,7 @@ class OAICreativeWork(Parser):
                 )
             ]
             return institutions
-        elif entity == 'contributor':
+        elif agent == 'contributor':
             people = [
                 value for value in options if
                 (
@@ -328,8 +364,8 @@ class OAIPreprint(OAICreativeWork):
     schema = 'Preprint'
 
 
-class OAIPublication(OAICreativeWork):
-    schema = 'Publication'
+class OAIArticle(OAICreativeWork):
+    schema = 'Article'
 
 
 class OAINormalizer(Normalizer):
@@ -338,7 +374,7 @@ class OAINormalizer(Normalizer):
     def root_parser(self):
         parser = {
             'preprint': OAIPreprint,
-            'publication': OAIPublication,
+            'article': OAIArticle,
             'creativework': OAICreativeWork,
         }[self.config.emitted_type.lower()]
 
