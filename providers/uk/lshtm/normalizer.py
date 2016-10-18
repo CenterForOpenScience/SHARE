@@ -2,7 +2,15 @@ import re
 
 from share.normalize import ctx
 from share.normalize.tools import *
-from share.normalize.oai import OAICreativeWork, OAIPerson, OAINormalizer, Parser
+from share.normalize.oai import OAICreativeWork, OAIPerson, OAINormalizer, Parser, OAIPublisher
+
+
+class PersonIdentifier(Parser):
+    url = IRI(ctx)
+
+
+class WorkIdentifier(Parser):
+    url = Try(DOI(ctx[0]))
 
 
 class Person(OAIPerson):
@@ -11,12 +19,13 @@ class Person(OAIPerson):
     given_name = ParseName(ctx[0]).first
     additional_name = ParseName(ctx[0]).middle
 
-    class Extra:
-        identifiers = ctx[1]
+    # see http://researchonline.lshtm.ac.uk/view/creators/105347.html
+    identifiers = Map(Delegate(PersonIdentifier), ctx[1])
 
 
 class Contributor(Parser):
-    person = Delegate(Person, ctx)
+    entity = Delegate(Person, ctx)
+    order_cited = ctx('index')
 
     class Extra:
         type = 'Contributor'
@@ -24,31 +33,43 @@ class Contributor(Parser):
 
 class Creator(Parser):
     schema = 'Contributor'
-    person = Delegate(Person, ctx)
+    entity = Delegate(Person, ctx)
+    order_cited = ctx('index')
 
     class Extra:
         type = 'Creator'
 
 
 class LSHTMCreativeWork(OAICreativeWork):
-    contributors = Concat(
-        Map(
-            Delegate(Creator),
-            RunPython(
-                'get_contributor_list',
-                ctx.record.metadata.dc,
-                'creator'
-            )
-        ),
-        Map(
-            Delegate(Contributor),
-            RunPython(
-                'get_contributor_list',
-                ctx.record.metadata.dc,
-                'contributor'
-            )
-        )
+
+    def get_schema(self, types):
+        schemes = {
+            'Conference or Workshop Item': 'ConferencePaper',
+            'Article': 'Article'
+        }
+
+        for listing in types:
+            if listing == 'PeerReviewd' or listing == 'NotPeerReviewed':
+                continue
+            return schemes.get(listing) or 'CreativeWork'
+
+    schema = RunPython('get_schema', Concat(ctx.type))
+
+    related_entities = Concat(
+        Map(Delegate(Contributor), RunPython(
+            'get_contributor_list',
+            ctx.record.metadata.dc,
+            'contributor'
+         )),
+        Map(Delegate(Creator), RunPython(
+            'get_contributor_list',
+            ctx.record.metadata.dc,
+            'creator'
+        )),
+        Map(Delegate(OAIPublisher), ctx.publisher),
     )
+
+    identifier = Delegate(WorkIdentifier, Concat(ctx.relation))
 
     def get_contributor_list(self, ctx, type):
         """
