@@ -61,25 +61,14 @@ class LSHTMCreativeWork(OAICreativeWork):
 
         people = {x: None for x in ctx['dc:' + type]}
 
-        # For multiple identifier elements
-        if isinstance(ctx['dc:identifier'], list):
-            for identifier in ctx['dc:identifier']:
-                for ele in identifier.split(';'):
-                    url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
-                                     ele)
-                    if url:
-                        url = url[0].rstrip('>')
-                        name = ele.split(' <')[0]
-                        people[name] = url
-            return list(people.items())
-
-        # For a single identifier element
-        for ele in ctx['dc:identifier'].split(';'):
-            url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', ele)
-            if url:
-                url = url[0].rstrip('>')
-                name = ele.split(' <')[0]
-                people[name] = url
+        for identifier in Concat(ctx['dc:identifier']):
+            for ele in identifier.split(';'):
+                url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
+                                 ele)
+                if url:
+                    url = url[0].rstrip('>')
+                    name = ele.split(' <')[0]
+                    people[name] = url
         return list(people.items())
 
 
