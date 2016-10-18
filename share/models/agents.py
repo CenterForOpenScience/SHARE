@@ -4,6 +4,8 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
+from nameparser import HumanName
+
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.fields import ShareManyToManyField
@@ -31,6 +33,16 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
 
     def __str__(self):
         return self.name
+
+
+@receiver(pre_save, sender='Person')
+def parse_person_name(sender, instance, *args, **kwargs):
+    if instance.name and instance.family_name is None and instance.given_name is None:
+        name = HumanName(instance.name)
+        instance.family_name = name.last
+        instance.given_name = name.first
+        instance.suffix = name.suffix
+        instance.additional_name = name.middle
 
 
 generator = ModelGenerator(field_types={
