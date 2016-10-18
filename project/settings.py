@@ -39,6 +39,8 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
 
 AUTH_USER_MODEL = 'share.ShareUser'
 
+JSON_API_FORMAT_KEYS = 'camelize'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -58,6 +60,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'revproxy',
+    'mptt',
 
     'allauth',
     'allauth.account',
@@ -177,7 +180,6 @@ INSTALLED_APPS = [
     'providers.io.osf.registrations',
     'providers.io.socarxiv',
     'providers.io.psyarxiv',
-    # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai',
     'providers.org.bhl',
@@ -258,21 +260,27 @@ SOCIALACCOUNT_PROVIDERS = \
 APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
+    'PAGE_SIZE': 10,
+    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework_json_api.pagination.PageNumberPagination',
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework_json_api.parsers.JSONParser',
+        'api.parsers.JSONLDParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'api.renderers.HideNullJSONAPIRenderer',
+        # 'rest_framework_json_api.renderers.JSONRenderer',
+        # 'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticatedOrReadOnly',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
         # 'api.authentication.NonCSRFSessionAuthentication',
     ),
-    'PAGE_SIZE': 10,
-    'DEFAULT_PARSER_CLASSES': (
-        'api.parsers.JSONLDParser',
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
 
 MIDDLEWARE_CLASSES = [

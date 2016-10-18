@@ -34,15 +34,15 @@ class Person(Parser):
     family_name = ParseName(ctx.author_name).last
 
 
-class Contributor(Parser):
-    person = Delegate(Person, ctx)
+class Contribution(Parser):
+    agent = Delegate(Person, ctx)
 
 
-class Manuscript(Parser):
+class Article(Parser):
     title = ctx.title
     description = ctx.description
     # publish_date = ParseDate(ctx.published_date)
-    contributors = Map(Delegate(Contributor, ctx.authors))
+    related_agents = Map(Delegate(Contribution, ctx.authors))
 
     class Extra:
         type = ctx.defined_type
@@ -52,5 +52,5 @@ class Manuscript(Parser):
 class TestParser:
 
     def test_parser(self):
-        parsed = Manuscript(EXAMPLE).parse()
+        parsed = Article(EXAMPLE).parse()
         assert ctx.pool[parsed]['extra'] == {'type': 'paper', 'defined_type': 'paper'}

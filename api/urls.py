@@ -7,38 +7,66 @@ from api import views
 
 router = DefaultRouter()
 
-# share routes
-router.register(r'extras', views.ExtraDataViewSet, base_name=views.ExtraDataViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'entities', views.EntityViewSet, base_name=views.EntityViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'venues', views.VenueViewSet, base_name=views.VenueViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'organizations', views.OrganizationViewSet, base_name=views.OrganizationViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'publishers', views.PublisherViewSet, base_name=views.PublisherViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'institutions', views.InstitutionViewSet, base_name=views.InstitutionViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'identifiers', views.IdentifierViewSet, base_name=views.IdentifierViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'people', views.PersonViewSet, base_name=views.PersonViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'affiliations', views.AffiliationViewSet, base_name=views.AffiliationViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'contributors', views.ContributorViewSet, base_name=views.ContributorViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'funders', views.FunderViewSet, base_name=views.FunderViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'awards', views.AwardViewSet, base_name=views.AwardViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'tags', views.TagViewSet, base_name=views.TagViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'subjects', views.SubjectViewSet, base_name=views.SubjectViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'links', views.LinkViewSet, base_name=views.LinkViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'creativeworks', views.CreativeWorkViewSet, base_name=views.CreativeWorkViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'preprints', views.PreprintViewSet, base_name=views.PreprintViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'publications', views.PublicationViewSet, base_name=views.PublicationViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'projects', views.ProjectViewSet, base_name=views.ProjectViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'manuscripts', views.ManuscriptViewSet, base_name=views.ManuscriptViewSet.serializer_class.Meta.model._meta.model_name)
+
+def register_route(prefix, viewset):
+    router.register(prefix, viewset, base_name=viewset.serializer_class.Meta.model._meta.model_name)
+
+
+def register_creative_work_route(model_name):
+    register_route(model_name, views.make_creative_work_view_set_class(model_name))
+
+
+# # creative work routes
+# register_creative_work_route(r'creativework')
+# register_creative_work_route(r'article')
+# register_creative_work_route(r'book')
+# register_creative_work_route(r'conferencepaper')
+# register_creative_work_route(r'dataset')
+# register_creative_work_route(r'dissertation')
+# register_creative_work_route(r'lesson')
+# register_creative_work_route(r'poster')
+# register_creative_work_route(r'preprint')
+# register_creative_work_route(r'presentation')
+# register_creative_work_route(r'project')
+# register_creative_work_route(r'projectregistration')
+# register_creative_work_route(r'report')
+# register_creative_work_route(r'section')
+# register_creative_work_route(r'software')
+# register_creative_work_route(r'thesis')
+# register_creative_work_route(r'workingpaper')
+
+# # creative work attributes
+# register_route(r'tag', views.TagViewSet)
+# register_route(r'subject', views.SubjectViewSet)
+# register_route(r'venue', views.VenueViewSet)
+# register_route(r'extra', views.ExtraDataViewSet)
+
+# # agent routes
+# register_route(r'person', views.PersonViewSet)
+# register_route(r'organization', views.OrganizationViewSet)
+# register_route(r'institution', views.InstitutionViewSet)
+
+# # identifier routes
+# register_route(r'agentidentifier', views.AgentIdentifierViewSet)
+# register_route(r'workidentifier', views.WorkIdentifierViewSet)
+
+# # relation routes
+# register_route(r'agentrelation', views.AgentRelationViewSet)
+# register_route(r'workrelation', views.WorkRelationViewSet)
+# register_route(r'contribution', views.ContributionViewSet)
+# register_route(r'award', views.AwardViewSet)
 
 # registration route
-router.register(r'registrations', views.ProviderRegistrationViewSet, base_name=views.ProviderRegistrationViewSet.serializer_class.Meta.model._meta.model_name)
+register_route(r'registrations', views.ProviderRegistrationViewSet)
 
 # workflow routes
-router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name=views.NormalizedDataViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'changesets', views.ChangeSetViewSet, base_name=views.ChangeSetViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'changes', views.ChangeViewSet, base_name=views.ChangeViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'rawdata', views.RawDataViewSet, base_name=views.RawDataViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'users', views.ShareUserViewSet, base_name=views.ShareUserViewSet.serializer_class.Meta.model._meta.model_name)
-router.register(r'providers', views.ProviderViewSet, base_name=views.ProviderViewSet.serializer_class.Meta.model._meta.model_name)
+register_route(r'changeset', views.ChangeSetViewSet)
+register_route(r'change', views.ChangeViewSet)
+register_route(r'rawdata', views.RawDataViewSet)
+register_route(r'user', views.ShareUserViewSet)
+register_route(r'provider', views.ProviderViewSet)
+
+router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='normalizeddata')
 
 urlpatterns = [
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
@@ -46,5 +74,5 @@ urlpatterns = [
     url(r'userinfo/?', ensure_csrf_cookie(views.ShareUserView.as_view()), name='userinfo'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
-    url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema')
+    url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema'),
 ] + router.urls

@@ -9,7 +9,7 @@ from project import settings
 
 from share.tasks import ProviderTask
 from share.models import AbstractCreativeWork
-from share.models import Entity
+from share.models import Agent
 from share.models import Person
 from share.models import Tag
 from share.models import Subject
@@ -92,7 +92,7 @@ class IndexModelTask(ProviderTask):
 
     def serialize(self, inst):
         return {
-            Entity: self.serialize_entity,
+            Agent: self.serialize_agent,
             Person: self.serialize_person,
             Tag: self.serialize_tag,
             Subject: self.serialize_subject,
@@ -102,15 +102,15 @@ class IndexModelTask(ProviderTask):
         serialized_person = util.fetch_person(person.pk)
         return add_suggest(serialized_person) if suggest else serialized_person
 
-    def serialize_entity(self, entity, suggest=True):
-        serialized_entity = {
-            'id': entity.pk,
-            'type': type(entity).__name__.lower(),
-            'name': safe_substr(entity.name),
-            'url': entity.url,
-            'location': safe_substr(entity.location),
+    def serialize_agent(self, agent, suggest=True):
+        serialized_agent = {
+            'id': agent.pk,
+            'type': type(agent).__name__.lower(),
+            'name': safe_substr(agent.name),
+            'url': agent.url,
+            'location': safe_substr(agent.location),
         }
-        return add_suggest(serialized_entity) if suggest else serialized_entity
+        return add_suggest(serialized_agent) if suggest else serialized_agent
 
     def serialize_tag(self, tag, suggest=True):
         serialized_tag = {
@@ -127,12 +127,6 @@ class IndexModelTask(ProviderTask):
             'name': safe_substr(subject.name),
         }
         return add_suggest(serialized_subject) if suggest else serialized_subject
-
-    def serialize_link(self, link):
-        return {
-            'type': safe_substr(link.type),
-            'url': safe_substr(link.url),
-        }
 
 
 class IndexSourceTask(ProviderTask):

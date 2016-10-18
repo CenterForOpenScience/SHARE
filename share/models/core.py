@@ -228,7 +228,7 @@ class NormalizedData(models.Model):
     created_at = models.DateTimeField(null=True)
     raw = models.ForeignKey(RawData, null=True)
     # TODO Rename this to data
-    normalized_data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
+    data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')
 

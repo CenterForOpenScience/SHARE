@@ -2,13 +2,14 @@ import abc
 import logging
 import datetime
 
-import arrow
+import pendulum
 import celery
 import requests
 
 from django.apps import apps
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db import transaction
 
 from share.change import ChangeGraph
 from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
@@ -55,22 +56,28 @@ class ProviderTask(celery.Task):
 
 class HarvesterTask(ProviderTask):
 
-    def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None):
+    def apply_async(self, targs=None, tkwargs=None, **kwargs):
+        tkwargs = tkwargs or {}
+        tkwargs.setdefault('end', datetime.datetime.utcnow().isoformat())
+        tkwargs.setdefault('start', (datetime.datetime.utcnow() + datetime.timedelta(-1)).isoformat())
+        return super().apply_async(targs, tkwargs, **kwargs)
+
+    def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None, limit: int=None):
         if self.config.disabled:
             raise Exception('Harvester {} is disabled. Either enable it or disable it\'s celery beat entry'.format(self.config))
 
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
         if type(end) is str:
-            end = arrow.get(end).datetime
+            end = pendulum.parse(end.rstrip('Z'))  # TODO Fix me
         if type(start) is str:
-            start = arrow.get(start).datetime
+            start = pendulum.parse(start.rstrip('Z'))  # TODO Fix Me
 
         harvester = self.config.harvester(self.config)
 
         try:
             logger.info('Starting harvester run for %s %s - %s', self.config.label, start, end)
-            raws = harvester.harvest(start, end)
+            raws = harvester.harvest(start, end, limit=limit)
             logger.info('Collected %d data blobs from %s', len(raws), self.config.label)
         except Exception as e:
             logger.exception('Failed harvester task (%s, %s, %s)', self.config.label, start, end)
@@ -103,9 +110,14 @@ class NormalizerTask(ProviderTask):
 
             normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
             resp = requests.post(normalized_data_url, json={
-                'created_at': datetime.datetime.utcnow().isoformat(),
-                'normalized_data': graph,
-            }, headers={'Authorization': self.config.authorization()})
+                'data': {
+                    'type': 'NormalizedData',
+                    'attributes': {
+                        'data': graph,
+                        'raw': {'type': 'RawData', 'id': raw_id}
+                    }
+                }
+            }, headers={'Authorization': self.config.authorization(), 'Content-Type': 'application/vnd.api+json'})
         except Exception as e:
             logger.exception('Failed normalizer task (%s, %d)', self.config.label, raw_id)
             raise self.retry(countdown=10, exc=e)
@@ -114,9 +126,9 @@ class NormalizerTask(ProviderTask):
             raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content)))
 
         # attach task
-        normalized_id = resp.json()['normalized_id']
+        normalized_id = resp.json()['data']['id']
         normalized = NormalizedData.objects.get(pk=normalized_id)
-        normalized.raw = raw
+        # TODO Set Task via the API
         normalized.tasks.add(self.task)
         normalized.save()
 
@@ -133,12 +145,12 @@ class MakeJsonPatches(celery.Task):
         logger.info('%s started make JSON patches for %s at %s', started_by, normalized, datetime.datetime.utcnow().isoformat())
 
         try:
-            cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.normalized_data, extra_namespace=normalized.source.username), normalized.id)
-            if cs and (normalized.source.is_robot or normalized.source.is_trusted):
-                # TODO: verify change set is not overwriting user created object
-                cs.accept()
+            with transaction.atomic():
+                cs = ChangeSet.objects.from_graph(ChangeGraph.from_jsonld(normalized.data, extra_namespace=normalized.source.username), normalized.id)
+                if cs and (normalized.source.is_robot or normalized.source.is_trusted):
+                    # TODO: verify change set is not overwriting user created object
+                    cs.accept()
         except Exception as e:
-            logger.exception('Failed make json patches (%d)', normalized_id)
             raise self.retry(countdown=10, exc=e)
 
         logger.info('Finished make JSON patches for %s by %s at %s', normalized, started_by, datetime.datetime.utcnow().isoformat())

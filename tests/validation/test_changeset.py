@@ -69,7 +69,7 @@ class TestJSONLDValidator:
             '@graph': [{'@id': '', '@type': 'Dinosaurs'}]
         }
     }, {
-        'out': "'Tag' is not one of ['CREATIVEWORK', 'CreativeWork', 'MANUSCRIPT', 'Manuscript', 'PREPRINT', 'PROJECT', 'PUBLICATION', 'Preprint', 'Project', 'Publication', 'REGISTRATION', 'Registration', 'creativework', 'manuscript', 'preprint', 'project', 'publication', 'registration'] at /@graph/0",
+        'out': re.compile(r"'Tag' is not one of \[('\w+', )+'\w+'\] at /@graph/0"),
         'in': {
             '@graph': [{
                 '@id': '_:123',
@@ -212,9 +212,22 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'Link',
-                'url': 'giraffe',
-                'type': 'misc',
+                '@type': 'WorkIdentifier',
+                'uri': 'giraffe',
+                'creative_work': {'@id': '_:234', '@type': 'creativework'}
+            }, {
+                '@id': '_:234',
+                '@type': 'creativework',
+                'title': 'Giraffes are tall'
+            }]
+        }
+    }, {
+        'out': "'creative_work' is a required property at /@graph/0",
+        'in': {
+            '@graph': [{
+                '@id': '_:123',
+                '@type': 'workidentifier',
+                'uri': 'https://share.osf.io/foo',
             }]
         }
     }, {
@@ -222,9 +235,13 @@ class TestJSONLDValidator:
         'in': {
             '@graph': [{
                 '@id': '_:123',
-                '@type': 'Link',
-                'url': 'https://share.osf.io/foo',
-                'type': 'misc',
+                '@type': 'WorkIdentifier',
+                'uri': 'https://share.osf.io/foo',
+                'creative_work': {'@id': '_:234', '@type': 'creativework'}
+            }, {
+                '@id': '_:234',
+                '@type': 'creativework',
+                'title': 'Giraffes are tall'
             }]
         }
     }]

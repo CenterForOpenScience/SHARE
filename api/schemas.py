@@ -179,170 +179,177 @@ v1_push_schema = {
         }
     },
     "$schema": "http://json-schema.org/draft-04/schema#",
-    "required": [
-        "title",
-        "contributors",
-        "uris",
-        "providerUpdatedDateTime"
-    ],
+    "required": ["jsonData"],
+    "additionalproperties": False,
     "type": "object",
     "properties": {
-        "publisher": {
-            "type": "object",
-            "anyOf": [
-                {
-                    "$ref": "#/definitions/person"
-                },
-                {
-                    "$ref": "#/definitions/organization"
-                }
+        "jsonData": {
+            "required": [
+                "title",
+                "contributors",
+                "uris",
+                "providerUpdatedDateTime"
             ],
-            "description": "This element contains the name of the entity, typically a 'publisher', responsible for making the version of record of the resource available. This could be a person, organisation or service"
-        },
-        "description": {
-            "type": "string",
-            "description": "A textual description of the resource."
-        },
-        "contributors": {
-            "items": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/person"
-                    },
-                    {
-                        "$ref": "#/definitions/organization"
-                    }
-                ]
-            },
-            "type": "array",
-            "description": "The people or organizations responsible for making contributions to an object."
-        },
-        "title": {
-            "type": "string",
-            "description": "The title and any sub-titles of the resource."
-        },
-        "otherProperties": {
-            "items": {
-                "$ref": "#/definitions/otherProperties"
-            },
-            "type": "array",
-            "description": "Any structured or unstructured properties (properties that do or do not include URIs to definitions) that do not fall into the schema provided."
-        },
-        "tags": {
-            "items": {
-                "type": "string"
-            },
-            "type": "array",
-            "description": "Non-hierarchical terms or keywords assigned to an object to aid browsing or searching."
-        },
-        "uris": {
             "type": "object",
-            "required": ["canonicalUri", "providerUris"],
             "properties": {
-                "canonicalUri": {
-                    "type": "string",
-                    "description": "The preferred persistent HTTP URI that represents the research object. This should be repeated in exactly one other field in the uris object.",
-                    "format": "uri"
+                "publisher": {
+                    "type": "object",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/person"
+                        },
+                        {
+                            "$ref": "#/definitions/organization"
+                        }
+                    ],
+                    "description": "This element contains the name of the entity, typically a 'publisher', responsible for making the version of record of the resource available. This could be a person, organisation or service"
                 },
-                "anyOf": {
-                    "providerUris": {
-                        "items": {
-                            "type": "string",
-                            "format": "uri"
-                        },
-                        "type": "array",
-                        "description": "The persistent HTTP URI that points to the object's record at the SHARE provider regardless of format."
+                "description": {
+                    "type": "string",
+                    "description": "A textual description of the resource."
+                },
+                "contributors": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/person"
+                            },
+                            {
+                                "$ref": "#/definitions/organization"
+                            }
+                        ]
                     },
-                    "descriptorUris": {
-                        "items": {
-                            "type": "string",
-                            "format": "uri"
-                        },
-                        "type": "array",
-                        "description": "A persistent HTTP URI that points to a description of the research object."
+                    "type": "array",
+                    "description": "The people or organizations responsible for making contributions to an object."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The title and any sub-titles of the resource."
+                },
+                "otherProperties": {
+                    "items": {
+                        "$ref": "#/definitions/otherProperties"
                     },
-                    "objectUris": {
-                        "items": {
+                    "type": "array",
+                    "description": "Any structured or unstructured properties (properties that do or do not include URIs to definitions) that do not fall into the schema provided."
+                },
+                "tags": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Non-hierarchical terms or keywords assigned to an object to aid browsing or searching."
+                },
+                "uris": {
+                    "type": "object",
+                    "required": ["canonicalUri", "providerUris"],
+                    "properties": {
+                        "canonicalUri": {
                             "type": "string",
+                            "description": "The preferred persistent HTTP URI that represents the research object. This should be repeated in exactly one other field in the uris object.",
                             "format": "uri"
                         },
-                        "type": "array",
-                        "description": "A persistent HTTP URI that points directly to the research object."
+                        "anyOf": {
+                            "providerUris": {
+                                "items": {
+                                    "type": "string",
+                                    "format": "uri"
+                                },
+                                "type": "array",
+                                "description": "The persistent HTTP URI that points to the object's record at the SHARE provider regardless of format."
+                            },
+                            "descriptorUris": {
+                                "items": {
+                                    "type": "string",
+                                    "format": "uri"
+                                },
+                                "type": "array",
+                                "description": "A persistent HTTP URI that points to a description of the research object."
+                            },
+                            "objectUris": {
+                                "items": {
+                                    "type": "string",
+                                    "format": "uri"
+                                },
+                                "type": "array",
+                                "description": "A persistent HTTP URI that points directly to the research object."
+                            }
+                        }
                     }
-                }
-            }
-        },
-        "languages": {
-            "items": {
-                "pattern": "[a-z][a-z]?[a-z]",
-                "type": ["string", "null"]
-            },
-            "type": "array",
-            "description": "The primary languages in which the content of the resource is presented. Values used for this element MUST conform to ISO 639\u20133. This offers two and three letter tags e.g. \"en\" or \"eng\" for English and \"en-GB\" for English used in the UK."
-        },
-        "providerUpdatedDateTime": {
-            "type": "string",
-            "description": "The date and time the provider describing the object has been updated about either the creation or update of an object by its contributors. E.g., this may be the date a manuscript is published, but not necessarily the date the manuscript was written.",
-            "format": "date-time"
-        },
-        "sponsorships": {
-            "items": {
-                "$ref": "#/definitions/sponsorship"
-            },
-            "type": "array",
-            "description": "Sponsorships associated with the object"
-        },
-        "version": {
-            "type": "object",
-            "description": "Infomation about this version of the object.",
-            "properties": {
-                "versionId": {
-                    "description": "The name or number representing this version of the object."
                 },
-                "versionDateTime": {
+                "languages": {
+                    "items": {
+                        "pattern": "[a-z][a-z]?[a-z]",
+                        "type": ["string", "null"]
+                    },
+                    "type": "array",
+                    "description": "The primary languages in which the content of the resource is presented. Values used for this element MUST conform to ISO 639\u20133. This offers two and three letter tags e.g. \"en\" or \"eng\" for English and \"en-GB\" for English used in the UK."
+                },
+                "providerUpdatedDateTime": {
                     "type": "string",
-                    "description": "The date and time the object was created or updated by its contributors. If the data for the object describes the first version of that object, it will be the date and time of object creation, otherwise it will be considered the date and time the object was updated.",
+                    "description": "The date and time the provider describing the object has been updated about either the creation or update of an object by its contributors. E.g., this may be the date a manuscript is published, but not necessarily the date the manuscript was written.",
                     "format": "date-time"
                 },
-                "versionOf": {
-                    "type": "string",
-                    "description": "If the object is an update, the HTTP URI of the object the content is updating. Depending upon what the upate is relative to, that could be the object at creation or a previous version.",
-                    "format": "uri"
-                }
-            }
-        },
-        "freeToRead": {
-            "required": [
-                "startDate"
-            ],
-            "type": "object",
-            "description": "A date range specifying when this research object will be accessible, without restrictsions such as fee or registration). If the object is free to read, then only the startDate is required.",
-            "properties": {
-                "startDate": {
-                    "type": ["string", "null"],
-                    "description": "The date and time at which the object will be accessible. If the resource was always free to read, then the date the object was created should be used.",
-                    "format": "date"
+                "sponsorships": {
+                    "items": {
+                        "$ref": "#/definitions/sponsorship"
+                    },
+                    "type": "array",
+                    "description": "Sponsorships associated with the object"
                 },
-                "endDate": {
-                    "type": "string",
-                    "description": "The date and time at which restrictions such as fees or registrations will be in place limiting accessibility.",
-                    "format": "date"
+                "version": {
+                    "type": "object",
+                    "description": "Infomation about this version of the object.",
+                    "properties": {
+                        "versionId": {
+                            "description": "The name or number representing this version of the object."
+                        },
+                        "versionDateTime": {
+                            "type": "string",
+                            "description": "The date and time the object was created or updated by its contributors. If the data for the object describes the first version of that object, it will be the date and time of object creation, otherwise it will be considered the date and time the object was updated.",
+                            "format": "date-time"
+                        },
+                        "versionOf": {
+                            "type": "string",
+                            "description": "If the object is an update, the HTTP URI of the object the content is updating. Depending upon what the upate is relative to, that could be the object at creation or a previous version.",
+                            "format": "uri"
+                        }
+                    }
+                },
+                "freeToRead": {
+                    "required": [
+                        "startDate"
+                    ],
+                    "type": "object",
+                    "description": "A date range specifying when this research object will be accessible, without restrictsions such as fee or registration). If the object is free to read, then only the startDate is required.",
+                    "properties": {
+                        "startDate": {
+                            "type": ["string", "null"],
+                            "description": "The date and time at which the object will be accessible. If the resource was always free to read, then the date the object was created should be used.",
+                            "format": "date"
+                        },
+                        "endDate": {
+                            "type": "string",
+                            "description": "The date and time at which restrictions such as fees or registrations will be in place limiting accessibility.",
+                            "format": "date"
+                        }
+                    }
+                },
+                "licenses": {
+                    "items": {
+                        "$ref": "#/definitions/license"
+                    },
+                    "type": "array",
+                    "description": "The licenses under which the object has been released."
+                },
+                "subjects": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array",
+                    "description": "The topic or domain of the object. Follows recommendations of http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#terms-subject"
                 }
             }
-        },
-        "licenses": {
-            "items": {
-                "$ref": "#/definitions/license"
-            },
-            "type": "array",
-            "description": "The licenses under which the object has been released."
-        },
-        "subjects": {
-            "items": {
-                "type": "string"
-            },
-            "type": "array",
-            "description": "The topic or domain of the object. Follows recommendations of http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#terms-subject"
         }
     }
 }

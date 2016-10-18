@@ -9,8 +9,8 @@ import share.robot
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0001_initial'),
         ('djcelery', '0001_initial'),
+        ('share', '0001_initial'),
     ]
 
     operations = [

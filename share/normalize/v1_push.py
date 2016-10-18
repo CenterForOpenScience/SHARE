@@ -7,30 +7,8 @@ from share.normalize.normalizer import Normalizer
 THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 
 
-class Link(Parser):
-
-    url = ctx
-    type = tools.Static('url')
-
-
-class ProviderLink(Parser):
-
-    schema = 'Link'
-
-    url = ctx
-    type = tools.Static('provider')
-
-
-class ThroughLinks(Parser):
-
-    link = tools.Delegate(Link, ctx)
-
-
-class ProviderThroughLinks(Parser):
-
-    schema = 'ThroughLinks'
-
-    link = tools.Delegate(ProviderLink, ctx)
+class CreativeWorkIdentifier(Parser):
+    uri = ctx
 
 
 class Publisher(Parser):
@@ -38,7 +16,8 @@ class Publisher(Parser):
     name = ctx.name
     url = tools.OneOf(
         ctx.uri,
-        tools.Join(ctx.sameAs)
+        tools.Join(ctx.sameAs),
+        tools.Static(None),
     )
 
     class Extra:
@@ -89,14 +68,9 @@ class PersonEmail(Parser):
     email = tools.Delegate(Email, ctx)
 
 
-class Identifier(Parser):
+class PersonIdentifier(Parser):
 
-    url = ctx
-
-
-class ThroughIdentifiers(Parser):
-
-    identifier = tools.Delegate(Identifier, ctx)
+    uri = ctx
 
 
 class Person(Parser):
@@ -111,12 +85,12 @@ class Person(Parser):
         tools.Try(ctx.email)
     )
     affiliations = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Organization))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Organization))),
         tools.Try(ctx.affiliation)
     )
 
-    identifiers = tools.Map(
-        tools.Delegate(ThroughIdentifiers),
+    personidentifiers = tools.Map(
+        tools.Delegate(PersonIdentifier),
         tools.Try(ctx.sameAs)
     )
 
@@ -188,17 +162,19 @@ class CreativeWork(Parser):
         )
     )
 
+    is_deleted = tools.RunPython('_is_deleted', tools.Try(ctx.otherProperties))
+
     date_updated = tools.ParseDate(tools.Try(ctx.providerUpdatedDateTime))
 
     description = tools.Try(ctx.description)
 
     funders = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Funder))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Funder))),
         tools.Try(ctx.sponsorships.sponsor)
     )
 
     institutions = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Institution))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Institution))),
         tools.RunPython(
             'get_contributors',
             tools.Try(ctx.contributors),
@@ -211,21 +187,21 @@ class CreativeWork(Parser):
         tools.Try(ctx.languages[0]),
     )
 
-    links = tools.Concat(
-        tools.Map(
-            tools.Delegate(ThroughLinks),
-            tools.Try(ctx.uris.canonicalUri),
-            tools.Try(ctx.uris.descriptorUris),
-            tools.Try(ctx.uris.objectUris)
-        ),
-        tools.Map(
-            tools.Delegate(ProviderThroughLinks),
-            tools.Try(ctx.uris.providerUris),
+    links = tools.Map(
+        tools.Delegate(CreativeWorkIdentifier),
+        tools.RunPython(
+            'unique',
+            tools.Concat(
+                tools.Try(ctx.uris.canonicalUri),
+                tools.Try(ctx.uris.providerUris),
+                tools.Try(ctx.uris.descriptorUris),
+                tools.Try(ctx.uris.objectUris)
+            )
         )
     )
 
     organizations = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Organization))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Organization))),
         tools.RunPython(
             'get_contributors',
             tools.Try(ctx.contributors),
@@ -235,7 +211,7 @@ class CreativeWork(Parser):
 
     # unsure how to tell difference between person and org
     publishers = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Publisher))),
+        tools.Delegate(Association.using(agent=tools.Delegate(Publisher))),
         tools.Try(ctx.publisher)
     )
 
@@ -280,12 +256,12 @@ class CreativeWork(Parser):
 
         version = tools.Try(ctx.version)
 
-    def get_contributors(self, options, entity):
+    def get_contributors(self, options, agent):
         """
-        Returns list of organization, institutions, or contributors names based on entity type.
+        Returns list of organization, institutions, or contributors names based on agent type.
         """
 
-        if entity == 'organization':
+        if agent == 'organization':
             organizations = [
                 value for value in options if
                 (
@@ -295,7 +271,7 @@ class CreativeWork(Parser):
                 )
             ]
             return organizations
-        elif entity == 'institution':
+        elif agent == 'institution':
             institutions = [
                 value for value in options if
                 (
@@ -304,7 +280,7 @@ class CreativeWork(Parser):
                 )
             ]
             return institutions
-        elif entity == 'contributor':
+        elif agent == 'contributor':
             people = [
                 value for value in options if
                 (
@@ -325,6 +301,15 @@ class CreativeWork(Parser):
             else:
                 if word.search(string):
                     return True
+        return False
+
+    def unique(self, items):
+        return list(sorted(set(items)))
+
+    def _is_deleted(self, properties):
+        for prop in properties or []:
+            if prop['name'] == 'status':
+                return 'deleted' in prop['properties'].get('status', [])
         return False
 
 

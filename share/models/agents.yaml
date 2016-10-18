@@ -1,0 +1,20 @@
+Agent:
+    children:
+        Consortium: {}
+        Institution: {}
+        Organization: {}
+        Person:
+            fields:
+                family_name:
+                    type: text
+                    kwargs: { blank: true }
+                given_name:
+                    type: text
+                    kwargs: { blank: true }
+                additional_name:
+                    type: text
+                    kwargs: { blank: true }
+                suffix:
+                    type: text
+                    kwargs: { blank: true }
+            children: {}

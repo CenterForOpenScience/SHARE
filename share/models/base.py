@@ -1,8 +1,6 @@
 import copy
 import inspect
 
-import uuid
-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.conf import settings
@@ -35,11 +33,9 @@ class ShareObjectMeta(ModelBase):
     # This if effectively the "ShareBaseClass"
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
-        'sources': lambda: models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s', editable=False),
         'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False),
         'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True),
         'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False),
-        'uuid': lambda: models.UUIDField(default=uuid.uuid4, editable=False)
     }
 
     def __new__(cls, name, bases, attrs):
@@ -51,6 +47,10 @@ class ShareObjectMeta(ModelBase):
             if isinstance(val, models.Field) and val.unique:
                 val = copy.deepcopy(val)
                 val._unique = False
+            if isinstance(val, models.Field) and val.is_relation:
+                val = copy.deepcopy(val)
+                if isinstance(val, (fields.ShareForeignKey, fields.ShareManyToManyField, fields.ShareOneToOneField)):
+                    val._kwargs = {**val._kwargs, 'related_name': '+'}
             if key == 'Meta':
                 val = type('VersionMeta', (val, ), {'unique_together': None, 'db_table': None})
             version_attrs[key] = val
@@ -61,7 +61,8 @@ class ShareObjectMeta(ModelBase):
 
         version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
             **version_attrs,
-            **{k: v() for k, v in cls.share_attrs.items()},
+            **cls.share_attrs,
+            **{k: v() for k, v in cls.share_attrs.items()},  # Excluded sources from versions. They never get filled out
             '__qualname__': attrs['__qualname__'] + 'Version',
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
         })
@@ -75,11 +76,11 @@ class ShareObjectMeta(ModelBase):
             'VersionModel': version,
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
             'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version'),
+            'sources': models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s', editable=False),
         })
 
         # Inject <classname>Version into the module of the original class definition
-        # Makes shell_plus work
-        inspect.stack()[1].frame.f_globals.update({concrete.VersionModel.__name__: concrete.VersionModel})
+        next(frame for frame in inspect.stack() if 'class {}('.format(name) in frame.code_context[0]).frame.f_globals.update({concrete.VersionModel.__name__: concrete.VersionModel})
 
         return concrete
 
@@ -128,7 +129,7 @@ class VersionManager(FuzzyCountManager):
     def get_queryset(self):
         qs = self._queryset_class(model=self.model.VersionModel, using=self._db, hints=self._hints).order_by('-date_modified')
         if self.instance:
-            return qs.filter(uuid=self.instance.uuid)
+            return qs.filter(persistent_id=self.instance.id)
         return qs
 
     def contribute_to_class(self, model, name):
@@ -167,7 +168,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
 
             nd = NormalizedData.objects.create(
                 source=ShareUser.objects.get(username='system'),
-                normalized_data={
+                data={
                     '@graph': [{'@id': self.pk, '@type': self._meta.model_name, **kwargs}]
                 }
             )

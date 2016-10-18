@@ -65,7 +65,9 @@ class JSONLDValidator:
 
     def validate_node(self, value, refs, nodes):
         model = apps.app_configs['share'].models.get(value['@type'].lower())
-        if model is None:
+
+        # concrete model is not valid for typed models
+        if model is None or (model._meta.proxied_children and model == model._meta.concrete_model):
             raise ValidationError("'{}' is not a valid type".format(value['@type']))
 
         self.validator_for(model).validate(value)
@@ -91,9 +93,17 @@ class JSONLDValidator:
             else:
                 model = field.related_model._meta.concrete_model
 
+            if hasattr(model, 'natural_key_field'):
+                key = {
+                    # TODO is this a bad idea? it shouldn't be a crazy long list
+                    'enum': model.objects.values_list(model.natural_key_field(), flat=True),
+                    'description': field.description
+                }
+                return key
+
             rel = {
                 'type': 'object',
-                'description': field.description,
+                'description': getattr(field, 'description', ''),
                 'required': ['@id', '@type'],
                 'additionalProperties': False,
                 'properties': {
@@ -113,12 +123,12 @@ class JSONLDValidator:
                     ], []))},
                 }
             }
-            if field.many_to_many:
+            if field.many_to_many or field.one_to_many:
                 return {'type': 'array', 'items': rel}
             return rel
         if field.choices:
             return {
-                'enum': field.choices,
+                'enum': [c[1] for c in field.choices],
                 'description': field.description
             }
 
@@ -148,12 +158,17 @@ class JSONLDValidator:
             }
         }
 
-        for field in model._meta.get_fields():
-            if field.auto_created or not field.editable or (field.name == 'type' and model._meta.proxy) or field.name in {'id', 'sources', 'changes', 'same_as', 'extra'}:
-                continue
-            if not (field.null or field.blank or field.many_to_many or field.has_default()):
+        for field in self.allowed_fields_for_model(model):
+            if not (field.null or field.blank or field.many_to_many or field.one_to_many or field.has_default()):
                 schema['required'].append(field.name)
-
             schema['properties'][field.name] = self.json_schema_for_field(field)
 
         return JSONLDValidator.__schema_cache.setdefault(model, Draft4Validator(schema, format_checker=draft4_format_checker))
+
+    def allowed_fields_for_model(self, model):
+        excluded = {'id', 'type', 'sources', 'changes', 'same_as', 'extra'}
+        fields = model._meta.get_fields()
+        allowed_fields = [f for f in fields if f.editable and f.name not in excluded]
+        # Include one-to-many relations to models with no other relations
+        allowed_fields.extend(f for f in fields if f.one_to_many and f.name not in excluded and hasattr(f.related_model, 'VersionModel') and not [rf for rf in f.related_model._meta.get_fields() if rf.editable and rf.is_relation and rf.rel != f and rf.name not in excluded])
+        return allowed_fields

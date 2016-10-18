@@ -31,7 +31,7 @@ class CurateItemTask(ProviderTask):
             normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
             resp = requests.post(normalized_data_url, json={
                 'created_at': datetime.datetime.utcnow().isoformat(),
-                'normalized_data': graph,
+                'data': graph,
             }, headers={'Authorization': self.config.authorization()})
         except Exception as e:
             logger.exception('Failed task (%s, %d)', self.config.label, into_id)

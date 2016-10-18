@@ -1,31 +1,52 @@
-import abc
-
 from django.core.exceptions import ValidationError
 
-from share.models import Tag
-from share.models import Link
-from share.models import Person
-from share.models import Subject
-from share.models import Contributor
-from share.models import Association
-from share.models import Affiliation
-from share.models import PersonEmail
-from share.models.meta import ThroughLinks
-from share.models import AbstractCreativeWork
+from share import models
+
+__all__ = ('GraphDisambiguator', )
 
 
-__all__ = ('disambiguate', )
+class GraphDisambiguator:
+    def __init__(self):
+        self.__disambiguator_map = {}
+        self._gather_disambiguators(Disambiguator)
+
+    def disambiguate(self, change_graph):
+        nodes = sorted(change_graph.nodes, key=self._disambiguweight, reverse=True)
+        for n in nodes:
+            n.update_relations(change_graph.node_map)
+            if n.is_merge:
+                continue
+            instance = self.instance_for_node(n)
+            if isinstance(instance, list):
+                # TODO after merging is fixed, add mergeaction change to graph
+                raise NotImplementedError()
+            else:
+                n.instance = instance
+            for ref in n.refs:
+                change_graph.node_map[ref] = n
+
+    def instance_for_node(self, node):
+        NodeDisambiguator = self.__disambiguator_map.get(node.model._meta.concrete_model, GenericDisambiguator)
+        return NodeDisambiguator(node.id, node.resolved_attrs, node.model).find()
+
+    def _disambiguweight(self, node):
+        # Models with exactly 1 foreign key field (excluding those added by
+        # ShareObjectMeta) are disambiguated first, because they might be used
+        # to uniquely identify the object they point to. Then do the models with
+        # 0 FKs, then 2, 3, etc.
+        ignored = {'same_as', 'extra'}
+        fk_count = sum(1 for f in node.model._meta.get_fields() if f.editable and (f.many_to_one or f.one_to_one) and f.name not in ignored)
+        return fk_count if fk_count == 1 else -fk_count
+
+    def _gather_disambiguators(self, base):
+        for cls in base.__subclasses__():
+            for_model = getattr(cls, 'FOR_MODEL', None)
+            if for_model:
+                self.__disambiguator_map[for_model] = cls
+            self._gather_disambiguators(cls)
 
 
-def disambiguate(id, attrs, model):
-    for cls in Disambiguator.__subclasses__():
-        if getattr(cls, 'FOR_MODEL', None) == model._meta.concrete_model:
-            return cls(id, attrs, model).find()
-
-    return GenericDisambiguator(id, attrs, model).find()
-
-
-class Disambiguator(metaclass=abc.ABCMeta):
+class Disambiguator():
 
     def __init__(self, id, attrs, model):
         self.id = id
@@ -34,13 +55,12 @@ class Disambiguator(metaclass=abc.ABCMeta):
         self.attrs = {k: v for k, v in attrs.items() if v}
         self.is_blank = isinstance(id, str) and id.startswith('_:')
 
-    @abc.abstractmethod
     def disambiguate(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def find(self):
         if self.id and not self.is_blank:
-            return self.model.objects.get(pk=self.id)
+            return self.model._meta.concrete_model.objects.get(pk=self.id)
         return self.disambiguate()
 
 
@@ -49,11 +69,10 @@ class GenericDisambiguator(Disambiguator):
     @property
     def is_through_table(self):
         # TODO fix this...
-        return 'Through' in self.model.__name__ or self.model in {
-            Contributor,
-            Association,
-            Affiliation,
-            PersonEmail,
+        return 'Through' in self.model.__name__ or self.model._meta.concrete_model in {
+            models.AgentWorkRelation,
+            models.AbstractAgentRelation,
+            models.AbstractWorkRelation,
         }
 
     def disambiguate(self):
@@ -63,18 +82,6 @@ class GenericDisambiguator(Disambiguator):
         if self.is_through_table:
             return self._disambiguate_through()
 
-        self.attrs.pop('description', None)
-
-        if len(self.attrs.get('title', '')) > 2048:
-            return None
-        elif self.attrs.get('title', None):
-            # if the model has a title, it's an abstractcreativework
-            # limit the query so it uses an index
-            return self.model.objects.filter(**self.attrs).extra(
-                where=[
-                    "octet_length(title) < 2049"
-                ]
-            ).first()
         return self.model.objects.filter(**self.attrs).first()
 
     def _disambiguate_through(self):
@@ -93,71 +100,81 @@ class GenericDisambiguator(Disambiguator):
             return None
 
 
-class LinkDisambiguator(Disambiguator):
-    FOR_MODEL = Link
+class UniqueAttrDisambiguator(Disambiguator):
+    @property
+    def unique_attr(self):
+        raise NotImplementedError()
+
+    def not_found(self):
+        return None
 
     def disambiguate(self):
-        if not self.attrs.get('url'):
+        value = self.attrs.get(self.unique_attr)
+        if not value:
             return None
         try:
-            return Link.objects.get(url=self.attrs['url'])
-        except Link.DoesNotExist:
-            return None
+            query = {self.unique_attr: value}
+            return self.model.objects.get(**query)
+        except self.model.DoesNotExist:
+            return self.not_found()
 
 
-class TagDisambiguator(Disambiguator):
-    FOR_MODEL = Tag
+class WorkIdentifierDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.WorkIdentifier
+    unique_attr = 'uri'
+
+
+class AgentIdentifierDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.AgentIdentifier
+    unique_attr = 'uri'
+
+
+class TagDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.Tag
+    unique_attr = 'name'
+
+
+class SubjectDisambiguator(UniqueAttrDisambiguator):
+    FOR_MODEL = models.Subject
+    unique_attr = 'name'
+
+    def not_found(self):
+        raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
+
+
+class AbstractAgentDisambiguator(Disambiguator):
+    FOR_MODEL = models.AbstractAgent
 
     def disambiguate(self):
-        if not self.attrs.get('name'):
+        agents = []
+        for id in self.attrs.get('agentidentifiers', ()):
+            try:
+                identifier = models.AgentIdentifier.objects.get(id=id)
+                agents.append(identifier.agent)
+            except models.AgentIdentifier.DoesNotExist:
+                pass
+        if not agents:
             return None
-        try:
-            return Tag.objects.get(name=self.attrs['name'])
-        except Tag.DoesNotExist:
-            return None
-
-
-class PersonDisambiguator(Disambiguator):
-    FOR_MODEL = Person
-
-    def disambiguate(self):
-        return Person.objects.filter(
-            suffix=self.attrs.get('suffix', ''),
-            given_name=self.attrs.get('given_name', ''),
-            family_name=self.attrs.get('family_name', ''),
-            additional_name=self.attrs.get('additional_name', ''),
-        ).first()
-
-
-class SubjectDisambiguator(Disambiguator):
-    FOR_MODEL = Subject
-
-    def disambiguate(self):
-        if not self.attrs.get('name'):
-            return None
-        try:
-            return Subject.objects.get(name=self.attrs['name'])
-        except Subject.DoesNotExist:
-            raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
+        elif len(agents) == 1:
+            return agents[0]
+        else:
+            return agents
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
-    FOR_MODEL = AbstractCreativeWork
+    FOR_MODEL = models.AbstractCreativeWork
 
     def disambiguate(self):
-        if self.attrs.get('links'):
-            for link in self.attrs.get('links'):
-                models = ThroughLinks.objects.select_related('creative_work', 'link').filter(link=link)[:2].all()
-                if len(models) == 1 and 'issn' not in models[0].link.type.lower():
-                    return models[0].creative_work
-
-        if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
+        works = []
+        for id in self.attrs.get('workidentifiers', ()):
+            try:
+                identifier = models.WorkIdentifier.objects.get(id=id)
+                works.append(identifier.creative_work)
+            except models.WorkIdentifier.DoesNotExist:
+                pass
+        if not works:
             return None
-
-        self.attrs.pop('description', None)
-
-        filter = {k: v for k, v in self.attrs.items() if not isinstance(v, list)}
-        if filter:
-            # Limiting the length of title forces postgres to use the partial index
-            return self.model.objects.filter(**filter).extra(where=('octet_length(title) < 2049', )).first()
-        return None
+        elif len(works) == 1:
+            return works[0]
+        else:
+            return works

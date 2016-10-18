@@ -7,7 +7,6 @@ from fuzzycount import FuzzyCountManager
 from django.apps import apps
 from django.db import models
 from django.db import transaction
-from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
@@ -24,7 +23,7 @@ logger = logging.getLogger(__name__)
 class ChangeSetManager(FuzzyCountManager):
 
     def from_graph(self, graph, normalized_data_id):
-        if all(not n.change for n in graph.nodes):
+        if all(n.is_skippable for n in graph.nodes):
             logger.debug('No changes detected in {!r}, skipping.'.format(graph))
             return None
 
@@ -40,11 +39,13 @@ class ChangeSetManager(FuzzyCountManager):
 class ChangeManager(FuzzyCountManager):
 
     def from_node(self, node, change_set):
-        # Subjects may not be changed
-        # This case is only reached when a synoynm is sent up
-        # TODO Fix this in a better way 2016-08-23 @chrisseto
-        if not node.change or node.model == apps.get_model('share', 'subject'):
+        if node.is_skippable:
             logger.debug('No changes detected in {!r}, skipping.'.format(node))
+            return None
+        if not hasattr(node.model, 'VersionModel'):
+            # Non-ShareObjects (Subject, *RelationType) cannot be changed.
+            # Shouldn't reach this point...
+            logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(node, node.model))
             return None
 
         attrs = {
@@ -88,7 +89,7 @@ class ChangeSet(models.Model):
                 try:
                     ret.append(c.accept(save=save))
                 except Exception as ex:
-                    logger.error('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
+                    logger.warn('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
                     raise ex
             self.status = ChangeSet.STATUS.accepted
             if save:
@@ -169,26 +170,19 @@ class Change(models.Model):
         resolved_change = self._resolve_change()
         inst = self.target_type.model_class()(change=self, **resolved_change)
         if save:
-            try:
-                with transaction.atomic():
-                    inst.save()
-                    self.target_id = inst.id
-                    self.save()
-            except IntegrityError as e:
-                from share.disambiguation import disambiguate
-                logger.info('Handling unique violation error %r', e)
-
-                self.type = Change.TYPE.update
-                self.target = disambiguate('_:', resolved_change, self.target_type.model_class())
-
-                logger.info('Updating target to %r and type to update', self.target)
+            with transaction.atomic():
+                inst.save()
+                self.target_id = inst.id
                 self.save()
-
-                return self._update(save=save)
         return inst
 
     def _update(self, save=True):
         self.target.change = self
+
+        new_type = self.change.pop('@type', None)
+        if new_type:
+            self.target.recast('share.{}'.format(new_type))
+
         self.target.__dict__.update(self._resolve_change())
         if save:
             self.target.save()
@@ -265,6 +259,8 @@ class Change(models.Model):
                     pass
             elif isinstance(v, list):
                 change[k] = [self._resolve_ref(r) for r in v]
+            elif isinstance(v, str):
+                change[k] = self._resolve_str(k, v)
             else:
                 change[k] = v
         return change
@@ -278,4 +274,10 @@ class Change(models.Model):
                 change__node_id=ref['@id'],
                 change__change_set=self.change_set,
             )
-        return model.objects.get(pk=ref['@id'])
+        return model._meta.concrete_model.objects.get(pk=ref['@id'])
+
+    def _resolve_str(self, key, value):
+        field = self.target_type.model_class()._meta.get_field(key)
+        if field.many_to_one and hasattr(field.related_model, 'natural_key_field'):
+            return field.related_model.objects.get_by_natural_key(value)
+        return value
