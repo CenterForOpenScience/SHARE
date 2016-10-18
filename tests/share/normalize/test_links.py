@@ -3,6 +3,7 @@ import rfc3987
 import calendar
 import pendulum
 
+from share.normalize.links import DateParserLink
 from share.normalize.links import DOILink
 from share.normalize.links import IRILink
 from share.normalize.links import ISNILink
