@@ -47,20 +47,19 @@ class LSHTMCreativeWork(OAICreativeWork):
             'Conference or Workshop Item': 'ConferencePaper',
             'Article': 'Article'
         }
-
         for listing in types:
             if listing == 'PeerReviewd' or listing == 'NotPeerReviewed':
                 continue
             return schemes.get(listing) or 'CreativeWork'
 
-    schema = RunPython('get_schema', Concat(ctx.type))
+    schema = RunPython('get_schema', Concat(ctx.record.metadata.dc['dc:type']))
 
     related_entities = Concat(
         Map(Delegate(Contributor), RunPython(
             'get_contributor_list',
             ctx.record.metadata.dc,
             'contributor'
-         )),
+        )),
         Map(Delegate(Creator), RunPython(
             'get_contributor_list',
             ctx.record.metadata.dc,
@@ -69,7 +68,7 @@ class LSHTMCreativeWork(OAICreativeWork):
         Map(Delegate(OAIPublisher), ctx.publisher),
     )
 
-    identifier = Delegate(WorkIdentifier, Concat(ctx.relation))
+    identifier = Delegate(WorkIdentifier, Concat(ctx.record.metadata.dc['dc:relation']))
 
     def get_contributor_list(self, ctx, type):
         """
