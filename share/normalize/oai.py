@@ -13,33 +13,16 @@ URL_REGEX = re.compile(r'(https?:\/\/\S*\.[^\s\[\]\<\>\}\{\^]*)')
 DOI_REGEX = re.compile(r'(doi:10\.\S*)')
 
 
-class OAILink(Parser):
-    schema = 'Link'
+class OAIAgentIdentifier(Parser):
+    schema = 'AgentIdentifier'
 
-    url = tools.RunPython('format_link', ctx)
-    type = tools.RunPython('get_link_type', ctx)
-
-    # TODO: account for other types of links
-    # i.e. ISBN
-
-    def get_link_type(self, link):
-        if 'dx.doi.org' in link:
-            return 'doi'
-        if self.config.home_page and self.config.home_page in link:
-            return 'provider'
-        return 'misc'
-
-    def format_link(self, link):
-        link_type = self.get_link_type(link)
-        if link_type == 'doi':
-            return tools.DOI().execute(link)
-        return link
+    uri = tools.IRI(ctx).IRI
 
 
-class OAIThroughLinks(Parser):
-    schema = 'ThroughLinks'
+class OAIWorkIdentifier(Parser):
+    schema = 'WorkIdentifier'
 
-    link = tools.Delegate(OAILink, ctx)
+    uri = tools.IRI(ctx).IRI
 
 
 class OAISubject(Parser):
@@ -63,20 +46,6 @@ class OAIPerson(Parser):
     additional_name = tools.ParseName(ctx).middle
 
 
-class OAIContributor(Parser):
-    schema = 'Contributor'
-
-    person = tools.Delegate(OAIPerson, ctx)
-    cited_name = ctx
-    order_cited = ctx('index')
-
-
-class OAIPublisher(Parser):
-    schema = 'Publisher'
-
-    name = ctx
-
-
 class OAIInstitution(Parser):
     schema = 'Institution'
 
@@ -89,8 +58,12 @@ class OAIOrganization(Parser):
     name = ctx
 
 
-class OAIAssociation(Parser):
-    schema = 'Association'
+class OAIAgentWorkRelation(Parser):
+    schema = 'AgentWorkRelation'
+
+    person = tools.Delegate(OAIPerson, ctx)
+    cited_name = ctx
+    order_cited = ctx('index')
 
 
 class OAITag(Parser):
@@ -105,16 +78,43 @@ class OAIThroughTags(Parser):
     tag = tools.Delegate(OAITag, ctx)
 
 
+class OAIRelatedWork(Parser):
+    schema = 'CreativeWork'
+
+    identifiers = tools.Map(OAIWorkIdentifier, ctx)
+
+
+class OAIWorkRelation(Parser):
+    schema = 'WorkRelation'
+
+    related = tools.Delegate(OAIRelatedWork, ctx)
+
+
+class OAIIsDerivedFrom(OAIWorkRelation):
+    schema = 'IsDerivedFrom'
+
+
+class OAIContribution(Parser):
+    schema = 'Contribution'
+
+    agent = tools.Delegate(OAIOrganization, ctx)
+
+
+class OAIPublishingContribution(OAIContribution):
+    schema = 'PublishingContribution'
+
+
 class OAICreativeWork(Parser):
+    default_type = None
+    type_map = None
+
     @property
     def schema(self):
         try:
-            resourceType = self.context['record']['metadata']['dc']['dc:type']
-            if resourceType == 'preprint':
-                return 'Preprint'
-            return 'CreativeWork'
+            resource_type = self.context['record']['metadata']['dc']['dc:type']
+            return self.type_map[resource_type]
         except (KeyError, ValueError):
-            return 'CreativeWork'
+            return self.default_type
 
     ORGANIZATION_KEYWORDS = (
         'the',
@@ -130,10 +130,16 @@ class OAICreativeWork(Parser):
     title = tools.Join(tools.RunPython('force_text', tools.Try(ctx['record']['metadata']['dc']['dc:title'])))
     description = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:description'])))
 
-    publishers = tools.Map(
-        tools.Delegate(OAIAssociation.using(agent=tools.Delegate(OAIPublisher))),
-        tools.Map(tools.RunPython('force_text'), tools.Try(ctx.record.metadata.dc['dc:publisher']))
+    related_works = tools.Concat(
+        tools.Map(tools.Delegate(OAIIsDerivedFrom), tools.Try(ctx['record']['metadata']['dc']['dc:source'])),
+        tools.Map(tools.Delegate(OAIWorkRelation), tools.RunPython('get_relation', ctx))
     )
+
+    related_agents = tools.Concat(
+        tools.Try(tools.Delegate(OAIPublishingContribution, tools.RunPython('force_text', ctx.record.metadata.dc['dc:publisher']))),
+
+    )
+
 
     rights = tools.Join(tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:rights'))
 
@@ -360,23 +366,13 @@ class OAICreativeWork(Parser):
         return False
 
 
-class OAIPreprint(OAICreativeWork):
-    schema = 'Preprint'
-
-
-class OAIArticle(OAICreativeWork):
-    schema = 'Article'
-
-
 class OAINormalizer(Normalizer):
 
     @property
     def root_parser(self):
-        parser = {
-            'preprint': OAIPreprint,
-            'article': OAIArticle,
-            'creativework': OAICreativeWork,
-        }[self.config.emitted_type.lower()]
+        parser = OAICreativeWork
+        parser.default_type = self.config.emitted_type.lower()
+        parser.type_map = self.config.type_map
 
         if self.config.property_list:
             logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))

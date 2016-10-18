@@ -43,7 +43,7 @@ class Parser(metaclass=ParserMeta):
         return type(
             cls.__name__ + 'Overridden',
             (cls, ), {
-                'schema': cls.schema if isinstance(cls.schema, str) else cls.__name__.lower(),
+                'schema': cls.schema if isinstance(cls.schema, (str, AbstractLink)) else cls.__name__.lower(),
                 **overrides
             }
         )

@@ -56,6 +56,7 @@ class OAIProviderAppConfig(ProviderAppConfig, metaclass=abc.ABCMeta):
     approved_sets = None
     property_list = []
     emitted_type = 'CreativeWork'
+    type_map = {}
 
     @abc.abstractproperty
     def url(self):
