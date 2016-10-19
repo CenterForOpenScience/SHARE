@@ -212,6 +212,8 @@ class SchemaView(views.APIView):
     To submit changes, see [`/api/normalizeddata`](/api/normalizeddata)
 
     ## Model schemas
+    TODO: generate this list so it stays up to date with type hierarchies
+
     Each node in the submitted `@graph` is validated by a model schema determined by its `@type`.
 
     ### Work types

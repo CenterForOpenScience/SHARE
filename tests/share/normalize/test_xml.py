@@ -72,14 +72,14 @@ class Person(Parser):
     family_name = ParseName(ctx.name).last
 
 
-class Contribution(Parser):
+class Creator(Parser):
     agent = Delegate(Person, ctx)
 
 
 class Preprint(Parser):
     title = ctx.entry.title
     description = ctx.entry.summary
-    related_agents = Map(Delegate(Contribution), ctx.entry.author)
+    related_agents = Map(Delegate(Creator), ctx.entry.author)
 
     class Extra:
         comment = ctx.entry.comment

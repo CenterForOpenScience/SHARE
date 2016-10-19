@@ -29,14 +29,14 @@ def create_graph_dependencies():
             'family_name': 'Doe',
         }, {
             '@id': '_:456',
-            '@type': 'Contribution',
+            '@type': 'Creator',
             'agent': {'@id': '_:123', '@type': 'person'},
             'creative_work': {'@id': '_:789', '@type': 'preprint'},
         }, {
             '@id': '_:789',
             '@type': 'preprint',
             'title': 'All About Cats',
-            'related_agents': [{'@id': '_:456', '@type': 'contribution'}]
+            'related_agents': [{'@id': '_:456', '@type': 'Creator'}]
         }]
     }, disambiguate=False)
 
@@ -151,7 +151,7 @@ class TestChangeSet:
 
         assert isinstance(changed[0], models.Person)
         assert isinstance(changed[1], models.Preprint)
-        assert isinstance(changed[2], models.Contribution)
+        assert isinstance(changed[2], models.Creator)
 
         assert None not in [c.pk for c in changed]
 
@@ -164,7 +164,7 @@ class TestChangeSet:
                 'given_name': 'Jane',
             }, {
                 '@id': '_:456',
-                '@type': 'Contribution',
+                '@type': 'Creator',
                 'agent': {'@id': john_doe.pk, '@type': 'person'},
                 'creative_work': {'@id': '_:789', '@type': 'preprint'},
             }, {

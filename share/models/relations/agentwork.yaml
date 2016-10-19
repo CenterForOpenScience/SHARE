@@ -1,0 +1,25 @@
+AgentWorkRelation:
+    children:
+        Contributor:
+            fields:
+                contributed_through:
+                    type: m2m
+                    kwargs:
+                        model: AbstractAgentWorkRelation
+                        symmetrical: false
+                        through: ThroughContributor
+                        through_fields: ['subject', 'related']
+            children:
+                Creator:
+                    fields:
+                        order_cited:
+                            type: positive_int
+        Funder:
+            fields:
+                awards:
+                    type: m2m
+                    kwargs:
+                        model: Award
+                        through: ThroughContributorAwards
+        Publisher: {}
+        Host: {}

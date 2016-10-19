@@ -34,7 +34,7 @@ class Person(Parser):
     family_name = ParseName(ctx.author_name).last
 
 
-class Contribution(Parser):
+class Creator(Parser):
     agent = Delegate(Person, ctx)
 
 
@@ -42,7 +42,7 @@ class Article(Parser):
     title = ctx.title
     description = ctx.description
     # publish_date = ParseDate(ctx.published_date)
-    related_agents = Map(Delegate(Contribution, ctx.authors))
+    related_agents = Map(Delegate(Creator, ctx.authors))
 
     class Extra:
         type = ctx.defined_type
