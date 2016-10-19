@@ -187,3 +187,15 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
             return works[0]
         else:
             return works
+
+
+class OrganizationDisambiguator(Disambiguator):
+    FOR_MODELS = (models.Organization, models.Institution)
+
+    def disambiguate(self):
+        if not self.attrs.get('name'):
+            return None
+        try:
+            return self.model.objects.get(name=self.attrs['name'], type__in=self.model.get_types())
+        except self.model.DoesNotExist:
+            return None
