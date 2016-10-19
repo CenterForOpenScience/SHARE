@@ -26,7 +26,13 @@ class GraphDisambiguator:
                 change_graph.node_map[ref] = n
 
     def instance_for_node(self, node):
-        NodeDisambiguator = self.__disambiguator_map.get(node.model._meta.concrete_model, GenericDisambiguator)
+        NodeDisambiguator = GenericDisambiguator
+        for klass in node.model.mro():
+            if klass in self.__disambiguator_map:
+                NodeDisambiguator = self.__disambiguator_map[klass]
+                break
+            if not klass._meta.proxy:
+                break
         return NodeDisambiguator(node.id, node.resolved_attrs, node.model).find()
 
     def _disambiguweight(self, node):
@@ -40,13 +46,16 @@ class GraphDisambiguator:
 
     def _gather_disambiguators(self, base):
         for cls in base.__subclasses__():
-            for_model = getattr(cls, 'FOR_MODEL', None)
-            if for_model:
-                self.__disambiguator_map[for_model] = cls
+            for model in (getattr(cls, 'FOR_MODEL', None), ) + getattr(cls, 'FOR_MODELS', tuple()):
+                if not model:
+                    continue
+                if model in self.__disambiguator_map:
+                    raise ValueError('Disambiguator {} is already registered for {}.'.format(self.__disambiguator_map[model], model))
+                self.__disambiguator_map[model] = cls
             self._gather_disambiguators(cls)
 
 
-class Disambiguator():
+class Disambiguator:
 
     def __init__(self, id, attrs, model):
         self.id = id
