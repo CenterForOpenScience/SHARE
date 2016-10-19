@@ -15,6 +15,7 @@ class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
     cited_as = models.TextField(blank=True)
 
     class Meta:
+        db_table = 'share_agentworkrelation'
         unique_together = ('agent', 'creative_work', 'type')
 
 
