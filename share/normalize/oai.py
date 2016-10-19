@@ -17,7 +17,8 @@ class OAIAgent(Parser):
         THE_REGEX,
         'council',
         'center',
-        'foundation'
+        'foundation',
+        'group'
     )
     INSTITUTION_KEYWORDS = (
         'school',
@@ -76,14 +77,6 @@ class OAIThroughSubjects(Parser):
     subject = tools.Delegate(OAISubject, ctx)
 
 
-class OAIAgentWorkRelation(Parser):
-    schema = 'AgentWorkRelation'
-
-    agent = tools.Delegate(OAIAgent, ctx)
-    cited_name = ctx
-    order_cited = ctx('index')
-
-
 class OAITag(Parser):
     schema = 'Tag'
 
@@ -99,7 +92,7 @@ class OAIThroughTags(Parser):
 class OAIRelatedWork(Parser):
     schema = 'CreativeWork'
 
-    identifiers = tools.Map(OAIWorkIdentifier, ctx)
+    identifiers = tools.Map(tools.Delegate(OAIWorkIdentifier), ctx)
 
 
 class OAIWorkRelation(Parser):
@@ -112,15 +105,22 @@ class OAIIsDerivedFrom(OAIWorkRelation):
     schema = 'IsDerivedFrom'
 
 
-class OAIContribution(Parser):
-    schema = 'Contribution'
+class OAIAgentWorkRelation(Parser):
+    schema = 'AgentWorkRelation'
 
     agent = tools.Delegate(OAIAgent, ctx)
+    cited_as = ctx
+    order_cited = ctx('index')
 
 
-class OAIPublishingContribution(OAIContribution):
+class OAIContribution(OAIAgentWorkRelation):
+    schema = 'Contribution'
+
+
+class OAIPublishingContribution(Parser):
     schema = 'PublishingContribution'
 
+    agent = tools.Delegate(OAIAgent.using(schema=tools.Static('organization')), ctx)
     bibliographic = tools.Static(False)
 
 
@@ -153,8 +153,10 @@ class OAICreativeWork(Parser):
             tools.Delegate(OAIContribution.using(bibliographic=tools.Static(False))),
             tools.Try(ctx['record']['metadata']['dc']['dc:contributor'])
         ),
-        tools.Try(tools.Delegate(OAIPublishingContribution, tools.RunPython('force_text', ctx.record.metadata.dc['dc:publisher'])))
-
+        tools.Map(
+            tools.Delegate(OAIPublishingContribution),
+            tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:publisher']))
+        ),
     )
 
     rights = tools.Join(tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:rights'))
@@ -214,7 +216,8 @@ class OAICreativeWork(Parser):
         resource_format = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:format')
 
         # An unambiguous reference to the resource within a given context.
-        identifiers = tools.Concat(
+        identifiers = tools.Map(
+            tools.Delegate(OAIWorkIdentifier),
             tools.Try(ctx['record']['metadata']['dc']['dc:identifier']),
             tools.Maybe(ctx['record']['header'], 'identifier')
         )

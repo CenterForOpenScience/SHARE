@@ -35,7 +35,7 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
         return self.name
 
 
-@receiver(pre_save, sender='Person')
+@receiver(pre_save, sender='share.Person')
 def parse_person_name(sender, instance, *args, **kwargs):
     if instance.name and instance.family_name is None and instance.given_name is None:
         name = HumanName(instance.name)

@@ -77,6 +77,7 @@ class Parser(metaclass=ParserMeta):
             schema = self.schema
 
         if (self.context, schema) in ctx.pool:
+            Context().parser = prev
             return ctx.pool[self.context, schema]
 
         model = apps.get_model('share', schema)
