@@ -14,8 +14,12 @@ class IDObfuscator:
 
     @classmethod
     def encode(cls, instance):
-        model_id = ContentType.objects.get_for_model(type(instance)).id
-        encoded = '{:09X}'.format(instance.pk * cls.NUM % cls.MOD)
+        return cls.encode_id(instance.id, type(instance))
+
+    @classmethod
+    def encode_id(cls, pk, model):
+        model_id = ContentType.objects.get_for_model(model).id
+        encoded = '{:09X}'.format(pk * cls.NUM % cls.MOD)
         return '{:02X}{}-{}-{}'.format(model_id, encoded[:3], encoded[3:6], encoded[6:])
 
     @classmethod
@@ -94,6 +98,7 @@ class ModelGenerator:
             fields = mspec.get('fields', {})
             model = type(name, (base,), {
                 **{fname: self._get_field(fspec) for (fname, fspec) in fields.items()},
+                '__doc__': mspec.get('description'),
                 '__qualname__': name,
                 '__module__': base.__module__
             })
