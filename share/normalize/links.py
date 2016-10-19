@@ -70,17 +70,17 @@ def Map(chain, *chains):
 def Delegate(parser, chain=None):
     if chain:
         return chain + DelegateLink(parser)
-    return DelegateLink(parser)
+    return AnchorLink() + DelegateLink(parser)
 
 
 def RunPython(function_name, chain=None, *args, **kwargs):
     if chain:
         return chain + RunPythonLink(function_name, *args, **kwargs)
-    return RunPythonLink(function_name, *args, **kwargs)
+    return AnchorLink() + RunPythonLink(function_name, *args, **kwargs)
 
 
 def Static(value):
-    return StaticLink(value)
+    return AnchorLink() + StaticLink(value)
 
 
 def Subjects(*chains):
@@ -88,19 +88,19 @@ def Subjects(*chains):
 
 
 def OneOf(*chains):
-    return OneOfLink(*chains)
+    return AnchorLink() + OneOfLink(*chains)
 
 
 def Orcid(chain=None):
     if chain:
         return chain + OrcidLink()
-    return OrcidLink()
+    return AnchorLink() + OrcidLink()
 
 
 def DOI(chain=None):
     if chain:
         return chain + DOILink()
-    return DOILink()
+    return AnchorLink() + DOILink()
 
 
 def IRI(chain=None):
@@ -533,7 +533,7 @@ class MapSubjectLink(AbstractLink):
         mapped = self.MAPPING.get(obj.lower())
 
         if not mapped:
-            logger.warning('No synonyms found for term "%s"', obj)
+            logger.debug('No synonyms found for term "%s"', obj)
 
         return mapped
 
@@ -756,7 +756,8 @@ class DOILink(AbstractIRILink):
 class URLLink(AbstractIRILink):
     PORTS = {80, 443, 20, 989}
     SCHEMES = {'http', 'https', 'ftp', 'ftps'}
-    URL_RE = re.compile(r'[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')
+    #URL_RE = re.compile(r'[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')
+    URL_RE = re.compile(r'^({schemes})://[-a-z0-9@:%._\+~#=]{{2,256}}\.[a-z]{{2,6}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
     @classmethod
     def hint(cls, obj):
@@ -832,5 +833,6 @@ class IRILink(AbstractLink):
                 break
 
         if not final[0]:
-            raise ValueError('\'{}\' could not be identified as an Identifier.'.format(obj))
+            logger.warning('\'{}\' could not be identified as an Identifier.'.format(obj))
+            return None
         return final[0]().execute(obj)

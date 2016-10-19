@@ -87,11 +87,7 @@ class ChangeSet(models.Model):
                 change_id = c.id
                 changeset_id = self.id
                 source = self.normalized_data.source
-                try:
-                    ret.append(c.accept(save=save))
-                except Exception as ex:
-                    logger.warn('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
-                    raise ex
+                ret.append(c.accept(save=save))
             self.status = ChangeSet.STATUS.accepted
             if save:
                 self.save()

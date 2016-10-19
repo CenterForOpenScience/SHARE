@@ -62,7 +62,7 @@ class OAIAgentIdentifier(Parser):
 class OAIWorkIdentifier(Parser):
     schema = 'WorkIdentifier'
 
-    uri = tools.IRI(ctx).IRI
+    uri = ctx.IRI
 
 
 class OAISubject(Parser):
@@ -92,7 +92,10 @@ class OAIThroughTags(Parser):
 class OAIRelatedWork(Parser):
     schema = 'CreativeWork'
 
-    identifiers = tools.Map(tools.Delegate(OAIWorkIdentifier), ctx)
+    identifiers = tools.Map(tools.Delegate(OAIWorkIdentifier), tools.IRI(ctx))
+
+    class Extra:
+        identifier = ctx
 
 
 class OAIWorkRelation(Parser):
@@ -110,34 +113,47 @@ class OAIAgentWorkRelation(Parser):
 
     agent = tools.Delegate(OAIAgent, ctx)
     cited_as = ctx
+
+
+class OAIContributor(OAIAgentWorkRelation):
+    schema = 'Contributor'
+
+
+class OAICreator(OAIContributor):
+    schema = 'Creator'
+
     order_cited = ctx('index')
 
 
-class OAIContribution(OAIAgentWorkRelation):
-    schema = 'Contribution'
-
-
-class OAIPublishingContribution(Parser):
-    schema = 'PublishingContribution'
+class OAIPublisher(Parser):
+    schema = 'Publisher'
 
     agent = tools.Delegate(OAIAgent.using(schema=tools.Static('organization')), ctx)
-    bibliographic = tools.Static(False)
 
 
 class OAICreativeWork(Parser):
     default_type = None
     type_map = None
 
-    @property
-    def schema(self):
-        try:
-            resource_type = self.context['record']['metadata']['dc']['dc:type']
-            return self.type_map[resource_type]
-        except (KeyError, ValueError):
-            return self.default_type
+    schema = tools.RunPython(
+        'get_schema',
+        tools.OneOf(
+            ctx.record.metadata.dc['dc:type'],
+            tools.Static(None)
+        )
+    )
 
     title = tools.Join(tools.RunPython('force_text', tools.Try(ctx['record']['metadata']['dc']['dc:title'])))
     description = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:description'])))
+
+    identifiers = tools.Map(
+        tools.Delegate(OAIWorkIdentifier),
+        tools.Map(
+            tools.IRI(),
+            tools.Try(ctx['record']['metadata']['dc']['dc:identifier']),
+            tools.Try(ctx['record']['header']['identifier'])
+        )
+    )
 
     related_works = tools.Concat(
         tools.Map(tools.Delegate(OAIIsDerivedFrom), tools.Try(ctx['record']['metadata']['dc']['dc:source'])),
@@ -146,15 +162,15 @@ class OAICreativeWork(Parser):
 
     related_agents = tools.Concat(
         tools.Map(
-            tools.Delegate(OAIContribution),
+            tools.Delegate(OAICreator),
             tools.Try(ctx['record']['metadata']['dc']['dc:creator'])
         ),
         tools.Map(
-            tools.Delegate(OAIContribution.using(bibliographic=tools.Static(False))),
+            tools.Delegate(OAIContributor),
             tools.Try(ctx['record']['metadata']['dc']['dc:contributor'])
         ),
         tools.Map(
-            tools.Delegate(OAIPublishingContribution),
+            tools.Delegate(OAIPublisher),
             tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:publisher']))
         ),
     )
@@ -171,25 +187,35 @@ class OAICreativeWork(Parser):
         tools.Subjects(
             tools.Map(
                 tools.RunPython('tokenize'),
-                tools.Try(ctx['record']['header']['setSpec']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:type']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:format']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+                tools.RunPython(
+                    'force_text',
+                    tools.Concat(
+                        tools.Try(ctx['record']['header']['setSpec']),
+                        tools.Try(ctx['record']['metadata']['dc']['dc:type']),
+                        tools.Try(ctx['record']['metadata']['dc']['dc:format']),
+                        tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+                    )
+                )
             )
         )
     )
 
     tags = tools.Map(
         tools.Delegate(OAIThroughTags),
-        tools.RunPython(
-            'force_text',
-            tools.Concat(
-                tools.Try(ctx['record']['header']['setSpec']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:type']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:format']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+        tools.Concat(
+            tools.Map(
+                tools.RunPython('tokenize'),
+                tools.RunPython(
+                    'force_text',
+                    tools.Concat(
+                        tools.Try(ctx['record']['header']['setSpec']),
+                        tools.Try(ctx['record']['metadata']['dc']['dc:type']),
+                        tools.Try(ctx['record']['metadata']['dc']['dc:format']),
+                        tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+                    )
+                )
             )
-        )
+        , deep=True)
     )
 
     date_updated = tools.ParseDate(ctx['record']['header']['datestamp'])
@@ -216,10 +242,9 @@ class OAICreativeWork(Parser):
         resource_format = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:format')
 
         # An unambiguous reference to the resource within a given context.
-        identifiers = tools.Map(
-            tools.Delegate(OAIWorkIdentifier),
+        identifiers = tools.Concat(
             tools.Try(ctx['record']['metadata']['dc']['dc:identifier']),
-            tools.Maybe(ctx['record']['header'], 'identifier')
+            tools.Try(ctx['record']['header']['identifier'])
         )
 
         # A related resource.
@@ -238,6 +263,16 @@ class OAICreativeWork(Parser):
 
         # Status in the header, will exist if the resource is deleted
         status = tools.Maybe(ctx.record.header, '@status')
+
+    def get_schema(self, types):
+        if not types or not self.type_map:
+            return self.default_type
+        if isinstance(types, str):
+            types = [types]
+        for t in types:
+            if t in self.type_map:
+                return self.type_map[t]
+        return self.default_type
 
     def force_text(self, data):
         if isinstance(data, dict):
@@ -262,9 +297,11 @@ class OAICreativeWork(Parser):
         return fixed
 
     def tokenize(self, data):
+        if isinstance(data, str):
+            data = [data]
         tokens = []
         for item in data:
-            tokens.extend([x.strip() for x in re.split('(?: - )|\.', data) if x])
+            tokens.extend([x.strip() for x in re.split(r'(?: - )|\.|,', item) if x])
         return tokens
 
     def get_relation(self, ctx):
