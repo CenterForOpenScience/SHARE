@@ -44,7 +44,7 @@ def Trim(chain):
 
 
 def Concat(*chains, deep=False):
-    return AnchorLink() + ConcatLink(*chains, deep=deep)
+    return ConcatLink(*chains, deep=deep)
 
 
 def XPath(chain, path):
@@ -70,17 +70,17 @@ def Map(chain, *chains):
 def Delegate(parser, chain=None):
     if chain:
         return chain + DelegateLink(parser)
-    return AnchorLink() + DelegateLink(parser)
+    return DelegateLink(parser)
 
 
 def RunPython(function_name, chain=None, *args, **kwargs):
     if chain:
         return chain + RunPythonLink(function_name, *args, **kwargs)
-    return AnchorLink() + RunPythonLink(function_name, *args, **kwargs)
+    return RunPythonLink(function_name, *args, **kwargs)
 
 
 def Static(value):
-    return AnchorLink() + StaticLink(value)
+    return StaticLink(value)
 
 
 def Subjects(*chains):
@@ -88,19 +88,19 @@ def Subjects(*chains):
 
 
 def OneOf(*chains):
-    return AnchorLink() + OneOfLink(*chains)
+    return OneOfLink(*chains)
 
 
 def Orcid(chain=None):
     if chain:
         return chain + OrcidLink()
-    return AnchorLink() + OrcidLink()
+    return OrcidLink()
 
 
 def DOI(chain=None):
     if chain:
         return chain + DOILink()
-    return AnchorLink() + DOILink()
+    return DOILink()
 
 
 def IRI(chain=None):
@@ -150,6 +150,10 @@ class AbstractLink:
         # next and prev are generally set by the __add__ method
         self._next = _next
         self._prev = _prev
+
+        # Every chain must start with an AnchorLink
+        if self._prev is None and not isinstance(self, AnchorLink):
+            AnchorLink() + self
 
     # Build the entire chain this link is a part of
     # NOTE: This results in the entire chain rather than starting from the current link
