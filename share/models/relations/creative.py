@@ -9,6 +9,7 @@ class AbstractWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
     related = ShareForeignKey('AbstractCreativeWork', related_name='incoming_creative_work_relations')
 
     class Meta:
+        db_table = 'share_workrelation'
         unique_together = ('subject', 'related', 'type')
 
 

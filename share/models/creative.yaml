@@ -15,13 +15,13 @@ CreativeWork:
                 Article: {}
                 Book: {}
                 ConferencePaper: {}
-                Deliverable: {}
+                # Deliverable: {}
                 Dissertation: {}
                 Preprint: {}
                 Project: {}
                 Registration: {}
                 Report: {}
-                Section: {}
+                # Section: {}
                 Thesis: {}
                 WorkingPaper: {}
         Presentation: {}

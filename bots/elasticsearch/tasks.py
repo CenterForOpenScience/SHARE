@@ -2,19 +2,20 @@ import logging
 import re
 
 from django.apps import apps
+from django.conf import settings
+
 from elasticsearch import helpers
 from elasticsearch import Elasticsearch
 
-from project import settings
-
-from share.tasks import ProviderTask
-from share.models import AbstractCreativeWork
 from share.models import Agent
-from share.models import Person
-from share.models import Tag
+from share.models import CreativeWork
 from share.models import Subject
+from share.models import Tag
+from share.tasks import ProviderTask
+from share.util import IDObfuscator
 
 from bots.elasticsearch import util
+
 
 logger = logging.getLogger(__name__)
 
@@ -70,18 +71,18 @@ class IndexModelTask(ProviderTask):
         if not ids:
             return
 
-        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model.__name__.lower()}
+        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model._meta.verbose_name_plural.replace(' ', '')}
 
-        if model is AbstractCreativeWork:
-            for blob in util.fetch_abstractcreativework(ids):
+        if model is CreativeWork:
+            for blob in util.fetch_creativework(ids):
                 if blob['is_deleted']:
                     yield {'_id': blob['id'], '_op_type': 'delete', **opts}
                 else:
                     yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
-        if model is Person:
-            for blob in util.fetch_person(ids):
+        if model is Agent:
+            for blob in util.fetch_agent(ids):
                 yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
@@ -92,25 +93,9 @@ class IndexModelTask(ProviderTask):
 
     def serialize(self, inst):
         return {
-            Agent: self.serialize_agent,
-            Person: self.serialize_person,
             Tag: self.serialize_tag,
             Subject: self.serialize_subject,
         }[type(inst)._meta.concrete_model](inst)
-
-    def serialize_person(self, person, suggest=True):
-        serialized_person = util.fetch_person(person.pk)
-        return add_suggest(serialized_person) if suggest else serialized_person
-
-    def serialize_agent(self, agent, suggest=True):
-        serialized_agent = {
-            'id': agent.pk,
-            'type': type(agent).__name__.lower(),
-            'name': safe_substr(agent.name),
-            'url': agent.url,
-            'location': safe_substr(agent.location),
-        }
-        return add_suggest(serialized_agent) if suggest else serialized_agent
 
     def serialize_tag(self, tag, suggest=True):
         serialized_tag = {
@@ -148,13 +133,13 @@ class IndexSourceTask(ProviderTask):
 
     def bulk_stream(self):
         ShareUser = apps.get_model('share.ShareUser')
-        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'source'}
+        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'sources'}
         for source in ShareUser.objects.exclude(robot='').exclude(long_title='').all():
             yield {'_op_type': 'index', '_id': source.robot, **self.serialize(source), **opts}
 
     def serialize(self, source):
         serialized_source = {
-            'id': str(source.pk),
+            'id': source.robot,
             'type': 'source',
             'name': safe_substr(source.long_title),
             'short_name': safe_substr(source.robot)

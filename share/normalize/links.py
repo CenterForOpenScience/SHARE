@@ -606,7 +606,7 @@ class AbstractIRILink(AbstractLink):
 
 class ISSNLink(AbstractIRILink):
 
-    ISSN_RE = re.compile(r'(?:^|[^-\d])(\d{4})-(\d{3}[\dxX])\s*$')
+    ISSN_RE = re.compile(r'(?:^|\s+)(\d{4})-(\d{3}[\dxX])\s*$')
 
     @classmethod
     def hint(cls, obj):
