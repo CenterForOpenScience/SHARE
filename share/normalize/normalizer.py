@@ -51,7 +51,7 @@ class Normalizer(metaclass=abc.ABCMeta):
         root_levels = [
             getattr(module, klass.__name__)
             for klass in
-            AbstractCreativeWork.__subclasses__()
+            AbstractCreativeWork.get_type_classes()
             if hasattr(module, klass.__name__)
         ]
 
