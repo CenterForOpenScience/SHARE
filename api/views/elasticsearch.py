@@ -4,6 +4,8 @@ from django.conf import settings
 from furl import furl
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
 
 from api import authentication
 
@@ -18,8 +20,10 @@ class ElasticSearchView(views.APIView):
     - [Source](/api/search/source/_search) - data sources
     - [Agent](/api/search/agent/_search) - institutions, organizations, publishers, and funders
     """
-    authentication_classes = [authentication.NonCSRFSessionAuthentication, ]
-    permission_classes = [AllowAny, ]
+    authentication_classes = (authentication.NonCSRFSessionAuthentication, )
+    parser_classes = (JSONParser,)
+    permission_classes = (AllowAny, )
+    renderer_classes = (JSONRenderer, )
 
     def get(self, request, *args, url_bits='', **kwargs):
         es_url = furl(settings.ELASTICSEARCH_URL).add(
