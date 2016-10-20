@@ -4,8 +4,8 @@ import logging
 from django.apps import apps
 
 from share.disambiguation import GraphDisambiguator
-
 from share.util import TopographicalSorter
+from share.util import IDObfuscator
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ class ChangeNode:
     @instance.setter
     def instance(self, instance):
         if instance:
-            self.id = instance.pk
+            self.id = IDObfuscator.encode(instance)
             self.type = instance._meta.model_name.lower()
             if self.type != self.new_type and self.new_type == 'creativework':
                 self.new_type = self.type
@@ -48,7 +48,7 @@ class ChangeNode:
     @property
     def is_blank(self):
         # JSON-LD Blank Node ids start with "_:"
-        return self.is_merge or (isinstance(self.id, str) and self.id.startswith('_:'))
+        return self.is_merge or self.id.startswith('_:')
 
     @property
     def is_merge(self):
@@ -70,8 +70,8 @@ class ChangeNode:
     def resolved_attrs(self):
         return {
             **self.attrs,
-            **{k: v['@id'] for k, v in self.relations.items() if not str(v['@id']).startswith('_:')},
-            **{k: [x['@id'] for x in v if not str(x['@id']).startswith('_:')] for k, v in self.reverse_relations.items() if any(not str(x['@id']).startswith('_:') for x in v)},
+            **{k: IDObfuscator.decode(v['@id'])[1] for k, v in self.relations.items() if not v['@id'].startswith('_:')},
+            **{k: [IDObfuscator.decode(x['@id'])[1] for x in v if not x['@id'].startswith('_:')] for k, v in self.reverse_relations.items() if any(not x['@id'].startswith('_:') for x in v)},
         }
 
     @property
@@ -111,7 +111,7 @@ class ChangeNode:
         self.__extra_namespace = None
         node = copy.deepcopy(self.__raw)
 
-        self.id = str(node.pop('@id'))
+        self.id = node.pop('@id')
         self.type = node.pop('@type').lower()
         self.new_type = self.type
         self.extra = node.pop('extra', {})
@@ -191,6 +191,6 @@ class ChangeGraph:
         try:
             return self.__map[(id, type.lower())]
         except KeyError:
-            if str(id).startswith('_:'):
+            if id.startswith('_:'):
                 raise UnresolvableReference('Unresolvable reference @id: {!r}, @type: {!r}'.format(id, type))
         return None  # External reference to an already existing object

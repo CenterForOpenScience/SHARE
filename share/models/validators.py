@@ -76,15 +76,15 @@ class JSONLDValidator:
             if not isinstance(val, dict) or key == 'extra':
                 continue
 
-            if isinstance(val['@id'], str) and val['@id'].startswith('_:'):
+            if val['@id'].startswith('_:'):
                 refs['blank'].add((val['@id'], val['@type'].lower()))
             else:
-                refs['concrete'].add((str(val['@id']), val['@type'].lower()))
+                refs['concrete'].add((val['@id'], val['@type'].lower()))
 
-        if isinstance(value['@id'], str) and value['@id'].startswith('_:'):
+        if value['@id'].startswith('_:'):
             nodes['blank'].add((value['@id'], value['@type'].lower()))
         else:
-            nodes['concrete'].add((str(value['@id']), value['@type'].lower()))
+            nodes['concrete'].add((value['@id'], value['@type'].lower()))
 
     def json_schema_for_field(self, field):
         if field.is_relation:

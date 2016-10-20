@@ -16,12 +16,12 @@ def test_build_trigger():
     procedure, trigger = trigger_build.build_operations(Person)
 
     assert trigger.reversible is True
-    assert 'DROP TRIGGER share_abstractagent_change' in trigger.reverse_sql
-    assert 'DROP TRIGGER IF EXISTS share_abstractagent_change' in trigger.sql
+    assert 'DROP TRIGGER share_agent_change' in trigger.reverse_sql
+    assert 'DROP TRIGGER IF EXISTS share_agent_change' in trigger.sql
 
     assert procedure.reversible is True
-    assert 'DROP FUNCTION before_share_abstractagent_change' in procedure.reverse_sql
-    assert 'CREATE OR REPLACE FUNCTION before_share_abstractagent_change' in procedure.sql
+    assert 'DROP FUNCTION before_share_agent_change' in procedure.reverse_sql
+    assert 'CREATE OR REPLACE FUNCTION before_share_agent_change' in procedure.sql
 
 
 class TestVersioning:

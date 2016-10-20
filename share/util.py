@@ -27,7 +27,7 @@ class IDObfuscator:
         match = cls.ID_RE.match(id)
         assert match, '"{}" is not a valid ID'.format(id)
         model_id, *pks = match.groups()
-        return ContentType.objects.get(pk=int(model_id, 16)), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
+        return ContentType.objects.get(pk=int(model_id, 16)).model_class(), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 
 
 class CyclicalDependency(Exception):

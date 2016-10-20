@@ -8,6 +8,7 @@ from share.models import AbstractCreativeWork
 from share.models import AgentWorkRelation
 from share.models.change import Change
 from share.models.change import ChangeSet
+from share.util import IDObfuscator
 
 
 @pytest.fixture
@@ -77,7 +78,7 @@ class TestChange:
                 '@id': '_:890',
                 '@type': 'preprint',
                 'title': 'All about Cats and more',
-                'workidentifiers': [{'@id': '_:5678', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:5678', '@type': 'workidentifier'}]
             }]
         }).accept()
 
@@ -91,7 +92,7 @@ class TestChange:
                 '@id': '_:890',
                 '@type': 'preprint',
                 'title': 'JUST ABOUT CATS',
-                'workidentifiers': [{'@id': '_:1234', '@type': 'workidentifier'}],
+                'identifiers': [{'@id': '_:1234', '@type': 'workidentifier'}],
             }]
         }, disambiguate=True)
 
@@ -221,7 +222,7 @@ class TestChangeGraph:
     def test_change_existing(self, change_factory, jane_doe):
         change_set = change_factory.from_graph({
             '@graph': [{
-                '@id': jane_doe.pk,
+                '@id': IDObfuscator.encode(jane_doe),
                 '@type': 'Person',
                 'given_name': 'John'
             }]

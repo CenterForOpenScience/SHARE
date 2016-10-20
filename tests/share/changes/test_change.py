@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 
 from share import models
 from share.change import ChangeGraph
+from share.util import IDObfuscator
 
 
 @pytest.fixture
@@ -45,7 +46,7 @@ def create_graph_dependencies():
 def update_graph(jane_doe):
     return ChangeGraph.from_jsonld({
         '@graph': [{
-            '@id': jane_doe.pk,
+            '@id': IDObfuscator.encode(jane_doe),
             '@type': 'person',
             'family_name': 'Dough',
         }]
@@ -58,8 +59,8 @@ def merge_graph(jane_doe, john_doe):
         '@graph': [{
             '@id': '_:1234',
             '@type': 'MergeAction',
-            'into': {'@id': jane_doe.pk, '@type': 'person'},
-            'from': [{'@id': john_doe.pk, '@type': 'person'}]
+            'into': {'@id': IDObfuscator.encode(jane_doe), '@type': 'person'},
+            'from': [{'@id': IDObfuscator.encode(john_doe), '@type': 'person'}]
         }]
     })
 
@@ -159,13 +160,13 @@ class TestChangeSet:
     def test_update_dependencies_accept(self, john_doe, normalized_data_id):
         graph = ChangeGraph.from_jsonld({
             '@graph': [{
-                '@id': john_doe.pk,
+                '@id': IDObfuscator.encode(john_doe),
                 '@type': 'person',
                 'given_name': 'Jane',
             }, {
                 '@id': '_:456',
                 '@type': 'Creator',
-                'agent': {'@id': john_doe.pk, '@type': 'person'},
+                'agent': {'@id': IDObfuscator.encode(john_doe), '@type': 'person'},
                 'creative_work': {'@id': '_:789', '@type': 'preprint'},
             }, {
                 '@id': '_:789',
@@ -196,7 +197,7 @@ class TestChangeSet:
                 '@id': '_:789',
                 '@type': 'preprint',
                 'title': 'All About Cats',
-                'workidentifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
             }]
         })
 
@@ -216,7 +217,7 @@ class TestChangeSet:
                 '@id': '_:789',
                 'is_deleted': True,
                 '@type': 'preprint',
-                'workidentifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
             }]
         }), normalized_data_id).accept()
 
@@ -350,7 +351,7 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'creativework',
                 'title': title,
-                'workidentifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:2345',
                 '@type': 'workidentifier',
@@ -370,7 +371,7 @@ class TestChangeSet:
             '@graph': [{
                 '@id': '_:1234',
                 '@type': 'preprint',
-                'workidentifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:2345',
                 '@type': 'workidentifier',
@@ -401,7 +402,7 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'preprint',
                 'title': old_title,
-                'workidentifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:2345',
                 '@type': 'workidentifier',
@@ -425,7 +426,7 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'creativework',
                 'title': new_title,
-                'workidentifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:2345',
                 '@type': 'workidentifier',
@@ -458,7 +459,7 @@ class TestChangeSet:
                 '@id': '_:2345',
                 '@type': 'creativework',
                 'title': 'Cats, tho',
-                'workidentifiers': [{'@id': '_:4567', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:4567', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:foo',
                 '@type': 'cites',
@@ -502,7 +503,7 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'article',
                 'title': 'All About Cats',
-                'workidentifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:2345',
                 '@type': 'workidentifier',
@@ -527,7 +528,7 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
-                'workidentifiers': [{'@id': '_:4567', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:4567', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:4567',
                 '@type': 'workidentifier',
@@ -577,7 +578,7 @@ class TestChangeSet:
             }, {
                 '@id': '_:2345',
                 '@type': 'creativework',
-                'workidentifiers': [{'@id': '_:4567', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:4567', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:4567',
                 '@type': 'workidentifier',
@@ -595,7 +596,7 @@ class TestChangeSet:
                 '@id': '_:1234',
                 '@type': 'article',
                 'title': 'All About Cats',
-                'workidentifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
+                'identifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
             }, {
                 '@id': '_:2345',
                 '@type': 'workidentifier',
@@ -622,7 +623,7 @@ class TestChangeSet:
     def test_ignore_generic_work_type(self, change_factory, all_about_anteaters):
         cs = change_factory.from_graph({
             '@graph': [{
-                '@id': all_about_anteaters.id,
+                '@id': IDObfuscator.encode(all_about_anteaters),
                 '@type': 'creativework'
             }]
         }, disambiguate=True)
@@ -634,7 +635,7 @@ class TestChangeSet:
         new_title = 'Some about Anteaters'
         cs = change_factory.from_graph({
             '@graph': [{
-                '@id': all_about_anteaters.id,
+                '@id': IDObfuscator.encode(all_about_anteaters),
                 '@type': 'creativework',
                 'title': new_title
             }]
@@ -653,7 +654,7 @@ class TestChangeSet:
     def test_change_agent_type(self, change_factory, university_of_whales):
         cs = change_factory.from_graph({
             '@graph': [{
-                '@id': university_of_whales.id,
+                '@id': IDObfuscator.encode(university_of_whales),
                 '@type': 'organization'
             }]
         }, disambiguate=True)
