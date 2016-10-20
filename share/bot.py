@@ -54,7 +54,7 @@ class Bot(abc.ABC):
                 '-timestamp'
             ).values_list('timestamp', flat=True).first()
             if last_run:
-                last_run = pendulum.parse(last_run)
+                last_run = pendulum.instance(last_run)
             else:
                 last_run = pendulum.from_timestamp(0)
             logger.info('Found last job %s', last_run)
