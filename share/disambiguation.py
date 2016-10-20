@@ -156,7 +156,7 @@ class AbstractAgentDisambiguator(Disambiguator):
 
     def disambiguate(self):
         agents = []
-        for id in self.attrs.get('agentidentifiers', ()):
+        for id in self.attrs.get('identifiers', ()):
             try:
                 identifier = models.AgentIdentifier.objects.get(id=id)
                 agents.append(identifier.agent)
@@ -175,7 +175,7 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
 
     def disambiguate(self):
         works = []
-        for id in self.attrs.get('workidentifiers', ()):
+        for id in self.attrs.get('identifiers', ()):
             try:
                 identifier = models.WorkIdentifier.objects.get(id=id)
                 works.append(identifier.creative_work)
