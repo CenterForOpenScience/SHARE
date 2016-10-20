@@ -37,8 +37,8 @@ class Command(BaseCommand):
             task_kwargs['start'] = pendulum.parse(options['start']) if options.get('start') else pendulum.utcnow() - datetime.timedelta(days=int(options['days_back'] or 1))
             task_kwargs['end'] = pendulum.parse(options['end']) if options.get('end') else pendulum.utcnow()
 
-        task_kwargs['end'] = task_kwargs['end'].isoformat() + 'Z'
-        task_kwargs['start'] = task_kwargs['start'].isoformat() + 'Z'
+        task_kwargs['end'] = task_kwargs['end'].isoformat()
+        task_kwargs['start'] = task_kwargs['start'].isoformat()
 
         if not options['harvester'] and options['all']:
             options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig) and not x.disabled]

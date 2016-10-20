@@ -131,16 +131,16 @@ class Harvester(metaclass=abc.ABCMeta):
         assert not (isinstance(start_date, datetime.timedelta) and isinstance(end_date, datetime.timedelta)), 'Only one of start_date and end_date may be a timedelta'
 
         if isinstance(start_date, datetime.datetime):
-            start_date = pendulum.parse(start_date)
+            start_date = pendulum.instance(start_date)
 
         if isinstance(end_date, datetime.datetime):
-            end_date = pendulum.parse(end_date)
+            end_date = pendulum.instance(end_date)
 
         if isinstance(start_date, datetime.timedelta):
-            start_date = pendulum.parse(end_date + start_date)
+            start_date = pendulum.instance(end_date + start_date)
 
         if isinstance(end_date, datetime.timedelta):
-            end_date = pendulum.parse(start_date + end_date)
+            end_date = pendulum.instance(start_date + end_date)
 
         og_start, og_end = start_date, end_date
         start_date, end_date = self.shift_range(start_date, end_date)
