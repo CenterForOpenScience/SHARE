@@ -22,7 +22,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI')
 
 
 #### Public API ####
@@ -105,8 +105,8 @@ def DOI(chain=None):
 
 def IRI(chain=None):
     if chain:
-        return chain + IRILink()
-    return IRILink()
+        return (chain + IRILink()).IRI
+    return IRILink().IRI
 
 ### /Public API
 
