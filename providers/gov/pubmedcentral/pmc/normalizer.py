@@ -1,32 +1,30 @@
 import arrow
 from collections import OrderedDict
 
-from share.normalize import ctx
+from share.normalize import ctx, Normalizer
 from share.normalize.tools import *
 from share.normalize.parsers import Parser
 
 
-class Link(Parser):
-    url = Try(DOI(RunPython('get_list_element', ctx.metadata.article.front['article-meta']['article-id'], '@pub-id-type', 'doi')))
+class WorkIdentifier(Parser):
+    uri = IRI(RunPython('get_list_element', ctx['article-id'], '@pub-id-type', 'doi'))
 
     def get_list_element(self, ordered_dict, attribute='', value=''):
-        if attribute:
-            for item in ordered_dict:
-                if item[attribute] == value:
-                    return item['#text']
-        else:
-            results = []
-            for item in ordered_dict:
-                results.append(item['#text'])
-            return results
+        for item in ordered_dict:
+            if item[attribute] == value:
+                return item['#text']
 
 
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
+class PersonIdentifier(Parser):
+    uri = Try(IRI(ctx).IRI)
 
 
-class Affiliation(Parser):
-    pass
+class Organization(Parser):
+    name = ctx
+
+
+class Publisher(Parser):
+    agent = Delegate(Organization, ctx)
 
 
 class Person(Parser):
@@ -34,40 +32,28 @@ class Person(Parser):
     family_name = ctx['name']['surname']
     given_name = ctx['name']['given-names']
 
+    identifiers = Delegate(PersonIdentifier, Try(ctx['contrib-id']))
+
     class Extra:
         email = OneOf(
             ctx['email'],
             ctx['address']['email'],
             Static(None)
         )
-        contrib_id = Try(Orcid(ctx['contrib-id']))
         role = Try(ctx['role'])
         degrees = Try(ctx['degrees'])
 
 
 class Contributor(Parser):
-    person = Delegate(Person, ctx)
-    cited_name = ctx['name']['surname']
+    agent = Delegate(Person, ctx)
 
 
 class ContributorOrganization(Parser):
-    schema = 'Organization'
+    agent = Delegate(Organization, ctx)
     name = OneOf(
         ctx['collab']['#text'],
         ctx['collab']
     )
-
-
-class Publisher(Parser):
-    name = ctx
-
-
-class Funder(Parser):
-    name = ctx
-
-
-class Association(Parser):
-    entity = Delegate(Publisher, ctx)
 
 
 class Tag(Parser):
@@ -78,7 +64,7 @@ class ThroughTags(Parser):
     tag = Delegate(Tag, ctx)
 
 
-class Publication(Parser):
+class Article(Parser):
     title = OneOf(
         ctx.record.metadata.article.front['article-meta']['title-group']['article-title']['#text'],
         ctx.record.metadata.article.front['article-meta']['title-group']['article-title'],
@@ -97,14 +83,25 @@ class Publication(Parser):
         Static(None)
     )
 
-    publishers = Map(
-            Delegate(Association.using(entity=Delegate(Publisher))),
-            Concat(Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name']))
+    related_agents = Concat(
+        Delegate(Publisher,
+            Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name'])
+        ),
+        Map(Delegate(Contributor),
+            RunPython(
+                'get_contributors',
+                Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
+                'person'
+            )
+        ),
+        Map(Delegate(ContributorOrganization),
+            RunPython(
+                'get_contributors',
+                Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
+                'organization'
+            )
         )
-    funders = Map(
-            Delegate(Association.using(entity=Delegate(Funder))),
-            Concat(Try(ctx.record.metadata.article.front['article-meta']['funding-group']['award-group']['funding-source']))
-        )
+    )
 
     tags = Map(
         Delegate(ThroughTags),
@@ -116,25 +113,9 @@ class Publication(Parser):
         ctx.record.metadata.article.front['article-meta']['pub-date']
     )
 
-    links = Map(Delegate(ThroughLinks), ctx.record)
+    identifiers = Map(Delegate(WorkIdentifier), ctx.record.metadata.article.front['article-meta'])
 
     rights = Try(ctx.record.metadata.article.front['article-meta']['permissions']['license']['license-p']['#text'])
-
-    contributors = Concat(Map(
-        Delegate(Contributor),
-        RunPython(
-            'get_contributors',
-            Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
-            'person'
-        )),
-        Map(
-            Delegate(Association.using(entity=Delegate(ContributorOrganization))),
-            RunPython(
-                'get_contributors',
-                Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
-                'organization'
-            )
-        ))
 
     class Extra:
         correspondence = OneOf(
@@ -187,7 +168,7 @@ class Publication(Parser):
 
     def get_issns(self, list_):
         issns = {}
-        if type(list_) == OrderedDict:
+        if isinstance(list_, OrderedDict):
             issns[list_['@pub-type']] = list_['#text']
         else:
             for item in list_:
@@ -196,7 +177,7 @@ class Publication(Parser):
 
     def get_published_date(self, list_):
         # There is only one result for a published date:
-        if type(list_) == OrderedDict:
+        if isinstance(list_, OrderedDict):
             if list_['@pub-type'] == 'epub':
                 year = list_.get('year')
                 month = list_.get('month')
@@ -215,7 +196,7 @@ class Publication(Parser):
 
     def get_year_month_day(self, list_, pub):
         # There is only one result for a published date:
-        if type(list_) == OrderedDict:
+        if isinstance(list_, OrderedDict):
             if list_['@pub-type'] == pub:
                 year = list_.get('year')
                 month = list_.get('month')
