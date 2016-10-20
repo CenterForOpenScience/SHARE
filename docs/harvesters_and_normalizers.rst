@@ -18,7 +18,8 @@ Installation (inside a virtual environment)::
 
     pip install -r requirements.txt
 
-    // Creates and starts containers for elasticsearch, rabbitmq, and postgres
+    // Creates and starts containers for elasticsearch, rabbitmq,
+    // postgres, and the server
     docker-compose up -d web
 
     ./up.sh
@@ -34,9 +35,13 @@ Installation (inside a virtual environment)::
     python manage.py createsuperuser
 
 
-To run::
+To run the server in a virtual environment instead of Docker::
 
+    docker stop share_web_1
     python manage.py runserver
+
+To run celery worker::
+
     python manage.py celery worker -l DEBUG
 
 To monitor your celery tasks::
