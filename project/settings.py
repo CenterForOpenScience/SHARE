@@ -125,6 +125,7 @@ INSTALLED_APPS = [
     'providers.edu.pcom',
     'providers.edu.pdxscholar',
     'providers.edu.purdue',
+    'providers.edu.richmond',
     'providers.edu.scholarsarchiveosu',
     'providers.edu.scholarsbank',
     'providers.edu.scholarscompass_vcu',
