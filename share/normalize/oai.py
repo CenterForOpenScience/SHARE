@@ -56,13 +56,13 @@ class OAIAgent(Parser):
 class OAIAgentIdentifier(Parser):
     schema = 'AgentIdentifier'
 
-    uri = tools.IRI(ctx).IRI
+    uri = tools.IRI(ctx)
 
 
 class OAIWorkIdentifier(Parser):
     schema = 'WorkIdentifier'
 
-    uri = ctx.IRI
+    uri = ctx
 
 
 class OAISubject(Parser):
@@ -156,7 +156,7 @@ class OAICreativeWork(Parser):
     )
 
     related_works = tools.Concat(
-        tools.Map(tools.Delegate(OAIIsDerivedFrom), tools.Try(ctx['record']['metadata']['dc']['dc:source'])),
+        tools.Map(tools.Delegate(OAIIsDerivedFrom), tools.IRI(tools.Try(ctx['record']['metadata']['dc']['dc:source']))),
         tools.Map(tools.Delegate(OAIWorkRelation), tools.RunPython('get_relation', ctx))
     )
 

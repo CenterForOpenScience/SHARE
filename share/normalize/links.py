@@ -838,5 +838,5 @@ class IRILink(AbstractLink):
 
         if not final[0]:
             logger.warning('\'{}\' could not be identified as an Identifier.'.format(obj))
-            return None
+            return {'IRI': None}
         return final[0]().execute(obj)
