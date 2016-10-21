@@ -565,6 +565,7 @@ class AbstractIRILink(AbstractLink):
     """
     RULES = 'absolute_IRI'
     SAFE_SEGMENT_CHARS = ":@-._~!$&'()*+,;="  # https://github.com/gruns/furl/blob/master/furl/furl.py#L385
+    PREFIX = None
 
     @classmethod
     def hint(cls, obj):
@@ -575,6 +576,9 @@ class AbstractIRILink(AbstractLink):
     def execute(self, obj):
         if not isinstance(obj, str):
             raise TypeError('\'{}\' is not of type str.'.format(obj))
+
+        if self.PREFIX and self.PREFIX.lower() == obj[:len(self.PREFIX)].lower():
+            obj = obj[len(self.PREFIX):]
 
         parsed = self._parse(obj)
         parsed = self._process(**parsed)
@@ -615,7 +619,7 @@ class ISSNLink(AbstractIRILink):
     @classmethod
     def hint(cls, obj):
         if re.search(cls.ISSN_RE, obj):
-            return 1.0
+            return 0.9
         return int('issn' in obj) * 0.35
 
     @classmethod
@@ -734,11 +738,13 @@ class DOILink(AbstractIRILink):
 
     DOI_SCHEME = 'http'
     DOI_DOMAIN = 'dx.doi.org'
-    DOI_RE = r'\b(10\.\d{4,}(?:\.\d+)*/\S+(?:(?!["&\'<>])\S))\b'
+    DOI_RE = re.compile(r'\b(10\.\d{4,}(?:\.\d+)*/\S+(?:(?!["&\'<>])\S))\b')
 
     @classmethod
     def hint(cls, obj):
-        return int('10.' in obj) * .5 + int('doi' in obj) * .5
+        if cls.DOI_RE.search(obj) is not None:
+            return 0.9
+        return 0
 
     def _process_scheme(self, _):
         return self.DOI_SCHEME
@@ -747,7 +753,7 @@ class DOILink(AbstractIRILink):
         return self.DOI_DOMAIN
 
     def _parse(self, obj):
-        match = re.search(self.DOI_RE, obj.upper())
+        match = self.DOI_RE.search(obj.upper())
         if not match:
             raise ValueError('\'{}\' is not a valid DOI.'.format(obj))
         return {
@@ -758,10 +764,10 @@ class DOILink(AbstractIRILink):
 
 
 class URLLink(AbstractIRILink):
+    PREFIX = 'url:'
     PORTS = {80, 443, 20, 989}
     SCHEMES = {'http', 'https', 'ftp', 'ftps'}
-    #URL_RE = re.compile(r'[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')
-    URL_RE = re.compile(r'^({schemes})://[-a-z0-9@:%._\+~#=]{{2,256}}\.[a-z]{{2,6}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
+    URL_RE = re.compile(r'\b({schemes})://[-a-z0-9@:%._\+~#=]{{2,256}}\.[a-z]{{2,6}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
     @classmethod
     def hint(cls, obj):
@@ -795,11 +801,9 @@ class EmailLink(AbstractIRILink):
 
     @classmethod
     def hint(self, obj):
-        if 'mailto:' in obj:
+        if self.EMAIL_RE.search(obj) is not None:
             return 1.0
-        if '@' in obj:
-            return 0.35
-        return 0.0
+        return 0
 
     def execute(self, obj):
         if not isinstance(obj, str):
@@ -813,6 +817,32 @@ class EmailLink(AbstractIRILink):
             'scheme': 'mailto',
             'authority': emails[0][2],
             'IRI': 'mailto:{1}@{2}'.format(*emails[0])
+        }
+
+
+class ArXivLink(AbstractIRILink):
+    # https://arxiv.org/help/arxiv_identifier
+
+    PREFIX = 'arxiv:'
+    ARXIV_SCHEME = 'http'
+    ARXIV_DOMAIN = 'arxiv.org'
+    ARXIV_PATH = '/abs/{}'
+    ARXIV_RE = re.compile(r'\barXiv:(\d{4}.\d{5})(v\d)?')
+
+    @classmethod
+    def hint(cls, obj):
+        if cls.ARXIV_RE.search(obj) is not None:
+            return 1.0
+        return 0
+
+    def _parse(self, obj):
+        match = self.ARXIV_RE.search(obj)
+        if not match:
+            raise ValueError('\'{}\' is not a valid ArXiv Identifier.'.format(obj))
+        return {
+            'scheme': self.ARXIV_SCHEME,
+            'authority': self.ARXIV_DOMAIN,
+            'path': self.ARXIV_PATH.format(match.group(1))
         }
 
 
