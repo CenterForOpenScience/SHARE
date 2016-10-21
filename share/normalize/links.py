@@ -646,6 +646,27 @@ class ISSNLink(AbstractIRILink):
         }
 
 
+class OAILink(AbstractIRILink):
+    OAI_RE = re.compile(r'^(oai):((?:\w|\.)+):(.*)')
+
+    @classmethod
+    def hint(cls, obj):
+        if cls.OAI_RE.search(obj) is not None:
+            return 0.9
+        return 0.0
+
+    def _parse(self, obj):
+        match = self.OAI_RE.search(obj.lower())
+        if not match:
+            raise ValueError('\'{}\' is not a valid OAI identifier.'.format(obj))
+
+        return {
+            'scheme': match.group(1),
+            'authority': match.group(2),
+            'path': '{}'.format(match.group(3))
+        }
+
+
 class ISNILink(AbstractIRILink):
     DOMAIN = 'isni.org'
     SCHEME = 'http'
