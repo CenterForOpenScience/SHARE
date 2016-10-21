@@ -104,10 +104,6 @@ class OAIWorkRelation(Parser):
     related = tools.Delegate(OAIRelatedWork, ctx)
 
 
-class OAIIsDerivedFrom(OAIWorkRelation):
-    schema = 'IsDerivedFrom'
-
-
 class OAIAgentWorkRelation(Parser):
     schema = 'AgentWorkRelation'
 
@@ -156,8 +152,13 @@ class OAICreativeWork(Parser):
     )
 
     related_works = tools.Concat(
-        tools.Map(tools.Delegate(OAIIsDerivedFrom), tools.IRI(tools.Try(ctx['record']['metadata']['dc']['dc:source']))),
-        tools.Map(tools.Delegate(OAIWorkRelation), tools.RunPython('get_relation', ctx))
+        tools.Map(
+            tools.Delegate(OAIWorkRelation),
+            tools.Map(
+                tools.IRI(),
+                tools.RunPython('get_relation', ctx)
+            )
+        )
     )
 
     related_agents = tools.Concat(
