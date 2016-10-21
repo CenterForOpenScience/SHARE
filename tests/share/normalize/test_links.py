@@ -340,15 +340,15 @@ class TestIRILink:
 
     @pytest.mark.parametrize('input, output', [
         (None, TypeError('\'None\' is not of type str.')),
-        ('', ValueError('\'\' could not be identified as an Identifier.')),
-        ('105517/ccdc.csd.cc1lj81f', ValueError('\'105517/ccdc.csd.cc1lj81f\' is not a valid \'absolute_IRI\'.')),
-        ('0.5517/ccdc.csd.cc1lj81f', ValueError('\'0.5517/ccdc.csd.cc1lj81f\' is not a valid \'absolute_IRI\'.')),
-        ('10.5517ccdc.csd.cc1lj81f', ValueError('\'10.5517ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-        ('10.517ccdc.csd.cc1lj81f', ValueError('\'10.517ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-        ('10.517/ccdc.csd.cc1lj81f', ValueError('\'10.517/ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-        ('10.517ccdc.csd.c>c1lj81f', ValueError('\'10.517ccdc.csd.c>c1lj81f\' is not a valid DOI.')),
-        ('0000000248692412', ValueError('\'0000000248692412\' could not be identified as an Identifier.')),
-        ('0000000000000000', ValueError('\'0000000000000000\' could not be identified as an Identifier.')),
+        ('', {'IRI': None}),
+        ('105517/ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('0.5517/ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('10.5517ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('10.517ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('10.517/ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('10.517ccdc.csd.c>c1lj81f', {'IRI': None}),
+        ('0000000248692412', {'IRI': None}),
+        ('0000000000000000', {'IRI': None}),
     ])
     def test_malformed(self, input, output):
         return self._do_test(input, output)

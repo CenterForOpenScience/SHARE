@@ -1,5 +1,7 @@
 import copy
 import logging
+import pendulum
+import datetime
 
 from django.apps import apps
 
@@ -88,7 +90,15 @@ class ChangeNode:
         if not self.instance:
             raise UnresolvableReference('@id: {!r}, @type: {!r}'.format(self.id, self.type))
 
-        ret = {k: v for k, v in self.attrs.items() if getattr(self.instance, k) != v}
+        ret = {}
+        for k, v in self.attrs.items():
+            old_value = getattr(self.instance, k)
+            if isinstance(old_value, datetime.datetime):
+                if pendulum.parse(v) != old_value:
+                    ret[k] = v
+            elif v != old_value:
+                ret[k] = v
+
         if self.__extra_namespace:
             ret['extra'] = {
                 k: v for k, v in self.extra.items()
