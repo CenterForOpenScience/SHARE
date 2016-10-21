@@ -205,6 +205,7 @@ INSTALLED_APPS = [
     'providers.org.sldr',
     'providers.org.stepic',
     'providers.org.tdar',
+    'providers.org.ttu',
     'providers.org.ucescholarship',
     'providers.org.zenodo',
     'providers.org.seafdec',
