@@ -29,6 +29,15 @@ class IDObfuscator:
         model_id, *pks = match.groups()
         return ContentType.objects.get(pk=int(model_id, 16)).model_class(), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 
+    @classmethod
+    def resolve(cls, id):
+        model, pk = cls.decode(id)
+        return model.objects.get(pk=pk)
+
+    @classmethod
+    def resolver(cls, self, args, context, info):
+        return cls.resolve(args.get('id', ''))
+
 
 class CyclicalDependency(Exception):
     pass
