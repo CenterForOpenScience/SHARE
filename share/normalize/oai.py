@@ -215,8 +215,9 @@ class OAICreativeWork(Parser):
                         tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
                     )
                 )
-            )
-        , deep=True)
+            ),
+            deep=True
+        )
     )
 
     date_updated = tools.ParseDate(ctx['record']['header']['datestamp'])

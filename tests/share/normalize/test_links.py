@@ -442,7 +442,7 @@ class TestIRILink:
             'IRI': 'oai://cos.io/long:list:of:things'
         }),
     ])
-    def test_arxiv_ids(self, input, output):
+    def test_oai_ids(self, input, output):
         return self._do_test(input, output)
 
     @pytest.mark.parametrize('input, output', [

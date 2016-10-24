@@ -281,4 +281,3 @@ class TestChangeGraph:
         }, disambiguate=True)
 
         assert change_set is None
-

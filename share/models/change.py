@@ -84,9 +84,6 @@ class ChangeSet(models.Model):
         ret = []
         with transaction.atomic():
             for c in self.changes.all():
-                change_id = c.id
-                changeset_id = self.id
-                source = self.normalized_data.source
                 ret.append(c.accept(save=save))
             self.status = ChangeSet.STATUS.accepted
             if save:
