@@ -3,11 +3,13 @@ import rfc3987
 import calendar
 import pendulum
 
+from share.normalize.links import ArXivLink
 from share.normalize.links import DateParserLink
 from share.normalize.links import DOILink
 from share.normalize.links import IRILink
 from share.normalize.links import ISNILink
 from share.normalize.links import ISSNLink
+from share.normalize.links import OAILink
 from share.normalize.links import OrcidLink
 
 UPPER_BOUND = pendulum.today().add(years=100).isoformat()
@@ -136,6 +138,56 @@ def test_doi_link(doi, result):
     else:
         assert rfc3987.parse(result)  # Extra URL validation
         assert DOILink().execute(doi)['IRI'] == result
+
+
+@pytest.mark.parametrize('arxiv_id, result', [
+    (None, TypeError('\'None\' is not of type str.')),
+    ('', ValueError('\'\' is not a valid ArXiv Identifier.')),
+    ('arXiv:1023..20382', ValueError('\'arXiv:1023..20382\' is not a valid ArXiv Identifier.')),
+    ('something else', ValueError('\'something else\' is not a valid ArXiv Identifier.')),
+    ('arXiv//1234.34543', ValueError('\'arXiv//1234.34543\' is not a valid ArXiv Identifier.')),
+    ('arXiv:101022232', ValueError('\'arXiv:101022232\' is not a valid ArXiv Identifier.')),
+    ('arXiv:10102.22322', ValueError('\'arXiv:10102.22322\' is not a valid ArXiv Identifier.')),
+    ('arXiv:2.2', ValueError('\'arXiv:2.2\' is not a valid ArXiv Identifier.')),
+    ('arxiv:1212.20282', 'http://arxiv.org/abs/1212.20282'),
+    ('   arxiv:1212.20282', 'http://arxiv.org/abs/1212.20282'),
+    ('   arxiv:1212.20282    ', 'http://arxiv.org/abs/1212.20282'),
+    ('arxiv:arXiv:1212.20282', 'http://arxiv.org/abs/1212.20282'),
+])
+def test_arxiv_link(arxiv_id, result):
+    if isinstance(result, Exception):
+        with pytest.raises(type(result)) as e:
+            ArXivLink().execute(arxiv_id)
+        assert e.value.args == result.args
+    else:
+        assert rfc3987.parse(result)  # Extra URL validation
+        assert ArXivLink().execute(arxiv_id)['IRI'] == result
+
+
+@pytest.mark.parametrize('oai_id, result', [
+    (None, TypeError('\'None\' is not of type str.')),
+    ('', ValueError('\'\' is not a valid OAI Identifier.')),
+    ('something else', ValueError('\'something else\' is not a valid OAI Identifier.')),
+    ('oai:missing.path', ValueError('\'oai:missing.path\' is not a valid OAI Identifier.')),
+    ('oai::blank', ValueError('\'oai::blank\' is not a valid OAI Identifier.')),
+    ('oai://cos.io/fun', ValueError('\'oai://cos.io/fun\' is not a valid OAI Identifier.')),
+    ('zenodo.com', ValueError('\'zenodo.com\' is not a valid OAI Identifier.')),
+    ('oai:invalid domain:this.is.stuff', ValueError('\'oai:invalid domain:this.is.stuff\' is not a valid OAI Identifier.')),
+    ('oai:domain.com:', ValueError('\'oai:domain.com:\' is not a valid OAI Identifier.')),
+    ('oai:cos.io:this.is.stuff', 'oai://cos.io/this.is.stuff'),
+    ('oai:subdomain.cos.io:this.is.stuff', 'oai://subdomain.cos.io/this.is.stuff'),
+    ('    oai:cos.io:stuff', 'oai://cos.io/stuff'),
+    ('    oai:cos.io:stuff  ', 'oai://cos.io/stuff'),
+    ('oai:cos.io:long:list:of:things', 'oai://cos.io/long:list:of:things'),
+])
+def test_oai_link(oai_id, result):
+    if isinstance(result, Exception):
+        with pytest.raises(type(result)) as e:
+            OAILink().execute(oai_id)
+        assert e.value.args == result.args
+    else:
+        assert rfc3987.parse(result)  # Extra URL validation
+        assert OAILink().execute(oai_id)['IRI'] == result
 
 
 class TestIRILink:
@@ -339,6 +391,61 @@ class TestIRILink:
         return self._do_test(input, output)
 
     @pytest.mark.parametrize('input, output', [
+        ('arxiv:1212.20282', {
+            'scheme': 'http',
+            'authority': 'arxiv.org',
+            'IRI': 'http://arxiv.org/abs/1212.20282'
+        }),
+        ('   arxiv:1212.20282', {
+            'scheme': 'http',
+            'authority': 'arxiv.org',
+            'IRI': 'http://arxiv.org/abs/1212.20282'
+        }),
+        ('   arxiv:1212.20282    ', {
+            'scheme': 'http',
+            'authority': 'arxiv.org',
+            'IRI': 'http://arxiv.org/abs/1212.20282'
+        }),
+        ('arxiv:arXiv:1212.20282', {
+            'scheme': 'http',
+            'authority': 'arxiv.org',
+            'IRI': 'http://arxiv.org/abs/1212.20282'
+        }),
+    ])
+    def test_arxiv_ids(self, input, output):
+        return self._do_test(input, output)
+
+    @pytest.mark.parametrize('input, output', [
+        ('oai:cos.io:this.is.stuff', {
+            'scheme': 'oai',
+            'authority': 'cos.io',
+            'IRI': 'oai://cos.io/this.is.stuff'
+        }),
+        ('oai:subdomain.cos.io:this.is.stuff', {
+            'scheme': 'oai',
+            'authority': 'subdomain.cos.io',
+            'IRI': 'oai://subdomain.cos.io/this.is.stuff'
+        }),
+        ('    oai:cos.io:stuff', {
+            'scheme': 'oai',
+            'authority': 'cos.io',
+            'IRI': 'oai://cos.io/stuff'
+        }),
+        ('    oai:cos.io:stuff  ', {
+            'scheme': 'oai',
+            'authority': 'cos.io',
+            'IRI': 'oai://cos.io/stuff'
+        }),
+        ('oai:cos.io:long:list:of:things', {
+            'scheme': 'oai',
+            'authority': 'cos.io',
+            'IRI': 'oai://cos.io/long:list:of:things'
+        }),
+    ])
+    def test_arxiv_ids(self, input, output):
+        return self._do_test(input, output)
+
+    @pytest.mark.parametrize('input, output', [
         (None, TypeError('\'None\' is not of type str.')),
         ('', {'IRI': None}),
         ('105517/ccdc.csd.cc1lj81f', {'IRI': None}),
@@ -349,6 +456,9 @@ class TestIRILink:
         ('10.517ccdc.csd.c>c1lj81f', {'IRI': None}),
         ('0000000248692412', {'IRI': None}),
         ('0000000000000000', {'IRI': None}),
+        ('arXiv:1023..20382', {'IRI': None}),
+        ('arXiv:10102.22322', {'IRI': None}),
+        ('arXiv:2.2', {'IRI': None}),
     ])
     def test_malformed(self, input, output):
         return self._do_test(input, output)

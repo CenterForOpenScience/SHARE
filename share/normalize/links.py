@@ -565,7 +565,6 @@ class AbstractIRILink(AbstractLink):
     """
     RULES = 'absolute_IRI'
     SAFE_SEGMENT_CHARS = ":@-._~!$&'()*+,;="  # https://github.com/gruns/furl/blob/master/furl/furl.py#L385
-    PREFIX = None
 
     @classmethod
     def hint(cls, obj):
@@ -576,9 +575,6 @@ class AbstractIRILink(AbstractLink):
     def execute(self, obj):
         if not isinstance(obj, str):
             raise TypeError('\'{}\' is not of type str.'.format(obj))
-
-        if self.PREFIX and self.PREFIX.lower() == obj[:len(self.PREFIX)].lower():
-            obj = obj[len(self.PREFIX):]
 
         parsed = self._parse(obj)
         parsed = self._process(**parsed)
@@ -647,7 +643,7 @@ class ISSNLink(AbstractIRILink):
 
 
 class OAILink(AbstractIRILink):
-    OAI_RE = re.compile(r'^(oai):((?:\w|\.)+):(.*)')
+    OAI_RE = re.compile(r'\b(oai):((?:\w|\.)+):(\S+)')
 
     @classmethod
     def hint(cls, obj):
@@ -658,12 +654,12 @@ class OAILink(AbstractIRILink):
     def _parse(self, obj):
         match = self.OAI_RE.search(obj.lower())
         if not match:
-            raise ValueError('\'{}\' is not a valid OAI identifier.'.format(obj))
+            raise ValueError('\'{}\' is not a valid OAI Identifier.'.format(obj))
 
         return {
             'scheme': match.group(1),
             'authority': match.group(2),
-            'path': '{}'.format(match.group(3))
+            'path': '/{}'.format(match.group(3))
         }
 
 
@@ -785,7 +781,6 @@ class DOILink(AbstractIRILink):
 
 
 class URLLink(AbstractIRILink):
-    PREFIX = 'url:'
     PORTS = {80, 443, 20, 989}
     SCHEMES = {'http', 'https', 'ftp', 'ftps'}
     URL_RE = re.compile(r'\b({schemes})://[-a-z0-9@:%._\+~#=]{{2,256}}\.[a-z]{{2,6}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
@@ -795,6 +790,10 @@ class URLLink(AbstractIRILink):
         if cls.URL_RE.search(obj) is not None:
             return 0.25
         return 0
+
+    def _parse(self, obj):
+        match = self.URL_RE.search(obj)
+        return super(URLLink, self)._parse(match.group(0))
 
     def _process_scheme(self, scheme):
         scheme = scheme.lower()
@@ -844,11 +843,10 @@ class EmailLink(AbstractIRILink):
 class ArXivLink(AbstractIRILink):
     # https://arxiv.org/help/arxiv_identifier
 
-    PREFIX = 'arxiv:'
     ARXIV_SCHEME = 'http'
     ARXIV_DOMAIN = 'arxiv.org'
     ARXIV_PATH = '/abs/{}'
-    ARXIV_RE = re.compile(r'\barXiv:(\d{4}.\d{5})(v\d)?')
+    ARXIV_RE = re.compile(r'\barXiv:(\d{4}.\d{5})(v\d)?', flags=re.I)
 
     @classmethod
     def hint(cls, obj):
