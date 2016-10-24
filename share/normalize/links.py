@@ -22,7 +22,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType')
 
 
 #### Public API ####
@@ -107,6 +107,12 @@ def IRI(chain=None):
     if chain:
         return (chain + IRILink()).IRI
     return IRILink().IRI
+
+
+def GuessAgentType(chain=None, default=None):
+    if chain:
+        return chain + GuessAgentTypeLink(default=default)
+    return GuessAgentTypeLink(default=default)
 
 ### /Public API
 
@@ -889,3 +895,47 @@ class IRILink(AbstractLink):
             logger.warning('\'{}\' could not be identified as an Identifier.'.format(obj))
             return {'IRI': None}
         return final[0]().execute(obj)
+
+
+class GuessAgentTypeLink(AbstractLink):
+    """
+    When executed on the name of an agent, guess the agent's type.
+    """
+
+    THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
+
+    ORGANIZATION_KEYWORDS = (
+        THE_REGEX,
+        'council',
+        'center',
+        'foundation',
+        'group'
+    )
+    INSTITUTION_KEYWORDS = (
+        'school',
+        'university',
+        'institution',
+        'college',
+        'institute'
+    )
+
+    def __init__(self, default=None):
+        super(GuessAgentTypeLink, self).__init__()
+        self._default = default
+
+    def execute(self, obj):
+        if self.list_in_string(obj, self.INSTITUTION_KEYWORDS):
+            return 'institution'
+        if self.list_in_string(obj, self.ORGANIZATION_KEYWORDS):
+            return 'organization'
+        return self._default or 'person'
+
+    def list_in_string(self, string, list_):
+        for word in list_:
+            if isinstance(word, str):
+                if word in string.lower():
+                    return True
+            else:
+                if word.search(string):
+                    return True
+        return False

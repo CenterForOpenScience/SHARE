@@ -9,48 +9,11 @@ from share.normalize.normalizer import Normalizer
 
 logger = logging.getLogger(__name__)
 
-THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
-
 
 class OAIAgent(Parser):
-    ORGANIZATION_KEYWORDS = (
-        THE_REGEX,
-        'council',
-        'center',
-        'foundation',
-        'group'
-    )
-    INSTITUTION_KEYWORDS = (
-        'school',
-        'university',
-        'institution',
-        'college',
-        'institute'
-    )
-
-    schema = tools.RunPython('agent_type', ctx)
+    schema = tools.GuessAgentType(ctx)
 
     name = ctx
-
-    def agent_type(self, name):
-        """
-        Returns a guess at the type of an agent based on its name.
-        """
-        if self.list_in_string(name, self.INSTITUTION_KEYWORDS):
-            return 'institution'
-        if self.list_in_string(name, self.ORGANIZATION_KEYWORDS):
-            return 'organization'
-        return 'person'
-
-    def list_in_string(self, string, list_):
-        for word in list_:
-            if isinstance(word, str):
-                if word in string.lower():
-                    return True
-            else:
-                if word.search(string):
-                    return True
-        return False
 
 
 class OAIAgentIdentifier(Parser):
@@ -124,7 +87,7 @@ class OAICreator(OAIContributor):
 class OAIPublisher(Parser):
     schema = 'Publisher'
 
-    agent = tools.Delegate(OAIAgent.using(schema=tools.Static('organization')), ctx)
+    agent = tools.Delegate(OAIAgent.using(schema=tools.GuessAgentType(default='organization')), ctx)
 
 
 class OAICreativeWork(Parser):
