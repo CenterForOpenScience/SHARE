@@ -902,21 +902,22 @@ class GuessAgentTypeLink(AbstractLink):
     When executed on the name of an agent, guess the agent's type.
     """
 
-    THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
-
     ORGANIZATION_KEYWORDS = (
-        THE_REGEX,
+        re.compile(r'(^the\s|\sthe\s)', flags=re.I),
+        re.compile(r'\binc\b', flags=re.I),
+        re.compile(r'^[-A-Z]+$'),
         'council',
         'center',
         'foundation',
-        'group'
+        'group',
+        'society',
     )
     INSTITUTION_KEYWORDS = (
         'school',
         'university',
         'institution',
         'college',
-        'institute'
+        'institute',
     )
 
     def __init__(self, default=None):
@@ -924,6 +925,7 @@ class GuessAgentTypeLink(AbstractLink):
         self._default = default
 
     def execute(self, obj):
+        # TODO smarter guessing
         if self.list_in_string(obj, self.INSTITUTION_KEYWORDS):
             return 'institution'
         if self.list_in_string(obj, self.ORGANIZATION_KEYWORDS):

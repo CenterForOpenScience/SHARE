@@ -6,6 +6,7 @@ import pendulum
 from share.normalize.links import ArXivLink
 from share.normalize.links import DateParserLink
 from share.normalize.links import DOILink
+from share.normalize.links import GuessAgentTypeLink
 from share.normalize.links import IRILink
 from share.normalize.links import ISNILink
 from share.normalize.links import ISSNLink
@@ -476,3 +477,53 @@ class TestIRILink:
     ])
     def test_benchmark(self, input, benchmark):
         benchmark(IRILink().execute, input)
+
+
+class TestGuessAgentTypeLink:
+    @pytest.mark.parametrize('name, result', [
+        ('University of Whales', 'institution'),
+        ('Thomas Jefferson', 'person'),
+        ('The Thomas Jefferson thing', 'organization'),
+        ('Center For Open Science', 'organization'),
+        ('Science Council', 'organization'),
+        ('Open Science Foundation', 'organization'),
+        ('American Chemical Society', 'organization'),
+        ('School for Clowns', 'institution'),
+        ('Clown College', 'institution'),
+        ('Clowning Institute', 'institution'),
+        ('The Clown Institution', 'institution'),
+        ('Clowns and Clown Accessories, Inc.', 'organization'),
+        ('All of the clowns', 'organization'),
+        ('Clown Group', 'organization'),
+        ('CLWN', 'organization'),
+        ('Mr. Clown', 'person'),
+        ('Ronald McDonald', 'person'),
+    ])
+    def test_without_explicit_default(self, name, result):
+        assert GuessAgentTypeLink().execute(name) == result
+
+    @pytest.mark.parametrize('name, default, result', [
+        ('University of Whales', 'organization', 'institution'),
+        ('Thomas Jefferson', 'person', 'person'),
+        ('Thomas Jefferson', 'organization', 'organization'),
+        ('Thomas Jefferson', 'institution', 'institution'),
+        ('The Thomas Jefferson thing', 'institution', 'organization'),
+        ('Center For Open Science', 'person', 'organization'),
+        ('Science Council', 'person', 'organization'),
+        ('Open Science Foundation', 'person', 'organization'),
+        ('American Chemical Society', 'person', 'organization'),
+        ('School for Clowns', 'person', 'institution'),
+        ('Clown College', 'person', 'institution'),
+        ('Clowning Institute', 'person', 'institution'),
+        ('The Clown Institution', 'person', 'institution'),
+        ('Clowns and Clown Accessories, Inc.', 'person', 'organization'),
+        ('All of the clowns', 'person', 'organization'),
+        ('Clown Group', 'person', 'organization'),
+        ('CLWN', 'person', 'organization'),
+        ('Mr. Clown', 'organization', 'organization'),
+        ('Ronald McDonald', 'person', 'person'),
+        ('Ronald McDonald', 'organization', 'organization'),
+        ('Ronald McDonald', 'institution', 'institution'),
+    ])
+    def test_with_default(self, name, default, result):
+        assert GuessAgentTypeLink(default=default).execute(name) == result
