@@ -29,9 +29,9 @@ class ElasticSearchBot(Bot):
         'type': 'completion',
         'payloads': True,
         'context': {
-            'type': {
+            'types': {
                 'type': 'category',
-                'path': 'type'
+                'path': 'types'
             }
         }
     }
