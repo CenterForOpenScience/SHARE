@@ -260,8 +260,6 @@ class Change(models.Model):
                     pass
             elif isinstance(v, list):
                 change[k] = [self._resolve_ref(r) for r in v]
-            elif isinstance(v, str):
-                change[k] = self._resolve_str(k, v)
             else:
                 change[k] = v
         return change
@@ -276,9 +274,3 @@ class Change(models.Model):
                 change__change_set=self.change_set,
             )
         return model._meta.concrete_model.objects.get(pk=IDObfuscator.decode(ref['@id'])[1])
-
-    def _resolve_str(self, key, value):
-        field = self.target_type.model_class()._meta.get_field(key)
-        if field.many_to_one and hasattr(field.related_model, 'natural_key_field'):
-            return field.related_model.objects.get_by_natural_key(value)
-        return value

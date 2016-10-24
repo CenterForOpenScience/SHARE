@@ -93,14 +93,6 @@ class JSONLDValidator:
             else:
                 model = field.related_model._meta.concrete_model
 
-            if hasattr(model, 'natural_key_field'):
-                key = {
-                    # TODO is this a bad idea? it shouldn't be a crazy long list
-                    'enum': model.objects.values_list(model.natural_key_field(), flat=True),
-                    'description': field.description
-                }
-                return key
-
             rel = {
                 'type': 'object',
                 'description': getattr(field, 'description', ''),
