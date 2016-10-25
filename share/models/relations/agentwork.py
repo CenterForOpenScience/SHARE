@@ -45,12 +45,12 @@ class Award(ShareObject):
         return self.description
 
 
-class ThroughContributorAwards(ShareObject):
-    contributor = ShareForeignKey(AbstractAgentWorkRelation)
+class ThroughAwards(ShareObject):
+    funder = ShareForeignKey(AbstractAgentWorkRelation)
     award = ShareForeignKey(Award)
 
     class Meta:
-        unique_together = ('contributor', 'award')
+        unique_together = ('funder', 'award')
 
 
 generator = ModelGenerator(field_types={
