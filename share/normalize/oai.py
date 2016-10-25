@@ -109,8 +109,13 @@ class OAICreativeWork(Parser):
         tools.Delegate(OAIWorkIdentifier),
         tools.Map(
             tools.IRI(),
-            tools.Try(ctx['record']['metadata']['dc']['dc:identifier']),
-            tools.Try(ctx['record']['header']['identifier'])
+            tools.RunPython(
+                'force_text',
+                tools.Concat(
+                    tools.Try(ctx['record']['metadata']['dc']['dc:identifier']),
+                    tools.Try(ctx['record']['header']['identifier'])
+                )
+            )
         )
     )
 
@@ -283,22 +288,22 @@ class OAINormalizer(Normalizer):
 
     @property
     def root_parser(self):
-        parser = OAICreativeWork
-        parser.default_type = self.config.emitted_type.lower()
-        parser.type_map = {
-            **{r.lower(): r for r in self.allowed_roots},
-            **{t.lower(): t for t in self.config.type_map}
-        }
+        class RootParser(OAICreativeWork):
+            default_type = self.config.emitted_type.lower()
+            type_map = {
+                **{r.lower(): r for r in self.allowed_roots},
+                **{t.lower(): t for t in self.config.type_map}
+            }
 
         if self.config.property_list:
             logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))
             for prop in self.config.property_list:
-                if prop in parser._extra:
+                if prop in RootParser._extra:
                     logger.warning('Skipping property %s, it already exists', prop)
                     continue
-                parser._extra[prop] = tools.Try(ctx.record.metadata.dc['dc:' + prop]).chain()[0]
+                RootParser._extra[prop] = tools.Try(ctx.record.metadata.dc['dc:' + prop]).chain()[0]
 
-        return parser
+        return RootParser
 
     def do_normalize(self, data):
         if self.config.approved_sets is not None:
