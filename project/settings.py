@@ -135,6 +135,7 @@ INSTALLED_APPS = [
     'providers.edu.triceratops',
     'providers.edu.trinity',
     'providers.edu.u_south_fl',
+    'providers.edu.ucf',
     'providers.edu.udc',
     'providers.edu.udel',
     'providers.edu.uhawaii',
