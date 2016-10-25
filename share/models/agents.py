@@ -35,19 +35,6 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
         return self.name
 
 
-@receiver(pre_save, sender='share.Person')
-def parse_person_name(sender, instance, *args, **kwargs):
-    if instance.name and instance.family_name is None and instance.given_name is None:
-        name = HumanName(instance.name)
-        instance.family_name = name.last
-        instance.given_name = name.first
-        instance.suffix = name.suffix
-        instance.additional_name = name.middle
-    elif not instance.name:
-        parts = (instance.given_name, instance.additional_name, instance.family_name, instance.suffix)
-        instance.name = ' '.join(p for p in parts if p)
-
-
 generator = ModelGenerator(field_types={
     'text': models.TextField
 })
