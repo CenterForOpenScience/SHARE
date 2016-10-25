@@ -271,9 +271,3 @@ class Change(models.Model):
             return model._meta.concrete_model.objects.get(pk=IDObfuscator.decode(ref['@id'])[1])
         except model.DoesNotExist as ex:
             raise Exception('Could not resolve reference {}'.format(ref)) from ex
-
-    def _resolve_str(self, key, value):
-        field = self.target_type.model_class()._meta.get_field(key)
-        if field.many_to_one and hasattr(field.related_model, 'natural_key_field'):
-            return field.related_model.objects.get_by_natural_key(value)
-        return value
