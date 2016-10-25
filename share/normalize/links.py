@@ -903,15 +903,17 @@ class GuessAgentTypeLink(AbstractLink):
     """
 
     ORGANIZATION_KEYWORDS = (
-        re.compile(r'(^the\s|\sthe\s)', flags=re.I),
-        re.compile(r'\binc\b', flags=re.I),
-        re.compile(r'^[-A-Z]+$'),
+        r'(^the\s|\sthe\s)',
+        r'^[-A-Z]+$',
         'council',
         'center',
         'foundation',
         'group',
         'society',
+        'inc',
     )
+    ORGANIZATION_RE = re.compile(r'\b({})\b'.format('|'.join(ORGANIZATION_KEYWORDS)), flags=re.I)
+
     INSTITUTION_KEYWORDS = (
         'school',
         'university',
@@ -919,6 +921,7 @@ class GuessAgentTypeLink(AbstractLink):
         'college',
         'institute',
     )
+    INSTITUTION_RE = re.compile(r'\b({})\b'.format('|'.join(INSTITUTION_KEYWORDS)), flags=re.I)
 
     def __init__(self, default=None):
         super(GuessAgentTypeLink, self).__init__()
@@ -926,18 +929,8 @@ class GuessAgentTypeLink(AbstractLink):
 
     def execute(self, obj):
         # TODO smarter guessing
-        if self.list_in_string(obj, self.INSTITUTION_KEYWORDS):
+        if self.INSTITUTION_RE.search(obj):
             return 'institution'
-        if self.list_in_string(obj, self.ORGANIZATION_KEYWORDS):
+        if self.ORGANIZATION_RE.search(obj):
             return 'organization'
         return self._default or 'person'
-
-    def list_in_string(self, string, list_):
-        for word in list_:
-            if isinstance(word, str):
-                if word in string.lower():
-                    return True
-            else:
-                if word.search(string):
-                    return True
-        return False
