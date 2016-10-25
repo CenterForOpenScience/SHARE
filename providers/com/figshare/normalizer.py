@@ -1,6 +1,21 @@
 from share.normalize import *  # noqa
 
 
+class WorkIdentifier(Parser):
+    uri = IRI(ctx)
+
+
+class Tag(Parser):
+    name = ctx.name
+
+    class Extra:
+        id = ctx.id
+
+
+class ThroughTags(Parser):
+    tag = Delegate(Tag, ctx)
+
+
 class Person(Parser):
     given_name = ParseName(ctx.author_name).first
     family_name = ParseName(ctx.author_name).last
@@ -18,88 +33,40 @@ class DataSetPerson(Parser):
         id = ctx.id
 
 
-class DataSetContributor(Parser):
-    schema = 'Contributor'
+class DataSetCreator(Parser):
+    schema = 'Creator'
 
     order_cited = ctx('index')
-    cited_name = ctx.full_name
-    person = Delegate(DataSetPerson, ctx)
+    cited_as = ctx.full_name
+    agent = Delegate(DataSetPerson, ctx)
 
 
-class Contributor(Parser):
+class Creator(Parser):
     order_cited = ctx('index')
-    cited_name = ctx.author_name
-    person = Delegate(Person, ctx)
-
-
-class Link(Parser):
-    url = ctx
-    type = RunPython('get_link_type', ctx)
-
-    def get_link_type(self, link):
-        if 'dx.doi.org' in link:
-            return 'doi'
-        if 'figshare.com' in link:
-            return 'provider'
-        return 'misc'
-
-
-class Tag(Parser):
-    name = ctx.name
-
-    class Extra:
-        id = ctx.id
-
-
-class ThroughTags(Parser):
-    tag = Delegate(Tag, ctx)
-
-
-class FileLink(Parser):
-    schema = 'Link'
-    url = ctx.download_url
-    type = Static('file')
-
-    class Extra:
-        id = ctx.id
-        name = ctx.name
-        size = ctx.size
-        thumb = ctx.thumb
-        mime_type = ctx.mime_type
-
-
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
+    cited_as = ctx.author_name
+    agent = Delegate(Person, ctx)
 
 
 class CreativeWork(Parser):
     title = ctx.title
     description = ctx.description
-    contributors = Map(Delegate(Contributor), ctx.authors)
+    related_agents = Map(Delegate(Creator), ctx.authors)
     date_published = ParseDate(ctx.published_date)
-    links = Map(Delegate(ThroughLinks), ctx.url, DOI(ctx.DOI), ctx.links)
+    identifiers = Map(Delegate(WorkIdentifier), ctx.url, ctx.DOI, ctx.links)
 
     class Extra:
         modified = ParseDate(ctx.modified_date)
 
 
 class DataSet(Parser):
-    schema = 'CreativeWork'
+    schema = 'DataSet'
     title = ctx.title
     description = ctx.description_nohtml
     date_published = ParseDate(ctx.published_date)
-    contributors = Map(Delegate(DataSetContributor), ctx.owner, ctx.authors)
 
-    links = Concat(
-        Map(Delegate(ThroughLinks.using(link=Delegate(FileLink))), ctx.files),
-        Map(Delegate(ThroughLinks), ctx.figshare_url, DOI(ctx.doi), DOI(ctx.publisher_doi))
-    )
-
-    tags = Map(
-        Delegate(ThroughTags),
-        ctx.tags,
-        ctx.categories,
-    )
+    tags = Map(Delegate(ThroughTags), ctx.categories, ctx.tags)
+    related_agents = Map(Delegate(DataSetCreator), ctx.owner, ctx.authors)
+    identifiers = Map(Delegate(WorkIdentifier), ctx.figshare_url, ctx.doi, ctx.publisher_doi)
 
     class Extra:
         status = ctx.status
