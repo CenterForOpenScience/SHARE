@@ -1,4 +1,8 @@
+default_app_config = 'providers.edu.utahstate.apps.AppConfig'
+
 """
+Example Record
+
 <record>
     <header>
         <identifier>oai:digitalcommons.usu.edu:ocw_anthro-1000</identifier>
@@ -32,4 +36,3 @@
     </metadata>
 </record>
 """
-default_app_config = 'providers.edu.utahstate.apps.AppConfig'
