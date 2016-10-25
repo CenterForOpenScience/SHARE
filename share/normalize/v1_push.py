@@ -17,7 +17,6 @@ class AgentIdentifier(Parser):
 
 class IsAffiliatedWith(Parser):
     # Moved below Agent definition to resolve cyclical references
-    # TODO this might point to flaws in how parsers work, think about better approaches
     # related = tools.Delegate(OrgAgent)
     pass
 
