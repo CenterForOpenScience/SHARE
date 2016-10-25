@@ -9,3 +9,4 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://ttu-ir.tdl.org/'
     url = 'http://ttu-ir.tdl.org/ttu-oai/request'
     time_granularity = False
+    approved_sets = ['col_2346_521', 'col_2346_469']
