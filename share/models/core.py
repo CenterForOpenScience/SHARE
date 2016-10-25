@@ -74,6 +74,25 @@ class ShareUserManager(BaseUserManager):
         user.save()
         return user
 
+    def create_trusted_user(self, username, long_title='', home_page=''):
+        try:
+            self.get(username=username)
+        except self.model.DoesNotExist:
+            pass
+        else:
+            raise AssertionError('Username for trusted user {} already exists.'.format(username))
+        user = self.model()
+        ShareUser.set_unusable_password(user)
+        user.username = username
+        user.long_title = long_title
+        user.home_page = home_page
+        user.is_active = True
+        user.is_staff = False
+        user.is_superuser = False
+        user.is_trusted = True
+        user.save()
+        return user
+
 
 class ShareUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)

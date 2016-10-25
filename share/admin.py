@@ -1,9 +1,11 @@
 import ast
 import importlib
+import re
 
 import celery
 
 from django.apps import apps
+from django.contrib.auth import get_user_model
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from oauth2_provider.models import AccessToken
@@ -181,12 +183,36 @@ class AccessTokenAdmin(admin.ModelAdmin):
 
 
 class ProviderRegistrationAdmin(admin.ModelAdmin):
-    list_display = ('source_name', 'status_', 'submitted_at', 'submitted_by', 'direct_source')
-    list_filter = ('direct_source', 'status',)
+    list_display = ('source_name', 'status_', 'submitted_at', 'submitted_by', 'source_oai', 'direct_source')
+    list_filter = ('direct_source', 'status', 'source_oai')
     readonly_fields = ('submitted_at', 'submitted_by',)
+    actions = ('create_push_account',)
 
     def status_(self, obj):
         return ProviderRegistration.STATUS[obj.status].title()
+
+    def create_push_account(self, request, queryset):
+        for submission in queryset:
+            if not submission.direct_source:
+                messages.error(request, '{} is not a direct source.'.format(submission.source_name))
+                continue
+
+            source_url = re.compile('(\.|://)').split(str(submission.source_base_url))
+            username = source_url[-1] + '.' + source_url[-3]
+            long_title = str(submission.source_name)
+            home_page = str(submission.source_base_url)
+
+            try:
+                get_user_model().objects.create_trusted_user(username, long_title=long_title, home_page=home_page)
+            except AssertionError:
+                messages.error(request, '{} already exists.'.format(username))
+                continue
+            else:
+                submission.status = 1
+                submission.save()
+                messages.success(request, '{} created.'.format(username))
+
+    create_push_account.short_description = 'Create push account'
 
 
 admin.site.unregister(AccessToken)

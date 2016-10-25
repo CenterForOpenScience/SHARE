@@ -11,7 +11,9 @@ class ProviderRegistration(models.Model):
         (0, 'pending', _('pending')),
         (1, 'accepted', _('accepted')),
         (2, 'implemented', _('implemented')),
-        (3, 'rejected', _('rejected'))
+        (3, 'rejected', _('rejected')),
+        (4, 'contact_required', _('contact required')),
+        (5, 'awaiting_response', _('awaiting response'))
     )
 
     status = models.IntegerField(choices=STATUS, default=STATUS.pending)
@@ -25,14 +27,16 @@ class ProviderRegistration(models.Model):
     direct_source = models.BooleanField(default=False)
 
     source_name = models.TextField(max_length=300)
-    source_description = models.TextField(max_length=1000)
+    source_description = models.TextField(max_length=10000)
     source_rate_limit = models.TextField(blank=True, default='', max_length=300)
-    source_documentation = models.TextField(blank=True, default='', max_length=300)
+    source_documentation = models.TextField(blank=True, default='', max_length=10000)
     source_preferred_metadata_prefix = models.TextField(blank=True, default='', max_length=300)
     source_oai = models.BooleanField(default=False)
     source_base_url = models.URLField(blank=True, default='')
-    source_disallowed_sets = models.TextField(blank=True, default='', max_length=300)
-    source_additional_info = models.TextField(blank=True, default='', max_length=1000)
+    source_disallowed_sets = models.TextField(blank=True, default='', max_length=10000)
+    source_additional_info = models.TextField(blank=True, default='', max_length=10000)
+
+    admin_notes = models.TextField(blank=True, default='', max_length=10000)
 
     class Meta:
         ordering = ['-submitted_at']

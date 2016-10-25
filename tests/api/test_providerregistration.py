@@ -36,7 +36,7 @@ class TestPostProviderRegistration:
         'a'
     )
 
-    # 1001 characters
+    # 1000 characters
     LONGER_MESSAGE = (
         'OZvaNw9SZ5Z1aCSTqntvaAUEhAXEOCbcz3wYQ3c8KLTKPG6iWg'
         'q1PVZllPA0KlkfACtLvKq1s7aB61ITWJDpuBFXv9KGhMzh8WgZ'
@@ -58,8 +58,14 @@ class TestPostProviderRegistration:
         'uXp8f8RfKI09oI3S7ZYyGLxab83fJJgmvsIcRW3necJMyG4Qz6'
         'c5yvRkkBmuCf4cLiRJHJtfiF1MlOo5auAUbbuXFyA4foqqUbwX'
         'q6XKFR2H2U2sQQNgBtgksfPfAfT2kM8czRQHb2qBOqYus6hIgP'
-        'a'
     )
+
+    LONGEST_MESSAGE = 'a'
+    message_count = 0
+    # creates message 10,001 characters
+    while message_count < 10:
+        LONGEST_MESSAGE += LONGER_MESSAGE
+        message_count += 1
 
     POST_CASES = [{
         'authorized': False,
@@ -131,25 +137,25 @@ class TestPostProviderRegistration:
         'out': Response(400, json={'errors': {
             'contact_affiliation': ['Ensure this field has no more than 300 characters.'],
             'contact_name': ['Ensure this field has no more than 300 characters.'],
-            'source_description': ['Ensure this field has no more than 1000 characters.'],
+            'source_description': ['Ensure this field has no more than 10000 characters.'],
             'source_name': ['Ensure this field has no more than 300 characters.'],
             'source_rate_limit': ['Ensure this field has no more than 300 characters.'],
-            'source_documentation': ['Ensure this field has no more than 300 characters.'],
+            'source_documentation': ['Ensure this field has no more than 10000 characters.'],
             'source_preferred_metadata_prefix': ['Ensure this field has no more than 300 characters.'],
-            'source_disallowed_sets': ['Ensure this field has no more than 300 characters.'],
-            'source_additional_info': ['Ensure this field has no more than 1000 characters.']
+            'source_disallowed_sets': ['Ensure this field has no more than 10000 characters.'],
+            'source_additional_info': ['Ensure this field has no more than 10000 characters.']
         }}),
         'in': requests.Request('POST', json={
             'contact_affiliation': LONG_MESSAGE,
             'contact_email': 'good@email.com',
             'contact_name': LONG_MESSAGE,
-            'source_description': LONGER_MESSAGE,
+            'source_description': LONGEST_MESSAGE,
             'source_name': LONG_MESSAGE,
             'source_rate_limit': LONG_MESSAGE,
-            'source_documentation': LONG_MESSAGE,
+            'source_documentation': LONGEST_MESSAGE,
             'source_preferred_metadata_prefix': LONG_MESSAGE,
-            'source_disallowed_sets': LONG_MESSAGE,
-            'source_additional_info': LONGER_MESSAGE
+            'source_disallowed_sets': LONGEST_MESSAGE,
+            'source_additional_info': LONGEST_MESSAGE
         })
     }]
 
