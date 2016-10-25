@@ -61,7 +61,7 @@ class ShareObjectMeta(ModelBase):
 
         version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
             **version_attrs,
-            **{k: v() for k, v in cls.share_attrs.items()},
+            **{k: v() for k, v in cls.share_attrs.items() if k != 'sources'},  # Excluded sources from versions. They never get filled out
             '__qualname__': attrs['__qualname__'] + 'Version',
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
         })
