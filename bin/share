@@ -75,7 +75,7 @@ def harvest(args, argv):
             print('\n')
         else:
             with open(os.path.join(args['--out'], re.sub(r'[:\\\/\?\*]', '', str(doc_id))) + '.json', 'w') as fobj:
-                json.dump({'id': doc_id, 'raw': data.decode()}, fobj, indent=4)
+                fobj.write(data.decode())
 
 
 @command
@@ -99,11 +99,11 @@ def normalize(args, argv):
 
     for name in files:
         with open(name) as fobj:
-            data = json.load(fobj)
+            data = fobj.read()
         from ipdb import launch_ipdb_on_exception
         with launch_ipdb_on_exception():
-            print('Parsed raw data "{}" into'.format(data['id']))
-            pprint(normalizer.normalize(data['raw']))
+            print('Parsed raw data "{}" into'.format(name))
+            pprint(normalizer.normalize(data))
             print('\n')
 
 

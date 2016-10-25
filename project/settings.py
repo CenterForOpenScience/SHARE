@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     'providers.com.biomedcentral',
     'providers.com.dailyssrn',
     'providers.com.figshare',
+    'providers.com.figshare.v2',
     'providers.com.nature',
     'providers.com.peerj',
     'providers.com.springer',
