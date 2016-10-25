@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'revproxy',
     'mptt',
+    'graphene_django',
 
     'allauth',
     'allauth.account',
@@ -280,6 +281,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         # 'api.authentication.NonCSRFSessionAuthentication',
     ),
+}
+
+GRAPHENE = {
+    'SCHEMA': 'share.graphql.schema'
 }
 
 MIDDLEWARE_CLASSES = [

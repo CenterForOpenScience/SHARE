@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 
 from share import models
+from share.util import IDObfuscator
 
 __all__ = ('GraphDisambiguator', )
 
@@ -62,7 +63,10 @@ class Disambiguator:
         self.model = model
         # only include attrs with truthy values
         self.attrs = {k: v for k, v in attrs.items() if v}
-        self.is_blank = isinstance(id, str) and id.startswith('_:')
+        self.is_blank = id.startswith('_:')
+        if not self.is_blank:
+            model, self.id = IDObfuscator.decode(self.id)
+            assert issubclass(model, (self.model._meta.concrete_model, ))
 
     def disambiguate(self):
         raise NotImplementedError()
@@ -156,7 +160,7 @@ class AbstractAgentDisambiguator(Disambiguator):
 
     def disambiguate(self):
         agents = []
-        for id in self.attrs.get('agentidentifiers', ()):
+        for id in self.attrs.get('identifiers', ()):
             try:
                 identifier = models.AgentIdentifier.objects.get(id=id)
                 agents.append(identifier.agent)
@@ -174,19 +178,15 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
     FOR_MODEL = models.AbstractCreativeWork
 
     def disambiguate(self):
-        works = []
-        for id in self.attrs.get('workidentifiers', ()):
-            try:
-                identifier = models.WorkIdentifier.objects.get(id=id)
-                works.append(identifier.creative_work)
-            except models.WorkIdentifier.DoesNotExist:
-                pass
-        if not works:
+        if not self.attrs.get('identifiers'):
             return None
-        elif len(works) == 1:
-            return works[0]
-        else:
-            return works
+
+        identifiers = models.WorkIdentifier.objects.select_related('creative_work').filter(id__in=self.attrs['identifiers'])
+        found = set(identifier.creative_work for identifier in identifiers)
+
+        if len(found) == 1:
+            return found.pop()  # Seems to be the best way to get something out of a set
+        return list(sorted(found, key=lambda x: x.pk))
 
 
 class OrganizationDisambiguator(Disambiguator):

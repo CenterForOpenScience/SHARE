@@ -14,6 +14,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 from share.models import NormalizedData
+from share.util import IDObfuscator
 
 
 __all__ = ('Change', 'ChangeSet', )
@@ -49,7 +50,7 @@ class ChangeManager(FuzzyCountManager):
             return None
 
         attrs = {
-            'node_id': str(node.id),
+            'node_id': node.id,
             'change': node.change,
             'change_set': change_set,
             'target_type': ContentType.objects.get_for_model(node.model, for_concrete_model=False),
@@ -259,8 +260,6 @@ class Change(models.Model):
                     pass
             elif isinstance(v, list):
                 change[k] = [self._resolve_ref(r) for r in v]
-            elif isinstance(v, str):
-                change[k] = self._resolve_str(k, v)
             else:
                 change[k] = v
         return change
@@ -268,16 +267,10 @@ class Change(models.Model):
     def _resolve_ref(self, ref):
         model = apps.get_model('share', model_name=ref['@type'])
         ct = ContentType.objects.get_for_model(model, for_concrete_model=False)
-        if str(ref['@id']).startswith('_:'):
+        if ref['@id'].startswith('_:'):
             return model.objects.get(
                 change__target_type=ct,
                 change__node_id=ref['@id'],
                 change__change_set=self.change_set,
             )
-        return model._meta.concrete_model.objects.get(pk=ref['@id'])
-
-    def _resolve_str(self, key, value):
-        field = self.target_type.model_class()._meta.get_field(key)
-        if field.many_to_one and hasattr(field.related_model, 'natural_key_field'):
-            return field.related_model.objects.get_by_natural_key(value)
-        return value
+        return model._meta.concrete_model.objects.get(pk=IDObfuscator.decode(ref['@id'])[1])
