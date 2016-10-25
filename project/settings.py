@@ -99,6 +99,7 @@ INSTALLED_APPS = [
     'providers.edu.cmu',
     'providers.edu.colostate',
     'providers.edu.columbia',
+    'providers.edu.cornell',
     'providers.edu.csuohio',
     'providers.edu.cuny',
     'providers.edu.cuscholar',
