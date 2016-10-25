@@ -649,7 +649,7 @@ class ISSNLink(AbstractIRILink):
 
 
 class OAILink(AbstractIRILink):
-    OAI_RE = re.compile(r'\b(oai):((?:\w|\.)+):(\S+)')
+    OAI_RE = re.compile(r'\b(oai):((?:\w|[.-])+):(\S+)')
 
     @classmethod
     def hint(cls, obj):
