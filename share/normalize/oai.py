@@ -235,6 +235,7 @@ class OAICreativeWork(Parser):
         if isinstance(types, str):
             types = [types]
         for t in types:
+            t = t.lower()
             if t in self.type_map:
                 return self.type_map[t]
         return self.default_type
@@ -284,7 +285,10 @@ class OAINormalizer(Normalizer):
     def root_parser(self):
         parser = OAICreativeWork
         parser.default_type = self.config.emitted_type.lower()
-        parser.type_map = self.config.type_map
+        parser.type_map = {
+            **{r.lower(): r for r in self.allowed_roots},
+            **{t.lower(): t for t in self.config.type_map}
+        }
 
         if self.config.property_list:
             logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))
