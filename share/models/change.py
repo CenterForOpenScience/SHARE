@@ -254,8 +254,6 @@ class Change(models.Model):
                     pass
             elif isinstance(v, list):
                 change[k] = [self._resolve_ref(r) for r in v]
-            elif isinstance(v, str):
-                change[k] = self._resolve_str(k, v)
             else:
                 change[k] = v
         return change

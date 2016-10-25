@@ -33,6 +33,8 @@ def score_text(text):
 
 
 def add_suggest(obj):
+    if not obj.get('types'):
+        obj['types'] = [obj['type']]
     if obj['name']:
         obj['suggest'] = {
             'input': re.split('[\\s,]', obj['name']) + [obj['name']],
@@ -44,6 +46,7 @@ def add_suggest(obj):
             },
             'weight': score_text(obj['name'])
         }
+
     return obj
 
 
@@ -82,7 +85,7 @@ class IndexModelTask(ProviderTask):
 
         if model is Agent:
             for blob in util.fetch_agent(ids):
-                yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
+                yield {'_id': blob['id'], '_op_type': 'index', **add_suggest(blob), **opts}
             return
 
         for inst in model.objects.filter(id__in=ids):
@@ -98,7 +101,7 @@ class IndexModelTask(ProviderTask):
 
     def serialize_tag(self, tag, suggest=True):
         serialized_tag = {
-            'id': str(tag.pk),
+            'id': IDObfuscator.encode(tag),
             'type': 'tag',
             'name': safe_substr(tag.name),
         }
@@ -106,7 +109,7 @@ class IndexModelTask(ProviderTask):
 
     def serialize_subject(self, subject, suggest=True):
         serialized_subject = {
-            'id': str(subject.pk),
+            'id': IDObfuscator.encode(subject),
             'type': 'subject',
             'name': safe_substr(subject.name),
         }

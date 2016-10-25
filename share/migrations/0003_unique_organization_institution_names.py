@@ -11,6 +11,10 @@ class Migration(migrations.Migration):
         ('share', '0002_create_share_user'),
     ]
 
+<<<<<<< HEAD
+=======
+    # Meant to be run on an empty database, so don't worry about existing duplicates
+>>>>>>> e53a73a938d60efad84c41173a1037e44240280e
     operations = [
         migrations.RunSQL(
             "CREATE UNIQUE INDEX share_agent_unique_institution_organization_names ON share_agent (name) WHERE type in ('share.institution', 'share.organization');",

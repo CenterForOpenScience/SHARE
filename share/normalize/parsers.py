@@ -62,10 +62,7 @@ class Parser(metaclass=ParserMeta):
             if field.one_to_many or field.rel.many_to_many:
                 assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
             else:
-                if hasattr(field.rel.model, 'natural_key_field'):
-                    assert isinstance(value, str), 'Values for field {} must be a valid natural key for model {}. Found {}'.format(field, field.rel.model, value)
-                else:
-                    assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
+                assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
         else:
             assert not isinstance(value, dict), 'Value for non-relational field {} must be a primitive type. Found {}'.format(field, value)
 

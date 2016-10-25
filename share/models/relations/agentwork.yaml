@@ -20,6 +20,6 @@ AgentWorkRelation:
                     type: m2m
                     kwargs:
                         model: Award
-                        through: ThroughContributorAwards
+                        through: ThroughAwards
         Publisher: {}
         Host: {}
