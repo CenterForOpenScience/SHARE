@@ -12,6 +12,7 @@ from share.models import CreativeWork
 from share.models import Subject
 from share.models import Tag
 from share.tasks import ProviderTask
+from share.util import IDObfuscator
 
 from bots.elasticsearch import util
 
