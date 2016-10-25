@@ -205,6 +205,7 @@ INSTALLED_APPS = [
     'providers.org.tdar',
     'providers.org.ucescholarship',
     'providers.org.zenodo',
+    'providers.org.seafdec',
     'providers.pt.rcaap',
     'providers.ru.cyberleninka',
     'providers.tr.edu.hacettepe',
