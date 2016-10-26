@@ -8,7 +8,8 @@ EXAMPLE = '''
     <id>http://arxiv.org/abs/cond-mat/0102536v1</id>
     <updated>2001-02-28T20:12:09Z</updated>
     <published>2001-02-28T20:12:09Z</published>
-    <title>Impact of Electron-Electron Cusp on Configuration Interaction Energies</title>
+    <title>Impact of Electron-Electron Cusp
+    on Configuration Interaction Energies</title>
     <summary>  The effect of the electron-electron cusp on the convergence of configuration
 interaction (CI) wave functions is examined. By analogy with the
 pseudopotential approach for electron-ion interactions, an effective
@@ -102,4 +103,9 @@ class TestParser:
 
         assert isinstance(parsed, dict)
         assert parsed['@type'] == 'preprint'
-        assert ctx.pool[parsed]['extra'] == {'comment': '11 pages, 6 figures, 3 tables, LaTeX209, submitted to The Journal of\n  Chemical Physics', 'journal_ref': 'J. Chem. Phys. 115, 1626 (2001)'}
+        normalized = ctx.pool[parsed]
+        assert normalized['extra'] == {'comment': '11 pages, 6 figures, 3 tables, LaTeX209, submitted to The Journal of\n  Chemical Physics', 'journal_ref': 'J. Chem. Phys. 115, 1626 (2001)'}
+
+        # no newlines, leading/trailing white space, or multiple spaces
+        assert normalized['title'] == 'Impact of Electron-Electron Cusp on Configuration Interaction Energies'
+        assert normalized['description'] == 'The effect of the electron-electron cusp on the convergence of configuration interaction (CI) wave functions is examined. By analogy with the pseudopotential approach for electron-ion interactions, an effective electron-electron interaction is developed which closely reproduces the scattering of the Coulomb interaction but is smooth and finite at zero electron-electron separation. The exact many-electron wave function for this smooth effective interaction has no cusp at zero electron-electron separation. We perform CI and quantum Monte Carlo calculations for He and Be atoms, both with the Coulomb electron-electron interaction and with the smooth effective electron-electron interaction. We find that convergence of the CI expansion of the wave function for the smooth electron-electron interaction is not significantly improved compared with that for the divergent Coulomb interaction for energy differences on the order of 1 mHartree. This shows that, contrary to popular belief, description of the electron-electron cusp is not a limiting factor, to within chemical accuracy, for CI calculations.'
