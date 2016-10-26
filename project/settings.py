@@ -143,6 +143,7 @@ INSTALLED_APPS = [
     'providers.edu.ukansas',
     'providers.edu.uky',
     'providers.edu.umassmed',
+    'providers.edu.umd',
     'providers.edu.umich',
     'providers.edu.uncg',
     'providers.edu.unl_digitalcommons',
