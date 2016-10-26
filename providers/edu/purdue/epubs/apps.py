@@ -7,8 +7,8 @@ class AppConfig(OAIProviderAppConfig):
     title = 'epubs'
     long_title = 'Purdue e-Pubs'
     home_page = 'http://docs.lib.purdue.edu/'
-    url = 'http://docs.lib.purdue.edu/do/oai/publication:'
-    property_list = ['publisher', 'format', 'source', 'date', 'identifier', 'type']
+    url = 'http://docs.lib.purdue.edu/do/oai/'
+    # property_list = ['publisher', 'format', 'source', 'date', 'identifier', 'type']
     approved_sets = [
         u'ddad2011',
         u'gully',
