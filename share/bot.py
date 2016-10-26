@@ -41,7 +41,10 @@ class Bot(abc.ABC):
         from share.models import CeleryProviderTask
 
         if self._last_run is not None:
-            last_run = pendulum.parse(self._last_run)
+            if isinstance(self._last_run, int):
+                last_run = pendulum.from_timestamp(self._last_run)
+            else:
+                last_run = pendulum.parse(self._last_run)
         else:
             logger.debug('Finding last successful job')
             last_run = CeleryProviderTask.objects.filter(
@@ -51,9 +54,9 @@ class Bot(abc.ABC):
                 '-timestamp'
             ).values_list('timestamp', flat=True).first()
             if last_run:
-                last_run = pendulum.parse(last_run)
+                last_run = pendulum.instance(last_run)
             else:
-                last_run = pendulum.parse(0)
+                last_run = pendulum.from_timestamp(0)
             logger.info('Found last job %s', last_run)
 
         logger.info('Using last run of %s', last_run)

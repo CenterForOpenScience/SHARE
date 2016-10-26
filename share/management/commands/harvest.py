@@ -14,6 +14,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--all', action='store_true', help='Run all harvesters')
+        parser.add_argument('--force', action='store_true', help='Force disabled harvesters to run')
         parser.add_argument('harvester', nargs='*', type=str, help='The name of the harvester to run')
         parser.add_argument('--async', action='store_true', help='Whether or not to use Celery')
 
@@ -24,7 +25,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
 
-        task_kwargs = {}
+        task_kwargs = {'force': options.get('force', False)}
 
         if options['days_back'] is not None and (options['start'] or options['end']):
             self.stdout.write('Please choose days-back OR a start date with end date, not both')
@@ -37,8 +38,8 @@ class Command(BaseCommand):
             task_kwargs['start'] = pendulum.parse(options['start']) if options.get('start') else pendulum.utcnow() - datetime.timedelta(days=int(options['days_back'] or 1))
             task_kwargs['end'] = pendulum.parse(options['end']) if options.get('end') else pendulum.utcnow()
 
-        task_kwargs['end'] = task_kwargs['end'].isoformat() + 'Z'
-        task_kwargs['start'] = task_kwargs['start'].isoformat() + 'Z'
+        task_kwargs['end'] = task_kwargs['end'].isoformat()
+        task_kwargs['start'] = task_kwargs['start'].isoformat()
 
         if not options['harvester'] and options['all']:
             options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig) and not x.disabled]
