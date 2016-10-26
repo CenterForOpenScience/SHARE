@@ -193,13 +193,13 @@ def test_oai_link(oai_id, result):
 
 class TestIRILink:
 
-    def _do_test(self, input, output):
+    def _do_test(self, input, output, suppress_failure=False):
         if isinstance(output, Exception):
             with pytest.raises(type(output)) as e:
                 IRILink().execute(input)
             assert e.value.args == output.args
         else:
-            assert {k: v for k, v in IRILink().execute(input).items() if k in output} == output
+            assert {k: v for k, v in IRILink(suppress_failure=suppress_failure).execute(input).items() if k in output} == output
 
     @pytest.mark.parametrize('input, output', [
         ('trexy@dinosaurs.sexy', {
@@ -448,6 +448,24 @@ class TestIRILink:
 
     @pytest.mark.parametrize('input, output', [
         (None, TypeError('\'None\' is not of type str.')),
+        ('', ValueError('\'\' could not be identified as an Identifier.')),
+        ('105517/ccdc.csd.cc1lj81f', ValueError('\'105517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('0.5517/ccdc.csd.cc1lj81f', ValueError('\'0.5517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.5517ccdc.csd.cc1lj81f', ValueError('\'10.5517ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.517ccdc.csd.cc1lj81f', ValueError('\'10.517ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.517/ccdc.csd.cc1lj81f', ValueError('\'10.517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.517ccdc.csd.c>c1lj81f', ValueError('\'10.517ccdc.csd.c>c1lj81f\' could not be identified as an Identifier.')),
+        ('0000000248692412', ValueError('\'0000000248692412\' could not be identified as an Identifier.')),
+        ('0000000000000000', ValueError('\'0000000000000000\' could not be identified as an Identifier.')),
+        ('arXiv:1023..20382', ValueError('\'arXiv:1023..20382\' could not be identified as an Identifier.')),
+        ('arXiv:10102.22322', ValueError('\'arXiv:10102.22322\' could not be identified as an Identifier.')),
+        ('arXiv:2.2', ValueError('\'arXiv:2.2\' could not be identified as an Identifier.')),
+    ])
+    def test_malformed(self, input, output):
+        return self._do_test(input, output)
+
+    @pytest.mark.parametrize('input, output', [
+        (None, TypeError('\'None\' is not of type str.')),
         ('', {'IRI': None}),
         ('105517/ccdc.csd.cc1lj81f', {'IRI': None}),
         ('0.5517/ccdc.csd.cc1lj81f', {'IRI': None}),
@@ -461,8 +479,8 @@ class TestIRILink:
         ('arXiv:10102.22322', {'IRI': None}),
         ('arXiv:2.2', {'IRI': None}),
     ])
-    def test_malformed(self, input, output):
-        return self._do_test(input, output)
+    def test_malformed_suppress_failure(self, input, output):
+        return self._do_test(input, output, suppress_failure=True)
 
     @pytest.mark.parametrize('input', [
         '10.5517/ggdc.csd.cc1lj81f',
