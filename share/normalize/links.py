@@ -22,7 +22,7 @@ from nameparser import HumanName
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType')
 
 
 #### Public API ####
@@ -44,7 +44,7 @@ def Trim(chain):
 
 
 def Concat(*chains, deep=False):
-    return AnchorLink() + ConcatLink(*chains, deep=deep)
+    return ConcatLink(*chains, deep=deep)
 
 
 def XPath(chain, path):
@@ -103,10 +103,16 @@ def DOI(chain=None):
     return DOILink()
 
 
-def IRI(chain=None):
+def IRI(chain=None, suppress_failure=False):
     if chain:
-        return (chain + IRILink()).IRI
-    return IRILink().IRI
+        return (chain + IRILink(suppress_failure=suppress_failure)).IRI
+    return IRILink(suppress_failure=suppress_failure).IRI
+
+
+def GuessAgentType(chain=None, default=None):
+    if chain:
+        return chain + GuessAgentTypeLink(default=default)
+    return GuessAgentTypeLink(default=default)
 
 ### /Public API
 
@@ -150,6 +156,10 @@ class AbstractLink:
         # next and prev are generally set by the __add__ method
         self._next = _next
         self._prev = _prev
+
+        # Every chain must start with an AnchorLink
+        if self._prev is None and not isinstance(self, AnchorLink):
+            AnchorLink() + self
 
     # Build the entire chain this link is a part of
     # NOTE: This results in the entire chain rather than starting from the current link
@@ -533,7 +543,7 @@ class MapSubjectLink(AbstractLink):
         mapped = self.MAPPING.get(obj.lower())
 
         if not mapped:
-            logger.warning('No synonyms found for term "%s"', obj)
+            logger.debug('No synonyms found for term "%s"', obj)
 
         return mapped
 
@@ -611,7 +621,7 @@ class ISSNLink(AbstractIRILink):
     @classmethod
     def hint(cls, obj):
         if re.search(cls.ISSN_RE, obj):
-            return 1.0
+            return 0.9
         return int('issn' in obj) * 0.35
 
     @classmethod
@@ -635,6 +645,27 @@ class ISSNLink(AbstractIRILink):
             'scheme': 'urn',
             'authority': 'ISSN',
             'path': '/{}-{}'.format(*match.groups())
+        }
+
+
+class OAILink(AbstractIRILink):
+    OAI_RE = re.compile(r'\b(oai):((?:\w|[.-])+):(\S+)')
+
+    @classmethod
+    def hint(cls, obj):
+        if cls.OAI_RE.search(obj) is not None:
+            return 0.9
+        return 0.0
+
+    def _parse(self, obj):
+        match = self.OAI_RE.search(obj.lower())
+        if not match:
+            raise ValueError('\'{}\' is not a valid OAI Identifier.'.format(obj))
+
+        return {
+            'scheme': match.group(1),
+            'authority': match.group(2),
+            'path': '/{}'.format(match.group(3))
         }
 
 
@@ -730,11 +761,13 @@ class DOILink(AbstractIRILink):
 
     DOI_SCHEME = 'http'
     DOI_DOMAIN = 'dx.doi.org'
-    DOI_RE = r'\b(10\.\d{4,}(?:\.\d+)*/\S+(?:(?!["&\'<>])\S))\b'
+    DOI_RE = re.compile(r'\b(10\.\d{4,}(?:\.\d+)*/\S+(?:(?!["&\'<>])\S))\b')
 
     @classmethod
     def hint(cls, obj):
-        return int('10.' in obj) * .5 + int('doi' in obj) * .5
+        if cls.DOI_RE.search(obj) is not None:
+            return 0.9
+        return 0
 
     def _process_scheme(self, _):
         return self.DOI_SCHEME
@@ -743,7 +776,7 @@ class DOILink(AbstractIRILink):
         return self.DOI_DOMAIN
 
     def _parse(self, obj):
-        match = re.search(self.DOI_RE, obj.upper())
+        match = self.DOI_RE.search(obj.upper())
         if not match:
             raise ValueError('\'{}\' is not a valid DOI.'.format(obj))
         return {
@@ -756,13 +789,17 @@ class DOILink(AbstractIRILink):
 class URLLink(AbstractIRILink):
     PORTS = {80, 443, 20, 989}
     SCHEMES = {'http', 'https', 'ftp', 'ftps'}
-    URL_RE = re.compile(r'[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')
+    URL_RE = re.compile(r'\b({schemes})://[-a-z0-9@:%._\+~#=]{{2,256}}\.[a-z]{{2,6}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
     @classmethod
     def hint(cls, obj):
         if cls.URL_RE.search(obj) is not None:
             return 0.25
         return 0
+
+    def _parse(self, obj):
+        match = self.URL_RE.search(obj)
+        return super(URLLink, self)._parse(match.group(0))
 
     def _process_scheme(self, scheme):
         scheme = scheme.lower()
@@ -790,11 +827,9 @@ class EmailLink(AbstractIRILink):
 
     @classmethod
     def hint(self, obj):
-        if 'mailto:' in obj:
+        if self.EMAIL_RE.search(obj) is not None:
             return 1.0
-        if '@' in obj:
-            return 0.35
-        return 0.0
+        return 0
 
     def execute(self, obj):
         if not isinstance(obj, str):
@@ -811,7 +846,36 @@ class EmailLink(AbstractIRILink):
         }
 
 
+class ArXivLink(AbstractIRILink):
+    # https://arxiv.org/help/arxiv_identifier
+
+    ARXIV_SCHEME = 'http'
+    ARXIV_DOMAIN = 'arxiv.org'
+    ARXIV_PATH = '/abs/{}'
+    ARXIV_RE = re.compile(r'\barXiv:(\d{4}.\d{5})(v\d)?', flags=re.I)
+
+    @classmethod
+    def hint(cls, obj):
+        if cls.ARXIV_RE.search(obj) is not None:
+            return 1.0
+        return 0
+
+    def _parse(self, obj):
+        match = self.ARXIV_RE.search(obj)
+        if not match:
+            raise ValueError('\'{}\' is not a valid ArXiv Identifier.'.format(obj))
+        return {
+            'scheme': self.ARXIV_SCHEME,
+            'authority': self.ARXIV_DOMAIN,
+            'path': self.ARXIV_PATH.format(match.group(1))
+        }
+
+
 class IRILink(AbstractLink):
+
+    def __init__(self, suppress_failure=False):
+        super().__init__()
+        self._suppress_failure = suppress_failure
 
     @classmethod
     def iri_links(cls, base=AbstractIRILink):
@@ -832,5 +896,49 @@ class IRILink(AbstractLink):
                 break
 
         if not final[0]:
-            raise ValueError('\'{}\' could not be identified as an Identifier.'.format(obj))
+            message = '\'{}\' could not be identified as an Identifier.'.format(obj)
+            if self._suppress_failure:
+                logger.warning(message)
+                return {'IRI': None}
+            else:
+                raise ValueError(message)
         return final[0]().execute(obj)
+
+
+class GuessAgentTypeLink(AbstractLink):
+    """
+    When executed on the name of an agent, guess the agent's type.
+    """
+
+    ORGANIZATION_KEYWORDS = (
+        r'(^the\s|\sthe\s)',
+        r'^[-A-Z]+$',
+        'council',
+        'center',
+        'foundation',
+        'group',
+        'society',
+        'inc',
+    )
+    ORGANIZATION_RE = re.compile(r'\b({})\b'.format('|'.join(ORGANIZATION_KEYWORDS)), flags=re.I)
+
+    INSTITUTION_KEYWORDS = (
+        'school',
+        'university',
+        'institution',
+        'college',
+        'institute',
+    )
+    INSTITUTION_RE = re.compile(r'\b({})\b'.format('|'.join(INSTITUTION_KEYWORDS)), flags=re.I)
+
+    def __init__(self, default=None):
+        super(GuessAgentTypeLink, self).__init__()
+        self._default = default
+
+    def execute(self, obj):
+        # TODO smarter guessing
+        if self.INSTITUTION_RE.search(obj):
+            return 'institution'
+        if self.ORGANIZATION_RE.search(obj):
+            return 'organization'
+        return self._default or 'person'

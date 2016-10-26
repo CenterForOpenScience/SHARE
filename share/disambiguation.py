@@ -1,9 +1,13 @@
+import logging
+
 from django.core.exceptions import ValidationError
 
 from share import models
 from share.util import IDObfuscator
 
 __all__ = ('GraphDisambiguator', )
+
+logger = logging.getLogger(__name__)
 
 
 class GraphDisambiguator:
@@ -22,9 +26,18 @@ class GraphDisambiguator:
                 # TODO after merging is fixed, add mergeaction change to graph
                 raise NotImplementedError()
             else:
+                old_ref = n.ref
                 n.instance = instance
+                if instance:
+                    logger.debug('Disambiguated {} to {}'.format(old_ref, n.ref))
             for ref in n.refs:
                 change_graph.node_map[ref] = n
+
+        # When e.g. adding a new identifier to an existing work/agent, the
+        # identifier is disambiguated before the work, but needs an updated
+        # ref after the work is disambiguated. TODO something better than this
+        for n in nodes:
+            n.update_relations(change_graph.node_map)
 
     def instance_for_node(self, node):
         NodeDisambiguator = GenericDisambiguator
@@ -83,7 +96,7 @@ class GenericDisambiguator(Disambiguator):
     def is_through_table(self):
         # TODO fix this...
         return 'Through' in self.model.__name__ or self.model._meta.concrete_model in {
-            models.AgentWorkRelation,
+            models.AbstractAgentWorkRelation,
             models.AbstractAgentRelation,
             models.AbstractWorkRelation,
         }

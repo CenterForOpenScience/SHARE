@@ -44,7 +44,7 @@ class Parser(metaclass=ParserMeta):
         return type(
             cls.__name__ + 'Overridden',
             (cls, ), {
-                'schema': cls.schema if isinstance(cls.schema, str) else cls.__name__.lower(),
+                'schema': cls.schema if isinstance(cls.schema, (str, AbstractLink)) else cls.__name__.lower(),
                 **overrides
             }
         )
@@ -75,6 +75,7 @@ class Parser(metaclass=ParserMeta):
             schema = self.schema
 
         if (self.context, schema) in ctx.pool:
+            Context().parser = prev
             return ctx.pool[self.context, schema]
 
         model = apps.get_model('share', schema)
