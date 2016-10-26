@@ -103,10 +103,10 @@ def DOI(chain=None):
     return DOILink()
 
 
-def IRI(chain=None):
+def IRI(chain=None, suppress_failure=False):
     if chain:
-        return (chain + IRILink()).IRI
-    return IRILink().IRI
+        return (chain + IRILink(suppress_failure=suppress_failure)).IRI
+    return IRILink(suppress_failure=suppress_failure).IRI
 
 
 def GuessAgentType(chain=None, default=None):
@@ -873,6 +873,10 @@ class ArXivLink(AbstractIRILink):
 
 class IRILink(AbstractLink):
 
+    def __init__(self, suppress_failure=False):
+        super().__init__()
+        self._suppress_failure = suppress_failure
+
     @classmethod
     def iri_links(cls, base=AbstractIRILink):
         for link in base.__subclasses__():
@@ -892,8 +896,12 @@ class IRILink(AbstractLink):
                 break
 
         if not final[0]:
-            logger.warning('\'{}\' could not be identified as an Identifier.'.format(obj))
-            return {'IRI': None}
+            message = '\'{}\' could not be identified as an Identifier.'.format(obj)
+            if self._suppress_failure:
+                logger.warning(message)
+                return {'IRI': None}
+            else:
+                raise ValueError(message)
         return final[0]().execute(obj)
 
 

@@ -19,7 +19,7 @@ class OAIAgent(Parser):
 class OAIAgentIdentifier(Parser):
     schema = 'AgentIdentifier'
 
-    uri = tools.IRI(ctx)
+    uri = ctx
 
 
 class OAIWorkIdentifier(Parser):
@@ -55,7 +55,7 @@ class OAIThroughTags(Parser):
 class OAIRelatedWork(Parser):
     schema = 'CreativeWork'
 
-    identifiers = tools.Map(tools.Delegate(OAIWorkIdentifier), tools.IRI(ctx))
+    identifiers = tools.Map(tools.Delegate(OAIWorkIdentifier), ctx)
 
     class Extra:
         identifier = ctx
@@ -108,7 +108,7 @@ class OAICreativeWork(Parser):
     identifiers = tools.Map(
         tools.Delegate(OAIWorkIdentifier),
         tools.Map(
-            tools.IRI(),
+            tools.IRI(suppress_failure=True),
             tools.RunPython(
                 'force_text',
                 tools.Concat(
@@ -123,7 +123,7 @@ class OAICreativeWork(Parser):
         tools.Map(
             tools.Delegate(OAIWorkRelation),
             tools.Map(
-                tools.IRI(),
+                tools.IRI(suppress_failure=True),
                 tools.RunPython('get_relation', ctx)
             )
         )
