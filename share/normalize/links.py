@@ -204,8 +204,6 @@ class AbstractLink:
     def __call__(self, name):
         if name == '*':
             return self + IteratorLink()
-        if name == 'parent':
-            return self + ParentLink()
         if name == 'index':
             return self + GetIndexLink()
         raise Exception(
@@ -230,7 +228,7 @@ class AbstractLink:
         return '<{}()>'.format(self.__class__.__name__)
 
     def run(self, obj):
-        Context().frames.append({'link': self, 'context': obj})
+        Context().frames.append({'link': self, 'context': obj, 'parser': Context().parser})
         try:
             return self.execute(obj)
         finally:
@@ -365,11 +363,6 @@ class JoinLink(AbstractLink):
 class TrimLink(AbstractLink):
     def execute(self, obj):
         return obj.strip()
-
-
-class ParentLink(AbstractLink):
-    def execute(self, obj):
-        return Context().parent
 
 
 class IteratorLink(AbstractLink):
