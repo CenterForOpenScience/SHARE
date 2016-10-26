@@ -67,7 +67,7 @@ class TestV1Normalizer:
             'related_agents': [{
                 '@type': 'creator',
                 'cited_as': 'Roger Movies Ebert',
-                'order_cited': 1,
+                'order_cited': 0,
                 'agent': {
                     '@type': 'person',
                     'name': 'Roger Movies Ebert',
@@ -80,7 +80,7 @@ class TestV1Normalizer:
             }, {
                 '@type': 'creator',
                 'cited_as': 'Roger Madness Ebert',
-                'order_cited': 2,
+                'order_cited': 1,
                 'agent': {
                     '@type': 'person',
                     'name': 'Roger Madness Ebert',
@@ -101,13 +101,15 @@ class TestV1Normalizer:
             }, {
                 '@type': 'funder',
                 'awards': [
-                    {'@type': 'award', 'name': 'Participation', 'uri': 'http://example.com'}
+                    {
+                        '@type': 'throughawards',
+                        'award': {'@type': 'award', 'name': 'Participation', 'uri': 'http://example.com'}
+                    }
                 ],
                 'cited_as': 'Orange',
                 'agent': {
                     '@type': 'organization',
                     'name': 'Orange',
-                    'related_agents': [],
                     'identifiers': [
                         {'@type': 'agentidentifier', 'uri': 'http://example.com/orange'},
                     ]
@@ -180,18 +182,19 @@ class TestV1Normalizer:
     ])
     def test_normalize(self, input, expected):
         ctx.clear()
-        assert expected == self.reconstruct(ctx.pool[V1Normalizer({}).do_normalize(json.dumps(input))])
+        actual = self.reconstruct(ctx.pool.pop(V1Normalizer({}).do_normalize(json.dumps(input))))
+        assert expected == actual
 
     def reconstruct(self, document, extra=False):
         for key, val in tuple(document.items()):
             if isinstance(val, dict) and key != 'extra':
-                document[key] = self.reconstruct(ctx.pool.pop(val), extra=extra)
+                related = ctx.pool.pop(val, None)
+                if related:
+                    document[key] = self.reconstruct(related, extra=extra)
+                else:
+                    document.pop(key)
             if isinstance(val, list):
-                _v = []
-                for v in val:
-                    through = ctx.pool.pop(v)
-                    _v.append(self.reconstruct(ctx.pool.pop(next(x for x in through.values() if isinstance(x, dict) and x['@id'] != document['@id'])), extra=extra))
-                document[key] = _v
+                document[key] = [self.reconstruct(ctx.pool.pop(v), extra=extra) for v in val]
         del document['@id']
         if not extra:
             document.pop('extra', None)

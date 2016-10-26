@@ -63,7 +63,6 @@ class TestV1PushProxy:
             HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token
         ).status_code == 400
 
-    @pytest.mark.xfail(reason='Need to update v1 normalizer')
     @override_settings(CELERY_ALWAYS_EAGER=True)
     def test_valid_data(self, client, trusted_user):
 
