@@ -91,46 +91,72 @@ JSONField.register_lookup(lookups.HasKeys)
 JSONField.register_lookup(lookups.HasAnyKeys)
 
 
-class ShareOneToOneField(models.OneToOneField):
+# typedmodels modifies _meta.get_fields() on typed subclasses to filter out
+# fields that don't belong, based on the fields given in the model definition.
+# Share related fields don't directly contribute to classes, they make
+# instances of their base class that contribute instead. Keep track of these
+# fields that do a Share field's job, so they'll show up in _meta.get_fields().
+class ShareRelatedField:
+    def __init__(self, *args, **kwargs):
+        self.__equivalent_fields = set()
+        super().__init__(*args, **kwargs)
+
+    def add_equivalent_fields(self, *fields):
+        self.__equivalent_fields.update(fields)
+
+    def __eq__(self, other):
+        if other in self.__equivalent_fields:
+            return True
+        return super().__eq__(other)
+
+    def __hash__(self):
+        return super().__hash__()
+
+
+class ShareOneToOneField(ShareRelatedField, models.OneToOneField):
     def __init__(self, model, **kwargs):
         self._kwargs = kwargs
         super().__init__(model, **kwargs)
 
     def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[1](self.remote_field.model, **self._kwargs)
+        actual = self.__class__.mro()[2](self.remote_field.model, **self._kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self._kwargs)
+            version = self.__class__.mro()[2](self.remote_field.model + 'Version', editable=False, **self._kwargs)
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self._kwargs)
+            version = self.__class__.mro()[2](self.remote_field.model.VersionModel, editable=False, **self._kwargs)
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
         actual._share_version_field = version
 
+        self.add_equivalent_fields(actual, version)
 
-class ShareForeignKey(models.ForeignKey):
+
+class ShareForeignKey(ShareRelatedField, models.ForeignKey):
 
     def __init__(self, model, **kwargs):
         self._kwargs = kwargs
         super().__init__(model, **kwargs)
 
     def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[1](self.remote_field.model, **self._kwargs)
+        actual = self.__class__.mro()[2](self.remote_field.model, **self._kwargs)
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **{**self._kwargs, 'related_name': '+'})
+            version = self.__class__.mro()[2](self.remote_field.model + 'Version', editable=False, **{**self._kwargs, 'related_name': '+'})
         else:
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **{**self._kwargs, 'related_name': '+'})
+            version = self.__class__.mro()[2](self.remote_field.model.VersionModel, editable=False, **{**self._kwargs, 'related_name': '+'})
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
         actual._share_version_field = version
 
+        self.add_equivalent_fields(actual, version)
 
-class TypedManyToManyField(models.ManyToManyField):
+
+class TypedManyToManyField(ShareRelatedField, models.ManyToManyField):
 
     def _check_relationship_model(self, from_model=None, **kwargs):
         if hasattr(self.remote_field.through, '_meta'):
@@ -391,6 +417,8 @@ class ShareManyToManyField(TypedManyToManyField):
         version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
 
         actual._share_version_field = version
+
+        self.add_equivalent_fields(actual, version)
 
     def _get_kwargs(self, cls, version_field=False):
         kwargs = {**self._kwargs}
