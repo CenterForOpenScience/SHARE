@@ -4,10 +4,11 @@ from share.provider import OAIProviderAppConfig
 class AppConfig(OAIProviderAppConfig):
     name = 'providers.edu.purdue.epubs'
     version = '0.0.1'
-    title = 'purdue.epubs'
+    title = 'epubs'
     long_title = 'Purdue e-Pubs'
     home_page = 'http://docs.lib.purdue.edu/'
-    url = 'http://docs.lib.purdue.edu/do/oai/'
+    url = 'http://docs.lib.purdue.edu/do/oai/publication:'
+    property_list = ['publisher', 'format', 'source', 'date', 'identifier', 'type']
     approved_sets = [
         u'ddad2011',
         u'gully',
