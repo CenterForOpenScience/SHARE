@@ -6,7 +6,7 @@ from share import Harvester
 
 
 class DataOneHarvester(Harvester):
-    url = 'https://cn.dataone.org/cn/v1/query/solr/'
+    url = 'https://cn.dataone.org/cn/v2/query/solr/'
 
     def do_harvest(self, start_date, end_date):
         end_date = end_date.format('YYYY-MM-DDT00:00:00') + 'Z'

@@ -37,16 +37,24 @@ class Contributor(Parser):
 
 
 class CreativeWork(Parser):
+    # https://releases.dataone.org/online/api-documentation-v2.0/design/SearchMetadata.html#attribute-descriptions-and-notes
     title = Try(XPath(ctx, "str[@name='title']").str['#text'])
     description = Try(XPath(ctx, "str[@name='abstract']").str['#text'])
     date_updated = ParseDate(Try(XPath(ctx, "date[@name='dateModified']").date['#text']))
     date_published = ParseDate(Try(XPath(ctx, "date[@name='datePublished']").date['#text']))
-    contributors = Map(
-        Delegate(Contributor),
-        Maybe(XPath(ctx, "str[@name='author']"), 'str')['#text'],
-        Maybe(XPath(ctx, "arr[@name='origin']"), 'arr').str,
-        Maybe(XPath(ctx, "arr[@name='investigator']"), 'arr').str
+
+    related_agents = Concat(
+        Map(
+            Delegate(Creator),
+            Maybe(XPath(ctx, "str[@name='author']"), 'str')['#text'],
+        ),
+        Map(
+            Delegate(Contributor),
+            Maybe(XPath(ctx, "arr[@name='investigator']"), 'arr').str,
+            Maybe(XPath(ctx, "arr[@name='origin']"), 'arr').str, # TODO or 'originator'?
+        )
     )
+
     tags = Map(
         Delegate(ThroughTags),
         Maybe(XPath(ctx, "arr[@name='keywords']"), 'arr').str
