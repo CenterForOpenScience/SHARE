@@ -114,7 +114,8 @@ class NormalizerTask(ProviderTask):
                     'type': 'NormalizedData',
                     'attributes': {
                         'data': graph,
-                        'raw': {'type': 'RawData', 'id': raw_id}
+                        'raw': {'type': 'RawData', 'id': raw_id},
+                        'tasks': [self.task.id]
                     }
                 }
             }, headers={'Authorization': self.config.authorization(), 'Content-Type': 'application/vnd.api+json'})
@@ -124,13 +125,6 @@ class NormalizerTask(ProviderTask):
 
         if (resp.status_code // 100) != 2:
             raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content)))
-
-        # attach task
-        normalized_id = resp.json()['data']['id']
-        normalized = NormalizedData.objects.get(pk=normalized_id)
-        # TODO Set Task via the API
-        normalized.tasks.add(self.task)
-        normalized.save()
 
         logger.info('Successfully submitted change for %s', raw)
 
