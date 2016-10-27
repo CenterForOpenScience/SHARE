@@ -2,8 +2,17 @@ from share.normalize import *
 from share.normalize import links
 
 
-class Organization(Parser):
-    name = OneOf(Try(ctx.name), ctx)
+class AgentIdentifier(Parser):
+    uri = ctx
+
+
+class WorkIdentifier(Parser):
+    uri = ctx
+
+
+class RelatedAgent(Parser):
+    schema = GuessAgentType(OneOf(ctx.name, ctx), default='organization')
+    name = OneOf(ctx.name, ctx)
 
     # class Extra:
     #     doi = Maybe(ctx, 'DOI')
@@ -11,31 +20,42 @@ class Organization(Parser):
     #     doi_asserted_by = Maybe(ctx, 'doi-asserted-by')
 
 
-class FundingContribution(Parser):
-    entity = Delegate(Organization, ctx)
+class Funder(Parser):
+    agent = Delegate(RelatedAgent, ctx)
+    identifiers = Map(
+        Delegate(AgentIdentifier),
+        Map(
+            DOI(),
+            Maybe(ctx, 'DOI')
+        )
+    )
 
 
-class PublishingContribution(Parser):
-    entity = Delegate(Organization, ctx)
+class Publisher(Parser):
+    agent = Delegate(RelatedAgent, ctx)
 
 
-class PersonIdentifier(Parser):
-    uri = Orcid(ctx)
-
-
-class WorkIdentifier(Parser):
-    uri = DOI(ctx)
+class IsAffiliatedWith(Parser):
+    related = Delegate(RelatedAgent, ctx)
 
 
 class Person(Parser):
     given_name = Maybe(ctx, 'given')
     family_name = Maybe(ctx, 'family')
-    # affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
-    identifiers = Map(Delegate(PersonIdentifier), Maybe(ctx, 'ORCID'))
+
+    identifiers = Map(
+        Delegate(AgentIdentifier),
+        Map(
+            Orcid(),
+            Maybe(ctx, 'ORCID')
+        )
+    )
+
+    related_agents = Map(Delegate(IsAffiliatedWith), Maybe(ctx, 'affiliation'))
 
 
-class Contribution(Parser):
-    entity = Delegate(Person, ctx)
+class Creator(Parser):
+    agent = Delegate(Person, ctx)
     order_cited = ctx('index')
 
     cited_as = links.Join(
@@ -70,7 +90,6 @@ class CreativeWork(Parser):
             'dissertation': 'Dissertation',
             'preprint': 'Preprint',
             'report': 'Report',
-            'book-section': 'Section',
         }.get(type) or 'CreativeWork'
 
     schema = RunPython('get_schema', ctx.type)
@@ -79,26 +98,22 @@ class CreativeWork(Parser):
     description = Maybe(ctx, 'subtitle')[0]
     date_updated = ParseDate(Try(ctx.deposited['date-time']))
 
-    # contributors = Map(
-    #     Delegate(Contributor),
-    #     Maybe(ctx, 'author')
-    # )
-
-    identifiers = Map(Delegate(WorkIdentifier), ctx.DOI)
-
-    related_entities = Concat(
-        Map(Delegate(Contribution), Try(ctx.author)),
-        Map(Delegate(PublishingContribution), ctx.publisher),
-        Map(Delegate(FundingContribution), Try(ctx.funder)),
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        DOI(ctx.DOI),
+        Map(
+            IRI(suppress_failure=True),
+            Maybe(ctx, 'link'),
+            Maybe(ctx, 'alternative-id')
+        )
     )
-    # publishers = Map(
-    #     Delegate(Association.using(entity=Delegate(Publisher))),
-    #     ctx.publisher
-    # )
-    # funders = Map(
-    #     Delegate(Association.using(entity=Delegate(Funder))),
-    #     Maybe(ctx, 'funder')
-    # )
+
+    related_agents = Concat(
+        Map(Delegate(Creator), Try(ctx.author)),
+        Map(Delegate(Publisher), ctx.publisher),
+        Map(Delegate(Funder), Try(ctx.funder)),
+    )
+
     # TODO These are "a controlled vocabulary from Sci-Val", map to Subjects!
     tags = Map(
         Delegate(ThroughTags),
