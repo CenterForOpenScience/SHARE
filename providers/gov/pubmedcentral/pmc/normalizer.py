@@ -7,20 +7,15 @@ from share.normalize.parsers import Parser
 
 
 class WorkIdentifier(Parser):
-    uri = IRI(RunPython('get_list_element', ctx['article-id'], '@pub-id-type', 'doi'))
-
-    def get_list_element(self, ordered_dict, attribute='', value=''):
-        for item in ordered_dict:
-            if item[attribute] == value:
-                return item['#text']
+    uri = ctx
 
 
-class PersonIdentifier(Parser):
-    uri = Try(IRI(ctx).IRI)
+class AgentIdentifier(Parser):
+    uri = ctx
 
 
 class Organization(Parser):
-    name = ctx
+    name = OneOf(ctx['#text'], ctx)
 
 
 class Publisher(Parser):
@@ -32,7 +27,9 @@ class Person(Parser):
     family_name = ctx['name']['surname']
     given_name = ctx['name']['given-names']
 
-    identifiers = Delegate(PersonIdentifier, Try(ctx['contrib-id']))
+    identifiers = Map(Delegate(AgentIdentifier), Map(IRI(), Try(RunPython(
+        'get_list_element', Concat(ctx['contrib-id']), '@contrib-id-type', 'orcid')
+    )))
 
     class Extra:
         email = OneOf(
@@ -42,6 +39,11 @@ class Person(Parser):
         )
         role = Try(ctx['role'])
         degrees = Try(ctx['degrees'])
+
+    def get_list_element(self, lst, attribute='', value=''):
+        for ordered_dict in lst:
+            if ordered_dict[attribute] == value:
+                return ordered_dict['#text']
 
 
 class Contributor(Parser):
@@ -113,7 +115,11 @@ class Article(Parser):
         ctx.record.metadata.article.front['article-meta']['pub-date']
     )
 
-    identifiers = Map(Delegate(WorkIdentifier), ctx.record.metadata.article.front['article-meta'])
+    identifiers = Map(
+        Delegate(WorkIdentifier), Map(IRI(), Try(RunPython(
+            'get_identifier',
+            Concat(ctx.record.metadata.article.front['article-meta']['article-id']), '@pub-id-type', 'doi')
+    )))
 
     rights = Try(ctx.record.metadata.article.front['article-meta']['permissions']['license']['license-p']['#text'])
 
@@ -140,9 +146,13 @@ class Article(Parser):
         epub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'epub')
         ppub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'ppub')
 
+    def get_identifier(self, lst, attribute='', value=''):
+        for ordered_dict in lst:
+            if ordered_dict[attribute] == value:
+                return ordered_dict['#text']
+
     def get_contributors(self, ctx, type):
         results = []
-
         if type == 'person':
             for contributor in ctx:
                 if 'name' in contributor:
