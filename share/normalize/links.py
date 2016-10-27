@@ -95,14 +95,14 @@ def OneOf(*chains):
 
 def Orcid(chain=None):
     if chain:
-        return chain + OrcidLink()
-    return OrcidLink()
+        return (chain + OrcidLink()).IRI
+    return OrcidLink().IRI
 
 
 def DOI(chain=None):
     if chain:
-        return chain + DOILink()
-    return DOILink()
+        return (chain + DOILink()).IRI
+    return DOILink().IRI
 
 
 def IRI(chain=None, suppress_failure=False):
@@ -410,7 +410,10 @@ class PathLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        return obj[self._segment]
+        try:
+            return obj[self._segment]
+        except TypeError as ex:
+            raise TypeError('Trying to access \'{}\' on {}'.format(self._segment, obj)) from ex
 
     def __repr__(self):
         return '<{}({!r})>'.format(self.__class__.__name__, self._segment)
