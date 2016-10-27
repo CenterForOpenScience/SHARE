@@ -95,14 +95,14 @@ def OneOf(*chains):
 
 def Orcid(chain=None):
     if chain:
-        return chain + OrcidLink()
-    return OrcidLink()
+        return (chain + OrcidLink()).IRI
+    return OrcidLink().IRI
 
 
 def DOI(chain=None):
     if chain:
-        return chain + DOILink()
-    return DOILink()
+        return (chain + DOILink()).IRI
+    return DOILink().IRI
 
 
 def IRI(chain=None, suppress_failure=False):
