@@ -9,7 +9,7 @@ class AbstractAgentRelation(ShareObject, metaclass=TypedShareObjectMeta):
     related = ShareForeignKey('AbstractAgent', related_name='+')
 
     class Meta:
-        # default_related_name = 'agent_relations'
+        db_table = 'share_agentrelation'
         unique_together = ('subject', 'related', 'type')
 
 

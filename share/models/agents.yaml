@@ -1,9 +1,14 @@
 Agent:
+    description: >
+        An Agent is a thing that has the power to act, to make decisions,
+        to produce or contribute to the production of creative works.
+        Either an individual person or a group of people.
     children:
         Consortium: {}
         Institution: {}
         Organization: {}
         Person:
+            verbose_name_plural: people
             fields:
                 family_name:
                     type: text

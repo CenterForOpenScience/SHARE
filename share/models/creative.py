@@ -29,6 +29,9 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentWorkRelation')
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('subject', 'related'), symmetrical=False)
 
+    class Meta:
+        db_table = 'share_creativework'
+
     def __str__(self):
         return self.title
 

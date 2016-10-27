@@ -14,8 +14,12 @@ class IDObfuscator:
 
     @classmethod
     def encode(cls, instance):
-        model_id = ContentType.objects.get_for_model(type(instance)).id
-        encoded = '{:09X}'.format(instance.pk * cls.NUM % cls.MOD)
+        return cls.encode_id(instance.id, type(instance))
+
+    @classmethod
+    def encode_id(cls, pk, model):
+        model_id = ContentType.objects.get_for_model(model).id
+        encoded = '{:09X}'.format(pk * cls.NUM % cls.MOD)
         return '{:02X}{}-{}-{}'.format(model_id, encoded[:3], encoded[3:6], encoded[6:])
 
     @classmethod
@@ -23,7 +27,16 @@ class IDObfuscator:
         match = cls.ID_RE.match(id)
         assert match, '"{}" is not a valid ID'.format(id)
         model_id, *pks = match.groups()
-        return ContentType.objects.get(pk=int(model_id, 16)), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
+        return ContentType.objects.get(pk=int(model_id, 16)).model_class(), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
+
+    @classmethod
+    def resolve(cls, id):
+        model, pk = cls.decode(id)
+        return model.objects.get(pk=pk)
+
+    @classmethod
+    def resolver(cls, self, args, context, info):
+        return cls.resolve(args.get('id', ''))
 
 
 class CyclicalDependency(Exception):
@@ -94,6 +107,7 @@ class ModelGenerator:
             fields = mspec.get('fields', {})
             model = type(name, (base,), {
                 **{fname: self._get_field(fspec) for (fname, fspec) in fields.items()},
+                '__doc__': mspec.get('description'),
                 '__qualname__': name,
                 '__module__': base.__module__
             })

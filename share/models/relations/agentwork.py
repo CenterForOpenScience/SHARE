@@ -12,21 +12,20 @@ class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='agent_relations')
     agent = ShareForeignKey('AbstractAgent', related_name='work_relations')
 
-    bibliographic = models.BooleanField(default=True)
     cited_as = models.TextField(blank=True)
-    order_cited = models.PositiveIntegerField(null=True)
 
     class Meta:
+        db_table = 'share_agentworkrelation'
         unique_together = ('agent', 'creative_work', 'type')
 
 
-class ThroughContribution(ShareObject):
+class ThroughContributor(ShareObject):
     subject = ShareForeignKey(AbstractAgentWorkRelation, related_name='+')
     related = ShareForeignKey(AbstractAgentWorkRelation, related_name='+')
 
     def clean(self):
         if self.subject.creative_work != self.related.creative_work:
-            raise ValidationError(_('ThroughContributions must contribute to the same AbstractCreativeWork'))
+            raise ValidationError(_('ThroughContributors must contribute to the same AbstractCreativeWork'))
         if self.subject.agent == self.related.agent:
             raise ValidationError(_('A contributor may not contribute through itself'))
 
@@ -40,22 +39,23 @@ class Award(ShareObject):
     # it's just a text field, I assume our 'description' covers it.
     name = models.TextField(blank=True)
     description = models.TextField(blank=True)
-    url = ShareURLField(blank=True)
+    uri = ShareURLField(blank=True)
 
     def __str__(self):
         return self.description
 
 
-class ThroughContributionAwards(ShareObject):
-    contribution = ShareForeignKey(AbstractAgentWorkRelation)
+class ThroughAwards(ShareObject):
+    funder = ShareForeignKey(AbstractAgentWorkRelation)
     award = ShareForeignKey(Award)
 
     class Meta:
-        unique_together = ('contribution', 'award')
+        unique_together = ('funder', 'award')
 
 
 generator = ModelGenerator(field_types={
-    'm2m': ShareManyToManyField
+    'm2m': ShareManyToManyField,
+    'positive_int': models.PositiveIntegerField
 })
 globals().update(generator.subclasses_from_yaml(__file__, AbstractAgentWorkRelation))
 

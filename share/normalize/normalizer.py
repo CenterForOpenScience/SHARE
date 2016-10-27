@@ -26,6 +26,11 @@ class Normalizer(metaclass=abc.ABCMeta):
         self.config = app_config
         self.namespaces = getattr(self.config, 'namespaces', self.NAMESPACES)
 
+    @property
+    def allowed_roots(self):
+        from share.models import AbstractCreativeWork
+        return set(t.__name__ for t in AbstractCreativeWork.get_type_classes())
+
     def do_normalize(self, data):
         parsed = self.unwrap_data(data)
         parser = self.get_root_parser()
@@ -47,12 +52,10 @@ class Normalizer(metaclass=abc.ABCMeta):
         except ImportError:
             raise ImportError('Unable to find parser definitions at {}'.format(self.config.name + '.normalizer'))
 
-        from share.models import AbstractCreativeWork
         root_levels = [
-            getattr(module, klass.__name__)
-            for klass in
-            AbstractCreativeWork.__subclasses__()
-            if hasattr(module, klass.__name__)
+            getattr(module, class_name)
+            for class_name in self.allowed_roots
+            if hasattr(module, class_name)
         ]
 
         if not root_levels:

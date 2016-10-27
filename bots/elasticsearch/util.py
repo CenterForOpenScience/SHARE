@@ -1,8 +1,10 @@
 import uuid
-import itertools
 
+from django.apps import apps
 from django.db import connection
 from django.db import transaction
+
+from share.util import IDObfuscator
 
 
 def sql_to_dict(keys, values):
@@ -19,43 +21,56 @@ def unique_by(key, values):
     return list(ret.values())
 
 
-def fetch_person(pks):
+def populate_types(data):
+    model = apps.get_model(data['type'])
+    data['id'] = IDObfuscator.encode_id(data['id'], model)
+    data['type'] = model._meta.verbose_name
+    data['types'] = []
+    for parent in model.mro():
+        if not parent._meta.proxy:
+            break
+        data['types'].append(parent._meta.verbose_name)
+
+    return data
+
+
+def fetch_agent(pks):
     if connection.connection is None:
         connection.cursor()
 
     with transaction.atomic():
         with connection.connection.cursor(str(uuid.uuid4())) as c:
             c.execute('''
-                SELECT json_build_object(
-                    'id', person.id
-                    , 'type', 'person'
-                    , 'given_name', person.given_name
-                    , 'family_name', person.family_name
-                    , 'additional_name', person.additional_name
-                    , 'sources', sources
-                    , 'identifiers', COALESCE(identifiers, '[]' :: JSON)
-                )
-                FROM share_person AS person
-                LEFT JOIN LATERAL (
-                            SELECT json_agg(json_build_object('id', identifier.id, 'uri', identifier.uri)) AS identifiers
-                            FROM share_personidentifier AS identifier
-                            WHERE identifier.person_id = person.id) AS identifiers ON TRUE
-                LEFT JOIN LATERAL (
-                            SELECT json_agg(
-                                json_build_object('id', agent.id, 'type', agent.type, 'name', agent.name, 'url', agent.url,
-                                                'location', agent.location))
-                            FROM share_affiliation AS affiliation
-                            JOIN share_agent AS agent ON affiliation.agent_id = agent.id
-                            WHERE affiliation.person_id = person.id
-
-                            ) AS affiliations ON TRUE
+                SELECT json_strip_nulls(json_build_object(
+                                            'id', agent.id
+                                            , 'type', agent.type
+                                            , 'name', agent.name
+                                            , 'family_name', agent.family_name
+                                            , 'given_name', agent.given_name
+                                            , 'additional_name', agent.additional_name
+                                            , 'suffix', agent.suffix
+                                            , 'location', agent.location
+                                            , 'sources', COALESCE(sources, '{}')
+                                            , 'identifiers', COALESCE(identifiers, '{}')
+                                            , 'related_types', COALESCE(related_types, '{}')))
+                FROM share_agent AS agent
                 LEFT JOIN LATERAL (
                             SELECT array_agg(source.long_title) AS sources
-                            FROM share_person_sources AS throughsources
+                            FROM share_agent_sources AS throughsources
                             JOIN share_shareuser AS source ON throughsources.shareuser_id = source.id
-                            WHERE throughsources.person_id = person.id
+                            WHERE throughsources.abstractagent_id = agent.id
                             ) AS sources ON TRUE
-                WHERE person.id in %s
+                LEFT JOIN LATERAL (
+                            SELECT array_agg(identifier.uri) AS identifiers
+                            FROM share_agentidentifier AS identifier
+                            WHERE identifier.agent_id = agent.id
+                            ) AS identifiers ON TRUE
+                LEFT JOIN LATERAL (
+                            SELECT array_agg(DISTINCT creative_work_relation.type) AS related_types
+                            FROM share_agentworkrelation AS creative_work_relation
+                            WHERE creative_work_relation.agent_id = agent.id
+                            ) AS related_types ON TRUE
+                WHERE agent.id in %s
             ''', (tuple(pks), ))
 
             while True:
@@ -64,10 +79,20 @@ def fetch_person(pks):
                 if not data:
                     return
 
-                yield data[0]
+                data = data[0]
+                populate_types(data)
+
+                for rtype in data.pop('related_types'):
+                    for relation_model in apps.get_model(rtype).mro():
+                        if not relation_model.mro()[1]._meta.proxy:
+                            break
+                        data['types'].append(relation_model._meta.verbose_name)
+                data['types'] = list(set(data['types']))
+
+                yield data
 
 
-def fetch_abstractcreativework(pks):
+def fetch_creativework(pks):
     if connection.connection is None:
         connection.cursor()
 
@@ -75,73 +100,68 @@ def fetch_abstractcreativework(pks):
         with connection.connection.cursor(str(uuid.uuid4())) as c:
             c.execute('''
                 SELECT json_build_object(
-                'id', creativework.id
-                , 'type', creativework.type
-                , 'title', creativework.title
-                , 'description', creativework.description
-                , 'is_deleted', creativework.is_deleted
-                , 'language', creativework.language
-                , 'date_created', creativework.date_created
-                , 'date_modified', creativework.date_modified
-                , 'date_updated', creativework.date_updated
-                , 'date_published', creativework.date_published
-                , 'tags', COALESCE(tags, '{}')
-                , 'identifiers', COALESCE(identifiers, '{}')
-                , 'sources', sources
-                , 'subjects', COALESCE(subjects, '{}')
-                , 'associations', COALESCE(associations, '{}')
-                , 'contributors', COALESCE(contributors, '{}'))
-                FROM share_abstractcreativework AS creativework
-                LEFT JOIN LATERAL(
-                    SELECT json_agg(json_build_object('id', agent.id, 'type', agent.type, 'name', agent.name)) as associations
-                    FROM share_association AS association
-                    JOIN share_agent AS agent ON association.agent_id = agent.id
-                    WHERE association.creative_work_id = creativework.id
-                ) AS associations ON true
+                    'id', creativework.id
+                    , 'type', creativework.type
+                    , 'title', creativework.title
+                    , 'description', creativework.description
+                    , 'is_deleted', creativework.is_deleted
+                    , 'language', creativework.language
+                    , 'date_created', creativework.date_created
+                    , 'date_modified', creativework.date_modified
+                    , 'date_updated', creativework.date_updated
+                    , 'date_published', creativework.date_published
+                    , 'tags', COALESCE(tags, '{}')
+                    , 'identifiers', COALESCE(identifiers, '{}')
+                    , 'sources', sources
+                    , 'subjects', COALESCE(subjects, '{}')
+                    , 'related_agents', COALESCE(related_agents, '{}'))
+                FROM share_creativework AS creativework
                 LEFT JOIN LATERAL (
-                    SELECT array_agg(identifier.uri) as identifiers
-                    FROM share_creativeworkidentifier AS identifier
-                    WHERE identifier.creative_work_id = creativework.id
-                ) AS links ON true
+                            SELECT json_agg(json_strip_nulls(json_build_object(
+                                                                'id', agent.id
+                                                                , 'type', agent.type
+                                                                , 'name', agent.name
+                                                                , 'given_name', agent.given_name
+                                                                , 'family_name', agent.family_name
+                                                                , 'additional_name', agent.additional_name
+                                                                , 'suffix', agent.suffix
+                                                                , 'identifiers', COALESCE(identifiers, '{}')
+                                                                , 'relation_type', agent_relation.type
+                                                                , 'order_cited', agent_relation.order_cited
+                                                                , 'cited_as', agent_relation.cited_as
+                                                            ))) AS related_agents
+                            FROM share_agentworkrelation AS agent_relation
+                            JOIN share_agent AS agent ON agent_relation.agent_id = agent.id
+                            LEFT JOIN LATERAL (
+                                        SELECT array_agg(identifier.uri) AS identifiers
+                                        FROM share_agentidentifier AS identifier
+                                        WHERE identifier.agent_id = agent.id
+                                        ) AS identifiers ON TRUE
+                            WHERE agent_relation.creative_work_id = creativework.id
+                            ) AS related_agents ON TRUE
                 LEFT JOIN LATERAL (
-                    SELECT array_agg(source.long_title) AS sources
-                    FROM share_abstractcreativework_sources AS throughsources
-                    JOIN share_shareuser AS source ON throughsources.shareuser_id = source.id
-                    WHERE throughsources.abstractcreativework_id = creativework.id
-                ) AS sources ON true
+                            SELECT array_agg(identifier.uri) AS identifiers
+                            FROM share_workidentifier AS identifier
+                            WHERE identifier.creative_work_id = creativework.id
+                            ) AS links ON TRUE
                 LEFT JOIN LATERAL (
-                    SELECT array_agg(tag.name) AS tags
-                    FROM share_throughtags AS throughtag
-                    JOIN share_tag AS tag ON throughtag.tag_id = tag.id
-                    WHERE throughtag.creative_work_id = creativework.id
-                ) AS tags ON true
+                            SELECT array_agg(source.long_title) AS sources
+                            FROM share_creativework_sources AS throughsources
+                            JOIN share_shareuser AS source ON throughsources.shareuser_id = source.id
+                            WHERE throughsources.abstractcreativework_id = creativework.id
+                            ) AS sources ON TRUE
                 LEFT JOIN LATERAL (
-                    SELECT array_agg(subject.name) AS subjects
-                    FROM share_throughsubjects AS throughsubject
-                    JOIN share_subject AS subject ON throughsubject.subject_id = subject.id
-                    WHERE throughsubject.creative_work_id = creativework.id
-                ) AS subjects ON true
+                            SELECT array_agg(tag.name) AS tags
+                            FROM share_throughtags AS throughtag
+                            JOIN share_tag AS tag ON throughtag.tag_id = tag.id
+                            WHERE throughtag.creative_work_id = creativework.id
+                            ) AS tags ON TRUE
                 LEFT JOIN LATERAL (
-                    SELECT json_agg(json_build_object(
-                        'id', person.id
-                        , 'order_cited', contributor.order_cited
-                        , 'bibliographic', contributor.bibliographic
-                        , 'cited_name', contributor.cited_name
-                        , 'given_name', person.given_name
-                        , 'family_name', person.family_name
-                        , 'additional_name', person.additional_name
-                        , 'suffix', person.suffix
-                        , 'identifiers', COALESCE(identifiers, '{}')
-                    )) AS contributors
-                    FROM share_contributor AS contributor
-                    JOIN share_person AS person ON contributor.person_id = person.id
-                    LEFT JOIN LATERAL (
-                        SELECT array_agg(identifier.uri) AS identifiers
-                        FROM share_personidentifier AS identifier
-                        WHERE identifier.person_id = person.id
-                    ) AS identifiers ON true
-                    WHERE contributor.creative_work_id = creativework.id
-                ) AS contributors ON true
+                            SELECT array_agg(subject.name) AS subjects
+                            FROM share_throughsubjects AS throughsubject
+                            JOIN share_subject AS subject ON throughsubject.subject_id = subject.id
+                            WHERE throughsubject.creative_work_id = creativework.id
+                            ) AS subjects ON TRUE
                 WHERE creativework.id IN %s
             ''', (tuple(pks), ))
 
@@ -152,25 +172,17 @@ def fetch_abstractcreativework(pks):
                     return
 
                 data = data[0]
+                data['lists'] = {}
 
-                associations = {
-                    k + 's': [{**e, 'type': k} for e in v]
-                    for k, v in
-                    itertools.groupby(data.pop('associations'), lambda x: x['type'].rpartition('.')[-1])
-                }
+                for agent in data.pop('related_agents'):
+                    populate_types(agent)
+                    relation_model = apps.get_model(agent.pop('relation_type'))
+                    parent_model = next(parent for parent in relation_model.mro() if not parent.mro()[2]._meta.proxy)
+                    agent['relation'] = relation_model._meta.verbose_name
+                    data.setdefault(str(parent_model._meta.verbose_name_plural), []).append(agent.get('cited_as') or agent['name'])
+                    data['lists'].setdefault(str(parent_model._meta.verbose_name_plural), []).append(agent)
 
-                data['type'] = data['type'].rpartition('.')[-1]
+                populate_types(data)
                 data['date'] = (data['date_published'] or data['date_updated'] or data['date_created'])
 
-                data['lists'] = {
-                    **associations,
-                    'identifiers': data.pop('identifiers', []),
-                    'contributors': sorted(data.pop('contributors', []), key=lambda x: x['order_cited']),
-                }
-
-                data['contributors'] = [
-                    ' '.join(x for x in (p['given_name'], p['family_name'], p['additional_name'], p['suffix']) if x)
-                    for p in data['lists']['contributors']
-                ]
-
-                yield {**data, **{k: [e['name'] for e in v] for k, v in associations.items()}}
+                yield data

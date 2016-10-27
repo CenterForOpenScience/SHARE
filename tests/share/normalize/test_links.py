@@ -3,11 +3,14 @@ import rfc3987
 import calendar
 import pendulum
 
+from share.normalize.links import ArXivLink
 from share.normalize.links import DateParserLink
 from share.normalize.links import DOILink
+from share.normalize.links import GuessAgentTypeLink
 from share.normalize.links import IRILink
 from share.normalize.links import ISNILink
 from share.normalize.links import ISSNLink
+from share.normalize.links import OAILink
 from share.normalize.links import OrcidLink
 
 UPPER_BOUND = pendulum.today().add(years=100).isoformat()
@@ -138,15 +141,65 @@ def test_doi_link(doi, result):
         assert DOILink().execute(doi)['IRI'] == result
 
 
+@pytest.mark.parametrize('arxiv_id, result', [
+    (None, TypeError('\'None\' is not of type str.')),
+    ('', ValueError('\'\' is not a valid ArXiv Identifier.')),
+    ('arXiv:1023..20382', ValueError('\'arXiv:1023..20382\' is not a valid ArXiv Identifier.')),
+    ('something else', ValueError('\'something else\' is not a valid ArXiv Identifier.')),
+    ('arXiv//1234.34543', ValueError('\'arXiv//1234.34543\' is not a valid ArXiv Identifier.')),
+    ('arXiv:101022232', ValueError('\'arXiv:101022232\' is not a valid ArXiv Identifier.')),
+    ('arXiv:10102.22322', ValueError('\'arXiv:10102.22322\' is not a valid ArXiv Identifier.')),
+    ('arXiv:2.2', ValueError('\'arXiv:2.2\' is not a valid ArXiv Identifier.')),
+    ('arxiv:1212.20282', 'http://arxiv.org/abs/1212.20282'),
+    ('   arxiv:1212.20282', 'http://arxiv.org/abs/1212.20282'),
+    ('   arxiv:1212.20282    ', 'http://arxiv.org/abs/1212.20282'),
+    ('arxiv:arXiv:1212.20282', 'http://arxiv.org/abs/1212.20282'),
+])
+def test_arxiv_link(arxiv_id, result):
+    if isinstance(result, Exception):
+        with pytest.raises(type(result)) as e:
+            ArXivLink().execute(arxiv_id)
+        assert e.value.args == result.args
+    else:
+        assert rfc3987.parse(result)  # Extra URL validation
+        assert ArXivLink().execute(arxiv_id)['IRI'] == result
+
+
+@pytest.mark.parametrize('oai_id, result', [
+    (None, TypeError('\'None\' is not of type str.')),
+    ('', ValueError('\'\' is not a valid OAI Identifier.')),
+    ('something else', ValueError('\'something else\' is not a valid OAI Identifier.')),
+    ('oai:missing.path', ValueError('\'oai:missing.path\' is not a valid OAI Identifier.')),
+    ('oai::blank', ValueError('\'oai::blank\' is not a valid OAI Identifier.')),
+    ('oai://cos.io/fun', ValueError('\'oai://cos.io/fun\' is not a valid OAI Identifier.')),
+    ('zenodo.com', ValueError('\'zenodo.com\' is not a valid OAI Identifier.')),
+    ('oai:invalid domain:this.is.stuff', ValueError('\'oai:invalid domain:this.is.stuff\' is not a valid OAI Identifier.')),
+    ('oai:domain.com:', ValueError('\'oai:domain.com:\' is not a valid OAI Identifier.')),
+    ('oai:cos.io:this.is.stuff', 'oai://cos.io/this.is.stuff'),
+    ('oai:subdomain.cos.io:this.is.stuff', 'oai://subdomain.cos.io/this.is.stuff'),
+    ('    oai:cos.io:stuff', 'oai://cos.io/stuff'),
+    ('    oai:cos.io:stuff  ', 'oai://cos.io/stuff'),
+    ('oai:cos.io:long:list:of:things', 'oai://cos.io/long:list:of:things'),
+])
+def test_oai_link(oai_id, result):
+    if isinstance(result, Exception):
+        with pytest.raises(type(result)) as e:
+            OAILink().execute(oai_id)
+        assert e.value.args == result.args
+    else:
+        assert rfc3987.parse(result)  # Extra URL validation
+        assert OAILink().execute(oai_id)['IRI'] == result
+
+
 class TestIRILink:
 
-    def _do_test(self, input, output):
+    def _do_test(self, input, output, suppress_failure=False):
         if isinstance(output, Exception):
             with pytest.raises(type(output)) as e:
                 IRILink().execute(input)
             assert e.value.args == output.args
         else:
-            assert {k: v for k, v in IRILink().execute(input).items() if k in output} == output
+            assert {k: v for k, v in IRILink(suppress_failure=suppress_failure).execute(input).items() if k in output} == output
 
     @pytest.mark.parametrize('input, output', [
         ('trexy@dinosaurs.sexy', {
@@ -339,19 +392,95 @@ class TestIRILink:
         return self._do_test(input, output)
 
     @pytest.mark.parametrize('input, output', [
+        ('arxiv:1212.20282', {
+            'scheme': 'http',
+            'authority': 'arxiv.org',
+            'IRI': 'http://arxiv.org/abs/1212.20282'
+        }),
+        ('   arxiv:1212.20282', {
+            'scheme': 'http',
+            'authority': 'arxiv.org',
+            'IRI': 'http://arxiv.org/abs/1212.20282'
+        }),
+        ('   arxiv:1212.20282    ', {
+            'scheme': 'http',
+            'authority': 'arxiv.org',
+            'IRI': 'http://arxiv.org/abs/1212.20282'
+        }),
+        ('arxiv:arXiv:1212.20282', {
+            'scheme': 'http',
+            'authority': 'arxiv.org',
+            'IRI': 'http://arxiv.org/abs/1212.20282'
+        }),
+    ])
+    def test_arxiv_ids(self, input, output):
+        return self._do_test(input, output)
+
+    @pytest.mark.parametrize('input, output', [
+        ('oai:cos.io:this.is.stuff', {
+            'scheme': 'oai',
+            'authority': 'cos.io',
+            'IRI': 'oai://cos.io/this.is.stuff'
+        }),
+        ('oai:subdomain.cos.io:this.is.stuff', {
+            'scheme': 'oai',
+            'authority': 'subdomain.cos.io',
+            'IRI': 'oai://subdomain.cos.io/this.is.stuff'
+        }),
+        ('    oai:cos.io:stuff', {
+            'scheme': 'oai',
+            'authority': 'cos.io',
+            'IRI': 'oai://cos.io/stuff'
+        }),
+        ('    oai:cos.io:stuff  ', {
+            'scheme': 'oai',
+            'authority': 'cos.io',
+            'IRI': 'oai://cos.io/stuff'
+        }),
+        ('oai:cos.io:long:list:of:things', {
+            'scheme': 'oai',
+            'authority': 'cos.io',
+            'IRI': 'oai://cos.io/long:list:of:things'
+        }),
+    ])
+    def test_oai_ids(self, input, output):
+        return self._do_test(input, output)
+
+    @pytest.mark.parametrize('input, output', [
         (None, TypeError('\'None\' is not of type str.')),
         ('', ValueError('\'\' could not be identified as an Identifier.')),
-        ('105517/ccdc.csd.cc1lj81f', ValueError('\'105517/ccdc.csd.cc1lj81f\' is not a valid \'absolute_IRI\'.')),
-        ('0.5517/ccdc.csd.cc1lj81f', ValueError('\'0.5517/ccdc.csd.cc1lj81f\' is not a valid \'absolute_IRI\'.')),
-        ('10.5517ccdc.csd.cc1lj81f', ValueError('\'10.5517ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-        ('10.517ccdc.csd.cc1lj81f', ValueError('\'10.517ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-        ('10.517/ccdc.csd.cc1lj81f', ValueError('\'10.517/ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-        ('10.517ccdc.csd.c>c1lj81f', ValueError('\'10.517ccdc.csd.c>c1lj81f\' is not a valid DOI.')),
+        ('105517/ccdc.csd.cc1lj81f', ValueError('\'105517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('0.5517/ccdc.csd.cc1lj81f', ValueError('\'0.5517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.5517ccdc.csd.cc1lj81f', ValueError('\'10.5517ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.517ccdc.csd.cc1lj81f', ValueError('\'10.517ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.517/ccdc.csd.cc1lj81f', ValueError('\'10.517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.517ccdc.csd.c>c1lj81f', ValueError('\'10.517ccdc.csd.c>c1lj81f\' could not be identified as an Identifier.')),
         ('0000000248692412', ValueError('\'0000000248692412\' could not be identified as an Identifier.')),
         ('0000000000000000', ValueError('\'0000000000000000\' could not be identified as an Identifier.')),
+        ('arXiv:1023..20382', ValueError('\'arXiv:1023..20382\' could not be identified as an Identifier.')),
+        ('arXiv:10102.22322', ValueError('\'arXiv:10102.22322\' could not be identified as an Identifier.')),
+        ('arXiv:2.2', ValueError('\'arXiv:2.2\' could not be identified as an Identifier.')),
     ])
     def test_malformed(self, input, output):
         return self._do_test(input, output)
+
+    @pytest.mark.parametrize('input, output', [
+        (None, TypeError('\'None\' is not of type str.')),
+        ('', {'IRI': None}),
+        ('105517/ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('0.5517/ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('10.5517ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('10.517ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('10.517/ccdc.csd.cc1lj81f', {'IRI': None}),
+        ('10.517ccdc.csd.c>c1lj81f', {'IRI': None}),
+        ('0000000248692412', {'IRI': None}),
+        ('0000000000000000', {'IRI': None}),
+        ('arXiv:1023..20382', {'IRI': None}),
+        ('arXiv:10102.22322', {'IRI': None}),
+        ('arXiv:2.2', {'IRI': None}),
+    ])
+    def test_malformed_suppress_failure(self, input, output):
+        return self._do_test(input, output, suppress_failure=True)
 
     @pytest.mark.parametrize('input', [
         '10.5517/ggdc.csd.cc1lj81f',
@@ -366,3 +495,53 @@ class TestIRILink:
     ])
     def test_benchmark(self, input, benchmark):
         benchmark(IRILink().execute, input)
+
+
+class TestGuessAgentTypeLink:
+    @pytest.mark.parametrize('name, result', [
+        ('University of Whales', 'institution'),
+        ('Thomas Jefferson', 'person'),
+        ('The Thomas Jefferson thing', 'organization'),
+        ('Center For Open Science', 'organization'),
+        ('Science Council', 'organization'),
+        ('Open Science Foundation', 'organization'),
+        ('American Chemical Society', 'organization'),
+        ('School for Clowns', 'institution'),
+        ('Clown College', 'institution'),
+        ('Clowning Institute', 'institution'),
+        ('The Clown Institution', 'institution'),
+        ('Clowns and Clown Accessories, Inc.', 'organization'),
+        ('All of the clowns', 'organization'),
+        ('Clown Group', 'organization'),
+        ('CLWN', 'organization'),
+        ('Mr. Clown', 'person'),
+        ('Ronald McDonald', 'person'),
+    ])
+    def test_without_explicit_default(self, name, result):
+        assert GuessAgentTypeLink().execute(name) == result
+
+    @pytest.mark.parametrize('name, default, result', [
+        ('University of Whales', 'organization', 'institution'),
+        ('Thomas Jefferson', 'person', 'person'),
+        ('Thomas Jefferson', 'organization', 'organization'),
+        ('Thomas Jefferson', 'institution', 'institution'),
+        ('The Thomas Jefferson thing', 'institution', 'organization'),
+        ('Center For Open Science', 'person', 'organization'),
+        ('Science Council', 'person', 'organization'),
+        ('Open Science Foundation', 'person', 'organization'),
+        ('American Chemical Society', 'person', 'organization'),
+        ('School for Clowns', 'person', 'institution'),
+        ('Clown College', 'person', 'institution'),
+        ('Clowning Institute', 'person', 'institution'),
+        ('The Clown Institution', 'person', 'institution'),
+        ('Clowns and Clown Accessories, Inc.', 'person', 'organization'),
+        ('All of the clowns', 'person', 'organization'),
+        ('Clown Group', 'person', 'organization'),
+        ('CLWN', 'person', 'organization'),
+        ('Mr. Clown', 'organization', 'organization'),
+        ('Ronald McDonald', 'person', 'person'),
+        ('Ronald McDonald', 'organization', 'organization'),
+        ('Ronald McDonald', 'institution', 'institution'),
+    ])
+    def test_with_default(self, name, default, result):
+        assert GuessAgentTypeLink(default=default).execute(name) == result

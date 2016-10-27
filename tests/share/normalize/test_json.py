@@ -34,7 +34,7 @@ class Person(Parser):
     family_name = ParseName(ctx.author_name).last
 
 
-class Contribution(Parser):
+class Creator(Parser):
     agent = Delegate(Person, ctx)
 
 
@@ -42,7 +42,7 @@ class Article(Parser):
     title = ctx.title
     description = ctx.description
     # publish_date = ParseDate(ctx.published_date)
-    related_agents = Map(Delegate(Contribution, ctx.authors))
+    related_agents = Map(Delegate(Creator, ctx.authors))
 
     class Extra:
         type = ctx.defined_type
@@ -53,4 +53,9 @@ class TestParser:
 
     def test_parser(self):
         parsed = Article(EXAMPLE).parse()
-        assert ctx.pool[parsed]['extra'] == {'type': 'paper', 'defined_type': 'paper'}
+        normalized = ctx.pool[parsed]
+        assert normalized['extra'] == {'type': 'paper', 'defined_type': 'paper'}
+
+        # no newlines, leading/trailing white space, or multiple spaces
+        assert normalized['title'] == 'Photochemical Carbon Dioxide Reduction on Mg-Doped Ga(In)N Nanowire Arrays under Visible Light Irradiation'
+        assert normalized['description'] == 'The photochemical reduction of carbon dioxide (CO<sub>2</sub>) into energy-rich products can potentially address some of the critical challenges we face today, including energy resource shortages and greenhouse gas emissions. Our ab initio calculations show that CO<sub>2</sub> molecules can be spontaneously activated on the clean nonpolar surfaces of wurtzite metal nitrides, for example, Ga\u00ad(In)\u00adN. We have further demonstrated the photoreduction of CO<sub>2</sub> into methanol (CH<sub>3</sub>OH) with sunlight as the only energy input. A conversion rate of CO<sub>2</sub> into CH<sub>3</sub>OH (\u223c0.5 mmol g<sub>cat</sub><sup>\u20131</sup> h<sup>\u20131</sup>) is achieved under visible light illumination (>400 nm). Moreover, we have discovered that the photocatalytic activity for CO<sub>2</sub> reduction can be drastically enhanced by incorporating a small amount of Mg dopant. The definitive role of Mg dopant in Ga\u00ad(In)\u00adN, at both the atomic and device levels, has been identified. This study reveals the potential of III-nitride semiconductor nanostructures in solar-powered reduction of CO<sub>2</sub> into hydrocarbon fuels.'

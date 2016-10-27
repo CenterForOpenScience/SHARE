@@ -57,14 +57,14 @@ valid_work_valid_agent = {
                             '@type': 'Article'
                         },
                         '@id': '_:76c520ec6fe54d5097c2413886ff027e',
-                        '@type': 'PublishingContribution'
+                        '@type': 'Publisher'
                     },
                     {
                         '@type': 'Article',
-                        'title': 'Publisher',
+                        'title': 'Published article',
                         'related_agents': [{
                             '@id': '_:76c520ec6fe54d5097c2413886ff027e',
-                            '@type': 'PublishingContribution'
+                            '@type': 'Publisher'
                         }],
                         '@id': '_:1bf1bf86939d433d96402090c33251d6',
                     }
@@ -95,7 +95,7 @@ valid_work_invalid_agent = {
                             '@type': 'Article'
                         },
                         '@id': '_:76c520ec6fe54d5097c2413886ff027e',
-                        '@type': 'PublishingContribution'
+                        '@type': 'Publisher'
                     },
                     {
                         '@type': 'Article',
@@ -134,14 +134,14 @@ valid_work_invalid_agent_field = {
                             '@type': 'Article'
                         },
                         '@id': '_:76c520ec6fe54d5097c2413886ff027e',
-                        '@type': 'PublishingContribution'
+                        '@type': 'Publisher'
                     },
                     {
                         '@type': 'Article',
                         'title': 'Published',
                         'publishers': [{
                             '@id': '_:76c520ec6fe54d5097c2413886ff027e',
-                            '@type': 'PublishingContribution'
+                            '@type': 'Publisher'
                         }],
                         '@id': '_:1bf1bf86939d433d96402090c33251d6',
                     }

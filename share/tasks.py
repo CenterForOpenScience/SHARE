@@ -142,7 +142,7 @@ class MakeJsonPatches(celery.Task):
         normalized = NormalizedData.objects.get(pk=normalized_id)
         if started_by_id:
             started_by = ShareUser.objects.get(pk=started_by_id)
-        logger.info('%s started make JSON patches for %s at %s', started_by, normalized, datetime.datetime.utcnow().isoformat())
+        logger.info('%s started make JSON patches for NormalizedData %s at %s', started_by, normalized_id, datetime.datetime.utcnow().isoformat())
 
         try:
             with transaction.atomic():
@@ -151,9 +151,10 @@ class MakeJsonPatches(celery.Task):
                     # TODO: verify change set is not overwriting user created object
                     cs.accept()
         except Exception as e:
+            logger.info('Failed make JSON patches for NormalizedData %s with exception %s. Retrying...', normalized_id, e)
             raise self.retry(countdown=10, exc=e)
 
-        logger.info('Finished make JSON patches for %s by %s at %s', normalized, started_by, datetime.datetime.utcnow().isoformat())
+        logger.info('Finished make JSON patches for NormalizedData %s by %s at %s', normalized_id, started_by, datetime.datetime.utcnow().isoformat())
 
 
 class BotTask(ProviderTask):

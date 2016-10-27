@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'revproxy',
     'mptt',
+    'graphene_django',
 
     'allauth',
     'allauth.account',
@@ -89,6 +90,7 @@ INSTALLED_APPS = [
     'providers.com.biomedcentral',
     'providers.com.dailyssrn',
     'providers.com.figshare',
+    'providers.com.figshare.v2',
     'providers.com.nature',
     'providers.com.peerj',
     'providers.com.springer',
@@ -264,7 +266,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework_json_api.pagination.PageNumberPagination',
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework_json_api.parsers.JSONParser',
-        'api.parsers.JSONLDParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'api.renderers.HideNullJSONAPIRenderer',
@@ -280,6 +281,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         # 'api.authentication.NonCSRFSessionAuthentication',
     ),
+}
+
+GRAPHENE = {
+    'SCHEMA': 'share.graphql.schema'
 }
 
 MIDDLEWARE_CLASSES = [

@@ -31,7 +31,7 @@ class TestAbstractWork:
             creative_work_version=cw.versions.first(),
             change_id=change_ids.get())
 
-        disWork = AbstractCreativeWorkDisambiguator('_:', {'workidentifiers': [identifier.pk]}, CreativeWork).find()
+        disWork = AbstractCreativeWorkDisambiguator('_:', {'identifiers': [identifier.pk]}, CreativeWork).find()
 
         assert disWork == cw
 
@@ -62,7 +62,7 @@ class TestAbstractWork:
             creative_work_version=cw2.versions.first(),
             change_id=change_ids.get())
 
-        disWorks = AbstractCreativeWorkDisambiguator('_:', {'workidentifiers': [identifier1.pk, identifier2.pk]}, CreativeWork).find()
+        disWorks = AbstractCreativeWorkDisambiguator('_:', {'identifiers': [identifier1.pk, identifier2.pk]}, CreativeWork).find()
 
         assert isinstance(disWorks, list)
         assert disWorks[0] == cw1

@@ -94,7 +94,7 @@ class AbstractCreativeWorkFactory(TypedShareObjectFactory):
         model = models.AbstractCreativeWork
 
     @factory.post_generation
-    def contributions(self, create, extracted, **kwargs):
+    def contributors(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.
             return
@@ -121,4 +121,4 @@ class ThroughAgentWorkRelationFactory(ShareObjectFactory):
     related = factory.SubFactory(AgentWorkRelationFactory)
 
     class Meta:
-        model = models.ThroughContribution
+        model = models.ThroughContributor

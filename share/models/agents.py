@@ -1,4 +1,8 @@
+import nameparser
+
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
@@ -20,6 +24,7 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractAgentWorkRelation')
 
     class Meta:
+        db_table = 'share_agent'
         index_together = (
             ('type', 'name',)
         )
@@ -32,3 +37,15 @@ generator = ModelGenerator(field_types={
     'text': models.TextField
 })
 globals().update(generator.subclasses_from_yaml(__file__, AbstractAgent))
+
+
+@receiver(pre_save, sender=Person, dispatch_uid='share.share.models.share_person_post_save_handler')  # noqa
+def person_post_save(sender, instance, **kwargs):
+    if not instance.name:
+        instance.name = ' '.join(x for x in (instance.given_name, instance.additional_name, instance.family_name, instance.suffix) if x)
+    if not any((instance.given_name, instance.additional_name, instance.given_name, instance.suffix)):
+        name = nameparser.HumanName(instance.name)
+        instance.given_name = name.first
+        instance.family_name = name.last
+        instance.additional_name = name.middle
+        instance.suffix = name.suffix

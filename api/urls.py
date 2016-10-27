@@ -1,7 +1,10 @@
 from django.conf.urls import url
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
+
 from rest_framework.routers import DefaultRouter
+
+from graphene_django.views import GraphQLView
 
 from api import views
 
@@ -64,13 +67,14 @@ register_route(r'changeset', views.ChangeSetViewSet)
 register_route(r'change', views.ChangeViewSet)
 register_route(r'rawdata', views.RawDataViewSet)
 register_route(r'user', views.ShareUserViewSet)
-register_route(r'provider', views.ProviderViewSet)
+register_route(r'sources', views.ProviderViewSet)
 
 router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='normalizeddata')
 
 urlpatterns = [
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
     url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
+    url(r'graph/?', GraphQLView.as_view(graphiql=True)),
     url(r'userinfo/?', ensure_csrf_cookie(views.ShareUserView.as_view()), name='userinfo'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),

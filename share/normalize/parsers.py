@@ -1,3 +1,4 @@
+import re
 import uuid
 from functools import reduce
 
@@ -43,7 +44,7 @@ class Parser(metaclass=ParserMeta):
         return type(
             cls.__name__ + 'Overridden',
             (cls, ), {
-                'schema': cls.schema if isinstance(cls.schema, str) else cls.__name__.lower(),
+                'schema': cls.schema if isinstance(cls.schema, (str, AbstractLink)) else cls.__name__.lower(),
                 **overrides
             }
         )
@@ -62,10 +63,7 @@ class Parser(metaclass=ParserMeta):
             if field.one_to_many or field.rel.many_to_many:
                 assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
             else:
-                if hasattr(field.rel.model, 'natural_key_field'):
-                    assert isinstance(value, str), 'Values for field {} must be a valid natural key for model {}. Found {}'.format(field, field.rel.model, value)
-                else:
-                    assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
+                assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
         else:
             assert not isinstance(value, dict), 'Value for non-relational field {} must be a primitive type. Found {}'.format(field, value)
 
@@ -77,6 +75,7 @@ class Parser(metaclass=ParserMeta):
             schema = self.schema
 
         if (self.context, schema) in ctx.pool:
+            Context().parser = prev
             return ctx.pool[self.context, schema]
 
         model = apps.get_model('share', schema)
@@ -100,7 +99,7 @@ class Parser(metaclass=ParserMeta):
 
             if value is not None:
                 self.validate(field, value)
-                inst[key] = value
+                inst[key] = self._normalize_white_space(value)
 
         inst['extra'] = {}
         for key, chain in self._extra.items():
@@ -117,3 +116,8 @@ class Parser(metaclass=ParserMeta):
 
         # Return only a reference to the parsed object to avoid circular data structures
         return self.ref
+
+    def _normalize_white_space(self, value):
+        if not isinstance(value, str):
+            return value
+        return re.sub(r'\s+', ' ', value.strip())

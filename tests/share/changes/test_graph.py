@@ -23,7 +23,7 @@ class TestChangeNode:
 
     def test_is_blank(self):
         node = ChangeNode.from_jsonld({
-            '@id': 1234,
+            '@id': '1234',
             '@type': 'person',
         })
 
@@ -230,7 +230,7 @@ class TestChangeGraph:
                 '@id': '_:5678',
                 '@type': 'contributor',
                 'person': {
-                    '@id': 8,
+                    '@id': '8',
                     '@type': 'person'
                 }
             }]

@@ -13,7 +13,7 @@
       "additionalProperties": false,
       "properties": {
         "@type": {"type": "string"},
-        "@id": {"type": ["string", "integer"]}
+        "@id": {"type": "string"}
       }
     }
   },

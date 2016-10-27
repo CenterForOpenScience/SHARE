@@ -14,6 +14,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 from share.models import NormalizedData
+from share.util import IDObfuscator
 
 
 __all__ = ('Change', 'ChangeSet', )
@@ -43,13 +44,13 @@ class ChangeManager(FuzzyCountManager):
             logger.debug('No changes detected in {!r}, skipping.'.format(node))
             return None
         if not hasattr(node.model, 'VersionModel'):
-            # Non-ShareObjects (Subject, *RelationType) cannot be changed.
+            # Non-ShareObjects (e.g. Subject) cannot be changed.
             # Shouldn't reach this point...
             logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(node, node.model))
             return None
 
         attrs = {
-            'node_id': str(node.id),
+            'node_id': node.id,
             'change': node.change,
             'change_set': change_set,
             'target_type': ContentType.objects.get_for_model(node.model, for_concrete_model=False),
@@ -83,14 +84,7 @@ class ChangeSet(models.Model):
         ret = []
         with transaction.atomic():
             for c in self.changes.all():
-                change_id = c.id
-                changeset_id = self.id
-                source = self.normalized_data.source
-                try:
-                    ret.append(c.accept(save=save))
-                except Exception as ex:
-                    logger.warn('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
-                    raise ex
+                ret.append(c.accept(save=save))
             self.status = ChangeSet.STATUS.accepted
             if save:
                 self.save()
@@ -143,6 +137,7 @@ class Change(models.Model):
     def accept(self, save=True):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
+        logger.debug('Accepting change node ({}, {})'.format(self.target_type, self.node_id))
         ret = self._accept(save)
 
         if save:
@@ -259,8 +254,6 @@ class Change(models.Model):
                     pass
             elif isinstance(v, list):
                 change[k] = [self._resolve_ref(r) for r in v]
-            elif isinstance(v, str):
-                change[k] = self._resolve_str(k, v)
             else:
                 change[k] = v
         return change
@@ -268,16 +261,13 @@ class Change(models.Model):
     def _resolve_ref(self, ref):
         model = apps.get_model('share', model_name=ref['@type'])
         ct = ContentType.objects.get_for_model(model, for_concrete_model=False)
-        if str(ref['@id']).startswith('_:'):
-            return model.objects.get(
-                change__target_type=ct,
-                change__node_id=ref['@id'],
-                change__change_set=self.change_set,
-            )
-        return model._meta.concrete_model.objects.get(pk=ref['@id'])
-
-    def _resolve_str(self, key, value):
-        field = self.target_type.model_class()._meta.get_field(key)
-        if field.many_to_one and hasattr(field.related_model, 'natural_key_field'):
-            return field.related_model.objects.get_by_natural_key(value)
-        return value
+        try:
+            if ref['@id'].startswith('_:'):
+                return model.objects.get(
+                    change__target_type=ct,
+                    change__node_id=ref['@id'],
+                    change__change_set=self.change_set,
+                )
+            return model._meta.concrete_model.objects.get(pk=IDObfuscator.decode(ref['@id'])[1])
+        except model.DoesNotExist as ex:
+            raise Exception('Could not resolve reference {}'.format(ref)) from ex

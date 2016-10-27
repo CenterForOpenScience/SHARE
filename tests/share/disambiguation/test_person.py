@@ -19,7 +19,7 @@ class TestPerson:
             agent_version=jane_doe.versions.first(),
             change_id=change_ids.get())
 
-        disPerson = AbstractAgentDisambiguator('_:', {'agentidentifiers': [identifier.pk]}, Person).find()
+        disPerson = AbstractAgentDisambiguator('_:', {'identifiers': [identifier.pk]}, Person).find()
 
         assert disPerson == jane_doe
 

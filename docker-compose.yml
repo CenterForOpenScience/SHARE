@@ -1,3 +1,28 @@
+# Taken from https://github.com/CenterForOpenScience/osf.io/pull/6364/files#diff-4e5e90c6228fd48698d074241c2ba760R1
+# Install the Docker Client
+#
+# OSX: https://www.docker.com/products/docker#/mac
+# Windows: https://www.docker.com/products/docker#/windows
+
+# Setup the Operation System
+#
+# OSX
+# - Alias the loopback interface
+#   sudo ifconfig lo0 alias 192.168.168.167
+#
+# Windows
+# - Install Microsoft Loopback Adapter (Windows 10 follow community comments as the driver was renamed)
+#   https://technet.microsoft.com/en-us/library/cc708322(v=ws.10).aspx
+# - Rename the new Loopback Interface (typically called 'Ethernet 2')
+#   - List interfaces
+#     netsh interface show interface
+#   - Rename the interface
+#     netsh inteface set interface "Ethernet 2" newname="Loopback"
+# - Assign the Loopback interface an IP address
+#   netsh interface ip add address "Loopback" 192.168.168.167 255.255.255.255
+# - Allow Docker to access to Drive your project is stored on
+#   Open the Docker Client -> Settings -> Shared Drives -> e.g. C -> Apply
+
 version: '2'
 services:
   elasticsearch:
@@ -71,21 +96,6 @@ services:
       DATABASE_HOST: postgres
       BROKER_URL: amqp://guest:guest@rabbitmq:5672/
 
-  monitor:
-    build: .
-    command: python manage.py monitor
-    depends_on:
-      - postgres
-      - rabbitmq
-    links:
-      - rabbitmq
-      - postgres
-    volumes:
-      - ./:/code
-    environment:
-      DATABASE_HOST: postgres
-      BROKER_URL: amqp://guest:guest@rabbitmq:5672/
-
   web:
     build: .
     command: python manage.py runserver --noreload 0.0.0.0:8000
@@ -105,3 +115,12 @@ services:
       DATABASE_HOST: postgres
       BROKER_URL: amqp://guest:guest@rabbitmq:5672/
       ELASTICSEARCH_URL: http://elasticsearch:9200/
+      EMBER_SHARE_URL: http://192.168.168.167:4200
+
+  ember:
+    image: quay.io/centerforopenscience/ember-share:release/2.0.0
+    command: ember server
+    depends_on:
+      - web
+    ports:
+      - 4200:4200
