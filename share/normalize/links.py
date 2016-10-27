@@ -19,6 +19,8 @@ from pycountry import languages
 
 from nameparser import HumanName
 
+from share.util import DictHashingDict
+
 logger = logging.getLogger(__name__)
 
 
@@ -115,35 +117,6 @@ def GuessAgentType(chain=None, default=None):
     return GuessAgentTypeLink(default=default)
 
 ### /Public API
-
-
-# A wrapper around dicts that can have dicts as keys
-class DictHashingDict:
-
-    def __init__(self):
-        self.__inner = {}
-
-    def get(self, key, *args):
-        return self.__inner.get(self._hash(key), *args)
-
-    def pop(self, key, *args):
-        return self.__inner.pop(self._hash(key), *args)
-
-    def __getitem__(self, key):
-        return self.__inner[self._hash(key)]
-
-    def __setitem__(self, key, value):
-        self.__inner[self._hash(key)] = value
-
-    def __contains__(self, key):
-        return self._hash(key) in self.__inner
-
-    def _hash(self, val):
-        if isinstance(val, dict):
-            val = tuple((k, self._hash(v)) for k, v in val.items())
-        if isinstance(val, (list, tuple)):
-            val = tuple(self._hash(v) for v in val)
-        return val
 
 
 # BaseClass for all links

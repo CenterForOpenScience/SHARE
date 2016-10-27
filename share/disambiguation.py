@@ -3,6 +3,7 @@ import logging
 from django.core.exceptions import ValidationError
 
 from share import models
+from share.util import DictHashingDict
 from share.util import IDObfuscator
 
 __all__ = ('GraphDisambiguator', )
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class GraphDisambiguator:
     def __init__(self):
+        self._cache = DictHashingDict()
         self.__disambiguator_map = {}
         self._gather_disambiguators(Disambiguator)
 
@@ -21,6 +23,12 @@ class GraphDisambiguator:
             n.update_relations(change_graph.node_map)
             if n.is_merge:
                 continue
+
+            handled = self._cache.setdefault((n.model, n.resolved_attrs), n)
+            if n.resolved_attrs and handled is not n:
+                change_graph.remove_node(n, handled)
+                continue
+
             instance = self.instance_for_node(n)
             if isinstance(instance, list):
                 # TODO after merging is fixed, add mergeaction change to graph
@@ -170,21 +178,25 @@ class SubjectDisambiguator(UniqueAttrDisambiguator):
 
 class AbstractAgentDisambiguator(Disambiguator):
     FOR_MODEL = models.AbstractAgent
+    NAME_KEYS = ('given_name', 'additional_name', 'family_name', 'suffix')
 
     def disambiguate(self):
-        agents = []
-        for id in self.attrs.get('identifiers', ()):
-            try:
-                identifier = models.AgentIdentifier.objects.get(id=id)
-                agents.append(identifier.agent)
-            except models.AgentIdentifier.DoesNotExist:
-                pass
-        if not agents:
+        if not self.attrs.get('identifiers'):
+            name = self.attrs.get('name') or ' '.join(self.attrs[k] for k in self.NAME_KEYS if self.attrs.get(k))
+            if name:
+                try:
+                    # TODO Make revisit this logic
+                    return self.model.objects.filter(name=name).first()
+                except self.model.DoesNotExist:
+                    pass
             return None
-        elif len(agents) == 1:
-            return agents[0]
-        else:
-            return agents
+
+        identifiers = models.AgentIdentifier.objects.select_related('agent').filter(id__in=self.attrs['identifiers'])
+        found = set(identifier.agent for identifier in identifiers)
+
+        if len(found) == 1:
+            return found.pop()  # Seems to be the best way to get something out of a set
+        return list(sorted(found, key=lambda x: x.pk))
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
