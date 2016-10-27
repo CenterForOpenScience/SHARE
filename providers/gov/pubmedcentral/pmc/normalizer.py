@@ -1,7 +1,7 @@
 import arrow
 from collections import OrderedDict
 
-from share.normalize import ctx, Normalizer
+from share.normalize import ctx
 from share.normalize.tools import *
 from share.normalize.parsers import Parser
 
@@ -87,23 +87,18 @@ class Article(Parser):
 
     related_agents = Concat(
         Delegate(Publisher,
-            Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name'])
-        ),
+                 Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name'])
+                 ),
         Map(Delegate(Contributor),
             RunPython(
                 'get_contributors',
                 Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
-                'person'
-            )
-        ),
+                'person')),
         Map(Delegate(ContributorOrganization),
             RunPython(
                 'get_contributors',
                 Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
-                'organization'
-            )
-        )
-    )
+                'organization')))
 
     tags = Map(
         Delegate(ThroughTags),
@@ -118,8 +113,7 @@ class Article(Parser):
     identifiers = Map(
         Delegate(WorkIdentifier), Map(IRI(), Try(RunPython(
             'get_identifier',
-            Concat(ctx.record.metadata.article.front['article-meta']['article-id']), '@pub-id-type', 'doi')
-    )))
+            Concat(ctx.record.metadata.article.front['article-meta']['article-id']), '@pub-id-type', 'doi'))))
 
     rights = Try(ctx.record.metadata.article.front['article-meta']['permissions']['license']['license-p']['#text'])
 
@@ -135,7 +129,7 @@ class Article(Parser):
         doi = RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']['article-id'],
                         '@pub-id-type', 'doi')
         pubmed_id = (RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']['article-id'],
-                        '@pub-id-type', 'pmcid'))
+                               '@pub-id-type', 'pmcid'))
 
         copyright = OneOf(
             ctx.record.metadata.article.front['article-meta']['permissions']['copyright-statement']['#text'],
