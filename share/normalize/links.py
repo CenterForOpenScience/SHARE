@@ -410,10 +410,7 @@ class PathLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        try:
-            return obj[self._segment]
-        except TypeError as ex:
-            raise TypeError('Trying to access \'{}\' on {}'.format(self._segment, obj)) from ex
+        return obj[self._segment]
 
     def __repr__(self):
         return '<{}({!r})>'.format(self.__class__.__name__, self._segment)
