@@ -44,6 +44,9 @@ class SoupLink(AbstractLink):
     def execute(self, obj):
         res = obj.soup.find_all(*self._args, **self._kwargs)
 
+        if not res:
+            return None
+
         if isinstance(res, list):
             if len(res) > 1:
                 return [SoupXMLDict(soup=el) for el in res]

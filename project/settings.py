@@ -93,6 +93,8 @@ INSTALLED_APPS = [
     'providers.com.figshare.v2',
     'providers.com.nature',
     'providers.com.peerj',
+    'providers.com.peerj.xml',
+    'providers.com.peerj.preprints',
     'providers.com.springer',
     'providers.edu.asu',
     'providers.edu.boise_state',
