@@ -182,6 +182,8 @@ class AbstractAgentDisambiguator(Disambiguator):
 
     def disambiguate(self):
         if not self.attrs.get('identifiers'):
+            if self.model == models.Person:
+                return None
             name = self.attrs.get('name') or ' '.join(self.attrs[k] for k in self.NAME_KEYS if self.attrs.get(k))
             if name:
                 try:
