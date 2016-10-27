@@ -2,6 +2,8 @@ import json
 import pytest
 import requests
 
+from tests.share.models import factories
+
 invalid_work = {
     'data': {
         'type': 'NormalizedData',
@@ -315,6 +317,18 @@ class TestValidator:
                 }
             }
         })
+    }, {
+        # does not break because the task information is not processed
+        'out': Response(202, keys={'data'}),
+        'in': requests.Request('POST', json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    'tasks': ['invalid_task'],
+                    'data': valid_work_valid_agent['data']['attributes']['data']
+                }
+            }
+        })
     }]
 
     @pytest.mark.django_db
@@ -335,10 +349,13 @@ class TestValidator:
     def test_robot_validator(self, robot_user, raw_data_id, client):
         args, kwargs = (), {'content_type': 'application/vnd.api+json'}
 
+        normalizer_task = factories.CeleryProviderTaskFactory()
+
         _request = requests.Request('POST', json={
             'data': {
                 'type': 'NormalizedData',
                 'attributes': {
+                    'tasks': [normalizer_task.id],
                     'raw': {'type': 'RawData', 'id': raw_data_id},
                     'data': valid_work_valid_agent['data']['attributes']['data']
                 }

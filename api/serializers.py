@@ -5,7 +5,7 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework_json_api import serializers
 
 from share import models
-from share.models import ChangeSet, ProviderRegistration
+from share.models import ChangeSet, ProviderRegistration, CeleryProviderTask
 
 
 class ShareModelSerializer(serializers.ModelSerializer):
@@ -40,11 +40,12 @@ class ProviderRegistrationSerializer(ShareModelSerializer):
 
 class FullNormalizedDataSerializer(serializers.ModelSerializer):
 
+    tasks = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=CeleryProviderTask.objects.all())
     source = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = models.NormalizedData
-        fields = ('data', 'source', 'raw')
+        fields = ('data', 'source', 'raw', 'tasks')
 
 
 class BasicNormalizedDataSerializer(serializers.ModelSerializer):
