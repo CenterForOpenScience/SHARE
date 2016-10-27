@@ -167,7 +167,6 @@ class CreativeWork(Parser):
         tools.Try(ctx.subjects)
     )
 
-
     class Extra:
         """
         Fields that are combined in the base parser are relisted as singular elements that match
