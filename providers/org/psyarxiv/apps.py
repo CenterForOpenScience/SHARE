@@ -4,7 +4,7 @@ from .harvester import PsyarxivHarvester
 
 
 class AppConfig(ProviderAppConfig):
-    name = 'providers.io.psyarxiv'
+    name = 'providers.org.psyarxiv'
     version = '0.0.1'
     title = 'osf_preprints_psyarxiv'
     long_title = 'PsyArXiv'
