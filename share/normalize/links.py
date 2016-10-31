@@ -24,7 +24,7 @@ from share.util import DictHashingDict
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter')
 
 
 #### Public API ####
@@ -61,8 +61,8 @@ def Maybe(chain, segment, default=None):
     return chain + MaybeLink(segment, default=default)
 
 
-def Try(chain, default=None):
-    return TryLink(chain, default=default)
+def Try(chain, default=None, exceptions=None):
+    return TryLink(chain, default=default, exceptions=exceptions)
 
 
 def Map(chain, *chains):
@@ -116,9 +116,11 @@ def GuessAgentType(chain=None, default=None):
         return chain + GuessAgentTypeLink(default=default)
     return GuessAgentTypeLink(default=default)
 
+
+def Filter(func, chain):
+    return chain + FilterLink(func)
+
 ### /Public API
-
-
 # BaseClass for all links
 # Links are a single step of the parsing process
 # Links may not mutate the object passed into them
@@ -382,11 +384,12 @@ class MaybeLink(AbstractLink):
 
 
 class TryLink(AbstractLink):
-    def __init__(self, chain, default=None):
+    def __init__(self, chain, default=None, exceptions=None):
         super().__init__()
         self._chain = chain
         self._default = default
         self.__anchor = AnchorLink()
+        self._exceptions = (IndexError, KeyError) + (exceptions or ())
 
     def __add__(self, step):
         # Attach all new links to the "subchain"
@@ -396,7 +399,7 @@ class TryLink(AbstractLink):
     def execute(self, obj):
         try:
             val = self._chain.chain()[0].run(obj)
-        except (IndexError, KeyError):
+        except self._exceptions:
             return self._default
         except TypeError as err:
             logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain))
@@ -908,3 +911,13 @@ class GuessAgentTypeLink(AbstractLink):
         if self.ORGANIZATION_RE.search(obj):
             return 'organization'
         return self._default or 'person'
+
+
+class FilterLink(AbstractLink):
+
+    def __init__(self, func):
+        self._func = func
+        super().__init__()
+
+    def execute(self, obj):
+        return list(filter(self._func, obj))
