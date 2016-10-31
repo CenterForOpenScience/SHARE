@@ -216,7 +216,7 @@ class RawData(models.Model):
         return self.date_processed is not None  # TODO: this field doesn't exist...
 
     class Meta:
-        unique_together = (('provider_doc_id', 'source', 'sha256'),)
+        unique_together = (('provider_doc_id', 'app_label', 'source', 'sha256'),)
         verbose_name_plural = 'Raw data'
 
     def __repr__(self):
