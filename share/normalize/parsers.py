@@ -1,5 +1,6 @@
 import re
 import uuid
+import logging
 from functools import reduce
 
 from django.apps import apps
@@ -12,6 +13,7 @@ from share.normalize.links import AbstractLink
 # NOTE: Context is a thread local singleton
 # It is asigned to ctx here just to keep a family interface
 ctx = Context()
+logger = logging.getLogger(__name__)
 
 
 class ParserMeta(type):
@@ -76,6 +78,7 @@ class Parser(metaclass=ParserMeta):
 
         if (self.context, schema) in ctx.pool:
             Context().parser = prev
+            logger.debug('Values (%s, %s) found in cache as %s', self.context, schema, ctx.pool[self.context, schema])
             return ctx.pool[self.context, schema]
 
         model = apps.get_model('share', schema)
@@ -93,9 +96,14 @@ class Parser(metaclass=ParserMeta):
             value = chain.run(self.context)
 
             if value and field.is_relation and (field.one_to_many or field.rel.many_to_many):
-                for v in value:
-                    field_name = field.field.name if field.one_to_many else field.m2m_field_name()
-                    ctx.pool[v][field_name] = self.ref
+                field_name = field.field.name if field.one_to_many else field.m2m_field_name()
+                for v in tuple(value):  # Freeze list so we can modify it will iterating
+                    # Allow filling out either side of recursive relations
+                    if model._meta.concrete_model == field.related_model and field_name in ctx.pool[v]:
+                        ctx.pool[v][field.m2m_reverse_field_name()] = self.ref
+                        value.remove(v)  # Prevent CyclicalDependency error. Only "subjects" should have related_works
+                    else:
+                        ctx.pool[v][field_name] = self.ref
 
             if value is not None:
                 self.validate(field, value)
