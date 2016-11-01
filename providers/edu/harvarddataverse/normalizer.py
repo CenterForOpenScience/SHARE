@@ -17,8 +17,7 @@ class WorkIdentifier(Parser):
 
 
 class CreativeWork(Parser):
-    schema = 'Dataset'
-    # TODO: get schema
+    schema = 'dataset'
     title = ctx.name
     description = Try(ctx.description)
     date_published = ParseDate(ctx.published_at)
