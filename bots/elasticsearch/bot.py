@@ -88,8 +88,8 @@ class ElasticSearchBot(Bot):
         logger.info('Loading up indexed models')
         for model_name in self.config.INDEX_MODELS:
             model = apps.get_model('share', model_name)
-            qs = model.objects.filter(date_modified__gt=self.last_run.datetime).values_list('id', flat=True)
-            logger.info('Looking for %ss that have been modified after %s', model, self.last_run.datetime)
+            qs = model.objects.filter(date_modified__gt=self.last_run).values_list('id', flat=True)
+            logger.info('Looking for %ss that have been modified after %s', model, self.last_run)
 
             logger.info('Found %s %s that must be updated in ES', qs.count(), model)
             for i, batch in enumerate(chunk(qs.all(), chunk_size)):
