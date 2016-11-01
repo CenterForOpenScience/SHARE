@@ -9,33 +9,22 @@ class Person(Parser):
 
 
 class Contributor(Parser):
-    person = Delegate(Person, ctx)
-    cited_name = ctx
-    order_cited = ctx('index')
+    agent = Delegate(Person, ctx)
 
 
-class Link(Parser):
-    url = ctx
-    type = RunPython('get_link_type', ctx)
-
-    def get_link_type(self, link):
-        if 'dx.doi.org' in link:
-            return 'doi'
-        elif 'dataverse.harvard.edu' in link:
-            return 'provider'
-        return 'misc'
-
-
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
+class WorkIdentifier(Parser):
+    uri = IRI(ctx)
 
 
 class CreativeWork(Parser):
+    schema = 'Dataset'
+    # TODO: get schema
     title = ctx.name
     description = Try(ctx.description)
-    contributors = Map(Delegate(Contributor), Try(ctx.authors))
     date_published = ParseDate(ctx.published_at)
-    links = Concat(
-        Delegate(ThroughLinks, ctx.url),
-        Delegate(ThroughLinks, ctx.image_url),
-    )
+    identifiers = Map(Delegate(WorkIdentifier), ctx.url)
+
+    related_agents = Map(Delegate(Person), ctx.authors)
+
+    class Extra:
+        citation = ctx.citation
