@@ -523,7 +523,7 @@ class CreativeWork(Parser):
         tools.Delegate(ThroughSubjects),
         tools.Subjects(
             tools.RunPython(
-                force_text,
+                'text_list',
                 tools.Concat(
                     tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject),
                 )
