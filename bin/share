@@ -129,7 +129,7 @@ def debug(args, argv):
     normalizer = config.normalizer(config)
 
     with open(args['FILE']) as fobj:
-        data = normalizer.unwrap_data(json.load(fobj)['raw'])
+        data = normalizer.unwrap_data(fobj.read())
 
     parser = normalizer.get_root_parser()
 
