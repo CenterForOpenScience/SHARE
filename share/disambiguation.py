@@ -186,7 +186,7 @@ class AbstractAgentDisambiguator(Disambiguator):
                 return None
             try:
                 # TODO Make revisit this logic
-                return self.model.objects.filter(name=self.attr['name']).first()
+                return self.model.objects.filter(name=self.attrs['name']).first()
             except self.model.DoesNotExist:
                 return None
 
