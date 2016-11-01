@@ -119,19 +119,19 @@ class GenericDisambiguator(Disambiguator):
         return self.model.objects.filter(**self.attrs).first()
 
     def _disambiguate_through(self):
-        fields = [
-            f for f in self.model._meta.get_fields()
-            if f.is_relation and f.editable and f.name not in {'same_as', 'extra'}
-        ]
-        # Don't dissambiguate through tables that don't have both sides filled out
-        for field in fields:
-            if field.name not in self.attrs:
-                return None
+        for unique_fields in self.model._meta.concrete_model._meta.unique_together:
+            if 'type' in unique_fields and 'type' not in self.attrs:
+                self.attrs['type'] = self.model._meta.label_lower
 
-        try:
-            return self.model.objects.get(**{field.name: self.attrs[field.name] for field in fields})
-        except (self.model.DoesNotExist, self.model.MultipleObjectsReturned):
-            return None
+            # Don't dissambiguate through tables that don't have both sides filled out
+            if any(field not in self.attrs for field in unique_fields):
+                continue
+
+            try:
+                return self.model.objects.get(**{field: self.attrs[field] for field in unique_fields})
+            except self.model.DoesNotExist:
+                continue
+        return None
 
 
 class UniqueAttrDisambiguator(Disambiguator):
@@ -182,23 +182,19 @@ class AbstractAgentDisambiguator(Disambiguator):
 
     def disambiguate(self):
         if not self.attrs.get('identifiers'):
-            if self.model == models.Person:
+            if self.model == models.Person or not self.attrs.get('name'):
                 return None
-            name = self.attrs.get('name') or ' '.join(self.attrs[k] for k in self.NAME_KEYS if self.attrs.get(k))
-            if name:
-                try:
-                    # TODO Make revisit this logic
-                    return self.model.objects.filter(name=name).first()
-                except self.model.DoesNotExist:
-                    pass
-            return None
+            try:
+                # TODO Make revisit this logic
+                return self.model.objects.filter(name=self.attr['name']).first()
+            except self.model.DoesNotExist:
+                return None
 
-        identifiers = models.AgentIdentifier.objects.select_related('agent').filter(id__in=self.attrs['identifiers'])
-        found = set(identifier.agent for identifier in identifiers)
+        found = set(models.AbstractAgent.objects.filter(identifiers__id__in=self.attrs['identifiers']))
 
         if len(found) == 1:
             return found.pop()  # Seems to be the best way to get something out of a set
-        return list(sorted(found, key=lambda x: x.pk))
+        return list(sorted(found, key=lambda x: x.pk)) or None
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
@@ -208,12 +204,11 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
         if not self.attrs.get('identifiers'):
             return None
 
-        identifiers = models.WorkIdentifier.objects.select_related('creative_work').filter(id__in=self.attrs['identifiers'])
-        found = set(identifier.creative_work for identifier in identifiers)
+        found = set(models.AbstractCreativeWork.objects.filter(identifiers__id__in=self.attrs['identifiers']))
 
         if len(found) == 1:
             return found.pop()  # Seems to be the best way to get something out of a set
-        return list(sorted(found, key=lambda x: x.pk))
+        return list(sorted(found, key=lambda x: x.pk)) or None
 
 
 class OrganizationDisambiguator(Disambiguator):
