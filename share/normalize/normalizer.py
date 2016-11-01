@@ -58,11 +58,13 @@ class Normalizer(metaclass=abc.ABCMeta):
             if hasattr(module, class_name)
         ]
 
+        root_levels = [parser for parser in root_levels if getattr(parser, 'is_root', False)] or root_levels
+
         if not root_levels:
             raise ImportError('No root level parsers found. You may have to create one or manually specifiy a parser with the root_parser attribute')
 
         if len(root_levels) > 1:
-            raise ImportError('Found root level parsers {!r}. If more than one is found a single parser must be specified via the root_parser attribute')
+            raise ImportError('Found root level parsers {!r}. If more than one is found a single parser must be specified via the root_parser attribute'.format(root_levels))
 
         return root_levels[0]
 

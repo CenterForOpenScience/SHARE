@@ -1,8 +1,7 @@
 import re
 import os
 import yaml
-
-from django.contrib.contenttypes.models import ContentType
+from collections import OrderedDict
 
 
 class IDObfuscator:
@@ -18,16 +17,24 @@ class IDObfuscator:
 
     @classmethod
     def encode_id(cls, pk, model):
+        from django.contrib.contenttypes.models import ContentType
+
         model_id = ContentType.objects.get_for_model(model).id
         encoded = '{:09X}'.format(pk * cls.NUM % cls.MOD)
         return '{:02X}{}-{}-{}'.format(model_id, encoded[:3], encoded[3:6], encoded[6:])
 
     @classmethod
     def decode(cls, id):
+        from django.contrib.contenttypes.models import ContentType
+
         match = cls.ID_RE.match(id)
         assert match, '"{}" is not a valid ID'.format(id)
         model_id, *pks = match.groups()
         return ContentType.objects.get(pk=int(model_id, 16)).model_class(), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
+
+    @classmethod
+    def decode_id(cls, id):
+        return cls.decode(id)[1]
 
     @classmethod
     def resolve(cls, id):
@@ -123,3 +130,38 @@ class ModelGenerator:
     def _get_field(self, field_spec):
         field_class = self.__field_types[field_spec['type']]
         return field_class(*field_spec.get('args', []), **field_spec.get('kwargs', {}))
+
+
+class DictHashingDict:
+    # A wrapper around dicts that can have dicts as keys
+
+    def __init__(self):
+        self.__inner = {}
+
+    def get(self, key, *args):
+        return self.__inner.get(self._hash(key), *args)
+
+    def pop(self, key, *args):
+        return self.__inner.pop(self._hash(key), *args)
+
+    def setdefault(self, key, *args):
+        return self.__inner.setdefault(self._hash(key), *args)
+
+    def __getitem__(self, key):
+        return self.__inner[self._hash(key)]
+
+    def __setitem__(self, key, value):
+        self.__inner[self._hash(key)] = value
+
+    def __contains__(self, key):
+        return self._hash(key) in self.__inner
+
+    def _hash(self, val):
+        if isinstance(val, dict):
+            if not isinstance(val, OrderedDict):
+                val = tuple((k, self._hash(v)) for k, v in sorted(val.items(), key=lambda x: x[0]))
+            else:
+                val = tuple((k, self._hash(v)) for k, v in val.items())
+        if isinstance(val, (list, tuple)):
+            val = tuple(self._hash(v) for v in val)
+        return val

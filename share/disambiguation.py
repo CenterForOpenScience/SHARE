@@ -3,6 +3,7 @@ import logging
 from django.core.exceptions import ValidationError
 
 from share import models
+from share.util import DictHashingDict
 from share.util import IDObfuscator
 
 __all__ = ('GraphDisambiguator', )
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class GraphDisambiguator:
     def __init__(self):
+        self._cache = DictHashingDict()
         self.__disambiguator_map = {}
         self._gather_disambiguators(Disambiguator)
 
@@ -21,6 +23,12 @@ class GraphDisambiguator:
             n.update_relations(change_graph.node_map)
             if n.is_merge:
                 continue
+
+            handled = self._cache.setdefault((n.model, n.resolved_attrs), n)
+            if n.resolved_attrs and handled is not n:
+                change_graph.remove_node(n, handled)
+                continue
+
             instance = self.instance_for_node(n)
             if isinstance(instance, list):
                 # TODO after merging is fixed, add mergeaction change to graph
@@ -111,19 +119,19 @@ class GenericDisambiguator(Disambiguator):
         return self.model.objects.filter(**self.attrs).first()
 
     def _disambiguate_through(self):
-        fields = [
-            f for f in self.model._meta.get_fields()
-            if f.is_relation and f.editable and f.name not in {'same_as', 'extra'}
-        ]
-        # Don't dissambiguate through tables that don't have both sides filled out
-        for field in fields:
-            if field.name not in self.attrs:
-                return None
+        for unique_fields in self.model._meta.concrete_model._meta.unique_together:
+            if 'type' in unique_fields and 'type' not in self.attrs:
+                self.attrs['type'] = self.model._meta.label_lower
 
-        try:
-            return self.model.objects.get(**{field.name: self.attrs[field.name] for field in fields})
-        except (self.model.DoesNotExist, self.model.MultipleObjectsReturned):
-            return None
+            # Don't dissambiguate through tables that don't have both sides filled out
+            if any(field not in self.attrs for field in unique_fields):
+                continue
+
+            try:
+                return self.model.objects.get(**{field: self.attrs[field] for field in unique_fields})
+            except self.model.DoesNotExist:
+                continue
+        return None
 
 
 class UniqueAttrDisambiguator(Disambiguator):
@@ -170,21 +178,23 @@ class SubjectDisambiguator(UniqueAttrDisambiguator):
 
 class AbstractAgentDisambiguator(Disambiguator):
     FOR_MODEL = models.AbstractAgent
+    NAME_KEYS = ('given_name', 'additional_name', 'family_name', 'suffix')
 
     def disambiguate(self):
-        agents = []
-        for id in self.attrs.get('identifiers', ()):
+        if not self.attrs.get('identifiers'):
+            if self.model == models.Person or not self.attrs.get('name'):
+                return None
             try:
-                identifier = models.AgentIdentifier.objects.get(id=id)
-                agents.append(identifier.agent)
-            except models.AgentIdentifier.DoesNotExist:
-                pass
-        if not agents:
-            return None
-        elif len(agents) == 1:
-            return agents[0]
-        else:
-            return agents
+                # TODO Make revisit this logic
+                return self.model.objects.filter(name=self.attr['name']).first()
+            except self.model.DoesNotExist:
+                return None
+
+        found = set(models.AbstractAgent.objects.filter(identifiers__id__in=self.attrs['identifiers']))
+
+        if len(found) == 1:
+            return found.pop()  # Seems to be the best way to get something out of a set
+        return list(sorted(found, key=lambda x: x.pk)) or None
 
 
 class AbstractCreativeWorkDisambiguator(Disambiguator):
@@ -194,12 +204,11 @@ class AbstractCreativeWorkDisambiguator(Disambiguator):
         if not self.attrs.get('identifiers'):
             return None
 
-        identifiers = models.WorkIdentifier.objects.select_related('creative_work').filter(id__in=self.attrs['identifiers'])
-        found = set(identifier.creative_work for identifier in identifiers)
+        found = set(models.AbstractCreativeWork.objects.filter(identifiers__id__in=self.attrs['identifiers']))
 
         if len(found) == 1:
             return found.pop()  # Seems to be the best way to get something out of a set
-        return list(sorted(found, key=lambda x: x.pk))
+        return list(sorted(found, key=lambda x: x.pk)) or None
 
 
 class OrganizationDisambiguator(Disambiguator):

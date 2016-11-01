@@ -1,7 +1,6 @@
 from furl import furl
 
 from django.db import models
-
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 
@@ -43,6 +42,9 @@ class WorkIdentifier(ShareObject):
         self.scheme = f.scheme
         super(WorkIdentifier, self).save(*args, **kwargs)
 
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.creative_work_id)
+
 
 class AgentIdentifier(ShareObject):
     uri = ShareURLField(unique=True)
@@ -55,3 +57,6 @@ class AgentIdentifier(ShareObject):
         self.host = f.host
         self.scheme = f.scheme
         super(AgentIdentifier, self).save(*args, **kwargs)
+
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.agent_id)

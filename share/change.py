@@ -72,8 +72,8 @@ class ChangeNode:
     def resolved_attrs(self):
         return {
             **self.attrs,
-            **{k: IDObfuscator.decode(v['@id'])[1] for k, v in self.relations.items() if not v['@id'].startswith('_:')},
-            **{k: [IDObfuscator.decode(x['@id'])[1] for x in v if not x['@id'].startswith('_:')] for k, v in self.reverse_relations.items() if any(not x['@id'].startswith('_:') for x in v)},
+            **{k: IDObfuscator.decode_id(v['@id'])for k, v in self.relations.items() if not v['@id'].startswith('_:')},
+            **{k: [IDObfuscator.decode_id(x['@id'])for x in v if not x['@id'].startswith('_:')] for k, v in self.reverse_relations.items() if any(not x['@id'].startswith('_:') for x in v)},
         }
 
     @property
@@ -196,6 +196,14 @@ class ChangeGraph:
 
         if parse:
             self.__nodes = self.__sorter.sorted()
+
+    def remove_node(self, node, replace=None):
+        for ref in node.refs:
+            self.__map[ref] = replace
+        try:
+            self.__nodes.remove(node)
+        except ValueError:
+            pass
 
     def get_node(self, id, type):
         try:

@@ -19,10 +19,12 @@ from pycountry import languages
 
 from nameparser import HumanName
 
+from share.util import DictHashingDict
+
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter')
 
 
 #### Public API ####
@@ -59,8 +61,8 @@ def Maybe(chain, segment, default=None):
     return chain + MaybeLink(segment, default=default)
 
 
-def Try(chain, default=None):
-    return TryLink(chain, default=default)
+def Try(chain, default=None, exceptions=None):
+    return TryLink(chain, default=default, exceptions=exceptions)
 
 
 def Map(chain, *chains):
@@ -93,14 +95,14 @@ def OneOf(*chains):
 
 def Orcid(chain=None):
     if chain:
-        return chain + OrcidLink()
-    return OrcidLink()
+        return (chain + OrcidLink()).IRI
+    return OrcidLink().IRI
 
 
 def DOI(chain=None):
     if chain:
-        return chain + DOILink()
-    return DOILink()
+        return (chain + DOILink()).IRI
+    return DOILink().IRI
 
 
 def IRI(chain=None, suppress_failure=False):
@@ -114,38 +116,11 @@ def GuessAgentType(chain=None, default=None):
         return chain + GuessAgentTypeLink(default=default)
     return GuessAgentTypeLink(default=default)
 
+
+def Filter(func, chain):
+    return chain + FilterLink(func)
+
 ### /Public API
-
-
-# A wrapper around dicts that can have dicts as keys
-class DictHashingDict:
-
-    def __init__(self):
-        self.__inner = {}
-
-    def get(self, key, *args):
-        return self.__inner.get(self._hash(key), *args)
-
-    def pop(self, key, *args):
-        return self.__inner.pop(self._hash(key), *args)
-
-    def __getitem__(self, key):
-        return self.__inner[self._hash(key)]
-
-    def __setitem__(self, key, value):
-        self.__inner[self._hash(key)] = value
-
-    def __contains__(self, key):
-        return self._hash(key) in self.__inner
-
-    def _hash(self, val):
-        if isinstance(val, dict):
-            val = tuple((k, self._hash(v)) for k, v in val.items())
-        if isinstance(val, (list, tuple)):
-            val = tuple(self._hash(v) for v in val)
-        return val
-
-
 # BaseClass for all links
 # Links are a single step of the parsing process
 # Links may not mutate the object passed into them
@@ -204,8 +179,6 @@ class AbstractLink:
     def __call__(self, name):
         if name == '*':
             return self + IteratorLink()
-        if name == 'parent':
-            return self + ParentLink()
         if name == 'index':
             return self + GetIndexLink()
         raise Exception(
@@ -230,7 +203,7 @@ class AbstractLink:
         return '<{}()>'.format(self.__class__.__name__)
 
     def run(self, obj):
-        Context().frames.append({'link': self, 'context': obj})
+        Context().frames.append({'link': self, 'context': obj, 'parser': Context().parser})
         try:
             return self.execute(obj)
         finally:
@@ -367,11 +340,6 @@ class TrimLink(AbstractLink):
         return obj.strip()
 
 
-class ParentLink(AbstractLink):
-    def execute(self, obj):
-        return Context().parent
-
-
 class IteratorLink(AbstractLink):
     def __init__(self):
         super().__init__()
@@ -416,11 +384,12 @@ class MaybeLink(AbstractLink):
 
 
 class TryLink(AbstractLink):
-    def __init__(self, chain, default=None):
+    def __init__(self, chain, default=None, exceptions=None):
         super().__init__()
         self._chain = chain
         self._default = default
         self.__anchor = AnchorLink()
+        self._exceptions = (IndexError, KeyError) + (exceptions or ())
 
     def __add__(self, step):
         # Attach all new links to the "subchain"
@@ -430,7 +399,7 @@ class TryLink(AbstractLink):
     def execute(self, obj):
         try:
             val = self._chain.chain()[0].run(obj)
-        except (IndexError, KeyError):
+        except self._exceptions:
             return self._default
         except TypeError as err:
             logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain))
@@ -942,3 +911,13 @@ class GuessAgentTypeLink(AbstractLink):
         if self.ORGANIZATION_RE.search(obj):
             return 'organization'
         return self._default or 'person'
+
+
+class FilterLink(AbstractLink):
+
+    def __init__(self, func):
+        self._func = func
+        super().__init__()
+
+    def execute(self, obj):
+        return list(filter(self._func, obj))
