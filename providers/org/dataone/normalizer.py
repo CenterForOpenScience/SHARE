@@ -32,9 +32,12 @@ class Creator(Contributor):
 
 
 class RelatedWork(Parser):
-    schema = 'DataSet' # TODO or CreativeWork?
+    schema = 'DataSet'
 
-    identifiers = Map(Delegate(WorkIdentifier), ctx)
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        IRI(ctx)
+    )
 
 
 class IsPartOf(Parser):
@@ -84,7 +87,7 @@ class DataSet(Parser):
         ),
         Map(
             Delegate(IsDocumentedBy),
-            Maybe(XPath(ctx, "arr[@name='isDocumentedBy']"), 'arr')['#text']
+            Maybe(XPath(ctx, "arr[@name='isDocumentedBy']"), 'arr').str
         ),
     )
 
