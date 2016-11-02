@@ -409,7 +409,7 @@ class TryLink(AbstractLink):
         except self._exceptions:
             return self._default
         except TypeError as err:
-            logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain))
+            logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain.chain()))
             return self._default
         return self.__anchor.run(val)
 
@@ -469,6 +469,9 @@ class XPathLink(AbstractLink):
         if len(elems) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
             return elems[0]
         return elems
+
+    def __repr__(self):
+        return '<{}({!r})>'.format(self.__class__.__name__, self._xpath)
 
 
 class DelegateLink(AbstractLink):
