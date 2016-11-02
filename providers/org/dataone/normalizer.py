@@ -1,5 +1,6 @@
 from share.normalize import *
 
+
 class WorkIdentifier(Parser):
     uri = ctx
 
