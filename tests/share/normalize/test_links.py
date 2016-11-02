@@ -3,6 +3,7 @@ import rfc3987
 import calendar
 import pendulum
 
+from share.normalize.links import ARKLink
 from share.normalize.links import ArXivLink
 from share.normalize.links import DateParserLink
 from share.normalize.links import DOILink
@@ -165,6 +166,31 @@ def test_arxiv_link(arxiv_id, result):
         assert ArXivLink().execute(arxiv_id)['IRI'] == result
 
 
+@pytest.mark.parametrize('ark_id, result', [
+    (None, TypeError('\'None\' is not of type str.')),
+    ('', ValueError('\'\' is not a valid ARK Identifier.')),
+    ('ark:/blah-blah-blah', ValueError('\'ark:/blah-blah-blah\' is not a valid ARK Identifier.')),
+    ('something else', ValueError('\'something else\' is not a valid ARK Identifier.')),
+    ('ark//1234/blah-blah-blah', ValueError('\'ark//1234/blah-blah-blah\' is not a valid ARK Identifier.')),
+    ('ark:/1234', ValueError('\'ark:/1234\' is not a valid ARK Identifier.')),
+    ('bark:/1234/blah-blah', ValueError('\'bark:/1234/blah-blah\' is not a valid ARK Identifier.')),
+    ('ark:/1234a/blah-blah', ValueError('\'ark:/1234a/blah-blah\' is not a valid ARK Identifier.')),
+    ('ark:/1234/blah-blah-blah', 'ark://1234/blah-blah-blah'),
+    ('   ark:/1234/blah-blah-blah', 'ark://1234/blah-blah-blah'),
+    ('ark:/1234/blah-blah-blah    ', 'ark://1234/blah-blah-blah'),
+    ('http://namemappingauthority.org/ark:/1234/blah-blah-blah', 'ark://1234/blah-blah-blah'),
+    ('ark:/383838/this/one/has/path', 'ark://383838/this/one/has/path'),
+])
+def test_ark_link(ark_id, result):
+    if isinstance(result, Exception):
+        with pytest.raises(type(result)) as e:
+            ARKLink().execute(ark_id)
+        assert e.value.args == result.args
+    else:
+        assert rfc3987.parse(result)  # Extra URL validation
+        assert ARKLink().execute(ark_id)['IRI'] == result
+
+
 @pytest.mark.parametrize('urn, result', [
     (None, TypeError('\'None\' is not of type str.')),
     ('', ValueError('\'\' is not a valid URN.')),
@@ -255,6 +281,11 @@ class TestIRILink:
             'scheme': 'http',
             'authority': 'google.com',
             'IRI': 'http://google.com/MixedCases',
+        }),
+        ('www.GOOGLE.com:443/MixedCases', {
+            'scheme': 'http',
+            'authority': 'www.google.com',
+            'IRI': 'http://www.google.com/MixedCases',
         }),
     ])
     def test_urls(self, input, output):
@@ -423,6 +454,36 @@ class TestIRILink:
         }),
     ])
     def test_arxiv_ids(self, input, output):
+        return self._do_test(input, output)
+
+    @pytest.mark.parametrize('input, output', [
+        ('ark:/1234/blah-blah-blah', {
+            'scheme': 'ark',
+            'authority': '1234',
+            'path': '/blah-blah-blah'
+        }),
+        ('   ark:/1234/blah-blah-blah', {
+            'scheme': 'ark',
+            'authority': '1234',
+            'path': '/blah-blah-blah'
+        }),
+        ('ark:/1234/blah-blah-blah    ', {
+            'scheme': 'ark',
+            'authority': '1234',
+            'path': '/blah-blah-blah'
+        }),
+        ('http://namemappingauthority.org/ark:/1234/blah-blah-blah', {
+            'scheme': 'ark',
+            'authority': '1234',
+            'path': '/blah-blah-blah'
+        }),
+        ('ark:/383838/this/one/has/path', {
+            'scheme': 'ark',
+            'authority': '383838',
+            'path': '/this/one/has/path'
+        }),
+    ])
+    def test_ark_ids(self, input, output):
         return self._do_test(input, output)
 
     @pytest.mark.parametrize('input, output', [

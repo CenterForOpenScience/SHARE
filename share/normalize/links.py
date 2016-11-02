@@ -775,10 +775,14 @@ class URLLink(AbstractIRILink):
     def hint(cls, obj):
         if cls.URL_RE.search(obj) is not None:
             return 0.25
+        if obj[:4].lower() == 'www.':
+            return 0.1
         return 0
 
     def _parse(self, obj):
         match = self.URL_RE.search(obj)
+        if not match and obj[:4].lower() == 'www.':
+            match = self.URL_RE.search('http://{}'.format(obj))
         return super(URLLink, self)._parse(match.group(0))
 
     def _process_scheme(self, scheme):
@@ -848,6 +852,30 @@ class ArXivLink(AbstractIRILink):
             'scheme': self.ARXIV_SCHEME,
             'authority': self.ARXIV_DOMAIN,
             'path': self.ARXIV_PATH.format(match.group(1))
+        }
+
+
+class ARKLink(AbstractIRILink):
+    # https://en.wikipedia.org/wiki/Archival_Resource_Key
+    # https://wiki.ucop.edu/download/attachments/16744455/arkspec.pdf
+
+    ARK_SCHEME = 'ark'
+    ARK_RE = re.compile(r'\bark:/(\d+)(/\S+)', flags=re.I)
+
+    @classmethod
+    def hint(cls, obj):
+        if cls.ARK_RE.search(obj) is not None:
+            return 0.9
+        return 0
+
+    def _parse(self, obj):
+        match = self.ARK_RE.search(obj)
+        if not match:
+            raise ValueError('\'{}\' is not a valid ARK Identifier.'.format(obj))
+        return {
+            'scheme': self.ARK_SCHEME,
+            'authority': match.group(1),
+            'path': match.group(2)
         }
 
 
