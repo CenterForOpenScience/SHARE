@@ -340,25 +340,6 @@ class FunderRelation(Parser):
     awards = tools.Map(tools.Delegate(ThroughAwards), ctx)
 
 
-class Venue(Parser):
-    name = tools.Try(
-        tools.RunPython(
-            force_text,
-            ctx.geoLocationPlace
-        )
-    )
-
-    class Extra:
-        geo_box = tools.Try(ctx.geoLocationBox)
-        geo_point = tools.Try(ctx.geoLocationPoint)
-        # v.4 new property geoLocationPolygon
-        geo_polygon = tools.Try(ctx.geoLocationPolygon)
-
-
-class ThroughVenues(Parser):
-    venue = tools.Delegate(Venue, ctx)
-
-
 class Tag(Parser):
     name = ctx
 
@@ -609,11 +590,6 @@ class CreativeWork(Parser):
     free_to_read_type = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.rightsList.rights['@rightsURI'])
     free_to_read_date = tools.ParseDate(tools.Try(tools.RunPython('get_date_type', tools.Concat(ctx.record.metadata['oai_datacite'].payload.resource.dates.date), 'Available')))
 
-    venues = tools.Map(
-        tools.Delegate(ThroughVenues),
-        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.geoLocations.geoLocation)
-    )
-
     class Extra:
         """
         Fields that are combined in the base parser are relisted as singular elements that match
@@ -665,6 +641,7 @@ class CreativeWork(Parser):
 
         creators = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.creators)
 
+        # v.4 new property geoLocationPolygon, in addition to geoLocationPoint and geoLocationBox
         geolocations = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.geoLocations)
 
         funding_reference = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.fundingReference)
