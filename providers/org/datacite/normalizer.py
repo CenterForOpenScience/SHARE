@@ -18,14 +18,6 @@ PEOPLE_TYPES = (
     'Supervisor',
     'WorkPackageLeader'
 )
-CHECK_TYPES = (
-    'DataCollector',
-    'DataManager',
-    'Producer',
-    'RightsHolder',
-    'Sponsor',
-    'Other'
-)
 NOT_PEOPLE_TYPES = (
     'Distributor',
     'HostingInstitution',
@@ -33,6 +25,13 @@ NOT_PEOPLE_TYPES = (
     'RegistrationAuthority',
     'ResearchGroup'
 )
+# Other ambiguous types
+#   'DataCollector',
+#   'DataManager',
+#   'Producer',
+#   'RightsHolder',
+#   'Sponsor',
+#   'Other'
 
 
 def try_contributor_type(value, target_list_types):
@@ -74,18 +73,23 @@ def force_text(data):
     raise Exception('{} is not a string or a dictionary.'.format(data))
 
 
-def get_agent_type(agent, default='Person'):
+def get_agent_type(agent, person=False):
     """
     Returns agent type based on contributor type.
     """
     is_not_person = try_contributor_type(agent, NOT_PEOPLE_TYPES)
     is_person = try_contributor_type(agent, PEOPLE_TYPES)
+    try:
+        agent_name = agent.creatorName
+    except KeyError:
+        agent_name = agent.contributorName
 
-    if is_person:
-        return 'Person'
-    elif is_not_person:
-        return 'Organization'
-    return default
+    if person and is_person:
+        return agent_name
+    elif not person and is_not_person:
+        return agent_name
+    # break OneOf option
+    raise KeyError()
 
 
 RELATION_MAP = {
@@ -161,7 +165,7 @@ def get_related_works(options, inverse):
 
 def get_relation_type(relation_type):
     normalized_relation = RELATION_MAP[relation_type]
-    return normalized_relation if normalized_relation else 'WorkRelation'
+    return normalized_relation or 'WorkRelation'
 
 
 class AgentIdentifier(Parser):
@@ -175,14 +179,25 @@ class AffiliatedAgent(Parser):
     name = ctx
 
 
+class IsAffiliatedWith(Parser):
+    related = tools.Delegate(AffiliatedAgent, ctx)
+
+
 class ContributorAgent(Parser):
     schema = tools.OneOf(
-        tools.RunPython(
-            get_agent_type,
-            ctx
+        tools.GuessAgentType(
+            tools.RunPython(
+                get_agent_type,
+                ctx,
+                person=False
+            ),
+            default='organization'
         ),
         tools.GuessAgentType(
-            tools.OneOf(ctx.creatorName, ctx.contributorName)
+            tools.OneOf(
+                ctx.creatorName,
+                ctx.contributorName
+            )
         )
     )
 
@@ -196,7 +211,7 @@ class ContributorAgent(Parser):
             )
         )
     )
-    related_agents = tools.Map(tools.Delegate(AffiliatedAgent), tools.Concat(tools.Try(
+    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Concat(tools.Try(
         tools.RunPython(
             force_text,
             ctx.affiliation
@@ -224,15 +239,9 @@ class ContributorAgent(Parser):
 
 
 class FunderAgent(Parser):
-    schema = tools.OneOf(
-        tools.RunPython(
-            get_agent_type,
-            ctx
-        ),
-        tools.GuessAgentType(
-            tools.OneOf(ctx.funderName, ctx.contributorName),
-            default='organization'
-        )
+    schema = tools.GuessAgentType(
+        tools.OneOf(ctx.funderName, ctx.contributorName),
+        default='organization'
     )
 
     name = tools.OneOf(ctx.funderName, ctx.contributorName)
@@ -261,7 +270,7 @@ class FunderAgent(Parser):
 
 
 class HostAgent(Parser):
-    schema = tools.GuessAgentType(ctx, default='organization')
+    schema = tools.GuessAgentType(ctx.contributorName, default='organization')
 
     name = tools.Try(ctx.contributorName)
 
@@ -287,9 +296,6 @@ class PublisherAgent(Parser):
     schema = tools.GuessAgentType(ctx, default='organization')
 
     name = ctx
-
-    class Extra:
-        contributor_type = tools.Try(ctx.contributorType)
 
 
 class ContributorRelation(Parser):
@@ -323,11 +329,15 @@ class Award(Parser):
     uri = tools.Try(ctx.awardURI)
 
 
+class ThroughAwards(Parser):
+    award = tools.Delegate(Award, ctx)
+
+
 class FunderRelation(Parser):
     schema = 'Funder'
 
     agent = tools.Delegate(FunderAgent, ctx)
-    award = tools.Delegate(Award, ctx)
+    awards = tools.Map(tools.Delegate(ThroughAwards), ctx)
 
 
 class Venue(Parser):
@@ -505,6 +515,11 @@ class CreativeWork(Parser):
             PublisherRelation),
             tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.publisher)
         ),
+        tools.Map(tools.Delegate(HostRelation), tools.RunPython(
+            get_contributors,
+            tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.contributors.contributor)),
+            ['HostingInstitution']
+        )),
         # v.3 Funder is a contributor type
         # v.4 FundingReference replaces funder contributor type
         tools.Map(tools.Delegate(FunderRelation), tools.RunPython(
@@ -656,12 +671,9 @@ class CreativeWork(Parser):
 
     def get_date_type(self, date_obj, date_type):
         date = None
-        try:
-            for obj in date_obj:
-                if obj['@dateType'] == date_type:
-                    date = obj['#text']
-        except KeyError:
-            raise KeyError()
+        for obj in date_obj:
+            if obj['@dateType'] == date_type:
+                date = obj['#text']
         if date:
             return date
         # raise KeyError to break TryLink
