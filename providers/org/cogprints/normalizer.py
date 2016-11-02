@@ -11,7 +11,7 @@ class ThroughSubjects(Parser):
 
 
 class Preprint(OAICreativeWork):
-
+    schema = 'preprint'
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
         tools.Subjects(ctx.record.metadata.dc['dc:subject'])
