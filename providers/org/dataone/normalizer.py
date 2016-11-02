@@ -41,14 +41,14 @@ class IsPartOf(Parser):
     related = Delegate(RelatedWork, ctx)
 
 
-class IsSupplementTo(Parser):
-    related = Delegate(RelatedWork, ctx)
-
-
-class Supplements(Parser):
-    schema = 'IsSupplementTo'
+class IsDocumentedBy(Parser):
+    schema = 'Documents'
 
     subject = Delegate(RelatedWork, ctx)
+
+
+class Documents(Parser):
+    related = Delegate(RelatedWork, ctx)
 
 
 class DataSet(Parser):
@@ -79,11 +79,11 @@ class DataSet(Parser):
             Maybe(XPath(ctx, "arr[@name='resourceMap']"), 'arr').str
         ),
         Map(
-            Delegate(IsSupplementTo),
+            Delegate(Documents),
             Maybe(XPath(ctx, "arr[@name='documents']"), 'arr').str
         ),
         Map(
-            Delegate(Supplements),
+            Delegate(IsDocumentedBy),
             Maybe(XPath(ctx, "arr[@name='isDocumentedBy']"), 'arr')['#text']
         ),
     )
