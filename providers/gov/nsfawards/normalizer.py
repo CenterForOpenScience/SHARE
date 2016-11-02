@@ -7,19 +7,6 @@ def format_url(award_id):
     return 'https://www.nsf.gov/awardsearch/showAward?AWD_ID={}'.format(award_id)
 
 
-class Venue(Parser):
-    name = tools.Try(ctx.awardeeName)
-    location = tools.Join(tools.Concat(ctx.awardeeCity, tools.Try(ctx.awardeeStateCode)), joiner=', ')
-
-    class Extra:
-        awardee_city = ctx.awardeeCity
-        awardee_state_code = tools.Try(ctx.awardeeStateCode)
-
-
-class ThroughVenues(Parser):
-    venue = tools.Delegate(Venue, ctx)
-
-
 class WorkIdentifier(Parser):
     uri = tools.RunPython(format_url, ctx.id)
 
@@ -101,7 +88,6 @@ class CreativeWork(Parser):
         tools.Map(tools.Delegate(FunderRelation), ctx),
         tools.Map(tools.Delegate(ContributorRelation), ctx)
     )
-    venues = tools.Map(tools.Delegate(ThroughVenues), ctx)
 
     date_updated = tools.ParseDate(ctx.date)
 
