@@ -120,6 +120,7 @@ def GuessAgentType(chain=None, default=None):
 def Filter(func, chain):
     return chain + FilterLink(func)
 
+
 ### /Public API
 # BaseClass for all links
 # Links are a single step of the parsing process
