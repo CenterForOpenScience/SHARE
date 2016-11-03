@@ -44,11 +44,10 @@ class Query(graphene.ObjectType):
         return models.ShareUser.objects.exclude(robot='').exclude(long_title='').order_by('long_title')[offset:offset + limit]
 
     def resolve_search(self, args, context, info):
-        resp = Query.client.search(index=settings.ELASTICSEARCH_INDEX, doc_type=args['type'], body={
-            'from': args.get('from', 0),
-            'size': args.get('size', 10),
-            'query': args['query'],
-        })
+        args.setdefault('from', 0)
+        args.setdefault('size', 10)
+
+        resp = Query.client.search(index=settings.ELASTICSEARCH_INDEX, doc_type=args.pop('type'), body=args)
 
         del resp['_shards']  # No need to expose server information
 
