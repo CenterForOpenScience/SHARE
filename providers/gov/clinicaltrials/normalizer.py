@@ -20,8 +20,14 @@ class WorkIdentifier(Parser):
     uri = ctx
 
 
-class AgentRelation(Parser):
-    related = Delegate(Institution, ctx)
+class AffiliatedAgent(Parser):
+    schema = GuessAgentType(ctx, default='organization')
+
+    name = ctx
+
+
+class IsAffiliatedWith(Parser):
+    related = Delegate(AffiliatedAgent, ctx)
 
 
 class Institution(Parser):
@@ -36,11 +42,7 @@ class Institution(Parser):
         if 'country' in ctx: location += ctx['country'] + ': '
         if 'city' in ctx: location += ctx['city'] + ', '
         if 'state' in ctx: location += ctx['state'] + ' '
-        if 'zip' in ctx: location += 'zip code: ' + ctx['zip']
         return location
-
-
-# class ContributionInstitution(Parser):
 
 
 class Person(Parser):
@@ -49,7 +51,7 @@ class Person(Parser):
     additional_name = Maybe(ctx, 'middle_name')
 
     identifiers = Map(Delegate(AgentIdentifier), Maybe(ctx, 'email'))
-    related_agents = Map(Delegate(AgentRelation ), Try(ctx.affiliation))
+    related_agents = Map(Delegate(IsAffiliatedWith), Try(ctx.affiliation))
 
 
 class Contributor(Parser):
@@ -69,8 +71,8 @@ class CreativeWork(Parser):
         Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_contact_backup')),
         Map(Delegate(Institution),
             Concat(ctx.clinical_study.sponsors.lead_sponsor,
-                ctx.clinical_study.sponsors.collaborator,
-                Maybe(ctx.clinical_study, 'location')))
+                Maybe(ctx.clinical_study.sponsors, 'collaborator'),
+                RunPython('get_locations', Concat(Try(ctx.clinical_study.location)))))
     )
 
     tags = Map(Delegate(ThroughTags), Maybe(ctx.clinical_study, 'keyword'))
@@ -85,12 +87,20 @@ class CreativeWork(Parser):
         org_study_id = ctx.clinical_study.id_info.org_study_id
         status = ctx.clinical_study.overall_status
         start_date = RunPython('parse_date', ctx.clinical_study.start_date)
-        completion_date = RunPython('parse_date', ctx.clinical_study.completion_date['#text'])
-        completion_date_type = ctx.clinical_study.completion_date['@type']
+        completion_date = RunPython('parse_date', Try(ctx.clinical_study.completion_date['#text']))
+        completion_date_type = Try(ctx.clinical_study.completion_date['@type'])
         study_type = ctx.clinical_study.study_type
         conditions = ctx.clinical_study.condition
         is_fda_regulated = ctx.clinical_study.is_fda_regulated
-        citation = ctx.clinical_study.reference.citation
+        is_section_801 = Try(ctx.clinical_study.is_section_801)
+        citation = Try(ctx.clinical_study.reference.citation)
+
+    def get_locations(self, locations):
+        results = []
+        for location in locations:
+            if 'name' in location['facility']:
+                results.append(location)
+        return results
 
     def parse_date(self, date):
         try:
