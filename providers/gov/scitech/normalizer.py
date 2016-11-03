@@ -3,149 +3,127 @@ import re
 from share.normalize import *
 
 
-class Organization(Parser):
-    name = ctx.name
+class AgentIdentifier(Parser):
+    uri = IRI(ctx)
 
 
-class Affiliation(Parser):
-    pass
+class WorkIdentifier(Parser):
+    uri = IRI(ctx)
 
 
-class Email(Parser):
-    email = ctx
-    is_primary = Static(False)
-
-
-class PersonEmail(Parser):
-    email = Delegate(Email, ctx)
-
-
-class Identifier(Parser):
-    base_url = Static('https://orcid.org/')
-    url = Orcid(ctx)
-
-
-class ThroughIdentifiers(Parser):
-    identifier = Delegate(Identifier, ctx)
-
-
-class Person(Parser):
-    given_name = ParseName(ctx.name).first
-    family_name = ParseName(ctx.name).last
-    additional_name = ParseName(ctx.name).middle
-    suffix = ParseName(ctx.name).suffix
-    identifiers = Map(Delegate(ThroughIdentifiers), Maybe(ctx, 'orcid'))
-    emails = Map(Delegate(PersonEmail), Maybe(ctx, 'email'))
-    affiliations = Map(
-        Delegate(Affiliation.using(entity=Delegate(Organization))),
-        Maybe(ctx, 'affiliation')
-    )
-
-
-class Contributor(Parser):
-    order_cited = ctx('index')
-    cited_name = ctx.name
-    person = Delegate(Person, ctx)
-
-
-class Link(Parser):
-    url = DOI(ctx)
-    type = Static('doi')
-
-
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
-
-
-class Publisher(Parser):
+class Tag(Parser):
     name = ctx
 
 
-class Association(Parser):
-    pass
+class ThroughTags(Parser):
+    tag = Delegate(Tag, ctx)
+
+
+class Organization(Parser):
+    schema = GuessAgentType(ctx)
+    name = ctx
+
+
+class IsAffiliatedWith(Parser):
+    related = Delegate(Organization, ctx)
+
+
+class Person(Parser):
+    name = ctx.name
+    identifiers = Map(Delegate(AgentIdentifier), ctx.identifiers)
+    related_agents = Map(Delegate(IsAffiliatedWith), ctx.institutions)
+
+
+class Creator(Parser):
+    order_cited = ctx('index')
+    cited_as = ctx.name
+    agent = Delegate(Person, ctx)
+
+
+class Contributor(Parser):
+    agent = Delegate(Organization, ctx)
+
+
+class Funder(Parser):
+    agent = Delegate(Organization, ctx)
+
+
+class Publisher(Parser):
+    agent = Delegate(Organization, ctx)
 
 
 class CreativeWork(Parser):
-
-    DOE_CONTRIBUTOR_REGEX = re.compile(r'([^[]+?(?:\[.+?\])?)(?:(?<!\d);|$)')
+    DOE_CONTRIBUTOR_REGEX = re.compile(r'((.+?)(?:, E-mail: [^,\s]+)*(?: \[.+?\])?(?: \(ORCID:.{16}\))?(?:;|$))', re.IGNORECASE)
     DOE_AFFILIATIONS_REGEX = re.compile(r'\s*\[(.*?)\]')
-    DOE_EMAIL_REGEX = re.compile(r'((?:,? (?:Email|email|E-mail|e-mail):\s*)?(\S*@\S*))')
-    DOE_ORCID_REGEX = re.compile(r'(\(ORCID:\s*(\S*)\))')
+    DOE_EMAIL_REGEX = re.compile(r'(?:,? E-?mail:\s*)?(\S*@\S*)', re.IGNORECASE)
+    DOE_ORCID_REGEX = re.compile(r'\(ORCID:\s*(\S*)\)')
 
-    def doe_process_contributors(self, ctx):
-        return [
-            self.doe_name_parser(name)
-            for name
-            in self.DOE_CONTRIBUTOR_REGEX.findall(ctx or '')
-            if name
-        ]
-
-    def doe_name_parser(self, name):
-        if name.strip() == 'None':
-            return {'name': ''}
-        name, orcid = self.extract_and_replace_one(name, self.DOE_ORCID_REGEX)
-        name, email = self.extract_and_replace_one(name, self.DOE_EMAIL_REGEX)
-        name, affiliations = self.doe_extract_affiliations(name)
-
-        parsed_name = self.doe_parse_name(name)
-        if affiliations:
-            parsed_name['affiliation'] = list(map(self.doe_parse_affiliation, affiliations))
-        if orcid:
-            parsed_name['orcid'] = orcid
-        if email:
-            parsed_name['email'] = email
-        return parsed_name
-
-    def doe_extract_affiliations(self, name):
-        affiliations = self.DOE_AFFILIATIONS_REGEX.findall(name)
-        for affiliation in affiliations:
-            name = name.replace('[{}]'.format(affiliation), '')
-        return name, affiliations
-
-    def doe_parse_affiliation(self, affiliation):
-        return {'name': affiliation}
-
-    def doe_parse_name(self, name):
-        return {'name': name}
-
-    def extract_and_replace_one(self, text, pattern):
-        matches = pattern.findall(text)
-        if matches and len(matches) == 1:
-            return text.replace(matches[0][0], ''), matches[0][1]
-        return text, None
+    schema = RunPython('get_schema', ctx.record['dc:type'])
 
     title = ctx.record['dc:title']
     description = ctx.record['dc:description']
-    language = ParseLanguage(ctx.record['dc:language'])
+    # is_deleted
+    date_published = ParseDate(ctx.record['dc:date'])
+    date_updated = OneOf(
+        ParseDate(ctx.record['dc:dateentry']),
+        ParseDate(ctx.record['dc:date'])
+    )
+    # free_to_read_type
+    # free_to_read_date
     rights = Maybe(ctx.record, 'dc:rights')
-    contributors = Map(
-        Delegate(Contributor),
-        RunPython('doe_process_contributors', ctx.record['dc:creator'])
+    language = ParseLanguage(ctx.record['dc:language'])
+
+    tags = Map(Delegate(ThroughTags), RunPython('get_tags', ctx.record['dc:subject']))
+
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        Try(ctx.record['dc:doi']),
+        ctx.record['dcq:identifier-citation'],
+        Try(ctx.record['dcq:identifier-purl']['#text']),
     )
-    links = Map(
-        Delegate(ThroughLinks),
-        Maybe(ctx.record, 'dc:doi')
-    )
-    publishers = Map(
-        Delegate(Association.using(entity=Delegate(Publisher))),
-        ctx.record['dcq:publisher']
+    related_agents = Concat(
+        Map(Delegate(Publisher), RunPython(lambda x: x.split(', ') if x else None, ctx.record['dcq:publisher'])),
+        Map(Delegate(Funder), RunPython(lambda x: x.split(', ') if x else None, ctx.record['dcq:publisherSponsor'])),
+        Map(Delegate(Contributor), RunPython(lambda x: x.split(', ') if x else None, ctx.record['dcq:publisherResearch'])),
+        Map(Delegate(Creator), RunPython('get_contributors', ctx.record['dc:creator'])),
     )
 
     class Extra:
         coverage = ctx.record['dc:coverage']
-        date = ctx.record['dc:date']
-        date_entry = ctx.record['dc:dateEntry']
         format = ctx.record['dc:format']
         identifier = ctx.record['dc:identifier']
-        identifier_citation = ctx.record['dcq:identifier-citation']
         identifier_doe_contract = ctx.record['dcq:identifierDOEcontract']
-        identifier_purl = ctx.record['dcq:identifier-purl']
         identifier_other = ctx.record['dc:identifierOther']
         identifier_report = ctx.record['dc:identifierReport']
         publisher_availability = ctx.record['dcq:publisherAvailability']
         publisher_country = ctx.record['dcq:publisherCountry']
-        publisher_research = ctx.record['dcq:publisherResearch']
-        publisher_sponsor = ctx.record['dcq:publisherSponsor']
         relation = ctx.record['dc:relation']
-        type = ctx.record['dc:type']
         type_qualifier = ctx.record['dcq:typeQualifier']
+
+    def get_schema(self, type):
+        return {
+            'Thesis/Dissertation': 'Thesis',
+            'Technical Report': 'Report',
+            'Journal Article': 'Article',
+            'Patent': 'CreativeWork',  # TODO Add Patent?
+            None: 'CreativeWork',
+            'Other': 'CreativeWork',
+            'Program Document': 'CreativeWork',
+            'Conference': 'ConferencePaper',
+            'Dataset': 'DataSet',
+        }[type].lower()
+
+    def get_tags(self, tags):
+        return (tags or '').split('; ')
+
+    def get_contributors(self, context):
+        contributors = []
+        for (match, name) in self.DOE_CONTRIBUTOR_REGEX.findall(context or ''):
+            if not match or not name:
+                continue
+            contributors.append({
+                'name': name.strip(),
+                'institutions': self.DOE_AFFILIATIONS_REGEX.findall(match),
+                'identifiers': self.DOE_EMAIL_REGEX.findall(match) + self.DOE_ORCID_REGEX.findall(match)
+            })
+        return contributors

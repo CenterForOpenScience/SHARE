@@ -4,6 +4,8 @@ WorkRelation:
         IsSupplementTo: {}
         IsDerivedFrom: {}
         Cites: {}
+        References: {}
+        IsIdenticalTo: {}
 #        AgreesWith:
 #            uris: ['http://purl.org/spar/cito/agreesWith']
 #        CitesAsAuthority:
@@ -24,8 +26,8 @@ WorkRelation:
 #            uris: ['http://purl.org/spar/cito/citesAsSourceDocument']
 #        CitesForInformation:
 #            uris: ['http://purl.org/spar/cito/citesForInformation']
-#        Compiles:
-#            uris: ['http://purl.org/spar/cito/compiles']
+        Compiles:
+            uris: ['http://purl.org/spar/cito/compiles']
 #        Confirms:
 #            uris: ['http://purl.org/spar/cito/confirms']
 #        ContainsAssertionFrom:
@@ -46,10 +48,10 @@ WorkRelation:
 #            uris: ['http://purl.org/spar/cito/discusses']
 #        Disputes:
 #            uris: ['http://purl.org/spar/cito/disputes']
-#        Documents:
-#            uris: ['http://purl.org/spar/cito/documents']
-#        Extends:
-#            uris: ['http://purl.org/spar/cito/extends']
+        Documents:
+            uris: ['http://purl.org/spar/cito/documents']
+        Extends:
+            uris: ['http://purl.org/spar/cito/extends']
 #        IncludesExcerptFrom:
 #            uris: ['http://purl.org/spar/cito/includesExcerptFrom']
 #        IncludesQuotationFrom:
@@ -70,8 +72,8 @@ WorkRelation:
 #            uris: ['http://purl.org/spar/cito/repliesTo']
 #        Retracts:
 #            uris: ['http://purl.org/spar/cito/retracts']
-#        Reviews:
-#            uris: ['http://purl.org/spar/cito/reviews']
+        Reviews:
+            uris: ['http://purl.org/spar/cito/reviews']
 #        Ridicules:
 #            uris: ['http://purl.org/spar/cito/ridicules']
 #        SpeculatesOn:

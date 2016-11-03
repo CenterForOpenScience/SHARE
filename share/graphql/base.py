@@ -67,7 +67,9 @@ class AbstractShareObject(graphene.Interface):
 
     @graphene.resolve_only_args
     def resolve_extra(self):
-        return self.extra.data
+        if self.extra_id:
+            return self.extra.data
+        return {}
 
     @graphene.resolve_only_args
     def resolve_sources(self, limit=None, offset=None):

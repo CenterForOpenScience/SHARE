@@ -1,11 +1,13 @@
 import copy
 import inspect
 
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.conf import settings
 from django.db import transaction
 from django.db.models.base import ModelBase
+from django.utils.translation import ugettext_lazy as _
+
 from fuzzycount import FuzzyCountManager
 
 from share.models.change import Change
@@ -34,8 +36,8 @@ class ShareObjectMeta(ModelBase):
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
         'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False),
-        'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True),
-        'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False),
+        'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True, help_text=_('The date this record was modified by SHARE.')),
+        'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False, help_text=_('The date of ingress to SHARE.')),
     }
 
     def __new__(cls, name, bases, attrs):

@@ -1,3 +1,5 @@
+import pendulum
+
 from share.harvest.harvester import Harvester
 
 
@@ -10,7 +12,12 @@ class NeuroVaultHarvester(Harvester):
             response = self.requests.get(api_url)
             records = response.json()
             for record in records['results']:
-                record_id = record['id']
-                yield (record_id, record)
+                date = pendulum.parse(record['modify_date'])
+                if date < start_date:
+                    return  # We're all caught up
+                if date > end_date:
+                    continue  # Reaching too far back
+
+                yield record['id'], record
 
             api_url = records['next']

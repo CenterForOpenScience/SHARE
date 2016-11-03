@@ -4,7 +4,7 @@ from share.graphql.fields import JSONField
 
 
 class ElasticSearchQueryString(graphene.InputObjectType):
-    query = graphene.String()
+    query = graphene.String(required=True)
 
 
 class ElasticSearchTermsAggregation(graphene.InputObjectType):

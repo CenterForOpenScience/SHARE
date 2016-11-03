@@ -74,8 +74,10 @@ def harvest(args, argv):
             print(data.decode())
             print('\n')
         else:
-            with open(os.path.join(args['--out'], re.sub(r'[:\\\/\?\*]', '', str(doc_id))) + '.json', 'w') as fobj:
-                fobj.write(data.decode())
+            decoded = data.decode()
+            suffix = '.xml' if decoded.startswith('<') else '.json'
+            with open(os.path.join(args['--out'], re.sub(r'[:\\\/\?\*]', '', str(doc_id))) + suffix, 'w') as fobj:
+                fobj.write(decoded)
 
 
 @command

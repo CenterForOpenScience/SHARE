@@ -24,7 +24,7 @@ from share.util import DictHashingDict
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter', 'SourceID')
 
 
 #### Public API ####
@@ -117,8 +117,14 @@ def GuessAgentType(chain=None, default=None):
     return GuessAgentTypeLink(default=default)
 
 
-def Filter(func, chain):
-    return chain + FilterLink(func)
+def Filter(func, *chains):
+    return Concat(*chains) + FilterLink(func)
+
+
+def SourceID(chain=None):
+    if chain:
+        return chain + SourceIDLink()
+    return SourceIDLink()
 
 
 ### /Public API
@@ -403,7 +409,7 @@ class TryLink(AbstractLink):
         except self._exceptions:
             return self._default
         except TypeError as err:
-            logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain))
+            logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain.chain()))
             return self._default
         return self.__anchor.run(val)
 
@@ -463,6 +469,9 @@ class XPathLink(AbstractLink):
         if len(elems) == 1 and not isinstance(self._next, (IndexLink, IteratorLink)):
             return elems[0]
         return elems
+
+    def __repr__(self):
+        return '<{}({!r})>'.format(self.__class__.__name__, self._xpath)
 
 
 class DelegateLink(AbstractLink):
@@ -618,19 +627,20 @@ class ISSNLink(AbstractIRILink):
         }
 
 
-class OAILink(AbstractIRILink):
-    OAI_RE = re.compile(r'\b(oai):((?:\w|[.-])+):(\S+)')
+class URNLink(AbstractIRILink):
+    SCHEMES = {'urn', 'oai'}
+    URN_RE = re.compile(r'\b({schemes}):((?:\w|[.-])+):(\S+)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
     @classmethod
     def hint(cls, obj):
-        if cls.OAI_RE.search(obj) is not None:
+        if cls.URN_RE.search(obj) is not None:
             return 0.9
         return 0.0
 
     def _parse(self, obj):
-        match = self.OAI_RE.search(obj.lower())
+        match = self.URN_RE.search(obj.lower())
         if not match:
-            raise ValueError('\'{}\' is not a valid OAI Identifier.'.format(obj))
+            raise ValueError('\'{}\' is not a valid URN.'.format(obj))
 
         return {
             'scheme': match.group(1),
@@ -759,16 +769,24 @@ class DOILink(AbstractIRILink):
 class URLLink(AbstractIRILink):
     PORTS = {80, 443, 20, 989}
     SCHEMES = {'http', 'https', 'ftp', 'ftps'}
+    SCHEMELESS_STARTS = ('www.', 'www2.')
+    IP_RE = re.compile(r'\b({schemes})://(\d{{1,3}}.){{4}}(?:\d{{2,5}})\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
     URL_RE = re.compile(r'\b({schemes})://[-a-z0-9@:%._\+~#=]{{2,256}}\.[a-z]{{2,6}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
     @classmethod
     def hint(cls, obj):
         if cls.URL_RE.search(obj) is not None:
             return 0.25
+        if cls.IP_RE.search(obj) is not None:
+            return 0.25
+        if obj.lower().startswith(cls.SCHEMELESS_STARTS):
+            return 0.1
         return 0
 
     def _parse(self, obj):
-        match = self.URL_RE.search(obj)
+        match = self.URL_RE.search(obj) or self.IP_RE.search(obj)
+        if not match and obj.lower().startswith(self.SCHEMELESS_STARTS):
+            match = self.URL_RE.search('http://{}'.format(obj))
         return super(URLLink, self)._parse(match.group(0))
 
     def _process_scheme(self, scheme):
@@ -841,6 +859,30 @@ class ArXivLink(AbstractIRILink):
         }
 
 
+class ARKLink(AbstractIRILink):
+    # https://en.wikipedia.org/wiki/Archival_Resource_Key
+    # https://wiki.ucop.edu/download/attachments/16744455/arkspec.pdf
+
+    ARK_SCHEME = 'ark'
+    ARK_RE = re.compile(r'\bark:/(\d+)(/\S+)', flags=re.I)
+
+    @classmethod
+    def hint(cls, obj):
+        if cls.ARK_RE.search(obj) is not None:
+            return 0.9
+        return 0
+
+    def _parse(self, obj):
+        match = self.ARK_RE.search(obj)
+        if not match:
+            raise ValueError('\'{}\' is not a valid ARK Identifier.'.format(obj))
+        return {
+            'scheme': self.ARK_SCHEME,
+            'authority': match.group(1),
+            'path': match.group(2)
+        }
+
+
 class IRILink(AbstractLink):
 
     def __init__(self, suppress_failure=False):
@@ -883,21 +925,22 @@ class GuessAgentTypeLink(AbstractLink):
     ORGANIZATION_KEYWORDS = (
         r'(^the\s|\sthe\s)',
         r'^[-A-Z]+$',
+        'bureau',
         'council',
         'center',
         'foundation',
         'group',
-        'society',
         'inc',
+        'society',
     )
     ORGANIZATION_RE = re.compile(r'\b({})\b'.format('|'.join(ORGANIZATION_KEYWORDS)), flags=re.I)
 
     INSTITUTION_KEYWORDS = (
-        'school',
-        'university',
-        'institution',
         'college',
         'institute',
+        'institution',
+        'school',
+        'university',
     )
     INSTITUTION_RE = re.compile(r'\b({})\b'.format('|'.join(INSTITUTION_KEYWORDS)), flags=re.I)
 
@@ -911,7 +954,7 @@ class GuessAgentTypeLink(AbstractLink):
             return 'institution'
         if self.ORGANIZATION_RE.search(obj):
             return 'organization'
-        return self._default or 'person'
+        return (self._default or 'person').lower()
 
 
 class FilterLink(AbstractLink):
@@ -922,3 +965,12 @@ class FilterLink(AbstractLink):
 
     def execute(self, obj):
         return list(filter(self._func, obj))
+
+
+class SourceIDLink(AbstractLink):
+    URN_FORMAT = 'urn:share:{source}:{id}'
+
+    def execute(self, obj):
+        id = urllib.parse.quote(str(obj))
+        source = Context()._config.label
+        return self.URN_FORMAT.format(source=source, id=id)
