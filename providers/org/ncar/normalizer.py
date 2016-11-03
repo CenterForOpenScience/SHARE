@@ -3,49 +3,36 @@ from share.normalize.parsers import Parser
 from share.normalize.utils import format_address
 
 
-class Link(Parser):
-    url = tools.RunPython('format_link', ctx.URL)
-    type = tools.RunPython('get_link_type', ctx.URL)
+class WorkIdentifier(Parser):
+    uri = tools.RunPython('get_ncar_identifier', ctx)
 
     class Extra:
-        description = tools.Maybe(ctx, 'Description')
-        url_content_type = tools.Maybe(ctx.URL_Content_Type, 'Type')
+        description = tools.Try(ctx.Related_URL.Description)
+        url_content_type = tools.Try(ctx.Related_URL.URL_Content_Type.Type)
 
-    def get_link_type(self, link):
-        if 'dx.doi.org' in link:
-            return 'doi'
-        if self.config.home_page and self.config.home_page in link:
-            return 'provider'
-        return 'misc'
-
-    def format_link(self, link):
-        link_type = self.get_link_type(link)
-        if link_type == 'doi':
-            return tools.DOI().execute(link)
-        return link
+    def get_ncar_identifier(self, ctx):
+        return 'https://www.earthsystemgrid.org/dataset/{}.html'.format(ctx['Entry_ID'])
 
 
-class ThroughLinks(Parser):
-    link = tools.Delegate(Link, ctx)
+class Tag(Parser):
+    name = ctx
 
 
-class Person(Parser):
-    suffix = tools.ParseName(
+class ThroughTags(Parser):
+    tag = tools.Delegate(Tag, ctx)
+
+
+class PersonnelAgent(Parser):
+    schema = tools.GuessAgentType(
         tools.RunPython('combine_first_last_name', ctx)
-    ).suffix
-    family_name = tools.ParseName(
-        tools.RunPython('combine_first_last_name', ctx)
-    ).last
-    given_name = tools.ParseName(
-        tools.RunPython('combine_first_last_name', ctx)
-    ).first
-    additional_name = tools.ParseName(
-        tools.RunPython('combine_first_last_name', ctx)
-    ).middle
+    )
+
+    name = tools.RunPython('combine_first_last_name', ctx)
     location = tools.RunPython('get_address', ctx['Contact_Address'])
 
     class Extra:
-        role = tools.Maybe(ctx, 'Role')
+        role = tools.Try(ctx.Role)
+        url = tools.Try(ctx.Data_Center_URL)
 
     def combine_first_last_name(self, ctx):
         return ctx['First_Name'] + ' ' + ctx['Last_Name']
@@ -76,101 +63,53 @@ class Person(Parser):
         )
 
 
-class Affiliation(Parser):
-    person = tools.Delegate(Person, ctx)
+class IsAffiliatedWith(Parser):
+    related = tools.Delegate(PersonnelAgent, ctx)
 
 
-class Publisher(Parser):
-    name = ctx
-
-
-class Organization(Parser):
-    ORGANIZATION_KEYWORDS = (
-        'the',
-        'center'
+class DataCenterAgent(Parser):
+    schema = tools.GuessAgentType(
+        ctx.Data_Center_Name.Long_Name,
+        default='organization'
     )
 
-    name = tools.RunPython('combine_name', ctx)
-    url = tools.Maybe(ctx, 'Data_Center_URL')
-    # TODO: handle when personnel are organizations
-    affiliations = tools.Map(
-        tools.Delegate(Affiliation),
-        tools.RunPython(
-            'get_personnel',
-            tools.Maybe(ctx, 'Personnel'),
-            'person'
-        )
-    )
+    name = ctx.Data_Center_Name.Long_Name
+    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Try(ctx.Personnel))
 
-    def combine_name(self, ctx):
-        return ctx['Data_Center_Name']['Short_Name'] + ' ' + ctx['Data_Center_Name']['Long_Name']
-
-    def get_personnel(self, options, entity):
-        """
-        Returns list based on entity type.
-        """
-        if not isinstance(options, list):
-            options = [options]
-
-        if entity == 'person':
-            people = [
-                value for value in options if
-                (
-                    not self.list_in_string(value['First_Name'], self.ORGANIZATION_KEYWORDS) and
-                    not self.list_in_string(value['Last_Name'], self.ORGANIZATION_KEYWORDS)
-                )
-            ]
-            return people
-        else:
-            return options
-
-    def list_in_string(self, string, list_):
-        if any(word in string.lower() for word in list_):
-            return True
-        return False
+    class Extra:
+        data_center_short_name = ctx.Data_Center_Name.Short_Name
 
 
-class Association(Parser):
-    pass
+class AgentWorkRelation(Parser):
+    agent = tools.Delegate(DataCenterAgent, ctx)
 
 
-class Tag(Parser):
-    name = ctx
+class DataSet(Parser):
+    title = tools.Join(tools.Try(ctx.record.metadata.DIF.Entry_Title))
+    description = tools.Try(ctx.record.metadata.DIF.Summary.Abstract)
 
-
-class ThroughTags(Parser):
-    tag = tools.Delegate(Tag, ctx)
-
-
-class CreativeWork(Parser):
-    title = tools.Join(ctx.record.metadata['DIF']['Entry_Title'])
-    description = tools.Maybe(ctx.record.metadata['DIF']['Summary'], 'Abstract')
-
-    organizations = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Organization))),
-        tools.Maybe(ctx.record.metadata['DIF'], 'Data_Center')
+    related_agents = tools.Map(
+        tools.Delegate(AgentWorkRelation),
+        tools.Try(ctx.record.metadata.DIF.Data_Center)
     )
 
     tags = tools.Map(
         tools.Delegate(ThroughTags),
-        tools.Maybe(ctx.record.metadata['DIF'], 'Metadata_Name'),
-        tools.Maybe(ctx.record.header, 'setSpec')
+        tools.Try(ctx.record.metadata.DIF.Metadata_Name),
+        tools.Try(ctx.record.header.setSpec)
     )
 
-    links = tools.Map(
-        tools.Delegate(ThroughLinks),
-        tools.Maybe(ctx.record.metadata['DIF'], 'Related_URL')
-    )
+    identifiers = tools.Map(tools.Delegate(WorkIdentifier), tools.Try(ctx.record.metadata.DIF))
 
     date_updated = tools.ParseDate(ctx.record.header.datestamp)
 
     class Extra:
-        entry_id = ctx.record.metadata['DIF']['Entry_ID']
+        entry_id = tools.Try(ctx.record.metadata.DIF.Entry_ID)
 
-        metadata_name = tools.Maybe(ctx.record.metadata['DIF'], 'Metadata_Name')
+        metadata_name = tools.Try(ctx.record.metadata.DIF.Metadata_Name)
 
-        metadata_version = tools.Maybe(ctx.record.metadata['DIF'], 'Metadata_Version')
+        metadata_version = tools.Try(ctx.record.metadata.DIF.Metadata_Version)
 
-        last_dif_revision_date = tools.Maybe(ctx.record.metadata['DIF'], 'Last_DIF_Revision_Date')
+        last_dif_revision_date = tools.Try(ctx.record.metadata.DIF.Last_DIF_Revision_Date)
 
-        set_spec = tools.Maybe(ctx.record.header, 'setSpec')
+        set_spec = ctx.record.header.setSpec
