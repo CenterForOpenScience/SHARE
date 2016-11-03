@@ -8,8 +8,10 @@ class Person(Parser):
     suffix = ParseName(ctx).suffix
 
 
-class Contributor(Parser):
+class Creator(Parser):
     agent = Delegate(Person, ctx)
+    order_cited = ctx('index')
+    cited_as = ParseName(ctx).last
 
 
 class WorkIdentifier(Parser):
@@ -23,7 +25,7 @@ class CreativeWork(Parser):
     date_published = ParseDate(ctx.published_at)
     identifiers = Map(Delegate(WorkIdentifier), ctx.url)
 
-    related_agents = Map(Delegate(Person), ctx.authors)
+    related_agents = Map(Delegate(Creator), ctx.authors)
 
     class Extra:
         citation = ctx.citation
