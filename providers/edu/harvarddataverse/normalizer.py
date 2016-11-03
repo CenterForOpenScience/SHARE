@@ -11,7 +11,7 @@ class Person(Parser):
 class Creator(Parser):
     agent = Delegate(Person, ctx)
     order_cited = ctx('index')
-    cited_as = ParseName(ctx).last
+    cited_as = ctx
 
 
 class WorkIdentifier(Parser):
