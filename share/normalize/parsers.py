@@ -71,13 +71,18 @@ class Parser(metaclass=ParserMeta):
 
     def parse(self):
         prev, Context().parser = Context().parser, self
+        try:
+            return self._do_parse()
+        finally:
+            Context().parser = prev
+
+    def _do_parse(self):
         if isinstance(self.schema, AbstractLink):
             schema = self.schema.chain()[0].run(self.context).lower()
         else:
             schema = self.schema
 
         if (self.context, schema) in ctx.pool:
-            Context().parser = prev
             logger.debug('Values (%s, %s) found in cache as %s', self.context, schema, ctx.pool[self.context, schema])
             return ctx.pool[self.context, schema]
 
@@ -116,8 +121,6 @@ class Parser(metaclass=ParserMeta):
                 inst['extra'][key] = val
         if not inst['extra']:
             del inst['extra']
-
-        Context().parser = prev
 
         ctx.pool[self.ref] = inst
         ctx.graph.append(inst)

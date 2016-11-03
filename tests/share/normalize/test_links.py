@@ -10,7 +10,7 @@ from share.normalize.links import GuessAgentTypeLink
 from share.normalize.links import IRILink
 from share.normalize.links import ISNILink
 from share.normalize.links import ISSNLink
-from share.normalize.links import OAILink
+from share.normalize.links import URNLink
 from share.normalize.links import OrcidLink
 
 UPPER_BOUND = pendulum.today().add(years=100).isoformat()
@@ -165,30 +165,39 @@ def test_arxiv_link(arxiv_id, result):
         assert ArXivLink().execute(arxiv_id)['IRI'] == result
 
 
-@pytest.mark.parametrize('oai_id, result', [
+@pytest.mark.parametrize('urn, result', [
     (None, TypeError('\'None\' is not of type str.')),
-    ('', ValueError('\'\' is not a valid OAI Identifier.')),
-    ('something else', ValueError('\'something else\' is not a valid OAI Identifier.')),
-    ('oai:missing.path', ValueError('\'oai:missing.path\' is not a valid OAI Identifier.')),
-    ('oai::blank', ValueError('\'oai::blank\' is not a valid OAI Identifier.')),
-    ('oai://cos.io/fun', ValueError('\'oai://cos.io/fun\' is not a valid OAI Identifier.')),
-    ('zenodo.com', ValueError('\'zenodo.com\' is not a valid OAI Identifier.')),
-    ('oai:invalid domain:this.is.stuff', ValueError('\'oai:invalid domain:this.is.stuff\' is not a valid OAI Identifier.')),
-    ('oai:domain.com:', ValueError('\'oai:domain.com:\' is not a valid OAI Identifier.')),
+    ('', ValueError('\'\' is not a valid URN.')),
+    ('something else', ValueError('\'something else\' is not a valid URN.')),
+    ('oai:missing.path', ValueError('\'oai:missing.path\' is not a valid URN.')),
+    ('oai::blank', ValueError('\'oai::blank\' is not a valid URN.')),
+    ('oai://cos.io/fun', ValueError('\'oai://cos.io/fun\' is not a valid URN.')),
+    ('zenodo.com', ValueError('\'zenodo.com\' is not a valid URN.')),
+    ('oai:invalid domain:this.is.stuff', ValueError('\'oai:invalid domain:this.is.stuff\' is not a valid URN.')),
+    ('oai:domain.com:', ValueError('\'oai:domain.com:\' is not a valid URN.')),
+    ('urn:missing.path', ValueError('\'urn:missing.path\' is not a valid URN.')),
+    ('urn::blank', ValueError('\'urn::blank\' is not a valid URN.')),
+    ('urn://cos.io/fun', ValueError('\'urn://cos.io/fun\' is not a valid URN.')),
+    ('urn:invalid domain:this.is.stuff', ValueError('\'urn:invalid domain:this.is.stuff\' is not a valid URN.')),
+    ('urn:domain.com:', ValueError('\'urn:domain.com:\' is not a valid URN.')),
     ('oai:cos.io:this.is.stuff', 'oai://cos.io/this.is.stuff'),
     ('oai:subdomain.cos.io:this.is.stuff', 'oai://subdomain.cos.io/this.is.stuff'),
     ('    oai:cos.io:stuff', 'oai://cos.io/stuff'),
     ('    oai:cos.io:stuff  ', 'oai://cos.io/stuff'),
     ('oai:cos.io:long:list:of:things', 'oai://cos.io/long:list:of:things'),
+    ('urn:share:this.is.stuff', 'urn://share/this.is.stuff'),
+    ('    urn:share:stuff', 'urn://share/stuff'),
+    ('    urn:share:stuff  ', 'urn://share/stuff'),
+    ('urn:share:long:list:of/things', 'urn://share/long:list:of/things'),
 ])
-def test_oai_link(oai_id, result):
+def test_urn_link(urn, result):
     if isinstance(result, Exception):
         with pytest.raises(type(result)) as e:
-            OAILink().execute(oai_id)
+            URNLink().execute(urn)
         assert e.value.args == result.args
     else:
         assert rfc3987.parse(result)  # Extra URL validation
-        assert OAILink().execute(oai_id)['IRI'] == result
+        assert URNLink().execute(urn)['IRI'] == result
 
 
 class TestIRILink:
@@ -442,8 +451,28 @@ class TestIRILink:
             'authority': 'cos.io',
             'IRI': 'oai://cos.io/long:list:of:things'
         }),
+        ('urn:cos.io:this.is.stuff', {
+            'scheme': 'urn',
+            'authority': 'cos.io',
+            'IRI': 'urn://cos.io/this.is.stuff'
+        }),
+        ('    urn:cos.io:stuff', {
+            'scheme': 'urn',
+            'authority': 'cos.io',
+            'IRI': 'urn://cos.io/stuff'
+        }),
+        ('    urn:cos.io:stuff  ', {
+            'scheme': 'urn',
+            'authority': 'cos.io',
+            'IRI': 'urn://cos.io/stuff'
+        }),
+        ('urn:cos.io:long:list:of/things', {
+            'scheme': 'urn',
+            'authority': 'cos.io',
+            'IRI': 'urn://cos.io/long:list:of/things'
+        }),
     ])
-    def test_oai_ids(self, input, output):
+    def test_urn_ids(self, input, output):
         return self._do_test(input, output)
 
     @pytest.mark.parametrize('input, output', [

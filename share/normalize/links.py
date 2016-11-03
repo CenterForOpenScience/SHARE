@@ -24,7 +24,7 @@ from share.util import DictHashingDict
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter', 'SourceID')
 
 
 #### Public API ####
@@ -119,6 +119,12 @@ def GuessAgentType(chain=None, default=None):
 
 def Filter(func, chain):
     return chain + FilterLink(func)
+
+
+def SourceID(chain=None):
+    if chain:
+        return chain + SourceIDLink()
+    return SourceIDLink()
 
 
 ### /Public API
@@ -618,19 +624,20 @@ class ISSNLink(AbstractIRILink):
         }
 
 
-class OAILink(AbstractIRILink):
-    OAI_RE = re.compile(r'\b(oai):((?:\w|[.-])+):(\S+)')
+class URNLink(AbstractIRILink):
+    SCHEMES = {'urn', 'oai'}
+    URN_RE = re.compile(r'\b({schemes}):((?:\w|[.-])+):(\S+)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
     @classmethod
     def hint(cls, obj):
-        if cls.OAI_RE.search(obj) is not None:
+        if cls.URN_RE.search(obj) is not None:
             return 0.9
         return 0.0
 
     def _parse(self, obj):
-        match = self.OAI_RE.search(obj.lower())
+        match = self.URN_RE.search(obj.lower())
         if not match:
-            raise ValueError('\'{}\' is not a valid OAI Identifier.'.format(obj))
+            raise ValueError('\'{}\' is not a valid URN.'.format(obj))
 
         return {
             'scheme': match.group(1),
@@ -883,21 +890,22 @@ class GuessAgentTypeLink(AbstractLink):
     ORGANIZATION_KEYWORDS = (
         r'(^the\s|\sthe\s)',
         r'^[-A-Z]+$',
+        'bureau',
         'council',
         'center',
         'foundation',
         'group',
-        'society',
         'inc',
+        'society',
     )
     ORGANIZATION_RE = re.compile(r'\b({})\b'.format('|'.join(ORGANIZATION_KEYWORDS)), flags=re.I)
 
     INSTITUTION_KEYWORDS = (
-        'school',
-        'university',
-        'institution',
         'college',
         'institute',
+        'institution',
+        'school',
+        'university',
     )
     INSTITUTION_RE = re.compile(r'\b({})\b'.format('|'.join(INSTITUTION_KEYWORDS)), flags=re.I)
 
@@ -922,3 +930,12 @@ class FilterLink(AbstractLink):
 
     def execute(self, obj):
         return list(filter(self._func, obj))
+
+
+class SourceIDLink(AbstractLink):
+    URN_FORMAT = 'urn:share:{source}:{id}'
+
+    def execute(self, obj):
+        id = urllib.parse.quote(str(obj))
+        source = Context()._config.label
+        return self.URN_FORMAT.format(source=source, id=id)
