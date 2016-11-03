@@ -770,18 +770,19 @@ class URLLink(AbstractIRILink):
     PORTS = {80, 443, 20, 989}
     SCHEMES = {'http', 'https', 'ftp', 'ftps'}
     URL_RE = re.compile(r'\b({schemes})://[-a-z0-9@:%._\+~#=]{{2,256}}\.[a-z]{{2,6}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
+    SCHEMELESS_STARTS = ('www.', 'www2.')
 
     @classmethod
     def hint(cls, obj):
         if cls.URL_RE.search(obj) is not None:
             return 0.25
-        if obj[:4].lower() == 'www.':
+        if obj.lower().startswith(cls.SCHEMELESS_STARTS):
             return 0.1
         return 0
 
     def _parse(self, obj):
         match = self.URL_RE.search(obj)
-        if not match and obj[:4].lower() == 'www.':
+        if not match and obj.lower().startswith(self.SCHEMELESS_STARTS):
             match = self.URL_RE.search('http://{}'.format(obj))
         return super(URLLink, self)._parse(match.group(0))
 
