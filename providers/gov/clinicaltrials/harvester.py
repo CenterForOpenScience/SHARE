@@ -20,14 +20,15 @@ class ClinicalTrialsHarvester(Harvester):
 
         return self.fetch_records(furl(self.url).set(query_params={
             'displayxml': 'true',
-            'lup_s': start_date.strftime('%m/%d/%y'),
-            'lup_e': end_date.strftime('%m/%d/%y')
+            'lup_s': start_date.strftime('%m/%d/%Y'),
+            'lup_e': end_date.strftime('%m/%d/%Y')
         }).url)
 
     def fetch_records(self, url):
         resp = self.requests.get(url)
         resp_xml = etree.XML(resp.content)
         num_records = int(resp_xml.xpath('//search_results/@count')[0])
+        print(url)
 
         if num_records > 0:
             # create a new URL to request all results

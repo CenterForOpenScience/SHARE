@@ -1,12 +1,6 @@
+import pendulum
+
 from share.normalize import *
-
-
-class Venue(Parser):
-    name = Maybe(Maybe(ctx, 'facility'), 'name')
-
-
-class ThroughVenues(Parser):
-    venue = Delegate(Venue, ctx)
 
 
 class Tag(Parser):
@@ -17,34 +11,49 @@ class ThroughTags(Parser):
     tag = Delegate(Tag, ctx)
 
 
-class Email(Parser):
-    email = ctx
+class AgentIdentifier(Parser):
+    # email address
+    uri = ctx
 
 
-class PersonEmail(Parser):
-    email = Delegate(Email, ctx)
+class WorkIdentifier(Parser):
+    uri = ctx
 
 
-class Organization(Parser):
-    name = ctx
+class AgentRelation(Parser):
+    related = Delegate(Institution, ctx)
 
 
-class Affiliation(Parser):
-    pass
+class Institution(Parser):
+    name = OneOf(ctx.agency, ctx.facility.name, ctx)
+    location = OneOf(RunPython('get_location', ctx.facility.address), Static(None))
+
+    class Extra:
+        agency_class = Try(ctx.agency_class)
+
+    def get_location(self, ctx):
+        location = ""
+        if 'country' in ctx: location += ctx['country'] + ': '
+        if 'city' in ctx: location += ctx['city'] + ', '
+        if 'state' in ctx: location += ctx['state'] + ' '
+        if 'zip' in ctx: location += 'zip code: ' + ctx['zip']
+        return location
+
+
+# class ContributionInstitution(Parser):
 
 
 class Person(Parser):
     given_name = Maybe(ctx, 'first_name')
     family_name = Maybe(ctx, 'last_name')
     additional_name = Maybe(ctx, 'middle_name')
-    emails = Map(Delegate(PersonEmail), Maybe(ctx, 'email'))
-    affiliations = Map(Delegate(Affiliation.using(entity=Delegate(Organization))), Maybe(ctx, 'affiliation'))
+
+    identifiers = Map(Delegate(AgentIdentifier), Maybe(ctx, 'email'))
+    related_agents = Map(Delegate(AgentRelation ), Try(ctx.affiliation))
 
 
 class Contributor(Parser):
-    order_cited = ctx('index')
-    cited_name = Join(Concat(Maybe(ctx, 'first_name'), Maybe(ctx, 'last_name')), joiner=' ')
-    person = Delegate(Person, ctx)
+    agent = Delegate(Person, ctx)
 
 
 class CreativeWork(Parser):
@@ -53,11 +62,42 @@ class CreativeWork(Parser):
         ctx.clinical_study.brief_title
     )
     description = Maybe(ctx.clinical_study, 'brief_summary')['textblock']
-    contributors = Map(
-        Delegate(Contributor),
-        Maybe(ctx.clinical_study, 'overall_official'),
-        Maybe(ctx.clinical_study, 'overall_contact'),
-        Maybe(ctx.clinical_study, 'overall_contact_backup')
+
+    related_agents = Concat(
+        Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_official')),
+        Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_contact')),
+        Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_contact_backup')),
+        Map(Delegate(Institution),
+            Concat(ctx.clinical_study.sponsors.lead_sponsor,
+                ctx.clinical_study.sponsors.collaborator,
+                Maybe(ctx.clinical_study, 'location')))
     )
+
     tags = Map(Delegate(ThroughTags), Maybe(ctx.clinical_study, 'keyword'))
-    venues = Map(Delegate(ThroughVenues), Maybe(ctx.clinical_study, 'location'))
+
+    identifiers = Concat(Map(Delegate(WorkIdentifier), Concat(
+        ctx['clinical_study']['required_header']['url'],
+        RunPython('format_url', 'http://www.bioportfolio.com/resources/trial/', ctx.clinical_study.id_info.nct_id),
+        RunPython('format_url', 'www.ncbi.nlm.nih.gov/pubmed/', ctx.clinical_study.reference.PMID))))
+
+    class Extra:
+        share_harvest_date = ctx.clinical_study.required_header.download_date
+        org_study_id = ctx.clinical_study.id_info.org_study_id
+        status = ctx.clinical_study.overall_status
+        start_date = RunPython('parse_date', ctx.clinical_study.start_date)
+        completion_date = RunPython('parse_date', ctx.clinical_study.completion_date['#text'])
+        completion_date_type = ctx.clinical_study.completion_date['@type']
+        study_type = ctx.clinical_study.study_type
+        conditions = ctx.clinical_study.condition
+        is_fda_regulated = ctx.clinical_study.is_fda_regulated
+        citation = ctx.clinical_study.reference.citation
+
+    def parse_date(self, date):
+        try:
+            return pendulum.from_format(date, '%M %d, %Y').isoformat()
+        except ValueError:
+            return pendulum.from_format(date, '%B %Y').isoformat()
+
+    def format_url(self, base, id):
+        return base + id
+
