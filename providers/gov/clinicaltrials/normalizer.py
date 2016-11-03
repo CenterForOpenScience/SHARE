@@ -22,7 +22,6 @@ class WorkIdentifier(Parser):
 
 class AffiliatedAgent(Parser):
     schema = GuessAgentType(ctx, default='organization')
-
     name = ctx
 
 
@@ -32,7 +31,7 @@ class IsAffiliatedWith(Parser):
 
 class Institution(Parser):
     name = OneOf(ctx.agency, ctx.facility.name, ctx)
-    location = OneOf(RunPython('get_location', ctx.facility.address), Static(None))
+    location = RunPython('get_location', Try(ctx.facility.address))
 
     class Extra:
         agency_class = Try(ctx.agency_class)
@@ -71,8 +70,8 @@ class CreativeWork(Parser):
         Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_contact_backup')),
         Map(Delegate(Institution),
             Concat(ctx.clinical_study.sponsors.lead_sponsor,
-                Maybe(ctx.clinical_study.sponsors, 'collaborator'),
-                RunPython('get_locations', Concat(Try(ctx.clinical_study.location)))))
+                   Maybe(ctx.clinical_study.sponsors, 'collaborator'),
+                   RunPython('get_locations', Concat(Try(ctx.clinical_study.location)))))
     )
 
     tags = Map(Delegate(ThroughTags), Maybe(ctx.clinical_study, 'keyword'))
@@ -110,4 +109,3 @@ class CreativeWork(Parser):
 
     def format_url(self, base, id):
         return base + id
-
