@@ -16,4 +16,5 @@ class AppConfig(ProviderAppConfig):
         'http://www.openarchives.org/OAI/2.0/': None,
         'http://schema.datacite.org/oai/oai-1.0/': None,
         'http://www.openarchives.org/OAI/2.0/oai_dc/': None,
+        'http://datacite.org/schema/kernel-2.2': None,
     }
