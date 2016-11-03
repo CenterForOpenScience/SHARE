@@ -8,7 +8,7 @@ class AppConfig(OAIProviderAppConfig):
     title = 'arxiv'
     long_title = 'ArXiv'
     home_page = 'https://arxiv.org'
-    rate_limit = (1, 3)
+    rate_limit = (1, 20)
     url = 'http://export.arxiv.org/oai2'
     time_granularity = False
     version = '0.0.0'
