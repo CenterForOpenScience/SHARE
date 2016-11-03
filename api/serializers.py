@@ -21,7 +21,7 @@ class ProviderRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ProviderRegistration
-        fields = '__all__'
+        exclude = ('admin_notes',)
 
 
 class NormalizedDataSerializer(serializers.ModelSerializer):
