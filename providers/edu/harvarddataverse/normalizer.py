@@ -23,7 +23,7 @@ class CreativeWork(Parser):
     title = ctx.name
     description = Try(ctx.description)
     date_published = ParseDate(ctx.published_at)
-    identifiers = Map(Delegate(WorkIdentifier), Concat(ctx.url, ctx.global_id))
+    identifiers = Map(Delegate(WorkIdentifier), ctx.url)
 
     related_agents = Map(Delegate(Creator), ctx.authors)
 
