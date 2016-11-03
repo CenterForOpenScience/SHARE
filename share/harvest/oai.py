@@ -1,4 +1,5 @@
 import abc
+import time
 import logging
 
 import pendulum
@@ -65,9 +66,18 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
             url.remove('metadataPrefix')
             url.args['resumptionToken'] = token
 
-        logger.info('Making request to {}'.format(url.url))
+        while True:
+            logger.info('Making request to {}'.format(url.url))
+            resp = self.requests.get(url.url)
+            if resp.ok:
+                break
+            if resp.status_code == 503:
+                sleep = int(resp.headers.get('retry-after', 5)) + 2  # additional 2 seconds for good measure
+                logger.warning('Server responded with %s. Waiting %s seconds.', resp, sleep)
+                time.sleep(sleep)
+                continue
+            resp.raise_for_status()
 
-        resp = self.requests.get(url.url)
         parsed = etree.fromstring(resp.content)
 
         records = parsed.xpath('//ns0:record', namespaces=self.namespaces)
