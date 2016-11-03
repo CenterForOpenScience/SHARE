@@ -936,4 +936,6 @@ class SourceIDLink(AbstractLink):
     URN_FORMAT = 'urn:share:{source}:{id}'
 
     def execute(self, obj):
-        return self.URN_FORMAT.format(source=Context()._config.label, id=obj)
+        id = urllib.parse.quote(str(obj))
+        source = Context()._config.label
+        return self.URN_FORMAT.format(source=source, id=id)
