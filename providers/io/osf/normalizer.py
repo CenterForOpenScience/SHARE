@@ -105,10 +105,10 @@ class IsPartOf(Parser):
 
 class Project(CreativeWork):
     is_root = True
-    related_works = tools.Map(tools.Delegate(IsPartOf), ctx.children)
+    related_works = tools.Map(tools.Delegate(IsPartOf), tools.Try(ctx.children))
 
     related_agents = tools.Concat(
         tools.Map(tools.Delegate(Creator), tools.Filter(lambda x: x['attributes']['bibliographic'], ctx.contributors)),
         tools.Map(tools.Delegate(Contributor), tools.Filter(lambda x: not x['attributes']['bibliographic'], ctx.contributors)),
-        tools.Map(tools.Delegate(AgentWorkRelation), ctx.institutions),
+        tools.Map(tools.Delegate(AgentWorkRelation), tools.Try(ctx.institutions)),
     )
