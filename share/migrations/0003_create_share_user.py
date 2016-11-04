@@ -7,13 +7,16 @@ from django.conf import settings
 
 def create_share_robot_user(apps, schema_editor):
     ShareUser = apps.get_model('share', 'ShareUser')
-    ShareUser.objects.create_robot_user(username=settings.APPLICATION_USERNAME, robot='')
+    try:
+        ShareUser.objects.create_robot_user(username=settings.APPLICATION_USERNAME, robot='')
+    except AssertionError:
+        pass
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0001_initial'),
+        ('share', '0002_initial'),
         ('osf_oauth2_adapter', '0001_make_human_group')
     ]
 
