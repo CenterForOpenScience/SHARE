@@ -21,34 +21,13 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def save_subjects(self, subjects):
-        subjects_values = [
-            (s['name'], json.dumps(s['lineages']))
-            for s in subjects
-        ]
+        name_pk = {s['name']: i for i, s in enumerate(subjects)}
+        name_pk[None] = None
 
-        subjects_query = 'INSERT INTO {table} ({name}, {lineages}) VALUES {values} ON CONFLICT ({name}) DO NOTHING;'.format(
-            table=Subject._meta.db_table,
-            name=Subject._meta.get_field('name').column,
-            lineages=Subject._meta.get_field('lineages').column,
-            values=', '.join(['(%s, %s)'] * len(subjects_values)),
-        )
-
-        with connection.cursor() as c:
-            c.execute(subjects_query, [v for vs in subjects_values for v in vs])
-
-        subject_ids = {name: id for (name, id) in Subject.objects.all().values_list('name', 'id')}
-
-        parents_values = [
-            (subject_ids[s['name']], subject_ids[parent])
-            for s in subjects
-            for parent in s['parents']
-        ]
-
-        parents_query = 'INSERT INTO {table} ({subject}, {parent}) VALUES {values} ON CONFLICT ({subject}, {parent}) DO NOTHING;'.format(
-            table=Subject.parents.through._meta.db_table,
-            subject=Subject.parents.through._meta.get_field('from_subject').column,
-            parent=Subject.parents.through._meta.get_field('to_subject').column,
-            values=', '.join(['(%s, %s)'] * len(parents_values)))
-
-        with connection.cursor() as c:
-            c.execute(parents_query, [v for vs in parents_values for v in vs])
+        with transaction.atomic(), connection.cursor() as c:
+            c.execute('INSERT INTO {table} (id, {name}, {parent}) VALUES {values} ON CONFLICT ({name}) DO NOTHING;'.format(
+                table=Subject._meta.db_table,
+                name=Subject._meta.get_field('name').column,
+                parent=Subject._meta.get_field('parent').column,
+                values=', '.join(['%s'] * len(subjects)),
+            ), [(i, s['name'], name_pk[s['parent']]) for i, s in enumerate(subjects)])

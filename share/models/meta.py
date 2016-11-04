@@ -34,8 +34,7 @@ class SubjectManager(models.Manager):
 
 
 class Subject(models.Model):
-    lineages = JSONField(editable=False)
-    parents = models.ManyToManyField('self')
+    parent = models.ForeignKey('self', null=True)
     name = models.TextField(unique=True, db_index=True)
 
     objects = SubjectManager()
