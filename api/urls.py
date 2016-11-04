@@ -41,7 +41,6 @@ def register_creative_work_route(model_name):
 # # creative work attributes
 # register_route(r'tag', views.TagViewSet)
 # register_route(r'subject', views.SubjectViewSet)
-# register_route(r'venue', views.VenueViewSet)
 # register_route(r'extra', views.ExtraDataViewSet)
 
 # # agent routes

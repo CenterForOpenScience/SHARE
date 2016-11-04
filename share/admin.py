@@ -18,7 +18,7 @@ from share.models.core import RawData, NormalizedData, ShareUser
 # from share.models.creative import AbstractCreativeWork
 # from share.models.agents import AbstractAgent
 # from share.models.identifiers import WorkIdentifier, AgentIdentifier
-# from share.models.meta import Venue, Tag, Subject
+# from share.models.meta import Tag, Subject
 from share.models.registration import ProviderRegistration
 # from share.models.work_relations import AbstractWorkRelation
 # from share.models.agent_relations import AbstractAgentRelation
@@ -186,7 +186,6 @@ admin.site.register(AccessToken, AccessTokenAdmin)
 # admin.site.register(AgentIdentifier)
 # admin.site.register(WorkIdentifier)
 
-# admin.site.register(Venue)
 # admin.site.register(Award)
 # admin.site.register(Tag, TagAdmin)
 # admin.site.register(Subject)

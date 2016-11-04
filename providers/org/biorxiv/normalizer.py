@@ -76,7 +76,6 @@ class Preprint(Parser):
     tags = tools.Map(tools.Delegate(ThroughTags), tools.Try(ctx['category']), ctx['subject-areas'])
 
     identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx['og:url'], ctx['citation_public_url'], ctx['citation_doi'])
-    # venues
 
     related_agents = tools.Concat(
         tools.Map(tools.Delegate(Publisher), tools.Try(ctx['DC.Publisher'])),

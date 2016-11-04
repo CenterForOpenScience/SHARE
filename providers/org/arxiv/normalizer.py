@@ -66,7 +66,6 @@ class Preprint(Parser):
         tools.Delegate(ThroughTags),
         tools.Map(ctx['@term'], ctx.entry.category),
     )
-    # venues
     related_agents = tools.Concat(
         tools.Map(tools.Delegate(Creator), ctx.entry.author),
     )

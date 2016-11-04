@@ -49,21 +49,6 @@ Creative Work
     class CreativeWork:
         awards = Map(Delegate(ThroughAwards), ctx.awards)
 
-- venues
-   - A list of venues associated with the work, passed to the ``Venue`` class via the ``ThroughVenues`` class
-
-.. code-block:: python
-
-    class Venue:
-        description = ctx.venue_description
-        url = ctx.venue_url
-
-    class ThroughVenues:
-        venue = Delegate(Venue, ctx)
-
-    class CreativeWork:
-        venues = Map(Delegate(ThroughVenues), ctx.venues)
-
 - links
    - A list of links associated with the work, passed to the ``Link`` class via the ``ThroughLinks`` class
 
