@@ -108,7 +108,7 @@ class OAICreativeWork(Parser):
     identifiers = tools.Map(
         tools.Delegate(OAIWorkIdentifier),
         tools.Map(
-            tools.IRI(suppress_failure=True),
+            tools.IRI(urn_fallback=True),
             tools.RunPython(
                 'force_text',
                 tools.Concat(
@@ -123,7 +123,7 @@ class OAICreativeWork(Parser):
         tools.Map(
             tools.Delegate(OAIWorkRelation),
             tools.Map(
-                tools.IRI(suppress_failure=True),
+                tools.IRI(urn_fallback=True),
                 tools.RunPython('get_relation', ctx)
             )
         )

@@ -6,7 +6,7 @@ class WorkIdentifier(Parser):
 
 
 class AgentIdentifier(Parser):
-    uri = IRI(ctx)
+    uri = IRI(ctx, urn_fallback=True)
 
 
 class RelatedAgent(Parser):
@@ -23,13 +23,16 @@ class AbstractAgent(Parser):
     identifiers = Map(
         Delegate(AgentIdentifier),
         Try(ctx.email),
-        SourceID(ctx.contributorId)
+        RunPython('to_str', ctx.contributorId)
     )
 
     related_agents = Map(
         Delegate(IsAffiliatedWith),
         Try(ctx.affiliation.text)
     )
+
+    def to_str(self, obj):
+        return str(obj)
 
 
 class Organization(AbstractAgent):

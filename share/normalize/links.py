@@ -24,7 +24,7 @@ from share.util import DictHashingDict
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter', 'SourceID')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter')
 
 
 #### Public API ####
@@ -105,10 +105,10 @@ def DOI(chain=None):
     return DOILink().IRI
 
 
-def IRI(chain=None, suppress_failure=False):
+def IRI(chain=None, urn_fallback=False):
     if chain:
-        return (chain + IRILink(suppress_failure=suppress_failure)).IRI
-    return IRILink(suppress_failure=suppress_failure).IRI
+        return (chain + IRILink(urn_fallback=urn_fallback)).IRI
+    return IRILink(urn_fallback=urn_fallback).IRI
 
 
 def GuessAgentType(chain=None, default=None):
@@ -119,12 +119,6 @@ def GuessAgentType(chain=None, default=None):
 
 def Filter(func, *chains):
     return Concat(*chains) + FilterLink(func)
-
-
-def SourceID(chain=None):
-    if chain:
-        return chain + SourceIDLink()
-    return SourceIDLink()
 
 
 ### /Public API
@@ -884,10 +878,11 @@ class ARKLink(AbstractIRILink):
 
 
 class IRILink(AbstractLink):
+    FALLBACK_FORMAT = 'urn:share:{source}:{id}'
 
-    def __init__(self, suppress_failure=False):
+    def __init__(self, urn_fallback=False):
         super().__init__()
-        self._suppress_failure = suppress_failure
+        self._urn_fallback = urn_fallback
 
     @classmethod
     def iri_links(cls, base=AbstractIRILink):
@@ -908,12 +903,11 @@ class IRILink(AbstractLink):
                 break
 
         if not final[0]:
-            message = '\'{}\' could not be identified as an Identifier.'.format(obj)
-            if self._suppress_failure:
-                logger.warning(message)
-                return {'IRI': None}
+            if self._urn_fallback:
+                urn = self.FALLBACK_FORMAT.format(source=Context()._config.label, id=urllib.parse.quote(obj))
+                return URNLink().execute(urn)
             else:
-                raise ValueError(message)
+                raise ValueError('\'{}\' could not be identified as an Identifier.'.format(obj))
         return final[0]().execute(obj)
 
 
@@ -965,12 +959,3 @@ class FilterLink(AbstractLink):
 
     def execute(self, obj):
         return list(filter(self._func, obj))
-
-
-class SourceIDLink(AbstractLink):
-    URN_FORMAT = 'urn:share:{source}:{id}'
-
-    def execute(self, obj):
-        id = urllib.parse.quote(str(obj))
-        source = Context()._config.label
-        return self.URN_FORMAT.format(source=source, id=id)
