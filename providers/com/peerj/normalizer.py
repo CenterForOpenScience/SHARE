@@ -75,7 +75,7 @@ class Article(Parser):
 class Preprint(Article):
 
     class Extra:
-        modified = RunPython('parse_date', ctx.date)
+        modified = ParseDate(ctx.date)
         subjects = ctx.subjects
         identifiers = Try(ctx.identifiers)
         emails = Try(ctx.author_email)

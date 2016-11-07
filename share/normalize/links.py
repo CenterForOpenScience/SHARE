@@ -761,7 +761,7 @@ class DOILink(AbstractIRILink):
 
 
 class URLLink(AbstractIRILink):
-    PORTS = {80, 443, 20, 989}
+    PORTS = {80, 8080, 443, 20, 989}
     SCHEMES = {'http', 'https', 'ftp', 'ftps'}
     SCHEMELESS_STARTS = ('www.', 'www2.')
     IP_RE = re.compile(r'\b({schemes})://(\d{{1,3}}.){{4}}(?:\d{{2,5}})\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
