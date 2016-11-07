@@ -20,12 +20,12 @@ class Command(BaseCommand):
           JOIN share_changeset AS cs ON nd.id = cs.normalized_data_id
           JOIN share_change AS c ON cs.id = c.change_set_id
           JOIN share_abstractcreativework AS acw ON c.id = acw.change_id
-          WHERE acw.id IN ({}) AND acw.title != '' AND c.change->>'title' = acw.title
+          WHERE acw.id IN %s AND acw.title != '' AND c.change->>'title' = acw.title
           ORDER BY acw.id;
-        '''.format(','.join(['%s'] * len(work_ids)))
+        '''
 
         with connection.cursor() as c:
-            c.execute(query, work_ids)
+            c.execute(query, (tuple(work_ids),))
 
             source_ids = {}
             data = c.fetchone()
