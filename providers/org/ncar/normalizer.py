@@ -103,7 +103,11 @@ class DataSet(Parser):
 
     date_updated = tools.ParseDate(ctx.record.header.datestamp)
 
+    is_deleted = tools.RunPython('check_status', tools.Try(ctx.record.header['@status']))
+
     class Extra:
+        status = tools.Try(ctx.record.header['@status'])
+
         entry_id = tools.Try(ctx.record.metadata.DIF.Entry_ID)
 
         metadata_name = tools.Try(ctx.record.metadata.DIF.Metadata_Name)
@@ -113,3 +117,8 @@ class DataSet(Parser):
         last_dif_revision_date = tools.Try(ctx.record.metadata.DIF.Last_DIF_Revision_Date)
 
         set_spec = ctx.record.header.setSpec
+
+    def check_status(self, status):
+        if status == 'deleted':
+            return True
+        return False
