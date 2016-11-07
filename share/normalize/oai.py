@@ -102,7 +102,7 @@ class OAICreativeWork(Parser):
         )
     )
 
-    title = tools.Join(tools.RunPython('force_text', tools.Try(ctx['record']['metadata']['dc']['dc:title'])))
+    title = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:title'])))
     description = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:description'])))
 
     identifiers = tools.Map(
@@ -112,8 +112,8 @@ class OAICreativeWork(Parser):
             tools.RunPython(
                 'force_text',
                 tools.Concat(
-                    tools.Try(ctx['record']['metadata']['dc']['dc:identifier']),
-                    tools.Try(ctx['record']['header']['identifier'])
+                    tools.Try(ctx.record.metadata.dc['dc:identifier']),
+                    tools.Try(ctx.record.header['identifier'])
                 )
             )
         )
@@ -132,11 +132,11 @@ class OAICreativeWork(Parser):
     related_agents = tools.Concat(
         tools.Map(
             tools.Delegate(OAICreator),
-            tools.Try(ctx['record']['metadata']['dc']['dc:creator'])
+            tools.Try(ctx.record.metadata.dc['dc:creator'])
         ),
         tools.Map(
             tools.Delegate(OAIContributor),
-            tools.Try(ctx['record']['metadata']['dc']['dc:contributor'])
+            tools.Try(ctx.record.metadata.dc['dc:contributor'])
         ),
         tools.Map(
             tools.Delegate(OAIPublisher),
@@ -144,11 +144,11 @@ class OAICreativeWork(Parser):
         ),
     )
 
-    rights = tools.Join(tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:rights'))
+    rights = tools.Join(tools.Try(ctx.record.metadata.dc['dc:rights']))
 
     # Note: this is only taking the first language in the case of multiple languages
     language = tools.ParseLanguage(
-        tools.Try(ctx['record']['metadata']['dc']['dc:language'][0]),
+        tools.Try(ctx.record.metadata.dc['dc:language'][0]),
     )
 
     subjects = tools.Map(
@@ -159,10 +159,10 @@ class OAICreativeWork(Parser):
                 tools.RunPython(
                     'force_text',
                     tools.Concat(
-                        tools.Try(ctx['record']['header']['setSpec']),
-                        tools.Try(ctx['record']['metadata']['dc']['dc:type']),
-                        tools.Try(ctx['record']['metadata']['dc']['dc:format']),
-                        tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+                        tools.Try(ctx.record.header.setSpec),
+                        tools.Try(ctx.record.metadata.dc['dc:type']),
+                        tools.Try(ctx.record.metadata.dc['dc:format']),
+                        tools.Try(ctx.record.metadata.dc['dc:subject']),
                     )
                 )
             )
@@ -177,10 +177,10 @@ class OAICreativeWork(Parser):
                 tools.RunPython(
                     'force_text',
                     tools.Concat(
-                        tools.Try(ctx['record']['header']['setSpec']),
-                        tools.Try(ctx['record']['metadata']['dc']['dc:type']),
-                        tools.Try(ctx['record']['metadata']['dc']['dc:format']),
-                        tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+                        tools.Try(ctx.record.header.setSpec),
+                        tools.Try(ctx.record.metadata.dc['dc:type']),
+                        tools.Try(ctx.record.metadata.dc['dc:format']),
+                        tools.Try(ctx.record.metadata.dc['dc:subject']),
                     )
                 )
             ),
@@ -188,7 +188,9 @@ class OAICreativeWork(Parser):
         )
     )
 
-    date_updated = tools.ParseDate(ctx['record']['header']['datestamp'])
+    date_updated = tools.ParseDate(ctx.record.header.datestamp)
+
+    is_deleted = tools.RunPython('check_status', tools.Try(ctx.record.header['@status']))
 
     class Extra:
         """
@@ -196,43 +198,48 @@ class OAICreativeWork(Parser):
         their original entry to preserve raw data structure.
         """
         # An agent responsible for making contributions to the resource.
-        contributor = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
+        contributor = tools.Try(ctx.record.metadata.dc['dc:contributor'])
 
         # The spatial or temporal topic of the resource, the spatial applicability of the resource,
         # or the jurisdiction under which the resource is relevant.
-        coverage = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:coverage')
+        coverage = tools.Try(ctx.record.metadata.dc['dc:coverage'])
 
         # An agent primarily responsible for making the resource.
-        creator = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:creator')
+        creator = tools.Try(ctx.record.metadata.dc['dc:creator'])
 
         # A point or period of time associated with an event in the lifecycle of the resource.
-        dates = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:date')
+        dates = tools.Try(ctx.record.metadata.dc['dc:date'])
 
         # The file format, physical medium, or dimensions of the resource.
-        resource_format = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:format')
+        resource_format = tools.Try(ctx.record.metadata.dc['dc:format'])
 
         # An unambiguous reference to the resource within a given context.
         identifiers = tools.Concat(
-            tools.Try(ctx['record']['metadata']['dc']['dc:identifier']),
-            tools.Try(ctx['record']['header']['identifier'])
+            tools.Try(ctx.record.metadata.dc['dc:identifier']),
+            tools.Try(ctx.record.header['identifier'])
         )
 
         # A related resource.
         relation = tools.RunPython('get_relation', ctx)
 
         # A related resource from which the described resource is derived.
-        source = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:source')
+        source = tools.Try(ctx.record.metadata.dc['dc:source'])
 
         # The nature or genre of the resource.
         resource_type = tools.Try(ctx.record.metadata.dc['dc:type'])
 
-        set_spec = tools.Maybe(ctx.record.header, 'setSpec')
+        set_spec = tools.Try(ctx.record.header.setSpec)
 
         # Language also stored in the Extra class in case the language reported cannot be parsed by ParseLanguage
         language = tools.Try(ctx.record.metadata.dc['dc:language'])
 
         # Status in the header, will exist if the resource is deleted
-        status = tools.Maybe(ctx.record.header, '@status')
+        status = tools.Try(ctx.record.header['@status'])
+
+    def check_status(self, status):
+        if status == 'deleted':
+            return True
+        return False
 
     def get_schema(self, types):
         if not types or not self.type_map:
