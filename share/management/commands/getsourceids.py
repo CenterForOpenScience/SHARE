@@ -18,8 +18,10 @@ class Command(BaseCommand):
           JOIN share_normalizeddata AS nd ON rd.id = nd.raw_id
           JOIN share_changeset AS cs ON nd.id = cs.normalized_data_id
           JOIN share_change AS c ON cs.id = c.change_set_id
-          JOIN share_abstractcreativework AS acw ON c.id = acw.change_id
-          WHERE acw.id IN %s AND acw.title != '' AND c.change->>'title' = acw.title
+          JOIN django_content_type AS ct ON c.target_type_id = ct.id
+          JOIN share_abstractcreativework AS acw ON c.target_id = acw.id
+          WHERE ct.model in ('creativework', 'preprint', 'manuscript', 'publication', 'project', 'registration')
+            AND acw.id IN %s AND acw.title != '' AND c.change->>'title' = acw.title
           ORDER BY acw.id;
         '''
 
