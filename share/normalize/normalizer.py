@@ -91,20 +91,17 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     def add_source_identifier(self, source_id, jsonld, root_ref):
         uri = IRILink(urn_fallback=True).execute(str(source_id))['IRI']
-        if any(n for n in jsonld['@graph'] if n['@type'] == 'workidentifier' and n['uri'] == uri):
+        if any(n['@type'].lower() == 'workidentifier' and n['uri'] == uri for n in jsonld['@graph']):
             return
 
-        root_node = next(n for n in jsonld['@graph'] if root_ref.items() <= n.items())
-        identifier_ref = {'@id': '_:' + uuid.uuid4().hex, '@type': 'workidentifier'}
+        identifier_ref = {
+            '@id': '_:' + uuid.uuid4().hex,
+            '@type': 'workidentifier'
+        }
         identifier = {
             'uri': uri,
             'creative_work': root_ref,
             **identifier_ref
         }
-
-        try:
-            root_node['identifiers'].append(identifier_ref)
-        except KeyError:
-            root_node['identifiers'] = [identifier_ref]
-
+        ctx.pool[root_ref].setdefault('identifiers', []).append(identifier_ref)
         jsonld['@graph'].append(identifier)
