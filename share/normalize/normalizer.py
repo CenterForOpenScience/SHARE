@@ -1,10 +1,11 @@
 import abc
 import json
+import uuid
 from collections import OrderedDict
 
 import xmltodict
 
-from share.normalize.links import Context
+from share.normalize.links import Context, IRILink
 
 
 # NOTE: Context is a thread local singleton
@@ -71,13 +72,39 @@ class Normalizer(metaclass=abc.ABCMeta):
     def normalize(self, raw_data):
         ctx.clear()  # Just incase
         ctx._config = self.config
+        source_id = None
         # Parsed data will be loaded into ctx
         if not isinstance(raw_data, (str, bytes)):
+            source_id = raw_data.provider_doc_id
             raw_data = raw_data.data
         if isinstance(raw_data, bytes):
             raw_data = raw_data.decode()
-        self.do_normalize(raw_data)
+        root_ref = self.do_normalize(raw_data)
         jsonld = ctx.jsonld
+
+        if source_id:
+            self.add_source_identifier(source_id, jsonld, root_ref)
+
         ctx.clear()  # Clean up
 
         return jsonld
+
+    def add_source_identifier(self, source_id, jsonld, root_ref):
+        uri = IRILink(urn_fallback=True).execute(str(source_id))['IRI']
+        if any(n for n in jsonld['@graph'] if n['@type'] == 'workidentifier' and n['uri'] == uri):
+            return
+
+        root_node = next(n for n in jsonld['@graph'] if root_ref.items() <= n.items())
+        identifier_ref = {'@id': '_:' + uuid.uuid4().hex, '@type': 'workidentifier'}
+        identifier = {
+            'uri': uri,
+            'creative_work': root_ref,
+            **identifier_ref
+        }
+
+        try:
+            root_node['identifiers'].append(identifier_ref)
+        except KeyError:
+            root_node['identifiers'] = [identifier_ref]
+
+        jsonld['@graph'].append(identifier)
