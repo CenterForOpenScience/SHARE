@@ -1,476 +1,266 @@
 {
-    "Adaptive systems": [
-        "Adaptive and Self-Organizing Systems"
-    ],
-    "Agent-based modeling": [
-        "Agents and Multi-Agent Systems"
-    ],
-    "Agricultural biotechnology": [
-        "Biotechnology"
-    ],
-    "Agriculture": [
-        "Agricultural Science",
-        "Aquaculture, Fisheries and Fish Science"
-    ],
-    "Algorithms": [
-        "Algorithms and Analysis of Algorithms"
-    ],
-    "Anatomy": [
-        "Anatomy and Physiology",
-        "Kinesiology"
-    ],
-    "Anesthesiology": [
-        "Anaesthesiology and Pain Management"
-    ],
-    "Animal behavior": [
+    "Animal Sciences": [
         "Animal Behavior"
     ],
-    "Anthropology": [
-        "Anthropology"
-    ],
-    "Applied mathematics": [
-        "Algorithms and Analysis of Algorithms"
-    ],
-    "Aquaculture": [
-        "Aquaculture, Fisheries and Fish Science"
-    ],
-    "Artificial intelligence": [
-        "Artificial Intelligence"
-    ],
-    "Biochemistry": [
-        "Biochemistry"
-    ],
-    "Biodiversity": [
-        "Biodiversity"
-    ],
-    "Bioengineering": [
-        "Bioengineering"
-    ],
-    "Bioethics": [
-        "Ethical Issues"
-    ],
-    "Biogeography": [
-        "Biogeography"
-    ],
-    "Bioinformatics": [
-        "Bioinformatics"
-    ],
-    "Biology and life sciences": [
-        "Mathematical Biology"
-    ],
-    "Biomechanics": [
-        "Kinesiology"
-    ],
-    "Biophysics": [
-        "Biophysics"
-    ],
-    "Biotechnology": [
-        "Biotechnology"
-    ],
-    "Cardiology": [
-        "Cardiology"
-    ],
-    "Cell biology": [
-        "Cell Biology"
-    ],
-    "Clinical genetics": [
-        "Medical Genetics"
-    ],
-    "Clinical immunology": [
-        "Allergy and Clinical Immunology"
-    ],
-    "Clinical psychology": [
-        "Cognitive Disorders"
-    ],
-    "Clinical trials": [
-        "Clinical Trials"
-    ],
-    "Cognitive impairment": [
-        "Cognitive Disorders"
-    ],
-    "Cognitive neurology": [
-        "Cognitive Disorders"
-    ],
-    "Computational biology": [
-        "Computational Biology",
-        "Mathematical Biology"
-    ],
-    "Computational linguistics": [
-        "Computational Linguistics"
-    ],
-    "Computer and information sciences": [
-        "Agents and Multi-Agent Systems",
-        "Algorithms and Analysis of Algorithms",
-        "Autonomous Systems",
-        "Brain-Computer Interface",
-        "Computational Science",
-        "Computer Education",
-        "Data Mining and Machine Learning",
-        "Data Science",
-        "Digital Libraries",
-        "Distributed and Parallel Computing",
-        "Embedded Computing",
-        "Emerging Technologies",
-        "Graphics",
-        "Human-Computer Interaction",
-        "Multimedia",
-        "Optimization Theory and Computation",
-        "Scientific Computing and Simulation",
-        "Social Computing",
-        "Theory and Formal Methods",
-        "Visual Analytics",
-        "World Wide Web and Web Science"
-    ],
-    "Computer applications": [
-        "Embedded Computing",
-        "Mobile and Ubiquitous Computing",
-        "Real-Time and Embedded Systems"
-    ],
-    "Computer architecture": [
-        "Computer Architecture",
-        "Distributed and Parallel Computing"
-    ],
-    "Computer graphics": [
-        "graphics"
-    ],
-    "Computer networks": [
-        "Computer Networks and Communications",
-        "World Wide Web and Web Science"
-    ],
-    "Computer security": [
-        "Security and Privacy"
-    ],
-    "Computer vision": [
-        "Computer Vision"
-    ],
-    "Computer-aided design": [
-        "Computer Aided Design"
-    ],
-    "Computerized simulations": [
-        "Scientific Computing and Simulation"
-    ],
-    "Conservation biology": [
-        "Conservation Biology"
-    ],
-    "Critical care and emergency medicine": [
-        "Emergency and Critical Care"
-    ],
-    "Cryptography": [
-        "Cryptography"
-    ],
-    "Data visualization": [
-        "Visual Analytics"
-    ],
-    "Database and informatics methods": [
+    "Numerical Analysis and Computation": [
         "Computational Science"
     ],
-    "Databases": [
-        "Databases"
-    ],
-    "Dentistry": [
-        "Dentistry"
-    ],
-    "Dermatology": [
-        "Dermatology"
-    ],
-    "Developmental biology": [
-        "Developmental Biology"
-    ],
-    "Diabetes mellitus": [
-        "Diabetes and Endocrinology"
-    ],
-    "Diabetic endocrinology": [
-        "Diabetes and Endocrinology"
-    ],
-    "Diagnostic medicine": [
-        "HIV"
-    ],
-    "Drug therapy": [
-        "Anaesthesiology and Pain Management"
-    ],
-    "Drugs": [
-        "Drugs and Devices"
-    ],
-    "Ecology": [
-        "Ecology"
-    ],
-    "Ecology and environmental sciences": [
-        "Environmental Sciences"
-    ],
-    "Ecosystems": [
-        "Ecosystem Science"
-    ],
-    "Education": [
-        "Computer Education",
-        "Science and Medical Education"
-    ],
-    "Endocrine disorders": [
-        "Diabetes and Endocrinology"
-    ],
-    "Entomology": [
-        "Entomology"
-    ],
-    "Epidemiology": [
-        "Epidemiology"
-    ],
-    "Evidence-based medicine": [
-        "Evidence Based Medicine"
-    ],
-    "Evolutionary biology": [
-        "Evolutionary Studies"
-    ],
-    "Fish biology": [
-        "Aquaculture, Fisheries and Fish Science"
-    ],
-    "Fisheries": [
-        "Aquaculture, Fisheries and Fish Science"
-    ],
-    "Fisheries science": [
-        "Aquaculture, Fisheries and Fish Science"
-    ],
-    "Gastroenterology and hepatology": [
-        "Gastroenterology and Hepatology"
-    ],
-    "Genetics": [
-        "Genetics"
-    ],
-    "Genomics": [
-        "Genomics"
-    ],
-    "Geographic information systems": [
-        "Spatial and Geographic Information Systems"
-    ],
-    "Geoinformatics": [
-        "Spatial and Geographic Information Systems"
-    ],
-    "Geriatrics": [
-        "Geriatrics"
-    ],
-    "Global health": [
-        "Global Health"
-    ],
-    "HIV epidemiology": [
-        "HIV"
-    ],
-    "Health care": [
-        "Health Policy"
-    ],
-    "Health care policy": [
-        "Health Policy"
-    ],
-    "Hematology": [
-        "Hematology"
-    ],
-    "Histology": [
-        "Histology"
-    ],
-    "Immunology": [
-        "Allergy and Clinical Immunology"
-    ],
-    "Infectious diseases": [
-        "Infectious Diseases"
-    ],
-    "Information technology": [
-        "Data Mining and Machine Learning"
-    ],
-    "Law and legal sciences": [
-        "Legal Issues"
-    ],
-    "Machine learning": [
-        "Data Mining and Machine Learning"
-    ],
-    "Marine biology": [
-        "Marine Biology"
-    ],
-    "Medical education": [
-        "Science and Medical Education"
-    ],
-    "Medical ethics": [
-        "Ethical Issues"
-    ],
-    "Medical microbiology": [
-        "HIV"
-    ],
-    "Medicine and health sciences": [
-        "Andrology",
-        "Internal Medicine",
-        "Metabolic Sciences",
-        "Orthopedics",
-        "Respiratory Medicine"
-    ],
-    "Mental health and psychiatry": [
-        "Psychiatry and Psychology"
-    ],
-    "Metabolism": [
-        "Metabolic Sciences"
-    ],
-    "Microbiology": [
-        "Microbiology"
-    ],
-    "Molecular biology": [
+    "Molecular Biology": [
         "Molecular Biology"
     ],
-    "Musculoskeletal system procedures": [
-        "Orthopedics"
+    "Virus Diseases": [
+        "HIV"
     ],
-    "Mycology": [
-        "Mycology"
+    "Radiology": [
+        "Radiology and Medical Imaging"
     ],
-    "Natural language processing": [
-        "Natural Language and Speech"
-    ],
-    "Nature-society interactions": [
+    "Ecology and Evolutionary Biology": [
+        "Ecology",
+        "Ecosystem Science",
+        "Evolutionary Studies",
         "Coupled Natural and Human Systems"
-    ],
-    "Nephrology": [
-        "Nephrology"
-    ],
-    "Network analysis": [
-        "Network Science and Online Social Networks"
-    ],
-    "Neurology": [
-        "Neurology"
-    ],
-    "Neuroscience": [
-        "Neuroscience"
-    ],
-    "Nursing science": [
-        "Nursing"
-    ],
-    "Nutrition": [
-        "Food Science and Technology"
-    ],
-    "Obstetrics and gynecology": [
-        "Gynecology and Obstetrics"
     ],
     "Oncology": [
         "Oncology"
     ],
-    "Operating systems": [
-        "Operating Systems"
+    "Obstetrics and Gynecology": [
+        "Gynecology and Obstetrics"
     ],
-    "Ophthalmology": [
-        "Ophthalmology"
-    ],
-    "Optimization": [
-        "Optimization Theory and Computation"
-    ],
-    "Otorhinolaryngology": [
-        "Otorhinolaryngology"
-    ],
-    "Pain management": [
-        "Anaesthesiology and Pain Management"
-    ],
-    "Paleontology": [
-        "Paleontology"
-    ],
-    "Palliative care": [
-        "Palliative Care"
-    ],
-    "Parasitology": [
-        "Parasitology"
-    ],
-    "Pathology and laboratory medicine": [
-        "Pathology",
-        "Pathology  "
-    ],
-    "Pediatrics": [
-        "Pediatrics"
-    ],
-    "Pharmaceutics": [
-        "Drugs and Devices"
-    ],
-    "Pharmacology": [
-        "Drugs and Devices",
-        "Pharmacology"
-    ],
-    "Plant science": [
-        "Plant Science"
-    ],
-    "Programming languages": [
-        "Programming Languages"
-    ],
-    "Public and occupational health": [
-        "Public Health"
-    ],
-    "Radiology and imaging": [
-        "Radiology and Medical Imaging"
-    ],
-    "Real time computing": [
-        "Real-Time and Embedded Systems"
-    ],
-    "Respiratory system": [
-        "Respiratory Medicine"
-    ],
-    "Respiratory system procedures": [
-        "Respiratory Medicine"
+    "Psychiatry and Psychology": [
+        "Cognitive disorders",
+        "Psychiatry and Psychology "
     ],
     "Rheumatology": [
         "Rheumatology"
     ],
-    "Robotics": [
-        "Autonomous Systems",
-        "Robotics "
-    ],
-    "Science education": [
-        "Computer Education"
-    ],
-    "Science policy": [
-        "Science Policy"
-    ],
-    "Social networks": [
-        "Network Science and Online Social Networks",
-        "Social Computing"
-    ],
-    "Software engineering": [
-        "Software Engineering"
-    ],
-    "Soil science": [
-        "Soil Science"
-    ],
-    "Sports science": [
-        "Kinesiology"
-    ],
-    "Statistics (mathematics)": [
-        "Statistics"
-    ],
-    "Surgical and invasive medical procedures": [
-        "Surgery and Surgical Specialties"
-    ],
-    "Synthetic biology": [
-        "Synthetic Biology"
-    ],
-    "Synthetic biotechnology": [
-        "Biotechnology"
-    ],
-    "Systems science": [
-        "Autonomous Systems"
-    ],
-    "Taxonomy": [
+    "Biology": [
+        "Biogeography",
+        "Mathematical Biology",
+        "Mycology",
+        "Synthetic Biology",
         "Taxonomy"
     ],
-    "Toxicology": [
-        "Toxicology"
+    "Nephrology": [
+        "Nephrology "
     ],
-    "Translational medicine": [
-        "Translational Medicine"
+    "Gastroenterology": [
+        "Gastroenterology and Hepatology"
     ],
-    "Urology": [
-        "Urology"
-    ],
-    "User interfaces": [
-        "Brain-Computer Interface"
-    ],
-    "Veterinary medicine": [
-        "Veterinary Medicine"
+    "Natural Resources and Conservation": [
+        "Conservation biology"
     ],
     "Virology": [
         "Virology"
     ],
-    "Women's health": [
+    "Public Health": [
+        "Global Health",
+        "Public Health"
+    ],
+    "Genetics": [
+        "Genetics"
+    ],
+    "Analytical, Diagnostic and Therapeutic Techniques and Equipment": [
+        "Drugs and Devices"
+    ],
+    "Women's Health": [
         "Women's Health"
+    ],
+    "Medical Nutrition": [
+        "Nutrition"
+    ],
+    "Medical Genetics": [
+        "Medical Genetics"
+    ],
+    "Emergency Medicine": [
+        "Emergency and Critical Care"
+    ],
+    "Environmental Sciences": [
+        "Environmental Sciences"
+    ],
+    "Ethics and Political Philosophy": [
+        "Ethical Issues"
+    ],
+    "Medicine and Health Sciences": [
+        "Evidence Based Medicine",
+        "Respiratory Medicine"
+    ],
+    "Marine Biology": [
+        "Marine Biology"
+    ],
+    "Nursing": [
+        "Nursing"
+    ],
+    "Agriculture": [
+        "Agricultural Science"
+    ],
+    "Cardiology": [
+        "Cardiology "
+    ],
+    "Neurology": [
+        "Neurology "
+    ],
+    "Soil Science": [
+        "Soil Science"
+    ],
+    "Infectious Disease": [
+        "Infectious Diseases"
+    ],
+    "Biochemistry": [
+        "Biochemistry"
+    ],
+    "Biomedical Engineering and Bioengineering": [
+        "Bioengineering"
+    ],
+    "Medical Immunology": [
+        "Immunology"
+    ],
+    "Palliative Care": [
+        "Palliative Care"
+    ],
+    "Anatomy": [
+        "Anatomy and Physiology"
+    ],
+    "Graphics and Human Computer Interfaces": [
+        "Human-computer Interaction"
     ],
     "Zoology": [
         "Zoology"
+    ],
+    "Allergy and Immunology": [
+        "Allergy and Clinical Immunology"
+    ],
+    "Dentistry": [
+        "Dentistry"
+    ],
+    "Geriatrics": [
+        "Geriatrics"
+    ],
+    "Law": [
+        "Legal Issues"
+    ],
+    "Translational Medical Research": [
+        "Clinical Trials",
+        "Translational Medicine"
+    ],
+    "Cell Biology": [
+        "Cell Biology"
+    ],
+    "Biotechnology": [
+        "Biotechnology"
+    ],
+    "Entomology": [
+        "Entomology"
+    ],
+    "Surgery": [
+        "Surgery and Surgical Specialties"
+    ],
+    "Biophysics": [
+        "Biophysics"
+    ],
+    "Science and Mathematics Education": [
+        "Science and Medical Education"
+    ],
+    "Biological and Physical Anthropology": [
+        "Anthropology"
+    ],
+    "Food Science": [
+        "Food Science and Technology"
+    ],
+    "Neuroscience and Neurobiology": [
+        "Neuroscience"
+    ],
+    "Epidemiology": [
+        "Epidemiology"
+    ],
+    "Pediatrics": [
+        "Pediatrics"
+    ],
+    "Endocrinology, Diabetes, and Metabolism": [
+        "Diabetes and Endocrinology",
+        "Metabolic Sciences"
+    ],
+    "Science and Technology Law": [
+        "Science Policy"
+    ],
+    "Hematology": [
+        "Hematology"
+    ],
+    "Anesthesiology": [
+        "Anaesthesiology and Pain Management"
+    ],
+    "Developmental Biology": [
+        "Developmental Biology"
+    ],
+    "Orthopedics": [
+        "Orthopedics"
+    ],
+    "Toxicology": [
+        "Toxicology"
+    ],
+    "Computational Biology": [
+        "Computational Biology"
+    ],
+    "Aquaculture and Fisheries Life Sciences": [
+        "Aquaculture, Fisheries, and Fish Science"
+    ],
+    "Plant Sciences": [
+        "Plant Science"
+    ],
+    "Internal Medicine": [
+        "Internal Medicine"
+    ],
+    "Genomics": [
+        "Genomics"
+    ],
+    "Paleontology": [
+        "Paleontology"
+    ],
+    "Statistics and Probability": [
+        "Statistics"
+    ],
+    "Biodiversity": [
+        "Biodiversity"
+    ],
+    "Veterinary Medicine": [
+        "Veterinary Medicine"
+    ],
+    "Medical Pharmacology": [
+        "Pharmacology "
+    ],
+    "Cell Anatomy": [
+        "Histology"
+    ],
+    "Medical Specialties": [
+        "Andrology"
+    ],
+    "Microbiology": [
+        "Microbiology"
+    ],
+    "Urology": [
+        "Urology "
+    ],
+    "Pathology": [
+        "Pathology "
+    ],
+    "Musculoskeletal, Neural, and Ocular Physiology": [
+        "Kinesiology "
+    ],
+    "Ophthalmology": [
+        "Ophthalmology"
+    ],
+    "Parasitology": [
+        "Parasitology"
+    ],
+    "Health Law and Policy": [
+        "Health Policy"
+    ],
+    "Otorhinolaryngologic Diseases": [
+        "Otorhinolaryngology"
+    ],
+    "Hepatology": [
+        "Gastroenterology and Hepatology"
+    ],
+    "Bioinformatics": [
+        "Bioinformatics"
     ]
 }
