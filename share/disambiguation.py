@@ -18,34 +18,31 @@ class GraphDisambiguator:
         self._gather_disambiguators(Disambiguator)
 
     def disambiguate(self, change_graph):
-        nodes = sorted(change_graph.nodes, key=self._disambiguweight, reverse=True)
-        for n in nodes:
-            n.update_relations(change_graph.node_map)
-            if n.is_merge:
-                continue
+        changed, nodes = True, sorted(change_graph.nodes, key=self._disambiguweight, reverse=True)
 
-            handled = self._cache.setdefault((n.model, n.resolved_attrs), n)
-            if n.resolved_attrs and handled is not n:
-                change_graph.remove_node(n, handled)
-                continue
+        while changed:
+            changed = False
 
-            instance = self.instance_for_node(n)
-            if isinstance(instance, list):
-                # TODO after merging is fixed, add mergeaction change to graph
-                raise NotImplementedError()
-            else:
-                old_ref = n.ref
-                n.instance = instance
+            for n in nodes:
+                if n.is_merge or n.instance:
+                    continue
+
+                handled = self._cache.setdefault((n.model, n.resolve_attrs()), n)
+                if n.resolve_attrs() and handled is not n:
+                    nodes.remove(n)
+                    change_graph.replace(n, handled)
+                    continue
+
+                instance = self.instance_for_node(n)
+
+                if isinstance(instance, list):
+                    # TODO after merging is fixed, add mergeaction change to graph
+                    raise NotImplementedError()
+
                 if instance:
-                    logger.debug('Disambiguated {} to {}'.format(old_ref, n.ref))
-            for ref in n.refs:
-                change_graph.node_map[ref] = n
-
-        # When e.g. adding a new identifier to an existing work/agent, the
-        # identifier is disambiguated before the work, but needs an updated
-        # ref after the work is disambiguated. TODO something better than this
-        for n in nodes:
-            n.update_relations(change_graph.node_map)
+                    changed = True
+                    n.instance = instance
+                    logger.debug('Disambiguated {} to {}'.format(n, instance))
 
     def instance_for_node(self, node):
         NodeDisambiguator = GenericDisambiguator
@@ -55,7 +52,7 @@ class GraphDisambiguator:
                 break
             if not klass._meta.proxy:
                 break
-        return NodeDisambiguator(node.id, node.resolved_attrs, node.model).find()
+        return NodeDisambiguator(node.id, node.resolve_attrs(), node.model).find()
 
     def _disambiguweight(self, node):
         # Models with exactly 1 foreign key field (excluding those added by
@@ -153,6 +150,20 @@ class UniqueAttrDisambiguator(Disambiguator):
             return self.not_found()
 
 
+class AgentWorkRelationDisambiguator(Disambiguator):
+    FOR_MODELS = tuple(models.AgentWorkRelation.get_type_classes())
+
+    def disambiguate(self):
+        if not self.attrs.get('creative_work'):
+            return None
+        if not self.attrs.get('cited_as') and not self.attrs.get('agent'):
+            return None
+        try:
+            return self.model.objects.get(**self.attrs)
+        except self.model.DoesNotExist:
+            return None
+
+
 class WorkIdentifierDisambiguator(UniqueAttrDisambiguator):
     FOR_MODEL = models.WorkIdentifier
     unique_attr = 'uri'
@@ -182,6 +193,12 @@ class AbstractAgentDisambiguator(Disambiguator):
 
     def disambiguate(self):
         if not self.attrs.get('identifiers'):
+            if self.attrs.get('work_relations'):
+                found = set(models.AbstractAgent.objects.filter(work_relations__id__in=self.attrs['work_relations']))
+                if len(found) == 1:
+                    return found.pop()
+                return list(sorted(found, key=lambda x: x.pk)) or None
+
             if self.model == models.Person or not self.attrs.get('name'):
                 return None
             try:
