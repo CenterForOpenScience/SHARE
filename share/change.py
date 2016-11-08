@@ -180,7 +180,7 @@ class ChangeNode:
             if isinstance(old_value, datetime.datetime):
                 v = pendulum.parse(v)
             if v != old_value:
-                attrs[k] = v
+                attrs[k] = v.isoformat() if isinstance(v, datetime.datetime) else v
 
         # TODO Add relationships in. Somehow got ommitted first time around
         return {**changes, **attrs}
