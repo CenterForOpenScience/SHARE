@@ -82,7 +82,7 @@ class Normalizer(metaclass=abc.ABCMeta):
         root_ref = self.do_normalize(raw_data)
         jsonld = ctx.jsonld
 
-        if source_id:
+        if source_id and jsonld and root_ref:
             self.add_source_identifier(source_id, jsonld, root_ref)
 
         ctx.clear()  # Clean up
