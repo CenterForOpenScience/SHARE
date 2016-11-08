@@ -82,15 +82,10 @@ class Parser(metaclass=ParserMeta):
         else:
             schema = self.schema
 
-        if (self.context, schema) in ctx.pool:
-            logger.debug('Values (%s, %s) found in cache as %s', self.context, schema, ctx.pool[self.context, schema])
-            return ctx.pool[self.context, schema]
-
         model = apps.get_model('share', schema)
         self.ref = {'@id': self.id, '@type': schema}
 
-        inst = {**self.ref}  # Shorthand for copying inst
-        ctx.pool[self.context, schema] = self.ref
+        inst = {**self.ref}  # Shorthand for copying ref
 
         for key, chain in self.parsers.items():
             try:
