@@ -1,24 +1,13 @@
 from django.db import models
 from django.db import IntegrityError
-from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, ShareURLField
+from share.models.fields import ShareForeignKey
 
 
-__all__ = ('Venue', 'Tag', 'Subject')
+__all__ = ('Tag', 'Subject')
 
 # TODO Rename this file
-
-
-class Venue(ShareObject):
-    name = models.TextField(blank=True)
-    venue_type = ShareURLField(blank=True)
-    location = ShareURLField(blank=True)
-    community_identifier = ShareURLField(blank=True)
-
-    def __str__(self):
-        return self.name
 
 
 class Tag(ShareObject):
@@ -34,8 +23,7 @@ class SubjectManager(models.Manager):
 
 
 class Subject(models.Model):
-    lineages = JSONField(editable=False)
-    parents = models.ManyToManyField('self')
+    parent = models.ForeignKey('self', null=True)
     name = models.TextField(unique=True, db_index=True)
 
     objects = SubjectManager()
@@ -51,14 +39,6 @@ class Subject(models.Model):
 
 
 # Through Tables for all the things
-
-class ThroughVenues(ShareObject):
-    venue = ShareForeignKey(Venue)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-
-    class Meta:
-        unique_together = ('venue', 'creative_work')
-
 
 class ThroughTags(ShareObject):
     tag = ShareForeignKey(Tag)

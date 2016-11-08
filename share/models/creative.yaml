@@ -9,6 +9,7 @@ CreativeWork:
         #         Photo: {}
         #         Plot: {}
         # Lesson: {}
+        Patent: {}
         Poster: {}
         Publication:
             children:

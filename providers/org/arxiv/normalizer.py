@@ -10,7 +10,17 @@ class WorkIdentifier(Parser):
 class Organization(Parser):
     schema = tools.GuessAgentType(ctx)
 
-    name = ctx
+    name = tools.RunPython('get_name', ctx)
+    location = tools.RunPython('get_location', ctx)
+
+    def get_name(self, context):
+        return context.split(',')[0]
+
+    def get_location(self, context):
+        spl = context.partition(',')
+        if len(spl) > 1:
+            return spl[-1]
+        return None
 
 
 class IsAffiliatedWith(Parser):
@@ -66,7 +76,6 @@ class Preprint(Parser):
         tools.Delegate(ThroughTags),
         tools.Map(ctx['@term'], ctx.entry.category),
     )
-    # venues
     related_agents = tools.Concat(
         tools.Map(tools.Delegate(Creator), ctx.entry.author),
     )

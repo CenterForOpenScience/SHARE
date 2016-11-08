@@ -234,7 +234,7 @@ class Change(models.Model):
             if k == 'extra':
                 if not v:
                     continue
-                if self.target:
+                if self.target and self.target.extra:
                     change[k] = self.target.extra
                 else:
                     from share.models.base import ExtraData

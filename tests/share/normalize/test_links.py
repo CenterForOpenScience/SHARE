@@ -228,13 +228,13 @@ def test_urn_link(urn, result):
 
 class TestIRILink:
 
-    def _do_test(self, input, output, suppress_failure=False):
+    def _do_test(self, input, output, urn_fallback=False):
         if isinstance(output, Exception):
             with pytest.raises(type(output)) as e:
                 IRILink().execute(input)
             assert e.value.args == output.args
         else:
-            assert {k: v for k, v in IRILink(suppress_failure=suppress_failure).execute(input).items() if k in output} == output
+            assert {k: v for k, v in IRILink(urn_fallback=urn_fallback).execute(input).items() if k in output} == output
 
     @pytest.mark.parametrize('input, output', [
         ('trexy@dinosaurs.sexy', {
@@ -553,24 +553,6 @@ class TestIRILink:
     ])
     def test_malformed(self, input, output):
         return self._do_test(input, output)
-
-    @pytest.mark.parametrize('input, output', [
-        (None, TypeError('\'None\' is not of type str.')),
-        ('', {'IRI': None}),
-        ('105517/ccdc.csd.cc1lj81f', {'IRI': None}),
-        ('0.5517/ccdc.csd.cc1lj81f', {'IRI': None}),
-        ('10.5517ccdc.csd.cc1lj81f', {'IRI': None}),
-        ('10.517ccdc.csd.cc1lj81f', {'IRI': None}),
-        ('10.517/ccdc.csd.cc1lj81f', {'IRI': None}),
-        ('10.517ccdc.csd.c>c1lj81f', {'IRI': None}),
-        ('0000000248692412', {'IRI': None}),
-        ('0000000000000000', {'IRI': None}),
-        ('arXiv:1023..20382', {'IRI': None}),
-        ('arXiv:10102.22322', {'IRI': None}),
-        ('arXiv:2.2', {'IRI': None}),
-    ])
-    def test_malformed_suppress_failure(self, input, output):
-        return self._do_test(input, output, suppress_failure=True)
 
     @pytest.mark.parametrize('input', [
         '10.5517/ggdc.csd.cc1lj81f',

@@ -98,7 +98,9 @@ class CreativeWork(Parser):
         return 'http://130.179.67.140/{type}/{id}'.format(**context)
 
     def get_dois(self, context):
-        return [x['value'] for x in context if x['key'] == 'DOI']
+        # Sometimes values can be "to be added" or similar
+        # There also seems to be a couple dx.doi.org/11.xxx/... floating around
+        return [x['value'] for x in context if x['key'] == 'DOI' and '10.0' in x['value']]
 
     def get_schema(self, type):
         return {

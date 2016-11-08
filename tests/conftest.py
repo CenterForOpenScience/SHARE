@@ -99,12 +99,12 @@ def change_set(normalized_data_id):
 
 @pytest.fixture
 def change_node():
-    return ChangeNode.from_jsonld({
+    return ChangeGraph([{
         '@id': '_:1234',
         '@type': 'person',
         'given_name': 'No',
         'family_name': 'Matter',
-    })
+    }]).nodes[0]
 
 
 @pytest.fixture
@@ -113,10 +113,7 @@ def change_factory(share_source, change_set, change_node):
         def from_graph(self, graph, disambiguate=False):
             nd = NormalizedData.objects.create(data=graph, source=share_source)
             return ChangeSet.objects.from_graph(
-                ChangeGraph.from_jsonld(
-                    graph,
-                    disambiguate=disambiguate,
-                ),
+                ChangeGraph(graph['@graph'], disambiguate=disambiguate),
                 nd.pk
             )
 

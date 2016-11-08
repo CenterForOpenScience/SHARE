@@ -8,7 +8,7 @@ from share.disambiguation import SubjectDisambiguator
 
 def create_subject(name):
     Subject.objects.bulk_create([
-        Subject(name=name, lineages=[])
+        Subject(name=name),
     ])
     return Subject.objects.get(name=name)
 

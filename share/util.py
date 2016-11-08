@@ -45,6 +45,16 @@ class IDObfuscator:
     def resolver(cls, self, args, context, info):
         return cls.resolve(args.get('id', ''))
 
+    @classmethod
+    def load(cls, id, *args):
+        model, pk = cls.decode(id)
+        try:
+            return model.objects.get(pk=pk)
+        except model.NotFoundError:
+            if args:
+                return args[0]
+            raise
+
 
 class CyclicalDependency(Exception):
     pass

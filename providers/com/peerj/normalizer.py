@@ -52,8 +52,8 @@ class Article(Parser):
         ctx.doi,
         ctx.pdf_url,
         ctx.fulltext_html_url,
-        RunPython(lambda x: 'https://www.ncbi.nlm.nih.gov/pubmed/{}'.format(x) if x else None, ctx.identifiers.pubmed),
-        RunPython(lambda x: 'https://www.ncbi.nlm.nih.gov/pmc/articles/{}'.format(x) if x else None, ctx.identifiers.pmc),
+        RunPython(lambda x: 'https://www.ncbi.nlm.nih.gov/pubmed/{}'.format(x) if x else None, Try(ctx.identifiers.pubmed)),
+        RunPython(lambda x: 'https://www.ncbi.nlm.nih.gov/pmc/articles/{}'.format(x) if x else None, Try(ctx.identifiers.pmc)),
     )
 
     subjects = Map(Delegate(ThroughSubjects), Subjects(ctx.subjects))
@@ -75,7 +75,7 @@ class Article(Parser):
 class Preprint(Article):
 
     class Extra:
-        modified = RunPython('parse_date', ctx.date)
+        modified = ParseDate(ctx.date)
         subjects = ctx.subjects
         identifiers = Try(ctx.identifiers)
         emails = Try(ctx.author_email)

@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
-from share.models.meta import Venue, Tag, Subject
+from share.models.meta import Tag, Subject
 from share.models.fields import ShareManyToManyField, ShareURLField
 
 from share.util import ModelGenerator
@@ -24,8 +24,6 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     subjects = ShareManyToManyField(Subject, related_name='subjected_works', through='ThroughSubjects')
     tags = ShareManyToManyField(Tag, related_name='tagged_works', through='ThroughTags')
-
-    venues = ShareManyToManyField(Venue, through='ThroughVenues')
 
     related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentWorkRelation')
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('subject', 'related'), symmetrical=False)

@@ -102,7 +102,7 @@ class CreativeWork(Parser):
         Delegate(WorkIdentifier),
         DOI(ctx.DOI),
         Map(
-            IRI(suppress_failure=True),
+            IRI(urn_fallback=True),
             Maybe(ctx, 'link'),
             Maybe(ctx, 'alternative-id')
         )

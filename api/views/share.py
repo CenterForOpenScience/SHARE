@@ -100,11 +100,6 @@ class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = serializer_class.Meta.model.objects.all()
 
 
-class VenueViewSet(ShareObjectViewSet):
-    serializer_class = serializers.VenueSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
 class ExtraDataViewSet(ShareObjectViewSet):
     serializer_class = serializers.ExtraDataSerializer
     queryset = serializer_class.Meta.model.objects.all()

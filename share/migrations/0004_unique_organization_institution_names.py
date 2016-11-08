@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0002_create_share_user'),
+        ('share', '0003_create_share_user'),
     ]
 
     # Meant to be run on an empty database, so don't worry about existing duplicates

@@ -21,194 +21,213 @@ class UnresolvableReference(GraphParsingException):
     pass
 
 
+class GraphEdge:
+
+    # TODO Cache
+    @property
+    def field(self):
+        subject_model = self.subject.model
+        related_model = self.related.model._meta.concrete_model
+        possible = tuple(
+            f for f in subject_model._meta.get_fields()
+            if f.is_relation
+            and f.related_model is related_model
+            and (not self._hint or f.name == self._hint)
+        )
+        assert len(possible) == 1
+
+        return possible[0]
+
+    @property
+    def name(self):
+        return self.field.name
+
+    @property
+    def remote_name(self):
+        return self.field.remote_field.name
+
+    def __init__(self, subject, related, hint=None):
+        self.subject = subject
+        self.related = related
+        self._hint = hint
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.related == other.related and self.subject == other.subject
+
+    def __hash__(self):
+        return hash((self.subject, self.related))
+
+    def __repr__(self):
+        return '<{}({}, {}, {})>'.format(self.__class__.__name__, self.name, self.subject, self.related)
+
+
+class ChangeGraph:
+
+    def __init__(self, data, disambiguate=True, namespace=None):
+        self.nodes = []
+        self.relations = {}
+        self._lookup = {}
+
+        hints, relations = {}, set()
+        for blob in copy.deepcopy(data):
+            id, type = blob.pop('@id'), blob.pop('@type')
+
+            self._lookup[id, type] = ChangeNode(self, id, type, blob, namespace=namespace)
+            self.relations[self._lookup[id, type]] = set()
+            self.nodes.append(self._lookup[id, type])
+
+            for k, v in tuple(blob.items()):
+                if isinstance(v, dict) and k != 'extra' and not k.startswith('@'):
+                    related = (v.pop('@id'), v.pop('@type'))
+                    hints[(id, type), related] = k
+                    relations.add(((id, type), related))
+                    blob.pop(k)
+                if isinstance(v, list):
+                    for rel in v:
+                        subject = (rel.pop('@id'), rel.pop('@type'))
+                        relations.add((subject, (id, type)))
+                    blob.pop(k)
+
+        for subject, related in relations:
+            try:
+                edge = GraphEdge(self._lookup[subject], self._lookup[related], hint=hints.get((subject, related)))
+            except KeyError as e:
+                raise UnresolvableReference(*e.args)
+
+            self.relations[self._lookup[subject]].add(edge)
+            self.relations[self._lookup[related]].add(edge)
+
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
+
+        if disambiguate:
+            self.disambiguate()
+
+    def disambiguate(self):
+        GraphDisambiguator().disambiguate(self)
+
+    def replace(self, source, replacement):
+        self.nodes.remove(source)
+        for edge in self.relations.pop(source):
+            if edge.subject == source:
+                self.relations[replacement].add(GraphEdge(replacement, edge.related, edge._hint))
+                continue
+            self.relations[edge.subject].remove(edge)
+            self.relations[edge.subject].add(GraphEdge(edge.subject, replacement, edge._hint))
+
+
 class ChangeNode:
 
-    @classmethod
-    def from_jsonld(self, ld_graph, extra_namespace=None):
-        return ChangeNode(ld_graph, extra_namespace=extra_namespace)
+    @property
+    def id(self):
+        return (self.instance and IDObfuscator.encode(self.instance)) or self._id
 
     @property
-    def model(self):
-        if self.is_merge:
-            return apps.get_model('share', self.relations['into']['@type'].lower())
-        return apps.get_model('share', self.type.lower())
-
-    @property
-    def instance(self):
-        return self.__instance
-
-    @instance.setter
-    def instance(self, instance):
-        if instance:
-            self.id = IDObfuscator.encode(instance)
-            self.type = instance._meta.model_name.lower()
-            if self.type != self.new_type and self.new_type == 'creativework':
-                self.new_type = self.type
-            self.__refs.append((self.id, self.type))
-        self.__instance = instance
-
-    @property
-    def is_blank(self):
-        # JSON-LD Blank Node ids start with "_:"
-        return self.is_merge or self.id.startswith('_:')
-
-    @property
-    def is_merge(self):
-        return self.type.lower() == 'mergeaction'
+    def type(self):
+        model = apps.get_app_config('share').get_model(self._type)
+        if not self.instance or len(model.mro()) >= len(type(self.instance).mro()):
+            return self._type
+        return self.instance._meta.model_name.lower()
 
     @property
     def ref(self):
         return {'@id': self.id, '@type': self.type}
 
     @property
-    def refs(self):
-        return self.__refs
+    def model(self):
+        model = apps.get_app_config('share').get_model(self._type)
+        if not self.instance or len(model.mro()) >= len(type(self.instance).mro()):
+            return model
+        return type(self.instance)
+
+    @property
+    def is_merge(self):
+        return False  # TODO
+
+    @property
+    def is_blank(self):
+        return self.id.startswith('_:')
 
     @property
     def is_skippable(self):
         return self.is_merge or (self.instance and not self.change)
 
     @property
-    def resolved_attrs(self):
-        return {
-            **self.attrs,
-            **{k: IDObfuscator.decode_id(v['@id'])for k, v in self.relations.items() if not v['@id'].startswith('_:')},
-            **{k: [IDObfuscator.decode_id(x['@id'])for x in v if not x['@id'].startswith('_:')] for k, v in self.reverse_relations.items() if any(not x['@id'].startswith('_:') for x in v)},
-        }
-
-    @property
     def change(self):
-        if self.is_merge:
-            return {**self.attrs, **self.relations, **self.__reverse_relations}
+        changes, relations = {}, {}
+
+        if self._namespace:
+            extra = ((getattr(self.instance, 'extra', None)and self.instance.extra.data) or {}).get(self._namespace, {})
+            changes['extra'] = {k: v for k, v in self.extra.items() if extra.get(k) != v}
+            if not changes['extra']:
+                del changes['extra']
+
+        for edge in self.related(backward=False):
+            if edge.field.one_to_many:
+                relations.setdefault(edge.name, []).append(edge.related.ref)
+            else:
+                relations[edge.name] = edge.related.ref
 
         if self.is_blank:
-            ret = {**self.attrs, **self.relations}
-            if self.extra:
-                ret['extra'] = self.extra
-            return ret
+            return {**self.attrs, **relations}
 
-        if not self.instance:
-            raise UnresolvableReference('@id: {!r}, @type: {!r}'.format(self.id, self.type))
+        if self.instance and type(self.instance) is not self.model:
+            changes['type'] = self.model._meta.label_lower
 
-        ret = {}
+        attrs = {}
         for k, v in self.attrs.items():
             old_value = getattr(self.instance, k)
             if isinstance(old_value, datetime.datetime):
-                if pendulum.parse(v) != old_value:
-                    ret[k] = v
-            elif v != old_value:
-                ret[k] = v
+                v = pendulum.parse(v)
+            if v != old_value:
+                attrs[k] = v
 
-        if self.__extra_namespace:
-            ret['extra'] = {
-                k: v for k, v in self.extra.items()
-                if not (self.instance.extra and self.instance.extra.get(self.__extra_namespace))
-                or self.instance.extra.data[self.__extra_namespace].get(k) != v
-            }
+        # TODO Add relationships in. Somehow got ommitted first time around
+        return {**changes, **attrs}
 
-            if not ret['extra']:
-                del ret['extra']
+    def __init__(self, graph, id, type, attrs, namespace=None):
+        self.graph = graph
+        self._id = id
+        self._type = type.lower()
+        self.instance = None
+        self.attrs = attrs
+        self.extra = attrs.pop('extra', {})
+        self.context = attrs.pop('@context', {})
+        self._namespace = namespace
 
-        if self.new_type != self.type:
-            ret['@type'] = self.new_type
+        if not self.is_blank:
+            self.instance = IDObfuscator.load(self.id, None)
+            if not self.instance or self.instance._meta.concrete_model is not self.model._meta.concrete_model:
+                raise UnresolvableReference((self.id, self.type))
 
-        return ret
+    def related(self, name=None, many=False, forward=True, backward=True):
+        edges = tuple(
+            e for e in self.graph.relations[self]
+            if (name is None or e.name == name)
+            and (
+                (e.subject is self and forward is True)
+                or (e.related is self and backward is True)
+            ))
 
-    def __init__(self, node, extra_namespace=None):
-        self.__raw = node
-        self.__change = None
-        self.__instance = None
-        self.__extra_namespace = None
-        node = copy.deepcopy(self.__raw)
+        if name is None or many:
+            return edges
 
-        self.id = node.pop('@id')
-        self.type = node.pop('@type').lower()
-        self.new_type = self.type
-        self.extra = node.pop('extra', {})
+        assert len(edges) < 2
+        return (edges and edges[0]) or None
 
-        self.__refs = [(self.id, self.type)]
+    def resolve_attrs(self):
+        relations = {}
+        for edge in self.related():
+            name = edge.name if edge.subject == self else edge.remote_name
+            node = edge.related if edge.subject == self else edge.subject
+            many = edge.field.one_to_many if edge.subject == self else edge.field.remote_field.one_to_many
+            if not node.instance:
+                continue
+            if many:
+                relations.setdefault(name, []).append(node.instance.pk)
+            else:
+                relations[name] = node.instance.pk
 
-        # JSON-LD variables are all prefixed with '@'s
-        self.context = {k: node.pop(k) for k in tuple(node.keys()) if k[0] == '@'}
-
-        # Any nested data type is a relation in the current JSON-LD schema
-        self.relations = {k: node.pop(k) for k, v in tuple(node.items()) if isinstance(v, dict)}
-        self.related = tuple(self.relations.values())
-
-        self.reverse_relations = {}  # Resolved through relations to be populated later
-        self.__reverse_relations = {k: tuple(node.pop(k)) for k, v in tuple(node.items()) if isinstance(v, (list, tuple))}
-
-        self.attrs = node
-
-    def resolve_relations(self, mapper):
-        for key, relations in self.__reverse_relations.items():
-            resolved = []
-            for relation in relations:
-                node = mapper[relation['@id'], relation['@type'].lower()]
-                through_relations = [r for r in node.related if r['@id'] != self.id]
-                if through_relations:
-                    resolved.extend(through_relations)
-                    self.related += tuple(through_relations)
-                else:
-                    resolved.append(node.ref)
-            self.reverse_relations[key] = resolved
-
-    def update_relations(self, mapper):
-        for v in self.relations.values():
-            try:
-                node = mapper[(v['@id'], v['@type'].lower())]
-                v['@id'] = node.id
-                v['@type'] = node.new_type
-            except KeyError:
-                pass
-        for k, values in self.reverse_relations.items():
-            self.reverse_relations[k] = [mapper.get((v['@id'], v['@type'].lower()), (v['@id'], v['@type'].lower())).ref for v in values]
+        return {**self.attrs, **relations}
 
     def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.model, self.instance)
-
-
-class ChangeGraph:
-
-    @classmethod
-    def from_jsonld(self, ld_graph, disambiguate=True, extra_namespace=None):
-        nodes = [ChangeNode.from_jsonld(obj, extra_namespace=extra_namespace) for obj in ld_graph['@graph']]
-        graph = ChangeGraph(nodes)
-        if disambiguate:
-            GraphDisambiguator().disambiguate(graph)
-        return graph
-
-    @property
-    def nodes(self):
-        return self.__nodes
-
-    @property
-    def node_map(self):
-        return self.__map
-
-    def __init__(self, nodes, parse=True):
-        self.__nodes = nodes
-        self.__map = {ref: n for n in nodes for ref in n.refs}
-        self.__sorter = TopographicalSorter(nodes, dependencies=lambda n: [self.get_node(r['@id'], r['@type']) for r in n.related])
-
-        for node in self.__nodes:
-            node.resolve_relations(self.__map)
-
-        if parse:
-            self.__nodes = self.__sorter.sorted()
-
-    def remove_node(self, node, replace=None):
-        for ref in node.refs:
-            self.__map[ref] = replace
-        try:
-            self.__nodes.remove(node)
-        except ValueError:
-            pass
-
-    def get_node(self, id, type):
-        try:
-            return self.__map[(id, type.lower())]
-        except KeyError:
-            if id.startswith('_:'):
-                raise UnresolvableReference('Unresolvable reference @id: {!r}, @type: {!r}'.format(id, type))
-        return None  # External reference to an already existing object
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.id, self.type)

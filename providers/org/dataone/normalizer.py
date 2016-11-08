@@ -95,7 +95,7 @@ class DataSet(Parser):
     identifiers = Map(
         Delegate(WorkIdentifier),
         Map(
-            IRI(suppress_failure=True),
+            IRI(urn_fallback=True),
             Maybe(XPath(ctx, "str[@name='dataUrl']"), 'str')['#text'],
             Maybe(XPath(ctx, "str[@name='identifier']"), 'str')['#text']
         )

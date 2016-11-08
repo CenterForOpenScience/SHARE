@@ -93,13 +93,6 @@ class PersonSerializer(AbstractAgentSerializer):
         model = models.Person
 
 
-class VenueSerializer(BaseShareSerializer):
-    extra = ExtraDataSerializer()
-
-    class Meta(BaseShareSerializer.Meta):
-        model = models.Venue
-
-
 class WorkIdentifierSerializer(BaseShareSerializer):
     # TODO filter/obfuscate mailto identifiers
     extra = ExtraDataSerializer()
@@ -152,7 +145,6 @@ class SubjectSerializer(serializers.ModelSerializer):
 class AbstractCreativeWorkSerializer(BaseShareSerializer):
     subjects = SubjectSerializer(many=True)
     tags = TagSerializer(many=True)
-    venues = VenueSerializer(sparse=True, many=True)
 
     # contributors = ContributionSerializer(source='contribution_set', many=True)
 

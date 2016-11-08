@@ -114,6 +114,7 @@ class AbstractCreativeWorkFactory(TypedShareObjectFactory):
 
 
 class AgentWorkRelationFactory(TypedShareObjectFactory):
+    cited_as = factory.Faker('name')
     agent = factory.SubFactory(AgentFactory)
     creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 

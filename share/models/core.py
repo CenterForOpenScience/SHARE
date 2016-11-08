@@ -57,7 +57,7 @@ class ShareUserManager(BaseUserManager):
 
     def create_robot_user(self, username, robot, long_title='', home_page=''):
         try:
-            self.get(robot=robot)
+            self.get(username=username, robot=robot)
         except self.model.DoesNotExist:
             pass
         else:

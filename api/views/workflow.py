@@ -250,7 +250,6 @@ class SchemaView(views.APIView):
     - [Award](/api/schema/Award)
     - [Subject](/api/schema/Subject)
     - [Tag](/api/schema/Tag)
-    - [Venue](/api/schema/Venue)
 
     ### Relationships between nodes
     - [AgentRelation](/api/schema/AgentRelation)
@@ -259,7 +258,6 @@ class SchemaView(views.APIView):
     - [ThroughContributionAwards](/api/schema/ThroughContributionAwards)
     - [ThroughSubjects](/api/schema/ThroughSubjects)
     - [ThroughTags](/api/schema/ThroughTags)
-    - [ThroughVenues](/api/schema/ThroughVenues)
     """
     def get(self, request, *args, **kwargs):
         schema = JSONLDValidator.jsonld_schema.schema

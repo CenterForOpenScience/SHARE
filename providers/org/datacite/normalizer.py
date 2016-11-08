@@ -418,6 +418,7 @@ class CreativeWork(Parser):
             'text/edited book': 'Book',
             'text/journal article': 'Article',
             'text/journal issue': 'Article',
+            'text/patent': 'Patent',
             'text/report': 'Report',
             'text/supervised student publication': 'Thesis',
             'text/working paper': 'WorkingPaper'
@@ -445,7 +446,6 @@ class CreativeWork(Parser):
             # 'text/newsletter article': '',
             # 'text/newspaper article': '',
             # 'text/online resource': '',
-            # 'text/patent': '',
             # 'text/registered copyright': '',
             # 'text/research tool': '',
             # 'text/tenure-promotion': '',
@@ -590,16 +590,18 @@ class CreativeWork(Parser):
     free_to_read_type = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.rightsList.rights['@rightsURI'])
     free_to_read_date = tools.ParseDate(tools.Try(tools.RunPython('get_date_type', tools.Concat(ctx.record.metadata['oai_datacite'].payload.resource.dates.date), 'Available')))
 
+    is_deleted = tools.RunPython('check_status', tools.Try(ctx.record.header['@status']))
+
     class Extra:
         """
         Fields that are combined in the base parser are relisted as singular elements that match
         their original entry to preserve raw data structure.
         """
-        status = tools.Maybe(ctx.record.header, '@status')
+        status = tools.Try(ctx.record.header['@status'])
 
         datestamp = tools.ParseDate(ctx.record.header.datestamp)
 
-        set_spec = tools.Maybe(ctx.record.header, 'setSpec')
+        set_spec = tools.Try(ctx.record.header.setSpec)
 
         is_reference_quality = tools.Try(ctx.record.metadata['oai_datacite'].isReferenceQuality)
 
@@ -645,6 +647,11 @@ class CreativeWork(Parser):
         geolocations = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.geoLocations)
 
         funding_reference = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.fundingReference)
+
+    def check_status(self, status):
+        if status == 'deleted':
+            return True
+        return False
 
     def get_date_type(self, date_obj, date_type):
         date = None
