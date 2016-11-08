@@ -87,7 +87,7 @@ class OAICreator(OAIContributor):
 class OAIPublisher(Parser):
     schema = 'Publisher'
 
-    agent = tools.Delegate(OAIAgent.using(schema=tools.GuessAgentType(default='organization')), ctx)
+    agent = tools.Delegate(OAIAgent.using(schema=tools.GuessAgentType(ctx, default='organization')), ctx)
 
 
 class OAICreativeWork(Parser):

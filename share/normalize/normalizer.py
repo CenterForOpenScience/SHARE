@@ -1,6 +1,7 @@
 import abc
 import json
 import uuid
+import re
 from collections import OrderedDict
 
 import xmltodict
@@ -23,6 +24,8 @@ class Normalizer(metaclass=abc.ABCMeta):
         'http://www.openarchives.org/OAI/2.0/oai_dc/': None,
     }
 
+    EMPTY_RE = re.compile(r'\s*(|none|empty)\s*', flags=re.I)
+
     def __init__(self, app_config):
         self.config = app_config
         self.namespaces = getattr(self.config, 'namespaces', self.NAMESPACES)
@@ -34,6 +37,7 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     def do_normalize(self, data):
         parsed = self.unwrap_data(data)
+        self.remove_empty_values(parsed)
         parser = self.get_root_parser()
 
         return parser(parsed).parse()
@@ -105,3 +109,17 @@ class Normalizer(metaclass=abc.ABCMeta):
         }
         ctx.pool[root_ref].setdefault('identifiers', []).append(identifier_ref)
         jsonld['@graph'].append(identifier)
+
+    def remove_empty_values(self, parsed):
+        if isinstance(parsed, dict):
+            items = parsed.items()
+        elif isinstance(parsed, list):
+            items = zip(range(len(parsed)), parsed)
+        else:
+            raise TypeError('parsed must be a dict or list')
+
+        for k, v in tuple(items):
+            if isinstance(v, (dict, list)):
+                self.remove_empty_values(v)
+            elif self.EMPTY_RE.fullmatch(str(v)):
+                parsed.pop(k, None)
