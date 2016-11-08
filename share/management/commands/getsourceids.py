@@ -1,4 +1,4 @@
-import json
+import yaml
 
 from django.core.management.base import BaseCommand
 from django.db import connection
@@ -31,9 +31,9 @@ class Command(BaseCommand):
             while data:
                 (id, source_id, app_label) = data
                 try:
-                    source_ids[id].append((app_label, source_id))
+                    source_ids[id].append([app_label, source_id])
                 except KeyError:
-                    source_ids[id] = [(app_label, source_id)]
+                    source_ids[id] = [[app_label, source_id]]
                 data = c.fetchone()
 
-        print(json.dumps(source_ids, indent=4))
+        print(yaml.dump(source_ids))
