@@ -105,7 +105,7 @@ class CreativeWork(Parser):
             'Thesis/Dissertation': 'Thesis',
             'Technical Report': 'Report',
             'Journal Article': 'Article',
-            'Patent': 'CreativeWork',  # TODO Add Patent?
+            'Patent': 'Patent',
             None: 'CreativeWork',
             'Other': 'CreativeWork',
             'Program Document': 'CreativeWork',
