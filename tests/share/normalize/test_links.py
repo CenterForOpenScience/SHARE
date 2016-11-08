@@ -287,6 +287,31 @@ class TestIRILink:
             'authority': 'www.google.com',
             'IRI': 'http://www.google.com/MixedCases',
         }),
+        ('https://google.com/#', {
+            'scheme': 'http',
+            'authority': 'google.com',
+            'IRI': 'http://google.com/',
+        }),
+        ('https://google.com/#flooby', {
+            'scheme': 'http',
+            'authority': 'google.com',
+            'IRI': 'http://google.com/#flooby',
+        }),
+        ('https://google.com/#fr/ag/ment', {
+            'scheme': 'http',
+            'authority': 'google.com',
+            'IRI': 'http://google.com/#fr/ag/ment',
+        }),
+        ('https://google.com:666/', {
+            'scheme': 'http',
+            'authority': 'google.com:666',
+            'IRI': 'http://google.com:666/',
+        }),
+        ('https://google.com:666/yay/path#yay/fragment', {
+            'scheme': 'http',
+            'authority': 'google.com:666',
+            'IRI': 'http://google.com:666/yay/path#yay/fragment',
+        }),
     ])
     def test_urls(self, input, output):
         return self._do_test(input, output)

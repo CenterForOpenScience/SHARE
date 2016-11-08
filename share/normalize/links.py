@@ -563,16 +563,17 @@ class AbstractIRILink(AbstractLink):
         return rfc3987.parse(obj, self.RULES)
 
     def _process(self, **attrs):
+        processed = {}
         for key in sorted(attrs.keys()):
             if hasattr(self, '_process_' + key):
-                attrs[key] = getattr(self, '_process_' + key)(attrs[key])
-        return attrs
+                processed[key] = getattr(self, '_process_' + key)(attrs[key])
+        return processed
 
     def _process_scheme(self, scheme):
         return scheme.lower()
 
-    def _process_authority(self, authority):
-        return authority.lower()
+    def _process_authority(self, host):
+        return host.lower()
 
     def _process_path(self, path):
         return path
@@ -581,10 +582,7 @@ class AbstractIRILink(AbstractLink):
         return query
 
     def _process_fragment(self, fragment):
-        return None
-
-    def _process_port(self, path):
-        return path
+        return fragment or None
 
 
 class ISSNLink(AbstractIRILink):
@@ -763,6 +761,7 @@ class DOILink(AbstractIRILink):
 class URLLink(AbstractIRILink):
     SCHEMES = {'http', 'https', 'ftp', 'ftps'}
     SCHEMELESS_STARTS = ('www.', 'www2.')
+    IMPLICIT_PORTS = {80, 443}
     IP_RE = re.compile(r'\b({schemes})://(\d{{1,3}}.){{4}}(?:\d{{2,5}})\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
     URL_RE = re.compile(r'\b({schemes})://[-a-z0-9@:%._\+~#=]{{2,256}}\.[a-z]{{2,6}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
@@ -790,6 +789,14 @@ class URLLink(AbstractIRILink):
 
     def _process_query(self, query):
         return query  # TODO Order me
+
+    def _process_authority(self, authority):
+        authority = super()._process_authority(authority)
+        if ':' in authority:
+            host, port = authority.split(':')
+            if port and int(port) in self.IMPLICIT_PORTS:
+                authority = host
+        return authority
 
 
 class EmailLink(AbstractIRILink):

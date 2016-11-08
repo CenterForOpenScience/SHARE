@@ -13,7 +13,7 @@ from oauth2_provider.models import AccessToken, Application
 from share.models import Person, NormalizedData, Change, ChangeSet, RawData
 from share.models import Article, Institution
 from share.models import ShareUser
-from share.change import ChangeNode, ChangeGraph
+from share.change import ChangeGraph
 
 
 @pytest.fixture
