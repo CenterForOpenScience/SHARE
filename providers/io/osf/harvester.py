@@ -40,7 +40,7 @@ class OSFHarvester(Harvester):
             records, next_page = self.fetch_page(url)
 
             for record in records.json()['data']:
-                if QA_TAG in record['attributes']['tags']:
+                if record['attributes'].get('tags') and QA_TAG in record['attributes']['tags']:
                     continue
 
                 for attr, key in self.EMBED_ATTRS.items():
