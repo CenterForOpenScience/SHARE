@@ -585,38 +585,38 @@ class AbstractIRILink(AbstractLink):
         return fragment or None
 
 
-class ISSNLink(AbstractIRILink):
+# class ISSNLink(AbstractIRILink):
 
-    ISSN_RE = re.compile(r'(?:^|\s+)(\d{4})-(\d{3}[\dxX])\s*$')
+#     ISSN_RE = re.compile(r'(?:^|\s+)(\d{4})-(\d{3}[\dxX])\s*$')
 
-    @classmethod
-    def hint(cls, obj):
-        if re.search(cls.ISSN_RE, obj):
-            return 0.9
-        return int('issn' in obj) * 0.35
+#     @classmethod
+#     def hint(cls, obj):
+#         if re.search(cls.ISSN_RE, obj):
+#             return 0.9
+#         return int('issn' in obj) * 0.35
 
-    @classmethod
-    def checksum(cls, digits):
-        total, checksum = 0, digits[-1]
-        for i, digit in enumerate(digits[:-1]):
-            total += (8 - i) * int(digit)
-        actual = (11 - (total % 11)) % 11
-        if actual == 10:
-            actual = 'X'
-        if checksum != str(actual):
-            raise ValueError('\'{}\' is not a valid ISSN; failed checksum.'.format(digits))
+#     @classmethod
+#     def checksum(cls, digits):
+#         total, checksum = 0, digits[-1]
+#         for i, digit in enumerate(digits[:-1]):
+#             total += (8 - i) * int(digit)
+#         actual = (11 - (total % 11)) % 11
+#         if actual == 10:
+#             actual = 'X'
+#         if checksum != str(actual):
+#             raise ValueError('\'{}\' is not a valid ISSN; failed checksum.'.format(digits))
 
-    def _parse(self, obj):
-        match = re.search(self.ISSN_RE, obj.upper())
-        if not match:
-            raise ValueError('\'{}\' cannot be expressed as an ISSN.'.format(obj))
-        self.checksum(''.join(match.groups()))
+#     def _parse(self, obj):
+#         match = re.search(self.ISSN_RE, obj.upper())
+#         if not match:
+#             raise ValueError('\'{}\' cannot be expressed as an ISSN.'.format(obj))
+#         self.checksum(''.join(match.groups()))
 
-        return {
-            'scheme': 'urn',
-            'authority': 'ISSN',
-            'path': '/{}-{}'.format(*match.groups())
-        }
+#         return {
+#             'scheme': 'urn',
+#             'authority': 'ISSN',
+#             'path': '/{}-{}'.format(*match.groups())
+#         }
 
 
 class URNLink(AbstractIRILink):
