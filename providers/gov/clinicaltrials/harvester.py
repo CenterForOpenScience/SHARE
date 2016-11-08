@@ -28,7 +28,6 @@ class ClinicalTrialsHarvester(Harvester):
         resp = self.requests.get(url)
         resp_xml = etree.XML(resp.content)
         num_records = int(resp_xml.xpath('//search_results/@count')[0])
-        print(url)
 
         if num_records > 0:
             # create a new URL to request all results

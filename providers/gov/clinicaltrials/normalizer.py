@@ -38,9 +38,12 @@ class Institution(Parser):
 
     def get_location(self, ctx):
         location = ""
-        if 'country' in ctx: location += ctx['country'] + ': '
-        if 'city' in ctx: location += ctx['city'] + ', '
-        if 'state' in ctx: location += ctx['state'] + ' '
+        if 'country' in ctx:
+            location += ctx['country'] + ': '
+        if 'city' in ctx:
+            location += ctx['city'] + ', '
+        if 'state' in ctx:
+            location += ctx['state'] + ' '
         return location
 
 
