@@ -27,8 +27,9 @@ class GraphDisambiguator:
                 if n.is_merge or n.instance:
                     continue
 
-                handled = self._cache.setdefault((n.model, n.resolve_attrs()), n)
-                if n.resolve_attrs() and handled is not n:
+                relations = tuple(e.related for e in sorted(n.related(backward=False), key=lambda e: e.name))
+                handled = self._cache.setdefault((n.model, n.attrs, relations), n)
+                if handled is not n and (n.attrs or relations):
                     nodes.remove(n)
                     change_graph.replace(n, handled)
                     continue
