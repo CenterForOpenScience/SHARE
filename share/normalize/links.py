@@ -542,7 +542,7 @@ class AbstractIRILink(AbstractLink):
     """Normalize IRIs
 
     """
-    RULES = 'absolute_IRI'
+    RULES = 'IRI'
     SAFE_SEGMENT_CHARS = ":@-._~!$&'()*+,;="  # https://github.com/gruns/furl/blob/master/furl/furl.py#L385
 
     @classmethod
@@ -761,7 +761,6 @@ class DOILink(AbstractIRILink):
 
 
 class URLLink(AbstractIRILink):
-    PORTS = {80, 8080, 443, 20, 989}
     SCHEMES = {'http', 'https', 'ftp', 'ftps'}
     SCHEMELESS_STARTS = ('www.', 'www2.')
     IP_RE = re.compile(r'\b({schemes})://(\d{{1,3}}.){{4}}(?:\d{{2,5}})\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
@@ -791,16 +790,6 @@ class URLLink(AbstractIRILink):
 
     def _process_query(self, query):
         return query  # TODO Order me
-
-    def _process_authority(self, authority):
-        authority = super()._process_authority(authority)
-        if ':' in authority:
-            authority, port = authority.split(':')
-        else:
-            port = None
-        if port and int(port) not in self.PORTS:
-            raise ValueError('\'{}\' is not a valid port for URLs.'.format(port))
-        return authority
 
 
 class EmailLink(AbstractIRILink):
