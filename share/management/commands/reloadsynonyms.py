@@ -26,6 +26,6 @@ class Command(BaseCommand):
                         count += 1
 
         with open('share/models/synonyms.json', 'w') as fobj:
-            json.dump(synonyms, fobj)
+            json.dump(synonyms, fobj, indent=4)
 
         self.stdout.write('Loaded {} synonyms into synonyms.json'.format(count))
