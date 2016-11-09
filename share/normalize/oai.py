@@ -10,6 +10,10 @@ from share.normalize.normalizer import Normalizer
 logger = logging.getLogger(__name__)
 
 
+def not_citation(identifier):
+    return re.search(r'(pp\. \d+\-\d+.)|(ISSN )|( +\(\d\d\d\d\))', identifier) is None
+
+
 class OAIAgent(Parser):
     schema = tools.GuessAgentType(ctx)
 
@@ -107,25 +111,28 @@ class OAICreativeWork(Parser):
 
     identifiers = tools.Map(
         tools.Delegate(OAIWorkIdentifier),
-        tools.Map(
+        tools.Unique(tools.Map(
             tools.Try(tools.IRI(), exceptions=(ValueError, )),
-            tools.RunPython(
-                'force_text',
-                tools.Concat(
-                    tools.Try(ctx.record.metadata.dc['dc:identifier']),
-                    tools.Try(ctx.record.header['identifier'])
+            tools.Filter(
+                not_citation,
+                tools.RunPython(
+                    'force_text',
+                    tools.Concat(
+                        tools.Try(ctx.record.metadata.dc['dc:identifier']),
+                        tools.Try(ctx.record.header['identifier'])
+                    )
                 )
             )
-        )
+        ))
     )
 
     related_works = tools.Concat(
         tools.Map(
             tools.Delegate(OAIWorkRelation),
-            tools.Map(
+            tools.Unique(tools.Map(
                 tools.Try(tools.IRI(), exceptions=(ValueError, )),
                 tools.RunPython('get_relation', ctx)
-            )
+            ))
         )
     )
 
@@ -286,9 +293,19 @@ class OAICreativeWork(Parser):
         if not ctx['record'].get('metadata'):
             return []
         relation = ctx['record']['metadata']['dc'].get('dc:relation', [])
+        identifiers = ctx['record']['metadata']['dc'].get('dc:identifier', [])
+
+        if isinstance(identifiers, dict):
+            identifiers = identifiers['#text']
+        if isinstance(identifiers, list):
+            identifiers = ''.join(identifiers)
+
+        identifiers = re.sub('http|:|/', '', identifiers + ctx['record']['header']['identifier'])
+
         if isinstance(relation, dict):
-            return relation['#text']
-        return relation
+            relation = (relation['#text'], )
+
+        return [r for r in relation if re.sub('http|:|/', '', r) not in identifiers]
 
 
 class OAINormalizer(Normalizer):
