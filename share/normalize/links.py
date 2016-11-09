@@ -24,7 +24,7 @@ from share.util import DictHashingDict
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter', 'Unique')
 
 
 #### Public API ####
@@ -119,6 +119,12 @@ def GuessAgentType(chain=None, default=None):
 
 def Filter(func, *chains):
     return Concat(*chains) + FilterLink(func)
+
+
+def Unique(chain=None):
+    if chain:
+        return AbstractLink.__add__(chain, UniqueLink())
+    return UniqueLink()
 
 
 ### /Public API
@@ -955,3 +961,11 @@ class FilterLink(AbstractLink):
 
     def execute(self, obj):
         return list(filter(self._func, obj))
+
+
+class UniqueLink(AbstractLink):
+
+    def execute(self, obj):
+        if not isinstance(obj, (list, tuple)):
+            obj = (obj, )
+        return list(set(obj))
