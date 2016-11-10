@@ -1,12 +1,12 @@
 from share.provider import ProviderAppConfig
-from .harvester import DailySSRNHarvester
+from .harvester import SRNHarvester
 
 
 class AppConfig(ProviderAppConfig):
-    name = 'providers.com.dailyssrn'
+    name = 'providers.com.ssrn'
     version = '0.0.1'
-    title = 'dailyssrn'
+    title = 'ssrn'
     long_title = 'Social Science Research Network'
     home_page = 'http://papers.ssrn.com/'
-    harvester = DailySSRNHarvester
+    harvester = SSRNHarvester
     disabled = True  # Disabled as no articles have been release in a while

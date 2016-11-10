@@ -53,7 +53,7 @@ class Command(BaseCommand):
         'cuny': 'edu.cuny',
         'cuscholar': 'edu.cuscholar',
         'cyberleninka': 'ru.cyberleninka',
-        'dailyssrn': 'com.dailyssrn',
+        'ssrn': 'com.ssrn',
         'dash': 'edu.dash',
         'datacite': 'org.datacite.oai',
         'dataone': 'org.dataone',

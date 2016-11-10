@@ -88,7 +88,7 @@ INSTALLED_APPS = [
     'providers.ca.uwo',
     'providers.ch.cern',
     'providers.com.biomedcentral',
-    'providers.com.dailyssrn',
+    'providers.com.ssrn',
     'providers.com.figshare',
     'providers.com.figshare.v2',
     'providers.com.nature',
