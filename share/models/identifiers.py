@@ -73,6 +73,9 @@ class WorkIdentifier(ShareObject):
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.creative_work_id)
 
+    class Meta:
+        disambiguation_fields = ('uri',)
+
 
 class AgentIdentifier(ShareObject):
     uri = ShareURLField(unique=True)
@@ -106,3 +109,6 @@ class AgentIdentifier(ShareObject):
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.agent_id)
+
+    class Meta:
+        disambiguation_fields = ('uri',)

@@ -13,47 +13,66 @@ logger = logging.getLogger(__name__)
 
 class GraphDisambiguator:
     def __init__(self):
-        self._cache = DictHashingDict()
-        self.__disambiguator_map = {}
-        self._gather_disambiguators(Disambiguator)
+        self._node_cache = {}
+        self._query_cache = {}
 
-    def disambiguate(self, change_graph):
-        changed, nodes = True, sorted(change_graph.nodes, key=self._disambiguweight, reverse=True)
+    def prune(self, change_graph):
+        # for each node in the graph, compare to each other node and remove duplicates
+        # compare based on type (one is a subclass of the other), attrs (exact matches), and relations
+        return self._disambiguate(change_graph, False)
+
+    def find_instances(self, change_graph):
+        # for each node in the graph, look for a matching instance in the database 
+        # TODO: is it safe to assume no duplicates? right now, prunes duplicates again
+        # TODO: what happens when two (apparently) non-duplicate nodes disambiguate to the same instance?
+        return self._disambiguate(change_graph, True)
+
+    def _disambiguate(self, change_graph, find_instances):
+        changed = True
+        nodes = sorted(change_graph.nodes, key=self._disambiguweight, reverse=True)
 
         while changed:
             changed = False
+            # TODO update only affected nodes instead of rebuilding the cache every loop
+            self._clear_cache()
 
-            for n in nodes:
-                if n.is_merge or n.instance:
+            for n in tuple(nodes):
+                if n.is_merge or (find_instances and n.instance):
                     continue
+                matches = self._get_cached_matches(n)
+                if len(matches) > 1:
+                    # TODO?
+                    raise NotImplementedError('Multiple matches that apparently didn\'t match each other?\nNode: {}\nMatches: {}'.format(node, matches))
 
-                relations = tuple(e.related for e in sorted(n.related(backward=False), key=lambda e: e.name))
-                handled = self._cache.setdefault((n.model, n.attrs, relations), n)
-                if handled is not n and (n.attrs or relations):
-                    nodes.remove(n)
-                    change_graph.replace(n, handled)
-                    continue
-
-                instance = self.instance_for_node(n)
-
-                if isinstance(instance, list):
-                    # TODO after merging is fixed, add mergeaction change to graph
-                    raise NotImplementedError()
-
-                if instance:
+                if matches:
+                    # remove duplicates within the graph
+                    match = matches[0]
+                    if n.model != match.model and issubclass(n.model, match.model):
+                        # remove the node with the less-specific class
+                        logger.debug('Found match! Keeping {}, pruning {}'.format(n, match))
+                        nodes.remove(match)
+                        change_graph.replace(match, n)
+                        self._uncache_node(match)
+                        self._cache_node(n)
+                    else:
+                        logger.debug('Found match! Keeping {}, pruning {}'.format(match, n))
+                        nodes.remove(n)
+                        change_graph.replace(n, match)
                     changed = True
-                    n.instance = instance
-                    logger.debug('Disambiguated {} to {}'.format(n, instance))
+                    continue
 
-    def instance_for_node(self, node):
-        NodeDisambiguator = GenericDisambiguator
-        for klass in node.model.mro():
-            if klass in self.__disambiguator_map:
-                NodeDisambiguator = self.__disambiguator_map[klass]
-                break
-            if not klass._meta.proxy:
-                break
-        return NodeDisambiguator(node.id, node.resolve_attrs(), node.model).find()
+                if find_instances:
+                    # look for matches in the database
+                    instance = self._instance_for_node(n)
+
+                    if isinstance(instance, list):
+                        # TODO after merging is fixed, add mergeaction change to graph
+                        raise NotImplementedError()
+
+                    if instance:
+                        changed = True
+                        n.instance = instance
+                        logger.debug('Disambiguated {} to {}'.format(n, instance))
 
     def _disambiguweight(self, node):
         # Models with exactly 1 foreign key field (excluding those added by
@@ -64,178 +83,67 @@ class GraphDisambiguator:
         fk_count = sum(1 for f in node.model._meta.get_fields() if f.editable and (f.many_to_one or f.one_to_one) and f.name not in ignored)
         return fk_count if fk_count == 1 else -fk_count
 
-    def _gather_disambiguators(self, base):
-        for cls in base.__subclasses__():
-            for model in (getattr(cls, 'FOR_MODEL', None), ) + getattr(cls, 'FOR_MODELS', tuple()):
-                if not model:
-                    continue
-                if model in self.__disambiguator_map:
-                    raise ValueError('Disambiguator {} is already registered for {}.'.format(self.__disambiguator_map[model], model))
-                self.__disambiguator_map[model] = cls
-            self._gather_disambiguators(cls)
+    def _get_query(self, node):
+        if node in self._query_cache:
+            return self._query_cache[node]
 
-
-class Disambiguator:
-
-    def __init__(self, id, attrs, model):
-        self.id = id
-        self.model = model
-        # only include attrs with truthy values
-        self.attrs = {k: v for k, v in attrs.items() if v}
-        self.is_blank = id.startswith('_:')
-        if not self.is_blank:
-            model, self.id = IDObfuscator.decode(self.id)
-            assert issubclass(model, (self.model._meta.concrete_model, ))
-
-    def disambiguate(self):
-        raise NotImplementedError()
-
-    def find(self):
-        if self.id and not self.is_blank:
-            return self.model._meta.concrete_model.objects.get(pk=self.id)
-        return self.disambiguate()
-
-
-class GenericDisambiguator(Disambiguator):
-
-    @property
-    def is_through_table(self):
-        # TODO fix this...
-        return 'Through' in self.model.__name__ or self.model._meta.concrete_model in {
-            models.AbstractAgentWorkRelation,
-            models.AbstractAgentRelation,
-            models.AbstractWorkRelation,
+        query = {
+            'attrs': [],
+            'relations': []
         }
 
-    def disambiguate(self):
-        if not self.attrs:
+        fields = [
+            node.model._meta.get_field(f)
+            for f in node.model.Meta.disambiguation_fields
+        ]
+        for f in fields:
+            if not f.is_relation:
+                query['attrs'].append(f.name)
+
+        query = {
+            # TODO: relations, type
+            'attrs': [f.name: node.attrs[f.name] for f in fields if f.name in node.attrs]
+            #relations = tuple(e.related for e in sorted(n.related(backward=False), key=lambda e: e.name))
+        }
+        if len(fields) != len(query['attrs']):
+            logger.error('Not enough fields to disambiguate!\nModel: {}\nAttrs: {}\nExpected: {}'.format(node.model, node.attrs, fields))
             return None
 
-        if self.is_through_table:
-            return self._disambiguate_through()
+        self._query_cache[node] = query
+        return query
 
-        return self.model.objects.filter(**self.attrs).first()
+    def _clear_cache(self, node):
+        self._node_cache.clear()
+        self._query_cache.clear()
 
-    def _disambiguate_through(self):
-        for unique_fields in self.model._meta.concrete_model._meta.unique_together:
-            if 'type' in unique_fields and 'type' not in self.attrs:
-                self.attrs['type'] = self.model._meta.label_lower
+    def _cache_node(self, node):
+        q = self._get_query(node)
+        model = node.model._meta.concrete_model
+        self._node_cache.setdefault(model, DictHashingDict()).setdefault((q['attrs'], q['relations']), []).append(node)
 
-            # Don't dissambiguate through tables that don't have both sides filled out
-            if any(field not in self.attrs for field in unique_fields):
-                continue
-
-            try:
-                return self.model.objects.get(**{field: self.attrs[field] for field in unique_fields})
-            except self.model.DoesNotExist:
-                continue
-        return None
-
-
-class UniqueAttrDisambiguator(Disambiguator):
-    @property
-    def unique_attr(self):
-        raise NotImplementedError()
-
-    def not_found(self):
-        return None
-
-    def disambiguate(self):
-        value = self.attrs.get(self.unique_attr)
-        if not value:
-            return None
+    def _uncache_node(self, node):
+        q = self._get_query(node)
+        model = node.model._meta.concrete_model
         try:
-            query = {self.unique_attr: value}
-            return self.model.objects.get(**query)
-        except self.model.DoesNotExist:
-            return self.not_found()
+            self._node_cache[model][q['attrs'], q['relations']].remove(node)
+        except KeyError, ValueError:
+            logger.warn('Tried uncaching uncached node: {}'.format(node)')
 
+    def _get_cached_matches(self, node):
+        q = self._get_query(node)
+        model = node.model._meta.concrete_model
+        model_cache = self._node_cache.get(model, {})
+        matches = model_cache.get((q['attrs'], q['relations']), [])
+        return [m for m in matches if m != node and issubclass(m.model, node.model) or issubclass(node.model, m.model)]
 
-class AgentWorkRelationDisambiguator(Disambiguator):
-    FOR_MODELS = tuple(models.AgentWorkRelation.get_type_classes())
-
-    def disambiguate(self):
-        if not self.attrs.get('creative_work'):
-            return None
-        if not self.attrs.get('cited_as') and not self.attrs.get('agent'):
-            return None
+    def _instance_for_node(self, node):
+        query = self._get_query(node)
         try:
-            return self.model.objects.get(**self.attrs)
-        except self.model.DoesNotExist:
+            # TODO type, relations
+            return node.model.get(**query['attrs'])
+        except node.model.DoesNotExist:
             return None
+        except node.model.MultipleObjectsReturned as ex:
+            logger.warn('Multiple {}s returned for {}'.format(node.model, query))
+            raise ex
 
-
-class WorkIdentifierDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.WorkIdentifier
-    unique_attr = 'uri'
-
-
-class AgentIdentifierDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.AgentIdentifier
-    unique_attr = 'uri'
-
-
-class TagDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.Tag
-    unique_attr = 'name'
-
-
-class SubjectDisambiguator(UniqueAttrDisambiguator):
-    FOR_MODEL = models.Subject
-    unique_attr = 'name'
-
-    def not_found(self):
-        raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
-
-
-class AbstractAgentDisambiguator(Disambiguator):
-    FOR_MODEL = models.AbstractAgent
-    NAME_KEYS = ('given_name', 'additional_name', 'family_name', 'suffix')
-
-    def disambiguate(self):
-        if not self.attrs.get('identifiers'):
-            if self.attrs.get('work_relations'):
-                found = set(models.AbstractAgent.objects.filter(work_relations__id__in=self.attrs['work_relations']))
-                if len(found) == 1:
-                    return found.pop()
-                return list(sorted(found, key=lambda x: x.pk)) or None
-
-            if self.model == models.Person or not self.attrs.get('name'):
-                return None
-            try:
-                # TODO Make revisit this logic
-                return self.model.objects.filter(name=self.attrs['name']).first()
-            except self.model.DoesNotExist:
-                return None
-
-        found = set(models.AbstractAgent.objects.filter(identifiers__id__in=self.attrs['identifiers']))
-
-        if len(found) == 1:
-            return found.pop()  # Seems to be the best way to get something out of a set
-        return list(sorted(found, key=lambda x: x.pk)) or None
-
-
-class AbstractCreativeWorkDisambiguator(Disambiguator):
-    FOR_MODEL = models.AbstractCreativeWork
-
-    def disambiguate(self):
-        if not self.attrs.get('identifiers'):
-            return None
-
-        found = set(models.AbstractCreativeWork.objects.filter(identifiers__id__in=self.attrs['identifiers']))
-
-        if len(found) == 1:
-            return found.pop()  # Seems to be the best way to get something out of a set
-        return list(sorted(found, key=lambda x: x.pk)) or None
-
-
-class OrganizationDisambiguator(Disambiguator):
-    FOR_MODELS = (models.Organization, models.Institution)
-
-    def disambiguate(self):
-        if not self.attrs.get('name'):
-            return None
-        try:
-            return self.model.objects.get(name=self.attrs['name'], type__in=self.model.get_types())
-        except self.model.DoesNotExist:
-            return None
