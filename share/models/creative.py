@@ -28,6 +28,8 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentWorkRelation')
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('subject', 'related'), symmetrical=False)
 
+    disambiguation_fields = ('identifiers',)
+
     @classmethod
     def normalize(self, node, graph):
         for k, v in tuple(node.attrs.items()):

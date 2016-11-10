@@ -18,6 +18,8 @@ logger = logging.getLogger('share.normalize')
 class Tag(ShareObject):
     name = models.TextField(unique=True)
 
+    disambiguation_fields = ('name',)
+
     @classmethod
     def normalize(cls, node, graph):
         tags = [
@@ -46,6 +48,8 @@ class Subject(models.Model):
     name = models.TextField(unique=True, db_index=True)
 
     objects = SubjectManager()
+
+    disambiguation_fields = ('name',)
 
     def __str__(self):
         return self.name

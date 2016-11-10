@@ -57,6 +57,8 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
         if node.attrs.get('location'):
             node.attrs['location'] = strip_whitespace(node.attrs['location'])
 
+    disambiguation_fields = ('identifiers',)
+
     class Meta:
         db_table = 'share_agent'
         index_together = (

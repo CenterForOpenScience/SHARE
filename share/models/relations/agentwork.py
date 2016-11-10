@@ -14,6 +14,9 @@ class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
 
     cited_as = models.TextField(blank=True)
 
+    # TODO agent and/or cited_as
+    disambiguation_fields = ('creative_work', 'agent')
+
     @classmethod
     def normalize(self, node, graph):
         for k, v in tuple(node.attrs.items()):

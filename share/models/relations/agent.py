@@ -8,6 +8,8 @@ class AbstractAgentRelation(ShareObject, metaclass=TypedShareObjectMeta):
     subject = ShareForeignKey('AbstractAgent', related_name='+')
     related = ShareForeignKey('AbstractAgent', related_name='+')
 
+    disambiguation_fields = ('subject', 'related')
+
     class Meta:
         db_table = 'share_agentrelation'
         unique_together = ('subject', 'related', 'type')
