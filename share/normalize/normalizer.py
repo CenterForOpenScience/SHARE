@@ -112,14 +112,34 @@ class Normalizer(metaclass=abc.ABCMeta):
 
     def remove_empty_values(self, parsed):
         if isinstance(parsed, dict):
-            items = parsed.items()
-        elif isinstance(parsed, list):
-            items = zip(range(len(parsed)), parsed)
-        else:
-            raise TypeError('parsed must be a dict or list')
+            ret = OrderedDict()
+            for k, v in parsed.items():
+                if isinstance(v, (dict, list)):
+                    v = self.remove_empty_values(v)
+                if isinstance(v, str) and self.EMPTY_RE.fullmatch(v):
+                    continue
+                ret[k] = v
+            return ret
 
-        for k, v in tuple(items):
+        ret = []
+        for v in parsed:
             if isinstance(v, (dict, list)):
-                self.remove_empty_values(v)
-            elif self.EMPTY_RE.fullmatch(str(v)):
-                parsed.pop(k, None)
+                v = self.remove_empty_values(v)
+            if isinstance(v, str) and self.EMPTY_RE.fullmatch(v):
+                continue
+            ret.append(v)
+        return ret
+
+
+#         if isinstance(parsed, dict):
+#             items = parsed.items()
+#         elif isinstance(parsed, list):
+#             items = zip(range(len(parsed)), parsed)
+#         else:
+#             raise TypeError('parsed must be a dict or list')
+
+#         for k, v in tuple(items):
+#             if isinstance(v, (dict, list)):
+#                 self.remove_empty_values(v)
+#             elif self.EMPTY_RE.fullmatch(str(v)):
+#                 parsed.pop(k)

@@ -4,6 +4,13 @@ import yaml
 from collections import OrderedDict
 
 
+WHITESPACE_RE = r'\s+'
+
+
+def strip_whitespace(string):
+    return re.sub(WHITESPACE_RE, ' ', string).strip()
+
+
 class IDObfuscator:
     NUM = 0xDEADBEEF
     MOD = 10000000000

@@ -1,14 +1,22 @@
+import re
+import logging
 import nameparser
+import collections
 
 from django.db import models
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.fields import ShareManyToManyField
+from share.normalize.links import GuessAgentTypeLink
+from share.util import strip_whitespace, ModelGenerator
 
-from share.util import ModelGenerator
+
+logger = logging.getLogger('share.normalize')
+NULL_RE = re.compile(r'(^$)|(\s*(none|null|empty)\s*)', re.I)
+NAME_PARTS = collections.OrderedDict([('first', 'given_name'), ('middle', 'additional_name'), ('last', 'family_name'), ('suffix', 'suffix')])
+
+AGENT_RE = r'^(.*Departa?ment.+?); (.+?); ([^;]+)$'
 
 
 class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
@@ -22,6 +30,32 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
     location = models.TextField(blank=True)
     related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentRelation', through_fields=('subject', 'related'), symmetrical=False)
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractAgentWorkRelation')
+
+    @classmethod
+    def normalize(cls, node, graph):
+        name = strip_whitespace(node.attrs['name'])
+        if NULL_RE.match(name):
+            logger.debug('Discarding unnamed agent "%s"', node.attrs['name'])
+            return graph.remove(node)
+
+        node.type = GuessAgentTypeLink(default=node.type).execute(node.attrs['name'])
+
+        match = re.match(r'^(.*(?:Departa?ment|Institute).+?);(?: (.+?); )?([^;]+)$', name, re.I)
+        if match:
+            *parts, location = [strip_whitespace(x) for x in match.groups() if x and strip_whitespace(x)]
+            node.attrs['name'] = ' - '.join(reversed(parts))
+            node.attrs['location'] = location
+            return
+
+        match = re.match(r'^(.+?), ([^,]+), ([^,]+)$', name, re.I)
+        if match:
+            name, *location = [strip_whitespace(x) for x in match.groups() if x and strip_whitespace(x)]
+            node.attrs['name'] = name
+            node.attrs['location'] = ', '.join(location)
+
+        node.attrs['name'] = name
+        if node.attrs.get('location'):
+            node.attrs['location'] = strip_whitespace(node.attrs['location'])
 
     class Meta:
         db_table = 'share_agent'
@@ -39,13 +73,23 @@ generator = ModelGenerator(field_types={
 globals().update(generator.subclasses_from_yaml(__file__, AbstractAgent))
 
 
-@receiver(pre_save, sender=Person, dispatch_uid='share.share.models.share_person_post_save_handler')  # noqa
-def person_post_save(sender, instance, **kwargs):
-    if not instance.name:
-        instance.name = ' '.join(x for x in (instance.given_name, instance.additional_name, instance.family_name, instance.suffix) if x)
-    if not any((instance.given_name, instance.additional_name, instance.given_name, instance.suffix)):
-        name = nameparser.HumanName(instance.name)
-        instance.given_name = name.first
-        instance.family_name = name.last
-        instance.additional_name = name.middle
-        instance.suffix = name.suffix
+def normalize_person(cls, node, graph):
+    name = max(strip_whitespace(' '.join(
+        node.attrs[x]
+        for x in NAME_PARTS.values()
+        if node.attrs.get(x)
+    )), strip_whitespace(node.attrs.get('name', '')), '', key=len)
+
+    if NULL_RE.match(name):
+        logger.debug('Discarding unnamed agent "%s"', node.attrs['name'])
+        return graph.remove(node)
+
+    human = nameparser.HumanName(name)
+    parts = {v: strip_whitespace(human[k]).title() for k, v in NAME_PARTS.items() if strip_whitespace(human[k])}
+
+    node.attrs = {'name': ' '.join(parts[k] for k in NAME_PARTS.values() if k in parts), **parts}
+
+    if node.attrs.get('location'):
+        node.attrs['location'] = strip_whitespace(node.attrs['location'])
+
+Person.normalize = classmethod(normalize_person)  # noqa

@@ -294,18 +294,16 @@ class OAICreativeWork(Parser):
             return []
         relation = ctx['record']['metadata']['dc'].get('dc:relation', [])
         identifiers = ctx['record']['metadata']['dc'].get('dc:identifier', [])
-
         if isinstance(identifiers, dict):
-            identifiers = identifiers['#text']
-        if isinstance(identifiers, list):
-            identifiers = ''.join(identifiers)
+            identifiers = (identifiers, )
+        identifiers = ''.join(i['#text'] if isinstance(i, dict) else i for i in identifiers if i)
 
         identifiers = re.sub('http|:|/', '', identifiers + ctx['record']['header']['identifier'])
 
         if isinstance(relation, dict):
             relation = (relation['#text'], )
 
-        return [r for r in relation if re.sub('http|:|/', '', r) not in identifiers]
+        return [r for r in relation if r and re.sub('http|:|/', '', r) not in identifiers]
 
 
 class OAINormalizer(Normalizer):

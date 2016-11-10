@@ -6,7 +6,7 @@ from share.models.base import TypedShareObjectMeta
 from share.models.meta import Tag, Subject
 from share.models.fields import ShareManyToManyField, ShareURLField
 
-from share.util import ModelGenerator
+from share.util import strip_whitespace, ModelGenerator
 
 
 # Base Creative Work class
@@ -27,6 +27,12 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentWorkRelation')
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('subject', 'related'), symmetrical=False)
+
+    @classmethod
+    def normalize(self, node, graph):
+        for k, v in tuple(node.attrs.items()):
+            if isinstance(v, str):
+                node.attrs[k] = strip_whitespace(v)
 
     class Meta:
         db_table = 'share_creativework'

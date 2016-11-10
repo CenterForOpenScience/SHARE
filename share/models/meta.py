@@ -1,17 +1,36 @@
+import re
+import logging
+
 from django.db import models
 from django.db import IntegrityError
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey
+from share.util import strip_whitespace
 
 
 __all__ = ('Tag', 'Subject')
+logger = logging.getLogger('share.normalize')
 
 # TODO Rename this file
 
 
 class Tag(ShareObject):
     name = models.TextField(unique=True)
+
+    @classmethod
+    def normalize(cls, node, graph):
+        tags = [
+            strip_whitespace(part).lower()
+            for part in re.split(',|;', node.attrs['name'])
+            if strip_whitespace(part)
+        ]
+
+        logger.debug('Normalized %s to %s', node.attrs['name'], tags)
+
+        nodes = [graph.create(attrs={'name': tag}) for tag in tags]
+
+        graph.replace(node, *nodes)
 
     def __str__(self):
         return self.name
