@@ -1,9 +1,11 @@
+import uuid
 import copy
 import logging
 import pendulum
 import datetime
 
 from django.apps import apps
+from django.core.exceptions import FieldDoesNotExist
 
 from share.disambiguation import GraphDisambiguator
 from share.util import TopographicalSorter
@@ -39,12 +41,16 @@ class GraphEdge:
         return possible[0]
 
     @property
+    def remote_field(self):
+        return self.field.remote_field
+
+    @property
     def name(self):
         return self.field.name
 
     @property
     def remote_name(self):
-        return self.field.remote_field.name
+        return self.remote_field.name
 
     def __init__(self, subject, related, hint=None):
         self.subject = subject
@@ -67,6 +73,7 @@ class ChangeGraph:
         self.nodes = []
         self.relations = {}
         self._lookup = {}
+        self.namespace = namespace
 
         hints, relations = {}, set()
         for blob in copy.deepcopy(data):
@@ -106,18 +113,50 @@ class ChangeGraph:
         GraphDisambiguator().disambiguate(self)
         self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
+    def get(self, id, type):
+        return self._lookup[(id, type)]
+
+    def create(self, id, type, attrs):
+        return self.add(ChangeNode(self, id or '_:{}'.format(uuid.uuid4()), type, attrs, namespace=self.namespace))
+
+    def add(self, node):
+        node.graph = self
+        self.nodes.append(node)
+        self.relations[node] = set()
+        self._lookup[node.id, node.type] = node
+        return node
+
+    def relate(self, subject, related, hint=None):
+        edge = GraphEdge(subject, related, hint)
+        self.relations[subject].add(edge)
+        self.relations[related].add(edge)
+        return edge
+
     def replace(self, source, replacement):
-        self.nodes.remove(source)
-        for edge in self.relations.pop(source):
+        for edge in tuple(source.related()):
+            # NOTE: Order of add & removes matters here due to
+            # the hash function of an edge and how sets work
+            self.relations[source].remove(edge)
             if edge.subject == source:
+                edge.subject = replacement
+            else:
+                edge.related = replacement
+            self.relations[replacement].add(edge)
+
+        return self.remove(source)
+
+    def remove(self, node, cascade=True):
+        for edge in tuple(self.relations[node]):
+            if edge.subject is node:
                 self.relations[edge.related].remove(edge)
-                subject, related = replacement, edge.related
+            elif cascade:
+                self.remove(edge.subject, cascade=True)
             else:
                 self.relations[edge.subject].remove(edge)
-                subject, related = edge.subject, replacement
-            new_edge = GraphEdge(subject, related, edge._hint)
-            self.relations[subject].add(new_edge)
-            self.relations[related].add(new_edge)
+
+        self.nodes.remove(node)
+        del self.relations[node]
+        del self._lookup[node.id, node.type]
 
 
 class ChangeNode:
@@ -160,11 +199,13 @@ class ChangeNode:
     def change(self):
         changes, relations = {}, {}
 
-        if self._namespace:
-            extra = ((getattr(self.instance, 'extra', None)and self.instance.extra.data) or {}).get(self._namespace, {})
-            changes['extra'] = {k: v for k, v in self.extra.items() if extra.get(k) != v}
-            if not changes['extra']:
-                del changes['extra']
+        extra = copy.deepcopy(self.extra)
+        if self.namespace:
+            if self.namespace and getattr(self.instance, 'extra', None):
+                pass  # TODO diff extra field
+
+            if extra:
+                changes['extra'] = {self.namespace: extra}
 
         for edge in self.related(backward=False):
             if edge.field.one_to_many:
@@ -173,7 +214,7 @@ class ChangeNode:
                 relations[edge.name] = edge.related.ref
 
         if self.is_blank:
-            return {**self.attrs, **relations}
+            return {**changes, **self.attrs, **relations}
 
         if self.instance and type(self.instance) is not self.model:
             changes['type'] = self.model._meta.label_lower
@@ -197,22 +238,36 @@ class ChangeNode:
         self.attrs = attrs
         self.extra = attrs.pop('extra', {})
         self.context = attrs.pop('@context', {})
-        self._namespace = namespace
+        self.namespace = namespace
 
         if not self.is_blank:
             self.instance = IDObfuscator.load(self.id, None)
             if not self.instance or self.instance._meta.concrete_model is not self.model._meta.concrete_model:
                 raise UnresolvableReference((self.id, self.type))
 
-    def related(self, name=None, many=False, forward=True, backward=True):
+    def related(self, name=None, forward=True, backward=True):
         edges = tuple(
             e for e in self.graph.relations[self]
+<<<<<<< HEAD
             if (forward is True and e.subject is self and (name is None or e.name == name))
             or (backward is True and e.related is self and (name is None or e.field.remote_field.name == name))
         )
+=======
+            if (name is None or e.name == name or e.remote_name == name)
+            and (
+                (e.subject is self and forward is True)
+                or (e.related is self and backward is True)
+            ))
+>>>>>>> Tests and graph functionality
 
-        if name is None or many:
+        if not name:
             return edges
+
+        try:
+            if getattr(self.model._meta.get_field(name), 'multiple', False):
+                return edges
+        except FieldDoesNotExist:
+            return None
 
         assert len(edges) < 2
         return (edges and edges[0]) or None
