@@ -111,14 +111,13 @@ class ChangeGraph:
         for edge in self.relations.pop(source):
             if edge.subject == source:
                 self.relations[edge.related].remove(edge)
-                new_edge = GraphEdge(replacement, edge.related, edge._hint)
-                self.relations[replacement].add(new_edge)
-                self.relations[edge.related].add(new_edge)
+                subject, related = replacement, edge.related
             else:
                 self.relations[edge.subject].remove(edge)
-                new_edge = GraphEdge(edge.subject, replacement, edge._hint)
-                self.relations[edge.subject].add(new_edge)
-                self.relations[replacement].add(new_edge)
+                subject, related = edge.subject, replacement
+            new_edge = GraphEdge(subject, related, edge._hint)
+            self.relations[subject].add(new_edge)
+            self.relations[related].add(new_edge)
 
 
 class ChangeNode:
