@@ -8,3 +8,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'eScholarship @ University of California'
     home_page = 'http://www.escholarship.org/'
     url = 'http://www.escholarship.org/uc/oai'
+    time_granularity = False
