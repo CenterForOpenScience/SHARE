@@ -110,10 +110,15 @@ class ChangeGraph:
         self.nodes.remove(source)
         for edge in self.relations.pop(source):
             if edge.subject == source:
-                self.relations[replacement].add(GraphEdge(replacement, edge.related, edge._hint))
-                continue
-            self.relations[edge.subject].remove(edge)
-            self.relations[edge.subject].add(GraphEdge(edge.subject, replacement, edge._hint))
+                self.relations[edge.related].remove(edge)
+                new_edge = GraphEdge(replacement, edge.related, edge._hint)
+                self.relations[replacement].add(new_edge)
+                self.relations[edge.related].add(new_edge)
+            else:
+                self.relations[edge.subject].remove(edge)
+                new_edge = GraphEdge(edge.subject, replacement, edge._hint)
+                self.relations[edge.subject].add(new_edge)
+                self.relations[replacement].add(new_edge)
 
 
 class ChangeNode:
@@ -203,11 +208,9 @@ class ChangeNode:
     def related(self, name=None, many=False, forward=True, backward=True):
         edges = tuple(
             e for e in self.graph.relations[self]
-            if (name is None or e.name == name)
-            and (
-                (e.subject is self and forward is True)
-                or (e.related is self and backward is True)
-            ))
+            if (forward is True and e.subject is self and (name is None or e.name == name))
+            or (backward is True and e.related is self and (name is None or e.field.remote_field.name == name))
+        )
 
         if name is None or many:
             return edges
