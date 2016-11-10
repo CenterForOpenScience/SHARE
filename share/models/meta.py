@@ -64,16 +64,16 @@ class Subject(models.Model):
 # Through Tables for all the things
 
 class ThroughTags(ShareObject):
-    tag = ShareForeignKey(Tag)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
+    tag = ShareForeignKey(Tag, related_name='work_relations')
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='tag_relations')
 
     class Meta:
         unique_together = ('tag', 'creative_work')
 
 
 class ThroughSubjects(ShareObject):
-    subject = models.ForeignKey('Subject')
-    creative_work = ShareForeignKey('AbstractCreativeWork')
+    subject = models.ForeignKey('Subject', related_name='work_relations')
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='subject_relations')
 
     class Meta:
         unique_together = ('subject', 'creative_work')
