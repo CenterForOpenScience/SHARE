@@ -88,8 +88,8 @@ class GraphDisambiguator:
             return self._query_cache[node]
 
         query = {
-            'attrs': [],
-            'relations': []
+            'attrs': {},
+            'relations': {}
         }
 
         fields = [
@@ -97,17 +97,13 @@ class GraphDisambiguator:
             for f in node.model.Meta.disambiguation_fields
         ]
         for f in fields:
-            if not f.is_relation:
-                query['attrs'].append(f.name)
-
-        query = {
-            # TODO: relations, type
-            'attrs': [f.name: node.attrs[f.name] for f in fields if f.name in node.attrs]
-            #relations = tuple(e.related for e in sorted(n.related(backward=False), key=lambda e: e.name))
-        }
-        if len(fields) != len(query['attrs']):
-            logger.error('Not enough fields to disambiguate!\nModel: {}\nAttrs: {}\nExpected: {}'.format(node.model, node.attrs, fields))
-            return None
+            if f.is_relation:
+                # TODO
+                pass
+            else:
+                if f.name not in node.attrs:
+                    raise ValueError('Missing field {} for disambiguation!\nNode: {}'.format(f.name, node))
+                query['attrs'][f.name] = node.attrs[f.name]
 
         self._query_cache[node] = query
         return query
@@ -118,32 +114,47 @@ class GraphDisambiguator:
 
     def _cache_node(self, node):
         q = self._get_query(node)
-        model = node.model._meta.concrete_model
-        self._node_cache.setdefault(model, DictHashingDict()).setdefault((q['attrs'], q['relations']), []).append(node)
+        concrete_model = node.model._meta.concrete_model
+        self._node_cache.setdefault(concrete_model, DictHashingDict()).setdefault((q['attrs'], q['relations']), []).append(node)
 
     def _uncache_node(self, node):
         q = self._get_query(node)
-        model = node.model._meta.concrete_model
+        concrete_model = node.model._meta.concrete_model
         try:
-            self._node_cache[model][q['attrs'], q['relations']].remove(node)
+            self._node_cache[concrete_model][q['attrs'], q['relations']].remove(node)
         except KeyError, ValueError:
-            logger.warn('Tried uncaching uncached node: {}'.format(node)')
+            logger.warn('Tried uncaching uncached node: {}'.format(node))
 
     def _get_cached_matches(self, node):
         q = self._get_query(node)
-        model = node.model._meta.concrete_model
-        model_cache = self._node_cache.get(model, {})
+        concrete_model = node.model._meta.concrete_model
+        model_cache = self._node_cache.get(concrete_model, {})
         matches = model_cache.get((q['attrs'], q['relations']), [])
         return [m for m in matches if m != node and issubclass(m.model, node.model) or issubclass(node.model, m.model)]
 
     def _instance_for_node(self, node):
         query = self._get_query(node)
+        filter = {
+            # TODO relations
+            **query['attrs']
+        }
+        concrete_model = node.model._meta.concrete_model
+        if concrete_model is not node.model:
+            filter['type__in'] = self._matching_type_names(node)
+
         try:
-            # TODO type, relations
-            return node.model.get(**query['attrs'])
-        except node.model.DoesNotExist:
+            return concrete_model.get(**filter)
+        except concrete_model.DoesNotExist:
             return None
-        except node.model.MultipleObjectsReturned as ex:
-            logger.warn('Multiple {}s returned for {}'.format(node.model, query))
+        except concrete_model.MultipleObjectsReturned as ex:
+            logger.warn('Multiple {}s returned for {}'.format(concrete_model, filter))
             raise ex
 
+    def _matching_type_names(self, node):
+        # list of all subclasses and superclasses of node.model
+        format = lambda t: t if t.startswith('share.') else 'share.{}'.format(t)
+        if node.model._meta.proxy:
+            type_names = node.model.get_types() + [format(m._meta.model_name) for m in node.model.mro() if issubclass(m, node.model._meta.concrete_model) and m._meta.proxy]
+        else:
+            type_names = [format(node.model._meta.model_name)]
+        return set(type_names)
