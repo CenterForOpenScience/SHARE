@@ -1,6 +1,9 @@
 import pytest
 
 from share import models
+from share.change import ChangeGraph
+
+from tests.share.normalize.factories import Graph, Tag, CreativeWork
 
 
 class FakeNode:
@@ -39,31 +42,40 @@ class FakeGraph:
 
 class TestModelNormalization:
 
-    @pytest.mark.parametrize('input, output', [
-        ('', []),
-        ('foo', ['foo']),
-        ('Foo', ['foo']),
-        ('Foo; Bar', ['foo', 'bar']),
-        ('        Foo       ', ['foo']),
-        (' F\to\no ', ['f o o']),
-        (' FOO BaR\n', ['foo bar']),
-        ('FOO;bar,baz;', ['foo', 'bar', 'baz']),
-        ('Crash, bandicoot', ['crash', 'bandicoot']),
-        ('Cr   ash, \n\t\tba\nnd  icOOt', ['cr ash', 'ba nd icoot']),
-        ('        \n\n\n\n\t\t\t\t', []),
-        ('        \n\n;\n\n\t,\t\t\t', []),
-    ])
-    def test_normalize_tag(self, input, output):
-        graph, node = FakeGraph([]), FakeNode({'name': input})
-
-        models.Tag.normalize(node, graph)
-
-        assert len(graph.added) == 0
-        assert len(graph.removed) == 0
-        assert set(x.attrs['name'] for x in graph.created) == set(output)
-        assert len(graph.replaced) == 1
-        assert graph.replaced[0][0].attrs['name'] == input
-        assert set(x.attrs['name'] for x in graph.replaced[0][1]) == set(output)
+    @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
+        ([
+            Tag(name=''),
+            Tag(name='        '),
+            Tag(name='\n\n\n'),
+        ], []),
+        ([
+            Tag(name='foo'),
+            Tag(name='foO'),
+            Tag(name='Foo'),
+            Tag(name='FOO'),
+            Tag(name='      FOO'),
+            Tag(name='      foo\n\n\n'),
+        ], [Tag(name='foo')]),
+        ([
+            Tag(name='Rocket League'),
+            Tag(name='rocket league'),
+            Tag(name='ROCKET LEAGUE'),
+            Tag(name='Rocket         League'),
+            Tag(name='\nRocket    \n     League\t'),
+            Tag(name='rocket\nleague'),
+        ], [Tag(name='rocket league')]),
+        ([
+            Tag(name='Crash; Bandicoot'),
+            Tag(name='Crash;           Bandicoot'),
+            Tag(name='\nCrash; Bandicoot'),
+            Tag(name='crash, bandicoot'),
+            Tag(name='Crash ,Bandicoot           '),
+        ], [Tag(name='crash'), Tag(name='bandicoot')]),
+    ] for i in input])
+    def test_normalize_tag(self, input, output, Graph):
+        graph = ChangeGraph(Graph(CreativeWork(tags=[input])))
+        graph.normalize()
+        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(tags=output))
 
     @pytest.mark.parametrize('input, output', [
         ({'name': 'Smith, J'}, {'name': 'J Smith', 'family_name': 'Smith', 'given_name': 'J'}),

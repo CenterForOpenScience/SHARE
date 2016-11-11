@@ -9,7 +9,7 @@ from share.models.fields import ShareForeignKey
 from share.util import strip_whitespace
 
 
-__all__ = ('Tag', 'Subject')
+__all__ = ('Tag', 'Subject', 'ThroughTags', 'ThroughSubjects')
 logger = logging.getLogger('share.normalize')
 
 # TODO Rename this file
@@ -30,9 +30,14 @@ class Tag(ShareObject):
 
         logger.debug('Normalized %s to %s', node.attrs['name'], tags)
 
-        nodes = [graph.create(attrs={'name': tag}) for tag in tags]
+        for tag in tags:
+            tag = graph.create(None, 'tag', {'name': tag})
+            for edge in node.related('work_relations'):
+                through = graph.create(None, 'throughtags', {})
+                graph.relate(through, tag)
+                graph.relate(through, edge.subject.related('creative_work').related)
 
-        graph.replace(node, *nodes)
+        graph.remove(node)
 
     def __str__(self):
         return self.name

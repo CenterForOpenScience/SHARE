@@ -51,6 +51,8 @@ class ShareObjectMeta(ModelBase):
                 val._unique = False
             if isinstance(val, models.Field) and val.is_relation:
                 val = copy.deepcopy(val)
+                if isinstance(val, models.ForeignKey) and not isinstance(val, fields.ShareForeignKey):
+                    val.remote_field.related_name = '+'
                 if isinstance(val, (fields.ShareForeignKey, fields.ShareManyToManyField, fields.ShareOneToOneField)):
                     val._kwargs = {**val._kwargs, 'related_name': '+'}
             if key == 'Meta':

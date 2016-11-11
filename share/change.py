@@ -104,14 +104,20 @@ class ChangeGraph:
             self.relations[self._lookup[subject]].add(edge)
             self.relations[self._lookup[related]].add(edge)
 
-        if disambiguate:
-            self.disambiguate()
+        # if disambiguate:
+        #     self.disambiguate()
 
         self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def disambiguate(self):
         GraphDisambiguator().disambiguate(self)
         self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
+
+    def normalize(self):
+        for node in self.nodes:
+            # This feels overly hacky
+            if hasattr(node.model, 'normalize'):
+                node.model.normalize(node, self)
 
     def get(self, id, type):
         return self._lookup[(id, type)]
@@ -248,17 +254,9 @@ class ChangeNode:
     def related(self, name=None, forward=True, backward=True):
         edges = tuple(
             e for e in self.graph.relations[self]
-<<<<<<< HEAD
             if (forward is True and e.subject is self and (name is None or e.name == name))
-            or (backward is True and e.related is self and (name is None or e.field.remote_field.name == name))
+            or (backward is True and e.related is self and (name is None or e.remote_name == name))
         )
-=======
-            if (name is None or e.name == name or e.remote_name == name)
-            and (
-                (e.subject is self and forward is True)
-                or (e.related is self and backward is True)
-            ))
->>>>>>> Tests and graph functionality
 
         if not name:
             return edges
@@ -286,6 +284,16 @@ class ChangeNode:
                 relations[name] = node.instance.pk
 
         return {**self.attrs, **relations}
+
+    def serialize(self):
+        relations = {}
+        for edge in self.related(backward=False):
+            if edge.field.one_to_many:
+                relations.setdefault(edge.name, []).append(edge.related.ref)
+            else:
+                relations[edge.name] = edge.related.ref
+
+        return {**self.ref, **self.attrs, **relations}
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.id, self.type)
