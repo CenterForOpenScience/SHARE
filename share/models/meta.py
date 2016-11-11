@@ -18,8 +18,6 @@ logger = logging.getLogger('share.normalize')
 class Tag(ShareObject):
     name = models.TextField(unique=True)
 
-    disambiguation_fields = ('name',)
-
     @classmethod
     def normalize(cls, node, graph):
         tags = [
@@ -42,6 +40,9 @@ class Tag(ShareObject):
     def __str__(self):
         return self.name
 
+    class Disambiguation:
+        all = ('name',)
+
 
 class SubjectManager(models.Manager):
     def get_by_natural_key(self, subject):
@@ -54,8 +55,6 @@ class Subject(models.Model):
 
     objects = SubjectManager()
 
-    disambiguation_fields = ('name',)
-
     def __str__(self):
         return self.name
 
@@ -64,6 +63,9 @@ class Subject(models.Model):
 
     def save(self):
         raise IntegrityError('Subjects are an immutable set! Do it in bulk, if you must.')
+
+    class Disambiguation:
+        all = ('name',)
 
 
 # Through Tables for all the things
@@ -75,6 +77,9 @@ class ThroughTags(ShareObject):
     class Meta:
         unique_together = ('tag', 'creative_work')
 
+    class Disambiguation:
+        all = ('tag', 'creative_work')
+
 
 class ThroughSubjects(ShareObject):
     subject = models.ForeignKey('Subject', related_name='work_relations')
@@ -82,3 +87,6 @@ class ThroughSubjects(ShareObject):
 
     class Meta:
         unique_together = ('subject', 'creative_work')
+
+    class Disambiguation:
+        all = ('subject', 'creative_work')

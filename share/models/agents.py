@@ -57,7 +57,8 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
         if node.attrs.get('location'):
             node.attrs['location'] = strip_whitespace(node.attrs['location'])
 
-    disambiguation_fields = ('identifiers',)
+    class Disambiguation:
+        any = ('identifiers', 'work_relations')
 
     class Meta:
         db_table = 'share_agent'
@@ -95,3 +96,10 @@ def normalize_person(cls, node, graph):
         node.attrs['location'] = strip_whitespace(node.attrs['location'])
 
 Person.normalize = classmethod(normalize_person)  # noqa
+
+
+class UniqueNameDisambiguation:
+    any = AbstractAgent.Disambiguation.any + ('name',)
+
+Institution.Disambiguation = UniqueNameDisambiguation
+Organization.Disambiguation = UniqueNameDisambiguation

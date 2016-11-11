@@ -73,7 +73,8 @@ class WorkIdentifier(ShareObject):
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.creative_work_id)
 
-    disambiguation_fields = ('uri',)
+    class Disambiguation:
+        all = ('uri',)
 
 
 class AgentIdentifier(ShareObject):
@@ -109,4 +110,5 @@ class AgentIdentifier(ShareObject):
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.agent_id)
 
-    disambiguation_fields = ('uri',)
+    class Disambiguation:
+        all = ('uri',)

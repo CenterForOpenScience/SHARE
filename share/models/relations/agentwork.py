@@ -14,14 +14,15 @@ class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
 
     cited_as = models.TextField(blank=True)
 
-    # TODO agent and/or cited_as
-    disambiguation_fields = ('creative_work', 'agent')
-
     @classmethod
     def normalize(self, node, graph):
         for k, v in tuple(node.attrs.items()):
             if isinstance(v, str):
                 node.attrs[k] = strip_whitespace(v)
+
+    class Disambiguation:
+        all = ('creative_work',)
+        any = ('agent', 'cited_as') # TODO could be multiple people with the same cited_as on a work... could use order_cited for Creators, but what to do for other contributors?
 
     class Meta:
         db_table = 'share_agentworkrelation'
@@ -42,6 +43,9 @@ class ThroughContributor(ShareObject):
         self.clean()
         return super().save(*args, **kwargs)
 
+    class Disambiguation:
+        all = ('subject', 'related')
+
 
 class Award(ShareObject):
     # ScholarlyArticle has an award object
@@ -59,6 +63,9 @@ class Award(ShareObject):
     def __str__(self):
         return self.description
 
+    class Disambiguation:
+        all = ('name', 'uri')
+
 
 class ThroughAwards(ShareObject):
     funder = ShareForeignKey(AbstractAgentWorkRelation)
@@ -66,6 +73,9 @@ class ThroughAwards(ShareObject):
 
     class Meta:
         unique_together = ('funder', 'award')
+
+    class Disambiguation:
+        all = ('funder', 'award')
 
 
 generator = ModelGenerator(field_types={
@@ -77,7 +87,7 @@ globals().update(generator.subclasses_from_yaml(__file__, AbstractAgentWorkRelat
 
 def normalize_contributor(cls, node, graph):
     if not node.attrs.get('cited_as'):
-        node.attrs['cited_as'] = node.related('person').attrs['name']
+        node.attrs['cited_as'] = node.related('agent').attrs['name']
     node.attrs['cited_as'] = strip_whitespace(node.attrs['cited_as'])
 
 Contributor.normalize = classmethod(normalize_contributor)  # noqa
