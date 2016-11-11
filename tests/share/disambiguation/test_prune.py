@@ -6,22 +6,41 @@ from tests.share.normalize.factories import *
 
 
 class TestPruneChangeGraph:
-    def test_no_change(self):
-        uri = 'http://osf.io/guidguid'
-        nodes = Graph(
-            Preprint(0, identifiers=[WorkIdentifier(1, uri=uri)])
-        )
-        graph = ChangeGraph(nodes, disambiguate=False)
+    @pytest.mark.parametrize('input', [
+        [Preprint('_:0', identifiers=[WorkIdentifier('_:1', uri='http://osf.io/guidguid')])]
+    ])
+    def test_no_change(self, Graph, input):
+        graph = ChangeGraph(Graph(*input))
         GraphDisambiguator().prune(graph)
-        assert len(graph.nodes) == 2
-        assert len(no_change_nodes) == len(graph.nodes)
+        result = [n.serialize() for n in graph.nodes]
+        assert result == Graph(*input)
 
-    def test_duplicate_works(self):
-        uri = 'http://osf.io/guidguid'
-        nodes = Graph(
-            Preprint(0, identifiers=[WorkIdentifier(1, uri=uri)]),
-            CreativeWork(2, identifiers=[WorkIdentifier(3, uri=uri)])
-        )
-        graph = ChangeGraph(nodes, disambiguate=False)
+    @pytest.mark.parametrize('input, output', [
+        ([
+            Preprint('_:0', identifiers=[WorkIdentifier('_:1', uri='http://osf.io/guidguid')]),
+            CreativeWork('_:2', identifiers=[WorkIdentifier('_:3', uri='http://osf.io/guidguid')])
+        ], [
+            Preprint('_:0', identifiers=[WorkIdentifier('_:1', uri='http://osf.io/guidguid')]),
+        ]),
+        ([
+            Preprint('_:0', identifiers=[
+                WorkIdentifier('_:1', uri='http://osf.io/guidguid'),
+                WorkIdentifier('_:4', uri='http://something.else')
+            ]),
+            CreativeWork('_:2', identifiers=[WorkIdentifier('_:3', uri='http://osf.io/guidguid')])
+        ], [
+            Preprint('_:0', identifiers=[
+                WorkIdentifier('_:1', uri='http://osf.io/guidguid'),
+                WorkIdentifier('_:4', uri='http://something.else')
+            ]),
+        ])
+    ])
+    def test_prune(self, Graph, input, output):
+        graph = ChangeGraph(Graph(*input))
         GraphDisambiguator().prune(graph)
-        assert len(nodes) - 2 == len(graph.nodes)
+        try:
+            result = [n.serialize() for n in graph.nodes]
+            assert result == Graph(*output)
+        except AssertionError as ex:
+            import pdb; pdb.set_trace()
+            raise ex
