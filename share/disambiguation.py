@@ -131,7 +131,7 @@ class GraphDisambiguator:
             model_cache = self._node_cache.setdefault(node.model._meta.concrete_model, DictHashingDict())
             if info.any:
                 all_cache = model_cache.setdefault(info.all, DictHashingDict())
-                for item in info.any.items():
+                for item in info.any:
                     all_cache.setdefault(item, []).append(node)
             elif info.all:
                 model_cache.setdefault(info.all, []).append(node)
@@ -143,7 +143,7 @@ class GraphDisambiguator:
             try:
                 all_cache = self._node_cache[node.model._meta.concrete_model][info.all]
                 if info.any:
-                    for item in info.any.items():
+                    for item in info.any:
                         all_cache[item].remove(node)
                 else:
                     all_cache.remove(node)
@@ -157,7 +157,7 @@ class GraphDisambiguator:
                 model_cache = self._node_cache[node.model._meta.concrete_model]
                 matches_all = model_cache[info.all]
                 if info.any:
-                    for item in info.any.items():
+                    for item in info.any:
                         matches.update(matches_all.get(item, []))
                 elif info.all:
                     matches.update(matches_all)
@@ -177,11 +177,8 @@ class GraphDisambiguator:
                     all = self._node.model.Disambiguation.all
                 except AttributeError:
                     return {}
-                values = {f: self._field_value(f) for f in all}
-                missing = [f for f, v in values.items() if v is None]
-                if missing:
-                    logger.debug('Missing required fields for disambiguation!\nNode: {}\nMissing: {}'.format(self._node, missing))
-                    return {}
+                values = tuple((f, v) for f in all for v in self._field_values(f))
+                assert len(values) == len(all)
                 return values
 
             def _any(self):
@@ -189,27 +186,30 @@ class GraphDisambiguator:
                     any = self._node.model.Disambiguation.any
                 except AttributeError:
                     return {}
-                return {f: self._field_value(f, nested=True) for f in any}
+                return tuple((f, v) for f in any for v in self._field_values(f, nested=True))
 
-            def _field_value(self, field_name, nested=False):
+            def _field_values(self, field_name, nested=False):
                 if isinstance(field_name, (list, tuple)):
                     if nested:
-                        return tuple(self._field_value(f) for f in field_name)
+                        for f in field_name:
+                            yield tuple(v for v in self._field_values(f))
+                        return
                     else:
                         raise ValueError('Disambiguation info cannot be nested for `all`, and only one level deep for `any`.')
 
                 field = self._node.model._meta.get_field(field_name)
                 if field.is_relation:
                     if field.one_to_many:
-                        edges = self._node.related(name=field_name, forward=False)
-                        return tuple(e.subject for e in edges)
+                        for edge in self._node.related(name=field_name, forward=False):
+                            yield edge.subject
+                        return
                     elif field.many_to_many:
                         # TODO
                         raise NotImplementedError()
                 else:
                     if field_name not in self._node.attrs:
-                        return None
+                        return
                     value = self._node.attrs[field.name]
                     if value == '':
-                        return None
-                    return value
+                        return
+                    yield value
