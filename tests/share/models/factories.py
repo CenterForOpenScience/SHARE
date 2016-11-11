@@ -98,6 +98,7 @@ class AgentFactory(TypedShareObjectFactory):
 class AbstractCreativeWorkFactory(TypedShareObjectFactory):
     title = factory.Faker('sentence')
     description = factory.Faker('paragraph')
+    date_updated = factory.Faker('date')
 
     class Meta:
         model = models.AbstractCreativeWork
@@ -132,3 +133,10 @@ class ThroughAgentWorkRelationFactory(ShareObjectFactory):
 
     class Meta:
         model = models.ThroughContributor
+
+
+class TagFactory(ShareObjectFactory):
+    name = factory.Faker('word')
+
+    class Meta:
+        model = models.Tag

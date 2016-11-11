@@ -1,7 +1,12 @@
 import pytest
 
+import pendulum
+
 from share import models
 from share.change import ChangeGraph
+from share.util import IDObfuscator
+
+from tests.share.models import factories
 
 
 class TestGraph:
@@ -198,17 +203,36 @@ class TestChangeNode:
     def test_related_multiple(self):
         pass
 
-    @pytest.mark.skip
-    def test_change(self):
-        pass
+    @pytest.mark.django_db
+    def test_load_instance(self, graph):
+        tag = factories.TagFactory()
+        assert graph.create(IDObfuscator.encode(tag), 'tag', {}).instance == tag
 
-    @pytest.mark.skip
-    def test_change_diff(self):
-        pass
+    @pytest.mark.django_db
+    def test_unresolveable(self, graph):
+        with pytest.raises(AssertionError) as e:
+            graph.create('Foo', 'tag', {'name': 'Not a generated Value'})
+        assert e.value.args == ('"Foo" is not a valid ID', )
 
-    @pytest.mark.skip
-    def test_change_datetime(self):
-        pass
+    @pytest.mark.django_db
+    def test_change_no_diff(self, graph):
+        tag = factories.TagFactory()
+        assert graph.create(IDObfuscator.encode(tag), 'tag', {'name': tag.name}).change == {}
+
+    @pytest.mark.django_db
+    def test_change_diff(self, graph):
+        tag = factories.TagFactory(name='tag1')
+        assert graph.create(IDObfuscator.encode(tag), 'tag', {'name': 'tag2'}).change == {'name': 'tag2'}
+
+    @pytest.mark.django_db
+    def test_change_datetime_no_change(self, graph):
+        work = factories.AbstractCreativeWorkFactory()
+        assert graph.create(IDObfuscator.encode(work), work._meta.model_name, {'date_updated': work.date_updated.isoformat()}).change == {}
+
+    @pytest.mark.django_db
+    def test_change_datetime_change(self, graph):
+        tag = factories.AbstractCreativeWorkFactory()
+        assert graph.create(IDObfuscator.encode(tag), 'tag', {'date_updated': pendulum.fromtimestamp(0).isoformat()}).change == {'date_updated': pendulum.fromtimestamp(0).isoformat()}
 
     @pytest.mark.skip
     def test_change_extra(self):

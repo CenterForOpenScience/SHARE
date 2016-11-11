@@ -26,10 +26,15 @@ class Tag(ShareObject):
             if strip_whitespace(part)
         ]
 
+        if len(tags) == 1 and tags[0] == node.attrs['name']:
+            return
+
         logger.debug('Normalized %s to %s', node.attrs['name'], tags)
 
+        # ensure tags are always created in the same order
+        tags = [graph.create(None, 'tag', {'name': tag}) for tag in sorted(tags)]
+
         for tag in tags:
-            tag = graph.create(None, 'tag', {'name': tag})
             for edge in node.related('work_relations'):
                 through = graph.create(None, 'throughtags', {})
                 graph.relate(through, tag)

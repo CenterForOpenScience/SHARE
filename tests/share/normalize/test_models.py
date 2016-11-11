@@ -70,12 +70,13 @@ class TestModelNormalization:
             Tag(name='\nCrash; Bandicoot'),
             Tag(name='crash, bandicoot'),
             Tag(name='Crash ,Bandicoot           '),
-        ], [Tag(name='crash'), Tag(name='bandicoot')]),
+        ], [Tag(name='bandicoot'), Tag(name='crash')]),
     ] for i in input])
     def test_normalize_tag(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(tags=[input])))
         graph.normalize()
-        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(tags=output))
+
+        assert [n.serialize() for n in sorted(graph.nodes, key=lambda x: x.type + str(x.id))] == Graph(CreativeWork(tags=output))
 
     @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
         ([

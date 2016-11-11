@@ -11,11 +11,27 @@ import factory.fuzzy
 from django.apps import apps
 
 from share import models
+from share.change import ChangeGraph
 
 
 __all__ = ('Graph', )
 
+used_ids = set()
 _Faker = faker.Faker()
+
+
+def get_id():
+    while True:
+        id = _Faker.ipv6()
+        if id not in used_ids:
+            break
+    return id
+
+
+_remove = ChangeGraph.remove
+def remove_id(self, node, cascade=True):
+    used_ids.add(node._id.replace('_:', '', 1))
+    return _remove(self, node, cascade=cascade)
 
 
 class GraphContructor:
@@ -35,7 +51,7 @@ class GraphContructor:
                 continue
             seen.add(node)
 
-            for rel in node.related.values():
+            for rel in list(node.related.values()) + node._related:
                 if not isinstance(rel, list):
                     rel = [rel]
                 for n in rel:
@@ -43,7 +59,6 @@ class GraphContructor:
                         continue
                     to_see.append(n)
 
-        self.reseed()
         # Sort by type + id to get consitent ordering between two graphs
         return [n.serialize() for n in sorted(seen, key=lambda x: x.type + str(x.id))]
 
@@ -81,11 +96,11 @@ class GraphContructor:
                 if field.many_to_many:
                     related = [self.build_node(v) for v in value]
                     for rel in related:
-                        self.build_node({
+                        obj._related.append(self.build_node({
                             'type': field.rel.through._meta.model_name,
                             field.m2m_field_name(): obj,
                             field.m2m_reverse_field_name(): rel,
-                        })
+                        }))
                 else:
                     obj.related[key] = [self.build_node({**v, reverse_name: obj}) for v in value]
             else:
@@ -101,7 +116,8 @@ class GraphContructor:
 
 @pytest.fixture
 def Graph(monkeypatch):
-    monkeypatch.setattr('share.change.uuid.uuid4', _Faker.ipv6)
+    monkeypatch.setattr('share.change.uuid.uuid4', get_id)
+    monkeypatch.setattr('share.change.ChangeGraph.remove', remove_id)
     c = GraphContructor()
     return c
 
@@ -117,6 +133,7 @@ class GraphNode:
         self.type = kwargs.pop('type')
         self.attrs = kwargs
         self.related = {}
+        self._related = []
         self._serialized = None
 
         for key in tuple(self.attrs.keys()):
@@ -139,7 +156,7 @@ class GraphNode:
 
 class ShareObjectFactory(factory.Factory):
 
-    id = factory.LazyFunction(lambda: '_:' + _Faker.ipv6())
+    id = factory.LazyFunction(lambda: '_:' + get_id())
 
     class Meta:
         abstract = True
