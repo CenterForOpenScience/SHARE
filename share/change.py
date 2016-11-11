@@ -296,6 +296,11 @@ class ChangeNode:
                 relations.setdefault(edge.name, []).append(edge.related.ref)
             else:
                 relations[edge.name] = edge.related.ref
+        for edge in self.related(forward=False):
+            if edge.field.many_to_one:
+                relations.setdefault(edge.remote_name, []).append(edge.subject.ref)
+            else:
+                relations[edge.remote_name] = edge.subject.ref
 
         return {**self.ref, **self.attrs, **relations}
 
