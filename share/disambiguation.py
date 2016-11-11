@@ -49,9 +49,9 @@ class GraphDisambiguator:
                     if n.model != match.model and issubclass(n.model, match.model):
                         # remove the node with the less-specific class
                         logger.debug('Found duplicate! Keeping {}, pruning {}'.format(n, match))
-                        change_graph.replace(match, n)
                         self._cache.remove(match)
                         nodes.remove(match)
+                        change_graph.replace(match, n)
                         self._cache.add(n)
                     else:
                         logger.debug('Found duplicate! Keeping {}, pruning {}'.format(match, n))
