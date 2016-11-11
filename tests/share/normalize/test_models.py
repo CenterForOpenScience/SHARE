@@ -192,10 +192,10 @@ class TestModelNormalization:
             assert node.attrs['uri'] == output
 
     @pytest.mark.parametrize('model, input, output', [
-        (models.Creator, {'cited_as': '   \t James\n Bond \t     ', 'related': {'person': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
-        (models.Contributor, {'cited_as': '   \t James\n Bond \t     ', 'related': {'person': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
-        (models.Creator, {'cited_as': '', 'related': {'person': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
-        (models.Contributor, {'cited_as': '', 'related': {'person': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
+        (models.Creator, {'cited_as': '   \t James\n Bond \t     ', 'related': {'agent': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
+        (models.Contributor, {'cited_as': '   \t James\n Bond \t     ', 'related': {'agent': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
+        (models.Creator, {'cited_as': '', 'related': {'agent': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
+        (models.Contributor, {'cited_as': '', 'related': {'agent': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
     ])
     def test_normalize_agentworkrelation(self, model, input, output):
         graph, node = FakeGraph([]), FakeNode(input)

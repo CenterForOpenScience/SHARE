@@ -2,85 +2,26 @@ import pytest
 
 from share.change import ChangeGraph
 from share.disambiguation import GraphDisambiguator
-
-@pytest.fixture
-def no_change_nodes():
-    return [{
-        '@id': '_:91011',
-        '@type': 'preprint',
-        'contributors': [{'@id': '_:5678', '@type': 'contributor'}],
-        'identifiers': [{'@id': '_:6789', '@type': 'workidentifier'}]
-    }, {
-        '@id': '_:5678',
-        '@type': 'contributor',
-        'agent': {
-            '@id': '_:1234',
-            '@type': 'person'
-        },
-        'creative_work': {
-            '@id': '_:91011',
-            '@type': 'preprint'
-        },
-    }, {
-        '@id': '_:1234',
-        '@type': 'person',
-        'given_name': 'Doe',
-        'family_name': 'Jane',
-    }, {
-        '@id': '_:6789',
-        '@type': 'workidentifier',
-        'uri': 'http://osf.io/guidguid',
-        'creative_work': {'@id': '_:91011', '@type': 'preprint'}
-    }]
-
-@pytest.fixture
-def dup_work_nodes():
-    return [{
-        '@id': '_:91011',
-        '@type': 'preprint',
-        'contributors': [{'@id': '_:5678', '@type': 'contributor'}],
-        'identifiers': [{'@id': '_:6789', '@type': 'workidentifier'}]
-    }, {
-        '@id': '_:5678',
-        '@type': 'contributor',
-        'agent': {
-            '@id': '_:1234',
-            '@type': 'person'
-        },
-        'creative_work': {
-            '@id': '_:91011',
-            '@type': 'preprint'
-        },
-    }, {
-        '@id': '_:1234',
-        '@type': 'person',
-        'given_name': 'Doe',
-        'family_name': 'Jane',
-    }, {
-        '@id': '_:6789',
-        '@type': 'workidentifier',
-        'uri': 'http://osf.io/guidguid',
-        'creative_work': {'@id': '_:91011', '@type': 'preprint'}
-    }, {
-        '@id': '_:91012',
-        '@type': 'creativework',
-        'identifiers': [{'@id': '_:6780', '@type': 'workidentifier'}]
-    }, {
-        '@id': '_:6780',
-        '@type': 'workidentifier',
-        'uri': 'http://osf.io/guidguid',
-        'creative_work': {'@id': '_:91012', '@type': 'creativework'}
-    }]
-
+from tests.share.normalize.factories import *
 
 
 class TestPruneChangeGraph:
-    def test_no_change(self, no_change_nodes):
-        graph = ChangeGraph(no_change_nodes, disambiguate=False)
+    def test_no_change(self):
+        uri = 'http://osf.io/guidguid'
+        nodes = Graph(
+            Preprint(0, identifiers=[WorkIdentifier(1, uri=uri)])
+        )
+        graph = ChangeGraph(nodes, disambiguate=False)
         GraphDisambiguator().prune(graph)
+        assert len(graph.nodes) == 2
         assert len(no_change_nodes) == len(graph.nodes)
 
-    def test_duplicate_works(self, dup_work_nodes):
-        graph = ChangeGraph(dup_work_nodes, disambiguate=False)
+    def test_duplicate_works(self):
+        uri = 'http://osf.io/guidguid'
+        nodes = Graph(
+            Preprint(0, identifiers=[WorkIdentifier(1, uri=uri)]),
+            CreativeWork(2, identifiers=[WorkIdentifier(3, uri=uri)])
+        )
+        graph = ChangeGraph(nodes, disambiguate=False)
         GraphDisambiguator().prune(graph)
-        assert len(dup_work_nodes) - 2 == len(graph.nodes)
+        assert len(nodes) - 2 == len(graph.nodes)
