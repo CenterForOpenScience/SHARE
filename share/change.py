@@ -144,9 +144,13 @@ class ChangeGraph:
             # the hash function of an edge and how sets work
             self.relations[source].remove(edge)
             if edge.subject == source:
+                self.relations[edge.related].remove(edge)
                 edge.subject = replacement
+                self.relations[edge.related].add(edge)
             else:
+                self.relations[edge.subject].remove(edge)
                 edge.related = replacement
+                self.relations[edge.subject].add(edge)
             self.relations[replacement].add(edge)
 
         return self.remove(source)
