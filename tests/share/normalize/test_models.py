@@ -3,7 +3,7 @@ import pytest
 from share import models
 from share.change import ChangeGraph
 
-from tests.share.normalize.factories import Graph, Tag, CreativeWork
+from tests.share.normalize.factories import Tag, CreativeWork, Person
 
 
 class FakeNode:
@@ -77,31 +77,34 @@ class TestModelNormalization:
         graph.normalize()
         assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(tags=output))
 
-    @pytest.mark.parametrize('input, output', [
-        ({'name': 'Smith, J'}, {'name': 'J Smith', 'family_name': 'Smith', 'given_name': 'J'}),
-        ({'name': 'J Smith'}, {'name': 'J Smith', 'family_name': 'Smith', 'given_name': 'J'}),
-        ({'name': 'J    Smith   '}, {'name': 'J Smith', 'family_name': 'Smith', 'given_name': 'J'}),
-        ({'name': 'Smith,     J'}, {'name': 'J Smith', 'family_name': 'Smith', 'given_name': 'J'}),
-        ({'name': 'Johnathan James Doe'}, {'name': 'Johnathan James Doe', 'family_name': 'Doe', 'given_name': 'Johnathan', 'additional_name': 'James'}),
-        ({'name': 'johnathan james doe'}, {'name': 'Johnathan James Doe', 'family_name': 'Doe', 'given_name': 'Johnathan', 'additional_name': 'James'}),
-        ({'name': 'johnathan james doe JR'}, {'name': 'Johnathan James Doe Jr', 'family_name': 'Doe', 'given_name': 'Johnathan', 'additional_name': 'James', 'suffix': 'Jr'}),
-        ({'given_name': 'J', 'family_name': 'Smith'}, {'name': 'J Smith', 'family_name': 'Smith', 'given_name': 'J'}),
-        ({'given_name': '  J', 'family_name': '\n\nSmith'}, {'name': 'J Smith', 'family_name': 'Smith', 'given_name': 'J'}),
-        ({'name': 'none'}, None),
-        ({'name': ''}, None),
-        ({'name': 'NULL'}, None),
-        ({'name': 'None'}, None),
-        ({'name': '           '}, None),
-        ({'name': '     None      '}, None),
-    ])
-    def test_normalize_person(self, input, output):
-        graph, node = FakeGraph([]), FakeNode(input)
-        models.Person.normalize(node, graph)
-
-        if output is None:
-            assert node in graph.removed
-        else:
-            assert node.attrs == output
+    @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
+        ([
+            Person(name='Smith, J'),
+            Person(name='J    Smith   '),
+            Person(name='Smith,     J'),
+            Person(given_name='J', family_name='Smith'),
+            Person(given_name='  J', family_name='\n\nSmith'),
+        ], Person(name='J Smith', family_name='Smith', given_name='J')),
+        ([
+            Person(name='Johnathan James Doe'),
+            Person(name='johnathan james doe'),
+        ], Person(name='Johnathan James Doe', family_name='Doe', given_name='Johnathan', additional_name='James')),
+        ([
+            Person(name='johnathan james doe JR'),
+        ], Person(name='Johnathan James Doe Jr', family_name='Doe', given_name='Johnathan', additional_name='James', suffix='Jr')),
+        ([
+            Person(name='none'),
+            Person(name=''),
+            Person(name='NULL'),
+            Person(name='None'),
+            Person(name='           '),
+            Person(name='     None      '),
+        ], None)
+    ] for i in input])
+    def test_normalize_person(self, input, output, Graph):
+        graph = ChangeGraph(Graph(input))
+        graph.normalize()
+        assert [n.serialize() for n in graph.nodes] == (Graph(output) if output else [])
 
     @pytest.mark.parametrize('input, output', [
         ({'name': 'none'}, None),

@@ -25,18 +25,14 @@ class GraphContructor:
         self._seed = random.random()
 
     def __call__(self, *nodes):
-        # Reset all seeds at the being of each graph generation
-        # Ensures that graphs will be compairable
-        random.seed(self._seed)
-        _Faker.random.seed(self._seed)
-        factory.fuzzy.reseed_random(self._seed)
-        for fake in factory.Faker._FAKER_REGISTRY.values():
-            fake.random.seed(self._seed)
+        self.reseed()
 
         # Traverse all nodes to build proper graph
         seen, to_see = set(), [self.build_node(n) for n in nodes]
         while to_see:
             node = to_see.pop(0)
+            if node is None:
+                continue
             seen.add(node)
 
             for rel in node.related.values():
@@ -47,8 +43,18 @@ class GraphContructor:
                         continue
                     to_see.append(n)
 
+        self.reseed()
         # Sort by type + id to get consitent ordering between two graphs
         return [n.serialize() for n in sorted(seen, key=lambda x: x.type + str(x.id))]
+
+    def reseed(self):
+        # Reset all seeds at the being of each graph generation
+        # Ensures that graphs will be compairable
+        random.seed(self._seed)
+        _Faker.random.seed(self._seed)
+        factory.fuzzy.reseed_random(self._seed)
+        for fake in factory.Faker._FAKER_REGISTRY.values():
+            fake.random.seed(self._seed)
 
     def get_factory(self, model):
         return globals()[model.__name__ + 'Factory']
@@ -74,14 +80,12 @@ class GraphContructor:
             if isinstance(value, list):
                 if field.many_to_many:
                     related = [self.build_node(v) for v in value]
-                    obj.related[field.name] = [
+                    for rel in related:
                         self.build_node({
                             'type': field.rel.through._meta.model_name,
                             field.m2m_field_name(): obj,
                             field.m2m_reverse_field_name(): rel,
                         })
-                        for rel in related
-                    ]
                 else:
                     obj.related[key] = [self.build_node({**v, reverse_name: obj}) for v in value]
             else:
@@ -96,7 +100,8 @@ class GraphContructor:
 
 
 @pytest.fixture
-def Graph():
+def Graph(monkeypatch):
+    monkeypatch.setattr('share.change.uuid.uuid4', _Faker.ipv6)
     c = GraphContructor()
     return c
 
@@ -155,11 +160,15 @@ class TypedShareObjectFactory(ShareObjectFactory):
         return random.choice([m.model_name.lower() for m in model._meta.concrete_model._meta.proxied_children or [model._meta]])
 
 
-class AgentFactory(TypedShareObjectFactory):
-    name = factory.Faker('company')
-    given_name = factory.Faker('first_name')
-    family_name = factory.Faker('last_name')
-    # affiliation = factory.SubFactory(AgentFactory)
+class AbstractAgentFactory(TypedShareObjectFactory):
+
+    @factory.lazy_attribute
+    def name(self):
+        if self.type == 'person':
+            if any(getattr(self, n, None) for n in ('given_name', 'family_name', 'suffix', 'additional_name')):
+                return None
+            return _Faker.name()
+        return _Faker.company()
 
     class Meta:
         model = GraphNode
@@ -172,7 +181,7 @@ class WorkIdentifierFactory(ShareObjectFactory):
 class AgentWorkRelationFactory(TypedShareObjectFactory):
     # lazy attr
     cited_as = factory.Faker('name')
-    agent = factory.SubFactory(AgentFactory)
+    agent = factory.SubFactory(AbstractAgentFactory)
 
     # lazy attr base on type
     # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
