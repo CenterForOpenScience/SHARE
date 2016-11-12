@@ -87,7 +87,7 @@ globals().update(generator.subclasses_from_yaml(__file__, AbstractAgentWorkRelat
 
 def normalize_contributor(cls, node, graph):
     if not node.attrs.get('cited_as'):
-        node.attrs['cited_as'] = node.related('agent').attrs['name']
+        node.attrs['cited_as'] = node.related('agent').related.attrs['name']
     node.attrs['cited_as'] = strip_whitespace(node.attrs['cited_as'])
 
 Contributor.normalize = classmethod(normalize_contributor)  # noqa

@@ -38,7 +38,7 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
             logger.debug('Discarding unnamed agent "%s"', node.attrs['name'])
             return graph.remove(node)
 
-        node.type = GuessAgentTypeLink(default=node.type).execute(node.attrs['name'])
+        node._type = GuessAgentTypeLink(default=node.type).execute(node.attrs['name'])
 
         match = re.match(r'^(.*(?:Departa?ment|Institute).+?);(?: (.+?); )?([^;]+)$', name, re.I)
         if match:

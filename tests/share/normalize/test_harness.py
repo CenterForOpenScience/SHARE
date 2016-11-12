@@ -84,8 +84,7 @@ class TestMakeGraph:
         assert len(graph) == 2
         assert identifier['creative_work']['@id'] == work['@id']
         assert identifier['creative_work']['@type'] == work['@type']
-        assert work['identifiers'][0]['@id'] == identifier['@id']
-        assert work['identifiers'][0]['@type'] == identifier['@type']
+        assert 'identifiers' not in work
 
     def test_many_to_many(self, Graph):
         graph = Graph(CreativeWork(tags=[Tag()]))

@@ -1,43 +1,8 @@
 import pytest
 
-from share import models
 from share.change import ChangeGraph
 
-from tests.share.normalize.factories import Tag, CreativeWork, Person
-
-
-class FakeNode:
-
-    def __init__(self, attrs):
-        self.attrs = attrs
-        self.relations = attrs.pop('related', {})
-
-    def related(self, name):
-        if name not in self.relations:
-            return None
-        return FakeNode(self.relations[name])
-
-
-class FakeGraph:
-    def __init__(self, nodes):
-        self.added = []
-        self.removed = []
-        self.created = []
-        self.replaced = []
-
-    def remove(self, node):
-        self.removed.append(node)
-
-    def add(self, node):
-        self.added.append(node)
-
-    def create(self, attrs):
-        n = FakeNode(attrs)
-        self.created.append(n)
-        return n
-
-    def replace(self, source, *targets):
-        self.replaced.append((source, targets))
+from tests.share.normalize.factories import Tag, CreativeWork, Person, WorkIdentifier, Agent, Institution, Organization, AgentIdentifier, Creator, Contributor
 
 
 class TestModelNormalization:
@@ -73,7 +38,7 @@ class TestModelNormalization:
         ], [Tag(name='bandicoot'), Tag(name='crash')]),
     ] for i in input])
     def test_normalize_tag(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(tags=[input])))
+        graph = ChangeGraph(Graph(CreativeWork(tags=[input])), disambiguate=False)
         graph.normalize()
 
         assert [n.serialize() for n in sorted(graph.nodes, key=lambda x: x.type + str(x.id))] == Graph(CreativeWork(tags=output))
@@ -103,40 +68,34 @@ class TestModelNormalization:
         ], None)
     ] for i in input])
     def test_normalize_person(self, input, output, Graph):
-        graph = ChangeGraph(Graph(input))
+        graph = ChangeGraph(Graph(input), disambiguate=False)
         graph.normalize()
-        assert [n.serialize() for n in graph.nodes] == (Graph(output) if output else [])
+        assert graph.serialize() == (Graph(output) if output else [])
 
     @pytest.mark.parametrize('input, output', [
-        ({'name': 'none'}, None),
-        ({'name': ''}, None),
-        ({'name': 'NULL'}, None),
-        ({'name': 'None'}, None),
-        ({'name': '           '}, None),
-        ({'name': '     None      '}, None),
-        ({'name': 'University \n of Arizona '}, {'name': 'University of Arizona', 'type': 'institution'}),
-        ({'name': 'NMRC, University College, Cork, Ireland'}, {'name': 'NMRC, University College', 'location': 'Cork, Ireland', 'type': 'institution'}),
-        ({'name': 'Ioffe Physico-Technical Institute'}, {'name': 'Ioffe Physico-Technical Institute', 'type': 'institution'}),
-        ({'name': 'DPTA'}, {'name': 'DPTA', 'type': 'organization'}),
-        ({'name': 'B. Verkin Institute for Low Temperatures Physics & Engineering, Kharkov, Ukraine'}, {'name': 'B. Verkin Institute for Low Temperatures Physics & Engineering', 'location': 'Kharkov, Ukraine', 'type': 'institution'}),
-        ({'name': 'Physikalisches Institut, University Wuerzburg, Germany'}, {'name': 'Physikalisches Institut', 'location': 'University Wuerzburg, Germany', 'type': 'institution'}),
-        ({'name': 'Centro de Biotecnologia e Departamento de Biofísica; UFRGS; Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi'}, {'name': 'UFRGS - Centro de Biotecnologia e Departamento de Biofísica', 'location': 'Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi', 'type': 'agent'}),
-        ({'name': 'Department of Chemistry; ZheJiang University; HangZhou ZheJiang CHINA'}, {'name': 'ZheJiang University - Department of Chemistry', 'location': 'HangZhou ZheJiang CHINA', 'type': 'institution'}),
-        ({'name': 'Marine Evolution and Conservation; Groningen Institute for Evolutionary Life Sciences; University of Groningen; Nijenborgh 7, 9747 AG Groningen The Netherlands'}, {'name': 'University of Groningen - Marine Evolution and Conservation; Groningen Institute for Evolutionary Life Sciences', 'location': 'Nijenborgh 7, 9747 AG Groningen The Netherlands', 'type': 'institution'}),
-        ({'name': 'Institute of Marine Research; PO Box 1870 Nordnes, 5817 Bergen Norway'}, {'name': 'Institute of Marine Research', 'location': 'PO Box 1870 Nordnes, 5817 Bergen Norway', 'type': 'institution'}),
-        ({'name': '    PeerJ    Inc.    '}, {'name': 'PeerJ Inc.', 'type': 'organization'}),
-        ({'name': ' Clinton   Foundation\n   '}, {'name': 'Clinton Foundation', 'type': 'organization'}),
+        (Agent(name='none'), None),
+        (Agent(name=''), None),
+        (Agent(name='NULL'), None),
+        (Agent(name='None'), None),
+        (Agent(name='           '), None),
+        (Agent(name='     None      '), None),
+        (Agent(name='University \n of Arizona '), Institution(name='University of Arizona')),
+        (Agent(name='NMRC, University College, Cork, Ireland'), Institution(name='NMRC, University College', location='Cork, Ireland')),
+        (Agent(name='Ioffe Physico-Technical Institute'), Institution(name='Ioffe Physico-Technical Institute')),
+        (Agent(name='DPTA'), Organization(name='DPTA')),
+        (Agent(name='B. Verkin Institute for Low Temperatures Physics & Engineering, Kharkov, Ukraine'), Institution(name='B. Verkin Institute for Low Temperatures Physics & Engineering', location='Kharkov, Ukraine', type='institution')),
+        (Agent(name='Physikalisches Institut, University Wuerzburg, Germany'), Agent(name='Physikalisches Institut', location='University Wuerzburg, Germany', type='institution')),
+        (Agent(name='Centro de Biotecnologia e Departamento de Biofísica; UFRGS; Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi'), Agent(name='UFRGS - Centro de Biotecnologia e Departamento de Biofísica', location='Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi')),
+        (Agent(name='Department of Chemistry; ZheJiang University; HangZhou ZheJiang CHINA'), Institution(name='ZheJiang University - Department of Chemistry', location='HangZhou ZheJiang CHINA')),
+        (Agent(name='Marine Evolution and Conservation; Groningen Institute for Evolutionary Life Sciences; University of Groningen; Nijenborgh 7, 9747 AG Groningen The Netherlands'), Institution(name='University of Groningen - Marine Evolution and Conservation; Groningen Institute for Evolutionary Life Sciences', location='Nijenborgh 7, 9747 AG Groningen The Netherlands')),
+        (Agent(name='Institute of Marine Research; PO Box 1870 Nordnes, 5817 Bergen Norway'), Institution(name='Institute of Marine Research', location='PO Box 1870 Nordnes, 5817 Bergen Norway')),
+        (Agent(name='    PeerJ    Inc.    '), Organization(name='PeerJ Inc.')),
+        (Agent(name=' Clinton   Foundation\n   '), Organization(name='Clinton Foundation')),
     ])
-    def test_normalize_agent(self, input, output):
-        graph, node = FakeGraph([]), FakeNode(input)
-        node.type = 'agent'
-        models.Agent.normalize(node, graph)
-
-        if output is None:
-            assert node in graph.removed
-        else:
-            assert node.type == output.pop('type', 'agent')
-            assert node.attrs == output
+    def test_normalize_agent(self, input, output, Graph):
+        graph = ChangeGraph(Graph(input), disambiguate=False)
+        graph.normalize()
+        assert graph.serialize() == (Graph(output) if output else [])
 
     @pytest.mark.parametrize('input, output', [
         ({'title': '', 'description': ''}, {'title': '', 'description': ''}),
@@ -144,10 +103,10 @@ class TestModelNormalization:
         ({'title': 'Title\nLine'}, {'title': 'Title Line'}),
         ({'description': 'Line\nAfter\nLine\nAfter\nLine'}, {'description': 'Line After Line After Line'}),
     ])
-    def test_normalize_creativework(self, input, output):
-        node = FakeNode(input)
-        models.AbstractCreativeWork.normalize(node, None)
-        assert node.attrs == output
+    def test_normalize_creativework(self, input, output, Graph):
+        graph = ChangeGraph(Graph(CreativeWork(**input)), disambiguate=False)
+        graph.normalize()
+        assert graph.serialize() == Graph(CreativeWork(**output))
 
     @pytest.mark.parametrize('input, output', [
         ('', None),
@@ -164,45 +123,43 @@ class TestModelNormalization:
         ('oai:subdomain.cos.io:this.is.stuff', 'oai://subdomain.cos.io/this.is.stuff'),
         ('Beau, R <http://researchonline.lshtm.ac.uk/view/creators/999461.html>;  Douglas, I <http://researchonline.lshtm.ac.uk/view/creators/103524.html>;  Evans, S <http://researchonline.lshtm.ac.uk/view/creators/101520.html>;  Clayton, T <http://researchonline.lshtm.ac.uk/view/creators/11213.html>;  Smeeth, L <http://researchonline.lshtm.ac.uk/view/creators/13212.html>;      (2011) How Long Do Children Stay on Antiepileptic Treatments in the UK?  [Conference or Workshop Item]', None),
     ])
-    def test_normalize_workidentifier(self, input, output):
-        graph, node = FakeGraph([]), FakeNode({'uri': input})
-        models.WorkIdentifier.normalize(node, graph)
-
-        if output is None:
-            assert node in graph.removed
-        else:
-            assert node.attrs['uri'] == output
+    def test_normalize_workidentifier(self, input, output, Graph):
+        graph = ChangeGraph(Graph(WorkIdentifier(uri=input)), disambiguate=False)
+        graph.normalize()
+        assert graph.serialize() == (Graph(WorkIdentifier(uri=output, parse=True)) if output else [])
 
     @pytest.mark.parametrize('input, output', [
         ('', None),
         ('             ', None),
         ('0000000248692412', None),
         ('000000000248692419', None),
+        ('urn://issn/1476-4687', 'urn://issn/1476-4687'),
         ('0000000248692419', 'http://orcid.org/0000-0002-4869-2419'),
         ('0000-0002-4869-2419', 'http://orcid.org/0000-0002-4869-2419'),
         ('0000-0002-4869-2419', 'http://orcid.org/0000-0002-4869-2419'),
         ('Beau, R <http://researchonline.lshtm.ac.uk/view/creators/999461.html>;  Douglas, I <http://researchonline.lshtm.ac.uk/view/creators/103524.html>;  Evans, S <http://researchonline.lshtm.ac.uk/view/creators/101520.html>;  Clayton, T <http://researchonline.lshtm.ac.uk/view/creators/11213.html>;  Smeeth, L <http://researchonline.lshtm.ac.uk/view/creators/13212.html>;      (2011) How Long Do Children Stay on Antiepileptic Treatments in the UK?  [Conference or Workshop Item]', None),
     ])
-    def test_normalize_agentidentifier(self, input, output):
-        graph, node = FakeGraph([]), FakeNode({'uri': input})
-        models.AgentIdentifier.normalize(node, graph)
+    def test_normalize_agentidentifier(self, input, output, Graph):
+        graph = ChangeGraph(Graph(AgentIdentifier(uri=input)), disambiguate=False)
+        graph.normalize()
+        assert graph.serialize() == (Graph(AgentIdentifier(uri=output, parse=True)) if output else [])
 
-        if output is None:
-            assert node in graph.removed
-        else:
-            assert node.attrs['uri'] == output
-
-    @pytest.mark.parametrize('model, input, output', [
-        (models.Creator, {'cited_as': '   \t James\n Bond \t     ', 'related': {'agent': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
-        (models.Contributor, {'cited_as': '   \t James\n Bond \t     ', 'related': {'agent': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
-        (models.Creator, {'cited_as': '', 'related': {'agent': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
-        (models.Contributor, {'cited_as': '', 'related': {'agent': {'name': 'James   Bond'}, 'creative_work': {}}}, {'cited_as': 'James Bond'}),
+    @pytest.mark.parametrize('input, output', [
+        (input, Creator(cited_as='James Bond', agent=Person(name='James Bond', family_name='Bond', given_name='James')),)
+        for input in [
+            Creator(cited_as='   \t James\n Bond \t     ', agent=Person(name='James  Bond')),
+            Creator(cited_as='', agent=Person(name='James  Bond')),
+            Creator(cited_as='', agent=Person(name='James      Bond')),
+            Creator(cited_as='', agent=Person(given_name='James', family_name='Bond')),
+        ]
+    ] + [
+        (input, Contributor(cited_as='James Bond', agent=Person(name='James Bond', family_name='Bond', given_name='James')),)
+        for input in [
+            Contributor(cited_as='   \t James\n Bond \t     ', agent=Person(name='James  Bond')),
+            Contributor(cited_as='', agent=Person(name='James  Bond')),
+        ]
     ])
-    def test_normalize_agentworkrelation(self, model, input, output):
-        graph, node = FakeGraph([]), FakeNode(input)
-        model.normalize(node, graph)
-
-        if output is None:
-            assert node in graph.removed
-        else:
-            assert node.attrs == output
+    def test_normalize_agentworkrelation(self, input, output, Graph):
+        graph = ChangeGraph(Graph(input))
+        graph.normalize()
+        assert graph.serialize() == Graph(output)

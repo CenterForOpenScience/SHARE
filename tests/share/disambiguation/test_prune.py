@@ -38,9 +38,5 @@ class TestPruneChangeGraph:
     def test_prune(self, Graph, input, output):
         graph = ChangeGraph(Graph(*input))
         GraphDisambiguator().prune(graph)
-        try:
-            result = [n.serialize() for n in graph.nodes]
-            assert result == Graph(*output)
-        except AssertionError as ex:
-            import pdb; pdb.set_trace()
-            raise ex
+        result = [n.serialize() for n in graph.nodes]
+        assert result == Graph(*output)

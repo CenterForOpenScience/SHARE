@@ -12,6 +12,7 @@ from django.apps import apps
 
 from share import models
 from share.change import ChangeGraph
+from share.normalize.links import IRILink
 
 
 __all__ = ('Graph', )
@@ -102,12 +103,13 @@ class GraphContructor:
                             field.m2m_reverse_field_name(): rel,
                         }))
                 else:
-                    obj.related[key] = [self.build_node({**v, reverse_name: obj}) for v in value]
+                    obj._related.append([self.build_node({**v, reverse_name: obj}) for v in value])
             else:
-                obj.related[key] = self.build_node({
-                    **value,
-                    model._meta.get_field(key).remote_field.name: obj
-                })
+                args = {**value}
+                if not field.concrete:
+                    args[field.remote_field.name] = obj
+
+                obj.related[key] = self.build_node(args)
 
         self.registry[obj.id, model._meta.concrete_model] = obj
 
@@ -194,18 +196,40 @@ class AbstractAgentFactory(TypedShareObjectFactory):
 class WorkIdentifierFactory(ShareObjectFactory):
     uri = factory.Faker('url')
 
+    @factory.lazy_attribute
+    def scheme(self):
+        if not self.parse:
+            return None
+        return IRILink().execute(self.uri)['scheme']
 
-class AgentWorkRelationFactory(TypedShareObjectFactory):
-    # lazy attr
-    cited_as = factory.Faker('name')
-    agent = factory.SubFactory(AbstractAgentFactory)
+    @factory.lazy_attribute
+    def host(self):
+        if not self.parse:
+            return None
+        return IRILink().execute(self.uri)['authority']
 
-    # lazy attr base on type
-    # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
-    # award = factory.SubFactory(AwardFactory)
+    class Params:
+        parse = False
 
-    class Meta:
-        model = GraphNode
+
+class AgentIdentifierFactory(ShareObjectFactory):
+    uri = factory.Faker('url')
+
+    @factory.lazy_attribute
+    def scheme(self):
+        if not self.parse:
+            return None
+        return IRILink().execute(self.uri)['scheme']
+
+    @factory.lazy_attribute
+    def host(self):
+        if not self.parse:
+            return None
+        return IRILink().execute(self.uri)['authority']
+
+    class Params:
+        parse = False
+
 
 
 class TagFactory(ShareObjectFactory):
@@ -227,6 +251,19 @@ class AbstractCreativeWorkFactory(TypedShareObjectFactory):
     free_to_read_type = factory.Faker('sentence')
     free_to_read_date = factory.Faker('date', pattern="%Y-%m-%d")
     is_deleted = False
+
+    class Meta:
+        model = GraphNode
+
+
+class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
+    # lazy attr
+    cited_as = factory.Faker('name')
+    agent = factory.SubFactory(AbstractAgentFactory)
+    creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+
+    # lazy attr base on type
+    # award = factory.SubFactory(AwardFactory)
 
     class Meta:
         model = GraphNode

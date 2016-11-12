@@ -168,6 +168,12 @@ class ChangeGraph:
         del self.relations[node]
         del self._lookup[node.id, node.type]
 
+    def serialize(self):
+        return [
+            n.serialize()
+            for n in sorted(self.nodes, key=lambda x: x.type + str(x.id))
+        ]
+
 
 class ChangeNode:
 
@@ -296,11 +302,6 @@ class ChangeNode:
                 relations.setdefault(edge.name, []).append(edge.related.ref)
             else:
                 relations[edge.name] = edge.related.ref
-        for edge in self.related(forward=False):
-            if edge.field.many_to_one:
-                relations.setdefault(edge.remote_name, []).append(edge.subject.ref)
-            else:
-                relations[edge.remote_name] = edge.subject.ref
 
         return {**self.ref, **self.attrs, **relations}
 

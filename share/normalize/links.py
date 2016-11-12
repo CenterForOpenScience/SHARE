@@ -628,15 +628,18 @@ class ISSNLink(AbstractIRILink):
 class URNLink(AbstractIRILink):
     SCHEMES = {'urn', 'oai'}
     URN_RE = re.compile(r'\b({schemes}):((?:\w|[.-])+):(\S+)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
+    PARSED_URN_RE = re.compile(r'\b({schemes})://([^/\s]+)/([^/\s]+)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
     @classmethod
     def hint(cls, obj):
         if cls.URN_RE.search(obj) is not None:
             return 0.9
+        if cls.PARSED_URN_RE.search(obj) is not None:
+            return 0.9
         return 0.0
 
     def _parse(self, obj):
-        match = self.URN_RE.search(obj.lower())
+        match = self.URN_RE.search(obj.lower()) or self.PARSED_URN_RE.search(obj.lower())
         if not match:
             raise ValueError('\'{}\' is not a valid URN.'.format(obj))
 
