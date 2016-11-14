@@ -53,6 +53,19 @@ class TestPruneChangeGraph:
                 WorkIdentifier('_:4', uri='http://something.else')
             ])
         ],
+        [
+            Article(
+                '_:0',
+                title='Banana Stand',
+                identifiers=[WorkIdentifier('_:1', uri='http://osf.io/guidguid')],
+                related_agents=[
+                    Creator(agent=Person(name='Michael Bluth'), cited_as='Bluth M', cited_order=0),
+                    Creator(agent=Person(name='Nichael Bluth'), cited_as='Bluth N', cited_order=1),
+                    Publisher(agent=Organization(name='Bluth Company'), cited_as='Bluth Company')
+                ],
+                tags=[Tag(name='banana'), Tag(name='fraud')]
+            )
+        ],
     ])
     @pytest.mark.django_db
     def test_all_disambiguate(self, input, Graph, normalized_data_id):
