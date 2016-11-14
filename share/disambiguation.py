@@ -123,21 +123,20 @@ class GraphDisambiguator:
 
     def _merge_nodes(self, source, replacement):
         from share.models import Person
-        if isinstance(replacement, Person):
+        if replacement.model == Person:
             self._merge_person_attrs(source, replacement)
         else:
             self._merge_attrs(source, replacement, source.attrs.keys())
         source.graph.replace(source, replacement)
 
     def _merge_person_attrs(self, source, replacement):
-        from share.models import Person
         keys = source.attrs.keys()
         try:
             keys.remove('name')
         except ValueError:
             pass
         self._merge_attrs(source, replacement, keys)
-        Person.normalize(replacement, replacement.graph)
+        replacement.model.normalize(replacement, replacement.graph)
 
     def _merge_attrs(self, source, replacement, keys):
         for k in keys:
