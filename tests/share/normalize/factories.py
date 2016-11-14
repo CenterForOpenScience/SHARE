@@ -88,7 +88,10 @@ class GraphContructor:
             if isinstance(node[key], (dict, list)):
                 relations[key] = node.pop(key)
 
-        obj = self.get_factory(model._meta.concrete_model)(**node)
+        if node.pop('sparse', False):
+            obj = GraphNode(**node)
+        else:
+            obj = self.get_factory(model._meta.concrete_model)(**node)
 
         for key, value in relations.items():
             field = model._meta.get_field(key)
