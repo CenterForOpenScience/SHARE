@@ -72,6 +72,49 @@ class TestModelNormalization:
         graph.normalize()
         assert graph.serialize() == (Graph(output) if output else [])
 
+    # test two people with the same identifier are merged
+    # sort by length and then alphabetize name field
+    @pytest.mark.parametrize('input, output', [
+        # same name, same identifier
+        ([
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)])
+        ], [Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)])]),
+        # same name, different identifiers
+        ([
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(2)])
+        ], [
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(2)])
+        ]),
+        # no name - name, same identifier
+        ([
+            Person(name='', identifiers=[AgentIdentifier(1)]),
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)])
+        ], [Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)])]),
+        # two names, same identifier, take longer name
+        ([
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(name='Barbra Dylan', identifiers=[AgentIdentifier(1)])
+        ], [Person(name='Barbra Dylan', identifiers=[AgentIdentifier(1)])]),
+        # two sames, same length, same identifier, alphabetize and take first
+        ([
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(name='Aarb Dylan', identifiers=[AgentIdentifier(1)])
+        ], [Person(name='Aarb Dylan', identifiers=[AgentIdentifier(1)])]),
+        # 3 different names, take longest of each name field
+        ([
+            Person(name='Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(name='B. D. Dylan', identifiers=[AgentIdentifier(1)])
+        ], [Person(name='Barb D. Dylan', identifiers=[AgentIdentifier(1)])]),
+    ])
+    def test_normalize_person_relation(self, input, output, Graph):
+        graph = ChangeGraph(Graph(CreativeWork(related_agents=input)))
+        graph.normalize()
+        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(related_agents=output))
+
     @pytest.mark.parametrize('input, output', [
         (Agent(name='none'), None),
         (Agent(name=''), None),
@@ -96,6 +139,56 @@ class TestModelNormalization:
         graph = ChangeGraph(Graph(input), disambiguate=False)
         graph.normalize()
         assert graph.serialize() == (Graph(output) if output else [])
+
+    # test two agents with the same name are merged
+    # sort by length and then alphabetize name field
+    @pytest.mark.parametrize('input, output', [
+        # same name, same identifiers
+        ([
+            Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)]),
+            Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)])
+        ], [Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)])]),
+        # same name, different identifiers
+        ([
+            Organization(name='Money Foundation', identifiers=[AgentIdentifier(1)]),
+            Organization(name='Money Foundation', identifiers=[AgentIdentifier(2)])
+        ], [
+            Organization(name='Money Foundation', identifiers=[AgentIdentifier(1), AgentIdentifier(2)])
+        ]),
+        # same name, different identifiers, different capitilization
+        ([
+            Organization(name='Money Foundation', identifiers=[AgentIdentifier(1)]),
+            Organization(name='MONEY FOUNDATION', identifiers=[AgentIdentifier(2)])
+        ], [
+            Organization(name='Money Foundation', identifiers=[AgentIdentifier(1)]),
+            Organization(name='MONEY FOUNDATION', identifiers=[AgentIdentifier(2)])
+        ]),
+        # same identifier, different type, accept more specific type
+        ([
+            Organization(name='University of Virginia', identifiers=[AgentIdentifier(1)]),
+            Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)])
+        ], [Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)])]),
+        # same identifier, same name, same length, different capitilization, alphabetize
+        ([
+            Organization(name='Share', identifiers=[AgentIdentifier(1)]),
+            Organization(name='SHARE', identifiers=[AgentIdentifier(1)])
+        ], [Organization(name='SHARE', identifiers=[AgentIdentifier(1)])]),
+        # same name, one identifier, add identifier
+        ([
+            Organization(name='Timetables Inc.'),
+            Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)])
+        ], [Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)])]),
+        # same identifier, different name, accept longest alphabetize
+        ([
+            Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)]),
+            Institution(name='Cooking Instituze', identifiers=[AgentIdentifier(1)]),
+            Institution(name='Cook Institute', identifiers=[AgentIdentifier(1)])
+        ], [Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])]),
+    ])
+    def test_normalize_agent_relation(self, input, output, Graph):
+        graph = ChangeGraph(Graph(CreativeWork(related_agents=input)))
+        graph.normalize()
+        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(related_agents=output))
 
     @pytest.mark.parametrize('input, output', [
         ({'title': '', 'description': ''}, {'title': '', 'description': ''}),

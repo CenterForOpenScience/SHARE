@@ -2,6 +2,7 @@ import pytest
 import functools
 import random
 import re
+import copy
 
 import faker
 
@@ -28,8 +29,9 @@ def get_id():
             break
     return id
 
-
 _remove = ChangeGraph.remove
+
+
 def remove_id(self, node, cascade=True):
     used_ids.add(node._id.replace('_:', '', 1))
     return _remove(self, node, cascade=cascade)
@@ -45,7 +47,7 @@ class GraphContructor:
         self.reseed()
 
         # Traverse all nodes to build proper graph
-        seen, to_see = set(), [self.build_node(n) for n in nodes]
+        seen, to_see = set(), [self.build_node({**n}) for n in nodes]
         while to_see:
             node = to_see.pop(0)
             if node is None:
@@ -258,7 +260,9 @@ class AbstractCreativeWorkFactory(TypedShareObjectFactory):
 
 class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
     # lazy attr
-    cited_as = factory.Faker('name')
+    @factory.lazy_attribute
+    def cited_as(self):
+        return self.agent.attrs['name']
     agent = factory.SubFactory(AbstractAgentFactory)
     creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
@@ -275,7 +279,8 @@ class ThroughTagsFactory(ShareObjectFactory):
 
 
 def _params(id=None, type=None, **kwargs):
-    ret = {'id': id, 'type': type, **kwargs}
+    string_id = '_:' + str(id)
+    ret = {'id': string_id, 'type': type, **kwargs}
     if id is None:
         ret.pop('id')
     return ret
