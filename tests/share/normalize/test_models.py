@@ -330,6 +330,20 @@ class TestModelNormalization:
         graph.normalize()
         assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(agent_relations=output))
 
+    # test work with related work
+    @pytest.mark.parametrize('input, output', [
+        # different identifiers
+        (CreativeWork(1, related_works=[CreativeWork(2)]), CreativeWork(1, related_works=[CreativeWork(2)])),
+        # same identifiers
+        (CreativeWork(1, related_works=[CreativeWork(1)]), CreativeWork(1)),
+        # same identifiers, different identifiers
+        (CreativeWork(1, related_works=[CreativeWork(1), CreativeWork(2)]), CreativeWork(1, related_works=[CreativeWork(2)]))
+    ])
+    def test_normalize_related_work(self, input, output, Graph):
+        graph = ChangeGraph(Graph(input))
+        graph.normalize()
+        assert [n.serialize() for n in graph.nodes] == Graph(output)
+
     @pytest.mark.parametrize('input, output', [
         ({'title': '', 'description': ''}, {'title': '', 'description': ''}),
         ({'title': '    ', 'description': '     '}, {'title': '', 'description': ''}),
