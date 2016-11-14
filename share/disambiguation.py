@@ -87,19 +87,23 @@ class GraphDisambiguator:
         info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
 
-        query = Q(**{k: v for k, v in info.all})
+        query_pairs = []
+        for k, v in info.all:
+            k, v = self._query_pair(k, v)
+            if k is not None and v is not None:
+                query_pairs.append((k, v))
+            else:
+                return None
         if concrete_model is not node.model:
-            query &= Q(type__in=info.matching_types)
+            query_pairs.append(('type__in', info.matching_types))
+        query = Q(**dict(query_pairs))
 
         any_query = None
-        for (k, v) in info.any:
-            try:
-                if not v.instance:
-                    continue
-                q = Q(**{'{}__id'.format(k): v.instance.id})
-            except AttributeError:
+        for k, v in info.any:
+            k, v = self._query_pair(k, v)
+            if k and v:
                 q = Q(**{k: v})
-            any_query = any_query | q if any_query else q
+                any_query = any_query | q if any_query else q
         if info.any and not any_query:
             return None
         if any_query:
@@ -110,6 +114,15 @@ class GraphDisambiguator:
             return found.pop()
         logger.warn('Multiple {}s returned for {}'.format(concrete_model, filter))
         return list(found)
+    
+    def _query_pair(self, key, value):
+        try:
+            if not value.instance:
+                return (None, None)
+            return ('{}__id'.format(key), value.instance.id)
+        except AttributeError:
+            return (key, value)
+
 
     class NodeIndex:
         def __init__(self):
@@ -189,7 +202,7 @@ class GraphDisambiguator:
                     any = self._node.model.Disambiguation.any
                 except AttributeError:
                     return ()
-                return tuple((f, v) for f in any for v in self._field_values(f, nested=True))
+                return tuple((f, v) for f in any for v in self._field_values(f))
 
             def _matching_types(self):
                 # list of all subclasses and superclasses of node.model that could be the type of a node
@@ -203,28 +216,19 @@ class GraphDisambiguator:
                     type_names = subclasses + superclasses
                 return set(type_names)
 
-            def _field_values(self, field_name, nested=False):
-                if isinstance(field_name, (list, tuple)):
-                    if nested:
-                        for f in field_name:
-                            yield tuple(v for v in self._field_values(f))
-                        return
-                    else:
-                        raise ValueError('Disambiguation info cannot be nested for `all`, and only one level deep for `any`.')
-
+            def _field_values(self, field_name):
                 field = self._node.model._meta.get_field(field_name)
                 if field.is_relation:
                     if field.one_to_many:
                         for edge in self._node.related(name=field_name, forward=False):
                             yield edge.subject
-                        return
+                    elif field.many_to_one:
+                        yield self._node.related(name=field_name, backward=False).related
                     elif field.many_to_many:
                         # TODO?
                         raise NotImplementedError()
                 else:
-                    if field_name not in self._node.attrs:
-                        return
-                    value = self._node.attrs[field.name]
-                    if value == '':
-                        return
-                    yield value
+                    if field_name in self._node.attrs:
+                        value = self._node.attrs[field.name]
+                        if value != '':
+                            yield value
