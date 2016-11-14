@@ -1,6 +1,7 @@
 import logging
 
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from share import models
 from share.util import DictHashingDict
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class GraphDisambiguator:
     def __init__(self):
-        self._cache = self.NodeCache()
+        self._index = self.NodeIndex()
 
     def prune(self, change_graph):
         # for each node in the graph, compare to each other node and remove duplicates
@@ -32,13 +33,13 @@ class GraphDisambiguator:
 
         while changed:
             changed = False
-            # TODO update affected nodes after changes instead of rebuilding the cache every loop
-            self._cache.clear()
+            # TODO update affected nodes after changes instead of rebuilding the index every loop
+            self._index.clear()
 
             for n in tuple(nodes):
                 if n.is_merge or (find_instances and n.instance):
                     continue
-                matches = self._cache.get_matches(n)
+                matches = self._index.get_matches(n)
                 if len(matches) > 1:
                     # TODO?
                     raise NotImplementedError('Multiple matches that apparently didn\'t match each other?\nNode: {}\nMatches: {}'.format(node, matches))
@@ -49,10 +50,10 @@ class GraphDisambiguator:
                     if n.model != match.model and issubclass(n.model, match.model):
                         # remove the node with the less-specific class
                         logger.debug('Found duplicate! Keeping {}, pruning {}'.format(n, match))
-                        self._cache.remove(match)
+                        self._index.remove(match)
                         nodes.remove(match)
                         change_graph.replace(match, n)
-                        self._cache.add(n)
+                        self._index.add(n)
                     else:
                         logger.debug('Found duplicate! Keeping {}, pruning {}'.format(match, n))
                         nodes.remove(n)
@@ -71,7 +72,7 @@ class GraphDisambiguator:
                         n.instance = instance
                         logger.debug('Disambiguated {} to {}'.format(n, instance))
 
-                self._cache.add(n)
+                self._index.add(n)
 
     def _disambiguweight(self, node):
         # Models with exactly 1 foreign key field (excluding those added by
@@ -83,39 +84,40 @@ class GraphDisambiguator:
         return fk_count if fk_count == 1 else -fk_count
 
     def _instance_for_node(self, node):
-        info = self._cache.get_info(node)
-        filter = {
-            # TODO relations
-            **query['attrs']
-        }
+        info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
-        if concrete_model is not node.model:
-            filter['type__in'] = self._matching_type_names(node)
 
-        found = set(concrete_model.objects.filter(**filter))
+        query = Q(**{k: v for k, v in info.all})
+        if concrete_model is not node.model:
+            query &= Q(type__in=info.matching_types)
+
+        any_query = None
+        for (k, v) in info.any:
+            try:
+                if not v.instance:
+                    continue
+                q = Q(**{'{}__id'.format(k): v.instance.id})
+            except AttributeError:
+                q = Q(**{k: v})
+            any_query = any_query | q if any_query else q
+        if info.any and not any_query:
+            return None
+        if any_query:
+            query &= any_query
+
+        found = set(concrete_model.objects.filter(query))
         if len(found) == 1:
             return found.pop()
         logger.warn('Multiple {}s returned for {}'.format(concrete_model, filter))
         return list(found)
 
-    def _matching_type_names(self, node):
-        # list of all subclasses and superclasses of node.model
-        fmt = lambda model: 'share.{}'.format(model._meta.model_name)
-        concrete_model = node.model._meta.concrete_model
-        if concrete_model is node.model:
-            type_names = [fmt(node.model)]
-        else:
-            type_names = node.model.get_types() + [fmt(m) for m in node.model.__mro__ if issubclass(m, concrete_model) and m._meta.proxy]
-        return set(type_names)
-
-
-    class NodeCache:
+    class NodeIndex:
         def __init__(self):
-            self._node_cache = {}
+            self._index = {}
             self._info_cache = {}
 
         def clear(self):
-            self._node_cache.clear()
+            self._index.clear()
             self._info_cache.clear()
 
         def get_info(self, node):
@@ -128,20 +130,20 @@ class GraphDisambiguator:
 
         def add(self, node):
             info = self.get_info(node)
-            model_cache = self._node_cache.setdefault(node.model._meta.concrete_model, DictHashingDict())
+            by_model = self._index.setdefault(node.model._meta.concrete_model, DictHashingDict())
             if info.any:
-                all_cache = model_cache.setdefault(info.all, DictHashingDict())
+                all_cache = by_model.setdefault(info.all, DictHashingDict())
                 for item in info.any:
                     all_cache.setdefault(item, []).append(node)
             elif info.all:
-                model_cache.setdefault(info.all, []).append(node)
+                by_model.setdefault(info.all, []).append(node)
             else:
                 logger.debug('Nothing to disambiguate on. Ignoring node {}'.format(node))
 
         def remove(self, node):
             info = self.get_info(node)
             try:
-                all_cache = self._node_cache[node.model._meta.concrete_model][info.all]
+                all_cache = self._index[node.model._meta.concrete_model][info.all]
                 if info.any:
                     for item in info.any:
                         all_cache[item].remove(node)
@@ -154,14 +156,14 @@ class GraphDisambiguator:
             info = self.get_info(node)
             matches = set()
             try:
-                model_cache = self._node_cache[node.model._meta.concrete_model]
-                matches_all = model_cache[info.all]
+                matches_all = self._index[node.model._meta.concrete_model][info.all]
                 if info.any:
                     for item in info.any:
                         matches.update(matches_all.get(item, []))
                 elif info.all:
                     matches.update(matches_all)
-                return [m for m in matches if m != node and issubclass(m.model, node.model) or issubclass(node.model, m.model)]
+                # TODO use `info.tie_breaker` when there are multiple matches
+                return [m for m in matches if m != node and 'share.{}'.format(m.model._meta.model_name) in info.matching_types]
             except KeyError:
                 return []
 
@@ -171,12 +173,13 @@ class GraphDisambiguator:
                 self._node = node
                 self.all = self._all()
                 self.any = self._any()
+                self.matching_types = self._matching_types()
 
             def _all(self):
                 try:
                     all = self._node.model.Disambiguation.all
                 except AttributeError:
-                    return {}
+                    return ()
                 values = tuple((f, v) for f in all for v in self._field_values(f))
                 assert len(values) == len(all)
                 return values
@@ -185,8 +188,20 @@ class GraphDisambiguator:
                 try:
                     any = self._node.model.Disambiguation.any
                 except AttributeError:
-                    return {}
+                    return ()
                 return tuple((f, v) for f in any for v in self._field_values(f, nested=True))
+
+            def _matching_types(self):
+                # list of all subclasses and superclasses of node.model that could be the type of a node
+                fmt = lambda model: 'share.{}'.format(model._meta.model_name)
+                concrete_model = self._node.model._meta.concrete_model
+                if concrete_model is self._node.model:
+                    type_names = [fmt(self._node.model)]
+                else:
+                    subclasses = self._node.model.get_types()
+                    superclasses = [fmt(m) for m in self._node.model.__mro__ if issubclass(m, concrete_model) and m._meta.proxy]
+                    type_names = subclasses + superclasses
+                return set(type_names)
 
             def _field_values(self, field_name, nested=False):
                 if isinstance(field_name, (list, tuple)):
@@ -204,7 +219,7 @@ class GraphDisambiguator:
                             yield edge.subject
                         return
                     elif field.many_to_many:
-                        # TODO
+                        # TODO?
                         raise NotImplementedError()
                 else:
                     if field_name not in self._node.attrs:

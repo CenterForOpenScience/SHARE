@@ -1,6 +1,7 @@
 import pytest
 
 from share.change import ChangeGraph
+from share.models import ChangeSet
 from share.disambiguation import GraphDisambiguator
 from tests.share.normalize.factories import *
 
@@ -40,3 +41,23 @@ class TestPruneChangeGraph:
         GraphDisambiguator().prune(graph)
         result = [n.serialize() for n in graph.nodes]
         assert result == Graph(*output)
+
+
+    @pytest.mark.parametrize('input', [
+        [
+            Preprint('_:0', identifiers=[WorkIdentifier('_:1', uri='http://osf.io/guidguid')])
+        ],
+        [
+            Preprint('_:0', identifiers=[
+                WorkIdentifier('_:1', uri='http://osf.io/guidguid'),
+                WorkIdentifier('_:4', uri='http://something.else')
+            ])
+        ],
+    ])
+    @pytest.mark.django_db
+    def test_all_disambiguate(self, input, Graph, normalized_data_id):
+        graph = ChangeGraph(Graph(*input))
+        ChangeSet.objects.from_graph(graph, normalized_data_id).accept()
+
+        GraphDisambiguator().find_instances(graph)
+        assert all(n.instance for n in graph.nodes)

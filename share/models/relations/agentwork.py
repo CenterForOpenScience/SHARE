@@ -92,4 +92,10 @@ def normalize_contributor(cls, node, graph):
 
 Contributor.normalize = classmethod(normalize_contributor)  # noqa
 
+# TODO
+# class CreatorDisambiguation(AbstractAgentWorkRelation.Disambiguation):
+#     tie_breaker = 'cited_order'
+
+
+
 __all__ = tuple(key for key, value in globals().items() if isinstance(value, type) and issubclass(value, (ShareObject, ShareObjectVersion)))
