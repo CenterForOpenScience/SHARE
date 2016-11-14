@@ -218,9 +218,15 @@ class ChangeNode:
         extra = copy.deepcopy(self.extra)
         if self.namespace:
             if self.namespace and getattr(self.instance, 'extra', None):
-                pass  # TODO diff extra field
-
-            if extra:
+                # NOTE extra changes are only diffed at the top level
+                self.instance.extra.data.setdefault(self.namespace, {})
+                changes['extra'] = {self.namespace: {
+                    k: v
+                    for k, v in extra.items()
+                    if k not in self.instance.extra.data[self.namespace]
+                    or self.instance.extra.data[self.namespace][k] != v
+                }}
+            elif extra:
                 changes['extra'] = {self.namespace: extra}
 
         for edge in self.related(backward=False):

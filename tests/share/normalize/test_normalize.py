@@ -234,9 +234,23 @@ class TestChangeNode:
         tag = factories.AbstractCreativeWorkFactory()
         assert graph.create(IDObfuscator.encode(tag), 'tag', {'date_updated': pendulum.fromtimestamp(0).isoformat()}).change == {'date_updated': pendulum.fromtimestamp(0).isoformat()}
 
-    @pytest.mark.skip
-    def test_change_extra(self):
-        pass
+    @pytest.mark.django_db
+    def test_change_extra(self, graph):
+        tag_model = factories.AbstractCreativeWorkFactory(extra=models.ExtraData.objects.create(
+            change=factories.ChangeFactory(),
+            data={'testing': {
+                'Same': 'here',
+                'Overwrite': 'me',
+                'Dont touch': 'this one',
+            }}
+        ))
+        graph.namespace = 'testing'
+        tag = graph.create(None, 'tag', {'extra': {'Same': 'here', 'Overwrite': 'you', 'New key': 'here'}})
+        tag.instance = tag_model
+        assert tag.change == {'extra': {'testing': {
+            'New key': 'here',
+            'Overwrite': 'you',
+        }}}
 
     def test_extra(self, graph):
         graph.namespace = 'testing'
