@@ -42,7 +42,6 @@ class TestPruneChangeGraph:
         result = [n.serialize() for n in graph.nodes]
         assert result == Graph(*output)
 
-
     @pytest.mark.parametrize('input', [
         [
             Preprint(0, identifiers=[WorkIdentifier(1, uri='http://osf.io/guidguid')])

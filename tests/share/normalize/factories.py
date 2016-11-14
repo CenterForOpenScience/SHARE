@@ -2,7 +2,6 @@ import pytest
 import functools
 import random
 import re
-import copy
 
 import faker
 
@@ -231,7 +230,6 @@ class AgentIdentifierFactory(ShareObjectFactory):
 
     class Params:
         parse = False
-
 
 
 class TagFactory(ShareObjectFactory):

@@ -1,11 +1,8 @@
 import logging
 
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 
-from share import models
 from share.util import DictHashingDict
-from share.util import IDObfuscator
 
 __all__ = ('GraphDisambiguator', )
 
@@ -22,7 +19,7 @@ class GraphDisambiguator:
         return self._disambiguate(change_graph, False)
 
     def find_instances(self, change_graph):
-        # for each node in the graph, look for a matching instance in the database 
+        # for each node in the graph, look for a matching instance in the database
         # TODO: is it safe to assume no duplicates? right now, prunes duplicates again
         # TODO: what happens when two (apparently) non-duplicate nodes disambiguate to the same instance?
         return self._disambiguate(change_graph, True)
@@ -42,7 +39,7 @@ class GraphDisambiguator:
                 matches = self._index.get_matches(n)
                 if len(matches) > 1:
                     # TODO?
-                    raise NotImplementedError('Multiple matches that apparently didn\'t match each other?\nNode: {}\nMatches: {}'.format(node, matches))
+                    raise NotImplementedError('Multiple matches that apparently didn\'t match each other?\nNode: {}\nMatches: {}'.format(n, matches))
 
                 if matches:
                     # remove duplicates within the graph
@@ -114,7 +111,7 @@ class GraphDisambiguator:
             return found.pop()
         logger.warn('Multiple {}s returned for {}'.format(concrete_model, filter))
         return list(found)
-    
+
     def _query_pair(self, key, value):
         try:
             if not value.instance:
@@ -122,7 +119,6 @@ class GraphDisambiguator:
             return ('{}__id'.format(key), value.instance.id)
         except AttributeError:
             return (key, value)
-
 
     class NodeIndex:
         def __init__(self):
@@ -206,7 +202,8 @@ class GraphDisambiguator:
 
             def _matching_types(self):
                 # list of all subclasses and superclasses of node.model that could be the type of a node
-                fmt = lambda model: 'share.{}'.format(model._meta.model_name)
+                def fmt(model):
+                    return 'share.{}'.format(model._meta.model_name)
                 concrete_model = self._node.model._meta.concrete_model
                 if concrete_model is self._node.model:
                     type_names = [fmt(self._node.model)]
