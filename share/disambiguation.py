@@ -122,27 +122,7 @@ class GraphDisambiguator:
             return (key, value)
 
     def _merge_nodes(self, source, replacement):
-        from share.models import Person
-        if replacement.model == Person:
-            self._merge_person_attrs(source, replacement)
-        else:
-            self._merge_attrs(source, replacement, source.attrs.keys())
-        source.graph.replace(source, replacement)
-
-    def _merge_person_attrs(self, source, replacement):
-        keys = source.attrs.keys()
-        try:
-            keys.remove('name')
-        except ValueError:
-            pass
-        self._merge_attrs(source, replacement, keys)
-        replacement.model.normalize(replacement, replacement.graph)
-
-    def _merge_attrs(self, source, replacement, keys):
-        for k in keys:
-            if k not in source.attrs:
-                continue
-            v = source.attrs[k]
+        for k, v in source.attrs.items():
             if k in replacement.attrs:
                 old_val = replacement.attrs[k]
                 if v == old_val:
@@ -156,6 +136,13 @@ class GraphDisambiguator:
             else:
                 new_val = source.attrs[k]
             replacement.attrs[k] = new_val
+
+        from share.models import Person
+        if replacement.model == Person:
+            replacement.attrs['name'] = ''
+            Person.normalize(replacement, replacement.graph)
+
+        source.graph.replace(source, replacement)
 
     class NodeIndex:
         def __init__(self):
