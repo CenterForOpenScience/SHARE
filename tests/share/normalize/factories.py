@@ -91,7 +91,12 @@ class GraphContructor:
         if node.pop('sparse', False):
             obj = GraphNode(**node)
         else:
-            obj = self.get_factory(model._meta.concrete_model)(**node)
+            # Remove type to allow random choices
+            _node = {**node}
+            if node['type'] == model._meta.concrete_model._meta.model_name:
+                _node.pop('type', None)
+
+            obj = self.get_factory(model._meta.concrete_model)(**_node)
 
         for key, value in relations.items():
             field = model._meta.get_field(key)
@@ -269,6 +274,14 @@ class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
 
     # lazy attr base on type
     # award = factory.SubFactory(AwardFactory)
+
+    class Meta:
+        model = GraphNode
+
+
+class AbstractWorkRelationFactory(TypedShareObjectFactory):
+    subject = factory.SubFactory(AbstractCreativeWorkFactory)
+    related = factory.SubFactory(AbstractCreativeWorkFactory)
 
     class Meta:
         model = GraphNode

@@ -69,7 +69,7 @@ class GraphEdge:
 
 class ChangeGraph:
 
-    def __init__(self, data, disambiguate=True, namespace=None):
+    def __init__(self, data, namespace=None):
         self.nodes = []
         self.relations = {}
         self._lookup = {}
@@ -104,13 +104,16 @@ class ChangeGraph:
             self.relations[self._lookup[subject]].add(edge)
             self.relations[self._lookup[related]].add(edge)
 
-        # if disambiguate:
-        #     self.disambiguate()
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
+    def prune(self):
+        gd = GraphDisambiguator()
+        gd.prune(self)
         self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def disambiguate(self):
-        GraphDisambiguator().disambiguate(self)
+        gd = GraphDisambiguator()
+        gd.find_instances(self)
         self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def normalize(self):
@@ -118,6 +121,20 @@ class ChangeGraph:
             # This feels overly hacky
             if hasattr(node.model, 'normalize'):
                 node.model.normalize(node, self)
+
+    def process(self, normalize=True, prune=True, disambiguate=True):
+        if normalize:
+            self.normalize()
+
+        gd = GraphDisambiguator()
+
+        if prune:
+            gd.prune(self)
+
+        if disambiguate:
+            gd.find_instances(self)
+
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def get(self, id, type):
         return self._lookup[(id, type)]
