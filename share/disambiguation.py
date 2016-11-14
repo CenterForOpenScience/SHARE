@@ -1,6 +1,7 @@
 import logging
+import pendulum
 
-from django.db.models import Q
+from django.db.models import Q, DateTimeField
 
 from share.util import DictHashingDict
 
@@ -49,12 +50,12 @@ class GraphDisambiguator:
                         logger.debug('Found duplicate! Keeping {}, pruning {}'.format(n, match))
                         self._index.remove(match)
                         nodes.remove(match)
-                        change_graph.replace(match, n)
+                        self._merge_nodes(match, n)
                         self._index.add(n)
                     else:
                         logger.debug('Found duplicate! Keeping {}, pruning {}'.format(match, n))
                         nodes.remove(n)
-                        change_graph.replace(n, match)
+                        self._merge_nodes(n, match)
                     changed = True
                     continue
 
@@ -98,7 +99,7 @@ class GraphDisambiguator:
         any_query = None
         for k, v in info.any:
             k, v = self._query_pair(k, v)
-            if k and v:
+            if k is not None and v is not None:
                 q = Q(**{k: v})
                 any_query = any_query | q if any_query else q
         if info.any and not any_query:
@@ -119,6 +120,43 @@ class GraphDisambiguator:
             return ('{}__id'.format(key), value.instance.id)
         except AttributeError:
             return (key, value)
+
+    def _merge_nodes(self, source, replacement):
+        from share.models import Person
+        if isinstance(replacement, Person):
+            self._merge_person_attrs(source, replacement)
+        else:
+            self._merge_attrs(source, replacement, source.attrs.keys())
+        source.graph.replace(source, replacement)
+
+    def _merge_person_attrs(self, source, replacement):
+        from share.models import Person
+        keys = source.attrs.keys()
+        try:
+            keys.remove('name')
+        except ValueError:
+            pass
+        self._merge_attrs(source, replacement, keys)
+        Person.normalize(replacement, replacement.graph)
+
+    def _merge_attrs(self, source, replacement, keys):
+        for k in keys:
+            if k not in source.attrs:
+                continue
+            v = source.attrs[k]
+            if k in replacement.attrs:
+                old_val = replacement.attrs[k]
+                if v == old_val:
+                    continue
+                field = replacement.model._meta.get_field(k)
+                if isinstance(field, DateTimeField):
+                    new_val = max(pendulum.parse(v), pendulum.parse(old_val)).isoformat()
+                else:
+                    # use the longer value, or the first alphabetically if they're the same length
+                    new_val = sorted([v, old_val], key=lambda x: (-len(x), x))[0]
+            else:
+                new_val = source.attrs[k]
+            replacement.attrs[k] = new_val
 
     class NodeIndex:
         def __init__(self):
