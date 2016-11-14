@@ -122,6 +122,7 @@ class GraphDisambiguator:
             return (key, value)
 
     def _merge_nodes(self, source, replacement):
+        assert source.graph is replacement.graph
         for k, v in source.attrs.items():
             if k in replacement.attrs:
                 old_val = replacement.attrs[k]
