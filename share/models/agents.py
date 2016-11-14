@@ -101,5 +101,5 @@ Person.normalize = classmethod(normalize_person)  # noqa
 class UniqueNameDisambiguation:
     any = AbstractAgent.Disambiguation.any + ('name',)
 
-Institution.Disambiguation = UniqueNameDisambiguation
-Organization.Disambiguation = UniqueNameDisambiguation
+Institution.Disambiguation = UniqueNameDisambiguation # noqa
+Organization.Disambiguation = UniqueNameDisambiguation # noqa

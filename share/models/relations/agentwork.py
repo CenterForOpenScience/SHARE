@@ -22,7 +22,7 @@ class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
 
     class Disambiguation:
         all = ('creative_work',)
-        any = ('agent', 'cited_as') # TODO could be multiple people with the same cited_as on a work... could use order_cited for Creators, but what to do for other contributors?
+        any = ('agent', 'cited_as')  # TODO could be multiple people with the same cited_as on a work... could use order_cited for Creators, but what to do for other contributors?
 
     class Meta:
         db_table = 'share_agentworkrelation'
@@ -91,5 +91,9 @@ def normalize_contributor(cls, node, graph):
     node.attrs['cited_as'] = strip_whitespace(node.attrs['cited_as'])
 
 Contributor.normalize = classmethod(normalize_contributor)  # noqa
+
+# TODO
+# class CreatorDisambiguation(AbstractAgentWorkRelation.Disambiguation):
+#     tie_breaker = 'cited_order'
 
 __all__ = tuple(key for key, value in globals().items() if isinstance(value, type) and issubclass(value, (ShareObject, ShareObjectVersion)))
