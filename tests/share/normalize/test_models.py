@@ -76,7 +76,7 @@ class TestModelNormalization:
             Tag(name='Crash ,Bandicoot           '),
         ], [Tag(name='bandicoot'), Tag(name='crash')]),
     ])
-    def test_normalize_organization_institution_name(self, input, output, Graph):
+    def test_normalize_tags_on_work(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(tags=input)))
         graph.normalize()
         assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(tags=output))
