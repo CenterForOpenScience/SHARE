@@ -8,6 +8,7 @@ from tests.share.normalize.factories import Tag, CreativeWork, Person, WorkIdent
 
 class TestModelNormalization:
 
+    # test each tag resolves to lowercased, tokenized name
     @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
         ([
             Tag(name=''),
@@ -43,6 +44,42 @@ class TestModelNormalization:
         graph.process(disambiguate=False)
 
         assert graph.serialize() == Graph(CreativeWork(tags=output))
+
+    # test tags with the same name are merged on a work
+    @pytest.mark.parametrize('input, output', [
+        ([
+            Tag(name=''),
+            Tag(name='        '),
+            Tag(name='\n\n\n'),
+        ], []),
+        ([
+            Tag(name='foo'),
+            Tag(name='foO'),
+            Tag(name='Foo'),
+            Tag(name='FOO'),
+            Tag(name='      FOO'),
+            Tag(name='      foo\n\n\n'),
+        ], [Tag(name='foo')]),
+        ([
+            Tag(name='Rocket League'),
+            Tag(name='rocket league'),
+            Tag(name='ROCKET LEAGUE'),
+            Tag(name='Rocket         League'),
+            Tag(name='\nRocket    \n     League\t'),
+            Tag(name='rocket\nleague'),
+        ], [Tag(name='rocket league')]),
+        ([
+            Tag(name='Crash; Bandicoot'),
+            Tag(name='Crash;           Bandicoot'),
+            Tag(name='\nCrash; Bandicoot'),
+            Tag(name='crash, bandicoot'),
+            Tag(name='Crash ,Bandicoot           '),
+        ], [Tag(name='bandicoot'), Tag(name='crash')]),
+    ])
+    def test_normalize_organization_institution_name(self, input, output, Graph):
+        graph = ChangeGraph(Graph(CreativeWork(tags=input)))
+        graph.normalize()
+        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(tags=output))
 
     @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
         ([
@@ -338,7 +375,7 @@ class TestModelNormalization:
         (CreativeWork(1, related_works=[CreativeWork(2)]), CreativeWork(1, related_works=[CreativeWork(2)])),
         # same identifiers
         (CreativeWork(1, related_works=[CreativeWork(1)]), CreativeWork(1)),
-        # same identifiers, different identifiers
+        # same and different identifiers
         (CreativeWork(1, related_works=[CreativeWork(1), CreativeWork(2)]), CreativeWork(1, related_works=[CreativeWork(2)]))
     ])
     def test_normalize_related_work(self, input, output, Graph):
