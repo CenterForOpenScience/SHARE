@@ -302,21 +302,21 @@ class TestModelNormalization:
     # test different types of agent work relations
     # Contributor, Creator
     @pytest.mark.parametrize('input, output', [
-        # same name, same identifiers
+        # same name, same identifiers, different type, same type tree, organization
         ([
             Creator(cited_as='American Heart Association', agent=Organization(0, name='American Heart Association', identifiers=[AgentIdentifier(1)])),
             Contributor(cited_as='American Heart Association', agent=Organization(1, name='American Heart Association', identifiers=[AgentIdentifier(1)]))
         ], [
             Creator(cited_as='American Heart Association', agent=Organization(1, name='American Heart Association', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
-        # same name, different identifiers
+        # same name, different identifiers, different type, same type tree
         ([
             Creator(cited_as='Money Foundation', agent=Organization(0, name='Money Foundation', identifiers=[AgentIdentifier(2)])),
             Contributor(cited_as='Money Foundation', agent=Organization(1, name='Money Foundation', identifiers=[AgentIdentifier(1)])),
         ], [
             Creator(cited_as='Money Foundation', agent=Organization(1, name='Money Foundation', identifiers=[AgentIdentifier(1, parse=True), AgentIdentifier(2, parse=True)]))
         ]),
-        # same identifier, different type
+        # same identifier, same name, different type
         ([
             Contributor(cited_as='University of Virginia', agent=Institution(0, name='University of Virginia', identifiers=[AgentIdentifier(1)])),
             Publisher(cited_as='University of Virginia', agent=Institution(0, name='University of Virginia', identifiers=[AgentIdentifier(1)]))
@@ -324,7 +324,7 @@ class TestModelNormalization:
             Contributor(cited_as='University of Virginia', agent=Institution(0, name='University Of Virginia', identifiers=[AgentIdentifier(1, parse=True)])),
             Publisher(cited_as='University of Virginia', agent=Institution(0, name='University Of Virginia', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
-        # same identifier, same name, same length, different capitilization, alphabetize
+        # same identifier, same name, different type, same type tree, person
         ([
             Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)])),
             Contributor(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)])),
