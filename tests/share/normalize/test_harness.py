@@ -6,10 +6,10 @@ from tests.share.normalize.factories import *
 class TestShortHand:
 
     def test_id(self):
-        assert Agent(0) == {'id': 0, 'type': 'agent'}
-        assert Person(0) == {'id': 0, 'type': 'person'}
-        assert Organization(0) == {'id': 0, 'type': 'organization'}
-        assert Institution(0) == {'id': 0, 'type': 'institution'}
+        assert Agent(0) == {'id': '_:0', 'type': 'agent'}
+        assert Person(0) == {'id': '_:0', 'type': 'person'}
+        assert Organization(0) == {'id': '_:0', 'type': 'organization'}
+        assert Institution(0) == {'id': '_:0', 'type': 'institution'}
 
     def test_anon(self):
         assert CreativeWork() == {'type': 'creativework'}
@@ -30,10 +30,10 @@ class TestShortHand:
             related_works=[Preprint(identifiers=[WorkIdentifier(0)])]
         ) == {
             'type': 'creativework',
-            'identifiers': [{'id': 0, 'type': 'workidentifier'}, {'id': 1, 'type': 'workidentifier'}],
+            'identifiers': [{'id': '_:0', 'type': 'workidentifier'}, {'id': '_:1', 'type': 'workidentifier'}],
             'related_works': [{
                 'type': 'preprint',
-                'identifiers': [{'id': 0, 'type': 'workidentifier'}]
+                'identifiers': [{'id': '_:0', 'type': 'workidentifier'}]
             }]
         }
 
@@ -73,7 +73,7 @@ class TestMakeGraph:
     #     assert graph[0] is graph[1]
 
     def test_cross_graph_identity(self, Graph):
-        assert Graph(CreativeWork(0))[0] is Graph(CreativeWork(0))[0]
+        assert Graph(CreativeWork(0))[0] == Graph(CreativeWork(0))[0]
 
     def test_nested(self, Graph):
         graph = Graph(CreativeWork(identifiers=[WorkIdentifier()]))

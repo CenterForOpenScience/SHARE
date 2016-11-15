@@ -38,7 +38,7 @@ class TestModelNormalization:
         ], [Tag(name='bandicoot'), Tag(name='crash')]),
     ] for i in input])
     def test_normalize_tag(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(tags=[input])), disambiguate=False)
+        graph = ChangeGraph(Graph(CreativeWork(tags=[input])))
         graph.normalize()
 
         assert [n.serialize() for n in sorted(graph.nodes, key=lambda x: x.type + str(x.id))] == Graph(CreativeWork(tags=output))
@@ -68,7 +68,7 @@ class TestModelNormalization:
         ], None)
     ] for i in input])
     def test_normalize_person(self, input, output, Graph):
-        graph = ChangeGraph(Graph(input), disambiguate=False)
+        graph = ChangeGraph(Graph(input))
         graph.normalize()
         assert graph.serialize() == (Graph(output) if output else [])
 
@@ -136,7 +136,7 @@ class TestModelNormalization:
         (Agent(name=' Clinton   Foundation\n   '), Organization(name='Clinton Foundation')),
     ])
     def test_normalize_agent(self, input, output, Graph):
-        graph = ChangeGraph(Graph(input), disambiguate=False)
+        graph = ChangeGraph(Graph(input))
         graph.normalize()
         assert graph.serialize() == (Graph(output) if output else [])
 
@@ -197,7 +197,7 @@ class TestModelNormalization:
         ({'description': 'Line\nAfter\nLine\nAfter\nLine'}, {'description': 'Line After Line After Line'}),
     ])
     def test_normalize_creativework(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(**input)), disambiguate=False)
+        graph = ChangeGraph(Graph(CreativeWork(**input)))
         graph.normalize()
         assert graph.serialize() == Graph(CreativeWork(**output))
 
@@ -217,7 +217,7 @@ class TestModelNormalization:
         ('Beau, R <http://researchonline.lshtm.ac.uk/view/creators/999461.html>;  Douglas, I <http://researchonline.lshtm.ac.uk/view/creators/103524.html>;  Evans, S <http://researchonline.lshtm.ac.uk/view/creators/101520.html>;  Clayton, T <http://researchonline.lshtm.ac.uk/view/creators/11213.html>;  Smeeth, L <http://researchonline.lshtm.ac.uk/view/creators/13212.html>;      (2011) How Long Do Children Stay on Antiepileptic Treatments in the UK?  [Conference or Workshop Item]', None),
     ])
     def test_normalize_workidentifier(self, input, output, Graph):
-        graph = ChangeGraph(Graph(WorkIdentifier(uri=input)), disambiguate=False)
+        graph = ChangeGraph(Graph(WorkIdentifier(uri=input)))
         graph.normalize()
         assert graph.serialize() == (Graph(WorkIdentifier(uri=output, parse=True)) if output else [])
 
@@ -233,9 +233,9 @@ class TestModelNormalization:
         ('Beau, R <http://researchonline.lshtm.ac.uk/view/creators/999461.html>;  Douglas, I <http://researchonline.lshtm.ac.uk/view/creators/103524.html>;  Evans, S <http://researchonline.lshtm.ac.uk/view/creators/101520.html>;  Clayton, T <http://researchonline.lshtm.ac.uk/view/creators/11213.html>;  Smeeth, L <http://researchonline.lshtm.ac.uk/view/creators/13212.html>;      (2011) How Long Do Children Stay on Antiepileptic Treatments in the UK?  [Conference or Workshop Item]', None),
     ])
     def test_normalize_agentidentifier(self, input, output, Graph):
-        graph = ChangeGraph(Graph(AgentIdentifier(uri=input)), disambiguate=False)
+        graph = ChangeGraph(Graph(AgentIdentifier(uri=input, agent=None)))
         graph.normalize()
-        assert graph.serialize() == (Graph(AgentIdentifier(uri=output, parse=True)) if output else [])
+        assert graph.serialize() == (Graph(AgentIdentifier(uri=output, parse=True, agent=None)) if output else [])
 
     @pytest.mark.parametrize('input, output', [
         (input, Creator(cited_as='James Bond', agent=Person(name='James Bond', family_name='Bond', given_name='James')),)

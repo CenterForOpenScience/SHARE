@@ -17,33 +17,21 @@ from share.normalize.links import IRILink
 
 __all__ = ('Graph', )
 
+
 used_ids = set()
 _Faker = faker.Faker()
-
-
-def get_id():
-    while True:
-        id = _Faker.ipv6()
-        if id not in used_ids:
-            break
-    return id
-
-_remove = ChangeGraph.remove
-
-
-def remove_id(self, node, cascade=True):
-    used_ids.add(node._id.replace('_:', '', 1))
-    return _remove(self, node, cascade=cascade)
+_remove = ChangeGraph.remove  # Intercepted method, save the original
 
 
 class GraphContructor:
 
     def __init__(self):
         self.registry = {}
+        self.discarded_ids = set()
         self._seed = random.random()
 
     def __call__(self, *nodes):
-        self.reseed()
+        self.reseed(self._seed)
 
         # Traverse all nodes to build proper graph
         seen, to_see = set(), [self.build_node({**n}) for n in nodes]
@@ -64,9 +52,24 @@ class GraphContructor:
         # Sort by type + id to get consitent ordering between two graphs
         return [n.serialize() for n in sorted(seen, key=lambda x: x.type + str(x.id))]
 
-    def reseed(self):
+    def get_id(self):
+        while True:
+            id = _Faker.ipv6()
+            if id not in self.discarded_ids:
+                break
+        return id
+
+    def patched_remove_id(self):
+        def _remove_id(this, node, cascade=True):
+            self.discarded_ids.add(node._id.replace('_:', '', 1))
+            return _remove(this, node, cascade=cascade)
+        return _remove_id
+
+    def reseed(self, seed=None):
         # Reset all seeds at the being of each graph generation
         # Ensures that graphs will be compairable
+        self._seed = seed or random.random()
+
         random.seed(self._seed)
         _Faker.random.seed(self._seed)
         factory.fuzzy.reseed_random(self._seed)
@@ -79,11 +82,7 @@ class GraphContructor:
     def build_node(self, node):
         model = apps.get_model('share', node['type'])
 
-        if node.get('id') is not None and (node['id'], model._meta.concrete_model) in self.registry:
-            return self.registry[node['id'], model._meta.concrete_model]
-
         relations = {}
-
         for key in tuple(node.keys()):
             if isinstance(node[key], (dict, list)):
                 relations[key] = node.pop(key)
@@ -98,13 +97,22 @@ class GraphContructor:
 
             obj = self.get_factory(model._meta.concrete_model)(**_node)
 
-        for key, value in relations.items():
+        if node.get('id') is not None and (node['id'], model._meta.concrete_model) in self.registry:
+            # TODO Find a better way to handle this
+            # This ensures that the random generators will always be "spun" the same number of times
+            # Therefore output will remain in sync
+            found = self.registry[node['id'], model._meta.concrete_model]
+            _node.pop('id', None)
+            _node.pop('type', None)
+            obj.id, obj.type, obj.attrs = found.id, found.type, {**found.attrs, **_node}
+
+        for key, value in sorted(relations.items(), key=lambda x: x[0]):
             field = model._meta.get_field(key)
             reverse_name = field.remote_field.name
 
             if isinstance(value, list):
                 if field.many_to_many:
-                    related = [self.build_node(v) for v in value]
+                    related = [self.build_node({**v}) for v in value]
                     for rel in related:
                         obj._related.append(self.build_node({
                             'type': field.rel.through._meta.model_name,
@@ -120,16 +128,18 @@ class GraphContructor:
 
                 obj.related[key] = self.build_node(args)
 
-        self.registry[obj.id, model._meta.concrete_model] = obj
+        if len(obj.id) < 20:
+            self.registry[obj.id, model._meta.concrete_model] = obj
 
         return obj
 
 
 @pytest.fixture
 def Graph(monkeypatch):
-    monkeypatch.setattr('share.change.uuid.uuid4', get_id)
-    monkeypatch.setattr('share.change.ChangeGraph.remove', remove_id)
     c = GraphContructor()
+    ShareObjectFactory._meta.declarations['id'].function = lambda: '_:' + c.get_id()
+    monkeypatch.setattr('share.change.uuid.uuid4', c.get_id)
+    monkeypatch.setattr('share.change.ChangeGraph.remove', c.patched_remove_id())
     return c
 
 
@@ -167,7 +177,7 @@ class GraphNode:
 
 class ShareObjectFactory(factory.Factory):
 
-    id = factory.LazyFunction(lambda: '_:' + get_id())
+    id = factory.LazyFunction(lambda: '_:' + _Faker.ipv6())
 
     class Meta:
         abstract = True
@@ -200,44 +210,6 @@ class AbstractAgentFactory(TypedShareObjectFactory):
 
     class Meta:
         model = GraphNode
-
-
-class WorkIdentifierFactory(ShareObjectFactory):
-    uri = factory.Faker('url')
-
-    @factory.lazy_attribute
-    def scheme(self):
-        if not self.parse:
-            return None
-        return IRILink().execute(self.uri)['scheme']
-
-    @factory.lazy_attribute
-    def host(self):
-        if not self.parse:
-            return None
-        return IRILink().execute(self.uri)['authority']
-
-    class Params:
-        parse = False
-
-
-class AgentIdentifierFactory(ShareObjectFactory):
-    uri = factory.Faker('url')
-
-    @factory.lazy_attribute
-    def scheme(self):
-        if not self.parse:
-            return None
-        return IRILink().execute(self.uri)['scheme']
-
-    @factory.lazy_attribute
-    def host(self):
-        if not self.parse:
-            return None
-        return IRILink().execute(self.uri)['authority']
-
-    class Params:
-        parse = False
 
 
 class TagFactory(ShareObjectFactory):
@@ -290,6 +262,46 @@ class AbstractWorkRelationFactory(TypedShareObjectFactory):
 class ThroughTagsFactory(ShareObjectFactory):
     tag = factory.SubFactory(TagFactory)
     creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+
+
+class WorkIdentifierFactory(ShareObjectFactory):
+    uri = factory.Faker('url')
+    creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+
+    @factory.lazy_attribute
+    def scheme(self):
+        if not self.parse:
+            return None
+        return IRILink().execute(self.uri)['scheme']
+
+    @factory.lazy_attribute
+    def host(self):
+        if not self.parse:
+            return None
+        return IRILink().execute(self.uri)['authority']
+
+    class Params:
+        parse = False
+
+
+class AgentIdentifierFactory(ShareObjectFactory):
+    uri = factory.Faker('url')
+    agent = factory.SubFactory(AbstractAgentFactory)
+
+    @factory.lazy_attribute
+    def scheme(self):
+        if not self.parse:
+            return None
+        return IRILink().execute(self.uri)['scheme']
+
+    @factory.lazy_attribute
+    def host(self):
+        if not self.parse:
+            return None
+        return IRILink().execute(self.uri)['authority']
+
+    class Params:
+        parse = False
 
 
 def _params(id=None, type=None, **kwargs):

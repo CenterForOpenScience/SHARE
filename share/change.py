@@ -117,7 +117,8 @@ class ChangeGraph:
         self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def normalize(self):
-        for node in self.nodes:
+        # Freeze nodes to avoid oddities with inserting and removing nodes
+        for node in tuple(self.nodes):
             # This feels overly hacky
             if hasattr(node.model, 'normalize'):
                 node.model.normalize(node, self)

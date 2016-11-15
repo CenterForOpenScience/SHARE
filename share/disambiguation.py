@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class GraphDisambiguator:
+
     def __init__(self):
         self._index = self.NodeIndex()
 
@@ -61,7 +62,7 @@ class GraphDisambiguator:
                 if find_instances:
                     # look for matches in the database
                     instance = self._instance_for_node(n)
-                    if isinstance(instance, list):
+                    if instance and isinstance(instance, list):
                         # TODO after merging is fixed, add mergeaction change to graph
                         raise NotImplementedError()
                     if instance:
@@ -84,32 +85,35 @@ class GraphDisambiguator:
         info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
 
-        query_pairs = []
+        all_query = {}
         for k, v in info.all:
             k, v = self._query_pair(k, v)
-            if k is not None and v is not None:
-                query_pairs.append((k, v))
-            else:
+            if (k, v) == (None, None):
                 return None
-        if concrete_model is not node.model:
-            query_pairs.append(('type__in', info.matching_types))
-        query = Q(**dict(query_pairs))
+            all_query[k] = v
 
-        any_query = None
+        any_query = {}
         for k, v in info.any:
             k, v = self._query_pair(k, v)
             if k and v:
-                q = Q(**{k: v})
-                any_query = any_query | q if any_query else q
-        if info.any and not any_query:
-            return None
-        if any_query:
-            query &= any_query
+                any_query[k] = v
 
-        found = set(concrete_model.objects.filter(query))
+        if (info.any and not any_query) or (info.all and not all_query) or not (all_query or any_query):
+            return None
+
+        query = {**any_query, **all_query}
+
+        if concrete_model is not node.model:
+            query['type__in'] = info.matching_types
+
+        found = set(concrete_model.objects.filter(**query))
+
+        if not found:
+            logger.debug('No {}s found for {}'.format(concrete_model, query))
+            return None
         if len(found) == 1:
             return found.pop()
-        logger.warn('Multiple {}s returned for {}'.format(concrete_model, filter))
+        logger.warning('Multiple {}s returned for {}'.format(concrete_model, query))
         return list(found)
 
     def _query_pair(self, key, value):

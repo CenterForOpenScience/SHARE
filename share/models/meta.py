@@ -29,7 +29,7 @@ class Tag(ShareObject):
         if len(tags) == 1 and tags[0] == node.attrs['name']:
             return
 
-        logger.debug('Normalized %s to %s', node.attrs['name'], tags)
+        logger.debug('Normalized "%s" to %s', node.attrs['name'], tags)
 
         # ensure tags are always created in the same order
         tags = [graph.create(None, 'tag', {'name': tag}) for tag in sorted(tags)]
