@@ -57,10 +57,10 @@ class TestPersonDisambiguation:
     @pytest.mark.parametrize('input, model, delta', [
         ([Person(name='Bob Dylan')], models.Person, 1),
         ([Person(7)], models.Person, 0),
-        ([Publication(related_agents=[Person(4)])], models.Publication, 0),
-        ([Publication(related_agents=[Person(9)])], models.Publication, 1),
-        ([CreativeWork(related_agents=[Person(name='Bill Gates')])], models.CreativeWork, 1),
-        ([Preprint(related_agents=[Person(8)])], models.Preprint, 0),
+        ([Publication(related_agents=[Person(4)])], models.Person, 0),
+        ([Publication(related_agents=[Person(9)])], models.Person, 1),
+        ([CreativeWork(related_agents=[Person(name='Bill Gates')])], models.Person, 1),
+        ([Preprint(related_agents=[Person(8)])], models.Person, 0),
     ])
     def test_disambiguate(self, input, model, delta, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
@@ -105,6 +105,7 @@ class TestPersonDisambiguation:
         second_cs = ChangeSet.objects.from_graph(second_cg, NormalizedDataFactory().id)
         assert second_cs is None
 
+    # fails
     def test_no_changes(self, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
         initial_cg.process()
