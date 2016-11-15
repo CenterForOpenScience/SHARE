@@ -274,6 +274,14 @@ class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
         model = GraphNode
 
 
+class AbstractWorkRelationFactory(TypedShareObjectFactory):
+    related = factory.SubFactory(AbstractCreativeWorkFactory)
+    subject = factory.SubFactory(AbstractCreativeWorkFactory)
+
+    class Meta:
+        model = GraphNode
+
+
 class ThroughTagsFactory(ShareObjectFactory):
     tag = factory.SubFactory(TagFactory)
     creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
