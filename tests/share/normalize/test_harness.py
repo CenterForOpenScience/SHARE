@@ -67,11 +67,6 @@ class TestMakeGraph:
         assert tag['@type'] == 'tag'
         assert tag['@id'].startswith('_:')
 
-    # def test_identity(self, Graph):
-    #     graph = Graph(CreativeWork(0), CreativeWork(0))
-
-    #     assert graph[0] is graph[1]
-
     def test_cross_graph_identity(self, Graph):
         assert Graph(CreativeWork(0))[0] == Graph(CreativeWork(0))[0]
 
@@ -107,3 +102,13 @@ class TestMakeGraph:
 
     def test_reseeds_many(self, Graph):
         assert Graph(CreativeWork(), CreativeWork(), CreativeWork(), Tag(), WorkIdentifier()) == Graph(CreativeWork(), CreativeWork(), CreativeWork(), Tag(), WorkIdentifier())
+
+    def test_type_out_of_order(self, Graph):
+        assert Graph(Tag(), CreativeWork()) == Graph(CreativeWork(), Tag())
+
+    def test_ids_dont_effect(self, Graph):
+        assert Graph(Tag(), Tag(1), Tag()) == Graph(Tag(), Tag(), Tag(1))
+
+    def test_doesnt_include_id(self, Graph):
+        assert '@id' in Graph(Tag(1))[0]
+        assert 'id' not in Graph(Tag(1))[0]

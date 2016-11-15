@@ -29,6 +29,8 @@ class GraphContructor:
         self.registry = {}
         self.discarded_ids = set()
         self._seed = random.random()
+        self._fakers = {}
+        self._states = {}
 
     def __call__(self, *nodes):
         self.reseed(self._seed)
@@ -53,10 +55,21 @@ class GraphContructor:
         return [n.serialize() for n in sorted(seen, key=lambda x: x.type + str(x.id))]
 
     def get_id(self):
+        if 'id_state' not in self._states:
+            # Populate state with a default. Always starting from self._seed
+            # Consistent randomness is key.
+            _Faker.random.seed(self._seed)
+            self._states['id_state'] = _Faker.random.getstate()
+
+        _Faker.random.setstate(self._states['id_state'])
+
         while True:
             id = _Faker.ipv6()
             if id not in self.discarded_ids:
                 break
+
+        self._states['id_state'] = _Faker.random.getstate()
+
         return id
 
     def patched_remove_id(self):
@@ -71,10 +84,9 @@ class GraphContructor:
         self._seed = seed or random.random()
 
         random.seed(self._seed)
-        _Faker.random.seed(self._seed)
+        # _Faker.random.seed(self._seed)
         factory.fuzzy.reseed_random(self._seed)
-        for fake in factory.Faker._FAKER_REGISTRY.values():
-            fake.random.seed(self._seed)
+        self._states = {}
 
     def get_factory(self, model):
         return globals()[model.__name__ + 'Factory']
@@ -87,24 +99,32 @@ class GraphContructor:
             if isinstance(node[key], (dict, list)):
                 relations[key] = node.pop(key)
 
+        if model._meta.concrete_model not in self._states:
+            # Populate state with a default. Always starting from self._seed
+            # Consistent randomness is key.
+            _Faker.random.seed(self._seed)
+            self._states[model._meta.concrete_model] = _Faker.random.getstate()
+
+        if node.get('id') is None:
+            # Faker has a global random instance (WHY). Keep track of state per model
+            _Faker.random.setstate(self._states[model._meta.concrete_model])
+        else:
+            # Seed with the ID + model name to ensure the same values are always generated
+            # when given an ID
+            _Faker.random.seed(node['id'] + model._meta.concrete_model._meta.model_name)
+
         if node.pop('sparse', False):
             obj = GraphNode(**node)
         else:
-            # Remove type to allow random choices
             _node = {**node}
             if node['type'] == model._meta.concrete_model._meta.model_name:
                 _node.pop('type', None)
 
             obj = self.get_factory(model._meta.concrete_model)(**_node)
 
-        if node.get('id') is not None and (node['id'], model._meta.concrete_model) in self.registry:
-            # TODO Find a better way to handle this
-            # This ensures that the random generators will always be "spun" the same number of times
-            # Therefore output will remain in sync
-            found = self.registry[node['id'], model._meta.concrete_model]
-            _node.pop('id', None)
-            _node.pop('type', None)
-            obj.id, obj.type, obj.attrs = found.id, found.type, {**found.attrs, **_node}
+        if node.get('id') is None:
+            # Save the new state if it was advanced/used
+            self._states[model._meta.concrete_model] = _Faker.random.getstate()
 
         for key, value in sorted(relations.items(), key=lambda x: x[0]):
             field = model._meta.get_field(key)
@@ -127,9 +147,6 @@ class GraphContructor:
                     args[field.remote_field.name] = obj
 
                 obj.related[key] = self.build_node(args)
-
-        if len(obj.id) < 20:
-            self.registry[obj.id, model._meta.concrete_model] = obj
 
         return obj
 
@@ -173,6 +190,12 @@ class GraphNode:
             }.items() if v not in (None, [])
         }
         return self._serialized
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __hash__(self):
+        return hash((self.id, self.type))
 
 
 class ShareObjectFactory(factory.Factory):
@@ -265,43 +288,29 @@ class ThroughTagsFactory(ShareObjectFactory):
 
 
 class WorkIdentifierFactory(ShareObjectFactory):
+    parse = False
     uri = factory.Faker('url')
     creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
-    @factory.lazy_attribute
-    def scheme(self):
-        if not self.parse:
-            return None
-        return IRILink().execute(self.uri)['scheme']
-
-    @factory.lazy_attribute
-    def host(self):
-        if not self.parse:
-            return None
-        return IRILink().execute(self.uri)['authority']
-
-    class Params:
-        parse = False
+    @factory.post_generation
+    def _parse(self, *args, **kwargs):
+        if self.attrs.pop('parse'):
+            parsed = IRILink().execute(self.attrs['uri'])
+            self.attrs['scheme'] = parsed['scheme']
+            self.attrs['host'] = parsed['authority']
 
 
 class AgentIdentifierFactory(ShareObjectFactory):
+    parse = False
     uri = factory.Faker('url')
     agent = factory.SubFactory(AbstractAgentFactory)
 
-    @factory.lazy_attribute
-    def scheme(self):
-        if not self.parse:
-            return None
-        return IRILink().execute(self.uri)['scheme']
-
-    @factory.lazy_attribute
-    def host(self):
-        if not self.parse:
-            return None
-        return IRILink().execute(self.uri)['authority']
-
-    class Params:
-        parse = False
+    @factory.post_generation
+    def _parse(self, *args, **kwargs):
+        if self.attrs.pop('parse'):
+            parsed = IRILink().execute(self.attrs['uri'])
+            self.attrs['scheme'] = parsed['scheme']
+            self.attrs['host'] = parsed['authority']
 
 
 def _params(id=None, type=None, **kwargs):

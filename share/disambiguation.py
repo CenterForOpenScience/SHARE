@@ -28,7 +28,8 @@ class GraphDisambiguator:
 
     def _disambiguate(self, change_graph, find_instances):
         changed = True
-        nodes = sorted(change_graph.nodes, key=self._disambiguweight, reverse=True)
+        # Sort by type and id as well to get consitent sorting
+        nodes = sorted(change_graph.nodes, key=lambda x: (self._disambiguweight(x), x.type, x.id), reverse=True)
 
         while changed:
             changed = False

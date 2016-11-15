@@ -40,9 +40,9 @@ class TestModelNormalization:
     ] for i in input])
     def test_normalize_tag(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(tags=[input])))
-        graph.normalize()
+        graph.process(disambiguate=False)
 
-        assert [n.serialize() for n in sorted(graph.nodes, key=lambda x: x.type + str(x.id))] == Graph(CreativeWork(tags=output))
+        assert graph.serialize() == Graph(CreativeWork(tags=output))
 
     @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
         ([
@@ -70,7 +70,7 @@ class TestModelNormalization:
     ] for i in input])
     def test_normalize_person(self, input, output, Graph):
         graph = ChangeGraph(Graph(input))
-        graph.normalize()
+        graph.process(disambiguate=False)
         assert graph.serialize() == (Graph(output) if output else [])
 
     # test two people with the same identifier are merged
@@ -79,8 +79,8 @@ class TestModelNormalization:
         # same name, same identifier
         ([
             Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
-            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)])
-        ], [Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)])]),
+            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+        ], [Person(name='Barb Dylan', identifiers=[AgentIdentifier(1, parse=True)])]),
         # same name, different identifiers
         ([
             Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
@@ -113,8 +113,8 @@ class TestModelNormalization:
     ])
     def test_normalize_person_relation(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(related_agents=input)))
-        graph.normalize()
-        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(related_agents=output))
+        graph.process(disambiguate=False)
+        assert graph.serialize() == Graph(CreativeWork(related_agents=output))
 
     @pytest.mark.parametrize('input, output', [
         (Agent(name='none'), None),
@@ -138,7 +138,7 @@ class TestModelNormalization:
     ])
     def test_normalize_agent(self, input, output, Graph):
         graph = ChangeGraph(Graph(input))
-        graph.normalize()
+        graph.process(disambiguate=False)
         assert graph.serialize() == (Graph(output) if output else [])
 
     # test two organizations/institutions with the same name are merged
@@ -166,9 +166,11 @@ class TestModelNormalization:
         ]),
         # same identifier, different type, accept more specific type
         ([
+            Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)]),
             Organization(name='University of Virginia', identifiers=[AgentIdentifier(1)]),
-            Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)])
-        ], [Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)])]),
+        ], [
+            Institution(name='University Of Virginia', identifiers=[AgentIdentifier(1)])
+        ]),
         # same identifier, same name, same length, different capitilization, alphabetize
         ([
             Organization(name='Share', identifiers=[AgentIdentifier(1)]),
@@ -188,8 +190,8 @@ class TestModelNormalization:
     ])
     def test_normalize_organization_institution_name(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(related_agents=input)))
-        graph.normalize()
-        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(related_agents=output))
+        graph.process(disambiguate=False)
+        assert graph.serialize() == Graph(CreativeWork(related_agents=output))
 
     # test different types of agent work relations
     # Funder, Publisher, Host
@@ -257,54 +259,54 @@ class TestModelNormalization:
     ])
     def test_normalize_mixed_agent_relation(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(agent_relations=input)))
-        graph.normalize()
-        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(agent_relations=output))
+        graph.process(disambiguate=False)
+        assert graph.serialize() == Graph(CreativeWork(agent_relations=output))
 
     # test different types of agent work relations
     # Contributor, Creator
     @pytest.mark.parametrize('input, output', [
         # same name, same identifiers
         ([
-            Creator(cited_as='American Heart Association', agent=Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)])),
-            Contributor(cited_as='American Heart Association', agent=Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)]))
+            Creator(cited_as='American Heart Association', agent=Organization(0, name='American Heart Association', identifiers=[AgentIdentifier(1)])),
+            Contributor(cited_as='American Heart Association', agent=Organization(1, name='American Heart Association', identifiers=[AgentIdentifier(1)]))
         ], [
-            Creator(cited_as='American Heart Association', agent=Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)]))
+            Creator(cited_as='American Heart Association', agent=Organization(1, name='American Heart Association', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
         # same name, different identifiers
         ([
-            Contributor(cited_as='Money Foundation', agent=Organization(name='Money Foundation', identifiers=[AgentIdentifier(1)])),
-            Creator(cited_as='Money Foundation', agent=Organization(name='Money Foundation', identifiers=[AgentIdentifier(2)]))
+            Creator(cited_as='Money Foundation', agent=Organization(0, name='Money Foundation', identifiers=[AgentIdentifier(2)])),
+            Contributor(cited_as='Money Foundation', agent=Organization(1, name='Money Foundation', identifiers=[AgentIdentifier(1)])),
         ], [
-            Creator(cited_as='Money Foundation', agent=Organization(name='Money Foundation', identifiers=[AgentIdentifier(1), AgentIdentifier(2)]))
+            Creator(cited_as='Money Foundation', agent=Organization(1, name='Money Foundation', identifiers=[AgentIdentifier(1, parse=True), AgentIdentifier(2, parse=True)]))
         ]),
         # same identifier, different type
         ([
-            Contributor(cited_as='University of Virginia', agent=Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='University of Virginia', agent=Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)]))
+            Contributor(cited_as='University of Virginia', agent=Institution(0, name='University of Virginia', identifiers=[AgentIdentifier(1)])),
+            Publisher(cited_as='University of Virginia', agent=Institution(0, name='University of Virginia', identifiers=[AgentIdentifier(1)]))
         ], [
-            Contributor(cited_as='University of Virginia', agent=Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='University of Virginia', agent=Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)]))
+            Contributor(cited_as='University of Virginia', agent=Institution(0, name='University Of Virginia', identifiers=[AgentIdentifier(1, parse=True)])),
+            Publisher(cited_as='University of Virginia', agent=Institution(0, name='University Of Virginia', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
         # same identifier, same name, same length, different capitilization, alphabetize
         ([
+            Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)])),
             Contributor(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)])),
-            Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)]))
         ], [
-            Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)]))
+            Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', given_name='Bob', family_name='Dylan', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
         # same identifier, different name, different type
         ([
+            Creator(cited_as='B. Dylan', agent=Person(name='B. Dylan', identifiers=[AgentIdentifier(1)])),
             Contributor(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)])),
-            Creator(cited_as='B. Dylan', agent=Person(name='B. Dylan', identifiers=[AgentIdentifier(1)]))
         ], [
-            Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)]))
+            Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', given_name='Bob', family_name='Dylan', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
         # same name, one identifier, add identifier
         ([
-            Creator(cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.')),
-            Creator(cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)]))
+            Creator(0, cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.')),
+            Creator(1, cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)]))
         ], [
-            Creator(cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)]))
+            Creator(1, cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
         # same identifier, different name, accept longest alphabetize
         ([
@@ -313,22 +315,22 @@ class TestModelNormalization:
             Funder(cited_as='Cook Institute', agent=Organization(name='Cook Institute', identifiers=[AgentIdentifier(1)]))
         ], [
             Creator(cited_as='Cooking Institute', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Funder(cited_as='Cook Institute', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='Cook Institute', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
         # same identifier, different name, different type, accept longest alphabetize, more specific
         ([
-            Creator(cited_as='Cooking Institute', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Contributor(cited_as='Cooking Instituze', agent=Organization(name='Cooking Instituze', identifiers=[AgentIdentifier(1)])),
-            Funder(cited_as='Cook Institute', agent=Institution(name='Cook Institute', identifiers=[AgentIdentifier(1)]))
+            Creator(cited_as='Cooking Institute', agent=Institution(0, name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
+            Contributor(cited_as='Cooking Instituze', agent=Organization(1, name='Cooking Instituze', identifiers=[AgentIdentifier(1)])),
+            Funder(cited_as='Cook Institute', agent=Institution(0, name='Cook Institute', identifiers=[AgentIdentifier(1, parse=True)]))
         ], [
             Creator(cited_as='Cooking Institute', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Funder(cited_as='Cook Institute', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='Cook Institute', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
     ])
     def test_normalize_contributor_creator_relation(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(agent_relations=input)))
-        graph.normalize()
-        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(agent_relations=output))
+        graph.process(disambiguate=False)
+        assert graph.serialize() == Graph(CreativeWork(agent_relations=output))
 
     # test work with related work
     @pytest.mark.parametrize('input, output', [
@@ -341,8 +343,8 @@ class TestModelNormalization:
     ])
     def test_normalize_related_work(self, input, output, Graph):
         graph = ChangeGraph(Graph(input))
-        graph.normalize()
-        assert [n.serialize() for n in graph.nodes] == Graph(output)
+        graph.process(disambiguate=False)
+        assert graph.serialize() == Graph(output)
 
     @pytest.mark.parametrize('input, output', [
         ({'title': '', 'description': ''}, {'title': '', 'description': ''}),
@@ -352,7 +354,7 @@ class TestModelNormalization:
     ])
     def test_normalize_creativework(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(**input)))
-        graph.normalize()
+        graph.process(disambiguate=False)
         assert graph.serialize() == Graph(CreativeWork(**output))
 
     @pytest.mark.parametrize('input, output', [
@@ -371,9 +373,9 @@ class TestModelNormalization:
         ('Beau, R <http://researchonline.lshtm.ac.uk/view/creators/999461.html>;  Douglas, I <http://researchonline.lshtm.ac.uk/view/creators/103524.html>;  Evans, S <http://researchonline.lshtm.ac.uk/view/creators/101520.html>;  Clayton, T <http://researchonline.lshtm.ac.uk/view/creators/11213.html>;  Smeeth, L <http://researchonline.lshtm.ac.uk/view/creators/13212.html>;      (2011) How Long Do Children Stay on Antiepileptic Treatments in the UK?  [Conference or Workshop Item]', None),
     ])
     def test_normalize_workidentifier(self, input, output, Graph):
-        graph = ChangeGraph(Graph(WorkIdentifier(uri=input)))
-        graph.normalize()
-        assert graph.serialize() == (Graph(WorkIdentifier(uri=output, parse=True)) if output else [])
+        graph = ChangeGraph(Graph(WorkIdentifier(uri=input, creative_work=None)))
+        graph.process(disambiguate=False)
+        assert graph.serialize() == (Graph(WorkIdentifier(uri=output, parse=True, creative_work=None)) if output else [])
 
     @pytest.mark.parametrize('input, output', [
         ('', None),
@@ -388,7 +390,7 @@ class TestModelNormalization:
     ])
     def test_normalize_agentidentifier(self, input, output, Graph):
         graph = ChangeGraph(Graph(AgentIdentifier(uri=input, agent=None)))
-        graph.normalize()
+        graph.process(disambiguate=False)
         assert graph.serialize() == (Graph(AgentIdentifier(uri=output, parse=True, agent=None)) if output else [])
 
     @pytest.mark.parametrize('input, output', [
@@ -408,5 +410,5 @@ class TestModelNormalization:
     ])
     def test_normalize_agentworkrelation(self, input, output, Graph):
         graph = ChangeGraph(Graph(input))
-        graph.normalize()
+        graph.process(disambiguate=False)
         assert graph.serialize() == Graph(output)
