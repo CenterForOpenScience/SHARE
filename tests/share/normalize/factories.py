@@ -252,8 +252,8 @@ class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
 
 
 class AbstractWorkRelationFactory(TypedShareObjectFactory):
-    subject = factory.SubFactory(AbstractCreativeWorkFactory)
     related = factory.SubFactory(AbstractCreativeWorkFactory)
+    subject = factory.SubFactory(AbstractCreativeWorkFactory)
 
     class Meta:
         model = GraphNode
