@@ -184,7 +184,12 @@ class ChangeGraph:
 
         self.nodes.remove(node)
         del self.relations[node]
-        del self._lookup[node.id, node.type]
+        try:
+            del self._lookup[node.id, node.type]
+        except KeyError:
+            key = next(k for k in self._lookup.keys() if k[0] == node.id)
+            logger.warning('Could not find lookup entry for %s. Falling back to %s', node, key)
+            del self._lookup[key]
 
     def serialize(self):
         return [

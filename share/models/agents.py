@@ -34,8 +34,9 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
     @classmethod
     def normalize(cls, node, graph):
         name = strip_whitespace(node.attrs['name'])
-        if name.upper() != name:
-            name = name.title()
+
+        # Slightly more intellegent title casing
+        name = re.sub(r'(?!for|and|the)\b[a-z]\w{2,}', lambda x: x.group().title(), name)
 
         if NULL_RE.match(name):
             logger.debug('Discarding unnamed agent "%s"', node.attrs['name'])

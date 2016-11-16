@@ -1,5 +1,7 @@
-import pytest
+import contextlib
 import functools
+import inspect
+import pytest
 import random
 import re
 
@@ -7,6 +9,8 @@ import faker
 
 import factory
 import factory.fuzzy
+
+import nameparser
 
 from django.apps import apps
 
@@ -26,11 +30,9 @@ _remove = ChangeGraph.remove  # Intercepted method, save the original
 class GraphContructor:
 
     def __init__(self):
-        self.registry = {}
-        self.discarded_ids = set()
         self._seed = random.random()
-        self._fakers = {}
         self._states = {}
+        self.discarded_ids = set()
 
     def __call__(self, *nodes):
         self.reseed(self._seed)
@@ -54,21 +56,46 @@ class GraphContructor:
         # Sort by type + id to get consitent ordering between two graphs
         return [n.serialize() for n in sorted(seen, key=lambda x: x.type + str(x.id))]
 
+    @contextlib.contextmanager
+    def seed(self, name=None, seed=None):
+        old_state = (random.getstate(), _Faker.random.getstate())
+
+        if name not in self._states:
+            random.seed(seed or self._seed)
+            _Faker.random.seed(seed or self._seed)
+            self._states[name] = (random.getstate(), _Faker.random.getstate())
+
+        random.setstate(self._states[name][0])
+        _Faker.random.setstate(self._states[name][1])
+
+        yield hash(self._states[name])
+
+        # Save the new state if it was advanced/used
+        self._states[name] = (random.getstate(), _Faker.random.getstate())
+        if not name:
+            del self._states[name]
+
+        # Leave random(s) untouched upon exitting
+        random.setstate(old_state[0])
+        _Faker.random.setstate(old_state[1])
+
     def get_id(self):
-        if 'id_state' not in self._states:
-            # Populate state with a default. Always starting from self._seed
-            # Consistent randomness is key.
-            _Faker.random.seed(self._seed)
-            self._states['id_state'] = _Faker.random.getstate()
+        # Crazy bad hack
+        # Reach up the stack until we find the type of object
+        # that is requesting an ID
+        # This way order only matters for an individual object.
+        try:
+            name = inspect.stack()[2].frame.f_locals['obj'].type
+        except KeyError:
+            name = inspect.stack()[1].frame.f_locals['type']
 
-        _Faker.random.setstate(self._states['id_state'])
+        name = apps.get_model('share', name)._meta.concrete_model._meta.model_name
 
-        while True:
-            id = _Faker.ipv6()
-            if id not in self.discarded_ids:
-                break
-
-        self._states['id_state'] = _Faker.random.getstate()
+        with self.seed(name + ' ids', seed=name + ' ids'):
+            while True:
+                id = _Faker.ipv6()
+                if id not in self.discarded_ids:
+                    break
 
         return id
 
@@ -83,7 +110,7 @@ class GraphContructor:
         # Ensures that graphs will be compairable
         self._seed = seed or random.random()
 
-        random.seed(self._seed)
+        # random.seed(self._seed)
         # _Faker.random.seed(self._seed)
         factory.fuzzy.reseed_random(self._seed)
         self._states = {}
@@ -99,32 +126,22 @@ class GraphContructor:
             if isinstance(node[key], (dict, list)):
                 relations[key] = node.pop(key)
 
-        if model._meta.concrete_model not in self._states:
-            # Populate state with a default. Always starting from self._seed
-            # Consistent randomness is key.
-            _Faker.random.seed(self._seed)
-            self._states[model._meta.concrete_model] = _Faker.random.getstate()
-
-        if node.get('id') is None:
-            # Faker has a global random instance (WHY). Keep track of state per model
-            _Faker.random.setstate(self._states[model._meta.concrete_model])
+        kwargs = {}
+        if node.get('seed'):
+            kwargs['seed'] = str(node.get('seed')) + model._meta.concrete_model._meta.model_name
         else:
-            # Seed with the ID + model name to ensure the same values are always generated
-            # when given an ID
-            _Faker.random.seed(node['id'] + model._meta.concrete_model._meta.model_name)
+            kwargs['name'] = model._meta.concrete_model
 
         if node.pop('sparse', False):
             obj = GraphNode(**node)
         else:
             _node = {**node}
+            _node.pop('seed', None)
             if node['type'] == model._meta.concrete_model._meta.model_name:
                 _node.pop('type', None)
 
-            obj = self.get_factory(model._meta.concrete_model)(**_node)
-
-        if node.get('id') is None:
-            # Save the new state if it was advanced/used
-            self._states[model._meta.concrete_model] = _Faker.random.getstate()
+            with self.seed(**kwargs):
+                obj = self.get_factory(model._meta.concrete_model)(**_node)
 
         for key, value in sorted(relations.items(), key=lambda x: x[0]):
             field = model._meta.get_field(key)
@@ -222,6 +239,7 @@ class TypedShareObjectFactory(ShareObjectFactory):
 
 
 class AbstractAgentFactory(TypedShareObjectFactory):
+    parse = False
 
     @factory.lazy_attribute
     def name(self):
@@ -233,6 +251,18 @@ class AbstractAgentFactory(TypedShareObjectFactory):
 
     class Meta:
         model = GraphNode
+
+    @factory.post_generation
+    def _parse(self, *args, **kwargs):
+        if not self.attrs.pop('parse') or self.type != 'person':
+            return
+        if not self.attrs.get('name'):
+            self.attrs['name'] = ' '.join(self.attrs[k] for k in ['given_name', 'additional_name', 'family_name', 'suffix'] if self.attrs.get(k))
+        else:
+            human = nameparser.HumanName(self.attrs['name'])
+            for hk, sk in [('first', 'given_name'), ('middle', 'additional_name'), ('last', 'family_name'), ('suffix', 'suffix')]:
+                if human[hk]:
+                    self.attrs[sk] = human[hk]
 
 
 class TagFactory(ShareObjectFactory):
@@ -313,11 +343,13 @@ class AgentIdentifierFactory(ShareObjectFactory):
             self.attrs['host'] = parsed['authority']
 
 
-def _params(id=None, type=None, **kwargs):
-    string_id = '_:' + str(id)
+def _params(seed=None, id=None, type=None, **kwargs):
+    string_id = '_:_' + str(id)
     ret = {'id': string_id, 'type': type, **kwargs}
     if id is None:
         ret.pop('id')
+    if seed is not None:
+        ret['seed'] = seed
     return ret
 
 for model in dir(models):

@@ -517,6 +517,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
+        'share.disambiguation': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'share.normalize': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],

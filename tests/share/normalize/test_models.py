@@ -78,43 +78,52 @@ class TestModelNormalization:
     @pytest.mark.parametrize('input, output', [
         # same name, same identifier
         ([
-            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
-            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
-        ], [Person(name='Barb Dylan', identifiers=[AgentIdentifier(1, parse=True)])]),
+            Person(0, name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(1, name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(2, name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+        ], [Person(2, name='Barb Dylan', parse=True, identifiers=[AgentIdentifier(1, parse=True)])]),
+        ([
+            Person(0, name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(1, name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(2, name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(3, name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
+        ], [Person(3, name='Barb Dylan', parse=True, identifiers=[AgentIdentifier(1, parse=True)])]),
         # same name, different identifiers
         ([
             Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
             Person(name='Barb Dylan', identifiers=[AgentIdentifier(2)])
         ], [
-            Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
-            Person(name='Barb Dylan', identifiers=[AgentIdentifier(2)])
+            Person(name='Barb Dylan', parse=True, identifiers=[AgentIdentifier(1, parse=True)]),
+            Person(name='Barb Dylan', parse=True, identifiers=[AgentIdentifier(2, parse=True)])
         ]),
         # no name - name, same identifier
         ([
             Person(name='', identifiers=[AgentIdentifier(1)]),
             Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)])
-        ], [Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)])]),
+        ], [Person(name='Barb Dylan', parse=True, identifiers=[AgentIdentifier(1, parse=True)])]),
         # two names, same identifier, take longer name
         ([
             Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
             Person(name='Barbra Dylan', identifiers=[AgentIdentifier(1)])
-        ], [Person(name='Barbra Dylan', identifiers=[AgentIdentifier(1)])]),
+        ], [Person(name='Barbra Dylan', parse=True, identifiers=[AgentIdentifier(1, parse=True)])]),
         # two sames, same length, same identifier, alphabetize and take first
         ([
             Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
             Person(name='Aarb Dylan', identifiers=[AgentIdentifier(1)])
-        ], [Person(name='Aarb Dylan', identifiers=[AgentIdentifier(1)])]),
+        ], [Person(name='Aarb Dylan', parse=True, identifiers=[AgentIdentifier(1, parse=True)])]),
         # 3 different names, take longest of each name field
         ([
-            Person(name='Dylan', identifiers=[AgentIdentifier(1)]),
+            # Below case WILL FAIL. Haven't seen just a last name... yet
+            # Person(name='Dylan', identifiers=[AgentIdentifier(1)]),
+            Person(name='Dylan, B', identifiers=[AgentIdentifier(1)]),
             Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
             Person(name='B. D. Dylan', identifiers=[AgentIdentifier(1)])
-        ], [Person(name='Barb D. Dylan', identifiers=[AgentIdentifier(1)])]),
+        ], [Person(name='Barb D. Dylan', parse=True, identifiers=[AgentIdentifier(1, parse=True)])]),
     ])
     def test_normalize_person_relation(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(related_agents=input)))
+        graph = ChangeGraph(Graph(*input))
         graph.process(disambiguate=False)
-        assert graph.serialize() == Graph(CreativeWork(related_agents=output))
+        assert graph.serialize() == Graph(*output)
 
     @pytest.mark.parametrize('input, output', [
         (Agent(name='none'), None),
@@ -129,7 +138,7 @@ class TestModelNormalization:
         (Agent(name='DPTA'), Organization(name='DPTA')),
         (Agent(name='B. Verkin Institute for Low Temperatures Physics & Engineering, Kharkov, Ukraine'), Institution(name='B. Verkin Institute for Low Temperatures Physics & Engineering', location='Kharkov, Ukraine', type='institution')),
         (Agent(name='Physikalisches Institut, University Wuerzburg, Germany'), Agent(name='Physikalisches Institut', location='University Wuerzburg, Germany', type='institution')),
-        (Agent(name='Centro de Biotecnologia e Departamento de Biofísica; UFRGS; Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi'), Agent(name='UFRGS - Centro de Biotecnologia e Departamento de Biofísica', location='Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi')),
+        (Agent(name='Centro de Biotecnologia e Departamento de Biofísica; UFRGS; Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi'), Agent(name='UFRGS - Centro de Biotecnologia e Departamento de Biofísica', location='Av Bento Goncalves 9500, Predio 43431 Sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi')),
         (Agent(name='Department of Chemistry; ZheJiang University; HangZhou ZheJiang CHINA'), Institution(name='ZheJiang University - Department of Chemistry', location='HangZhou ZheJiang CHINA')),
         (Agent(name='Marine Evolution and Conservation; Groningen Institute for Evolutionary Life Sciences; University of Groningen; Nijenborgh 7, 9747 AG Groningen The Netherlands'), Institution(name='University of Groningen - Marine Evolution and Conservation; Groningen Institute for Evolutionary Life Sciences', location='Nijenborgh 7, 9747 AG Groningen The Netherlands')),
         (Agent(name='Institute of Marine Research; PO Box 1870 Nordnes, 5817 Bergen Norway'), Institution(name='Institute of Marine Research', location='PO Box 1870 Nordnes, 5817 Bergen Norway')),
@@ -148,85 +157,85 @@ class TestModelNormalization:
         ([
             Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)]),
             Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)])
-        ], [Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)])]),
+        ], [Organization(name='American Heart Association', identifiers=[AgentIdentifier(1, parse=True)])]),
         # same name, different identifiers
         ([
             Organization(name='Money Foundation', identifiers=[AgentIdentifier(1)]),
             Organization(name='Money Foundation', identifiers=[AgentIdentifier(2)])
         ], [
-            Organization(name='Money Foundation', identifiers=[AgentIdentifier(1), AgentIdentifier(2)])
+            Organization(name='Money Foundation', identifiers=[AgentIdentifier(1, parse=True), AgentIdentifier(2, parse=True)])
         ]),
         # same name, different identifiers, different capitilization
         ([
             Organization(name='Money Foundation', identifiers=[AgentIdentifier(1)]),
             Organization(name='MONEY FOUNDATION', identifiers=[AgentIdentifier(2)])
         ], [
-            Organization(name='Money Foundation', identifiers=[AgentIdentifier(1)]),
-            Organization(name='MONEY FOUNDATION', identifiers=[AgentIdentifier(2)])
+            Organization(name='Money Foundation', identifiers=[AgentIdentifier(1, parse=True)]),
+            Organization(name='MONEY FOUNDATION', identifiers=[AgentIdentifier(2, parse=True)])
         ]),
         # same identifier, different type, accept more specific type
         ([
             Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)]),
             Organization(name='University of Virginia', identifiers=[AgentIdentifier(1)]),
         ], [
-            Institution(name='University Of Virginia', identifiers=[AgentIdentifier(1)])
+            Institution(name='University of Virginia', identifiers=[AgentIdentifier(1, parse=True)])
         ]),
         # same identifier, same name, same length, different capitilization, alphabetize
         ([
             Organization(name='Share', identifiers=[AgentIdentifier(1)]),
             Organization(name='SHARE', identifiers=[AgentIdentifier(1)])
-        ], [Organization(name='SHARE', identifiers=[AgentIdentifier(1)])]),
+        ], [Organization(name='SHARE', identifiers=[AgentIdentifier(1, parse=True)])]),
         # same name, one identifier, add identifier
         ([
             Organization(name='Timetables Inc.'),
             Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)])
-        ], [Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)])]),
+        ], [Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1, parse=True)])]),
         # same identifier, different name, accept longest alphabetize
         ([
             Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)]),
             Institution(name='Cooking Instituze', identifiers=[AgentIdentifier(1)]),
             Institution(name='Cook Institute', identifiers=[AgentIdentifier(1)])
-        ], [Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])]),
+        ], [Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1, parse=True)])]),
     ])
     def test_normalize_organization_institution_name(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(related_agents=input)))
+        graph = ChangeGraph(Graph(*input))
         graph.process(disambiguate=False)
-        assert graph.serialize() == Graph(CreativeWork(related_agents=output))
+        assert graph.serialize() == Graph(*output)
 
     # test different types of agent work relations
     # Funder, Publisher, Host
     @pytest.mark.parametrize('input, output', [
         # same name, same identifiers
         ([
-            Funder(cited_as='American Heart Association', agent=Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)])),
-            Host(cited_as='American Heart Association', agent=Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='American Heart Association', agent=Organization(1, id=1, name='American Heart Association', identifiers=[AgentIdentifier(1, id=0)])),
+            Host(cited_as='American Heart Association', agent=Organization(2, id=1, name='American Heart Association', identifiers=[AgentIdentifier(1)]))
         ], [
-            Funder(cited_as='American Heart Association', agent=Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)])),
-            Host(cited_as='American Heart Association', agent=Organization(name='American Heart Association', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='American Heart Association', agent=Organization(1, id=1, name='American Heart Association', identifiers=[AgentIdentifier(1, id=0, parse=True)])),
+            Host(cited_as='American Heart Association', agent=Organization(1, id=1, name='American Heart Association', identifiers=[AgentIdentifier(1, id=0, parse=True)]))
         ]),
         # same name, different identifiers
         ([
-            Funder(cited_as='Money Foundation', agent=Organization(name='Money Foundation', identifiers=[AgentIdentifier(1)])),
+            Funder(cited_as='Money Foundation', agent=Organization(id=1, name='Money Foundation', identifiers=[AgentIdentifier(1)])),
             Host(cited_as='Money Foundation', agent=Organization(name='Money Foundation', identifiers=[AgentIdentifier(2)]))
         ], [
-            Funder(cited_as='Money Foundation', agent=Organization(name='Money Foundation', identifiers=[AgentIdentifier(1), AgentIdentifier(2)])),
-            Host(cited_as='Money Foundation', agent=Organization(name='Money Foundation', identifiers=[AgentIdentifier(1), AgentIdentifier(2)]))
+            Funder(cited_as='Money Foundation', agent=Organization(id=1, name='Money Foundation', identifiers=[AgentIdentifier(1, parse=True), AgentIdentifier(2, parse=True)])),
+            Host(cited_as='Money Foundation', agent=Organization(id=1, name='Money Foundation'))
         ]),
         # same identifier, different type
         ([
-            Funder(cited_as='University of Virginia', agent=Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='University of Virginia', agent=Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='University of Virginia', agent=Institution(id=1, name='University of Virginia', identifiers=[AgentIdentifier(1)])),
+            Publisher(cited_as='University of Virginia', agent=Institution(name='University of Virginia', identifiers=[AgentIdentifier(1, id=0)]))
         ], [
-            Funder(cited_as='University of Virginia', agent=Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='University of Virginia', agent=Institution(name='University of Virginia', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='University of Virginia', agent=Institution(id=1, name='University of Virginia', identifiers=[AgentIdentifier(1, id=0, parse=True)])),
+            Publisher(cited_as='University of Virginia', agent=Institution(id=1, name='University of Virginia'))
         ]),
         # same identifier, same name, same length, different capitilization, alphabetize
         ([
-            Publisher(cited_as='Share', agent=Organization(name='Share', identifiers=[AgentIdentifier(1)])),
-            Host(cited_as='SHARE', agent=Organization(name='SHARE', identifiers=[AgentIdentifier(1)]))
+            Publisher(cited_as='Share', agent=Organization(id=0, name='Share', identifiers=[AgentIdentifier(1, id=2)])),
+            Host(cited_as='SHARE', agent=Organization(id=1, name='SHARE', identifiers=[AgentIdentifier(1, id=2)]))
         ], [
-            Publisher(cited_as='Share', agent=Organization(name='SHARE', identifiers=[AgentIdentifier(1)])),
-            Host(cited_as='SHARE', agent=Organization(name='SHARE', identifiers=[AgentIdentifier(1)]))
+            Publisher(cited_as='Share', agent=Organization(id=0, name='SHARE', identifiers=[AgentIdentifier(1, id=2, parse=True)])),
+            Host(cited_as='SHARE', agent=Organization(id=0, name='SHARE'))
         ]),
         # same name, one identifier, add identifier
         ([
@@ -267,64 +276,64 @@ class TestModelNormalization:
     @pytest.mark.parametrize('input, output', [
         # same name, same identifiers
         ([
-            Creator(cited_as='American Heart Association', agent=Organization(0, name='American Heart Association', identifiers=[AgentIdentifier(1)])),
-            Contributor(cited_as='American Heart Association', agent=Organization(1, name='American Heart Association', identifiers=[AgentIdentifier(1)]))
+            Creator(cited_as='American Heart Association', agent=Organization(id=0, name='American Heart Association', identifiers=[AgentIdentifier(1, id=1)])),
+            Contributor(cited_as='American Heart Association', agent=Organization(id=1, name='American Heart Association', identifiers=[AgentIdentifier(1, id=2)]))
         ], [
-            Creator(cited_as='American Heart Association', agent=Organization(1, name='American Heart Association', identifiers=[AgentIdentifier(1, parse=True)]))
+            Creator(cited_as='American Heart Association', agent=Organization(id=1, name='American Heart Association', identifiers=[AgentIdentifier(1, id=2, parse=True)]))
         ]),
         # same name, different identifiers
         ([
-            Creator(cited_as='Money Foundation', agent=Organization(0, name='Money Foundation', identifiers=[AgentIdentifier(2)])),
-            Contributor(cited_as='Money Foundation', agent=Organization(1, name='Money Foundation', identifiers=[AgentIdentifier(1)])),
+            Creator(cited_as='Money Foundation', agent=Organization(id=1, name='Money Foundation', identifiers=[AgentIdentifier()])),
+            Contributor(cited_as='Money Foundation', agent=Organization(id=2, name='Money Foundation', identifiers=[AgentIdentifier()])),
         ], [
-            Creator(cited_as='Money Foundation', agent=Organization(1, name='Money Foundation', identifiers=[AgentIdentifier(1, parse=True), AgentIdentifier(2, parse=True)]))
+            Creator(cited_as='Money Foundation', agent=Organization(id=2, name='Money Foundation', identifiers=[AgentIdentifier(parse=True), AgentIdentifier(parse=True)]))
         ]),
         # same identifier, different type
         ([
-            Contributor(cited_as='University of Virginia', agent=Institution(0, name='University of Virginia', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='University of Virginia', agent=Institution(0, name='University of Virginia', identifiers=[AgentIdentifier(1)]))
+            Contributor(cited_as='University of Virginia', agent=Institution(id=0, name='University of Virginia', identifiers=[AgentIdentifier(1, id=1)])),
+            Publisher(cited_as='University of Virginia', agent=Institution(id=1, name='University of Virginia', identifiers=[AgentIdentifier(1, id=1)]))
         ], [
-            Contributor(cited_as='University of Virginia', agent=Institution(0, name='University Of Virginia', identifiers=[AgentIdentifier(1, parse=True)])),
-            Publisher(cited_as='University of Virginia', agent=Institution(0, name='University Of Virginia', identifiers=[AgentIdentifier(1, parse=True)]))
+            Contributor(cited_as='University of Virginia', agent=Institution(id=1, name='University of Virginia', identifiers=[AgentIdentifier(1, id=1, parse=True)])),
+            Publisher(cited_as='University of Virginia', agent=Institution(id=1, name='University of Virginia', identifiers=[AgentIdentifier(1, id=1, parse=True)]))
         ]),
         # same identifier, same name, same length, different capitilization, alphabetize
         ([
-            Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)])),
-            Contributor(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)])),
+            Creator(cited_as='Bob Dylan', agent=Person(id=0, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=0)])),
+            Contributor(cited_as='Bob Dylan', agent=Person(id=1, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=1)])),
         ], [
-            Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', given_name='Bob', family_name='Dylan', identifiers=[AgentIdentifier(1, parse=True)]))
+            Creator(cited_as='Bob Dylan', agent=Person(id=1, name='Bob Dylan', given_name='Bob', family_name='Dylan', identifiers=[AgentIdentifier(1, id=1, parse=True)]))
         ]),
         # same identifier, different name, different type
         ([
-            Creator(cited_as='B. Dylan', agent=Person(name='B. Dylan', identifiers=[AgentIdentifier(1)])),
-            Contributor(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', identifiers=[AgentIdentifier(1)])),
+            Creator(cited_as='B. Dylan', agent=Person(id=0, name='B. Dylan', identifiers=[AgentIdentifier(1, id=0)])),
+            Contributor(cited_as='Bob Dylan', agent=Person(id=1, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=1)])),
         ], [
-            Creator(cited_as='Bob Dylan', agent=Person(name='Bob Dylan', given_name='Bob', family_name='Dylan', identifiers=[AgentIdentifier(1, parse=True)]))
+            Creator(cited_as='Bob Dylan', agent=Person(id=1, name='Bob Dylan', given_name='Bob', family_name='Dylan', identifiers=[AgentIdentifier(1, id=1, parse=True)]))
         ]),
         # same name, one identifier, add identifier
         ([
-            Creator(0, cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.')),
-            Creator(1, cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)]))
+            Creator(1, id=0, cited_as='Timetables Inc.', agent=Organization(id=0, name='Timetables Inc.')),
+            Creator(1, id=1, cited_as='Timetables Inc.', agent=Organization(id=1, name='Timetables Inc.', identifiers=[AgentIdentifier()]))
         ], [
-            Creator(1, cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1, parse=True)]))
+            Creator(1, id=1, cited_as='Timetables Inc.', agent=Organization(id=1, name='Timetables Inc.', identifiers=[AgentIdentifier(parse=True)]))
         ]),
         # same identifier, different name, accept longest alphabetize
         ([
-            Creator(cited_as='Cooking Institute', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Contributor(cited_as='Cooking Instituze', agent=Organization(name='Cooking Instituze', identifiers=[AgentIdentifier(1)])),
-            Funder(cited_as='Cook Institute', agent=Organization(name='Cook Institute', identifiers=[AgentIdentifier(1)]))
+            Creator(cited_as='Cooking Institute', agent=Organization(id=1, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1)])),
+            Contributor(cited_as='Cooking Instituze', agent=Organization(id=2, name='Cooking Instituze', identifiers=[AgentIdentifier(1, id=1)])),
+            Funder(cited_as='Cook Institute', agent=Organization(id=3, name='Cook Institute', identifiers=[AgentIdentifier(1, id=1)]))
         ], [
-            Creator(cited_as='Cooking Institute', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Funder(cited_as='Cook Institute', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1, parse=True)]))
+            Creator(cited_as='Cooking Institute', agent=Institution(id=3, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1, parse=True)])),
+            Funder(cited_as='Cook Institute', agent=Institution(id=3, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1, parse=True)]))
         ]),
         # same identifier, different name, different type, accept longest alphabetize, more specific
         ([
-            Creator(cited_as='Cooking Institute', agent=Institution(0, name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Contributor(cited_as='Cooking Instituze', agent=Organization(1, name='Cooking Instituze', identifiers=[AgentIdentifier(1)])),
-            Funder(cited_as='Cook Institute', agent=Institution(0, name='Cook Institute', identifiers=[AgentIdentifier(1, parse=True)]))
+            Creator(cited_as='Cooking Institute', agent=Institution(id=0, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1)])),
+            Contributor(cited_as='Cooking Instituze', agent=Organization(id=1, name='Cooking Instituze', identifiers=[AgentIdentifier(1, id=2)])),
+            Funder(cited_as='Cook Institute', agent=Institution(id=2, name='Cook Institute', identifiers=[AgentIdentifier(1, id=1, parse=True)]))
         ], [
-            Creator(cited_as='Cooking Institute', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Funder(cited_as='Cook Institute', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1, parse=True)]))
+            Creator(cited_as='Cooking Institute', agent=Institution(id=0, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1, parse=True)])),
+            Funder(cited_as='Cook Institute', agent=Institution(id=0, name='Cooking Institute', identifiers=[AgentIdentifier(1, parse=True)]))
         ]),
     ])
     def test_normalize_contributor_creator_relation(self, input, output, Graph):
@@ -337,9 +346,9 @@ class TestModelNormalization:
         # different identifiers
         (CreativeWork(1, related_works=[CreativeWork(2)]), CreativeWork(1, related_works=[CreativeWork(2)])),
         # same identifiers
-        (CreativeWork(1, related_works=[CreativeWork(1)]), CreativeWork(1)),
+        (CreativeWork(1, id=1, related_works=[CreativeWork(1, id=1)]), CreativeWork(1, id=1)),
         # same identifiers, different identifiers
-        (CreativeWork(1, related_works=[CreativeWork(1), CreativeWork(2)]), CreativeWork(1, related_works=[CreativeWork(2)]))
+        (CreativeWork(1, id=1, related_works=[CreativeWork(1, id=1), CreativeWork(2, id=2)]), CreativeWork(1, id=1, related_works=[CreativeWork(2, id=2)]))
     ])
     def test_normalize_related_work(self, input, output, Graph):
         graph = ChangeGraph(Graph(input))
