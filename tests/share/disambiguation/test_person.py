@@ -36,7 +36,7 @@ initial = [
     Publication(
         identifiers=[WorkIdentifier(3)],
         agent_relations=[
-            Creator(agent=Person(7))
+            Creator(agent=Person(7, identifiers=[AgentIdentifier(1)]))
         ],
         related_works=[
             Patent(
@@ -56,7 +56,7 @@ class TestPersonDisambiguation:
     # everything with delta=0 fails
     @pytest.mark.parametrize('input, model, delta', [
         ([Person(name='Bob Dylan')], models.Person, 1),
-        ([Person(7)], models.Person, 0),
+        ([Person(7, identifiers=[AgentIdentifier(1)])], models.Person, 0),
         ([Publication(related_agents=[Person(4)])], models.Person, 0),
         ([Publication(related_agents=[Person(9)])], models.Person, 1),
         ([CreativeWork(related_agents=[Person(name='Bill Gates')])], models.Person, 1),
