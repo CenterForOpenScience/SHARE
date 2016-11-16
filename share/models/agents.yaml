@@ -4,9 +4,10 @@ Agent:
         to produce or contribute to the production of creative works.
         Either an individual person or a group of people.
     children:
-        Consortium: {}
-        Institution: {}
-        Organization: {}
+        Organization:
+            children:
+                Institution: {}
+                Consortium: {}
         Person:
             verbose_name_plural: people
             fields:
