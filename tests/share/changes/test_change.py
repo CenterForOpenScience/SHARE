@@ -641,17 +641,17 @@ class TestChangeSet:
         cs = change_factory.from_graph({
             '@graph': [{
                 '@id': IDObfuscator.encode(university_of_whales),
-                '@type': 'organization'
+                '@type': 'consortium'
             }]
         }, disambiguate=True)
 
         assert models.Institution.objects.count() == 1
-        assert models.Organization.objects.count() == 0
+        assert models.Consortium.objects.count() == 0
 
         (org,) = cs.accept()
 
-        assert org.type == 'share.organization'
+        assert org.type == 'share.consortium'
         assert org.id == university_of_whales.id
         assert org.name == university_of_whales.name
         assert models.Institution.objects.count() == 0
-        assert models.Organization.objects.count() == 1
+        assert models.Consortium.objects.count() == 1
