@@ -209,7 +209,7 @@ class GraphDisambiguator:
                     matches.update(matches_all)
                 # TODO use `info.tie_breaker` when there are multiple matches
                 if info.matching_types:
-                    return [m for m in matches if m != node and 'share.{}'.format(m.model._meta.model_name) in info.matching_types]
+                    return [m for m in matches if m != node and m.model._meta.label_lower in info.matching_types]
                 else:
                     return [m for m in matches if m != node]
             except KeyError:
@@ -248,14 +248,12 @@ class GraphDisambiguator:
                     return None
 
                 # list of all subclasses and superclasses of node.model that could be the type of a node
-                def fmt(model):
-                    return 'share.{}'.format(model._meta.model_name)
                 concrete_model = self._node.model._meta.concrete_model
                 if concrete_model is self._node.model:
-                    type_names = [fmt(self._node.model)]
+                    type_names = [self._node.model._meta.label_lower]
                 else:
                     subclasses = self._node.model.get_types()
-                    superclasses = [fmt(m) for m in self._node.model.__mro__ if issubclass(m, concrete_model) and m._meta.proxy]
+                    superclasses = [m._meta.label_lower for m in self._node.model.__mro__ if issubclass(m, concrete_model) and m._meta.proxy]
                     type_names = subclasses + superclasses
                 return set(type_names)
 
