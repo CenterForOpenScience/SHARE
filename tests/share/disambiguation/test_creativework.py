@@ -58,6 +58,8 @@ class TestWorkDisambiguation:
         ([CreativeWork(identifiers=[WorkIdentifier(7)])], models.CreativeWork, 1),
         # creativework with same identifier as creativework
         ([CreativeWork(identifiers=[WorkIdentifier(3)])], models.CreativeWork, 0),
+        # creativework with same identifier as creativework and other identifiers
+        ([CreativeWork(identifiers=[WorkIdentifier(3), WorkIdentifier(), WorkIdentifier()])], models.CreativeWork, 0),
         # creativework with same identifier as publication
         ([CreativeWork(identifiers=[WorkIdentifier(5)])], models.CreativeWork, 0),
         ([CreativeWork(identifiers=[WorkIdentifier(5)])], models.Publication, 0),

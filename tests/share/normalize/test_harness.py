@@ -6,10 +6,10 @@ from tests.share.normalize.factories import *
 class TestShortHand:
 
     def test_id(self):
-        assert Agent(0) == {'id': '_:0', 'type': 'agent'}
-        assert Person(0) == {'id': '_:0', 'type': 'person'}
-        assert Organization(0) == {'id': '_:0', 'type': 'organization'}
-        assert Institution(0) == {'id': '_:0', 'type': 'institution'}
+        assert Agent(0) == {'seed': 0, 'type': 'agent'}
+        assert Person(0) == {'seed': 0, 'type': 'person'}
+        assert Organization(0) == {'seed': 0, 'type': 'organization'}
+        assert Institution(0) == {'seed': 0, 'type': 'institution'}
 
     def test_anon(self):
         assert CreativeWork() == {'type': 'creativework'}
@@ -30,10 +30,10 @@ class TestShortHand:
             related_works=[Preprint(identifiers=[WorkIdentifier(0)])]
         ) == {
             'type': 'creativework',
-            'identifiers': [{'id': '_:0', 'type': 'workidentifier'}, {'id': '_:1', 'type': 'workidentifier'}],
+            'identifiers': [{'seed': 0, 'type': 'workidentifier'}, {'seed': 1, 'type': 'workidentifier'}],
             'related_works': [{
                 'type': 'preprint',
-                'identifiers': [{'id': '_:0', 'type': 'workidentifier'}]
+                'identifiers': [{'seed': 0, 'type': 'workidentifier'}]
             }]
         }
 
@@ -107,7 +107,7 @@ class TestMakeGraph:
         assert Graph(Tag(), CreativeWork(), Tag()) == Graph(CreativeWork(), Tag(), Tag())
 
     def test_ids_dont_effect(self, Graph):
-        assert Graph(Tag(), Tag(1), Tag()) == Graph(Tag(), Tag(), Tag(1))
+        assert Graph(Tag(), Tag(1, id=1), Tag()) == Graph(Tag(), Tag(), Tag(1, id=1))
 
     def test_cases(self, Graph):
         assert Graph(AgentIdentifier(1), AgentIdentifier(1), AgentIdentifier(1)) == Graph(AgentIdentifier(1), AgentIdentifier(1), AgentIdentifier(1))
