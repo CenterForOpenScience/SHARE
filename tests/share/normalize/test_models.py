@@ -358,20 +358,20 @@ class TestModelNormalization:
         # same identifier, different name, accept longest alphabetize
         ([
             Creator(cited_as='Cooking Institute', agent=Organization(id=1, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1)])),
-            Contributor(cited_as='Cooking Instituze', agent=Organization(id=2, name='Cooking Instituze', identifiers=[AgentIdentifier(1, id=1)])),
-            Funder(cited_as='Cook Institute', agent=Organization(id=3, name='Cook Institute', identifiers=[AgentIdentifier(1, id=1)]))
+            Contributor(cited_as='Cooking Instituze', agent=Organization(id=2, name='Cooking Instituze', identifiers=[AgentIdentifier(1, id=2)])),
+            Funder(cited_as='Cook Institute', agent=Organization(id=3, name='Cook Institute', identifiers=[AgentIdentifier(1, id=3)]))
         ], [
-            Creator(cited_as='Cooking Institute', agent=Institution(id=3, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1, parse=True)])),
-            Funder(cited_as='Cook Institute', agent=Institution(id=3, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1, parse=True)]))
+            Creator(cited_as='Cooking Institute', agent=Institution(id=3, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)])),
+            Funder(cited_as='Cook Institute', agent=Institution(id=3, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)]))
         ]),
         # same identifier, different name, different type, accept longest alphabetize, more specific
         ([
             Creator(cited_as='Cooking Institute', agent=Institution(id=0, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1)])),
             Contributor(cited_as='Cooking Instituze', agent=Organization(id=1, name='Cooking Instituze', identifiers=[AgentIdentifier(1, id=2)])),
-            Funder(cited_as='Cook Institute', agent=Institution(id=2, name='Cook Institute', identifiers=[AgentIdentifier(1, id=1, parse=True)]))
+            Funder(cited_as='Cook Institute', agent=Institution(id=2, name='Cook Institute', identifiers=[AgentIdentifier(1, id=3)]))
         ], [
-            Creator(cited_as='Cooking Institute', agent=Institution(id=0, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1, parse=True)])),
-            Funder(cited_as='Cook Institute', agent=Institution(id=0, name='Cooking Institute', identifiers=[AgentIdentifier(1, parse=True)]))
+            Creator(cited_as='Cooking Institute', agent=Institution(id=2, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)])),
+            Funder(cited_as='Cook Institute', agent=Institution(id=2, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)]))
         ]),
     ])
     def test_normalize_contributor_creator_relation(self, input, output, Graph):
@@ -386,7 +386,7 @@ class TestModelNormalization:
         # same identifiers
         (CreativeWork(1, id=1, related_works=[CreativeWork(1, id=1)]), CreativeWork(1, id=1)),
         # same and different identifiers
-        (CreativeWork(1, id=1, related_works=[CreativeWork(1, id=1), CreativeWork(2, id=2)]), CreativeWork(1, id=1, related_works=[CreativeWork(2, id=2)]))
+        (CreativeWork(1, id=1, related_works=[CreativeWork(2, id=2), CreativeWork(1, id=1)]), CreativeWork(1, id=1, related_works=[CreativeWork(2, id=2)]))
     ])
     def test_normalize_related_work(self, input, output, Graph):
         graph = ChangeGraph(Graph(input))
