@@ -8,6 +8,7 @@ from tests.share.normalize.factories import Tag, CreativeWork, Person, WorkIdent
 
 class TestModelNormalization:
 
+    # test each tag resolves to lowercased, tokenized name
     @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
         ([
             Tag(name=''),
@@ -43,6 +44,42 @@ class TestModelNormalization:
         graph.process(disambiguate=False)
 
         assert graph.serialize() == Graph(CreativeWork(tags=output))
+
+    # test tags with the same name are merged on a work
+    @pytest.mark.parametrize('input, output', [
+        ([
+            Tag(name=''),
+            Tag(name='        '),
+            Tag(name='\n\n\n'),
+        ], []),
+        ([
+            Tag(name='foo'),
+            Tag(name='foO'),
+            Tag(name='Foo'),
+            Tag(name='FOO'),
+            Tag(name='      FOO'),
+            Tag(name='      foo\n\n\n'),
+        ], [Tag(name='foo')]),
+        ([
+            Tag(name='Rocket League'),
+            Tag(name='rocket league'),
+            Tag(name='ROCKET LEAGUE'),
+            Tag(name='Rocket         League'),
+            Tag(name='\nRocket    \n     League\t'),
+            Tag(name='rocket\nleague'),
+        ], [Tag(name='rocket league')]),
+        ([
+            Tag(name='Crash; Bandicoot'),
+            Tag(name='Crash;           Bandicoot'),
+            Tag(name='\nCrash; Bandicoot'),
+            Tag(name='crash, bandicoot'),
+            Tag(name='Crash ,Bandicoot           '),
+        ], [Tag(name='bandicoot'), Tag(name='crash')]),
+    ])
+    def test_normalize_tags_on_work(self, input, output, Graph):
+        graph = ChangeGraph(Graph(CreativeWork(tags=input)))
+        graph.normalize()
+        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(tags=output))
 
     @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
         ([
@@ -274,21 +311,21 @@ class TestModelNormalization:
     # test different types of agent work relations
     # Contributor, Creator
     @pytest.mark.parametrize('input, output', [
-        # same name, same identifiers
+        # same name, same identifiers, different type, same type tree, organization
         ([
             Creator(cited_as='American Heart Association', agent=Organization(id=0, name='American Heart Association', identifiers=[AgentIdentifier(1, id=1)])),
             Contributor(cited_as='American Heart Association', agent=Organization(id=1, name='American Heart Association', identifiers=[AgentIdentifier(1, id=2)]))
         ], [
             Creator(cited_as='American Heart Association', agent=Organization(id=1, name='American Heart Association', identifiers=[AgentIdentifier(1, id=2, parse=True)]))
         ]),
-        # same name, different identifiers
+        # same name, different identifiers, different type, same type tree
         ([
             Creator(cited_as='Money Foundation', agent=Organization(id=1, name='Money Foundation', identifiers=[AgentIdentifier()])),
             Contributor(cited_as='Money Foundation', agent=Organization(id=2, name='Money Foundation', identifiers=[AgentIdentifier()])),
         ], [
             Creator(cited_as='Money Foundation', agent=Organization(id=2, name='Money Foundation', identifiers=[AgentIdentifier(parse=True), AgentIdentifier(parse=True)]))
         ]),
-        # same identifier, different type
+        # same identifier, same name, different type
         ([
             Contributor(cited_as='University of Virginia', agent=Institution(id=0, name='University of Virginia', identifiers=[AgentIdentifier(1, id=1)])),
             Publisher(cited_as='University of Virginia', agent=Institution(id=1, name='University of Virginia', identifiers=[AgentIdentifier(1, id=1)]))
@@ -296,7 +333,7 @@ class TestModelNormalization:
             Contributor(cited_as='University of Virginia', agent=Institution(id=1, name='University of Virginia', identifiers=[AgentIdentifier(1, id=1, parse=True)])),
             Publisher(cited_as='University of Virginia', agent=Institution(id=1, name='University of Virginia', identifiers=[AgentIdentifier(1, id=1, parse=True)]))
         ]),
-        # same identifier, same name, same length, different capitilization, alphabetize
+        # same identifier, same name, different type, same type tree, person
         ([
             Creator(cited_as='Bob Dylan', agent=Person(id=0, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=0)])),
             Contributor(cited_as='Bob Dylan', agent=Person(id=1, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=1)])),
@@ -347,7 +384,7 @@ class TestModelNormalization:
         (CreativeWork(1, related_works=[CreativeWork(2)]), CreativeWork(1, related_works=[CreativeWork(2)])),
         # same identifiers
         (CreativeWork(1, id=1, related_works=[CreativeWork(1, id=1)]), CreativeWork(1, id=1)),
-        # same identifiers, different identifiers
+        # same and different identifiers
         (CreativeWork(1, id=1, related_works=[CreativeWork(1, id=1), CreativeWork(2, id=2)]), CreativeWork(1, id=1, related_works=[CreativeWork(2, id=2)]))
     ])
     def test_normalize_related_work(self, input, output, Graph):
