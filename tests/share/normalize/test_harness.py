@@ -5,11 +5,17 @@ from tests.share.normalize.factories import *
 
 class TestShortHand:
 
-    def test_id(self):
+    def test_seed(self):
         assert Agent(0) == {'seed': 0, 'type': 'agent'}
         assert Person(0) == {'seed': 0, 'type': 'person'}
         assert Organization(0) == {'seed': 0, 'type': 'organization'}
         assert Institution(0) == {'seed': 0, 'type': 'institution'}
+
+    def test_id(self):
+        assert Agent(id=0) == {'id': '_:_0', 'type': 'agent'}
+        assert Person(id=0) == {'id': '_:_0', 'type': 'person'}
+        assert Organization(id=0) == {'id': '_:_0', 'type': 'organization'}
+        assert Institution(id=0) == {'id': '_:_0', 'type': 'institution'}
 
     def test_anon(self):
         assert CreativeWork() == {'type': 'creativework'}
@@ -26,14 +32,14 @@ class TestShortHand:
 
     def test_nesting(self):
         assert CreativeWork(
-            identifiers=[WorkIdentifier(0), WorkIdentifier(1)],
-            related_works=[Preprint(identifiers=[WorkIdentifier(0)])]
+            identifiers=[WorkIdentifier(id=0), WorkIdentifier(id=1)],
+            related_works=[Preprint(identifiers=[WorkIdentifier(id=0)])]
         ) == {
             'type': 'creativework',
-            'identifiers': [{'seed': 0, 'type': 'workidentifier'}, {'seed': 1, 'type': 'workidentifier'}],
+            'identifiers': [{'id': '_:_0', 'type': 'workidentifier'}, {'id': '_:_1', 'type': 'workidentifier'}],
             'related_works': [{
                 'type': 'preprint',
-                'identifiers': [{'seed': 0, 'type': 'workidentifier'}]
+                'identifiers': [{'id': '_:_0', 'type': 'workidentifier'}]
             }]
         }
 

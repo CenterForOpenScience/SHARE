@@ -63,6 +63,13 @@ class TestWorkDisambiguation:
         # creativework with same identifier as publication
         ([CreativeWork(identifiers=[WorkIdentifier(5)])], models.CreativeWork, 0),
         ([CreativeWork(identifiers=[WorkIdentifier(5)])], models.Publication, 0),
+        # creativework with an additional identifier
+        ([CreativeWork(identifiers=[WorkIdentifier(), WorkIdentifier(5)])], models.Publication, 0),
+        ([CreativeWork(identifiers=[WorkIdentifier(), WorkIdentifier(5)])], models.WorkIdentifier, 1),
+        ([CreativeWork(identifiers=[WorkIdentifier(20), WorkIdentifier(5)])], models.Publication, 0),
+        ([CreativeWork(identifiers=[WorkIdentifier(21), WorkIdentifier(5)])], models.WorkIdentifier, 1),
+        ([CreativeWork(identifiers=[WorkIdentifier(5), WorkIdentifier(22)])], models.Publication, 0),
+        ([CreativeWork(identifiers=[WorkIdentifier(5), WorkIdentifier(23)])], models.WorkIdentifier, 1),
         # article with same identifier as publication
         ([Article(identifiers=[WorkIdentifier(5)])], models.Article, 1),
         ([Article(identifiers=[WorkIdentifier(5)])], models.Publication, 0),
@@ -101,7 +108,7 @@ class TestWorkDisambiguation:
         initial_cg.process()
         ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
 
-        Graph.reseed()  # Force new values to be generated
+        # Graph.reseed()  # Force new values to be generated
 
         first_cg = ChangeGraph(Graph(*input))
         first_cg.process()
@@ -123,3 +130,14 @@ class TestWorkDisambiguation:
         cg = ChangeGraph(Graph(*initial))
         cg.process()
         assert ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id) is None
+
+    def test_split_brain(self, Graph):
+        initial_cg = ChangeGraph(Graph(*initial))
+        initial_cg.process()
+        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
+
+        # Multiple matches found for a thing should break
+        cg = ChangeGraph(Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)])))
+        with pytest.raises(NotImplementedError) as e:
+            cg.process()
+        assert e.value.args[0] == 'Multiple matches found'

@@ -4,6 +4,7 @@ import inspect
 import pytest
 import random
 import re
+import logging
 
 import faker
 
@@ -20,6 +21,7 @@ from share.normalize.links import IRILink
 
 
 __all__ = ('Graph', )
+logger = logging.getLogger(__name__)
 
 
 used_ids = set()
@@ -61,6 +63,7 @@ class GraphContructor:
         old_state = (random.getstate(), _Faker.random.getstate())
 
         if name not in self._states:
+            logger.warning('No state for %s. Seeding with %s', name, seed or self._seed)
             random.seed(seed or self._seed)
             _Faker.random.seed(seed or self._seed)
             self._states[name] = (random.getstate(), _Faker.random.getstate())
@@ -74,6 +77,8 @@ class GraphContructor:
         self._states[name] = (random.getstate(), _Faker.random.getstate())
         if not name:
             del self._states[name]
+        else:
+            logger.info('Saving state %s for %s.', hash(self._states[name]), name)
 
         # Leave random(s) untouched upon exitting
         random.setstate(old_state[0])
@@ -120,11 +125,20 @@ class GraphContructor:
 
     def build_node(self, node):
         model = apps.get_model('share', node['type'])
+        logger.debug('Building %s for node %s', model, node)
 
         relations = {}
         for key in tuple(node.keys()):
             if isinstance(node[key], (dict, list)):
                 relations[key] = node.pop(key)
+
+        for f in model._meta.fields:
+            if not (f.is_relation and not f.null and f.editable and f.concrete) or f.name in node:
+                continue
+            if f.name not in relations:
+                logger.warning('Found missing required field %s. Inserting default', f)
+                relations[f.name] = {'type': f.rel.model._meta.concrete_model._meta.model_name}
+            node[f.name] = self.build_node({**relations.pop(f.name)})
 
         kwargs = {}
         if node.get('seed'):
@@ -142,6 +156,8 @@ class GraphContructor:
 
             with self.seed(**kwargs):
                 obj = self.get_factory(model._meta.concrete_model)(**_node)
+
+        logger.debug('Built %s, %s, %s for node %s', obj.id, obj.type, obj.attrs, node)
 
         for key, value in sorted(relations.items(), key=lambda x: x[0]):
             field = model._meta.get_field(key)
@@ -291,11 +307,12 @@ class AbstractCreativeWorkFactory(TypedShareObjectFactory):
 
 class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
     # lazy attr
+    # agent = factory.SubFactory(AbstractAgentFactory)
+    # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+
     @factory.lazy_attribute
     def cited_as(self):
         return self.agent.attrs['name']
-    agent = factory.SubFactory(AbstractAgentFactory)
-    creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
     # lazy attr base on type
     # award = factory.SubFactory(AwardFactory)
@@ -305,22 +322,23 @@ class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
 
 
 class AbstractWorkRelationFactory(TypedShareObjectFactory):
-    related = factory.SubFactory(AbstractCreativeWorkFactory)
-    subject = factory.SubFactory(AbstractCreativeWorkFactory)
+    # related = factory.SubFactory(AbstractCreativeWorkFactory)
+    # subject = factory.SubFactory(AbstractCreativeWorkFactory)
 
     class Meta:
         model = GraphNode
 
 
 class ThroughTagsFactory(ShareObjectFactory):
-    tag = factory.SubFactory(TagFactory)
-    creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+    pass
+    # tag = factory.SubFactory(TagFactory)
+    # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
 
 class WorkIdentifierFactory(ShareObjectFactory):
     parse = False
     uri = factory.Faker('url')
-    creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+    # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
     @factory.post_generation
     def _parse(self, *args, **kwargs):
@@ -333,7 +351,7 @@ class WorkIdentifierFactory(ShareObjectFactory):
 class AgentIdentifierFactory(ShareObjectFactory):
     parse = False
     uri = factory.Faker('url')
-    agent = factory.SubFactory(AbstractAgentFactory)
+    # agent = factory.SubFactory(AbstractAgentFactory)
 
     @factory.post_generation
     def _parse(self, *args, **kwargs):
