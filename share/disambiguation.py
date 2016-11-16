@@ -67,7 +67,8 @@ class GraphDisambiguator:
                     instance = self._instance_for_node(n)
                     if instance and isinstance(instance, list):
                         # TODO after merging is fixed, add mergeaction change to graph
-                        raise NotImplementedError()
+                        logger.error('Found multiple matches %s for %s', instance, n)
+                        raise NotImplementedError('Multiple matches found', n, instance)
                     if instance:
                         changed = True
                         n.instance = instance
@@ -90,28 +91,30 @@ class GraphDisambiguator:
         info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
 
-        all_query = {}
+        all_query = Q()
         for k, v in info.all:
             k, v = self._query_pair(k, v)
-            if (k, v) == (None, None):
+            if k and v:
+                all_query &= Q(**{k: v})
+            else:
                 return None
-            all_query[k] = v
 
-        any_query = {}
+        any_query = Q()
         for k, v in info.any:
             k, v = self._query_pair(k, v)
             if k and v:
-                any_query[k] = v
+                any_query |= Q(**{k: v})
 
-        if (info.any and not any_query) or (info.all and not all_query) or not (all_query or any_query):
+        if (info.any and not any_query.children) or (info.all and not all_query.children) or not (all_query.children or any_query.children):
             return None
 
-        query = {**any_query, **all_query}
+        # TODO Maybe add this back in for relations
+        # Relations should not transition hierarchies but Agents/Works may
+        # if concrete_model is not node.model:
+        #     query['type__in'] = info.matching_types
 
-        if info.matching_types:
-            query['type__in'] = info.matching_types
-
-        found = set(concrete_model.objects.filter(**query))
+        query = all_query & any_query
+        found = set(concrete_model.objects.filter(query))
 
         if not found:
             logger.debug('No {}s found for {}'.format(concrete_model, query))
