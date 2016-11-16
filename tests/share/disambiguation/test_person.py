@@ -20,7 +20,7 @@ initial = [
     CreativeWork(
         identifiers=[WorkIdentifier(2)],
         agent_relations=[
-            Host(agent=Person(4)),
+            Host(agent=Person(4, name='Bill Lumbergh'), cited_as='Bill Lumbergh'),
             Funder(agent=Person(name='Bill Gates')),
             Publisher(agent=Person(6)),
         ]
@@ -41,7 +41,7 @@ initial = [
         related_works=[
             Patent(
                 agent_relations=[
-                    Contributor(agent=Person(8))
+                    Contributor(agent=Person(8, identifiers=[AgentIdentifier(2)]))
                 ],
                 identifiers=[WorkIdentifier(4)]
             )
@@ -57,10 +57,10 @@ class TestPersonDisambiguation:
     @pytest.mark.parametrize('input, model, delta', [
         ([Person(name='Bob Dylan')], models.Person, 1),
         ([Person(7, identifiers=[AgentIdentifier(1)])], models.Person, 0),
-        ([Publication(related_agents=[Person(4)])], models.Person, 0),
-        ([Publication(related_agents=[Person(9)])], models.Person, 1),
+        ([Publication(identifiers=[WorkIdentifier(2)], agent_relations=[AgentWorkRelation(agent=Person(4, name='Bill Lumbergh'), cited_as='Bill Lumbergh')])], models.Person, 0),
+        ([Publication(identifiers=[WorkIdentifier(2)], related_agents=[Person(9)])], models.Person, 1),
         ([CreativeWork(related_agents=[Person(name='Bill Gates')])], models.Person, 1),
-        ([Preprint(related_agents=[Person(8)])], models.Person, 0),
+        ([Preprint(related_agents=[Person(8, identifiers=[AgentIdentifier(2)])])], models.Person, 0),
     ])
     def test_disambiguate(self, input, model, delta, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
