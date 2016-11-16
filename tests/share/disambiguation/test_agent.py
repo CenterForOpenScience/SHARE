@@ -54,12 +54,18 @@ initial = [
 class TestAgentDisambiguation:
 
     @pytest.mark.parametrize('input, model, delta', [
+        # institution with same name already exists
         ([Institution(name='NIH')], models.Institution, 0),
+        # same organization already exists
         ([Organization(2)], models.Organization, 0),
+        # same institution already exists
         ([Publication(related_agents=[Institution(4)])], models.Institution, 0),
+        # consortium with same name already exists
         ([Publication(related_agents=[Consortium(name='COS')])], models.Consortium, 0),
-        ([CreativeWork(related_agents=[Organization(name='Bill Gates')])], models.Organization, 1),
+        # institution already exists on a related work
         ([Preprint(related_agents=[Institution(8)])], models.Institution, 0),
+        # organization where the name does not exist
+        ([CreativeWork(related_agents=[Organization(name='Bill Gates')])], models.Organization, 1),
     ])
     def test_disambiguate(self, input, model, delta, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
@@ -80,6 +86,7 @@ class TestAgentDisambiguation:
 
     @pytest.mark.parametrize('input', [
         [Institution()],
+        [Institution(name='Money Money')],
         # fails
         [Organization(name='Money Makers'), Consortium()],
         [Institution(identifiers=[AgentIdentifier()])],
