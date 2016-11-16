@@ -53,7 +53,6 @@ initial = [
 @pytest.mark.django_db
 class TestPersonDisambiguation:
 
-    # everything with delta=0 fails
     @pytest.mark.parametrize('input, model, delta', [
         ([Person(name='Bob Dylan')], models.Person, 1),
         ([Person(7, identifiers=[AgentIdentifier(1)])], models.Person, 0),
@@ -79,7 +78,6 @@ class TestPersonDisambiguation:
 
         assert (model.objects.exclude(change=None).count() - before) == delta
 
-    # first two fail
     @pytest.mark.parametrize('input', [
         [Person(identifiers=[AgentIdentifier()])],
         [Person(identifiers=[AgentIdentifier()]), Person(identifiers=[AgentIdentifier()])],
