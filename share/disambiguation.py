@@ -108,10 +108,8 @@ class GraphDisambiguator:
 
         query = {**any_query, **all_query}
 
-        # TODO Maybe add this back in for relations
-        # Relations should not transition hierarchies but Agents/Works may
-        # if concrete_model is not node.model:
-        #     query['type__in'] = info.matching_types
+        if info.matching_types:
+            query['type__in'] = info.matching_types
 
         found = set(concrete_model.objects.filter(**query))
 
@@ -207,7 +205,10 @@ class GraphDisambiguator:
                 elif info.all:
                     matches.update(matches_all)
                 # TODO use `info.tie_breaker` when there are multiple matches
-                return [m for m in matches if m != node and 'share.{}'.format(m.model._meta.model_name) in info.matching_types]
+                if info.matching_types:
+                    return [m for m in matches if m != node and 'share.{}'.format(m.model._meta.model_name) in info.matching_types]
+                else:
+                    return [m for m in matches if m != node]
             except KeyError:
                 return []
 
@@ -236,6 +237,13 @@ class GraphDisambiguator:
                 return tuple((f, v) for f in any for v in self._field_values(f))
 
             def _matching_types(self):
+                try:
+                    constrain_types = self._node.model.Disambiguation.constrain_types
+                except AttributeError:
+                    constrain_types = False
+                if not constrain_types:
+                    return None
+
                 # list of all subclasses and superclasses of node.model that could be the type of a node
                 def fmt(model):
                     return 'share.{}'.format(model._meta.model_name)

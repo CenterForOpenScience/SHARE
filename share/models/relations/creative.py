@@ -10,6 +10,7 @@ class AbstractWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
 
     class Disambiguation:
         all = ('subject', 'related')
+        constrain_types = True
 
     class Meta:
         db_table = 'share_workrelation'

@@ -23,6 +23,7 @@ class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
     class Disambiguation:
         all = ('creative_work',)
         any = ('agent', 'cited_as')  # TODO could be multiple people with the same cited_as on a work... could use order_cited for Creators, but what to do for other contributors?
+        constrain_types = True
 
     class Meta:
         db_table = 'share_agentworkrelation'
