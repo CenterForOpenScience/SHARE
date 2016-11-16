@@ -81,9 +81,8 @@ class TestPersonDisambiguation:
 
     # first two fail
     @pytest.mark.parametrize('input', [
-        [Person(1)],
-        [Person(2), Person(3)],
         [Person(identifiers=[AgentIdentifier()])],
+        [Person(identifiers=[AgentIdentifier()]), Person(identifiers=[AgentIdentifier()])],
         [Publication(identifiers=[WorkIdentifier()], agent_relations=[Funder(agent=Person()), Publisher(agent=Person())])],
         [Preprint(identifiers=[WorkIdentifier()], related_agents=[Person(), Person()], agent_relations=[Funder(agent=Person()), Publisher(agent=Person())])]
     ])
