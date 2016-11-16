@@ -4,6 +4,7 @@ import nameparser
 import collections
 
 from django.db import models
+from django.apps import apps
 
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
@@ -45,7 +46,10 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
             logger.debug('Discarding unnamed agent "%s"', node.attrs['name'])
             return graph.remove(node)
 
-        node._type = GuessAgentTypeLink(default=node.type).execute(node.attrs['name'])
+        maybe_type = GuessAgentTypeLink(default=node.type).execute(node.attrs['name'])
+        # If the new type is MORE specific, IE encompasses FEWER types, upgrade. Otherwise ignore
+        if len(apps.get_model('share', maybe_type).get_types()) < len(node.model.get_types()):
+            node._type = maybe_type
 
         match = re.match(r'^(.*(?:Departa?ment|Institute).+?);(?: (.+?); )?([^;]+)$', name, re.I)
         if match:
