@@ -79,7 +79,8 @@ class TestModelNormalization:
     def test_normalize_tags_on_work(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(tags=input)))
         graph.normalize()
-        assert [n.serialize() for n in graph.nodes] == Graph(CreativeWork(tags=output))
+        graph.prune()
+        assert [n.serialize() for n in sorted(graph.nodes, key=lambda x: x.type + str(x.id))] == Graph(CreativeWork(tags=output))
 
     @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
         ([
