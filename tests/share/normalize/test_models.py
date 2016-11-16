@@ -270,38 +270,38 @@ class TestModelNormalization:
         # same identifier, same name, same length, different capitilization, alphabetize
         ([
             Publisher(cited_as='Share', agent=Organization(id=0, name='Share', identifiers=[AgentIdentifier(1, id=2)])),
-            Host(cited_as='SHARE', agent=Organization(id=1, name='SHARE', identifiers=[AgentIdentifier(1, id=2)]))
+            Host(cited_as='SHARE', agent=Organization(id=1, name='SHARE', identifiers=[AgentIdentifier(1, id=3)]))
         ], [
-            Publisher(cited_as='Share', agent=Organization(id=0, name='SHARE', identifiers=[AgentIdentifier(1, id=2, parse=True)])),
-            Host(cited_as='SHARE', agent=Organization(id=0, name='SHARE'))
+            Publisher(cited_as='Share', agent=Organization(id=1, name='SHARE', identifiers=[AgentIdentifier(1, id=3, parse=True)])),
+            Host(cited_as='SHARE', agent=Organization(id=1, name='SHARE'))
         ]),
         # same name, one identifier, add identifier
         ([
-            Funder(cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.')),
-            Publisher(cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='Timetables Inc.', agent=Organization(id=1, name='Timetables Inc.')),
+            Publisher(cited_as='Timetables Inc.', agent=Organization(id=2, name='Timetables Inc.', identifiers=[AgentIdentifier(1)]))
         ], [
-            Funder(cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='Timetables Inc.', agent=Organization(name='Timetables Inc.', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='Timetables Inc.', agent=Organization(id=2, name='Timetables Inc.', identifiers=[AgentIdentifier(1, parse=True)])),
+            Publisher(cited_as='Timetables Inc.', agent=Organization(id=2))
         ]),
         # same identifier, different name, accept longest alphabetize
         ([
-            Funder(cited_as='Cooking Institute', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='Cooking Instituze', agent=Organization(name='Cooking Instituze', identifiers=[AgentIdentifier(1)])),
-            Host(cited_as='Cook Institute', agent=Organization(name='Cook Institute', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='Cooking Institute', agent=Organization(id=1, name='Cooking Notaninstitute', identifiers=[AgentIdentifier(1)])),
+            Publisher(cited_as='Cooking Instituze', agent=Organization(id=2, name='Cooking Notaninstituze', identifiers=[AgentIdentifier(1)])),
+            Host(cited_as='Cook Institute', agent=Organization(id=3, name='Cook Notaninstitute', identifiers=[AgentIdentifier(1)]))
         ], [
-            Funder(cited_as='Cooking Institute', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='Cooking Instituze', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Host(cited_as='Cook Institute', agent=Organization(name='Cooking Institute', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='Cooking Institute', agent=Organization(id=3, name='Cooking Notaninstitute', identifiers=[AgentIdentifier(1, parse=True)])),
+            Publisher(cited_as='Cooking Instituze', agent=Organization(id=3)),
+            Host(cited_as='Cook Institute', agent=Organization(id=3))
         ]),
         # same identifier, different name, different type, accept longest alphabetize, more specific
         ([
-            Funder(cited_as='Cooking Institute', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='Cooking Instituze', agent=Organization(name='Cooking Instituze', identifiers=[AgentIdentifier(1)])),
-            Host(cited_as='Cook Institute', agent=Institution(name='Cook Institute', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='Cooking Institute', agent=Institution(id=1, name='Cooking Notaninstitute', identifiers=[AgentIdentifier(1)])),
+            Publisher(cited_as='Cooking Instituze', agent=Organization(id=2, name='Cooking Notaninstituze', identifiers=[AgentIdentifier(1)])),
+            Host(cited_as='Cook Institute', agent=Institution(id=3, name='Cook Notaninstitute', identifiers=[AgentIdentifier(1)]))
         ], [
-            Funder(cited_as='Cooking Institute', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Publisher(cited_as='Cooking Instituze', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])),
-            Host(cited_as='Cook Institute', agent=Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)]))
+            Funder(cited_as='Cooking Institute', agent=Institution(id=3, name='Cooking Notaninstitute', identifiers=[AgentIdentifier(1, parse=True)])),
+            Publisher(cited_as='Cooking Instituze', agent=Institution(id=3)),
+            Host(cited_as='Cook Institute', agent=Institution(id=3))
         ]),
     ])
     def test_normalize_mixed_agent_relation(self, input, output, Graph):
