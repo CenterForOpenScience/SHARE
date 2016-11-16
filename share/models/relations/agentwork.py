@@ -47,13 +47,16 @@ class ThroughContributor(ShareObject):
     class Disambiguation:
         all = ('subject', 'related')
 
+    class Meta:
+        unique_together = ('subject', 'related')
+
 
 class Award(ShareObject):
     # ScholarlyArticle has an award object
     # it's just a text field, I assume our 'description' covers it.
     name = models.TextField(blank=True)
     description = models.TextField(blank=True)
-    uri = ShareURLField(blank=True)
+    uri = ShareURLField(unique=True)
 
     @classmethod
     def normalize(self, node, graph):
@@ -65,7 +68,7 @@ class Award(ShareObject):
         return self.description
 
     class Disambiguation:
-        all = ('name', 'uri')
+        all = ('uri')
 
 
 class ThroughAwards(ShareObject):
