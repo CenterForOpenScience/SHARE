@@ -80,8 +80,9 @@ class TestChangeNode:
         }, {
             '@id': '_:1234',
             '@type': 'person'
-        }]).nodes[0]
+        }]).nodes[1]
 
+        assert node.type == 'contributor'
         assert node.attrs == {}
         assert len(node.related()) == 1
         assert node.related('agent').related.id == '_:1234'
@@ -96,7 +97,7 @@ class TestChangeGraph:
             '@type': 'person',
             'given_name': 'Doe',
             'family_name': 'Jane',
-        }], disambiguate=False)
+        }])
 
         assert len(graph.nodes) == 1
 
@@ -113,7 +114,7 @@ class TestChangeGraph:
             '@type': 'person',
             'given_name': 'Doe',
             'family_name': 'Jane',
-        }], disambiguate=False)
+        }])
 
         assert len(graph.nodes) == 2
         assert graph.nodes[0].id == '_:1234'
@@ -141,7 +142,7 @@ class TestChangeGraph:
             '@type': 'person',
             'given_name': 'Doe',
             'family_name': 'Jane',
-        }], disambiguate=False)
+        }])
 
         assert len(graph.nodes) == 3
         # assert graph.nodes[0].id == '_:1234'
@@ -158,7 +159,7 @@ class TestChangeGraph:
             '@type': 'workidentifier',
             'uri': 'mailto:gandhi@dinosaurs.sexy',
             'creative_work': {'@id': '_:91011', '@type': 'preprint'}
-        }], disambiguate=False)
+        }])
 
         assert len(graph.nodes) == 2
         assert graph.nodes[0].id == '_:91011'
@@ -177,7 +178,7 @@ class TestChangeGraph:
                 '@id': '_:1234',
                 '@type': 'person'
             }
-        }], disambiguate=False)
+        }])
 
         assert len(graph.nodes) == 2
         assert graph.nodes[0].id == '_:1234'
@@ -201,7 +202,7 @@ class TestChangeGraph:
                     '@id': '_:1234',
                     '@type': 'person'
                 }
-            }], disambiguate=False)
+            }])
 
     def test_unresolved_reference(self):
         with pytest.raises(UnresolvableReference) as e:
@@ -212,7 +213,7 @@ class TestChangeGraph:
                     '@id': '_:1234',
                     '@type': 'person'
                 }
-            }], disambiguate=False)
+            }]).process()
         assert e.value.args == (('_:1234', 'person'),)
 
     # def test_external_reference(self):

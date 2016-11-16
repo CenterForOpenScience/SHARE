@@ -33,6 +33,9 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
 
     @classmethod
     def normalize(cls, node, graph):
+        if 'name' not in node.attrs and not node.is_blank:
+            return
+
         name = strip_whitespace(node.attrs['name'])
 
         # Slightly more intellegent title casing

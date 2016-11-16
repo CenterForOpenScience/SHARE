@@ -48,6 +48,10 @@ class ChangeFactory(DjangoModelFactory):
     target_type = factory.Iterator(ContentType.objects.all())
     target_version_type = factory.Iterator(ContentType.objects.all())
 
+    @factory.lazy_attribute
+    def model_type(self, *args, **kwargs):
+        return self.target_type
+
     class Meta:
         model = models.Change
 

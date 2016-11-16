@@ -68,11 +68,11 @@ class TestChange:
         assert change.type == models.Change.TYPE.create
 
         assert change.target is None
-        assert change.target_type == ContentType.objects.get(app_label='share', model='person')
+        assert change.target_type == ContentType.objects.get(app_label='share', model='abstractagent')
         assert change.target_id is None
 
         assert change.target_version is None
-        assert change.target_version_type == ContentType.objects.get(app_label='share', model='personversion')
+        assert change.target_version_type == ContentType.objects.get(app_label='share', model='abstractagentversion')
         assert change.target_version_id is None
 
         assert change.change == {'given_name': 'Jane', 'family_name': 'Doe'}
@@ -188,16 +188,16 @@ class TestChangeSet:
             '@id': '_:789',
             '@type': 'preprint',
             'title': 'All About Cats',
-            'identifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
         }])
 
+        graph.process()
         change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
 
         preprint, identifier = change_set.accept()
 
         assert preprint.is_deleted is False
 
-        models.ChangeSet.objects.from_graph(ChangeGraph([{
+        graph = ChangeGraph([{
             '@id': '_:abc',
             '@type': 'workidentifier',
             'uri': 'http://osf.io/faq',
@@ -206,8 +206,10 @@ class TestChangeSet:
             '@id': '_:789',
             'is_deleted': True,
             '@type': 'preprint',
-            'identifiers': [{'@id': '_:abc', '@type': 'workidentifier'}]
-        }]), normalized_data_id).accept()
+        }])
+        graph.process()
+
+        models.ChangeSet.objects.from_graph(graph, normalized_data_id).accept()
 
         preprint.refresh_from_db()
         assert preprint.is_deleted is True
@@ -270,7 +272,7 @@ class TestChangeSet:
     #     assert Contributor.objects.get(person=jane_doe).change.change_set == change_set
 
     @pytest.mark.django_db
-    def test_subject_accept(self, normalized_data_id):
+    def test_accept_subject(self, normalized_data_id):
         models.Subject.objects.bulk_create([
             models.Subject(name='Felines')
         ])
@@ -292,6 +294,7 @@ class TestChangeSet:
             'title': 'All About Cats',
         }])
 
+        graph.process()
         change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
 
         change_set.accept()
@@ -315,9 +318,9 @@ class TestChangeSet:
                 '@id': '_:789',
                 '@type': 'preprint',
                 'title': 'All About Cats',
-            }])
+            }]).process()
 
-        assert e.value.message == 'Invalid subject: Felines'
+        assert e.value.message == 'Invalid subject: "Felines"'
 
     @pytest.mark.django_db
     def test_change_work_type(self, normalized_data_id):
@@ -328,28 +331,34 @@ class TestChangeSet:
         updated to Preprint
         '''
         title = 'Ambiguous Earthquakes'
-        uri = 'https://osf.io/special-snowflake'
+        uri = 'http://osf.io/special-snowflake'
 
-        original_change_set = models.ChangeSet.objects.from_graph(ChangeGraph([{
+        cg = ChangeGraph([{
             '@id': '_:1234',
-            '@type': 'creativework',
+            '@type': 'project',
             'title': title,
             'identifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
         }, {
             '@id': '_:2345',
             '@type': 'workidentifier',
             'uri': uri,
-            'creative_work': {'@id': '_:1234', '@type': 'creativework'}
-        }]), normalized_data_id)
+            'creative_work': {'@id': '_:1234', '@type': 'project'}
+        }])
+
+        cg.process()
+
+        original_change_set = models.ChangeSet.objects.from_graph(cg, normalized_data_id)
 
         work, identifier = original_change_set.accept()
         id = work.id
 
         assert identifier.uri == uri
-        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 1
+        assert models.Project.objects.count() == 1
         assert models.Preprint.objects.count() == 0
+        assert models.CreativeWork.objects.count() == 1
+        assert models.Project.objects.all()[0].changes.count() == 1
 
-        change_set = models.ChangeSet.objects.from_graph(ChangeGraph([{
+        cg = ChangeGraph([{
             '@id': '_:1234',
             '@type': 'preprint',
             'identifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
@@ -358,13 +367,18 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:1234', '@type': 'preprint'}
-        }]), normalized_data_id)
+        }])
+
+        cg.process()
+        change_set = models.ChangeSet.objects.from_graph(cg, normalized_data_id)
 
         change_set.accept()
 
-        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
+        assert models.Project.objects.count() == 0
         assert models.Preprint.objects.count() == 1
+        assert models.CreativeWork.objects.count() == 1
         assert models.Preprint.objects.get(id=id).title == title
+        assert models.Preprint.objects.all()[0].changes.count() == 2
 
     @pytest.mark.django_db
     def test_generic_creative_work(self, normalized_data_id):
@@ -375,7 +389,7 @@ class TestChangeSet:
         should remain the same.
         '''
         old_title = 'Ambiguous Earthquakes'
-        uri = 'https://osf.io/special-snowflake'
+        uri = 'http://osf.io/special-snowflake'
 
         original_change_set = models.ChangeSet.objects.from_graph(ChangeGraph([{
             '@id': '_:1234',
@@ -411,6 +425,7 @@ class TestChangeSet:
             'creative_work': {'@id': '_:1234', '@type': 'creativework'}
         }])
 
+        graph.process()
         change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
         change_set.accept()
 
@@ -423,7 +438,7 @@ class TestChangeSet:
         '''
         Create two works with a relation between them.
         '''
-        uri = 'https://osf.io/special-snowflake'
+        uri = 'http://osf.io/special-snowflake'
 
         change_set = models.ChangeSet.objects.from_graph(ChangeGraph([{
             '@id': '_:1234',
@@ -471,7 +486,7 @@ class TestChangeSet:
         second work.
         '''
 
-        uri = 'https://osf.io/special-snowflake'
+        uri = 'http://osf.io/special-snowflake'
         models.ChangeSet.objects.from_graph(ChangeGraph([{
             '@id': '_:1234',
             '@type': 'article',
@@ -486,7 +501,7 @@ class TestChangeSet:
 
         assert models.Article.objects.count() == 1
 
-        change_set = models.ChangeSet.objects.from_graph(ChangeGraph([{
+        graph = ChangeGraph([{
             '@id': '_:1234',
             '@type': 'preprint',
             'title': 'Dogs are okay too',
@@ -505,7 +520,9 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:2345', '@type': 'creativework'}
-        }]), normalized_data_id)
+        }])
+        graph.process()
+        change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
         change_set.accept()
 
         assert models.Article.objects.count() == 1
@@ -532,7 +549,7 @@ class TestChangeSet:
         CreativeWork's type and attributes instead of creating a new work.
         '''
 
-        uri = 'https://osf.io/special-snowflake'
+        uri = 'http://osf.io/special-snowflake'
 
         models.ChangeSet.objects.from_graph(ChangeGraph([{
             '@id': '_:1234',
@@ -559,7 +576,7 @@ class TestChangeSet:
         assert models.Preprint.objects.count() == 1
         assert models.Article.objects.count() == 0
 
-        models.ChangeSet.objects.from_graph(ChangeGraph([{
+        change = ChangeGraph([{
             '@id': '_:1234',
             '@type': 'article',
             'title': 'All About Cats',
@@ -569,7 +586,10 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:1234', '@type': 'article'}
-        }]), normalized_data_id).accept()
+        }])
+        change.process()
+
+        models.ChangeSet.objects.from_graph(change, normalized_data_id).accept()
 
         assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
         assert models.Article.objects.count() == 1

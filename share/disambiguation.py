@@ -2,6 +2,7 @@ import logging
 import pendulum
 
 from django.db.models import Q, DateTimeField
+from django.core.exceptions import ValidationError
 
 from share.util import DictHashingDict
 
@@ -71,6 +72,8 @@ class GraphDisambiguator:
                         changed = True
                         n.instance = instance
                         logger.debug('Disambiguated {} to {}'.format(n, instance))
+                    elif n.type == 'subject':
+                        raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
 
                 self._index.add(n)
 
@@ -105,8 +108,10 @@ class GraphDisambiguator:
 
         query = {**any_query, **all_query}
 
-        if concrete_model is not node.model:
-            query['type__in'] = info.matching_types
+        # TODO Maybe add this back in for relations
+        # Relations should not transition hierarchies but Agents/Works may
+        # if concrete_model is not node.model:
+        #     query['type__in'] = info.matching_types
 
         found = set(concrete_model.objects.filter(**query))
 

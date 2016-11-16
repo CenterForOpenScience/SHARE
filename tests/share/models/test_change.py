@@ -239,7 +239,7 @@ class TestChangeGraph:
         assert jane_doe.given_name == 'John'
 
     def test_unique_violation_raises(self, change_factory, change_ids):
-        Tag.objects.create(name='MyCoolTag', change_id=change_ids.get())
+        Tag.objects.create(name='mycooltag', change_id=change_ids.get())
 
         change_set = change_factory.from_graph({
             '@graph': [{
@@ -251,18 +251,6 @@ class TestChangeGraph:
 
         with pytest.raises(IntegrityError):
             change_set.accept()
-
-    @pytest.mark.xfail(reason='Disambiguation needs identifiers')
-    def test_accepting_graph_idempotent(self, change_factory, ld_graph):
-        """
-        Making and accepting a changeset multiple times for the same graph
-        should have no effect after the first time.
-        """
-        cs1 = change_factory.from_graph(ld_graph)
-        cs1.accept()
-
-        cs2 = change_factory.from_graph(ld_graph)
-        assert cs2 is None
 
     def test_date_updated_update(self, change_ids, change_factory, all_about_anteaters):
         """

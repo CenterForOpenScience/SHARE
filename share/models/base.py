@@ -7,6 +7,7 @@ from django.db import models
 from django.db import transaction
 from django.db.models.base import ModelBase
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
 from fuzzycount import FuzzyCountManager
 
@@ -156,7 +157,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
     objects = FuzzyCountManager()
     versions = VersionManager()
-    changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=False)
+    changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=True)
 
     class Meta:
         abstract = True
@@ -178,7 +179,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
             )
 
             cs = ChangeSet.objects.create(normalized_data=nd, status=ChangeSet.STATUS.accepted)
-            change = Change.objects.create(change={}, node_id=str(self.pk), type=Change.TYPE.update, target=self, target_version=self.version, change_set=cs)
+            change = Change.objects.create(change={}, node_id=str(self.pk), type=Change.TYPE.update, target=self, target_version=self.version, change_set=cs, model_type=ContentType.objects.get_for_model(type(self)))
 
             acceptable_fields = set(f.name for f in self._meta.get_fields())
             for key, value in kwargs.items():

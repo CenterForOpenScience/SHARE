@@ -53,8 +53,9 @@ class ChangeManager(FuzzyCountManager):
             'node_id': node.id,
             'change': node.change,
             'change_set': change_set,
-            'target_type': ContentType.objects.get_for_model(node.model, for_concrete_model=False),
-            'target_version_type': ContentType.objects.get_for_model(node.model.VersionModel, for_concrete_model=False),
+            'model_type': ContentType.objects.get_for_model(node.model, for_concrete_model=False),
+            'target_type': ContentType.objects.get_for_model(node.model, for_concrete_model=True),
+            'target_version_type': ContentType.objects.get_for_model(node.model.VersionModel, for_concrete_model=True),
         }
 
         if node.is_merge:
@@ -103,6 +104,8 @@ class Change(models.Model):
     node_id = models.TextField(db_index=True)
 
     type = models.IntegerField(choices=TYPE, editable=False)
+    # The non-concrete type that this change has made
+    model_type = models.ForeignKey(ContentType, related_name='+')
 
     target_id = models.PositiveIntegerField(null=True)
     target = GenericForeignKey('target_type', 'target_id')
@@ -137,7 +140,7 @@ class Change(models.Model):
     def accept(self, save=True):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
-        logger.debug('Accepting change node ({}, {})'.format(self.target_type, self.node_id))
+        logger.debug('Accepting change node ({}, {})'.format(self.model_type, self.node_id))
         ret = self._accept(save)
 
         if save:
@@ -163,7 +166,7 @@ class Change(models.Model):
 
     def _create(self, save=True):
         resolved_change = self._resolve_change()
-        inst = self.target_type.model_class()(change=self, **resolved_change)
+        inst = self.model_type.model_class()(change=self, **resolved_change)
         if save:
             with transaction.atomic():
                 inst.save()
@@ -260,7 +263,7 @@ class Change(models.Model):
 
     def _resolve_ref(self, ref):
         model = apps.get_model('share', model_name=ref['@type'])
-        ct = ContentType.objects.get_for_model(model, for_concrete_model=False)
+        ct = ContentType.objects.get_for_model(model, for_concrete_model=True)
         try:
             if ref['@id'].startswith('_:'):
                 return model.objects.get(

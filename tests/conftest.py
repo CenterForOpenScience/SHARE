@@ -112,10 +112,9 @@ def change_factory(share_source, change_set, change_node):
     class ChangeFactory:
         def from_graph(self, graph, disambiguate=False):
             nd = NormalizedData.objects.create(data=graph, source=share_source)
-            return ChangeSet.objects.from_graph(
-                ChangeGraph(graph['@graph'], disambiguate=disambiguate),
-                nd.pk
-            )
+            cg = ChangeGraph(graph['@graph'])
+            cg.process(disambiguate=disambiguate)
+            return ChangeSet.objects.from_graph(cg, nd.pk)
 
         def get(self):
             return Change.objects.from_node(change_node, change_set)
