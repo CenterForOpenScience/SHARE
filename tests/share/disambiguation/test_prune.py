@@ -18,20 +18,20 @@ class TestPruneChangeGraph:
 
     @pytest.mark.parametrize('input, output', [
         ([
-            Preprint(0, identifiers=[WorkIdentifier(1, uri='http://osf.io/guidguid')]),
-            CreativeWork(2, sparse=True, identifiers=[WorkIdentifier(3, uri='http://osf.io/guidguid')])
+            Preprint(0, identifiers=[WorkIdentifier(id=1, uri='http://osf.io/guidguid')]),
+            CreativeWork(id=1, sparse=True, identifiers=[WorkIdentifier(uri='http://osf.io/guidguid')])
         ], [
-            Preprint(0, identifiers=[WorkIdentifier(1, uri='http://osf.io/guidguid')]),
+            Preprint(0, identifiers=[WorkIdentifier(uri='http://osf.io/guidguid')]),
         ]),
         ([
             Preprint(0, identifiers=[
-                WorkIdentifier(1, uri='http://osf.io/guidguid'),
+                WorkIdentifier(uri='http://osf.io/guidguid'),
                 WorkIdentifier(4)
             ]),
-            CreativeWork(2, sparse=True, identifiers=[WorkIdentifier(3, uri='http://osf.io/guidguid')])
+            CreativeWork(id=1, sparse=True, identifiers=[WorkIdentifier(uri='http://osf.io/guidguid')])
         ], [
             Preprint(0, identifiers=[
-                WorkIdentifier(1, uri='http://osf.io/guidguid'),
+                WorkIdentifier(uri='http://osf.io/guidguid'),
                 WorkIdentifier(4)
             ]),
         ])
