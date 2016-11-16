@@ -105,7 +105,6 @@ class TestPersonDisambiguation:
         second_cs = ChangeSet.objects.from_graph(second_cg, NormalizedDataFactory().id)
         assert second_cs is None
 
-    # fails
     def test_no_changes(self, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
         initial_cg.process()

@@ -87,7 +87,6 @@ class TestAgentDisambiguation:
     @pytest.mark.parametrize('input', [
         [Institution()],
         [Institution(name='Money Money')],
-        # fails
         [Organization(name='Money Makers'), Consortium()],
         [Institution(identifiers=[AgentIdentifier()])],
         [Publication(identifiers=[WorkIdentifier()], agent_relations=[Funder(agent=Organization()), Publisher(agent=Institution())])],
@@ -111,7 +110,6 @@ class TestAgentDisambiguation:
         second_cs = ChangeSet.objects.from_graph(second_cg, NormalizedDataFactory().id)
         assert second_cs is None
 
-    # fails
     def test_no_changes(self, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
         initial_cg.process()
