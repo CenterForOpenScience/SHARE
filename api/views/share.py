@@ -81,13 +81,6 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
     filter_class = ShareObjectFilterSet
 
 
-def make_creative_work_view_set_class(model):
-    class CreativeWorkViewSet(ShareObjectViewSet):
-        serializer_class = serializers.make_creative_work_serializer_class(model)
-        queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-    return CreativeWorkViewSet
-
-
 # Creative work attributes
 
 class TagViewSet(ShareObjectViewSet):
