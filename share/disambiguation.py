@@ -108,10 +108,8 @@ class GraphDisambiguator:
         if (info.any and not any_query.children) or (info.all and not all_query.children) or not (all_query.children or any_query.children):
             return None
 
-        # TODO Maybe add this back in for relations
-        # Relations should not transition hierarchies but Agents/Works may
-        # if concrete_model is not node.model:
-        #     query['type__in'] = info.matching_types
+        if info.matching_types:
+            query['type__in'] = info.matching_types
 
         query = all_query & any_query
         found = set(concrete_model.objects.filter(query))
