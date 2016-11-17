@@ -90,9 +90,9 @@ class GraphContructor:
         # that is requesting an ID
         # This way order only matters for an individual object.
         try:
-            name = inspect.stack()[2].frame.f_locals['obj'].type
+            name = inspect.stack(3)[2].frame.f_locals['obj'].type
         except KeyError:
-            name = inspect.stack()[1].frame.f_locals['type']
+            name = inspect.stack(2)[1].frame.f_locals['type']
 
         name = apps.get_model('share', name)._meta.concrete_model._meta.model_name
 
