@@ -194,7 +194,7 @@ class Change(models.Model):
         if save:
             with transaction.atomic():
                 inst.save()
-                inst.reload_from_db()  # Populate version_id for use later
+                inst.refresh_from_db()  # Populate version_id for use later
                 self.target = inst
                 self.save()
         return inst

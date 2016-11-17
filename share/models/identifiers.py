@@ -45,8 +45,8 @@ class WorkIdentifier(ShareObject):
     scheme = models.TextField(editable=False, help_text=_('A prefix to URI indicating how the following data should be interpreted.'))
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='identifiers')
 
-    objects = FilteredEmailsManager()
-    objects_unfiltered = models.Manager()
+    # objects = FilteredEmailsManager()
+    # objects_unfiltered = models.Manager()
 
     @classmethod
     def normalize(self, node, graph):
@@ -90,8 +90,8 @@ class AgentIdentifier(ShareObject):
     scheme = models.TextField(editable=False)
     agent = ShareForeignKey('AbstractAgent', related_name='identifiers')
 
-    objects = FilteredEmailsManager()
-    objects_unfiltered = models.Manager()
+    # objects = FilteredEmailsManager()
+    # objects_unfiltered = models.Manager()
 
     @classmethod
     def normalize(self, node, graph):
