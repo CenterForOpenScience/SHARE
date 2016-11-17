@@ -108,10 +108,10 @@ class GraphDisambiguator:
         if (info.any and not any_query.children) or (info.all and not all_query.children) or not (all_query.children or any_query.children):
             return None
 
-        if info.matching_types:
-            query['type__in'] = info.matching_types
-
         query = all_query & any_query
+        if info.matching_types:
+            query &= Q(type__in=info.matching_types)
+
         found = set(concrete_model.objects.filter(query))
 
         if not found:
