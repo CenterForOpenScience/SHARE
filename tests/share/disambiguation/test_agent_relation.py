@@ -61,12 +61,12 @@ class TestAgentRelationDisambiguation:
         ),
         # person with same cited as, different relation, on a different work doesn't match
         (
-            [CreativeWork(related_agents=[Host(cited_as='Bill Gates', agent=Person(name='Bill Gates'))])],
+            [CreativeWork(agent_relations=[Host(cited_as='Bill Gates', agent=Person(name='Bill Gates'))])],
             {models.Person: 1}
         ),
         # agent with same cited as, different relation, on a different work doesn't match
         (
-            [CreativeWork(related_agents=[Host(cited_as='AHA', agent=Organization(name='AHA'))])],
+            [CreativeWork(agent_relations=[Host(cited_as='AHA', agent=Organization(name='AHA'))])],
             {models.Organization: 1}
         ),
         # person with same cited as, same relation, on a different work doesn't match
@@ -142,11 +142,11 @@ class TestAgentRelationDisambiguation:
 
         # sub class should win (AgentWorkRelation/Creator) agent
         (
-            [Publication(identifiers=[WorkIdentifier(3)], agent_relations=[AgentWorkRelation(cited_as='COS', agent=Organization(2, identifiers=[AgentIdentifier(3)], name='COS'))])],
+            [Preprint(identifiers=[WorkIdentifier(1)], agent_relations=[AgentWorkRelation(cited_as='COS', agent=Organization(2, identifiers=[AgentIdentifier(3)], name='COS'))])],
             {models.Organization: 0, models.AgentWorkRelation: 0}
         ),
         (
-            [CreativeWork(identifiers=[WorkIdentifier(2)], agent_relations=[Creator(cited_as='Science Guy', agent=Organization(4, identifiers=[AgentIdentifier(4)], name='Science Guy'))])],
+            [Preprint(identifiers=[WorkIdentifier(1)], agent_relations=[Creator(cited_as='Science Guy', agent=Organization(4, identifiers=[AgentIdentifier(4)], name='Science Guy'))])],
             {models.Organization: 0, models.Creator: 1, models.AgentWorkRelation: -1}
         ),
     ])
@@ -158,7 +158,7 @@ class TestAgentRelationDisambiguation:
         Graph.reseed()
         before_count = {}
         for model in model_delta.keys():
-            before_count[model] = model.objects.filter(type=model._meta.label.lower).count()
+            before_count[model] = model.objects.filter(type=model._meta.label_lower).count()
 
         cg = ChangeGraph(Graph(*input))
         cg.process()
@@ -167,7 +167,7 @@ class TestAgentRelationDisambiguation:
             cs.accept()
 
         for model in model_delta.keys():
-            assert model.objects.filter(type=model._meta.label.lower).count() - before_count[model] == model_delta[model]
+            assert model.objects.filter(type=model._meta.label_lower).count() - before_count[model] == model_delta[model]
 
     def test_no_changes(self, Graph):
         initial_cg = ChangeGraph(Graph(*initial))

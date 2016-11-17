@@ -247,12 +247,12 @@ class TestChangeNode:
         graph.namespace = 'testing'
         tag = graph.create(None, 'tag', {'extra': {'Same': 'here', 'Overwrite': 'you', 'New key': 'here'}})
         tag.instance = tag_model
-        assert tag.change == {'extra': {'testing': {
+        assert tag.change == {'extra': {
             'New key': 'here',
             'Overwrite': 'you',
-        }}}
+        }}
 
     def test_extra(self, graph):
         graph.namespace = 'testing'
         tag = graph.create(None, 'tag', {'extra': {'Additional': 'data'}})
-        assert tag.change == {'extra': {'testing': {'Additional': 'data'}}}
+        assert tag.change == {'extra': {'Additional': 'data'}}
