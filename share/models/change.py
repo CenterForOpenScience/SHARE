@@ -7,6 +7,7 @@ from fuzzycount import FuzzyCountManager
 from django.apps import apps
 from django.db import models
 from django.db import transaction
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
@@ -81,15 +82,34 @@ class ChangeSet(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     normalized_data = models.ForeignKey(NormalizedData)
 
+    _changes_cache = []
+
     def accept(self, save=True):
         ret = []
         with transaction.atomic():
-            for c in self.changes.all():
+            self._changes_cache = list(self.changes.all())
+            for c in self._changes_cache:
                 ret.append(c.accept(save=save))
             self.status = ChangeSet.STATUS.accepted
             if save:
                 self.save()
         return ret
+
+    def _resolve_ref(self, ref):
+        model = apps.get_model('share', model_name=ref['@type'])
+        ct = ContentType.objects.get_for_model(model, for_concrete_model=True)
+        try:
+            if ref['@id'].startswith('_:'):
+                return next(
+                    change.target
+                    for change in self._changes_cache
+                    if change.target_type == ct
+                    and change.node_id == ref['@id']
+                    and change.target
+                )
+            return model._meta.concrete_model.objects.get(pk=IDObfuscator.decode(ref['@id'])[1])
+        except (StopIteration, model.DoesNotExist) as ex:
+            raise Exception('Could not resolve reference {}'.format(ref)) from ex
 
     def __repr__(self):
         return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.STATUS[self.status].upper(), self.normalized_data.source, self.changes.count())
@@ -146,10 +166,14 @@ class Change(models.Model):
         if save:
             # Psuedo hack, sources.add(...) tries to do some safety checks.
             # Don't do that. We have a database. That is its job. Let it do its job.
-            ret._meta.get_field('sources').rel.through.objects.get_or_create(**{
-                ret._meta.concrete_model._meta.model_name: ret,
-                'shareuser': self.change_set.normalized_data.source,
-            })
+            try:
+                with transaction.atomic():
+                    ret._meta.get_field('sources').rel.through.objects.create(**{
+                        ret._meta.concrete_model._meta.model_name: ret,
+                        'shareuser': self.change_set.normalized_data.source,
+                    })
+            except IntegrityError:
+                logger.debug('%s already has %s marked as a source', ret, self.change_set.normalized_data.source)
 
             self.save()
         else:
@@ -170,7 +194,8 @@ class Change(models.Model):
         if save:
             with transaction.atomic():
                 inst.save()
-                self.target_id = inst.id
+                inst.reload_from_db()  # Populate version_id for use later
+                self.target = inst
                 self.save()
         return inst
 
@@ -246,31 +271,17 @@ class Change(models.Model):
                 change[k].data.update({self.change_set.normalized_data.source.username: v})
                 change[k].save()
                 change[k].refresh_from_db()
-                change[k + '_version'] = change[k].version
+                change[k + '_version_id'] = change[k].version_id
             elif isinstance(v, dict):
-                inst = self._resolve_ref(v)
+                inst = self.change_set._resolve_ref(v)
                 change[k] = inst
                 try:
-                    change[k + '_version'] = inst.version
+                    change[k + '_version_id'] = inst.version_id
                 except AttributeError:
                     # inst isn't a ShareObject, no worries
                     pass
             elif isinstance(v, list):
-                change[k] = [self._resolve_ref(r) for r in v]
+                change[k] = [self.change_set._resolve_ref(r) for r in v]
             else:
                 change[k] = v
         return change
-
-    def _resolve_ref(self, ref):
-        model = apps.get_model('share', model_name=ref['@type'])
-        ct = ContentType.objects.get_for_model(model, for_concrete_model=True)
-        try:
-            if ref['@id'].startswith('_:'):
-                return model.objects.get(
-                    change__target_type=ct,
-                    change__node_id=ref['@id'],
-                    change__change_set=self.change_set,
-                )
-            return model._meta.concrete_model.objects.get(pk=IDObfuscator.decode(ref['@id'])[1])
-        except model.DoesNotExist as ex:
-            raise Exception('Could not resolve reference {}'.format(ref)) from ex

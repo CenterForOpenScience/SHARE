@@ -74,6 +74,9 @@ class TestVersioning:
             p.change_id = change_ids.get()
             p.save()
 
+        p.refresh_from_db()
+        assert p.versions.first() == p.version
+
         for i, name in enumerate(reversed(['John'] + names)):
             assert p.versions.all()[i].given_name == name
 
