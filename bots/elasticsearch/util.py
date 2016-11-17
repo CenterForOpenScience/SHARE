@@ -64,6 +64,7 @@ def fetch_agent(pks):
                             SELECT array_agg(identifier.uri) AS identifiers
                             FROM share_agentidentifier AS identifier
                             WHERE identifier.agent_id = agent.id
+                            AND identifier.scheme != 'mailto'
                             ) AS identifiers ON TRUE
                 LEFT JOIN LATERAL (
                             SELECT array_agg(DISTINCT creative_work_relation.type) AS related_types
@@ -163,6 +164,7 @@ def fetch_creativework(pks):
                             WHERE throughsubject.creative_work_id = creativework.id
                             ) AS subjects ON TRUE
                 WHERE creativework.id IN %s
+                AND creativework.title != ''
             ''', (tuple(pks), ))
 
             while True:
