@@ -16,8 +16,8 @@ class PLOSHarvester(Harvester):
         if not settings.PLOS_API_KEY:
             raise Exception('PLOS api key not defined.')
 
-        start_date = start_date.format('YYYY-MM-DDT00:00:00') + 'Z'
-        end_date = end_date.format('YYYY-MM-DDT00:00:00') + 'Z'
+        start_date = start_date.isoformat().split('.')[0] + 'Z'
+        end_date = end_date.isoformat().split('.')[0] + 'Z'
 
         return self.fetch_rows(furl(self.url).set(query_params={
             'q': 'publication_date:[{} TO {}]'.format(start_date, end_date),
@@ -26,7 +26,6 @@ class PLOSHarvester(Harvester):
         }).url, start_date, end_date)
 
     def fetch_rows(self, url, start_date, end_date):
-
         resp = self.requests.get(url)
 
         total_rows = etree.XML(resp.content).xpath('//result/@numFound')

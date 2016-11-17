@@ -74,8 +74,10 @@ def harvest(args, argv):
             print(data.decode())
             print('\n')
         else:
-            with open(os.path.join(args['--out'], re.sub(r'[:\\\/\?\*]', '', str(doc_id))) + '.json', 'w') as fobj:
-                json.dump({'id': doc_id, 'raw': data.decode()}, fobj, indent=4)
+            decoded = data.decode()
+            suffix = '.xml' if decoded.startswith('<') else '.json'
+            with open(os.path.join(args['--out'], re.sub(r'[:\\\/\?\*]', '', str(doc_id))) + suffix, 'w') as fobj:
+                fobj.write(decoded)
 
 
 @command
@@ -93,17 +95,17 @@ def normalize(args, argv):
     normalizer = config.normalizer(config)
 
     if args['FILE']:
-        files = [x for x in args['FILE'] if x.endswith('.json')]
+        files = args['FILE']
     else:
-        files = [os.path.join(args['--directory'], x) for x in os.listdir(args['--directory']) if x.endswith('.json')]
+        files = [os.path.join(args['--directory'], x) for x in os.listdir(args['--directory'])]
 
     for name in files:
         with open(name) as fobj:
-            data = json.load(fobj)
+            data = fobj.read()
         from ipdb import launch_ipdb_on_exception
         with launch_ipdb_on_exception():
-            print('Parsed raw data "{}" into'.format(data['id']))
-            pprint(normalizer.normalize(data['raw']))
+            print('Parsed raw data "{}" into'.format(name))
+            pprint(normalizer.normalize(data))
             print('\n')
 
 
@@ -129,7 +131,7 @@ def debug(args, argv):
     normalizer = config.normalizer(config)
 
     with open(args['FILE']) as fobj:
-        data = normalizer.unwrap_data(json.load(fobj)['raw'])
+        data = normalizer.unwrap_data(fobj.read())
 
     parser = normalizer.get_root_parser()
 

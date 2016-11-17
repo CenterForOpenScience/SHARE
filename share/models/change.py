@@ -7,7 +7,6 @@ from fuzzycount import FuzzyCountManager
 from django.apps import apps
 from django.db import models
 from django.db import transaction
-from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import JSONField
@@ -15,6 +14,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 from share.models import NormalizedData
+from share.util import IDObfuscator
 
 
 __all__ = ('Change', 'ChangeSet', )
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class ChangeSetManager(FuzzyCountManager):
 
     def from_graph(self, graph, normalized_data_id):
-        if all(not n.change for n in graph.nodes):
+        if all(n.is_skippable for n in graph.nodes):
             logger.debug('No changes detected in {!r}, skipping.'.format(graph))
             return None
 
@@ -40,19 +40,22 @@ class ChangeSetManager(FuzzyCountManager):
 class ChangeManager(FuzzyCountManager):
 
     def from_node(self, node, change_set):
-        # Subjects may not be changed
-        # This case is only reached when a synoynm is sent up
-        # TODO Fix this in a better way 2016-08-23 @chrisseto
-        if not node.change or node.model == apps.get_model('share', 'subject'):
+        if node.is_skippable:
             logger.debug('No changes detected in {!r}, skipping.'.format(node))
+            return None
+        if not hasattr(node.model, 'VersionModel'):
+            # Non-ShareObjects (e.g. Subject) cannot be changed.
+            # Shouldn't reach this point...
+            logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(node, node.model))
             return None
 
         attrs = {
-            'node_id': str(node.id),
+            'node_id': node.id,
             'change': node.change,
             'change_set': change_set,
-            'target_type': ContentType.objects.get_for_model(node.model, for_concrete_model=False),
-            'target_version_type': ContentType.objects.get_for_model(node.model.VersionModel, for_concrete_model=False),
+            'model_type': ContentType.objects.get_for_model(node.model, for_concrete_model=False),
+            'target_type': ContentType.objects.get_for_model(node.model, for_concrete_model=True),
+            'target_version_type': ContentType.objects.get_for_model(node.model.VersionModel, for_concrete_model=True),
         }
 
         if node.is_merge:
@@ -82,14 +85,7 @@ class ChangeSet(models.Model):
         ret = []
         with transaction.atomic():
             for c in self.changes.all():
-                change_id = c.id
-                changeset_id = self.id
-                source = self.normalized_data.source
-                try:
-                    ret.append(c.accept(save=save))
-                except Exception as ex:
-                    logger.error('Could not save change {} for changeset {} submitted by {} with exception {}'.format(change_id, changeset_id, source, ex))
-                    raise ex
+                ret.append(c.accept(save=save))
             self.status = ChangeSet.STATUS.accepted
             if save:
                 self.save()
@@ -108,6 +104,8 @@ class Change(models.Model):
     node_id = models.TextField(db_index=True)
 
     type = models.IntegerField(choices=TYPE, editable=False)
+    # The non-concrete type that this change has made
+    model_type = models.ForeignKey(ContentType, related_name='+')
 
     target_id = models.PositiveIntegerField(null=True)
     target = GenericForeignKey('target_type', 'target_id')
@@ -142,6 +140,7 @@ class Change(models.Model):
     def accept(self, save=True):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
+        logger.debug('Accepting change node ({}, {})'.format(self.model_type, self.node_id))
         ret = self._accept(save)
 
         if save:
@@ -167,24 +166,12 @@ class Change(models.Model):
 
     def _create(self, save=True):
         resolved_change = self._resolve_change()
-        inst = self.target_type.model_class()(change=self, **resolved_change)
+        inst = self.model_type.model_class()(change=self, **resolved_change)
         if save:
-            try:
-                with transaction.atomic():
-                    inst.save()
-                    self.target_id = inst.id
-                    self.save()
-            except IntegrityError as e:
-                from share.disambiguation import disambiguate
-                logger.info('Handling unique violation error %r', e)
-
-                self.type = Change.TYPE.update
-                self.target = disambiguate('_:', resolved_change, self.target_type.model_class())
-
-                logger.info('Updating target to %r and type to update', self.target)
+            with transaction.atomic():
+                inst.save()
+                self.target_id = inst.id
                 self.save()
-
-                return self._update(save=save)
         return inst
 
     def _update(self, save=True):
@@ -250,7 +237,7 @@ class Change(models.Model):
             if k == 'extra':
                 if not v:
                     continue
-                if self.target:
+                if self.target and self.target.extra:
                     change[k] = self.target.extra
                 else:
                     from share.models.base import ExtraData
@@ -276,11 +263,14 @@ class Change(models.Model):
 
     def _resolve_ref(self, ref):
         model = apps.get_model('share', model_name=ref['@type'])
-        ct = ContentType.objects.get_for_model(model, for_concrete_model=False)
-        if str(ref['@id']).startswith('_:'):
-            return model.objects.get(
-                change__target_type=ct,
-                change__node_id=ref['@id'],
-                change__change_set=self.change_set,
-            )
-        return model._meta.concrete_model.objects.get(pk=ref['@id'])
+        ct = ContentType.objects.get_for_model(model, for_concrete_model=True)
+        try:
+            if ref['@id'].startswith('_:'):
+                return model.objects.get(
+                    change__target_type=ct,
+                    change__node_id=ref['@id'],
+                    change__change_set=self.change_set,
+                )
+            return model._meta.concrete_model.objects.get(pk=IDObfuscator.decode(ref['@id'])[1])
+        except model.DoesNotExist as ex:
+            raise Exception('Could not resolve reference {}'.format(ref)) from ex

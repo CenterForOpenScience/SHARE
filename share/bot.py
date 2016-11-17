@@ -34,7 +34,7 @@ class Bot(abc.ABC):
     def __init__(self, config, started_by, last_run=None):
         self.started_by = started_by
         self.config = config
-        self._last_run = last_run
+        self._last_run = last_run or 0
 
     @cached_property
     def last_run(self) -> pendulum.Pendulum:

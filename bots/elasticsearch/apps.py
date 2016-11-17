@@ -13,8 +13,8 @@ class AppConfig(BotAppConfig):
 
     # Sources are also indexed as a special case
     INDEX_MODELS = [
-        'AbstractCreativeWork',
-        'Entity',
-        'Person',
+        'CreativeWork',
+        'Agent',
         'Tag',
+        # 'Subject',
     ]

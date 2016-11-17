@@ -1,14 +1,6 @@
 from share.normalize import *
 
 
-class Venue(Parser):
-    name = Maybe(Maybe(ctx, 'facility'), 'name')
-
-
-class ThroughVenues(Parser):
-    venue = Delegate(Venue, ctx)
-
-
 class Tag(Parser):
     name = ctx
 
@@ -60,4 +52,6 @@ class CreativeWork(Parser):
         Maybe(ctx.clinical_study, 'overall_contact_backup')
     )
     tags = Map(Delegate(ThroughTags), Maybe(ctx.clinical_study, 'keyword'))
-    venues = Map(Delegate(ThroughVenues), Maybe(ctx.clinical_study, 'location'))
+
+    class Extra:
+        venues = ctx.venues

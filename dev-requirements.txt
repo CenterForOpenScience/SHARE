@@ -1,5 +1,7 @@
 -r requirements.txt
 
-pytest==3.0.2
-pytest-django==3.0.0
+factory-boy==2.7.0
 ipdb==0.10.1
+pytest-benchmark==3.0.0
+pytest-django==3.0.0
+pytest==3.0.2

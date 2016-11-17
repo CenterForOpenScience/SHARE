@@ -6,13 +6,15 @@ from django.db import transaction
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
 
 from api import schemas
 from api.authentication import APIV1TokenBackPortAuthentication
 from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
-from api.serializers import NormalizedDataSerializer, ChangeSetSerializer, ChangeSerializer, RawDataSerializer, \
-    ShareUserSerializer, ProviderSerializer
+from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, ChangeSetSerializer, \
+    ChangeSerializer, RawDataSerializer, ShareUserSerializer, ProviderSerializer
 from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
 from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
@@ -55,16 +57,21 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        'normalized_data': {
-                            '@graph': [{
-                                '@type': <type of document, exp: person>,
-                                '@id': <_:random>,
-                                <attribute_name>: <value>,
-                                <relationship_name>: {
-                                    '@type': <type>,
-                                    '@id': <id>
+                        'data': {
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': <type of document, exp: person>,
+                                        '@id': <_:random>,
+                                        <attribute_name>: <value>,
+                                        <relationship_name>: {
+                                            '@type': <type>,
+                                            '@id': <id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
@@ -73,16 +80,21 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        'normalized_data': {
-                            '@graph': [{
-                                '@type': <type of document, exp: person>,
-                                '@id': <id>,
-                                <attribute_name>: <value>,
-                                <relationship_name>: {
-                                    '@type': <type>,
-                                    '@id': <id>
+                        'data': {
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': <type of document, exp: person>,
+                                        '@id': <id>,
+                                        <attribute_name>: <value>,
+                                        <relationship_name>: {
+                                            '@type': <type>,
+                                            '@id': <id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
@@ -91,38 +103,53 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
 
         Method:        POST
         Body (JSON):   {
-                        'normalized_data': {
-                            '@graph': [{
-                                '@type': 'mergeAction',
-                                '@id': <_:random>,
-                                'into': {
-                                    '@type': <type of document>,
-                                    '@id': <doc id>
-                                },
-                                'from': {
-                                    '@type': <same type of document>,
-                                    '@id': <doc id>
+                        'data': {
+                            'type': 'NormalizedData'
+                            'attributes': {
+                                'data': {
+                                    '@graph': [{
+                                        '@type': 'mergeAction',
+                                        '@id': <_:random>,
+                                        'into': {
+                                            '@type': <type of document>,
+                                            '@id': <doc id>
+                                        },
+                                        'from': {
+                                            '@type': <same type of document>,
+                                            '@id': <doc id>
+                                        }
+                                    }]
                                 }
-                            }]
+                            }
                         }
                        }
         Success:       200 OK
     """
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
-    serializer_class = NormalizedDataSerializer
     required_scopes = ['upload_normalized_manuscript', ]
+    resource_name = 'NormalizedData'
+
+    def get_serializer_class(self):
+        if not self.request.user.is_authenticated():
+            return BasicNormalizedDataSerializer
+        elif self.request.user.is_robot:
+            return FullNormalizedDataSerializer
+        return BasicNormalizedDataSerializer
 
     def get_queryset(self):
         return NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
-        serializer = NormalizedDataSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
+        serializer = self.get_serializer_class()(data=request.data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
             nm_instance = serializer.save()
             async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
-            return Response({'normalized_id': nm_instance.id, 'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
-        else:
-            return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            # TODO Fix Me
+            return Response({
+                'id': nm_instance.id,
+                'type': 'NormalizedData',
+                'attributes': {'task': async_result.id}
+            }, status=status.HTTP_202_ACCEPTED)
 
 
 class ChangeSetViewSet(viewsets.ModelViewSet):
@@ -187,46 +214,50 @@ class SchemaView(views.APIView):
     To submit changes, see [`/api/normalizeddata`](/api/normalizeddata)
 
     ## Model schemas
+    TODO: generate this list so it stays up to date with type hierarchies
+
     Each node in the submitted `@graph` is validated by a model schema determined by its `@type`.
 
     ### Work types
-    - [Publication](/api/schema/Publication)
-    - [Project](/api/schema/Project)
-    - [Preprint](/api/schema/Preprint)
-    - [Registration](/api/schema/Registration)
-    - [Manuscript](/api/schema/Manuscript)
     - [CreativeWork](/api/schema/CreativeWork)
+    - [Article](/api/schema/Article)
+    - [Book](/api/schema/Book)
+    - [ConferencePaper](/api/schema/ConferencePaper)
+    - [Dataset](/api/schema/Dataset)
+    - [Dissertation](/api/schema/Dissertation)
+    - [Lesson](/api/schema/Lesson)
+    - [Poster](/api/schema/Poster)
+    - [Preprint](/api/schema/Preprint)
+    - [Presentation](/api/schema/Presentation)
+    - [Project](/api/schema/Project)
+    - [ProjectRegistration](/api/schema/ProjectRegistration)
+    - [Report](/api/schema/Report)
+    - [Section](/api/schema/Section)
+    - [Software](/api/schema/Software)
+    - [Thesis](/api/schema/Thesis)
+    - [WorkingPaper](/api/schema/WorkingPaper)
 
-    ### People
+    ### Agents
     - [Person](/api/schema/Person)
-
-    ### Entities
     - [Institution](/api/schema/Institution)
-    - [Publisher](/api/schema/Publisher)
-    - [Funder](/api/schema/Funder)
     - [Organization](/api/schema/Organization)
+
+    ### Identifiers
+    - [AgentIdentifier](/api/schema/AgentIdentifier)
+    - [CreativeWorkIdentifier](/api/schema/CreativeWorkIdentifier)
 
     ### Other
     - [Award](/api/schema/Award)
-    - [Email](/api/schema/Email)
-    - [Identifier](/api/schema/Identifier)
-    - [Link](/api/schema/Link)
     - [Subject](/api/schema/Subject)
     - [Tag](/api/schema/Tag)
-    - [Venue](/api/schema/Venue)
 
     ### Relationships between nodes
-    - [Affiliation](/api/schema/Affiliation)
-    - [Association](/api/schema/Association)
-    - [Contributor](/api/schema/Contributor)
-    - [PersonEmail](/api/schema/PersonEmail)
-    - [ThroughAwardEntities](/api/schema/ThroughAwardEntities)
-    - [ThroughAwards](/api/schema/ThroughAwards)
-    - [ThroughIdentifiers](/api/schema/ThroughIdentifiers)
-    - [ThroughLinks](/api/schema/ThroughLinks)
+    - [AgentRelation](/api/schema/AgentRelation)
+    - [WorkRelation](/api/schema/WorkRelation)
+    - [Contribution](/api/schema/Contribution)
+    - [ThroughContributionAwards](/api/schema/ThroughContributionAwards)
     - [ThroughSubjects](/api/schema/ThroughSubjects)
     - [ThroughTags](/api/schema/ThroughTags)
-    - [ThroughVenues](/api/schema/ThroughVenues)
     """
     def get(self, request, *args, **kwargs):
         schema = JSONLDValidator.jsonld_schema.schema
@@ -307,7 +338,9 @@ class V1DataView(views.APIView):
     """
     authentication_classes = (APIV1TokenBackPortAuthentication, )
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
-    serializer_class = NormalizedDataSerializer
+    serializer_class = BasicNormalizedDataSerializer
+    renderer_classes = (JSONRenderer, )
+    parser_classes = (JSONParser,)
 
     def post(self, request, *args, **kwargs):
 
@@ -339,8 +372,8 @@ class V1DataView(views.APIView):
         # normalize data
         normalized_data = V1Normalizer({}).normalize(raw.data)
         data = {}
-        data['normalized_data'] = normalized_data
-        serializer = NormalizedDataSerializer(data=data, context={'request': request})
+        data['data'] = normalized_data
+        serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():
             nm_instance = serializer.save()

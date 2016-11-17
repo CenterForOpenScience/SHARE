@@ -3,6 +3,10 @@ import re
 from share.normalize import *
 
 
+class WorkIdentifier(Parser):
+    uri = IRI(ctx)
+
+
 class Person(Parser):
     given_name = ParseName(ctx).first
     family_name = ParseName(ctx).last
@@ -10,39 +14,29 @@ class Person(Parser):
     suffix = ParseName(ctx).suffix
 
 
-class Contributor(Parser):
+class Creator(Parser):
     order_cited = ctx('index')
-    cited_name = ctx
-    person = Delegate(Person, ctx)
-
-
-class Link(Parser):
-    url = ctx
-    type = RunPython('get_link_type', ctx)
-
-    def get_link_type(self, link):
-        if 'dx.doi.org' in link:
-            return 'doi'
-        elif 'neurovault.org' in link:
-            return 'provider'
-        return 'misc'
-
-
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
+    cited_as = ctx
+    agent = Delegate(Person, ctx)
 
 
 class CreativeWork(Parser):
-    title = Maybe(ctx, 'name')
-    description = Maybe(ctx, 'description')
-    date_updated = ParseDate(Maybe(ctx, 'modify_date'))
-    contributors = Map(Delegate(Contributor), RunPython('parse_names', Maybe(ctx, 'authors')))
-    links = Map(Delegate(ThroughLinks), Concat(
-        Maybe(ctx, 'url'),
-        Maybe(ctx, 'full_dataset_url'),
-        DOI(Maybe(ctx, 'DOI')),
-        Maybe(ctx, 'paper_url')
-    ))
+    title = Try(ctx.name)
+    description = Try(ctx.description)
+    date_published = ParseDate(Try(ctx.add_date))
+    date_updated = ParseDate(Try(ctx.modify_date))
+
+    related_agents = Map(Delegate(Creator), RunPython('parse_names', Try(ctx.authors)))
+
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        Try(ctx.DOI),
+        Try(ctx.full_dataset_url),
+        Try(ctx.paper_url),
+        Try(ctx.url),
+    )
 
     def parse_names(self, authors):
+        if not authors:
+            return []
         return re.split(',\s|\sand\s', authors)

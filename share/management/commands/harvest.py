@@ -21,6 +21,7 @@ class Command(BaseCommand):
         parser.add_argument('--days-back', type=int, help='The number of days to go back, defaults to 1')
         parser.add_argument('--start', type=str, help='The day to start harvesting, in the format YYYY-MM-DD')
         parser.add_argument('--end', type=str, help='The day to end harvesting, in the format YYYY-MM-DD')
+        parser.add_argument('--limit', type=int, help='The maximum number of works to harvest, defaults to no limit')
 
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
@@ -40,6 +41,9 @@ class Command(BaseCommand):
 
         task_kwargs['end'] = task_kwargs['end'].isoformat()
         task_kwargs['start'] = task_kwargs['start'].isoformat()
+
+        if options['limit'] is not None:
+            task_kwargs['limit'] = options['limit']
 
         if not options['harvester'] and options['all']:
             options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig) and not x.disabled]

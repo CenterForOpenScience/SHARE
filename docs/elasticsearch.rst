@@ -23,7 +23,6 @@ Elasticsearch can be used to search the following fields in the normalized data:
     'tags'
     'links'
     'awards'
-    'venues'
     'sources'
     'contributors'
 

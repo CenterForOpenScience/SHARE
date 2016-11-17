@@ -155,3 +155,14 @@ class RobotScheduleMigration(AbstractRobotMigration):
             ).delete()
         except PeriodicTask.DoesNotExist:
             pass
+
+
+class DisableRobotScheduleMigration(AbstractRobotMigration):
+
+    def __call__(self, apps, schema_editor):
+        PeriodicTask = apps.get_model('djcelery', 'PeriodicTask')
+
+        PeriodicTask.objects.filter(
+            task=self.config.task,
+            args=json.dumps([self.config.label, 1]),  # Note 1 should always be the system user
+        ).update(enabled=False)

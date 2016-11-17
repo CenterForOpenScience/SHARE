@@ -29,15 +29,15 @@ class ElasticSearchBot(Bot):
         'type': 'completion',
         'payloads': True,
         'context': {
-            'type': {
+            'types': {
                 'type': 'category',
-                'path': 'type'
+                'path': 'types'
             }
         }
     }
 
     MAPPINGS = {
-        'abstractcreativework': {
+        'creativeworks': {
             'dynamic_templates': [{
                 'exact_matches': {
                     'unmatch': 'description',
@@ -56,22 +56,17 @@ class ElasticSearchBot(Bot):
                 }
             }
         },
-        'entity': {
+        'agents': {
             'properties': {
                 'suggest': SUGGEST_MAPPING
             }
         },
-        'person': {
+        'sources': {
             'properties': {
                 'suggest': SUGGEST_MAPPING
             }
         },
-        'source': {
-            'properties': {
-                'suggest': SUGGEST_MAPPING
-            }
-        },
-        'tag': {
+        'tags': {
             'properties': {
                 'suggest': SUGGEST_MAPPING
             }

@@ -1,52 +1,52 @@
+import re
+import logging
+
 from django.db import models
 from django.db import IntegrityError
-from django.contrib.postgres.fields import JSONField
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
-from share.apps import ShareConfig as share_config
+from share.models.fields import ShareForeignKey
+from share.util import strip_whitespace
 
 
-__all__ = ('Venue', 'Award', 'Tag', 'Link', 'Subject')
+__all__ = ('Tag', 'Subject', 'ThroughTags', 'ThroughSubjects')
+logger = logging.getLogger('share.normalize')
 
 # TODO Rename this file
-
-
-class Venue(ShareObject):
-    name = models.TextField(blank=True)
-    venue_type = ShareURLField(blank=True)
-    location = ShareURLField(blank=True)
-    community_identifier = ShareURLField(blank=True)
-
-    def __str__(self):
-        return self.name
-
-
-class Award(ShareObject):
-    # ScholarlyArticle has an award object
-    # it's just a text field, I assume our 'description' covers it.
-    name = models.TextField(blank=True)
-    description = models.TextField(blank=True)
-    url = ShareURLField(blank=True)
-    entities = ShareManyToManyField('Entity', through='ThroughAwardEntities')
-
-    def __str__(self):
-        return self.description
 
 
 class Tag(ShareObject):
     name = models.TextField(unique=True)
 
+    @classmethod
+    def normalize(cls, node, graph):
+        tags = [
+            strip_whitespace(part).lower()
+            for part in re.split(',|;', node.attrs['name'])
+            if strip_whitespace(part)
+        ]
+
+        if len(tags) == 1 and tags[0] == node.attrs['name']:
+            return
+
+        logger.debug('Normalized "%s" to %s', node.attrs['name'], tags)
+
+        # ensure tags are always created in the same order
+        tags = [graph.create(None, 'tag', {'name': tag}) for tag in sorted(tags)]
+
+        for tag in tags:
+            for edge in node.related('work_relations'):
+                through = graph.create(None, 'throughtags', {})
+                graph.relate(through, tag)
+                graph.relate(through, edge.subject.related('creative_work').related)
+
+        graph.remove(node)
+
     def __str__(self):
         return self.name
 
-
-class Link(ShareObject):
-    url = ShareURLField(db_index=True)
-    type = models.TextField(choices=share_config.link_type_choices)
-
-    def __str__(self):
-        return self.url
+    class Disambiguation:
+        all = ('name',)
 
 
 class SubjectManager(models.Manager):
@@ -55,8 +55,7 @@ class SubjectManager(models.Manager):
 
 
 class Subject(models.Model):
-    lineages = JSONField(editable=False)
-    parents = models.ManyToManyField('self')
+    parent = models.ForeignKey('self', null=True)
     name = models.TextField(unique=True, db_index=True)
 
     objects = SubjectManager()
@@ -70,52 +69,29 @@ class Subject(models.Model):
     def save(self):
         raise IntegrityError('Subjects are an immutable set! Do it in bulk, if you must.')
 
+    class Disambiguation:
+        all = ('name',)
+
 
 # Through Tables for all the things
 
-class ThroughLinks(ShareObject):
-    link = ShareForeignKey(Link, on_delete=models.CASCADE)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-
-    class Meta:
-        unique_together = ('link', 'creative_work')
-
-
-class ThroughVenues(ShareObject):
-    venue = ShareForeignKey(Venue)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-
-    class Meta:
-        unique_together = ('venue', 'creative_work')
-
-
-class ThroughAwards(ShareObject):
-    award = ShareForeignKey(Award)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
-
-    class Meta:
-        unique_together = ('award', 'creative_work')
-
-
 class ThroughTags(ShareObject):
-    tag = ShareForeignKey(Tag)
-    creative_work = ShareForeignKey('AbstractCreativeWork')
+    tag = ShareForeignKey(Tag, related_name='work_relations')
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='tag_relations')
 
     class Meta:
         unique_together = ('tag', 'creative_work')
 
-
-class ThroughAwardEntities(ShareObject):
-    award = ShareForeignKey('Award')
-    entity = ShareForeignKey('Entity')
-
-    class Meta:
-        unique_together = ('award', 'entity')
+    class Disambiguation:
+        all = ('tag', 'creative_work')
 
 
 class ThroughSubjects(ShareObject):
-    subject = models.ForeignKey('Subject')
-    creative_work = ShareForeignKey('AbstractCreativeWork')
+    subject = models.ForeignKey('Subject', related_name='work_relations')
+    creative_work = ShareForeignKey('AbstractCreativeWork', related_name='subject_relations')
 
     class Meta:
         unique_together = ('subject', 'creative_work')
+
+    class Disambiguation:
+        all = ('subject', 'creative_work')

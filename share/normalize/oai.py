@@ -9,37 +9,27 @@ from share.normalize.normalizer import Normalizer
 
 logger = logging.getLogger(__name__)
 
-URL_REGEX = re.compile(r'(https?:\/\/\S*\.[^\s\[\]\<\>\}\{\^]*)')
-DOI_REGEX = re.compile(r'(doi:10\.\S*)')
+
+def not_citation(identifier):
+    return re.search(r'(pp\. \d+\-\d+.)|(ISSN )|( +\(\d\d\d\d\))', identifier) is None
 
 
-class OAILink(Parser):
-    schema = 'Link'
+class OAIAgent(Parser):
+    schema = tools.GuessAgentType(ctx)
 
-    url = tools.RunPython('format_link', ctx)
-    type = tools.RunPython('get_link_type', ctx)
-
-    # TODO: account for other types of links
-    # i.e. ISBN
-
-    def get_link_type(self, link):
-        if 'dx.doi.org' in link:
-            return 'doi'
-        if self.config.home_page and self.config.home_page in link:
-            return 'provider'
-        return 'misc'
-
-    def format_link(self, link):
-        link_type = self.get_link_type(link)
-        if link_type == 'doi':
-            return tools.DOI().execute(link)
-        return link
+    name = ctx
 
 
-class OAIThroughLinks(Parser):
-    schema = 'ThroughLinks'
+class OAIAgentIdentifier(Parser):
+    schema = 'AgentIdentifier'
 
-    link = tools.Delegate(OAILink, ctx)
+    uri = ctx
+
+
+class OAIWorkIdentifier(Parser):
+    schema = 'WorkIdentifier'
+
+    uri = ctx
 
 
 class OAISubject(Parser):
@@ -54,45 +44,6 @@ class OAIThroughSubjects(Parser):
     subject = tools.Delegate(OAISubject, ctx)
 
 
-class OAIPerson(Parser):
-    schema = 'Person'
-
-    suffix = tools.ParseName(ctx).suffix
-    family_name = tools.ParseName(ctx).last
-    given_name = tools.ParseName(ctx).first
-    additional_name = tools.ParseName(ctx).middle
-
-
-class OAIContributor(Parser):
-    schema = 'Contributor'
-
-    person = tools.Delegate(OAIPerson, ctx)
-    cited_name = ctx
-    order_cited = ctx('index')
-
-
-class OAIPublisher(Parser):
-    schema = 'Publisher'
-
-    name = ctx
-
-
-class OAIInstitution(Parser):
-    schema = 'Institution'
-
-    name = ctx
-
-
-class OAIOrganization(Parser):
-    schema = 'Organization'
-
-    name = ctx
-
-
-class OAIAssociation(Parser):
-    schema = 'Association'
-
-
 class OAITag(Parser):
     schema = 'Tag'
 
@@ -105,77 +56,106 @@ class OAIThroughTags(Parser):
     tag = tools.Delegate(OAITag, ctx)
 
 
+class OAIRelatedWork(Parser):
+    schema = 'CreativeWork'
+
+    identifiers = tools.Map(tools.Delegate(OAIWorkIdentifier), ctx)
+
+    class Extra:
+        identifier = ctx
+
+
+class OAIWorkRelation(Parser):
+    schema = 'WorkRelation'
+
+    related = tools.Delegate(OAIRelatedWork, ctx)
+
+
+class OAIAgentWorkRelation(Parser):
+    schema = 'AgentWorkRelation'
+
+    agent = tools.Delegate(OAIAgent, ctx)
+    cited_as = ctx
+
+
+class OAIContributor(OAIAgentWorkRelation):
+    schema = 'Contributor'
+
+
+class OAICreator(OAIContributor):
+    schema = 'Creator'
+
+    order_cited = ctx('index')
+
+
+class OAIPublisher(Parser):
+    schema = 'Publisher'
+
+    agent = tools.Delegate(OAIAgent.using(schema=tools.GuessAgentType(ctx, default='organization')), ctx)
+
+
 class OAICreativeWork(Parser):
-    @property
-    def schema(self):
-        try:
-            resourceType = self.context['record']['metadata']['dc']['dc:type']
-            if resourceType == 'preprint':
-                return 'Preprint'
-            return 'CreativeWork'
-        except (KeyError, ValueError):
-            return 'CreativeWork'
+    default_type = None
+    type_map = None
 
-    ORGANIZATION_KEYWORDS = (
-        'the',
-        'center'
-    )
-    INSTITUTION_KEYWORDS = (
-        'school',
-        'university',
-        'institution',
-        'institute'
+    schema = tools.RunPython(
+        'get_schema',
+        tools.OneOf(
+            ctx.record.metadata.dc['dc:type'],
+            tools.Static(None)
+        )
     )
 
-    title = tools.Join(tools.RunPython('force_text', tools.Try(ctx['record']['metadata']['dc']['dc:title'])))
+    title = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:title'])))
     description = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:description'])))
 
-    publishers = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIPublisher))),
-        tools.Map(tools.RunPython('force_text'), tools.Try(ctx.record.metadata.dc['dc:publisher']))
+    identifiers = tools.Map(
+        tools.Delegate(OAIWorkIdentifier),
+        tools.Unique(tools.Map(
+            tools.Try(tools.IRI(), exceptions=(ValueError, )),
+            tools.Filter(
+                not_citation,
+                tools.RunPython(
+                    'force_text',
+                    tools.Concat(
+                        tools.Try(ctx.record.metadata.dc['dc:identifier']),
+                        tools.Try(ctx.record.header['identifier'])
+                    )
+                )
+            )
+        ))
     )
 
-    rights = tools.Join(tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:rights'))
+    related_works = tools.Concat(
+        tools.Map(
+            tools.Delegate(OAIWorkRelation),
+            tools.Unique(tools.Map(
+                tools.Try(tools.IRI(), exceptions=(ValueError, )),
+                tools.RunPython('get_relation', ctx)
+            ))
+        )
+    )
+
+    related_agents = tools.Concat(
+        tools.Map(
+            tools.Delegate(OAICreator),
+            tools.Try(ctx.record.metadata.dc['dc:creator'])
+        ),
+        tools.Map(
+            tools.Delegate(OAIContributor),
+            tools.Try(ctx.record.metadata.dc['dc:contributor'])
+        ),
+        tools.Map(
+            tools.Delegate(OAIPublisher),
+            tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:publisher']))
+        ),
+    )
+
+    rights = tools.Join(tools.Try(ctx.record.metadata.dc['dc:rights']))
 
     # Note: this is only taking the first language in the case of multiple languages
     language = tools.ParseLanguage(
-        tools.Try(ctx['record']['metadata']['dc']['dc:language'][0]),
-    )
-
-    contributors = tools.Map(
-        tools.Delegate(OAIContributor),
-        tools.RunPython(
-            'get_contributors',
-            tools.Concat(
-                tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:creator'),
-                tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
-            ),
-            'contributor'
-        )
-    )
-
-    institutions = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIInstitution))),
-        tools.RunPython(
-            'get_contributors',
-            tools.Concat(
-                tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:creator'),
-                tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
-            ),
-            'institution'
-        )
-    )
-
-    organizations = tools.Map(
-        tools.Delegate(OAIAssociation.using(entity=tools.Delegate(OAIOrganization))),
-        tools.RunPython(
-            'get_contributors',
-            tools.Concat(
-                tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:creator'),
-                tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
-            ),
-            'organization'
-        )
+        tools.Try(ctx.record.metadata.dc['dc:language'][0]),
     )
 
     subjects = tools.Map(
@@ -183,102 +163,101 @@ class OAICreativeWork(Parser):
         tools.Subjects(
             tools.Map(
                 tools.RunPython('tokenize'),
-                tools.Try(ctx['record']['header']['setSpec']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:type']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:format']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
+                tools.RunPython(
+                    'force_text',
+                    tools.Concat(
+                        tools.Try(ctx.record.header.setSpec),
+                        tools.Try(ctx.record.metadata.dc['dc:type']),
+                        tools.Try(ctx.record.metadata.dc['dc:format']),
+                        tools.Try(ctx.record.metadata.dc['dc:subject']),
+                    )
+                )
             )
         )
     )
 
     tags = tools.Map(
         tools.Delegate(OAIThroughTags),
-        tools.RunPython(
-            'force_text',
-            tools.Concat(
-                tools.Try(ctx['record']['header']['setSpec']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:type']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:format']),
-                tools.Try(ctx['record']['metadata']['dc']['dc:subject']),
-            )
+        tools.Concat(
+            tools.Map(
+                tools.RunPython('tokenize'),
+                tools.RunPython(
+                    'force_text',
+                    tools.Concat(
+                        tools.Try(ctx.record.header.setSpec),
+                        tools.Try(ctx.record.metadata.dc['dc:type']),
+                        tools.Try(ctx.record.metadata.dc['dc:format']),
+                        tools.Try(ctx.record.metadata.dc['dc:subject']),
+                    )
+                )
+            ),
+            deep=True
         )
     )
 
-    links = tools.Map(
-        tools.Delegate(OAIThroughLinks),
-        tools.RunPython(
-            'get_links',
-            tools.Concat(
-                tools.Try(ctx['record']['metadata']['dc']['dc:identifier']),
-                tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:relation')
-            )
-        )
-    )
+    date_updated = tools.ParseDate(ctx.record.header.datestamp)
 
-    date_updated = tools.ParseDate(ctx['record']['header']['datestamp'])
+    is_deleted = tools.RunPython('check_status', tools.Try(ctx.record.header['@status']))
 
     class Extra:
         """
         Fields that are combined in the base parser are relisted as singular elements that match
         their original entry to preserve raw data structure.
         """
-        # An entity responsible for making contributions to the resource.
-        contributor = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:contributor')
+        # An agent responsible for making contributions to the resource.
+        contributor = tools.Try(ctx.record.metadata.dc['dc:contributor'])
 
         # The spatial or temporal topic of the resource, the spatial applicability of the resource,
         # or the jurisdiction under which the resource is relevant.
-        coverage = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:coverage')
+        coverage = tools.Try(ctx.record.metadata.dc['dc:coverage'])
 
-        # An entity primarily responsible for making the resource.
-        creator = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:creator')
+        # An agent primarily responsible for making the resource.
+        creator = tools.Try(ctx.record.metadata.dc['dc:creator'])
 
         # A point or period of time associated with an event in the lifecycle of the resource.
-        dates = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:date')
+        dates = tools.Try(ctx.record.metadata.dc['dc:date'])
 
         # The file format, physical medium, or dimensions of the resource.
-        resource_format = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:format')
+        resource_format = tools.Try(ctx.record.metadata.dc['dc:format'])
 
         # An unambiguous reference to the resource within a given context.
         identifiers = tools.Concat(
-            tools.Try(ctx['record']['metadata']['dc']['dc:identifier']),
-            tools.Maybe(ctx['record']['header'], 'identifier')
+            tools.Try(ctx.record.metadata.dc['dc:identifier']),
+            tools.Try(ctx.record.header['identifier'])
         )
 
         # A related resource.
         relation = tools.RunPython('get_relation', ctx)
 
         # A related resource from which the described resource is derived.
-        source = tools.Maybe(tools.Maybe(ctx['record'], 'metadata')['dc'], 'dc:source')
+        source = tools.Try(ctx.record.metadata.dc['dc:source'])
 
         # The nature or genre of the resource.
         resource_type = tools.Try(ctx.record.metadata.dc['dc:type'])
 
-        set_spec = tools.Maybe(ctx.record.header, 'setSpec')
+        set_spec = tools.Try(ctx.record.header.setSpec)
 
         # Language also stored in the Extra class in case the language reported cannot be parsed by ParseLanguage
         language = tools.Try(ctx.record.metadata.dc['dc:language'])
 
         # Status in the header, will exist if the resource is deleted
-        status = tools.Maybe(ctx.record.header, '@status')
+        status = tools.Try(ctx.record.header['@status'])
 
-    def get_links(self, ctx):
-        links = []
-        for link in ctx:
-            if not link or not isinstance(link, str):
-                continue
-            found_url = URL_REGEX.search(link)
-            if found_url is not None:
-                links.append(found_url.group())
-                continue
+    def check_status(self, status):
+        if status == 'deleted':
+            return True
+        return False
 
-            found_doi = DOI_REGEX.search(link)
-            if found_doi is not None:
-                found_doi = found_doi.group()
-                if 'dx.doi.org' in found_doi:
-                    links.append(found_doi)
-                else:
-                    links.append('http://dx.doi.org/{}'.format(found_doi.replace('doi:', '')))
-        return links
+    def get_schema(self, types):
+        if not types or not self.type_map:
+            return self.default_type
+        if isinstance(types, str):
+            types = [types]
+        for t in types:
+            t = t.lower()
+            if t in self.type_map:
+                return self.type_map[t]
+        return self.default_type
 
     def force_text(self, data):
         if isinstance(data, dict):
@@ -303,90 +282,50 @@ class OAICreativeWork(Parser):
         return fixed
 
     def tokenize(self, data):
+        if isinstance(data, str):
+            data = [data]
         tokens = []
         for item in data:
-            tokens.extend([x.strip() for x in re.split('(?: - )|\.', data) if x])
+            tokens.extend([x.strip() for x in re.split(r'(?: - )|\.|,', item) if x])
         return tokens
 
     def get_relation(self, ctx):
         if not ctx['record'].get('metadata'):
             return []
         relation = ctx['record']['metadata']['dc'].get('dc:relation', [])
+        identifiers = ctx['record']['metadata']['dc'].get('dc:identifier', [])
+        if isinstance(identifiers, dict):
+            identifiers = (identifiers, )
+        identifiers = ''.join(i['#text'] if isinstance(i, dict) else i for i in identifiers if i)
+
+        identifiers = re.sub('http|:|/', '', identifiers + ctx['record']['header']['identifier'])
+
         if isinstance(relation, dict):
-            return relation['#text']
-        return relation
+            relation = (relation['#text'], )
 
-    def get_contributors(self, options, entity):
-        """
-        Returns list of organization, institutions, or contributors names based on entity type.
-        """
-        options = [o if isinstance(o, str) else o['#text'] for o in options]
-
-        if entity == 'organization':
-            organizations = [
-                value for value in options if
-                (
-                    value and
-                    not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and
-                    self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
-                )
-            ]
-            return organizations
-        elif entity == 'institution':
-            institutions = [
-                value for value in options if
-                (
-                    value and
-                    self.list_in_string(value, self.INSTITUTION_KEYWORDS)
-                )
-            ]
-            return institutions
-        elif entity == 'contributor':
-            people = [
-                value for value in options if
-                (
-                    value and
-                    not self.list_in_string(value, self.INSTITUTION_KEYWORDS) and not
-                    self.list_in_string(value, self.ORGANIZATION_KEYWORDS)
-                )
-            ]
-            return people
-        else:
-            return options
-
-    def list_in_string(self, string, list_):
-        if any(word in string.lower() for word in list_):
-            return True
-        return False
-
-
-class OAIPreprint(OAICreativeWork):
-    schema = 'Preprint'
-
-
-class OAIPublication(OAICreativeWork):
-    schema = 'Publication'
+        return [r for r in relation if r and re.sub('http|:|/', '', r) not in identifiers]
 
 
 class OAINormalizer(Normalizer):
 
     @property
     def root_parser(self):
-        parser = {
-            'preprint': OAIPreprint,
-            'publication': OAIPublication,
-            'creativework': OAICreativeWork,
-        }[self.config.emitted_type.lower()]
+        class RootParser(OAICreativeWork):
+            default_type = self.config.emitted_type.lower()
+            type_map = {
+                **{r.lower(): r for r in self.allowed_roots},
+                **{t.lower(): t for t in self.config.type_map}
+            }
 
         if self.config.property_list:
             logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))
             for prop in self.config.property_list:
-                if prop in parser._extra:
+                if prop in RootParser._extra:
                     logger.warning('Skipping property %s, it already exists', prop)
                     continue
-                parser._extra[prop] = tools.Try(ctx.record.metadata.dc['dc:' + prop]).chain()[0]
+                RootParser._extra[prop] = tools.Try(ctx.record.metadata.dc['dc:' + prop]).chain()[0]
 
-        return parser
+        return RootParser
 
     def do_normalize(self, data):
         if self.config.approved_sets is not None:

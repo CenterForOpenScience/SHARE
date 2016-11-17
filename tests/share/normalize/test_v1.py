@@ -56,38 +56,65 @@ class TestV1Normalizer:
             }
         }, {
             '@type': 'creativework',
-            'awards': [],
-            'contributors': [{
-                '@type': 'person',
-                'additional_name': 'Movies',
-                'affiliations': [],
-                'emails': [{'@type': 'email', 'email': 'rogerebert@example.com'}],
-                'family_name': 'Ebert',
-                'given_name': 'Roger',
-                'identifiers': [{'@type': 'identifier', 'url': 'https://osf.io/thing'}],
-                'suffix': ''
-            }, {
-                '@type': 'person',
-                'additional_name': 'Madness',
-                'affiliations': [],
-                'emails': [],
-                'family_name': 'Ebert',
-                'given_name': 'Roger',
-                'identifiers': [],
-                'suffix': ''
-            }],
             'date_updated': '2014-12-12T00:00:00+00:00',
             'description': 'This is a thing',
-            'funders': [],
-            'institutions': [],
             'language': 'eng',
-            'links': [
-                {'@type': 'link', 'type': 'provider', 'url': 'http://example.com/document1'},
-                {'@type': 'link', 'type': 'provider', 'url': 'http://example.com/document1uri1'},
-                {'@type': 'link', 'type': 'provider', 'url': 'http://example.com/document1uri2'},
+            'identifiers': [
+                {'@type': 'workidentifier', 'uri': 'http://example.com/document1'},
+                {'@type': 'workidentifier', 'uri': 'http://example.com/document1uri1'},
+                {'@type': 'workidentifier', 'uri': 'http://example.com/document1uri2'},
             ],
-            'organizations': [],
-            'publishers': [{'@type': 'publisher', 'name': 'Roger Ebert Inc'}],
+            'related_agents': [{
+                '@type': 'creator',
+                'cited_as': 'Roger Movies Ebert',
+                'order_cited': 0,
+                'agent': {
+                    '@type': 'person',
+                    'name': 'Roger Movies Ebert',
+                    'related_agents': [],
+                    'identifiers': [
+                        {'@type': 'agentidentifier', 'uri': 'http://osf.io/thing'},
+                        {'@type': 'agentidentifier', 'uri': 'mailto:rogerebert@example.com'}
+                    ],
+                },
+            }, {
+                '@type': 'creator',
+                'cited_as': 'Roger Madness Ebert',
+                'order_cited': 1,
+                'agent': {
+                    '@type': 'person',
+                    'name': 'Roger Madness Ebert',
+                    'related_agents': [],
+                    'identifiers': []
+                }
+            }, {
+                '@type': 'publisher',
+                'cited_as': 'Roger Ebert Inc',
+                'agent': {
+                    '@type': 'organization',
+                    'name': 'Roger Ebert Inc',
+                    'related_agents': [],
+                    'identifiers': [
+                        {'@type': 'agentidentifier', 'uri': 'mailto:roger@example.com'},
+                    ]
+                }
+            }, {
+                '@type': 'funder',
+                'awards': [
+                    {
+                        '@type': 'throughawards',
+                        'award': {'@type': 'award', 'name': 'Participation', 'uri': 'http://example.com'}
+                    }
+                ],
+                'cited_as': 'Orange',
+                'agent': {
+                    '@type': 'organization',
+                    'name': 'Orange',
+                    'identifiers': [
+                        {'@type': 'agentidentifier', 'uri': 'http://example.com/orange'},
+                    ]
+                }
+            }],
             'subjects': [],
             'tags': [],
             'title': 'Interesting research',
@@ -108,20 +135,15 @@ class TestV1Normalizer:
             }
         }, {
             '@type': 'creativework',
-            'awards': [],
-            'contributors': [],
             'date_updated': '2014-12-12T00:00:00+00:00',
             'description': 'This is a thing',
-            'funders': [],
-            'institutions': [],
             'language': 'eng',
-            'links': [
-                {'@type': 'link', 'type': 'provider', 'url': 'http://example.com/document1'},
-                {'@type': 'link', 'type': 'provider', 'url': 'http://example.com/document1uri1'},
-                {'@type': 'link', 'type': 'provider', 'url': 'http://example.com/document1uri2'},
+            'identifiers': [
+                {'@type': 'workidentifier', 'uri': 'http://example.com/document1'},
+                {'@type': 'workidentifier', 'uri': 'http://example.com/document1uri1'},
+                {'@type': 'workidentifier', 'uri': 'http://example.com/document1uri2'},
             ],
-            'organizations': [],
-            'publishers': [],
+            'related_agents': [],
             'subjects': [],
             'tags': [],
             'title': 'Interesting research',
@@ -143,21 +165,16 @@ class TestV1Normalizer:
             }
         }, {
             '@type': 'creativework',
-            'awards': [],
-            'contributors': [],
             'date_updated': '2014-12-12T00:00:00+00:00',
             'description': 'This is a thing',
-            'funders': [],
-            'institutions': [],
             'is_deleted': True,
             'language': 'eng',
-            'links': [
-                {'@type': 'link', 'type': 'provider', 'url': 'http://example.com/document1'},
-                {'@type': 'link', 'type': 'provider', 'url': 'http://example.com/document1uri1'},
-                {'@type': 'link', 'type': 'provider', 'url': 'http://example.com/document1uri2'},
+            'identifiers': [
+                {'@type': 'workidentifier', 'uri': 'http://example.com/document1'},
+                {'@type': 'workidentifier', 'uri': 'http://example.com/document1uri1'},
+                {'@type': 'workidentifier', 'uri': 'http://example.com/document1uri2'},
             ],
-            'organizations': [],
-            'publishers': [],
+            'related_agents': [],
             'subjects': [],
             'tags': [],
             'title': 'Interesting research',
@@ -165,18 +182,19 @@ class TestV1Normalizer:
     ])
     def test_normalize(self, input, expected):
         ctx.clear()
-        assert expected == self.reconstruct(ctx.pool[V1Normalizer({}).do_normalize(json.dumps(input))])
+        actual = self.reconstruct(ctx.pool.pop(V1Normalizer({}).do_normalize(json.dumps(input))))
+        assert expected == actual
 
     def reconstruct(self, document, extra=False):
         for key, val in tuple(document.items()):
             if isinstance(val, dict) and key != 'extra':
-                document[key] = self.reconstruct(ctx.pool.pop(val), extra=extra)
+                related = ctx.pool.pop(val, None)
+                if related:
+                    document[key] = self.reconstruct(related, extra=extra)
+                else:
+                    document.pop(key)
             if isinstance(val, list):
-                _v = []
-                for v in val:
-                    through = ctx.pool.pop(v)
-                    _v.append(self.reconstruct(ctx.pool.pop(next(x for x in through.values() if isinstance(x, dict) and x['@id'] != document['@id'])), extra=extra))
-                document[key] = _v
+                document[key] = [self.reconstruct(ctx.pool.pop(v), extra=extra) for v in val]
         del document['@id']
         if not extra:
             document.pop('extra', None)

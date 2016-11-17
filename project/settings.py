@@ -39,6 +39,8 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
 
 AUTH_USER_MODEL = 'share.ShareUser'
 
+JSON_API_FORMAT_KEYS = 'camelize'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -58,6 +60,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'revproxy',
+    'mptt',
+    'graphene_django',
 
     'allauth',
     'allauth.account',
@@ -86,8 +90,11 @@ INSTALLED_APPS = [
     'providers.com.biomedcentral',
     'providers.com.dailyssrn',
     'providers.com.figshare',
+    'providers.com.figshare.v2',
     'providers.com.nature',
     'providers.com.peerj',
+    'providers.com.peerj.preprints',
+    'providers.com.peerj.xml',
     'providers.com.springer',
     'providers.edu.asu',
     'providers.edu.boise_state',
@@ -176,13 +183,9 @@ INSTALLED_APPS = [
     'providers.gov.scitech',
     'providers.gov.usgs',
     'providers.info.spdataverse',
-    'providers.io.engrxiv',
     'providers.io.osf',
     'providers.io.osf.preprints',
     'providers.io.osf.registrations',
-    'providers.io.socarxiv',
-    'providers.io.psyarxiv',
-    # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai',
     'providers.org.bhl',
@@ -196,6 +199,7 @@ INSTALLED_APPS = [
     'providers.org.dryad',
     'providers.org.elife',
     'providers.org.elis',
+    'providers.org.engrxiv',
     'providers.org.erudit',
     'providers.org.mblwhoilibrary',
     'providers.org.mla',
@@ -204,9 +208,11 @@ INSTALLED_APPS = [
     'providers.org.neurovault',
     'providers.org.newprairiepress',
     'providers.org.plos',
+    'providers.org.psyarxiv',
     'providers.org.repec',
     'providers.org.shareok',
     'providers.org.sldr',
+    'providers.org.socarxiv',
     'providers.org.stepic',
     'providers.org.tdar',
     'providers.org.ttu',
@@ -266,21 +272,30 @@ SOCIALACCOUNT_PROVIDERS = \
 APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
+    'PAGE_SIZE': 10,
+    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework_json_api.pagination.PageNumberPagination',
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework_json_api.parsers.JSONParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'api.renderers.HideNullJSONAPIRenderer',
+        # 'rest_framework_json_api.renderers.JSONRenderer',
+        # 'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticatedOrReadOnly',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
         # 'api.authentication.NonCSRFSessionAuthentication',
     ),
-    'PAGE_SIZE': 10,
-    'DEFAULT_PARSER_CLASSES': (
-        'api.parsers.JSONLDParser',
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+}
+
+GRAPHENE = {
+    'SCHEMA': 'share.graphql.schema'
 }
 
 MIDDLEWARE_CLASSES = [
@@ -511,6 +526,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
+        # 'share.disambiguation': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': False
+        # },
+        # 'share.normalize': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': False
+        # },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],

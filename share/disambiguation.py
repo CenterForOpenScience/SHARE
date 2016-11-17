@@ -1,163 +1,275 @@
-import abc
+import logging
+import pendulum
 
+from django.db.models import Q, DateTimeField
 from django.core.exceptions import ValidationError
 
-from share.models import Tag
-from share.models import Link
-from share.models import Person
-from share.models import Subject
-from share.models import Contributor
-from share.models import Association
-from share.models import Affiliation
-from share.models import PersonEmail
-from share.models.meta import ThroughLinks
-from share.models import AbstractCreativeWork
+from share.util import DictHashingDict
+
+__all__ = ('GraphDisambiguator', )
+
+logger = logging.getLogger(__name__)
 
 
-__all__ = ('disambiguate', )
+class GraphDisambiguator:
 
+    def __init__(self):
+        self._index = self.NodeIndex()
 
-def disambiguate(id, attrs, model):
-    for cls in Disambiguator.__subclasses__():
-        if getattr(cls, 'FOR_MODEL', None) == model._meta.concrete_model:
-            return cls(id, attrs, model).find()
+    def prune(self, change_graph):
+        # for each node in the graph, compare to each other node and remove duplicates
+        # compare based on type (one is a subclass of the other), attrs (exact matches), and relations
+        return self._disambiguate(change_graph, False)
 
-    return GenericDisambiguator(id, attrs, model).find()
+    def find_instances(self, change_graph):
+        # for each node in the graph, look for a matching instance in the database
+        # TODO: is it safe to assume no duplicates? right now, prunes duplicates again
+        # TODO: what happens when two (apparently) non-duplicate nodes disambiguate to the same instance?
+        return self._disambiguate(change_graph, True)
 
+    def _disambiguate(self, change_graph, find_instances):
+        changed = True
+        # Sort by type and id as well to get consitent sorting
+        nodes = sorted(change_graph.nodes, key=lambda x: (self._disambiguweight(x), x.type, x.id), reverse=True)
 
-class Disambiguator(metaclass=abc.ABCMeta):
+        while changed:
+            changed = False
+            # TODO update affected nodes after changes instead of rebuilding the index every loop
+            self._index.clear()
 
-    def __init__(self, id, attrs, model):
-        self.id = id
-        self.model = model
-        # only include attrs with truthy values
-        self.attrs = {k: v for k, v in attrs.items() if v}
-        self.is_blank = isinstance(id, str) and id.startswith('_:')
+            for n in tuple(nodes):
+                if n.is_merge or (find_instances and n.instance):
+                    continue
+                matches = self._index.get_matches(n)
+                if len(matches) > 1:
+                    # TODO?
+                    raise NotImplementedError('Multiple matches that apparently didn\'t match each other?\nNode: {}\nMatches: {}'.format(n, matches))
 
-    @abc.abstractmethod
-    def disambiguate(self):
-        raise NotImplementedError
+                if matches:
+                    # remove duplicates within the graph
+                    match = matches.pop()
+                    if n.model != match.model and issubclass(n.model, match.model):
+                        # remove the node with the less-specific class
+                        logger.debug('Found duplicate! Keeping {}, pruning {}'.format(n, match))
+                        self._index.remove(match)
+                        nodes.remove(match)
+                        self._merge_nodes(match, n)
+                        self._index.add(n)
+                    else:
+                        logger.debug('Found duplicate! Keeping {}, pruning {}'.format(match, n))
+                        nodes.remove(n)
+                        self._merge_nodes(n, match)
+                    changed = True
+                    continue
 
-    def find(self):
-        if self.id and not self.is_blank:
-            return self.model._meta.concrete_model.objects.get(pk=self.id)
-        return self.disambiguate()
+                if find_instances:
+                    # look for matches in the database
+                    instance = self._instance_for_node(n)
+                    if instance and isinstance(instance, list):
+                        # TODO after merging is fixed, add mergeaction change to graph
+                        logger.error('Found multiple matches %s for %s', instance, n)
+                        raise NotImplementedError('Multiple matches found', n, instance)
+                    if instance:
+                        changed = True
+                        n.instance = instance
+                        logger.debug('Disambiguated {} to {}'.format(n, instance))
+                    elif n.type == 'subject':
+                        raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
 
+                self._index.add(n)
 
-class GenericDisambiguator(Disambiguator):
+    def _disambiguweight(self, node):
+        # Models with exactly 1 foreign key field (excluding those added by
+        # ShareObjectMeta) are disambiguated first, because they might be used
+        # to uniquely identify the object they point to. Then do the models with
+        # 0 FKs, then 2, 3, etc.
+        ignored = {'same_as', 'extra'}
+        fk_count = sum(1 for f in node.model._meta.get_fields() if f.editable and (f.many_to_one or f.one_to_one) and f.name not in ignored)
+        return fk_count if fk_count == 1 else -fk_count
 
-    @property
-    def is_through_table(self):
-        # TODO fix this...
-        return 'Through' in self.model.__name__ or self.model in {
-            Contributor,
-            Association,
-            Affiliation,
-            PersonEmail,
-        }
+    def _instance_for_node(self, node):
+        info = self._index.get_info(node)
+        concrete_model = node.model._meta.concrete_model
 
-    def disambiguate(self):
-        if not self.attrs:
-            return None
-
-        if self.is_through_table:
-            return self._disambiguate_through()
-
-        self.attrs.pop('description', None)
-
-        if len(self.attrs.get('title', '')) > 2048:
-            return None
-        elif self.attrs.get('title', None):
-            # if the model has a title, it's an abstractcreativework
-            # limit the query so it uses an index
-            return self.model.objects.filter(**self.attrs).extra(
-                where=[
-                    "octet_length(title) < 2049"
-                ]
-            ).first()
-        return self.model.objects.filter(**self.attrs).first()
-
-    def _disambiguate_through(self):
-        fields = [
-            f for f in self.model._meta.get_fields()
-            if f.is_relation and f.editable and f.name not in {'same_as', 'extra'}
-        ]
-        # Don't dissambiguate through tables that don't have both sides filled out
-        for field in fields:
-            if field.name not in self.attrs:
+        all_query = Q()
+        for k, v in info.all:
+            k, v = self._query_pair(k, v)
+            if k and v:
+                all_query &= Q(**{k: v})
+            else:
                 return None
 
+        any_query = Q()
+        for k, v in info.any:
+            k, v = self._query_pair(k, v)
+            if k and v:
+                any_query |= Q(**{k: v})
+
+        if (info.any and not any_query.children) or (info.all and not all_query.children) or not (all_query.children or any_query.children):
+            return None
+
+        # TODO Maybe add this back in for relations
+        # Relations should not transition hierarchies but Agents/Works may
+        # if concrete_model is not node.model:
+        #     query['type__in'] = info.matching_types
+
+        query = all_query & any_query
+        found = set(concrete_model.objects.filter(query))
+
+        if not found:
+            logger.debug('No {}s found for {}'.format(concrete_model, query))
+            return None
+        if len(found) == 1:
+            return found.pop()
+        logger.warning('Multiple {}s returned for {}'.format(concrete_model, query))
+        return list(found)
+
+    def _query_pair(self, key, value):
         try:
-            return self.model.objects.get(**{field.name: self.attrs[field.name] for field in fields})
-        except (self.model.DoesNotExist, self.model.MultipleObjectsReturned):
-            return None
+            if not value.instance:
+                return (None, None)
+            return ('{}__id'.format(key), value.instance.id)
+        except AttributeError:
+            return (key, value)
 
+    def _merge_nodes(self, source, replacement):
+        assert source.graph is replacement.graph
+        for k, v in source.attrs.items():
+            if k in replacement.attrs:
+                old_val = replacement.attrs[k]
+                if v == old_val:
+                    continue
+                field = replacement.model._meta.get_field(k)
+                if isinstance(field, DateTimeField):
+                    new_val = max(pendulum.parse(v), pendulum.parse(old_val)).isoformat()
+                else:
+                    # use the longer value, or the first alphabetically if they're the same length
+                    new_val = sorted([v, old_val], key=lambda x: (-len(x), x))[0]
+            else:
+                new_val = source.attrs[k]
+            replacement.attrs[k] = new_val
 
-class LinkDisambiguator(Disambiguator):
-    FOR_MODEL = Link
+        from share.models import Person
+        if replacement.model == Person:
+            replacement.attrs['name'] = ''
+            Person.normalize(replacement, replacement.graph)
 
-    def disambiguate(self):
-        if not self.attrs.get('url'):
-            return None
-        try:
-            return Link.objects.get(url=self.attrs['url'])
-        except Link.DoesNotExist:
-            return None
+        source.graph.replace(source, replacement)
 
+    class NodeIndex:
+        def __init__(self):
+            self._index = {}
+            self._info_cache = {}
 
-class TagDisambiguator(Disambiguator):
-    FOR_MODEL = Tag
+        def clear(self):
+            self._index.clear()
+            self._info_cache.clear()
 
-    def disambiguate(self):
-        if not self.attrs.get('name'):
-            return None
-        try:
-            return Tag.objects.get(name=self.attrs['name'])
-        except Tag.DoesNotExist:
-            return None
+        def get_info(self, node):
+            try:
+                return self._info_cache[node]
+            except KeyError:
+                info = self.NodeInfo(node)
+                self._info_cache[node] = info
+                return info
 
+        def add(self, node):
+            info = self.get_info(node)
+            by_model = self._index.setdefault(node.model._meta.concrete_model, DictHashingDict())
+            if info.any:
+                all_cache = by_model.setdefault(info.all, DictHashingDict())
+                for item in info.any:
+                    all_cache.setdefault(item, []).append(node)
+            elif info.all:
+                by_model.setdefault(info.all, []).append(node)
+            else:
+                logger.debug('Nothing to disambiguate on. Ignoring node {}'.format(node))
 
-class PersonDisambiguator(Disambiguator):
-    FOR_MODEL = Person
+        def remove(self, node):
+            info = self.get_info(node)
+            try:
+                all_cache = self._index[node.model._meta.concrete_model][info.all]
+                if info.any:
+                    for item in info.any:
+                        all_cache[item].remove(node)
+                else:
+                    all_cache.remove(node)
+            except (KeyError, ValueError) as ex:
+                raise ValueError('Could not remove node from cache: Node {} not found!'.format(node)) from ex
 
-    def disambiguate(self):
-        return Person.objects.filter(
-            suffix=self.attrs.get('suffix', ''),
-            given_name=self.attrs.get('given_name', ''),
-            family_name=self.attrs.get('family_name', ''),
-            additional_name=self.attrs.get('additional_name', ''),
-        ).first()
+        def get_matches(self, node):
+            info = self.get_info(node)
+            matches = set()
+            try:
+                matches_all = self._index[node.model._meta.concrete_model][info.all]
+                if info.any:
+                    for item in info.any:
+                        matches.update(matches_all.get(item, []))
+                elif info.all:
+                    matches.update(matches_all)
+                # TODO use `info.tie_breaker` when there are multiple matches
+                if info.matching_types:
+                    return [m for m in matches if m != node and m.model._meta.label_lower in info.matching_types]
+                else:
+                    return [m for m in matches if m != node]
+            except KeyError:
+                return []
 
+        # TODO better name
+        class NodeInfo:
+            def __init__(self, node):
+                self._node = node
+                self.all = self._all()
+                self.any = self._any()
+                self.matching_types = self._matching_types()
 
-class SubjectDisambiguator(Disambiguator):
-    FOR_MODEL = Subject
+            def _all(self):
+                try:
+                    all = self._node.model.Disambiguation.all
+                except AttributeError:
+                    return ()
+                values = tuple((f, v) for f in all for v in self._field_values(f))
+                assert len(values) == len(all)
+                return values
 
-    def disambiguate(self):
-        if not self.attrs.get('name'):
-            return None
-        try:
-            return Subject.objects.get(name=self.attrs['name'])
-        except Subject.DoesNotExist:
-            raise ValidationError('Invalid subject: {}'.format(self.attrs['name']))
+            def _any(self):
+                try:
+                    any = self._node.model.Disambiguation.any
+                except AttributeError:
+                    return ()
+                return tuple((f, v) for f in any for v in self._field_values(f))
 
+            def _matching_types(self):
+                try:
+                    constrain_types = self._node.model.Disambiguation.constrain_types
+                except AttributeError:
+                    constrain_types = False
+                if not constrain_types:
+                    return None
 
-class AbstractCreativeWorkDisambiguator(Disambiguator):
-    FOR_MODEL = AbstractCreativeWork
+                # list of all subclasses and superclasses of node.model that could be the type of a node
+                concrete_model = self._node.model._meta.concrete_model
+                if concrete_model is self._node.model:
+                    type_names = [self._node.model._meta.label_lower]
+                else:
+                    subclasses = self._node.model.get_types()
+                    superclasses = [m._meta.label_lower for m in self._node.model.__mro__ if issubclass(m, concrete_model) and m._meta.proxy]
+                    type_names = subclasses + superclasses
+                return set(type_names)
 
-    def disambiguate(self):
-        if self.attrs.get('links'):
-            for link in self.attrs.get('links'):
-                models = ThroughLinks.objects.select_related('creative_work', 'link').filter(link=link)[:2].all()
-                if len(models) == 1 and 'issn' not in models[0].link.type.lower():
-                    return models[0].creative_work
-
-        if not self.attrs.get('title') or len(self.attrs['title']) > 2048:
-            return None
-
-        self.attrs.pop('description', None)
-
-        filter = {k: v for k, v in self.attrs.items() if not isinstance(v, list)}
-        if filter:
-            # Limiting the length of title forces postgres to use the partial index
-            return self.model.objects.filter(**filter).extra(where=('octet_length(title) < 2049', )).first()
-        return None
+            def _field_values(self, field_name):
+                field = self._node.model._meta.get_field(field_name)
+                if field.is_relation:
+                    if field.one_to_many:
+                        for edge in self._node.related(name=field_name, forward=False):
+                            yield edge.subject
+                    elif field.many_to_one:
+                        yield self._node.related(name=field_name, backward=False).related
+                    elif field.many_to_many:
+                        # TODO?
+                        raise NotImplementedError()
+                else:
+                    if field_name in self._node.attrs:
+                        value = self._node.attrs[field.name]
+                        if value != '':
+                            yield value

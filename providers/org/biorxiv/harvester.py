@@ -54,6 +54,10 @@ class BiorxivHarvester(Harvester):
 
             for link in links:
                 article = self.requests.get('http://biorxiv.org' + link.decode())
+                if article.status_code // 100 != 2:
+                    logger.warning('Got non-200 status %s from %s', article, link)
+                    continue
+                article.raise_for_status()
                 soup = BeautifulSoup(article.content, 'lxml')
 
                 data = {
