@@ -32,15 +32,14 @@ class ChangeSetManager(FuzzyCountManager):
         cs = ChangeSet(normalized_data_id=normalized_data_id)
         cs.save()
 
-        for node in graph.nodes:
-            Change.objects.from_node(node, cs)
+        Change.objects.bulk_create(filter(None, [Change.objects.from_node(node, cs, save=False) for node in graph.nodes]))
 
         return cs
 
 
 class ChangeManager(FuzzyCountManager):
 
-    def from_node(self, node, change_set):
+    def from_node(self, node, change_set, save=True):
         if node.is_skippable:
             logger.debug('No changes detected in {!r}, skipping.'.format(node))
             return None
@@ -68,7 +67,10 @@ class ChangeManager(FuzzyCountManager):
             attrs['target_id'] = node.instance.pk
             attrs['target_version_id'] = node.instance.version.pk
 
-        change = Change.objects.create(**attrs)
+        change = Change(**attrs)
+
+        if save:
+            change.save()
 
         return change
 
@@ -144,19 +146,6 @@ class Change(models.Model):
             ('target_type', 'target_id'),
         )
 
-    def get_requirements(self):
-        node_ids, content_types = [], set()
-        for x in self.change.values():
-            if isinstance(x, dict):
-                node_ids.append(x['@id'])
-                content_types.add(ContentType.objects.get(app_label='share', model=x['@type']))
-
-        return Change.objects.filter(
-            node_id__in=node_ids,
-            change_set=self.change_set,
-            target_type__in=content_types,
-        )
-
     def accept(self, save=True):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
@@ -192,11 +181,9 @@ class Change(models.Model):
         resolved_change = self._resolve_change()
         inst = self.model_type.model_class()(change=self, **resolved_change)
         if save:
-            with transaction.atomic():
-                inst.save()
-                inst.refresh_from_db()  # Populate version_id for use later
-                self.target = inst
-                self.save()
+            inst.save()
+            inst.refresh_from_db()  # Populate version_id for use later
+        self.target = inst
         return inst
 
     def _update(self, save=True):

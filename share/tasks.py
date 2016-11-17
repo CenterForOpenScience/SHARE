@@ -8,11 +8,12 @@ import requests
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import transaction
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
+from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser, ShareObject
 
 
 logger = logging.getLogger(__name__)
@@ -136,6 +137,10 @@ class MakeJsonPatches(celery.Task):
         normalized = NormalizedData.objects.get(pk=normalized_id)
         if started_by_id:
             started_by = ShareUser.objects.get(pk=started_by_id)
+
+        # Load all relevant ContentTypes in a single query
+        ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
+
         logger.info('%s started make JSON patches for NormalizedData %s at %s', started_by, normalized_id, datetime.datetime.utcnow().isoformat())
 
         try:
