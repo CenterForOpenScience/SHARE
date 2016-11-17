@@ -112,7 +112,10 @@ class GraphDisambiguator:
         if info.matching_types:
             query &= Q(type__in=info.matching_types)
 
-        found = set(concrete_model.objects.filter(query))
+        try:
+            found = set(concrete_model.objects_unfiltered.filter(query))
+        except AttributeError:
+            found = set(concrete_model.objects.filter(query))
 
         if not found:
             logger.debug('No {}s found for {}'.format(concrete_model, query))

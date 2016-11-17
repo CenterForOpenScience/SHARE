@@ -34,12 +34,19 @@ __all__ = ('WorkIdentifier', 'AgentIdentifier')
 #    class Meta:
 #        abstract = True
 
+class FilteredEmailsManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().exclude(scheme='mailto')
+
 
 class WorkIdentifier(ShareObject):
     uri = ShareURLField(unique=True)
     host = models.TextField(editable=False)
     scheme = models.TextField(editable=False, help_text=_('A prefix to URI indicating how the following data should be interpreted.'))
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='identifiers')
+
+    objects = FilteredEmailsManager()
+    objects_unfiltered = models.Manager()
 
     @classmethod
     def normalize(self, node, graph):
@@ -82,6 +89,9 @@ class AgentIdentifier(ShareObject):
     host = models.TextField(editable=False)
     scheme = models.TextField(editable=False)
     agent = ShareForeignKey('AbstractAgent', related_name='identifiers')
+
+    objects = FilteredEmailsManager()
+    objects_unfiltered = models.Manager()
 
     @classmethod
     def normalize(self, node, graph):
