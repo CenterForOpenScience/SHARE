@@ -77,7 +77,7 @@ class ChangeGraph:
 
         hints, relations = {}, set()
         for blob in copy.deepcopy(data):
-            id, type = blob.pop('@id'), blob.pop('@type')
+            id, type = blob.pop('@id'), blob.pop('@type').lower()
 
             self._lookup[id, type] = ChangeNode(self, id, type, blob, namespace=namespace)
             self.relations[self._lookup[id, type]] = set()
@@ -85,13 +85,13 @@ class ChangeGraph:
 
             for k, v in tuple(blob.items()):
                 if isinstance(v, dict) and k != 'extra' and not k.startswith('@'):
-                    related = (v.pop('@id'), v.pop('@type'))
+                    related = (v.pop('@id'), v.pop('@type').lower())
                     hints[(id, type), related] = k
                     relations.add(((id, type), related))
                     blob.pop(k)
                 if isinstance(v, list):
                     for rel in v:
-                        subject = (rel.pop('@id'), rel.pop('@type'))
+                        subject = (rel.pop('@id'), rel.pop('@type').lower())
                         relations.add((subject, (id, type)))
                     blob.pop(k)
 
@@ -243,14 +243,16 @@ class ChangeNode:
             if self.namespace and getattr(self.instance, 'extra', None):
                 # NOTE extra changes are only diffed at the top level
                 self.instance.extra.data.setdefault(self.namespace, {})
-                changes['extra'] = {self.namespace: {
+                changes['extra'] = {
                     k: v
                     for k, v in extra.items()
                     if k not in self.instance.extra.data[self.namespace]
                     or self.instance.extra.data[self.namespace][k] != v
-                }}
-            elif extra:
-                changes['extra'] = {self.namespace: extra}
+                }
+            else:
+                changes['extra'] = extra
+            if not changes['extra']:
+                del changes['extra']
 
         for edge in self.related(backward=False):
             if edge.field.one_to_many:
