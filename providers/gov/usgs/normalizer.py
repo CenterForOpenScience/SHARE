@@ -1,4 +1,7 @@
+import re
 from share.normalize import *
+
+EMAIL_RE = re.compile(r'\S+@\S+')
 
 
 class WorkIdentifier(Parser):
@@ -28,11 +31,18 @@ class AbstractAgent(Parser):
 
     related_agents = Map(
         Delegate(IsAffiliatedWith),
-        Try(ctx.affiliation.text)
+        Try(ctx.affiliation.text),
+        RunPython('maybe_usgs', Try(ctx.usgs))
     )
 
     def to_str(self, obj):
         return str(obj)
+
+    def maybe_usgs(self, obj):
+        if obj:
+            # How USGS references itself as a work publisher
+            return 'U.S. Geological Survey'
+        return None
 
 
 class Organization(AbstractAgent):
@@ -48,8 +58,11 @@ class Person(AbstractAgent):
 
 class Creator(Parser):
     order_cited = ctx('index')
-    cited_as = ctx.text
+    cited_as = RunPython('strip_emails', ctx.text)
     agent = Delegate(Person, ctx)
+
+    def strip_emails(self, obj):
+        return EMAIL_RE.sub('', obj)
 
 
 class PublisherAgent(Parser):
