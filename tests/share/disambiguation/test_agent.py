@@ -49,9 +49,9 @@ initial = [
     ),
     Report(
         identifiers=[WorkIdentifier(4)],
-        related_agents=[
-            Person(name='Berkeley'),
-            Institution(name='Berkeley')
+        agent_relations=[
+            Creator(agent=Person(name='Berkeley')),
+            Publisher(agent=Institution(name='Berkeley'))
         ]
     )
 ]

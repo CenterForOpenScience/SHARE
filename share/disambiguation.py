@@ -67,10 +67,12 @@ class GraphDisambiguator:
                     instance = self._instance_for_node(n)
                     if instance and isinstance(instance, list):
                         same_type = [i for i in instance if isinstance(i, n.model)]
-                        if len(same_type) != 1:
-                            # TODO after merging is fixed, add mergeaction change to graph
-                            logger.error('Found multiple matches %s for %s', instance, n)
+                        if not same_type:
+                            logger.error('Found multiple matches for %s, and none were of type %s: %s', n, n.model, instance)
                             raise NotImplementedError('Multiple matches found', n, instance)
+                        elif len(same_type) > 1:
+                            logger.error('Found multiple matches of type %s for %s: %s', n.model, n, same_type)
+                            raise NotImplementedError('Multiple matches found', n, same_type)
                         logger.warning('Found multiple matches for %s, but only one of type %s, fortunately.', n, n.model)
                         instance = same_type.pop()
                     if instance:
