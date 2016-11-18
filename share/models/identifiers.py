@@ -71,12 +71,6 @@ class WorkIdentifier(ShareObject):
             'scheme': ret['scheme'],
         }
 
-    def save(self, *args, **kwargs):
-        f = furl(self.uri)
-        self.host = f.host
-        self.scheme = f.scheme
-        super(WorkIdentifier, self).save(*args, **kwargs)
-
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.creative_work_id)
 
@@ -110,12 +104,6 @@ class AgentIdentifier(ShareObject):
             'host': ret['authority'],
             'scheme': ret['scheme'],
         }
-
-    def save(self, *args, **kwargs):
-        f = furl(self.uri)
-        self.host = f.host
-        self.scheme = f.scheme
-        super(AgentIdentifier, self).save(*args, **kwargs)
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.agent_id)

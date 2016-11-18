@@ -63,10 +63,11 @@ class CreativeWork(Parser):
     title = ctx.record['dc:title']
     description = ctx.record['dc:description']
     # is_deleted
-    date_published = ParseDate(ctx.record['dc:date'])
+    date_published = Try(ParseDate(ctx.record['dc:date']))
     date_updated = OneOf(
         ParseDate(ctx.record['dc:dateentry']),
-        ParseDate(ctx.record['dc:date'])
+        ParseDate(ctx.record['dc:date']),
+        Static(None)
     )
     # free_to_read_type
     # free_to_read_date
