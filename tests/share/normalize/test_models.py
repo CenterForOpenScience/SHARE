@@ -373,6 +373,11 @@ class TestModelNormalization:
             Creator(cited_as='Cooking Institute', agent=Institution(id=2, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)])),
             Funder(cited_as='Cook Institute', agent=Institution(id=2, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)]))
         ]),
+        # Related agent removed
+        ([
+            Creator(cited_as='', agent=Person(id=0, name='None', identifiers=[AgentIdentifier(1, id=1)])),
+        ], [
+        ])
     ])
     def test_normalize_contributor_creator_relation(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(agent_relations=input)))

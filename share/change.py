@@ -119,6 +119,11 @@ class ChangeGraph:
     def normalize(self):
         # Freeze nodes to avoid oddities with inserting and removing nodes
         for node in tuple(self.nodes):
+            # If a node has been removed dont normalize it
+            # Fast check may be wrong if type has changed double check with a slower method
+            if not (node.id, node.type) in self._lookup and node not in self.nodes:
+                logger.warning('Skipping removed node %s', node)
+                continue
             # This feels overly hacky
             if hasattr(node.model, 'normalize'):
                 node.model.normalize(node, self)
