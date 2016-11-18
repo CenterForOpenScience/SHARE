@@ -122,7 +122,7 @@ class ChangeGraph:
             # If a node has been removed dont normalize it
             # Fast check may be wrong if type has changed double check with a slower method
             if not (node.id, node.type) in self._lookup and node not in self.nodes:
-                logger.warning('Skipping removed node %s', node)
+                logger.debug('Skipping removed node %s', node)
                 continue
             # This feels overly hacky
             if hasattr(node.model, 'normalize'):
