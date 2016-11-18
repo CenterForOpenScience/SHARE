@@ -47,6 +47,13 @@ initial = [
             )
         ]
     ),
+    Report(
+        identifiers=[WorkIdentifier(4)],
+        related_agents=[
+            Person(name='Berkeley'),
+            Institution(name='Berkeley')
+        ]
+    )
 ]
 
 
@@ -66,6 +73,10 @@ class TestAgentDisambiguation:
         ([Preprint(related_agents=[Institution(8)])], models.Institution, 0),
         # organization where the name does not exist
         ([CreativeWork(related_agents=[Organization(name='Bill Gates')])], models.Organization, 1),
+        # organization and person exist with the same name
+        ([Organization(name='Berkeley')], models.Organization, 0),
+        # organization and person exist with the same name as incoming institution
+        ([Institution(name='Berkeley')], models.Institution, 0),
     ])
     def test_disambiguate(self, input, model, delta, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
