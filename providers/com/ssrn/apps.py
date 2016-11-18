@@ -1,5 +1,5 @@
 from share.provider import ProviderAppConfig
-from .harvester import SRNHarvester
+from .harvester import SSRNHarvester
 
 
 class AppConfig(ProviderAppConfig):
@@ -9,4 +9,3 @@ class AppConfig(ProviderAppConfig):
     long_title = 'Social Science Research Network'
     home_page = 'http://papers.ssrn.com/'
     harvester = SSRNHarvester
-    disabled = True  # Disabled as no articles have been release in a while
