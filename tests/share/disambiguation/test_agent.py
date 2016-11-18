@@ -75,8 +75,10 @@ class TestAgentDisambiguation:
         ([CreativeWork(related_agents=[Organization(name='Bill Gates')])], models.Organization, 1),
         # organization and person exist with the same name
         ([Organization(name='Berkeley')], models.Organization, 0),
-        # organization and person exist with the same name as incoming institution
+        # institution and person exist with the same name
         ([Institution(name='Berkeley')], models.Institution, 0),
+        # person doesn't disambiguate on name
+        ([Person(name='Berkeley')], models.Person, 1),
     ])
     def test_disambiguate(self, input, model, delta, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
