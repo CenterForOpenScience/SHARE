@@ -5,7 +5,7 @@ from graphene_django import DjangoObjectType
 from share import models
 from share.graphql.base import Identifier
 from share.graphql.base import AbstractShareObject
-from share.graphql.relations import AbstractAgentWorkRelation
+from share.graphql.relations import AbstractAgentWorkRelation, AbstractWorkRelation
 
 
 class Tag(DjangoObjectType):
@@ -25,8 +25,13 @@ class AbstractCreativeWork(AbstractShareObject):
 
     # raw_data = graphene.List(RawData)
     identifiers = graphene.List(Identifier)
-    related_agents = graphene.List(AbstractAgentWorkRelation, limit=graphene.Int(), offset=graphene.Int())
     tags = graphene.List(Tag, limit=graphene.Int(), offset=graphene.Int())
+
+    total_related_agents = graphene.Int()
+    related_agents = graphene.List(AbstractAgentWorkRelation, limit=graphene.Int(), offset=graphene.Int())
+
+    total_related_works = graphene.Int()
+    related_works = graphene.List(AbstractWorkRelation, limit=graphene.Int(), offset=graphene.Int())
 
     @graphene.resolve_only_args
     def resolve_identifiers(self):
@@ -39,10 +44,24 @@ class AbstractCreativeWork(AbstractShareObject):
         return self.tags.all()[offset:limit]
 
     @graphene.resolve_only_args
+    def resolve_total_related_agents(self):
+        return self.agent_relations.count()
+
+    @graphene.resolve_only_args
     def resolve_related_agents(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
         return self.agent_relations.all()[offset:limit]
+
+    @graphene.resolve_only_args
+    def resolve_total_related_works(self):
+        return self.work_relations.count()
+
+    @graphene.resolve_only_args
+    def resolve_related_works(self, limit=None, offset=None):
+        if limit:
+            offset = (offset or 0) + limit
+        return self.work_relations.all()[offset:limit]
 
 
 for klass in models.CreativeWork.get_type_classes():
