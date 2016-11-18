@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser, ShareObject
+from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
 
 
 logger = logging.getLogger(__name__)

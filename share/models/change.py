@@ -5,14 +5,14 @@ from model_utils import Choices
 from fuzzycount import FuzzyCountManager
 
 from django.apps import apps
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import JSONField
+from django.db import connection
 from django.db import models
 from django.db import transaction
-from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.contrib.postgres.fields import JSONField
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
 
 from share.models import NormalizedData
 from share.util import IDObfuscator
@@ -141,28 +141,31 @@ class Change(models.Model):
 
     class Meta:
         ordering = ('pk', )
-        index_together = (
-            ('node_id', 'change_set', 'target_type',),
-            ('target_type', 'target_id'),
-        )
+        index_together = ('target_type', 'target_id')
 
     def accept(self, save=True):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
-        logger.debug('Accepting change node ({}, {})'.format(self.model_type, self.node_id))
+        logger.debug('Accepting change node ({}, {})'.format(ContentType.objects.get_for_id(self.model_type_id), self.node_id))
         ret = self._accept(save)
 
         if save:
             # Psuedo hack, sources.add(...) tries to do some safety checks.
             # Don't do that. We have a database. That is its job. Let it do its job.
-            try:
-                with transaction.atomic():
-                    ret._meta.get_field('sources').rel.through.objects.create(**{
-                        ret._meta.concrete_model._meta.model_name: ret,
-                        'shareuser': self.change_set.normalized_data.source,
-                    })
-            except IntegrityError:
-                logger.debug('%s already has %s marked as a source', ret, self.change_set.normalized_data.source)
+            through_meta = ret._meta.get_field('sources').rel.through._meta
+
+            with connection.cursor() as cursor:
+                cursor.execute('''
+                    INSERT INTO "{0}"
+                        ("{1}", "{2}")
+                    VALUES
+                        (%s, %s)
+                    ON CONFLICT DO NOTHING;
+                '''.format(
+                    through_meta.db_table,
+                    through_meta.get_field(ret._meta.concrete_model._meta.model_name).column,
+                    through_meta.get_field('shareuser').column,
+                ), (ret.pk, self.change_set.normalized_data.source_id))
 
             self.save()
         else:
@@ -179,10 +182,9 @@ class Change(models.Model):
 
     def _create(self, save=True):
         resolved_change = self._resolve_change()
-        inst = self.model_type.model_class()(change=self, **resolved_change)
+        inst = ContentType.objects.get_for_id(self.model_type_id).model_class()(change=self, **resolved_change)
         if save:
             inst.save()
-            inst.refresh_from_db()  # Populate version_id for use later
         self.target = inst
         return inst
 
@@ -257,7 +259,6 @@ class Change(models.Model):
                 change[k].change = self
                 change[k].data.update({self.change_set.normalized_data.source.username: v})
                 change[k].save()
-                change[k].refresh_from_db()
                 change[k + '_version_id'] = change[k].version_id
             elif isinstance(v, dict):
                 inst = self.change_set._resolve_ref(v)

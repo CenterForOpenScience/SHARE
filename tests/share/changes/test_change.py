@@ -122,6 +122,7 @@ class TestChange:
 
         assert person.family_name == 'Doe'
         assert len(jane_doe.versions.all()) == 1
+        assert jane_doe.version == jane_doe.versions.first()
 
 
 class TestChangeSet:

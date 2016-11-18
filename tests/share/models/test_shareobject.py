@@ -132,8 +132,7 @@ class TestAdministrativeChange:
         assert e.value.args == ('Don\'t make empty changes', )
 
     def test_works(self, john_doe):
-        john_doe.refresh_from_db()  # load version
-
+        assert john_doe.version == john_doe.versions.first()
         assert john_doe.versions.count() == 1
         assert john_doe.given_name == 'John'
         john_doe.administrative_change(given_name='Jane')
@@ -142,15 +141,11 @@ class TestAdministrativeChange:
         assert john_doe.change.change_set.normalized_data.source.username == 'system'
 
     def test_invalid_attribute(self, john_doe):
-        john_doe.refresh_from_db()  # load version
-
         with pytest.raises(AttributeError) as e:
             john_doe.administrative_change(favorite_animal='Anteater')
         assert e.value.args == ('favorite_animal', )
 
     def test_transition_types(self, all_about_anteaters):
-        all_about_anteaters.refresh_from_db()  # load version
-
         assert all_about_anteaters.type == 'share.article'
         all_about_anteaters.administrative_change(type='share.preprint')
         assert all_about_anteaters.type == 'share.preprint'

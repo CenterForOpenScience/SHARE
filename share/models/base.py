@@ -1,19 +1,22 @@
+import re
 import copy
 import inspect
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
+from django.db import DatabaseError
 from django.db import models
 from django.db import transaction
 from django.db.models.base import ModelBase
+from django.db.models.fields import AutoField
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
 
 from fuzzycount import FuzzyCountManager
 
-from share.models.change import Change
 from share.models import fields
-
+from share.models.change import Change
+from share.models.sql import ShareObjectManager
 from typedmodels import models as typedmodels
 
 
@@ -155,7 +158,7 @@ class ExtraData(models.Model, metaclass=ShareObjectMeta):
 
 class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
-    objects = FuzzyCountManager()
+    objects = ShareObjectManager()
     versions = VersionManager()
     changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=True)
 
@@ -189,3 +192,61 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
             self.change = change
 
             self.save()
+
+    # NOTE/TODO Version will be popluated when a share object is first created
+    # Updating a share object WILL NOT update the version
+    def _save_table(self, raw=False, cls=None, force_insert=False, force_update=False, using=None, update_fields=None):
+        """
+        Does the heavy-lifting involved in saving. Updates or inserts the data
+        for a single table.
+        """
+        meta = cls._meta
+        non_pks = [f for f in meta.local_concrete_fields if not f.primary_key]
+
+        if update_fields:
+            non_pks = [f for f in non_pks
+                       if f.name in update_fields or f.attname in update_fields]
+
+        pk_val = self._get_pk_val(meta)
+        if pk_val is None:
+            pk_val = meta.pk.get_pk_value_on_save(self)
+            setattr(self, meta.pk.attname, pk_val)
+        pk_set = pk_val is not None
+        if not pk_set and (force_update or update_fields):
+            raise ValueError("Cannot force an update in save() with no primary key.")
+        updated = False
+        # If possible, try an UPDATE. If that doesn't update anything, do an INSERT.
+        if pk_set and not force_insert:
+            base_qs = cls._base_manager.using(using)
+            values = [(f, None, (getattr(self, f.attname) if raw else f.pre_save(self, False)))
+                      for f in non_pks]
+            forced_update = update_fields or force_update
+            updated = self._do_update(base_qs, using, pk_val, values, update_fields,
+                                      forced_update)
+            if force_update and not updated:
+                raise DatabaseError("Forced update did not affect any rows.")
+            if update_fields and not updated:
+                raise DatabaseError("Save with update_fields did not affect any rows.")
+        if not updated:
+            if meta.order_with_respect_to:
+                # If this is a model with an order_with_respect_to
+                # autopopulate the _order field
+                field = meta.order_with_respect_to
+                filter_args = field.get_filter_kwargs_for_object(self)
+                order_value = cls._base_manager.using(using).filter(**filter_args).count()
+                self._order = order_value
+
+            fields = meta.local_concrete_fields
+            if not pk_set:
+                fields = [f for f in fields if not isinstance(f, AutoField)]
+
+            update_pk = bool(meta.has_auto_field and not pk_set)
+            result = self._do_insert(cls._base_manager, using, fields, update_pk, raw)
+            if update_pk:
+                ### ACTUAL CHANGE HERE ###
+                # Use regex as it will, hopefully, fail if something get messed up
+                pk, version_id = re.match(r'\((\d+),(\d+)\)', result).groups()
+                setattr(self, meta.pk.attname, int(pk))
+                setattr(self, meta.get_field('version').attname, int(version_id))
+                ### /ACTUAL CHANGE HERE ###
+        return updated

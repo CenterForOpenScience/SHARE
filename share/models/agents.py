@@ -27,7 +27,7 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
     Either an individual person or a group of people.
     """
 
-    name = models.TextField(blank=True)
+    name = models.TextField(blank=True, db_index=True)
     location = models.TextField(blank=True)
     related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentRelation', through_fields=('subject', 'related'), symmetrical=False)
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractAgentWorkRelation')
