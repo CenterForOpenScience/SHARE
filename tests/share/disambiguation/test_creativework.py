@@ -1,4 +1,3 @@
-import re
 import pytest
 
 from share import models
@@ -141,7 +140,4 @@ class TestWorkDisambiguation:
         cg = ChangeGraph(Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)])))
         with pytest.raises(NotImplementedError) as e:
             cg.process()
-        assert re.match(
-            "Multiple <class 'share.models.creative.Preprint'>s found for \(AND: \(OR: \(AND: \), \('identifiers__id', \d+\), \('identifiers__id', \d+\)\)\)",
-            e.value.args[0]
-        )
+        assert e.value.args[0] == "Multiple <class 'share.models.creative.Preprint'>s found"

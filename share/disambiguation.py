@@ -105,37 +105,37 @@ class GraphDisambiguator:
             else:
                 return None
 
-        any_query = Q()
+        queries = []
         for k, v in info.any:
             k, v = self._query_pair(k, v)
             if k and v:
-                any_query |= Q(**{k: v})
+                queries.append(all_query & Q(**{k: v}))
 
-        if (info.any and not any_query.children) or (info.all and not all_query.children) or not (all_query.children or any_query.children):
+        if not all_query.children and not queries:
             return None
 
-        query = all_query & any_query
         if info.matching_types:
-            query &= Q(type__in=info.matching_types)
+            all_query &= Q(type__in=info.matching_types)
 
-        queries = [Q()]
+        constrain = [Q()]
         if hasattr(node.model, '_typedmodels_type'):
-            queries.extend([Q(type__in=node.model.get_types()), Q(type=node.model._typedmodels_type)])
+            constrain.append(Q(type=node.model._typedmodels_type))
 
-        for q in queries:
-            found = list(concrete_model.objects.filter(query & q).distinct()[:2])
+        for q in constrain:
+            sql, params = zip(*[concrete_model.objects.filter(all_query & query & q).query.sql_with_params() for query in queries or [Q()]])
+            found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT 2;', sum(params, ())))
+
             if not found:
-                logger.debug('No %ss found for %s', concrete_model, query)
+                logger.debug('No %ss found for %s %s', concrete_model, all_query & q, queries)
                 return None
             if len(found) == 1:
                 return found[0]
-            if '__' in str(query & q):
-                logger.warning('Multiple %ss returned for %s, a query on relations. Bailing', concrete_model, query)
+            if all_query.children or any('__' in str(query) for query in queries):
+                logger.warning('Multiple %ss returned for %s (The main query) bailing', concrete_model, all_query)
                 break
-            logger.warning('Multiple %ss returned for %s; Tightening query', concrete_model, query)
 
-        logger.error('Could not disambiguate %s. %s found too many results', node.model, query)
-        raise NotImplementedError('Multiple {}s found for {}'.format(node.model, query))
+        logger.error('Could not disambiguate %s. Too many results found from %s %s', node.model, all_query, queries)
+        raise NotImplementedError('Multiple {0}s found'.format(node.model))
 
     def _query_pair(self, key, value):
         try:
