@@ -41,7 +41,10 @@ class IDObfuscator:
 
     @classmethod
     def decode_id(cls, id):
-        return cls.decode(id)[1]
+        match = cls.ID_RE.match(id)
+        assert match, '"{}" is not a valid ID'.format(id)
+        model_id, *pks = match.groups()
+        return int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 
     @classmethod
     def resolve(cls, id):

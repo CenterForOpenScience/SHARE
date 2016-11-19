@@ -65,20 +65,20 @@ class GraphDisambiguator:
                 if find_instances:
                     # look for matches in the database
                     instance = self._instance_for_node(n)
-                    if instance and isinstance(instance, list):
-                        same_type = [i for i in instance if isinstance(i, n.model)]
-                        if not same_type:
-                            logger.error('Found multiple matches for %s, and none were of type %s: %s', n, n.model, instance)
-                            raise NotImplementedError('Multiple matches found', n, instance)
-                        elif len(same_type) > 1:
-                            logger.error('Found multiple matches of type %s for %s: %s', n.model, n, same_type)
-                            raise NotImplementedError('Multiple matches found', n, same_type)
-                        logger.warning('Found multiple matches for %s, but only one of type %s, fortunately.', n, n.model)
-                        instance = same_type.pop()
+                    # if instance and isinstance(instance, list):
+                    #     same_type = [i for i in instance if isinstance(i, n.model)]
+                    #     if not same_type:
+                    #         logger.error('Found multiple matches for %s, and none were of type %s: %s', n, n.model, instance)
+                    #         raise NotImplementedError('Multiple matches found', n, instance)
+                    #     elif len(same_type) > 1:
+                    #         logger.error('Found multiple matches of type %s for %s: %s', n.model, n, same_type)
+                    #         raise NotImplementedError('Multiple matches found', n, same_type)
+                    #     logger.warning('Found multiple matches for %s, but only one of type %s, fortunately.', n, n.model)
+                    #     instance = same_type.pop()
                     if instance:
                         changed = True
                         n.instance = instance
-                        logger.debug('Disambiguated {} to {}'.format(n, instance))
+                        logger.debug('Disambiguated %s to %s', n, instance)
                     elif n.type == 'subject':
                         raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
 
@@ -118,18 +118,24 @@ class GraphDisambiguator:
         if info.matching_types:
             query &= Q(type__in=info.matching_types)
 
-        try:
-            found = set(concrete_model.objects_unfiltered.filter(query))
-        except AttributeError:
-            found = set(concrete_model.objects.filter(query))
+        queries = [Q()]
+        if hasattr(node.model, '_typedmodels_type'):
+            queries.extend([Q(type__in=node.model.get_types()), Q(type=node.model._typedmodels_type)])
 
-        if not found:
-            logger.debug('No {}s found for {}'.format(concrete_model, query))
-            return None
-        if len(found) == 1:
-            return found.pop()
-        logger.warning('Multiple {}s returned for {}'.format(concrete_model, query))
-        return list(found)
+        for q in queries:
+            found = list(concrete_model.objects.filter(query & q).distinct()[:2])
+            if not found:
+                logger.debug('No %ss found for %s', concrete_model, query)
+                return None
+            if len(found) == 1:
+                return found[0]
+            if '__' in str(query & q):
+                logger.warning('Multiple %ss returned for %s, a query on relations. Bailing', concrete_model, query)
+                break
+            logger.warning('Multiple %ss returned for %s; Tightening query', concrete_model, query)
+
+        logger.error('Could not disambiguate %s. %s found too many results', node.model, query)
+        raise NotImplementedError('Multiple {}s found for {}'.format(node.model, query))
 
     def _query_pair(self, key, value):
         try:

@@ -109,7 +109,7 @@ class ChangeSet(models.Model):
                     and change.node_id == ref['@id']
                     and change.target
                 )
-            return model._meta.concrete_model.objects.get(pk=IDObfuscator.decode(ref['@id'])[1])
+            return model._meta.concrete_model.objects.get(pk=IDObfuscator.decode_id(ref['@id']))
         except (StopIteration, model.DoesNotExist) as ex:
             raise Exception('Could not resolve reference {}'.format(ref)) from ex
 

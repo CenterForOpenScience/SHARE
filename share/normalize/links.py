@@ -950,6 +950,7 @@ class GuessAgentTypeLink(AbstractLink):
         'institution',
         'school',
         'university',
+        'univ',
     )
     INSTITUTION_RE = re.compile(r'\b({})\b'.format('|'.join(INSTITUTION_KEYWORDS)), flags=re.I)
 
