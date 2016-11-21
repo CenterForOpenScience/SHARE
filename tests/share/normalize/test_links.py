@@ -260,6 +260,11 @@ class TestIRILink:
         return self._do_test(input, output)
 
     @pytest.mark.parametrize('input, output', [
+        ('http://api.elsevier.com/content/article/PII:B9780081005965212365?httpAccept=text/xml', {
+            'scheme': 'http',
+            'authority': 'api.elsevier.com',
+            'IRI': 'http://api.elsevier.com/content/article/PII:B9780081005965212365?httpAccept=text/xml',
+        }),
         ('https://google.com/', {
             'scheme': 'http',
             'authority': 'google.com',
