@@ -25,12 +25,12 @@ class AbstractAgent(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_total_related_agents(self):
-        return self.agent_relations.count()
+        return self.related_agents.count()
 
     @graphene.resolve_only_args
     def resolve_related_agents(self, offset=None, limit=10):
         limit = (offset or 0) + limit
-        return self.agent_relations.all()[offset:limit]
+        return self.related_agents.all()[offset:limit]
 
     @graphene.resolve_only_args
     def resolve_total_related_works(self):
