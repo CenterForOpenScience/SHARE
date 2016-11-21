@@ -3,16 +3,20 @@ from share.normalize import links
 
 
 class AgentIdentifier(Parser):
-    uri = ctx
+    uri = IRI(ctx)
 
 
 class WorkIdentifier(Parser):
-    uri = ctx
+    uri = IRI(ctx)
 
 
 class RelatedAgent(Parser):
     schema = GuessAgentType(OneOf(ctx.name, ctx), default='organization')
     name = OneOf(ctx.name, ctx)
+    identifiers = Map(
+        Delegate(AgentIdentifier),
+        Try(ctx.DOI)
+    )
 
     # class Extra:
     #     doi = Maybe(ctx, 'DOI')
@@ -22,13 +26,6 @@ class RelatedAgent(Parser):
 
 class Funder(Parser):
     agent = Delegate(RelatedAgent, ctx)
-    identifiers = Map(
-        Delegate(AgentIdentifier),
-        Map(
-            DOI(),
-            Maybe(ctx, 'DOI')
-        )
-    )
 
 
 class Publisher(Parser):
@@ -45,10 +42,7 @@ class Person(Parser):
 
     identifiers = Map(
         Delegate(AgentIdentifier),
-        Map(
-            Orcid(),
-            Maybe(ctx, 'ORCID')
-        )
+        Try(ctx.ORCID)
     )
 
     related_agents = Map(Delegate(IsAffiliatedWith), Maybe(ctx, 'affiliation'))
@@ -100,12 +94,9 @@ class CreativeWork(Parser):
 
     identifiers = Map(
         Delegate(WorkIdentifier),
-        DOI(ctx.DOI),
-        Map(
-            IRI(urn_fallback=True),
-            Maybe(ctx, 'link'),
-            Maybe(ctx, 'alternative-id')
-        )
+        ctx.DOI,
+        Map(OneOf(ctx.URL, ctx), Try(ctx.link)),
+        Try(IRI(ctx['alternative-id']))
     )
 
     related_agents = Concat(
