@@ -25,12 +25,15 @@ from share.models.banner import SiteBanner
 # from share.models.agent_relations import AbstractAgentRelation
 # from share.models.contributions import AbstractContribution, Award
 from share.tasks import ApplyChangeSets
+from share.readonlyadmin import ReadOnlyAdmin
 
 
-class NormalizedDataAdmin(admin.ModelAdmin):
+class NormalizedDataAdmin(ReadOnlyAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
     raw_id_fields = ('raw', 'tasks',)
+    user_readonly = ('created_at', 'source', 'data', 'raw', 'tasks')
+    user_readonly_inlines = []
 
 
 class ChangeSetSubmittedByFilter(SimpleListFilter):
@@ -46,8 +49,10 @@ class ChangeSetSubmittedByFilter(SimpleListFilter):
         return queryset
 
 
-class ChangeSetAdmin(admin.ModelAdmin):
+class ChangeSetAdmin(ReadOnlyAdmin):
     list_display = ('status_', 'count_changes', 'submitted_by', 'submitted_at')
+    user_readonly = list_display + ('status', 'normalized_data')
+    user_readonly_inlines = []
     actions = ['accept_changes']
     list_filter = ['status', ChangeSetSubmittedByFilter]
     raw_id_fields = ('normalized_data',)
@@ -108,8 +113,8 @@ class CeleryTaskChangeList(ChangeList):
         return ['-timestamp']
 
 
-class CeleryTaskAdmin(admin.ModelAdmin):
-    list_display = ('timestamp', 'name', 'status', 'provider', 'app_label', 'started_by')
+class CeleryTaskAdmin(ReadOnlyAdmin):
+    list_display = ('timestamp', 'name', 'status', 'app_label', 'started_by')
     actions = ['retry_tasks']
     list_filter = ['status', TaskNameFilter, AppLabelFilter, 'started_by']
     list_select_related = ('provider', 'started_by')
@@ -122,7 +127,9 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'status',
         'traceback',
     )
-    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'status', 'traceback', 'started_by', 'provider')
+    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'status', 'traceback')
+    user_readonly = readonly_fields + ('started_by', 'provider')
+    user_readonly_inlines = []
 
     def traceback(self, task):
         return apps.get_model('djcelery', 'taskmeta').objects.filter(task_id=task.uuid).first().traceback
@@ -144,36 +151,61 @@ class CeleryTaskAdmin(admin.ModelAdmin):
     retry_tasks.short_description = 'Retry tasks'
 
 
-class AbstractCreativeWorkAdmin(admin.ModelAdmin):
+class AbstractCreativeWorkAdmin(ReadOnlyAdmin):
     list_display = ('type', 'title', 'num_contributors')
     list_filter = ['type']
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version', 'subjects')
+    user_readonly = list_display + raw_id_fields
+    user_readonly_inlines = []
 
     def num_contributors(self, obj):
         return obj.contributors.count()
     num_contributors.short_description = 'Contributors'
 
 
-class AbstractAgentAdmin(admin.ModelAdmin):
+class AbstractAgentAdmin(ReadOnlyAdmin):
     list_display = ('type', 'name')
     list_filter = ('type',)
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
+    user_readonly = list_display + raw_id_fields
+    user_readonly_inlines = []
 
 
-class TagAdmin(admin.ModelAdmin):
+class TagAdmin(ReadOnlyAdmin):
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
+    user_readonly = raw_id_fields
+    user_readonly_inlines = []
 
 
-class RawDataAdmin(admin.ModelAdmin):
+class RawDataAdmin(ReadOnlyAdmin):
     raw_id_fields = ('tasks',)
+    user_readonly = ('source', 'app_label', 'provider_doc_id', 'data', 'sha256', 'tasks')
+    user_readonly_inlines = []
 
 
-class AccessTokenAdmin(admin.ModelAdmin):
+class AccessTokenAdmin(ReadOnlyAdmin):
     list_display = ('token', 'user', 'scope')
+    user_readonly = list_display
+    user_readonly_inlines = []
 
 
-class ProviderRegistrationAdmin(admin.ModelAdmin):
+class ProviderRegistrationAdmin(ReadOnlyAdmin):
     list_display = ('source_name', 'status_', 'submitted_at', 'submitted_by', 'direct_source')
+    user_readonly = list_display + (
+        'status',
+        'contact_name',
+        'contact_email',
+        'contact_affiliation',
+        'source_description',
+        'source_rate_limit',
+        'source_documentation',
+        'source_preferred_metadata_prefix',
+        'source_oai',
+        'source_base_url',
+        'source_disallowed_sets',
+        'source_additional_info'
+    )
+    user_readonly_inlines = []
     list_filter = ('direct_source', 'status',)
     readonly_fields = ('submitted_at', 'submitted_by',)
 
