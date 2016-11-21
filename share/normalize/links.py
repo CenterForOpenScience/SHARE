@@ -663,7 +663,7 @@ class ISNILink(AbstractIRILink):
         (350000001, None),
     )
 
-    ISNI_RE = re.compile(r'(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|[xX]))')
+    ISNI_RE = re.compile(r'\b(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|[xX]))\b')
 
     @classmethod
     def hint(cls, obj):
