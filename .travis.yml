@@ -34,6 +34,7 @@ before_install:
         curl -SLO http://apt.postgresql.org/pub/repos/apt/pool/main/p/postgresql-9.5/$POSTGRES_DEB
       fi
       dpkg -x $LIBXML2_DEB /tmp/libxml2
+      dpkg -x $POSTGRES_DEB /tmp/postgres
     - |
       export LD_LIBRARY_PATH=/tmp/libxml2/usr/lib/x86_64-linux-gnu
       /tmp/postgres/usr/lib/postgresql/9.5/bin/initdb /tmp/postgres/data --nosync -U postgres
