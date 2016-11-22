@@ -78,7 +78,7 @@ class IndexModelTask(ProviderTask):
 
         if model is CreativeWork:
             for blob in util.fetch_creativework(ids):
-                if blob['is_deleted']:
+                if blob.pop('is_deleted'):
                     yield {'_id': blob['id'], '_op_type': 'delete', **opts}
                 else:
                     yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}

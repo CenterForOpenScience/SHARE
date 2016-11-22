@@ -49,10 +49,20 @@ class ElasticSearchBot(Bot):
                         }
                     }
                 }
+            }, {
+                'exact_matches': {
+                    'match': 'id',
+                    'mapping': {
+                        'enabled': False
+                    }
+                }
             }],
             'properties': {
-                'lists': {
-                    'enabled': False
+                'tags': {
+                    'type': {'type': 'string', 'index': 'not_analyzed'}
+                },
+                'subjects': {
+                    'type': {'type': 'string', 'index': 'not_analyzed'}
                 }
             }
         },

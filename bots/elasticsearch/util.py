@@ -158,10 +158,18 @@ def fetch_creativework(pks):
                             WHERE throughtag.creative_work_id = creativework.id
                             ) AS tags ON TRUE
                 LEFT JOIN LATERAL (
-                            SELECT array_agg(subject.name) AS subjects
-                            FROM share_throughsubjects AS throughsubject
-                            JOIN share_subject AS subject ON throughsubject.subject_id = subject.id
-                            WHERE throughsubject.creative_work_id = creativework.id
+                            SELECT DISTINCT array_agg(name) AS subjects
+                            FROM (
+                                SELECT unnest(ARRAY [child.name, parent.name, grand_parent.name, great_grand_parent.name])
+                                FROM share_subject AS child
+                                    LEFT JOIN share_subject AS parent ON child.parent_id = parent.id
+                                    LEFT JOIN share_subject AS grand_parent ON parent.parent_id = grand_parent.id
+                                    LEFT JOIN share_subject AS great_grand_parent ON grand_parent.parent_id = great_grand_parent.id
+                                WHERE child.id IN (SELECT share_throughsubjects.subject_id
+                                                    FROM share_throughsubjects
+                                                    WHERE share_throughsubjects.creative_work_id = creativework.id)
+                                ) AS x(name)
+                            WHERE name IS NOT NULL
                             ) AS subjects ON TRUE
                 WHERE creativework.id IN %s
                 AND creativework.title != ''
