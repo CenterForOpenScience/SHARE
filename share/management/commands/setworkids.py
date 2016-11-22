@@ -1,5 +1,6 @@
 import yaml
 import argparse
+from datetime import datetime
 
 from django.apps import apps
 from django.core.management.base import BaseCommand
@@ -77,8 +78,8 @@ class Command(BaseCommand):
                 self.enable_triggers(c, tables)
 
     def update_id(self, cursor, old_id, new_id, foreign_keys):
-        query = 'UPDATE share_creativework SET id = %s WHERE id = %s;'
-        cursor.execute(query, [new_id, old_id])
+        query = 'UPDATE share_creativework SET id = %s, date_modified = %s WHERE id = %s;'
+        cursor.execute(query, [new_id, datetime.utcnow(), old_id])
 
         fk_query = 'UPDATE {t} SET {c} = %s where {c} = %s;'
         for table, column in foreign_keys:
