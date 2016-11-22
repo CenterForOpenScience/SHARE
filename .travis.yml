@@ -13,6 +13,7 @@ cache:
 
 env:
   global:
+    - DATABASE_PORT="54321"
     - PROJECT_DIR="$PWD"
     - WHEELHOUSE="$HOME/.cache/wheelhouse"
     - LIBXML2_DEB="libxml2_2.7.8.dfsg-5.1ubuntu4.15_amd64.deb"

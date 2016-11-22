@@ -578,8 +578,4 @@ class Migration(migrations.Migration):
             name='same_as_version',
             field=models.ForeignKey(db_index=False, editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='share.WorkIdentifierVersion'),
         ),
-        migrations.AlterIndexTogether(
-            name='change',
-            index_together=set([]),
-        ),
     ]
