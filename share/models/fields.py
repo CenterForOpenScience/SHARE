@@ -123,9 +123,9 @@ class ShareOneToOneField(ShareRelatedField, models.OneToOneField):
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[2](self.remote_field.model + 'Version', editable=False, **self._kwargs)
+            version = self.__class__.mro()[2](self.remote_field.model + 'Version', editable=False, **{**self._kwargs, 'db_index': False})
         else:
-            version = self.__class__.mro()[2](self.remote_field.model.VersionModel, editable=False, **self._kwargs)
+            version = self.__class__.mro()[2](self.remote_field.model.VersionModel, editable=False, **{**self._kwargs, 'db_index': False})
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 
@@ -145,9 +145,9 @@ class ShareForeignKey(ShareRelatedField, models.ForeignKey):
         actual.contribute_to_class(cls, name, **kwargs)
 
         if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[2](self.remote_field.model + 'Version', editable=False, **{**self._kwargs, 'related_name': '+'})
+            version = self.__class__.mro()[2](self.remote_field.model + 'Version', editable=False, **{**self._kwargs, 'related_name': '+', 'db_index': False})
         else:
-            version = self.__class__.mro()[2](self.remote_field.model.VersionModel, editable=False, **{**self._kwargs, 'related_name': '+'})
+            version = self.__class__.mro()[2](self.remote_field.model.VersionModel, editable=False, **{**self._kwargs, 'related_name': '+', 'db_index': False})
 
         version.contribute_to_class(cls, name + '_version', **kwargs)
 

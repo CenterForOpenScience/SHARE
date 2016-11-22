@@ -58,7 +58,7 @@ class ShareObjectMeta(ModelBase):
                 if isinstance(val, models.ForeignKey) and not isinstance(val, fields.ShareForeignKey):
                     val.remote_field.related_name = '+'
                 if isinstance(val, (fields.ShareForeignKey, fields.ShareManyToManyField, fields.ShareOneToOneField)):
-                    val._kwargs = {**val._kwargs, 'related_name': '+'}
+                    val._kwargs = {**val._kwargs, 'related_name': '+', 'db_index': False}
             if key == 'Meta':
                 val = type('VersionMeta', (val, ), {'unique_together': None, 'db_table': val.db_table + 'version' if hasattr(val, 'db_table') else None})
             version_attrs[key] = val

@@ -123,25 +123,24 @@ class Change(models.Model):
     objects = ChangeManager()
 
     change = JSONField()
-    node_id = models.TextField(db_index=True)
+    node_id = models.TextField()
 
     type = models.IntegerField(choices=TYPE, editable=False)
     # The non-concrete type that this change has made
-    model_type = models.ForeignKey(ContentType, related_name='+')
+    model_type = models.ForeignKey(ContentType, related_name='+', db_index=False)
 
     target_id = models.PositiveIntegerField(null=True)
     target = GenericForeignKey('target_type', 'target_id')
     target_type = models.ForeignKey(ContentType, related_name='target_%(class)s')
 
-    target_version_type = models.ForeignKey(ContentType, related_name='target_version_%(class)s')
-    target_version_id = models.PositiveIntegerField(null=True)
+    target_version_type = models.ForeignKey(ContentType, related_name='target_version_%(class)s', db_index=False)
+    target_version_id = models.PositiveIntegerField(null=True, db_index=False)
     target_version = GenericForeignKey('target_version_type', 'target_version_id')
 
     change_set = models.ForeignKey(ChangeSet, related_name='changes')
 
     class Meta:
         ordering = ('pk', )
-        index_together = ('target_type', 'target_id')
 
     def accept(self, save=True):
         # Little bit of blind faith here that all requirements have been accepted
