@@ -95,11 +95,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='abstractagentversion',
-            name='name',
-            field=models.TextField(blank=True, db_index=True),
-        ),
-        migrations.AlterField(
-            model_name='abstractagentversion',
             name='same_as_version',
             field=models.ForeignKey(db_index=False, editable=False, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='share.AbstractAgentVersion'),
         ),
