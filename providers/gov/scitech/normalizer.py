@@ -63,7 +63,7 @@ class CreativeWork(Parser):
     title = ctx.record['dc:title']
     description = ctx.record['dc:description']
     # is_deleted
-    date_published = Try(ParseDate(ctx.record['dc:date']))
+    date_published = Try(ParseDate(ctx.record['dc:date']), exceptions=(ValueError, ))
     date_updated = OneOf(
         ParseDate(ctx.record['dc:dateentry']),
         ParseDate(ctx.record['dc:date']),
@@ -112,6 +112,7 @@ class CreativeWork(Parser):
             'Program Document': 'CreativeWork',
             'Conference': 'ConferencePaper',
             'Dataset': 'DataSet',
+            'Book': 'Book',
         }[type].lower()
 
     def get_tags(self, tags):
