@@ -58,12 +58,8 @@ class ElasticSearchBot(Bot):
                 }
             }],
             'properties': {
-                'tags': {
-                    'type': {'type': 'string', 'index': 'not_analyzed'}
-                },
-                'subjects': {
-                    'type': {'type': 'string', 'index': 'not_analyzed'}
-                }
+                'tags': {'type': 'string', 'index': 'not_analyzed'},
+                'subjects': {'type': 'string', 'index': 'not_analyzed'},
             }
         },
         'agents': {
