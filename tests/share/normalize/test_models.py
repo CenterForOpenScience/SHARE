@@ -170,6 +170,7 @@ class TestModelNormalization:
         (Agent(name='None'), None),
         (Agent(name='           '), None),
         (Agent(name='     None      '), None),
+        (Agent(name='     Empty Foundation      '), Organization(name='Empty Foundation')),
         (Agent(name='University \n of Arizona '), Institution(name='University of Arizona')),
         (Agent(name='NMRC, University College, Cork, Ireland'), Institution(name='NMRC, University College', location='Cork, Ireland')),
         (Agent(name='Ioffe Physico-Technical Institute'), Institution(name='Ioffe Physico-Technical Institute')),
@@ -366,9 +367,9 @@ class TestModelNormalization:
         ]),
         # same identifier, different name, different type, accept longest alphabetize, more specific
         ([
-            Creator(cited_as='Cooking Institute', agent=Institution(id=0, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1)])),
-            Contributor(cited_as='Cooking Instituze', agent=Organization(id=1, name='Cooking Instituze', identifiers=[AgentIdentifier(1, id=2)])),
-            Funder(cited_as='Cook Institute', agent=Institution(id=2, name='Cook Institute', identifiers=[AgentIdentifier(1, id=3)]))
+            Creator(cited_as='Cooking Institute', order_cited=10, agent=Institution(id=0, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1)])),
+            Contributor(cited_as='Cooking Instituze', order_cited=3, agent=Organization(id=1, name='Cooking Instituze', identifiers=[AgentIdentifier(1, id=2)])),
+            Funder(cited_as='Cook Institute', order_cited=10, agent=Institution(id=2, name='Cook Institute', identifiers=[AgentIdentifier(1, id=3)]))
         ], [
             Creator(cited_as='Cooking Institute', agent=Institution(id=2, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)])),
             Funder(cited_as='Cook Institute', agent=Institution(id=2, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)]))
@@ -403,6 +404,7 @@ class TestModelNormalization:
         ({'title': '    ', 'description': '     '}, {'title': '', 'description': ''}),
         ({'title': 'Title\nLine'}, {'title': 'Title Line'}),
         ({'description': 'Line\nAfter\nLine\nAfter\nLine'}, {'description': 'Line After Line After Line'}),
+        ({'description': 'null'}, {'description': ''}),
     ])
     def test_normalize_creativework(self, input, output, Graph):
         graph = ChangeGraph(Graph(CreativeWork(**input)))

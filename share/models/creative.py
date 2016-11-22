@@ -33,6 +33,8 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
         for k, v in tuple(node.attrs.items()):
             if isinstance(v, str):
                 node.attrs[k] = strip_whitespace(v)
+                if node.attrs[k] == 'null':
+                    node.attrs[k] = ''
 
     class Disambiguation:
         any = ('identifiers',)

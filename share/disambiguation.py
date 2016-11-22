@@ -157,7 +157,7 @@ class GraphDisambiguator:
                     new_val = max(pendulum.parse(v), pendulum.parse(old_val)).isoformat()
                 else:
                     # use the longer value, or the first alphabetically if they're the same length
-                    new_val = sorted([v, old_val], key=lambda x: (-len(x), x))[0]
+                    new_val = sorted([v, old_val], key=lambda x: (-len(str(x)), x))[0]
             else:
                 new_val = source.attrs[k]
             replacement.attrs[k] = new_val

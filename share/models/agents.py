@@ -14,7 +14,7 @@ from share.util import strip_whitespace, ModelGenerator
 
 
 logger = logging.getLogger('share.normalize')
-NULL_RE = re.compile(r'(^$)|(\s*(none|null|empty)\s*)', re.I)
+NULL_RE = re.compile(r'^(?:\s*(none|null|empty)\s*)$', re.I)
 NAME_PARTS = collections.OrderedDict([('first', 'given_name'), ('middle', 'additional_name'), ('last', 'family_name'), ('suffix', 'suffix')])
 
 AGENT_RE = r'^(.*Departa?ment.+?); (.+?); ([^;]+)$'
@@ -43,7 +43,7 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
         name = re.sub(r'(?!for|and|the)\b[a-z]\w{2,}', lambda x: x.group().title(), name)
 
         if NULL_RE.match(name):
-            logger.debug('Discarding unnamed agent "%s"', node.attrs['name'])
+            logger.debug('Discarding unnamed agent "%s"', name)
             return graph.remove(node)
 
         maybe_type = GuessAgentTypeLink(default=node.type).execute(node.attrs['name'])

@@ -254,6 +254,8 @@ class OAICreativeWork(Parser):
         if isinstance(types, str):
             types = [types]
         for t in types:
+            if isinstance(t, dict):
+                t = t['#text']
             t = t.lower()
             if t in self.type_map:
                 return self.type_map[t]
@@ -292,8 +294,8 @@ class OAICreativeWork(Parser):
     def get_relation(self, ctx):
         if not ctx['record'].get('metadata'):
             return []
-        relation = ctx['record']['metadata']['dc'].get('dc:relation', [])
-        identifiers = ctx['record']['metadata']['dc'].get('dc:identifier', [])
+        relation = ctx['record']['metadata']['dc'].get('dc:relation') or []
+        identifiers = ctx['record']['metadata']['dc'].get('dc:identifier') or []
         if isinstance(identifiers, dict):
             identifiers = (identifiers, )
         identifiers = ''.join(i['#text'] if isinstance(i, dict) else i for i in identifiers if i)
