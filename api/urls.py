@@ -103,7 +103,6 @@ class EndpointGenerator:
         generated_viewset = type(class_name, (ShareObjectViewSet,), {
             'serializer_class': serializer,
             'queryset': serializer.Meta.model.objects.all().select_related('extra')
-
         })
         globals().update({class_name: generated_viewset})
         self.register_url(subclass, generated_viewset)
