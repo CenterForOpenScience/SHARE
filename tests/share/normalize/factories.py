@@ -309,6 +309,7 @@ class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
     # lazy attr
     # agent = factory.SubFactory(AbstractAgentFactory)
     # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+    # order_cited = factory.Faker('pyint')
 
     @factory.lazy_attribute
     def cited_as(self):

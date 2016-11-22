@@ -77,7 +77,6 @@ class AbstractCreativeWork(AbstractShareObject):
         return self.outgoing_creative_work_relations.all()[offset:limit]
 
 
-
 for klass in models.CreativeWork.get_type_classes():
     locals()[klass.__name__] = type(klass.__name__, (DjangoObjectType, ), {
         'Meta': type('Meta', (), {'model': klass, 'interfaces': (AbstractShareObject, AbstractCreativeWork, )})

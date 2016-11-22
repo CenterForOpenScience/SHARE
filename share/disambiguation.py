@@ -119,6 +119,7 @@ class GraphDisambiguator:
 
         constrain = [Q()]
         if hasattr(node.model, '_typedmodels_type'):
+            constrain.append(Q(type__in=node.model.get_types()))
             constrain.append(Q(type=node.model._typedmodels_type))
 
         for q in constrain:

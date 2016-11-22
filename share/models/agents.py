@@ -14,7 +14,7 @@ from share.util import strip_whitespace, ModelGenerator
 
 
 logger = logging.getLogger('share.normalize')
-NULL_RE = re.compile(r'^(?:\s*(none|null|empty)\s*)$', re.I)
+NULL_RE = re.compile(r'^(?:\s*(none|null|empty)\s*)?$', re.I)
 NAME_PARTS = collections.OrderedDict([('first', 'given_name'), ('middle', 'additional_name'), ('last', 'family_name'), ('suffix', 'suffix')])
 
 AGENT_RE = r'^(.*Departa?ment.+?); (.+?); ([^;]+)$'

@@ -351,10 +351,10 @@ class TestModelNormalization:
         ]),
         # same name, one identifier, add identifier
         ([
-            Creator(1, id=0, cited_as='Timetables Inc.', agent=Organization(id=0, name='Timetables Inc.')),
-            Creator(1, id=1, cited_as='Timetables Inc.', agent=Organization(id=1, name='Timetables Inc.', identifiers=[AgentIdentifier()]))
+            Creator(1, id=0, order_cited=4, cited_as='Timetables Inc.', agent=Organization(id=0, name='Timetables Inc.')),
+            Creator(1, id=1, order_cited=20, cited_as='Timetables Inc.', agent=Organization(id=1, name='Timetables Inc.', identifiers=[AgentIdentifier()]))
         ], [
-            Creator(1, id=1, cited_as='Timetables Inc.', agent=Organization(id=1, name='Timetables Inc.', identifiers=[AgentIdentifier(parse=True)]))
+            Creator(1, id=1, order_cited=20, cited_as='Timetables Inc.', agent=Organization(id=1, name='Timetables Inc.', identifiers=[AgentIdentifier(parse=True)]))
         ]),
         # same identifier, different name, accept longest alphabetize
         ([
@@ -369,9 +369,9 @@ class TestModelNormalization:
         ([
             Creator(cited_as='Cooking Institute', order_cited=10, agent=Institution(id=0, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=1)])),
             Contributor(cited_as='Cooking Instituze', order_cited=3, agent=Organization(id=1, name='Cooking Instituze', identifiers=[AgentIdentifier(1, id=2)])),
-            Funder(cited_as='Cook Institute', order_cited=10, agent=Institution(id=2, name='Cook Institute', identifiers=[AgentIdentifier(1, id=3)]))
+            Funder(cited_as='Cook Institute', agent=Institution(id=2, name='Cook Institute', identifiers=[AgentIdentifier(1, id=3)]))
         ], [
-            Creator(cited_as='Cooking Institute', agent=Institution(id=2, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)])),
+            Creator(cited_as='Cooking Institute', order_cited=10, agent=Institution(id=2, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)])),
             Funder(cited_as='Cook Institute', agent=Institution(id=2, name='Cooking Institute', identifiers=[AgentIdentifier(1, id=3, parse=True)]))
         ]),
         # Related agent removed
