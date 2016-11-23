@@ -75,7 +75,16 @@ class OAIAgentWorkRelation(Parser):
     schema = 'AgentWorkRelation'
 
     agent = tools.Delegate(OAIAgent, ctx)
-    cited_as = ctx
+    cited_as = tools.RunPython('force_text', ctx)
+
+    def force_text(self, data):
+        if isinstance(data, dict):
+            return data['#text']
+
+        if isinstance(data, str):
+            return data
+
+        raise TypeError(data)
 
 
 class OAIContributor(OAIAgentWorkRelation):

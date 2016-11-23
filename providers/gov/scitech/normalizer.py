@@ -108,6 +108,7 @@ class CreativeWork(Parser):
             'Journal Article': 'Article',
             'Patent': 'Patent',
             None: 'CreativeWork',
+            'Miscellaneous': 'CreativeWork',
             'Other': 'CreativeWork',
             'Program Document': 'CreativeWork',
             'Conference': 'ConferencePaper',
