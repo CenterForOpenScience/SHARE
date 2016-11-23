@@ -122,6 +122,7 @@ def test_orcid_link(orcid, result):
     ('10.517ccdc.csd.cc1lj81f', ValueError('\'10.517ccdc.csd.cc1lj81f\' is not a valid DOI.')),
     ('10.517/ccdc.csd.cc1lj81f', ValueError('\'10.517/ccdc.csd.cc1lj81f\' is not a valid DOI.')),
     ('10.517ccdc.csd.c>c1lj81f', ValueError('\'10.517ccdc.csd.c>c1lj81f\' is not a valid DOI.')),
+    ('http://www.scirp.org/journal/PaperDownload.aspx?DOI=10.4236/wjcd.2016.69035', ValueError('\'http://www.scirp.org/journal/PaperDownload.aspx?DOI=10.4236/wjcd.2016.69035\' is not a valid DOI.')),
     ('10.5517/ccdc.csd.cc1lj81f', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
     ('   10.5517/ccdc.csd.cc1lj81f', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
     ('   10.5517/ccdc.csd.cc1lj81f   ', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
@@ -131,6 +132,8 @@ def test_orcid_link(orcid, result):
     ('10.5517/ccdc.csd.cc1lj81f\n', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
     ('https://dx.doi.org/10.1674/0003-0031(1998)140[0358:CAPWBS]2.0.CO;2', 'http://dx.doi.org/10.1674/0003-0031(1998)140%5B0358:CAPWBS%5D2.0.CO;2'),
     ('http://dx.doi.org/10.1002/1096-8644(200101)114:1<18::AID-AJPA1002>3.0.CO;2-2', 'http://dx.doi.org/10.1002/1096-8644(200101)114:1%3C18::AID-AJPA1002%3E3.0.CO;2-2'),
+    ('10.18142/8', 'http://dx.doi.org/10.18142/8'),
+    ('10.3389%2Ffpls.2014.00388', 'http://dx.doi.org/10.3389/FPLS.2014.00388'),
 ])
 def test_doi_link(doi, result):
     if isinstance(result, Exception):
@@ -320,6 +323,17 @@ class TestIRILink:
             'authority': 'google.com:666',
             'IRI': 'http://google.com:666/yay/path#yay/fragment',
         }),
+        ('http://www.scirp.org/journal/PaperDownload.aspx?DOI=10.4236/wjcd.2016.69035', {
+            'scheme': 'http',
+            'authority': 'www.scirp.org',
+            'IRI': 'http://www.scirp.org/journal/PaperDownload.aspx?DOI=10.4236/wjcd.2016.69035',
+        }),
+        ('http://linkinghub.elsevier.com/retrieve/pii/s1053811912011895', {
+            'scheme': 'http',
+            'authority': 'linkinghub.elsevier.com',
+            'IRI': 'http://linkinghub.elsevier.com/retrieve/pii/s1053811912011895',
+        })
+
     ])
     def test_urls(self, input, output):
         return self._do_test(input, output)

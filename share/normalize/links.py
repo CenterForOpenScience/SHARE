@@ -742,7 +742,7 @@ class DOILink(AbstractIRILink):
 
     DOI_SCHEME = 'http'
     DOI_DOMAIN = 'dx.doi.org'
-    DOI_RE = re.compile(r'\b(10\.\d{4,}(?:\.\d+)*/\S+(?:(?!["&\'<>])\S))\b')
+    DOI_RE = re.compile(r'(?:[^\B=]+|^)(10\.\d{4,}(?:\.\d+)*(?:/|%2F)\S+(?:(?!["&\'<>])))\b')
 
     @classmethod
     def hint(cls, obj):
@@ -763,7 +763,7 @@ class DOILink(AbstractIRILink):
         return {
             'scheme': None,
             'authority': None,
-            'path': '/' + '/'.join(urllib.parse.quote(x, safe=self.SAFE_SEGMENT_CHARS) for x in match.group().split('/'))
+            'path': '/' + '/'.join(urllib.parse.quote(x, safe=self.SAFE_SEGMENT_CHARS) for y in match.groups() for x in urllib.parse.unquote(y).split('/'))
         }
 
 
