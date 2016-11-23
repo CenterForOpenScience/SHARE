@@ -62,3 +62,9 @@ class SoupXMLNormalizer(Normalizer):
 
     def unwrap_data(self, data):
         return SoupXMLDict(data)
+
+    def do_normalize(self, data):
+        parsed = self.unwrap_data(data)
+        parser = self.get_root_parser()
+
+        return parser(parsed).parse()
