@@ -13,11 +13,11 @@ class ThroughTags(Parser):
 
 class AgentIdentifier(Parser):
     # email address
-    uri = ctx
+    uri = IRI(ctx)
 
 
 class WorkIdentifier(Parser):
-    uri = ctx
+    uri = IRI(ctx)
 
 
 class AffiliatedAgent(Parser):
