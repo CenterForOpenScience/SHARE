@@ -96,7 +96,7 @@ class CreativeWork(Parser):
         completion_date = RunPython('parse_date', Try(ctx.clinical_study.completion_date['#text']))
         completion_date_type = Try(ctx.clinical_study.completion_date['@type'])
         study_type = ctx.clinical_study.study_type
-        conditions = ctx.clinical_study.condition
+        conditions = Try(ctx.clinical_study.condition)
         is_fda_regulated = ctx.clinical_study.is_fda_regulated
         is_section_801 = Try(ctx.clinical_study.is_section_801)
         citation = Try(ctx.clinical_study.reference.citation)
