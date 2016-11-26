@@ -263,8 +263,8 @@ class FunderAgent(Parser):
         name_identifier_scheme = tools.Try(ctx.nameIdentifier['@nameIdentifierScheme'])
         name_identifier_scheme_uri = tools.Try(ctx.nameIdentifier['@schemeURI'])
 
-        funder_identifier = ctx.funderIdentifier
-        funder_identifier_type = ctx.funderIdentifierType
+        funder_identifier = tools.Try(ctx.funderIdentifier)
+        funder_identifier_type = tools.Try(ctx.funderIdentifierType)
 
         contributor_type = tools.Try(ctx.contributorType)
 

@@ -59,7 +59,7 @@ class Institution(Parser):
     class Extra:
         addr_line = Try(ctx['addr-line']['#text'])
         city = Try(ctx['city']['#text'])
-        country = ctx.country['#text']
+        country = Try(ctx.country['#text'])
 
 
 class IsAffiliatedWith(Parser):
