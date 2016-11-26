@@ -52,7 +52,7 @@ class Person(Parser):
     family_name = Maybe(ctx, 'last_name')
     additional_name = Maybe(ctx, 'middle_name')
 
-    identifiers = Map(Delegate(AgentIdentifier), Maybe(ctx, 'email'))
+    identifiers = Map(Delegate(AgentIdentifier), Try(ctx.email))
     related_agents = Map(Delegate(IsAffiliatedWith), Try(ctx.affiliation))
 
 
@@ -81,14 +81,14 @@ class CreativeWork(Parser):
 
     identifiers = Concat(Map(Delegate(WorkIdentifier), Concat(
         ctx['clinical_study']['required_header']['url'],
-        RunPython('format_url', 'http://www.bioportfolio.com/resources/trial/', ctx.clinical_study.id_info.nct_id),
-        RunPython('format_url', 'www.ncbi.nlm.nih.gov/pubmed/', ctx.clinical_study.reference.PMID))))
+        RunPython('format_url', ctx.clinical_study.id_info.nct_id, 'http://www.bioportfolio.com/resources/trial/'),
+        RunPython('format_url', Try(ctx.clinical_study.reference.PMID), 'www.ncbi.nlm.nih.gov/pubmed/'))))
 
     class Extra:
         share_harvest_date = ctx.clinical_study.required_header.download_date
         org_study_id = ctx.clinical_study.id_info.org_study_id
         status = ctx.clinical_study.overall_status
-        start_date = RunPython('parse_date', ctx.clinical_study.start_date)
+        start_date = RunPython('parse_date', Try(ctx.clinical_study.start_date))
         completion_date = RunPython('parse_date', Try(ctx.clinical_study.completion_date['#text']))
         completion_date_type = Try(ctx.clinical_study.completion_date['@type'])
         study_type = ctx.clinical_study.study_type
@@ -110,5 +110,5 @@ class CreativeWork(Parser):
         except ValueError:
             return pendulum.from_format(date, '%B %Y').isoformat()
 
-    def format_url(self, base, id):
+    def format_url(self, id, base):
         return base + id
