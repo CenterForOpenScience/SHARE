@@ -60,6 +60,10 @@ class Contributor(Parser):
     agent = Delegate(Person, ctx)
 
 
+class Funder(Parser):
+    agent = Delegate(Institution, ctx)
+
+
 class CreativeWork(Parser):
     title = OneOf(
         ctx.clinical_study.official_title,
@@ -71,7 +75,7 @@ class CreativeWork(Parser):
         Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_official')),
         Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_contact')),
         Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_contact_backup')),
-        Map(Delegate(Institution),
+        Map(Delegate(Funder),
             Concat(ctx.clinical_study.sponsors.lead_sponsor,
                    Maybe(ctx.clinical_study.sponsors, 'collaborator'),
                    RunPython('get_locations', Concat(Try(ctx.clinical_study.location)))))
