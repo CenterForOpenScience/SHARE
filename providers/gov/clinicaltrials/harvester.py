@@ -20,8 +20,8 @@ class ClinicalTrialsHarvester(Harvester):
 
         return self.fetch_records(furl(self.url).set(query_params={
             'displayxml': 'true',
-            'lup_s': start_date.strftime('%m/%d/%y'),
-            'lup_e': end_date.strftime('%m/%d/%y')
+            'lup_s': start_date.strftime('%m/%d/%Y'),
+            'lup_e': end_date.strftime('%m/%d/%Y')
         }).url)
 
     def fetch_records(self, url):
