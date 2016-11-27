@@ -54,7 +54,10 @@ class Funder(Parser):
 
 
 class Institution(Parser):
-    name = Soup(ctx, 'institution', **{'content-type': None})['#text']
+    name = OneOf(
+        Soup(ctx, 'institution', **{'content-type': None})['#text'],
+        Soup(ctx, 'institution', **{'content-type': None})[-1]['#text'],
+    )
 
     class Extra:
         addr_line = Try(ctx['addr-line']['#text'])
