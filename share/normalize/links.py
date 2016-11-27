@@ -810,7 +810,7 @@ class URLLink(AbstractIRILink):
 
 class EmailLink(AbstractIRILink):
 
-    EMAIL_RE = re.compile(r'(?P<scheme>mailto:)?(?P<mailbox>[a-zA-Z0-9_.+-]+)@(?P<authority>[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)')  # http://emailregex.com/
+    EMAIL_RE = re.compile(r'(?P<scheme>mailto:)?(?P<mailbox>[éa-zA-Z0-9_.+-]+)@(?P<authority>[a-zA-Z0-9\u2010ü-]+\.[a-zA-Z0-9-.]+)')  # http://emailregex.com/
 
     @classmethod
     def hint(self, obj):
@@ -821,7 +821,8 @@ class EmailLink(AbstractIRILink):
     def execute(self, obj):
         if not isinstance(obj, str):
             raise TypeError('\'{}\' is not of type str.'.format(obj))
-        emails = self.EMAIL_RE.findall(obj)
+        # Handle unicode hyphens
+        emails = self.EMAIL_RE.findall(obj.replace('\u2010', '-'))
         if len(emails) < 1:
             raise ValueError('\'{}\'is not a valid email address.'.format(obj))
         if len(emails) > 1:

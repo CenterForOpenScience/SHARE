@@ -278,6 +278,18 @@ class TestIRILink:
             'authority': 'dinosaurs.sexy',
             'IRI': 'mailto:trexy@dinosaurs.sexy',
         }),
+        ('rééééééé@french-place.fr', {
+            'scheme': 'mailto',
+            'authority': 'french-place.fr',
+            'IRI': 'mailto:rééééééé@french-place.fr',
+        }),
+        # This has a unicode hyphen "‐"
+        ('JamesBond@chuchu\u2010train.fr', {
+            'scheme': 'mailto',
+            'authority': 'chuchu-train.fr',
+            'IRI': 'mailto:JamesBond@chuchu-train.fr',
+        }),
+
     ])
     def test_emails(self, input, output):
         return self._do_test(input, output)

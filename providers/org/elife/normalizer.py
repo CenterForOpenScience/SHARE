@@ -57,6 +57,8 @@ class Institution(Parser):
     name = OneOf(
         Soup(ctx, 'institution', **{'content-type': None})['#text'],
         Soup(ctx, 'institution', **{'content-type': None})[-1]['#text'],
+        Soup(ctx, 'institution')['#text'],
+        Soup(ctx, 'institution')[-1]['#text'],
     )
 
     class Extra:
