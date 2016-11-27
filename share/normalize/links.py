@@ -882,6 +882,31 @@ class ARKLink(AbstractIRILink):
         }
 
 
+class InfoURILink(AbstractIRILink):
+    'info:eu-repo/grantAgreement/EC/FP7/280632/'
+    # http://info-uri.info/registry/docs/misc/faq.html
+    # https://tools.ietf.org/html/rfc4452
+
+    SCHEME = 'info'
+    INFO_RE = re.compile('^\s*info:([\w-]+)(/\S+)\s*$')
+
+    @classmethod
+    def hint(cls, obj):
+        if cls.INFO_RE.search(obj) is not None:
+            return 0.9
+        return 0
+
+    def _parse(self, obj):
+        match = self.INFO_RE.search(obj)
+        if not match:
+            raise ValueError('\'{}\' is not a valid Info URI.'.format(obj))
+        return {
+            'scheme': self.SCHEME,
+            'authority': match.group(1),
+            'path': match.group(2)
+        }
+
+
 class IRILink(AbstractLink):
     FALLBACK_FORMAT = 'urn:share:{source}:{id}'
 

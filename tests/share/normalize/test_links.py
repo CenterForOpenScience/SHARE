@@ -5,14 +5,15 @@ import pendulum
 
 from share.normalize.links import ARKLink
 from share.normalize.links import ArXivLink
-from share.normalize.links import DateParserLink
 from share.normalize.links import DOILink
+from share.normalize.links import DateParserLink
 from share.normalize.links import GuessAgentTypeLink
 from share.normalize.links import IRILink
 from share.normalize.links import ISNILink
 from share.normalize.links import ISSNLink
-from share.normalize.links import URNLink
+from share.normalize.links import InfoURILink
 from share.normalize.links import OrcidLink
+from share.normalize.links import URNLink
 
 UPPER_BOUND = pendulum.today().add(years=100).isoformat()
 
@@ -230,6 +231,25 @@ def test_urn_link(urn, result):
     else:
         assert rfc3987.parse(result)  # Extra URL validation
         assert URNLink().execute(urn)['IRI'] == result
+
+
+@pytest.mark.parametrize('uri, result', [
+    ('info:eu-repo/grantAgreement/EC/FP7/280632/', 'info://eu-repo/grantAgreement/EC/FP7/280632/'),
+    ('info:eu-repo/semantics/objectFile', 'info://eu-repo/semantics/objectFile'),
+    ('      info:eu-repo/dai/nl/12345', 'info://eu-repo/dai/nl/12345'),
+    ('\tinfo:eu-repo/dai/nl/12345\n', 'info://eu-repo/dai/nl/12345'),
+    ('info:ddc/22/eng//004.678', 'info://ddc/22/eng//004.678'),
+    ('info:lccn/2002022641', 'info://lccn/2002022641'),
+    ('info:sici/0363-0277(19950315)120:5%3C%3E1.0.TX;2-V', 'info://sici/0363-0277(19950315)120:5%3C%3E1.0.TX;2-V'),
+    ('fo:eu-repo/dai/nl/12345\n', ValueError("'fo:eu-repo/dai/nl/12345\n' is not a valid Info URI.")),
+])
+def test_info_link(uri, result):
+    if isinstance(result, Exception):
+        with pytest.raises(type(result)) as e:
+            InfoURILink().execute(uri)
+        assert e.value.args == result.args
+    else:
+        assert InfoURILink().execute(uri)['IRI'] == result
 
 
 class TestIRILink:
@@ -584,6 +604,46 @@ class TestIRILink:
         return self._do_test(input, output)
 
     @pytest.mark.parametrize('input, output', [
+        ('info:eu-repo/grantAgreement/EC/FP7/280632/', {
+            'scheme': 'info',
+            'authority': 'eu-repo',
+            'IRI': 'info://eu-repo/grantAgreement/EC/FP7/280632/',
+        }),
+        ('info:eu-repo/semantics/objectFile', {
+            'scheme': 'info',
+            'authority': 'eu-repo',
+            'IRI': 'info://eu-repo/semantics/objectFile',
+        }),
+        ('      info:eu-repo/dai/nl/12345', {
+            'scheme': 'info',
+            'authority': 'eu-repo',
+            'IRI': 'info://eu-repo/dai/nl/12345',
+        }),
+        ('\tinfo:eu-repo/dai/nl/12345\n', {
+            'scheme': 'info',
+            'authority': 'eu-repo',
+            'IRI': 'info://eu-repo/dai/nl/12345',
+        }),
+        ('info:ddc/22/eng//004.678', {
+            'scheme': 'info',
+            'authority': 'ddc',
+            'IRI': 'info://ddc/22/eng//004.678',
+        }),
+        ('info:lccn/2002022641', {
+            'scheme': 'info',
+            'authority': 'lccn',
+            'IRI': 'info://lccn/2002022641'
+        }),
+        ('info:sici/0363-0277(19950315)120:5%3C%3E1.0.TX;2-V', {
+            'scheme': 'info',
+            'authority': 'sici',
+            'IRI': 'info://sici/0363-0277(19950315)120:5%3C%3E1.0.TX;2-V'
+        }),
+    ])
+    def test_info_uri(self, input, output):
+        return self._do_test(input, output)
+
+    @pytest.mark.parametrize('input, output', [
         (None, TypeError('\'None\' is not of type str.')),
         ('', ValueError('\'\' could not be identified as an Identifier.')),
         ('105517/ccdc.csd.cc1lj81f', ValueError('\'105517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
@@ -597,6 +657,7 @@ class TestIRILink:
         ('arXiv:1023..20382', ValueError('\'arXiv:1023..20382\' could not be identified as an Identifier.')),
         ('arXiv:10102.22322', ValueError('\'arXiv:10102.22322\' could not be identified as an Identifier.')),
         ('arXiv:2.2', ValueError('\'arXiv:2.2\' could not be identified as an Identifier.')),
+        ('fo:eu-repo/dai/nl/12345\n', ValueError("'fo:eu-repo/dai/nl/12345\n' could not be identified as an Identifier.")),
     ])
     def test_malformed(self, input, output):
         return self._do_test(input, output)
