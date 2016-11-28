@@ -70,7 +70,7 @@ class Command(BaseCommand):
                         else:
                             self.update_id(c, old_id, new_id, foreign_keys)
                     else:
-                        print('Skipping {}! No work found for identifiers: {}'.format(new_id, identifiers))
+                        print('Skipping {}! No work found for identifiers: {}'.format(new_id, uris))
 
         # Cannot update a table and then alter it in the same transaction
         with transaction.atomic():
