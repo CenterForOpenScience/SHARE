@@ -155,6 +155,8 @@ RELATIONS = (
 def get_related_works(options, inverse):
     results = []
     for option in options:
+        if not option.get('#text') or option['#text'].lower() == 'null':
+            continue
         relation = option['@relationType']
         if inverse and relation in INVERSE_RELATIONS:
             results.append(option)
@@ -658,7 +660,7 @@ class CreativeWork(Parser):
         for obj in date_obj:
             if obj['@dateType'] == date_type:
                 date = obj['#text']
-        if date:
+        if date and date != '0000':
             return date
         # raise KeyError to break TryLink
         raise KeyError()
