@@ -55,7 +55,7 @@ class Publisher(Parser):
 class CreativeWork(Parser):
     DOE_CONTRIBUTOR_REGEX = re.compile(r'((.+?)(?:, E-mail: [^,\s]+)*(?: \[.+?\])?(?: \(ORCID:.{16}\))?(?:;|$))', re.IGNORECASE)
     DOE_AFFILIATIONS_REGEX = re.compile(r'\s*\[(.*?)\]')
-    DOE_EMAIL_REGEX = re.compile(r'(?:,? E-?mail:\s*)?(\S*@\S*)', re.IGNORECASE)
+    DOE_EMAIL_REGEX = re.compile(r'(?:,? E-?mail:\s*)?(\S+@\S+?\.\S+)', re.IGNORECASE)
     DOE_ORCID_REGEX = re.compile(r'\(ORCID:\s*(\S*)\)')
 
     schema = RunPython('get_schema', ctx.record['dc:type'])
