@@ -45,22 +45,28 @@ class AwardeeAgent(Parser):
     location = RunPython('format_org_address', ctx)
 
     class Extra:
-        awardee_organization_duns = ctx.ORG_DUNS
-        awardee_organization_fips = ctx.ORG_FIPS
-        awardee_organization_dept = ctx.ORG_DEPT
-        awardee_organization_district = ctx.ORG_DISTRICT
-        awardee_organization_city = ctx.ORG_CITY
-        awardee_organization_state = ctx.ORG_STATE
-        awardee_organization_zipcode = ctx.ORG_ZIPCODE
-        awardee_organization_country = ctx.ORG_COUNTRY
+        awardee_organization_duns = RunPython(filter_nil, ctx.ORG_DUNS)
+        awardee_organization_fips = RunPython(filter_nil, ctx.ORG_FIPS)
+        awardee_organization_dept = RunPython(filter_nil, ctx.ORG_DEPT)
+        awardee_organization_district = RunPython(filter_nil, ctx.ORG_DISTRICT)
+        awardee_organization_city = RunPython(filter_nil, ctx.ORG_CITY)
+        awardee_organization_state = RunPython(filter_nil, ctx.ORG_STATE)
+        awardee_organization_zipcode = RunPython(filter_nil, ctx.ORG_ZIPCODE)
+        awardee_organization_country = RunPython(filter_nil, ctx.ORG_COUNTRY)
 
     def format_org_address(self, doc):
+        org_city = doc.get('ORG_CITY') if not doc.get('ORG_CITY').get('@http://www.w3.org/2001/XMLSchema-instance:nil') else ''
+        org_state = doc.get('ORG_STATE') if not doc.get('ORG_STATE').get('@http://www.w3.org/2001/XMLSchema-instance:nil') else ''
+        org_zipcode = doc.get('ORG_ZIPCODE') if not doc.get('ORG_ZIPCODE').get('@http://www.w3.org/2001/XMLSchema-instance:nil') else ''
+        org_country = doc.get('ORG_COUNTRY') if not doc.get('ORG_COUNTRY').get('@http://www.w3.org/2001/XMLSchema-instance:nil') else ''
+        if not org_city and not org_state and not org_zipcode and not org_country:
+            return None
         return format_address(
             self,
-            city=doc.get('ORG_CITY'),
-            state_or_province=doc.get('ORG_STATE'),
-            postal_code=doc.get('ORG_ZIPCODE'),
-            country=doc.get('ORG_COUNTRY')
+            city=org_city,
+            state_or_province=org_state,
+            postal_code=org_zipcode,
+            country=org_country
         )
 
 
@@ -76,13 +82,16 @@ class FunderAgent(Parser):
 
     # The full name of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
     name = ctx.IC_NAME
-    related_agents = Map(Delegate(AgentRelation), RunPython('get_organization_ctx', ctx))
+    related_agents = Map(
+        Delegate(AgentRelation),
+        RunPython('get_organization_ctx', RunPython(filter_nil, ctx))
+    )
 
     class Extra:
         # The organizational code of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
         acronym = RunPython(filter_nil, ctx.ADMINISTERING_IC)
-        funding_ics = ctx.FUNDING_ICs
-        funding_mechanism = ctx.FUNDING_MECHANISM
+        funding_ics = RunPython(filter_nil, ctx.FUNDING_ICs)
+        funding_mechanism = RunPython(filter_nil, ctx.FUNDING_MECHANISM)
 
     def get_organization_ctx(self, ctx):
         org_ctx = {
@@ -102,21 +111,21 @@ class FunderAgent(Parser):
 class Award(Parser):
     name = ctx.PROJECT_TITLE
     # The amount of the award provided by the funding NIH Institute(s) or Center(s)
-    description = RunPython('get_award_amount', ctx.FUNDING_ICs)
-    uri = RunPython('format_foa_url', ctx.FOA_NUMBER)
+    description = RunPython('get_award_amount', RunPython(filter_nil, ctx.FUNDING_ICs))
+    uri = RunPython('format_foa_url', RunPython(filter_nil, ctx.FOA_NUMBER))
 
     class Extra:
-        awardee_name = ctx.ORG_NAME
-        awardee_organization_duns = ctx.ORG_DUNS
-        awardee_organization_fips = ctx.ORG_FIPS
-        awardee_organization_dept = ctx.ORG_DEPT
-        awardee_organization_district = ctx.ORG_DISTRICT
+        awardee_name = RunPython(filter_nil, ctx.ORG_NAME)
+        awardee_organization_duns = RunPython(filter_nil, ctx.ORG_DUNS)
+        awardee_organization_fips = RunPython(filter_nil, ctx.ORG_FIPS)
+        awardee_organization_dept = RunPython(filter_nil, ctx.ORG_DEPT)
+        awardee_organization_district = RunPython(filter_nil, ctx.ORG_DISTRICT)
 
-        arra_funded = ctx.ARRA_FUNDED
-        award_notice_date = ctx.AWARD_NOTICE_DATE
+        arra_funded = RunPython(filter_nil, ctx.ARRA_FUNDED)
+        award_notice_date = RunPython(filter_nil, ctx.AWARD_NOTICE_DATE)
 
-        support_year = ctx.SUPPORT_YEAR
-        foa_number = ctx.FOA_NUMBER
+        support_year = RunPython(filter_nil, ctx.SUPPORT_YEAR)
+        foa_number = RunPython(filter_nil, ctx.FOA_NUMBER)
 
     def get_award_amount(self, award_info):
         if not award_info or (isinstance(award_info, dict) and award_info.get('@http://www.w3.org/2001/XMLSchema-instance:nil')):
@@ -150,7 +159,7 @@ class PIAgent(Parser):
     name = ctx.PI_NAME
 
     class Extra:
-        pi_id = ctx.PI_ID
+        pi_id = RunPython(filter_nil, ctx.PI_ID)
 
 
 class PIRelation(Parser):
@@ -168,48 +177,48 @@ class PORelation(Parser):
 
 
 class Project(Parser):
-    title = ctx.row.PROJECT_TITLE
+    title = RunPython(filter_nil, ctx.row.PROJECT_TITLE)
     related_agents = Concat(
-        Map(Delegate(PIRelation), Try(ctx.row.PIS.PI)),
+        Map(Delegate(PIRelation), RunPython(filter_nil, Try(ctx.row.PIS.PI))),
         Map(Delegate(PORelation), RunPython(filter_nil, ctx.row.PROGRAM_OFFICER_NAME)),
-        Map(Delegate(FunderRelation), ctx.row),
+        Map(Delegate(FunderRelation), RunPython(filter_nil, ctx.row)),
     )
 
     identifiers = Map(
-        Delegate(WorkIdentifier), ctx.row.APPLICATION_ID
+        Delegate(WorkIdentifier), RunPython(filter_nil, ctx.row.APPLICATION_ID)
     )
 
     subjects = Map(
         Delegate(ThroughSubjects),
-        Subjects(Try(ctx.row.PROJECT_TERMSX.TERM))
+        Subjects(RunPython(filter_nil, Try(ctx.row.PROJECT_TERMSX.TERM)))
     )
 
     tags = Map(
         Delegate(ThroughTags),
-        Try(ctx.row.PROJECT_TERMSX.TERM)
+        RunPython(filter_nil, Try(ctx.row.PROJECT_TERMSX.TERM))
     )
 
     class Extra:
-        activity = ctx.row.ACTIVITY
-        application_id = ctx.row.APPLICATION_ID
-        budget_start = ctx.row.BUDGET_START
-        budget_end = ctx.row.BUDGET_END
-        cfda_code = ctx.row.CFDA_CODE
-        core_project_number = ctx.row.CORE_PROJECT_NUM
-        ed_inst_type = ctx.row.ED_INST_TYPE
-        fiscal_year = ctx.row.FY
-        full_project_number = ctx.row.FULL_PROJECT_NUM
-        nih_spending_cats = ctx.row.NIH_SPENDING_CATS
-        phr = ctx.row.PHR
-        project_start = ctx.row.PROJECT_START
-        project_end = ctx.row.PROJECT_END
-        serial_number = ctx.row.SERIAL_NUMBER
-        study_section = ctx.row.STUDY_SECTION
-        study_section_name = ctx.row.STUDY_SECTION_NAME
-        subproject_id = ctx.row.SUBPROJECT_ID
-        suffix = ctx.row.SUFFIX
-        total_cost = ctx.row.TOTAL_COST
-        total_cost_subproject = ctx.row.TOTAL_COST_SUB_PROJECT
+        activity = RunPython(filter_nil, ctx.row.ACTIVITY)
+        application_id = RunPython(filter_nil, ctx.row.APPLICATION_ID)
+        budget_start = RunPython(filter_nil, ctx.row.BUDGET_START)
+        budget_end = RunPython(filter_nil, ctx.row.BUDGET_END)
+        cfda_code = RunPython(filter_nil, ctx.row.CFDA_CODE)
+        core_project_number = RunPython(filter_nil, ctx.row.CORE_PROJECT_NUM)
+        ed_inst_type = RunPython(filter_nil, ctx.row.ED_INST_TYPE)
+        fiscal_year = RunPython(filter_nil, ctx.row.FY)
+        full_project_number = RunPython(filter_nil, ctx.row.FULL_PROJECT_NUM)
+        nih_spending_cats = RunPython(filter_nil, ctx.row.NIH_SPENDING_CATS)
+        phr = RunPython(filter_nil, ctx.row.PHR)
+        project_start = RunPython(filter_nil, ctx.row.PROJECT_START)
+        project_end = RunPython(filter_nil, ctx.row.PROJECT_END)
+        serial_number = RunPython(filter_nil, ctx.row.SERIAL_NUMBER)
+        study_section = RunPython(filter_nil, ctx.row.STUDY_SECTION)
+        study_section_name = RunPython(filter_nil, ctx.row.STUDY_SECTION_NAME)
+        subproject_id = RunPython(filter_nil, ctx.row.SUBPROJECT_ID)
+        suffix = RunPython(filter_nil, ctx.row.SUFFIX)
+        total_cost = RunPython(filter_nil, ctx.row.TOTAL_COST)
+        total_cost_subproject = RunPython(filter_nil, ctx.row.TOTAL_COST_SUB_PROJECT)
 
     def parse_awards(self, award_info):
         return [award for award in award_info.split(';')]
