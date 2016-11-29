@@ -9,13 +9,9 @@ from share.harvest.harvester import Harvester
 
 logger = logging.getLogger('__name__')
 
-# TODO: check if date revised works
-# TODO: remove print()
-
 
 class SSRNHarvester(Harvester):
     base_url = furl('https://papers.ssrn.com/sol3/JELJOUR_Results.cfm')
-    # TODO: subject mapping with more specific codes
     codes = ['A0', 'A1', 'A2', 'A3', 'B0', 'B1', 'B2', 'B3', 'B4', 'B5', 'C0', 'C01', 'C02', 'C1', 'C2', 'C3', 'C4',
              'C5', 'C6', 'C7', 'C8', 'C9', 'D0', 'D01', 'D02', 'D03', 'D04', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7',
              'D8', 'D9', 'E0', 'E01', 'E02', 'E03', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'F0', 'F01', 'F02', 'F1', 'F2',
@@ -41,9 +37,7 @@ class SSRNHarvester(Harvester):
             while True:
                 page_number += 1
                 self.base_url.args['npage'] = page_number
-                print(self.base_url)
                 urls, final_page = self.fetch_page_results(self.base_url, start_date, end_date)
-                print(urls)
                 for url in urls:
                     work = self.fetch_work('https://papers.ssrn.com/sol3/' + url)
                     work['code'] = code
@@ -69,7 +63,6 @@ class SSRNHarvester(Harvester):
             # This is the element after the one that says 'Date posted: '
             date_string = url.parent.parent.parent.select('font > i')[0].next_sibling
             date_object = pendulum.strptime(date_string, '%B %d, %Y')
-            print(date_string)
             if date_object < start_date:
                 return results, True
             if date_object > end_date:
