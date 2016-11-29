@@ -1,5 +1,3 @@
-import re
-
 from share.normalize import *
 
 
@@ -35,7 +33,6 @@ class ThroughSubjects(Parser):
 
 
 class CreativeWork(Parser):
-    """ """
     title = RunPython('get_sanitized', ctx.citation_title)
     description = RunPython('get_sanitized', ctx.description)
     identifiers = Concat(
