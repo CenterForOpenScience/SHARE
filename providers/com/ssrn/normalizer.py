@@ -39,8 +39,6 @@ class CreativeWork(Parser):
         Map(Delegate(WorkIdentifier), ctx.citation_abstract_html_url),
         Map(Delegate(WorkIdentifier), OneOf(IRI(ctx.citation_doi), Static(None))),
         Map(Delegate(WorkIdentifier), ctx.citation_pdf_url),
-        Map(Delegate(WorkIdentifier), ctx.id),
-        Map(Delegate(WorkIdentifier), ctx.url)
     )
 
     related_agents = Map(Delegate(Contributor), ctx.citation_author)
@@ -52,6 +50,7 @@ class CreativeWork(Parser):
     class Extra:
         date_online = OneOf(ParseDate(ctx.citation_online_date), Static(None))
         doi = OneOf(IRI(ctx.citation_doi), Static(None))
+        id = ctx.url
 
     def get_tags(self, string):
         return string.lower().split(',')
