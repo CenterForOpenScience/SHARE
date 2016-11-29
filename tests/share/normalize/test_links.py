@@ -94,6 +94,7 @@ def test_isni_link(isni, result):
 @pytest.mark.parametrize('orcid, result', [
     (None, TypeError('\'None\' is not of type str.')),
     ('', ValueError('\'\' cannot be expressed as an ORCID.')),
+    ('000000000248692419', ValueError('\'000000000248692419\' cannot be expressed as an ORCID.')),
     ('0000000346249680', 'http://orcid.org/0000-0003-4624-9680'),
     ('0000000317011251', 'http://orcid.org/0000-0003-1701-1251'),
     ('0000000229129030', 'http://orcid.org/0000-0002-2912-9030'),
