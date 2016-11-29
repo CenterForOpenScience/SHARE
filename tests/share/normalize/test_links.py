@@ -380,6 +380,11 @@ class TestIRILink:
             'scheme': 'http',
             'authority': 'cn.dataone.org',
             'IRI': 'http://cn.dataone.org/cn/v2/resolve/http%3A%2F%2Fdx.doi.org%2F10.5061%2Fdryad.34s63%3Fformat%3Dd1rem%26ver%3D2016-11-03T17%3A08%3A53.816-04%3A00'
+        }),
+        ('http://scitation.aip.org/deliver/fulltext/aip/journal/jcp/143/18/1.4935171.pdf?itemId=/content/aip/journal/jcp/143/18/10.1063/1.4935171&mimeType=pdf&containerItemId=content/aip/journal/jcp', {
+            'scheme': 'http',
+            'authority': 'scitation.aip.org',
+            'IRI': 'http://scitation.aip.org/deliver/fulltext/aip/journal/jcp/143/18/1.4935171.pdf?itemId=/content/aip/journal/jcp/143/18/10.1063/1.4935171&mimeType=pdf&containerItemId=content/aip/journal/jcp',
         })
     ])
     def test_urls(self, input, output):

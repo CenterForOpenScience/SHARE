@@ -741,7 +741,7 @@ class DOILink(AbstractIRILink):
 
     DOI_SCHEME = 'http'
     DOI_DOMAIN = 'dx.doi.org'
-    DOI_RE = re.compile(r'(?:[^\B=F]+|^)(10\.\d{4,}(?:\.\d+)*(?:/|%2F)\S+(?:(?!["&\'<>])))\b')
+    DOI_RE = re.compile(r'^(?:https?://)?[^\B=/]*/?(10\.\d{4,}(?:\.\d+)*(?:/|%2F)\S+(?:(?![\"&\'<>])))\b', re.I)
 
     @classmethod
     def hint(cls, obj):
