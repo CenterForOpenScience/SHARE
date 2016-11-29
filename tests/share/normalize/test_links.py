@@ -364,8 +364,22 @@ class TestIRILink:
             'scheme': 'http',
             'authority': 'linkinghub.elsevier.com',
             'IRI': 'http://linkinghub.elsevier.com/retrieve/pii/s1053811912011895',
+        }),
+        ('http://api.elsevier.com/content/article/PII:0168952590900517?httpAccept=text/xml', {
+            'scheme': 'http',
+            'authority': 'api.elsevier.com',
+            'IRI': 'http://api.elsevier.com/content/article/PII:0168952590900517?httpAccept=text/xml',
+        }),
+        ('http://api.elsevier.com/content/article/PII:0168952590901608?httpAccept=text/xml', {
+            'scheme': 'http',
+            'authority': 'api.elsevier.com',
+            'IRI': 'http://api.elsevier.com/content/article/PII:0168952590901608?httpAccept=text/xml',
+        }),
+        ('https://cn.dataone.org/cn/v2/resolve/http%3A%2F%2Fdx.doi.org%2F10.5061%2Fdryad.34s63%3Fformat%3Dd1rem%26ver%3D2016-11-03T17%3A08%3A53.816-04%3A00', {
+            'scheme': 'http',
+            'authority': 'cn.dataone.org',
+            'IRI': 'http://cn.dataone.org/cn/v2/resolve/http%3A%2F%2Fdx.doi.org%2F10.5061%2Fdryad.34s63%3Fformat%3Dd1rem%26ver%3D2016-11-03T17%3A08%3A53.816-04%3A00'
         })
-
     ])
     def test_urls(self, input, output):
         return self._do_test(input, output)

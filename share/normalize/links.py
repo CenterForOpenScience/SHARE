@@ -662,8 +662,7 @@ class ISNILink(AbstractIRILink):
         (None, 150000007),
         (350000001, None),
     )
-
-    ISNI_RE = re.compile(r'\b(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|[xX]))\b')
+    ISNI_RE = re.compile(r'^(?:https?://)?[^\B=/]*/?(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}(?:\d|x))\b', re.I)
 
     @classmethod
     def hint(cls, obj):
@@ -742,7 +741,7 @@ class DOILink(AbstractIRILink):
 
     DOI_SCHEME = 'http'
     DOI_DOMAIN = 'dx.doi.org'
-    DOI_RE = re.compile(r'(?:[^\B=]+|^)(10\.\d{4,}(?:\.\d+)*(?:/|%2F)\S+(?:(?!["&\'<>])))\b')
+    DOI_RE = re.compile(r'(?:[^\B=F]+|^)(10\.\d{4,}(?:\.\d+)*(?:/|%2F)\S+(?:(?!["&\'<>])))\b')
 
     @classmethod
     def hint(cls, obj):
