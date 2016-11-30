@@ -106,9 +106,9 @@ WorkRelation:
 #        RepliesTo:
 #            description: The subject work replies to statements, ideas or criticisms presented in the related work.
 #            uris: ['http://purl.org/spar/cito/repliesTo']
-#        Retracts:
-#            description: The subject work constitutes a formal retraction of the related work.
-#            uris: ['http://purl.org/spar/cito/retracts']
+        Retracts:
+            description: The subject work constitutes a formal retraction of the related work.
+            uris: ['http://purl.org/spar/cito/retracts']
         Reviews:
             description: The subject work reviews statements, ideas or conclusions presented in the related work.
             uris: ['http://purl.org/spar/cito/reviews']
