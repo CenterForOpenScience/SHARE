@@ -51,15 +51,18 @@ class Contributor(Parser):
 
 
 class ContributorOrganization(Parser):
-    agent = Delegate(Organization, ctx)
-    name = OneOf(
-        ctx['collab']['#text'],
-        ctx['collab']
-    )
+    schema = 'Contributor'
+    agent = Delegate(Organization, ctx['collab'])
 
 
 class Tag(Parser):
-    name = OneOf(ctx['#text'], ctx['italic'], ctx)
+    name = OneOf(
+        ctx['#text'],
+        ctx['italic'],
+        ctx['styled-content']['#text'],
+        ctx['styled-content']['italic'],
+        ctx
+    )
 
 
 class ThroughTags(Parser):
