@@ -923,11 +923,11 @@ class ISBNLink(AbstractIRILink):
         if not match or len(''.join(match.groups())) != 13:
             raise ValueError('\'{}\' cannot be expressed as an ISBN.'.format(obj))
 
-        check = 10 - reduce(
+        check = (10 - reduce(
             lambda acc, x: acc + (int(x[1]) * (x[0] % 2 * 2 + 1)),
             enumerate(''.join(match.groups()[:-1])),
             0
-        ) % 10
+        ) % 10) % 10
 
         if str(check) != match.groups()[-1]:
             raise ValueError('\'{}\' is not a valid ISBN; failed checksum.'.format(obj))

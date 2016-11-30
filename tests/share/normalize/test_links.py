@@ -722,6 +722,11 @@ class TestIRILink:
             'authority': 'isbn',
             'IRI': 'urn://isbn/978-0-306-40615-7',
         }),
+        ('978-91-7402-405-0', {
+            'scheme': 'urn',
+            'authority': 'isbn',
+            'IRI': 'urn://isbn/978-91-7402-405-0',
+        }),
         ('ISSN 978-0-306-40615-7', ValueError("'ISSN 978-0-306-40615-7' could not be identified as an Identifier.")),
         ('ISBN 978-0-306-40615-0', ValueError("'ISBN 978-0-306-40615-0' is not a valid ISBN; failed checksum.")),
     ])
