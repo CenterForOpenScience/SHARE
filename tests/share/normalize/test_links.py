@@ -385,6 +385,26 @@ class TestIRILink:
             'scheme': 'http',
             'authority': 'scitation.aip.org',
             'IRI': 'http://scitation.aip.org/deliver/fulltext/aip/journal/jcp/143/18/1.4935171.pdf?itemId=/content/aip/journal/jcp/143/18/10.1063/1.4935171&mimeType=pdf&containerItemId=content/aip/journal/jcp',
+        }),
+        # ('http://www.rcaap.pt/detail.jsp?id=oai:http://repositorio.utad.pt/:10348/5661', {
+        #     'scheme': 'http',
+        #     'authority': 'www.rcaap.pt',
+        #     'IRI': 'http://scitation.aip.org/deliver/fulltext/aip/journal/jcp/143/18/1.4935171.pdf?itemId=/content/aip/journal/jcp/143/18/10.1063/1.4935171&mimeType=pdf&containerItemId=content/aip/journal/jcp',
+        # }),
+        ('http://www.frontiersin.org/Behavioral_Neuroscience/10.3389/fnbeh.2014.00245/abstract', {
+            'scheme': 'http',
+            'authority': 'www.frontiersin.org',
+            'IRI': 'http://www.frontiersin.org/Behavioral_Neuroscience/10.3389/fnbeh.2014.00245/abstract',
+        }),
+        ('https://cn.dataone.org/cn/v2/resolve/doi%3A10.18739%2FA2M37F', {
+            'scheme': 'http',
+            'authority': 'cn.dataone.org',
+            'IRI': 'http://cn.dataone.org/cn/v2/resolve/doi%3A10.18739%2FA2M37F',
+        }),
+        ('http://scitation.aip.org/deliver/fulltext/aip/journal/apl/109/18/1.4966994.pdf?itemId=/content/aip/journal/apl/109/18/10.1063/1.4966994&mimeType=pdf&containerItemId=content/aip/journal/apl', {
+            'scheme': 'http',
+            'authority': 'scitation.aip.org',
+            'IRI': 'http://scitation.aip.org/deliver/fulltext/aip/journal/apl/109/18/1.4966994.pdf?itemId=/content/aip/journal/apl/109/18/10.1063/1.4966994&mimeType=pdf&containerItemId=content/aip/journal/apl',
         })
     ])
     def test_urls(self, input, output):
@@ -581,6 +601,11 @@ class TestIRILink:
             'authority': '383838',
             'path': '/this/one/has/path'
         }),
+        ('ark://04030/p7833zk7g', {
+            'scheme': 'ark',
+            'authority': '04030',
+            'path': '/p7833zk7g'
+        }),
     ])
     def test_ark_ids(self, input, output):
         return self._do_test(input, output)
@@ -673,6 +698,34 @@ class TestIRILink:
         }),
     ])
     def test_info_uri(self, input, output):
+        return self._do_test(input, output)
+
+    @pytest.mark.parametrize('input, output', [
+        ('978-91-89673-31-1', {
+            'scheme': 'urn',
+            'authority': 'isbn',
+            'IRI': 'urn://isbn/978-91-89673-31-1',
+        }),
+        ('urn://isbn/978-91-89673-31-1', {
+            'scheme': 'urn',
+            'authority': 'isbn',
+            'IRI': 'urn://isbn/978-91-89673-31-1',
+        }),
+        ('urn://isbn/978-91-89673-31-5', ValueError("'urn://isbn/978-91-89673-31-5' is not a valid ISBN; failed checksum.")),
+        ('ISBN: 978-91-89673-31-1', {
+            'scheme': 'urn',
+            'authority': 'isbn',
+            'IRI': 'urn://isbn/978-91-89673-31-1',
+        }),
+        ('ISBN 978-0-306-40615-7', {
+            'scheme': 'urn',
+            'authority': 'isbn',
+            'IRI': 'urn://isbn/978-0-306-40615-7',
+        }),
+        ('ISSN 978-0-306-40615-7', ValueError("'ISSN 978-0-306-40615-7' could not be identified as an Identifier.")),
+        ('ISBN 978-0-306-40615-0', ValueError("'ISBN 978-0-306-40615-0' is not a valid ISBN; failed checksum.")),
+    ])
+    def test_isbn(self, input, output):
         return self._do_test(input, output)
 
     @pytest.mark.parametrize('input, output', [

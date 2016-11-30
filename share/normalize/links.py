@@ -907,6 +907,38 @@ class InfoURILink(AbstractIRILink):
         }
 
 
+class ISBNLink(AbstractIRILink):
+    SCHEME = 'urn'
+    AUTHORITY = 'isbn'
+    ISBN_RE = re.compile('^(?:urn://isbn/|ISBN:? ?)?(978|979)-(\d\d?)-(\d{3,5})-(\d{2,5})-(\d)$', re.I)
+
+    @classmethod
+    def hint(cls, obj):
+        if cls.ISBN_RE.match(obj):
+            return 1.0
+        return 0
+
+    def _parse(self, obj):
+        match = re.search(self.ISBN_RE, obj.upper())
+        if not match or len(''.join(match.groups())) != 13:
+            raise ValueError('\'{}\' cannot be expressed as an ISBN.'.format(obj))
+
+        check = 10 - reduce(
+            lambda acc, x: acc + (int(x[1]) * (x[0] % 2 * 2 + 1)),
+            enumerate(''.join(match.groups()[:-1])),
+            0
+        ) % 10
+
+        if str(check) != match.groups()[-1]:
+            raise ValueError('\'{}\' is not a valid ISBN; failed checksum.'.format(obj))
+
+        return {
+            'scheme': self.SCHEME,
+            'authority': self.AUTHORITY,
+            'path': '/{}-{}-{}-{}-{}'.format(*match.groups())
+        }
+
+
 class IRILink(AbstractLink):
     FALLBACK_FORMAT = 'urn:share:{source}:{id}'
 

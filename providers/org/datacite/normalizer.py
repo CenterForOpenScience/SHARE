@@ -59,6 +59,8 @@ def get_contributors(options, contrib_type):
 def force_text(data):
     if isinstance(data, str):
         return data
+    if data is None:
+        return ''
     if isinstance(data, dict):
         if '#text' in data:
             return data['#text']
@@ -217,10 +219,7 @@ class ContributorAgent(Parser):
         )
     )
     related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Concat(tools.Try(
-        tools.RunPython(
-            force_text,
-            ctx.affiliation
-        )
+        tools.Filter(lambda x: bool(x), tools.RunPython(force_text, ctx.affiliation))
     )))
 
     class Extra:
