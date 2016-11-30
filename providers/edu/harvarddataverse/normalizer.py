@@ -25,7 +25,7 @@ class CreativeWork(Parser):
     date_published = ParseDate(ctx.published_at)
     identifiers = Map(Delegate(WorkIdentifier), ctx.url)
 
-    related_agents = Map(Delegate(Creator), ctx.authors)
+    related_agents = Map(Delegate(Creator), Try(ctx.authors))
 
     class Extra:
         citation = ctx.citation

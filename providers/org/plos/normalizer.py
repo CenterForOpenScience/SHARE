@@ -23,8 +23,7 @@ class Organization(Parser):
     name = XPath(ctx, "str[@name='journal']").str['#text']
     identifiers = Map(
         Delegate(AgentIdentifier),
-        # 33333333 is PloS's "null" value
-        Filter(lambda x: x != '33333333', XPath(ctx, "str[@name='eissn']").str['#text'])
+        Map(Try(IRI(), exceptions=(ValueError, )), XPath(ctx, "str[@name='eissn']").str['#text'])
     )
 
 

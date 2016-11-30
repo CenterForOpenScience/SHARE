@@ -66,7 +66,7 @@ class Preprint(Parser):
     description = tools.Try(ctx['DC.Description'])
     # is_deleted
     date_published = tools.ParseDate(tools.Try(ctx['article:published_time']))
-    date_updated = tools.ParseDate(ctx['DC.Date'])
+    date_updated = tools.ParseDate(tools.Try(ctx['DC.Date']))
     # free_to_read_type
     # free_to_read_date
     rights = tools.Try(ctx['DC.Rights'])
@@ -75,7 +75,7 @@ class Preprint(Parser):
     subjects = tools.Map(tools.Delegate(ThroughSubjects), tools.Static('Biology and life sciences'), tools.Try(ctx['subject-areas']))
     tags = tools.Map(tools.Delegate(ThroughTags), tools.Try(ctx['category']), tools.Try(ctx['subject-areas']))
 
-    identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx['og:url'], ctx['citation_public_url'], ctx['citation_doi'])
+    identifiers = tools.Map(tools.Delegate(WorkIdentifier), tools.Try(ctx['og:url']), ctx['citation_public_url'], ctx['citation_doi'])
 
     related_agents = tools.Concat(
         tools.Map(tools.Delegate(Publisher), tools.Try(ctx['DC.Publisher'])),

@@ -181,7 +181,7 @@ class Project(Parser):
     related_agents = Concat(
         Map(Delegate(PIRelation), RunPython(filter_nil, Try(ctx.row.PIS.PI))),
         Map(Delegate(PORelation), RunPython(filter_nil, ctx.row.PROGRAM_OFFICER_NAME)),
-        Map(Delegate(FunderRelation), RunPython(filter_nil, ctx.row)),
+        Map(Delegate(FunderRelation), Filter(lambda x: isinstance(x['IC_NAME'], str) or x['IC_NAME'].get('@http://www.w3.org/2001/XMLSchema-instance:nil') != 'true', ctx.row)),
     )
 
     identifiers = Map(
