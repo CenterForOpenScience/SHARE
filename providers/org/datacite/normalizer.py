@@ -172,7 +172,7 @@ def get_relation_type(relation_type):
 
 class AgentIdentifier(Parser):
 
-    uri = tools.IRI(ctx)
+    uri = ctx
 
 
 class AffiliatedAgent(Parser):
@@ -207,10 +207,13 @@ class ContributorAgent(Parser):
     identifiers = tools.Map(
         tools.Delegate(AgentIdentifier),
         tools.Try(
-            tools.RunPython(
-                force_text,
-                ctx.nameIdentifier
-            )
+            tools.IRI(
+                tools.RunPython(
+                    force_text,
+                    ctx.nameIdentifier
+                )
+            ),
+            exceptions=(ValueError,)
         )
     )
     related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Concat(tools.Try(
@@ -250,13 +253,18 @@ class FunderAgent(Parser):
 
     identifiers = tools.Map(
         tools.Delegate(AgentIdentifier),
-        tools.OneOf(
-            ctx.funderIdentifier,
-            tools.RunPython(
-                force_text,
-                ctx.nameIdentifier
+        tools.Try(
+            tools.IRI(
+                tools.OneOf(
+                    ctx.funderIdentifier,
+                    tools.RunPython(
+                        force_text,
+                        ctx.nameIdentifier
+                    ),
+                    tools.Static(None)
+                )
             ),
-            tools.Static(None)
+            exceptions=(ValueError,)
         )
     )
 
@@ -279,10 +287,13 @@ class HostAgent(Parser):
     identifiers = tools.Map(
         tools.Delegate(AgentIdentifier),
         tools.Try(
-            tools.RunPython(
-                force_text,
-                ctx.nameIdentifier
-            )
+            tools.IRI(
+                tools.RunPython(
+                    force_text,
+                    ctx.nameIdentifier
+                )
+            ),
+            exceptions=(ValueError,)
         )
     )
 
@@ -339,7 +350,11 @@ class FunderRelation(Parser):
     schema = 'Funder'
 
     agent = tools.Delegate(FunderAgent, ctx)
-    awards = tools.Map(tools.Delegate(ThroughAwards), ctx)
+    awards = tools.Map(tools.Delegate(ThroughAwards), tools.Try(tools.RunPython('get_award', ctx)))
+
+    def get_award(self, obj):
+        obj['awardURI']
+        return obj
 
 
 class Tag(Parser):
