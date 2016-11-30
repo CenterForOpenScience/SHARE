@@ -16,6 +16,7 @@ class AppConfig(ProviderAppConfig):
     namespaces = {
         'http://www.openarchives.org/OAI/2.0/': None,
         'http://jats.nlm.nih.gov/ns/archiving/1.0/': None,
+        'https://jats.nlm.nih.gov/ns/archiving/1.0/': None,
         'http://www.w3.org/2001/XMLSchema-instance': 'xsi',
         'http://www.niso.org/schemas/ali/1.0': 'ali',
         'http://www.w3.org/1999/xlink': 'xlink',
