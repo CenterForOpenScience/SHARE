@@ -78,10 +78,11 @@ class DataSet(Parser):
     )
 
     related_works = Concat(
-        Map(
-            Delegate(IsPartOf),
-            Maybe(XPath(ctx, "arr[@name='resourceMap']"), 'arr').str
-        ),
+        # TODO Maybe re introduce later with more research
+        # Map(
+        #     Delegate(IsPartOf),
+        #     Maybe(XPath(ctx, "arr[@name='resourceMap']"), 'arr').str
+        # ),
         Map(
             Delegate(Documents),
             Maybe(XPath(ctx, "arr[@name='documents']"), 'arr').str

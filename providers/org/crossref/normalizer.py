@@ -102,7 +102,7 @@ class CreativeWork(Parser):
     related_agents = Concat(
         Map(Delegate(Creator), Try(ctx.author)),
         Map(Delegate(Publisher), ctx.publisher),
-        Map(Delegate(Funder), Try(ctx.funder)),
+        Map(Delegate(Funder), Filter(lambda x: isinstance(x, str) or 'name' in x, Try(ctx.funder))),
     )
 
     # TODO These are "a controlled vocabulary from Sci-Val", map to Subjects!

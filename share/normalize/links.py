@@ -863,7 +863,7 @@ class ARKLink(AbstractIRILink):
     # https://wiki.ucop.edu/download/attachments/16744455/arkspec.pdf
 
     ARK_SCHEME = 'ark'
-    ARK_RE = re.compile(r'\bark:/(\d+)(/\S+)', flags=re.I)
+    ARK_RE = re.compile(r'\bark://?(\d+)(/\S+)', flags=re.I)
 
     @classmethod
     def hint(cls, obj):
