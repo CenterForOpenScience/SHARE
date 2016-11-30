@@ -180,6 +180,7 @@ INSTALLED_APPS = [
     'providers.gov.nodc',
     'providers.gov.nsfawards',
     'providers.gov.pubmedcentral',
+    'providers.gov.pubmedcentral.pmc',
     'providers.gov.scitech',
     'providers.gov.usgs',
     'providers.info.spdataverse',
