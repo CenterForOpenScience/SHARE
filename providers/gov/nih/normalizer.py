@@ -55,10 +55,10 @@ class AwardeeAgent(Parser):
         awardee_organization_country = RunPython(filter_nil, ctx.ORG_COUNTRY)
 
     def format_org_address(self, doc):
-        org_city = doc.get('ORG_CITY') if not doc.get('ORG_CITY').get('@http://www.w3.org/2001/XMLSchema-instance:nil') else ''
-        org_state = doc.get('ORG_STATE') if not doc.get('ORG_STATE').get('@http://www.w3.org/2001/XMLSchema-instance:nil') else ''
-        org_zipcode = doc.get('ORG_ZIPCODE') if not doc.get('ORG_ZIPCODE').get('@http://www.w3.org/2001/XMLSchema-instance:nil') else ''
-        org_country = doc.get('ORG_COUNTRY') if not doc.get('ORG_COUNTRY').get('@http://www.w3.org/2001/XMLSchema-instance:nil') else ''
+        org_city = doc.get('ORG_CITY', '')
+        org_state = doc.get('ORG_STATE', '')
+        org_zipcode = doc.get('ORG_ZIPCODE', '')
+        org_country = doc.get('ORG_COUNTRY', '')
         if not org_city and not org_state and not org_zipcode and not org_country:
             return None
         return format_address(

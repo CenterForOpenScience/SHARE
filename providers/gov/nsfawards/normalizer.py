@@ -28,7 +28,7 @@ class Award(Parser):
     class Extra:
         funds_obligated_amt = ctx.fundsObligatedAmt
         award_id = ctx.id
-        awardee_name = ctx.awardeeName
+        awardee_name = tools.Try(ctx.awardeeName)
         awardee_city = ctx.awardeeCity
         awardee_state_code = tools.Try(ctx.awardeeStateCode)
         date = ctx.date
@@ -69,7 +69,7 @@ class ContributorAgent(Parser):
     family_name = ctx.piLastName
     given_name = ctx.piFirstName
 
-    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), ctx)
+    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Filter(lambda x: 'awardeeName' in x, ctx))
 
 
 class ContributorRelation(Parser):

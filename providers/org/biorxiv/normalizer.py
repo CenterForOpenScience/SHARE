@@ -65,7 +65,7 @@ class Preprint(Parser):
     title = tools.Try(ctx['DC.Title'])
     description = tools.Try(ctx['DC.Description'])
     # is_deleted
-    date_published = tools.ParseDate(ctx['article:published_time'])
+    date_published = tools.ParseDate(tools.Try(ctx['article:published_time']))
     date_updated = tools.ParseDate(ctx['DC.Date'])
     # free_to_read_type
     # free_to_read_date
