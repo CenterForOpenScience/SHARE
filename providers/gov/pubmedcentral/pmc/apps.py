@@ -1,3 +1,5 @@
+from django.utils.functional import cached_property
+
 from share.provider import ProviderAppConfig
 from .harvester import PMCHarvester
 
@@ -19,3 +21,8 @@ class AppConfig(ProviderAppConfig):
         'http://www.w3.org/1999/xlink': 'xlink',
         'http://www.w3.org/1998/Math/MathML': 'mml'
     }
+
+    @cached_property
+    def user(self):
+        from share.models import ShareUser
+        return ShareUser.objects.get(robot='providers.gov.pubmedcentral')
