@@ -627,7 +627,7 @@ class ISSNLink(AbstractIRILink):
 
 class URNLink(AbstractIRILink):
     SCHEMES = {'urn', 'oai'}
-    URN_RE = re.compile(r'\b({schemes}):((?:\w|[.-])+):(\S+)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
+    URN_RE = re.compile(r'^({schemes}):((?:\w|[.-])+):(\S+)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
     PARSED_URN_RE = re.compile(r'^({schemes})://([^/\s]+)/(\S+)$'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
     @classmethod
