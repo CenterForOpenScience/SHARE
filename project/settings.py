@@ -171,6 +171,7 @@ INSTALLED_APPS = [
     'providers.edu.wisconsin',
     'providers.edu.wm',
     'providers.edu.wustlopenscholarship',
+    'providers.es.csic',
     'providers.et.edu.addis_ababa',
     'providers.eu.econstor',
     'providers.gov.clinicaltrials',
