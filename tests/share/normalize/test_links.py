@@ -704,28 +704,48 @@ class TestIRILink:
         ('978-91-89673-31-1', {
             'scheme': 'urn',
             'authority': 'isbn',
-            'IRI': 'urn://isbn/978-91-89673-31-1',
+            'IRI': 'urn://isbn/978-91-8967-331-1',
         }),
-        ('urn://isbn/978-91-89673-31-1', {
+        ('urn://isbn/978-91-8967-331-1', {
             'scheme': 'urn',
             'authority': 'isbn',
-            'IRI': 'urn://isbn/978-91-89673-31-1',
+            'IRI': 'urn://isbn/978-91-8967-331-1',
         }),
         ('urn://isbn/978-91-89673-31-5', ValueError("'urn://isbn/978-91-89673-31-5' is not a valid ISBN; failed checksum.")),
         ('ISBN: 978-91-89673-31-1', {
             'scheme': 'urn',
             'authority': 'isbn',
-            'IRI': 'urn://isbn/978-91-89673-31-1',
+            'IRI': 'urn://isbn/978-91-8967-331-1',
         }),
         ('ISBN 978-0-306-40615-7', {
             'scheme': 'urn',
             'authority': 'isbn',
-            'IRI': 'urn://isbn/978-0-306-40615-7',
+            'IRI': 'urn://isbn/978-03-0640-615-7',
         }),
         ('978-91-7402-405-0', {
             'scheme': 'urn',
             'authority': 'isbn',
             'IRI': 'urn://isbn/978-91-7402-405-0',
+        }),
+        ('91-7192-550-3', {
+            'scheme': 'urn',
+            'authority': 'isbn',
+            'IRI': 'urn://isbn/978-91-7192-550-3',
+        }),
+        ('ISBN 0-201-53082-1', {
+            'scheme': 'urn',
+            'authority': 'isbn',
+            'IRI': 'urn://isbn/978-02-0153-082-7',
+        }),
+        ('0-9752298-0-X', {
+            'scheme': 'urn',
+            'authority': 'isbn',
+            'IRI': 'urn://isbn/978-09-7522-980-4',
+        }),
+        ('0-9752298-0-x', {
+            'scheme': 'urn',
+            'authority': 'isbn',
+            'IRI': 'urn://isbn/978-09-7522-980-4',
         }),
         ('ISSN 978-0-306-40615-7', ValueError("'ISSN 978-0-306-40615-7' could not be identified as an Identifier.")),
         ('ISBN 978-0-306-40615-0', ValueError("'ISBN 978-0-306-40615-0' is not a valid ISBN; failed checksum.")),

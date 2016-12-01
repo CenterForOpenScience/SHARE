@@ -910,32 +910,47 @@ class InfoURILink(AbstractIRILink):
 class ISBNLink(AbstractIRILink):
     SCHEME = 'urn'
     AUTHORITY = 'isbn'
-    ISBN_RE = re.compile('^(?:urn://isbn/|ISBN:? ?)?(978|979)-(\d\d?)-(\d{3,5})-(\d{2,5})-(\d)$', re.I)
+    ISBN10_RE = re.compile('^(?:urn:\/\/isbn\/|ISBN:? ?)?(\d\d?)-(\d{3,7})-(\d{1,6})-(\d|x)$', re.I)
+    ISBN13_RE = re.compile('^(?:urn://isbn/|ISBN:? ?)?(978|979)-(\d\d?)-(\d{3,5})-(\d{2,5})-(\d)$', re.I)
 
     @classmethod
     def hint(cls, obj):
-        if cls.ISBN_RE.match(obj):
+        if cls.ISBN13_RE.match(obj) or cls.ISBN10_RE.match(obj):
             return 1.0
         return 0
 
     def _parse(self, obj):
-        match = re.search(self.ISBN_RE, obj.upper())
-        if not match or len(''.join(match.groups())) != 13:
+        match = self.ISBN13_RE.match(obj.upper()) or self.ISBN10_RE.match(obj.upper())
+
+        if not match or len(''.join(match.groups())) not in (13, 10):
             raise ValueError('\'{}\' cannot be expressed as an ISBN.'.format(obj))
 
-        check = (10 - reduce(
-            lambda acc, x: acc + (int(x[1]) * (x[0] % 2 * 2 + 1)),
-            enumerate(''.join(match.groups()[:-1])),
-            0
-        ) % 10) % 10
+        if match.re == self.ISBN13_RE:
+            digits = ''.join(match.groups())
+            check = (10 - sum(int(x) * (i % 2 * 2 + 1) for i, x in enumerate(digits[:-1])) % 10) % 10
 
-        if str(check) != match.groups()[-1]:
-            raise ValueError('\'{}\' is not a valid ISBN; failed checksum.'.format(obj))
+            if str(check) != digits[-1]:
+                raise ValueError('\'{}\' is not a valid ISBN; failed checksum.'.format(obj))
+
+        if match.re == self.ISBN10_RE:
+            digits = ''.join(match.groups())
+            check = sum(10 if x == 'X' else int(x) * (10 - i) for i, x in enumerate(digits))
+
+            if check % 11 != 0:
+                raise ValueError('\'{}\' is not a valid ISBN; failed checksum.'.format(obj))
+
+            # Add prefix and compute new checksum
+            digits = '978' + digits
+            digits = digits[:-1] + str((10 - sum(int(x) * (i % 2 * 2 + 1) for i, x in enumerate(digits[:-1])) % 10) % 10)
 
         return {
             'scheme': self.SCHEME,
             'authority': self.AUTHORITY,
-            'path': '/{}-{}-{}-{}-{}'.format(*match.groups())
+            # NOTE: the - seperated format is not standardized for ISBNS
+            # this format is being used as it groups digits by meaning
+            # EAN - Group - Publisher - Title - Check
+            # https://en.wikipedia.org/wiki/International_Standard_Book_Number#/media/File:ISBN_Details.svg
+            'path': '/{}{}{}-{}{}-{}{}{}{}-{}{}{}-{}'.format(*digits)
         }
 
 
