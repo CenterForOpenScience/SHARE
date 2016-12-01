@@ -13,24 +13,18 @@ class AbstractAgent(AbstractShareObject):
     name = graphene.String()
     identifiers = graphene.List(Identifier)
 
-    total_related_agents = graphene.Int()
-    related_agents = graphene.List(AbstractAgentRelation, limit=graphene.Int(), offset=graphene.Int())
-
     total_related_works = graphene.Int()
     related_works = graphene.List(AbstractAgentWorkRelation, limit=graphene.Int(), offset=graphene.Int())
+
+    total_incoming_agent_relations = graphene.Int()
+    incoming_agent_relations = graphene.List(AbstractAgentRelation, limit=graphene.Int(), offset=graphene.Int())
+
+    total_outgoing_agent_relations = graphene.Int()
+    outgoing_agent_relations = graphene.List(AbstractAgentRelation, limit=graphene.Int(), offset=graphene.Int())
 
     @graphene.resolve_only_args
     def resolve_identifiers(self):
         return self.identifiers.all()
-
-    @graphene.resolve_only_args
-    def resolve_total_related_agents(self):
-        return self.related_agents.count()
-
-    @graphene.resolve_only_args
-    def resolve_related_agents(self, offset=None, limit=10):
-        limit = (offset or 0) + limit
-        return self.related_agents.all()[offset:limit]
 
     @graphene.resolve_only_args
     def resolve_total_related_works(self):
@@ -41,6 +35,25 @@ class AbstractAgent(AbstractShareObject):
         limit = (offset or 0) + limit
         return self.work_relations.all()[offset:limit]
 
+    @graphene.resolve_only_args
+    def resolve_total_incoming_agent_relations(self):
+        return self.incoming_agent_relations.count()
+
+    @graphene.resolve_only_args
+    def resolve_incoming_agent_relations(self, limit=None, offset=None):
+        if limit:
+            offset = (offset or 0) + limit
+        return self.incoming_agent_relations.all()[offset:limit]
+
+    @graphene.resolve_only_args
+    def resolve_total_outgoing_agent_relations(self):
+        return self.outgoing_agent_relations.count()
+
+    @graphene.resolve_only_args
+    def resolve_outgoing_agent_relations(self, limit=None, offset=None):
+        if limit:
+            offset = (offset or 0) + limit
+        return self.outgoing_agent_relations.all()[offset:limit]
 
 for klass in models.Agent.get_type_classes():
     locals()[klass.__name__] = type(klass.__name__, (DjangoObjectType, ), {
