@@ -159,6 +159,13 @@ def get_related_works(options, inverse):
     for option in options:
         if not option.get('#text') or option['#text'].lower() == 'null':
             continue
+
+        if not option.get('@preprocessed'):
+            option['@preprocessed'] = True
+            option['#text'] = {
+                'PMID': 'http://www.ncbi.nlm.nih.gov/pubmed/{}'
+            }.get(option.get('@relatedIdentifierType'), '{}').format(option['#text'])
+
         relation = option['@relationType']
         if inverse and relation in INVERSE_RELATIONS:
             results.append(option)
