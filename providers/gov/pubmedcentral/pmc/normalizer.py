@@ -6,6 +6,18 @@ from share.normalize.tools import *
 from share.normalize.soup import SoupXMLNormalizer
 from share.normalize.parsers import Parser
 
+PMCID_FORMAT = 'http://www.ncbi.nlm.nih.gov/pmc/articles/PMC{}/'
+PMID_FORMAT = 'http://www.ncbi.nlm.nih.gov/pubmed/{}'
+
+def pmcid_uri(pmcid):
+    if pmcid.startswith('PMC'):
+        pmcid = pmcid[3:]
+    return PMCID_FORMAT.format(pmcid)
+
+def pmid_uri(pmid):
+    return PMID_FORMAT.format(pmid)
+
+
 
 class WorkIdentifier(Parser):
     uri = ctx
@@ -28,23 +40,18 @@ class Person(Parser):
     family_name = ctx['name']['surname']
     given_name = ctx['name']['given-names']
 
-    identifiers = Map(Delegate(AgentIdentifier), Map(IRI(), Try(RunPython(
-        'get_list_element', Concat(ctx['contrib-id']), '@contrib-id-type', 'orcid')
-    )))
+    identifiers = Map(
+        Delegate(AgentIdentifier),
+        Map(
+            IRI(),
+            Soup(ctx, 'contrib-id', **{'contrib-id-type': 'orcid'})['#text'],
+            Soup(ctx, 'email')['#text']
+        )
+    )
 
     class Extra:
-        email = OneOf(
-            ctx['email'],
-            ctx['address']['email'],
-            Static(None)
-        )
         role = Try(ctx['role'])
         degrees = Try(ctx['degrees'])
-
-    def get_list_element(self, lst, attribute='', value=''):
-        for ordered_dict in lst:
-            if ordered_dict[attribute] == value:
-                return ordered_dict['#text']
 
 
 class Contributor(Parser):
@@ -64,6 +71,34 @@ class ThroughTags(Parser):
     tag = Delegate(Tag, ctx)
 
 
+class RelatedWork(Parser):
+    schema = 'CreativeWork'
+
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        RunPython('get_uri', ctx)
+    )
+
+    def get_uri(self, soup):
+        # TODO check link type, format pmid/pmcid
+
+
+class WorkRelation(Parser):
+    schema = RunPython('get_relation_type', ctx)
+    related = Delegate(RelatedWork, ctx)
+
+    def get_relation_type(self, related):
+        return {
+            'retracted-article': 'Retracts',
+            'corrected-article': 'Corrects',
+            'commentary-article': 'Discusses',
+            'commentary': 'Discusses',
+            'letter': 'RepliesTo',
+            'letter-reply': 'RepliesTo',
+            'object-of-concern': 'Disputes',
+        }.get(related['related-article-type'], 'References')
+
+
 class Article(Parser):
     title = ctx.record.metadata.article.front['article-meta']['title-group']['article-title']['#text'],
 
@@ -79,28 +114,7 @@ class Article(Parser):
                 **{'contrib-type': 'author'}
             )
         ),
-        Map(
-            Delegate(Creator),
-            Soup(
-                ctx.record.metadata.article.front['article-meta']['contrib-group'],
-                'contrib',
-                **{'contrib-type': ['editor']}
-            )
-        ),
-        Map(
-            Delegate(Contributor),
-            ctx.record.metadata.article
-            RunPython(
-                'get_contributors',
-                Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
-                'person'
-            )
-        ),
-        Map(Delegate(ContributorOrganization),
-            RunPython(
-                'get_contributors',
-                Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
-                'organization')))
+    )
 
     tags = Map(
         Delegate(ThroughTags),
@@ -112,10 +126,40 @@ class Article(Parser):
         ctx.record.metadata.article.front['article-meta']['pub-date']
     )
 
-    identifiers = Map(
-        Delegate(WorkIdentifier), Map(IRI(), Try(RunPython(
-            'get_identifier',
-            Concat(ctx.record.metadata.article.front['article-meta']['article-id']), '@pub-id-type', 'doi'))))
+    identifiers = Concat(
+        Map(
+            Delegate(WorkIdentifier),
+            Map(
+                IRI(),
+                Soup(
+                    ctx.record.metadata.article.front['article-meta']
+                    'article-id',
+                    **{'pub-id-type': 'doi'}
+                ),
+                Map(
+                    RunPython(pmcid_uri),
+                    Soup(
+                        ctx.record.metadata.article.front['article-meta']
+                        'article-id',
+                        **{'pub-id-type': 'pmcid'}
+                    )
+                ),
+                Map(
+                    RunPython(pmid_uri),
+                    Soup(
+                        ctx.record.metadata.article.front['article-meta']
+                        'article-id',
+                        **{'pub-id-type': 'pmid'}
+                    )
+                )
+            )
+        ),
+    )
+
+    related_works = Map(
+        Delegate(WorkRelation),
+        Soup('related-article', **{'ext-link-type': ['doi', 'pmid', 'pmcid'], 'xlink:href': True})
+    )
 
     rights = Try(ctx.record.metadata.article.front['article-meta']['permissions']['license']['license-p']['#text'])
 
@@ -128,10 +172,6 @@ class Article(Parser):
         journal = ctx.record.metadata.article.front['journal-meta']['journal-title-group']['journal-title']
         in_print = Try(RunPython('get_print_information', ctx.record.metadata.article.front['article-meta']))
         issn = (RunPython('get_issns', ctx.record.metadata.article.front['journal-meta']['issn']))
-        doi = RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']['article-id'],
-                        '@pub-id-type', 'doi')
-        pubmed_id = (RunPython('get_list_element', ctx.record.metadata.article.front['article-meta']['article-id'],
-                               '@pub-id-type', 'pmcid'))
 
         copyright = OneOf(
             ctx.record.metadata.article.front['article-meta']['permissions']['copyright-statement']['#text'],
@@ -141,36 +181,6 @@ class Article(Parser):
         copyright_year = Try(ctx.record.metadata.article.front['article-meta']['permissions']['copyright-year'])
         epub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'epub')
         ppub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'ppub')
-
-    def get_identifier(self, lst, attribute='', value=''):
-        for ordered_dict in lst:
-            if ordered_dict[attribute] == value:
-                return ordered_dict['#text']
-
-    def get_contributors(self, ctx, type):
-        results = []
-        if type == 'person':
-            for contributor in ctx:
-                if 'name' in contributor:
-                    results.append(contributor)
-
-        if type == 'organization':
-            for contributor in ctx:
-                if 'collab' in contributor:
-                    results.append(contributor)
-        return results
-
-    # For ordered dicts
-    def get_list_element(self, ordered_dict, attribute='', value=''):
-        if attribute:
-            for item in ordered_dict:
-                if item[attribute] == value:
-                    return item['#text']
-        else:
-            results = []
-            for item in ordered_dict:
-                results.append(item['#text'])
-            return results
 
     def get_issns(self, list_):
         issns = {}
@@ -224,6 +234,22 @@ class Article(Parser):
         lpage = ctx['lpage']
         return "This work appeared in volume {} issue {} from pages {} - {}.".format(volume, issue, fpage, lpage)
 
+
 class PMCNormalizer(SoupXMLNormalizer):
     # TODO retractions with no related works should be CreativeWorks with a related (nearly empty) retraction?
-    pass
+
+    def unwrap_data(self, data):
+        soup = super().unwrap_data(data)
+        self.resolve_xrefs(soup)
+        return soup
+
+    def resolve_xrefs(self, soup):
+        for xref in soup.find_all('xref', ref-type=True, rid=True):
+            resolved = soup.find(xref['ref-type'], id=xref['rid'])
+            if not resolved:
+                continue
+            if xref.string:
+                label = resolved.find(string=xref.string)
+                if label:
+                    label.extract()
+            xref.replace_with(resolved.copy())
