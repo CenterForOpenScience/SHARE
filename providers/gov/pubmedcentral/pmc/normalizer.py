@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from share.normalize import ctx
 from share.normalize.tools import *
+from share.normalize.soup import SoupXMLNormalizer
 from share.normalize.parsers import Parser
 
 
@@ -56,13 +57,7 @@ class ContributorOrganization(Parser):
 
 
 class Tag(Parser):
-    name = OneOf(
-        ctx['#text'],
-        ctx['italic'],
-        ctx['styled-content']['#text'],
-        ctx['styled-content']['italic'],
-        ctx
-    )
+    name = ctx['#text']
 
 
 class ThroughTags(Parser):
@@ -70,33 +65,37 @@ class ThroughTags(Parser):
 
 
 class Article(Parser):
-    title = OneOf(
-        ctx.record.metadata.article.front['article-meta']['title-group']['article-title']['#text'],
-        ctx.record.metadata.article.front['article-meta']['title-group']['article-title'],
-    )
-    description = OneOf(
-        Try(ctx.record.metadata.article.front['article-meta']['abstract'][0]['p']['#text']),
-        Try(ctx.record.metadata.article.front['article-meta']['abstract'][1]['p']['#text']),
-        ctx.record.metadata.article.front['article-meta']['abstract'][0]['p'],
-        ctx.record.metadata.article.front['article-meta']['abstract'][1]['p'],
-        ctx.record.metadata.article.front['article-meta']['abstract']['p']['#text'],
-        ctx.record.metadata.article.front['article-meta']['abstract']['p'],
-        ctx.record.metadata.article.front['article-meta']['abstract']['sec'][0]['p']['#text'],
-        ctx.record.metadata.article.front['article-meta']['abstract']['sec'][0]['p'],  # never seen
-        ctx.record.metadata.article.front['article-meta']['abstract']['sec'][0],  # never seen
-        ctx.record.metadata.article.front['article-meta']['abstract']['sec']['p'],
-        Static(None)
-    )
+    title = ctx.record.metadata.article.front['article-meta']['title-group']['article-title']['#text'],
+
+    description = Try(ctx.record.metadata.article.front['article-meta']['abstract']['#text'])
 
     related_agents = Concat(
-        Delegate(Publisher,
-                 Try(ctx.record.metadata.article.front['journal-meta']['publisher']['publisher-name'])
-                 ),
-        Map(Delegate(Contributor),
+        Delegate(Publisher, Try(ctx.record.metadata.article.front['journal-meta']['publisher'])),
+        Map(
+            Delegate(Creator),
+            Soup(
+                ctx.record.metadata.article.front['article-meta']['contrib-group'],
+                'contrib',
+                **{'contrib-type': 'author'}
+            )
+        ),
+        Map(
+            Delegate(Creator),
+            Soup(
+                ctx.record.metadata.article.front['article-meta']['contrib-group'],
+                'contrib',
+                **{'contrib-type': ['editor']}
+            )
+        ),
+        Map(
+            Delegate(Contributor),
+            ctx.record.metadata.article
             RunPython(
                 'get_contributors',
                 Concat(Try(ctx.record.metadata.article.front['article-meta']['contrib-group']['contrib'])),
-                'person')),
+                'person'
+            )
+        ),
         Map(Delegate(ContributorOrganization),
             RunPython(
                 'get_contributors',
@@ -224,3 +223,7 @@ class Article(Parser):
         fpage = ctx['fpage']
         lpage = ctx['lpage']
         return "This work appeared in volume {} issue {} from pages {} - {}.".format(volume, issue, fpage, lpage)
+
+class PMCNormalizer(SoupXMLNormalizer):
+    # TODO retractions with no related works should be CreativeWorks with a related (nearly empty) retraction?
+    pass
