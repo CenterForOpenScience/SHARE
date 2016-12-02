@@ -222,8 +222,13 @@ class ChangeNode:
 
     @property
     def model(self):
-        model = apps.get_app_config('share').get_model(self._type)
+        model = apps.get_model('share', self._type)
         if not self.instance or len(model.mro()) >= len(type(self.instance).mro()):
+            return model
+        # Special case to allow creators to be downgraded to contributors
+        # This allows OSF users to mark project contributors as bibiliographic or non-bibiliographic
+        # and have that be reflected in SHARE
+        if issubclass(model, apps.get_model('share', 'contributor')):
             return model
         return type(self.instance)
 

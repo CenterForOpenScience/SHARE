@@ -90,20 +90,20 @@ class TestAgentRelationDisambiguation:
             {models.Institution: 0, models.Funder: 0}
         ),
 
-        # sub class should win (Contributor/Creator) person
+        # Specified class should win (Contributor/Creator) person (Unique to Contributors)
         (
             [Publication(identifiers=[WorkIdentifier(3)], agent_relations=[Contributor(cited_as='George Washington', agent=Person(5, identifiers=[AgentIdentifier(8)], name='George Washington'))])],
-            {models.Person: 0, models.Contributor: 0}
+            {models.Person: 0, models.Contributor: 1, models.Creator: -1}
         ),
         (
             [Patent(identifiers=[WorkIdentifier(4)], agent_relations=[Creator(cited_as='Thomas Jefferson', agent=Person(8, identifiers=[AgentIdentifier(9)], name='Thomas Jefferson'))])],
             {models.Person: 0, models.Creator: 1, models.Contributor: -1}
         ),
 
-        # sub class should win (Contributor/Creator) agent
+        # Specified class should win (Contributor/Creator) person (Unique to Contributors)
         (
             [Preprint(identifiers=[WorkIdentifier(1)], agent_relations=[Contributor(cited_as='COS', agent=Organization(2, identifiers=[AgentIdentifier(3)], name='COS'))])],
-            {models.Organization: 0, models.Contributor: 0}
+            {models.Organization: 0, models.Contributor: 1, models.Creator: -1}
         ),
         (
             [Preprint(identifiers=[WorkIdentifier(1)], agent_relations=[Creator(cited_as='AHA', agent=Organization(1, identifiers=[AgentIdentifier(2)], name='American Heart Association'))])],
