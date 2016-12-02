@@ -47,4 +47,7 @@ class ProviderRegistrationViewSet(viewsets.ModelViewSet):
         serializer = ProviderRegistrationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             nm_instance = serializer.save()
-            return Response({'registration_id': nm_instance.id}, status=status.HTTP_201_CREATED)
+            return Response({
+                'id': nm_instance.id,
+                'type': 'ProviderRegistration'
+            }, status=status.HTTP_201_CREATED)
