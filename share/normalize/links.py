@@ -409,7 +409,7 @@ class TryLink(AbstractLink):
         except self._exceptions:
             return self._default
         except TypeError as err:
-            logger.warning('TypeError: {}. When trying to access {}'.format(err, self._chain.chain()))
+            logger.debug('TypeError: {}. When trying to access {}'.format(err, self._chain.chain()))
             return self._default
         return self.__anchor.run(val)
 

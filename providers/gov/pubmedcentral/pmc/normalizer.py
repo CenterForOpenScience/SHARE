@@ -62,9 +62,9 @@ class Journal(Parser):
 
 
 class Person(Parser):
-    suffix = Try(ctx['name']['suffix']['#text'])
-    family_name = ctx['name']['surname']['#text']
-    given_name = Try(ctx['name']['given-names']['#text'])
+    suffix = Try(ctx.name.suffix['#text'])
+    family_name = ctx.name.surname['#text']
+    given_name = Try(ctx.name['given-names']['#text'])
 
     identifiers = Map(
         Delegate(AgentIdentifier),
@@ -75,21 +75,29 @@ class Person(Parser):
         )
     )
 
+    # TODO affiliations
+
     class Extra:
-        role = Try(ctx['role']['#text'])
-        degrees = Try(ctx['degrees']['#text'])
+        role = Try(ctx.role['#text'])
+        degrees = Try(ctx.degrees['#text'])
 
 
 class Consortium(Parser):
     name = ctx
 
 
-class Contributor(Parser):
+class Creator(Parser):
     agent = Delegate(Person, ctx)
-
-
-class Creator(Contributor):
     order_cited = ctx('index')
+
+    cited_as = RunPython('get_cited_as', ctx.name)
+
+    def get_cited_as(self, obj):
+        surname = obj.soup.surname
+        given = obj.soup.find('given-names')
+        if given:
+            return '{}, {}'.format(surname.get_text(), given.get_text())
+        return surname.get_text()
 
 
 class CollabCreator(Parser):
