@@ -68,7 +68,7 @@ class Journal(Parser):
 class Person(Parser):
     suffix = Try(ctx['name']['suffix']['#text'])
     family_name = ctx['name']['surname']['#text']
-    given_name = ctx['name']['given-names']['#text']
+    given_name = Try(ctx['name']['given-names']['#text'])
 
     identifiers = Map(
         Delegate(AgentIdentifier),
@@ -193,10 +193,10 @@ class Article(Parser):
     )
 
     date_published = RunPython(
-        'get_published_date',
+        'get_date_published',
         ctx.record.metadata.article.front['article-meta'],
-        ['epub', 'ppub', 'epub-ppub', 'epreprint', 'collection']
-    ),
+        ['epub', 'ppub', 'epub-ppub', 'epreprint', 'collection', 'pub']
+    )
 
     identifiers = Concat(
         Map(
@@ -286,16 +286,17 @@ class Article(Parser):
             # 'systematic-review'
         }.get(article_type, 'publication')
 
-    def get_published_date(self, obj, types):
-        # TODO find pub-date of each type, return the first valid one
-        if not isinstance(list_, list):
-            list_ = [list_]
-        for item in list_:
-            year = item['year']
-            month = item['month']
-            day = item['day']
-            if year and month and day:
-                return str(arrow.get(int(year['#text']), int(month['#text']), int(day['#text'])))
+    def get_date_published(self, obj, types, type_attr='pub-type'):
+        for t in types:
+            pub_date = obj.soup.find('pub-date', **{type_attr: t})
+            if pub_date:
+                year = pub_date.year
+                month = pub_date.month
+                day = pub_date.day
+                if year and month and day:
+                    return str(arrow.get(int(year.string), int(month.string), int(day.string)))
+        if type_attr == 'pub-type':
+            return self.get_date_published(obj, types, 'date-type')
         return None
 
     def get_year_month_day(self, list_):
