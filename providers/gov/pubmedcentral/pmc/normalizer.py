@@ -31,10 +31,6 @@ class AgentIdentifier(Parser):
     uri = ctx
 
 
-class Organization(Parser):
-    name = ctx['#text']
-
-
 class PublisherOrganization(Parser):
     schema = GuessAgentType(ctx['publisher-name']['#text'], 'organization')
     name = ctx['publisher-name']['#text']
@@ -42,7 +38,7 @@ class PublisherOrganization(Parser):
 
 
 class Publisher(Parser):
-    agent = Delegate(Organization, ctx)
+    agent = Delegate(PublisherOrganization, ctx)
 
 
 class JournalOrganization(Parser):
@@ -93,7 +89,7 @@ class Contributor(Parser):
 
 
 class Creator(Contributor):
-    pass
+    order_cited = ctx('index')
 
 
 class CollabCreator(Parser):
@@ -106,11 +102,6 @@ class CollabCreator(Parser):
             # TODO add ThroughContributors
             nested_group.extract()
         return obj['#text']
-
-
-class ContributorOrganization(Parser):
-    schema = 'contributor'
-    agent = Delegate(Organization, ctx['collab'])
 
 
 class Tag(Parser):
