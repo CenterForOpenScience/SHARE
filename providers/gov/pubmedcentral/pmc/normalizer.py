@@ -3,20 +3,24 @@ from collections import OrderedDict
 
 from share.normalize import ctx
 from share.normalize.tools import *
-from share.normalize.soup import SoupXMLNormalizer
+from share.normalize.soup import SoupXMLNormalizer, SoupXMLDict, Soup
 from share.normalize.parsers import Parser
 
 PMCID_FORMAT = 'http://www.ncbi.nlm.nih.gov/pmc/articles/PMC{}/'
 PMID_FORMAT = 'http://www.ncbi.nlm.nih.gov/pubmed/{}'
 
 def pmcid_uri(pmcid):
+    if isinstance(pmcid, SoupXMLDict):
+        pmcid = pmcid['#text']
     if pmcid.startswith('PMC'):
         pmcid = pmcid[3:]
     return PMCID_FORMAT.format(pmcid)
 
-def pmid_uri(pmid):
-    return PMID_FORMAT.format(pmid)
 
+def pmid_uri(pmid):
+    if isinstance(pmid, SoupXMLDict):
+        pmid = pmid['#text']
+    return PMID_FORMAT.format(pmid)
 
 
 class WorkIdentifier(Parser):
@@ -28,38 +32,84 @@ class AgentIdentifier(Parser):
 
 
 class Organization(Parser):
-    name = OneOf(ctx['#text'], ctx)
+    name = ctx['#text']
+
+
+class PublisherOrganization(Parser):
+    schema = GuessAgentType(ctx['publisher-name']['#text'], 'organization')
+    name = ctx['publisher-name']['#text']
+    location = ctx['publisher-loc']['#text']
 
 
 class Publisher(Parser):
     agent = Delegate(Organization, ctx)
 
 
+class JournalOrganization(Parser):
+    schema = 'organization'
+    name = ctx['journal-title-group']['journal-title']['#text']
+    identifiers = Map(
+        Delegate(AgentIdentifier),
+        Map(
+            IRI(),
+            RunPython('get_issns', ctx)
+        )
+    )
+
+    def get_issns(self, obj):
+        return [t['#text'] for t in obj['issn']]
+
+
+class Journal(Parser):
+    schema = 'publisher'
+    agent = Delegate(JournalOrganization, ctx)
+
+
 class Person(Parser):
-    suffix = Try(ctx['name']['suffix'])
-    family_name = ctx['name']['surname']
-    given_name = ctx['name']['given-names']
+    suffix = Try(ctx['name']['suffix']['#text'])
+    family_name = ctx['name']['surname']['#text']
+    given_name = ctx['name']['given-names']['#text']
 
     identifiers = Map(
         Delegate(AgentIdentifier),
         Map(
             IRI(),
-            Soup(ctx, 'contrib-id', **{'contrib-id-type': 'orcid'})['#text'],
-            Soup(ctx, 'email')['#text']
+            Try(Soup(ctx, 'contrib-id', **{'contrib-id-type': 'orcid'})['#text']),
+            Try(Soup(ctx, 'email')['#text'])
         )
     )
 
     class Extra:
-        role = Try(ctx['role'])
-        degrees = Try(ctx['degrees'])
+        role = Try(ctx['role']['#text'])
+        degrees = Try(ctx['degrees']['#text'])
+
+
+class Consortium(Parser):
+    name = ctx
 
 
 class Contributor(Parser):
     agent = Delegate(Person, ctx)
 
 
+class Creator(Contributor):
+    pass
+
+
+class CollabCreator(Parser):
+    schema = 'creator'
+    agent = Delegate(Consortium, RunPython('collab_name', ctx))
+
+    def collab_name(self, obj):
+        nested_group = obj.soup.find('contrib-group')
+        if nested_group:
+            # TODO add ThroughContributors
+            nested_group.extract()
+        return obj['#text']
+
+
 class ContributorOrganization(Parser):
-    schema = 'Contributor'
+    schema = 'contributor'
     agent = Delegate(Organization, ctx['collab'])
 
 
@@ -72,15 +122,21 @@ class ThroughTags(Parser):
 
 
 class RelatedWork(Parser):
-    schema = 'CreativeWork'
+    schema = 'creativework'
 
     identifiers = Map(
         Delegate(WorkIdentifier),
-        RunPython('get_uri', ctx)
+        IRI(RunPython('get_uri', ctx))
     )
 
     def get_uri(self, soup):
-        # TODO check link type, format pmid/pmcid
+        id = soup['@xlink:href']
+        id_type = soup['@ext-link-type']
+        if id_type == 'pmid':
+            return pmid_uri(id)
+        if id_type == 'pmcid':
+            return pmcid_uri(id)
+        return id
 
 
 class WorkRelation(Parser):
@@ -89,29 +145,44 @@ class WorkRelation(Parser):
 
     def get_relation_type(self, related):
         return {
-            'retracted-article': 'Retracts',
-            'corrected-article': 'Corrects',
-            'commentary-article': 'Discusses',
-            'commentary': 'Discusses',
-            'letter': 'RepliesTo',
-            'letter-reply': 'RepliesTo',
-            'object-of-concern': 'Disputes',
-        }.get(related['related-article-type'], 'References')
+            'retracted-article': 'retracts',
+            'corrected-article': 'corrects',
+            'commentary-article': 'discusses',
+            'commentary': 'discusses',
+            'letter': 'repliesto',
+            'letter-reply': 'repliesto',
+            'object-of-concern': 'disputes',
+        }.get(related['@related-article-type'], 'references')
 
 
+# Guidelines (largely unenforced):
+# https://www.ncbi.nlm.nih.gov/pmc/pub/filespec-xml/
+# https://www.ncbi.nlm.nih.gov/pmc/pmcdoc/tagging-guidelines/article/style.html
 class Article(Parser):
-    title = ctx.record.metadata.article.front['article-meta']['title-group']['article-title']['#text'],
+    schema = OneOf(
+        RunPython('get_schema', ctx.record.metadata.article['@article-type']),
+        Static('publication')
+    )
+
+    title = ctx.record.metadata.article.front['article-meta']['title-group']['article-title']['#text']
 
     description = Try(ctx.record.metadata.article.front['article-meta']['abstract']['#text'])
 
     related_agents = Concat(
-        Delegate(Publisher, Try(ctx.record.metadata.article.front['journal-meta']['publisher'])),
+        Try(Delegate(Journal, ctx.record.metadata.article.front['journal-meta'])),
+        Try(Delegate(Publisher, ctx.record.metadata.article.front['journal-meta']['publisher'])),
         Map(
             Delegate(Creator),
             Soup(
                 ctx.record.metadata.article.front['article-meta']['contrib-group'],
-                'contrib',
-                **{'contrib-type': 'author'}
+                lambda tag: tag.name == 'contrib' and tag['contrib-type'] == 'author' and tag('name', recursive=False)
+            )
+        ),
+        Map(
+            Delegate(CollabCreator),
+            Soup(
+                ctx.record.metadata.article.front['article-meta']['contrib-group'],
+                lambda tag: tag.name == 'contrib' and tag['contrib-type'] == 'author' and tag.collab
             )
         ),
     )
@@ -123,23 +194,24 @@ class Article(Parser):
 
     date_published = RunPython(
         'get_published_date',
-        ctx.record.metadata.article.front['article-meta']['pub-date']
-    )
+        ctx.record.metadata.article.front['article-meta'],
+        ['epub', 'ppub', 'epub-ppub', 'epreprint', 'collection']
+    ),
 
     identifiers = Concat(
         Map(
             Delegate(WorkIdentifier),
             Map(
                 IRI(),
-                Soup(
-                    ctx.record.metadata.article.front['article-meta']
+                Try(Soup(
+                    ctx.record.metadata.article.front['article-meta'],
                     'article-id',
                     **{'pub-id-type': 'doi'}
-                ),
+                )['#text']),
                 Map(
                     RunPython(pmcid_uri),
                     Soup(
-                        ctx.record.metadata.article.front['article-meta']
+                        ctx.record.metadata.article.front['article-meta'],
                         'article-id',
                         **{'pub-id-type': 'pmcid'}
                     )
@@ -147,7 +219,7 @@ class Article(Parser):
                 Map(
                     RunPython(pmid_uri),
                     Soup(
-                        ctx.record.metadata.article.front['article-meta']
+                        ctx.record.metadata.article.front['article-meta'],
                         'article-id',
                         **{'pub-id-type': 'pmid'}
                     )
@@ -156,82 +228,94 @@ class Article(Parser):
         ),
     )
 
-    related_works = Map(
-        Delegate(WorkRelation),
-        Soup('related-article', **{'ext-link-type': ['doi', 'pmid', 'pmcid'], 'xlink:href': True})
+    related_works = Concat(
+        Map(
+            Try(Delegate(WorkRelation)),
+            Soup(ctx, 'related-article', **{'ext-link-type': ['doi', 'pmid', 'pmcid'], 'xlink:href': True})
+        )
     )
 
     rights = Try(ctx.record.metadata.article.front['article-meta']['permissions']['license']['license-p']['#text'])
 
     class Extra:
-        correspondence = OneOf(
-            ctx.record.metadata.article.front['article-meta']['author-notes']['corresp']['email'],
-            ctx.record.metadata.article.front['article-meta']['author-notes']['corresp'],
-            Static(None)
-        )
-        journal = ctx.record.metadata.article.front['journal-meta']['journal-title-group']['journal-title']
+        correspondence = Try(ctx.record.metadata.article.front['article-meta']['author-notes']['corresp']['email']['#text'])
+        journal = ctx.record.metadata.article.front['journal-meta']['journal-title-group']['journal-title']['#text']
         in_print = Try(RunPython('get_print_information', ctx.record.metadata.article.front['article-meta']))
-        issn = (RunPython('get_issns', ctx.record.metadata.article.front['journal-meta']['issn']))
 
-        copyright = OneOf(
-            ctx.record.metadata.article.front['article-meta']['permissions']['copyright-statement']['#text'],
-            ctx.record.metadata.article.front['article-meta']['permissions']['copyright-statement'],
-            Static(None)
+        copyright = Try(ctx.record.metadata.article.front['article-meta']['permissions']['copyright-statement']['#text'])
+        copyright_year = Try(ctx.record.metadata.article.front['article-meta']['permissions']['copyright-year']['#text'])
+        epub_date = RunPython(
+            'get_year_month_day',
+            Soup(ctx.record.metadata.article.front['article-meta'], 'pub-date', **{'pub-type': 'epub'})
         )
-        copyright_year = Try(ctx.record.metadata.article.front['article-meta']['permissions']['copyright-year'])
-        epub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'epub')
-        ppub_date = RunPython('get_year_month_day', ctx.record.metadata.article.front['article-meta']['pub-date'], 'ppub')
+        ppub_date = RunPython(
+            'get_year_month_day',
+            Soup(ctx.record.metadata.article.front['article-meta'], 'pub-date', **{'pub-type': 'ppub'})
+        )
 
-    def get_issns(self, list_):
-        issns = {}
-        if isinstance(list_, OrderedDict):
-            issns[list_['@pub-type']] = list_['#text']
-        else:
-            for item in list_:
-                issns[item['@pub-type']] = item['#text']
-        return issns
+    def get_schema(self, article_type):
+        return {
+            # 'abstract'
+            # 'addendum'
+            # 'announcement'
+            # 'article-commentary'
+            # 'book-review'
+            # 'books-received'
+            'brief-report': 'report',
+            # 'calendar'
+            'case-report': 'report',
+            # 'correction'
+            'data-paper': 'dataset',
+            # 'discussion'
+            # 'editorial'
+            # 'expression-of-concern'
+            # 'in-brief'
+            # 'introduciton'
+            # 'letter'
+            'meeting-report': 'report',
+            # 'methods-article'
+            # 'news'
+            # 'obituary'
+            'oration': 'presentation',
+            # 'other'
+            # 'product-review'
+            # 'reply'
+            'research-article': 'article',
+            'retraction': 'retraction',
+            'review-article': 'article',
+            # 'systematic-review'
+        }.get(article_type, 'publication')
 
-    def get_published_date(self, list_):
-        # There is only one result for a published date:
-        if isinstance(list_, OrderedDict):
-            if list_['@pub-type'] == 'epub':
-                year = list_.get('year')
-                month = list_.get('month')
-                day = list_.get('day')
-                if year and month and day:
-                    return str(arrow.get(int(year), int(month), int(day)))
-        # There is an electronic and print publishing date:
-        else:
-            for item in list_:
-                if item['@pub-type'] == 'epub':
-                    year = item.get('year')
-                    month = item.get('month')
-                    day = item.get('day')
-                    if year and month and day:
-                        return str(arrow.get(int(year), int(month), int(day)))
+    def get_published_date(self, obj, types):
+        # TODO find pub-date of each type, return the first valid one
+        if not isinstance(list_, list):
+            list_ = [list_]
+        for item in list_:
+            year = item['year']
+            month = item['month']
+            day = item['day']
+            if year and month and day:
+                return str(arrow.get(int(year['#text']), int(month['#text']), int(day['#text'])))
+        return None
 
-    def get_year_month_day(self, list_, pub):
-        # There is only one result for a published date:
-        if isinstance(list_, OrderedDict):
-            if list_['@pub-type'] == pub:
-                year = list_.get('year')
-                month = list_.get('month')
-                day = list_.get('day')
-                return year, month, day
-        # There is an electronic and print publishing date:
-        else:
-            for item in list_:
-                if item['@pub-type'] == pub:
-                    year = item.get('year')
-                    month = item.get('month')
-                    day = item.get('day')
-                    return year, month, day
+    def get_year_month_day(self, list_):
+        if not list_:
+            return None
+        if not isinstance(list_, list):
+            list_ = [list_]
+        for item in list_:
+            year = item['year']
+            month = item['month']
+            day = item['day']
+            if year and month and day:
+                return year['#text'], month['#text'], day['#text']
+        return None
 
     def get_print_information(self, ctx):
-        volume = ctx['volume']
-        issue = ctx['issue']
-        fpage = ctx['fpage']
-        lpage = ctx['lpage']
+        volume = ctx['volume']['#text']
+        issue = ctx['issue']['#text']
+        fpage = ctx['fpage']['#text']
+        lpage = ctx['lpage']['#text']
         return "This work appeared in volume {} issue {} from pages {} - {}.".format(volume, issue, fpage, lpage)
 
 
@@ -239,12 +323,13 @@ class PMCNormalizer(SoupXMLNormalizer):
     # TODO retractions with no related works should be CreativeWorks with a related (nearly empty) retraction?
 
     def unwrap_data(self, data):
-        soup = super().unwrap_data(data)
-        self.resolve_xrefs(soup)
-        return soup
+        unwrapped = super().unwrap_data(data)
+        # TODO resolve only xrefs that are helpful, like affiliations
+        # self.resolve_xrefs(unwrapped.soup)
+        return unwrapped
 
     def resolve_xrefs(self, soup):
-        for xref in soup.find_all('xref', ref-type=True, rid=True):
+        for xref in soup.find_all('xref', **{'ref-type': True, 'rid': True}):
             resolved = soup.find(xref['ref-type'], id=xref['rid'])
             if not resolved:
                 continue
