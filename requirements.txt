@@ -3,6 +3,7 @@ beautifulsoup4==4.4.1
 bleach==1.4.3
 celery==3.1.23
 colorlog==2.7.0
+cookiecutter==1.4.0
 dateparser==0.4.0
 django==1.9.7
 django[bcrypt]==1.9.7
