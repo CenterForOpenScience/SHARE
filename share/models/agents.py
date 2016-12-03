@@ -95,7 +95,7 @@ def normalize_person(cls, node, graph):
     )), strip_whitespace(node.attrs.get('name', '')), '', key=len)
 
     if NULL_RE.match(name):
-        logger.debug('Discarding unnamed agent "%s"', node.attrs['name'])
+        logger.debug('Discarding unnamed agent "%s"', node.attrs.get('name', ''))
         return graph.remove(node)
 
     human = nameparser.HumanName(name)
