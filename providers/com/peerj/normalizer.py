@@ -1,32 +1,4 @@
-import arrow
-
-import dateparser
-
-from share.normalize import Parser, Delegate, RunPython, ParseName, Normalizer, Map, ctx, Try, Subjects, DOI
-
-
-class Email(Parser):
-    email = ctx
-
-
-class PersonEmail(Parser):
-    email = Delegate(Email, ctx)
-
-
-class Link(Parser):
-    url = ctx
-    type = RunPython('get_link_type', ctx)
-
-    def get_link_type(self, link):
-        if 'dx.doi.org' in link:
-            return 'doi'
-        if 'peerj.com' in link:
-            return 'provider'
-        return 'misc'
-
-
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
+from share.normalize import Parser, Delegate, RunPython, ParseDate, ParseName, Normalizer, Map, ctx, Try, Subjects, IRI, Concat
 
 
 class Subject(Parser):
@@ -45,16 +17,12 @@ class ThroughTags(Parser):
     tag = Delegate(Tag, ctx)
 
 
+class Organization(Parser):
+    name = ctx
+
+
 class Publisher(Parser):
-    name = ctx
-
-
-class Institution(Parser):
-    name = ctx
-
-
-class Association(Parser):
-    pass
+    agent = Delegate(Organization, ctx)
 
 
 class Person(Parser):
@@ -62,70 +30,52 @@ class Person(Parser):
     family_name = ParseName(ctx).last
 
 
-class Contributor(Parser):
-    person = Delegate(Person, ctx)
-    cited_name = ctx
+class Creator(Parser):
+    agent = Delegate(Person, ctx)
+    cited_as = ctx
     order_cited = ctx('index')
 
 
-class CreativeWork(Parser):
+class WorkIdentifier(Parser):
+    uri = IRI(ctx)
+
+
+class Article(Parser):
     title = ctx.title
     description = Try(ctx.description)
-    contributors = Map(Delegate(Contributor), ctx.author)
-    links = Map(
-        Delegate(ThroughLinks),
-        ctx.pdf_url,
-        DOI(ctx.doi),
-        ctx.fulltext_html_url
-    )
-    publishers = Map(
-        Delegate(Association.using(entity=Delegate(Publisher))),
-        ctx.publisher
-    )
-    institutions = Map(
-        Delegate(Association.using(entity=Delegate(Institution))),
-        RunPython('get_author_institute', ctx)
-    )
-    date_published = RunPython('parse_date', ctx.date)
     language = ctx.language
-    tags = Map(
-        Delegate(ThroughTags),
-        Try(ctx.keywords),
-        Try(ctx.subjects)
+    date_published = ParseDate(ctx.date)
+    date_updated = ParseDate(ctx.date)
+
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        ctx.doi,
+        ctx.pdf_url,
+        ctx.fulltext_html_url,
+        RunPython(lambda x: 'https://www.ncbi.nlm.nih.gov/pubmed/{}'.format(x) if x else None, Try(ctx.identifiers.pubmed)),
+        RunPython(lambda x: 'https://www.ncbi.nlm.nih.gov/pmc/articles/{}'.format(x) if x else None, Try(ctx.identifiers.pmc)),
     )
+
     subjects = Map(Delegate(ThroughSubjects), Subjects(ctx.subjects))
+    tags = Map(Delegate(ThroughTags), Try(ctx.keywords), Try(ctx.subjects))
+
+    related_agents = Concat(
+        Map(Delegate(Creator), ctx.author),
+        Map(Delegate(Publisher), ctx.publisher),
+    )
 
     class Extra:
-        modified = RunPython('parse_date', ctx.date)
-        subjects = Try(ctx.subjects)
-        identifiers = ctx.identifiers
         volume = Try(ctx.volume)
-        emails = Try(ctx.author_email)
         journal_title = Try(ctx.journal_title)
         journal_abbrev = Try(ctx.journal_abbrev)
         description_html = Try(ctx['description-html'])
         issn = Try(ctx.issn)
 
-    def parse_date(self, date_str):
-        return arrow.get(dateparser.parse(date_str)).to('UTC').isoformat()
 
-    def get_author_institute(self, context):
-        # read into a set while preserving order and passed back to erase duplicates
-        seen = set()
-        if 'author_institution' in context:
-            if isinstance(context['author_institution'], str):
-                return [x for x in [context['author_institution']] if x not in seen and not seen.add(x)]
-            return [x for x in context['author_institution'] if x not in seen and not seen.add(x)]
-        # the below is author_institutions with an 's', it will always be a string
-        # and is sometimes present in the case that author_institution is not.
-        # This will always be a string
-        return [x for x in context['author_institutions'].split('; ') if x not in seen and not seen.add(x)]
-
-
-class Preprint(CreativeWork):
+class Preprint(Article):
 
     class Extra:
-        modified = RunPython('parse_date', ctx.date)
+        modified = ParseDate(ctx.date)
         subjects = ctx.subjects
         identifiers = Try(ctx.identifiers)
         emails = Try(ctx.author_email)
@@ -138,4 +88,4 @@ class PeerJNormalizer(Normalizer):
         unwrapped = self.unwrap_data(data)
         if 'preprint' in unwrapped['_links']['self']['href']:
             return Preprint(unwrapped).parse()
-        return CreativeWork(unwrapped).parse()
+        return Article(unwrapped).parse()

@@ -1,71 +1,143 @@
 import pytest
 
-from share.models import Link
-from share.models import CreativeWork
-from share.models.meta import ThroughLinks
-from share.disambiguation import disambiguate
+from share import models
+from share.change import ChangeGraph
+from share.models import ChangeSet
+
+from tests.share.models.factories import NormalizedDataFactory
+from tests.share.normalize.factories import *
 
 
-class TestAbstractWork:
-
-    @pytest.mark.django_db
-    def test_disambiguates(self, change_ids):
-        oldWork = CreativeWork.objects.create(
-            title='all about giraffes',
-            description='see here is the the thing about giraffes',
-            change_id=change_ids.get()
-        )
-        disWork = disambiguate('_:', {'title': 'all about giraffes'}, CreativeWork)
-
-        assert disWork is not None
-        assert disWork.id == oldWork.id
-        assert disWork.title == oldWork.title
-        assert disWork.description == oldWork.description
-
-    @pytest.mark.django_db
-    def test_does_not_disambiguate(self, change_ids):
-        CreativeWork.objects.create(
-            title='all about giraffes',
-            description='see here is the the thing about giraffes',
-            change_id=change_ids.get()
-        )
-        disWork = disambiguate('_:', {'title': 'all about short-necked ungulates'}, CreativeWork)
-
-        assert disWork is None
-
-    @pytest.mark.django_db
-    def test_does_not_disambiguate_empty_string(self, change_ids):
-        CreativeWork.objects.create(
-            title='',
-            description='see here is the the thing about emptiness',
-            change_id=change_ids.get()
-        )
-        disWork = disambiguate('_:', {'title': ''}, CreativeWork)
-
-        assert disWork is None
-
-    @pytest.mark.django_db
-    def test_links_disambiguate(self, change_ids):
-        cw = CreativeWork.objects.create(
-            title='All about cats',
-            description='see here is the the thing about emptiness',
-            change_id=change_ids.get()
-        )
-
-        link = Link.objects.create(url='http://share.osf.io/cats', type='provider', change_id=change_ids.get())
-
-        ThroughLinks.objects.create(
-            link=link,
-            creative_work=cw,
-            change_id=change_ids.get(),
-            link_version=link.versions.first(),
-            creative_work_version=cw.versions.first(),
-        )
-
-        assert disambiguate('_:', {'links': [link.pk]}, CreativeWork) == cw
+initial = [
+    Preprint(
+        tags=[Tag(name=' Science')],
+        identifiers=[WorkIdentifier(1)],
+        related_agents=[
+            Person(1),
+            Person(2),
+            Person(3),
+            Institution(4),
+        ],
+        related_works=[
+            Article(tags=[Tag(name='Science\n; Stuff')], identifiers=[WorkIdentifier(2)])
+        ]
+    ),
+    CreativeWork(
+        tags=[Tag(name='Ghosts N Stuff')],
+        identifiers=[WorkIdentifier(3)],
+        related_agents=[
+            Person(5),
+            Person(6),
+            Person(7),
+            Organization(8, name='Aperture Science'),
+            Institution(9),
+        ],
+        related_works=[
+            DataSet(identifiers=[WorkIdentifier(4)], related_agents=[Consortium(10)])
+        ]
+    ),
+    Publication(
+        tags=[Tag(name=' Science')],
+        identifiers=[WorkIdentifier(5)],
+        related_agents=[Organization(name='Umbrella Corporation')],
+        related_works=[
+            Patent(
+                tags=[Tag(name='Science\n; Stuff')],
+                identifiers=[WorkIdentifier(6)]
+            )
+        ]
+    ),
+]
 
 
-class TestAffiliations:
+@pytest.mark.django_db
+class TestWorkDisambiguation:
 
-    def test_handles_unique_violations(self):
-        pass
+    @pytest.mark.parametrize('input, model, delta', [
+        # creativework with different identifier as creativework
+        ([CreativeWork(identifiers=[WorkIdentifier(7)])], models.CreativeWork, 1),
+        # creativework with same identifier as creativework
+        ([CreativeWork(identifiers=[WorkIdentifier(3)])], models.CreativeWork, 0),
+        # creativework with same identifier as creativework and other identifiers
+        ([CreativeWork(identifiers=[WorkIdentifier(3), WorkIdentifier(), WorkIdentifier()])], models.CreativeWork, 0),
+        # creativework with same identifier as publication
+        ([CreativeWork(identifiers=[WorkIdentifier(5)])], models.CreativeWork, 0),
+        ([CreativeWork(identifiers=[WorkIdentifier(5)])], models.Publication, 0),
+        # creativework with an additional identifier
+        ([CreativeWork(identifiers=[WorkIdentifier(), WorkIdentifier(5)])], models.Publication, 0),
+        ([CreativeWork(identifiers=[WorkIdentifier(), WorkIdentifier(5)])], models.WorkIdentifier, 1),
+        ([CreativeWork(identifiers=[WorkIdentifier(20), WorkIdentifier(5)])], models.Publication, 0),
+        ([CreativeWork(identifiers=[WorkIdentifier(21), WorkIdentifier(5)])], models.WorkIdentifier, 1),
+        ([CreativeWork(identifiers=[WorkIdentifier(5), WorkIdentifier(22)])], models.Publication, 0),
+        ([CreativeWork(identifiers=[WorkIdentifier(5), WorkIdentifier(23)])], models.WorkIdentifier, 1),
+        # article with same identifier as publication
+        ([Article(identifiers=[WorkIdentifier(5)])], models.Article, 1),
+        ([Article(identifiers=[WorkIdentifier(5)])], models.Publication, 0),
+        # software with same identifier as dataset (same level)
+        # fails
+        ([Software(identifiers=[WorkIdentifier(4)])], models.Software, 1),
+        ([Software(identifiers=[WorkIdentifier(4)])], models.DataSet, -1),
+    ])
+    def test_disambiguate(self, input, model, delta, Graph):
+        initial_cg = ChangeGraph(Graph(*initial))
+        initial_cg.process(disambiguate=False)
+        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
+
+        Graph.reseed()
+        # Nasty hack to avoid progres' fuzzy counting
+        before = model.objects.exclude(change=None).count()
+
+        cg = ChangeGraph(Graph(*input))
+        cg.process()
+        cs = ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id)
+        if cs is not None:
+            cs.accept()
+
+        assert (model.objects.exclude(change=None).count() - before) == delta
+
+    @pytest.mark.parametrize('input', [
+        [Publication(identifiers=[WorkIdentifier()])],
+        [CreativeWork(identifiers=[WorkIdentifier()])],
+        [Software(identifiers=[WorkIdentifier()])],
+        [Article(identifiers=[WorkIdentifier()])],
+        [Thesis(identifiers=[WorkIdentifier()])],
+        [Preprint(identifiers=[WorkIdentifier()], related_agents=[Person(), Consortium()], agent_relations=[Funder(), Publisher()])]
+    ])
+    def test_reaccept(self, input, Graph):
+        initial_cg = ChangeGraph(Graph(*initial))
+        initial_cg.process()
+        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
+
+        # Graph.reseed()  # Force new values to be generated
+
+        first_cg = ChangeGraph(Graph(*input))
+        first_cg.process()
+        first_cs = ChangeSet.objects.from_graph(first_cg, NormalizedDataFactory().id)
+        assert first_cs is not None
+        first_cs.accept()
+
+        second_cg = ChangeGraph(Graph(*input))
+        second_cg.process()
+        second_cs = ChangeSet.objects.from_graph(second_cg, NormalizedDataFactory().id)
+        assert second_cs is None
+
+    def test_no_changes(self, Graph):
+        initial_cg = ChangeGraph(Graph(*initial))
+        initial_cg.process()
+        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
+
+        Graph.discarded_ids.clear()
+        cg = ChangeGraph(Graph(*initial))
+        cg.process()
+        assert ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id) is None
+
+    def test_split_brain(self, Graph):
+        initial_cg = ChangeGraph(Graph(*initial))
+        initial_cg.process()
+        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
+
+        # Multiple matches found for a thing should break
+        cg = ChangeGraph(Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)])))
+        with pytest.raises(NotImplementedError) as e:
+            cg.process()
+        assert e.value.args[0] == "Multiple <class 'share.models.creative.Preprint'>s found"

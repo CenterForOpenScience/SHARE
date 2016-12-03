@@ -11,17 +11,23 @@ Using the `normalizeddata endpoint`_
     - the payload should be in the same format as the body template under the CREATE/UPDATE heading::
 
            Body (JSON):   {
-            'normalized_data': {
-                '@graph': [{
-                    '@type': <type of document, exp: person>,
-                    '@id': <_:random>,
-                    <attribute_name>: <value>,
-                    <relationship_name>: {
-                        '@type': <type>,
-                        '@id': <id>
+            'data': {
+                'type': 'NormalizedData'
+                'attributes': {
+                    'data': {
+                        '@graph': [{
+                            '@type': <type of document, exp: person>,
+                            '@id': <_:random>,
+                            <attribute_name>: <value>,
+                            <relationship_name>: {
+                                '@type': <type>,
+                                '@id': <id>
+                            }
+                        }]
                     }
-                }]
+                }
             }
+           }
 
     - to create a record, the ``@id`` must be a unique identifier that does not exist in the database
     - to update an existing record, the format remains the same but the existing document will be updated and a new document will not be created
@@ -42,16 +48,24 @@ Examples
         url = 'https://share.osf.io/api/normalizeddata/'
 
         payload = {
-            'normalized_data': {
-                '@graph': [{
-                    '@type': creativework,
-                    '@id': <_:random>,
-                    title: "Example Title of Work"
-                }]
+            'data': {
+                'type': 'NormalizedData'
+                'attributes': {
+                    'data': {
+                        '@graph': [{
+                            '@type': creativework,
+                            '@id': <_:random>,
+                            title: "Example Title of Work"
+                        }]
+                    }
+                }
             }
         }
 
-        r = requests.post(url, json=payload, headers={'Authorization': 'TOK:<YOUR_TOKEN>'})
+        r = requests.post(url, json=payload, headers={
+            'Authorization': 'TOK:<YOUR_TOKEN>',
+            'Content-Type': 'application/vnd.api+json'
+        })
 
 
     JavaScript
@@ -59,12 +73,17 @@ Examples
     .. code-block:: javascript
 
         let payload = {
-            'normalized_data': {
-                '@graph': [{
-                    '@type': creativework,
-                    '@id': <_:random>,
-                    title: "Example Title of Work"
-                }]
+            'data': {
+                'type': 'NormalizedData'
+                'attributes': {
+                    'data': {
+                        '@graph': [{
+                            '@type': creativework,
+                            '@id': <_:random>,
+                            title: "Example Title of Work"
+                        }]
+                    }
+                }
             }
         }
 
@@ -77,7 +96,7 @@ Examples
                 withCredentials: true,
             },
             data: JSON.stringify(payload),
-            contentType: 'application/json',
+            contentType: 'application/vnd.api+json',
             url: 'https://share.osf.io/api/normalizeddata/',
         })
 

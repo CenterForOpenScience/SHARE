@@ -39,6 +39,8 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
 
 AUTH_USER_MODEL = 'share.ShareUser'
 
+JSON_API_FORMAT_KEYS = 'camelize'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -58,6 +60,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'revproxy',
+    'mptt',
+    'graphene_django',
 
     'allauth',
     'allauth.account',
@@ -86,8 +90,11 @@ INSTALLED_APPS = [
     'providers.com.biomedcentral',
     'providers.com.dailyssrn',
     'providers.com.figshare',
+    'providers.com.figshare.v2',
     'providers.com.nature',
     'providers.com.peerj',
+    'providers.com.peerj.preprints',
+    'providers.com.peerj.xml',
     'providers.com.springer',
     'providers.edu.asu',
     'providers.edu.boise_state',
@@ -99,6 +106,7 @@ INSTALLED_APPS = [
     'providers.edu.cmu',
     'providers.edu.colostate',
     'providers.edu.columbia',
+    'providers.edu.cornell',
     'providers.edu.csuohio',
     'providers.edu.cuny',
     'providers.edu.cuscholar',
@@ -124,16 +132,19 @@ INSTALLED_APPS = [
     'providers.edu.pcom',
     'providers.edu.pdxscholar',
     'providers.edu.purdue',
+    'providers.edu.richmond',
     'providers.edu.scholarsarchiveosu',
     'providers.edu.scholarsbank',
     'providers.edu.scholarscompass_vcu',
     'providers.edu.scholarworks_umass',
+    'providers.edu.scholarworks_montana',
     'providers.edu.smithsonian',
     'providers.edu.stcloud',
     'providers.edu.texasstate',
     'providers.edu.triceratops',
     'providers.edu.trinity',
     'providers.edu.u_south_fl',
+    'providers.edu.ucf',
     'providers.edu.udc',
     'providers.edu.udel',
     'providers.edu.uhawaii',
@@ -141,11 +152,13 @@ INSTALLED_APPS = [
     'providers.edu.ukansas',
     'providers.edu.uky',
     'providers.edu.umassmed',
+    'providers.edu.umd',
     'providers.edu.umich',
     'providers.edu.uncg',
     'providers.edu.unl_digitalcommons',
     'providers.edu.upennsylvania',
     'providers.edu.ut_chattanooga',
+    'providers.edu.utahstate',
     'providers.edu.utaustin',
     'providers.edu.utktrace',
     'providers.edu.utuskegee',
@@ -167,16 +180,13 @@ INSTALLED_APPS = [
     'providers.gov.nodc',
     'providers.gov.nsfawards',
     'providers.gov.pubmedcentral',
+    'providers.gov.pubmedcentral.pmc',
     'providers.gov.scitech',
     'providers.gov.usgs',
     'providers.info.spdataverse',
-    'providers.io.engrxiv',
     'providers.io.osf',
     'providers.io.osf.preprints',
     'providers.io.osf.registrations',
-    'providers.io.socarxiv',
-    'providers.io.psyarxiv',
-    # 'providers.io.osfshare',  # push api?
     'providers.org.arxiv',
     'providers.org.arxiv.oai',
     'providers.org.bhl',
@@ -190,6 +200,7 @@ INSTALLED_APPS = [
     'providers.org.dryad',
     'providers.org.elife',
     'providers.org.elis',
+    'providers.org.engrxiv',
     'providers.org.erudit',
     'providers.org.mblwhoilibrary',
     'providers.org.mla',
@@ -198,13 +209,18 @@ INSTALLED_APPS = [
     'providers.org.neurovault',
     'providers.org.newprairiepress',
     'providers.org.plos',
+    'providers.org.psyarxiv',
     'providers.org.repec',
     'providers.org.shareok',
     'providers.org.sldr',
+    'providers.org.socarxiv',
     'providers.org.stepic',
     'providers.org.tdar',
+    'providers.org.ttu',
     'providers.org.ucescholarship',
     'providers.org.zenodo',
+    'providers.org.seafdec',
+    'providers.pe.upc',
     'providers.pt.rcaap',
     'providers.ru.cyberleninka',
     'providers.tr.edu.hacettepe',
@@ -257,21 +273,30 @@ SOCIALACCOUNT_PROVIDERS = \
 APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
+    'PAGE_SIZE': 10,
+    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework_json_api.pagination.PageNumberPagination',
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework_json_api.parsers.JSONParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'api.renderers.HideNullJSONAPIRenderer',
+        # 'rest_framework_json_api.renderers.JSONRenderer',
+        # 'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticatedOrReadOnly',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
         # 'api.authentication.NonCSRFSessionAuthentication',
     ),
-    'PAGE_SIZE': 10,
-    'DEFAULT_PARSER_CLASSES': (
-        'api.parsers.JSONLDParser',
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+}
+
+GRAPHENE = {
+    'SCHEMA': 'share.graphql.schema'
 }
 
 MIDDLEWARE_CLASSES = [
@@ -318,6 +343,7 @@ DATABASES = {
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
+        'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
     },
 }
 
@@ -344,13 +370,14 @@ LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'http://localhost:8000
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
 # else:
-INSTALLED_APPS += [
-    # 'raven.contrib.django.raven_compat',
-]
-# RAVEN_CONFIG = {
-#   'dsn': os.environ.get('SENTRY_DSN', None),
-#   'release': os.environ.get('GIT_COMMIT', None),
-# }
+if os.environ.get('USE_SENTRY'):
+    INSTALLED_APPS += [
+        'raven.contrib.django.raven_compat',
+    ]
+    RAVEN_CONFIG = {
+        'dsn': os.environ.get('SENTRY_DSN', None),
+        'release': os.environ.get('GIT_COMMIT', None),
+    }
 
 
 # TODO REMOVE BEFORE PRODUCTION
@@ -424,10 +451,10 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 
 CELERY_ACKS_LATE = True
-CELERY_TRACK_STARTED = True
+# CELERY_TRACK_STARTED = True
 CELERY_RESULT_PERSISTENT = True
-CELERY_SEND_EVENTS = True
-CELERY_SEND_TASK_SENT_EVENT = True
+# CELERY_SEND_EVENTS = True
+# CELERY_SEND_TASK_SENT_EVENT = True
 CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
@@ -502,6 +529,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
+        # 'share.disambiguation': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': False
+        # },
+        # 'share.normalize': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': False
+        # },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],

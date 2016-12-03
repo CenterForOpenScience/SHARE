@@ -20,9 +20,9 @@ class NCARHarvester(Harvester):
         url = furl(self.url).set(query_params={
             'verb': 'ListRecords',
             'metadataPrefix': 'dif',
-            'from': start_date.format('YYYY-MM-DDT00:00:00') + 'Z',
-            'until': end_date.format('YYYY-MM-DDT00:00:00') + 'Z'
-        }).url
+            'from': start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z',
+            'until': end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+        })
 
         return self.fetch_records(url)
 
@@ -32,7 +32,7 @@ class NCARHarvester(Harvester):
         while True:
             for record in records:
                 yield (
-                    record.xpath('//OAI-PMH:header/OAI-PMH:identifier/node()', namespaces=self.namespaces)[0],
+                    record.xpath('./OAI-PMH:header/OAI-PMH:identifier/node()', namespaces=self.namespaces)[0],
                     etree.tostring(record),
                 )
 
@@ -50,7 +50,7 @@ class NCARHarvester(Harvester):
 
         logger.info('Making request to {}'.format(url))
 
-        resp = self.requests.get(url)
+        resp = self.requests.get(url.url)
         parsed = etree.fromstring(resp.content)
 
         records = parsed.xpath('//OAI-PMH:record', namespaces=self.namespaces)

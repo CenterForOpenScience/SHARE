@@ -57,7 +57,7 @@ class ShareUserManager(BaseUserManager):
 
     def create_robot_user(self, username, robot, long_title='', home_page=''):
         try:
-            self.get(robot=robot)
+            self.get(username=username, robot=robot)
         except self.model.DoesNotExist:
             pass
         else:
@@ -216,7 +216,7 @@ class RawData(models.Model):
         return self.date_processed is not None  # TODO: this field doesn't exist...
 
     class Meta:
-        unique_together = (('provider_doc_id', 'source', 'sha256'),)
+        unique_together = (('provider_doc_id', 'app_label', 'source', 'sha256'),)
         verbose_name_plural = 'Raw data'
 
     def __repr__(self):
@@ -228,7 +228,7 @@ class NormalizedData(models.Model):
     created_at = models.DateTimeField(null=True)
     raw = models.ForeignKey(RawData, null=True)
     # TODO Rename this to data
-    normalized_data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
+    data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')
 

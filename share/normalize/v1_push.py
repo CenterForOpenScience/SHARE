@@ -7,229 +7,158 @@ from share.normalize.normalizer import Normalizer
 THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 
 
-class Link(Parser):
-    url = ctx
-    type = tools.Static('provider')
+class WorkIdentifier(Parser):
+    uri = ctx
 
 
-class ThroughLinks(Parser):
-    link = tools.Delegate(Link, ctx)
+class AgentIdentifier(Parser):
+    uri = ctx
 
 
-class Publisher(Parser):
-
-    name = ctx.name
-    url = tools.OneOf(
-        ctx.uri,
-        tools.Join(ctx.sameAs),
-        tools.Static(None),
-    )
-
-    class Extra:
-
-        publisher = ctx
-
-
-class Funder(Parser):
-
-    community_identifier = tools.Try(ctx.sponsorIdentifier)
-    name = ctx.sponsorName
-
-
-class Award:
-
-    # award will become name
-    award = tools.Try(ctx.awardIdentifier)
-    description = ctx.awardName
-    url = tools.Try(ctx.awardIdentifier)
-
-
-class ThroughAwards:
-
-    award = tools.Delegate(Award, ctx)
-
-
-class Institution(Parser):
-
-    name = ctx.name
-
-
-class Organization(Parser):
-
-    name = ctx.name
-
-
-class Association(Parser):
+class IsAffiliatedWith(Parser):
+    # Moved below Agent definition to resolve cyclical references
+    # related = tools.Delegate(OrgAgent)
     pass
 
 
-class Email(Parser):
+class Agent(Parser):
+    schema = tools.GuessAgentType(ctx.name)
 
-    email = ctx
+    name = ctx.name
 
-
-class PersonEmail(Parser):
-
-    email = tools.Delegate(Email, ctx)
-
-
-class Identifier(Parser):
-
-    url = ctx
-
-
-class ThroughIdentifiers(Parser):
-
-    identifier = tools.Delegate(Identifier, ctx)
-
-
-class Person(Parser):
-
-    suffix = tools.ParseName(ctx.name).suffix
-    family_name = tools.ParseName(ctx.name).last
-    given_name = tools.ParseName(ctx.name).first
-    additional_name = tools.ParseName(ctx.name).middle
-
-    emails = tools.Map(
-        tools.Delegate(PersonEmail),
-        tools.Try(ctx.email)
-    )
-    affiliations = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Organization))),
+    related_agents = tools.Map(
+        tools.Delegate(IsAffiliatedWith),
         tools.Try(ctx.affiliation)
     )
 
     identifiers = tools.Map(
-        tools.Delegate(ThroughIdentifiers),
-        tools.Try(ctx.sameAs)
+        tools.Delegate(AgentIdentifier),
+        tools.Map(
+            tools.IRI(),
+            tools.Try(ctx.sameAs),
+            tools.Try(ctx.email)
+        )
     )
 
     class Extra:
-
         givenName = tools.Try(ctx.givenName)
-
         familyName = tools.Try(ctx.familyName)
-
         additonalName = tools.Try(ctx.additionalName)
-
         name = tools.Try(ctx.name)
 
 
-class Contributor(Parser):
+class OrgAgent(Agent):
+    schema = tools.GuessAgentType(ctx.name, default='organization')
 
-    person = tools.Delegate(Person, ctx)
-    cited_name = ctx.name
+
+IsAffiliatedWith.related = tools.Delegate(OrgAgent)
+
+
+class Creator(Parser):
+    agent = tools.Delegate(Agent, ctx)
+    cited_as = ctx.name
     order_cited = ctx('index')
 
 
-class Tag(Parser):
+class Publisher(Parser):
+    agent = tools.Delegate(OrgAgent, ctx)
+    cited_as = ctx.name
 
+
+class FundingAgent(Parser):
+    schema = tools.GuessAgentType(ctx.sponsorName, default='organization')
+
+    name = ctx.sponsorName
+
+    identifiers = tools.Map(
+        tools.Delegate(AgentIdentifier),
+        tools.IRI(tools.Try(ctx.sponsorIdentifier))
+    )
+
+
+class Award(Parser):
+    name = ctx.awardName
+    uri = tools.IRI(tools.Try(ctx.awardIdentifier))
+
+
+class ThroughAwards(Parser):
+    award = tools.Delegate(Award, ctx)
+
+
+class Funder(Parser):
+    agent = tools.Delegate(FundingAgent, ctx.sponsor)
+    cited_as = ctx.sponsor.sponsorName
+
+    awards = tools.Map(
+        tools.Delegate(ThroughAwards),
+        tools.Try(ctx.award)
+    )
+
+
+class Tag(Parser):
     name = ctx
 
 
 class ThroughTags(Parser):
-
     tag = tools.Delegate(Tag, ctx)
 
 
 class Subject(Parser):
-
     name = ctx
 
 
 class ThroughSubjects(Parser):
-
     subject = tools.Delegate(Subject, ctx)
 
 
 class CreativeWork(Parser):
-
-    ORGANIZATION_KEYWORDS = (
-        THE_REGEX,
-        'council',
-        'center',
-        'foundation'
-    )
-    INSTITUTION_KEYWORDS = (
-        'school',
-        'university',
-        'institution',
-        'college',
-        'institute'
-    )
-
-    awards = tools.Map(
-        tools.Delegate(ThroughAwards),
-        tools.Try(ctx.sponsorships.award)
-    )
-
-    contributors = tools.Map(
-        tools.Delegate(Contributor),
-        tools.RunPython(
-            'get_contributors',
-            tools.Try(ctx.contributors),
-            'contributor'
-        )
-    )
-
-    is_deleted = tools.RunPython('_is_deleted', tools.Try(ctx.otherProperties))
-
-    date_updated = tools.ParseDate(tools.Try(ctx.providerUpdatedDateTime))
-
+    title = ctx.title
     description = tools.Try(ctx.description)
-
-    funders = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Funder))),
-        tools.Try(ctx.sponsorships.sponsor)
-    )
-
-    institutions = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Institution))),
-        tools.RunPython(
-            'get_contributors',
-            tools.Try(ctx.contributors),
-            'institution'
-        )
-    )
+    is_deleted = tools.RunPython('_is_deleted', tools.Try(ctx.otherProperties))
+    date_updated = tools.ParseDate(tools.Try(ctx.providerUpdatedDateTime))
+    rights = tools.Join(tools.Try(ctx.licenses.uri))
 
     # Note: this is only taking the first language in the case of multiple languages
     language = tools.ParseLanguage(
         tools.Try(ctx.languages[0]),
     )
 
-    links = tools.Map(
-        tools.Delegate(ThroughLinks),
-        tools.RunPython(
-            'unique',
-            tools.Concat(
-                tools.Try(ctx.uris.canonicalUri),
-                tools.Try(ctx.uris.providerUris),
-                tools.Try(ctx.uris.descriptorUris),
-                tools.Try(ctx.uris.objectUris)
+    related_agents = tools.Concat(
+        tools.Map(
+            tools.Delegate(Creator),
+            tools.Try(ctx.contributors)
+        ),
+        tools.Map(
+            tools.Delegate(Publisher),
+            tools.Try(ctx.publisher)
+        ),
+        tools.Map(
+            tools.Delegate(Funder),
+            tools.Try(ctx.sponsorships)
+        )
+    )
+
+    identifiers = tools.Map(
+        tools.Delegate(WorkIdentifier),
+        tools.Map(
+            tools.IRI(),
+            tools.RunPython(
+                'unique',
+                tools.Concat(
+                    tools.Try(ctx.uris.canonicalUri),
+                    tools.Try(ctx.uris.providerUris),
+                    tools.Try(ctx.uris.descriptorUris),
+                    tools.Try(ctx.uris.objectUris)
+                )
             )
         )
     )
 
-    organizations = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Organization))),
-        tools.RunPython(
-            'get_contributors',
-            tools.Try(ctx.contributors),
-            'organization'
-        )
-    )
-
-    # unsure how to tell difference between person and org
-    publishers = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Publisher))),
-        tools.Try(ctx.publisher)
-    )
-
-    rights = tools.Join(tools.Try(ctx.licenses.uri))
-
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
-        tools.Try(ctx.subjects)
+        tools.Subjects(
+            tools.Try(ctx.subjects)
+        )
     )
 
     tags = tools.Map(
@@ -238,80 +167,21 @@ class CreativeWork(Parser):
         tools.Try(ctx.subjects)
     )
 
-    title = ctx.title
-
     class Extra:
         """
         Fields that are combined in the base parser are relisted as singular elements that match
         their original entry to preserve raw data structure.
         """
-
         freeToRead = tools.Try(ctx.freeToRead)
-
         languages = tools.Try(ctx.languages)
-
         licenses = tools.Try(ctx.licenses)
-
         otherProperties = tools.Try(ctx.otherProperties)
-
         publisher = tools.Try(ctx.publisher)
-
         subjects = tools.Try(ctx.subjects)
-
         sponsorships = tools.Try(ctx.sponsorships)
-
         tags = tools.Try(ctx.tags)
-
         uris = tools.Try(ctx.uris)
-
         version = tools.Try(ctx.version)
-
-    def get_contributors(self, options, entity):
-        """
-        Returns list of organization, institutions, or contributors names based on entity type.
-        """
-
-        if entity == 'organization':
-            organizations = [
-                value for value in options if
-                (
-                    value['name'] and
-                    not self.list_in_string(value['name'], self.INSTITUTION_KEYWORDS) and
-                    self.list_in_string(value['name'], self.ORGANIZATION_KEYWORDS)
-                )
-            ]
-            return organizations
-        elif entity == 'institution':
-            institutions = [
-                value for value in options if
-                (
-                    value['name'] and
-                    self.list_in_string(value['name'], self.INSTITUTION_KEYWORDS)
-                )
-            ]
-            return institutions
-        elif entity == 'contributor':
-            people = [
-                value for value in options if
-                (
-                    value['name'] and
-                    not self.list_in_string(value['name'], self.INSTITUTION_KEYWORDS) and not
-                    self.list_in_string(value['name'], self.ORGANIZATION_KEYWORDS)
-                )
-            ]
-            return people
-        else:
-            return options
-
-    def list_in_string(self, string, list_):
-        for word in list_:
-            if isinstance(word, str):
-                if word in string.lower():
-                    return True
-            else:
-                if word.search(string):
-                    return True
-        return False
 
     def unique(self, items):
         return list(sorted(set(items)))

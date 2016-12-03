@@ -2,9 +2,8 @@ import pytest
 
 from share.models import Person
 from share.models import Preprint
-from share.models import Publication
-from share.models import Identifier
-from share.models.people import ThroughIdentifiers
+from share.models import Article
+from share.models import AgentIdentifier
 from share.models.base import ShareObject
 from share.management.commands.maketriggermigrations import Command
 
@@ -17,12 +16,12 @@ def test_build_trigger():
     procedure, trigger = trigger_build.build_operations(Person)
 
     assert trigger.reversible is True
-    assert 'DROP TRIGGER share_person_change' in trigger.reverse_sql
-    assert 'DROP TRIGGER IF EXISTS share_person_change' in trigger.sql
+    assert 'DROP TRIGGER share_agent_change' in trigger.reverse_sql
+    assert 'DROP TRIGGER IF EXISTS share_agent_change' in trigger.sql
 
     assert procedure.reversible is True
-    assert 'DROP FUNCTION before_share_person_change' in procedure.reverse_sql
-    assert 'CREATE OR REPLACE FUNCTION before_share_person_change' in procedure.sql
+    assert 'DROP FUNCTION before_share_agent_change' in procedure.reverse_sql
+    assert 'CREATE OR REPLACE FUNCTION before_share_agent_change' in procedure.sql
 
 
 class TestVersioning:
@@ -75,46 +74,40 @@ class TestVersioning:
             p.change_id = change_ids.get()
             p.save()
 
+        p.refresh_from_db()
+        assert p.versions.first() == p.version
+
         for i, name in enumerate(reversed(['John'] + names)):
             assert p.versions.all()[i].given_name == name
 
     @pytest.mark.django_db
     def test_relations(self, john_doe, change_ids):
-        ident = Identifier.objects.create(base_url='http://dinosaurs.sexy/', url='http://dinosaurs.sexy/john_doe', change_id=change_ids.get())
+        ident = AgentIdentifier.objects.create(
+            uri='http://dinosaurs.sexy/john_doe',
+            agent=john_doe,
+            agent_version=john_doe.version,
+            change_id=change_ids.get()
+        )
 
         ident.refresh_from_db()
         john_doe.refresh_from_db()
-
-        through = ThroughIdentifiers.objects.create(
-            person=john_doe,
-            identifier=ident,
-            person_version=john_doe.version,
-            identifier_version=ident.version,
-            change_id=change_ids.get()
-        )
 
         assert john_doe.identifiers.count() == 1
 
-        assert john_doe == through.person
-        assert john_doe.version == through.person_version
-
-        assert ident == through.identifier
-        assert ident.version == through.identifier_version
+        assert john_doe == ident.agent
+        assert john_doe.version == ident.agent_version
 
     @pytest.mark.django_db
     def test_relations_related_changed(self, john_doe, change_ids):
-        ident = Identifier.objects.create(base_url='http://dinosaurs.sexy/', url='http://dinosaurs.sexy/john_doe', change_id=change_ids.get())
+        ident = AgentIdentifier.objects.create(
+            uri='http://dinosaurs.sexy/john_doe',
+            agent=john_doe,
+            agent_version=john_doe.version,
+            change_id=change_ids.get()
+        )
 
         ident.refresh_from_db()
         john_doe.refresh_from_db()
-
-        through = ThroughIdentifiers.objects.create(
-            person=john_doe,
-            identifier=ident,
-            person_version=john_doe.version,
-            identifier_version=ident.version,
-            change_id=change_ids.get()
-        )
 
         john_doe.given_name = 'James'
         john_doe.change_id = change_ids.get()
@@ -123,12 +116,11 @@ class TestVersioning:
 
         assert john_doe.identifiers.count() == 1
 
-        assert john_doe == through.person
-        assert john_doe.version != through.person_version
-        assert john_doe.versions.last() == through.person_version
+        assert john_doe == ident.agent
+        assert john_doe.version != ident.agent_version
+        assert john_doe.versions.last() == ident.agent_version
 
-        assert ident == through.identifier
-        assert ident.version == through.identifier_version
+        assert ident == john_doe.identifiers.first()
 
 
 @pytest.mark.django_db
@@ -140,8 +132,7 @@ class TestAdministrativeChange:
         assert e.value.args == ('Don\'t make empty changes', )
 
     def test_works(self, john_doe):
-        john_doe.refresh_from_db()  # load version
-
+        assert john_doe.version == john_doe.versions.first()
         assert john_doe.versions.count() == 1
         assert john_doe.given_name == 'John'
         john_doe.administrative_change(given_name='Jane')
@@ -150,19 +141,15 @@ class TestAdministrativeChange:
         assert john_doe.change.change_set.normalized_data.source.username == 'system'
 
     def test_invalid_attribute(self, john_doe):
-        john_doe.refresh_from_db()  # load version
-
         with pytest.raises(AttributeError) as e:
             john_doe.administrative_change(favorite_animal='Anteater')
         assert e.value.args == ('favorite_animal', )
 
     def test_transition_types(self, all_about_anteaters):
-        all_about_anteaters.refresh_from_db()  # load version
-
-        assert all_about_anteaters.type == 'share.publication'
+        assert all_about_anteaters.type == 'share.article'
         all_about_anteaters.administrative_change(type='share.preprint')
         assert all_about_anteaters.type == 'share.preprint'
 
-        with pytest.raises(Publication.DoesNotExist):
+        with pytest.raises(Article.DoesNotExist):
             all_about_anteaters.refresh_from_db()
         assert Preprint.objects.get(pk=all_about_anteaters.pk)

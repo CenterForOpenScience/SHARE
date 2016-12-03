@@ -27,8 +27,8 @@
       provider: "osf"
       name: "OSF"
       # This is valid for staging
-      client_id: "bed531951db94e6bb30f3f0a19e712fb"
-      secret: "844IItP1s7FQkX5OWDcXY2RtwkUSwDe1fhwqbVHv"
+      client_id: "b73fff80f83f4a5db8a60ff101718f03"
+      secret: "AdaI80f8vFLJo2OqE9m8fefpARAfptD5134HJd4X"
       key: ""
       sites:
         - 1

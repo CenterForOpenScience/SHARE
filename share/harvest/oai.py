@@ -2,7 +2,7 @@ import abc
 import time
 import logging
 
-import arrow
+import pendulum
 from furl import furl
 from lxml import etree
 
@@ -30,14 +30,14 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
 
         self.time_granularity = getattr(self.config, 'time_granularity', self.time_granularity)
 
-    def do_harvest(self, start_date: arrow.Arrow, end_date: arrow.Arrow) -> list:
+    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> list:
         url = furl(self.url)
         url.args['verb'] = 'ListRecords'
         url.args['metadataPrefix'] = 'oai_dc'
 
         if self.time_granularity:
-            url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00') + 'Z'
-            url.args['until'] = end_date.format('YYYY-MM-DDT00:00:00') + 'Z'
+            url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+            url.args['until'] = end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
         else:
             url.args['from'] = start_date.date().isoformat()
             url.args['until'] = end_date.date().isoformat()

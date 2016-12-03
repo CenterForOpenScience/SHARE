@@ -1,7 +1,7 @@
 import abc
 import logging
 
-import arrow
+import pendulum
 from celery.schedules import crontab
 from django.utils.functional import cached_property
 
@@ -37,11 +37,14 @@ class Bot(abc.ABC):
         self._last_run = last_run
 
     @cached_property
-    def last_run(self) -> arrow.Arrow:
+    def last_run(self) -> pendulum.Pendulum:
         from share.models import CeleryProviderTask
 
         if self._last_run is not None:
-            last_run = arrow.get(self._last_run)
+            if isinstance(self._last_run, int):
+                last_run = pendulum.from_timestamp(self._last_run)
+            else:
+                last_run = pendulum.parse(self._last_run)
         else:
             logger.debug('Finding last successful job')
             last_run = CeleryProviderTask.objects.filter(
@@ -51,9 +54,9 @@ class Bot(abc.ABC):
                 '-timestamp'
             ).values_list('timestamp', flat=True).first()
             if last_run:
-                last_run = arrow.get(last_run)
+                last_run = pendulum.instance(last_run)
             else:
-                last_run = arrow.get(0)
+                last_run = pendulum.from_timestamp(0)
             logger.info('Found last job %s', last_run)
 
         logger.info('Using last run of %s', last_run)

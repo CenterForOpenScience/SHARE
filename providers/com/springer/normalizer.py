@@ -1,32 +1,20 @@
 from share.normalize import *  # noqa
 
 
-class Link(Parser):
-    url = ctx.value
-    type = RunPython('get_link_type', ctx.value)
+class AgentIdentifier(Parser):
+    uri = IRI(ctx)
 
-    def get_link_type(self, link):
-        if 'dx.doi' in link:
-            return 'doi'
-        if 'springer' in link:
-            return 'provider'
-        return 'misc'
 
-    class Extra:
-        format = ctx.format
-        platform = ctx.platform
+class WorkIdentifier(Parser):
+    uri = IRI(ctx)
 
 
 class Tag(Parser):
     name = ctx
 
 
-class Publisher(Parser):
-    name = ctx
-
-
-class Association(Parser):
-    entity = Delegate(Publisher)
+class ThroughTags(Parser):
+    tag = Delegate(Tag, ctx)
 
 
 class Person(Parser):
@@ -36,29 +24,47 @@ class Person(Parser):
     suffix = ParseName(ctx.creator).suffix
 
 
-class ThroughTags(Parser):
-    tag = Delegate(Tag, ctx)
-
-
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
-
-
-class Contributor(Parser):
-    person = Delegate(Person, ctx)
-    cited_name = ctx.creator
+class Creator(Parser):
+    agent = Delegate(Person, ctx)
+    cited_as = ctx.creator
     order_cited = ctx('index')
 
 
-class Publication(Parser):
+class Organization(Parser):
+    name = ctx.publisher
+    identifiers = Map(Delegate(AgentIdentifier), Try(IRI(ctx.issn), exceptions=(ValueError, )))
+
+    class Extra:
+        issn = Try(ctx.issn)
+
+
+class Publisher(Parser):
+    agent = Delegate(Organization, ctx)
+
+    class Extra:
+        publication_name = ctx.publicationName
+
+
+class Article(Parser):
     title = ctx.title
-    contributors = Map(Delegate(Contributor), ctx.creators)
     description = ctx.abstract
-    date_published = ParseDate(ctx.publicationDate)
-    tags = Map(Delegate(ThroughTags), Maybe(ctx, 'genre'))
-    links = Map(Delegate(ThroughLinks), ctx.url)
-    publishers = Map(Delegate(Association), Maybe(ctx, 'publicationName'), Maybe(ctx, 'publisher'))
     rights = ctx.copyright
+    date_published = ParseDate(ctx.publicationDate)
+    date_updated = ParseDate(ctx.publicationDate)
+
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        ctx.doi,
+        ctx.identifier,
+        Map(ctx.value, ctx.url),
+    )
+
+    related_agents = Concat(
+        Map(Delegate(Creator), ctx.creators),
+        Map(Delegate(Publisher), ctx)
+    )
+
+    tags = Map(Delegate(ThroughTags), ctx.genre)
 
     class Extra:
         openaccess = ctx.openaccess

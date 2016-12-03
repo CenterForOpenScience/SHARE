@@ -20,6 +20,7 @@ class CrossRefHarvester(Harvester):
 
     def fetch_records(self, url):
         resp = self.requests.get(url)
+        resp.raise_for_status()
         total = resp.json()['message']['total-results']
         records = resp.json()['message']['items']
 
@@ -33,6 +34,7 @@ class CrossRefHarvester(Harvester):
                 'offset': i
             }).url)
 
+            response.raise_for_status()
             records = response.json()['message']['items']
             for record in records:
                 yield (record['DOI'], record)

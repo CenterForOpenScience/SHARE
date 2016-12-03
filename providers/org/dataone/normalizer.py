@@ -1,18 +1,8 @@
 from share.normalize import *
 
 
-class Link(Parser):
-    url = ctx
-    type = RunPython('get_link_type', ctx)
-
-    def get_link_type(self, link):
-        if 'cn.dataone.org' in link:
-            return 'provider'
-        return 'misc'
-
-
-class ThroughLinks(Parser):
-    link = Delegate(Link, ctx)
+class WorkIdentifier(Parser):
+    uri = ctx
 
 
 class Tag(Parser):
@@ -23,37 +13,98 @@ class ThroughTags(Parser):
     tag = Delegate(Tag, ctx)
 
 
+class Agent(Parser):
+    schema = GuessAgentType(ctx)
+
+    name = ctx
+
+
 class Person(Parser):
-    given_name = ParseName(ctx).first
-    family_name = ParseName(ctx).last
-    additional_name = ParseName(ctx).middle
-    suffix = ParseName(ctx).suffix
+    name = ctx
 
 
 class Contributor(Parser):
+    agent = Delegate(Person, ctx)
+    cited_as = ctx
+
+
+class Creator(Contributor):
     order_cited = ctx('index')
-    cited_name = ctx
-    person = Delegate(Person, ctx)
 
 
-class CreativeWork(Parser):
+class RelatedWork(Parser):
+    schema = 'DataSet'
+
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        IRI(ctx)
+    )
+
+
+class IsPartOf(Parser):
+    related = Delegate(RelatedWork, ctx)
+
+
+class IsDocumentedBy(Parser):
+    schema = 'Documents'
+
+    subject = Delegate(RelatedWork, ctx)
+
+
+class Documents(Parser):
+    related = Delegate(RelatedWork, ctx)
+
+
+class DataSet(Parser):
+    # https://releases.dataone.org/online/api-documentation-v2.0/design/SearchMetadata.html
     title = Try(XPath(ctx, "str[@name='title']").str['#text'])
     description = Try(XPath(ctx, "str[@name='abstract']").str['#text'])
     date_updated = ParseDate(Try(XPath(ctx, "date[@name='dateModified']").date['#text']))
     date_published = ParseDate(Try(XPath(ctx, "date[@name='datePublished']").date['#text']))
-    contributors = Map(
-        Delegate(Contributor),
-        Maybe(XPath(ctx, "str[@name='author']"), 'str')['#text'],
-        Maybe(XPath(ctx, "arr[@name='origin']"), 'arr').str,
-        Maybe(XPath(ctx, "arr[@name='investigator']"), 'arr').str
+
+    related_agents = Concat(
+        Map(
+            Delegate(Creator),
+            Maybe(XPath(ctx, "str[@name='author']"), 'str')['#text'],
+        ),
+        Map(
+            Delegate(Contributor),
+            Maybe(XPath(ctx, "arr[@name='investigator']"), 'arr').str,
+        ),
+        Map(
+            Delegate(Contributor.using(agent=Delegate(Agent))),
+            Maybe(XPath(ctx, "arr[@name='origin']"), 'arr').str,
+        )
     )
+
+    related_works = Concat(
+        # TODO Maybe re introduce later with more research
+        # Map(
+        #     Delegate(IsPartOf),
+        #     Maybe(XPath(ctx, "arr[@name='resourceMap']"), 'arr').str
+        # ),
+        Map(
+            Delegate(Documents),
+            Maybe(XPath(ctx, "arr[@name='documents']"), 'arr').str
+        ),
+        Map(
+            Delegate(IsDocumentedBy),
+            Maybe(XPath(ctx, "arr[@name='isDocumentedBy']"), 'arr').str
+        ),
+    )
+
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        Map(
+            IRI(urn_fallback=True),
+            Maybe(XPath(ctx, "str[@name='dataUrl']"), 'str')['#text'],
+            Maybe(XPath(ctx, "str[@name='identifier']"), 'str')['#text']
+        )
+    )
+
     tags = Map(
         Delegate(ThroughTags),
         Maybe(XPath(ctx, "arr[@name='keywords']"), 'arr').str
-    )
-    links = Map(
-        Delegate(ThroughLinks),
-        Maybe(XPath(ctx, "str[@name='dataUrl']"), 'str')['#text']
     )
 
     class Extra:

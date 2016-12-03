@@ -3,22 +3,17 @@ from share.normalize import tools
 from share.normalize.parsers import Parser
 
 
-class Publisher(Parser):
+class WorkIdentifier(Parser):
+    uri = tools.IRI(ctx)
+
+
+class Organization(Parser):
+    schema = tools.GuessAgentType(ctx, default='Organization')
     name = ctx
 
 
-class Association(Parser):
-    pass
-
-
-class Link(Parser):
-    url = tools.DOI(ctx)
-    # identifier will always be DOI
-    type = tools.Static('doi')
-
-
-class ThroughLinks(Parser):
-    link = tools.Delegate(Link, ctx)
+class Publisher(Parser):
+    agent = tools.Delegate(Organization, ctx)
 
 
 class Person(Parser):
@@ -28,10 +23,10 @@ class Person(Parser):
     suffix = tools.ParseName(ctx).suffix
 
 
-class Contributor(Parser):
+class Creator(Parser):
     order_cited = ctx('index')
-    person = tools.Delegate(Person, ctx)
-    cited_name = ctx
+    agent = tools.Delegate(Person, ctx)
+    cited_as = ctx
 
 
 class Subject(Parser):
@@ -45,14 +40,17 @@ class ThroughSubjects(Parser):
 class Preprint(Parser):
     title = ctx.item['dc:title']
     description = ctx.item.description
-    contributors = tools.Map(tools.Delegate(Contributor), ctx.item['dc:creator'])
-    date_published = ctx.item['dc:date']
-    publishers = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Publisher))),
-        ctx.item['dc:publisher']
-    )
-    links = tools.Map(tools.Delegate(ThroughLinks), ctx.item['dc:identifier'])
+    date_published = tools.ParseDate(ctx.item['dc:date'])
+    date_updated = tools.ParseDate(ctx.item['dc:date'])
+
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
         tools.Concat(tools.Static('Biology and life sciences'))
+    )
+
+    identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx.item['dc:identifier'])
+
+    related_agents = tools.Concat(
+        tools.Delegate(Publisher, ctx.item['dc:publisher']),
+        tools.Map(tools.Delegate(Creator), ctx.item['dc:creator']),
     )

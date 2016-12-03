@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('djcelery', '0001_initial'),
-        ('share', '0041_shareuser_is_trusted'),
+        ('share', '0001_initial'),
     ]
 
     operations = [

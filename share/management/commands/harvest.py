@@ -1,4 +1,4 @@
-import arrow
+import pendulum
 import datetime
 
 from django.apps import apps
@@ -21,6 +21,7 @@ class Command(BaseCommand):
         parser.add_argument('--days-back', type=int, help='The number of days to go back, defaults to 1')
         parser.add_argument('--start', type=str, help='The day to start harvesting, in the format YYYY-MM-DD')
         parser.add_argument('--end', type=str, help='The day to end harvesting, in the format YYYY-MM-DD')
+        parser.add_argument('--limit', type=int, help='The maximum number of works to harvest, defaults to no limit')
 
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
@@ -35,11 +36,14 @@ class Command(BaseCommand):
             task_kwargs['end'] = datetime.datetime.utcnow() + datetime.timedelta(days=-(options['days_back'] - 1))
             task_kwargs['start'] = datetime.datetime.utcnow() + datetime.timedelta(days=-options['days_back'])
         else:
-            task_kwargs['start'] = arrow.get(options['start']) if options.get('start') else arrow.utcnow() - datetime.timedelta(days=int(options['days_back'] or 1))
-            task_kwargs['end'] = arrow.get(options['end']) if options.get('end') else arrow.utcnow()
+            task_kwargs['start'] = pendulum.parse(options['start']) if options.get('start') else pendulum.utcnow() - datetime.timedelta(days=int(options['days_back'] or 1))
+            task_kwargs['end'] = pendulum.parse(options['end']) if options.get('end') else pendulum.utcnow()
 
-        task_kwargs['end'] = task_kwargs['end'].isoformat() + 'Z'
-        task_kwargs['start'] = task_kwargs['start'].isoformat() + 'Z'
+        task_kwargs['end'] = task_kwargs['end'].isoformat()
+        task_kwargs['start'] = task_kwargs['start'].isoformat()
+
+        if options['limit'] is not None:
+            task_kwargs['limit'] = options['limit']
 
         if not options['harvester'] and options['all']:
             options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig) and not x.disabled]

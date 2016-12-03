@@ -1,4 +1,3 @@
-import re
 import logging
 
 from share.normalize import ctx, tools
@@ -7,13 +6,61 @@ from share.normalize.parsers import Parser
 
 logger = logging.getLogger(__name__)
 
-THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
-DATE_REGEX = re.compile(r'(^[^a-zA-Z]+$)')
+PEOPLE_TYPES = (
+    'ContactPerson',
+    'DataCurator',
+    'Editor',
+    'ProjectLeader',
+    'ProjectManager',
+    'ProjectMember',
+    'RelatedPerson',
+    'Researcher',
+    'Supervisor',
+    'WorkPackageLeader'
+)
+NOT_PEOPLE_TYPES = (
+    'Distributor',
+    'HostingInstitution',
+    'RegistrationAgency',
+    'RegistrationAuthority',
+    'ResearchGroup'
+)
+# Other ambiguous types
+#   'DataCollector',
+#   'DataManager',
+#   'Producer',
+#   'RightsHolder',
+#   'Sponsor',
+#   'Other'
+
+
+def try_contributor_type(value, target_list_types):
+    try:
+        contrib_type_item = value['@contributorType']
+        if contrib_type_item in target_list_types:
+            return value
+        return None
+    except KeyError:
+        return None
+
+
+def get_contributors(options, contrib_type):
+    """
+    Returns list of contributors names based on their type.
+    """
+    contribs = []
+    for value in options:
+        val = try_contributor_type(value, contrib_type)
+        if val:
+            contribs.append(val)
+    return contribs
 
 
 def force_text(data):
     if isinstance(data, str):
         return data
+    if data is None:
+        return ''
     if isinstance(data, dict):
         if '#text' in data:
             return data['#text']
@@ -28,188 +75,292 @@ def force_text(data):
     raise Exception('{} is not a string or a dictionary.'.format(data))
 
 
-class Link(Parser):
-    url = tools.DOI(tools.RunPython(force_text, ctx))
-    type = tools.Static('doi')
+def get_agent_type(agent, person=False):
+    """
+    Returns agent type based on contributor type.
+    """
+    is_not_person = try_contributor_type(agent, NOT_PEOPLE_TYPES)
+    is_person = try_contributor_type(agent, PEOPLE_TYPES)
+    try:
+        agent_name = agent.creatorName
+    except KeyError:
+        agent_name = agent.contributorName
+
+    if person and is_person:
+        return agent_name
+    elif not person and is_not_person:
+        return agent_name
+    # break OneOf option
+    raise KeyError()
 
 
-class AlternateLink(Parser):
-    schema = 'Link'
+RELATION_MAP = {
+    'IsCitedBy': 'Cites',
+    'Cites': 'Cites',
+    'IsSupplementedBy': 'IsSupplementTo',
+    'IsSupplementTo': 'IsSupplementTo',
+    'IsContinuedBy': 'Extends',
+    'Continues': 'Extends',
+    'IsNewVersionOf': '',
+    'IsPreviousVersionOf': '',
+    'References': 'References',
+    'IsReferencedBy': 'References',
+    'IsPartOf': 'IsPartOf',
+    'HasPart': 'IsPartOf',
+    'IsDocumentedBy': 'Documents',
+    'Documents': 'Documents',
+    'IsCompiledBy': 'Compiles',
+    'Compiles': 'Compiles',
+    'IsVariantFormOf': '',
+    'IsOriginalFormOf': '',
+    'IsIdenticalTo': 'IsIdenticalTo',
+    'IsReviewedBy': 'Reviews',
+    'Reviews': 'Reviews',
+    'IsDerivedFrom': 'IsDerivedFrom',
+    'IsSourceOf': 'IsDerivedFrom',
+    'IsMetadataFor': '',
+    'HasMetadata': '',
+}
 
-    url = tools.RunPython(
-        force_text,
-        ctx
-    )
-    type = tools.Static('misc')
+INVERSE_RELATIONS = (
+    'IsCitedBy',
+    'IsSupplementedBy',
+    'IsContinuedBy',
+    'IsNewVersionOf',
+    'IsReferencedBy',
+    'IsPartOf',
+    'IsDocumentedBy',
+    'IsCompiledBy',
+    'IsVariantFormOf',
+    'IsReviewedBy',
+    'IsDerivedFrom',
+    'IsMetadataFor'
+)
 
-
-class RelatedLink(Parser):
-    schema = 'Link'
-
-    url = tools.RunPython(
-        force_text,
-        ctx
-    )
-    type = tools.RunPython('lower', tools.Try(ctx['@relatedIdentifierType']))
-
-    def lower(self, type):
-        return type.lower()
-
-
-class ThroughLinks(Parser):
-    link = tools.Delegate(Link, ctx)
-
-
-class ThroughAlternateLinks(Parser):
-    schema = 'ThroughLinks'
-
-    link = tools.Delegate(AlternateLink, ctx)
-
-
-class ThroughRelatedLinks(Parser):
-    schema = 'ThroughLinks'
-
-    link = tools.Delegate(RelatedLink, ctx)
-
-
-class Affiliation(Parser):
-    pass
-
-
-class ContributorInstitution(Parser):
-    schema = 'Institution'
-
-    name = ctx.contributorName
-
-    class Extra:
-        contributor_type = tools.Try(ctx.contributorType)
-
-
-class ContributorOrganization(Parser):
-    schema = 'Organization'
-
-    name = ctx.contributorName
-
-    class Extra:
-        contributor_type = tools.Try(ctx.contributorType)
-
-
-class CreatorInstitution(Parser):
-    schema = 'Institution'
-
-    name = ctx.creatorName
+RELATIONS = (
+    'Cites',
+    'IsSupplementTo',
+    'Continues',
+    'References',
+    'IsPreviousVersionOf',
+    'HasPart',
+    'Documents',
+    'Compiles',
+    'IsOriginalFormOf',
+    'Reviews',
+    'IsSourceOf',
+    'HasMetadata',
+    'IsIdenticalTo'
+)
 
 
-class CreatorOrganization(Parser):
-    schema = 'Organization'
+def get_related_works(options, inverse):
+    results = []
+    for option in options:
+        if not option.get('#text') or option['#text'].lower() == 'null':
+            continue
+
+        if not option.get('@preprocessed'):
+            option['@preprocessed'] = True
+            option['#text'] = {
+                'PMID': 'http://www.ncbi.nlm.nih.gov/pubmed/{}'
+            }.get(option.get('@relatedIdentifierType'), '{}').format(option['#text'])
+
+        relation = option['@relationType']
+        if inverse and relation in INVERSE_RELATIONS:
+            results.append(option)
+        elif not inverse and relation in RELATIONS:
+            results.append(option)
+    return results
+
+
+def get_relation_type(relation_type):
+    normalized_relation = RELATION_MAP[relation_type]
+    return normalized_relation or 'WorkRelation'
+
+
+class AgentIdentifier(Parser):
+
+    uri = ctx
+
+
+class AffiliatedAgent(Parser):
+    schema = tools.GuessAgentType(ctx, default='organization')
 
     name = ctx
 
 
-class Identifier(Parser):
-    base_url = tools.Try(ctx['@schemeURI'])
-    url = tools.Join(tools.Concat(tools.Try(ctx['@schemeURI']), tools.Try(ctx['#text'])), joiner='/')
+class IsAffiliatedWith(Parser):
+    related = tools.Delegate(AffiliatedAgent, ctx)
 
 
-class ThroughIdentifiers(Parser):
-    identifier = tools.Delegate(Identifier, ctx)
-
-
-class ContributorPerson(Parser):
-    schema = 'Person'
-
-    suffix = tools.ParseName(ctx.contributorName).suffix
-    family_name = tools.ParseName(ctx.contributorName).last
-    given_name = tools.ParseName(ctx.contributorName).first
-    additional_name = tools.ParseName(ctx.contributorName).middle
-    identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), tools.Try(ctx.nameIdentifier))
-
-    class Extra:
-        name_identifier = tools.Try(
+class ContributorAgent(Parser):
+    schema = tools.OneOf(
+        tools.GuessAgentType(
             tools.RunPython(
-                force_text,
-                ctx.nameIdentifier
+                get_agent_type,
+                ctx,
+                person=False
+            ),
+            default='organization'
+        ),
+        tools.GuessAgentType(
+            tools.OneOf(
+                ctx.creatorName,
+                ctx.contributorName
             )
         )
+    )
+
+    name = tools.OneOf(ctx.creatorName, ctx.contributorName)
+    identifiers = tools.Map(
+        tools.Delegate(AgentIdentifier),
+        tools.Try(
+            tools.IRI(
+                tools.RunPython(
+                    force_text,
+                    ctx.nameIdentifier
+                )
+            ),
+            exceptions=(ValueError,)
+        )
+    )
+    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Concat(tools.Try(
+        tools.Filter(lambda x: bool(x), tools.RunPython(force_text, ctx.affiliation))
+    )))
+
+    class Extra:
+        name_identifier = tools.Try(ctx.nameIdentifier)
         name_identifier_scheme = tools.Try(ctx.nameIdentifier['@nameIdentifierScheme'])
         name_identifier_scheme_uri = tools.Try(ctx.nameIdentifier['@schemeURI'])
+
+        contributor_type = tools.Try(ctx.contributorType)
+
+        # v.4 new givenName and familyName properties
+        given_name = tools.OneOf(
+            ctx.creatorName['@givenName'],
+            ctx.contributorName['@givenName'],
+            tools.Static(None)
+        )
+        family_name = tools.OneOf(
+            ctx.creatorName['@familyName'],
+            ctx.contributorName['@familyName'],
+            tools.Static(None)
+        )
+
+
+class FunderAgent(Parser):
+    schema = tools.GuessAgentType(
+        tools.OneOf(ctx.funderName, ctx.contributorName),
+        default='organization'
+    )
+
+    name = tools.OneOf(ctx.funderName, ctx.contributorName)
+
+    identifiers = tools.Map(
+        tools.Delegate(AgentIdentifier),
+        tools.Try(
+            tools.IRI(
+                tools.OneOf(
+                    ctx.funderIdentifier,
+                    tools.RunPython(
+                        force_text,
+                        ctx.nameIdentifier
+                    ),
+                    tools.Static(None)
+                )
+            ),
+            exceptions=(ValueError,)
+        )
+    )
+
+    class Extra:
+        name_identifier = tools.Try(ctx.nameIdentifier)
+        name_identifier_scheme = tools.Try(ctx.nameIdentifier['@nameIdentifierScheme'])
+        name_identifier_scheme_uri = tools.Try(ctx.nameIdentifier['@schemeURI'])
+
+        funder_identifier = tools.Try(ctx.funderIdentifier)
+        funder_identifier_type = tools.Try(ctx.funderIdentifierType)
+
         contributor_type = tools.Try(ctx.contributorType)
 
 
-class CreatorPerson(Parser):
-    schema = 'Person'
+class HostAgent(Parser):
+    schema = tools.GuessAgentType(ctx.contributorName, default='organization')
 
-    suffix = tools.ParseName(ctx.creatorName).suffix
-    family_name = tools.ParseName(ctx.creatorName).last
-    given_name = tools.ParseName(ctx.creatorName).first
-    additional_name = tools.ParseName(ctx.creatorName).middle
-    affiliations = tools.Map(tools.Delegate(Affiliation.using(entity=tools.Delegate(CreatorOrganization))), tools.Concat(tools.Try(
-        tools.RunPython(
-            force_text,
-            ctx.affiliation
+    name = tools.Try(ctx.contributorName)
+
+    identifiers = tools.Map(
+        tools.Delegate(AgentIdentifier),
+        tools.Try(
+            tools.IRI(
+                tools.RunPython(
+                    force_text,
+                    ctx.nameIdentifier
+                )
+            ),
+            exceptions=(ValueError,)
         )
-    )))
-    identifiers = tools.Map(tools.Delegate(ThroughIdentifiers), tools.Try(ctx.nameIdentifier))
+    )
 
     class Extra:
-        name_identifier = tools.Try(
-            tools.RunPython(
-                force_text,
-                ctx.nameIdentifier
-            )
-        )
+        name_identifier = tools.Try(ctx.nameIdentifier)
         name_identifier_scheme = tools.Try(ctx.nameIdentifier['@nameIdentifierScheme'])
         name_identifier_scheme_uri = tools.Try(ctx.nameIdentifier['@schemeURI'])
 
-
-class Contributor(Parser):
-    person = tools.Delegate(ContributorPerson, ctx)
-    cited_name = tools.Try(ctx.contributorName)
-    order_cited = ctx('index')
+        contributor_type = tools.Try(ctx.contributorType)
 
 
-class Creator(Parser):
+class PublisherAgent(Parser):
+    schema = tools.GuessAgentType(ctx, default='organization')
+
+    name = ctx
+
+
+class ContributorRelation(Parser):
     schema = 'Contributor'
 
-    person = tools.Delegate(CreatorPerson, ctx)
-    cited_name = tools.Try(ctx.creatorName)
+    agent = tools.Delegate(ContributorAgent, ctx)
+    cited_as = tools.OneOf(ctx.creatorName, ctx.contributorName)
+
+
+class CreatorRelation(ContributorRelation):
+    schema = 'Creator'
+
     order_cited = ctx('index')
 
 
-class Funder(Parser):
-    name = tools.Try(ctx.contributorName)
-    community_identifier = tools.Join(tools.Concat(tools.Try(ctx.nameIdentifier['@schemeURI']), tools.Try(ctx.nameIdentifier['#text'])), joiner='/')
+class HostRelation(Parser):
+    schema = 'Host'
 
-    class Extra:
-        name_identifier_scheme = tools.Try(ctx.nameIdentifier['@nameIdentifierScheme'])
-        name_identifier_scheme_uri = tools.Try(ctx.nameIdentifier['@schemeURI'])
+    agent = tools.Delegate(HostAgent, ctx)
 
 
-class Venue(Parser):
-    name = tools.Try(
-        tools.RunPython(
-            force_text,
-            ctx.geoLocationPlace
-        )
-    )
-    # polygon = tools.Try(ctx.geoLocationBox)
-    # point = tools.Try(ctx.geoLocationPoint)
+class PublisherRelation(Parser):
+    schema = 'Publisher'
 
-    class Extra:
-        polygon = tools.Try(ctx.geoLocationBox)
-        point = tools.Try(ctx.geoLocationPoint)
+    agent = tools.Delegate(PublisherAgent, ctx)
 
 
-class ThroughVenues(Parser):
-    venue = tools.Delegate(Venue, ctx)
+class Award(Parser):
+    name = tools.Try(ctx.awardTitle)
+    description = tools.Try(ctx.awardNumber)
+    uri = tools.Try(ctx.awardURI)
 
 
-class Publisher(Parser):
-    name = ctx
+class ThroughAwards(Parser):
+    award = tools.Delegate(Award, ctx)
 
 
-class Association(Parser):
-    pass
+class FunderRelation(Parser):
+    schema = 'Funder'
+
+    agent = tools.Delegate(FunderAgent, ctx)
+    awards = tools.Map(tools.Delegate(ThroughAwards), tools.Try(tools.RunPython('get_award', ctx)))
+
+    def get_award(self, obj):
+        obj['awardURI']
+        return obj
 
 
 class Tag(Parser):
@@ -220,51 +371,119 @@ class ThroughTags(Parser):
     tag = tools.Delegate(Tag, ctx)
 
 
+class WorkIdentifier(Parser):
+    uri = tools.DOI(tools.RunPython(
+        force_text,
+        ctx
+    ))
+
+    class Extra:
+        identifier_type = tools.Try(ctx['@identifierType'])
+
+
+class RelatedWorkIdentifier(Parser):
+    schema = 'WorkIdentifier'
+
+    uri = tools.IRI(tools.RunPython(
+        force_text,
+        ctx
+    ))
+
+    class Extra:
+        related_identifier_type = ctx['@relatedIdentifierType']
+        relation_type = tools.Try(ctx['@relationType'])
+        related_metadata_scheme = tools.Try(ctx['@relatedMetadataScheme'])
+        scheme_URI = tools.Try(ctx['@schemeURI'])
+        scheme_type = tools.Try(ctx['@schemeType'])
+
+
+class RelatedWork(Parser):
+    schema = 'CreativeWork'
+    identifiers = tools.Map(tools.Delegate(RelatedWorkIdentifier), ctx)
+
+
+class WorkRelation(Parser):
+    schema = tools.RunPython(get_relation_type, ctx['@relationType'])
+    related = tools.Delegate(RelatedWork, ctx)
+
+
+class InverseWorkRelation(Parser):
+    schema = tools.RunPython(get_relation_type, ctx['@relationType'])
+    subject = tools.Delegate(RelatedWork, ctx)
+
+
+class Subject(Parser):
+    name = ctx
+
+
+class ThroughSubjects(Parser):
+    subject = tools.Delegate(Subject, ctx)
+
+
 class CreativeWork(Parser):
+    '''
+    Documentation for Datacite's metadata:
+    https://schema.labs.datacite.org/meta/kernel-4.0/doc/DataCite-MetadataKernel_v4.0.pdf
+    '''
 
-    # Schema definitions: http://schema.datacite.org/meta/kernel-3.1/doc/DataCite-MetadataKernel_v3.1.pdf
+    def get_schema(self, type):
+        return {
+            'dataset': 'DataSet',
+            'software': 'Software',
+            'text/book': 'Book',
+            'text/book chapter': 'Book',
+            'text/book prospectus': 'Book',
+            'text/book series': 'Book',
+            'text/conference abstract': 'ConferencePaper',
+            'text/conference paper': 'ConferencePaper',
+            'text/conference poster': 'Poster',
+            'text/dissertation': 'Dissertation',
+            'text/edited book': 'Book',
+            'text/journal article': 'Article',
+            'text/journal issue': 'Article',
+            'text/patent': 'Patent',
+            'text/report': 'Report',
+            'text/supervised student publication': 'Thesis',
+            'text/working paper': 'WorkingPaper'
 
-    PEOPLE_TYPES = (
-        'ContactPerson',
-        'DataCurator',
-        'Editor',
-        'ProjectLeader',
-        'ProjectManager',
-        'ProjectMember',
-        'RelatedPerson',
-        'Researcher',
-        'Supervisor',
-        'WorkPackageLeader'
-    )
-    CHECK_TYPES = (
-        'DataCollector',
-        'DataManager',
-        'Producer',
-        'RightsHolder',
-        'Sponsor',
-        'Other'
-    )
+            # 'audiovisual': '',
+            # 'collection': '',
+            # 'event': '',
+            # 'image': '',
+            # 'interactiveresource': '',
+            # 'model': '',
+            # 'physicalobject': '',
+            # 'service': '',
+            # 'sound': '',
+            # 'text15': '',
+            # 'workflow': '',
+            # 'text/book review': '',
+            # 'text/conference program': '',
+            # 'text/dictionary entry': '',
+            # 'text/disclosure': '',
+            # 'text/encyclopedia entry': '',
+            # 'text/Funding submission': '',
+            # 'text/license': '',
+            # 'text/magazine article': '',
+            # 'text/manual': '',
+            # 'text/newsletter article': '',
+            # 'text/newspaper article': '',
+            # 'text/online resource': '',
+            # 'text/registered copyright': '',
+            # 'text/research tool': '',
+            # 'text/tenure-promotion': '',
+            # 'text/test': '',
+            # 'text/trademark': '',
+            # 'text/translation': '',
+            # 'text/university academic unit': '',
+            # 'text/website': '',
+        }.get(type.lower()) or 'CreativeWork'
 
-    NOT_PEOPLE_TYPES = (
-        'Distributor',
-        'HostingInstitution',
-        'RegistrationAgency',
-        'RegistrationAuthority',
-        'ResearchGroup'
-    )
-
-    ORGANIZATION_KEYWORDS = (
-        THE_REGEX,
-        'council',
-        'center',
-        'foundation'
-    )
-    INSTITUTION_KEYWORDS = (
-        'school',
-        'university',
-        'institution',
-        'college',
-        'institute'
+    schema = tools.RunPython(
+        'get_schema', tools.Try(
+            ctx.record.metadata['oai_datacite'].payload.resource.resourceType['@resourceTypeGeneral'],
+            default='CreativeWork'
+        )
     )
 
     title = tools.RunPython(
@@ -274,11 +493,6 @@ class CreativeWork(Parser):
     description = tools.RunPython(
         force_text,
         tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description[0])
-    )
-
-    publishers = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Publisher))),
-        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.publisher)
     )
 
     rights = tools.Try(
@@ -292,65 +506,46 @@ class CreativeWork(Parser):
 
     language = tools.ParseLanguage(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.language))
 
-    contributors = tools.Concat(
+    related_agents = tools.Concat(
         tools.Map(
-            tools.Delegate(Creator),
-            tools.RunPython(
-                'get_contributors',
-                tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.creators.creator)),
-                'contributor',
-                'creator'
-            )
+            tools.Delegate(CreatorRelation),
+            tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.creators.creator))
         ),
         tools.Map(
-            tools.Delegate(Contributor),
-            tools.RunPython(
-                'get_contributors',
-                tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.contributors.contributor)),
-                'contributor',
-                'contributor'
-            )
+            tools.Delegate(ContributorRelation),
+            tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.contributors.contributor))
+        ),
+        tools.Map(tools.Delegate(
+            PublisherRelation),
+            tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.publisher)
+        ),
+        tools.Map(tools.Delegate(HostRelation), tools.RunPython(
+            get_contributors,
+            tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.contributors.contributor)),
+            ['HostingInstitution']
+        )),
+        # v.3 Funder is a contributor type
+        # v.4 FundingReference replaces funder contributor type
+        tools.Map(tools.Delegate(FunderRelation), tools.RunPython(
+            get_contributors,
+            tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.contributors.contributor)),
+            ['Funder']
+        )),
+        tools.Map(
+            tools.Delegate(FunderRelation),
+            tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.fundingReference))
         )
     )
 
-    institutions = tools.Concat(
-        tools.Map(
-            tools.Delegate(Association.using(entity=tools.Delegate(CreatorInstitution))),
+    # v.4 New, free text, 'subjectScheme' attribute on subject
+    subjects = tools.Map(
+        tools.Delegate(ThroughSubjects),
+        tools.Subjects(
             tools.RunPython(
-                'get_contributors',
-                tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.creators.creator)),
-                'institution',
-                'creator'
-            )
-        ),
-        tools.Map(
-            tools.Delegate(Association.using(entity=tools.Delegate(ContributorInstitution))),
-            tools.RunPython(
-                'get_contributors',
-                tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.contributors.contributor)),
-                'institution',
-                'contributor'
-            )
-        )
-    )
-
-    organizations = tools.Concat(
-        tools.Map(
-            tools.Delegate(Association.using(entity=tools.Delegate(CreatorOrganization))),
-            tools.RunPython(
-                'get_contributors',
-                tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.creators.creator)),
-                'organization',
-                'creator'
-            )
-        ),
-        tools.Map(
-            tools.Delegate(Association.using(entity=tools.Delegate(ContributorOrganization))),
-            tools.RunPython(
-                'get_contributors',
-                tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.contributors.contributor)),
-                'organization',
-                'contributor'
+                'text_list',
+                tools.Concat(
+                    tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject),
+                )
             )
         )
     )
@@ -375,55 +570,61 @@ class CreativeWork(Parser):
         )
     )
 
-    links = tools.Concat(
+    identifiers = tools.Concat(
         tools.Map(
-            tools.Delegate(ThroughLinks),
+            tools.Delegate(WorkIdentifier),
             tools.Concat(
                 tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.identifier)
             )
         ),
         tools.Map(
-            tools.Delegate(ThroughAlternateLinks),
+            tools.Delegate(WorkIdentifier),
             tools.Concat(
                 tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.alternateIdentifiers.alternateidentifier)
-            )
-        ),
-        tools.Map(
-            tools.Delegate(ThroughRelatedLinks),
-            tools.Concat(
-                tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.relatedIdentifiers.relatedIdentifier)
             )
         )
     )
 
-    date_updated = tools.ParseDate(ctx.record.header.datestamp)
-    date_published = tools.ParseDate(tools.RunPython('get_date_type', tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.dates.date)), 'Issued'))
-    free_to_read_type = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.rightsList.rights['@rightsURI'])
-    free_to_read_date = tools.ParseDate(tools.RunPython('get_date_type', tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.dates.date)), 'Available'))
-    funders = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Funder))),
-        tools.RunPython(
-            'get_contributors',
-            tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.contributors.contributor)),
-            'funder',
-            'contributor'
+    related_works = tools.Concat(
+        tools.Map(
+            tools.Delegate(WorkRelation),
+            tools.RunPython(
+                get_related_works,
+                tools.Concat(
+                    tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.relatedIdentifiers.relatedIdentifier)
+                ),
+                False
+            )
+        ),
+        tools.Map(
+            tools.Delegate(InverseWorkRelation),
+            tools.RunPython(
+                get_related_works,
+                tools.Concat(
+                    tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.relatedIdentifiers.relatedIdentifier)
+                ),
+                True
+            )
         )
     )
-    venues = tools.Map(
-        tools.Delegate(ThroughVenues),
-        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.geoLocations.geoLocation)
-    )
+
+    date_updated = tools.ParseDate(tools.Try(ctx.record.header.datestamp))
+    date_published = tools.ParseDate(tools.Try(tools.RunPython('get_date_type', tools.Concat(ctx.record.metadata['oai_datacite'].payload.resource.dates.date), 'Issued')))
+    free_to_read_type = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.rightsList.rights['@rightsURI'])
+    free_to_read_date = tools.ParseDate(tools.Try(tools.RunPython('get_date_type', tools.Concat(ctx.record.metadata['oai_datacite'].payload.resource.dates.date), 'Available')))
+
+    is_deleted = tools.RunPython('check_status', tools.Try(ctx.record.header['@status']))
 
     class Extra:
         """
         Fields that are combined in the base parser are relisted as singular elements that match
         their original entry to preserve raw data structure.
         """
-        status = tools.Maybe(ctx.record.header, '@status')
+        status = tools.Try(ctx.record.header['@status'])
 
         datestamp = tools.ParseDate(ctx.record.header.datestamp)
 
-        set_spec = tools.Maybe(ctx.record.header, 'setSpec')
+        set_spec = tools.Try(ctx.record.header.setSpec)
 
         is_reference_quality = tools.Try(ctx.record.metadata['oai_datacite'].isReferenceQuality)
 
@@ -465,19 +666,25 @@ class CreativeWork(Parser):
 
         creators = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.creators)
 
+        # v.4 new property geoLocationPolygon, in addition to geoLocationPoint and geoLocationBox
         geolocations = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.geoLocations)
 
+        funding_reference = tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.fundingReference)
+
+    def check_status(self, status):
+        if status == 'deleted':
+            return True
+        return False
+
     def get_date_type(self, date_obj, date_type):
-        try:
-            date = None
-            for obj in date_obj:
-                if obj['@dateType'] == date_type:
-                    date = obj['#text']
-            if date and not DATE_REGEX.search(date):
-                return None
-        except KeyError:
-            return None
-        return date
+        date = None
+        for obj in date_obj:
+            if obj['@dateType'] == date_type:
+                date = obj['#text']
+        if date and date != '0000':
+            return date
+        # raise KeyError to break TryLink
+        raise KeyError()
 
     def text_list(self, data):
         text_list = []
@@ -494,82 +701,3 @@ class CreativeWork(Parser):
             return text_list
         else:
             raise Exception('{} is not a list.'.format(data))
-
-    def get_contributors(self, options, entity, field=None):
-        """
-        Returns list of organization, institutions, or contributors names based on entity type.
-        """
-        if entity == 'organization':
-            organizations = []
-            for value in options:
-                val = self.try_contributor_type(value, self.NOT_PEOPLE_TYPES)
-                if val:
-                    if field == 'creator':
-                        organizations.append(val[field + 'Name'])
-                    else:
-                        organizations.append(val)
-                elif (
-                    value[field + 'Name'] and
-                    not self.list_in_string(value[field + 'Name'], self.INSTITUTION_KEYWORDS) and
-                    self.list_in_string(value[field + 'Name'], self.ORGANIZATION_KEYWORDS)
-                ):
-                    if field == 'creator':
-                        organizations.append(value[field + 'Name'])
-                    else:
-                        organizations.append(value)
-
-            return organizations
-        elif entity == 'institution':
-            institutions = []
-            for value in options:
-                val = self.try_contributor_type(value, self.NOT_PEOPLE_TYPES)
-                if val:
-                    institutions.append(val)
-                elif (
-                    value[field + 'Name'] and
-                    self.list_in_string(value[field + 'Name'], self.INSTITUTION_KEYWORDS)
-                ):
-                    institutions.append(value)
-
-            return institutions
-        elif entity == 'contributor':
-            people = []
-            for value in options:
-                val = self.try_contributor_type(value, self.PEOPLE_TYPES)
-                if val:
-                    people.append(val)
-                elif (
-                    value[field + 'Name'] and
-                    not self.list_in_string(value[field + 'Name'], self.INSTITUTION_KEYWORDS) and not
-                    self.list_in_string(value[field + 'Name'], self.ORGANIZATION_KEYWORDS)
-                ):
-                    people.append(value)
-            return people
-        elif entity == 'funder':
-            funders = []
-            for value in options:
-                val = self.try_contributor_type(value, ['Funder'])
-                if val:
-                    funders.append(val)
-            return funders
-        else:
-            return options
-
-    def try_contributor_type(self, value, target_list_types):
-        try:
-            contrib_type_item = value['@contributorType']
-            if contrib_type_item in target_list_types:
-                return value
-            return None
-        except KeyError:
-            return None
-
-    def list_in_string(self, string, list_):
-        for word in list_:
-            if isinstance(word, str):
-                if word in string.lower():
-                    return True
-            else:
-                if word.search(string):
-                    return True
-        return False

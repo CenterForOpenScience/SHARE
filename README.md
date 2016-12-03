@@ -14,6 +14,10 @@ http://share-research.readthedocs.io/en/latest/index.html
 https://osf.io/sdxvj/
 
 
+## Get involved
+
+We'll be expanding this section in the near future, but, beyond using our API for your own purposes, harvesters are a great way to get started. You can find a few that we have in our list [here](https://github.com/CenterForOpenScience/SHARE/issues/510).
+
 ## Setup for testing
 It is useful to set up a [virtual environment](http://virtualenvwrapper.readthedocs.io/en/latest/install.html) to ensure [python3](https://www.python.org/downloads/) is your designated version of python and make the python requirements specific to this project.
 

@@ -3,46 +3,55 @@ from share.normalize import tools
 from share.normalize.parsers import Parser
 
 
-class Person(Parser):
-    given_name = ctx.piFirstName
-    family_name = ctx.piLastName
+def format_url(award_id):
+    return 'https://www.nsf.gov/awardsearch/showAward?AWD_ID={}'.format(award_id)
 
 
-class Contributor(Parser):
-    person = tools.Delegate(Person, ctx)
-    order_cited = ctx('index')
-    cited_name = tools.Join(tools.Concat(ctx.piFirstName, ctx.piLastName), joiner=' ')
+class WorkIdentifier(Parser):
+    uri = tools.RunPython(format_url, ctx.id)
 
 
-class Institution(Parser):
+class FunderAgent(Parser):
+    schema = tools.GuessAgentType(
+        ctx.agency,
+        default='organization'
+    )
+
     name = ctx.agency
 
 
-class Association(Parser):
-    pass
-
-
 class Award(Parser):
-    name = tools.Try(ctx.awardeeName)
+    name = ctx.title
     description = ctx.fundsObligatedAmt
-    url = tools.RunPython('format_url', ctx)
-
-    def format_url(self, ctx):
-        return 'https://www.nsf.gov/awardsearch/showAward?AWD_ID={}'.format(ctx['id'])
+    uri = tools.RunPython(format_url, ctx.id)
 
     class Extra:
-        awardee_city = ctx.awardeeCity
         funds_obligated_amt = ctx.fundsObligatedAmt
+        award_id = ctx.id
+        awardee_name = tools.Try(ctx.awardeeName)
         awardee_city = ctx.awardeeCity
         awardee_state_code = tools.Try(ctx.awardeeStateCode)
+        date = ctx.date
 
 
 class ThroughAwards(Parser):
     award = tools.Delegate(Award, ctx)
 
 
-class Venue(Parser):
-    name = tools.Try(ctx.awardeeName)
+class FunderRelation(Parser):
+    schema = 'Funder'
+
+    agent = tools.Delegate(FunderAgent, ctx)
+    awards = tools.Map(tools.Delegate(ThroughAwards), ctx)
+
+
+class AffiliatedAgent(Parser):
+    schema = tools.GuessAgentType(
+        ctx.awardeeName,
+        default='organization'
+    )
+
+    name = ctx.awardeeName
     location = tools.Join(tools.Concat(ctx.awardeeCity, tools.Try(ctx.awardeeStateCode)), joiner=', ')
 
     class Extra:
@@ -50,31 +59,34 @@ class Venue(Parser):
         awardee_state_code = tools.Try(ctx.awardeeStateCode)
 
 
-class ThroughVenues(Parser):
-    venue = tools.Delegate(Venue, ctx)
+class IsAffiliatedWith(Parser):
+    related = tools.Delegate(AffiliatedAgent, ctx)
 
 
-class Link(Parser):
-    url = tools.RunPython('format_url', ctx)
-    type = tools.Static('provider')
+class ContributorAgent(Parser):
+    schema = 'Person'
 
-    def format_url(self, ctx):
-        return 'https://www.nsf.gov/awardsearch/showAward?AWD_ID={}'.format(ctx['id'])
+    family_name = ctx.piLastName
+    given_name = ctx.piFirstName
+
+    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Filter(lambda x: 'awardeeName' in x, ctx))
 
 
-class ThroughLinks(Parser):
-    link = tools.Delegate(Link, ctx)
+class ContributorRelation(Parser):
+    schema = 'Contributor'
+
+    agent = tools.Delegate(ContributorAgent, ctx)
+    cited_as = tools.Join(tools.Concat(ctx.piFirstName, ctx.piLastName), joiner=' ')
 
 
 class CreativeWork(Parser):
     title = ctx.title
-    contributors = tools.Map(tools.Delegate(Contributor), ctx)
-    links = tools.Map(tools.Delegate(ThroughLinks), ctx)
 
-    awards = tools.Map(tools.Delegate(ThroughAwards), ctx)
-    venues = tools.Map(tools.Delegate(ThroughVenues), ctx)
-    institutions = tools.Map(
-        tools.Delegate(Association.using(entity=tools.Delegate(Institution))), ctx
+    identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx)
+
+    related_agents = tools.Concat(
+        tools.Map(tools.Delegate(FunderRelation), ctx),
+        tools.Map(tools.Delegate(ContributorRelation), ctx)
     )
 
     date_updated = tools.ParseDate(ctx.date)
