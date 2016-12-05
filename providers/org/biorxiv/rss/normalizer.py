@@ -45,7 +45,7 @@ class Preprint(Parser):
 
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
-        tools.Concat(tools.Static('Biology and life sciences'))
+        tools.Concat(tools.Static('Biology'))
     )
 
     identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx.item['dc:identifier'])
