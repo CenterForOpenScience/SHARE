@@ -141,3 +141,36 @@ class TestWorkDisambiguation:
         with pytest.raises(NotImplementedError) as e:
             cg.process()
         assert e.value.args[0] == "Multiple <class 'share.models.creative.Preprint'>s found"
+
+    def test_no_merge_on_blank_value(self, Graph):
+        blank_cited_as = [
+            Publication(
+                identifiers = [WorkIdentifier(1)],
+                agent_relations=[
+                    Publisher(cited_as='', agent=Organization(1)),
+                ]
+            )
+        ]
+        initial_cg = ChangeGraph(Graph(*blank_cited_as))
+        initial_cg.process()
+        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
+        assert models.Publication.objects.count() == 1
+        assert models.Publisher.objects.count() == 1
+        assert models.Organization.objects.count() == 1
+
+        additional_pub = [
+            Publication(
+                identifiers = [WorkIdentifier(1)],
+                agent_relations=[
+                    Publisher(cited_as='', agent=Organization(1)),
+                    Publisher(cited_as='', agent=Organization(2)),
+                ]
+            )
+        ]
+
+        next_cg = ChangeGraph(Graph(*additional_pub))
+        next_cg.process()
+        ChangeSet.objects.from_graph(next_cg, NormalizedDataFactory().id).accept()
+        assert models.Publication.objects.count() == 1
+        assert models.Publisher.objects.count() == 2
+        assert models.Organization.objects.count() == 2

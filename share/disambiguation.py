@@ -97,6 +97,9 @@ class GraphDisambiguator:
         info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
 
+        if not info.all and not info.any:
+            return None
+
         all_query = Q()
         for k, v in info.all:
             k, v = self._query_pair(k, v)
@@ -111,7 +114,7 @@ class GraphDisambiguator:
             if k and v:
                 queries.append(all_query & Q(**{k: v}))
 
-        if not all_query.children and not queries:
+        if (info.all and not all_query.children) or (info.any and not queries):
             return None
 
         if info.matching_types:
