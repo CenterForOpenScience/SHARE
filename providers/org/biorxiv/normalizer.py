@@ -72,7 +72,7 @@ class Preprint(Parser):
     rights = tools.Try(ctx['DC.Rights'])
     language = tools.Try(ctx['DC.Language'])
 
-    subjects = tools.Map(tools.Delegate(ThroughSubjects), tools.Static('Biology'), tools.Try(ctx['subject-areas']))
+    subjects = tools.Map(tools.Delegate(ThroughSubjects), tools.Static('Biology'), tools.Subjects(tools.Try(ctx['subject-areas'])))
     tags = tools.Map(tools.Delegate(ThroughTags), tools.Try(ctx['category']), tools.Try(ctx['subject-areas']))
 
     identifiers = tools.Map(tools.Delegate(WorkIdentifier), tools.Try(ctx['og:url']), ctx['citation_public_url'], ctx['citation_doi'])
