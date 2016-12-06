@@ -163,21 +163,17 @@ Adding a new provider
 Best practices for OAI providers
 """"""""""""""""""""""""""""""""
 
-If the provider follows OAI standards and uses the `oai_dc` metadata prefix, then the provider's ``apps.py`` should begin like this:
+If the provider follows OAI standards and uses the `oai_dc` metadata prefix, the following sets up the provider:
 
 
-.. code-block:: python
+.. code-block:: bash
 
-    from share.provider import OAIProviderAppConfig
-
-
-    class AppConfig(OAIProviderAppConfig):
-
+   python manage.py makeoaiprovider <TLD> <short-title>
 
 -------------------------
 
 
-Provider-specific normalizers and harvesters are unnecessary for OAI providers as they all use the base OAI harvester and normalizer.
+This script will guide you through the OAI provider creation process. Run `normalize` to verify the process works completely.
 
 
 .. _.gitignore: https://github.com/CenterForOpenScience/SHARE/blob/develop/.gitignore
