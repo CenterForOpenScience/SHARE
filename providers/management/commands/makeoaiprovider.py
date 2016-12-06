@@ -15,7 +15,7 @@ class Command(BaseCommand):
         owd = os.getcwd()
 
         domain = options['domain']
-        title = options ['title']
+        title = options['title']
 
         if os.path.exists('providers/{}/{}'.format(domain, title)):
             self.stdout.write('This provider already exists.')
