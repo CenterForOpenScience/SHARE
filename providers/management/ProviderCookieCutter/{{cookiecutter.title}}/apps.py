@@ -8,5 +8,5 @@ class AppConfig(OAIProviderAppConfig):
     long_title = '{{cookiecutter.long_title}}'
     home_page = '{{cookiecutter.home_page}}'
     url = '{{cookiecutter.url}}'
-    approved_sets = {{cookiecutter.approved_sets}}
-    time_granularity = #TODO
+    # approved_sets = TODO if necessary
+    # time_granularity = TODO if necessary
