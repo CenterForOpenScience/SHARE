@@ -75,7 +75,7 @@ class Person(Parser):
         )
     )
 
-    # TODO affiliations
+    # TODO affiliations, requires resolving xrefs in most cases
 
     class Extra:
         role = Try(ctx.role['#text'])
@@ -123,6 +123,8 @@ class ThroughTags(Parser):
 class RelatedWork(Parser):
     schema = 'creativework'
 
+    title = Try(ctx['article-title']['#text'])
+
     identifiers = Map(
         Delegate(WorkIdentifier),
         IRI(RunPython('get_uri', ctx))
@@ -131,7 +133,7 @@ class RelatedWork(Parser):
     def get_uri(self, soup):
         id = soup['@xlink:href']
         id_type = soup['@ext-link-type']
-        if id_type == 'pmid':
+        if id_type in ('pmid', 'pubmed'):
             return pmid_uri(id)
         if id_type == 'pmcid':
             return pmcid_uri(id)
@@ -159,7 +161,8 @@ class WorkRelation(Parser):
 # https://www.ncbi.nlm.nih.gov/pmc/pmcdoc/tagging-guidelines/article/style.html
 class Article(Parser):
     schema = OneOf(
-        RunPython('get_schema', ctx.record.metadata.article['@article-type']),
+        RunPython('get_article_type', ctx.record.metadata.article['@article-type']),
+        RunPython('guess_schema', ctx),
         Static('publication')
     )
 
@@ -220,7 +223,7 @@ class Article(Parser):
                     Soup(
                         ctx.record.metadata.article.front['article-meta'],
                         'article-id',
-                        **{'pub-id-type': 'pmid'}
+                        **{'pub-id-type': ('pmid', 'pubmed')}
                     )
                 )
             )
@@ -230,7 +233,7 @@ class Article(Parser):
     related_works = Concat(
         Map(
             Try(Delegate(WorkRelation)),
-            Soup(ctx, 'related-article', **{'ext-link-type': ['doi', 'pmid', 'pmcid'], 'xlink:href': True})
+            Soup(ctx, 'related-article', **{'ext-link-type': ['doi', 'pmid', 'pubmed', 'pmcid'], 'xlink:href': True})
         )
     )
 
@@ -252,7 +255,7 @@ class Article(Parser):
             Soup(ctx.record.metadata.article.front['article-meta'], 'pub-date', **{'pub-type': 'ppub'})
         )
 
-    def get_schema(self, article_type):
+    def get_article_type(self, article_type):
         return {
             # 'abstract'
             # 'addendum'
@@ -283,7 +286,12 @@ class Article(Parser):
             'retraction': 'retraction',
             'review-article': 'article',
             # 'systematic-review'
-        }.get(article_type, 'publication')
+        }[article_type]
+
+    def guess_schema(self, obj):
+        if obj.soup('related-article', **{'related-article-type': 'retracted-article'}):
+            return 'retraction'
+        raise Exception()
 
     def get_date_published(self, obj, types, type_attr='pub-type'):
         for t in types:
@@ -320,8 +328,6 @@ class Article(Parser):
 
 
 class PMCNormalizer(SoupXMLNormalizer):
-    # TODO retractions with no related works should be CreativeWorks with a related (nearly empty) retraction?
-
     def unwrap_data(self, data):
         unwrapped = super().unwrap_data(data)
         # TODO resolve only xrefs that are helpful, like affiliations
