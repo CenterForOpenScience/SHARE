@@ -134,8 +134,11 @@ class GraphDisambiguator:
                 return None
             if len(found) == 1:
                 return found[0]
-            if all_query.children or any('__' in str(query) for query in queries):
+            if all_query.children:
                 logger.warning('Multiple %ss returned for %s (The main query) bailing', concrete_model, all_query)
+                break
+            if all('__' in str(query) for query in queries):
+                logger.warning('Multiple %ss returned for %s (The any query) bailing', concrete_model, queries)
                 break
 
         logger.error('Could not disambiguate %s. Too many results found from %s %s', node.model, all_query, queries)
