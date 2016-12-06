@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from share.models import ShareUser
-from share.tasks import HarvesterTask
+from share.tasks import HarvesterTask, NormalizerTask
 from share.provider import ProviderAppConfig
 
 
@@ -23,8 +23,14 @@ class Command(BaseCommand):
         parser.add_argument('--end', type=str, help='The day to end harvesting, in the format YYYY-MM-DD')
         parser.add_argument('--limit', type=int, help='The maximum number of works to harvest, defaults to no limit')
 
+        parser.add_argument('--ids', nargs='*', type=str, help='Harvest specific works by identifier, instead of by date range.')
+
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+
+        if options['ids']:
+            self.harvest_ids(user, options)
+            return
 
         task_kwargs = {'force': options.get('force', False)}
 
@@ -58,3 +64,19 @@ class Command(BaseCommand):
             else:
                 self.stdout.write('Running harvester for {}'.format(harvester))
                 HarvesterTask().apply(task_args, task_kwargs, throw=True)
+
+    def harvest_ids(self, user, options):
+        if len(options['harvester']) != 1:
+            self.stdout.write('When harvesting by ID, only one harvester at a time, please.')
+            return
+        self.stdout.write('Harvesting documents by ID...')
+        app_name = options['harvester'][0]
+        config = apps.get_app_config(app_name)
+        harvester = config.harvester(config)
+        for id in options['ids']:
+            raw = harvester.harvest_by_id(id)
+            task = NormalizerTask().apply_async((config.label, user.id, raw.id,))
+            self.stdout.write('Raw data {} harvested from {}, saved as {}. Started normalizer task {}.'.format(id, app_name, raw.id, task))
+
+
+
