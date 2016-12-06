@@ -4,9 +4,12 @@ from rest_framework.response import Response
 
 from django import http
 from django.views.generic.base import RedirectView
+from django.shortcuts import get_object_or_404
 
 from api.filters import ShareObjectFilterSet
 from api import serializers as api_serializers
+
+from share.util import IDObfuscator
 
 
 class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -62,6 +65,31 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     filter_class = ShareObjectFilterSet
+
+    # TODO convert pk to an actual pk
+    def get_object(self):
+        # import ipdb; ipdb.set_trace()
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        assert lookup_url_kwarg in self.kwargs, (
+            'Expected view %s to be called with a URL keyword argument '
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            'attribute on the view correctly.' %
+            (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        decoded_pk = IDObfuscator.decode(self.kwargs[lookup_url_kwarg])[1]
+
+        filter_kwargs = {self.lookup_field: decoded_pk}
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
 
 
 # Other
