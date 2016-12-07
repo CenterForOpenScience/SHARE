@@ -5,7 +5,7 @@ from share.util import IDObfuscator
 
 def print_raws(object):
     if isinstance(object, str):
-        model, id = IDObfuscator.decode(object_id)
+        model, id = IDObfuscator.decode(object)
     else:
         model = object._meta.model
         id = object.id

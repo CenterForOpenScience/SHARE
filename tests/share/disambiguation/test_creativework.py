@@ -145,7 +145,7 @@ class TestWorkDisambiguation:
     def test_no_merge_on_blank_value(self, Graph):
         blank_cited_as = [
             Publication(
-                identifiers = [WorkIdentifier(1)],
+                identifiers=[WorkIdentifier(1)],
                 agent_relations=[
                     Publisher(cited_as='', agent=Organization(1)),
                 ]
@@ -160,7 +160,7 @@ class TestWorkDisambiguation:
 
         additional_pub = [
             Publication(
-                identifiers = [WorkIdentifier(1)],
+                identifiers=[WorkIdentifier(1)],
                 agent_relations=[
                     Publisher(cited_as='', agent=Organization(1)),
                     Publisher(cited_as='', agent=Organization(2)),

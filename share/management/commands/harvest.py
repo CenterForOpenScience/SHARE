@@ -77,6 +77,3 @@ class Command(BaseCommand):
             raw = harvester.harvest_by_id(id)
             task = NormalizerTask().apply_async((config.label, user.id, raw.id,))
             self.stdout.write('Raw data {} harvested from {}, saved as {}. Started normalizer task {}.'.format(id, app_name, raw.id, task))
-
-
-

@@ -1,5 +1,4 @@
 import arrow
-from collections import OrderedDict
 
 from share.normalize import ctx
 from share.normalize.tools import *
@@ -8,6 +7,7 @@ from share.normalize.parsers import Parser
 
 PMCID_FORMAT = 'http://www.ncbi.nlm.nih.gov/pmc/articles/PMC{}/'
 PMID_FORMAT = 'http://www.ncbi.nlm.nih.gov/pubmed/{}'
+
 
 def pmcid_uri(pmcid):
     if isinstance(pmcid, SoupXMLDict):
