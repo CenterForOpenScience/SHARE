@@ -14,6 +14,7 @@ def get_raws(obj):
         normalizeddata__changeset__changes__target_type=ContentType.objects.get_for_model(model, for_concrete_model=True)
     )
 
+
 def print_raws(obj):
     for raw in get_raws(obj):
         print(raw.data)
