@@ -3,15 +3,17 @@ from share.models import RawData
 from share.util import IDObfuscator
 
 
-def print_raws(object):
-    if isinstance(object, str):
-        model, id = IDObfuscator.decode(object)
+def get_raws(obj):
+    if isinstance(obj, str):
+        model, id = IDObfuscator.decode(obj)
     else:
-        model = object._meta.model
-        id = object.id
-    raws = RawData.objects.filter(
+        model = obj._meta.model
+        id = obj.id
+    return RawData.objects.filter(
         normalizeddata__changeset__changes__target_id=id,
         normalizeddata__changeset__changes__target_type=ContentType.objects.get_for_model(model, for_concrete_model=True)
     )
-    for raw in raws:
+
+def print_raws(obj):
+    for raw in get_raws(obj):
         print(raw.data)
