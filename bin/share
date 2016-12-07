@@ -99,11 +99,11 @@ def normalize(args, argv):
     else:
         files = [os.path.join(args['--directory'], x) for x in os.listdir(args['--directory']) if not x.startswith('.')]
 
-    from ipdb import launch_ipdb_on_exception
-    with launch_ipdb_on_exception():
-        for name in files:
-            with open(name) as fobj:
-                data = fobj.read()
+    for name in files:
+        with open(name) as fobj:
+            data = fobj.read()
+        from ipdb import launch_ipdb_on_exception
+        with launch_ipdb_on_exception():
             print('Parsed raw data "{}" into'.format(name))
             pprint(normalizer.normalize(data))
             print('\n')
