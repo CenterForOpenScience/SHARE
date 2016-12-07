@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             model_name='abstractagentworkrelation',
             name='contributed_through_versions',
             field=share.models.fields.TypedManyToManyField(editable=False, related_name='_abstractagentworkrelation_contributed_through_versions_+', through='share.ThroughContributor', to='share.AbstractAgentWorkRelationVersion'),
-        ),
+        ,
         migrations.AddField(
             model_name='abstractagentworkrelationversion',
             name='contributed_through_versions',
