@@ -5,8 +5,8 @@ AgentWorkRelation:
             fields:
                 contributed_through:
                     type: m2m
+                    args: [AbstractAgentWorkRelation]
                     kwargs:
-                        model: AbstractAgentWorkRelation
                         symmetrical: false
                         through: ThroughContributor
                         through_fields: ['subject', 'related']
@@ -23,8 +23,8 @@ AgentWorkRelation:
             fields:
                 awards:
                     type: m2m
+                    args: [Award]
                     kwargs:
-                        model: Award
                         through: ThroughAwards
         Publisher:
             description: The agent published the work.
