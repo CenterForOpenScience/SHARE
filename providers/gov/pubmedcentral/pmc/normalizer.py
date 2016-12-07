@@ -1,4 +1,5 @@
 import arrow
+import re
 
 from share.normalize import ctx
 from share.normalize.tools import *
@@ -7,6 +8,26 @@ from share.normalize.parsers import Parser
 
 PMCID_FORMAT = 'http://www.ncbi.nlm.nih.gov/pmc/articles/PMC{}/'
 PMID_FORMAT = 'http://www.ncbi.nlm.nih.gov/pubmed/{}'
+
+RETRACTION_PATTERNS = [
+    r'^retraction(:|$)',
+    r'^retracted(:|$)',
+    r': retraction$',
+    r': retracted$',
+    r'\[retraction\]',
+    r'\[retracted\]',
+    r'retraction note',
+    r'retraction notice',
+    r'retraction statement',
+    r'retraction announcement',
+    r'notice of retraction',
+    r'statement of retraction',
+    r'editorial retraction',
+    r'author-initiated retraction',
+    r'retracted manuscript',
+    r'retraction of the research article',
+]
+RETRACTION_RE = re.compile('|'.join(RETRACTION_PATTERNS), re.I)
 
 
 def pmcid_uri(pmcid):
@@ -74,8 +95,6 @@ class Person(Parser):
             Try(Soup(ctx, 'email')['#text'])
         )
     )
-
-    # TODO affiliations, requires resolving xrefs in most cases
 
     class Extra:
         role = Try(ctx.role['#text'])
@@ -162,7 +181,8 @@ class WorkRelation(Parser):
 class Article(Parser):
     schema = OneOf(
         RunPython('get_article_type', ctx.record.metadata.article['@article-type']),
-        RunPython('guess_schema', ctx),
+        RunPython('guess_type_from_related', Soup(ctx, 'related-article')),
+        RunPython('guess_type_from_title', ctx.record.metadata.article.front['article-meta']['title-group']['article-title']['#text']),
         Static('publication')
     )
 
@@ -288,8 +308,15 @@ class Article(Parser):
             # 'systematic-review'
         }[article_type]
 
-    def guess_schema(self, obj):
-        if obj.soup('related-article', **{'related-article-type': 'retracted-article'}):
+    def guess_type_from_related(self, related):
+        if not isinstance(related, list):
+            related = [related]
+        if any(r.soup['related-article-type'] == 'retracted-article'):
+            return 'retraction'
+        raise Exception()
+
+    def guess_type_from_title(self, title):
+        if RETRACTION_RE.match(title):
             return 'retraction'
         raise Exception()
 
@@ -302,6 +329,8 @@ class Article(Parser):
                 day = pub_date.day
                 if year and month and day:
                     return str(arrow.get(int(year.string), int(month.string), int(day.string)))
+                elif year and month:
+                    return str(arrow.get(int(year.string), int(month.string), 1))
         if type_attr == 'pub-type':
             return self.get_date_published(obj, types, 'date-type')
         return None
@@ -317,6 +346,8 @@ class Article(Parser):
             day = item['day']
             if year and month and day:
                 return year['#text'], month['#text'], day['#text']
+            elif year and month:
+                return year['#text'], month['#text']
         return None
 
     def get_print_information(self, ctx):
