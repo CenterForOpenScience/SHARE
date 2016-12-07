@@ -311,12 +311,12 @@ class Article(Parser):
     def guess_type_from_related(self, related):
         if not isinstance(related, list):
             related = [related]
-        if any(r.soup['related-article-type'] == 'retracted-article'):
+        if any(r.soup['related-article-type'] == 'retracted-article' for r in related):
             return 'retraction'
         raise Exception()
 
     def guess_type_from_title(self, title):
-        if RETRACTION_RE.match(title):
+        if RETRACTION_RE.search(title):
             return 'retraction'
         raise Exception()
 
