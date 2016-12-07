@@ -66,9 +66,8 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
     # required_scopes = ['', ]
     filter_class = ShareObjectFilterSet
 
-    # TODO convert pk to an actual pk
+    # override to convert encoded pk to an actual pk
     def get_object(self):
-        # import ipdb; ipdb.set_trace()
         queryset = self.filter_queryset(self.get_queryset())
 
         # Perform the lookup filtering.
