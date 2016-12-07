@@ -50,9 +50,10 @@ class ShareObjectMeta(ModelBase):
 
         version_attrs = {}
         for key, val in attrs.items():
-            if isinstance(val, models.Field) and val.unique:
+            if isinstance(val, models.Field) and (val.unique or val.db_index):
                 val = copy.deepcopy(val)
                 val._unique = False
+                val.db_index = False
             if isinstance(val, models.Field) and val.is_relation:
                 val = copy.deepcopy(val)
                 if isinstance(val, models.ForeignKey) and not isinstance(val, fields.ShareForeignKey):

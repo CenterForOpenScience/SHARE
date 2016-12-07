@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='abstractagent',
             name='type',
-            field=models.CharField(choices=[('share.agent', 'agent'), ('share.organization', 'organization'), ('share.institution', 'institution'), ('share.consortium', 'consortium'), ('share.person', 'person')], db_index=True, max_length=255),
+            field=models.CharField(choices=[('share.agent', 'agent'), ('share.organization', 'organization'), ('share.consortium', 'consortium'), ('share.institution', 'institution'), ('share.person', 'person')], db_index=True, max_length=255),
         ),
         migrations.AlterField(
             model_name='abstractagentrelation',
@@ -101,7 +101,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='abstractagentversion',
             name='type',
-            field=models.CharField(choices=[('share.agentversion', 'agent version'), ('share.organizationversion', 'organization version'), ('share.institutionversion', 'institution version'), ('share.consortiumversion', 'consortium version'), ('share.personversion', 'person version')], db_index=True, max_length=255),
+            field=models.CharField(choices=[('share.agentversion', 'agent version'), ('share.organizationversion', 'organization version'), ('share.consortiumversion', 'consortium version'), ('share.institutionversion', 'institution version'), ('share.personversion', 'person version')], db_index=True, max_length=255),
         ),
         migrations.AlterField(
             model_name='abstractagentworkrelation',
@@ -126,7 +126,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='abstractagentworkrelation',
             name='type',
-            field=models.CharField(choices=[('share.agentworkrelation', 'agent work relation'), ('share.publisher', 'publisher'), ('share.contributor', 'contributor'), ('share.principalinvestigator', 'principal investigator'), ('share.creator', 'creator'), ('share.host', 'host'), ('share.funder', 'funder')], db_index=True, max_length=255),
+            field=models.CharField(choices=[('share.agentworkrelation', 'agent work relation'), ('share.contributor', 'contributor'), ('share.creator', 'creator'), ('share.principalinvestigator', 'principal investigator'), ('share.funder', 'funder'), ('share.host', 'host'), ('share.publisher', 'publisher')], db_index=True, max_length=255),
         ),
         migrations.AlterField(
             model_name='abstractagentworkrelationversion',
@@ -161,7 +161,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='abstractagentworkrelationversion',
             name='type',
-            field=models.CharField(choices=[('share.agentworkrelationversion', 'agent work relation version'), ('share.publisherversion', 'publisher version'), ('share.contributorversion', 'contributor version'), ('share.principalinvestigatorversion', 'principal investigator version'), ('share.creatorversion', 'creator version'), ('share.hostversion', 'host version'), ('share.funderversion', 'funder version')], db_index=True, max_length=255),
+            field=models.CharField(choices=[('share.agentworkrelationversion', 'agent work relation version'), ('share.contributorversion', 'contributor version'), ('share.creatorversion', 'creator version'), ('share.principalinvestigatorversion', 'principal investigator version'), ('share.funderversion', 'funder version'), ('share.hostversion', 'host version'), ('share.publisherversion', 'publisher version')], db_index=True, max_length=255),
         ),
         migrations.AlterField(
             model_name='abstractcreativework',
@@ -176,7 +176,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='abstractcreativework',
             name='type',
-            field=models.CharField(choices=[('share.creativework', 'creative work'), ('share.presentation', 'presentation'), ('share.dataset', 'data set'), ('share.patent', 'patent'), ('share.poster', 'poster'), ('share.publication', 'publication'), ('share.workingpaper', 'working paper'), ('share.book', 'book'), ('share.conferencepaper', 'conference paper'), ('share.report', 'report'), ('share.project', 'project'), ('share.preprint', 'preprint'), ('share.thesis', 'thesis'), ('share.registration', 'registration'), ('share.dissertation', 'dissertation'), ('share.article', 'article'), ('share.software', 'software')], db_index=True, max_length=255),
+            field=models.CharField(choices=[('share.creativework', 'creative work'), ('share.dataset', 'data set'), ('share.patent', 'patent'), ('share.poster', 'poster'), ('share.presentation', 'presentation'), ('share.publication', 'publication'), ('share.article', 'article'), ('share.book', 'book'), ('share.conferencepaper', 'conference paper'), ('share.dissertation', 'dissertation'), ('share.preprint', 'preprint'), ('share.project', 'project'), ('share.registration', 'registration'), ('share.report', 'report'), ('share.thesis', 'thesis'), ('share.workingpaper', 'working paper'), ('share.software', 'software')], db_index=True, max_length=255),
         ),
         migrations.AlterField(
             model_name='abstractcreativeworkversion',
@@ -191,7 +191,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='abstractcreativeworkversion',
             name='type',
-            field=models.CharField(choices=[('share.creativeworkversion', 'creative work version'), ('share.presentationversion', 'presentation version'), ('share.datasetversion', 'data set version'), ('share.patentversion', 'patent version'), ('share.posterversion', 'poster version'), ('share.publicationversion', 'publication version'), ('share.workingpaperversion', 'working paper version'), ('share.bookversion', 'book version'), ('share.conferencepaperversion', 'conference paper version'), ('share.reportversion', 'report version'), ('share.projectversion', 'project version'), ('share.preprintversion', 'preprint version'), ('share.thesisversion', 'thesis version'), ('share.registrationversion', 'registration version'), ('share.dissertationversion', 'dissertation version'), ('share.articleversion', 'article version'), ('share.softwareversion', 'software version')], db_index=True, max_length=255),
+            field=models.CharField(choices=[('share.creativeworkversion', 'creative work version'), ('share.datasetversion', 'data set version'), ('share.patentversion', 'patent version'), ('share.posterversion', 'poster version'), ('share.presentationversion', 'presentation version'), ('share.publicationversion', 'publication version'), ('share.articleversion', 'article version'), ('share.bookversion', 'book version'), ('share.conferencepaperversion', 'conference paper version'), ('share.dissertationversion', 'dissertation version'), ('share.preprintversion', 'preprint version'), ('share.projectversion', 'project version'), ('share.registrationversion', 'registration version'), ('share.reportversion', 'report version'), ('share.thesisversion', 'thesis version'), ('share.workingpaperversion', 'working paper version'), ('share.softwareversion', 'software version')], db_index=True, max_length=255),
         ),
         migrations.AlterField(
             model_name='abstractworkrelation',
@@ -216,7 +216,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='abstractworkrelation',
             name='type',
-            field=models.CharField(choices=[('share.workrelation', 'work relation'), ('share.isderivedfrom', 'is derived from'), ('share.documents', 'documents'), ('share.cites', 'cites'), ('share.isidenticalto', 'is identical to'), ('share.compiles', 'compiles'), ('share.issupplementto', 'is supplement to'), ('share.reviews', 'reviews'), ('share.references', 'references'), ('share.ispartof', 'is part of'), ('share.extends', 'extends')], db_index=True, max_length=255),
+            field=models.CharField(choices=[('share.workrelation', 'work relation'), ('share.cites', 'cites'), ('share.compiles', 'compiles'), ('share.documents', 'documents'), ('share.extends', 'extends'), ('share.isderivedfrom', 'is derived from'), ('share.isidenticalto', 'is identical to'), ('share.ispartof', 'is part of'), ('share.issupplementto', 'is supplement to'), ('share.references', 'references'), ('share.reviews', 'reviews')], db_index=True, max_length=255),
         ),
         migrations.AlterField(
             model_name='abstractworkrelationversion',
@@ -251,7 +251,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='abstractworkrelationversion',
             name='type',
-            field=models.CharField(choices=[('share.workrelationversion', 'work relation version'), ('share.isderivedfromversion', 'is derived from version'), ('share.documentsversion', 'documents version'), ('share.citesversion', 'cites version'), ('share.isidenticaltoversion', 'is identical to version'), ('share.compilesversion', 'compiles version'), ('share.issupplementtoversion', 'is supplement to version'), ('share.reviewsversion', 'reviews version'), ('share.referencesversion', 'references version'), ('share.ispartofversion', 'is part of version'), ('share.extendsversion', 'extends version')], db_index=True, max_length=255),
+            field=models.CharField(choices=[('share.workrelationversion', 'work relation version'), ('share.citesversion', 'cites version'), ('share.compilesversion', 'compiles version'), ('share.documentsversion', 'documents version'), ('share.extendsversion', 'extends version'), ('share.isderivedfromversion', 'is derived from version'), ('share.isidenticaltoversion', 'is identical to version'), ('share.ispartofversion', 'is part of version'), ('share.issupplementtoversion', 'is supplement to version'), ('share.referencesversion', 'references version'), ('share.reviewsversion', 'reviews version')], db_index=True, max_length=255),
         ),
         migrations.AlterField(
             model_name='agentidentifier',

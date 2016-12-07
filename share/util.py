@@ -131,7 +131,7 @@ class ModelGenerator:
 
     def generate_subclasses(self, model_specs, base):
         models = {}
-        for (name, mspec) in model_specs.items():
+        for (name, mspec) in sorted(model_specs.items()):
             fields = mspec.get('fields', {})
             model = type(name, (base,), {
                 **{fname: self._get_field(fspec) for (fname, fspec) in fields.items()},
