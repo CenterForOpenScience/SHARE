@@ -1,4 +1,4 @@
-import arrow
+import pendulum
 import re
 
 from share.normalize import ctx
@@ -328,9 +328,9 @@ class Article(Parser):
                 month = pub_date.month
                 day = pub_date.day
                 if year and month and day:
-                    return str(arrow.get(int(year.string), int(month.string), int(day.string)))
+                    return str(pendulum.from_date(int(year.string), int(month.string), int(day.string)))
                 elif year and month:
-                    return str(arrow.get(int(year.string), int(month.string), 1))
+                    return str(pendulum.from_date(int(year.string), int(month.string), 1))
         if type_attr == 'pub-type':
             return self.get_date_published(obj, types, 'date-type')
         return None
