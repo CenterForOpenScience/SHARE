@@ -160,6 +160,7 @@ INSTALLED_APPS = [
     'providers.edu.unl_digitalcommons',
     'providers.edu.upennsylvania',
     'providers.edu.ut_chattanooga',
+    'providers.edu.utah',
     'providers.edu.utahstate',
     'providers.edu.utaustin',
     'providers.edu.utktrace',
