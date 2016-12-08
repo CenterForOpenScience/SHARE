@@ -70,12 +70,18 @@ register_route(r'sources', views.ProviderViewSet)
 
 router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='normalizeddata')
 
+model_schema_patterns = [
+    url(r'schema/{}/?'.format(v.MODEL.__name__), v.as_view())
+    for v in views.ModelSchemaView.model_views
+]
+
 urlpatterns = [
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
     url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
     url(r'graph/?', GraphQLView.as_view(graphiql=True)),
     url(r'userinfo/?', ensure_csrf_cookie(views.ShareUserView.as_view()), name='userinfo'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
+
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
-    url(r'schema/(?P<model>\w+)', views.ModelSchemaView.as_view(), name='modelschema'),
+    *model_schema_patterns
 ] + router.urls
