@@ -10,7 +10,6 @@ WorkRelation:
             description: The subject work cites the related work.
         References:
             description: The subject work uses the related work as a source of information.
-        IsIdenticalTo: {}
 #        AgreesWith:
 #            description: The subject work agrees with statements, ideas or conclusions presented in the related work.
 #            uris: ['http://purl.org/spar/cito/agreesWith']
