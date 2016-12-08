@@ -1,10 +1,7 @@
 import os
-import logging
 
 from cookiecutter.main import cookiecutter
 from django.core.management.base import BaseCommand
-
-logger = logging.getLogger('name')
 
 
 class Command(BaseCommand):
@@ -21,39 +18,42 @@ class Command(BaseCommand):
         title = options['title']
 
         if os.path.exists('providers/{}/{}'.format(domain, title)):
-            logger.error('This provider already exists')
+            self.emphasize('This provider already exists')
             return
 
-        input('Add provider.{}.{} to INSTALLED_APPS in settings: [Enter]'.format(domain, title))
+        self.instruct('Add provider.{}.{} to INSTALLED_APPS in settings [Enter]'.format(domain, title))
 
         os.chdir('providers')
         if not os.path.isdir(domain):
             os.mkdir(domain)
-            input('Add /{}.*/ to gitignore: [Enter]'.format(domain))
+            self.instruct('Add /{}.*/ to gitignore [Enter]'.format(domain))
 
         os.chdir(domain)
 
         cookiecutter('../management/ProviderCookieCutter', extra_context={'domain': domain, 'title': title})
-        input('Add approved_sets to apps.py: [Enter]')
+        self.instruct('Add approved_sets to apps.py [Enter]')
 
         os.chdir(owd)
 
         self.stdout.write('Making migration...')
         if os.system('python manage.py makeprovidermigrations {}.{}'.format(domain, title)):
-            logger.error('Migration failed. '
-                         'Manually run ./manage.py makeprovidermigrations {}.{}'.format(domain, title))
+            self.emphasize('Migration failed.\nManually run ./manage.py makeprovidermigrations {}.{}'
+                           .format(domain, title))
 
         self.stdout.write('Performing harvest...')
         success = not os.system('./bin/share harvest {}.{} -l 15'.format(domain, title))
         if success:
-            input('Add an example record to __init__:  [Enter]')
+            self.instruct('Add an example record to __init__  [Enter]')
         if not success:
-            logger.error('Harvest failure. Ideas:'
-                         'Review apps.py,'
-                         'Try time_granularity in apps.py, '
-                         'Harvest further back than 15 days,'
-                         'Finally, try harvesting  again.')
+            self.emphasize('Harvest failure. Ideas:\nReview apps.py,\nTry time_granularity in apps.py,'
+                           '\nHarvest further back than 15 days,\nFinally, try harvesting  again.')
 
-        logger.warning('Verify the favicon in static')
+        self.emphasize('Verify the favicon in static')
         self.stdout.write('Flake8...')
         os.system('flake8 providers/{}/{}'.format(domain, title))
+
+    def emphasize(self, msg):
+        self.stdout.write('\033[1;31mNotice: {}\033[0;0m'.format(msg))
+
+    def instruct(self, msg):
+        input('\033[1;36mUser task: {}\033[0;0m'.format(msg))
