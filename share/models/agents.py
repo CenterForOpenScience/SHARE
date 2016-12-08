@@ -22,9 +22,9 @@ AGENT_RE = r'^(.*Departa?ment.+?); (.+?); ([^;]+)$'
 
 class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
     """
-    An Agent is a thing that has the power to act, to make decisions,
-    to produce or contribute to the production of creative works.
-    Either an individual person or a group of people.
+    An Agent is an entity that has the power to act, e.g. an individual person or a group of people.
+
+    Agents make decisions and produce or contribute to the production of creative works.
     """
 
     name = models.TextField(blank=True, db_index=True)

@@ -1,6 +1,8 @@
 CreativeWork:
+    description: Anything created by an Agent.
     children:
-        DataSet: {}
+        DataSet:
+            description: A collection of information gathered in the course of research.
         # Image:
         #     children:
         #         Diagram: {}
@@ -9,7 +11,8 @@ CreativeWork:
         #         Photo: {}
         #         Plot: {}
         # Lesson: {}
-        Patent: {}
+        Patent:
+            description: A description of an invention, and a government-issued license to exclude others from making or selling that invention.
         Poster: {}
         Publication:
             children:
