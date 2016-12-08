@@ -113,7 +113,6 @@ class Command(BaseCommand):
         'smithsonian': 'edu.smithsonian',
         'spdataverse': 'info.spdataverse',
         'springer': 'com.springer',
-        'ssrn': 'com.ssrn',
         'stcloud': 'edu.stcloud',
         'tdar': 'org.tdar',
         'texasstate': 'edu.texasstate',
