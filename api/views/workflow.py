@@ -1,6 +1,5 @@
 import jsonschema
 
-from django.apps import apps
 from django.db import transaction
 
 from rest_framework import viewsets, views, status
@@ -16,13 +15,12 @@ from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, ChangeSetSerializer, \
     ChangeSerializer, RawDataSerializer, ShareUserSerializer, ProviderSerializer
 from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
-from share.models.validators import JSONLDValidator
 from share.tasks import MakeJsonPatches
 from share.harvest.harvester import Harvester
 from share.normalize.v1_push import V1Normalizer
 
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView', 'ModelSchemaView', 'V1DataView')
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'V1DataView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -205,73 +203,6 @@ class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
             ).distinct('id')
         else:
             return RawData.objects.all()
-
-
-class SchemaView(views.APIView):
-    """
-    Schema used to validate changes or additions to the SHARE dataset.
-
-    To submit changes, see [`/api/normalizeddata`](/api/normalizeddata)
-
-    ## Model schemas
-    TODO: generate this list so it stays up to date with type hierarchies
-
-    Each node in the submitted `@graph` is validated by a model schema determined by its `@type`.
-
-    ### Work types
-    - [CreativeWork](/api/schema/CreativeWork)
-    - [Article](/api/schema/Article)
-    - [Book](/api/schema/Book)
-    - [ConferencePaper](/api/schema/ConferencePaper)
-    - [Dataset](/api/schema/Dataset)
-    - [Dissertation](/api/schema/Dissertation)
-    - [Lesson](/api/schema/Lesson)
-    - [Poster](/api/schema/Poster)
-    - [Preprint](/api/schema/Preprint)
-    - [Presentation](/api/schema/Presentation)
-    - [Project](/api/schema/Project)
-    - [ProjectRegistration](/api/schema/ProjectRegistration)
-    - [Report](/api/schema/Report)
-    - [Section](/api/schema/Section)
-    - [Software](/api/schema/Software)
-    - [Thesis](/api/schema/Thesis)
-    - [WorkingPaper](/api/schema/WorkingPaper)
-
-    ### Agents
-    - [Person](/api/schema/Person)
-    - [Institution](/api/schema/Institution)
-    - [Organization](/api/schema/Organization)
-
-    ### Identifiers
-    - [AgentIdentifier](/api/schema/AgentIdentifier)
-    - [CreativeWorkIdentifier](/api/schema/CreativeWorkIdentifier)
-
-    ### Other
-    - [Award](/api/schema/Award)
-    - [Subject](/api/schema/Subject)
-    - [Tag](/api/schema/Tag)
-
-    ### Relationships between nodes
-    - [AgentRelation](/api/schema/AgentRelation)
-    - [WorkRelation](/api/schema/WorkRelation)
-    - [Contribution](/api/schema/Contribution)
-    - [ThroughContributionAwards](/api/schema/ThroughContributionAwards)
-    - [ThroughSubjects](/api/schema/ThroughSubjects)
-    - [ThroughTags](/api/schema/ThroughTags)
-    """
-    def get(self, request, *args, **kwargs):
-        schema = JSONLDValidator.jsonld_schema.schema
-        return Response(schema)
-
-
-class ModelSchemaView(views.APIView):
-    """
-    Schema used to validate submitted changes of matching `@type`. See [`/api/schema`](/api/schema)
-    """
-    def get(self, request, *args, **kwargs):
-        model = apps.get_model('share', kwargs['model'])
-        schema = JSONLDValidator().validator_for(model).schema
-        return Response(schema)
 
 
 class V1DataView(views.APIView):
