@@ -113,7 +113,6 @@ RELATION_MAP = {
     'Compiles': 'Compiles',
     'IsVariantFormOf': '',
     'IsOriginalFormOf': '',
-    'IsIdenticalTo': 'IsIdenticalTo',
     'IsReviewedBy': 'Reviews',
     'Reviews': 'Reviews',
     'IsDerivedFrom': 'IsDerivedFrom',
@@ -150,7 +149,6 @@ RELATIONS = (
     'Reviews',
     'IsSourceOf',
     'HasMetadata',
-    'IsIdenticalTo'
 )
 
 
