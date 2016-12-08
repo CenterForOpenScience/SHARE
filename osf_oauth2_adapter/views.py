@@ -1,4 +1,7 @@
 import requests
+
+from django.views.generic.base import TemplateView
+
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 
 from allauth.utils import valid_email_or_none
@@ -62,3 +65,10 @@ class OSFOAuth2Adapter(OAuth2Adapter, DefaultSocialAccountAdapter):
 
 oauth2_login = OAuth2LoginView.adapter_view(OSFOAuth2Adapter)
 oauth2_callback = OAuth2CallbackView.adapter_view(OSFOAuth2Adapter)
+
+
+class LoginErroredCancelledView(TemplateView):
+    template_name = ("allauth/login_errored_cancelled.html")
+
+
+login_errored_cancelled = LoginErroredCancelledView.as_view()

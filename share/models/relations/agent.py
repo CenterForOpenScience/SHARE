@@ -11,8 +11,8 @@ logger = logging.getLogger('share.normalize')
 
 
 class AbstractAgentRelation(ShareObject, metaclass=TypedShareObjectMeta):
-    subject = ShareForeignKey('AbstractAgent', related_name='+')
-    related = ShareForeignKey('AbstractAgent', related_name='+')
+    subject = ShareForeignKey('AbstractAgent', related_name='outgoing_agent_relations')
+    related = ShareForeignKey('AbstractAgent', related_name='incoming_agent_relations')
 
     class Disambiguation:
         all = ('subject', 'related')

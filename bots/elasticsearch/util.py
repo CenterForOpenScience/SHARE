@@ -158,7 +158,7 @@ def fetch_creativework(pks):
                             WHERE throughtag.creative_work_id = creativework.id
                             ) AS tags ON TRUE
                 LEFT JOIN LATERAL (
-                            SELECT DISTINCT array_agg(name) AS subjects
+                            SELECT array_agg(DISTINCT name) AS subjects
                             FROM (
                                 SELECT unnest(ARRAY [child.name, parent.name, grand_parent.name, great_grand_parent.name])
                                 FROM share_subject AS child

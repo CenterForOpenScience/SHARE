@@ -1,3 +1,5 @@
+from django.utils.functional import cached_property
+
 from share.provider import ProviderAppConfig
 from .harvester import BiorxivHarvester
 
@@ -17,3 +19,8 @@ class AppConfig(ProviderAppConfig):
         'http://purl.org/rss/1.0/': None,
         'http://purl.org/dc/elements/1.1/': 'dc',
     }
+
+    @cached_property
+    def user(self):
+        from share.models import ShareUser
+        return ShareUser.objects.get(robot='providers.org.biorxiv')
