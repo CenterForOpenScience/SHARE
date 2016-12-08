@@ -49,10 +49,10 @@ class Command(BaseCommand):
             input('Add an example record to __init__:  [Enter]')
         if not success:
             logger.error('Harvest failure. Ideas:'
-                              'Review apps.py,'
-                              'Try time_granularity in apps.py, '
-                              'Harvest further back than 15 days,'
-                              'Finally, try harvesting  again.')
+                         'Review apps.py,'
+                         'Try time_granularity in apps.py, '
+                         'Harvest further back than 15 days,'
+                         'Finally, try harvesting  again.')
 
         logger.warning('Verify the favicon in static')
         self.stdout.write('Flake8...')
