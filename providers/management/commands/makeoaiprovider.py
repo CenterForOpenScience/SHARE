@@ -1,7 +1,10 @@
 import os
+import logging
 
 from cookiecutter.main import cookiecutter
 from django.core.management.base import BaseCommand
+
+logger = logging.getLogger('name')
 
 
 class Command(BaseCommand):
@@ -18,7 +21,7 @@ class Command(BaseCommand):
         title = options['title']
 
         if os.path.exists('providers/{}/{}'.format(domain, title)):
-            self.stdout.write('This provider already exists.')
+            logger.error('This provider already exists')
             return
 
         input('Add provider.{}.{} to INSTALLED_APPS in settings: [Enter]'.format(domain, title))
@@ -35,19 +38,22 @@ class Command(BaseCommand):
 
         os.chdir(owd)
 
-        os.system('python manage.py makeprovidermigrations {}.{}'.format(domain, title))
+        self.stdout.write('Making migration...')
+        if os.system('python manage.py makeprovidermigrations {}.{}'.format(domain, title)):
+            logger.error('Migration failed. '
+                         'Manually run ./manage.py makeprovidermigrations {}.{}'.format(domain, title))
 
-        self.stdout.write("Performing harvest...")
-        success = not os.system('./bin/share harvest {}.{} -d 15'.format(domain, title))
+        self.stdout.write('Performing harvest...')
+        success = not os.system('./bin/share harvest {}.{} -l 15'.format(domain, title))
         if success:
             input('Add an example record to __init__:  [Enter]')
         if not success:
-            self.stdout.write('Harvest failure. Ideas:'
+            logger.error('Harvest failure. Ideas:'
                               'Review apps.py,'
                               'Try time_granularity in apps.py, '
                               'Harvest further back than 15 days,'
                               'Finally, try harvesting  again.')
 
-        self.stdout.write('Verify the favicon in static')
+        logger.warning('Verify the favicon in static')
         self.stdout.write('Flake8...')
         os.system('flake8 providers/{}/{}'.format(domain, title))
