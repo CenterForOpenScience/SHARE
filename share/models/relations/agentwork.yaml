@@ -1,6 +1,7 @@
 AgentWorkRelation:
     children:
         Contributor:
+            description: The agent directly contributed to the creation of the work.
             fields:
                 contributed_through:
                     type: m2m
@@ -11,16 +12,21 @@ AgentWorkRelation:
                         through_fields: ['subject', 'related']
             children:
                 Creator:
+                    description: The agent authored or was a major contributor to the creation of the work.
                     fields:
                         order_cited:
                             type: positive_int
-                PrincipalInvestigator: {}
+                PrincipalInvestigator:
+                    description: The agent oversaw the creation of the work, as head of the laboratory or research group in which the work was created.
         Funder:
+            description: The agent gave money that enabled or supported the creation of the work.
             fields:
                 awards:
                     type: m2m
                     kwargs:
                         model: Award
                         through: ThroughAwards
-        Publisher: {}
-        Host: {}
+        Publisher:
+            description: The agent published the work.
+        Host:
+            description: The agent stores the completed work for public retrieval.
