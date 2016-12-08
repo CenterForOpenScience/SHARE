@@ -63,11 +63,8 @@ class BaseShareSerializer(serializers.ModelSerializer):
 
     # http://stackoverflow.com/questions/27015931/remove-null-fields-from-django-rest-framework-response
     def to_representation(self, instance):
-        def not_none(value):
-            return value is not None
-
         ret = super(BaseShareSerializer, self).to_representation(instance)
-        ret = OrderedDict(list(filter(lambda x: not_none(x[1]), ret.items())))
+        ret = OrderedDict(list(filter(lambda x: x[1] is not None, ret.items())))
         return ret
 
 
@@ -78,10 +75,10 @@ class EndpointGenerator:
 
         generated_endpoints = []
         for subclass in subclasses:
-            if not (subclass._meta.proxied_children and subclass == subclass._meta.concrete_model):
-                generated_endpoints += [subclass]
-            elif (subclass._meta.proxied_children and subclass == subclass._meta.concrete_model):
-                generated_endpoints += subclass.get_type_classes()
+            if not (subclass._meta.proxied_children and subclass is subclass._meta.concrete_model):
+                generated_endpoints.append(subclass)
+            elif (subclass._meta.proxied_children and subclass is subclass._meta.concrete_model):
+                generated_endpoints.extend(subclass.get_type_classes())
 
         self.generate_endpoints(generated_endpoints)
 

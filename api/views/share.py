@@ -2,6 +2,8 @@ from rest_framework import viewsets, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
+from rest_framework_json_api import serializers
+
 from django import http
 from django.views.generic.base import RedirectView
 from django.shortcuts import get_object_or_404
@@ -9,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from api.filters import ShareObjectFilterSet
 from api import serializers as api_serializers
 
-from share.util import IDObfuscator
+from share.util import IDObfuscator, InvalidID
 
 
 class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -80,7 +82,12 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
             (self.__class__.__name__, lookup_url_kwarg)
         )
 
-        decoded_pk = IDObfuscator.decode(self.kwargs[lookup_url_kwarg])[1]
+        import ipdb; ipdb.set_trace()
+
+        try:
+            decoded_pk = IDObfuscator.decode(self.kwargs[lookup_url_kwarg])[1]
+        except InvalidID:
+            raise serializers.ValidationError('Invalid ID')
 
         filter_kwargs = {self.lookup_field: decoded_pk}
         obj = get_object_or_404(queryset, **filter_kwargs)
