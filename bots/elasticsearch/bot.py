@@ -62,7 +62,6 @@ class ElasticSearchBot(Bot):
                 'subjects': {'type': 'string', 'index': 'not_analyzed'},
                 'sources': {
                     'type': 'string',
-                    'index': 'not_analyzed',
                     'fields': {
                         'raw': {'type': 'string', 'index': 'not_analyzed'}
                     }
