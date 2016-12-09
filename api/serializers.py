@@ -5,7 +5,7 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework_json_api import serializers
 
 from share import models
-from share.models import ChangeSet, ProviderRegistration, CeleryProviderTask
+from share.models import ChangeSet, ProviderRegistration, CeleryProviderTask, SiteBanner
 
 from api import fields
 
@@ -180,3 +180,14 @@ class ProviderSerializer(ShareUserSerializer):
     class Meta:
         model = models.ShareUser
         fields = ('home_page', 'long_title', 'date_joined', 'gravatar')
+
+
+class SiteBannerSerializer(serializers.ModelSerializer):
+    color = serializers.SerializerMethodField()
+
+    def get_color(self, obj):
+        return SiteBanner.COLOR[obj.color]
+
+    class Meta:
+        model = models.SiteBanner
+        fields = ('title', 'description', 'color', 'icon')
