@@ -563,6 +563,11 @@ LOGGING = {
     }
 }
 
+# shell_plus convenience utilities
+SHELL_PLUS_POST_IMPORTS = (
+    ('share.shell_util', '*'),
+)
+
 
 # Custom Settings
 SITE_ID = 1

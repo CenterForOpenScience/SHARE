@@ -97,6 +97,9 @@ class GraphDisambiguator:
         info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
 
+        if not info.all and not info.any:
+            return None
+
         all_query = Q()
         for k, v in info.all:
             k, v = self._query_pair(k, v)
@@ -111,7 +114,7 @@ class GraphDisambiguator:
             if k and v:
                 queries.append(all_query & Q(**{k: v}))
 
-        if not all_query.children and not queries:
+        if (info.all and not all_query.children) or (info.any and not queries):
             return None
 
         if info.matching_types:
@@ -131,8 +134,11 @@ class GraphDisambiguator:
                 return None
             if len(found) == 1:
                 return found[0]
-            if all_query.children or any('__' in str(query) for query in queries):
+            if all_query.children:
                 logger.warning('Multiple %ss returned for %s (The main query) bailing', concrete_model, all_query)
+                break
+            if all('__' in str(query) for query in queries):
+                logger.warning('Multiple %ss returned for %s (The any query) bailing', concrete_model, queries)
                 break
 
         logger.error('Could not disambiguate %s. Too many results found from %s %s', node.model, all_query, queries)

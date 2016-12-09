@@ -31,7 +31,7 @@ class SoupXMLDict:
         return self[key]
 
     def __repr__(self):
-        return repr(self.soup)
+        return '{}(\'{}\')'.format(self.__class__.__name__, self.soup)
 
 
 class SoupLink(AbstractLink):
@@ -42,7 +42,13 @@ class SoupLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        res = obj.soup.find_all(*self._args, **self._kwargs)
+        if not obj:
+            return None
+
+        if isinstance(obj, list):
+            res = [r for o in obj for r in o.soup.find_all(*self._args, **self._kwargs)]
+        else:
+            res = obj.soup.find_all(*self._args, **self._kwargs)
 
         if not res:
             return None

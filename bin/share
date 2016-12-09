@@ -97,7 +97,7 @@ def normalize(args, argv):
     if args['FILE']:
         files = args['FILE']
     else:
-        files = [os.path.join(args['--directory'], x) for x in os.listdir(args['--directory'])]
+        files = [os.path.join(args['--directory'], x) for x in os.listdir(args['--directory']) if not x.startswith('.')]
 
     for name in files:
         with open(name) as fobj:

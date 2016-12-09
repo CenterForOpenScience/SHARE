@@ -87,7 +87,22 @@ class Harvester(metaclass=abc.ABCMeta):
                 ('2', {'your': 'doc'}),
             ]
         """
-        raise NotImplementedError
+        raise NotImplementedError()
+
+    def fetch_by_id(self, provider_id):
+        """
+        Fetch a document by provider ID.
+
+        Optional to implement, intended for dev and manual testing.
+
+        Args:
+            provider_id (str): Unique ID the provider uses to identify works.
+
+        Returns:
+            str|dict|bytes: Fetched data.
+
+        """
+        raise NotImplementedError()
 
     def shift_range(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> pendulum.Pendulum:
         """Most providers will not need this method.
@@ -129,6 +144,11 @@ class Harvester(metaclass=abc.ABCMeta):
             count += 1
             if limit and count >= limit:
                 break
+
+    def harvest_by_id(self, provider_id):
+        from share.models import RawData
+        datum = self.fetch_by_id(provider_id)
+        return RawData.objects.store_data(provider_id, self.encode_data(datum), self.source, self.config.label)
 
     def encode_data(self, data, pretty=False) -> bytes:
         if isinstance(data, bytes):

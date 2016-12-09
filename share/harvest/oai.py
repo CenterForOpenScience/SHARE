@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
 
+    metadata_prefix = 'oai_dc'
     namespaces = {
         'dc': 'http://purl.org/dc/elements/1.1/',
         'ns0': 'http://www.openarchives.org/OAI/2.0/',
@@ -33,7 +34,7 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> list:
         url = furl(self.url)
         url.args['verb'] = 'ListRecords'
-        url.args['metadataPrefix'] = 'oai_dc'
+        url.args['metadataPrefix'] = self.metadata_prefix
 
         if self.time_granularity:
             url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
@@ -86,3 +87,10 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
         logger.info('Found {} records. Continuing with token {}'.format(len(records), token))
 
         return records, token
+
+    def fetch_by_id(self, provider_id):
+        url = furl(self.url)
+        url.args['verb'] = 'GetRecord'
+        url.args['metadataPrefix'] = self.metadata_prefix
+        url.args['identifier'] = provider_id
+        return etree.tostring(self.fetch_page(url)[0][0])
