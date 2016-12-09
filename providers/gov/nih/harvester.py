@@ -95,7 +95,7 @@ class NIHHarvester(Harvester):
 
         if month_column.lower() == u"all":
             return (None, fiscal_year, url)
-        elif re.match('[A-Za-z]*, [0-9]{4} - .*', month_column):
+        elif re.match('[A-Za-z\s]*, [0-9]{4} - .*', month_column):
             date = self.parse_month_column(month_column, day_of_week)
             return (date, fiscal_year, url)
 
