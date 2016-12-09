@@ -82,10 +82,11 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
             (self.__class__.__name__, lookup_url_kwarg)
         )
 
-        import ipdb; ipdb.set_trace()
-
         try:
-            decoded_pk = IDObfuscator.decode(self.kwargs[lookup_url_kwarg])[1]
+            (model, decoded_pk) = IDObfuscator.decode(self.kwargs[lookup_url_kwarg])
+            concrete_model = self.serializer_class.Meta.model._meta.concrete_model
+            if model is not concrete_model:
+                raise serializers.ValidationError('Improper route: {} does not match {}'.format(model, concrete_model))
         except InvalidID:
             raise serializers.ValidationError('Invalid ID')
 
