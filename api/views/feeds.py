@@ -95,7 +95,7 @@ class CreativeWorksRSS(Feed):
 
     def item_link(self, item):
         # Link to SHARE curate page
-        return '{}curate/{}/{}'.format(settings.SHARE_WEB_URL, item.get('type'), item.get('id'))
+        return '{}{}/{}'.format(settings.SHARE_WEB_URL, item.get('type').replace(' ', ''), item.get('id'))
 
     def item_pubdate(self, item):
         return parse_date(item.get('date'))
