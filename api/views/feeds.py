@@ -73,7 +73,7 @@ class CreativeWorksRSS(Feed):
 
     def items(self, obj):
         headers = {'Content-Type': 'application/json'}
-        search_url = '{}{}/abstractcreativework/_search'.format(settings.ELASTICSEARCH_URL, settings.ELASTICSEARCH_INDEX)
+        search_url = '{}{}/creativeworks/_search'.format(settings.ELASTICSEARCH_URL, settings.ELASTICSEARCH_INDEX)
         elastic_response = requests.post(search_url, data=json.dumps(obj), headers=headers)
         json_response = elastic_response.json()
 
