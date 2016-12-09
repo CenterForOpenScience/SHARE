@@ -180,7 +180,7 @@ class ProviderRegistrationAdmin(admin.ModelAdmin):
 class SiteBannerAdmin(admin.ModelAdmin):
     list_display = ('title', 'color', 'icon', 'active')
     list_editable = ('active',)
-    ordering = ('-active', 'title')
+    ordering = ('-active', '-last_modified_at')
     readonly_fields = ('created_at', 'created_by', 'last_modified_at', 'last_modified_by')
 
     def save_model(self, request, obj, form, change):
