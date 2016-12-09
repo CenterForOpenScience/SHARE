@@ -71,7 +71,9 @@ class AwardeeAgent(Parser):
 
 
 class AgentRelation(Parser):
-    related = Delegate(AwardeeAgent, ctx)
+    schema = 'AgentWorkRelation'
+
+    agent = Delegate(AwardeeAgent, ctx)
 
 
 class FunderAgent(Parser):
@@ -82,30 +84,12 @@ class FunderAgent(Parser):
 
     # The full name of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
     name = ctx.IC_NAME
-    related_agents = Map(
-        Delegate(AgentRelation),
-        RunPython('get_organization_ctx', RunPython(filter_nil, ctx))
-    )
 
     class Extra:
         # The organizational code of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
         acronym = RunPython(filter_nil, ctx.ADMINISTERING_IC)
         funding_ics = RunPython(filter_nil, ctx.FUNDING_ICs)
         funding_mechanism = RunPython(filter_nil, ctx.FUNDING_MECHANISM)
-
-    def get_organization_ctx(self, ctx):
-        org_ctx = {
-            'ORG_NAME': ctx['ORG_NAME'],
-            'ORG_FIPS': ctx['ORG_FIPS'],
-            'ORG_DEPT': ctx['ORG_DEPT'],
-            'ORG_DUNS': ctx['ORG_DUNS'],
-            'ORG_DISTRICT': ctx['ORG_DISTRICT'],
-            'ORG_CITY': ctx['ORG_CITY'],
-            'ORG_STATE': ctx['ORG_STATE'],
-            'ORG_ZIPCODE': ctx['ORG_ZIPCODE'],
-            'ORG_COUNTRY': ctx['ORG_COUNTRY']
-        }
-        return org_ctx
 
 
 class Award(Parser):
@@ -181,6 +165,7 @@ class Project(Parser):
     related_agents = Concat(
         Map(Delegate(PIRelation), RunPython(filter_nil, Try(ctx.row.PIS.PI))),
         Map(Delegate(PORelation), RunPython(filter_nil, ctx.row.PROGRAM_OFFICER_NAME)),
+        Map(Delegate(AgentRelation), RunPython('get_organization_ctx', RunPython(filter_nil, ctx.row))),
         Map(Delegate(FunderRelation), Filter(lambda x: isinstance(x['IC_NAME'], str) or x['IC_NAME'].get('@http://www.w3.org/2001/XMLSchema-instance:nil') != 'true', ctx.row)),
     )
 
@@ -227,3 +212,17 @@ class Project(Parser):
         if isinstance(obj.get('ORG_NAME'), dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
             return None
         return obj
+
+    def get_organization_ctx(self, ctx):
+        org_ctx = {
+            'ORG_NAME': ctx['ORG_NAME'],
+            'ORG_FIPS': ctx['ORG_FIPS'],
+            'ORG_DEPT': ctx['ORG_DEPT'],
+            'ORG_DUNS': ctx['ORG_DUNS'],
+            'ORG_DISTRICT': ctx['ORG_DISTRICT'],
+            'ORG_CITY': ctx['ORG_CITY'],
+            'ORG_STATE': ctx['ORG_STATE'],
+            'ORG_ZIPCODE': ctx['ORG_ZIPCODE'],
+            'ORG_COUNTRY': ctx['ORG_COUNTRY']
+        }
+        return org_ctx
