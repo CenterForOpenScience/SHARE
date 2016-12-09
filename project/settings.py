@@ -96,6 +96,7 @@ INSTALLED_APPS = [
     'providers.com.peerj.preprints',
     'providers.com.peerj.xml',
     'providers.com.springer',
+    'providers.com.ssrn',
     'providers.edu.asu',
     'providers.edu.boise_state',
     'providers.edu.calhoun',
