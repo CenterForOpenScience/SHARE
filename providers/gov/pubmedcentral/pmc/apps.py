@@ -2,6 +2,7 @@ from django.utils.functional import cached_property
 
 from share.provider import ProviderAppConfig
 from .harvester import PMCHarvester
+from .normalizer import PMCNormalizer
 
 
 class AppConfig(ProviderAppConfig):
@@ -13,6 +14,7 @@ class AppConfig(ProviderAppConfig):
     url = 'https://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi'
     time_granularity = False
     harvester = PMCHarvester
+    normalizer = PMCNormalizer
     namespaces = {
         'http://www.openarchives.org/OAI/2.0/': None,
         'http://jats.nlm.nih.gov/ns/archiving/1.0/': None,

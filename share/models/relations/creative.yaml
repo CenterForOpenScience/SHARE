@@ -49,9 +49,9 @@ WorkRelation:
 #        ContainsAssertionFrom:
 #            description: The subject work contains a statement of fact or a logical assertion (or a collection of such facts and/or assertions) originally present in the related work.
 #            uris: ['http://purl.org/spar/cito/containsAssertionFrom']
-#        Corrects:
-#            description: The subject work corrects statements, ideas or conclusions presented in the related work.
-#            uris: ['http://purl.org/spar/cito/corrects']
+        Corrects:
+            description: The subject work corrects statements, ideas or conclusions presented in the related work.
+            uris: ['http://purl.org/spar/cito/corrects']
 #        Credits:
 #            description: The subject work acknowledges contributions made by the related work.
 #            uris: ['http://purl.org/spar/cito/credits']
@@ -67,12 +67,12 @@ WorkRelation:
 #        DisagreesWith:
 #            description: The subject work disagrees with statements, ideas or conclusions presented in the related work.
 #            uris: ['http://purl.org/spar/cito/disagreesWith']
-#        Discusses:
-#            description: The subject work discusses statements, ideas or conclusions presented in the related work.
-#            uris: ['http://purl.org/spar/cito/discusses']
-#        Disputes:
-#            description: The subject work disputes statements, ideas or conclusions presented in the related work.
-#            uris: ['http://purl.org/spar/cito/disputes']
+        Discusses:
+            description: The subject work discusses statements, ideas or conclusions presented in the related work.
+            uris: ['http://purl.org/spar/cito/discusses']
+        Disputes:
+            description: The subject work disputes statements, ideas or conclusions presented in the related work.
+            uris: ['http://purl.org/spar/cito/disputes']
         Documents:
             description: The subject work documents information about the related work.
             uris: ['http://purl.org/spar/cito/documents']
@@ -103,12 +103,12 @@ WorkRelation:
 #        Refutes:
 #            description: The subject work refutes statements, ideas or conclusions presented in the related work.
 #            uris: ['http://purl.org/spar/cito/refutes']
-#        RepliesTo:
-#            description: The subject work replies to statements, ideas or criticisms presented in the related work.
-#            uris: ['http://purl.org/spar/cito/repliesTo']
-#        Retracts:
-#            description: The subject work constitutes a formal retraction of the related work.
-#            uris: ['http://purl.org/spar/cito/retracts']
+        RepliesTo:
+            description: The subject work replies to statements, ideas or criticisms presented in the related work.
+            uris: ['http://purl.org/spar/cito/repliesTo']
+        Retracts:
+            description: The subject work constitutes a formal retraction of the related work.
+            uris: ['http://purl.org/spar/cito/retracts']
         Reviews:
             description: The subject work reviews statements, ideas or conclusions presented in the related work.
             uris: ['http://purl.org/spar/cito/reviews']
