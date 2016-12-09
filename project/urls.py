@@ -20,6 +20,8 @@ from django.views.generic.base import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
 from revproxy.views import ProxyView
 
+from osf_oauth2_adapter import views as osf_oauth2_adapter_views
+
 from api.views import APIVersionRedirectView
 
 urlpatterns = [
@@ -29,8 +31,8 @@ urlpatterns = [
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
     url(r'^api/v1/', include('api.urls_v1', namespace='api_v1')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    url(r'^accounts/social/login/cancelled/', 'osf_oauth2_adapter.views.login_errored_cancelled'),
-    url(r'^accounts/social/login/error/', 'osf_oauth2_adapter.views.login_errored_cancelled'),
+    url(r'^accounts/social/login/cancelled/', osf_oauth2_adapter_views.login_errored_cancelled),
+    url(r'^accounts/social/login/error/', osf_oauth2_adapter_views.login_errored_cancelled),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^$', RedirectView.as_view(url='{}/'.format(settings.EMBER_SHARE_PREFIX))),
     url(r'^favicon.ico$', RedirectView.as_view(
