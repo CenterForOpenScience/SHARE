@@ -4,7 +4,7 @@ import pendulum
 
 from share import models
 from share.change import ChangeGraph
-from share.util import IDObfuscator
+from share.util import IDObfuscator, InvalidID
 
 from tests.share.models import factories
 
@@ -210,9 +210,9 @@ class TestChangeNode:
 
     @pytest.mark.django_db
     def test_unresolveable(self, graph):
-        with pytest.raises(AssertionError) as e:
+        with pytest.raises(InvalidID) as e:
             graph.create('Foo', 'tag', {'name': 'Not a generated Value'})
-        assert e.value.args == ('"Foo" is not a valid ID', )
+        assert e.value.args == ('Foo', 'Invalid ID')
 
     @pytest.mark.django_db
     def test_change_no_diff(self, graph):

@@ -11,6 +11,13 @@ def strip_whitespace(string):
     return re.sub(WHITESPACE_RE, ' ', string).strip()
 
 
+class InvalidID(Exception):
+    def __init__(self, value, message='Invalid ID'):
+        super().__init__(value, message)
+        self.value = value
+        self.message = message
+
+
 class IDObfuscator:
     NUM = 0xDEADBEEF
     MOD = 10000000000
@@ -35,14 +42,16 @@ class IDObfuscator:
         from django.contrib.contenttypes.models import ContentType
 
         match = cls.ID_RE.match(id)
-        assert match, '"{}" is not a valid ID'.format(id)
+        if not match:
+            raise InvalidID(id)
         model_id, *pks = match.groups()
         return ContentType.objects.get(pk=int(model_id, 16)).model_class(), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 
     @classmethod
     def decode_id(cls, id):
         match = cls.ID_RE.match(id)
-        assert match, '"{}" is not a valid ID'.format(id)
+        if not match:
+            raise InvalidID(id)
         model_id, *pks = match.groups()
         return int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 

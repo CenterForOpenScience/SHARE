@@ -2,12 +2,16 @@ from rest_framework import viewsets, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
+from rest_framework_json_api import serializers
+
 from django import http
 from django.views.generic.base import RedirectView
+from django.shortcuts import get_object_or_404
 
 from api.filters import ShareObjectFilterSet
-from share import serializers
 from api import serializers as api_serializers
+
+from share.util import IDObfuscator, InvalidID
 
 
 class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -59,102 +63,40 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(ser.data)
 
 
-# TODO generic relations viewset?
-# class RelationsViewSet(viewsets.ReadOnlyModelViewSet):
-#    @detail_route(methods=['get'])
-#    def relations(self, request, pk=None):
-#        if pk is None:
-#            return Response(status=status.HTTP_400_BAD_REQUEST)
-#        obj = self.get_object()
-#        relations = obj.outgoing_relations.all() | obj.incoming_relations.all()
-#        page = self.paginate_queryset(relations)
-#        if page is not None:
-#            ser = serializers.RelationSerializer(page, many=True, context={'request': request})
-#            return self.get_paginated_response(ser.data)
-#        ser = serializers.RelationSerializer(relations, many=True, context={'request': request})
-#        return Response(ser.data)
-
-
 class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, viewsets.ReadOnlyModelViewSet):
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     filter_class = ShareObjectFilterSet
 
+    # override to convert encoded pk to an actual pk
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
 
-def make_creative_work_view_set_class(model):
-    class CreativeWorkViewSet(ShareObjectViewSet):
-        serializer_class = serializers.make_creative_work_serializer_class(model)
-        queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-    return CreativeWorkViewSet
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
+        assert lookup_url_kwarg in self.kwargs, (
+            'Expected view %s to be called with a URL keyword argument '
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            'attribute on the view correctly.' %
+            (self.__class__.__name__, lookup_url_kwarg)
+        )
 
-# Creative work attributes
+        try:
+            (model, decoded_pk) = IDObfuscator.decode(self.kwargs[lookup_url_kwarg])
+            concrete_model = self.serializer_class.Meta.model._meta.concrete_model
+            if model is not concrete_model:
+                raise serializers.ValidationError('The specified ID refers to an {}. Expected {}'.format(model._meta.model_name, concrete_model._meta.model_name))
+        except InvalidID:
+            raise serializers.ValidationError('Invalid ID')
 
-class TagViewSet(ShareObjectViewSet):
-    serializer_class = serializers.TagSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+        filter_kwargs = {self.lookup_field: decoded_pk}
+        obj = get_object_or_404(queryset, **filter_kwargs)
 
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
 
-class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.SubjectSerializer
-    queryset = serializer_class.Meta.model.objects.all()
-
-
-class ExtraDataViewSet(ShareObjectViewSet):
-    serializer_class = serializers.ExtraDataSerializer
-    queryset = serializer_class.Meta.model.objects.all()
-    filter_class = None
-
-
-# Agents
-
-class PersonViewSet(ShareObjectViewSet):
-    serializer_class = serializers.PersonSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
-class OrganizationViewSet(ShareObjectViewSet):
-    serializer_class = serializers.OrganizationSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
-class InstitutionViewSet(ShareObjectViewSet):
-    serializer_class = serializers.InstitutionSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
-# Identifiers
-
-class AgentIdentifierViewSet(ShareObjectViewSet):
-    serializer_class = serializers.AgentIdentifierSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
-class WorkIdentifierViewSet(ShareObjectViewSet):
-    serializer_class = serializers.WorkIdentifierSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
-# Relations
-
-class AgentRelationViewSet(ShareObjectViewSet):
-    serializer_class = serializers.AgentRelationSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
-class WorkRelationViewSet(ShareObjectViewSet):
-    serializer_class = serializers.WorkRelationSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
-
-
-# class ContributionViewSet(ShareObjectViewSet):
-#     serializer_class = serializers.ContributionSerializer
-#     queryset = serializer_class.Meta.model.objects.select_related('extra', 'agent', 'creative_work')
-
-
-class AwardViewSet(ShareObjectViewSet):
-    serializer_class = serializers.AwardSerializer
-    queryset = serializer_class.Meta.model.objects.all().select_related('extra')
+        return obj
 
 
 # Other
