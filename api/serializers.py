@@ -182,7 +182,7 @@ class ProviderSerializer(ShareUserSerializer):
         fields = ('home_page', 'long_title', 'date_joined', 'gravatar')
 
 
-class SiteBannerSerializer(serializers.ModelSerializer):
+class SiteBannerSerializer(ShareModelSerializer):
     color = serializers.SerializerMethodField()
 
     def get_color(self, obj):

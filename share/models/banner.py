@@ -6,7 +6,6 @@ from django.utils.translation import ugettext as _
 
 
 class SiteBanner(models.Model):
-
     COLOR = Choices(
         (0, 'success', _('success')),
         (1, 'info', _('info')),
