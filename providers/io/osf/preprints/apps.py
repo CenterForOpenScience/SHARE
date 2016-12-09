@@ -14,6 +14,7 @@ class AppConfig(ProviderAppConfig):
     home_page = 'http://osf.io/api/v2/preprints/'
     harvester = PreprintHarvester
     normalizer = PreprintNormalizer
+    disabled = True
 
     @cached_property
     def user(self):
