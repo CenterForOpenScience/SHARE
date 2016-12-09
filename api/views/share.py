@@ -86,7 +86,7 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
             (model, decoded_pk) = IDObfuscator.decode(self.kwargs[lookup_url_kwarg])
             concrete_model = self.serializer_class.Meta.model._meta.concrete_model
             if model is not concrete_model:
-                raise serializers.ValidationError('Improper route: {} does not match {}'.format(model, concrete_model))
+                raise serializers.ValidationError('The specified ID refers to an {}. Expected {}'.format(model._meta.model_name, concrete_model._meta.model_name))
         except InvalidID:
             raise serializers.ValidationError('Invalid ID')
 

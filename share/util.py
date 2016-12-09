@@ -12,7 +12,8 @@ def strip_whitespace(string):
 
 
 class InvalidID(Exception):
-    def __init__(self, value, message):
+    def __init__(self, value, message='Invalid ID'):
+        super().__init__(value, message)
         self.value = value
         self.message = message
 
@@ -42,7 +43,7 @@ class IDObfuscator:
 
         match = cls.ID_RE.match(id)
         if not match:
-            raise InvalidID(id, "Not a valid ID")
+            raise InvalidID(id)
         model_id, *pks = match.groups()
         return ContentType.objects.get(pk=int(model_id, 16)).model_class(), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 
@@ -50,7 +51,7 @@ class IDObfuscator:
     def decode_id(cls, id):
         match = cls.ID_RE.match(id)
         if not match:
-            raise InvalidID(id, "Not a valid ID")
+            raise InvalidID(id)
         model_id, *pks = match.groups()
         return int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 

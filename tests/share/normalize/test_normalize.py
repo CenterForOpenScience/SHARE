@@ -212,7 +212,7 @@ class TestChangeNode:
     def test_unresolveable(self, graph):
         with pytest.raises(InvalidID) as e:
             graph.create('Foo', 'tag', {'name': 'Not a generated Value'})
-        assert e.value.args == ('Foo', 'Not a valid ID')
+        assert e.value.args == ('Foo', 'Invalid ID')
 
     @pytest.mark.django_db
     def test_change_no_diff(self, graph):
