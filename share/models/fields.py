@@ -490,7 +490,7 @@ class TypedManyToManyField(models.ManyToManyField):
                 # clashes between multiple m2m fields with related_name == '+'.
                 self.remote_field.related_name = "_%s_%s_+" % (cls.__name__.lower(), name)
 
-            super().contribute_to_class(cls, name, **kwargs)
+            super(models.ManyToManyField, self).contribute_to_class(cls, name, **kwargs)
 
             # The intermediate m2m model is not auto created if:
             #  1) There is a manually specified intermediate, or
