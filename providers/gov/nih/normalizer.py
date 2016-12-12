@@ -70,9 +70,7 @@ class AwardeeAgent(Parser):
         )
 
 
-class AgentRelation(Parser):
-    schema = 'AgentWorkRelation'
-
+class AgentWorkRelation(Parser):
     agent = Delegate(AwardeeAgent, ctx)
 
 
@@ -95,7 +93,10 @@ class FunderAgent(Parser):
 class Award(Parser):
     name = ctx.PROJECT_TITLE
     # The amount of the award provided by the funding NIH Institute(s) or Center(s)
-    description = RunPython('get_award_amount', RunPython(filter_nil, ctx.FUNDING_ICs))
+    description = RunPython(filter_nil, ctx.FUNDING_ICs)
+    # TODO lauren
+    award_amount = RunPython(filter_nil, ctx.TOTAL_COST)
+    date = RunPython(filter_nil, ctx.AWARD_NOTICE_DATE)
     uri = RunPython('format_foa_url', RunPython(filter_nil, ctx.FOA_NUMBER))
 
     class Extra:
@@ -110,11 +111,6 @@ class Award(Parser):
 
         support_year = RunPython(filter_nil, ctx.SUPPORT_YEAR)
         foa_number = RunPython(filter_nil, ctx.FOA_NUMBER)
-
-    def get_award_amount(self, award_info):
-        if not award_info or (isinstance(award_info, dict) and award_info.get('@http://www.w3.org/2001/XMLSchema-instance:nil')):
-            return None
-        return award_info.split(':')[1].replace('\\', '')
 
     def format_foa_url(self, foa_number):
         return FOA_BASE_URL.format(foa_number)
@@ -138,12 +134,22 @@ class POAgent(Parser):
 
 
 class PIAgent(Parser):
+    '''
+        <PI>
+            <PI_NAME>VIDAL, MARC  (contact)</PI_NAME>
+            <PI_ID>2094159 (contact)</PI_ID>
+        </PI>
+    '''
     schema = 'Person'
 
     name = ctx.PI_NAME
+    # TODO lauren: affiliate organization
 
     class Extra:
         pi_id = RunPython(filter_nil, ctx.PI_ID)
+
+    def get_name(ctx):
+        pass
 
 
 class PIRelation(Parser):
@@ -151,6 +157,13 @@ class PIRelation(Parser):
 
     agent = Delegate(PIAgent, ctx)
     cited_as = ctx.PI_NAME
+    # TODO lauren
+    contact = RunPython(is_contact, ctx.PI_NAME)
+
+    def is_contact(name):
+        if '(contact)' in name:
+            return True
+        return False
 
 
 class PORelation(Parser):

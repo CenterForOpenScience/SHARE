@@ -23,6 +23,10 @@ class FunderAgent(Parser):
 class Award(Parser):
     name = ctx.title
     description = ctx.fundsObligatedAmt
+    # TODO lauren
+    award_amount = ctx.fundsObligatedAmt
+    # fiscal_year = tools.RunPython(get_fiscal_year, ctx.date)
+
     uri = tools.RunPython(format_url, ctx.id)
 
     class Extra:
@@ -79,6 +83,10 @@ class ContributorRelation(Parser):
     cited_as = tools.Join(tools.Concat(ctx.piFirstName, ctx.piLastName), joiner=' ')
 
 
+class AgentWorkRelation(Parser):
+    agent = tools.Delegate(AffiliatedAgent, ctx)
+
+
 class CreativeWork(Parser):
     title = ctx.title
 
@@ -86,7 +94,8 @@ class CreativeWork(Parser):
 
     related_agents = tools.Concat(
         tools.Map(tools.Delegate(FunderRelation), ctx),
-        tools.Map(tools.Delegate(ContributorRelation), ctx)
+        tools.Map(tools.Delegate(ContributorRelation), ctx),
+        tools.Map(tools.Delegate(AgentWorkRelation), tools.Filter(lambda x: 'awardeeName' in x, ctx))
     )
 
     date_updated = tools.ParseDate(ctx.date)

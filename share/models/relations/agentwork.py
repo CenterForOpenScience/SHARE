@@ -56,6 +56,8 @@ class Award(ShareObject):
     # it's just a text field, I assume our 'description' covers it.
     name = models.TextField(blank=True)
     description = models.TextField(blank=True)
+    date = models.DateField(blank=True, null=True)
+    award_amount = models.PositiveIntegerField(blank=True, null=True)
     uri = ShareURLField(unique=True)
 
     @classmethod
@@ -84,7 +86,8 @@ class ThroughAwards(ShareObject):
 
 generator = ModelGenerator(field_types={
     'm2m': ShareManyToManyField,
-    'positive_int': models.PositiveIntegerField
+    'positive_int': models.PositiveIntegerField,
+    'null_boolean': models.NullBooleanField
 })
 globals().update(generator.subclasses_from_yaml(__file__, AbstractAgentWorkRelation))
 
