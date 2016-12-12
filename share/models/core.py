@@ -143,6 +143,9 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.username)
 
+    def __str__(self):
+        return repr(self)
+
 
 @receiver(post_save, sender=ShareUser, dispatch_uid='share.share.models.share_user_post_save_handler')
 def user_post_save(sender, instance, created, **kwargs):
@@ -183,9 +186,9 @@ class RawDataManager(FuzzyCountManager):
         )
 
         if created:
-            logger.debug('Newly created RawData for document {} from {}'.format(doc_id, source))
+            logger.debug('Newly created RawData for document %s from %s', doc_id, source)
         else:
-            logger.debug('Saw exact copy of document {} from {}'.format(doc_id, source))
+            logger.debug('Saw exact copy of document %s from %s', doc_id, source)
 
         rd.save()  # Force timestamps to update
         return rd

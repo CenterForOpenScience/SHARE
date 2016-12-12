@@ -8,7 +8,7 @@ from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 
 logger = logging.getLogger('share.normalize')
-__all__ = ('WorkIdentifier', 'AgentIdentifier')
+__all__ = ('WorkIdentifier', 'AgentIdentifier', 'WorkIdentifierVersion', 'AgentIdentifierVersion')  # noqa
 
 
 # TODO Common interface, so we're not duplicating code. Doesn't work because
