@@ -4,3 +4,4 @@ from .elasticsearch import *  # noqa
 from .feeds import *  # noqa
 from .registration import *  # noqa
 from .schema import *  # noqa
+from .banner import *  # noqa
