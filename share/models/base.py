@@ -3,7 +3,6 @@ import copy
 import inspect
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import DatabaseError
 from django.db import models
@@ -14,6 +13,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from fuzzycount import FuzzyCountManager
 
+from db.deletion import DATABASE_CASCADE
+
 from share.models import fields
 from share.models.change import Change
 from share.models.sql import ShareObjectManager
@@ -22,7 +23,6 @@ from typedmodels import models as typedmodels
 
 class ShareObjectVersion(models.Model):
     action = models.TextField(max_length=10)
-    persistent_id = models.PositiveIntegerField()  # Must match the id of ShareObject
 
     class Meta:
         abstract = True
@@ -39,7 +39,7 @@ class ShareObjectMeta(ModelBase):
     # This if effectively the "ShareBaseClass"
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
-        'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False),
+        'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False, on_delete=DATABASE_CASCADE),
         'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True, help_text=_('The date this record was modified by SHARE.')),
         'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False, help_text=_('The date of ingress to SHARE.')),
     }
@@ -72,6 +72,7 @@ class ShareObjectMeta(ModelBase):
             **version_attrs,
             **cls.share_attrs,
             **{k: v() for k, v in cls.share_attrs.items()},  # Excluded sources from versions. They never get filled out
+            'persistent_id': models.ForeignKey(name, db_column='persistent_id', related_name='+', on_delete=DATABASE_CASCADE),
             '__qualname__': attrs['__qualname__'] + 'Version',
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
         })
@@ -84,8 +85,10 @@ class ShareObjectMeta(ModelBase):
             **{k: v() for k, v in cls.share_attrs.items()},
             'VersionModel': version,
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
-            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version'),
-            'sources': models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s', editable=False),
+            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version', on_delete=DATABASE_CASCADE),
+            # TypedManyToManyField works just like a normal field but has some special code to handle proxy models (if the exist)
+            # and makes the database use ON DELETE CASCADE as opposed to Djangos software cascade
+            'sources': fields.TypedManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s', editable=False),
         })
 
         # Inject <classname>Version into the module of the original class definition
@@ -161,7 +164,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
     objects = ShareObjectManager()
     versions = VersionManager()
-    changes = GenericRelation('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=True)
+    changes = fields.GenericRelationNoCascade('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=True)
 
     class Meta:
         abstract = True

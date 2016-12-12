@@ -6,6 +6,8 @@ from django.db.backends.postgresql.base import \
     DatabaseWrapper as PostgresqlDatabaseWrapper
 from django.db.backends.postgresql.base import *
 
+from db.backends.postgresql.schema import DatabaseSchemaEditor
+
 
 class server_side_cursors(object):
     """
@@ -44,6 +46,8 @@ class DatabaseWrapper(PostgresqlDatabaseWrapper):
         for item in qs.iterator():
             item.value
     """
+
+    SchemaEditorClass = DatabaseSchemaEditor
 
     def __init__(self, *args, **kwargs):
         self.server_side_cursors = False

@@ -236,7 +236,7 @@ class TestChangeNode:
 
     @pytest.mark.django_db
     def test_change_extra(self, graph):
-        tag_model = factories.AbstractCreativeWorkFactory(extra=models.ExtraData.objects.create(
+        tag_model = factories.AbstractCreativeWorkFactory(extra=factories.ExtraDataFactory(
             change=factories.ChangeFactory(),
             data={'testing': {
                 'Same': 'here',
