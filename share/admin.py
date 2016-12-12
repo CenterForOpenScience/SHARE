@@ -20,6 +20,7 @@ from share.models.core import RawData, NormalizedData, ShareUser
 # from share.models.identifiers import WorkIdentifier, AgentIdentifier
 # from share.models.meta import Tag, Subject
 from share.models.registration import ProviderRegistration
+from share.models.banner import SiteBanner
 # from share.models.work_relations import AbstractWorkRelation
 # from share.models.agent_relations import AbstractAgentRelation
 # from share.models.contributions import AbstractContribution, Award
@@ -176,6 +177,19 @@ class ProviderRegistrationAdmin(admin.ModelAdmin):
         return ProviderRegistration.STATUS[obj.status].title()
 
 
+class SiteBannerAdmin(admin.ModelAdmin):
+    list_display = ('title', 'color', 'icon', 'active')
+    list_editable = ('active',)
+    ordering = ('-active', '-last_modified_at')
+    readonly_fields = ('created_at', 'created_by', 'last_modified_at', 'last_modified_by')
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        obj.last_modified_by = request.user
+        super().save_model(request, obj, form, change)
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -199,5 +213,6 @@ admin.site.register(CeleryTask, CeleryTaskAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(ShareUser)
+admin.site.register(SiteBanner, SiteBannerAdmin)
 
 admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)

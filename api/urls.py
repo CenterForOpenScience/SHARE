@@ -61,6 +61,9 @@ def register_creative_work_route(model_name):
 # registration route
 register_route(r'registrations', views.ProviderRegistrationViewSet)
 
+# site banners route
+register_route(r'site_banners', views.SiteBannerViewSet)
+
 # workflow routes
 register_route(r'changeset', views.ChangeSetViewSet)
 register_route(r'change', views.ChangeViewSet)
