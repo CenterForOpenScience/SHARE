@@ -1,3 +1,5 @@
+import re
+
 from share.normalize import *
 from share.normalize.utils import format_address
 
@@ -10,6 +12,22 @@ def filter_nil(obj):
         if isinstance(obj, dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
             return None
         return obj
+
+
+def format_org_address(doc):
+    org_city = doc.get('ORG_CITY', '')
+    org_state = doc.get('ORG_STATE', '')
+    org_zipcode = doc.get('ORG_ZIPCODE', '')
+    org_country = doc.get('ORG_COUNTRY', '')
+    if not org_city and not org_state and not org_zipcode and not org_country:
+        return None
+    return format_address(
+        self,
+        city=org_city,
+        state_or_province=org_state,
+        postal_code=org_zipcode,
+        country=org_country
+    )
 
 
 class WorkIdentifier(Parser):
@@ -42,7 +60,7 @@ class AwardeeAgent(Parser):
     )
 
     name = ctx.ORG_NAME
-    location = RunPython('format_org_address', ctx)
+    location = RunPython(format_org_address, ctx)
 
     class Extra:
         awardee_organization_duns = RunPython(filter_nil, ctx.ORG_DUNS)
@@ -53,21 +71,6 @@ class AwardeeAgent(Parser):
         awardee_organization_state = RunPython(filter_nil, ctx.ORG_STATE)
         awardee_organization_zipcode = RunPython(filter_nil, ctx.ORG_ZIPCODE)
         awardee_organization_country = RunPython(filter_nil, ctx.ORG_COUNTRY)
-
-    def format_org_address(self, doc):
-        org_city = doc.get('ORG_CITY', '')
-        org_state = doc.get('ORG_STATE', '')
-        org_zipcode = doc.get('ORG_ZIPCODE', '')
-        org_country = doc.get('ORG_COUNTRY', '')
-        if not org_city and not org_state and not org_zipcode and not org_country:
-            return None
-        return format_address(
-            self,
-            city=org_city,
-            state_or_province=org_state,
-            postal_code=org_zipcode,
-            country=org_country
-        )
 
 
 class AgentWorkRelation(Parser):
@@ -94,9 +97,8 @@ class Award(Parser):
     name = ctx.PROJECT_TITLE
     # The amount of the award provided by the funding NIH Institute(s) or Center(s)
     description = RunPython(filter_nil, ctx.FUNDING_ICs)
-    # TODO lauren
     award_amount = RunPython(filter_nil, ctx.TOTAL_COST)
-    date = RunPython(filter_nil, ctx.AWARD_NOTICE_DATE)
+    date = RunPython(filter_nil, ctx.BUDGET_START)
     uri = RunPython('format_foa_url', RunPython(filter_nil, ctx.FOA_NUMBER))
 
     class Extra:
@@ -127,6 +129,10 @@ class FunderRelation(Parser):
     awards = Map(Delegate(ThroughAwards), ctx)
 
 
+class IsAffiliatedWith(Parser):
+    related = tools.Delegate(AwardeeAgent, ctx)
+
+
 class POAgent(Parser):
     schema = 'Person'
 
@@ -134,22 +140,25 @@ class POAgent(Parser):
 
 
 class PIAgent(Parser):
-    '''
-        <PI>
-            <PI_NAME>VIDAL, MARC  (contact)</PI_NAME>
-            <PI_ID>2094159 (contact)</PI_ID>
-        </PI>
-    '''
     schema = 'Person'
 
     name = ctx.PI_NAME
     # TODO lauren: affiliate organization
+    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), ctx['org_ctx'])
 
     class Extra:
         pi_id = RunPython(filter_nil, ctx.PI_ID)
 
-    def get_name(ctx):
-        pass
+
+class PIContactAgent(Parser):
+    schema = 'Person'
+
+    name = ctx.PI_NAME
+    # TODO lauren: affiliate organization
+    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), ctx['org_ctx'])
+
+    class Extra:
+        pi_id = RunPython(filter_nil, ctx.PI_ID)
 
 
 class PIRelation(Parser):
@@ -157,13 +166,13 @@ class PIRelation(Parser):
 
     agent = Delegate(PIAgent, ctx)
     cited_as = ctx.PI_NAME
-    # TODO lauren
-    contact = RunPython(is_contact, ctx.PI_NAME)
 
-    def is_contact(name):
-        if '(contact)' in name:
-            return True
-        return False
+
+class PIContactRelation(Parser):
+    schema = 'PrincipalInvestigatorContact'
+
+    agent = Delegate(PIContactAgent, ctx)
+    cited_as = ctx.PI_NAME
 
 
 class PORelation(Parser):
@@ -176,9 +185,23 @@ class PORelation(Parser):
 class Project(Parser):
     title = RunPython(filter_nil, ctx.row.PROJECT_TITLE)
     related_agents = Concat(
-        Map(Delegate(PIRelation), RunPython(filter_nil, Try(ctx.row.PIS.PI))),
+        Map(
+            Delegate(PIRelation),
+            RunPython(
+                'get_pi',
+                RunPython(filter_nil, Try(ctx.row)),
+                primary=False,
+            )
+        ),
+        Map(
+            Delegate(PIContactRelation),
+            RunPython(
+                'get_pi',
+                RunPython(filter_nil, Try(ctx.row)),
+            )
+        ),
         Map(Delegate(PORelation), RunPython(filter_nil, ctx.row.PROGRAM_OFFICER_NAME)),
-        Map(Delegate(AgentRelation), RunPython('get_organization_ctx', RunPython(filter_nil, ctx.row))),
+        Map(Delegate(AgentWorkRelation), RunPython('get_organization_ctx', RunPython(filter_nil, ctx.row))),
         Map(Delegate(FunderRelation), Filter(lambda x: isinstance(x['IC_NAME'], str) or x['IC_NAME'].get('@http://www.w3.org/2001/XMLSchema-instance:nil') != 'true', ctx.row)),
     )
 
@@ -227,15 +250,52 @@ class Project(Parser):
         return obj
 
     def get_organization_ctx(self, ctx):
+        # TODO lauren: filter NIL
         org_ctx = {
-            'ORG_NAME': ctx['ORG_NAME'],
-            'ORG_FIPS': ctx['ORG_FIPS'],
-            'ORG_DEPT': ctx['ORG_DEPT'],
-            'ORG_DUNS': ctx['ORG_DUNS'],
-            'ORG_DISTRICT': ctx['ORG_DISTRICT'],
-            'ORG_CITY': ctx['ORG_CITY'],
-            'ORG_STATE': ctx['ORG_STATE'],
-            'ORG_ZIPCODE': ctx['ORG_ZIPCODE'],
-            'ORG_COUNTRY': ctx['ORG_COUNTRY']
+            'ORG_NAME': filter_nil(ctx['ORG_NAME']),
+            'ORG_FIPS': filter_nil(ctx['ORG_FIPS']),
+            'ORG_DEPT': filter_nil(ctx['ORG_DEPT']),
+            'ORG_DUNS': filter_nil(ctx['ORG_DUNS']),
+            'ORG_DISTRICT': filter_nil(ctx['ORG_DISTRICT']),
+            'ORG_CITY': filter_nil(ctx['ORG_CITY']),
+            'ORG_STATE': filter_nil(ctx['ORG_STATE']),
+            'ORG_ZIPCODE': filter_nil(ctx['ORG_ZIPCODE']),
+            'ORG_COUNTRY': filter_nil(ctx['ORG_COUNTRY'])
         }
         return org_ctx
+
+    def get_pi(self, ctx, primary=True):
+        '''
+            <PI>
+                <PI_NAME>VIDAL, MARC  (contact)</PI_NAME>
+                <PI_ID>2094159 (contact)</PI_ID>
+            </PI>
+        '''
+        pi_list = ctx['PIS']['PI']
+        org_ctx = self.get_organization_ctx(ctx)
+        # only one or none so primary is that one
+        if len(pi_list) <= 1 and primary:
+            pi_list[0]['org_ctx'] = org_ctx
+            return pi_list
+        # more than one, get the primary
+        elif len(pi_list) > 1 and primary:
+            primary_pi = []
+            for pi in pi_list:
+                if '(contact)' in pi['PI_NAME']:
+                    pi['PI_NAME'] = re.sub(r'(\(contact\))', '', pi['PI_NAME']).strip()
+                    pi['PI_ID'] = re.sub(r'(\(contact\))', '', pi['PI_ID']).strip()
+                    pi['org_ctx'] = org_ctx
+                    primary_pi.append(pi)
+                    break
+            return primary_pi
+        # more than one, get the non-primary
+        elif len(pi_list) > 1 and not primary:
+            non_primary_pi = []
+            for pi in pi_list:
+                if '(contact)' not in pi['PI_NAME']:
+                    pi['org_ctx'] = org_ctx
+                    non_primary_pi.append(pi)
+            return non_primary_pi
+        # only one and not primary
+        else:
+            return None
