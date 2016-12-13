@@ -58,6 +58,7 @@ class ElasticSearchBot(Bot):
                 }
             }],
             'properties': {
+                'lists': {'enabled': False},
                 'tags': {'type': 'string', 'index': 'not_analyzed'},
                 'subjects': {'type': 'string', 'index': 'not_analyzed'},
                 'sources': {
