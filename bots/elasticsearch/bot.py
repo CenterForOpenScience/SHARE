@@ -27,11 +27,13 @@ class ElasticSearchBot(Bot):
 
     SUGGEST_MAPPING = {
         'type': 'completion',
-        'contexts': [{
-            'path': 'types',
-            'name': 'types',
-            'type': 'category',
-        }]
+        'payloads': True,
+        'context': {
+            'types': {
+                'type': 'category',
+                'path': 'types'
+            }
+        }
     }
 
     MAPPINGS = {

@@ -26,7 +26,7 @@
 version: '2'
 services:
   elasticsearch:
-    image: elasticsearch:5.1
+    image: elasticsearch:2
     ports:
       - 9200:9200
 
