@@ -7,6 +7,7 @@ from django.db import transaction
 
 from project.settings import ALLOWED_TAGS
 
+from share import models
 from share.util import IDObfuscator
 
 
@@ -114,6 +115,9 @@ def fetch_creativework(pks):
                     , 'date_modified', creativework.date_modified
                     , 'date_updated', creativework.date_updated
                     , 'date_published', creativework.date_published
+                    , 'registration_type', creativework.registration_type
+                    , 'withdrawn', creativework.withdrawn
+                    , 'justification', creativework.justification
                     , 'tags', COALESCE(tags, '{}')
                     , 'identifiers', COALESCE(identifiers, '{}')
                     , 'sources', sources
@@ -135,6 +139,8 @@ def fetch_creativework(pks):
                                                                 , 'relation_type', agent_relation.type
                                                                 , 'order_cited', agent_relation.order_cited
                                                                 , 'cited_as', agent_relation.cited_as
+                                                                , 'affiliations', COALESCE(affiliations, '{}')
+                                                                , 'awards', COALESCE(awards, '{}')
                                                             ))) AS related_agents
                             FROM share_agentworkrelation AS agent_relation
                             JOIN share_agent AS agent ON agent_relation.agent_id = agent.id
@@ -143,6 +149,29 @@ def fetch_creativework(pks):
                                         FROM share_agentidentifier AS identifier
                                         WHERE identifier.agent_id = agent.id
                                         ) AS identifiers ON TRUE
+                            LEFT JOIN LATERAL (
+                                        SELECT json_agg(json_strip_nulls(json_build_object(
+                                                                            'id', affiliated_agent.id
+                                                                            , 'type', affiliated_agent.type
+                                                                            , 'name', affiliated_agent.name
+                                                                            , 'affiliation_type', affiliation.type
+                                                                        ))) AS affiliations
+                                        FROM share_agentrelation AS affiliation
+                                        JOIN share_agent AS affiliated_agent ON affiliation.related_id = affiliated_agent.id
+                                        WHERE affiliation.subject_id = agent.id AND affiliated_agent.type != 'share.person'
+                                        ) AS affiliations ON TRUE
+                            LEFT JOIN LATERAL (
+                                        SELECT json_agg(json_strip_nulls(json_build_object(
+                                                                            'id', award.id
+                                                                            , 'name', award.name
+                                                                            , 'description', award.description
+                                                                            , 'uri', award.uri
+                                                                            , 'amount', award.award_amount
+                                                                        ))) AS awards
+                                        FROM share_throughawards AS throughaward
+                                        JOIN share_award AS award ON throughaward.award_id = award.id
+                                        WHERE throughaward.funder_id = agent_relation.id
+                                        ) AS awards ON agent_relation.type = 'share.funder'
                             WHERE agent_relation.creative_work_id = creativework.id
                             ) AS related_agents ON TRUE
                 LEFT JOIN LATERAL (
@@ -221,9 +250,18 @@ def fetch_creativework(pks):
                     populate_types(agent)
                     relation_model = apps.get_model(agent.pop('relation_type'))
                     parent_model = next(parent for parent in relation_model.mro() if not parent.mro()[2]._meta.proxy)
+                    parent_name = str(parent_model._meta.verbose_name_plural)
                     agent['relation'] = relation_model._meta.verbose_name
-                    data.setdefault(str(parent_model._meta.verbose_name_plural), []).append(agent.get('cited_as') or agent['name'])
-                    data['lists'].setdefault(str(parent_model._meta.verbose_name_plural), []).append(agent)
+                    data['lists'].setdefault(parent_name, []).append(agent)
+
+                    if relation_model == models.AgentWorkRelation:
+                        elastic_field = 'affiliations'
+                    else:
+                        elastic_field = parent_name
+                    data.setdefault(elastic_field, []).append(agent.get('cited_as') or agent['name'])
+
+                    if parent_model == models.Contributor:
+                        data.setdefault('affiliations', []).extend(a['name'] for a in agent['affiliations'])
 
                 data['retracted'] = bool(data['retractions'])
                 for retraction in data.pop('retractions'):
