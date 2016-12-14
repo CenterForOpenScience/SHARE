@@ -14,11 +14,10 @@ class ElasticSearchView(views.APIView):
     """
     Elasticsearch endpoint for SHARE Data.
 
-    - [Abstract Creative Works](/api/search/abstractcreativework/_search) - search individual documents harvested
-    - [Person](/api/search/person/_search) - people who are contributors to documents harvested
-    - [Tag](/api/search/tag/_search) - tags placed on documents
-    - [Source](/api/search/source/_search) - data sources
-    - [Agent](/api/search/agent/_search) - institutions, organizations, publishers, and funders
+    - [Creative Works](/api/search/creativeworks/_search) - Search individual documents harvested
+    - [Agents](/api/search/agents/_search) - Search agents from havested documents
+    - [Tags](/api/search/tag/_search) - Tags placed on documents
+    - [Sources](/api/search/source/_search) - Data sources
     """
     authentication_classes = (authentication.NonCSRFSessionAuthentication, )
     parser_classes = (JSONParser,)
