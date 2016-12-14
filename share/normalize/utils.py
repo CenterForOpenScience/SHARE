@@ -1,4 +1,4 @@
-def format_address(self, address1='', address2='', city='', state_or_province='', postal_code='', country=''):
+def format_address(address1='', address2='', city='', state_or_province='', postal_code='', country=''):
     if address1 and address2 and city and state_or_province and postal_code and country:
         return '{}\n{}\n{}, {} {}\n{}'.format(address1, address2, city, state_or_province, postal_code, country)
 
@@ -36,3 +36,7 @@ def format_address(self, address1='', address2='', city='', state_or_province=''
         return '{}, {}'.format(city, state_or_province)
 
     return address1
+
+
+def str_to_int(amount):
+    return int(amount) if amount else None

@@ -1,7 +1,7 @@
 import re
 
 from share.normalize import *
-from share.normalize.utils import format_address
+from share.normalize.utils import format_address, str_to_int
 
 
 PROJECT_BASE_URL = 'https://projectreporter.nih.gov/project_info_description.cfm?aid={}'
@@ -22,7 +22,6 @@ def format_org_address(doc):
     if not org_city and not org_state and not org_zipcode and not org_country:
         return None
     return format_address(
-        self,
         city=org_city,
         state_or_province=org_state,
         postal_code=org_zipcode,
@@ -53,6 +52,24 @@ class ThroughSubjects(Parser):
     subject = Delegate(Subject, ctx)
 
 
+class DeptAgent(Parser):
+    schema = 'Department'
+
+    name = ctx.ORG_DEPT
+    location = RunPython(format_org_address, ctx)
+
+    class Extra:
+        awardee_organization_city = ctx.ORG_CITY
+        awardee_organization_state = ctx.ORG_STATE
+        awardee_organization_zipcode = ctx.ORG_ZIPCODE
+        awardee_organization_country = ctx.ORG_COUNTRY
+
+
+class DeptIsAffiliatedWith(Parser):
+    schema = 'IsAffiliatedWith'
+    related = tools.Delegate(DeptAgent, ctx)
+
+
 class AwardeeAgent(Parser):
     schema = GuessAgentType(
         ctx.ORG_NAME,
@@ -63,14 +80,24 @@ class AwardeeAgent(Parser):
     location = RunPython(format_org_address, ctx)
 
     class Extra:
-        awardee_organization_duns = RunPython(filter_nil, ctx.ORG_DUNS)
-        awardee_organization_fips = RunPython(filter_nil, ctx.ORG_FIPS)
-        awardee_organization_dept = RunPython(filter_nil, ctx.ORG_DEPT)
-        awardee_organization_district = RunPython(filter_nil, ctx.ORG_DISTRICT)
-        awardee_organization_city = RunPython(filter_nil, ctx.ORG_CITY)
-        awardee_organization_state = RunPython(filter_nil, ctx.ORG_STATE)
-        awardee_organization_zipcode = RunPython(filter_nil, ctx.ORG_ZIPCODE)
-        awardee_organization_country = RunPython(filter_nil, ctx.ORG_COUNTRY)
+        awardee_organization_duns = ctx.ORG_DUNS
+        awardee_organization_fips = ctx.ORG_FIPS
+        awardee_organization_dept = ctx.ORG_DEPT
+        awardee_organization_district = ctx.ORG_DISTRICT
+        awardee_organization_city = ctx.ORG_CITY
+        awardee_organization_state = ctx.ORG_STATE
+        awardee_organization_zipcode = ctx.ORG_ZIPCODE
+        awardee_organization_country = ctx.ORG_COUNTRY
+
+
+class FullAwardeeAgent(AwardeeAgent):
+
+    related_agents = tools.Map(tools.Delegate(DeptIsAffiliatedWith), RunPython('if_dept', ctx))
+
+    def if_dept(self, ctx):
+        if ctx['ORG_DEPT']:
+            return ctx
+        return None
 
 
 class AgentWorkRelation(Parser):
@@ -97,8 +124,8 @@ class Award(Parser):
     name = ctx.PROJECT_TITLE
     # The amount of the award provided by the funding NIH Institute(s) or Center(s)
     description = RunPython(filter_nil, ctx.FUNDING_ICs)
-    award_amount = RunPython(filter_nil, ctx.TOTAL_COST)
-    date = RunPython(filter_nil, ctx.BUDGET_START)
+    award_amount = RunPython(str_to_int, RunPython(filter_nil, ctx.TOTAL_COST))
+    date = ParseDate(RunPython(filter_nil, ctx.BUDGET_START))
     uri = RunPython('format_foa_url', RunPython(filter_nil, ctx.FOA_NUMBER))
 
     class Extra:
@@ -133,6 +160,11 @@ class IsAffiliatedWith(Parser):
     related = tools.Delegate(AwardeeAgent, ctx)
 
 
+class FullIsAffiliatedWith(Parser):
+    schema = 'IsAffiliatedWith'
+    related = tools.Delegate(FullAwardeeAgent, ctx)
+
+
 class POAgent(Parser):
     schema = 'Person'
 
@@ -143,7 +175,6 @@ class PIAgent(Parser):
     schema = 'Person'
 
     name = ctx.PI_NAME
-    # TODO lauren: affiliate organization
     related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), ctx['org_ctx'])
 
     class Extra:
@@ -154,8 +185,7 @@ class PIContactAgent(Parser):
     schema = 'Person'
 
     name = ctx.PI_NAME
-    # TODO lauren: affiliate organization
-    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), ctx['org_ctx'])
+    related_agents = tools.Map(tools.Delegate(FullIsAffiliatedWith), ctx['org_ctx'])
 
     class Extra:
         pi_id = RunPython(filter_nil, ctx.PI_ID)
@@ -271,7 +301,7 @@ class Project(Parser):
                 <PI_ID>2094159 (contact)</PI_ID>
             </PI>
         '''
-        pi_list = ctx['PIS']['PI']
+        pi_list = ctx['PIS']['PI'] if type(ctx['PIS']['PI']) is list else [ctx['PIS']['PI']]
         org_ctx = self.get_organization_ctx(ctx)
         # only one or none so primary is that one
         if len(pi_list) <= 1 and primary:

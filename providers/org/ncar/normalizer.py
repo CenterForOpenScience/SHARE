@@ -43,7 +43,6 @@ class PersonnelAgent(Parser):
             address1 = address[0]
             address2 = address[1]
             return format_address(
-                self,
                 address1=address1,
                 address2=address2,
                 city=ctx['City'],
@@ -53,7 +52,6 @@ class PersonnelAgent(Parser):
             )
 
         return format_address(
-            self,
             address1=ctx['Address'],
             address2=address2,
             city=ctx['City'],

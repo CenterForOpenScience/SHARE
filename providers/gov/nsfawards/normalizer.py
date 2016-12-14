@@ -1,6 +1,7 @@
 from share.normalize import ctx
 from share.normalize import tools
 from share.normalize.parsers import Parser
+from share.normalize.utils import str_to_int
 
 
 def format_url(award_id):
@@ -23,10 +24,8 @@ class FunderAgent(Parser):
 class Award(Parser):
     name = ctx.title
     description = ctx.fundsObligatedAmt
-    # TODO lauren
-    award_amount = ctx.fundsObligatedAmt
-    # fiscal_year = tools.RunPython(get_fiscal_year, ctx.date)
-
+    award_amount = tools.RunPython(str_to_int, ctx.fundsObligatedAmt)
+    date = tools.ParseDate(ctx.date)
     uri = tools.RunPython(format_url, ctx.id)
 
     class Extra:
