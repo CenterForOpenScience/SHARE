@@ -33,24 +33,6 @@ def score_text(text):
     )
 
 
-def add_suggest(obj):
-    if not obj.get('types'):
-        obj['types'] = [obj['type']]
-    if obj['name']:
-        obj['suggest'] = {
-            'input': re.split('[\\s,]', obj['name']) + [obj['name']],
-            'output': obj['name'],
-            'payload': {
-                'id': obj['id'],
-                'name': obj['name'],
-                'type': obj['type'],
-            },
-            'weight': score_text(obj['name'])
-        }
-
-    return obj
-
-
 class IndexModelTask(AppTask):
 
     def do_run(self, model_name, ids, es_url=None, es_index=None):
@@ -86,7 +68,7 @@ class IndexModelTask(AppTask):
 
         if model is Agent:
             for blob in util.fetch_agent(ids):
-                yield {'_id': blob['id'], '_op_type': 'index', **add_suggest(blob), **opts}
+                yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
         for inst in model.objects.filter(id__in=ids):
@@ -100,21 +82,19 @@ class IndexModelTask(AppTask):
             Subject: self.serialize_subject,
         }[type(inst)._meta.concrete_model](inst)
 
-    def serialize_tag(self, tag, suggest=True):
-        serialized_tag = {
+    def serialize_tag(self, tag):
+        return {
             'id': IDObfuscator.encode(tag),
             'type': 'tag',
             'name': safe_substr(tag.name),
         }
-        return add_suggest(serialized_tag) if suggest else serialized_tag
 
-    def serialize_subject(self, subject, suggest=True):
-        serialized_subject = {
+    def serialize_subject(self, subject):
+        return {
             'id': IDObfuscator.encode(subject),
             'type': 'subject',
             'name': safe_substr(subject.name),
         }
-        return add_suggest(serialized_subject) if suggest else serialized_subject
 
 
 class IndexSourceTask(AppTask):
@@ -141,10 +121,9 @@ class IndexSourceTask(AppTask):
             yield {'_op_type': 'index', '_id': source.robot, **self.serialize(source), **opts}
 
     def serialize(self, source):
-        serialized_source = {
+        return {
             'id': source.robot,
             'type': 'source',
             'name': safe_substr(source.long_title),
             'short_name': safe_substr(source.robot)
         }
-        return add_suggest(serialized_source)
