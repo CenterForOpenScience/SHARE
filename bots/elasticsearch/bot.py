@@ -26,6 +26,7 @@ def chunk(iterable, size):
 class ElasticSearchBot(Bot):
 
     SUGGEST_MAPPING = {
+        'type': 'completion',
         'payloads': True,
         'context': {
             'types': {

@@ -49,8 +49,7 @@ pycountry==1.20
 uwsgi==2.0.13
 werkzeug==0.11.10
 xmltodict==0.10.2
-# TODO May need to downgrade
-elasticsearch>=5.0.0<6.0.0
+elasticsearch==2.3.0
 # newrelic APM agent
 newrelic==2.68.0.50
 raven==5.23.0
