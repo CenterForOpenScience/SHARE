@@ -47,11 +47,9 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
 class NormalizedDataViewSet(viewsets.ModelViewSet):
     """View showing all normalized data in the SHARE Dataset.
 
-    ## Submit Changesets
-    Change sets are submitted under @graph, described [here](https://www.w3.org/TR/json-ld/#named-graphs).
-    Known ids and not known @ids use the format described [here](https://www.w3.org/TR/json-ld/#node-identifiers). Not known ids looks like '_:<randomstring>'
-
-    Create
+    ## Submitting changes to the SHARE dataset
+    Changes, whether they are additions or modifications, are submitted as a subset of [JSON-LD graphs](https://www.w3.org/TR/json-ld/#named-graphs).
+    Each [node](https://www.w3.org/TR/json-ld/#dfn-node) of the graph MUST contain both an `@id` and `@type` key.
 
         Method:        POST
         Body (JSON):   {
@@ -66,55 +64,6 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
                                         <relationship_name>: {
                                             '@type': <type>,
                                             '@id': <id>
-                                        }
-                                    }]
-                                }
-                            }
-                        }
-                       }
-        Success:       200 OK
-
-    Update
-
-        Method:        POST
-        Body (JSON):   {
-                        'data': {
-                            'type': 'NormalizedData'
-                            'attributes': {
-                                'data': {
-                                    '@graph': [{
-                                        '@type': <type of document, exp: person>,
-                                        '@id': <id>,
-                                        <attribute_name>: <value>,
-                                        <relationship_name>: {
-                                            '@type': <type>,
-                                            '@id': <id>
-                                        }
-                                    }]
-                                }
-                            }
-                        }
-                       }
-        Success:       200 OK
-
-    Merge
-
-        Method:        POST
-        Body (JSON):   {
-                        'data': {
-                            'type': 'NormalizedData'
-                            'attributes': {
-                                'data': {
-                                    '@graph': [{
-                                        '@type': 'mergeAction',
-                                        '@id': <_:random>,
-                                        'into': {
-                                            '@type': <type of document>,
-                                            '@id': <doc id>
-                                        },
-                                        'from': {
-                                            '@type': <same type of document>,
-                                            '@id': <doc id>
                                         }
                                     }]
                                 }

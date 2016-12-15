@@ -14,7 +14,7 @@ The technical side of SHARE has many pieces that you can interact with:
     + https://share.osf.io/api
 - A search endpoint powered by elasticsearch that indexes the normalized data allowing:
    - Thorough search of creative works:
-        + Creative works: `</api/search/abstractcreativework/_search_>`_
+        + Creative works: `</api/v2/search/creativeworks/_search_>`_
         + more info on the `elasticsearch docs`_ page
    - Data aggregations across fields
 - A python library called ``sharepa`` for SHARE Parsing and Analysis
@@ -23,7 +23,7 @@ The technical side of SHARE has many pieces that you can interact with:
    - Curation
    - Corrections and Updates
 
-.. _`/api/search/abstractcreativework/_search`: https://share.osf.io/api/search/abstractcreativework/_search
+.. _`/api/v2/search/creativeworks/_search`: https://share.osf.io/api/v2/search/creativeworks/_search
 .. _Ember application: /ember_app.html
 .. _elasticsearch docs: /elasticsearch.html
 
