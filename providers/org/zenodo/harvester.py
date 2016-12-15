@@ -16,8 +16,8 @@ class ZenodoHarvester(OAIHarvester):
         url.args['set'] = 'openaire_data'
 
         if self.time_granularity:
-            url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00') + 'Z'
-            url.args['until'] = end_date.format('YYYY-MM-DDT00:00:00') + 'Z'
+            url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+            url.args['until'] = end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
         else:
             url.args['from'] = start_date.date().isoformat()
             url.args['until'] = end_date.date().isoformat()
