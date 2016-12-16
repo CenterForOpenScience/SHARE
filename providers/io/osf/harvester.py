@@ -45,8 +45,12 @@ class OSFHarvester(Harvester):
 
                 for attr, key in self.EMBED_ATTRS.items():
                     url = record
-                    for key in key.split('.'):
-                        url = url[key]
+                    try:
+                        for key in key.split('.'):
+                            url = url[key]
+                    except KeyError:
+                        logger.warning('Could not access attribute %s at %s', attr, key)
+                        continue
                     url = furl(url).add(args={'page[size]': 100})
 
                     data = []
