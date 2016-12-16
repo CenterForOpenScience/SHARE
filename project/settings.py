@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'bots.automerge',
     'bots.elasticsearch',
 
+    'providers',
     'providers.au.uow',
     'providers.be.ghent',
     'providers.br.pcurio',
