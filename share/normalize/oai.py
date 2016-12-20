@@ -325,7 +325,7 @@ class OAINormalizer(Normalizer):
             default_type = self.config.emitted_type.lower()
             type_map = {
                 **{r.lower(): r for r in self.allowed_roots},
-                **{t.lower(): t for t in self.config.type_map}
+                **{t.lower(): v for t, v in self.config.type_map.items()}
             }
 
         if self.config.property_list:
