@@ -9,4 +9,10 @@ class AppConfig(OAIProviderAppConfig):
     home_page = 'http://philpapers.org'
     url = 'http://philpapers.org/oai.pl'
     time_granularity = False
-    emitted_type = 'preprint'
+    until_param = 'to'
+    emitted_type = 'publication'
+    type_map = {
+        'info:eu-repo/semantics/article': 'article',
+        'info:eu-repo/semantics/book': 'book',
+        # 'info:eu-repo/semantics/review': 'review',
+    }
