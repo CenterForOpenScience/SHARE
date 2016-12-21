@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
+from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser, CeleryDisambiguatorTask
 
 
 logger = logging.getLogger(__name__)
@@ -40,15 +40,6 @@ class ProviderTask(celery.Task):
             },
         )
         self.do_run(*args, **kwargs)
-
-    def on_retry(self, exc, task_id, args, kwargs, einfo):
-        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.retried)
-
-    def on_failure(self, exc, task_id, args, kwargs, einfo):
-        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.failed)
-
-    def on_success(self, retval, task_id, args, kwargs):
-        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.succeeded)
 
     @abc.abstractmethod
     def do_run(self, *args, **kwargs):
@@ -138,6 +129,16 @@ class MakeJsonPatches(celery.Task):
         if started_by_id:
             started_by = ShareUser.objects.get(pk=started_by_id)
 
+        self.task, _ = CeleryDisambiguatorTask.objects.update_or_create(
+            uuid=self.request.id,
+            defaults={
+                'name': self.name,
+                'normalized_id': normalized_id,
+                'id_started_by': started_by_id,
+                'status': CeleryDisambiguatorTask.STATUS.started,
+            },
+        )
+
         # Load all relevant ContentTypes in a single query
         ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
@@ -156,6 +157,15 @@ class MakeJsonPatches(celery.Task):
             raise self.retry(countdown=10, exc=e)
 
         logger.info('Finished make JSON patches for NormalizedData %s by %s at %s', normalized_id, started_by, datetime.datetime.utcnow().isoformat())
+
+    def on_retry(self, exc, task_id, args, kwargs, einfo):
+        CeleryDisambiguatorTask.objects.filter(uuid=task_id).update(status=CeleryDisambiguatorTask.STATUS.retried)
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        CeleryDisambiguatorTask.objects.filter(uuid=task_id).update(status=CeleryDisambiguatorTask.STATUS.failed)
+
+    def on_success(self, retval, task_id, args, kwargs):
+        CeleryDisambiguatorTask.objects.filter(uuid=task_id).update(status=CeleryDisambiguatorTask.STATUS.succeeded)
 
 
 class BotTask(ProviderTask):

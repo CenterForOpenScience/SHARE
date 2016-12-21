@@ -30,6 +30,11 @@ class CeleryTask(TypedModel):
         index_together = ('type', 'name', 'app_label', 'timestamp')
 
 
+class CeleryDisambiguatorTask(CeleryTask):
+    normalized_id = models.TextField(db_index=True, blank=True)
+    id_started_by = models.TextField(db_index=True, blank=True)
+
+
 class CeleryProviderTask(CeleryTask):
     app_label = models.TextField(db_index=True, blank=True)
     app_version = models.TextField(blank=True, db_index=True)
