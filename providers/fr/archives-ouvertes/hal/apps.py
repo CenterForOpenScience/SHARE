@@ -5,7 +5,7 @@ class AppConfig(OAIProviderAppConfig):
     name = 'providers.fr.archives-ouvertes.hal'
     version = '0.0.1'
     title = 'HAL'
-    long_title = 'Hyper Articles en Ligne'
+    long_title = 'Hyper Articles en Ligne (HAL)'
     home_page = 'https://hal.archives-ouvertes.fr/'
     url = 'https://api.archives-ouvertes.fr/oai/hal/'
     time_granularity = False
