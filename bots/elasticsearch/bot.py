@@ -99,7 +99,6 @@ class ElasticSearchBot(Bot):
             logger.info('Looking for %ss that have been modified after %s', model, self.last_run)
 
             logger.info('Found %s %s that must be updated in ES', qs.count(), model)
-
             for i, batch in enumerate(chunk(qs.all(), chunk_size)):
                 IndexModelTask().apply_async((self.config.label, self.started_by.id, model.__name__, batch,))
 

@@ -1,4 +1,5 @@
 import graphene
+import bleach
 
 from graphene_django import DjangoObjectType
 
@@ -35,6 +36,10 @@ class AbstractCreativeWork(AbstractShareObject):
 
     total_outgoing_work_relations = graphene.Int()
     outgoing_work_relations = graphene.List(AbstractWorkRelation, limit=graphene.Int(), offset=graphene.Int())
+
+    @graphene.resolve_only_args
+    def resolve_description(self):
+        return bleach.clean(self.description, strip=True)
 
     @graphene.resolve_only_args
     def resolve_identifiers(self):
