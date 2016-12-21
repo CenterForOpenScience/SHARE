@@ -1,4 +1,5 @@
 import uuid
+import bleach
 
 from django.apps import apps
 from django.db import connection
@@ -208,6 +209,9 @@ def fetch_creativework(pks):
 
                 data = data[0]
                 data['lists'] = {}
+
+                if data['description']:
+                    data['description'] = bleach.clean(data['description'], strip=True)
 
                 for agent in data.pop('related_agents'):
                     populate_types(agent)
