@@ -129,13 +129,15 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         return CeleryTaskChangeList
 
     def retry_tasks(self, request, queryset):
-        for changeset in queryset:
-            task_id = str(changeset.uuid)
-            parts = changeset.name.rpartition('.')
+        for task in queryset:
+            task_id = str(task.uuid)
+            parts = task.name.rpartition('.')
             Task = getattr(importlib.import_module(parts[0]), parts[2])
-            # TODO only add app_label for AppTasks
-            args = (changeset.started_by.id, changeset.app_label) + ast.literal_eval(changeset.args)
-            kwargs = ast.literal_eval(changeset.kwargs)
+            if task.app_label:
+                args = (task.started_by.id, task.app_label) + ast.literal_eval(task.args)
+            else:
+                args = (task.started_by.id,) + ast.literal_eval(task.args)
+            kwargs = ast.literal_eval(task.kwargs)
             Task().apply_async(args, kwargs, task_id=task_id)
     retry_tasks.short_description = 'Retry tasks'
 
