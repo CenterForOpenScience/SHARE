@@ -11,7 +11,7 @@ from share.models import Agent
 from share.models import CreativeWork
 from share.models import Subject
 from share.models import Tag
-from share.tasks import ProviderTask
+from share.tasks import AppTask
 from share.util import IDObfuscator
 
 from bots.elasticsearch import util
@@ -51,7 +51,7 @@ def add_suggest(obj):
     return obj
 
 
-class IndexModelTask(ProviderTask):
+class IndexModelTask(AppTask):
 
     def do_run(self, model_name, ids):
         errors = []
@@ -117,7 +117,7 @@ class IndexModelTask(ProviderTask):
         return add_suggest(serialized_subject) if suggest else serialized_subject
 
 
-class IndexSourceTask(ProviderTask):
+class IndexSourceTask(AppTask):
 
     def do_run(self):
         es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)

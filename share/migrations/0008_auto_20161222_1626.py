@@ -26,4 +26,18 @@ class Migration(migrations.Migration):
             name='type',
             field=models.CharField(choices=[('share.celeryapptask', 'celery app task')], db_index=True, max_length=255),
         ),
+        migrations.RunSQL(
+            [('UPDATE share_celerytask SET type=%s WHERE type=%s;', ['share.celeryapptask', 'share.celeryprovidertask'])],
+            [('UPDATE share_celerytask SET type=%s WHERE type=%s;', ['share.celeryprovidertask', 'share.celeryapptask'])],
+        ),
+        migrations.AlterField(
+            model_name='normalizeddata',
+            name='tasks',
+            field=models.ManyToManyField(to='share.CeleryTask'),
+        ),
+        migrations.AlterField(
+            model_name='rawdata',
+            name='tasks',
+            field=models.ManyToManyField(to='share.CeleryTask'),
+        ),
     ]

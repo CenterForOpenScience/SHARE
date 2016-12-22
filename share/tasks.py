@@ -27,6 +27,7 @@ class LoggedTask(celery.Task):
         self.args = args
         self.kwargs = kwargs
         self.started_by = ShareUser.objects.get(id=started_by_id)
+        self.source = None
 
         self.setup(*self.args, **self.kwargs)
 
@@ -56,11 +57,6 @@ class LoggedTask(celery.Task):
             'source': self.source,
             'status': CeleryTask.STATUS.started,
         }
-
-    @property
-    @abc.abstractmethod
-    def source(self):
-        raise NotImplementedError()
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
