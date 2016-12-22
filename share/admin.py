@@ -108,10 +108,10 @@ class CeleryTaskChangeList(ChangeList):
 
 
 class CeleryTaskAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'timestamp', 'name', 'status', 'started_by', 'source', 'app_label' )
+    list_display = ('timestamp', 'name', 'status', 'provider', 'app_label', 'started_by')
     actions = ['retry_tasks']
     list_filter = ['status', TaskNameFilter, AppLabelFilter, 'started_by']
-    list_select_related = ('source', 'started_by')
+    list_select_related = ('provider', 'started_by')
     fields = (
         ('app_label', 'app_version'),
         ('uuid', 'name'),

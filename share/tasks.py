@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class LoggedTask(celery.Task):
     abstract = True
-    CELERY_TASK = CeleryTask
+    CELERY_TASK = CeleryProviderTask
 
     def run(self, started_by_id, *args, **kwargs):
         self.args = args
@@ -68,7 +68,6 @@ class LoggedTask(celery.Task):
 
 
 class AppTask(LoggedTask):
-    CELERY_TASK = CeleryProviderTask
 
     def setup(self, app_label, *args, **kwargs):
         self.config = apps.get_app_config(app_label)
@@ -117,7 +116,7 @@ class HarvesterTask(AppTask):
             # attach task
             raw.tasks.add(self.task)
 
-            task = NormalizerTask().apply_async((self.config.label, self.started_by.id, raw.pk,))
+            task = NormalizerTask().apply_async((self.started_by.id, self.config.label, raw.pk,))
             logger.debug('Started normalizer task %s for %s', task, raw.id)
 
 
@@ -161,7 +160,7 @@ class NormalizerTask(AppTask):
 
 class DisambiguatorTask(LoggedTask):
 
-    def setup(normalized_id, *args, **kwargs):
+    def setup(self, normalized_id, *args, **kwargs):
         self.normalized = NormalizedData.objects.get(pk=normalized_id)
         self.source = self.normalized.source
 
@@ -180,7 +179,7 @@ class DisambiguatorTask(LoggedTask):
                     # TODO: verify change set is not overwriting user created object
                     cs.accept()
         except Exception as e:
-            logger.info('Failed make JSON patches for NormalizedData %s with exception %s. Retrying...', normalized_id, e)
+            logger.info('Failed make JSON patches for NormalizedData %s with exception %s. Retrying...', self.normalized.id, e)
             raise self.retry(countdown=10, exc=e)
 
         logger.info('Finished make JSON patches for NormalizedData %s by %s at %s', self.normalized.id, self.started_by, datetime.datetime.utcnow().isoformat())

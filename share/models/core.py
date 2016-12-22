@@ -204,7 +204,7 @@ class RawData(models.Model):
     date_seen = models.DateTimeField(auto_now=True)
     date_harvested = models.DateTimeField(auto_now_add=True)
 
-    tasks = models.ManyToManyField('CeleryTask')
+    tasks = models.ManyToManyField('CeleryProviderTask')
 
     objects = RawDataManager()
 
@@ -230,7 +230,7 @@ class NormalizedData(models.Model):
     # TODO Rename this to data
     data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
-    tasks = models.ManyToManyField('CeleryTask')
+    tasks = models.ManyToManyField('CeleryProviderTask')
 
     def __str__(self):
         return '{} created at {}'.format(self.source.get_short_name(), self.created_at)
