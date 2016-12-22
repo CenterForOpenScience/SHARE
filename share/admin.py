@@ -108,10 +108,10 @@ class CeleryTaskChangeList(ChangeList):
 
 
 class CeleryTaskAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'timestamp', 'name', 'app_label', 'status', 'started_by')
+    list_display = ('uuid', 'timestamp', 'name', 'status', 'started_by', 'source', 'app_label' )
     actions = ['retry_tasks']
     list_filter = ['status', TaskNameFilter, AppLabelFilter, 'started_by']
-    list_select_related = ('provider', 'started_by')
+    list_select_related = ('source', 'started_by')
     fields = (
         ('app_label', 'app_version'),
         ('uuid', 'name'),
@@ -133,7 +133,8 @@ class CeleryTaskAdmin(admin.ModelAdmin):
             task_id = str(changeset.uuid)
             parts = changeset.name.rpartition('.')
             Task = getattr(importlib.import_module(parts[0]), parts[2])
-            args = (changeset.app_label, changeset.started_by.id,) + ast.literal_eval(changeset.args)
+            # TODO only add app_label for AppTasks
+            args = (changeset.started_by.id, changeset.app_label) + ast.literal_eval(changeset.args)
             kwargs = ast.literal_eval(changeset.kwargs)
             Task().apply_async(args, kwargs, task_id=task_id)
     retry_tasks.short_description = 'Retry tasks'

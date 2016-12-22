@@ -1,11 +1,10 @@
 from fuzzycount import FuzzyCountManager
 from model_utils import Choices
 
+from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
 from typedmodels.models import TypedModel
-
-from share.models.core import ShareUser
 
 
 class CeleryTask(TypedModel):
@@ -21,6 +20,8 @@ class CeleryTask(TypedModel):
     args = models.TextField(blank=True)
     kwargs = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    started_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='started_by', null=True)
+    source = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='source', null=True)
     status = models.IntegerField(choices=STATUS)
 
     objects = FuzzyCountManager()
@@ -30,8 +31,6 @@ class CeleryTask(TypedModel):
         index_together = ('type', 'name', 'app_label', 'timestamp')
 
 
-class CeleryProviderTask(CeleryTask):
+class CeleryAppTask(CeleryTask):
     app_label = models.TextField(db_index=True, blank=True)
-    app_version = models.TextField(blank=True, db_index=True)
-    provider = models.ForeignKey(ShareUser, related_name='provider')
-    started_by = models.ForeignKey(ShareUser, related_name='started_by')
+    app_version = models.TextField(db_index=True, blank=True)

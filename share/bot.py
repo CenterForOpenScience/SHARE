@@ -38,7 +38,7 @@ class Bot(abc.ABC):
 
     @cached_property
     def last_run(self) -> pendulum.Pendulum:
-        from share.models import CeleryProviderTask
+        from share.models import CeleryAppTask
 
         if self._last_run is not None:
             if isinstance(self._last_run, int):
@@ -47,9 +47,9 @@ class Bot(abc.ABC):
                 last_run = pendulum.parse(self._last_run)
         else:
             logger.debug('Finding last successful job')
-            last_run = CeleryProviderTask.objects.filter(
+            last_run = CeleryAppTask.objects.filter(
                 app_label=self.config.label,
-                status=CeleryProviderTask.STATUS.succeeded,
+                status=CeleryAppTask.STATUS.succeeded,
             ).order_by(
                 '-timestamp'
             ).values_list('timestamp', flat=True).first()
