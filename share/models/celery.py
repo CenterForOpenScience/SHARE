@@ -21,7 +21,8 @@ class CeleryTask(TypedModel):
     kwargs = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
     started_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='started_by', null=True)
-    source = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='source', null=True)
+    # TODO rename to 'source'
+    provider = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='provider', null=True)
     status = models.IntegerField(choices=STATUS)
 
     objects = FuzzyCountManager()
@@ -31,6 +32,7 @@ class CeleryTask(TypedModel):
         index_together = ('type', 'name', 'app_label', 'timestamp')
 
 
-class CeleryAppTask(CeleryTask):
+# TODO rename to get rid of 'Provider'
+class CeleryProviderTask(CeleryTask):
     app_label = models.TextField(db_index=True, blank=True)
     app_version = models.TextField(db_index=True, blank=True)

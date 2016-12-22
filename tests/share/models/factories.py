@@ -10,12 +10,12 @@ from django.contrib.contenttypes.models import ContentType
 from share import models
 
 
-class CeleryAppTaskFactory(DjangoModelFactory):
+class CeleryProviderTaskFactory(DjangoModelFactory):
     uuid = str(uuid.uuid4())
     status = 1
 
     class Meta:
-        model = models.CeleryAppTask
+        model = models.CeleryProviderTask
 
 
 class ShareUserFactory(DjangoModelFactory):

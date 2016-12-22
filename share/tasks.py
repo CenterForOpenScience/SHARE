@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedData, ChangeSet, CeleryTask, CeleryAppTask, ShareUser
+from share.models import RawData, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser
 
 
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ class LoggedTask(celery.Task):
             'args': self.args,
             'kwargs': self.kwargs,
             'started_by': self.started_by,
-            'source': self.source,
+            'provider': self.source,
             'status': CeleryTask.STATUS.started,
         }
 
@@ -68,7 +68,7 @@ class LoggedTask(celery.Task):
 
 
 class AppTask(LoggedTask):
-    CELERY_TASK = CeleryAppTask
+    CELERY_TASK = CeleryProviderTask
 
     def setup(self, app_label, *args, **kwargs):
         self.config = apps.get_app_config(app_label)

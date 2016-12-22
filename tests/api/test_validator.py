@@ -349,7 +349,7 @@ class TestValidator:
     def test_robot_validator(self, robot_user, raw_data_id, client):
         args, kwargs = (), {'content_type': 'application/vnd.api+json'}
 
-        normalizer_task = factories.CeleryAppTaskFactory()
+        normalizer_task = factories.CeleryProviderTaskFactory()
 
         _request = requests.Request('POST', json={
             'data': {
