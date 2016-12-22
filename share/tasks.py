@@ -13,49 +13,77 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedData, ChangeSet, CeleryProviderTask, ShareUser
+from share.models import RawData, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser
 
 
 logger = logging.getLogger(__name__)
 
 
-class ProviderTask(celery.Task):
+class LoggedTask(celery.Task):
     abstract = True
+    CELERY_TASK = CeleryProviderTask
 
-    def run(self, app_label, started_by, *args, **kwargs):
-        self.config = apps.get_app_config(app_label)
-        self.started_by = ShareUser.objects.get(id=started_by)
+    def run(self, started_by_id, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        self.started_by = ShareUser.objects.get(id=started_by_id)
+        self.source = None
 
-        self.task, _ = CeleryProviderTask.objects.update_or_create(
+        self.setup(*self.args, **self.kwargs)
+
+        assert issubclass(self.CELERY_TASK, CeleryTask)
+        self.task, _ = self.CELERY_TASK.objects.update_or_create(
             uuid=self.request.id,
-            defaults={
-                'name': self.name,
-                'app_label': self.config.label,
-                'app_version': self.config.version,
-                'args': args,
-                'kwargs': kwargs,
-                'status': CeleryProviderTask.STATUS.started,
-                'provider': self.config.user,
-                'started_by': self.started_by,
-            },
+            defaults=self.log_values(),
         )
-        self.do_run(*args, **kwargs)
+
+        self.do_run(*self.args, **self.kwargs)
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
-        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.retried)
+        CeleryTask.objects.filter(uuid=task_id).update(status=CeleryTask.STATUS.retried)
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.failed)
+        CeleryTask.objects.filter(uuid=task_id).update(status=CeleryTask.STATUS.failed)
 
     def on_success(self, retval, task_id, args, kwargs):
-        CeleryProviderTask.objects.filter(uuid=task_id).update(status=CeleryProviderTask.STATUS.succeeded)
+        CeleryTask.objects.filter(uuid=task_id).update(status=CeleryTask.STATUS.succeeded)
+
+    def log_values(self):
+        return {
+            'name': self.name,
+            'args': self.args,
+            'kwargs': self.kwargs,
+            'started_by': self.started_by,
+            'provider': self.source,
+            'status': CeleryTask.STATUS.started,
+        }
 
     @abc.abstractmethod
-    def do_run(self, *args, **kwargs):
-        raise NotImplementedError
+    def setup(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def do_run(self):
+        raise NotImplementedError()
 
 
-class HarvesterTask(ProviderTask):
+class AppTask(LoggedTask):
+
+    def setup(self, app_label, *args, **kwargs):
+        self.config = apps.get_app_config(app_label)
+        self.source = self.config.user
+        self.args = args
+        self.kwargs = kwargs
+
+    def log_values(self):
+        return {
+            **super().log_values(),
+            'app_label': self.config.label,
+            'app_version': self.config.version,
+        }
+
+
+class HarvesterTask(AppTask):
 
     def apply_async(self, targs=None, tkwargs=None, **kwargs):
         tkwargs = tkwargs or {}
@@ -65,7 +93,7 @@ class HarvesterTask(ProviderTask):
 
     def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None, limit: int=None, force=False):
         if self.config.disabled and not force:
-            raise Exception('Harvester {} is disabled. Either enable it or disable it\'s celery beat entry'.format(self.config))
+            raise Exception('Harvester {} is disabled. Either enable it or disable its celery beat entry'.format(self.config))
 
         if not start and not end:
             start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
@@ -88,17 +116,17 @@ class HarvesterTask(ProviderTask):
             # attach task
             raw.tasks.add(self.task)
 
-            task = NormalizerTask().apply_async((self.config.label, self.started_by.id, raw.pk,))
+            task = NormalizerTask().apply_async((self.started_by.id, self.config.label, raw.pk,))
             logger.debug('Started normalizer task %s for %s', task, raw.id)
 
 
-class NormalizerTask(ProviderTask):
+class NormalizerTask(AppTask):
 
     def do_run(self, raw_id):
         raw = RawData.objects.get(pk=raw_id)
         normalizer = self.config.normalizer(self.config)
 
-        assert raw.source == self.config.user, 'RawData is from {}. Tried parsing it as {}'.format(raw.source, self.config)
+        assert raw.source == self.source, 'RawData is from {}. Tried parsing it as {}'.format(raw.source, self.source)
 
         logger.info('Starting normalization for %s by %s', raw, normalizer)
 
@@ -130,35 +158,34 @@ class NormalizerTask(ProviderTask):
         logger.info('Successfully submitted change for %s', raw)
 
 
-class MakeJsonPatches(celery.Task):
+class DisambiguatorTask(LoggedTask):
 
-    def run(self, normalized_id, started_by_id=None):
-        started_by = None
-        normalized = NormalizedData.objects.get(pk=normalized_id)
-        if started_by_id:
-            started_by = ShareUser.objects.get(pk=started_by_id)
+    def setup(self, normalized_id, *args, **kwargs):
+        self.normalized = NormalizedData.objects.get(pk=normalized_id)
+        self.source = self.normalized.source
 
+    def do_run(self, *args, **kwargs):
         # Load all relevant ContentTypes in a single query
         ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
-        logger.info('%s started make JSON patches for NormalizedData %s at %s', started_by, normalized_id, datetime.datetime.utcnow().isoformat())
+        logger.info('%s started make JSON patches for NormalizedData %s at %s', self.started_by, self.normalized.id, datetime.datetime.utcnow().isoformat())
 
         try:
             with transaction.atomic():
-                cg = ChangeGraph(normalized.data['@graph'], namespace=normalized.source.username)
+                cg = ChangeGraph(self.normalized.data['@graph'], namespace=self.normalized.source.username)
                 cg.process()
-                cs = ChangeSet.objects.from_graph(cg, normalized.id)
-                if cs and (normalized.source.is_robot or normalized.source.is_trusted):
+                cs = ChangeSet.objects.from_graph(cg, self.normalized.id)
+                if cs and (self.source.is_robot or self.source.is_trusted):
                     # TODO: verify change set is not overwriting user created object
                     cs.accept()
         except Exception as e:
-            logger.info('Failed make JSON patches for NormalizedData %s with exception %s. Retrying...', normalized_id, e)
+            logger.info('Failed make JSON patches for NormalizedData %s with exception %s. Retrying...', self.normalized.id, e)
             raise self.retry(countdown=10, exc=e)
 
-        logger.info('Finished make JSON patches for NormalizedData %s by %s at %s', normalized_id, started_by, datetime.datetime.utcnow().isoformat())
+        logger.info('Finished make JSON patches for NormalizedData %s by %s at %s', self.normalized.id, self.started_by, datetime.datetime.utcnow().isoformat())
 
 
-class BotTask(ProviderTask):
+class BotTask(AppTask):
 
     def do_run(self, last_run=None):
         bot = self.config.get_bot(self.started_by, last_run=last_run)

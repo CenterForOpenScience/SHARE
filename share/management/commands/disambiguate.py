@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from share.models import ShareUser, NormalizedData
-from share.tasks import MakeJsonPatches
+from share.tasks import DisambiguatorTask
 
 
 class Command(BaseCommand):
@@ -22,9 +22,9 @@ class Command(BaseCommand):
             options['normalized'] = NormalizedData.objects.filter(raw__app_label=config.label).values_list('id', flat=True)
 
         for id in options['normalized']:
-            task_args = (id, user.id)
+            task_args = (user.id, id)
 
             if options['async']:
-                MakeJsonPatches().apply_async(task_args)
+                DisambiguatorTask().apply_async(task_args)
             else:
-                MakeJsonPatches().apply(task_args, throw=True)
+                DisambiguatorTask().apply(task_args, throw=True)

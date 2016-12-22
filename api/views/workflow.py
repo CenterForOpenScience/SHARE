@@ -17,7 +17,7 @@ from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSer
     ChangeSerializer, RawDataSerializer, ShareUserSerializer, ProviderSerializer
 from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
 from share.models.validators import JSONLDValidator
-from share.tasks import MakeJsonPatches
+from share.tasks import DisambiguatorTask
 from share.harvest.harvester import Harvester
 from share.normalize.v1_push import V1Normalizer
 
@@ -143,7 +143,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             nm_instance = serializer.save()
-            async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
+            async_result = DisambiguatorTask().delay(request.user.id, nm_instance.id)
             # TODO Fix Me
             return Response({
                 'id': nm_instance.id,
@@ -377,7 +377,7 @@ class V1DataView(views.APIView):
 
         if serializer.is_valid():
             nm_instance = serializer.save()
-            async_result = MakeJsonPatches().delay(nm_instance.id, request.user.id)
+            async_result = DisambiguatorTask().delay(request.user.id, nm_instance.id)
             return Response({'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
         else:
             return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)

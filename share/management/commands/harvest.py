@@ -51,7 +51,7 @@ class Command(BaseCommand):
         for harvester in options['harvester']:
             apps.get_app_config(harvester)  # Die if the AppConfig can not be loaded
 
-            task_args = (harvester, user.id,)
+            task_args = (user.id, harvester,)
             if options['async']:
                 HarvesterTask().apply_async(task_args, task_kwargs)
                 self.stdout.write('Started job for harvester {}'.format(harvester))

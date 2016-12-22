@@ -22,7 +22,7 @@ class Command(BaseCommand):
             options['raws'] = RawData.objects.filter(app_label=config.label).values_list('id', flat=True)
 
         for raw in options['raws']:
-            task_args = (config.label, user.id, raw,)
+            task_args = (user.id, config.label, raw,)
 
             if options['async']:
                 NormalizerTask().apply_async(task_args)

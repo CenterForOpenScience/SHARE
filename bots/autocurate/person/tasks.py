@@ -7,12 +7,12 @@ from django.core.urlresolvers import reverse
 from project import settings
 from share.models import NormalizedData
 
-from share.tasks import ProviderTask
+from share.tasks import AppTask
 
 logger = logging.getLogger(__name__)
 
 
-class CurateItemTask(ProviderTask):
+class CurateItemTask(AppTask):
 
     def do_run(self, matches):
         # use the oldest record from the order by specified
