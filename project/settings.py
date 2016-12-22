@@ -480,7 +480,7 @@ LOW_PRI_MODULES = {
 # }
 
 MED_PRI_MODULES = {
-    'share.tasks.MakeJsonPatches',
+    'share.tasks.DisambiguatorTask',
 }
 
 HIGH_PRI_MODULES = {

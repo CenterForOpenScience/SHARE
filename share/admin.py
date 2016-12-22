@@ -109,19 +109,20 @@ class CeleryTaskChangeList(ChangeList):
 
 
 class CeleryTaskAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'timestamp', 'name', 'app_label', 'status', 'started_by')
+    list_display = ('timestamp', 'name', 'status', 'provider', 'app_label', 'started_by')
     actions = ['retry_tasks']
     list_filter = ['status', TaskNameFilter, AppLabelFilter, 'started_by']
     list_select_related = ('provider', 'started_by')
     fields = (
         ('app_label', 'app_version'),
+        ('started_by', 'provider'),
         ('uuid', 'name'),
         ('args', 'kwargs'),
         'timestamp',
         'status',
         'traceback',
     )
-    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'status', 'traceback')
+    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'status', 'traceback', 'started_by', 'provider')
 
     def traceback(self, task):
         return apps.get_model('djcelery', 'taskmeta').objects.filter(task_id=task.uuid).first().traceback
@@ -130,12 +131,15 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         return CeleryTaskChangeList
 
     def retry_tasks(self, request, queryset):
-        for changeset in queryset:
-            task_id = str(changeset.uuid)
-            parts = changeset.name.rpartition('.')
+        for task in queryset:
+            task_id = str(task.uuid)
+            parts = task.name.rpartition('.')
             Task = getattr(importlib.import_module(parts[0]), parts[2])
-            args = (changeset.app_label, changeset.started_by.id,) + ast.literal_eval(changeset.args)
-            kwargs = ast.literal_eval(changeset.kwargs)
+            if task.app_label:
+                args = (task.started_by.id, task.app_label) + ast.literal_eval(task.args)
+            else:
+                args = (task.started_by.id,) + ast.literal_eval(task.args)
+            kwargs = ast.literal_eval(task.kwargs)
             Task().apply_async(args, kwargs, task_id=task_id)
     retry_tasks.short_description = 'Retry tasks'
 
