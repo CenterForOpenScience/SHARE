@@ -24,7 +24,7 @@ class Command(BaseCommand):
         for bot in options['bot']:
             apps.get_app_config(bot)  # Die if the AppConfig can not be loaded
 
-            task_args = (bot, user.id,)
+            task_args = (user.id, bot, )
             task_kwargs = {'last_run': options['last_run']}
 
             if options['async']:
