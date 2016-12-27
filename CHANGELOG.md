@@ -1,5 +1,18 @@
 # Change Log
 
+## [2.1.0] - 2016-12-16
+## Added
+* New Harvesters
+  * es.csic
+  * edu.purdue.epubs
+* Site status banners
+* Retraction harvesting
+* A little bit of documentation
+
+## Changed
+* OAuth login failure pages look nice now
+* Cascade deletes are now implemented as database cascades
+
 ## [2.0.0] - 2016-12-02
 ### Added
 * New Harvesters
