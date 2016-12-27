@@ -60,11 +60,41 @@ class ElasticSearchBot(Bot):
             'properties': {
                 'tags': {'type': 'string', 'index': 'not_analyzed'},
                 'subjects': {'type': 'string', 'index': 'not_analyzed'},
+                'type': {
+                    'type': 'string',
+                    'fields': {
+                        'raw': {'type': 'string', 'index': 'not_analyzed'}
+                    }
+                },
+                'types': {
+                    'type': 'string',
+                    'fields': {
+                        'raw': {'type': 'string', 'index': 'not_analyzed'}
+                    }
+                },
+                'sources': {
+                    'type': 'string',
+                    'fields': {
+                        'raw': {'type': 'string', 'index': 'not_analyzed'}
+                    }
+                },
             }
         },
         'agents': {
             'properties': {
-                'suggest': SUGGEST_MAPPING
+                'suggest': SUGGEST_MAPPING,
+                'type': {
+                    'type': 'string',
+                    'fields': {
+                        'raw': {'type': 'string', 'index': 'not_analyzed'}
+                    }
+                },
+                'types': {
+                    'type': 'string',
+                    'fields': {
+                        'raw': {'type': 'string', 'index': 'not_analyzed'}
+                    }
+                },
             }
         },
         'sources': {
