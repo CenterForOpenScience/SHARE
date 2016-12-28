@@ -25,7 +25,7 @@ class BotAppConfig(RobotAppConfig, metaclass=abc.ABCMeta):
         return self.name.rpartition('bots.')[2]
 
     @abc.abstractmethod
-    def get_bot(self, started_by, last_run=None):
+    def get_bot(self, started_by, last_run=None, **kwargs):
         raise NotImplementedError
 
 

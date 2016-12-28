@@ -187,8 +187,8 @@ class DisambiguatorTask(LoggedTask):
 
 class BotTask(AppTask):
 
-    def do_run(self, last_run=None):
-        bot = self.config.get_bot(self.started_by, last_run=last_run)
+    def do_run(self, last_run=None, **kwargs):
+        bot = self.config.get_bot(self.started_by, last_run=last_run, **kwargs)
         logger.info('Running bot %s. Started by %s', bot, self.started_by)
         bot.run()
 
