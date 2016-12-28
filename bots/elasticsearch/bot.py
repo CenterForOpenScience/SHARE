@@ -109,9 +109,11 @@ class ElasticSearchBot(Bot):
         },
     }
 
-    def __init__(self, config, started_by, last_run=None):
+    def __init__(self, config, started_by, last_run=None, es_url=None, es_index=None):
         super().__init__(config, started_by, last_run=last_run)
-        self.es_client = Elasticsearch(settings.ELASTICSEARCH_URL)
+        self.es_url = es_url or settings.ELASTICSEARCH_URL
+        self.es_index = es_index or settings.ELASTICSEARCH_INDEX
+        self.es_client = Elasticsearch(self.es_url)
 
     def run(self, chunk_size=500):
         self.setup()
@@ -124,14 +126,14 @@ class ElasticSearchBot(Bot):
 
             logger.info('Found %s %s that must be updated in ES', qs.count(), model)
             for i, batch in enumerate(chunk(qs.all(), chunk_size)):
-                IndexModelTask().apply_async((self.config.label, self.started_by.id, model.__name__, batch,))
+                IndexModelTask().apply_async((self.started_by.id, self.config.label, model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
 
         logger.info('Starting task to index sources')
-        IndexSourceTask().apply_async((self.config.label, self.started_by.id))
+        IndexSourceTask().apply_async((self.started_by.id, self.config.label), {'es_url': self.es_url, 'es_index': self.es_index})
 
     def setup(self):
-        logger.debug('Ensuring Elasticsearch index %s', settings.ELASTICSEARCH_INDEX)
-        self.es_client.indices.create(settings.ELASTICSEARCH_INDEX, ignore=400)
+        logger.debug('Ensuring Elasticsearch index %s', self.es_index)
+        self.es_client.indices.create(self.es_index, ignore=400)
 
         logger.debug('Waiting for yellow status')
         self.es_client.cluster.health(wait_for_status='yellow')
@@ -142,5 +144,5 @@ class ElasticSearchBot(Bot):
             self.es_client.indices.put_mapping(
                 doc_type=doc_type,
                 body={doc_type: mapping},
-                index=settings.ELASTICSEARCH_INDEX,
+                index=self.es_index,
             )

@@ -14,6 +14,8 @@ class Command(BaseCommand):
         parser.add_argument('bot', nargs='*', type=str, help='The name of the bot to run')
         parser.add_argument('--last-run', type=int, help='The timestmap of the last run')
         parser.add_argument('--async', action='store_true', help='Whether or not to use Celery')
+        parser.add_argument('--es-url', type=str, help='Force the value of ELASTICSEARCH_URL for all tasks and subtasks')
+        parser.add_argument('--es-index', type=str, help='Force the value of ELASTICSEARCH_INDEX for all tasks and subtasks')
 
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
@@ -26,6 +28,10 @@ class Command(BaseCommand):
 
             task_args = (user.id, bot, )
             task_kwargs = {'last_run': options['last_run']}
+
+            if bot == 'elasticsearch':
+                task_kwargs['es_url'] = options.get('es_url')
+                task_kwargs['es_index'] = options.get('es_index')
 
             if options['async']:
                 BotTask().apply_async(task_args, task_kwargs)

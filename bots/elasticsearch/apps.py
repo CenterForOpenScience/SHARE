@@ -7,9 +7,9 @@ class AppConfig(BotAppConfig):
     long_title = ''
     home_page = ''
 
-    def get_bot(self, started_by, last_run=None):
+    def get_bot(self, started_by, last_run=None, es_url=None, es_index=None):
         from bots.elasticsearch.bot import ElasticSearchBot
-        return ElasticSearchBot(self, started_by, last_run=last_run)
+        return ElasticSearchBot(self, started_by, last_run=last_run, es_url=es_url, es_index=es_index)
 
     # Sources are also indexed as a special case
     INDEX_MODELS = [
