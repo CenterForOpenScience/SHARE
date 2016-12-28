@@ -53,12 +53,12 @@ def add_suggest(obj):
 
 class IndexModelTask(AppTask):
 
-    def do_run(self, model_name, ids):
+    def do_run(self, model_name, ids, es_url=None, es_index=None):
         errors = []
         model = apps.get_model('share', model_name)
-        es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
+        es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
 
-        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids), raise_on_error=False):
+        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids, es_index or settings.ELASTICSEARCH_INDEX), raise_on_error=False):
             if not ok:
                 logger.warning(resp)
             else:
@@ -70,11 +70,11 @@ class IndexModelTask(AppTask):
         if errors:
             raise Exception('Failed to index documents {}'.format(errors))
 
-    def bulk_stream(self, model, ids):
+    def bulk_stream(self, model, ids, es_index):
         if not ids:
             return
 
-        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': model._meta.verbose_name_plural.replace(' ', '')}
+        opts = {'_index': es_index, '_type': model._meta.verbose_name_plural.replace(' ', '')}
 
         if model is CreativeWork:
             for blob in util.fetch_creativework(ids):
@@ -119,10 +119,10 @@ class IndexModelTask(AppTask):
 
 class IndexSourceTask(AppTask):
 
-    def do_run(self):
-        es_client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
+    def do_run(self, es_url=None, es_index=None):
+        es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
         errors = []
-        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(), raise_on_error=False):
+        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(es_index or settings.ELASTICSEARCH_INDEX), raise_on_error=False):
             if not ok:
                 logger.warning(resp)
             else:
@@ -134,9 +134,9 @@ class IndexSourceTask(AppTask):
         if errors:
             raise Exception('Failed to index documents {}'.format(errors))
 
-    def bulk_stream(self):
+    def bulk_stream(self, es_index):
         ShareUser = apps.get_model('share.ShareUser')
-        opts = {'_index': settings.ELASTICSEARCH_INDEX, '_type': 'sources'}
+        opts = {'_index': es_index, '_type': 'sources'}
         for source in ShareUser.objects.exclude(robot='').exclude(long_title='').all():
             yield {'_op_type': 'index', '_id': source.robot, **self.serialize(source), **opts}
 
