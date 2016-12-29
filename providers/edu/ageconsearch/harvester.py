@@ -27,6 +27,7 @@ class AgEconHarvester(Harvester):
 
     fields = {
         'title': 'title',
+        'other titles': 'other_titles',
         'authors': 'authors',
         'editors': 'editors',
         'editors (email)': 'editors_email',
@@ -69,9 +70,9 @@ class AgEconHarvester(Harvester):
                 date_status = self.check_record_date(work['issue_date'], start_date, end_date)
 
                 # if date is > start_date continue and skip
-                if date_status == 'before':
+                if date_status == 'after':
                     continue
-                elif date_status == 'after':
+                elif date_status == 'before':
                     within_date_range = False
                     return
                 yield work['primary_identifier'], work
@@ -79,13 +80,11 @@ class AgEconHarvester(Harvester):
             r = self.requests.get('http://ageconsearch.umn.edu/{}'.format(document.find('a', string='Next page').attrs['href']))
 
     def check_record_date(self, issue_date, start_date, end_date):
-        """
-        :return: final_page
-        """
         date_object = dateutil.parser.parse(issue_date, default=pendulum.create(2016, 1, 1))
-        if date_object > start_date:
+
+        if date_object < start_date.start_of('day'):
             return 'before'
-        if date_object < end_date:
+        if date_object > end_date.end_of('day'):
             return 'after'
 
         return 'within'

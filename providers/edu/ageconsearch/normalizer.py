@@ -85,6 +85,7 @@ class CreativeWork(Parser):
     subjects = Map(Delegate(ThroughSubjects), Try(ctx.jel_codes))
 
     class Extra:
+        other_titles = Try(ctx.other_titles)
         notes = Try(ctx.notes)
         editors = Try(ctx.editors)
         editors_email = Try(ctx.editors_email)
