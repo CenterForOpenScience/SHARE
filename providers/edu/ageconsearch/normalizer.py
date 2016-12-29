@@ -4,7 +4,7 @@ from share.normalize import *
 
 
 class WorkIdentifier(Parser):
-    uri = ctx
+    uri = IRI(ctx)
 
 
 class AgentIdentifier(Parser):
@@ -15,7 +15,7 @@ class Agent(Parser):
     schema = GuessAgentType(ctx.name)
     # TODO add email
     name = ctx.name
-    identifiers = Map(Delegate(AgentIdentifier), Try(ctx.email))
+    identifiers = Map(Delegate(AgentIdentifier), Try(IRI(ctx.email)))
 
 
 class ContributorRelation(Parser):
@@ -82,7 +82,7 @@ class CreativeWork(Parser):
 
     tags = Map(Delegate(ThroughTags), Try(ctx.keywords))
     date_published = ParseDate(Try(ctx.issue_date))
-    subjects = Map(Delegate(ThroughSubjects), Try(ctx.jel_codes))
+    subjects = Map(Delegate(ThroughSubjects), Subjects(Try(ctx.jel_codes)))
 
     class Extra:
         other_titles = Try(ctx.other_titles)
