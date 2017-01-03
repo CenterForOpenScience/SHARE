@@ -212,6 +212,7 @@ INSTALLED_APPS = [
     'providers.org.neurovault',
     'providers.org.newprairiepress',
     'providers.org.plos',
+    'providers.org.preprints',
     'providers.org.psyarxiv',
     'providers.org.repec',
     'providers.org.shareok',
