@@ -1,5 +1,6 @@
 -r requirements.txt
 
+fake-factory==0.6.0 # TODO Remove this after upgrading to factory-boy>=2.8.1
 factory-boy==2.7.0
 fake-factory==0.7.2
 ipdb==0.10.1
