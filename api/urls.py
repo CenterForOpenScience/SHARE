@@ -48,9 +48,13 @@ class EndpointGenerator:
 
     def generate_viewset(self, subclass, serializer):
         class_name = subclass.__name__ + 'ViewSet'
+        queryset = serializer.Meta.model.objects.all().select_related('extra')
+        if subclass.__name__ == 'AgentIdentifier':
+            queryset = queryset.exclude(scheme='mailto')
+
         generated_viewset = type(class_name, (ShareObjectViewSet,), {
             'serializer_class': serializer,
-            'queryset': serializer.Meta.model.objects.all().select_related('extra')
+            'queryset': queryset
         })
         globals().update({class_name: generated_viewset})
         self.register_url(subclass, generated_viewset)

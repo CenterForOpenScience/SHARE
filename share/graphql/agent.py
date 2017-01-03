@@ -24,7 +24,7 @@ class AbstractAgent(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_identifiers(self):
-        return self.identifiers.all()
+        return self.identifiers.exclude(scheme='mailto')
 
     @graphene.resolve_only_args
     def resolve_total_related_works(self):
