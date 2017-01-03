@@ -45,7 +45,10 @@ class ElasticSearchBot(Bot):
                     'mapping': {
                         'type': 'string',
                         'fields': {
-                            'raw': {'type': 'string', 'index': 'not_analyzed'}
+                            # From Elasticsearch documentation:
+                            # The value for ignore_above is the character count, but Lucene counts bytes.
+                            # If you use UTF-8 text with many non-ASCII characters, you may want to set the limit to 32766 / 3 = 10922 since UTF-8 characters may occupy at most 3 bytes
+                            'raw': {'type': 'string', 'index': 'not_analyzed', 'ignore_above': 10922}
                         }
                     }
                 }
@@ -58,6 +61,15 @@ class ElasticSearchBot(Bot):
                 }
             }],
             'properties': {
+                'title': {
+                    'type': 'string',
+                    'fields': {
+                        # From Elasticsearch documentation:
+                        # The value for ignore_above is the character count, but Lucene counts bytes.
+                        # If you use UTF-8 text with many non-ASCII characters, you may want to set the limit to 32766 / 3 = 10922 since UTF-8 characters may occupy at most 3 bytes
+                        'raw': {'type': 'string', 'index': 'not_analyzed', 'ignore_above': 10922}
+                    }
+                },
                 'tags': {'type': 'string', 'index': 'not_analyzed'},
                 'subjects': {'type': 'string', 'index': 'not_analyzed'},
                 'type': {

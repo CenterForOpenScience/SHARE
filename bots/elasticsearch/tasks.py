@@ -56,7 +56,7 @@ class IndexModelTask(AppTask):
     def do_run(self, model_name, ids, es_url=None, es_index=None):
         errors = []
         model = apps.get_model('share', model_name)
-        es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
+        es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
 
         for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids, es_index or settings.ELASTICSEARCH_INDEX), raise_on_error=False):
             if not ok:
@@ -120,7 +120,7 @@ class IndexModelTask(AppTask):
 class IndexSourceTask(AppTask):
 
     def do_run(self, es_url=None, es_index=None):
-        es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
+        es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
         errors = []
         for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(es_index or settings.ELASTICSEARCH_INDEX), raise_on_error=False):
             if not ok:
