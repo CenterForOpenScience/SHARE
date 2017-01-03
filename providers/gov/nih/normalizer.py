@@ -307,18 +307,21 @@ class Project(Parser):
             pi_list[0]['org_ctx'] = org_ctx
             return pi_list
         # more than one, get the primary
-        elif len(pi_list) > 1 and primary:
-            primary_pi = []
-            for pi in pi_list:
+        if len(pi_list) > 1 and primary:
+            pi_itr = iter(pi_list)
+            while True:
+                try:
+                    pi = next(pi_itr)
+                except StopIteration:
+                    return []
                 if '(contact)' in pi['PI_NAME']:
-                    pi['PI_NAME'] = re.sub(r'(\(contact\))', '', pi['PI_NAME']).strip()
-                    pi['PI_ID'] = re.sub(r'(\(contact\))', '', pi['PI_ID']).strip()
-                    pi['org_ctx'] = org_ctx
-                    primary_pi.append(pi)
-                    break
-            return primary_pi
+                    return {
+                        'PI_NAME': re.sub(r'(\(contact\))', '', pi['PI_NAME']).strip(),
+                        'PI_ID': re.sub(r'(\(contact\))', '', pi['PI_ID']).strip(),
+                        'org_ctx': org_ctx
+                    }
         # more than one, get the non-primary
-        elif len(pi_list) > 1 and not primary:
+        if len(pi_list) > 1 and not primary:
             non_primary_pi = []
             for pi in pi_list:
                 if '(contact)' not in pi['PI_NAME']:
@@ -326,5 +329,4 @@ class Project(Parser):
                     non_primary_pi.append(pi)
             return non_primary_pi
         # only one and not primary
-        else:
-            return None
+        return None
