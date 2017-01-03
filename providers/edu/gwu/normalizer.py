@@ -1,104 +1,101 @@
-import itertools
-
 from share.normalize import ctx
 from share.normalize import tools
 from share.normalize.parsers import Parser
-
-
-class AgentIdentifier(Parser):
-    uri = tools.IRI(ctx)
+from share.normalize.soup import SoupXMLNormalizer, SoupXMLDict, Soup
 
 
 class WorkIdentifier(Parser):
-    uri = tools.IRI(ctx)
+    uri = tools.IRI(ctx['#text'])
 
 
-class Organization(Parser):
-    name = ctx
+class Agent(Parser):
+    schema = tools.RunPython('get_type', ctx)
+    name = Soup(ctx, itemprop='name')['#text']
 
-
-class Publisher(Parser):
-    agent = tools.Delegate(Organization, ctx)
-
-
-class Institution(Parser):
-    name = ctx
-
-
-class IsAffiliatedWith(Parser):
-    related = tools.Delegate(Institution)
-
-
-class Person(Parser):
-    given_name = tools.ParseName(ctx.author).first
-    family_name = tools.ParseName(ctx.author).last
-    additional_name = tools.ParseName(ctx.author).middle
-    suffix = tools.ParseName(ctx.author).suffix
-
-    identifiers = tools.Map(tools.Delegate(AgentIdentifier, tools.Try(ctx.email)))
-    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Try(ctx.institution))
+    def get_type(self, obj):
+        return {
+            'http://schema.org/Person': 'Person',
+            'http://schema.org/Organization': 'Organization',
+        }[obj.soup['itemtype']]
 
 
 class Creator(Parser):
     order_cited = ctx('index')
-    agent = tools.Delegate(Person, ctx)
-    cited_as = ctx.author
+    agent = tools.Delegate(Agent, ctx)
+
+
+class Contributor(Parser):
+    agent = tools.Delegate(Agent, ctx)
+
+
+class Publisher(Parser):
+    agent = tools.Delegate(Agent, ctx)
 
 
 class Tag(Parser):
-    name = ctx
+    name = ctx['#text']
 
 
 class ThroughTags(Parser):
     tag = tools.Delegate(Tag, ctx)
 
 
-class Subject(Parser):
-    name = ctx
+class CreativeWork(Parser):
+    schema = tools.RunPython('get_type', ctx)
 
+    title = tools.RunPython('get_title', ctx)
+    description = Soup(ctx, 'p', class_='genericfile_description')['#text']
+    date_published = tools.ParseDate(Soup(ctx, itemprop='datePublished')['#text'])
+    date_updated = tools.ParseDate(Soup(ctx, itemprop='dateModified')['#text'])
+    rights = tools.OneOf(
+        tools.RunPython('get_rights_url', ctx),
+        tools.RunPython('get_dd', ctx, 'Rights')['#text'],
+        tools.Static(None)
+    )
+    language = tools.Try(tools.ParseLanguage(Soup(ctx, itemprop='inLanguage')['#text']))
 
-class ThroughSubjects(Parser):
-    subject = tools.Delegate(Subject, ctx)
+    tags = tools.Map(tools.Delegate(ThroughTags), Soup(ctx, itemprop='keywords'))
 
-
-class Preprint(Parser):
-    title = tools.Try(ctx['DC.Title'])
-    description = tools.Try(ctx['DC.Description'])
-    # is_deleted
-    date_published = tools.ParseDate(tools.Try(ctx['article:published_time']))
-    date_updated = tools.ParseDate(tools.Try(ctx['DC.Date']))
-    # free_to_read_type
-    # free_to_read_date
-    rights = tools.Try(ctx['DC.Rights'])
-    language = tools.Try(ctx['DC.Language'])
-
-    subjects = tools.Map(tools.Delegate(ThroughSubjects), tools.Static('Biology'), tools.Subjects(tools.Try(ctx['subject-areas'])))
-    tags = tools.Map(tools.Delegate(ThroughTags), tools.Try(ctx['category']), tools.Try(ctx['subject-areas']))
-
-    identifiers = tools.Map(tools.Delegate(WorkIdentifier), tools.Try(ctx['og:url']), ctx['citation_public_url'], ctx['citation_doi'])
+    identifiers = tools.Map(
+        tools.Delegate(WorkIdentifier),
+        tools.Try(tools.RunPython('get_dd', ctx, 'Permanent Link')),
+    )
 
     related_agents = tools.Concat(
-        tools.Map(tools.Delegate(Publisher), tools.Try(ctx['DC.Publisher'])),
-        tools.Map(tools.Delegate(Creator), tools.RunPython('get_contributors', ctx))
+        tools.Map(tools.Delegate(Creator), Soup(ctx, itemprop='creator')),
+        tools.Map(tools.Delegate(Contributor), Soup(ctx, itemprop='contributor')),
+        tools.Map(tools.Delegate(Publisher), Soup(ctx, itemprop='publisher')),
     )
-    # related_works
 
     class Extra:
-        identifiers = ctx['DC.Identifier']
-        access_rights = ctx['DC.AccessRights']
+        gwu_unit = tools.RunPython('get_dd', ctx, 'GW Unit')['#text']
+        related_url = tools.RunPython('get_dd', ctx, 'Related URL')['#text']
+        previous_publication_information = tools.RunPython('get_dd', ctx, 'Previous Publication Information')['#text']
+        depositor = tools.RunPython('get_dd', ctx, 'Depositor')['#text']
+        characterization = tools.RunPython('get_dd', ctx, 'Characterization')['#text']
 
-    def get_contributors(self, link):
-        authors = link.get('citation_author', []) if isinstance(link.get('citation_author', []), list) else [link['citation_author']]
-        institutions = link.get('citation_author_institution', []) if isinstance(link.get('citation_author_institution', []), list) else [link['citation_author_institution']]
-        emails = link.get('citation_author_email', []) if isinstance(link.get('citation_author_email', []), list) else [link['citation_author_email']]
+    def get_type(self, obj):
+        return {
+            'http://schema.org/CreativeWork': 'CreativeWork',
+            'http://schema.org/Article': 'Article',
+            'http://schema.org/Book': 'Book',
+        }.get(obj.soup.find('div')['itemtype'], 'CreativeWork')
 
-        contribs = []
-        for author, email, institution in itertools.zip_longest(authors, emails, institutions):
-            contrib = {
-                'author': author,
-                'institution': institution,
-                'email': email,
-            }
-            contribs.append(contrib)
+    def get_title(self, obj):
+        title = obj.h1.soup
+        title.find('span', class_='label').decompose()
+        return title.get_text()
 
-        return contribs
+    def get_dd(self, obj, dt):
+        dt_tag = obj.soup.find('dt', string=dt)
+        if dt_tag:
+            return SoupXMLDict(soup=dt_tag.find_next_sibling('dd'))
+        return None
+
+    def get_rights_url(self, obj):
+        dd = self.get_dd(obj, 'Rights')
+        return dd.soup.find('i', class_='glyphicon-new-window').parent['href']
+
+
+class GWScholarSpaceNormalizer(SoupXMLNormalizer):
+    pass

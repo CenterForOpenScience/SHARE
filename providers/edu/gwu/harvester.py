@@ -1,5 +1,4 @@
 import logging
-import re
 import pendulum
 
 from furl import furl
@@ -17,9 +16,9 @@ class GWScholarSpaceHarvester(Harvester):
         end_date = end_date.date()
         start_date = start_date.date()
 
-        # There is apparently no way to filter by any date range, just sort by date.
+        # There is no apparent way to filter by date range, just sort by date.
         url = furl(self.url)
-        url.args['per_page'] = 10 # TODO 100?
+        url.args['per_page'] = 10  # If it gets more active, consider upping to 50 or 100
         url.args['sort'] = 'system_modified_dtsi+desc'
 
         # Fetch records is a separate function for readability
@@ -40,6 +39,9 @@ class GWScholarSpaceHarvester(Harvester):
         while count < total:
             links = map(lambda a: a['href'], soup.select('#search-results li h2 > a'))
 
+            if not links:
+                break
+
             logger.info('On document %d of %d (%d%%)', count, total, (count / total) * 100)
 
             for link in links:
@@ -50,17 +52,18 @@ class GWScholarSpaceHarvester(Harvester):
                 item_response.raise_for_status()
                 soup = BeautifulSoup(item_response.content, 'lxml')
 
-                # TODO only fetch records within the date range
-                #date_modified = pendulum.parse(soup.find(itemprop='dateModified').text)
-                #if date_modified > end_date:
-                #    continue
-                #if date_modified < start_date:
-                #    return
+                # Skip records outside the date range
+                date_modified = pendulum.parse(soup.find(itemprop='dateModified').text)
+                if date_modified > end_date:
+                    continue
+                if date_modified < start_date:
+                    return
 
                 item = soup.find(id='content').find(itemscope=True)
 
                 count += 1
-                yield link, item.prettify()
+                yield link, str(item)
 
             page += 1
             resp = self.requests.get(furl(url).set(query_params={'page': page}))
+            soup = BeautifulSoup(resp.content, 'lxml')

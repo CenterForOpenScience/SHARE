@@ -1,5 +1,6 @@
 from share.provider import ProviderAppConfig
 from .harvester import GWScholarSpaceHarvester
+from .normalizer import GWScholarSpaceNormalizer
 
 
 class AppConfig(ProviderAppConfig):
@@ -8,6 +9,6 @@ class AppConfig(ProviderAppConfig):
     title = 'gwu'
     long_title = 'ScholarSpace @ George Washington University'
     home_page = 'https://scholarspace.library.gwu.edu'
-    #rate_limit = (1, 5) TODO is there a rate limit?
     url = 'https://scholarspace.library.gwu.edu/catalog'
     harvester = GWScholarSpaceHarvester
+    normalizer = GWScholarSpaceNormalizer
