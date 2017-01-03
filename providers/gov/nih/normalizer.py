@@ -1,7 +1,7 @@
 import re
 
 from share.normalize import *
-from share.normalize.utils import format_address, str_to_int
+from share.normalize.utils import format_address
 
 
 PROJECT_BASE_URL = 'https://projectreporter.nih.gov/project_info_description.cfm?aid={}'
@@ -124,7 +124,7 @@ class Award(Parser):
     name = ctx.PROJECT_TITLE
     # The amount of the award provided by the funding NIH Institute(s) or Center(s)
     description = RunPython(filter_nil, ctx.FUNDING_ICs)
-    award_amount = RunPython(str_to_int, RunPython(filter_nil, ctx.TOTAL_COST))
+    award_amount = Int(RunPython(filter_nil, ctx.TOTAL_COST))
     date = ParseDate(RunPython(filter_nil, ctx.BUDGET_START))
     uri = RunPython('format_foa_url', RunPython(filter_nil, ctx.FOA_NUMBER))
 

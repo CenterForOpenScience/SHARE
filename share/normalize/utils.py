@@ -36,7 +36,3 @@ def format_address(address1='', address2='', city='', state_or_province='', post
         return '{}, {}'.format(city, state_or_province)
 
     return address1
-
-
-def str_to_int(amount):
-    return int(amount) if amount else None

@@ -24,7 +24,7 @@ from share.util import DictHashingDict
 logger = logging.getLogger(__name__)
 
 
-__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter', 'Unique')
+__all__ = ('ParseDate', 'ParseName', 'ParseLanguage', 'Trim', 'Concat', 'Map', 'Delegate', 'Maybe', 'XPath', 'Join', 'RunPython', 'Static', 'Try', 'Subjects', 'OneOf', 'Orcid', 'DOI', 'IRI', 'GuessAgentType', 'Filter', 'Unique', 'Int')
 
 
 #### Public API ####
@@ -125,6 +125,10 @@ def Unique(chain=None):
     if chain:
         return AbstractLink.__add__(chain, UniqueLink())
     return UniqueLink()
+
+
+def Int(chain):
+    return chain + IntLink()
 
 
 ### /Public API
@@ -1055,3 +1059,8 @@ class UniqueLink(AbstractLink):
         if not isinstance(obj, (list, tuple)):
             obj = (obj, )
         return list(set(obj))
+
+
+class IntLink(AbstractLink):
+    def execute(self, obj):
+        return int(obj) if obj else None
