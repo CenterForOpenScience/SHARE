@@ -9,9 +9,9 @@ FOA_BASE_URL = 'https://grants.nih.gov/grants/guide/pa-files/{}.html'
 
 
 def filter_nil(obj):
-        if isinstance(obj, dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
-            return None
-        return obj
+    if isinstance(obj, dict) and obj.get('@http://www.w3.org/2001/XMLSchema-instance:nil'):
+        return None
+    return obj
 
 
 def format_org_address(doc):
@@ -280,7 +280,6 @@ class Project(Parser):
         return obj
 
     def get_organization_ctx(self, ctx):
-        # TODO lauren: filter NIL
         org_ctx = {
             'ORG_NAME': filter_nil(ctx['ORG_NAME']),
             'ORG_FIPS': filter_nil(ctx['ORG_FIPS']),
@@ -301,7 +300,7 @@ class Project(Parser):
                 <PI_ID>2094159 (contact)</PI_ID>
             </PI>
         '''
-        pi_list = ctx['PIS']['PI'] if type(ctx['PIS']['PI']) is list else [ctx['PIS']['PI']]
+        pi_list = ctx['PIS']['PI'] if isinstance(ctx['PIS']['PI'], list) else [ctx['PIS']['PI']]
         org_ctx = self.get_organization_ctx(ctx)
         # only one or none so primary is that one
         if len(pi_list) <= 1 and primary:
