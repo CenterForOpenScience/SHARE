@@ -1,6 +1,9 @@
 import graphene
+import bleach
 
 from graphene_django import DjangoObjectType
+
+from project.settings import ALLOWED_TAGS
 
 from share import models
 from share.graphql.base import Identifier
@@ -35,6 +38,10 @@ class AbstractCreativeWork(AbstractShareObject):
 
     total_outgoing_work_relations = graphene.Int()
     outgoing_work_relations = graphene.List(AbstractWorkRelation, limit=graphene.Int(), offset=graphene.Int())
+
+    @graphene.resolve_only_args
+    def resolve_description(self):
+        return bleach.clean(self.description, strip=True, tags=ALLOWED_TAGS)
 
     @graphene.resolve_only_args
     def resolve_identifiers(self):

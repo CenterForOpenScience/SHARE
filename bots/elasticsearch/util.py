@@ -1,8 +1,11 @@
 import uuid
+import bleach
 
 from django.apps import apps
 from django.db import connection
 from django.db import transaction
+
+from project.settings import ALLOWED_TAGS
 
 from share.util import IDObfuscator
 
@@ -208,6 +211,9 @@ def fetch_creativework(pks):
 
                 data = data[0]
                 data['lists'] = {}
+
+                if data['description']:
+                    data['description'] = bleach.clean(data['description'], strip=True, tags=ALLOWED_TAGS)
 
                 for agent in data.pop('related_agents'):
                     populate_types(agent)
