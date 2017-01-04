@@ -1,6 +1,9 @@
 AgentRelation:
     children:
         IsAffiliatedWith:
+            description: The subject agent is officially attached or connected to the related agent.
             children:
-                IsEmployedBy: {}
-                IsMemberOf: {}
+                IsEmployedBy:
+                    description: The subject agent is employed by the related agent.
+                IsMemberOf:
+                    description: The subject agent is a member of the related group/organization.

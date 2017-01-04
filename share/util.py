@@ -70,8 +70,8 @@ class CyclicalDependency(Exception):
     pass
 
 
-# Sort a list of nodes topographically, so a node is always preceded by its dependencies
 class TopographicalSorter:
+    """Sort a list of nodes topographically, so a node is always preceded by its dependencies"""
 
     # `nodes`: Iterable of objects
     # `dependencies`: Callable that takes a single argument (a node) and returns an iterable of its dependent nodes (or keys, if `key` is given)
@@ -116,8 +116,9 @@ class TopographicalSorter:
         return self.__node_map[key] if self.__node_map else key
 
 
-# Generate subclasses from yaml specs
 class ModelGenerator:
+    """Generate model classes from yaml specs"""
+
     def __init__(self, field_types={}):
         self.__field_types = field_types
 
@@ -130,7 +131,7 @@ class ModelGenerator:
 
     def generate_subclasses(self, model_specs, base):
         models = {}
-        for (name, mspec) in model_specs.items():
+        for (name, mspec) in sorted(model_specs.items()):
             fields = mspec.get('fields', {})
             model = type(name, (base,), {
                 **{fname: self._get_field(fspec) for (fname, fspec) in fields.items()},

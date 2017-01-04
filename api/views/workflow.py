@@ -1,6 +1,5 @@
 import jsonschema
 
-from django.apps import apps
 from django.db import transaction
 
 from rest_framework import viewsets, views, status
@@ -16,13 +15,12 @@ from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, ChangeSetSerializer, \
     ChangeSerializer, RawDataSerializer, ShareUserSerializer, ProviderSerializer
 from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
-from share.models.validators import JSONLDValidator
 from share.tasks import DisambiguatorTask
 from share.harvest.harvester import Harvester
 from share.normalize.v1_push import V1Normalizer
 
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'SchemaView', 'ModelSchemaView', 'V1DataView')
+__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'V1DataView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -49,11 +47,9 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
 class NormalizedDataViewSet(viewsets.ModelViewSet):
     """View showing all normalized data in the SHARE Dataset.
 
-    ## Submit Changesets
-    Change sets are submitted under @graph, described [here](https://www.w3.org/TR/json-ld/#named-graphs).
-    Known ids and not known @ids use the format described [here](https://www.w3.org/TR/json-ld/#node-identifiers). Not known ids looks like '_:<randomstring>'
-
-    Create
+    ## Submitting changes to the SHARE dataset
+    Changes, whether they are additions or modifications, are submitted as a subset of [JSON-LD graphs](https://www.w3.org/TR/json-ld/#named-graphs).
+    Each [node](https://www.w3.org/TR/json-ld/#dfn-node) of the graph MUST contain both an `@id` and `@type` key.
 
         Method:        POST
         Body (JSON):   {
@@ -68,55 +64,6 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
                                         <relationship_name>: {
                                             '@type': <type>,
                                             '@id': <id>
-                                        }
-                                    }]
-                                }
-                            }
-                        }
-                       }
-        Success:       200 OK
-
-    Update
-
-        Method:        POST
-        Body (JSON):   {
-                        'data': {
-                            'type': 'NormalizedData'
-                            'attributes': {
-                                'data': {
-                                    '@graph': [{
-                                        '@type': <type of document, exp: person>,
-                                        '@id': <id>,
-                                        <attribute_name>: <value>,
-                                        <relationship_name>: {
-                                            '@type': <type>,
-                                            '@id': <id>
-                                        }
-                                    }]
-                                }
-                            }
-                        }
-                       }
-        Success:       200 OK
-
-    Merge
-
-        Method:        POST
-        Body (JSON):   {
-                        'data': {
-                            'type': 'NormalizedData'
-                            'attributes': {
-                                'data': {
-                                    '@graph': [{
-                                        '@type': 'mergeAction',
-                                        '@id': <_:random>,
-                                        'into': {
-                                            '@type': <type of document>,
-                                            '@id': <doc id>
-                                        },
-                                        'from': {
-                                            '@type': <same type of document>,
-                                            '@id': <doc id>
                                         }
                                     }]
                                 }
@@ -205,73 +152,6 @@ class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
             ).distinct('id')
         else:
             return RawData.objects.all()
-
-
-class SchemaView(views.APIView):
-    """
-    Schema used to validate changes or additions to the SHARE dataset.
-
-    To submit changes, see [`/api/normalizeddata`](/api/normalizeddata)
-
-    ## Model schemas
-    TODO: generate this list so it stays up to date with type hierarchies
-
-    Each node in the submitted `@graph` is validated by a model schema determined by its `@type`.
-
-    ### Work types
-    - [CreativeWork](/api/schema/CreativeWork)
-    - [Article](/api/schema/Article)
-    - [Book](/api/schema/Book)
-    - [ConferencePaper](/api/schema/ConferencePaper)
-    - [Dataset](/api/schema/Dataset)
-    - [Dissertation](/api/schema/Dissertation)
-    - [Lesson](/api/schema/Lesson)
-    - [Poster](/api/schema/Poster)
-    - [Preprint](/api/schema/Preprint)
-    - [Presentation](/api/schema/Presentation)
-    - [Project](/api/schema/Project)
-    - [ProjectRegistration](/api/schema/ProjectRegistration)
-    - [Report](/api/schema/Report)
-    - [Section](/api/schema/Section)
-    - [Software](/api/schema/Software)
-    - [Thesis](/api/schema/Thesis)
-    - [WorkingPaper](/api/schema/WorkingPaper)
-
-    ### Agents
-    - [Person](/api/schema/Person)
-    - [Institution](/api/schema/Institution)
-    - [Organization](/api/schema/Organization)
-
-    ### Identifiers
-    - [AgentIdentifier](/api/schema/AgentIdentifier)
-    - [CreativeWorkIdentifier](/api/schema/CreativeWorkIdentifier)
-
-    ### Other
-    - [Award](/api/schema/Award)
-    - [Subject](/api/schema/Subject)
-    - [Tag](/api/schema/Tag)
-
-    ### Relationships between nodes
-    - [AgentRelation](/api/schema/AgentRelation)
-    - [WorkRelation](/api/schema/WorkRelation)
-    - [Contribution](/api/schema/Contribution)
-    - [ThroughContributionAwards](/api/schema/ThroughContributionAwards)
-    - [ThroughSubjects](/api/schema/ThroughSubjects)
-    - [ThroughTags](/api/schema/ThroughTags)
-    """
-    def get(self, request, *args, **kwargs):
-        schema = JSONLDValidator.jsonld_schema.schema
-        return Response(schema)
-
-
-class ModelSchemaView(views.APIView):
-    """
-    Schema used to validate submitted changes of matching `@type`. See [`/api/schema`](/api/schema)
-    """
-    def get(self, request, *args, **kwargs):
-        model = apps.get_model('share', kwargs['model'])
-        schema = JSONLDValidator().validator_for(model).schema
-        return Response(schema)
 
 
 class V1DataView(views.APIView):

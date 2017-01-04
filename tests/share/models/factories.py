@@ -70,7 +70,7 @@ class ShareObjectFactory(DjangoModelFactory):
     def _create(cls, obj, **attrs):
         for key, value in tuple(attrs.items()):
             if hasattr(value, 'VersionModel'):
-                attrs[key + '_version'] = value.versions.first()
+                attrs[key + '_version'] = value.version
         return super()._create(obj, **attrs)
 
     @factory.post_generation
@@ -144,3 +144,38 @@ class TagFactory(ShareObjectFactory):
 
     class Meta:
         model = models.Tag
+
+
+class ThroughTagsFactory(ShareObjectFactory):
+    tag = factory.SubFactory(TagFactory)
+    creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+
+    class Meta:
+        model = models.ThroughTags
+
+
+class WorkIdentifierFactory(ShareObjectFactory):
+    scheme = 'http'
+    host = 'testvalue'
+    uri = factory.Faker('url')
+    creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+
+    class Meta:
+        model = models.WorkIdentifier
+
+
+class AgentIdentifierFactory(ShareObjectFactory):
+    scheme = 'http'
+    host = 'testvalue'
+    uri = factory.Faker('url')
+    agent = factory.SubFactory(AgentFactory)
+
+    class Meta:
+        model = models.AgentIdentifier
+
+
+class ExtraDataFactory(ShareObjectFactory):
+    data = {}
+
+    class Meta:
+        model = models.ExtraData

@@ -8,7 +8,7 @@ from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 
 logger = logging.getLogger('share.normalize')
-__all__ = ('WorkIdentifier', 'AgentIdentifier')
+__all__ = ('WorkIdentifier', 'AgentIdentifier', 'WorkIdentifierVersion', 'AgentIdentifierVersion')  # noqa
 
 
 # TODO Common interface, so we're not duplicating code. Doesn't work because
@@ -39,6 +39,9 @@ class FilteredEmailsManager(models.Manager):
 
 
 class WorkIdentifier(ShareObject):
+    """
+    Unique identifier (in IRI form) for a creative work.
+    """
     uri = ShareURLField(unique=True)
     host = models.TextField(editable=False)
     scheme = models.TextField(editable=False, help_text=_('A prefix to URI indicating how the following data should be interpreted.'))
@@ -78,6 +81,7 @@ class WorkIdentifier(ShareObject):
 
 
 class AgentIdentifier(ShareObject):
+    """Unique identifier (in IRI form) for an agent."""
     uri = ShareURLField(unique=True)
     host = models.TextField(editable=False)
     scheme = models.TextField(editable=False)

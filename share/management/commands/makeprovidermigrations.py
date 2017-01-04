@@ -35,7 +35,7 @@ class Command(BaseCommand):
             configs = apps.get_app_configs()
 
         for config in configs:
-            if isinstance(config, RobotAppConfig):
+            if isinstance(config, RobotAppConfig) and not getattr(config, 'disabled', False):
                 changes[config.name] = [RobotMigration(config).migration()]
 
         for migrations in changes.values():
@@ -43,8 +43,10 @@ class Command(BaseCommand):
                 writer = MigrationWriter(m)
                 os.makedirs(os.path.dirname(writer.path), exist_ok=True)
 
-                with open(os.path.join(os.path.dirname(writer.path), '__init__.py'), 'wb') as fp:
-                    fp.write(b'')
+                if not os.path.exists(os.path.join(os.path.dirname(writer.path), '__init__.py')):
+                    with open(os.path.join(os.path.dirname(writer.path), '__init__.py'), 'wb') as fp:
+                        fp.write(b'')
 
-                with open(writer.path, 'wb') as fp:
-                    fp.write(writer.as_string())
+                if not os.path.exists(writer.path):
+                    with open(writer.path, 'wb') as fp:
+                        fp.write(writer.as_string())

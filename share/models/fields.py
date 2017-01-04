@@ -5,16 +5,24 @@ from functools import partial
 
 import six
 from dateutil import parser
+from psycopg2.extras import Json
+
 from django import forms
+from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres import lookups
 from django.contrib.postgres.fields.jsonb import JSONField
 from django.core import exceptions, validators, checks
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
+from django.db.models.fields.related import lazy_related_operation
 from django.db.models.fields.related import resolve_relation
+from django.db.models.fields.related_descriptors import ManyToManyDescriptor
+from django.db.models.utils import make_model_tuple
+from django.utils.functional import curry
 from django.utils.translation import ugettext_lazy as _
-from psycopg2.extras import Json
+
+from db.deletion import DATABASE_CASCADE
 
 
 class DateTimeAwareJSONEncoder(DjangoJSONEncoder):
@@ -97,12 +105,59 @@ JSONField.register_lookup(lookups.HasAnyKeys)
 # instances of their base class that contribute instead. Keep track of these
 # fields that do a Share field's job, so they'll show up in _meta.get_fields().
 class ShareRelatedField:
+
+    PRETENDING_TO_BE = None
+
     def __init__(self, *args, **kwargs):
+        # Correct M2M fields
+        if 'to' in kwargs and not args:
+            args = args + (kwargs.pop('to'), )
+
+        self._kwargs = kwargs
         self.__equivalent_fields = set()
         super().__init__(*args, **kwargs)
 
     def add_equivalent_fields(self, *fields):
         self.__equivalent_fields.update(fields)
+
+    def contribute_to_class(self, cls, name, **kwargs):
+        actual = self.PRETENDING_TO_BE(self.remote_field.model, **self._get_kwargs(cls))
+        actual.contribute_to_class(cls, name, **kwargs)
+
+        if isinstance(self.remote_field.model, str):
+            version_model = self.remote_field.model + 'Version'
+        elif hasattr(self.remote_field.model, 'VersionModel'):
+            version_model = self.remote_field.model.VersionModel
+        else:
+            return  # Not pointing at a ShareObject subclass
+
+        version = self.PRETENDING_TO_BE(version_model, **self._get_kwargs(cls, version=True))
+
+        suffix = '_version'
+        if self.many_to_many:
+            suffix += 's'
+            name = name.rstrip('s')
+
+        version.contribute_to_class(cls, name + suffix, **kwargs)
+
+        actual._share_version_field = version
+        self.add_equivalent_fields(actual, version)
+
+    def _get_kwargs(self, cls, version=False):
+        kwargs = {**self._kwargs}
+        through_fields = kwargs.get('through_fields', None)
+
+        if version:
+            kwargs['db_index'] = False
+            kwargs['editable'] = False
+            kwargs['related_name'] = '+'
+
+        if through_fields:
+            kwargs['through_fields'] = (
+                '{}_version'.format(through_fields[0]) if 'version' in cls._meta.model_name else through_fields[0],
+                '{}_version'.format(through_fields[1]) if version else through_fields[1]
+            )
+        return kwargs
 
     def __eq__(self, other):
         if other in self.__equivalent_fields:
@@ -114,49 +169,71 @@ class ShareRelatedField:
 
 
 class ShareOneToOneField(ShareRelatedField, models.OneToOneField):
-    def __init__(self, model, **kwargs):
-        self._kwargs = kwargs
-        super().__init__(model, **kwargs)
+    PRETENDING_TO_BE = models.OneToOneField
 
-    def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[2](self.remote_field.model, **self._kwargs)
-        actual.contribute_to_class(cls, name, **kwargs)
-
-        if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[2](self.remote_field.model + 'Version', editable=False, **{**self._kwargs, 'db_index': False})
-        else:
-            version = self.__class__.mro()[2](self.remote_field.model.VersionModel, editable=False, **{**self._kwargs, 'db_index': False})
-
-        version.contribute_to_class(cls, name + '_version', **kwargs)
-
-        actual._share_version_field = version
-
-        self.add_equivalent_fields(actual, version)
+    def __init__(self, *args, **kwargs):
+        # Default to delete cascade
+        kwargs.setdefault('on_delete', DATABASE_CASCADE)
+        super().__init__(*args, **kwargs)
 
 
 class ShareForeignKey(ShareRelatedField, models.ForeignKey):
+    PRETENDING_TO_BE = models.ForeignKey
 
-    def __init__(self, model, **kwargs):
-        self._kwargs = kwargs
-        super().__init__(model, **kwargs)
-
-    def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[2](self.remote_field.model, **self._kwargs)
-        actual.contribute_to_class(cls, name, **kwargs)
-
-        if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[2](self.remote_field.model + 'Version', editable=False, **{**self._kwargs, 'related_name': '+', 'db_index': False})
-        else:
-            version = self.__class__.mro()[2](self.remote_field.model.VersionModel, editable=False, **{**self._kwargs, 'related_name': '+', 'db_index': False})
-
-        version.contribute_to_class(cls, name + '_version', **kwargs)
-
-        actual._share_version_field = version
-
-        self.add_equivalent_fields(actual, version)
+    def __init__(self, *args, **kwargs):
+        # Default to delete cascade
+        kwargs.setdefault('on_delete', DATABASE_CASCADE)
+        super().__init__(*args, **kwargs)
 
 
-class TypedManyToManyField(ShareRelatedField, models.ManyToManyField):
+def create_many_to_many_intermediary_model(field, klass):
+    from django.db import models
+
+    def set_managed(model, related, through):
+        through._meta.managed = model._meta.managed or related._meta.managed
+
+    to_model = resolve_relation(klass, field.remote_field.model)
+    name = '%s_%s' % (klass._meta.object_name, field.name)
+    lazy_related_operation(set_managed, klass, to_model, name)
+
+    to = make_model_tuple(to_model)[1]
+    from_ = klass._meta.model_name
+    if to == from_:
+        to = 'to_%s' % to
+        from_ = 'from_%s' % from_
+
+    meta = type(str('Meta'), (object,), {
+        'db_table': field._get_m2m_db_table(klass._meta),
+        'auto_created': klass,
+        'app_label': klass._meta.app_label,
+        'db_tablespace': klass._meta.db_tablespace,
+        'unique_together': (from_, to),
+        'verbose_name': _('%(from)s-%(to)s relationship') % {'from': from_, 'to': to},
+        'verbose_name_plural': _('%(from)s-%(to)s relationships') % {'from': from_, 'to': to},
+        'apps': field.model._meta.apps,
+    })
+    # Construct and return the new class.
+    return type(str(name), (models.Model,), {
+        'Meta': meta,
+        '__module__': klass.__module__,
+        from_: models.ForeignKey(
+            klass,
+            related_name='%s+' % name,
+            db_tablespace=field.db_tablespace,
+            db_constraint=field.remote_field.db_constraint,
+            on_delete=DATABASE_CASCADE,
+        ),
+        to: models.ForeignKey(
+            to_model,
+            related_name='%s+' % name,
+            db_tablespace=field.db_tablespace,
+            db_constraint=field.remote_field.db_constraint,
+            on_delete=DATABASE_CASCADE,
+        )
+    })
+
+
+class TypedManyToManyField(models.ManyToManyField):
 
     def _check_relationship_model(self, from_model=None, **kwargs):
         if hasattr(self.remote_field.through, '_meta'):
@@ -396,44 +473,46 @@ class TypedManyToManyField(ShareRelatedField, models.ManyToManyField):
                     break
         return getattr(self, cache_attr)
 
-
-class ShareManyToManyField(TypedManyToManyField):
-
-    def __init__(self, model, **kwargs):
-        self._kwargs = kwargs
-        super().__init__(model, **kwargs)
-
     def contribute_to_class(self, cls, name, **kwargs):
-        actual = self.__class__.mro()[1](self.remote_field.model, **self._get_kwargs(cls))
-        actual.contribute_to_class(cls, name, **kwargs)
+            # To support multiple relations to self, it's useful to have a non-None
+            # related name on symmetrical relations for internal reasons. The
+            # concept doesn't make a lot of sense externally ("you want me to
+            # specify *what* on my non-reversible relation?!"), so we set it up
+            # automatically. The funky name reduces the chance of an accidental
+            # clash.
+            if self.remote_field.symmetrical and (
+                    self.remote_field.model == "self" or self.remote_field.model == cls._meta.object_name):
+                self.remote_field.related_name = "%s_rel_+" % name
+            elif self.remote_field.is_hidden():
+                # If the backwards relation is disabled, replace the original
+                # related_name with one generated from the m2m field name. Django
+                # still uses backwards relations internally and we need to avoid
+                # clashes between multiple m2m fields with related_name == '+'.
+                self.remote_field.related_name = "_%s_%s_+" % (cls.__name__.lower(), name)
 
-        if isinstance(self.remote_field.model, str):
-            version = self.__class__.mro()[1](self.remote_field.model + 'Version', editable=False, **self._get_kwargs(cls, version_field=True))
-        elif hasattr(self.remote_field.model, 'VersionModel'):
-            version = self.__class__.mro()[1](self.remote_field.model.VersionModel, editable=False, **self._get_kwargs(cls, version_field=True))
-        else:
-            return
+            super(models.ManyToManyField, self).contribute_to_class(cls, name, **kwargs)
 
-        version.contribute_to_class(cls, name[:-1] + '_versions', **kwargs)
+            # The intermediate m2m model is not auto created if:
+            #  1) There is a manually specified intermediate, or
+            #  2) The class owning the m2m field is abstract.
+            #  3) The class owning the m2m field has been swapped out.
+            if not cls._meta.abstract:
+                if self.remote_field.through:
+                    def resolve_through_model(_, model, field):
+                        field.remote_field.through = model
+                    lazy_related_operation(resolve_through_model, cls, self.remote_field.through, field=self)
+                elif not cls._meta.swapped:
+                    self.remote_field.through = create_many_to_many_intermediary_model(self, cls)
 
-        actual._share_version_field = version
+            # Add the descriptor for the m2m relation.
+            setattr(cls, self.name, ManyToManyDescriptor(self.remote_field, reverse=False))
 
-        self.add_equivalent_fields(actual, version)
+            # Set up the accessor for the m2m table name for the relation.
+            self.m2m_db_table = curry(self._get_m2m_db_table, cls._meta)
 
-    def _get_kwargs(self, cls, version_field=False):
-        kwargs = {**self._kwargs}
-        through_fields = kwargs.get('through_fields', None)
 
-        if version_field:
-            kwargs['related_name'] = '+'
-
-        if through_fields:
-            through_fields = (
-                '{}_version'.format(through_fields[0]) if 'version' in cls._meta.model_name else through_fields[0],
-                '{}_version'.format(through_fields[1]) if version_field else through_fields[1]
-            )
-            kwargs['through_fields'] = through_fields
-        return kwargs
+class ShareManyToManyField(ShareRelatedField, TypedManyToManyField):
+    PRETENDING_TO_BE = TypedManyToManyField
 
 
 class URIField(models.TextField):
@@ -461,3 +540,11 @@ class ShareURLField(models.TextField):
         }
         defaults.update(kwargs)
         return super(ShareURLField, self).formfield(**defaults)
+
+
+class GenericRelationNoCascade(GenericRelation):
+    @property
+    def bulk_related_objects(self):
+        # https://github.com/django/django/blob/master/django/db/models/deletion.py#L151
+        # Disable django cascading deletes for this field
+        raise AttributeError('This is a dirty hack')

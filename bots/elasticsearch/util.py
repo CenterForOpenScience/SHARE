@@ -115,7 +115,9 @@ def fetch_creativework(pks):
                     , 'identifiers', COALESCE(identifiers, '{}')
                     , 'sources', sources
                     , 'subjects', COALESCE(subjects, '{}')
-                    , 'related_agents', COALESCE(related_agents, '{}'))
+                    , 'related_agents', COALESCE(related_agents, '{}')
+                    , 'retractions', COALESCE(retractions, '{}')
+                )
                 FROM share_creativework AS creativework
                 LEFT JOIN LATERAL (
                             SELECT json_agg(json_strip_nulls(json_build_object(
@@ -171,6 +173,29 @@ def fetch_creativework(pks):
                                 ) AS x(name)
                             WHERE name IS NOT NULL
                             ) AS subjects ON TRUE
+                LEFT JOIN LATERAL (
+                            SELECT json_agg(json_strip_nulls(json_build_object(
+                                                                'id', retraction.id
+                                                                , 'type', retraction.type
+                                                                , 'title', retraction.title
+                                                                , 'description', retraction.description
+                                                                , 'date_created', retraction.date_created
+                                                                , 'date_modified', retraction.date_modified
+                                                                , 'date_updated', retraction.date_updated
+                                                                , 'date_published', retraction.date_published
+                                                                , 'identifiers', COALESCE(identifiers, '{}')
+                                                            ))) AS retractions
+                            FROM share_workrelation AS work_relation
+                            JOIN share_creativework AS retraction ON work_relation.subject_id = retraction.id
+                            LEFT JOIN LATERAL (
+                                        SELECT array_agg(identifier.uri) AS identifiers
+                                        FROM share_workidentifier AS identifier
+                                        WHERE identifier.creative_work_id = retraction.id
+                                        ) AS identifiers ON TRUE
+                            WHERE work_relation.related_id = creativework.id
+                            AND work_relation.type = 'share.retracts'
+                            AND NOT retraction.is_deleted
+                            ) AS retractions ON TRUE
                 WHERE creativework.id IN %s
                 AND creativework.title != ''
             ''', (tuple(pks), ))
@@ -191,6 +216,11 @@ def fetch_creativework(pks):
                     agent['relation'] = relation_model._meta.verbose_name
                     data.setdefault(str(parent_model._meta.verbose_name_plural), []).append(agent.get('cited_as') or agent['name'])
                     data['lists'].setdefault(str(parent_model._meta.verbose_name_plural), []).append(agent)
+
+                data['retracted'] = bool(data['retractions'])
+                for retraction in data.pop('retractions'):
+                    populate_types(retraction)
+                    data['lists'].setdefault('retractions', []).append(retraction)
 
                 populate_types(data)
                 data['date'] = (data['date_published'] or data['date_updated'] or data['date_created'])

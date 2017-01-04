@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     'providers.edu.pcom',
     'providers.edu.pdxscholar',
     'providers.edu.purdue',
+    'providers.edu.purdue.epubs',
     'providers.edu.richmond',
     'providers.edu.scholarsarchiveosu',
     'providers.edu.scholarsbank',
@@ -171,6 +172,7 @@ INSTALLED_APPS = [
     'providers.edu.wisconsin',
     'providers.edu.wm',
     'providers.edu.wustlopenscholarship',
+    'providers.es.csic',
     'providers.et.edu.addis_ababa',
     'providers.eu.econstor',
     'providers.gov.clinicaltrials',
@@ -561,6 +563,11 @@ LOGGING = {
         'handlers': ['sentry'],
     }
 }
+
+# shell_plus convenience utilities
+SHELL_PLUS_POST_IMPORTS = (
+    ('share.shell_util', '*'),
+)
 
 
 # Custom Settings
