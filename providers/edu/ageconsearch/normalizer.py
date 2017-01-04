@@ -13,7 +13,6 @@ class AgentIdentifier(Parser):
 
 class Agent(Parser):
     schema = GuessAgentType(ctx.name)
-    # TODO add email
     name = ctx.name
     identifiers = Map(Delegate(AgentIdentifier), Try(IRI(ctx.email)))
 
@@ -56,7 +55,7 @@ class ThroughSubjects(Parser):
     subject = Delegate(Subject, ctx)
 
 
-class CreativeWork(Parser):
+class Preprint(Parser):
     title = Try(ctx.title)
     description = Try(ctx.abstract)
     identifiers = Concat(
