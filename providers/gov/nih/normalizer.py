@@ -19,7 +19,7 @@ def format_org_address(doc):
     org_state = doc.get('ORG_STATE', '')
     org_zipcode = doc.get('ORG_ZIPCODE', '')
     org_country = doc.get('ORG_COUNTRY', '')
-    if not org_city and not org_state and not org_zipcode and not org_country:
+    if not any((org_city, org_state, org_zipcode, org_country)):
         return None
     return format_address(
         city=org_city,
@@ -302,31 +302,28 @@ class Project(Parser):
         '''
         pi_list = ctx['PIS']['PI'] if isinstance(ctx['PIS']['PI'], list) else [ctx['PIS']['PI']]
         org_ctx = self.get_organization_ctx(ctx)
-        # only one or none so primary is that one
-        if len(pi_list) <= 1 and primary:
+        # if only one primary contact is assumed
+        if len(pi_list) <= 1:
+            if not primary:
+                return None
             pi_list[0]['org_ctx'] = org_ctx
             return pi_list
         # more than one, get the primary
-        if len(pi_list) > 1 and primary:
-            pi_itr = iter(pi_list)
-            while True:
-                try:
-                    pi = next(pi_itr)
-                except StopIteration:
-                    return []
-                if '(contact)' in pi['PI_NAME']:
-                    return {
-                        'PI_NAME': re.sub(r'(\(contact\))', '', pi['PI_NAME']).strip(),
-                        'PI_ID': re.sub(r'(\(contact\))', '', pi['PI_ID']).strip(),
-                        'org_ctx': org_ctx
-                    }
+        if primary:
+            try:
+                pi = next(x for x in pi_list if '(contact)' in x['PI_NAME'])
+            except StopIteration:
+                return []
+
+            return {
+                'PI_NAME': re.sub(r'(\(contact\))', '', pi['PI_NAME']).strip(),
+                'PI_ID': re.sub(r'(\(contact\))', '', pi['PI_ID']).strip(),
+                'org_ctx': org_ctx
+            }
         # more than one, get the non-primary
-        if len(pi_list) > 1 and not primary:
-            non_primary_pi = []
-            for pi in pi_list:
-                if '(contact)' not in pi['PI_NAME']:
-                    pi['org_ctx'] = org_ctx
-                    non_primary_pi.append(pi)
-            return non_primary_pi
-        # only one and not primary
-        return None
+        non_primary_pi = []
+        for pi in pi_list:
+            if '(contact)' not in pi['PI_NAME']:
+                pi['org_ctx'] = org_ctx
+                non_primary_pi.append(pi)
+        return non_primary_pi
