@@ -8,6 +8,7 @@ Agent:
             children:
                 Institution: {}
                 Consortium: {}
+                Department: {}
         Person:
             verbose_name_plural: people
             fields:

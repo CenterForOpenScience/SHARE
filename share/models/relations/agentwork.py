@@ -56,6 +56,8 @@ class Award(ShareObject):
     # it's just a text field, I assume our 'description' covers it.
     name = models.TextField(blank=True)
     description = models.TextField(blank=True)
+    date = models.DateTimeField(blank=True, null=True)
+    award_amount = models.PositiveIntegerField(blank=True, null=True)
     uri = ShareURLField(unique=True)
 
     @classmethod
