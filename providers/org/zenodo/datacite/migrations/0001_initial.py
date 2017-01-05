@@ -15,12 +15,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            code=share.robot.RobotUserMigration('org.zenodo.oai'),
+            code=share.robot.RobotUserMigration('org.zenodo.datacite'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('org.zenodo.oai'),
+            code=share.robot.RobotOauthTokenMigration('org.zenodo.datacite'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotScheduleMigration('org.zenodo.oai'),
+            code=share.robot.RobotScheduleMigration('org.zenodo.datacite'),
         ),
     ]

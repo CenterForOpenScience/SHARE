@@ -224,7 +224,7 @@ INSTALLED_APPS = [
     'providers.org.ttu',
     'providers.org.ucescholarship',
     'providers.org.zenodo',
-    'providers.org.zenodo.oai',
+    'providers.org.zenodo.datacite',
     'providers.pe.upc',
     'providers.pt.rcaap',
     'providers.ru.cyberleninka',
