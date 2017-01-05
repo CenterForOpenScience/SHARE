@@ -116,6 +116,7 @@ INSTALLED_APPS = [
     'providers.edu.digitalhoward',
     'providers.edu.duke',
     'providers.edu.fit',
+    'providers.edu.gwu',
     'providers.edu.harvarddataverse',
     'providers.edu.huskiecommons',
     'providers.edu.iastate',
