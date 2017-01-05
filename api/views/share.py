@@ -1,3 +1,6 @@
+import os
+import yaml
+
 from rest_framework import viewsets, views, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
@@ -127,3 +130,11 @@ class APIVersionRedirectView(RedirectView):
                 return HttpSmartResponsePermanentRedirect(url)
             return HttpSmartResponseRedirect(url)
         return http.HttpResponseGone()
+
+
+class ModelTypesView(views.APIView):
+    def get(self, request, *args, **kwargs):
+        yaml_file = os.path.abspath('../SHARE/share/models/creative.yaml')
+        with open(yaml_file) as fobj:
+            model_specs = yaml.load(fobj)
+        return Response(model_specs)
