@@ -10,7 +10,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0010_auto_20161212_1418'),
+        ('share', '0010_auto_20161212_1418_e'),
     ]
 
     operations = [
