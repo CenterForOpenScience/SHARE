@@ -214,6 +214,8 @@ def fetch_creativework(pks):
 
                 if data['description']:
                     data['description'] = bleach.clean(data['description'], strip=True, tags=ALLOWED_TAGS)
+                if data['title']:
+                    data['title'] = bleach.clean(data['title'], strip=True, tags=ALLOWED_TAGS)
 
                 for agent in data.pop('related_agents'):
                     populate_types(agent)

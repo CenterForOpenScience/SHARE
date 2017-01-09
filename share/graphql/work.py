@@ -40,6 +40,10 @@ class AbstractCreativeWork(AbstractShareObject):
     outgoing_work_relations = graphene.List(AbstractWorkRelation, limit=graphene.Int(), offset=graphene.Int())
 
     @graphene.resolve_only_args
+    def resolve_title(self):
+        return bleach.clean(self.title, strip=True, tags=ALLOWED_TAGS)
+
+    @graphene.resolve_only_args
     def resolve_description(self):
         return bleach.clean(self.description, strip=True, tags=ALLOWED_TAGS)
 
