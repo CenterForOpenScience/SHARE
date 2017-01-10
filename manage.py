@@ -2,6 +2,13 @@
 import os
 import sys
 
+if os.environ.get('GEVENT') == '1':
+    from gevent import monkey
+    monkey.patch_all()
+
+    from psycogreen.gevent import patch_psycopg
+    patch_psycopg()
+
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
