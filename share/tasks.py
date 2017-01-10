@@ -1,6 +1,8 @@
 import abc
-import logging
 import datetime
+import functools
+import logging
+import threading
 
 import pendulum
 import celery
@@ -19,11 +21,34 @@ from share.models import RawData, NormalizedData, ChangeSet, CeleryTask, CeleryP
 logger = logging.getLogger(__name__)
 
 
+def getter(self, attr):
+    return getattr(self.context, attr)
+
+
+def setter(self, value, attr):
+    return setattr(self.context, attr, value)
+
+
 class LoggedTask(celery.Task):
     abstract = True
     CELERY_TASK = CeleryProviderTask
 
+    # NOTE: Celery tasks are singletons.
+    # If ever running in threads/greenlets/epoll self.<var> will clobber eachother
+    # this binds all the attributes that would used to a threading local object to correct that
+    # Python 3.x thread locals will apparently garbage collect.
+    context = threading.local()
+    # Any attribute, even from subclasses, must be defined here.
+    THREAD_SAFE_ATTRS = ('args', 'kwargs', 'started_by', 'source', 'task', 'normalized', 'config')
+    for attr in THREAD_SAFE_ATTRS:
+        locals()[attr] = property(functools.partial(getter, attr=attr)).setter(functools.partial(setter, attr=attr))
+
     def run(self, started_by_id, *args, **kwargs):
+        # Clean up first just in case the task before crashed
+        for attr in self.THREAD_SAFE_ATTRS:
+            if hasattr(self.context, attr):
+                delattr(self.context, attr)
+
         self.args = args
         self.kwargs = kwargs
         self.started_by = ShareUser.objects.get(id=started_by_id)
@@ -38,6 +63,12 @@ class LoggedTask(celery.Task):
         )
 
         self.do_run(*self.args, **self.kwargs)
+
+        # Clean up at the end to avoid keeping anything in memory
+        # This is not in a finally as it may mess up sentry's exception reporting
+        for attr in self.THREAD_SAFE_ATTRS:
+            if hasattr(self.context, attr):
+                delattr(self.context, attr)
 
     def on_retry(self, exc, task_id, args, kwargs, einfo):
         CeleryTask.objects.filter(uuid=task_id).update(status=CeleryTask.STATUS.retried)
