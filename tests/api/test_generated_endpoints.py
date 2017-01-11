@@ -4,7 +4,6 @@ import re
 
 from share.change import ChangeGraph
 from share.models import ChangeSet
-from share.util import IDObfuscator
 
 from tests.share.models.factories import NormalizedDataFactory
 from tests.share.normalize.factories import *
@@ -89,7 +88,7 @@ class TestGeneratedEndpoints:
         actual = json.loads(response.content.decode(encoding='UTF-8'))
 
         assert response.status_code == 200
-        assert actual['data']['id'] == str(IDObfuscator.decode_id(expected_id))
+        assert actual['data']['id'] == expected_id
         assert actual['data']['attributes']['type'] == expected['@type']
         for value in controlled_values:
             assert actual['data']['attributes'][value] == expected[camelCase_to_underscore(value)]
