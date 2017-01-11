@@ -14,28 +14,29 @@ class PeerJHarvester(Harvester):
         self.base_preprint_url = 'https://peerj.com/preprints/index.json'
 
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum):
-
         return self.fetch_records(self.base_url, start_date, end_date)
 
     def fetch_records(self, url, start_date, end_date):
-
-        logger.info('Making request to {}'.format(url))
         for url in self.build_url():
             if self.base_preprint_url in url:
                 yield from self.fetch_page(url, start_date, end_date, 'preprint-')
-            yield from self.fetch_page(url, start_date, end_date)
+            else:
+                yield from self.fetch_page(url, start_date, end_date)
 
         logger.info("PeerJ has been harvested")
 
     def fetch_page(self, url, start_date, end_date, preprint=''):
         while url:
+            logger.info('Making request to %s', url)
             records = self.requests.get(url).json()
 
             for record in records['_items']:
                 if pendulum.parse(record['date']) < start_date:
+                    logger.debug('%s is before %s, returning', record['date'], start_date)
                     return
 
                 if pendulum.parse(record['date']) > end_date:
+                    logger.debug('%s is after %s, skipping', record['date'], end_date)
                     continue
 
                 yield (preprint + record['identifiers']['peerj'], record)
@@ -46,13 +47,8 @@ class PeerJHarvester(Harvester):
                 url = None
 
     def build_url(self):
-        return [furl(self.base_url).set(query_params={
-            'journal': 'peerj',
-        }).url,
-            furl(self.base_url).set(query_params={
-                'journal': 'cs',
-            }).url,
-            furl(self.base_preprint_url).set(query_params={
-                'journal': 'peerj',
-            }).url
+        return [
+            furl(self.base_url).set(query_params={'journal': 'peerj'}).url,
+            furl(self.base_url).set(query_params={'journal': 'cs'}).url,
+            furl(self.base_preprint_url).set(query_params={'journal': 'peerj'}).url,
         ]
