@@ -97,7 +97,7 @@ class AgEconHarvester(Harvester):
         data = {}
 
         data['primary_identifier'] = soup.find('code').text
-        display_table = soup.find(class_='itemDisplayTable').find_all('tr')[1:]
+        display_table = soup.find(class_='itemDisplayTable').find_all('tr')
 
         for row in display_table:
             label = row.find(class_='metadataFieldLabel').text.replace(':\xa0', '').lower()
