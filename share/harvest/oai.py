@@ -66,10 +66,7 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
 
     def fetch_page(self, url: furl, token: str=None) -> (list, str):
         if token:
-            url.remove(self.from_param)
-            url.remove(self.until_param)
-            url.remove('metadataPrefix')
-            url.args['resumptionToken'] = token
+            url.args = {'resumptionToken': token, 'verb': 'ListRecords'}
 
         while True:
             logger.info('Making request to {}'.format(url.url))
