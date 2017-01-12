@@ -1,3 +1,5 @@
+from django.utils.functional import cached_property
+
 from share.provider import ProviderAppConfig
 from .harvester import ZenodoHarvester
 from providers.org.datacite.normalizer import DataciteNormalizer
@@ -20,3 +22,8 @@ class AppConfig(ProviderAppConfig):
         'http://schema.datacite.org/oai/oai-1.0/': None,
         'http://www.openarchives.org/OAI/2.0/oai_dc/': None,
     }
+
+    @cached_property
+    def user(self):
+        from share.models import ShareUser
+        return ShareUser.objects.get(robot='providers.org.zenodo')
