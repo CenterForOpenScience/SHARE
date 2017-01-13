@@ -50,16 +50,18 @@ class HideNullJSONAPIRenderer(JSONAPIRenderer):
 
         return utils.format_keys(data)
 
-    def encode_ids(relation_data):
-        if relation_data:
-            if not isinstance(relation_data, list):
-                relation_data = [relation_data]
-            for obj in relation_data:
-                obj['id'] = IDObfuscator.encode_id(int(obj['id']), apps.get_model('share', obj['type']))
-        return relation_data
-
     def encode_id(resource_id, resource_type):
         return encoding.force_text(IDObfuscator.encode_id(resource_id, apps.get_model('share', resource_type)))
+
+    @classmethod
+    def encode_ids(cls, relation_data):
+        if relation_data:
+            if isinstance(relation_data, list):
+                for obj in relation_data:
+                    obj['id'] = cls.encode_id(int(obj['id']), obj['type'])
+            else:
+                relation_data['id'] = cls.encode_id(int(relation_data['id']), relation_data['type'])
+        return relation_data
 
     # override ids in relationships from JSONAPIRenderer
     @classmethod
@@ -98,7 +100,7 @@ class HideNullJSONAPIRenderer(JSONAPIRenderer):
 
                 for related_object in relation_queryset:
                     relation_data.append(
-                        OrderedDict([('type', relation_type), ('id', cls.encode_id(related_object.pk, relation_type))])
+                        OrderedDict([('type', relation_type), ('id', encoding.force_text(related_object.pk))])
                     )
 
                 data.update({field_name: {
@@ -182,11 +184,11 @@ class HideNullJSONAPIRenderer(JSONAPIRenderer):
 
                     relation_data.append(OrderedDict([
                         ('type', nested_resource_instance_type),
-                        ('id', cls.encode_id(nested_resource_instance.pk, nested_resource_instance_type))
+                        ('id', encoding.force_text(nested_resource_instance.pk))
                     ]))
                 data.update({
                     field_name: {
-                        'data': relation_data,
+                        'data': cls.encode_ids(relation_data),
                         'meta': {
                             'count': len(relation_data)
                         }
@@ -213,10 +215,10 @@ class HideNullJSONAPIRenderer(JSONAPIRenderer):
 
                         relation_data.append(OrderedDict([
                             ('type', nested_resource_instance_type),
-                            ('id', cls.encode_id(nested_resource_instance.pk, nested_resource_instance_type))
+                            ('id', encoding.force_text(nested_resource_instance.pk))
                         ]))
 
-                    data.update({field_name: {'data': relation_data}})
+                    data.update({field_name: {'data': cls.encode_ids(relation_data)}})
                     continue
 
             if isinstance(field, Serializer):
