@@ -154,7 +154,7 @@ Adding a new provider
     - Include only the relevant migration in the PR
 - Adding a provider's favicon
     - visit ``www.domain.com/favicon.ico`` and download the ``favicon.ico`` file
-    - place ``favicon.ico`` in ``providers/domain/provider_name/static/domain.provider_name/img/``
+    - place ``favicon.ico`` in ``providers/domain/provider_name/``
 
 .. _OAI-PMH: http://www.openarchives.org/OAI/openarchivesprotocol.html
 
