@@ -1,5 +1,6 @@
 import abc
 import json
+import os
 import random
 import string
 import datetime
@@ -7,6 +8,7 @@ import datetime
 from django.apps import apps
 from django.db import migrations
 from django.conf import settings
+from django.core.files import File
 from django.apps import AppConfig
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -45,18 +47,19 @@ class RobotAppConfig(AppConfig, metaclass=abc.ABCMeta):
         return 'Bearer ' + self.user.accesstoken_set.first().token
 
 
-class AbstractRobotMigration:
+class RobotMigrations:
 
-    def __init__(self, label):
-        self.config = apps.get_app_config(label)
-        if not isinstance(self.config, RobotAppConfig):
-            raise Exception('Found non-robot app, "{}", in a robot migration.'.format(label))
+    def __init__(self, app_config):
+        self.config = app_config
 
-    def deconstruct(self):
-        return ('{}.{}'.format(__name__, self.__class__.__name__), (self.config.label, ), {})
+    def migrations(self):
+        return (
+            InitialMigration(self.config).migration(),
+            FaviconMigration(self.config).migration()
+        )
 
 
-class RobotMigration:
+class InitialMigration:
 
     def __init__(self, app_config):
         self.config = app_config
@@ -88,6 +91,42 @@ class RobotMigration:
         m.operations = self.ops()
         m.dependencies = self.dependencies()
         return m
+
+
+class FaviconMigration:
+
+    def __init__(self, app_config):
+        self.config = app_config
+
+    def ops(self):
+        return [
+            migrations.RunPython(
+                RobotFaviconMigration(self.config.label),
+                # RobotFaviconMigration(self.config.label).reverse,
+            ),
+        ]
+
+    def dependencies(self):
+        return [
+            (self.config.label, '0001_initial'),
+        ]
+
+    def migration(self):
+        m = migrations.Migration('0002_favicon', self.config.label)
+        m.operations = self.ops()
+        m.dependencies = self.dependencies()
+        return m
+
+
+class AbstractRobotMigration:
+
+    def __init__(self, label):
+        self.config = apps.get_app_config(label)
+        if not isinstance(self.config, RobotAppConfig):
+            raise Exception('Found non-robot app, "{}", in a robot migration.'.format(label))
+
+    def deconstruct(self):
+        return ('{}.{}'.format(__name__, self.__class__.__name__), (self.config.label, ), {})
 
 
 class RobotUserMigration(AbstractRobotMigration):
@@ -166,3 +205,21 @@ class DisableRobotScheduleMigration(AbstractRobotMigration):
             task=self.config.task,
             args=json.dumps([1, self.config.label]),  # Note 1 should always be the system user
         ).update(enabled=False)
+
+
+class RobotFaviconMigration(AbstractRobotMigration):
+
+    def __call__(self, apps, schema_editor):
+        user = self.config.user
+        try:
+            with open(os.path.join(self.config.path, 'favicon.ico'), 'rb') as f:
+                user.favicon.save(user.username, File(f))
+        except OSError:
+            pass
+
+    def reverse(self, apps, schema_editor):
+        ShareUser = apps.get_model('share', 'ShareUser')
+        try:
+            self.config.user.favicon.delete()
+        except ShareUser.DoesNotExist:
+            pass
