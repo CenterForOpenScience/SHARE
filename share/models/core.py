@@ -8,13 +8,19 @@ from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.core import validators
+from django.core.files.base import ContentFile
+from django.core.files.storage import Storage
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.urlresolvers import reverse
 from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
 from fuzzycount import FuzzyCountManager
 from oauth2_provider.models import AccessToken, Application
+
+from db.deletion import DATABASE_CASCADE
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
@@ -75,6 +81,37 @@ class ShareUserManager(BaseUserManager):
         return user
 
 
+class FaviconImage(models.Model):
+    user = models.OneToOneField('ShareUser', on_delete=DATABASE_CASCADE, primary_key=True)
+    image = models.BinaryField()
+
+
+@deconstructible
+class FaviconStorage(Storage):
+    def _open(self, name, mode='rb'):
+        assert mode == 'rb'
+        favicon = FaviconImage.objects.get(user__username=name)
+        return ContentFile(favicon.image)
+
+    def _save(self, name, content):
+        user = ShareUser.objects.get(username=name)
+        FaviconImage.objects.update_or_create(user_id=user.id, defaults={'image': content.read()})
+        return name
+
+    def delete(self, name):
+        FaviconImage.objects.get(user__username=name).delete()
+
+    def get_available_name(self, name, max_length=None):
+        return name
+
+    def url(self, name):
+        return reverse('user_favicon', kwargs={'username': name})
+
+
+def favicon_name(instance, filename):
+    return instance.username
+
+
 class ShareUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     username = models.TextField(
@@ -121,6 +158,7 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     robot = models.TextField(validators=[validators.MaxLengthValidator(40)], blank=True)
     long_title = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
     home_page = ShareURLField(blank=True)
+    favicon = models.ImageField(upload_to=favicon_name, storage=FaviconStorage(), blank=True)
 
     objects = ShareUserManager()
 

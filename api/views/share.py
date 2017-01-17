@@ -12,6 +12,7 @@ from api.filters import ShareObjectFilterSet
 from api import serializers as api_serializers
 
 from share.util import IDObfuscator, InvalidID
+from share.models import ShareUser
 
 
 class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -105,6 +106,13 @@ class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
         ser = api_serializers.ShareUserSerializer(request.user, token=True)
         return Response(ser.data)
+
+
+def user_favicon_view(request, username):
+    user = ShareUser.objects.get(username=username)
+    response = http.FileResponse(user.favicon)
+    response['Content-Type'] = 'image/x-icon'
+    return response
 
 
 class HttpSmartResponseRedirect(http.HttpResponseRedirect):
