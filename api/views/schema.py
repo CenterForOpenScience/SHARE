@@ -1,12 +1,12 @@
 import re
 import os
 import yaml
-from collections import OrderedDict
 
 from rest_framework import views
 from rest_framework.response import Response
 
 from share import models
+from share.util import sort_dict_by_key
 from share.models.validators import JSONLDValidator
 
 __all__ = ('SchemaView', 'ModelSchemaView', 'ModelTypesView')
@@ -120,20 +120,9 @@ for model in schema_models:
 
 class ModelTypesView(views.APIView):
 
-    def __init__(self, *args, **kwargs):
-        super(ModelTypesView, self).__init__(*args, **kwargs)
-        yaml_file = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/share/models/creative.yaml'
-        with open(yaml_file) as fobj:
-            self.model_specs = self.sort_dict(yaml.load(fobj))
-
-    def sort_dict(self, hierarchy):
-        types = OrderedDict()
-        for key, value in sorted(hierarchy.items()):
-            if isinstance(value, dict):
-                types[key] = self.sort_dict(value)
-            else:
-                types[key] = value
-        return types
+    yaml_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../share/models/creative.yaml')
+    with open(yaml_file) as fobj:
+        model_specs = sort_dict_by_key(yaml.load(fobj))
 
     def get(self, request, *args, **kwargs):
         return Response(self.model_specs)

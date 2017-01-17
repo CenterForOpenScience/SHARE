@@ -11,6 +11,16 @@ def strip_whitespace(string):
     return re.sub(WHITESPACE_RE, ' ', string).strip()
 
 
+def sort_dict_by_key(hierarchy):
+    types = OrderedDict()
+    for key, value in sorted(hierarchy.items()):
+        if isinstance(value, dict):
+            types[key] = sort_dict_by_key(value)
+        else:
+            types[key] = value
+    return types
+
+
 class InvalidID(Exception):
     def __init__(self, value, message='Invalid ID'):
         super().__init__(value, message)
