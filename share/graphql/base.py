@@ -26,7 +26,7 @@ class Source(DjangoObjectType):
 
     @classmethod
     def resolve_favicon(cls, instance, context, request, info):
-        return '/static/{}/img/favicon.ico'.format(instance.robot.replace('providers.', '', 1))
+        return '/favicons/{}.ico'.format(instance.username)
 
     @classmethod
     def resolve_date_added(cls, instance, context, request, info):
