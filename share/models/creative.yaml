@@ -23,7 +23,17 @@ CreativeWork:
                 Dissertation: {}
                 Preprint: {}
                 Project: {}
-                Registration: {}
+                Registration:
+                  fields:
+                    registration_type:
+                      type: text
+                      kwargs: { blank: true }
+                    withdrawn:
+                      type: boolean
+                      kwargs: { default: false }
+                    justification:
+                      type: text
+                      kwargs: { blank: true }
                 Report: {}
                 # Section: {}
                 Thesis: {}
