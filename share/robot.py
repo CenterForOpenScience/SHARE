@@ -109,6 +109,7 @@ class FaviconMigration:
     def dependencies(self):
         return [
             (self.config.label, '0001_initial'),
+            ('share', '0015_store_favicons'),
         ]
 
     def migration(self):
