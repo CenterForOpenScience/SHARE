@@ -47,6 +47,17 @@ class RobotAppConfig(AppConfig, metaclass=abc.ABCMeta):
         return 'Bearer ' + self.user.accesstoken_set.first().token
 
 
+class AbstractRobotMigration:
+
+    def __init__(self, label):
+        self.config = apps.get_app_config(label)
+        if not isinstance(self.config, RobotAppConfig):
+            raise Exception('Found non-robot app, "{}", in a robot migration.'.format(label))
+
+    def deconstruct(self):
+        return ('{}.{}'.format(__name__, self.__class__.__name__), (self.config.label, ), {})
+
+
 class RobotMigrations:
 
     def __init__(self, app_config):
@@ -117,17 +128,6 @@ class FaviconMigration:
         m.operations = self.ops()
         m.dependencies = self.dependencies()
         return m
-
-
-class AbstractRobotMigration:
-
-    def __init__(self, label):
-        self.config = apps.get_app_config(label)
-        if not isinstance(self.config, RobotAppConfig):
-            raise Exception('Found non-robot app, "{}", in a robot migration.'.format(label))
-
-    def deconstruct(self):
-        return ('{}.{}'.format(__name__, self.__class__.__name__), (self.config.label, ), {})
 
 
 class RobotUserMigration(AbstractRobotMigration):
