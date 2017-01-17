@@ -45,5 +45,8 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     def __str__(self):
         return self.title
 
-generator = ModelGenerator()
+generator = ModelGenerator(field_types={
+    'text': models.TextField,
+    'boolean': models.NullBooleanField,  # Has to be nullable for types models :(
+})
 globals().update(generator.subclasses_from_yaml(__file__, AbstractCreativeWork))
