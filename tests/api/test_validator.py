@@ -259,9 +259,10 @@ class TestValidator:
             'errors': [{
                 'detail': "'AbstractAgent' is not one of ["
                           "'AGENT', 'Agent', 'CONSORTIUM', 'Consortium', "
+                          "'DEPARTMENT', 'Department', "
                           "'INSTITUTION', 'Institution', 'ORGANIZATION', "
                           "'Organization', 'PERSON', 'Person', 'agent', "
-                          "'consortium', 'institution', 'organization', 'person'"
+                          "'consortium', 'department', 'institution', 'organization', 'person'"
                           "] at /@graph/1",
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'

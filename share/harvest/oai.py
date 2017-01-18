@@ -21,6 +21,8 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
     }
     url = None
     time_granularity = True
+    from_param = 'from'
+    until_param = 'until'
 
     def __init__(self, app_config):
         super().__init__(app_config)
@@ -30,6 +32,8 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
             raise NotImplementedError('url')
 
         self.time_granularity = getattr(self.config, 'time_granularity', self.time_granularity)
+        self.from_param = getattr(self.config, 'from_param', self.from_param)
+        self.until_param = getattr(self.config, 'until_param', self.until_param)
 
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> list:
         url = furl(self.url)
@@ -37,11 +41,11 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
         url.args['metadataPrefix'] = self.metadata_prefix
 
         if self.time_granularity:
-            url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
-            url.args['until'] = end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+            url.args[self.from_param] = start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+            url.args[self.until_param] = end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
         else:
-            url.args['from'] = start_date.date().isoformat()
-            url.args['until'] = end_date.date().isoformat()
+            url.args[self.from_param] = start_date.date().isoformat()
+            url.args[self.until_param] = end_date.date().isoformat()
 
         return self.fetch_records(url)
 
@@ -62,10 +66,7 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
 
     def fetch_page(self, url: furl, token: str=None) -> (list, str):
         if token:
-            url.remove('from')
-            url.remove('until')
-            url.remove('metadataPrefix')
-            url.args['resumptionToken'] = token
+            url.args = {'resumptionToken': token, 'verb': 'ListRecords'}
 
         while True:
             logger.info('Making request to {}'.format(url.url))

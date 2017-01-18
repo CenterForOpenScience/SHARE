@@ -96,6 +96,7 @@ INSTALLED_APPS = [
     'providers.com.peerj.preprints',
     'providers.com.peerj.xml',
     'providers.com.springer',
+    'providers.edu.ageconsearch',
     'providers.edu.asu',
     'providers.edu.boise_state',
     'providers.edu.calhoun',
@@ -114,6 +115,7 @@ INSTALLED_APPS = [
     'providers.edu.digitalhoward',
     'providers.edu.duke',
     'providers.edu.fit',
+    'providers.edu.gwu',
     'providers.edu.harvarddataverse',
     'providers.edu.huskiecommons',
     'providers.edu.iastate',
@@ -172,6 +174,7 @@ INSTALLED_APPS = [
     'providers.edu.wisconsin',
     'providers.edu.wm',
     'providers.edu.wustlopenscholarship',
+    'providers.fr.archives-ouvertes.hal',
     'providers.es.csic',
     'providers.et.edu.addis_ababa',
     'providers.eu.econstor',
@@ -210,9 +213,12 @@ INSTALLED_APPS = [
     'providers.org.ncar',
     'providers.org.neurovault',
     'providers.org.newprairiepress',
+    'providers.org.philpapers',
     'providers.org.plos',
+    'providers.org.preprints',
     'providers.org.psyarxiv',
     'providers.org.repec',
+    'providers.org.seafdec',
     'providers.org.shareok',
     'providers.org.sldr',
     'providers.org.socarxiv',
@@ -221,7 +227,7 @@ INSTALLED_APPS = [
     'providers.org.ttu',
     'providers.org.ucescholarship',
     'providers.org.zenodo',
-    'providers.org.seafdec',
+    'providers.org.zenodo.datacite',
     'providers.pe.upc',
     'providers.pt.rcaap',
     'providers.ru.cyberleninka',
@@ -581,6 +587,8 @@ SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', SHARE_API_URL + EMBER_SHARE_PREF
 
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip('/') + '/'
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
+
+ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 'ul']
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')

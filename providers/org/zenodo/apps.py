@@ -1,3 +1,4 @@
+
 from share.provider import OAIProviderAppConfig
 
 
@@ -8,3 +9,4 @@ class AppConfig(OAIProviderAppConfig):
     long_title = 'Zenodo'
     home_page = 'https://zenodo.org/oai2d'
     url = 'https://zenodo.org/oai2d'
+    disabled = True

@@ -18,6 +18,9 @@ AgentWorkRelation:
                             type: positive_int
                 PrincipalInvestigator:
                     description: The agent oversaw the creation of the work, as head of the laboratory or research group in which the work was created.
+                    children:
+                        PrincipalInvestigatorContact:
+                            description: The agent oversaw the creation of the work, as head of the laboratory or research group in which the work was created and is the primary contact.
         Funder:
             description: The agent gave money that enabled or supported the creation of the work.
             fields:
