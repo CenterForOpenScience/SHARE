@@ -55,4 +55,4 @@ newrelic==2.68.0.50
 raven==5.23.0
 graphene==1.0.2
 graphene-django==1.0
-pillow=4.0.0
+pillow==4.0.0
