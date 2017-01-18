@@ -140,11 +140,14 @@ class ShareUserSerializer(ShareModelSerializer):
     def is_superuser(self, obj):
         return obj.is_superuser
 
+    def get_favicon(self, obj):
+        return obj.favicon.url if obj.favicon else None
+
     class Meta:
         model = models.ShareUser
         fields = (
             'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login',
-            'is_active', 'gravatar', 'locale', 'time_zone',
+            'is_active', 'gravatar', 'locale', 'time_zone', 'favicon'
         )
 
 
@@ -176,11 +179,6 @@ class ProviderSerializer(ShareUserSerializer):
 
     def provider_name(self, obj):
         return obj.username.replace('providers.', '')
-
-    def get_favicon(self, obj):
-        if obj.favicon:
-            return obj.favicon.url
-        return None
 
     class Meta:
         model = models.ShareUser

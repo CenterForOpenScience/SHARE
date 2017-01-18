@@ -149,12 +149,12 @@ Adding a new provider
     - See :ref:`Best practices for writing a non-OAI Harvester <writing-harvesters>`
 - Writing the normalizer
     - See :ref:`Best practices for writing a non-OAI Normalizer <writing-normalizers>`
-- Adding the migration
-    - Finally, run ``./manage.py makeprovidermigrations`` in the terminal
-    - Include only the relevant migration in the PR
 - Adding a provider's favicon
     - visit ``www.domain.com/favicon.ico`` and download the ``favicon.ico`` file
-    - place ``favicon.ico`` in ``providers/domain/provider_name/``
+    - place ``favicon.ico`` in the ``providers/`` specific folder
+- Adding the migration
+    - Finally, run ``./manage.py makeprovidermigrations`` in the terminal
+    - Include only the relevant migrations in the PR
 
 .. _OAI-PMH: http://www.openarchives.org/OAI/openarchivesprotocol.html
 
