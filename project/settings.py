@@ -192,6 +192,7 @@ INSTALLED_APPS = [
     'providers.gov.scitech',
     'providers.gov.usgs',
     'providers.info.spdataverse',
+    'providers.info.ssoar',
     'providers.io.osf',
     'providers.io.osf.preprints',
     'providers.io.osf.registrations',
