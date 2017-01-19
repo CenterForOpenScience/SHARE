@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     'providers.com.peerj',
     'providers.com.peerj.preprints',
     'providers.com.peerj.xml',
+    'providers.com.researchregistry',
     'providers.com.springer',
     'providers.edu.ageconsearch',
     'providers.edu.asu',
