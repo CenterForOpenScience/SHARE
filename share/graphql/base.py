@@ -26,7 +26,7 @@ class Source(DjangoObjectType):
 
     @classmethod
     def resolve_favicon(cls, instance, context, request, info):
-        return '/favicons/{}.ico'.format(instance.username)
+        return reverse('user_favicon', kwargs={'username': instance.username})
 
     @classmethod
     def resolve_date_added(cls, instance, context, request, info):

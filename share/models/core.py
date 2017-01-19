@@ -82,7 +82,7 @@ class ShareUserManager(BaseUserManager):
 
 
 class FaviconImage(models.Model):
-    user = models.OneToOneField('ShareUser', on_delete=DATABASE_CASCADE, primary_key=True)
+    user = models.OneToOneField('ShareUser', on_delete=DATABASE_CASCADE)
     image = models.BinaryField()
 
 

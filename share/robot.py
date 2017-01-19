@@ -64,10 +64,11 @@ class RobotMigrations:
         self.config = app_config
 
     def migrations(self):
-        return (
-            InitialMigration(self.config).migration(),
-            FaviconMigration(self.config).migration()
-        )
+        from share.provider import ProviderAppConfig
+        migrations = [InitialMigration(self.config).migration()]
+        if isinstance(self.config, ProviderAppConfig):
+            migrations.append(FaviconMigration(self.config).migration())
+        return migrations
 
 
 class InitialMigration:
@@ -212,11 +213,8 @@ class RobotFaviconMigration(AbstractRobotMigration):
 
     def __call__(self, apps, schema_editor):
         user = self.config.user
-        try:
-            with open(os.path.join(self.config.path, 'favicon.ico'), 'rb') as f:
-                user.favicon.save(user.username, File(f))
-        except OSError:
-            pass
+        with open(os.path.join(self.config.path, 'favicon.ico'), 'rb') as f:
+            user.favicon.save(user.username, File(f))
 
     def reverse(self, apps, schema_editor):
         ShareUser = apps.get_model('share', 'ShareUser')
