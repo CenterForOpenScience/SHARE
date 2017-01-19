@@ -213,7 +213,14 @@ class RobotFaviconMigration(AbstractRobotMigration):
 
     def __call__(self, apps, schema_editor):
         user = self.config.user
-        with open(os.path.join(self.config.path, 'favicon.ico'), 'rb') as f:
+        try:
+            self._save_favicon(user, os.path.join(self.config.path, 'favicon.ico'))
+        except OSError:
+            # Try parent directory
+            self._save_favicon(user, os.path.join(os.path.dirname(self.config.path), 'favicon.ico'))
+
+    def _save_favicon(self, user, path):
+        with open(path, 'rb') as f:
             user.favicon.save(user.username, File(f))
 
     def reverse(self, apps, schema_editor):
