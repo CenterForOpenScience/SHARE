@@ -1,5 +1,7 @@
 import graphene
 
+from django.core.urlresolvers import reverse
+
 from graphene_django import DjangoObjectType
 
 from share import models
