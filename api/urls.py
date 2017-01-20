@@ -94,5 +94,6 @@ urlpatterns = [
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
 
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
+    url(r'schema/creativework/hierarchy/?$', views.ModelTypesView.as_view(), name='modeltypes'),
     *model_schema_patterns
 ] + router.urls
