@@ -67,7 +67,7 @@ class EndpointGenerator:
 EndpointGenerator()
 
 # registration route
-register_route(r'registrations', views.ProviderRegistrationViewSet)
+register_route(r'sourceregistrations', views.ProviderRegistrationViewSet)
 
 # site banners route
 register_route(r'site_banners', views.SiteBannerViewSet)
