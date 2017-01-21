@@ -81,6 +81,7 @@ class ThroughTags(ShareObject):
 
     class Meta:
         unique_together = ('tag', 'creative_work')
+        verbose_name_plural = 'through tags'
 
     class Disambiguation:
         all = ('tag', 'creative_work')
@@ -92,6 +93,7 @@ class ThroughSubjects(ShareObject):
 
     class Meta:
         unique_together = ('subject', 'creative_work')
+        verbose_name_plural = 'through subjects'
 
     class Disambiguation:
         all = ('subject', 'creative_work')

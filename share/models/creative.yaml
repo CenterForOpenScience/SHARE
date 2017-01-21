@@ -26,9 +26,11 @@ CreativeWork:
                 Registration: {}
                 Report: {}
                 # Section: {}
-                Thesis: {}
+                Thesis:
+                    verbose_name_plural: theses
                 WorkingPaper: {}
         Presentation: {}
         Retraction: {}
-        Software: {}
+        Software:
+            verbose_name_plural: software
         # Video: {}
