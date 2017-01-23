@@ -125,6 +125,7 @@ INSTALLED_APPS = [
     'providers.edu.iwu_commons',
     'providers.edu.kent',
     'providers.edu.krex',
+    'providers.edu.ku',
     'providers.edu.mason',
     'providers.edu.mit',
     'providers.edu.mizzou',
