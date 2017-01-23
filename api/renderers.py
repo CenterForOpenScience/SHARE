@@ -244,7 +244,7 @@ class HideNullJSONAPIRenderer(JSONAPIRenderer):
     def build_json_resource_obj(cls, fields, resource, resource_instance, resource_name):
         resource_data = [
             ('type', resource_name),
-            ('id', cls.encode_id(resource_instance.pk, resource_name) if resource_instance else None),
+            ('id', cls.encode_id(resource_instance.pk, resource_instance._meta.model.__name__) if resource_instance else None),
             ('attributes', cls.extract_attributes(fields, resource)),
         ]
         relationships = cls.extract_relationships(fields, resource, resource_instance)
