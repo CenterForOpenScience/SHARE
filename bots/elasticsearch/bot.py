@@ -162,7 +162,8 @@ class ElasticSearchBot(Bot):
 
             logger.info('Found %s %s that must be updated in ES', qs.count(), model)
             for i, batch in enumerate(chunk(qs.all(), chunk_size)):
-                IndexModelTask().apply_async((self.started_by.id, self.config.label, model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
+                if batch:
+                    IndexModelTask().apply_async((self.started_by.id, self.config.label, model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
 
         logger.info('Starting task to index sources')
         IndexSourceTask().apply_async((self.started_by.id, self.config.label), {'es_url': self.es_url, 'es_index': self.es_index})
@@ -175,11 +176,11 @@ class ElasticSearchBot(Bot):
         self.es_client.cluster.health(wait_for_status='yellow')
 
         logger.info('Putting Elasticsearch settings')
-        self.es_client.indices.close(index=settings.ELASTICSEARCH_INDEX)
+        self.es_client.indices.close(index=self.es_index)
         try:
-            self.es_client.indices.put_settings(body=self.SETTINGS, index=settings.ELASTICSEARCH_INDEX)
+            self.es_client.indices.put_settings(body=self.SETTINGS, index=self.es_index)
         finally:
-            self.es_client.indices.open(index=settings.ELASTICSEARCH_INDEX)
+            self.es_client.indices.open(index=self.es_index)
 
         logger.info('Putting Elasticsearch mappings')
         for doc_type, mapping in self.MAPPINGS.items():
