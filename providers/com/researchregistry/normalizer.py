@@ -1,3 +1,5 @@
+from share.normalize import Parser, tools, ctx
+
 FIELDS = {
     'uin': 'field_21',
     'registration date': 'field_2',
@@ -7,7 +9,7 @@ FIELDS = {
     'study type': 'field_72',
     'study type other': 'field_14',
     'primary investigator': 'field_3',
-    'other investigators': 'field_4',
+    'other investigator': 'field_4',
     'additional investigators': 'field_94',
     'contact details': 'field_5',
     'email': 'field_97',
@@ -34,6 +36,82 @@ FIELDS = {
     'data': 'field_64',
     'published paper identifier': 'field_37',
     'study website': 'field_30',
-    'study results': 'field_89'
+    'study results': 'field_89',
+    'user': 'field_66',
 }
 
+
+class Person(Parser):
+    family_name = ctx['last']
+    given_name = ctx['first']
+
+
+class FullNamePerson(Parser):
+    schema = 'person'
+    name = ctx
+
+
+class PrincipalInvestigator(Parser):
+    agent = tools.Delegate(Person, ctx)
+
+
+class OtherInvestigator(Parser):
+    schema = 'contributor'
+    agent = tools.Delegate(Person, ctx)
+
+
+class AdditionalInvestigator(Parser):
+    schema = 'contributor'
+    agent = tools.Delegate(FullNamePerson, ctx)
+
+
+class Registration(Parser):
+    title = ctx[FIELDS['title']]
+    description = ctx[FIELDS['summary']]
+    date_published = tools.ParseDate(ctx[FIELDS['registration date']].timestamp)
+    date_updated = tools.ParseDate(ctx[FIELDS['registration date']].timestamp)
+    related_agents = tools.Concat(
+        tools.Delegate(PrincipalInvestigator, ctx[FIELDS['primary investigator']]),
+        tools.Delegate(OtherInvestigator, ctx[FIELDS['other investigator']]),
+        tools.Map(
+            tools.Delegate(AdditionalInvestigator),
+            tools.RunPython('split_names', ctx[FIELDS['additional investigators']])
+        )
+    )
+
+    class Extra:
+        registration_date = ctx[FIELDS['registration date']]
+        questions_and_objectives = ctx[FIELDS['questions and objectives']]
+        study_type = ctx[FIELDS['study type']]
+        study_type_detail = ctx[FIELDS['study type other']]
+        contact_details = ctx[FIELDS['contact details']]
+        participating_institutions = ctx[FIELDS['participating institutions']]
+        countries_of_recruitment = ctx[FIELDS['countries of recruitment']]
+        funders = ctx[FIELDS['funders']]
+        problems_studied = ctx[FIELDS['health conditions or problems studied']]
+        patient_population = ctx[FIELDS['patient population']]
+        interventions = ctx[FIELDS['interventions']]
+        inclusion_criteria = ctx[FIELDS['inclusion criteria']]
+        exclusion_criteria = ctx[FIELDS['exclusion criteria']]
+        control_or_comparators = ctx[FIELDS['control or comparators']]
+        primary_outcomes = ctx[FIELDS['primary outcomes']]
+        key_secondary_outcomes = ctx[FIELDS['key secondary outcomes']]
+        target_sample_size = ctx[FIELDS['target sample size']]
+        recruitment_status = ctx[FIELDS['recruitment status']]
+        other_recruitment_status = ctx[FIELDS['other recruitment status']]
+        first_enrollment_date = ctx[FIELDS['first enrollment date']]
+        expected_enrollment_completion_date = ctx[FIELDS['expected enrollment completion date']]
+        expected_research_completion_date = ctx[FIELDS['expected research completion date']]
+        ethical_approval = ctx[FIELDS['ethical approval']]
+        ethical_approval_details = ctx[FIELDS['ethical approval details']]
+        ethical_committee_judgment = ctx[FIELDS['ethical committee judgment']]
+        data = ctx[FIELDS['data']]
+        published_paper = ctx[FIELDS['published paper identifier']]
+        study_website = ctx[FIELDS['study website']]
+        study_results = ctx[FIELDS['study results']]
+
+
+    def split_names(self, obj):
+        if not obj:
+            return None
+        return obj.split(',')
