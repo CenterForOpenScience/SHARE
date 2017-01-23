@@ -1,3 +1,4 @@
+import json
 from furl import furl
 
 from share.harvest.harvester import Harvester
@@ -17,13 +18,14 @@ class ResearchRegistryHarvester(Harvester):
         url.args['page'] = page
         url.args['rows_per_page'] = 1000
         url.args['format'] = 'raw'
-        url.args['filter'] = {
+        url.args['filters'] = json.dumps({
             'match': 'and',
             'rules': [
-                {'field': self.DATE_FIELD, 'operator': 'is after', 'value': start_date},
-                {'field': self.DATE_FIELD, 'operator': 'is before', 'value': end_date},
+                # date filters are strictly less/greater than, not equal to
+                {'field': self.DATE_FIELD, 'operator': 'is after', 'value': start_date.subtract(days=1).to_date_string()},
+                {'field': self.DATE_FIELD, 'operator': 'is before', 'value': end_date.add(days=1).to_date_string()},
             ]
-        }
+        })
         response = self.requests.get(url.url, headers=self.HEADERS)
         if response.status_code // 100 != 2:
             raise ValueError('Malformed response ({}) from {}. Got {}'.format(response, url.url, response.content))
