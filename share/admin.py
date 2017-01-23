@@ -25,6 +25,7 @@ from share.models.banner import SiteBanner
 # from share.models.agent_relations import AbstractAgentRelation
 # from share.models.contributions import AbstractContribution, Award
 from share.tasks import ApplyChangeSets
+from share.readonlyadmin import ReadOnlyAdmin
 
 
 class NormalizedDataAdmin(admin.ModelAdmin):
@@ -172,7 +173,7 @@ class AccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'user', 'scope')
 
 
-class ProviderRegistrationAdmin(admin.ModelAdmin):
+class ProviderRegistrationAdmin(ReadOnlyAdmin):
     list_display = ('source_name', 'status_', 'submitted_at', 'submitted_by', 'direct_source')
     list_filter = ('direct_source', 'status',)
     readonly_fields = ('submitted_at', 'submitted_by',)
