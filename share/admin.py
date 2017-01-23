@@ -28,7 +28,7 @@ from share.tasks import ApplyChangeSets
 from share.readonlyadmin import ReadOnlyAdmin
 
 
-class NormalizedDataAdmin(ReadOnlyAdmin):
+class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
     raw_id_fields = ('raw', 'tasks',)
@@ -47,7 +47,7 @@ class ChangeSetSubmittedByFilter(SimpleListFilter):
         return queryset
 
 
-class ChangeSetAdmin(ReadOnlyAdmin):
+class ChangeSetAdmin(admin.ModelAdmin):
     list_display = ('status_', 'count_changes', 'submitted_by', 'submitted_at')
     actions = ['accept_changes']
     list_filter = ['status', ChangeSetSubmittedByFilter]
@@ -109,7 +109,7 @@ class CeleryTaskChangeList(ChangeList):
         return ['-timestamp']
 
 
-class CeleryTaskAdmin(ReadOnlyAdmin):
+class CeleryTaskAdmin(admin.ModelAdmin):
     list_display = ('timestamp', 'name', 'status', 'provider', 'app_label', 'started_by')
     actions = ['retry_tasks']
     list_filter = ['status', TaskNameFilter, AppLabelFilter, 'started_by']
@@ -145,7 +145,7 @@ class CeleryTaskAdmin(ReadOnlyAdmin):
     retry_tasks.short_description = 'Retry tasks'
 
 
-class AbstractCreativeWorkAdmin(ReadOnlyAdmin):
+class AbstractCreativeWorkAdmin(admin.ModelAdmin):
     list_display = ('type', 'title', 'num_contributors')
     list_filter = ['type']
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version', 'subjects')
@@ -155,21 +155,21 @@ class AbstractCreativeWorkAdmin(ReadOnlyAdmin):
     num_contributors.short_description = 'Contributors'
 
 
-class AbstractAgentAdmin(ReadOnlyAdmin):
+class AbstractAgentAdmin(admin.ModelAdmin):
     list_display = ('type', 'name')
     list_filter = ('type',)
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
 
 
-class TagAdmin(ReadOnlyAdmin):
+class TagAdmin(admin.ModelAdmin):
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
 
 
-class RawDataAdmin(ReadOnlyAdmin):
+class RawDataAdmin(admin.ModelAdmin):
     raw_id_fields = ('tasks',)
 
 
-class AccessTokenAdmin(ReadOnlyAdmin):
+class AccessTokenAdmin(admin.ModelAdmin):
     list_display = ('token', 'user', 'scope')
 
 
@@ -182,7 +182,7 @@ class ProviderRegistrationAdmin(ReadOnlyAdmin):
         return ProviderRegistration.STATUS[obj.status].title()
 
 
-class SiteBannerAdmin(ReadOnlyAdmin):
+class SiteBannerAdmin(admin.ModelAdmin):
     list_display = ('title', 'color', 'icon', 'active')
     list_editable = ('active',)
     ordering = ('-active', '-last_modified_at')
