@@ -133,6 +133,7 @@ INSTALLED_APPS = [
     'providers.edu.opensiuc',
     'providers.edu.pcom',
     'providers.edu.pdxscholar',
+    'providers.edu.pe.upc',
     'providers.edu.purdue',
     'providers.edu.purdue.epubs',
     'providers.edu.richmond',
