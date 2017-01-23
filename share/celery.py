@@ -8,7 +8,7 @@ def match_by_module(task_path):
         for v in settings.QUEUES.values():
             if task_subpath in v['modules']:
                 return v['name']
-    return v['DEFAULT']['name']
+    return settings.QUEUES['DEFAULT']['name']
 
 
 class CeleryRouter(object):
