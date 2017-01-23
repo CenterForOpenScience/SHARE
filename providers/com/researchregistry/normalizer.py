@@ -1,5 +1,6 @@
 from share.normalize import Parser, tools, ctx
 
+
 FIELDS = {
     'uin': 'field_21',
     'registration date': 'field_2',
@@ -109,7 +110,6 @@ class Registration(Parser):
         published_paper = ctx[FIELDS['published paper identifier']]
         study_website = ctx[FIELDS['study website']]
         study_results = ctx[FIELDS['study results']]
-
 
     def split_names(self, obj):
         if not obj:

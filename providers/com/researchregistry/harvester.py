@@ -3,6 +3,7 @@ from furl import furl
 
 from share.harvest.harvester import Harvester
 
+
 # Built by inspecting http://www.researchregistry.com/browse-the-registry.html
 class ResearchRegistryHarvester(Harvester):
     API_URL = 'https://us-api.knack.com/v1/scenes/scene_3/views/view_4/records'
@@ -30,7 +31,6 @@ class ResearchRegistryHarvester(Harvester):
         if response.status_code // 100 != 2:
             raise ValueError('Malformed response ({}) from {}. Got {}'.format(response, url.url, response.content))
         return response.json()
-
 
     def do_harvest(self, start_date, end_date):
         page = 1
