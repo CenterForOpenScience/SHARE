@@ -37,7 +37,7 @@ class RelatedWork(Parser):
 
     identifiers = Map(
         Delegate(WorkIdentifier),
-        IRI(ctx)
+        Try(IRI(ctx), exceptions=(ValueError,))
     )
 
 
@@ -95,10 +95,13 @@ class DataSet(Parser):
 
     identifiers = Map(
         Delegate(WorkIdentifier),
-        Map(
-            IRI(urn_fallback=True),
-            Maybe(XPath(ctx, "str[@name='dataUrl']"), 'str')['#text'],
-            Maybe(XPath(ctx, "str[@name='identifier']"), 'str')['#text']
+        Try(
+            IRI(XPath(ctx, "str[@name='dataUrl']").str['#text']),
+            exceptions=(ValueError,)
+        ),
+        Try(
+            IRI(XPath(ctx, "str[@name='identifier']").str['#text']),
+            exceptions=(ValueError,)
         )
     )
 

@@ -216,12 +216,9 @@ def test_ark_link(ark_id, result):
     ('urn:domain.com:', ValueError('\'urn:domain.com:\' is not a valid URN.')),
     ('oai:cos.io:this.is.stuff', 'oai://cos.io/this.is.stuff'),
     ('oai:subdomain.cos.io:this.is.stuff', 'oai://subdomain.cos.io/this.is.stuff'),
-    ('    oai:cos.io:stuff', 'oai://cos.io/stuff'),
-    ('    oai:cos.io:stuff  ', 'oai://cos.io/stuff'),
+    ('    oai:cos.io:stuff', ValueError('\'    oai:cos.io:stuff\' is not a valid URN.')),
     ('oai:cos.io:long:list:of:things', 'oai://cos.io/long:list:of:things'),
     ('urn:share:this.is.stuff', 'urn://share/this.is.stuff'),
-    ('    urn:share:stuff', 'urn://share/stuff'),
-    ('    urn:share:stuff  ', 'urn://share/stuff'),
     ('urn:share:long:list:of/things', 'urn://share/long:list:of/things'),
 ])
 def test_urn_link(urn, result):
@@ -621,16 +618,6 @@ class TestIRILink:
             'authority': 'subdomain.cos.io',
             'IRI': 'oai://subdomain.cos.io/this.is.stuff'
         }),
-        ('    oai:cos.io:stuff', {
-            'scheme': 'oai',
-            'authority': 'cos.io',
-            'IRI': 'oai://cos.io/stuff'
-        }),
-        ('    oai:cos.io:stuff  ', {
-            'scheme': 'oai',
-            'authority': 'cos.io',
-            'IRI': 'oai://cos.io/stuff'
-        }),
         ('oai:cos.io:long:list:of:things', {
             'scheme': 'oai',
             'authority': 'cos.io',
@@ -640,16 +627,6 @@ class TestIRILink:
             'scheme': 'urn',
             'authority': 'cos.io',
             'IRI': 'urn://cos.io/this.is.stuff'
-        }),
-        ('    urn:cos.io:stuff', {
-            'scheme': 'urn',
-            'authority': 'cos.io',
-            'IRI': 'urn://cos.io/stuff'
-        }),
-        ('    urn:cos.io:stuff  ', {
-            'scheme': 'urn',
-            'authority': 'cos.io',
-            'IRI': 'urn://cos.io/stuff'
         }),
         ('urn:cos.io:long:list:of/things', {
             'scheme': 'urn',
