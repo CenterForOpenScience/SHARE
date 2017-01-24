@@ -73,6 +73,60 @@ do not have a value specified for the field "language"::
 
 For more information on sending elasticsearch queries and aggregations, check out the `elasticsearch query DSL documentation  <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html>`_.
 
+
+Searching for ORCIDs
+*********************
+
+Get all works where contributors have ORCID identifiers:
+https://share.osf.io/api/v2/search/creativeworks/_search?q=lists.contributors.identifiers:orcid.org
+
+In the results, the ORCID will be listed under:
+_source → lists → contributors → (contributor) → identifiers ::
+
+    {
+        timed_out: false,
+        hits: {
+            total: 204235,
+            hits: [
+            {
+                _id: "XXXX-XXX-XXX",
+                _source: {
+                    id: "XXXX-XXX-XXX",
+                    date_updated: "2016-04-23T07:31:31+00:00",
+                    title: "Title Example",
+                    date: "2016-04-23T07:31:31+00:00",
+                    description: "Example of a search result containing an ORCID.",
+                    contributors: [...],
+                    date_created: "2016-11-28T22:21:09.917395+00:00",
+                    date_modified: "2016-11-29T14:18:49.745627+00:00",
+                    date_published: null,
+                    lists: {
+                        contributors: [
+                            {
+                                given_name: "T.",
+                                types: [
+                                    "person",
+                                    "agent"
+                                ],
+                                order_cited: 133,
+                                identifiers: [
+                                    "http://orcid.org/XXXX-XXXX-XXXX-XXXX"
+                                ],
+                                cited_as: "T. User",
+                                family_name: "User",
+                                relation: "creator",
+                                name: "T. User",
+                                type: "person",
+                                id: "XXXX-XXX-XXX"
+                            },
+                        ...
+
+
+
+Search for an ORCID identifier:
+https://share.osf.io/api/v2/search/creativeworks/_search?q=lists.contributors.identifiers:”XXXX-XXXX-XXXX-XXXX”
+
+
 Tutorials
 *********
 
