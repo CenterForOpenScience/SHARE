@@ -1,11 +1,15 @@
 import requests
-from rest_framework import views
-from django.conf import settings
+
 from furl import furl
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
+
+from django.conf import settings
+from django.http import HttpResponseBadRequest
+
+from rest_framework import views
 from rest_framework.parsers import JSONParser
+from rest_framework.permissions import AllowAny
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 
 from api import authentication
 
@@ -33,9 +37,14 @@ class ElasticSearchView(views.APIView):
         return Response(status=resp.status_code, data=resp.json(), headers={'Content-Type': 'application/vand.api+json'})
 
     def post(self, request, *args, url_bits='', **kwargs):
+        # Disallow posting to any non-search endpoint
+        bits = list(filter(None, url_bits.split('/')))
+        if len(bits) > 2 or bits[-1] != '_search':
+            return HttpResponseBadRequest()
+
         es_url = furl(settings.ELASTICSEARCH_URL).add(
             path=settings.ELASTICSEARCH_INDEX,
             query_params=request.query_params,
-        ).add(path=url_bits.split('/'))
+        ).add(path=bits)
         resp = requests.post(es_url, json=request.data)
         return Response(status=resp.status_code, data=resp.json(), headers={'Content-Type': 'application/vnd.api+json'})
