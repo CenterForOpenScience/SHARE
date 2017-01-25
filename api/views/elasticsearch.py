@@ -1,12 +1,15 @@
 import requests
-from rest_framework import views
+
+from furl import furl
+
 from django import http
 from django.conf import settings
-from furl import furl
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
+
+from rest_framework import views
 from rest_framework.parsers import JSONParser
+from rest_framework.permissions import AllowAny
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 
 from api import authentication
 
@@ -29,6 +32,10 @@ class ElasticSearchView(views.APIView):
         return self._handle_request(request, url_bits)
 
     def post(self, request, *args, url_bits='', **kwargs):
+        # Disallow posting to any non-search endpoint
+        bits = list(filter(None, url_bits.split('/')))
+        if len(bits) > 2 or bits[-1] != '_search':
+            return http.HttpResponseBadRequest()
         return self._handle_request(request, url_bits)
 
     def _handle_request(self, request, url_bits):
