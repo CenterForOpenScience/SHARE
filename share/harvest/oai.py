@@ -35,8 +35,11 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
         self.from_param = getattr(self.config, 'from_param', self.from_param)
         self.until_param = getattr(self.config, 'until_param', self.until_param)
 
-    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> list:
+    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, set_spec=None) -> list:
         url = furl(self.url)
+
+        if set_spec:
+            url.args['set'] = set_spec
         url.args['verb'] = 'ListRecords'
         url.args['metadataPrefix'] = self.metadata_prefix
 
@@ -50,16 +53,15 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
         return self.fetch_records(url)
 
     def fetch_records(self, url: furl) -> list:
-        records, token = self.fetch_page(url, token=None)
+        token = None
 
         while True:
+            records, token = self.fetch_page(url, token=token)
             for record in records:
                 yield (
                     record.xpath('ns0:header/ns0:identifier', namespaces=self.namespaces)[0].text,
                     etree.tostring(record),
                 )
-
-            records, token = self.fetch_page(url, token=token)
 
             if not token or not records:
                 break
