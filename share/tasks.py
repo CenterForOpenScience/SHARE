@@ -122,7 +122,7 @@ class HarvesterTask(AppTask):
         tkwargs.setdefault('start', (datetime.datetime.utcnow() + datetime.timedelta(-1)).isoformat())
         return super().apply_async(targs, tkwargs, **kwargs)
 
-    def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None, limit: int=None, force=False):
+    def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None, limit: int=None, force=False, **kwargs):
         if self.config.disabled and not force:
             raise Exception('Harvester {} is disabled. Either enable it or disable its celery beat entry'.format(self.config))
 
@@ -137,7 +137,7 @@ class HarvesterTask(AppTask):
 
         try:
             logger.info('Starting harvester run for %s %s - %s', self.config.label, start, end)
-            raws = harvester.harvest(start, end, limit=limit)
+            raws = harvester.harvest(start, end, limit=limit, **kwargs)
             logger.info('Collected %d data blobs from %s', len(raws), self.config.label)
         except Exception as e:
             logger.exception('Failed harvester task (%s, %s, %s)', self.config.label, start, end)

@@ -38,7 +38,16 @@ class TestElasticSearchProxy:
         assert client.post('/api/v2/search/type/id/some/thing/else/_search/').status_code == 400
 
     def test_post_search(self, client):
-        urls = ('/api/v2/search/_search', '/api/v2/search/_search/', '/api/v2/search/type/_search', '/api/v2/search/type/_search',)
+        urls = (
+            '/api/v2/search/_search',
+            '/api/v2/search/_search/',
+            '/api/v2/search/type/_search',
+            '/api/v2/search/type/_search',
+            '/api/v2/search/_suggest',
+            '/api/v2/search/_suggest/',
+            '/api/v2/search/type/_suggest',
+            '/api/v2/search/type/_suggest',
+        )
         with mock.patch('api.views.elasticsearch.requests.post') as post:
             post.return_value = mock.Mock(status_code=200, json=lambda: {})
             for url in urls:

@@ -68,7 +68,7 @@ class Harvester(metaclass=abc.ABCMeta):
         return self.config.user
 
     @abc.abstractmethod
-    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
+    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, **kwargs) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         """Fetch date from this provider inside of the given date range.
 
         Any HTTP[S] requests MUST be sent using the self.requests client.
@@ -118,13 +118,13 @@ class Harvester(metaclass=abc.ABCMeta):
         """
         return start_date, end_date
 
-    def harvest(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None) -> list:
+    def harvest(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
         from share.models import RawData
         start_date, end_date = self._validate_dates(start_date, end_date)
 
         stored = []
         with transaction.atomic():
-            rawdata = self.do_harvest(start_date, end_date)
+            rawdata = self.do_harvest(start_date, end_date, **kwargs)
             assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
             for doc_id, datum in rawdata:
@@ -134,9 +134,9 @@ class Harvester(metaclass=abc.ABCMeta):
 
         return stored
 
-    def raw(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None) -> list:
+    def raw(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
         start_date, end_date = self._validate_dates(start_date, end_date)
-        count, harvest = 0, self.do_harvest(start_date, end_date)
+        count, harvest = 0, self.do_harvest(start_date, end_date, **kwargs)
         assert isinstance(harvest, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(harvest))
 
         for doc_id, datum in harvest:

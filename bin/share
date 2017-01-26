@@ -48,15 +48,16 @@ def command(func):
 @command
 def harvest(args, argv):
     """
-    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR] [--days-back=DAYS] [--start=MM-DD-YYYY] [--end=MM-DD-YY]
+    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR] [--days-back=DAYS] [--start=MM-DD-YYYY] [--end=MM-DD-YY] [--set-spec=SET]
 
     Options:
-        -l, --limit=NUMBER     Limit the harvester to NUMBER of documents
-        -p, --print            Print results to stdout rather than to a file
-        -o, --out=DIR          The directory to store the harvested data in. Defaults to ./<provider>
-        -d, --days-back=DAYS   Number of days back to harvest [default: 1]
+        -l, --limit=NUMBER      Limit the harvester to NUMBER of documents
+        -p, --print             Print results to stdout rather than to a file
+        -o, --out=DIR           The directory to store the harvested data in. Defaults to ./<provider>
+        -d, --days-back=DAYS    Number of days back to harvest [default: 1]
         -s, --start=YYYY-MM-DD  The start date for the harvester to begin, defaults to one day in the past
-        -e, --end=YYYY-MM-DD   The start date for the harvester to end, defaults to today
+        -e, --end=YYYY-MM-DD    The start date for the harvester to end, defaults to today
+        --set-spec=SET          The OAI setSpec to limit harvesting to.
     """
     config = apps.get_app_config(args['<provider>'])
     harvester = config.harvester(config)
@@ -68,7 +69,12 @@ def harvest(args, argv):
     start_date = pendulum.parse(args['--start']) if args.get('--start') else pendulum.utcnow() - timedelta(days=int(args['--days-back']))
     end_date = pendulum.parse(args['--end']) if args.get('--end') else pendulum.utcnow()
 
-    for doc_id, data in harvester.raw(start_date, end_date, limit=int(args['--limit']) if args['--limit'] else None):
+    kwargs = {k: v for k, v in {
+        'limit': int(args['--limit']) if args.get('--limit') else None,
+        'set_spec': args.get('--set-spec') or None
+    }.items() if v is not None}
+
+    for doc_id, data in harvester.raw(start_date, end_date, **kwargs):
         if args['--print']:
             print('Harvested data with identifier "{}"'.format(doc_id))
             print(data.decode())
