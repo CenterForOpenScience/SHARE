@@ -4,7 +4,7 @@ Elasticsearch
 SHARE has an elasticsearch API endpoint that can be used for searching SHARE's normalized data, as well as for compiling
 summary statistics and analyses of the completeness of data from the various sources.
 
-https://share.osf.io/api/search/abstractcreativework/_search
+https://share.osf.io/api/v2/search/creativeworks/_search
 
 Fields Indexed by Elasticsearch
 ###############################
@@ -12,19 +12,20 @@ Fields Indexed by Elasticsearch
 Elasticsearch can be used to search the following fields in the normalized data::
 
     'title'
-    'language'
-    'subject'
     'description'
+    'type'
     'date'
     'date_created'
     'date_modified
     'date_updated'
     'date_published'
     'tags'
-    'links'
-    'awards'
+    'subjects'
     'sources'
+    'language'
     'contributors'
+    'funders'
+    'publishers'
 
 
 Accessing the Search API
@@ -41,7 +42,7 @@ You can acess the API via the command line using a basic query string with curl:
                 "query" : "test"
             }
         }
-    }' https://share.osf.io/api/search/abstractcreativework/_search
+    }' https://share.osf.io/api/v2/search/creativeworks/_search
 
 The elasticsearch API also allows you to aggregate over the whole dataset. This query will also return an aggregation of which sources
 do not have a value specified for the field "language"::
@@ -69,9 +70,11 @@ do not have a value specified for the field "language"::
                 ]
             }
         }
-    }' https://share.osf.io/api/search/abstractcreativework/_search
+    }' https://share.osf.io/api/v2/search/creativeworks/_search
 
 For more information on sending elasticsearch queries and aggregations, check out the `elasticsearch query DSL documentation  <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html>`_.
+
+You can also use the `SHARE Discover page <https://share.osf.io/discover>` to generate query DSL. Use the filters in the sidebar to construct a query, then click "View query body" to see the query in JSON form.
 
 
 Searching for ORCIDs
