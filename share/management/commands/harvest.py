@@ -24,6 +24,7 @@ class Command(BaseCommand):
         parser.add_argument('--limit', type=int, help='The maximum number of works to harvest, defaults to no limit')
 
         parser.add_argument('--ids', nargs='*', type=str, help='Harvest specific works by identifier, instead of by date range.')
+        parser.add_argument('--set-spec', type=str, help='Filter harvested works by OAI setSpecs')
 
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
@@ -50,6 +51,9 @@ class Command(BaseCommand):
 
         if options['limit'] is not None:
             task_kwargs['limit'] = options['limit']
+
+        if options['set_spec']:
+            task_kwargs['set_spec'] = options['set_spec']
 
         if not options['harvester'] and options['all']:
             options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig) and not x.disabled]
