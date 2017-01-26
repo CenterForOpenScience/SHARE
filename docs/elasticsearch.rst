@@ -74,7 +74,7 @@ do not have a value specified for the field "language"::
 
 For more information on sending elasticsearch queries and aggregations, check out the `elasticsearch query DSL documentation  <https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html>`_.
 
-You can also use the `SHARE Discover page <https://share.osf.io/discover>` to generate query DSL. Use the filters in the sidebar to construct a query, then click "View query body" to see the query in JSON form.
+You can also use the `SHARE Discover page <https://share.osf.io/discover>`_ to generate query DSL. Use the filters in the sidebar to construct a query, then click "View query body" to see the query in JSON form.
 
 
 Searching for ORCIDs
