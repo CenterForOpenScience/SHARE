@@ -70,7 +70,7 @@ class Award(ShareObject):
         return self.description
 
     class Disambiguation:
-        all = ('uri', )
+        any = ('uri', )
 
 
 class ThroughAwards(ShareObject):
