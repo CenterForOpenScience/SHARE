@@ -230,6 +230,13 @@ class Change(models.Model):
                     # TODO handle this... merge fields on conflicting relations? set obj.same_as? delete obj?
                     logger.warn('Conflict updating %s.%s while merging %s into %s', field.model._meta.model_name, field.name, self.target, same_as)
 
+        # Avoid same_as chains
+        for obj in self.target_type._meta.concrete_model.objects.filter(same_as=self.target_id):
+            obj.change = self
+            obj.same_as = same_as
+            obj.same_as_version = same_as.version
+            obj.save()
+
         self.target.change = self
         self.target.same_as = same_as
         self.target.same_as_version = same_as.version
