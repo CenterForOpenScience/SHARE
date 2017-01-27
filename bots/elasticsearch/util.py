@@ -54,6 +54,7 @@ def fetch_agent(pks):
                                             , 'additional_name', agent.additional_name
                                             , 'suffix', agent.suffix
                                             , 'location', agent.location
+                                            , 'same_as', agent.same_as_id
                                             , 'sources', COALESCE(sources, '{}')
                                             , 'identifiers', COALESCE(identifiers, '{}')
                                             , 'related_types', COALESCE(related_types, '{}')))
@@ -110,6 +111,7 @@ def fetch_creativework(pks):
                     , 'title', creativework.title
                     , 'description', creativework.description
                     , 'is_deleted', creativework.is_deleted
+                    , 'same_as', creativework.same_as_id
                     , 'language', creativework.language
                     , 'date_created', creativework.date_created
                     , 'date_modified', creativework.date_modified

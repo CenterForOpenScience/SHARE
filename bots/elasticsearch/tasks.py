@@ -60,7 +60,7 @@ class IndexModelTask(AppTask):
 
         if model is CreativeWork:
             for blob in util.fetch_creativework(ids):
-                if blob.pop('is_deleted'):
+                if blob.pop('is_deleted') or blob.pop('same_as'):
                     yield {'_id': blob['id'], '_op_type': 'delete', **opts}
                 else:
                     yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
@@ -68,7 +68,10 @@ class IndexModelTask(AppTask):
 
         if model is Agent:
             for blob in util.fetch_agent(ids):
-                yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
+                if blob.pop('same_as'):
+                    yield {'_id': blob['id'], '_op_type': 'delete', **opts}
+                else:
+                    yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
         for inst in model.objects.filter(id__in=ids):
