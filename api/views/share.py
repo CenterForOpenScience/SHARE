@@ -95,6 +95,10 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
 
         filter_kwargs = {self.lookup_field: decoded_pk}
         obj = get_object_or_404(queryset, **filter_kwargs)
+        if obj.same_as:
+            # TODO redirect? Or is just returning the same_as object preferable?
+            obj = obj.same_as
+            assert obj.same_as is None
 
         # May raise a permission denied
         self.check_object_permissions(self.request, obj)
