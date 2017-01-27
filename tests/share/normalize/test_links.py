@@ -747,6 +747,11 @@ class TestIRILink:
             'authority': 'isbn',
             'IRI': 'urn://isbn/978-09-7522-980-4',
         }),
+        ('http://arxiv.org/index.php?view&amp;id=12', {
+            'scheme': 'http',
+            'authority': 'arxiv.org',
+            'IRI': 'http://arxiv.org/index.php?view&id=12',
+        }),
         ('ISSN 978-0-306-40615-7', ValueError("'ISSN 978-0-306-40615-7' could not be identified as an Identifier.")),
         ('ISBN 978-0-306-40615-0', ValueError("'ISBN 978-0-306-40615-0' is not a valid ISBN; failed checksum.")),
     ])
