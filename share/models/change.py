@@ -9,6 +9,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import connection
 from django.db import models
 from django.db import transaction
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
@@ -57,12 +58,11 @@ class ChangeManager(FuzzyCountManager):
             'target_version_type': ContentType.objects.get_for_model(node.model.VersionModel, for_concrete_model=True),
         }
 
-        if node.is_merge:
-            attrs['type'] = Change.TYPE.merge
-        elif not node.instance:
+        if not node.instance:
+            assert not node.is_merge
             attrs['type'] = Change.TYPE.create
         else:
-            attrs['type'] = Change.TYPE.update
+            attrs['type'] = Change.TYPE.merge if node.is_merge else Change.TYPE.update
             attrs['target_id'] = node.instance.pk
             attrs['target_version_id'] = node.instance.version.pk
 
@@ -89,7 +89,7 @@ class ChangeSet(models.Model):
         ret = []
         with transaction.atomic():
             self._changes_cache = list(self.changes.all())
-            for c in self._changes_cache:
+            for c in sorted(self._changes_cache, key=lambda c: c.type):
                 ret.append(c.accept(save=save))
             self.status = ChangeSet.STATUS.accepted
             if save:
@@ -202,7 +202,11 @@ class Change(models.Model):
         from share.models.base import ShareObject
         assert save is True, 'Cannot perform merge without saving'
 
+        # For now, don't let merge nodes also update fields
+        assert len(self.change) == 1 and 'same_as' in self.change
+
         change = self._resolve_change()
+        same_as = change['same_as']
         # Find all fields that reference this model
         fields = [
             field.field for field in
@@ -214,34 +218,26 @@ class Change(models.Model):
             and hasattr(field, 'field')
         ]
 
-        # NOTE: Date is pinned up here to ensure its the same for all changed rows
-        date_modified = timezone.now()
-
         for field in fields:
-            # Update all rows in "from"
-            # Updates the change, the field in question, the version pin of the field in question
-            # and date_modified must be manually updated
-            field.model.objects.select_for_update().filter(**{
-                field.name + '__in': change['from']
-            }).update(**{
-                'change': self,
-                field.name: change['into'],
-                field.name + '_version': change['into'].version,
-                'date_modified': date_modified,
-            })
+            # Update all foreign keys to point to same_as
+            for obj in field.model.objects.filter(**{field.name: self.target_id}):
+                try:
+                    obj.change = self
+                    setattr(obj, field.name, same_as)
+                    with transaction.atomic():
+                        obj.save()
+                except IntegrityError as e:
+                    # TODO handle this... merge fields on conflicting relations? set obj.same_as? delete obj?
+                    logger.warn('Conflict updating %s.%s while merging %s into %s', field.model._meta.model_name, field.name, self.target, same_as)
 
-        # Finally point all from rows' same_as and
-        # same_as_version to the canonical model.
-        type(change['into']).objects.select_for_update().filter(
-            pk__in=[i.pk for i in change['from']]
-        ).update(
-            change=self,
-            same_as=change['into'],
-            same_as_version=change['into'].version,
-            date_modified=date_modified,
-        )
+        self.target.change = self
+        self.target.same_as = same_as
+        self.target.same_as_version = same_as.version
+        self.target.save()
 
-        return change['into']
+        # TODO [SHARE-539] merge scalar fields into same_as
+
+        return same_as
 
     def _resolve_change(self):
         change = {}

@@ -234,7 +234,7 @@ class ChangeNode:
 
     @property
     def is_merge(self):
-        return False  # TODO
+        return 'same_as' in self.attrs
 
     @property
     def is_blank(self):
@@ -242,7 +242,7 @@ class ChangeNode:
 
     @property
     def is_skippable(self):
-        return self.is_merge or (self.instance and not self.change)
+        return self.instance and not self.change
 
     @property
     def change(self):
