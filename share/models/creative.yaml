@@ -29,6 +29,7 @@ CreativeWork:
                 Thesis: {}
                 WorkingPaper: {}
         Presentation: {}
+        Repository: {}
         Retraction: {}
         Software: {}
         # Video: {}

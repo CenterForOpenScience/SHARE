@@ -421,6 +421,7 @@ class TestModelNormalization:
         ('https://orcid.org/0000-0002-1694-233X', None),
         ('aperson@dinosaurs.sexy', None),
         ('10.517ccdc.csd.c>c1lj81f', None),
+        ('http://arxiv.org/index.php?view&amp;id=12', 'http://arxiv.org/index.php?view&id=12'),
         ('10.5517/ccdc.csd.cc1lj81f', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
         ('   arxiv:1212.20282    ', 'http://arxiv.org/abs/1212.20282'),
         ('oai:subdomain.cos.io:this.is.stuff', 'oai://subdomain.cos.io/this.is.stuff'),

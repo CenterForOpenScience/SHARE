@@ -779,6 +779,9 @@ class URLLink(AbstractIRILink):
 
     @classmethod
     def hint(cls, obj):
+        # BePress double escapes in OAI feeds
+        obj = obj.replace('&amp;', '&')
+
         if cls.URL_RE.search(obj) is not None:
             return 0.25
         if cls.IP_RE.search(obj) is not None:
@@ -788,6 +791,9 @@ class URLLink(AbstractIRILink):
         return 0
 
     def _parse(self, obj):
+        # BePress double escapes in OAI feeds
+        obj = obj.replace('&amp;', '&')
+
         match = self.URL_RE.search(obj) or self.IP_RE.search(obj)
         if not match and obj.lower().startswith(self.SCHEMELESS_STARTS):
             match = self.URL_RE.search('http://{}'.format(obj))
