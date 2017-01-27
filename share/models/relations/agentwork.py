@@ -58,7 +58,7 @@ class Award(ShareObject):
     description = models.TextField(blank=True)
     date = models.DateTimeField(blank=True, null=True)
     award_amount = models.PositiveIntegerField(blank=True, null=True)
-    uri = ShareURLField(unique=True)
+    uri = ShareURLField(unique=True, blank=True)
 
     @classmethod
     def normalize(self, node, graph):
