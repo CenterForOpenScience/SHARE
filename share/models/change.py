@@ -207,6 +207,16 @@ class Change(models.Model):
 
         change = self._resolve_change()
         same_as = change['same_as']
+
+        # Avoid same_as chains
+        while same_as.same_as:
+            same_as = same_as.same_as
+        for obj in self.target._meta.concrete_model.objects.filter(same_as=self.target_id):
+            obj.change = self
+            obj.same_as = same_as
+            obj.same_as_version = same_as.version
+            obj.save()
+
         assert same_as._meta.concrete_model is self.target._meta.concrete_model
 
         # Find all fields that reference this model
@@ -230,14 +240,7 @@ class Change(models.Model):
                         obj.save()
                 except IntegrityError as e:
                     # TODO handle this... merge fields on conflicting relations? set obj.same_as? delete obj?
-                    logger.warn('Conflict updating %s.%s while merging %s into %s', field.model._meta.model_name, field.name, self.target, same_as)
-
-        # Avoid same_as chains
-        for obj in self.target_type._meta.concrete_model.objects.filter(same_as=self.target_id):
-            obj.change = self
-            obj.same_as = same_as
-            obj.same_as_version = same_as.version
-            obj.save()
+                    logger.warn('Conflict updating %s.%s while merging %s into %s: %s', field.model._meta.model_name, field.name, self.node_id, self.change['same_as']['@id'], e)
 
         self.target.change = self
         self.target.same_as = same_as
@@ -245,7 +248,6 @@ class Change(models.Model):
         self.target.save()
 
         # TODO [SHARE-539] merge scalar fields into same_as
-
         return same_as
 
     def _resolve_change(self):

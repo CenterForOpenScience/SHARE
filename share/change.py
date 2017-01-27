@@ -84,7 +84,7 @@ class ChangeGraph:
             self.nodes.append(self._lookup[id, type])
 
             for k, v in tuple(blob.items()):
-                if isinstance(v, dict) and k != 'extra' and not k.startswith('@'):
+                if isinstance(v, dict) and k not in {'extra', 'same_as'} and not k.startswith('@'):
                     related = (v.pop('@id'), v.pop('@type').lower())
                     hints[(id, type), related] = k
                     relations.add(((id, type), related))

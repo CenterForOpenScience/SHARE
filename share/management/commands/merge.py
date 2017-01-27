@@ -1,18 +1,16 @@
-import json
-
 from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from share.models import ShareUser, NormalizedData
 from share.tasks import DisambiguatorTask
-from share.utils import IDObfuscator
+from share.util import IDObfuscator
 
 
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument('from', nargs='*', type=int, help='The SHARE IDs of the objects to merge')
+        parser.add_argument('from', nargs='*', type=str, help='The SHARE IDs of the objects to merge')
         parser.add_argument('--into', type=str, help='The SHARE ID of the object to merge into')
         parser.add_argument('--async', action='store_true', help='Whether or not to use Celery')
 
@@ -24,15 +22,16 @@ class Command(BaseCommand):
 
         nodes = []
         for id in options['from']:
-            model, _ = IDObfuscator.decode(id)
+            from_obj = IDObfuscator.resolve(id)
             nodes.append({
                 '@id': id,
-                '@type': into._meta.model_name,
+                '@type': from_obj._meta.model_name,
                 'same_as': {'@id': into_id, '@type': into._meta.model_name}
             })
 
-        normalized_id = NormalizedData(source=user, data=json.dumps({'@graph': nodes})).save()
-        task_args = (user.id, normalized_id)
+        normalized = NormalizedData(source=user, data={'@graph': nodes})
+        normalized.save()
+        task_args = (user.id, normalized.id)
         if options['async']:
             DisambiguatorTask().apply_async(task_args)
         else:
