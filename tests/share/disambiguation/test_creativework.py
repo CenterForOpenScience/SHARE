@@ -131,16 +131,21 @@ class TestWorkDisambiguation:
         cg.process()
         assert ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id) is None
 
-    def test_split_brain(self, Graph):
+    def test_emit_merge_node(self, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
         initial_cg.process()
         ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
 
-        # Multiple matches found for a thing should break
         cg = ChangeGraph(Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)])))
-        with pytest.raises(NotImplementedError) as e:
-            cg.process()
-        assert e.value.args[0] == "Multiple <class 'share.models.creative.Preprint'>s found"
+        cg.process()
+        assert cg.nodes[-1].is_merge
+
+        cw_count = models.CreativeWork.objects.count()
+        ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id).accept()
+        assert models.CreativeWork.objects.filter(same_as__isnull=True).count() == cw_count - 1
+
+        merged = models.CreativeWork.objects.get(same_as__isnull=False)
+        assert merged.same_as and merged.same_as_version
 
     def test_no_merge_on_blank_value(self, Graph):
         blank_cited_as = [
