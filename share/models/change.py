@@ -207,6 +207,8 @@ class Change(models.Model):
 
         change = self._resolve_change()
         same_as = change['same_as']
+        assert same_as._meta.concrete_model is self.target._meta.concrete_model
+
         # Find all fields that reference this model
         fields = [
             field.field for field in
