@@ -148,6 +148,7 @@ def fetch_creativework(pks):
                                         SELECT array_agg(identifier.uri) AS identifiers
                                         FROM share_agentidentifier AS identifier
                                         WHERE identifier.agent_id = agent.id
+                                        AND identifier.scheme != 'mailto'
                                         ) AS identifiers ON TRUE
                             LEFT JOIN LATERAL (
                                         SELECT json_agg(json_strip_nulls(json_build_object(

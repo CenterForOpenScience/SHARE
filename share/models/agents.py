@@ -115,3 +115,4 @@ class UniqueNameDisambiguation:
 Institution.Disambiguation = UniqueNameDisambiguation # noqa
 Organization.Disambiguation = UniqueNameDisambiguation # noqa
 Consortium.Disambiguation = UniqueNameDisambiguation # noqa
+Department.Disambiguation = AbstractAgent.Disambiguation # noqa
