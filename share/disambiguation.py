@@ -4,7 +4,7 @@ import pendulum
 from django.db.models import Q, DateTimeField
 from django.core.exceptions import ValidationError
 
-from share.util import DictHashingDict
+from share.util import DictHashingDict, IDObfuscator
 
 __all__ = ('GraphDisambiguator', )
 
@@ -65,20 +65,13 @@ class GraphDisambiguator:
                 if find_instances:
                     # look for matches in the database
                     instance = self._instance_for_node(n)
-                    # if instance and isinstance(instance, list):
-                    #     same_type = [i for i in instance if isinstance(i, n.model)]
-                    #     if not same_type:
-                    #         logger.error('Found multiple matches for %s, and none were of type %s: %s', n, n.model, instance)
-                    #         raise NotImplementedError('Multiple matches found', n, instance)
-                    #     elif len(same_type) > 1:
-                    #         logger.error('Found multiple matches of type %s for %s: %s', n.model, n, same_type)
-                    #         raise NotImplementedError('Multiple matches found', n, same_type)
-                    #     logger.warning('Found multiple matches for %s, but only one of type %s, fortunately.', n, n.model)
-                    #     instance = same_type.pop()
                     if instance:
                         changed = True
-                        n.instance = instance
-                        logger.debug('Disambiguated %s to %s', n, instance)
+                        if isinstance(instance, list):
+                            self._emit_merges(n, instance)
+                        else:
+                            n.instance = instance
+                            logger.debug('Disambiguated %s to %s', n, instance)
                     elif n.type == 'subject':
                         raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
 
@@ -127,7 +120,7 @@ class GraphDisambiguator:
 
         for q in constrain:
             sql, params = zip(*[concrete_model.objects.filter(all_query & query & q).query.sql_with_params() for query in queries or [Q()]])
-            found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT 2;', sum(params, ())))
+            found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ';', sum(params, ())))
 
             if not found:
                 logger.debug('No %ss found for %s %s', concrete_model, all_query & q, queries)
@@ -141,8 +134,8 @@ class GraphDisambiguator:
                 logger.warning('Multiple %ss returned for %s (The any query) bailing', concrete_model, queries)
                 break
 
-        logger.error('Could not disambiguate %s. Too many results found from %s %s', node.model, all_query, queries)
-        raise NotImplementedError('Multiple {0}s found'.format(node.model))
+        # Multiple matches
+        return found
 
     def _query_pair(self, key, value):
         try:
@@ -175,6 +168,21 @@ class GraphDisambiguator:
             Person.normalize(replacement, replacement.graph)
 
         source.graph.replace(source, replacement)
+
+    def _emit_merges(self, node, instances):
+        oldest, *to_merge = sorted(instances, key=lambda n: n.date_created)
+        node.instance = oldest
+        oldest_id = IDObfuscator.encode(oldest)
+        for n in to_merge:
+            # TODO check whether this id/type already exists in node.graph
+            merge_node = node.graph.create(
+                IDObfuscator.encode(n),
+                n._meta.model_name,
+                {'same_as': {'@id': oldest_id, '@type': oldest._meta.model_name}}
+            )
+            merge_node.instance = n
+
+        logger.debug('Disambiguated %s to %s. Merging all into %s.', node, instances, oldest)
 
     class NodeIndex:
         def __init__(self):
