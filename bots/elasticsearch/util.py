@@ -142,6 +142,7 @@ def fetch_creativework(pks):
                                         SELECT array_agg(identifier.uri) AS identifiers
                                         FROM share_agentidentifier AS identifier
                                         WHERE identifier.agent_id = agent.id
+                                        AND identifier.scheme != 'mailto'
                                         ) AS identifiers ON TRUE
                             WHERE agent_relation.creative_work_id = creativework.id
                             ) AS related_agents ON TRUE
