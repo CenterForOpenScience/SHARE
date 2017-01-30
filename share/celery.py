@@ -5,13 +5,10 @@ def match_by_module(task_path):
     task_parts = task_path.split('.')
     for i in range(2, len(task_parts) + 1):
         task_subpath = '.'.join(task_parts[:i])
-        if task_subpath in settings.LOW_PRI_MODULES:
-            return settings.LOW_QUEUE
-        if task_subpath in settings.MED_PRI_MODULES:
-            return settings.MED_QUEUE
-        if task_subpath in settings.HIGH_PRI_MODULES:
-            return settings.HIGH_QUEUE
-    return settings.DEFAULT_QUEUE
+        for v in settings.QUEUES.values():
+            if task_subpath in v['modules']:
+                return v['name']
+    return settings.QUEUES['DEFAULT']['name']
 
 
 class CeleryRouter(object):

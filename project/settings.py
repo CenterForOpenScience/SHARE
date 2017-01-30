@@ -447,6 +447,7 @@ STATICFILES_FINDERS = (
 ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')
 ELASTICSEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
 ELASTICSEARCH_TIMEOUT = int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45'))
+ELASTICSEARCH_INDEX_VERSIONS = tuple(v for v in os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', '').split(',') if v)
 
 # Celery Settings
 
@@ -469,39 +470,41 @@ CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 # Celery Queues
-
-DEFAULT_QUEUE = 'celery'
-LOW_QUEUE = 'low'
-MED_QUEUE = 'med'
-HIGH_QUEUE = 'high'
-
-LOW_PRI_MODULES = {
-    'share.tasks.HarvesterTask',
+QUEUES = {
+    'DEFAULT': {
+        'name': 'celery',
+        'priority': 0,
+        'modules': set(),
+    },
+    'GEVENT': {
+        'name': 'gevent',
+        'priority': 0,
+        'modules': {'bots.elasticsearch', },
+    },
+    'LOW': {
+        'name': 'low',
+        'priority': -10,
+        'modules': {'share.tasks.HarvesterTask', },
+    },
+    'MED': {
+        'name': 'med',
+        'priority': 20,
+        'modules': {'share.tasks.DisambiguatorTask', },
+    },
+    'HIGH': {
+        'name': 'high',
+        'priority': 30,
+        'modules': {'share.tasks.BotTask', },
+    },
 }
 
-# Default priority is implicit
-# DEFAULT_PRI_MODULES = {
-#     'share.tasks.NormalizerTask',
-# }
-
-MED_PRI_MODULES = {
-    'share.tasks.DisambiguatorTask',
-}
-
-HIGH_PRI_MODULES = {
-    'share.tasks.BotTask',
-    'bots.elasticsearch',
-}
-
-CELERY_QUEUES = (
-    Queue(LOW_QUEUE, Exchange(LOW_QUEUE), routing_key=LOW_QUEUE,
-          consumer_arguments={'x-priority': -10}),
-    Queue(DEFAULT_QUEUE, Exchange(DEFAULT_QUEUE), routing_key=DEFAULT_QUEUE,
-          consumer_arguments={'x-priority': 0}),
-    Queue(MED_QUEUE, Exchange(MED_QUEUE), routing_key=MED_QUEUE,
-          consumer_arguments={'x-priority': 20}),
-    Queue(HIGH_QUEUE, Exchange(HIGH_QUEUE), routing_key=HIGH_QUEUE,
-          consumer_arguments={'x-priority': 30}),
+CELERY_QUEUES = tuple(
+    Queue(
+        v['name'],
+        Exchange(v['name']),
+        routing_key=v['name'],
+        consumer_arguments={'x-priority': v['priority']}
+    ) for v in QUEUES.values()
 )
 
 CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
@@ -511,6 +514,8 @@ CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 # Logging
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -538,16 +543,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
-        # 'share.disambiguation': {
-        #     'handlers': ['console'],
-        #     'level': 'DEBUG',
-        #     'propagate': False
-        # },
-        # 'share.normalize': {
-        #     'handlers': ['console'],
-        #     'level': 'DEBUG',
-        #     'propagate': False
-        # },
+        'providers': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False
+        },
+        'share': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False
+        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],
