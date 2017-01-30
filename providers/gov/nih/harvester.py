@@ -60,8 +60,7 @@ class NIHHarvester(Harvester):
         """
         if mydate.month < 10:
             return mydate.year
-        else:
-            return mydate.year + 1
+        return mydate.year + 1
 
     def get_fiscal_years(self, dates):
         """
@@ -87,7 +86,7 @@ class NIHHarvester(Harvester):
         and the url of the xml file
         To keep the format consistent, if the record is from previous fiscal years, None is returned
         """
-        row_text = list(map(lambda x: x.text.strip('\t').strip('\n').strip('\r').strip('<td>').strip('</td>'), row))
+        row_text = list(map(lambda x: x.text.strip('\t\n\r').strip('</td>'), row))
         row_text = list(map(lambda x: x.strip(), row_text))
         month_column = row_text[1]
         fiscal_year = int(row_text[2])
@@ -114,17 +113,22 @@ class NIHHarvester(Harvester):
         fiscal_years = self.get_fiscal_years(dates)
         for data in self.parse_rows(rows, day_of_week):
             if data[0] in dates or (data[0] is None and data[1] in fiscal_years):
-                yield "".join([self.base_url, data[2]])
+                yield ''.join([self.base_url, data[2]])
 
     def xml_records(self, files):
         for xml_file in files:
-            records = etree.XML(xml_file).xpath('row')
-            for record in records:
+            # Avoids eating all available memory. Read one row at a time.
+            for _, record in etree.iterparse(xml_file, tag='row'):
                 yield record
+                # Saw this on SO. claims to save more memory.
+                # Probably does, lxml might be building one giant tree.
+                record.clear()
 
     def get_xml_files(self, urls):
         for zip_url in urls:
-                data = self.requests.get(zip_url)
-                zipfile = ZipFile(BytesIO(data.content))
-                with zipfile.open(zipfile.namelist()[0], 'r') as f:
-                    yield f.read()
+            data = self.requests.get(zip_url)
+            zipfile = ZipFile(BytesIO(data.content))
+            with zipfile.open(zipfile.namelist()[0], 'r') as f:
+                # NOTE: reading the entire file in at once can
+                # take up A LOT of memory. Use lxml's iterparse.
+                yield f

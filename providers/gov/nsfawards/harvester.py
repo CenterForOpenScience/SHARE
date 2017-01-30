@@ -33,7 +33,7 @@ class NSFAwardsHarvester(Harvester):
         while True:
             for record in records:
                 total_harvested += 1
-                yield(record['id'], record)
+                yield (record['id'], record)
 
             if len(records) < 25:
                 break
