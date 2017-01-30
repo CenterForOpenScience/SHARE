@@ -515,6 +515,8 @@ CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 # Logging
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -542,16 +544,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
-        # 'share.disambiguation': {
-        #     'handlers': ['console'],
-        #     'level': 'DEBUG',
-        #     'propagate': False
-        # },
-        # 'share.normalize': {
-        #     'handlers': ['console'],
-        #     'level': 'DEBUG',
-        #     'propagate': False
-        # },
+        'providers': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False
+        },
+        'share': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False
+        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],
