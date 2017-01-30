@@ -70,8 +70,8 @@ class GraphDisambiguator:
                         if isinstance(instance, list):
                             self._emit_merges(n, instance)
                         else:
+                            logger.debug('Disambiguated %s to %s', n, repr(instance))
                             n.instance = instance
-                            logger.debug('Disambiguated %s to %s', n, instance)
                     elif n.type == 'subject':
                         raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
 
@@ -127,13 +127,11 @@ class GraphDisambiguator:
                 return None
             if len(found) == 1:
                 return found[0]
-            if all_query.children:
-                logger.warning('Multiple %ss returned for %s (The main query) bailing', concrete_model, all_query)
-                break
-            if all('__' in str(query) for query in queries):
-                logger.warning('Multiple %ss returned for %s (The any query) bailing', concrete_model, queries)
+            if all_query.children or all('__' in str(query) for query in queries):
                 break
 
+        if len(found) > 1:
+            logger.debug('Multiple %ss returned for all:(%s), any:(%s)', concrete_model._meta.model_name, all_query, queries)
         # Multiple matches
         return found
 
@@ -182,7 +180,7 @@ class GraphDisambiguator:
             )
             merge_node.instance = n
 
-        logger.debug('Disambiguated %s to %s. Merging all into %s.', node, instances, oldest)
+        logger.debug('Disambiguated %s to %s. Merging all into %s.', node, instances, repr(oldest))
 
     class NodeIndex:
         def __init__(self):

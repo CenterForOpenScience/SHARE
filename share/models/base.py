@@ -19,6 +19,7 @@ from share.models import fields
 from share.models.change import Change
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.sql import ShareObjectManager
+from share.util import IDObfuscator
 
 
 class ShareObjectVersion(models.Model):
@@ -169,6 +170,9 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
 
     class Meta:
         abstract = True
+
+    def __repr__(self):
+        return '<{} {} ({})>'.format(self._meta.object_name, self.id, IDObfuscator.encode(self))
 
     def administrative_change(self, **kwargs):
         from share.models import Change
