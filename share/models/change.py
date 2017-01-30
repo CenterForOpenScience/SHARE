@@ -239,7 +239,7 @@ class Change(models.Model):
                     with transaction.atomic():
                         obj.save()
                 except IntegrityError as e:
-                    # TODO handle this... merge fields on conflicting relations? set obj.same_as? delete obj?
+                    # A duplicate through-object or relation. For now, leave the duplicate unchanged.
                     logger.warn('Conflict updating %s.%s while merging %s into %s: %s', field.model._meta.model_name, field.name, self.node_id, self.change['same_as']['@id'], e)
 
         self.target.change = self
