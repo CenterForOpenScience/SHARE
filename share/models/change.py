@@ -10,7 +10,6 @@ from django.db import connection
 from django.db import models
 from django.db import transaction
 from django.db import IntegrityError
-from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 from share.models.fuzzycount import FuzzyCountManager
