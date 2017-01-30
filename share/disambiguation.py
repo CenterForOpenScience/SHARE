@@ -132,7 +132,6 @@ class GraphDisambiguator:
 
         if len(found) > 1:
             logger.debug('Multiple %ss returned for all:(%s), any:(%s)', concrete_model._meta.model_name, all_query, queries)
-        # Multiple matches
         return found
 
     def _query_pair(self, key, value):
@@ -172,7 +171,6 @@ class GraphDisambiguator:
         node.instance = oldest
         oldest_id = IDObfuscator.encode(oldest)
         for n in to_merge:
-            # TODO check whether this id/type already exists in node.graph
             merge_node = node.graph.create(
                 IDObfuscator.encode(n),
                 n._meta.model_name,
