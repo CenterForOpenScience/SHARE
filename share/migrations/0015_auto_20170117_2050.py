@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractcreativework',
             name='withdrawn',
-            field=models.NullBooleanField(default=False),
+            field=models.NullBooleanField(),
         ),
         migrations.AddField(
             model_name='abstractcreativeworkversion',
@@ -40,6 +40,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractcreativeworkversion',
             name='withdrawn',
-            field=models.NullBooleanField(default=False),
+            field=models.NullBooleanField(),
         ),
     ]
