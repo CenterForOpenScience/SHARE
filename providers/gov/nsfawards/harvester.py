@@ -27,19 +27,14 @@ class NSFAwardsHarvester(Harvester):
         return self.fetch_records(url)
 
     def fetch_records(self, url: furl) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
-        records = self.requests.get(url.url).json()['response'].get('award', [])
-
-        total_harvested = 0
         while True:
+            logger.info('Fetching %s', url.url)
+            records = self.requests.get(url.url).json()['response'].get('award', [])
+
             for record in records:
-                total_harvested += 1
                 yield (record['id'], record)
 
             if len(records) < 25:
                 break
 
             url.args['offset'] += 25
-            logger.info('About to harvest {}'.format(url.url))
-            records = self.requests.get(url.url).json()['response'].get('award')
-
-        logger.info('Harvested {} records'.format(total_harvested))

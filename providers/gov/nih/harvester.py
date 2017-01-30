@@ -1,4 +1,5 @@
 import re
+import logging
 
 from bs4 import BeautifulSoup
 from datetime import date, timedelta
@@ -8,6 +9,9 @@ from lxml import etree
 from zipfile import ZipFile
 
 from share.harvest.harvester import Harvester
+
+
+logger = logging.getLogger(__name__)
 
 
 class NIHHarvester(Harvester):
@@ -21,6 +25,7 @@ class NIHHarvester(Harvester):
     def do_harvest(self, start_date, end_date):
         end_date = end_date.date()
         start_date = start_date.date()
+        logger.info('Harvesting NIH %s - %s', start_date, end_date)
 
         # get ExPORTER page html and rows storing records
         html = self.requests.get(self.table_url).content
@@ -28,6 +33,7 @@ class NIHHarvester(Harvester):
         table = soup.find('table', id="ContentPlaceHolder1_ProjectData_dgProjectData")
         rows = table.find_all('tr', class_="row_bg")
         urls = [i for i in self.construct_urls(self.base_url, start_date, end_date, rows)]
+        logger.debug('Found %d urls to grab', len(urls))
         records = self.xml_records(self.get_xml_files(urls))
 
         for record in records:
@@ -126,6 +132,7 @@ class NIHHarvester(Harvester):
 
     def get_xml_files(self, urls):
         for zip_url in urls:
+            logger.info('Fetching URL %s', zip_url)
             data = self.requests.get(zip_url)
             zipfile = ZipFile(BytesIO(data.content))
             with zipfile.open(zipfile.namelist()[0], 'r') as f:
