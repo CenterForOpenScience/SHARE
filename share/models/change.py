@@ -285,7 +285,6 @@ class Change(models.Model):
                     obj.refresh_from_db()
                     self._merge_objects(obj, conflicting_obj)
                 else:
-                    import ipdb; ipdb.set_trace()
                     raise e
 
     def _merge_scalar_field(self, from_obj, into_obj, field):
