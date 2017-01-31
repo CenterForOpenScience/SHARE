@@ -60,14 +60,14 @@ class EndpointGenerator:
         self.register_url(subclass, generated_viewset)
 
     def register_url(self, subclass, viewset):
-        route_name = subclass.__name__.lower()
+        route_name = subclass._meta.verbose_name_plural.replace(" ", "")
         register_route(route_name, viewset)
 
 # generated model routes
 EndpointGenerator()
 
 # registration route
-register_route(r'registrations', views.ProviderRegistrationViewSet)
+register_route(r'sourceregistrations', views.ProviderRegistrationViewSet)
 
 # site banners route
 register_route(r'site_banners', views.SiteBannerViewSet)

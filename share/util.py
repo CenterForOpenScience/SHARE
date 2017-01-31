@@ -152,6 +152,8 @@ class ModelGenerator:
         models = {}
         for (name, mspec) in sorted(model_specs.items()):
             fields = mspec.get('fields', {})
+            verbose_name_plural = mspec.get('verbose_name_plural', None)
+
             model = type(name, (base,), {
                 **{fname: self._get_field(fspec) for (fname, fspec) in fields.items()},
                 '__doc__': mspec.get('description'),
@@ -160,6 +162,11 @@ class ModelGenerator:
             })
             models[name] = model
             models[model.VersionModel.__name__] = model.VersionModel
+
+            if verbose_name_plural:
+                model._meta.verbose_name_plural = verbose_name_plural
+            elif model._meta.verbose_name.endswith('s'):
+                model._meta.verbose_name_plural = model._meta.verbose_name
 
             children = mspec.get('children')
             if children:

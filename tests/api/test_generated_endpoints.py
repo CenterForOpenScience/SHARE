@@ -4,7 +4,6 @@ import re
 
 from share.change import ChangeGraph
 from share.models import ChangeSet
-from share.util import IDObfuscator
 
 from tests.share.models.factories import NormalizedDataFactory
 from tests.share.normalize.factories import *
@@ -50,28 +49,28 @@ initial = [
 @pytest.mark.django_db
 class TestGeneratedEndpoints:
 
-    @pytest.mark.parametrize('generator, route, controlled_values', [
-        ([Institution(id=5, name='NIH')], 'institution', ['name']),
-        ([Organization(2, id=2)], 'organization', ['name']),
+    @pytest.mark.parametrize('generator, model, route, controlled_values', [
+        ([Institution(id=5, name='NIH')], 'institution', 'institutions', ['name']),
+        ([Organization(2, id=2)], 'organization', 'organizations', ['name']),
         ([CreativeWork(
             id=2,
             identifiers=[WorkIdentifier(id=2)],
             agent_relations=[Funder(agent=Institution(id=5, name='NIH'))]
-        )], 'funder', ['citedAs']),
+        )], 'funder', 'funders', ['citedAs']),
         ([CreativeWork(
             id=2,
             identifiers=[WorkIdentifier(id=2)],
             related_works=[
                 Publication(11, id=11, identifiers=[WorkIdentifier(id=3)])
             ]
-        )], 'publication', ['title', 'description']),
+        )], 'publication', 'publications', ['title', 'description']),
         ([CreativeWork(
             id=2,
             identifiers=[WorkIdentifier(id=2)],
             agent_relations=[Creator(agent=Person(1, identifiers=[AgentIdentifier(14)]))]
-        )], 'person', ['name']),
+        )], 'person', 'people', ['name']),
     ])
-    def test_get_data(self, generator, route, controlled_values, client, Graph):
+    def test_get_data(self, generator, model, route, controlled_values, client, Graph):
         initial_cg = ChangeGraph(Graph(*initial))
         initial_cg.process(disambiguate=False)
         ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
@@ -80,7 +79,7 @@ class TestGeneratedEndpoints:
         cg.process()
 
         for obj in cg.serialize():
-            if obj['@type'] == route:
+            if obj['@type'] == model:
                 expected_id = obj['@id']
                 expected = obj
 
@@ -89,7 +88,7 @@ class TestGeneratedEndpoints:
         actual = json.loads(response.content.decode(encoding='UTF-8'))
 
         assert response.status_code == 200
-        assert actual['data']['id'] == str(IDObfuscator.decode_id(expected_id))
+        assert actual['data']['id'] == expected_id
         assert actual['data']['attributes']['type'] == expected['@type']
         for value in controlled_values:
             assert actual['data']['attributes'][value] == expected[camelCase_to_underscore(value)]

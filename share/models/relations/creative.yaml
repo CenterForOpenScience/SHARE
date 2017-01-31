@@ -1,10 +1,13 @@
 WorkRelation:
     children:
         IsPartOf:
+            verbose_name_plural: is part of
             description: The subject work is a portion, component, or child of the related work.
         IsSupplementTo:
+            verbose_name_plural: is supplement to
             description: The subject work supplements or enhances the related work.
         IsDerivedFrom:
+            verbose_name_plural: is derived from
             description: The subject work is derived from or based on the related work.
         Cites:
             description: The subject work cites the related work.
@@ -104,6 +107,7 @@ WorkRelation:
 #            description: The subject work refutes statements, ideas or conclusions presented in the related work.
 #            uris: ['http://purl.org/spar/cito/refutes']
         RepliesTo:
+            verbose_name_plural: replies to
             description: The subject work replies to statements, ideas or criticisms presented in the related work.
             uris: ['http://purl.org/spar/cito/repliesTo']
         Retracts:
