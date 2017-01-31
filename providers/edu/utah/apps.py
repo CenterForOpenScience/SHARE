@@ -7,6 +7,6 @@ class AppConfig(OAIProviderAppConfig):
     title = 'utah'
     long_title = 'University of Utah'
     home_page = 'http://lib.utah.edu/'
-    url = 'http://content.lib.utah.edu/oai/oai.php'
-    approved_sets = ['uspace']
+    url = 'https://collections.lib.utah.edu/oai'
+    approved_sets = ['ir_uspace']
     time_granularity = False
