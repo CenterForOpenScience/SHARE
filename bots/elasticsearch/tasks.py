@@ -68,16 +68,17 @@ class IndexModelTask(AppTask):
 
         if model is Agent:
             for blob in util.fetch_agent(ids):
-                if blob.pop('same_as'):
+                if blob.pop('same_as', None):
                     yield {'_id': blob['id'], '_op_type': 'delete', **opts}
                 else:
                     yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
         for inst in model.objects.filter(id__in=ids):
-            # if inst.is_delete:  # TODO
-            #     yield {'_id': inst.pk, '_op_type': 'delete', **opts}
-            yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
+            if inst.same_as:  # TODO is_deleted?
+                yield {'_id': inst.pk, '_op_type': 'delete', **opts}
+            else:
+                yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
 
     def serialize(self, inst):
         return {
