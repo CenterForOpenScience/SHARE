@@ -1,5 +1,6 @@
 from share.normalize import Parser, tools, ctx
 
+LINK_FORMAT = 'http://www.researchregistry.com/browse-the-registry.html#home/registrationdetails/{}/'
 
 FIELDS = {
     'uin': 'field_21',
@@ -66,6 +67,10 @@ class AdditionalInvestigator(Parser):
     agent = tools.Delegate(FullNamePerson, ctx)
 
 
+class WorkIdentifier(Parser):
+    uri = ctx
+
+
 class Registration(Parser):
     title = ctx[FIELDS['title']]
     description = ctx[FIELDS['summary']]
@@ -78,6 +83,10 @@ class Registration(Parser):
             tools.Delegate(AdditionalInvestigator),
             tools.RunPython('split_names', ctx[FIELDS['additional investigators']])
         )
+    )
+    identifiers = tools.Map(
+        tools.Delegate(WorkIdentifier),
+        tools.RunPython('get_link', ctx.id)
     )
 
     class Extra:
@@ -110,6 +119,9 @@ class Registration(Parser):
         published_paper = ctx[FIELDS['published paper identifier']]
         study_website = ctx[FIELDS['study website']]
         study_results = ctx[FIELDS['study results']]
+
+    def get_link(self, id):
+        return LINK_FORMAT.format(id)
 
     def split_names(self, obj):
         if not obj:
