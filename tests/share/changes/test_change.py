@@ -88,7 +88,7 @@ class TestChange:
         assert person.change == change
         assert person.given_name == 'Jane'
         assert person.family_name == 'Doe'
-        assert change.affected_abstractagent == person
+        assert change.affected_abstractagent.first() == person
 
     @pytest.mark.django_db
     def test_create_accept_no_save(self, create_graph, change_set):
