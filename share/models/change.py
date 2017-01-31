@@ -1,4 +1,5 @@
 import logging
+import re
 
 from model_utils import Choices
 
@@ -198,56 +199,12 @@ class Change(models.Model):
         return self.target
 
     def _merge(self, save=True):
-        from share.models.base import ShareObject
         assert save is True, 'Cannot perform merge without saving'
 
         # For now, don't let merge nodes also update fields
         assert len(self.change) == 1 and 'same_as' in self.change
 
-        change = self._resolve_change()
-        same_as = change['same_as']
-
-        # Avoid same_as chains
-        while same_as.same_as:
-            same_as = same_as.same_as
-        for obj in self.target._meta.concrete_model.objects.filter(same_as=self.target_id):
-            obj.change = self
-            obj.same_as = same_as
-            obj.same_as_version = same_as.version
-            obj.save()
-
-        assert same_as._meta.concrete_model is self.target._meta.concrete_model
-
-        # Find all fields that reference this model
-        fields = [
-            field.field for field in
-            self.target_type.model_class()._meta.get_fields()
-            if field.is_relation
-            and not field.many_to_many
-            and field.remote_field
-            and issubclass(field.remote_field.model, ShareObject)
-            and hasattr(field, 'field')
-        ]
-
-        for field in fields:
-            # Update all foreign keys to point to same_as
-            for obj in field.model.objects.filter(**{field.name: self.target_id}):
-                try:
-                    obj.change = self
-                    setattr(obj, field.name, same_as)
-                    with transaction.atomic():
-                        obj.save()
-                except IntegrityError as e:
-                    # A duplicate through-object or relation. For now, leave the duplicate unchanged.
-                    logger.warn('Conflict updating %s.%s while merging %s into %s: %s', field.model._meta.model_name, field.name, self.node_id, self.change['same_as']['@id'], e)
-
-        self.target.change = self
-        self.target.same_as = same_as
-        self.target.same_as_version = same_as.version
-        self.target.save()
-
-        # TODO [SHARE-539] merge scalar fields into same_as
-        return same_as
+        return self._merge_objects(self.target, self._resolve_change()['same_as'])
 
     def _resolve_change(self):
         change = {}
@@ -277,3 +234,62 @@ class Change(models.Model):
             else:
                 change[k] = v
         return change
+
+    def _merge_objects(self, from_obj, into_obj):
+        from share.models.base import ShareObject
+
+        # Avoid same_as chains
+        while into_obj.same_as:
+            into_obj = into_obj.same_as
+        for obj in from_obj._meta.concrete_model.objects.filter(same_as=from_obj.id):
+            obj.change = self
+            obj.same_as = into_obj
+            obj.same_as_version = into_obj.version
+            obj.save()
+
+        concrete_model = into_obj._meta.concrete_model
+        assert concrete_model is from_obj._meta.concrete_model
+
+        for field in concrete_model._meta.get_fields():
+            if field.is_relation and not field.many_to_many and issubclass(field.remote_field.model, ShareObject) and hasattr(field, 'field'):
+                # Update incoming foreign keys to point to into_obj.
+                self._merge_fk_field(from_obj, into_obj, field.field)
+            elif not field.is_relation and field.editable and not field.primary_key:
+                # Update scalar field on into_obj. Use value from more recently modified object, ignoring blank values.
+                self._merge_scalar_field(from_obj, into_obj, field)
+
+        into_obj.change = self
+        into_obj.save()
+
+        from_obj.change = self
+        from_obj.same_as = into_obj
+        from_obj.same_as_version = into_obj.version
+        from_obj.save()
+
+        return into_obj
+
+    def _merge_fk_field(self, from_obj, into_obj, field):
+        for obj in field.model.objects.filter(**{field.name: from_obj.id}):
+            try:
+                obj.change = self
+                setattr(obj, field.name, into_obj)
+                with transaction.atomic():
+                    obj.save()
+            except IntegrityError as e:
+                # Look for conflicting keys in error message, e.g. "Key (agent_id, creative_work_id, type)=(868, 115, share.publisher) already exists."
+                # If possible, merge this object into that one.
+                m = re.search('Key \(([^)]+)\)=\(([^)]+)\) already exists.', e.args[0])
+                if m:
+                    keys = dict(zip(m.group(1).split(', '), m.group(2).split(', ')))
+                    conflicting_obj = obj._meta.model.objects.get(**keys)
+                    obj.refresh_from_db()
+                    self._merge_objects(obj, conflicting_obj)
+                else:
+                    import ipdb; ipdb.set_trace()
+                    raise e
+
+    def _merge_scalar_field(self, from_obj, into_obj, field):
+        from_value = getattr(from_obj, field.name)
+        into_value = getattr(into_obj, field.name)
+        if from_value and (not into_value or from_obj.date_modified > into_obj.date_modified):
+            setattr(into_obj, field.name, from_value)
