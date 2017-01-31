@@ -126,7 +126,7 @@ class Award(Parser):
     description = RunPython(filter_nil, ctx.FUNDING_ICs)
     award_amount = Int(RunPython(filter_nil, ctx.TOTAL_COST))
     date = ParseDate(RunPython(filter_nil, ctx.BUDGET_START))
-    uri = RunPython('format_foa_url', RunPython(filter_nil, ctx.FOA_NUMBER))
+    uri = RunPython('format_nih_url', RunPython(filter_nil, ctx.APPLICATION_ID))
 
     class Extra:
         awardee_name = RunPython(filter_nil, ctx.ORG_NAME)
@@ -141,8 +141,12 @@ class Award(Parser):
         support_year = RunPython(filter_nil, ctx.SUPPORT_YEAR)
         foa_number = RunPython(filter_nil, ctx.FOA_NUMBER)
 
-    def format_foa_url(self, foa_number):
-        return FOA_BASE_URL.format(foa_number)
+    def format_nih_url(self, id):
+        return PROJECT_BASE_URL.format(id)
+
+    # FOA's are NOT unique per award. AFAIK only the projects, themselves, are
+    # def format_foa_url(self, foa_number):
+    #     return FOA_BASE_URL.format(foa_number)
 
 
 class ThroughAwards(Parser):

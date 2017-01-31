@@ -544,6 +544,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False
         },
+        'bots': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False
+        },
         'providers': {
             'handlers': ['console'],
             'level': LOG_LEVEL,

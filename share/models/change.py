@@ -265,7 +265,7 @@ class Change(models.Model):
                 try:
                     change[k + '_version_id'] = inst.version_id
                 except AttributeError:
-                    # inst isn't a ShareObject, no worries
+                    # this isn't a ShareObject, no worries
                     pass
             elif isinstance(v, list):
                 change[k] = [self.change_set._resolve_ref(r) for r in v]
