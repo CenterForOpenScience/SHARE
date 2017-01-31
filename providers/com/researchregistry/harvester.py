@@ -1,6 +1,8 @@
 import json
 from furl import furl
 
+from django.conf import settings
+
 from share.harvest.harvester import Harvester
 
 
@@ -8,8 +10,8 @@ from share.harvest.harvester import Harvester
 class ResearchRegistryHarvester(Harvester):
     API_URL = 'https://us-api.knack.com/v1/scenes/scene_3/views/view_4/records'
     HEADERS = {
-        'X-Knack-Application-Id': '54a1ac1032e4beb07e04ac2c',
-        'X-Knack-REST-API-Key': 'renderer'
+        'X-Knack-Application-Id': settings.RESEARCHREGISTRY_APPLICATION_ID,
+        'X-Knack-REST-API-Key': settings.RESEARCHREGISTRY_API_KEY
     }
     DATE_FIELD = 'field_2'  # Registration Date
     ID_FIELD = 'field_21'  # Research Registry UIN
