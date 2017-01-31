@@ -39,7 +39,8 @@ CreativeWork:
                     verbose_name_plural: theses
                 WorkingPaper: {}
         Presentation: {}
-        Repository: {}
+        Repository:
+            verbose_name_plural: repositories
         Retraction: {}
         Software:
             verbose_name_plural: software
