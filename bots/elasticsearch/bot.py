@@ -143,24 +143,44 @@ class ElasticSearchBot(Bot):
         },
     }
 
-    def __init__(self, config, started_by, last_run=None, es_url=None, es_index=None, es_setup=False):
+    def __init__(self, config, started_by, last_run=None, **kwargs):
         super().__init__(config, started_by, last_run=last_run)
-        self.es_url = es_url or settings.ELASTICSEARCH_URL
-        self.es_index = es_index or settings.ELASTICSEARCH_INDEX
+
+        self.es_filter = kwargs.pop('es_filter', None)
+        self.es_setup = bool(kwargs.pop('es_setup', False))
+        self.es_url = kwargs.pop('es_url', settings.ELASTICSEARCH_URL)
+        self.es_index = kwargs.pop('es_index', settings.ELASTICSEARCH_INDEX)
+
+        if kwargs:
+            raise TypeError('__init__ got unexpect keyword arguments {}'.format(kwargs))
+
         self.es_client = Elasticsearch(self.es_url)
-        self.es_setup = es_setup
 
     def run(self, chunk_size=500):
         if self.es_setup:
             self.setup()
+        else:
+            logger.debug('Skipping ES setup')
 
         logger.info('Loading up indexed models')
         for model_name in self.config.INDEX_MODELS:
             model = apps.get_model('share', model_name)
-            qs = model.objects.filter(date_modified__gt=self.last_run).values_list('id', flat=True)
-            logger.info('Looking for %ss that have been modified after %s', model, self.last_run)
 
-            logger.info('Found %s %s that must be updated in ES', qs.count(), model)
+            if self.es_filter:
+                logger.info('Looking for %ss that match %s', model, self.es_filter)
+                qs = model.objects.filter(**self.es_filter).values_list('id', flat=True)
+            else:
+                logger.info('Looking for %ss that have been modified after %s', model, self.last_run)
+                qs = model.objects.filter(date_modified__gt=self.last_run).values_list('id', flat=True)
+
+            count = qs.count()
+
+            if count < 1:
+                logger.info('Found 0 qualifying %ss', model)
+                continue
+            else:
+                logger.info('Found %s %s that must be updated in ES', count, model)
+
             for i, batch in enumerate(chunk(qs.all(), chunk_size)):
                 if batch:
                     IndexModelTask().apply_async((self.started_by.id, self.config.label, model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
