@@ -11,7 +11,7 @@ import share.models.core
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0014_auto_20170112_2143'),
+        ('share', '0017_merge'),
     ]
 
     operations = [
