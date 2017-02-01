@@ -114,10 +114,10 @@ class FunderAgent(Parser):
     name = ctx.IC_NAME
 
     # class Extra:
-        # The organizational code of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
-        # acronym = RunPython(filter_nil, ctx.ADMINISTERING_IC)
-        # funding_ics = RunPython(filter_nil, ctx.FUNDING_ICs)
-        # funding_mechanism = RunPython(filter_nil, ctx.FUNDING_MECHANISM)
+    #     The organizational code of the IC, as defined here: http://grants.nih.gov/grants/glossary.htm#InstituteorCenter(IC)
+    #     acronym = RunPython(filter_nil, ctx.ADMINISTERING_IC)
+    #     funding_ics = RunPython(filter_nil, ctx.FUNDING_ICs)
+    #     funding_mechanism = RunPython(filter_nil, ctx.FUNDING_MECHANISM)
 
 
 class Award(Parser):
