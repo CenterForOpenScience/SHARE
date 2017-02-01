@@ -164,6 +164,7 @@ def fetch_creativework(pks):
                             LEFT JOIN LATERAL (
                                         SELECT json_agg(json_strip_nulls(json_build_object(
                                                                             'id', award.id
+                                                                            , 'date', award.date
                                                                             , 'name', award.name
                                                                             , 'description', award.description
                                                                             , 'uri', award.uri
