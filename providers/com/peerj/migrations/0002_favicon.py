@@ -9,7 +9,7 @@ import share.robot
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('com.peerj', '0001_initial'),
+        ('com.peerj', '0002_disable'),
         ('share', '0018_store_favicons'),
     ]
 

@@ -9,7 +9,7 @@ import share.robot
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('com.figshare', '0001_initial'),
+        ('com.figshare', '0002_disable'),
         ('share', '0018_store_favicons'),
     ]
 
