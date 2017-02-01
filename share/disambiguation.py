@@ -167,18 +167,18 @@ class GraphDisambiguator:
         source.graph.replace(source, replacement)
 
     def _emit_merges(self, node, instances):
-        oldest, *to_merge = sorted(instances, key=lambda n: n.date_created)
-        node.instance = oldest
-        oldest_id = IDObfuscator.encode(oldest)
+        *to_merge, newest = sorted(instances, key=lambda n: n.date_modified)
+        node.instance = newest
+        newest_id = IDObfuscator.encode(newest)
         for n in to_merge:
             merge_node = node.graph.create(
                 IDObfuscator.encode(n),
                 n._meta.model_name,
-                {'same_as': {'@id': oldest_id, '@type': oldest._meta.model_name}}
+                {'same_as': {'@id': newest_id, '@type': newest._meta.model_name}}
             )
             merge_node.instance = n
 
-        logger.debug('Disambiguated %s to %s. Merging all into %s.', node, instances, repr(oldest))
+        logger.debug('Disambiguated %s to %s. Merging all into %s.', node, instances, repr(newest))
 
     class NodeIndex:
         def __init__(self):
