@@ -138,14 +138,9 @@ class TestWorkDisambiguation:
 
         cg = ChangeGraph(Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)])))
         cg.process()
-        assert cg.nodes[-1].is_merge
-
-        cw_count = models.CreativeWork.objects.count()
-        ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id).accept()
-        assert models.CreativeWork.objects.filter(same_as__isnull=True).count() == cw_count - 1
-
-        merged = models.CreativeWork.objects.get(same_as__isnull=False)
-        assert merged.same_as and merged.same_as_version
+        merge_node = cg.nodes[-1]
+        assert merge_node.is_merge
+        assert 'same_as' in merge_node.change and merge_node
 
     def test_no_merge_on_blank_value(self, Graph):
         blank_cited_as = [
