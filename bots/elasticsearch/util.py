@@ -139,8 +139,8 @@ def fetch_creativework(pks):
                                                                 , 'relation_type', agent_relation.type
                                                                 , 'order_cited', agent_relation.order_cited
                                                                 , 'cited_as', agent_relation.cited_as
-                                                                , 'affiliations', COALESCE(affiliations, '{}')
-                                                                , 'awards', COALESCE(awards, '{}')
+                                                                , 'affiliations', COALESCE(affiliations, '[]'::json)
+                                                                , 'awards', COALESCE(awards, '[]'::json)
                                                             ))) AS related_agents
                             FROM share_agentworkrelation AS agent_relation
                             JOIN share_agent AS agent ON agent_relation.agent_id = agent.id
@@ -164,6 +164,7 @@ def fetch_creativework(pks):
                             LEFT JOIN LATERAL (
                                         SELECT json_agg(json_strip_nulls(json_build_object(
                                                                             'id', award.id
+                                                                            , 'type', 'share.award'
                                                                             , 'date', award.date
                                                                             , 'name', award.name
                                                                             , 'description', award.description
@@ -250,6 +251,14 @@ def fetch_creativework(pks):
 
                 for agent in data.pop('related_agents'):
                     populate_types(agent)
+
+                    for award in agent.get('awards', []):
+                        populate_types(award)
+
+                    for affiliation in agent.get('affiliations', []):
+                        populate_types(affiliation)
+                        affiliation['affiliation'] = apps.get_model(affiliation.pop('affiliation_type'))._meta.verbose_name
+
                     relation_model = apps.get_model(agent.pop('relation_type'))
                     parent_model = next(parent for parent in relation_model.mro() if not parent.mro()[2]._meta.proxy)
                     parent_name = str(parent_model._meta.verbose_name_plural)
