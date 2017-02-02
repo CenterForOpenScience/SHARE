@@ -1,5 +1,3 @@
-import pendulum
-
 from share.normalize import *
 
 
@@ -64,12 +62,15 @@ class Funder(Parser):
     agent = Delegate(Institution, ctx)
 
 
-class CreativeWork(Parser):
+class Registration(Parser):
     title = OneOf(
         ctx.clinical_study.official_title,
         ctx.clinical_study.brief_title
     )
     description = Maybe(ctx.clinical_study, 'brief_summary')['textblock']
+
+    date_published = Try(ParseDate(RunPython('force_text', ctx.clinical_study.firstreceived_date)))
+    date_updated = Try(ParseDate(RunPython('force_text', ctx.clinical_study.lastchanged_date)))
 
     related_agents = Concat(
         Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_official')),
@@ -92,8 +93,8 @@ class CreativeWork(Parser):
         share_harvest_date = ctx.clinical_study.required_header.download_date
         org_study_id = ctx.clinical_study.id_info.org_study_id
         status = ctx.clinical_study.overall_status
-        start_date = RunPython('parse_date', Try(ctx.clinical_study.start_date))
-        completion_date = RunPython('parse_date', Try(ctx.clinical_study.completion_date['#text']))
+        start_date = Try(ParseDate(RunPython('force_text', ctx.clinical_study.start_date)))
+        completion_date = Try(ParseDate(RunPython('force_text', ctx.clinical_study.completion_date)))
         completion_date_type = Try(ctx.clinical_study.completion_date['@type'])
         study_type = ctx.clinical_study.study_type
         conditions = Try(ctx.clinical_study.condition)
@@ -108,11 +109,12 @@ class CreativeWork(Parser):
                 results.append(location)
         return results
 
-    def parse_date(self, date):
-        try:
-            return pendulum.from_format(date, '%M %d, %Y').isoformat()
-        except ValueError:
-            return pendulum.from_format(date, '%B %Y').isoformat()
+    def force_text(self, data):
+        if isinstance(data, dict):
+            return data['#text']
+        if isinstance(data, str):
+            return data
+        raise TypeError(data)
 
     def format_url(self, id, base):
         return base + id
