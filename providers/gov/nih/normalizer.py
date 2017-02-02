@@ -189,7 +189,15 @@ class PIContactAgent(Parser):
     schema = 'Person'
 
     name = ctx.PI_NAME
-    related_agents = tools.Map(tools.Delegate(FullIsAffiliatedWith), ctx['org_ctx'])
+    related_agents = tools.Concat(
+        tools.Map(tools.Delegate(FullIsAffiliatedWith), ctx['org_ctx']),
+        tools.Map(tools.Delegate(DeptIsAffiliatedWith), RunPython('if_dept', ctx))
+    )
+
+    def if_dept(self, ctx):
+        if ctx['org_ctx']['ORG_DEPT']:
+            return {**ctx['org_ctx'], 'hash_breaker': True}
+        return None
 
     class Extra:
         pi_id = RunPython(filter_nil, ctx.PI_ID)
