@@ -11,6 +11,23 @@ def strip_whitespace(string):
     return re.sub(WHITESPACE_RE, ' ', string).strip()
 
 
+def sort_dict_by_key(hierarchy):
+    types = OrderedDict()
+    for key, value in sorted(hierarchy.items()):
+        if isinstance(value, dict):
+            types[key] = sort_dict_by_key(value)
+        else:
+            types[key] = value
+    return types
+
+
+class InvalidID(Exception):
+    def __init__(self, value, message='Invalid ID'):
+        super().__init__(value, message)
+        self.value = value
+        self.message = message
+
+
 class IDObfuscator:
     NUM = 0xDEADBEEF
     MOD = 10000000000
@@ -35,14 +52,16 @@ class IDObfuscator:
         from django.contrib.contenttypes.models import ContentType
 
         match = cls.ID_RE.match(id)
-        assert match, '"{}" is not a valid ID'.format(id)
+        if not match:
+            raise InvalidID(id)
         model_id, *pks = match.groups()
         return ContentType.objects.get(pk=int(model_id, 16)).model_class(), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 
     @classmethod
     def decode_id(cls, id):
         match = cls.ID_RE.match(id)
-        assert match, '"{}" is not a valid ID'.format(id)
+        if not match:
+            raise InvalidID(id)
         model_id, *pks = match.groups()
         return int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 
@@ -133,6 +152,8 @@ class ModelGenerator:
         models = {}
         for (name, mspec) in sorted(model_specs.items()):
             fields = mspec.get('fields', {})
+            verbose_name_plural = mspec.get('verbose_name_plural', None)
+
             model = type(name, (base,), {
                 **{fname: self._get_field(fspec) for (fname, fspec) in fields.items()},
                 '__doc__': mspec.get('description'),
@@ -141,6 +162,11 @@ class ModelGenerator:
             })
             models[name] = model
             models[model.VersionModel.__name__] = model.VersionModel
+
+            if verbose_name_plural:
+                model._meta.verbose_name_plural = verbose_name_plural
+            elif model._meta.verbose_name.endswith('s'):
+                model._meta.verbose_name_plural = model._meta.verbose_name
 
             children = mspec.get('children')
             if children:

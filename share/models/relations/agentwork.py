@@ -79,6 +79,7 @@ class ThroughAwards(ShareObject):
 
     class Meta:
         unique_together = ('funder', 'award')
+        verbose_name_plural = 'through awards'
 
     class Disambiguation:
         all = ('funder', 'award')

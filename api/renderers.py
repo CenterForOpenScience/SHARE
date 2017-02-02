@@ -3,20 +3,24 @@ import six
 from collections import OrderedDict
 
 from django.utils import encoding
+from django.apps import apps
 
 # from rest_framework.compat import SHORT_SEPARATORS, LONG_SEPARATORS, INDENT_SEPARATORS
 from rest_framework.renderers import JSONRenderer
 from rest_framework.settings import api_settings
 from rest_framework.utils import encoders
 from rest_framework import relations
-from rest_framework.serializers import BaseSerializer
+from rest_framework.serializers import BaseSerializer, Serializer, ListSerializer
 
 from rest_framework_json_api.renderers import JSONRenderer as JSONAPIRenderer
 from rest_framework_json_api import utils
 
+from share.util import IDObfuscator
+
 
 class HideNullJSONAPIRenderer(JSONAPIRenderer):
 
+    # override null behavior from JSONAPIRenderer
     @staticmethod
     def extract_attributes(fields, resource):
         data = OrderedDict()
@@ -46,11 +50,201 @@ class HideNullJSONAPIRenderer(JSONAPIRenderer):
 
         return utils.format_keys(data)
 
+    def encode_id(resource_id, resource_type):
+        return encoding.force_text(IDObfuscator.encode_id(resource_id, apps.get_model('share', resource_type)))
+
+    @classmethod
+    def encode_ids(cls, relation_data):
+        if relation_data:
+            if isinstance(relation_data, list):
+                for obj in relation_data:
+                    obj['id'] = cls.encode_id(int(obj['id']), obj['type'])
+            else:
+                relation_data['id'] = cls.encode_id(int(relation_data['id']), relation_data['type'])
+        return relation_data
+
+    # override ids in relationships from JSONAPIRenderer
+    @classmethod
+    def extract_relationships(cls, fields, resource, resource_instance):
+        # Avoid circular deps
+        from rest_framework_json_api.relations import ResourceRelatedField
+
+        data = OrderedDict()
+
+        # Don't try to extract relationships from a non-existent resource
+        if resource_instance is None:
+            return
+
+        for field_name, field in six.iteritems(fields):
+            # Skip URL field
+            if field_name == api_settings.URL_FIELD_NAME:
+                continue
+
+            # Skip fields without relations
+            if not isinstance(field, (relations.RelatedField, relations.ManyRelatedField, BaseSerializer)):
+                continue
+
+            source = field.source
+            relation_type = utils.get_related_resource_type(field)
+
+            if isinstance(field, relations.HyperlinkedIdentityField):
+                resolved, relation_instance = utils.get_relation_instance(resource_instance, source, field.parent)
+                if not resolved:
+                    continue
+                # special case for HyperlinkedIdentityField
+                relation_data = list()
+
+                # Don't try to query an empty relation
+                relation_queryset = relation_instance \
+                    if relation_instance is not None else list()
+
+                for related_object in relation_queryset:
+                    relation_data.append(
+                        OrderedDict([('type', relation_type), ('id', encoding.force_text(related_object.pk))])
+                    )
+
+                data.update({field_name: {
+                    'links': {
+                        'related': resource.get(field_name)},
+                    'data': cls.encode_ids(relation_data),
+                    'meta': {
+                        'count': len(relation_data)
+                    }
+                }})
+                continue
+
+            if isinstance(field, ResourceRelatedField):
+                resolved, relation_instance = utils.get_relation_instance(resource_instance, source, field.parent)
+                if not resolved:
+                    continue
+
+                # special case for ResourceRelatedField
+                relation_data = {
+                    'data': cls.encode_ids(resource.get(field_name))
+                }
+
+                field_links = field.get_links(resource_instance)
+                relation_data.update(
+                    {'links': field_links}
+                    if field_links else dict()
+                )
+                data.update({field_name: relation_data})
+                continue
+
+            if isinstance(field, (relations.PrimaryKeyRelatedField, relations.HyperlinkedRelatedField)):
+                resolved, relation = utils.get_relation_instance(resource_instance, '%s_id' % source, field.parent)
+                if not resolved:
+                    continue
+                relation_id = relation if resource.get(field_name) else None
+                relation_data = {
+                    'data': (
+                        OrderedDict([('type', relation_type), ('id', cls.encode_id(relation_id, relation_type))])
+                        if relation_id is not None else None)
+                }
+
+                relation_data.update(
+                    {'links': {'related': resource.get(field_name)}}
+                    if isinstance(field, relations.HyperlinkedRelatedField) and resource.get(field_name) else dict()
+                )
+                data.update({field_name: relation_data})
+                continue
+
+            if isinstance(field, relations.ManyRelatedField):
+                resolved, relation_instance = utils.get_relation_instance(resource_instance, source, field.parent)
+                if not resolved:
+                    continue
+
+                if isinstance(field.child_relation, ResourceRelatedField):
+                    # special case for ResourceRelatedField
+                    relation_data = {
+                        'data': cls.encode_ids(resource.get(field_name))
+                    }
+
+                    field_links = field.child_relation.get_links(resource_instance)
+                    relation_data.update(
+                        {'links': field_links}
+                        if field_links else dict()
+                    )
+                    relation_data.update(
+                        {
+                            'meta': {
+                                'count': len(resource.get(field_name))
+                            }
+                        }
+                    )
+                    data.update({field_name: relation_data})
+                    continue
+
+                relation_data = list()
+                for nested_resource_instance in relation_instance:
+                    nested_resource_instance_type = (
+                        relation_type or
+                        utils.get_resource_type_from_instance(nested_resource_instance)
+                    )
+
+                    relation_data.append(OrderedDict([
+                        ('type', nested_resource_instance_type),
+                        ('id', encoding.force_text(nested_resource_instance.pk))
+                    ]))
+                data.update({
+                    field_name: {
+                        'data': cls.encode_ids(relation_data),
+                        'meta': {
+                            'count': len(relation_data)
+                        }
+                    }
+                })
+                continue
+
+            if isinstance(field, ListSerializer):
+                resolved, relation_instance = utils.get_relation_instance(resource_instance, source, field.parent)
+                if not resolved:
+                    continue
+
+                relation_data = list()
+
+                serializer_data = resource.get(field_name)
+                resource_instance_queryset = list(relation_instance)
+                if isinstance(serializer_data, list):
+                    for position in range(len(serializer_data)):
+                        nested_resource_instance = resource_instance_queryset[position]
+                        nested_resource_instance_type = (
+                            relation_type or
+                            utils.get_resource_type_from_instance(nested_resource_instance)
+                        )
+
+                        relation_data.append(OrderedDict([
+                            ('type', nested_resource_instance_type),
+                            ('id', encoding.force_text(nested_resource_instance.pk))
+                        ]))
+
+                    data.update({field_name: {'data': cls.encode_ids(relation_data)}})
+                    continue
+
+            if isinstance(field, Serializer):
+                resolved, relation_instance = utils.get_relation_instance(resource_instance, source, field.parent)
+                if not resolved:
+                    continue
+
+                data.update({
+                    field_name: {
+                        'data': (
+                            OrderedDict([
+                                ('type', relation_type),
+                                ('id', cls.encode_id(resource_instance.pk, relation_type))
+                            ]) if resource.get(field_name) else None)
+                    }
+                })
+                continue
+
+        return utils.format_keys(data)
+
+    # override top level id from JSONAPIRenderer
     @classmethod
     def build_json_resource_obj(cls, fields, resource, resource_instance, resource_name):
         resource_data = [
             ('type', resource_name),
-            ('id', encoding.force_text(resource_instance.pk) if resource_instance else None),
+            ('id', cls.encode_id(resource_instance.pk, resource_instance._meta.model.__name__) if resource_instance and resource_instance.pk else None),
             ('attributes', cls.extract_attributes(fields, resource)),
         ]
         relationships = cls.extract_relationships(fields, resource, resource_instance)

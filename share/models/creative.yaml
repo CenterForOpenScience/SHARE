@@ -35,10 +35,13 @@ CreativeWork:
                       kwargs: { blank: true }
                 Report: {}
                 # Section: {}
-                Thesis: {}
+                Thesis:
+                    verbose_name_plural: theses
                 WorkingPaper: {}
         Presentation: {}
-        Repository: {}
+        Repository:
+            verbose_name_plural: repositories
         Retraction: {}
-        Software: {}
+        Software:
+            verbose_name_plural: software
         # Video: {}

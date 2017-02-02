@@ -1,12 +1,15 @@
 import re
+import os
+import yaml
 
 from rest_framework import views
 from rest_framework.response import Response
 
 from share import models
+from share.util import sort_dict_by_key
 from share.models.validators import JSONLDValidator
 
-__all__ = ('SchemaView', 'ModelSchemaView')
+__all__ = ('SchemaView', 'ModelSchemaView', 'ModelTypesView')
 
 
 INDENT = 4 * ' '
@@ -113,3 +116,13 @@ for model in schema_models:
         'MODEL': model,
         '__doc__': ModelSchemaView.__doc__.format(model.__name__, model.__doc__)
     }))
+
+
+class ModelTypesView(views.APIView):
+
+    yaml_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../share/models/creative.yaml')
+    with open(yaml_file) as fobj:
+        model_specs = sort_dict_by_key(yaml.load(fobj))
+
+    def get(self, request, *args, **kwargs):
+        return Response(self.model_specs)

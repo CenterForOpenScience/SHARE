@@ -228,7 +228,7 @@ class RawData(models.Model):
 
 class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
-    created_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(null=True, auto_now_add=True)
     raw = models.ForeignKey(RawData, null=True)
     # TODO Rename this to data
     data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
