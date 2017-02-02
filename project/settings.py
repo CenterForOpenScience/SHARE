@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     'providers.com.peerj',
     'providers.com.peerj.preprints',
     'providers.com.peerj.xml',
+    'providers.com.researchregistry',
     'providers.com.springer',
     'providers.edu.ageconsearch',
     'providers.edu.asu',
@@ -605,6 +606,8 @@ ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', '
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
 PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
 SPRINGER_API_KEY = os.environ.get('SPRINGER_API_KEY')
+RESEARCHREGISTRY_APPLICATION_ID = os.environ.get('RESEARCHREGISTRY_APPLICATION_ID', '54a1ac1032e4beb07e04ac2c')
+RESEARCHREGISTRY_API_KEY = os.environ.get('RESEARCHREGISTRY_API_KEY', 'renderer')
 
 import djcelery  # noqa
 djcelery.setup_loader()
