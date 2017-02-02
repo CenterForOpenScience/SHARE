@@ -41,7 +41,7 @@ class ProviderRegistrationViewSet(viewsets.ModelViewSet):
     serializer_class = ProviderRegistrationSerializer
 
     def get_queryset(self):
-        return ProviderRegistration.objects.filter(submitted_by=self.request.user)
+        return ProviderRegistration.objects.filter(submitted_by_id=self.request.user.pk)
 
     def create(self, request, *args, **kwargs):
         serializer = ProviderRegistrationSerializer(data=request.data, context={'request': request})
