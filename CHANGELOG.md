@@ -1,5 +1,19 @@
 # Change Log
 
+## [2.3.0] - 2016-02-02
+## Added
+* Support for OSF Registries
+* New Harvesters
+  * University of Utah
+
+## Changed
+* Updated the API
+* Improved Elasticsearch mappings
+* Updated NIH and NSFAwards
+  * Affiliations are now gathered
+  * Non-Unique URLs are no longer collected
+* Lots of under the hood changes to make dev's lives easier
+
 ## [2.1.0] - 2016-12-16
 ## Added
 * New Harvesters
