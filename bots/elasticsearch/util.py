@@ -160,7 +160,7 @@ def fetch_creativework(pks):
                                         FROM share_agentrelation AS affiliation
                                         JOIN share_agent AS affiliated_agent ON affiliation.related_id = affiliated_agent.id
                                         WHERE affiliation.subject_id = agent.id AND affiliated_agent.type != 'share.person'
-                                        ) AS affiliations ON TRUE
+                                        ) AS affiliations ON (agent.type = 'share.person')
                             LEFT JOIN LATERAL (
                                         SELECT json_agg(json_strip_nulls(json_build_object(
                                                                             'id', award.id
