@@ -73,8 +73,6 @@ register_route(r'sourceregistrations', views.ProviderRegistrationViewSet)
 register_route(r'site_banners', views.SiteBannerViewSet)
 
 # workflow routes
-register_route(r'changeset', views.ChangeSetViewSet)
-register_route(r'change', views.ChangeViewSet)
 register_route(r'rawdata', views.RawDataViewSet)
 register_route(r'user', views.ShareUserViewSet)
 register_route(r'sources', views.ProviderViewSet)
