@@ -10,17 +10,16 @@ from rest_framework.parsers import JSONParser
 
 from api import schemas
 from api.authentication import APIV1TokenBackPortAuthentication
-from api.filters import ChangeSetFilterSet, ChangeFilterSet
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
-from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, ChangeSetSerializer, \
-    ChangeSerializer, RawDataSerializer, ShareUserSerializer, ProviderSerializer
-from share.models import ChangeSet, Change, RawData, ShareUser, NormalizedData
+from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
+    RawDataSerializer, ShareUserSerializer, ProviderSerializer
+from share.models import RawData, ShareUser, NormalizedData
 from share.tasks import DisambiguatorTask
 from share.harvest.harvester import Harvester
 from share.normalize.v1_push import V1Normalizer
 
 
-__all__ = ('NormalizedDataViewSet', 'ChangeSetViewSet', 'ChangeViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'V1DataView')
+__all__ = ('NormalizedDataViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'V1DataView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -97,38 +96,6 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
                 'type': 'NormalizedData',
                 'attributes': {'task': async_result.id}
             }, status=status.HTTP_202_ACCEPTED)
-
-
-class ChangeSetViewSet(viewsets.ModelViewSet):
-    """
-    ChangeSets are items that have been added to the SHARE dataset but may not yet have been accepted.
-
-    These can come from harvesters and normalizers or from the curate interface.
-
-    ## Get Info
-
-        Method:        GET
-        Query Params:  `submitted_by=<Int>` -- share user that submitted the changeset
-        Success:       200 OK
-
-    ## Submit changes
-        Look at `/api/normalizeddata/`
-    """
-    serializer_class = ChangeSetSerializer
-    # TODO: Add in scopes once we figure out who, why, and how.
-    # required_scopes = ['', ]
-
-    def get_queryset(self):
-        return ChangeSet.objects.all().select_related('normalized_data__source')
-    filter_class = ChangeSetFilterSet
-
-
-class ChangeViewSet(viewsets.ModelViewSet):
-    serializer_class = ChangeSerializer
-    # TODO: Add in scopes once we figure out who, why, and how.
-    # required_scopes = ['', ]
-    queryset = Change.objects.all()
-    filter_class = ChangeFilterSet
 
 
 class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
