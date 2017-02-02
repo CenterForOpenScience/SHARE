@@ -208,7 +208,7 @@ class DisambiguatorTask(LoggedTask):
                 cg = ChangeGraph(self.normalized.data['@graph'], namespace=self.normalized.source.username)
                 cg.process()
                 cs = ChangeSet.objects.from_graph(cg, self.normalized.id)
-                if cs and (self.source.is_robot or self.source.is_trusted):
+                if cs and (self.source.is_robot or self.source.is_trusted or self.source.username == settings.APPLICATION_USERNAME):
                     # TODO: verify change set is not overwriting user created object
                     cs.accept()
         except Exception as e:
