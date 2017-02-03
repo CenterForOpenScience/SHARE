@@ -92,7 +92,7 @@ class TestVersioning:
         ident.refresh_from_db()
         john_doe.refresh_from_db()
 
-        assert john_doe.identifiers.count() == 1
+        assert john_doe.identifiers.exact_count() == 1
 
         assert john_doe == ident.agent
         assert john_doe.version == ident.agent_version
@@ -114,7 +114,7 @@ class TestVersioning:
         john_doe.save()
         john_doe.refresh_from_db()
 
-        assert john_doe.identifiers.count() == 1
+        assert john_doe.identifiers.exact_count() == 1
 
         assert john_doe == ident.agent
         assert john_doe.version != ident.agent_version
@@ -133,11 +133,11 @@ class TestAdministrativeChange:
 
     def test_works(self, john_doe):
         assert john_doe.version == john_doe.versions.first()
-        assert john_doe.versions.count() == 1
+        assert john_doe.versions.exact_count() == 1
         assert john_doe.given_name == 'John'
         john_doe.administrative_change(given_name='Jane')
         assert john_doe.given_name == 'Jane'
-        assert john_doe.versions.count() == 2
+        assert john_doe.versions.exact_count() == 2
         assert john_doe.change.change_set.normalized_data.source.username == 'system'
 
     def test_invalid_attribute(self, john_doe):

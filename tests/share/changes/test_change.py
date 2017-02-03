@@ -131,7 +131,7 @@ class TestChangeSet:
     def test_create_dependencies_accept(self, normalized_data_id, create_graph_dependencies):
         change_set = models.ChangeSet.objects.from_graph(create_graph_dependencies, normalized_data_id)
 
-        assert change_set.changes.count() == 3
+        assert change_set.changes.exact_count() == 3
         assert change_set.changes.all()[0].node_id == '_:123'
         assert change_set.changes.all()[1].node_id == '_:789'
         assert change_set.changes.all()[2].node_id == '_:456'
@@ -175,7 +175,7 @@ class TestChangeSet:
         john_doe.refresh_from_db()
 
         assert john_doe.given_name == 'Jane'
-        assert models.Preprint.objects.filter(agent_relations__agent=john_doe).count() == 1
+        assert models.Preprint.objects.filter(agent_relations__agent=john_doe).exact_count() == 1
         assert models.Preprint.objects.filter(agent_relations__agent=john_doe).first().title == 'All About Cats'
 
     @pytest.mark.django_db
@@ -231,9 +231,9 @@ class TestChangeSet:
     #         }]
     #     }), normalized_data_id).accept()
 
-    #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
-    #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
-    #     assert Preprint.objects.filter(contributor__person=jane_doe).count() == 0
+    #     assert Preprint.objects.filter(contributor__person=john_doe).exact_count() == 1
+    #     assert Preprint.objects.filter(contributor__person=john_doe).exact_count() == 1
+    #     assert Preprint.objects.filter(contributor__person=jane_doe).exact_count() == 0
 
     #     change_set.accept()
 
@@ -242,10 +242,10 @@ class TestChangeSet:
 
     #     # Jane should not have been modified
     #     assert jane_doe.same_as is None
-    #     assert jane_doe.versions.count() == 1
+    #     assert jane_doe.versions.exact_count() == 1
 
     #     # John should have been updated
-    #     assert john_doe.versions.count() == 2
+    #     assert john_doe.versions.exact_count() == 2
 
     #     # John's same_as field and same_as_version should have been updated
     #     assert john_doe.same_as == jane_doe
@@ -261,15 +261,15 @@ class TestChangeSet:
     #     assert john_doe.versions.first().date_modified > john_doe.versions.last().date_modified
 
     #     # John is no longer a contributor on anything
-    #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 0
-    #     assert Preprint.objects.filter(contributor__person_version=john_doe.version).count() == 0
+    #     assert Preprint.objects.filter(contributor__person=john_doe).exact_count() == 0
+    #     assert Preprint.objects.filter(contributor__person_version=john_doe.version).exact_count() == 0
 
     #     # Jane is now a contributor
-    #     assert Preprint.objects.filter(contributor__person=jane_doe).count() == 1
-    #     assert Preprint.objects.filter(contributor__person_version=jane_doe.version).count() == 1
+    #     assert Preprint.objects.filter(contributor__person=jane_doe).exact_count() == 1
+    #     assert Preprint.objects.filter(contributor__person_version=jane_doe.version).exact_count() == 1
 
     #     # The affected contributor should have been updated
-    #     assert Contributor.objects.get(person=jane_doe).versions.count() == 2
+    #     assert Contributor.objects.get(person=jane_doe).versions.exact_count() == 2
     #     assert Contributor.objects.get(person=jane_doe).change.change_set == change_set
 
     @pytest.mark.django_db
@@ -278,7 +278,7 @@ class TestChangeSet:
             models.Subject(name='Felines')
         ])
 
-        assert models.Subject.objects.filter(name='Felines').count() == 1
+        assert models.Subject.objects.filter(name='Felines').exact_count() == 1
 
         graph = ChangeGraph([{
             '@id': '_:987',
@@ -300,7 +300,7 @@ class TestChangeSet:
 
         change_set.accept()
 
-        assert models.Preprint.objects.filter(subjects__name='Felines').count() == 1
+        assert models.Preprint.objects.filter(subjects__name='Felines').exact_count() == 1
         assert models.Preprint.objects.filter(subjects__name='Felines').first().title == 'All About Cats'
 
     @pytest.mark.django_db
@@ -354,10 +354,10 @@ class TestChangeSet:
         id = work.id
 
         assert identifier.uri == uri
-        assert models.Project.objects.count() == 1
-        assert models.Preprint.objects.count() == 0
-        assert models.CreativeWork.objects.count() == 1
-        assert models.Project.objects.all()[0].changes.count() == 1
+        assert models.Project.objects.exact_count() == 1
+        assert models.Preprint.objects.exact_count() == 0
+        assert models.CreativeWork.objects.exact_count() == 1
+        assert models.Project.objects.all()[0].changes.exact_count() == 1
 
         cg = ChangeGraph([{
             '@id': '_:1234',
@@ -375,11 +375,11 @@ class TestChangeSet:
 
         change_set.accept()
 
-        assert models.Project.objects.count() == 0
-        assert models.Preprint.objects.count() == 1
-        assert models.CreativeWork.objects.count() == 1
+        assert models.Project.objects.exact_count() == 0
+        assert models.Preprint.objects.exact_count() == 1
+        assert models.CreativeWork.objects.exact_count() == 1
         assert models.Preprint.objects.get(id=id).title == title
-        assert models.Preprint.objects.all()[0].changes.count() == 2
+        assert models.Preprint.objects.all()[0].changes.exact_count() == 2
 
     @pytest.mark.django_db
     def test_generic_creative_work(self, normalized_data_id):
@@ -408,8 +408,8 @@ class TestChangeSet:
         id = preprint.id
 
         assert identifier.uri == uri
-        assert models.Preprint.objects.count() == 1
-        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
+        assert models.Preprint.objects.exact_count() == 1
+        assert models.CreativeWork.objects.filter(type='share.creativework').exact_count() == 0
         assert models.Preprint.objects.get(id=id).title == old_title
 
         new_title = 'Ambidextrous Earthquakes'
@@ -430,8 +430,8 @@ class TestChangeSet:
         change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
         change_set.accept()
 
-        assert models.Preprint.objects.count() == 1
-        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
+        assert models.Preprint.objects.exact_count() == 1
+        assert models.CreativeWork.objects.filter(type='share.creativework').exact_count() == 0
         assert models.Preprint.objects.get(id=id).title == new_title
 
     @pytest.mark.django_db
@@ -464,18 +464,18 @@ class TestChangeSet:
         }]), normalized_data_id)
         change_set.accept()
 
-        assert models.Preprint.objects.count() == 1
-        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 1
+        assert models.Preprint.objects.exact_count() == 1
+        assert models.CreativeWork.objects.filter(type='share.creativework').exact_count() == 1
 
         p = models.Preprint.objects.first()
         c = models.AbstractCreativeWork.objects.get(title='Cats, tho')
 
-        assert p.related_works.count() == 1
+        assert p.related_works.exact_count() == 1
         assert p.related_works.first() == c
-        assert p.outgoing_creative_work_relations.count() == 1
+        assert p.outgoing_creative_work_relations.exact_count() == 1
         assert p.outgoing_creative_work_relations.first()._meta.model_name == 'cites'
         assert p.outgoing_creative_work_relations.first().related == c
-        assert c.incoming_creative_work_relations.count() == 1
+        assert c.incoming_creative_work_relations.exact_count() == 1
         assert c.incoming_creative_work_relations.first()._meta.model_name == 'cites'
         assert c.incoming_creative_work_relations.first().subject == p
 
@@ -500,7 +500,7 @@ class TestChangeSet:
             'creative_work': {'@id': '_:1234', '@type': 'article'}
         }]), normalized_data_id).accept()
 
-        assert models.Article.objects.count() == 1
+        assert models.Article.objects.exact_count() == 1
 
         graph = ChangeGraph([{
             '@id': '_:1234',
@@ -526,17 +526,17 @@ class TestChangeSet:
         change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
         change_set.accept()
 
-        assert models.Article.objects.count() == 1
-        assert models.Preprint.objects.count() == 1
-        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
+        assert models.Article.objects.exact_count() == 1
+        assert models.Preprint.objects.exact_count() == 1
+        assert models.CreativeWork.objects.filter(type='share.creativework').exact_count() == 0
 
         cat = models.Article.objects.first()
         dog = models.Preprint.objects.first()
 
-        assert dog.outgoing_creative_work_relations.count() == 1
+        assert dog.outgoing_creative_work_relations.exact_count() == 1
         assert dog.outgoing_creative_work_relations.first()._meta.model_name == 'cites'
         assert dog.outgoing_creative_work_relations.first().related == cat
-        assert cat.incoming_creative_work_relations.count() == 1
+        assert cat.incoming_creative_work_relations.exact_count() == 1
         assert cat.incoming_creative_work_relations.first()._meta.model_name == 'cites'
         assert cat.incoming_creative_work_relations.first().subject == dog
 
@@ -573,9 +573,9 @@ class TestChangeSet:
             'creative_work': {'@id': '_:2345', '@type': 'creativework'}
         }]), normalized_data_id).accept()
 
-        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 1
-        assert models.Preprint.objects.count() == 1
-        assert models.Article.objects.count() == 0
+        assert models.CreativeWork.objects.filter(type='share.creativework').exact_count() == 1
+        assert models.Preprint.objects.exact_count() == 1
+        assert models.Article.objects.exact_count() == 0
 
         change = ChangeGraph([{
             '@id': '_:1234',
@@ -592,17 +592,17 @@ class TestChangeSet:
 
         models.ChangeSet.objects.from_graph(change, normalized_data_id).accept()
 
-        assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
-        assert models.Article.objects.count() == 1
-        assert models.Preprint.objects.count() == 1
+        assert models.CreativeWork.objects.filter(type='share.creativework').exact_count() == 0
+        assert models.Article.objects.exact_count() == 1
+        assert models.Preprint.objects.exact_count() == 1
 
         cat = models.Article.objects.first()
         dog = models.Preprint.objects.first()
 
-        assert dog.outgoing_creative_work_relations.count() == 1
+        assert dog.outgoing_creative_work_relations.exact_count() == 1
         assert dog.outgoing_creative_work_relations.first()._meta.model_name == 'cites'
         assert dog.outgoing_creative_work_relations.first().related == cat
-        assert cat.incoming_creative_work_relations.count() == 1
+        assert cat.incoming_creative_work_relations.exact_count() == 1
         assert cat.incoming_creative_work_relations.first()._meta.model_name == 'cites'
         assert cat.incoming_creative_work_relations.first().subject == dog
 
@@ -629,7 +629,7 @@ class TestChangeSet:
         }, disambiguate=True)
 
         assert all_about_anteaters.type == 'share.article'
-        assert models.Publication.objects.count() == 1
+        assert models.Publication.objects.exact_count() == 1
 
         cs.accept()
         all_about_anteaters.refresh_from_db()
@@ -646,13 +646,13 @@ class TestChangeSet:
             }]
         }, disambiguate=True)
 
-        assert models.Institution.objects.count() == 1
-        assert models.Consortium.objects.count() == 0
+        assert models.Institution.objects.exact_count() == 1
+        assert models.Consortium.objects.exact_count() == 0
 
         (org,) = cs.accept()
 
         assert org.type == 'share.consortium'
         assert org.id == university_of_whales.id
         assert org.name == university_of_whales.name
-        assert models.Institution.objects.count() == 0
-        assert models.Consortium.objects.count() == 1
+        assert models.Institution.objects.exact_count() == 0
+        assert models.Consortium.objects.exact_count() == 1

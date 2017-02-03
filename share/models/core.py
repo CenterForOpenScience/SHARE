@@ -13,11 +13,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from fuzzycount import FuzzyCountManager
 from oauth2_provider.models import AccessToken, Application
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
+
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
+from share.models.fuzzycount import FuzzyCountManager
 from share.models.validators import JSONLDValidator
 
 logger = logging.getLogger(__name__)
