@@ -1,9 +1,9 @@
 from django.db import connections
-from django.db.models.manager import Manager
 from django.db.models.sql import InsertQuery
 from django.db.models.sql.compiler import SQLInsertCompiler
 
-from fuzzycount import FuzzyCountQuerySet
+from share.models.fuzzycount import FuzzyCountManager
+from share.models.fuzzycount import FuzzyCountQuerySet
 
 
 class SQLInsertReturnVersionCompiler(SQLInsertCompiler):
@@ -84,7 +84,7 @@ class InsertReturnVersionQuerySet(FuzzyCountQuerySet):
     _insert.queryset_only = False
 
 
-class ShareObjectManager(Manager):
+class ShareObjectManager(FuzzyCountManager):
     use_for_related_fields = True
 
     def get_queryset(self):

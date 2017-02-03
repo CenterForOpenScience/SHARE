@@ -28,12 +28,6 @@ class BaseShareSerializer(serializers.ModelSerializer):
                 if 'version' in field_name or field_name in excluded_fields:
                     self.fields.pop(field_name)
 
-            if not version_serializer:
-                # add links to related objects
-                self.fields.update({
-                    'links': fields.LinksField(links=self.Meta.links, source='*')
-                })
-
         # version specific fields
         if version_serializer:
             self.fields.update({

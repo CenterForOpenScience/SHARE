@@ -2,8 +2,6 @@ import logging
 
 from model_utils import Choices
 
-from fuzzycount import FuzzyCountManager
-
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -14,6 +12,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
+from share.models.fuzzycount import FuzzyCountManager
 from share.models import NormalizedData
 from share.util import IDObfuscator
 
@@ -114,7 +113,7 @@ class ChangeSet(models.Model):
             raise Exception('Could not resolve reference {}'.format(ref)) from ex
 
     def __repr__(self):
-        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.STATUS[self.status].upper(), self.normalized_data.source, self.changes.count())
+        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.STATUS[self.status].upper(), self.normalized_data.source, self.changes.exact_count())
 
 
 class Change(models.Model):

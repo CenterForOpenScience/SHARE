@@ -158,7 +158,7 @@ class TestAgentRelationDisambiguation:
         Graph.reseed()
         before_count = {}
         for model in model_delta.keys():
-            before_count[model] = model.objects.filter(type=model._meta.label_lower).count()
+            before_count[model] = model.objects.filter(type=model._meta.label_lower).exact_count()
 
         cg = ChangeGraph(Graph(*input))
         cg.process()
@@ -167,7 +167,7 @@ class TestAgentRelationDisambiguation:
             cs.accept()
 
         for model in model_delta.keys():
-            assert model.objects.filter(type=model._meta.label_lower).count() - before_count[model] == model_delta[model]
+            assert model.objects.filter(type=model._meta.label_lower).exact_count() - before_count[model] == model_delta[model]
 
     def test_no_changes(self, Graph):
         initial_cg = ChangeGraph(Graph(*initial))

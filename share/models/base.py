@@ -11,18 +11,19 @@ from django.db.models.base import ModelBase
 from django.db.models.fields import AutoField
 from django.utils.translation import ugettext_lazy as _
 
-from fuzzycount import FuzzyCountManager
+from typedmodels import models as typedmodels
 
 from db.deletion import DATABASE_CASCADE
 
 from share.models import fields
 from share.models.change import Change
+from share.models.fuzzycount import FuzzyCountManager
 from share.models.sql import ShareObjectManager
-from typedmodels import models as typedmodels
 
 
 class ShareObjectVersion(models.Model):
     action = models.TextField(max_length=10)
+    objects = FuzzyCountManager()
 
     class Meta:
         abstract = True
