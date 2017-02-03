@@ -65,7 +65,7 @@ class AbstractCreativeWork(AbstractShareObject):
     def resolve_related_agents(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
-        return self.agent_relations.all()[offset:limit]
+        return self.agent_relations.order_by('order_cited')[offset:limit]
 
     @graphene.resolve_only_args
     def resolve_total_incoming_work_relations(self):
