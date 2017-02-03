@@ -48,7 +48,13 @@ class EndpointGenerator:
 
     def generate_viewset(self, subclass, serializer):
         class_name = subclass.__name__ + 'ViewSet'
-        queryset = serializer.Meta.model.objects.all().select_related('extra')
+        # Pre-join all fields foreign keys
+        # Note: we can probably avoid this all together if we fix DRF
+        # We don't need to load the entire objects, just the PKs
+        queryset = serializer.Meta.model.objects.all().select_related(*(
+            field.name for field in serializer.Meta.model._meta.get_fields()
+            if field.is_relation and field.editable and not field.many_to_many
+        ))
         if subclass.__name__ == 'AgentIdentifier':
             queryset = queryset.exclude(scheme='mailto')
 
