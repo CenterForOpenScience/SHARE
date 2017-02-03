@@ -8,7 +8,7 @@ from django.db.migrations.writer import MigrationWriter
 from django.db.migrations.autodetector import MigrationAutodetector
 
 from share.robot import RobotAppConfig
-from share.robot import RobotMigration
+from share.robot import RobotMigrations
 
 
 class Command(BaseCommand):
@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
         for config in configs:
             if isinstance(config, RobotAppConfig) and not getattr(config, 'disabled', False):
-                changes[config.name] = [RobotMigration(config).migration()]
+                changes[config.name] = RobotMigrations(config).migrations()
 
         for migrations in changes.values():
             for m in migrations:
