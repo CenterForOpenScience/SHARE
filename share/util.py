@@ -68,7 +68,7 @@ class IDObfuscator:
     @classmethod
     def resolve(cls, id):
         model, pk = cls.decode(id)
-        return model.objects.get(pk=pk)
+        return model.objects.get_canonical(id=pk)
 
     @classmethod
     def resolver(cls, self, args, context, info):

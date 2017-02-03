@@ -84,15 +84,32 @@ class InsertReturnVersionQuerySet(FuzzyCountQuerySet):
     _insert.queryset_only = False
 
 
+class CircularMergeError(Exception):
+    pass
+
+
 class ShareObjectManager(FuzzyCountManager):
     use_for_related_fields = True
 
     def get_queryset(self):
         return InsertReturnVersionQuerySet(self.model, using=self._db)
 
+    def get_canonical(self, id):
+        query = '''
+        WITH RECURSIVE same_as_chain(id, same_as, depth) AS (
+                SELECT id, same_as_id, 1 FROM {table} WHERE id=%(id)s
+              UNION
+                SELECT {table}.id, {table}.same_as_id, same_as_chain.depth+1
+                FROM same_as_chain JOIN {table} ON same_as_chain.same_as={table}.id
+                WHERE same_as_chain.same_as NOT IN (same_as_chain.id)
+        )
+        SELECT * FROM {table} WHERE id=(SELECT id FROM same_as_chain ORDER BY depth DESC LIMIT 1);
+        '''.format(table=self.model._meta.db_table)
 
-# ShareObjectManager = InsertReturnVersionQuerySet.as_manager()
-# ShareObjectManager.
-
-
-# class TypedShareObjectManager
+        results = self.model._meta.concrete_model.objects.raw(query, params={'id': id})
+        if not results:
+            return None
+        result = results[0]
+        if result.same_as_id is not None:
+            raise CircularMergeError('Reference loop in %s.same_as (frow row %s to %s)', self.model._meta.db_table, id, result.id)
+        return result
