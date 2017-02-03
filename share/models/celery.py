@@ -1,10 +1,11 @@
-from fuzzycount import FuzzyCountManager
 from model_utils import Choices
 
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
 from typedmodels.models import TypedModel
+
+from share.models.fuzzycount import FuzzyCountManager
 
 
 class CeleryTask(TypedModel):

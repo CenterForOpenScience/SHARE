@@ -60,7 +60,7 @@ class TestChange:
         })
 
         assert change_set.status == ChangeSet.STATUS.pending
-        assert change_set.changes.count() == 1
+        assert change_set.changes.exact_count() == 1
         assert change_set.changes.first().type == Change.TYPE.create
 
         (person, ) = change_set.accept()
@@ -97,7 +97,7 @@ class TestChange:
             }]
         }, disambiguate=True)
 
-        assert change_set.changes.count() == 1
+        assert change_set.changes.exact_count() == 1
         assert change_set.changes.first().target == preprint
 
     # def test_update_requires_saved(self, share_source):
@@ -128,7 +128,7 @@ class TestChange:
 
     #     change = ChangeRequest.objects.create_object(pe, share_source)
 
-    #     assert change.depends_on.count() == 2
+    #     assert change.depends_on.exact_count() == 2
 
     #     expected = {
     #         'email_id': e_change,
@@ -189,7 +189,7 @@ class TestChange:
     #         share_source
     #     )
 
-    #     assert change.depends_on.count() == 1
+    #     assert change.depends_on.exact_count() == 1
     #     assert change.depends_on.first().requirement == e_change
 
     # def test_recurse(self, share_source):
@@ -216,9 +216,9 @@ class TestChangeGraph:
     def test_changes(self, change_factory, ld_graph):
         change_factory.from_graph(ld_graph).accept()
 
-        assert Person.objects.filter(pk__isnull=False).count() == 5
-        assert AgentWorkRelation.objects.filter(pk__isnull=False).count() == 5
-        assert AbstractCreativeWork.objects.filter(pk__isnull=False).count() == 1
+        assert Person.objects.filter(pk__isnull=False).exact_count() == 5
+        assert AgentWorkRelation.objects.filter(pk__isnull=False).exact_count() == 5
+        assert AbstractCreativeWork.objects.filter(pk__isnull=False).exact_count() == 1
 
     def test_change_existing(self, change_factory, jane_doe):
         change_set = change_factory.from_graph({

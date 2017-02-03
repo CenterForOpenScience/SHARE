@@ -6,6 +6,7 @@ from django.db import IntegrityError
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey
+from share.models.fuzzycount import FuzzyCountManager
 from share.util import strip_whitespace
 
 
@@ -49,7 +50,7 @@ class Tag(ShareObject):
         all = ('name',)
 
 
-class SubjectManager(models.Manager):
+class SubjectManager(FuzzyCountManager):
     def get_by_natural_key(self, subject):
         return self.get(name=subject)
 
