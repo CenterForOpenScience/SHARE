@@ -122,17 +122,17 @@ class Harvester(metaclass=abc.ABCMeta):
         from share.models import RawData
         start_date, end_date = self._validate_dates(start_date, end_date)
 
-        stored = []
+        raw_ids = []
         with transaction.atomic():
             rawdata = self.do_harvest(start_date, end_date, **kwargs)
             assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
             for doc_id, datum in rawdata:
-                stored.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source, self.config.label))
-                if limit is not None and len(stored) >= limit:
+                raw_ids.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source, self.config.label).id)
+                if limit is not None and len(raw_ids) >= limit:
                     break
 
-        return stored
+        return raw_ids
 
     def raw(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
         start_date, end_date = self._validate_dates(start_date, end_date)

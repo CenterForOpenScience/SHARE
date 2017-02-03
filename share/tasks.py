@@ -137,18 +137,20 @@ class HarvesterTask(AppTask):
 
         try:
             logger.info('Starting harvester run for %s %s - %s', self.config.label, start, end)
-            raws = harvester.harvest(start, end, limit=limit, **kwargs)
-            logger.info('Collected %d data blobs from %s', len(raws), self.config.label)
+            raw_ids = harvester.harvest(start, end, limit=limit, **kwargs)
+            logger.info('Collected %d data blobs from %s', len(raw_ids), self.config.label)
         except Exception as e:
             logger.exception('Failed harvester task (%s, %s, %s)', self.config.label, start, end)
             raise self.retry(countdown=10, exc=e)
 
-        for raw in raws:
-            # attach task
-            raw.tasks.add(self.task)
-
-            task = NormalizerTask().apply_async((self.started_by.id, self.config.label, raw.pk,))
-            logger.debug('Started normalizer task %s for %s', task, raw.id)
+        # attach task to each RawData
+        RawData.tasks.through.objects.bulk_create([
+            RawData.tasks.through(rawdata_id=raw_id, celeryprovidertask_id=self.task.id)
+            for raw_id in raw_ids
+        ])
+        for raw_id in raw_ids:
+            task = NormalizerTask().apply_async((self.started_by.id, self.config.label, raw_id,))
+            logger.debug('Started normalizer task %s for %s', task, raw_id)
 
 
 class NormalizerTask(AppTask):
