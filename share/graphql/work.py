@@ -49,43 +49,43 @@ class AbstractCreativeWork(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_identifiers(self):
-        return self.identifiers.all()
+        return self.identifiers.exclude(same_as__isnull=False)
 
     @graphene.resolve_only_args
     def resolve_tags(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
-        return self.tags.all()[offset:limit]
+        return self.tags.exclude(same_as__isnull=False)[offset:limit]
 
     @graphene.resolve_only_args
     def resolve_total_related_agents(self):
-        return self.agent_relations.count()
+        return self.agent_relations.exclude(same_as__isnull=False).count()
 
     @graphene.resolve_only_args
     def resolve_related_agents(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
-        return self.agent_relations.order_by('order_cited')[offset:limit]
+        return self.agent_relations.exclude(same_as__isnull=False).order_by('order_cited')[offset:limit]
 
     @graphene.resolve_only_args
     def resolve_total_incoming_work_relations(self):
-        return self.incoming_creative_work_relations.count()
+        return self.incoming_creative_work_relations.exclude(same_as__isnull=False).count()
 
     @graphene.resolve_only_args
     def resolve_incoming_work_relations(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
-        return self.incoming_creative_work_relations.all()[offset:limit]
+        return self.incoming_creative_work_relations.exclude(same_as__isnull=False)[offset:limit]
 
     @graphene.resolve_only_args
     def resolve_total_outgoing_work_relations(self):
-        return self.outgoing_creative_work_relations.count()
+        return self.outgoing_creative_work_relations.exclude(same_as__isnull=False).count()
 
     @graphene.resolve_only_args
     def resolve_outgoing_work_relations(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
-        return self.outgoing_creative_work_relations.all()[offset:limit]
+        return self.outgoing_creative_work_relations.exclude(same_as__isnull=False)[offset:limit]
 
 
 for klass in models.CreativeWork.get_type_classes():

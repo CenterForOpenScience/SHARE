@@ -24,36 +24,36 @@ class AbstractAgent(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_identifiers(self):
-        return self.identifiers.exclude(scheme='mailto')
+        return self.identifiers.exclude(scheme='mailto').exclude(same_as__isnull=False)
 
     @graphene.resolve_only_args
     def resolve_total_related_works(self):
-        return self.work_relations.count()
+        return self.work_relations.exclude(same_as__isnull=False).count()
 
     @graphene.resolve_only_args
     def resolve_related_works(self, offset=None, limit=10):
         limit = (offset or 0) + limit
-        return self.work_relations.all()[offset:limit]
+        return self.work_relations.exclude(same_as__isnull=False)[offset:limit]
 
     @graphene.resolve_only_args
     def resolve_total_incoming_agent_relations(self):
-        return self.incoming_agent_relations.count()
+        return self.incoming_agent_relations.exclude(same_as__isnull=False).count()
 
     @graphene.resolve_only_args
     def resolve_incoming_agent_relations(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
-        return self.incoming_agent_relations.all()[offset:limit]
+        return self.incoming_agent_relations.exclude(same_as__isnull=False)[offset:limit]
 
     @graphene.resolve_only_args
     def resolve_total_outgoing_agent_relations(self):
-        return self.outgoing_agent_relations.count()
+        return self.outgoing_agent_relations.exclude(same_as__isnull=False).count()
 
     @graphene.resolve_only_args
     def resolve_outgoing_agent_relations(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
-        return self.outgoing_agent_relations.all()[offset:limit]
+        return self.outgoing_agent_relations.exclude(same_as__isnull=False)[offset:limit]
 
 for klass in models.Agent.get_type_classes():
     locals()[klass.__name__] = type(klass.__name__, (DjangoObjectType, ), {
