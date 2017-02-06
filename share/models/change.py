@@ -22,6 +22,10 @@ __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)
 
 
+class InvalidMergeError(Exception):
+    pass
+
+
 class ChangeSetManager(FuzzyCountManager):
 
     def from_graph(self, graph, normalized_data_id):
@@ -199,11 +203,15 @@ class Change(models.Model):
         return self.target
 
     def _merge(self, save=True):
+        # TODO less hacky way of expressing what can be merged
+        EXPLICITLY_MERGEABLE_MODELS = {'AbstractCreativeWork', 'AbstractAgent', 'Award'}
         assert save is True, 'Cannot perform merge without saving'
+        assert 'same_as' in self.change
 
-        # For now, don't let merge nodes also update fields
-        assert len(self.change) == 1 and 'same_as' in self.change
-
+        if len(self.change) != 1:
+            raise InvalidMergeError('Cannot update fields in a merge node!\n%s' % self.change)
+        if self.target._meta.concrete_model.__name__ not in EXPLICITLY_MERGEABLE_MODELS:
+            raise InvalidMergeError('Invalid model for explicit merging: %s' % self.target._meta.concrete_model)
         return self._merge_objects(self.target, self._resolve_change()['same_as'])
 
     def _resolve_change(self):
@@ -236,14 +244,19 @@ class Change(models.Model):
         return change
 
     def _merge_objects(self, from_obj, into_obj):
-        from share.models.base import ShareObject
+        from share.models import ShareObject
 
-        concrete_model = into_obj._meta.concrete_model
-        assert concrete_model is from_obj._meta.concrete_model
+        # TODO less hacky way of expressing what can be merged
+        MERGEABLE_MODELS = {'AbstractCreativeWork', 'AbstractAgent', 'Award', 'AbstractWorkRelation', 'AbstractAgentRelation', 'AbstractAgentWorkRelation', 'ThroughTags', 'ThroughSubjects', 'ThroughContributor', 'ThroughAwards'}
+        concrete_model = from_obj._meta.concrete_model
+        if concrete_model.__name__ not in MERGEABLE_MODELS:
+            raise InvalidMergeError('Invalid model for merging: %s' % concrete_model)
+        if into_obj._meta.concrete_model is not concrete_model:
+            raise InvalidMergeError('Cannot merge objects of different concrete types: %s and %s' % (from_obj, into_obj))
 
         # Avoid same_as chains
-        while into_obj.same_as:
-            into_obj = into_obj.same_as
+        if into_obj.same_as_id:
+            into_obj = concrete_model.objects.get_canonical(into_obj.id)
         concrete_model.objects.filter(same_as_id=from_obj.id).update(
             change=self,
             same_as=into_obj,

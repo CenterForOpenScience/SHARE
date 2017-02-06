@@ -4,6 +4,7 @@ from share import models
 from share.change import ChangeGraph
 from share.models import ChangeSet
 from share.util import IDObfuscator
+from share.models.change import InvalidMergeError
 
 from tests.share.models.factories import NormalizedDataFactory
 from tests.share.normalize.factories import *
@@ -57,7 +58,10 @@ def setup(Graph, filter_type=models.CreativeWork):
         initial_cg = ChangeGraph(Graph(initial))
         initial_cg.process()
         objs = ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-        works.append(next(o for o in objs if isinstance(o, filter_type)))
+        try:
+            works.append(next(o for o in objs if isinstance(o, filter_type)))
+        except StopIteration:
+            pass
     return works
 
 
@@ -228,5 +232,13 @@ class TestMergingObjects:
         m['title'] = 'updated title!'
         merge_cg = ChangeGraph([m])
         merge_cg.process()
-        with pytest.raises(AssertionError):
+        with pytest.raises(InvalidMergeError):
+            ChangeSet.objects.from_graph(merge_cg, NormalizedDataFactory().id).accept()
+
+    @pytest.mark.parametrize('model', [models.Tag, models.ThroughTags, models.WorkIdentifier])
+    def test_merge_invalid_model(self, Graph, model):
+        from_obj, into_obj = setup(Graph, filter_type=model)[:2]
+        merge_cg = ChangeGraph([merge_node(from_obj, into_obj)])
+        merge_cg.process(normalize=False)
+        with pytest.raises(InvalidMergeError):
             ChangeSet.objects.from_graph(merge_cg, NormalizedDataFactory().id).accept()
