@@ -118,8 +118,11 @@ class GraphDisambiguator:
             constrain.append(Q(type__in=node.model.get_types()))
             constrain.append(Q(type=node.model._typedmodels_type))
 
+        # HACK
+        unmerged_query = Q(same_as__isnull=True) if hasattr(concrete_model, 'same_as') else Q()
+
         for q in constrain:
-            sql, params = zip(*[concrete_model.objects.filter(all_query & query & q).query.sql_with_params() for query in queries or [Q()]])
+            sql, params = zip(*[concrete_model.objects.filter(unmerged_query & all_query & query & q).query.sql_with_params() for query in queries or [Q()]])
             found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ';', sum(params, ())))
 
             if not found:
