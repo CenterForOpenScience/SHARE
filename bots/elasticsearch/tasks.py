@@ -75,7 +75,7 @@ class IndexModelTask(AppTask):
             return
 
         for inst in model.objects.filter(id__in=ids):
-            if inst.same_as:  # TODO is_deleted?
+            if inst.same_as_id:  # TODO is_deleted?
                 yield {'_id': inst.pk, '_op_type': 'delete', **opts}
             else:
                 yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}

@@ -238,17 +238,17 @@ class Change(models.Model):
     def _merge_objects(self, from_obj, into_obj):
         from share.models.base import ShareObject
 
+        concrete_model = into_obj._meta.concrete_model
+        assert concrete_model is from_obj._meta.concrete_model
+
         # Avoid same_as chains
         while into_obj.same_as:
             into_obj = into_obj.same_as
-        for obj in from_obj._meta.concrete_model.objects.filter(same_as=from_obj.id):
-            obj.change = self
-            obj.same_as = into_obj
-            obj.same_as_version = into_obj.version
-            obj.save()
-
-        concrete_model = into_obj._meta.concrete_model
-        assert concrete_model is from_obj._meta.concrete_model
+        concrete_model.objects.filter(same_as_id=from_obj.id).update(
+            change=self,
+            same_as=into_obj,
+            same_as_version=into_obj.version
+        )
 
         for field in concrete_model._meta.get_fields():
             if field.is_relation and not field.many_to_many and issubclass(field.remote_field.model, ShareObject) and hasattr(field, 'field'):
