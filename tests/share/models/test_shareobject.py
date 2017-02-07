@@ -156,6 +156,7 @@ class TestAdministrativeChange:
             all_about_anteaters.refresh_from_db()
         assert Preprint.objects.get(pk=all_about_anteaters.pk)
 
+
 @pytest.mark.django_db
 class TestGetCanonical:
     def test_gets_unmerged_object(self, jane_doe):
@@ -166,7 +167,6 @@ class TestGetCanonical:
         jane_doe.save()
         assert Agent.objects.get_canonical(jane_doe.id) == john_doe
         assert Agent.objects.get_canonical(john_doe.id) == john_doe
-
 
     def test_follows_same_as_chain(self, jane_doe, john_doe, university_of_whales):
         jane_doe.same_as = john_doe
