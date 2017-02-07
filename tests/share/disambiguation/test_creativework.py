@@ -138,7 +138,7 @@ class TestWorkDisambiguation:
 
         cg = ChangeGraph(Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)])))
         cg.process()
-        merge_node = cg.nodes[-1]
+        merge_node = cg.nodes[0]
         assert merge_node.is_merge
         assert 'same_as' in merge_node.change and merge_node
 

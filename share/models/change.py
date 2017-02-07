@@ -22,6 +22,11 @@ __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)
 
 
+# TODO Less hacky way of expressing what can be merged
+EXPLICITLY_MERGEABLE_MODELS = {'AbstractCreativeWork', 'AbstractAgent', 'Award'}
+MERGEABLE_MODELS = EXPLICITLY_MERGEABLE_MODELS | {'AbstractWorkRelation', 'AbstractAgentRelation', 'AbstractAgentWorkRelation', 'ThroughTags', 'ThroughSubjects', 'ThroughContributor', 'ThroughAwards'}
+
+
 class InvalidMergeError(Exception):
     pass
 
@@ -93,7 +98,7 @@ class ChangeSet(models.Model):
         ret = []
         with transaction.atomic():
             self._changes_cache = list(self.changes.all())
-            for c in sorted(self._changes_cache, key=lambda c: c.type):
+            for c in self._changes_cache:
                 ret.append(c.accept(save=save))
             self.status = ChangeSet.STATUS.accepted
             if save:
@@ -203,8 +208,6 @@ class Change(models.Model):
         return self.target
 
     def _merge(self, save=True):
-        # TODO less hacky way of expressing what can be merged
-        EXPLICITLY_MERGEABLE_MODELS = {'AbstractCreativeWork', 'AbstractAgent', 'Award'}
         assert save is True, 'Cannot perform merge without saving'
         assert 'same_as' in self.change
 
@@ -246,8 +249,6 @@ class Change(models.Model):
     def _merge_objects(self, from_obj, into_obj):
         from share.models import ShareObject
 
-        # TODO less hacky way of expressing what can be merged
-        MERGEABLE_MODELS = {'AbstractCreativeWork', 'AbstractAgent', 'Award', 'AbstractWorkRelation', 'AbstractAgentRelation', 'AbstractAgentWorkRelation', 'ThroughTags', 'ThroughSubjects', 'ThroughContributor', 'ThroughAwards'}
         concrete_model = from_obj._meta.concrete_model
         if concrete_model.__name__ not in MERGEABLE_MODELS:
             raise InvalidMergeError('Invalid model for merging: {}'.format(concrete_model))

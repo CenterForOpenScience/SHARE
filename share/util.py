@@ -87,8 +87,8 @@ class CyclicalDependency(Exception):
     pass
 
 
-class TopographicalSorter:
-    """Sort a list of nodes topographically, so a node is always preceded by its dependencies"""
+class TopologicalSorter:
+    """Sort a list of nodes topologically, so a node is always preceded by its dependencies"""
 
     # `nodes`: Iterable of objects
     # `dependencies`: Callable that takes a single argument (a node) and returns an iterable of its dependent nodes (or keys, if `key` is given)
