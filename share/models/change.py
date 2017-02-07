@@ -209,9 +209,9 @@ class Change(models.Model):
         assert 'same_as' in self.change
 
         if len(self.change) != 1:
-            raise InvalidMergeError('Cannot update fields in a merge node!\n%s' % self.change)
+            raise InvalidMergeError('Cannot update fields in a merge node!\n{}'.format(self.change))
         if self.target._meta.concrete_model.__name__ not in EXPLICITLY_MERGEABLE_MODELS:
-            raise InvalidMergeError('Invalid model for explicit merging: %s' % self.target._meta.concrete_model)
+            raise InvalidMergeError('Invalid model for explicit merging: {}'.format(self.target._meta.concrete_model))
         return self._merge_objects(self.target, self._resolve_change()['same_as'])
 
     def _resolve_change(self):
@@ -250,9 +250,9 @@ class Change(models.Model):
         MERGEABLE_MODELS = {'AbstractCreativeWork', 'AbstractAgent', 'Award', 'AbstractWorkRelation', 'AbstractAgentRelation', 'AbstractAgentWorkRelation', 'ThroughTags', 'ThroughSubjects', 'ThroughContributor', 'ThroughAwards'}
         concrete_model = from_obj._meta.concrete_model
         if concrete_model.__name__ not in MERGEABLE_MODELS:
-            raise InvalidMergeError('Invalid model for merging: %s' % concrete_model)
+            raise InvalidMergeError('Invalid model for merging: {}'.format(concrete_model))
         if into_obj._meta.concrete_model is not concrete_model:
-            raise InvalidMergeError('Cannot merge objects of different concrete types: %s and %s' % (from_obj, into_obj))
+            raise InvalidMergeError('Cannot merge objects of different concrete types: {} and {}'.format(from_obj, into_obj))
 
         # Avoid same_as chains
         if into_obj.same_as_id:

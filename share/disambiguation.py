@@ -71,7 +71,7 @@ class GraphDisambiguator:
                             instances = list(set(instances + [n.instance]))
                         if len(instances) == 1:
                             n.instance = instances[0]
-                            logger.debug('Disambiguated %s to %s', n, repr(n.instance))
+                            logger.debug('Disambiguated %s to %r', n, n.instance)
                         else:
                             self._emit_merges(n, instances)
                         finished_nodes.add(n)
@@ -183,7 +183,7 @@ class GraphDisambiguator:
             )
             merge_node.instance = n
 
-        logger.debug('Disambiguated %s to %s. Merging all into %s.', node, instances, repr(newest))
+        logger.debug('Disambiguated %s to %s. Merging all into %r.', node, instances, newest)
 
     class NodeIndex:
         def __init__(self):
