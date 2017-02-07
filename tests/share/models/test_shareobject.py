@@ -1,9 +1,11 @@
 import pytest
 
-from share.models import Person, Agent
+from share.models import Agent
+from share.models import Person
 from share.models import Preprint
 from share.models import Article
 from share.models import AgentIdentifier
+from share.models.sql import CircularMergeError
 from share.models.base import ShareObject
 from share.management.commands.maketriggermigrations import Command
 
@@ -174,3 +176,17 @@ class TestGetCanonical:
         assert Agent.objects.get_canonical(jane_doe.id) == university_of_whales
         assert Agent.objects.get_canonical(john_doe.id) == university_of_whales
         assert Agent.objects.get_canonical(university_of_whales.id) == university_of_whales
+
+    def test_same_as_cycle(self, jane_doe, john_doe, university_of_whales):
+        jane_doe.same_as = john_doe
+        jane_doe.save()
+        john_doe.same_as = university_of_whales
+        john_doe.save()
+        university_of_whales.same_as = jane_doe
+        university_of_whales.save()
+        with pytest.raises(CircularMergeError):
+            Agent.objects.get_canonical(jane_doe.id)
+        with pytest.raises(CircularMergeError):
+            Agent.objects.get_canonical(john_doe.id)
+        with pytest.raises(CircularMergeError):
+            Agent.objects.get_canonical(university_of_whales.id)

@@ -96,12 +96,12 @@ class ShareObjectManager(FuzzyCountManager):
 
     def get_canonical(self, id):
         query = '''
-        WITH RECURSIVE same_as_chain(id, same_as, depth) AS (
-                SELECT id, same_as_id, 1 FROM {table} WHERE id=%(id)s
+        WITH RECURSIVE same_as_chain(id, same_as, depth, path, cycle) AS (
+                SELECT id, same_as_id, 1, ARRAY[id], false FROM {table} WHERE id = %(id)s
               UNION
-                SELECT {table}.id, {table}.same_as_id, same_as_chain.depth+1
-                FROM same_as_chain JOIN {table} ON same_as_chain.same_as={table}.id
-                WHERE same_as_chain.same_as NOT IN (same_as_chain.id)
+                SELECT {table}.id, {table}.same_as_id, same_as_chain.depth + 1, path || {table}.id, {table}.id = ANY(path)
+                FROM same_as_chain JOIN {table} ON same_as_chain.same_as = {table}.id
+                WHERE NOT cycle
         )
         SELECT * FROM {table} WHERE id=(SELECT id FROM same_as_chain ORDER BY depth DESC LIMIT 1);
         '''.format(table=self.model._meta.db_table)
