@@ -15,7 +15,7 @@ initial_works = [
         tags=[Tag(name=' Science')],
         identifiers=[WorkIdentifier(1)],
         related_agents=[
-            Person(1),
+            Person(1, identifiers=[AgentIdentifier(1)]),
             Person(2),
             Person(3),
             Institution(4),
@@ -30,7 +30,7 @@ initial_works = [
         related_agents=[
             Person(5),
             Person(6),
-            Person(7),
+            Person(7, identifiers=[AgentIdentifier(2)]),
             Organization(8, name='Aperture Science'),
             Institution(9),
         ],
@@ -213,6 +213,28 @@ class TestMergingObjects:
             merged_snapshot = merge_snapshots(merged_snapshot, snapshot)
         assert merged_snapshot == work_snapshot(into_work)
 
+    def test_merge_by_adding_identifier(self, Graph):
+        from_work, into_work = setup(Graph)[:2]
+        from_snapshot = work_snapshot(from_work)
+        into_snapshot = work_snapshot(into_work)
+
+        merge_cg = ChangeGraph(Graph(
+            CreativeWork(
+                sparse=True,
+                id=IDObfuscator.encode(from_work),
+                identifiers=[
+                    WorkIdentifier(uri=into_work.identifiers.first().uri),
+                ]
+            )
+        ))
+        merge_cg.process()
+        ChangeSet.objects.from_graph(merge_cg, NormalizedDataFactory().id).accept()
+
+        from_work.refresh_from_db()
+        assert from_work.same_as_id == into_work.id
+        merged_snapshot = merge_snapshots(from_snapshot, into_snapshot)
+        assert merged_snapshot == work_snapshot(into_work)
+
     def test_merge_agents(self, Graph):
         from_agent, into_agent = setup(Graph, filter_type=models.Agent)[:2]
         from_snapshot = agent_snapshot(from_agent)
@@ -225,6 +247,48 @@ class TestMergingObjects:
         from_agent.refresh_from_db()
         assert from_agent.same_as_id == into_agent.id
         assert merge_snapshots(from_snapshot, into_snapshot) == agent_snapshot(into_agent)
+
+    def test_implicitly_merge_agents(self, Graph):
+        from_agent, into_agent = setup(Graph, filter_type=models.Agent)[:2]
+        from_snapshot = agent_snapshot(from_agent)
+        into_snapshot = agent_snapshot(into_agent)
+
+        merge_cg = ChangeGraph(Graph(
+            Agent(
+                sparse=True,
+                id=IDObfuscator.encode(from_agent),
+                identifiers=[
+                    AgentIdentifier(uri=into_agent.identifiers.first().uri),
+                ]
+            )
+        ))
+        merge_cg.process()
+        ChangeSet.objects.from_graph(merge_cg, NormalizedDataFactory().id).accept()
+
+        from_agent.refresh_from_db()
+        assert from_agent.same_as_id == into_agent.id
+        assert merge_snapshots(from_snapshot, into_snapshot) == agent_snapshot(into_agent)
+
+    def test_merged_names_not_unique(self, Graph):
+        from_org, into_org = setup(Graph, filter_type=models.Organization)[:2]
+        from_snapshot = agent_snapshot(from_org)
+        into_snapshot = agent_snapshot(into_org)
+
+        merge_cg = ChangeGraph([merge_node(from_org, into_org)])
+        merge_cg.process()
+        ChangeSet.objects.from_graph(merge_cg, NormalizedDataFactory().id).accept()
+
+        from_org.refresh_from_db()
+        assert from_org.same_as_id == into_org.id
+        assert merge_snapshots(from_snapshot, into_snapshot) == agent_snapshot(into_org)
+
+        new_org_cg = ChangeGraph(Graph(
+            Organization(42, name=from_snapshot['name'])
+        ))
+        new_org_cg.process()
+        new_org, *_ = ChangeSet.objects.from_graph(new_org_cg, NormalizedDataFactory().id).accept()
+        assert new_org.same_as_id is None
+        assert models.Agent.objects.filter(same_as=new_org).exact_count() == 0
 
     def test_update_in_merge_node_fails(self, Graph):
         from_work, into_work = setup(Graph)[:2]
