@@ -52,7 +52,9 @@ COPY ./ /code/
 
 RUN python manage.py collectstatic --noinput
 
+ARG GIT_TAG=
 ARG GIT_COMMIT=
+ENV VERSION ${GIT_TAG}
 ENV GIT_COMMIT ${GIT_COMMIT}
 
 CMD ["python", "manage.py", "--help"]
