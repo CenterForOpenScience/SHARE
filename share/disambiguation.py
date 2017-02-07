@@ -31,6 +31,7 @@ class GraphDisambiguator:
         changed = True
         # Sort by type and id as well to get consitent sorting
         nodes = sorted(change_graph.nodes, key=lambda x: (self._disambiguweight(x), x.type, x.id), reverse=True)
+        finished_nodes = set()
 
         while changed:
             changed = False
@@ -38,7 +39,7 @@ class GraphDisambiguator:
             self._index.clear()
 
             for n in tuple(nodes):
-                if n.is_merge or (find_instances and n.instance):
+                if n.is_merge or n in finished_nodes:
                     continue
                 matches = self._index.get_matches(n)
                 if len(matches) > 1:
@@ -64,14 +65,17 @@ class GraphDisambiguator:
 
                 if find_instances:
                     # look for matches in the database
-                    instance = self._instance_for_node(n)
-                    if instance:
-                        changed = True
-                        if isinstance(instance, list):
-                            self._emit_merges(n, instance)
+                    instances = self._instances_for_node(n)
+                    if instances:
+                        if n.instance:
+                            instances = list(set(instances + [n.instance]))
+                        if len(instances) == 1:
+                            n.instance = instances[0]
+                            logger.debug('Disambiguated %s to %s', n, repr(n.instance))
                         else:
-                            logger.debug('Disambiguated %s to %s', n, repr(instance))
-                            n.instance = instance
+                            self._emit_merges(n, instances)
+                        finished_nodes.add(n)
+                        changed = True
                     elif n.type == 'subject':
                         raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
 
@@ -86,12 +90,12 @@ class GraphDisambiguator:
         fk_count = sum(1 for f in node.model._meta.get_fields() if f.editable and (f.many_to_one or f.one_to_one) and f.name not in ignored)
         return fk_count if fk_count == 1 else -fk_count
 
-    def _instance_for_node(self, node):
+    def _instances_for_node(self, node):
         info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
 
         if not info.all and not info.any:
-            return None
+            return []
 
         all_query = Q()
         for k, v in info.all:
@@ -99,7 +103,7 @@ class GraphDisambiguator:
             if k and v:
                 all_query &= Q(**{k: v})
             else:
-                return None
+                return []
 
         queries = []
         for k, v in info.any:
@@ -108,7 +112,7 @@ class GraphDisambiguator:
                 queries.append(all_query & Q(**{k: v}))
 
         if (info.all and not all_query.children) or (info.any and not queries):
-            return None
+            return []
 
         if info.matching_types:
             all_query &= Q(type__in=info.matching_types)
@@ -127,10 +131,8 @@ class GraphDisambiguator:
 
             if not found:
                 logger.debug('No %ss found for %s %s', concrete_model, all_query & q, queries)
-                return None
-            if len(found) == 1:
-                return found[0]
-            if all_query.children or all('__' in str(query) for query in queries):
+                return []
+            if len(found) == 1 or all_query.children or all('__' in str(query) for query in queries):
                 break
 
         if len(found) > 1:
