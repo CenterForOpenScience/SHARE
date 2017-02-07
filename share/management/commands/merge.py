@@ -17,11 +17,11 @@ class Command(BaseCommand):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
 
         into_id = options['into']
-        into = IDObfuscator.resolve(into_id)
+        into = IDObfuscator.load(into_id)
 
         nodes = []
         for id in options['from']:
-            from_obj = IDObfuscator.resolve(id)
+            from_obj = IDObfuscator.load(id)
             nodes.append({
                 '@id': id,
                 '@type': from_obj._meta.model_name,

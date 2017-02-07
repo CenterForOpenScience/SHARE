@@ -66,23 +66,21 @@ class IDObfuscator:
         return int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 
     @classmethod
-    def resolve(cls, id):
-        model, pk = cls.decode(id)
-        return model.objects.get_canonical(id=pk)
-
-    @classmethod
-    def resolver(cls, self, args, context, info):
-        return cls.resolve(args.get('id', ''))
-
-    @classmethod
-    def load(cls, id, *args):
+    def load(cls, id, *args, canonical=True):
         model, pk = cls.decode(id)
         try:
-            return model.objects.get(pk=pk)
-        except model.NotFoundError:
+            if canonical:
+                return model.objects.get_canonical(id=pk)
+            else:
+                return model.objects.get(id=pk)
+        except model.DoesNotExist:
             if args:
                 return args[0]
             raise
+
+    @classmethod
+    def resolver(cls, self, args, context, info):
+        return cls.load(args.get('id', ''))
 
 
 class CyclicalDependency(Exception):

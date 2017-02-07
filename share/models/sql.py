@@ -108,7 +108,7 @@ class ShareObjectManager(FuzzyCountManager):
 
         results = self.model._meta.concrete_model.objects.raw(query, params={'id': id})
         if not results:
-            return None
+            raise self.model.DoesNotExist('{} with id {} does not exist.'.format(self.model._meta.object_name, id))
         result = results[0]
         if result.same_as_id is not None:
             raise CircularMergeError('Reference loop in %s.same_as (frow row %s to %s)', self.model._meta.db_table, id, result.id)
