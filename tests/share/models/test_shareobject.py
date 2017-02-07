@@ -1,6 +1,6 @@
 import pytest
 
-from share.models import Person
+from share.models import Person, Agent
 from share.models import Preprint
 from share.models import Article
 from share.models import AgentIdentifier
@@ -153,3 +153,24 @@ class TestAdministrativeChange:
         with pytest.raises(Article.DoesNotExist):
             all_about_anteaters.refresh_from_db()
         assert Preprint.objects.get(pk=all_about_anteaters.pk)
+
+@pytest.mark.django_db
+class TestGetCanonical:
+    def test_gets_unmerged_object(self, jane_doe):
+        assert Agent.objects.get_canonical(jane_doe.id) == jane_doe
+
+    def test_follows_same_as(self, jane_doe, john_doe):
+        jane_doe.same_as = john_doe
+        jane_doe.save()
+        assert Agent.objects.get_canonical(jane_doe.id) == john_doe
+        assert Agent.objects.get_canonical(john_doe.id) == john_doe
+
+
+    def test_follows_same_as_chain(self, jane_doe, john_doe, university_of_whales):
+        jane_doe.same_as = john_doe
+        jane_doe.save()
+        john_doe.same_as = university_of_whales
+        john_doe.save()
+        assert Agent.objects.get_canonical(jane_doe.id) == university_of_whales
+        assert Agent.objects.get_canonical(john_doe.id) == university_of_whales
+        assert Agent.objects.get_canonical(university_of_whales.id) == university_of_whales
