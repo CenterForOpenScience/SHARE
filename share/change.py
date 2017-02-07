@@ -298,7 +298,7 @@ class ChangeNode:
         self.namespace = namespace
 
         if not self.is_blank:
-            self.instance = IDObfuscator.load(self.id, None)
+            self.instance = IDObfuscator.resolve(self.id)
             if not self.instance or self.instance._meta.concrete_model is not self.model._meta.concrete_model:
                 raise UnresolvableReference((self.id, self.type))
 
