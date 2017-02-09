@@ -4,7 +4,8 @@ from django.db.models.sql.datastructures import EmptyResultSet
 
 
 class FuzzyCountQuerySet(QuerySet):
-    def count(self):
+
+    def fuzzy_count(self):
         cursor = connections[self.db].cursor()
 
         try:
@@ -13,8 +14,5 @@ class FuzzyCountQuerySet(QuerySet):
             return 0
 
         return int(cursor.fetchone()[0])
-
-    def exact_count(self):
-        return super().count()
 
 FuzzyCountManager = Manager.from_queryset(FuzzyCountQuerySet)

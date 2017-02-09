@@ -12,7 +12,7 @@ class TestAbstractAgentWorkRelation:
 
     def test_exists(self):
         x = factories.PreprintFactory(contributors=5)
-        assert x.related_agents.exact_count() == 5
+        assert x.related_agents.count() == 5
         for contributor in x.agent_relations.all():
             assert contributor.creative_work == x
             assert list(contributor.agent.related_works.all()) == [x]
@@ -30,14 +30,14 @@ class TestAbstractAgentWorkRelation:
         person = factories.AgentFactory(type='share.person')
         funding = factories.AgentWorkRelationFactory(creative_work=pp, agent=person, type='share.funder')
 
-        assert pp.related_agents.exact_count() == 1
-        assert pp.agent_relations.exact_count() == 1
+        assert pp.related_agents.count() == 1
+        assert pp.agent_relations.count() == 1
 
         collaboration = factories.AgentWorkRelationFactory(creative_work=pp, agent=person, type='share.creator')
 
         assert funding != collaboration
-        assert pp.related_agents.exact_count() == 2
-        assert pp.agent_relations.exact_count() == 2
+        assert pp.related_agents.count() == 2
+        assert pp.agent_relations.count() == 2
 
 
 @pytest.mark.django_db

@@ -16,27 +16,27 @@ class TestDeleteCascadeShareObjects:
     def test_one_version(self):
         cw = factories.AbstractCreativeWorkFactory(title='All About Cats')
 
-        assert models.CreativeWork.objects.all().exact_count() == 1
-        assert models.AbstractCreativeWorkVersion.objects.exact_count() == 1
+        assert models.CreativeWork.objects.all().count() == 1
+        assert models.AbstractCreativeWorkVersion.objects.count() == 1
 
         cw.delete()
 
-        assert models.CreativeWork.objects.all().exact_count() == 0
-        assert models.AbstractCreativeWorkVersion.objects.exact_count() == 0
+        assert models.CreativeWork.objects.all().count() == 0
+        assert models.AbstractCreativeWorkVersion.objects.count() == 0
 
     def test_many_versions(self):
         cw = factories.AbstractCreativeWorkFactory(title='All about cats')
         cw.administrative_change(title='All About Kets')
 
-        assert models.CreativeWork.objects.all().exact_count() == 1
-        assert models.AbstractCreativeWorkVersion.objects.exact_count() == 2
+        assert models.CreativeWork.objects.all().count() == 1
+        assert models.AbstractCreativeWorkVersion.objects.count() == 2
 
-        assert cw.versions.exact_count() == 2
+        assert cw.versions.count() == 2
 
         cw.delete()
 
-        assert models.CreativeWork.objects.all().exact_count() == 0
-        assert models.AbstractCreativeWorkVersion.objects.exact_count() == 0
+        assert models.CreativeWork.objects.all().count() == 0
+        assert models.AbstractCreativeWorkVersion.objects.count() == 0
 
     def test_multiple_sources(self):
         pass
@@ -44,13 +44,13 @@ class TestDeleteCascadeShareObjects:
     def test_no_truncate(self):
         cws = [factories.AbstractCreativeWorkFactory() for _ in range(10)]
 
-        assert models.CreativeWork.objects.all().exact_count() == 10
-        assert models.AbstractCreativeWorkVersion.objects.exact_count() == 10
+        assert models.CreativeWork.objects.all().count() == 10
+        assert models.AbstractCreativeWorkVersion.objects.count() == 10
 
         for i, cw in enumerate(cws):
             cw.delete()
-            assert models.CreativeWork.objects.all().exact_count() == 9 - i
-            assert models.AbstractCreativeWorkVersion.objects.exact_count() == 9 - i
+            assert models.CreativeWork.objects.all().count() == 9 - i
+            assert models.AbstractCreativeWorkVersion.objects.count() == 9 - i
 
 
 @pytest.mark.django_db
@@ -59,32 +59,32 @@ class TestDeleteCascadeRelations:
     def test_foreign_key(self):
         identifier = factories.WorkIdentifierFactory()
 
-        assert models.WorkIdentifier.objects.exact_count() == 1
-        assert models.AbstractCreativeWork.objects.exact_count() == 1
-        assert models.WorkIdentifierVersion.objects.exact_count() == 1
-        assert models.AbstractCreativeWorkVersion.objects.exact_count() == 1
+        assert models.WorkIdentifier.objects.count() == 1
+        assert models.AbstractCreativeWork.objects.count() == 1
+        assert models.WorkIdentifierVersion.objects.count() == 1
+        assert models.AbstractCreativeWorkVersion.objects.count() == 1
 
         identifier.delete()
 
-        assert models.WorkIdentifier.objects.exact_count() == 0
-        assert models.AbstractCreativeWork.objects.exact_count() == 1
-        assert models.WorkIdentifierVersion.objects.exact_count() == 0
-        assert models.AbstractCreativeWorkVersion.objects.exact_count() == 1
+        assert models.WorkIdentifier.objects.count() == 0
+        assert models.AbstractCreativeWork.objects.count() == 1
+        assert models.WorkIdentifierVersion.objects.count() == 0
+        assert models.AbstractCreativeWorkVersion.objects.count() == 1
 
     def test_foreign_key_inverse(self):
         identifier = factories.WorkIdentifierFactory()
 
-        assert models.WorkIdentifier.objects.exact_count() == 1
-        assert models.AbstractCreativeWork.objects.exact_count() == 1
-        assert models.WorkIdentifierVersion.objects.exact_count() == 1
-        assert models.AbstractCreativeWorkVersion.objects.exact_count() == 1
+        assert models.WorkIdentifier.objects.count() == 1
+        assert models.AbstractCreativeWork.objects.count() == 1
+        assert models.WorkIdentifierVersion.objects.count() == 1
+        assert models.AbstractCreativeWorkVersion.objects.count() == 1
 
         identifier.creative_work.delete()
 
-        assert models.WorkIdentifier.objects.exact_count() == 0
-        assert models.AbstractCreativeWork.objects.exact_count() == 0
-        assert models.WorkIdentifierVersion.objects.exact_count() == 0
-        assert models.AbstractCreativeWorkVersion.objects.exact_count() == 0
+        assert models.WorkIdentifier.objects.count() == 0
+        assert models.AbstractCreativeWork.objects.count() == 0
+        assert models.WorkIdentifierVersion.objects.count() == 0
+        assert models.AbstractCreativeWorkVersion.objects.count() == 0
 
     def test_many_to_many(self):
         work = factories.AbstractCreativeWorkFactory()
@@ -96,8 +96,8 @@ class TestDeleteCascadeRelations:
             models.ThroughTags: (10, 10),
             models.Tag: (10, 10),
         }.items():
-            assert model.objects.exact_count() == count
-            assert model.VersionModel.objects.exact_count() == version_count
+            assert model.objects.count() == count
+            assert model.VersionModel.objects.count() == version_count
 
         work.delete()
 
@@ -106,8 +106,8 @@ class TestDeleteCascadeRelations:
             models.ThroughTags: (0, 0),
             models.Tag: (10, 10),
         }.items():
-            assert model.objects.exact_count() == count
-            assert model.VersionModel.objects.exact_count() == version_count
+            assert model.objects.count() == count
+            assert model.VersionModel.objects.count() == version_count
 
     def test_many_to_many_inverse(self):
         for i in range(10):
@@ -118,8 +118,8 @@ class TestDeleteCascadeRelations:
             models.ThroughTags: (10, 10),
             models.Tag: (10, 10),
         }.items():
-            assert model.objects.exact_count() == count
-            assert model.VersionModel.objects.exact_count() == version_count
+            assert model.objects.count() == count
+            assert model.VersionModel.objects.count() == version_count
 
         models.ThroughTags.objects.all().delete()
 
@@ -128,8 +128,8 @@ class TestDeleteCascadeRelations:
             models.ThroughTags: (0, 0),
             models.Tag: (10, 10),
         }.items():
-            assert model.objects.exact_count() == count
-            assert model.VersionModel.objects.exact_count() == version_count
+            assert model.objects.count() == count
+            assert model.VersionModel.objects.count() == version_count
 
     def test_one_to_one(self):
         work = factories.AbstractCreativeWorkFactory(extra=factories.ExtraDataFactory())
@@ -141,8 +141,8 @@ class TestDeleteCascadeRelations:
             models.AbstractCreativeWork: (1, 1),
             models.ExtraData: (1, 1),
         }.items():
-            assert model.objects.exact_count() == count
-            assert model.VersionModel.objects.exact_count() == version_count
+            assert model.objects.count() == count
+            assert model.VersionModel.objects.count() == version_count
 
         work.delete()
 
@@ -150,8 +150,8 @@ class TestDeleteCascadeRelations:
             models.AbstractCreativeWork: (0, 0),
             models.ExtraData: (1, 1),
         }.items():
-            assert model.objects.exact_count() == count
-            assert model.VersionModel.objects.exact_count() == version_count
+            assert model.objects.count() == count
+            assert model.VersionModel.objects.count() == version_count
 
     def test_one_to_one_inverse(self):
         work = factories.AbstractCreativeWorkFactory(extra=factories.ExtraDataFactory())
@@ -163,8 +163,8 @@ class TestDeleteCascadeRelations:
             models.AbstractCreativeWork: (1, 1),
             models.ExtraData: (1, 1),
         }.items():
-            assert model.objects.exact_count() == count
-            assert model.VersionModel.objects.exact_count() == version_count
+            assert model.objects.count() == count
+            assert model.VersionModel.objects.count() == version_count
 
         work.extra.delete()
 
@@ -172,8 +172,8 @@ class TestDeleteCascadeRelations:
             models.AbstractCreativeWork: (0, 0),
             models.ExtraData: (0, 0),
         }.items():
-            assert model.objects.exact_count() == count
-            assert model.VersionModel.objects.exact_count() == version_count
+            assert model.objects.count() == count
+            assert model.VersionModel.objects.count() == version_count
 
 
 @pytest.mark.django_db
@@ -183,31 +183,31 @@ class TestDeleteCascadeNonShareObjects:
         work = factories.AbstractCreativeWorkFactory()
         work.change.delete()
 
-        assert models.AbstractCreativeWork.objects.exact_count() == 0
+        assert models.AbstractCreativeWork.objects.count() == 0
 
     def test_changeset(self):
         work = factories.AbstractCreativeWorkFactory()
         work.change.change_set.delete()
 
-        assert models.Change.objects.exact_count() == 0
-        assert models.AbstractCreativeWork.objects.exact_count() == 0
+        assert models.Change.objects.count() == 0
+        assert models.AbstractCreativeWork.objects.count() == 0
 
     def test_normalizeddata(self):
         work = factories.AbstractCreativeWorkFactory()
         work.change.change_set.normalized_data.delete()
 
-        assert models.Change.objects.exact_count() == 0
-        assert models.ChangeSet.objects.exact_count() == 0
-        assert models.AbstractCreativeWork.objects.exact_count() == 0
+        assert models.Change.objects.count() == 0
+        assert models.ChangeSet.objects.count() == 0
+        assert models.AbstractCreativeWork.objects.count() == 0
 
     def test_rawdata(self):
         work = factories.AbstractCreativeWorkFactory(change__change_set__normalized_data__raw=models.RawData.objects.store_data('doc_id', b'', factories.ShareUserFactory(), ''))
         work.change.change_set.normalized_data.delete()
 
-        assert models.Change.objects.exact_count() == 0
-        assert models.ChangeSet.objects.exact_count() == 0
+        assert models.Change.objects.count() == 0
+        assert models.ChangeSet.objects.count() == 0
         assert models.NormalizedData.objects.count() == 0
-        assert models.AbstractCreativeWork.objects.exact_count() == 0
+        assert models.AbstractCreativeWork.objects.count() == 0
 
 
 @pytest.mark.django_db
@@ -296,9 +296,9 @@ class TestDeleteCascade:
         initial_cg.process(disambiguate=False)
         ChangeSet.objects.from_graph(initial_cg, factories.NormalizedDataFactory().id).accept()
 
-        before = {model: getattr(model.objects, 'exact_count', model.objects.count)() for model in deltas.keys()}
+        before = {model: model.objects.count() for model in deltas.keys()}
 
         queryset.delete()
 
         for model, delta in deltas.items():
-            assert getattr(model.objects, 'exact_count', model.objects.count)() - before[model] == delta
+            assert model.objects.count() - before[model] == delta
