@@ -282,24 +282,34 @@ class Change(models.Model):
 
         return into_obj
 
-    def _merge_fk_field(self, from_obj, into_obj, field):
-        for obj in field.model.objects.filter(**{field.name: from_obj.id}):
+    def _merge_fk_field(self, from_obj, into_obj, fk_field):
+        assert not fk_field.unique
+
+        fk_model = fk_field.model
+        unique_constraints = [[fk_model._meta.get_field(f).column for f in cols] for cols in fk_model._meta.unique_together if fk_field.name in cols]
+
+        if not unique_constraints:
+            # The foreign key isn't part of a unique constraint, so just update it.
+            fk_model.objects.filter(**{fk_field.name: from_obj}).update(change=self, **{fk_field.name: into_obj})
+            return
+
+        assert len(unique_constraints) == 1
+        unique_columns = unique_constraints[0]
+
+        for fk_obj in fk_model.objects.filter(**{fk_field.name: from_obj.id}):
+            # Make a copy that points to the new target.
+            old_id = fk_obj.id
+            fk_obj.id = None
+            fk_obj.pk = None
+            setattr(fk_obj, fk_field.name, into_obj)
             try:
-                obj.change = self
-                setattr(obj, field.name, into_obj)
                 with transaction.atomic():
-                    obj.save()
+                    fk_obj.save()
             except IntegrityError as e:
-                # Look for conflicting keys in error message, e.g. "Key (agent_id, creative_work_id, type)=(868, 115, share.publisher) already exists."
-                # If possible, merge this object into that one.
-                m = re.search('Key \(([^)]+)\)=\(([^)]+)\) already exists.', e.args[0])
-                if m:
-                    keys = dict(zip(m.group(1).split(', '), m.group(2).split(', ')))
-                    conflicting_obj = obj._meta.model.objects.get(**keys)
-                    obj.refresh_from_db()
-                    self._merge_objects(obj, conflicting_obj)
-                else:
-                    raise e
+                # Good news! The copy already exists.
+                fk_obj = fk_model.objects.get(**{f: getattr(fk_obj, f) for f in unique_columns})
+            # Make the original understand it is replaced.
+            self._merge_objects(fk_model.objects.get(id=old_id), fk_obj)
 
     def _merge_scalar_field(self, from_obj, into_obj, field):
         from_value = getattr(from_obj, field.name)
