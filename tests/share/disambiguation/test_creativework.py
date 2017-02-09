@@ -85,7 +85,7 @@ class TestWorkDisambiguation:
 
         Graph.reseed()
         # Nasty hack to avoid progres' fuzzy counting
-        before = model.objects.exclude(change=None).exact_count()
+        before = model.objects.exclude(change=None).count()
 
         cg = ChangeGraph(Graph(*input))
         cg.process()
@@ -93,7 +93,7 @@ class TestWorkDisambiguation:
         if cs is not None:
             cs.accept()
 
-        assert (model.objects.exclude(change=None).exact_count() - before) == delta
+        assert (model.objects.exclude(change=None).count() - before) == delta
 
     @pytest.mark.parametrize('input', [
         [Publication(identifiers=[WorkIdentifier()])],
@@ -154,9 +154,9 @@ class TestWorkDisambiguation:
         initial_cg = ChangeGraph(Graph(*blank_cited_as))
         initial_cg.process()
         ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-        assert models.Publication.objects.exact_count() == 1
-        assert models.Publisher.objects.exact_count() == 1
-        assert models.Organization.objects.exact_count() == 1
+        assert models.Publication.objects.count() == 1
+        assert models.Publisher.objects.count() == 1
+        assert models.Organization.objects.count() == 1
 
         additional_pub = [
             Publication(
@@ -171,6 +171,6 @@ class TestWorkDisambiguation:
         next_cg = ChangeGraph(Graph(*additional_pub))
         next_cg.process()
         ChangeSet.objects.from_graph(next_cg, NormalizedDataFactory().id).accept()
-        assert models.Publication.objects.exact_count() == 1
-        assert models.Publisher.objects.exact_count() == 2
-        assert models.Organization.objects.exact_count() == 2
+        assert models.Publication.objects.count() == 1
+        assert models.Publisher.objects.count() == 2
+        assert models.Organization.objects.count() == 2

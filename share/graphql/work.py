@@ -59,7 +59,7 @@ class AbstractCreativeWork(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_total_related_agents(self):
-        return self.agent_relations.exact_count()
+        return self.agent_relations.count()
 
     @graphene.resolve_only_args
     def resolve_related_agents(self, limit=None, offset=None):
@@ -69,7 +69,7 @@ class AbstractCreativeWork(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_total_incoming_work_relations(self):
-        return self.incoming_creative_work_relations.exact_count()
+        return self.incoming_creative_work_relations.count()
 
     @graphene.resolve_only_args
     def resolve_incoming_work_relations(self, limit=None, offset=None):
@@ -79,7 +79,7 @@ class AbstractCreativeWork(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_total_outgoing_work_relations(self):
-        return self.outgoing_creative_work_relations.exact_count()
+        return self.outgoing_creative_work_relations.count()
 
     @graphene.resolve_only_args
     def resolve_outgoing_work_relations(self, limit=None, offset=None):

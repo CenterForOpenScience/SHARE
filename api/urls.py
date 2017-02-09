@@ -9,6 +9,7 @@ from graphene_django.views import GraphQLView
 from share import models
 
 from api import views
+from api.pagniation import FuzzyPageNumberPagination
 from api.serializers import BaseShareSerializer
 from api.views.share import ShareObjectViewSet
 
@@ -59,6 +60,7 @@ class EndpointGenerator:
             queryset = queryset.exclude(scheme='mailto')
 
         generated_viewset = type(class_name, (ShareObjectViewSet,), {
+            'pagination_class': FuzzyPageNumberPagination,
             'serializer_class': serializer,
             'queryset': queryset
         })
