@@ -87,7 +87,7 @@ class TestAgentDisambiguation:
 
         Graph.reseed()
         # Nasty hack to avoid progres' fuzzy counting
-        before = model.objects.exclude(change=None).exact_count()
+        before = model.objects.exclude(change=None).count()
 
         cg = ChangeGraph(Graph(*input))
         cg.process()
@@ -95,7 +95,7 @@ class TestAgentDisambiguation:
         if cs is not None:
             cs.accept()
 
-        assert (model.objects.exclude(change=None).exact_count() - before) == delta
+        assert (model.objects.exclude(change=None).count() - before) == delta
 
     @pytest.mark.parametrize('input', [
         [Institution()],

@@ -113,7 +113,7 @@ class ChangeSet(models.Model):
             raise Exception('Could not resolve reference {}'.format(ref)) from ex
 
     def __repr__(self):
-        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.STATUS[self.status].upper(), self.normalized_data.source, self.changes.exact_count())
+        return '<{}({}, {}, {} changes)>'.format(self.__class__.__name__, self.STATUS[self.status].upper(), self.normalized_data.source, self.changes.count())
 
 
 class Change(models.Model):
