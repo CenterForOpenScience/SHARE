@@ -9,7 +9,7 @@ from graphene_django.views import GraphQLView
 from share import models
 
 from api import views
-from api.pagniation import FuzzyPageNumberPagination
+from api.pagination import FuzzyPageNumberPagination
 from api.serializers import BaseShareSerializer
 from api.views.share import ShareObjectViewSet
 
