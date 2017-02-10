@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework_json_api import serializers
 
 from django import http
+from django.conf import settings
 from django.views.decorators.http import require_GET
 from django.views.generic.base import RedirectView
 from django.shortcuts import get_object_or_404
@@ -139,3 +140,15 @@ class APIVersionRedirectView(RedirectView):
                 return HttpSmartResponsePermanentRedirect(url)
             return HttpSmartResponseRedirect(url)
         return http.HttpResponseGone()
+
+
+class ServerStatusView(views.APIView):
+    def get(self, request):
+        return Response({
+            'id': '1',
+            'type': 'Status',
+            'attributes': {
+                'status': 'up',
+                'version': settings.VERSION,
+            }
+        })

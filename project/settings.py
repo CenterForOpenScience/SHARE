@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import subprocess
 
 from django.utils.log import DEFAULT_LOGGING
 
@@ -34,6 +35,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
+
+if 'VERSION' not in os.environ and DEBUG:
+    try:
+        VERSION = subprocess.check_output(['git', 'describe']).decode().strip()
+    except subprocess.CalledProcessError:
+        VERSION = 'UNKNOWN'
+else:
+    VERSION = os.environ.get('VERSION') or 'UNKNOWN'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
 

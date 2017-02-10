@@ -93,6 +93,7 @@ model_schema_patterns = [
 ]
 
 urlpatterns = [
+    url(r'status/?', views.ServerStatusView.as_view(), name='status'),
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
     url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
     url(r'graph/?', GraphQLView.as_view(graphiql=True)),
