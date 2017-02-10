@@ -1,5 +1,4 @@
 import logging
-import re
 
 from model_utils import Choices
 
