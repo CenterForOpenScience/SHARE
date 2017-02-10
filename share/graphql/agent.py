@@ -28,7 +28,7 @@ class AbstractAgent(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_total_related_works(self):
-        return self.work_relations.filter(same_as__isnull=True).exact_count()
+        return self.work_relations.filter(same_as__isnull=True).count()
 
     @graphene.resolve_only_args
     def resolve_related_works(self, offset=None, limit=10):
@@ -37,7 +37,7 @@ class AbstractAgent(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_total_incoming_agent_relations(self):
-        return self.incoming_agent_relations.filter(same_as__isnull=True).exact_count()
+        return self.incoming_agent_relations.filter(same_as__isnull=True).count()
 
     @graphene.resolve_only_args
     def resolve_incoming_agent_relations(self, limit=None, offset=None):
@@ -47,7 +47,7 @@ class AbstractAgent(AbstractShareObject):
 
     @graphene.resolve_only_args
     def resolve_total_outgoing_agent_relations(self):
-        return self.outgoing_agent_relations.filter(same_as__isnull=True).exact_count()
+        return self.outgoing_agent_relations.filter(same_as__isnull=True).count()
 
     @graphene.resolve_only_args
     def resolve_outgoing_agent_relations(self, limit=None, offset=None):

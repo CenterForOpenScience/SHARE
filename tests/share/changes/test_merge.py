@@ -288,7 +288,7 @@ class TestMergingObjects:
         new_org_cg.process()
         new_org, *_ = ChangeSet.objects.from_graph(new_org_cg, NormalizedDataFactory().id).accept()
         assert new_org.same_as_id is None
-        assert models.Agent.objects.filter(same_as=new_org).exact_count() == 0
+        assert models.Agent.objects.filter(same_as=new_org).count() == 0
 
     def test_update_in_merge_node_fails(self, Graph):
         from_work, into_work = setup(Graph)[:2]
