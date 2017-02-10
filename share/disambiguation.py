@@ -120,12 +120,7 @@ class GraphDisambiguator:
         unmerged_query = Q(same_as__isnull=True) if hasattr(concrete_model, 'same_as') else Q()
 
         sql, params = zip(*[concrete_model.objects.filter(unmerged_query & all_query & query).query.sql_with_params() for query in queries or [Q()]])
-        found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ';', sum(params, ())))
-
-        if not found:
-            logger.debug('No %ss found for %s %s', concrete_model, all_query, queries)
-            return []
-        return found
+        return list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ';', sum(params, ())))
 
     def _query_pair(self, key, value):
         try:
