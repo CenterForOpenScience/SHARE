@@ -70,6 +70,7 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
 
     class Disambiguation:
         any = ('identifiers', 'work_relations')
+        constrain_types = True
 
     class Meta:
         db_table = 'share_agent'
@@ -112,7 +113,7 @@ def normalize_person(cls, node, graph):
 Person.normalize = classmethod(normalize_person)  # noqa
 
 
-class UniqueNameDisambiguation:
+class UniqueNameDisambiguation(AbstractAgent.Disambiguation):
     any = AbstractAgent.Disambiguation.any + ('name',)
 
 Institution.Disambiguation = UniqueNameDisambiguation # noqa

@@ -117,26 +117,14 @@ class GraphDisambiguator:
         if info.matching_types:
             all_query &= Q(type__in=info.matching_types)
 
-        constrain = [Q()]
-        if hasattr(node.model, '_typedmodels_type'):
-            constrain.append(Q(type__in=node.model.get_types()))
-            constrain.append(Q(type=node.model._typedmodels_type))
-
-        # HACK
         unmerged_query = Q(same_as__isnull=True) if hasattr(concrete_model, 'same_as') else Q()
 
-        for q in constrain:
-            sql, params = zip(*[concrete_model.objects.filter(unmerged_query & all_query & query & q).query.sql_with_params() for query in queries or [Q()]])
-            found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ';', sum(params, ())))
+        sql, params = zip(*[concrete_model.objects.filter(unmerged_query & all_query & query).query.sql_with_params() for query in queries or [Q()]])
+        found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ';', sum(params, ())))
 
-            if not found:
-                logger.debug('No %ss found for %s %s', concrete_model, all_query & q, queries)
-                return []
-            if len(found) == 1 or all_query.children or all('__' in str(query) for query in queries):
-                break
-
-        if len(found) > 1:
-            logger.debug('Multiple %ss returned for all:(%s), any:(%s)', concrete_model._meta.model_name, all_query, queries)
+        if not found:
+            logger.debug('No %ss found for %s %s', concrete_model, all_query, queries)
+            return []
         return found
 
     def _query_pair(self, key, value):
