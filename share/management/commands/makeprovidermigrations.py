@@ -16,6 +16,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('providers', nargs='*', type=str, help='App label(s) of the provider(s) to make migration(s) for')
+        parser.add_argument('--disabled', action='store_true', help='Generate migrations for disabled providers as well')
 
     def write_migration(self, migration):
         loader = MigrationLoader(None, ignore_no_migrations=True)
@@ -35,7 +36,7 @@ class Command(BaseCommand):
             configs = apps.get_app_configs()
 
         for config in configs:
-            if isinstance(config, RobotAppConfig) and not getattr(config, 'disabled', False):
+            if isinstance(config, RobotAppConfig) and (options.get('disabled') or not getattr(config, 'disabled', False)):
                 changes[config.name] = RobotMigrations(config).migrations()
 
         for migrations in changes.values():
