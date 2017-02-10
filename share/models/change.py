@@ -264,7 +264,9 @@ class Change(models.Model):
         )
 
         for field in concrete_model._meta.get_fields():
-            if field.is_relation and not field.many_to_many and issubclass(field.remote_field.model, ShareObject) and hasattr(field, 'field'):
+            if field.name == 'extra':
+                self._merge_extras(from_obj, into_obj)
+            elif field.is_relation and not field.many_to_many and issubclass(field.remote_field.model, ShareObject) and hasattr(field, 'field'):
                 # Update incoming foreign keys to point to into_obj.
                 self._merge_fk_field(from_obj, into_obj, field.field)
             elif not field.is_relation and field.editable and not field.primary_key:
@@ -280,6 +282,19 @@ class Change(models.Model):
         from_obj.save()
 
         return into_obj
+
+    def _merge_extras(self, from_obj, into_obj):
+        if not from_obj.extra:
+            return
+        merged = {**from_obj.extra.data}
+        if into_obj.extra:
+            merged.update(into_obj.extra.data)
+        else:
+            from share.models.base import ExtraData
+            into_obj.extra = ExtraData()
+        into_obj.extra.data = merged
+        into_obj.extra.change = self
+        into_obj.extra.save()
 
     def _merge_fk_field(self, from_obj, into_obj, fk_field):
         assert not fk_field.unique
