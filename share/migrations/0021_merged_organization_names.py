@@ -15,6 +15,9 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL([
             'DROP INDEX IF EXISTS share_agent_unique_institution_organization_names;',
-            "CREATE UNIQUE INDEX share_agent_unique_institution_organization_names ON share_agent (name) WHERE type in ('share.institution', 'share.organization', 'share.consortium') AND same_as_id IS NOT NULL;",
+            "CREATE UNIQUE INDEX share_agent_unique_institution_organization_names ON share_agent (name) WHERE type in ('share.institution', 'share.organization', 'share.consortium') AND same_as_id IS NULL;",
+        ], reverse_sql=[
+            'DROP INDEX IF EXISTS share_agent_unique_institution_organization_names;',
+            "CREATE UNIQUE INDEX share_agent_unique_institution_organization_names ON share_agent (name) WHERE type in ('share.institution', 'share.organization', 'share.consortium');",
         ])
     ]
