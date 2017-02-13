@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import subprocess
 
 from django.utils.log import DEFAULT_LOGGING
 
@@ -34,6 +35,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
+
+if 'VERSION' not in os.environ and DEBUG:
+    try:
+        VERSION = subprocess.check_output(['git', 'describe']).decode().strip()
+    except subprocess.CalledProcessError:
+        VERSION = 'UNKNOWN'
+else:
+    VERSION = os.environ.get('VERSION') or 'UNKNOWN'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
 
@@ -95,6 +104,7 @@ INSTALLED_APPS = [
     'providers.com.peerj',
     'providers.com.peerj.preprints',
     'providers.com.peerj.xml',
+    'providers.com.researchregistry',
     'providers.com.springer',
     'providers.edu.ageconsearch',
     'providers.edu.asu',
@@ -190,6 +200,7 @@ INSTALLED_APPS = [
     'providers.gov.scitech',
     'providers.gov.usgs',
     'providers.info.spdataverse',
+    'providers.info.ssoar',
     'providers.io.osf',
     'providers.io.osf.preprints',
     'providers.io.osf.registrations',
@@ -605,6 +616,8 @@ ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', '
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
 PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
 SPRINGER_API_KEY = os.environ.get('SPRINGER_API_KEY')
+RESEARCHREGISTRY_APPLICATION_ID = os.environ.get('RESEARCHREGISTRY_APPLICATION_ID', '54a1ac1032e4beb07e04ac2c')
+RESEARCHREGISTRY_API_KEY = os.environ.get('RESEARCHREGISTRY_API_KEY', 'renderer')
 
 import djcelery  # noqa
 djcelery.setup_loader()

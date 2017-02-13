@@ -1,5 +1,7 @@
 import graphene
 
+from django.core.urlresolvers import reverse
+
 from graphene_django import DjangoObjectType
 
 from share import models
@@ -26,7 +28,7 @@ class Source(DjangoObjectType):
 
     @classmethod
     def resolve_favicon(cls, instance, context, request, info):
-        return '/static/{}/img/favicon.ico'.format(instance.robot.replace('providers.', '', 1))
+        return reverse('user_favicon', kwargs={'username': instance.username})
 
     @classmethod
     def resolve_date_added(cls, instance, context, request, info):

@@ -15,26 +15,21 @@ class CrossRefHarvester(Harvester):
                 start_date.isoformat(),
                 end_date.isoformat()
             ),
-            'rows': 1000
-        }).url)
+            'rows': 1000,
+        }))
 
-    def fetch_records(self, url):
-        resp = self.requests.get(url)
-        resp.raise_for_status()
-        total = resp.json()['message']['total-results']
-        records = resp.json()['message']['items']
+    def fetch_records(self, url: furl):
+        cursor = '*'
 
-        # return the first 1000 records
-        for record in records:
-            yield (record['DOI'], record)
+        while True:
+            url.args['cursor'] = cursor
+            resp = self.requests.get(url.url)
+            resp.raise_for_status()
+            message = resp.json()['message']
+            records = message['items']
+            cursor = message['next-cursor']
 
-        # make requests for the remaining records
-        for i in range(1000, total, 1000):
-            response = self.requests.get(furl(url).add(query_params={
-                'offset': i
-            }).url)
-
-            response.raise_for_status()
-            records = response.json()['message']['items']
+            if not records:
+                break
             for record in records:
                 yield (record['DOI'], record)

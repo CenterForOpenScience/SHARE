@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework_json_api import serializers
 
 from django import http
+from django.conf import settings
+from django.views.decorators.http import require_GET
 from django.views.generic.base import RedirectView
 from django.shortcuts import get_object_or_404
 
@@ -12,6 +14,7 @@ from api.filters import ShareObjectFilterSet
 from api import serializers as api_serializers
 
 from share.util import IDObfuscator, InvalidID
+from share.models import ShareUser
 
 
 class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -107,6 +110,16 @@ class ShareUserView(views.APIView):
         return Response(ser.data)
 
 
+@require_GET
+def user_favicon_view(request, username):
+    user = get_object_or_404(ShareUser, username=username)
+    if not user.favicon:
+        raise http.Http404('Favicon for user {} does not exist'.format(user.username))
+    response = http.FileResponse(user.favicon)
+    response['Content-Type'] = 'image/x-icon'
+    return response
+
+
 class HttpSmartResponseRedirect(http.HttpResponseRedirect):
     status_code = 307
 
@@ -127,3 +140,15 @@ class APIVersionRedirectView(RedirectView):
                 return HttpSmartResponsePermanentRedirect(url)
             return HttpSmartResponseRedirect(url)
         return http.HttpResponseGone()
+
+
+class ServerStatusView(views.APIView):
+    def get(self, request):
+        return Response({
+            'id': '1',
+            'type': 'Status',
+            'attributes': {
+                'status': 'up',
+                'version': settings.VERSION,
+            }
+        })

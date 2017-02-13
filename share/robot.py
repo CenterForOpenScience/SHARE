@@ -1,5 +1,6 @@
 import abc
 import json
+import os
 import random
 import string
 import datetime
@@ -7,6 +8,7 @@ import datetime
 from django.apps import apps
 from django.db import migrations
 from django.conf import settings
+from django.core.files import File
 from django.apps import AppConfig
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -56,7 +58,20 @@ class AbstractRobotMigration:
         return ('{}.{}'.format(__name__, self.__class__.__name__), (self.config.label, ), {})
 
 
-class RobotMigration:
+class RobotMigrations:
+
+    def __init__(self, app_config):
+        self.config = app_config
+
+    def migrations(self):
+        from share.provider import ProviderAppConfig
+        migrations = [InitialMigration(self.config).migration()]
+        if isinstance(self.config, ProviderAppConfig):
+            migrations.append(FaviconMigration(self.config).migration())
+        return migrations
+
+
+class InitialMigration:
 
     def __init__(self, app_config):
         self.config = app_config
@@ -85,6 +100,32 @@ class RobotMigration:
 
     def migration(self):
         m = migrations.Migration('0001_initial', self.config.label)
+        m.operations = self.ops()
+        m.dependencies = self.dependencies()
+        return m
+
+
+class FaviconMigration:
+
+    def __init__(self, app_config):
+        self.config = app_config
+
+    def ops(self):
+        return [
+            migrations.RunPython(
+                RobotFaviconMigration(self.config.label),
+                # RobotFaviconMigration(self.config.label).reverse,
+            ),
+        ]
+
+    def dependencies(self):
+        return [
+            (self.config.label, '0001_initial'),
+            ('share', '0018_store_favicons'),
+        ]
+
+    def migration(self):
+        m = migrations.Migration('0002_favicon', self.config.label)
         m.operations = self.ops()
         m.dependencies = self.dependencies()
         return m
@@ -166,3 +207,25 @@ class DisableRobotScheduleMigration(AbstractRobotMigration):
             task=self.config.task,
             args=json.dumps([1, self.config.label]),  # Note 1 should always be the system user
         ).update(enabled=False)
+
+
+class RobotFaviconMigration(AbstractRobotMigration):
+
+    def __call__(self, apps, schema_editor):
+        user = self.config.user
+        try:
+            self._save_favicon(user, os.path.join(self.config.path, 'favicon.ico'))
+        except OSError:
+            # Try parent directory
+            self._save_favicon(user, os.path.join(os.path.dirname(self.config.path), 'favicon.ico'))
+
+    def _save_favicon(self, user, path):
+        with open(path, 'rb') as f:
+            user.favicon.save(user.username, File(f))
+
+    def reverse(self, apps, schema_editor):
+        ShareUser = apps.get_model('share', 'ShareUser')
+        try:
+            self.config.user.favicon.delete()
+        except ShareUser.DoesNotExist:
+            pass
