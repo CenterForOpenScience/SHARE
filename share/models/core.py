@@ -82,37 +82,6 @@ class ShareUserManager(BaseUserManager):
         return user
 
 
-class FaviconImage(models.Model):
-    user = models.OneToOneField('ShareUser', on_delete=DATABASE_CASCADE)
-    image = models.BinaryField()
-
-
-@deconstructible
-class FaviconStorage(Storage):
-    def _open(self, name, mode='rb'):
-        assert mode == 'rb'
-        favicon = FaviconImage.objects.get(user__username=name)
-        return ContentFile(favicon.image)
-
-    def _save(self, name, content):
-        user = ShareUser.objects.get(username=name)
-        FaviconImage.objects.update_or_create(user_id=user.id, defaults={'image': content.read()})
-        return name
-
-    def delete(self, name):
-        FaviconImage.objects.get(user__username=name).delete()
-
-    def get_available_name(self, name, max_length=None):
-        return name
-
-    def url(self, name):
-        return reverse('user_favicon', kwargs={'username': name})
-
-
-def favicon_name(instance, filename):
-    return instance.username
-
-
 class ShareUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     username = models.TextField(
@@ -157,9 +126,6 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     robot = models.TextField(validators=[validators.MaxLengthValidator(40)], blank=True)
-    long_title = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
-    home_page = ShareURLField(blank=True)
-    favicon = models.ImageField(upload_to=favicon_name, storage=FaviconStorage(), null=True, blank=True)
 
     objects = ShareUserManager()
 

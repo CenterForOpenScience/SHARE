@@ -1,5 +1,6 @@
 # NOTE: The order of these imports actually matter
 from share.models.core import *  # noqa
+from share.models.source import *  # noqa
 from share.models.meta import *  # noqa
 from share.models.change import *  # noqa
 from share.models.celery import *  # noqa
