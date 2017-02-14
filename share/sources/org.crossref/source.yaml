@@ -1,0 +1,15 @@
+configs:
+- base_url: https://api.crossref.org/v1/works
+  disabled: false
+  earliest_date: null
+  harvester: org.crossref
+  harvester_kwargs: {}
+  label: org.crossref
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: org.crossref
+  transformer_kwargs: {}
+home_page: http://www.crossref.org
+long_title: CrossRef
+name: org.crossref
+user: providers.org.crossref

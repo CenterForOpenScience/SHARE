@@ -1,0 +1,12 @@
+configs:
+- base_url: http://papers.ssrn.com/
+  disabled: true
+  earliest_date: null
+  harvester: null
+  label: com.dailyssrn
+  transformer: com.dailyssrn
+  transformer_kwargs: {}
+home_page: http://papers.ssrn.com/
+long_title: Social Science Research Network
+name: com.dailyssrn
+user: providers.com.dailyssrn

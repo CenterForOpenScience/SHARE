@@ -1,0 +1,15 @@
+configs:
+- base_url: https://clinicaltrials.gov/ct2/results
+  disabled: false
+  earliest_date: null
+  harvester: gov.clinicaltrials
+  harvester_kwargs: {}
+  label: gov.clinicaltrials
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: gov.clinicaltrials
+  transformer_kwargs: {}
+home_page: https://clinicaltrials.gov/
+long_title: ClinicalTrials.gov
+name: gov.clinicaltrials
+user: providers.gov.clinicaltrials

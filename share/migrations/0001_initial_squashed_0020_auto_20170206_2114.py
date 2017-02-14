@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 ('robot', models.TextField(blank=True, validators=[django.core.validators.MaxLengthValidator(40)])),
                 ('long_title', models.TextField(blank=True, validators=[django.core.validators.MaxLengthValidator(100)])),
                 ('home_page', share.models.fields.ShareURLField(blank=True)),
-                ('favicon', models.ImageField(blank=True, null=True, storage=share.models.core.FaviconStorage(), upload_to=share.models.core.favicon_name)),
+                ('favicon', models.ImageField(blank=True, null=True, storage=share.models.ingest.SourceIconStorage(), upload_to=share.models.ingest.icon_name)),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups')),
                 ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions')),
             ],

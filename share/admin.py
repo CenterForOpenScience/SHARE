@@ -24,6 +24,7 @@ from share.models.banner import SiteBanner
 # from share.models.work_relations import AbstractWorkRelation
 # from share.models.agent_relations import AbstractAgentRelation
 # from share.models.contributions import AbstractContribution, Award
+from share.models.ingest import Source, SourceConfig, Harvester, Transformer
 from share.tasks import ApplyChangeSets
 from share.readonlyadmin import ReadOnlyAdmin
 
@@ -215,6 +216,11 @@ admin.site.register(CeleryTask, CeleryTaskAdmin)
 
 # admin.site.register(AbstractAgent, AbstractAgentAdmin)
 # admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
+
+admin.site.register(Source)
+admin.site.register(SourceConfig)
+admin.site.register(Harvester)
+admin.site.register(Transformer)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(ShareUser)

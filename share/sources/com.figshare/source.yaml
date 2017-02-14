@@ -1,0 +1,25 @@
+configs:
+- base_url: https://api.figshare.com/v1/articles/search
+  disabled: true
+  earliest_date: null
+  harvester: com.figshare
+  harvester_kwargs: {}
+  label: com.figshare
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: com.figshare
+  transformer_kwargs: {}
+- base_url: https://api.figshare.com/v2/articles
+  disabled: false
+  earliest_date: null
+  harvester: com.figshare.v2
+  harvester_kwargs: {}
+  label: com.figshare.v2
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: com.figshare.v2
+  transformer_kwargs: {}
+home_page: https://figshare.com/
+long_title: figshare v1
+name: com.figshare
+user: providers.com.figshare

@@ -3,17 +3,17 @@ import rfc3987
 import calendar
 import pendulum
 
-from share.normalize.links import ARKLink
-from share.normalize.links import ArXivLink
-from share.normalize.links import DOILink
-from share.normalize.links import DateParserLink
-from share.normalize.links import GuessAgentTypeLink
-from share.normalize.links import IRILink
-from share.normalize.links import ISNILink
-from share.normalize.links import ISSNLink
-from share.normalize.links import InfoURILink
-from share.normalize.links import OrcidLink
-from share.normalize.links import URNLink
+from share.transform.chain.links import ARKLink
+from share.transform.chain.links import ArXivLink
+from share.transform.chain.links import DOILink
+from share.transform.chain.links import DateParserLink
+from share.transform.chain.links import GuessAgentTypeLink
+from share.transform.chain.links import IRILink
+from share.transform.chain.links import ISNILink
+from share.transform.chain.links import ISSNLink
+from share.transform.chain.links import InfoURILink
+from share.transform.chain.links import OrcidLink
+from share.transform.chain.links import URNLink
 
 UPPER_BOUND = pendulum.today().add(years=100).isoformat()
 

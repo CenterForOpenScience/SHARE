@@ -1,0 +1,19 @@
+configs:
+- base_url: http://ttu-ir.tdl.org/ttu-oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: org.ttu
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [col_2346_521, col_2346_469]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://ttu-ir.tdl.org/
+long_title: Texas Tech Univeristy Libraries
+name: org.ttu
+user: providers.org.ttu

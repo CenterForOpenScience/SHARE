@@ -1,0 +1,19 @@
+configs:
+- base_url: http://mars.gmu.edu/oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.mason
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://mars.gmu.edu/
+long_title: Mason Archival Repository Service
+name: edu.mason
+user: providers.edu.mason

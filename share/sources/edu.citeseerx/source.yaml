@@ -1,0 +1,19 @@
+configs:
+- base_url: http://citeseerx.ist.psu.edu/oai2
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: edu.citeseerx
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://citeseerx.ist.psu.edu
+long_title: CiteSeerX Scientific Literature Digital Library and Search Engine
+name: edu.citeseerx
+user: providers.edu.citeseerx

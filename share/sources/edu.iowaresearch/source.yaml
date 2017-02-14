@@ -1,0 +1,19 @@
+configs:
+- base_url: http://ir.uiowa.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.iowaresearch
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://ir.uiowa.edu
+long_title: Iowa Research Online
+name: edu.iowaresearch
+user: providers.edu.iowaresearch

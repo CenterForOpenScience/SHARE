@@ -1,0 +1,50 @@
+configs:
+- base_url: http://osf.io/api/v1/search/
+  disabled: false
+  earliest_date: null
+  harvester: io.osf
+  harvester_kwargs:
+      path: v2/nodes/
+      embed_attrs:
+          children: relationships.children.links.related.href
+          contributors: relationships.contributors.links.related.href
+          institutions: relationships.affiliated_institutions.links.related.href
+  label: io.osf
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: io.osf
+  transformer_kwargs: {}
+- base_url: http://osf.io/api/v2/preprints/
+  disabled: false
+  earliest_date: null
+  harvester: io.osf
+  harvester_kwargs:
+      path: v2/preprint_providers/osf/preprints/
+      embed_attrs: 
+          contributors: relationships.contributors.links.related.href
+  label: io.osf.preprints
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: io.osf.preprints
+  transformer_kwargs: {}
+- base_url: http://api.osf.io/registrations/
+  disabled: false
+  earliest_date: null
+  harvester: io.osf
+  harvester_kwargs:
+      path: v2/registrations/
+      query_params:
+          embed: identifiers
+      embed_attrs:
+          children: relationships.children.links.related.href
+          contributors: relationships.contributors.links.related.href
+          institutions: relationships.affiliated_institutions.links.related.href
+  label: io.osf.registrations
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: io.osf.registrations
+  transformer_kwargs: {}
+home_page: http://osf.io/
+long_title: OSF
+name: io.osf
+user: providers.io.osf

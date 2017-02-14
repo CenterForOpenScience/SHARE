@@ -1,0 +1,22 @@
+configs:
+- base_url: http://sldr.org/oai-pmh.php
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: org.sldr
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [publisher, date, language, rights, license, format, isPartOf,
+      created, accessRights, temporal, source, bibliographicCitation, modified, spatial,
+      requires, identifier, type, tableOfContents, ortolang, 'archive:long-term']
+    emitted_type: CreativeWork
+    property_list: [modified, temporal, extent, spatial, abstract, created, license,
+      bibliographicCitation, isPartOf, tableOfContents, accessRights]
+    type_map: {}
+home_page: http://sldr.org
+long_title: Speech and Language Data Repository (SLDR/ORTOLANG)
+name: org.sldr
+user: providers.org.sldr

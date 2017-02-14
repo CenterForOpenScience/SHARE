@@ -1,0 +1,19 @@
+configs:
+- base_url: http://oai.erudit.org/oai/request
+  disabled: true
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: org.erudit
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://erudit.org
+long_title: "\xC9rudit"
+name: org.erudit
+user: providers.org.erudit

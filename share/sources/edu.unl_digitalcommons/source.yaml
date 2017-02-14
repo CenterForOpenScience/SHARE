@@ -1,0 +1,19 @@
+configs:
+- base_url: http://digitalcommons.unl.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.unl_digitalcommons
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://digitalcommons.unl.edu
+long_title: DigitalCommons@University of Nebraska - Lincoln
+name: edu.unl_digitalcommons
+user: providers.edu.unl_digitalcommons
