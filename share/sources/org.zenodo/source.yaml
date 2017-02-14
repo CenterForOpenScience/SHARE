@@ -1,0 +1,37 @@
+configs:
+- base_url: https://zenodo.org/oai2d
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs:
+      metadata_prefix: oai_datacite3
+      set_spec: openaire_data
+  label: org.zenodo.datacite
+  rate_limit_allowance: 1
+  rate_limit_period: 3
+  transformer: org.datacite
+  transformer_kwargs:
+      namespaces:
+          'http://purl.org/dc/elements/1.1/': dc
+          'http://datacite.org/schema/kernel-3': null
+          'http://www.openarchives.org/OAI/2.0/': null
+          'http://schema.datacite.org/oai/oai-1.0/': null
+          'http://www.openarchives.org/OAI/2.0/oai_dc/': null
+- base_url: https://zenodo.org/oai2d
+  disabled: true
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: org.zenodo
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: https://zenodo.org/oai2d
+long_title: Zenodo
+name: org.zenodo
+user: providers.org.zenodo

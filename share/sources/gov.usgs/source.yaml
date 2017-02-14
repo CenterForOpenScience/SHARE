@@ -1,0 +1,15 @@
+configs:
+- base_url: https://pubs.er.usgs.gov/pubs-services/publication
+  disabled: false
+  earliest_date: null
+  harvester: gov.usgs
+  harvester_kwargs: {}
+  label: gov.usgs
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: gov.usgs
+  transformer_kwargs: {}
+home_page: https://pubs.er.usgs.gov/
+long_title: United States Geological Survey
+name: gov.usgs
+user: providers.gov.usgs

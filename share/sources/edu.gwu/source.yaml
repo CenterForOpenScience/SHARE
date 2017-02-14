@@ -1,0 +1,15 @@
+configs:
+- base_url: https://scholarspace.library.gwu.edu/catalog
+  disabled: false
+  earliest_date: null
+  harvester: edu.gwu
+  harvester_kwargs: {}
+  label: edu.gwu
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: edu.gwu
+  transformer_kwargs: {}
+home_page: https://scholarspace.library.gwu.edu
+long_title: ScholarSpace @ George Washington University
+name: edu.gwu
+user: providers.edu.gwu

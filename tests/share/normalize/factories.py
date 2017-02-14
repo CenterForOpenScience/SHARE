@@ -17,7 +17,7 @@ from django.apps import apps
 
 from share import models
 from share.change import ChangeGraph
-from share.normalize.links import IRILink
+from share.transform.chain.links import IRILink
 
 
 __all__ = ('Graph', )

@@ -15,8 +15,8 @@ from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSer
     RawDataSerializer, ShareUserSerializer, ProviderSerializer
 from share.models import RawData, ShareUser, NormalizedData
 from share.tasks import DisambiguatorTask
-from share.harvest.harvester import Harvester
-from share.normalize.v1_push import V1Normalizer
+from share.harvest.base import BaseHarvester
+from share.transformers.v1_push import V1Transformer
 
 
 __all__ = ('NormalizedDataViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'V1DataView')
@@ -214,10 +214,10 @@ class V1DataView(views.APIView):
             except KeyError:
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
-            raw = RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), request.user, app_label)
+            raw = RawData.objects.store_data(doc_id, BaseHarvester.encode_json(self, prelim_data), request.user, app_label)
 
         # normalize data
-        normalized_data = V1Normalizer({}).normalize(raw.data)
+        normalized_data = V1Transformer({}).transform(raw.data)
         data = {}
         data['data'] = normalized_data
         serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})

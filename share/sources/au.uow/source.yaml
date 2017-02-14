@@ -1,0 +1,19 @@
+configs:
+- base_url: http://ro.uow.edu.au/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: au.uow
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://ro.uow.edu.au
+long_title: Research Online @ University of Wollongong
+name: au.uow
+user: providers.au.uow

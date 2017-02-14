@@ -119,15 +119,15 @@ class IndexSourceTask(AppTask):
             raise Exception('Failed to index documents {}'.format(errors))
 
     def bulk_stream(self, es_index):
-        ShareUser = apps.get_model('share.ShareUser')
+        Source = apps.get_model('share.Source')
         opts = {'_index': es_index, '_type': 'sources'}
-        for source in ShareUser.objects.exclude(robot='').exclude(long_title='').all():
-            yield {'_op_type': 'index', '_id': source.robot, **self.serialize(source), **opts}
+        for source in Source.objects.exclude(long_title='').all():
+            yield {'_op_type': 'index', '_id': source.name, **self.serialize(source), **opts}
 
     def serialize(self, source):
         return {
-            'id': source.robot,
+            'id': source.name,
             'type': 'source',
             'name': safe_substr(source.long_title),
-            'short_name': safe_substr(source.robot)
+            'short_name': safe_substr(source.name)
         }

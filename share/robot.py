@@ -43,9 +43,6 @@ class RobotAppConfig(AppConfig, metaclass=abc.ABCMeta):
         from share.models import ShareUser
         return ShareUser.objects.get(robot=self.name)
 
-    def authorization(self) -> str:
-        return 'Bearer ' + self.user.accesstoken_set.first().token
-
 
 class AbstractRobotMigration:
 
@@ -137,8 +134,6 @@ class RobotUserMigration(AbstractRobotMigration):
         ShareUser.objects.create_robot_user(
             username=self.config.name,
             robot=self.config.name,
-            long_title=self.config.long_title,
-            home_page=self.config.home_page
         )
 
     def reverse(self, apps, schema_editor):

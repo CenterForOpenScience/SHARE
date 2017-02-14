@@ -8,18 +8,12 @@ from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.core import validators
-from django.core.files.base import ContentFile
-from django.core.files.storage import Storage
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.urlresolvers import reverse
 from django.utils import timezone
-from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
 from oauth2_provider.models import AccessToken, Application
-
-from db.deletion import DATABASE_CASCADE
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 
@@ -28,7 +22,7 @@ from share.models.fuzzycount import FuzzyCountManager
 from share.models.validators import JSONLDValidator
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'RawData', 'NormalizedData',)
+__all__ = ('ShareUser', 'RawData', 'NormalizedData', 'SourceUniqueIdentifier')
 
 
 class ShareUserManager(BaseUserManager):
@@ -62,7 +56,7 @@ class ShareUserManager(BaseUserManager):
 
         return self._create_user(username, email, password, **extra_fields)
 
-    def create_robot_user(self, username, robot, long_title='', home_page=''):
+    def create_robot_user(self, username, robot):
         try:
             self.get(username=username, robot=robot)
         except self.model.DoesNotExist:
@@ -73,44 +67,11 @@ class ShareUserManager(BaseUserManager):
         ShareUser.set_unusable_password(user)
         user.username = username
         user.robot = robot
-        user.long_title = long_title
-        user.home_page = home_page
         user.is_active = True
         user.is_staff = False
         user.is_superuser = False
         user.save()
         return user
-
-
-class FaviconImage(models.Model):
-    user = models.OneToOneField('ShareUser', on_delete=DATABASE_CASCADE)
-    image = models.BinaryField()
-
-
-@deconstructible
-class FaviconStorage(Storage):
-    def _open(self, name, mode='rb'):
-        assert mode == 'rb'
-        favicon = FaviconImage.objects.get(user__username=name)
-        return ContentFile(favicon.image)
-
-    def _save(self, name, content):
-        user = ShareUser.objects.get(username=name)
-        FaviconImage.objects.update_or_create(user_id=user.id, defaults={'image': content.read()})
-        return name
-
-    def delete(self, name):
-        FaviconImage.objects.get(user__username=name).delete()
-
-    def get_available_name(self, name, max_length=None):
-        return name
-
-    def url(self, name):
-        return reverse('user_favicon', kwargs={'username': name})
-
-
-def favicon_name(instance, filename):
-    return instance.username
 
 
 class ShareUser(AbstractBaseUser, PermissionsMixin):
@@ -157,9 +118,6 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     robot = models.TextField(validators=[validators.MaxLengthValidator(40)], blank=True)
-    long_title = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
-    home_page = ShareURLField(blank=True)
-    favicon = models.ImageField(upload_to=favicon_name, storage=FaviconStorage(), null=True, blank=True)
 
     objects = ShareUserManager()
 
@@ -178,6 +136,9 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
 
     def get_full_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
+
+    def authorization(self) -> str:
+        return 'Bearer ' + self.accesstoken_set.first().token
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.username)
@@ -213,21 +174,33 @@ def user_post_save(sender, instance, created, **kwargs):
         instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
+class SourceUniqueIdentifier(models.Model):
+    identifier = models.TextField()
+    source_config = models.ForeignKey('SourceConfig')
+
+    class Meta:
+        unique_together = ('identifier', 'source_config')
+
+    def __str__(self):
+        return '{} {}'.format(self.source_config_id, self.identifier)
+
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.source_config_id, self.identifier)
+
+
 class RawDataManager(FuzzyCountManager):
 
-    def store_data(self, doc_id, data, source, app_label):
+    def store_data(self, data, suid):
         rd, created = self.get_or_create(
-            source=source,
-            app_label=app_label,
-            provider_doc_id=doc_id,
+            suid=suid,
             sha256=sha256(data).hexdigest(),
             defaults={'data': data},
         )
 
         if created:
-            logger.debug('Newly created RawData for document %s from %s', doc_id, source)
+            logger.debug('Newly created RawData for document %s', suid)
         else:
-            logger.debug('Saw exact copy of document %s from %s', doc_id, source)
+            logger.debug('Saw exact copy of document %s', suid)
 
         rd.save()  # Force timestamps to update
         return rd
@@ -236,9 +209,8 @@ class RawDataManager(FuzzyCountManager):
 class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
-    source = models.ForeignKey(settings.AUTH_USER_MODEL)
-    app_label = models.TextField(db_index=True)
-    provider_doc_id = models.TextField()
+    # TODO non-null
+    suid = models.ForeignKey('SourceUniqueIdentifier', null=True)
 
     data = models.TextField()
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
@@ -251,18 +223,18 @@ class RawData(models.Model):
     objects = RawDataManager()
 
     def __str__(self):
-        return '({}) {} {}'.format(self.id, self.source, self.provider_doc_id)
+        return '({}) {}'.format(self.id, self.suid)
 
     @property
     def processsed(self):
         return self.date_processed is not None  # TODO: this field doesn't exist...
 
     class Meta:
-        unique_together = (('provider_doc_id', 'app_label', 'source', 'sha256'),)
+        unique_together = (('suid', 'sha256'),)
         verbose_name_plural = 'Raw data'
 
     def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.source, self.provider_doc_id)
+        return '<{}({})>'.format(self.__class__.__name__, self.suid)
 
 
 class NormalizedData(models.Model):

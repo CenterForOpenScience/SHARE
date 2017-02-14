@@ -1,0 +1,19 @@
+configs:
+- base_url: http://cyberleninka.ru/oai
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: ru.cyberleninka
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: [isPartOf, issue, issn, pages, bibliographicCitation, uri]
+    type_map: {}
+home_page: http://cyberleninka.ru/
+long_title: CyberLeninka - Russian open access scientific library
+name: ru.cyberleninka
+user: providers.ru.cyberleninka

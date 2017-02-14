@@ -1,0 +1,19 @@
+configs:
+- base_url: http://cogprints.org/cgi/oai2
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: org.cogprints
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: preprint
+    property_list: []
+    type_map: {}
+home_page: http://www.cogprints.org/
+long_title: Cogprints
+name: org.cogprints
+user: providers.org.cogprints

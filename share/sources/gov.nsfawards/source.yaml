@@ -1,0 +1,15 @@
+configs:
+- base_url: http://api.nsf.gov/services/v1/awards.json
+  disabled: false
+  earliest_date: null
+  harvester: gov.nsfawards
+  harvester_kwargs: {}
+  label: gov.nsfawards
+  rate_limit_allowance: 1
+  rate_limit_period: 3
+  transformer: gov.nsfawards
+  transformer_kwargs: {}
+home_page: http://www.nsf.gov/
+long_title: NSF Awards
+name: gov.nsfawards
+user: providers.gov.nsfawards

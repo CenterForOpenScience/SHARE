@@ -1,0 +1,15 @@
+configs:
+- base_url: http://www.neurovault.org/api/collections/?format=json
+  disabled: false
+  earliest_date: null
+  harvester: org.neurovault
+  harvester_kwargs: {}
+  label: org.neurovault
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: org.neurovault
+  transformer_kwargs: {}
+home_page: http://www.neurovault.org/
+long_title: NeuroVault.org
+name: org.neurovault
+user: providers.org.neurovault

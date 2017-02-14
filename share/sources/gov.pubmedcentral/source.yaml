@@ -1,0 +1,38 @@
+configs:
+- base_url: http://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: gov.pubmedcentral
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+- base_url: http://www.ncbi.nlm.nih.gov/pmc/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs:
+      metadata_prefix: pmc_fm
+  label: gov.pubmedcentral.pmc
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: gov.pubmedcentral.pmc
+  transformer_kwargs:
+      namespaces:
+          'http://www.openarchives.org/OAI/2.0/': null
+          'http://jats.nlm.nih.gov/ns/archiving/1.0/': null
+          'https://jats.nlm.nih.gov/ns/archiving/1.0/': null
+          'http://www.w3.org/2001/XMLSchema-instance': xsi
+          'http://www.niso.org/schemas/ali/1.0': ali
+          'http://www.w3.org/1999/xlink': xlink
+          'http://www.w3.org/1998/Math/MathML': mml
+home_page: http://www.ncbi.nlm.nih.gov/pmc/
+long_title: PubMed Central
+name: gov.pubmedcentral
+user: providers.gov.pubmedcentral

@@ -1,0 +1,19 @@
+configs:
+- base_url: http://repository.cmu.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.cmu
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://repository.cmu.edu/
+long_title: Carnegie Mellon University Research Showcase
+name: edu.cmu
+user: providers.edu.cmu

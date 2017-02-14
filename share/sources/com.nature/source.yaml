@@ -1,0 +1,19 @@
+configs:
+- base_url: http://www.nature.com/oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: com.nature
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: article
+    property_list: []
+    type_map: {}
+home_page: http://www.nature.com/
+long_title: Nature Publishing Group
+name: com.nature
+user: providers.com.nature

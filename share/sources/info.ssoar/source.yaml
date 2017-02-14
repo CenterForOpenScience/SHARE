@@ -1,0 +1,23 @@
+configs:
+- base_url: http://www.ssoar.info/OAIHandler/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: info.ssoar
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {abridged report: report, annual report: report, company report: report,
+      conference paper: conferencepaper, expert report: report, festschrift: publication,
+      final report: report, interim report: report, journal article: article, literature report: report,
+      m.a. thesis: thesis, master thesis: thesis, other: creativework, phd thesis: thesis,
+      report from institution/organization: report, research report: report, working paper: workingpaper}
+home_page: http://www.ssoar.info/en/home.html
+long_title: Social Science Open Access Repository
+name: info.ssoar
+user: providers.info.ssoar

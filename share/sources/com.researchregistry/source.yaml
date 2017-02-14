@@ -1,0 +1,15 @@
+configs:
+- base_url: https://us-api.knack.com/v1/scenes/scene_3/views/view_4/records
+  disabled: false
+  earliest_date: null
+  harvester: com.researchregistry
+  harvester_kwargs: {}
+  label: com.researchregistry
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: com.researchregistry
+  transformer_kwargs: {}
+home_page: http://www.researchregistry.com/
+long_title: Research Registry
+name: com.researchregistry
+user: providers.com.researchregistry

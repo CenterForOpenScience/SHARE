@@ -15,7 +15,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser
+from share.models import RawData, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser, SourceConfig
 
 
 logger = logging.getLogger(__name__)
@@ -114,7 +114,17 @@ class AppTask(LoggedTask):
         }
 
 
-class HarvesterTask(AppTask):
+# Backward-compatible hack until Tamandua's all set
+class SourceTask(LoggedTask):
+
+    def setup(self, app_label, *args, **kwargs):
+        self.config = SourceConfig.objects.get(label=app_label)
+        self.source = self.config.source.user
+        self.args = args
+        self.kwargs = kwargs
+
+
+class HarvesterTask(SourceTask):
 
     def apply_async(self, targs=None, tkwargs=None, **kwargs):
         tkwargs = tkwargs or {}
@@ -133,7 +143,7 @@ class HarvesterTask(AppTask):
         if type(start) is str:
             start = pendulum.parse(start.rstrip('Z'))  # TODO Fix Me
 
-        harvester = self.config.harvester(self.config)
+        harvester = self.config.get_harvester()
 
         try:
             logger.info('Starting harvester run for %s %s - %s', self.config.label, start, end)
@@ -152,19 +162,26 @@ class HarvesterTask(AppTask):
             task = NormalizerTask().apply_async((self.started_by.id, self.config.label, raw_id,))
             logger.debug('Started normalizer task %s for %s', task, raw_id)
 
+    def log_values(self):
+        return {
+            **super().log_values(),
+            'app_label': self.config.label,
+            'app_version': self.config.harvester.version,
+        }
 
-class NormalizerTask(AppTask):
+
+class NormalizerTask(SourceTask):
 
     def do_run(self, raw_id):
         raw = RawData.objects.get(pk=raw_id)
-        normalizer = self.config.normalizer(self.config)
+        transformer = self.config.get_transformer()
 
-        assert raw.source == self.source, 'RawData is from {}. Tried parsing it as {}'.format(raw.source, self.source)
+        assert raw.suid.source_config_id == self.config.id, 'RawData is from SourceConfig {}. Tried parsing it as {}'.format(raw.suid.source_config_id, self.config.id)
 
-        logger.info('Starting normalization for %s by %s', raw, normalizer)
+        logger.info('Starting normalization for %s by %s', raw, transformer)
 
         try:
-            graph = normalizer.normalize(raw)
+            graph = transformer.transform(raw)
 
             if not graph['@graph']:
                 logger.warning('Graph was empty for %s, skipping...', raw)
@@ -180,7 +197,7 @@ class NormalizerTask(AppTask):
                         'tasks': [self.task.id]
                     }
                 }
-            }, headers={'Authorization': self.config.authorization(), 'Content-Type': 'application/vnd.api+json'})
+            }, headers={'Authorization': self.source.authorization(), 'Content-Type': 'application/vnd.api+json'})
         except Exception as e:
             logger.exception('Failed normalizer task (%s, %d)', self.config.label, raw_id)
             raise self.retry(countdown=10, exc=e)
@@ -189,6 +206,13 @@ class NormalizerTask(AppTask):
             raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content)))
 
         logger.info('Successfully submitted change for %s', raw)
+
+    def log_values(self):
+        return {
+            **super().log_values(),
+            'app_label': self.config.label,
+            'app_version': self.config.transformer.version,
+        }
 
 
 class DisambiguatorTask(LoggedTask):

@@ -1,11 +1,11 @@
 import json
 import pytest
 
-from share.normalize import ctx
-from share.normalize.v1_push import V1Normalizer
+from share.transform.chain import ctx
+from share.transformers.v1_push import V1Transformer
 
 
-class TestV1Normalizer:
+class TestV1Transformer:
 
     @pytest.mark.parametrize('input, expected', [
         ({
@@ -182,7 +182,7 @@ class TestV1Normalizer:
     ])
     def test_normalize(self, input, expected):
         ctx.clear()
-        actual = self.reconstruct(ctx.pool.pop(V1Normalizer({}).do_normalize(json.dumps(input))))
+        actual = self.reconstruct(ctx.pool.pop(V1Transformer({}).do_transform(json.dumps(input))))
         assert expected == actual
 
     def reconstruct(self, document, extra=False):

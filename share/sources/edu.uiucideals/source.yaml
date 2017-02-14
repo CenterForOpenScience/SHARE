@@ -1,0 +1,19 @@
+configs:
+- base_url: http://ideals.uiuc.edu/dspace-oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.uiucideals
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: https://www.ideals.illinois.edu
+long_title: University of Illinois at Urbana-Champaign, IDEALS
+name: edu.uiucideals
+user: providers.edu.uiucideals

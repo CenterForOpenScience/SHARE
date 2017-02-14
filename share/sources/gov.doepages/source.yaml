@@ -1,0 +1,19 @@
+configs:
+- base_url: http://www.osti.gov/pages/pagesxml
+  disabled: false
+  earliest_date: null
+  harvester: gov.doepages
+  harvester_kwargs: {}
+  label: gov.doepages
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: gov.scitech
+  transformer_kwargs:
+      namespaces:
+          'http://www.w3.org/1999/02/22-rdf-syntax-ns#': rdf
+          'http://purl.org/dc/elements/1.1/': dc
+          'http://purl.org/dc/terms/': dcq
+home_page: http://www.osti.gov/pages/
+long_title: Department of Energy Pages
+name: gov.doepages
+user: providers.gov.doepages

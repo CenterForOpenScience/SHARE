@@ -1,0 +1,16 @@
+configs:
+- base_url: https://exporter.nih.gov/
+  disabled: false
+  earliest_date: null
+  harvester: gov.nih
+  harvester_kwargs:
+      table_url: https://exporter.nih.gov/ExPORTER_Catalog.aspx/
+  label: gov.nih
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: gov.nih
+  transformer_kwargs: {}
+home_page: http://exporter.nih.gov/
+long_title: NIH Research Portal Online Reporting Tools
+name: gov.nih
+user: providers.gov.nih

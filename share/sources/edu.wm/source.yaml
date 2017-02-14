@@ -1,0 +1,23 @@
+configs:
+- base_url: http://publish.wm.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.wm
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [appliedsciencepub, ckharrisdata, ccrmresearchreports, chsdreports,
+      ccrm, chemistrypub, chsd, compmathstatspub, computersciencepub, dr, geologypub,
+      internationalrelationspub, linguisticspub, mathematicspub, neurosciencepub,
+      physicspub, psychologypub, researchtechnicalreports, sociologypub, spms, samsroe,
+      ssr, tsdpub, ts, yorkriverdata]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://publish.wm.edu/
+long_title: College of William and Mary
+name: edu.wm
+user: providers.edu.wm

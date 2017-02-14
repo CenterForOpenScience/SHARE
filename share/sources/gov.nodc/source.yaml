@@ -1,0 +1,19 @@
+configs:
+- base_url: https://data.nodc.noaa.gov/cgi-bin/oai-pmh?verb=ListRecords&metadataPrefix=oai_dc
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: gov.nodc
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: https://www.nodc.noaa.gov/
+long_title: National Oceanographic Data Center
+name: gov.nodc
+user: providers.gov.nodc
