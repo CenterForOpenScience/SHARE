@@ -9,6 +9,7 @@
 * Harvest -- Collecting data from 
 * Transform --
 * [Data] Cleaning --
+* TCT -- Transform Clean Task.
 * Normalize -- Defunct; see Transform.
 
 ## Overview
