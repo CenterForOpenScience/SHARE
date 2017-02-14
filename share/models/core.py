@@ -159,7 +159,7 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     robot = models.TextField(validators=[validators.MaxLengthValidator(40)], blank=True)
     long_title = models.TextField(validators=[validators.MaxLengthValidator(100)], blank=True)
     home_page = ShareURLField(blank=True)
-    favicon = models.ImageField(upload_to=favicon_name, storage=FaviconStorage(), null=True)
+    favicon = models.ImageField(upload_to=favicon_name, storage=FaviconStorage(), null=True, blank=True)
 
     objects = ShareUserManager()
 
