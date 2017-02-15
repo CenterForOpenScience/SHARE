@@ -318,6 +318,7 @@ class OAICreativeWork(Parser):
 
 
 class OAINormalizer(Normalizer):
+    KEY = 'oai_dc'
 
     @property
     def root_parser(self):

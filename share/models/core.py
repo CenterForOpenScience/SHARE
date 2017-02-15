@@ -9,17 +9,13 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.core import validators
 from django.core.files.base import ContentFile
-from django.core.files.storage import Storage
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.urlresolvers import reverse
 from django.utils import timezone
-from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
 from oauth2_provider.models import AccessToken, Application
-
-from db.deletion import DATABASE_CASCADE
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 

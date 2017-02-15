@@ -12,6 +12,7 @@ import pendulum
 import requests
 
 from django.db import transaction
+from django.db.models.base import ModelBase
 from django.utils.functional import cached_property
 
 logger = logging.getLogger(__name__)
@@ -51,23 +52,29 @@ class RateLimittedProxy:
         return self._cache.setdefault(name, self.__class__(getattr(self._proxy_to, name), self._calls, self._per_second))
 
 
-class Harvester(metaclass=abc.ABCMeta):
+class HarvesterMeta(type):
+    def __init__(cls, name, bases, attrs):
+        if hasattr(cls, 'registry'):
+            assert 'KEY' in attrs and attrs['KEY'] not in cls.registry
+            cls.registry[attrs['KEY']] = cls
+        else:
+            # base class
+            cls.registry = {}
+
+
+class Harvester(metaclass=HarvesterMeta):
 
     # TODO Make this apply across threads
     rate_limit = (5, 1)  # Rate limit in requests per_second
 
-    def __init__(self, app_config):
+    def __init__(self, source, **kwargs):
         self.last_call = 0
-        self.config = app_config
-        self.rate_limit = getattr(self.config, 'rate_limit', self.rate_limit)
+        self.source = source
+        self.kwargs = kwargs
+        self.rate_limit = kwargs.get('rate_limit', self.rate_limit)
         self.allowance = self.rate_limit[0]
         self.requests = RateLimittedProxy(requests, *self.rate_limit)
 
-    @cached_property
-    def source(self):
-        return self.config.user
-
-    @abc.abstractmethod
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, **kwargs) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         """Fetch date from this provider inside of the given date range.
 

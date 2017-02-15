@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 import xmltodict
 
-from share.normalize.links import Context, IRILink
+from share.transform.tools.links import Context, IRILink
 
 
 # NOTE: Context is a thread local singleton
@@ -14,7 +14,17 @@ from share.normalize.links import Context, IRILink
 ctx = Context()
 
 
-class Normalizer(metaclass=abc.ABCMeta):
+class TransformerMeta(type):
+    def __init__(cls, name, bases, attrs):
+        if hasattr(cls, 'registry'):
+            assert 'KEY' in attrs and attrs['KEY'] not in cls.registry
+            cls.registry[attrs['KEY']] = cls
+        else:
+            # base class
+            cls.registry = {}
+
+
+class Transformer(metaclass=abc.ABCMeta):
 
     root_parser = None
 

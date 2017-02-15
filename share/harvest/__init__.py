@@ -1,1 +1,1 @@
-from share.harvest.harvester import Harvester  # noqa
+from share.harvest.base import Harvester  # noqa

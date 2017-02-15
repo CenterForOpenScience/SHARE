@@ -1,4 +1,3 @@
-import abc
 import time
 import logging
 
@@ -6,34 +5,31 @@ import pendulum
 from furl import furl
 from lxml import etree
 
-from .harvester import Harvester
+from .base import Harvester
 
 logger = logging.getLogger(__name__)
 
 
-class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
+class OAIHarvester(Harvester):
+    KEY = 'oai'
 
-    metadata_prefix = 'oai_dc'
     namespaces = {
         'dc': 'http://purl.org/dc/elements/1.1/',
         'ns0': 'http://www.openarchives.org/OAI/2.0/',
         'oai_dc': 'http://www.openarchives.org/OAI/2.0/',
     }
-    url = None
     time_granularity = True
     from_param = 'from'
     until_param = 'until'
 
-    def __init__(self, app_config):
-        super().__init__(app_config)
+    def __init__(self, source, metadata_prefix, **kwargs):
+        super().__init__(source, kwargs)
 
-        self.url = getattr(self.config, 'url', self.url)
-        if not self.url:
-            raise NotImplementedError('url')
-
-        self.time_granularity = getattr(self.config, 'time_granularity', self.time_granularity)
-        self.from_param = getattr(self.config, 'from_param', self.from_param)
-        self.until_param = getattr(self.config, 'until_param', self.until_param)
+        self.url = source.base_url
+        self.metadata_prefix = metadata_prefix
+        self.time_granularity = kwargs.get('time_granularity', self.time_granularity)
+        self.from_param = kwargs.get('from_param', self.from_param)
+        self.until_param = kwargs.get('until_param', self.until_param)
 
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, set_spec=None) -> list:
         url = furl(self.url)
