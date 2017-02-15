@@ -17,7 +17,7 @@
 
 
 ## Parameters
-* `source_id` -- The PK of the source to harvest from
+* `source_config_id` -- The PK of the source to harvest from
 * `start_date` --
 * `end_date` -- 
 * `limit` -- The maximum number of documents to collect. Defaults to `None` (Unlimitted)
@@ -32,14 +32,14 @@
 ## Steps
 
 ### Preventative measures
-* If the specified `source` is disabled and `force` or `ignore_disabled` is not set, crash
-* For the given `source` find up to the last 5 harvest jobs with the same versions
+* If the specified `source_config` is disabled and `force` or `ignore_disabled` is not set, crash
+* For the given `source_config` find up to the last 5 harvest jobs with the same versions
 * If they are all failed, throw an exception (Refuse to run)
 
 ### Setup
-* Lock the `source` (NOWAIT)
+* Lock the `source_config` (NOWAIT)
   * On failure, reschedule for a later run. (This should be allowed to happen many times before finally failing)
-* Get or create HarvestJob(source_id, version, harvester, date ranges...)
+* Get or create `HarvestJob(source_config_id, version, harvester, date ranges...)`
   * if found and status is:
     * `SUCCEEDED`, `SPLIT`, or `FAILED`: update timestamps and/or counts.
     * STARTED: Log a warning (Should not have been able to lock the source) and update timestamps and/or counts.
@@ -47,7 +47,7 @@
 * If the specified date range is >= [SOME LENGTH OF TIME] and `no_split` is False
   * Chunk the date range and spawn a harvest task for each chunk
   * Set status to `SPLIT` and exit
-* Load the harvester for the given source
+* Load the harvester for the given `source_config`
 
 ### Actually Harvest
 * Harvest data between the specified datetimes, respecting `limit` and `rate_limit`
