@@ -113,11 +113,11 @@ class ShareUserView(views.APIView):
 
 
 @require_GET
-def user_favicon_view(request, username):
-    user = get_object_or_404(ShareUser, username=username)
-    if not user.favicon:
-        raise http.Http404('Favicon for user {} does not exist'.format(user.username))
-    response = http.FileResponse(user.favicon)
+def source_icon_view(request, source_name):
+    source = get_object_or_404(Source, name=source_name)
+    if not source.favicon:
+        raise http.Http404('Favicon for source {} does not exist'.format(source_name))
+    response = http.FileResponse(source.icon)
     response['Content-Type'] = 'image/x-icon'
     return response
 
