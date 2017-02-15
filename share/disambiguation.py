@@ -11,7 +11,14 @@ __all__ = ('GraphDisambiguator', )
 logger = logging.getLogger(__name__)
 
 
+class MergeLimitError(Exception):
+    pass
+
+
 class GraphDisambiguator:
+
+    # Raise an error if at least this many objects are about to be merged together.
+    MERGE_LIMIT = 5
 
     def __init__(self):
         self._index = self.NodeIndex()
@@ -72,6 +79,8 @@ class GraphDisambiguator:
                         if len(instances) == 1:
                             n.instance = instances[0]
                             logger.debug('Disambiguated %s to %r', n, n.instance)
+                        elif len(instances) >= self.MERGE_LIMIT:
+                            raise MergeLimitError('Too many matches! {} matched {} instances. Something is probably wrong.\nMatches: {}'.format(n, len(instances), instances))
                         else:
                             self._emit_merges(n, instances)
                         finished_nodes.add(n)
@@ -120,7 +129,7 @@ class GraphDisambiguator:
         unmerged_query = Q(same_as__isnull=True) if hasattr(concrete_model, 'same_as') else Q()
 
         sql, params = zip(*[concrete_model.objects.filter(unmerged_query & all_query & query).query.sql_with_params() for query in queries or [Q()]])
-        return list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ';', sum(params, ())))
+        return list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT {};'.format(self.MERGE_LIMIT), sum(params, ())))
 
     def _query_pair(self, key, value):
         try:

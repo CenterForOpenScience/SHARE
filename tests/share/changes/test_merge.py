@@ -5,6 +5,7 @@ from share.change import ChangeGraph
 from share.models import ChangeSet
 from share.util import IDObfuscator
 from share.models.change import InvalidMergeError
+from share.disambiguation import MergeLimitError
 
 from tests.share.models.factories import NormalizedDataFactory
 from tests.share.normalize.factories import *
@@ -298,6 +299,21 @@ class TestMergingObjects:
         merge_cg.process()
         with pytest.raises(InvalidMergeError):
             ChangeSet.objects.from_graph(merge_cg, NormalizedDataFactory().id).accept()
+
+    def test_merge_limit(self, Graph):
+        setup(Graph)
+        merge_cg = ChangeGraph(Graph(
+            CreativeWork(
+                sparse=True,
+                id='_:foo',
+                identifiers=[
+                    WorkIdentifier(uri=i.uri)
+                    for i in models.WorkIdentifier.objects.all()
+                ]
+            )
+        ))
+        with pytest.raises(MergeLimitError):
+            merge_cg.process()
 
     @pytest.mark.parametrize('model', [models.Tag, models.ThroughTags, models.WorkIdentifier])
     def test_merge_invalid_model(self, Graph, model):
