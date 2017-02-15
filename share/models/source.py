@@ -54,6 +54,7 @@ class Source(models.Model):
 class SourceHarvester(models.Model):
     source = models.ForeignKey('Source')
     base_url = models.URLField()
+    earliest_date = models.DateField(null=True)
 
     harvester = models.ForeignKey('Harvester')
     harvester_kwargs = JSONField(null=True)
@@ -67,12 +68,10 @@ class SourceHarvester(models.Model):
 # TODO natural key
 class Harvester(models.Model):
     key = models.TextField(unique=True)
-    name = models.TextField()
     version = models.TextField()
 
 
 # TODO natural key
 class Transformer(models.Model):
     key = models.TextField(unique=True)
-    name = models.TextField()
     version = models.TextField()

@@ -5,13 +5,14 @@ import pendulum
 from furl import furl
 from lxml import etree
 
-from .base import Harvester
+from .base import BaseHarvester
 
 logger = logging.getLogger(__name__)
 
 
-class OAIHarvester(Harvester):
+class OAIHarvester(BaseHarvester):
     KEY = 'oai'
+    VERSION = '0.0.1'
 
     namespaces = {
         'dc': 'http://purl.org/dc/elements/1.1/',

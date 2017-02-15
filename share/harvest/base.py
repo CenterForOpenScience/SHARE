@@ -62,7 +62,7 @@ class HarvesterMeta(type):
             cls.registry = {}
 
 
-class Harvester(metaclass=HarvesterMeta):
+class BaseHarvester(metaclass=HarvesterMeta):
 
     # TODO Make this apply across threads
     rate_limit = (5, 1)  # Rate limit in requests per_second
