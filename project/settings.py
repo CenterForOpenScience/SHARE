@@ -133,6 +133,7 @@ INSTALLED_APPS = [
     'providers.edu.iowaresearch',
     'providers.edu.iu',
     'providers.edu.iwu_commons',
+    'providers.edu.jmu',
     'providers.edu.kent',
     'providers.edu.krex',
     'providers.edu.mason',
