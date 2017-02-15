@@ -1,9 +1,8 @@
 import csv
 import datetime
-import gzip
+import bz2
 import io
 import logging
-import os
 
 import boto3
 import botocore
@@ -17,119 +16,19 @@ from share.models import CeleryProviderTask
 logger = logging.getLogger(__name__)
 
 
-class ArchiveBot(Bot):
+def chunk(iterable, size):
+    iterable = iter(iterable)
+    try:
+        while True:
+            l = []
+            for _ in range(size):
+                l.append(next(iterable))
+            yield l
+    except StopIteration:
+        yield l
 
-    def run(self):
-        # check for storage settings
-        if not settings.AWS_ACCESS_KEY_ID or not settings.AWS_SECRET_ACCESS_KEY:
-            if os.environ.get('DEBUG', True) is False:
-                raise Exception('No storage found! CeleryTasks will NOT be archived or deleted.')
-            logger.warning('No storage found! CeleryTasks will NOT be archived but WILL be deleted.')
 
-        logger.info('%s started converting queryset to csv data at %s', self.started_by, datetime.datetime.utcnow().isoformat())
-
-        if not settings.CELERY_TASK_BUCKET_NAME:
-            raise Exception('Bucket name not set! Please define bucket name in project.settings')
-        bucket = self.get_bucket(settings.CELERY_TASK_BUCKET_NAME)
-
-        current_time = datetime.datetime.utcnow()
-        one_day = datetime.timedelta(days=-1)
-        one_week = datetime.timedelta(weeks=-1)
-        two_weeks = datetime.timedelta(weeks=-2)
-
-        # bots.elasticsearch (24hrs)
-        self.elasticsearch_tasks = CeleryProviderTask.objects.filter(
-            app_label='elasticsearch',
-            timestamp__lt=current_time + one_day
-        )
-        # normalizertask (1 week)
-        self.normalizer_tasks = CeleryProviderTask.objects.filter(
-            name='share.tasks.NormalizerTask',
-            timestamp__lt=current_time + one_week
-        )
-        # disambiguatortask (1 week)
-        self.disambiguator_tasks = CeleryProviderTask.objects.filter(
-            name='share.tasks.DisambiguatorTask',
-            timestamp__lt=current_time + one_week
-        )
-        # harvestertask (2 weeks)
-        self.harvester_tasks = CeleryProviderTask.objects.filter(
-            name='share.tasks.HarvesterTask',
-            timestamp__lt=current_time + two_weeks
-        )
-        # archivetask (2 weeks)
-        self.archive_tasks = CeleryProviderTask.objects.filter(
-            name='share.tasks.ArchiveTask',
-            timestamp__lt=current_time + two_weeks
-        )
-
-        if self.elasticsearch_tasks.exists():
-            compressed_data = self.queryset_to_compressed_csv(self.elasticsearch_tasks)
-            self.put_s3(bucket, 'elasticsearch/elasticsearch_tasks_', compressed_data)
-
-            logger.info('Finished archiving data for Elasticsearch CeleryTask at %s', datetime.datetime.utcnow().isoformat())
-
-            self.delete_queryset(self.elasticsearch_tasks)
-
-        if self.normalizer_tasks.exists():
-            compressed_data = self.queryset_to_compressed_csv(self.normalizer_tasks)
-            self.put_s3(bucket, 'normalizer/normalizer_tasks_', compressed_data)
-
-            logger.info('Finished archiving data for NormalizerTask at %s', datetime.datetime.utcnow().isoformat())
-
-            self.delete_queryset(self.normalizer_tasks)
-
-        if self.disambiguator_tasks.exists():
-            compressed_data = self.queryset_to_compressed_csv(self.disambiguator_tasks)
-            self.put_s3(bucket, 'disambiguator/disambiguator_tasks_', compressed_data)
-
-            logger.info('Finished archiving data for DisambiguatorTask at %s', datetime.datetime.utcnow().isoformat())
-
-            self.delete_queryset(self.disambiguator_tasks)
-
-        if self.harvester_tasks.exists():
-            compressed_data = self.queryset_to_compressed_csv(self.harvester_tasks)
-            self.put_s3(bucket, 'harvester/harvester_tasks_', compressed_data)
-
-            logger.info('Finished archiving data for HarvesterTask at %s', datetime.datetime.utcnow().isoformat())
-
-            self.delete_queryset(self.harvester_tasks)
-
-        if self.archive_tasks.exists():
-            compressed_data = self.queryset_to_compressed_csv(self.archive_tasks)
-            self.put_s3(bucket, 'archive/archive_tasks_', compressed_data)
-
-            logger.info('Finished archiving data for ArchiveTask at %s', datetime.datetime.utcnow().isoformat())
-
-            self.delete_queryset(self.archive_tasks)
-
-    def queryset_to_compressed_csv(self, queryset):
-        model = queryset.model
-        compressed_output = io.BytesIO()
-        output = io.StringIO()
-        writer = csv.writer(output)
-
-        headers = []
-        for field in model._meta.fields:
-            headers.append(field.name)
-        writer.writerow(headers)
-
-        for obj in queryset.iterator():
-            row = []
-            for field in headers:
-                val = getattr(obj, field)
-                if callable(val):
-                    val = val()
-                if isinstance(val, str):
-                    val = val.encode("utf-8")
-                row.append(val)
-            writer.writerow(row)
-
-        with gzip.GzipFile(filename='tmp.gz', mode='wb', fileobj=compressed_output) as f_out:
-            f_out.write(str.encode(output.getvalue()))
-        return compressed_output
-
-    def get_bucket(self, bucket_name):
+def get_bucket(bucket_name):
         s3 = boto3.resource('s3')
         try:
             s3.meta.client.head_bucket(Bucket=bucket_name)
@@ -143,20 +42,153 @@ class ArchiveBot(Bot):
 
         return bucket_name
 
-    def put_s3(self, bucket, location, data):
+
+def queryset_to_compressed_csv(queryset, model):
+        compressed_output = io.BytesIO()
+        output = io.StringIO()
+        writer = csv.writer(output)
+
+        headers = []
+        for field in model._meta.fields:
+            headers.append(field.name)
+        writer.writerow(headers)
+
+        for obj in queryset:
+            row = []
+            for field in headers:
+                val = getattr(obj, field)
+                if callable(val):
+                    val = val()
+                if isinstance(val, str):
+                    val = val.encode('utf-8')
+                row.append(val)
+            writer.writerow(row)
+
+        compressed_output.write(bz2.compress(str.encode(output.getvalue())))
+
+        return compressed_output
+
+
+def put_s3(bucket, location, data):
         s3 = boto3.resource('s3')
         try:
             current_date = datetime.datetime.utcnow().isoformat()
-            s3.Object(bucket, location + current_date + '.gz').put(Body=data.getvalue())
+            s3.Object(bucket, location + current_date + '.bz2').put(Body=data.getvalue())
         except botocore.exceptions.ClientError as e:
             raise botocore.exceptions.ClientError(e)
 
-    def delete_queryset(self, querySet):
+
+def delete_queryset(queryset):
         num_deleted = 0
         try:
             with transaction.atomic():
-                num_deleted = querySet.delete()
+                (num_deleted, deleted_metadata) = queryset.delete()
         except Exception as e:
-            raise Exception('Failed to delete queryset with exception %s', e)
+            logger.exception('Failed to delete queryset with exception %s', e)
+            raise
 
-        logger.info('Deleted %s CeleryTasks at %s', num_deleted, datetime.datetime.utcnow().isoformat())
+        logger.info('Deleted %s CeleryTasks', num_deleted)
+
+
+class ArchiveBot(Bot):
+
+    def run(self, chunk_size=5000):
+        # check for storage settings
+        if settings.DEBUG is False:
+            if not settings.AWS_ACCESS_KEY_ID or not settings.AWS_SECRET_ACCESS_KEY:
+                raise Exception('No storage found! CeleryTasks will NOT be archived or deleted.')
+            if not settings.CELERY_TASK_BUCKET_NAME:
+                raise Exception('Bucket name not set! Please define bucket name in project.settings')
+
+        self.bucket = ''
+        if not settings.AWS_ACCESS_KEY_ID or not settings.AWS_SECRET_ACCESS_KEY:
+            logger.warning('No storage found! CeleryTasks will NOT be archived but WILL be deleted.')
+        else:
+            if not settings.CELERY_TASK_BUCKET_NAME:
+                raise Exception('Bucket name not set! Please define bucket name in project.settings')
+            self.bucket = get_bucket(settings.CELERY_TASK_BUCKET_NAME)
+
+        logger.info('%s started converting queryset to csv data', self.started_by)
+
+        self.chunk_size = chunk_size
+
+        current_time = datetime.datetime.utcnow()
+        one_day = datetime.timedelta(days=-1)
+        one_week = datetime.timedelta(weeks=-1)
+        two_weeks = datetime.timedelta(weeks=-2)
+
+        # bots.elasticsearch (24hrs)
+        elasticsearch_tasks = CeleryProviderTask.objects.filter(
+            app_label='elasticsearch',
+            timestamp__lt=current_time + one_day
+        )
+        # normalizertask (1 week)
+        normalizer_tasks = CeleryProviderTask.objects.filter(
+            name='share.tasks.NormalizerTask',
+            timestamp__lt=current_time + one_week
+        )
+        # disambiguatortask (1 week)
+        disambiguator_tasks = CeleryProviderTask.objects.filter(
+            name='share.tasks.DisambiguatorTask',
+            timestamp__lt=current_time + one_week
+        )
+        # harvestertask (2 weeks)
+        harvester_tasks = CeleryProviderTask.objects.filter(
+            name='share.tasks.HarvesterTask',
+            timestamp__lt=current_time + two_weeks
+        )
+        # archivetask (2 weeks)
+        archive_tasks = CeleryProviderTask.objects.filter(
+            name='share.tasks.ArchiveTask',
+            timestamp__lt=current_time + two_weeks
+        )
+
+        if elasticsearch_tasks.exists():
+            self.archive_queryset(
+                elasticsearch_tasks,
+                'elasticsearch/elasticsearch_tasks_',
+                'Elasticsearch CeleryTask'
+            )
+
+        if normalizer_tasks.exists():
+            self.archive_queryset(
+                normalizer_tasks,
+                'normalizer/normalizer_tasks_',
+                'NormalizerTask'
+            )
+
+        if disambiguator_tasks.exists():
+            self.archive_queryset(
+                disambiguator_tasks,
+                'disambiguator/disambiguator_tasks_',
+                'DisambiguatorTask'
+            )
+
+        if harvester_tasks.exists():
+            self.archive_queryset(
+                harvester_tasks,
+                'harvester/harvester_tasks_',
+                'HarvesterTask'
+            )
+
+        if archive_tasks.exists():
+            self.archive_queryset(
+                archive_tasks,
+                'archive/archive_tasks_',
+                'ArchiveTask'
+            )
+
+    def archive_queryset(self, queryset, location, task_name):
+        total = queryset.count()
+        logger.info('Found %s %ss eligible for archiving', total, task_name)
+        logger.info('Archiving in chunks of %d', self.chunk_size)
+
+        model = queryset.model
+        for i, celery_tasks in enumerate(chunk(queryset.all(), self.chunk_size)):
+            if self.bucket:
+                compressed_data = queryset_to_compressed_csv(celery_tasks, model)
+                put_s3(self.bucket, location, compressed_data)
+                logger.info('Finished archiving data for %s', task_name)
+
+            logger.info('Archived %d of %d', self.chunk_size * (i + 1), total)
+        delete_queryset(queryset)
