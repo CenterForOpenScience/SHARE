@@ -158,9 +158,10 @@ class JSONLDValidator:
         return JSONLDValidator.__schema_cache.setdefault(model, Draft4Validator(schema, format_checker=draft4_format_checker))
 
     def allowed_fields_for_model(self, model):
-        excluded = {'id', 'type', 'sources', 'changes', 'same_as', 'extra'}
+        excluded = {'id', 'type', 'sources', 'changes', 'extra'}
         fields = model._meta.get_fields()
         allowed_fields = [f for f in fields if f.editable and f.name not in excluded]
         # Include one-to-many relations to models with no other relations
+        excluded.add('same_as')
         allowed_fields.extend(f for f in fields if f.one_to_many and f.name not in excluded and hasattr(f.related_model, 'VersionModel') and not [rf for rf in f.related_model._meta.get_fields() if rf.editable and rf.is_relation and rf.rel != f and rf.name not in excluded])
         return allowed_fields

@@ -363,7 +363,7 @@ class AgentIdentifierFactory(ShareObjectFactory):
 
 
 def _params(seed=None, id=None, type=None, **kwargs):
-    string_id = '_:_' + str(id)
+    string_id = id if isinstance(id, str) else '_:_' + str(id)
     ret = {'id': string_id, 'type': type, **kwargs}
     if id is None:
         ret.pop('id')
