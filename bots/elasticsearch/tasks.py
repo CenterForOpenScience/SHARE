@@ -60,7 +60,7 @@ class IndexModelTask(AppTask):
 
         if model is CreativeWork:
             for blob in util.fetch_creativework(ids):
-                if blob.pop('is_deleted'):
+                if blob.pop('is_deleted') or blob.pop('same_as'):
                     yield {'_id': blob['id'], '_op_type': 'delete', **opts}
                 else:
                     yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
@@ -68,13 +68,17 @@ class IndexModelTask(AppTask):
 
         if model is Agent:
             for blob in util.fetch_agent(ids):
-                yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
+                if blob.pop('same_as', None):
+                    yield {'_id': blob['id'], '_op_type': 'delete', **opts}
+                else:
+                    yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
         for inst in model.objects.filter(id__in=ids):
-            # if inst.is_delete:  # TODO
-            #     yield {'_id': inst.pk, '_op_type': 'delete', **opts}
-            yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
+            if inst.same_as_id:  # TODO is_deleted?
+                yield {'_id': inst.pk, '_op_type': 'delete', **opts}
+            else:
+                yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
 
     def serialize(self, inst):
         return {

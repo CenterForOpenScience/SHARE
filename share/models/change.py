@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import connection
 from django.db import models
 from django.db import transaction
-from django.utils import timezone
+from django.db import IntegrityError
 from django.utils.translation import ugettext as _
 
 from share.models.fuzzycount import FuzzyCountManager
@@ -19,6 +19,15 @@ from share.util import IDObfuscator
 
 __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)
+
+
+# TODO Less hacky way of expressing what can be merged
+EXPLICITLY_MERGEABLE_MODELS = {'AbstractCreativeWork', 'AbstractAgent', 'Award'}
+MERGEABLE_MODELS = EXPLICITLY_MERGEABLE_MODELS | {'AbstractWorkRelation', 'AbstractAgentRelation', 'AbstractAgentWorkRelation', 'ThroughTags', 'ThroughSubjects', 'ThroughContributor', 'ThroughAwards'}
+
+
+class InvalidMergeError(Exception):
+    pass
 
 
 class ChangeSetManager(FuzzyCountManager):
@@ -57,12 +66,11 @@ class ChangeManager(FuzzyCountManager):
             'target_version_type': ContentType.objects.get_for_model(node.model.VersionModel, for_concrete_model=True),
         }
 
-        if node.is_merge:
-            attrs['type'] = Change.TYPE.merge
-        elif not node.instance:
+        if not node.instance:
+            assert not node.is_merge
             attrs['type'] = Change.TYPE.create
         else:
-            attrs['type'] = Change.TYPE.update
+            attrs['type'] = Change.TYPE.merge if node.is_merge else Change.TYPE.update
             attrs['target_id'] = node.instance.pk
             attrs['target_version_id'] = node.instance.version.pk
 
@@ -199,49 +207,14 @@ class Change(models.Model):
         return self.target
 
     def _merge(self, save=True):
-        from share.models.base import ShareObject
         assert save is True, 'Cannot perform merge without saving'
+        assert 'same_as' in self.change
 
-        change = self._resolve_change()
-        # Find all fields that reference this model
-        fields = [
-            field.field for field in
-            self.target_type.model_class()._meta.get_fields()
-            if field.is_relation
-            and not field.many_to_many
-            and field.remote_field
-            and issubclass(field.remote_field.model, ShareObject)
-            and hasattr(field, 'field')
-        ]
-
-        # NOTE: Date is pinned up here to ensure its the same for all changed rows
-        date_modified = timezone.now()
-
-        for field in fields:
-            # Update all rows in "from"
-            # Updates the change, the field in question, the version pin of the field in question
-            # and date_modified must be manually updated
-            field.model.objects.select_for_update().filter(**{
-                field.name + '__in': change['from']
-            }).update(**{
-                'change': self,
-                field.name: change['into'],
-                field.name + '_version': change['into'].version,
-                'date_modified': date_modified,
-            })
-
-        # Finally point all from rows' same_as and
-        # same_as_version to the canonical model.
-        type(change['into']).objects.select_for_update().filter(
-            pk__in=[i.pk for i in change['from']]
-        ).update(
-            change=self,
-            same_as=change['into'],
-            same_as_version=change['into'].version,
-            date_modified=date_modified,
-        )
-
-        return change['into']
+        if len(self.change) != 1:
+            raise InvalidMergeError('Cannot update fields in a merge node!\n{}'.format(self.change))
+        if self.target._meta.concrete_model.__name__ not in EXPLICITLY_MERGEABLE_MODELS:
+            raise InvalidMergeError('Invalid model for explicit merging: {}'.format(self.target._meta.concrete_model))
+        return self._merge_objects(self.target, self._resolve_change()['same_as'])
 
     def _resolve_change(self):
         change = {}
@@ -271,3 +244,89 @@ class Change(models.Model):
             else:
                 change[k] = v
         return change
+
+    def _merge_objects(self, from_obj, into_obj):
+        from share.models import ShareObject
+
+        concrete_model = from_obj._meta.concrete_model
+        if concrete_model.__name__ not in MERGEABLE_MODELS:
+            raise InvalidMergeError('Invalid model for merging: {}'.format(concrete_model))
+        if into_obj._meta.concrete_model is not concrete_model:
+            raise InvalidMergeError('Cannot merge objects of different concrete types: {} and {}'.format(from_obj, into_obj))
+
+        # Avoid same_as chains
+        if into_obj.same_as_id:
+            into_obj = concrete_model.objects.get_canonical(into_obj.id)
+        concrete_model.objects.filter(same_as_id=from_obj.id).update(
+            change=self,
+            same_as=into_obj,
+            same_as_version=into_obj.version
+        )
+
+        for field in concrete_model._meta.get_fields():
+            if field.name == 'extra':
+                self._merge_extras(from_obj, into_obj)
+            elif field.is_relation and not field.many_to_many and issubclass(field.remote_field.model, ShareObject) and hasattr(field, 'field'):
+                # Update incoming foreign keys to point to into_obj.
+                self._merge_fk_field(from_obj, into_obj, field.field)
+            elif not field.is_relation and field.editable and not field.primary_key:
+                # Update scalar field on into_obj. Use value from more recently modified object, ignoring blank values.
+                self._merge_scalar_field(from_obj, into_obj, field)
+
+        into_obj.change = self
+        into_obj.save()
+
+        from_obj.change = self
+        from_obj.same_as = into_obj
+        from_obj.same_as_version = into_obj.version
+        from_obj.save()
+
+        return into_obj
+
+    def _merge_extras(self, from_obj, into_obj):
+        if not from_obj.extra:
+            return
+        merged = {**from_obj.extra.data}
+        if into_obj.extra:
+            merged.update(into_obj.extra.data)
+        else:
+            from share.models.base import ExtraData
+            into_obj.extra = ExtraData()
+        into_obj.extra.data = merged
+        into_obj.extra.change = self
+        into_obj.extra.save()
+
+    def _merge_fk_field(self, from_obj, into_obj, fk_field):
+        assert not fk_field.unique
+
+        fk_model = fk_field.model
+        unique_constraints = [[fk_model._meta.get_field(f).column for f in cols] for cols in fk_model._meta.unique_together if fk_field.name in cols]
+
+        if not unique_constraints:
+            # The foreign key isn't part of a unique constraint, so just update it.
+            fk_model.objects.filter(**{fk_field.name: from_obj}).update(change=self, **{fk_field.name: into_obj})
+            return
+
+        assert len(unique_constraints) == 1
+        unique_columns = unique_constraints[0]
+
+        for fk_obj in fk_model.objects.filter(**{fk_field.name: from_obj.id}):
+            # Make a copy that points to the new target.
+            old_id = fk_obj.id
+            fk_obj.id = None
+            fk_obj.pk = None
+            setattr(fk_obj, fk_field.name, into_obj)
+            try:
+                with transaction.atomic():
+                    fk_obj.save()
+            except IntegrityError as e:
+                # Good news! The copy already exists.
+                fk_obj = fk_model.objects.get(**{f: getattr(fk_obj, f) for f in unique_columns})
+            # Make the original understand it is replaced.
+            self._merge_objects(fk_model.objects.get(id=old_id), fk_obj)
+
+    def _merge_scalar_field(self, from_obj, into_obj, field):
+        from_value = getattr(from_obj, field.name)
+        into_value = getattr(into_obj, field.name)
+        if from_value and (not into_value or from_obj.date_modified > into_obj.date_modified):
+            setattr(into_obj, field.name, from_value)
