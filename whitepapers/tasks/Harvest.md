@@ -38,11 +38,11 @@
 ### Setup
 * Lock the `ingest_config` (NOWAIT)
   * On failure, reschedule for a later run. (This should be allowed to happen many times before finally failing)
-* Get or create `HarvestJob(ingest_config_id, harvester_version, date ranges...)`
+* Get or create HarvestLog(`ingest_config_id`, `harvester_version`, `start_date`, `end_date`)
   * if found and status is:
     * `SUCCEEDED`, `SPLIT`, or `FAILED`: update timestamps and/or counts.
-    * STARTED: Log a warning (Should not have been able to lock the `ingest_config`) and update timestamps and/or counts.
-* Set HarvestJob status to `STARTED`
+    * `STARTED`: Log a warning (Should not have been able to lock the `ingest_config`) and update timestamps and/or counts.
+* Set HarvestLog status to `STARTED`
 * If the specified date range is >= [SOME LENGTH OF TIME] and `no_split` is False
   * Chunk the date range and spawn a harvest task for each chunk
   * Set status to `SPLIT` and exit
@@ -58,9 +58,9 @@
     * Question: Should SUIDs depend on `ingest_config_id` instead of `source_id`? If we're harvesting data in multiple formats from the same source, we probably want to keep the respective states separate.
   * Get or create RawData(hash, suid)
 * For each piece of data (After saving to keep as transactional as possible)
-  * Get or create `TransformLogs(raw_id, ingest_config_id, transformer_version)`
+  * Get or create `TransformLog(raw_id, ingest_config_id, transformer_version)`
   * if the log already exists and superfluous is not set, exit
-  * Start the `TransformTask(raw_id, ingest_config_id, version)` unless `transform` is `False`
+  * Start the `TransformTask(raw_id, ingest_config_id)` unless `transform` is `False`
 
 ### Clean up
 * If an exception was caught, set status to `FAILED` and insert the exception/traceback
