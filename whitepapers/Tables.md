@@ -20,7 +20,7 @@ Identifier for a specific document from a specific source.
 
 | Column | Type | Indexed | Nullable | FK | Default | Description |
 |:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
-| `source_doc_id` | text |  |  |  |  | Identifier given to the document by the source |
+| `identifier` | text |  |  |  |  | Identifier given to the document by the source |
 | `ingest_config_id` | int |  |  | ✓ |  | IngestConfig used to ingest the document |
 
 #### Other indices
@@ -34,8 +34,7 @@ Raw data, exactly as it was given to SHARE.
 | `suid_id` | int |  |  | ✓ | | SUID for this datum |
 | `data` | text |  |  |  | | The raw data itself (typically JSON or XML string) |
 | `sha256` | text | unique |  |  | | SHA-256 hash of `data` |
-| `date_seen` | datetime |  |  |  | now (every update) | The last time this exact data was harvested |
-| `date_harvested` | datetime |  |  |  | now (on insert) | The first time this exact data was harvested |
+| `harvest_logs` | m2m |  |  |  |  | List of HarvestLogs for harvester runs that found this exact datum |
 
 ## Ingest Configuration
 
@@ -72,7 +71,8 @@ Each row corresponds to a Harvester implementation in python. (TODO: describe th
 | Column | Type | Indexed | Nullable | FK | Default | Description |
 |:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `key` | text | unique |  |  | | Key that can be used to get the corresponding Harvester subclass |
-| `date_created` | datetime |  |  |  | now (on insert) | |
+| `date_created` | datetime |  |  |  | now | |
+| `date_modified` | datetime |  |  |  | now (on update) | |
 
 ### Transformer
 Each row corresponds to a Transformer implementation in python. (TODO: describe those somewhere)
@@ -80,7 +80,8 @@ Each row corresponds to a Transformer implementation in python. (TODO: describe 
 | Column | Type | Indexed | Nullable | FK | Default | Description |
 |:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `key` | text | unique |  |  | | Key that can be used to get the corresponding Transformer subclass |
-| `date_created` | datetime |  |  |  | now (on insert) | |
+| `date_created` | datetime |  |  |  | now | |
+| `date_modified` | datetime |  |  |  | now (on update) | |
 
 ## Logs
 
@@ -90,7 +91,7 @@ Log entries to track the status of a specific harvester run.
 | Column | Type | Indexed | Nullable | FK | Default | Description |
 |:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `ingest_config_id` | int |  |  | ✓ | | IngestConfig for this harvester run |
-| `harvester_version` | text |  |  |  | | Current version of the harvester in format 'x.x.x' |
+| `harvester_version` | text |  |  |  | | Semantic version of the harvester, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010')
 | `start_date` | datetime |  |  |  | | Beginning of the date range to harvest |
 | `end_date` | datetime |  |  |  | | End of the date range to harvest |
 | `started` | datetime |  |  |  | | Time `status` was set to STARTED |
@@ -106,7 +107,7 @@ Log entries to track the status of a transform task
 |:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `raw_id` | int |  |  | ✓ | | RawData to be transformed |
 | `ingest_config_id` | int |  |  | ✓ | | IngestConfig used |
-| `transformer_version` | text |  |  |  | | Current version of the transformer in format 'x.x.x' |
+| `transformer_version` | text |  |  |  | | Semantic version of the transformer, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010')
 | `started` | datetime |  |  |  | | Time `status` was set to STARTED |
 | `status` | text |  |  |  | INITIAL | Status of the transform task, one of {INITIAL, STARTED, RESCHEDULED, SUCCEEDED, FAILED} |
 
