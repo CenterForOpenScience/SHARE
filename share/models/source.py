@@ -82,6 +82,7 @@ class IngestConfig(models.Model):
 class Harvester(models.Model):
     key = models.TextField(unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     objects = NaturalKeyManager('key')
 
@@ -92,6 +93,7 @@ class Harvester(models.Model):
 class Transformer(models.Model):
     key = models.TextField(unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     objects = NaturalKeyManager('key')
 
