@@ -9,6 +9,7 @@ import botocore
 
 from django.db import transaction
 from django.conf import settings
+from django.core.paginator import Paginator
 
 from share.bot import Bot
 from share.models import CeleryProviderTask
@@ -16,83 +17,72 @@ from share.models import CeleryProviderTask
 logger = logging.getLogger(__name__)
 
 
-def chunk(iterable, size):
-    iterable = iter(iterable)
-    try:
-        while True:
-            l = []
-            for _ in range(size):
-                l.append(next(iterable))
-            yield l
-    except StopIteration:
-        yield l
-
-
 def get_bucket(bucket_name):
-        s3 = boto3.resource('s3')
-        try:
-            s3.meta.client.head_bucket(Bucket=bucket_name)
-        except botocore.exceptions.ClientError as e:
-            # If a client error is thrown, then check that it was a 404 error.
-            # If it was a 404 error, then the bucket does not exist.
-            error_code = int(e.response['Error']['Code'])
-            if error_code != 404:
-                raise botocore.exceptions.ClientError(e)
-            s3.create_bucket(Bucket=bucket_name)
+    s3 = boto3.resource('s3')
+    try:
+        s3.meta.client.head_bucket(Bucket=bucket_name)
+    except botocore.exceptions.ClientError as e:
+        # If a client error is thrown, then check that it was a 404 error.
+        # If it was a 404 error, then the bucket does not exist.
+        error_code = int(e.response['Error']['Code'])
+        if error_code != 404:
+            raise botocore.exceptions.ClientError(e)
+        s3.create_bucket(Bucket=bucket_name)
 
-        return bucket_name
+    return bucket_name
 
 
 def queryset_to_compressed_csv(queryset, model):
-        compressed_output = io.BytesIO()
-        output = io.StringIO()
-        writer = csv.writer(output)
+    compressed_output = io.BytesIO()
+    output = io.StringIO()
+    writer = csv.writer(output)
 
-        headers = []
-        for field in model._meta.fields:
-            headers.append(field.name)
-        writer.writerow(headers)
+    headers = []
+    for field in model._meta.fields:
+        headers.append(field.name)
+    writer.writerow(headers)
 
-        for obj in queryset:
-            row = []
-            for field in headers:
-                val = getattr(obj, field)
-                if callable(val):
-                    val = val()
-                if isinstance(val, str):
-                    val = val.encode('utf-8')
-                row.append(val)
-            writer.writerow(row)
+    for obj in queryset:
+        row = []
+        for field in headers:
+            val = getattr(obj, field)
+            if callable(val):
+                val = val()
+            if isinstance(val, str):
+                val = val.encode('utf-8')
+            row.append(val)
+        writer.writerow(row)
 
-        compressed_output.write(bz2.compress(str.encode(output.getvalue())))
+    compressed_output.write(bz2.compress(str.encode(output.getvalue())))
 
-        return compressed_output
+    return compressed_output
 
 
 def put_s3(bucket, location, data):
-        s3 = boto3.resource('s3')
-        try:
-            current_date = datetime.datetime.utcnow().isoformat()
-            s3.Object(bucket, location + current_date + '.bz2').put(Body=data.getvalue())
-        except botocore.exceptions.ClientError as e:
-            raise botocore.exceptions.ClientError(e)
+    s3 = boto3.resource('s3')
+    try:
+        current_date = datetime.datetime.utcnow().isoformat()
+        s3.Object(bucket, location + current_date + '.bz2').put(Body=data.getvalue())
+    except botocore.exceptions.ClientError as e:
+        raise botocore.exceptions.ClientError(e)
 
 
 def delete_queryset(queryset):
-        num_deleted = 0
-        try:
-            with transaction.atomic():
-                (num_deleted, deleted_metadata) = queryset.delete()
-        except Exception as e:
-            logger.exception('Failed to delete queryset with exception %s', e)
-            raise
+    num_deleted = 0
+    try:
+        with transaction.atomic():
+            num_deleted, deleted_metadata = queryset.delete()
+    except Exception as e:
+        logger.exception('Failed to delete queryset with exception %s', e)
+        raise
 
-        logger.info('Deleted %s CeleryTasks', num_deleted)
+    logger.info('Deleted %s CeleryTasks', num_deleted)
 
 
 class ArchiveBot(Bot):
 
     def run(self, chunk_size=5000):
+
         # check for storage settings
         if settings.DEBUG is False:
             if not settings.AWS_ACCESS_KEY_ID or not settings.AWS_SECRET_ACCESS_KEY:
@@ -144,51 +134,59 @@ class ArchiveBot(Bot):
         )
 
         if elasticsearch_tasks.exists():
-            self.archive_queryset(
+            self.paginate_queryset(
                 elasticsearch_tasks,
                 'elasticsearch/elasticsearch_tasks_',
                 'Elasticsearch CeleryTask'
             )
 
         if normalizer_tasks.exists():
-            self.archive_queryset(
+            self.paginate_queryset(
                 normalizer_tasks,
                 'normalizer/normalizer_tasks_',
                 'NormalizerTask'
             )
 
         if disambiguator_tasks.exists():
-            self.archive_queryset(
+            self.paginate_queryset(
                 disambiguator_tasks,
                 'disambiguator/disambiguator_tasks_',
                 'DisambiguatorTask'
             )
 
         if harvester_tasks.exists():
-            self.archive_queryset(
+            self.paginate_queryset(
                 harvester_tasks,
                 'harvester/harvester_tasks_',
                 'HarvesterTask'
             )
 
         if archive_tasks.exists():
-            self.archive_queryset(
+            self.paginate_queryset(
                 archive_tasks,
                 'archive/archive_tasks_',
                 'ArchiveTask'
             )
 
-    def archive_queryset(self, queryset, location, task_name):
-        total = queryset.count()
-        logger.info('Found %s %ss eligible for archiving', total, task_name)
-        logger.info('Archiving in chunks of %d', self.chunk_size)
+    def archive_queryset(self, page, model, location, task_name):
+        compressed_data = queryset_to_compressed_csv(page.object_list, model)
+        put_s3(self.bucket, location, compressed_data)
+        logger.info('Finished archiving data for %s', task_name)
 
-        model = queryset.model
-        for i, celery_tasks in enumerate(chunk(queryset.all(), self.chunk_size)):
-            if self.bucket:
-                compressed_data = queryset_to_compressed_csv(celery_tasks, model)
-                put_s3(self.bucket, location, compressed_data)
-                logger.info('Finished archiving data for %s', task_name)
+    def paginate_queryset(self, queryset, location, task_name):
+        if self.bucket:
+            total = queryset.count()
+            logger.info('Found %s %ss eligible for archiving', total, task_name)
+            logger.info('Archiving in chunks of %d', self.chunk_size)
 
-            logger.info('Archived %d of %d', self.chunk_size * (i + 1), total)
+            model = queryset.model
+            paginator = Paginator(queryset, self.chunk_size)
+            page = paginator.page(1)
+            self.archive_queryset(page, model, location, task_name)
+
+            while page.has_next():
+                page = paginator.page(page.next_page_number())
+                self.archive_queryset(page, model, location, task_name)
+                logger.info('Archived %d', page)
+
         delete_queryset(queryset)
