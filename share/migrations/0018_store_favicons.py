@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='shareuser',
             name='favicon',
-            field=models.ImageField(null=True, storage=share.models.core.FaviconStorage(), upload_to=share.models.core.favicon_name),
+            field=models.ImageField(null=True, storage=share.models.source.SourceIconStorage(), upload_to=share.models.source.icon_name),
         ),
         migrations.AddField(
             model_name='faviconimage',
