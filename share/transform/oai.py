@@ -2,9 +2,8 @@ import re
 import logging
 from lxml import etree
 
-from share.normalize import ctx, tools
-from share.normalize.parsers import Parser
-from share.normalize.normalizer import Normalizer
+from share.transform.chain import ctx, tools, ChainTransformer
+from share.transform.chain.parsers import Parser
 
 
 logger = logging.getLogger(__name__)
@@ -317,11 +316,11 @@ class OAICreativeWork(Parser):
         return [r for r in relation if r and re.sub('http|:|/', '', r) not in identifiers]
 
 
-class OAINormalizer(Normalizer):
+class OAITransformer(ChainTransformer):
     KEY = 'oai_dc'
+    VERSION = '0.0.1'
 
-    @property
-    def root_parser(self):
+    def get_root_parser(self):
         class RootParser(OAICreativeWork):
             default_type = self.config.emitted_type.lower()
             type_map = {
@@ -330,7 +329,7 @@ class OAINormalizer(Normalizer):
             }
 
         if self.config.property_list:
-            logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))
+            logger.debug('Attaching addition properties %s to transformer for %s'.format(self.config.property_list, self.config.label))
             for prop in self.config.property_list:
                 if prop in RootParser._extra:
                     logger.warning('Skipping property %s, it already exists', prop)
@@ -339,7 +338,7 @@ class OAINormalizer(Normalizer):
 
         return RootParser
 
-    def do_normalize(self, data):
+    def do_transform(self, data):
         if self.config.approved_sets is not None:
             specs = set(x.replace('publication:', '') for x in etree.fromstring(data).xpath(
                 'ns0:header/ns0:setSpec/node()',
@@ -349,4 +348,4 @@ class OAINormalizer(Normalizer):
                 logger.warning('Series %s not found in approved_sets for %s', specs, self.config.label)
                 return None
 
-        return super().do_normalize(data)
+        return super().do_transform(data)

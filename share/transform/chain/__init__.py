@@ -1,6 +1,5 @@
-from share.transform.tools.links import *  # noqa
-from share.transform.tools.parsers import *  # noqa
-from share.transform.tools.links import Context
+from share.transform.chain.transformer import ChainTransformer
+from share.transform.chain.links import Context
 
 
 # Context singleton to be used for parser definitions

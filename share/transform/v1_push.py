@@ -3,7 +3,7 @@ import re
 from share.transform import tools
 from share.transform.tools import ctx
 from share.transform.tools.parsers import Parser
-from share.transform.base import BaseTransformer
+from share.transform.chain import BaseTransformer
 
 THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 
@@ -194,6 +194,7 @@ class CreativeWork(Parser):
         return False
 
 
-# TODO rename
-class V1Normalizer(BaseTransformer):
+class V1Transformer(ChainTransformer):
+    KEY = 'v1_push'
+    VERSION = '0.0.1'
     root_parser = CreativeWork
