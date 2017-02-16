@@ -6,7 +6,7 @@
 {Description}
 
 | Column | Type | Indexed | Nullable | FK | Default | Description |
-|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+|:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | | | ✓ | ✓ | ✓ | | |
 
 #### Other indices
@@ -18,9 +18,8 @@
 ### SourceUniqueIdentifier (SUID)
 Identifier for a specific document from a specific source.
 
-#### Columns
 | Column | Type | Indexed | Nullable | FK | Default | Description |
-|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+|:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `source_doc_id` | text |  |  |  |  | Identifier given to the document by the source |
 | `ingest_config_id` | int |  |  | ✓ |  | IngestConfig used to ingest the document |
 
@@ -30,9 +29,8 @@ Identifier for a specific document from a specific source.
 ### RawData
 Raw data, exactly as it was given to SHARE.
 
-#### Columns
 | Column | Type | Indexed | Nullable | FK | Default | Description |
-|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+|:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `suid_id` | int |  |  | ✓ | | SUID for this datum |
 | `data` | text |  |  |  | | The raw data itself (typically JSON or XML string) |
 | `sha256` | text | unique |  |  | | SHA-256 hash of `data` |
@@ -44,9 +42,8 @@ Raw data, exactly as it was given to SHARE.
 ### IngestConfig
 Describes one way to harvest metadata from a Source, and how to transform the result.
 
-#### Columns
 | Column | Type | Indexed | Nullable | FK | Default | Description |
-|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+|:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `source_id` | int |  |  | ✓ | | Source to harvest from |
 | `base_url` | text |  |  |  | | URL of the API or endpoint where the metadata is available |
 | `earliest_date` | date |  | ✓ |  | | Earliest date with available data |
@@ -61,9 +58,8 @@ Describes one way to harvest metadata from a Source, and how to transform the re
 ### Source
 A Source is a place metadata comes from.
 
-#### Columns
 | Column | Type | Indexed | Nullable | FK | Default | Description |
-|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+|:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `name` | text | unique |  |  | | Short name |
 | `long_title` | text | unique |  |  | | Full, human-friendly name |
 | `home_page` | text |  | ✓ |  | | URL |
@@ -73,18 +69,16 @@ A Source is a place metadata comes from.
 ### Harvester
 Each row corresponds to a Harvester implementation in python. (TODO: describe those somewhere)
 
-#### Columns
 | Column | Type | Indexed | Nullable | FK | Default | Description |
-|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+|:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `key` | text | unique |  |  | | Key that can be used to get the corresponding Harvester subclass |
 | `date_created` | datetime |  |  |  | now (on insert) | |
 
 ### Transformer
 Each row corresponds to a Transformer implementation in python. (TODO: describe those somewhere)
 
-#### Columns
 | Column | Type | Indexed | Nullable | FK | Default | Description |
-|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+|:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `key` | text | unique |  |  | | Key that can be used to get the corresponding Transformer subclass |
 | `date_created` | datetime |  |  |  | now (on insert) | |
 
@@ -93,9 +87,8 @@ Each row corresponds to a Transformer implementation in python. (TODO: describe 
 ### HarvestLog
 Log entries to track the status of a specific harvester run.
 
-#### Columns
 | Column | Type | Indexed | Nullable | FK | Default | Description |
-|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+|:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `ingest_config_id` | int |  |  | ✓ | | IngestConfig for this harvester run |
 | `harvester_version` | text |  |  |  | | Current version of the harvester in format 'x.x.x' |
 | `start_date` | datetime |  |  |  | | Beginning of the date range to harvest |
@@ -109,9 +102,8 @@ Log entries to track the status of a specific harvester run.
 ### TransformLog
 Log entries to track the status of a transform task
 
-#### Columns
 | Column | Type | Indexed | Nullable | FK | Default | Description |
-|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+|:-------|:----:|:-------:|:--------:|:--:|:-------:|:------------|
 | `raw_id` | int |  |  | ✓ | | RawData to be transformed |
 | `ingest_config_id` | int |  |  | ✓ | | IngestConfig used |
 | `transformer_version` | text |  |  |  | | Current version of the transformer in format 'x.x.x' |
