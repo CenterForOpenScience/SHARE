@@ -5,11 +5,11 @@
 ### {ModelName}
 {Description}
 
-#### Columns
-* `{column_name}` -- {description} ({datatype}, [unique,] [indexed,] [nullable,] [default={value},] [choices={choices],])
-* ...
+| Column | Type | Indexed | Nullable | FK | Default | Description |
+|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+| | | ✓ | ✓ | ✓ | | |
 
-#### Multi-column indices
+#### Other indices
 * `{column_name}`, `{column_name}`, ... [(unique)]
 * ...
 
@@ -19,21 +19,25 @@
 Identifier for a specific document from a specific source.
 
 #### Columns
-* `source_doc_id` -- Identifier given to the document by the source (text)
-* `ingest_config_id` -- PK of the IngestConfig used to ingest the document (int)
+| Column | Type | Indexed | Nullable | FK | Default | Description |
+|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+| `source_doc_id` | text |  |  |  |  | Identifier given to the document by the source |
+| `ingest_config_id` | int |  |  | ✓ |  | IngestConfig used to ingest the document |
 
-#### Multi-column indices
+#### Other indices
 * `source_doc_id`, `ingest_config_id` (unique)
 
 ### RawData
 Raw data, exactly as it was given to SHARE.
 
 #### Columns
-* `suid_id` -- PK of the SUID for this datum (int)
-* `data` -- The raw data itself (text)
-* `sha256` -- SHA-256 hash of `data` (text)
-* `date_seen` -- The last time this exact data was harvested (datetime)
-* `date_harvested` -- The first time this exact data was harvested (datetime)
+| Column | Type | Indexed | Nullable | FK | Default | Description |
+|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+| `suid_id` | int |  |  | ✓ | | SUID for this datum |
+| `data` | text |  |  |  | | The raw data itself (typically JSON or XML string) |
+| `sha256` | text | unique |  |  | | SHA-256 hash of `data` |
+| `date_seen` | datetime |  |  |  | now (every update) | The last time this exact data was harvested |
+| `date_harvested` | datetime |  |  |  | now (on insert) | The first time this exact data was harvested |
 
 ## Ingest Configuration
 
@@ -41,40 +45,48 @@ Raw data, exactly as it was given to SHARE.
 Describes one way to harvest metadata from a Source, and how to transform the result.
 
 #### Columns
-* `source_id` -- PK of the source (int)
-* `base_url` -- URL of the API/endpoint where the metadata is available (text)
-* `earliest_date` -- Earliest date with available data (date, nullable)
-* `rate_limit_allowance` -- Number of requests allowed every `rate_limit_period` seconds (positive int, default=5)
-* `rate_limit_period` -- Number of seconds for every `rate_limit_allowance` requests (positive int, default=1)
-* `harvester_id` -- PK of the harvester to use (int)
-* `harvester_kwargs` -- JSON object passed to the harvester as kwargs (json, nullable)
-* `transformer_id` -- PK of the transformer to use (int)
-* `transformer_kwargs` -- JSON object passed to the transformer as kwargs, along with the harvested raw data (json, nullable)
-* `disabled` -- True if this ingest config should not be run automatically (boolean)
+| Column | Type | Indexed | Nullable | FK | Default | Description |
+|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+| `source_id` | int |  |  | ✓ | | Source to harvest from |
+| `base_url` | text |  |  |  | | URL of the API or endpoint where the metadata is available |
+| `earliest_date` | date |  | ✓ |  | | Earliest date with available data |
+| `rate_limit_allowance` | int |  |  |  | 5 | Number of requests allowed every `rate_limit_period` seconds |
+| `rate_limit_period` | int |  |  |  | 1 | Number of seconds for every `rate_limit_allowance` requests |
+| `harvester_id` | int |  |  | ✓ | | Harvester to use |
+| `harvester_kwargs` | jsonb |  | ✓ |  | | JSON object passed to the harvester as kwargs |
+| `transformer_id` | int |  |  | ✓ | | Transformer to use |
+| `transformer_kwargs` | jsonb |  | ✓ |  | | JSON object passed to the transformer as kwargs, along with the harvested raw data |
+| `disabled` | bool |  |  |  | False | True if this ingest config should not be run automatically |
 
 ### Source
 A Source is a place metadata comes from.
 
 #### Columns
-* `name` -- Short name (text, unique)
-* `long_title` -- Full, human-friendly name (text, unique)
-* `home_page` -- URL (text, nullable)
-* `icon` -- Icon for the source (image, nullable)
-* `user_id` -- PK of the user with permission to submit data as this source (TODO: replace with django permissions stuff) (int)
+| Column | Type | Indexed | Nullable | FK | Default | Description |
+|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+| `name` | text | unique |  |  | | Short name |
+| `long_title` | text | unique |  |  | | Full, human-friendly name |
+| `home_page` | text |  | ✓ |  | | URL |
+| `icon` | image |  | ✓ |  | | Recognizable icon for the source |
+| `user_id` | int |  |  | ✓ | | User with permission to submit data as this source (TODO: replace with django permissions stuff) |
 
 ### Harvester
 Each row corresponds to a Harvester implementation in python. (TODO: describe those somewhere)
 
 #### Columns
-* `key` -- Key that can be used to get the corresponding Harvester subclass (text, unique)
-* `date_created` -- Date created (datetime)
+| Column | Type | Indexed | Nullable | FK | Default | Description |
+|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+| `key` | text | unique |  |  | | Key that can be used to get the corresponding Harvester subclass |
+| `date_created` | datetime |  |  |  | now (on insert) | |
 
 ### Transformer
 Each row corresponds to a Transformer implementation in python. (TODO: describe those somewhere)
 
 #### Columns
-* `key` -- Key that can be used to get the corresponding Transformer subclass (text, unique)
-* `date_created` -- Date created (datetime)
+| Column | Type | Indexed | Nullable | FK | Default | Description |
+|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+| `key` | text | unique |  |  | | Key that can be used to get the corresponding Transformer subclass |
+| `date_created` | datetime |  |  |  | now (on insert) | |
 
 ## Logs
 
@@ -82,25 +94,29 @@ Each row corresponds to a Transformer implementation in python. (TODO: describe 
 Log entries to track the status of a specific harvester run.
 
 #### Columns
-* `ingest_config_id` -- PK of the IngestConfig for this harvester run (int)
-* `harvester_version` -- Current version of the harvester in format 'x.x.x' (text)
-* `start_date` -- Beginning of the date range to harvest (datetime)
-* `end_date` -- End of the date range to harvest (datetime)
-* `started` -- Time this harvester run began (datetime)
-* `status` -- Status of the harvester run (string, choices={INITIAL, STARTED, SPLIT, SUCCEEDED, FAILED}, default=INITIAL)
+| Column | Type | Indexed | Nullable | FK | Default | Description |
+|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+| `ingest_config_id` | int |  |  | ✓ | | IngestConfig for this harvester run |
+| `harvester_version` | text |  |  |  | | Current version of the harvester in format 'x.x.x' |
+| `start_date` | datetime |  |  |  | | Beginning of the date range to harvest |
+| `end_date` | datetime |  |  |  | | End of the date range to harvest |
+| `started` | datetime |  |  |  | | Time `status` was set to STARTED |
+| `status` | text |  |  |  | INITIAL | Status of the harvester run, one of {INITIAL, STARTED, SPLIT, SUCCEEDED, FAILED} |
 
-#### Multi-column indices
+#### Other indices
 * `ingest_config_id`, `harvester_version`, `start_date`, `end_date` (unique)
 
 ### TransformLog
-Log entries to track the status of a specific harvester run.
+Log entries to track the status of a transform task
 
 #### Columns
-* `raw_id` -- PK of the RawData to be transformed (int)
-* `ingest_config_id` -- PK of the IngestConfig (int)
-* `transformer_version` -- Current version of the transformer in format 'x.x.x' (text)
-* `started` -- Time this transform task began (datetime)
-* `status` -- Status of the transform task (string, choices={INITIAL, STARTED, RESCHEDULED, SUCCEEDED, FAILED}, default=INITIAL)
+| Column | Type | Indexed | Nullable | FK | Default | Description |
+|:-------|:----:|:-------:|:---------|:--:|:-------:|:------------|
+| `raw_id` | int |  |  | ✓ | | RawData to be transformed |
+| `ingest_config_id` | int |  |  | ✓ | | IngestConfig used |
+| `transformer_version` | text |  |  |  | | Current version of the transformer in format 'x.x.x' |
+| `started` | datetime |  |  |  | | Time `status` was set to STARTED |
+| `status` | text |  |  |  | INITIAL | Status of the transform task, one of {INITIAL, STARTED, RESCHEDULED, SUCCEEDED, FAILED} |
 
-#### Multi-column indices
+#### Other indices
 * `raw_id`, `transformer_version` (unique)
