@@ -7,6 +7,7 @@ from db.deletion import DATABASE_CASCADE
 
 from share.models.fuzzycount import FuzzyCountManager
 
+__all__ = ('Source', 'IngestConfig', 'Harvester', 'Transformer')
 
 class SourceIcon(models.Model):
     source = models.OneToOneField('Source', on_delete=DATABASE_CASCADE)

@@ -22,9 +22,10 @@ from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.validators import JSONLDValidator
+from share.models.ingest import IngestConfig
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'RawData', 'NormalizedData',)
+__all__ = ('ShareUser', 'RawData', 'NormalizedData', 'SourceUniqueIdentifier')
 
 
 class ShareUserManager(BaseUserManager):
@@ -175,21 +176,33 @@ def user_post_save(sender, instance, created, **kwargs):
         instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
+class SourceUniqueIdentifier(models.Model):
+    identifier = models.TextField()
+    ingest_config = models.ForeignKey('IngestConfig')
+
+    class Meta:
+        unique_together = ('identifier', 'ingest_config')
+
+    def __str__(self):
+        return '{} {}'.format(self.ingest_config_id, self.identifier)
+
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.ingest_config_id, self.identifier)
+
+
 class RawDataManager(FuzzyCountManager):
 
-    def store_data(self, doc_id, data, source, app_label):
+    def store_data(self, data, suid):
         rd, created = self.get_or_create(
-            source=source,
-            app_label=app_label,
-            provider_doc_id=doc_id,
+            suid=suid,
             sha256=sha256(data).hexdigest(),
             defaults={'data': data},
         )
 
         if created:
-            logger.debug('Newly created RawData for document %s from %s', doc_id, source)
+            logger.debug('Newly created RawData for document %s', suid)
         else:
-            logger.debug('Saw exact copy of document %s from %s', doc_id, source)
+            logger.debug('Saw exact copy of document %s', suid)
 
         rd.save()  # Force timestamps to update
         return rd
@@ -198,9 +211,7 @@ class RawDataManager(FuzzyCountManager):
 class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
-    source = models.ForeignKey(settings.AUTH_USER_MODEL)
-    app_label = models.TextField(db_index=True)
-    provider_doc_id = models.TextField()
+    suid = models.ForeignKey('SourceUniqueIdentifier')
 
     data = models.TextField()
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
@@ -213,18 +224,18 @@ class RawData(models.Model):
     objects = RawDataManager()
 
     def __str__(self):
-        return '({}) {} {}'.format(self.id, self.source, self.provider_doc_id)
+        return '({}) {}'.format(self.id, self.suid)
 
     @property
     def processsed(self):
         return self.date_processed is not None  # TODO: this field doesn't exist...
 
     class Meta:
-        unique_together = (('provider_doc_id', 'app_label', 'source', 'sha256'),)
+        unique_together = (('suid_id', 'sha256'),)
         verbose_name_plural = 'Raw data'
 
     def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.source, self.provider_doc_id)
+        return '<{}({})>'.format(self.__class__.__name__, self.suid)
 
 
 class NormalizedData(models.Model):

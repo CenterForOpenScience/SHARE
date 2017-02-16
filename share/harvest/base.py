@@ -64,16 +64,12 @@ class HarvesterMeta(type):
 
 class BaseHarvester(metaclass=HarvesterMeta):
 
-    # TODO Make this apply across threads
-    rate_limit = (5, 1)  # Rate limit in requests per_second
-
-    def __init__(self, source, **kwargs):
+    def __init__(self, ingest_config, **kwargs):
         self.last_call = 0
-        self.source = source
+        self.ingest_config = ingest_config
         self.kwargs = kwargs
-        self.rate_limit = kwargs.get('rate_limit', self.rate_limit)
-        self.allowance = self.rate_limit[0]
-        self.requests = RateLimittedProxy(requests, *self.rate_limit)
+        # TODO Make rate limit apply across threads
+        self.requests = RateLimittedProxy(requests, ingest_config.rate_limit_allowance, ingest_config.rate_limit_period)
 
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, **kwargs) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         """Fetch date from this provider inside of the given date range.
@@ -126,7 +122,7 @@ class BaseHarvester(metaclass=HarvesterMeta):
         return start_date, end_date
 
     def harvest(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
-        from share.models import RawData
+        from share.models import RawData, SourceUniqueIdentifier
         start_date, end_date = self._validate_dates(start_date, end_date)
 
         raw_ids = []
@@ -135,7 +131,8 @@ class BaseHarvester(metaclass=HarvesterMeta):
             assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
             for doc_id, datum in rawdata:
-                raw_ids.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source, self.config.label).id)
+                suid = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, ingest_config=self.ingest_config)
+                raw_ids.append(RawData.objects.store_data(self.encode_data(datum), suid).id)
                 if limit is not None and len(raw_ids) >= limit:
                     break
 
@@ -152,10 +149,11 @@ class BaseHarvester(metaclass=HarvesterMeta):
             if limit and count >= limit:
                 break
 
-    def harvest_by_id(self, provider_id):
+    def harvest_by_id(self, doc_id):
         from share.models import RawData
-        datum = self.fetch_by_id(provider_id)
-        return RawData.objects.store_data(provider_id, self.encode_data(datum), self.source, self.config.label)
+        datum = self.fetch_by_id(doc_id)
+        suid = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, ingest_config=self.ingest_config)
+        return RawData.objects.store_data(self.encode_data(datum), suid)
 
     def encode_data(self, data, pretty=False) -> bytes:
         if isinstance(data, bytes):
