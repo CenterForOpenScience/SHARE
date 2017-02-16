@@ -24,7 +24,7 @@ class TransformerMeta(type):
             cls.registry = {}
 
 
-class Transformer(metaclass=abc.ABCMeta):
+class BaseTransformer(metaclass=abc.ABCMeta):
 
     root_parser = None
 

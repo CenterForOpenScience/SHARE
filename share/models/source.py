@@ -5,8 +5,7 @@ from django.utils.deconstruct import deconstructible
 
 from db.deletion import DATABASE_CASCADE
 
-from share import harvest
-from share import process
+from share.models.fuzzycount import FuzzyCountManager
 
 
 class SourceIcon(models.Model):
@@ -42,6 +41,7 @@ def icon_name(instance, filename):
 
 class NaturalKeyManager(FuzzyCountManager):
     def __init__(self, key_field):
+        super(NaturalKeyManager, self).__init__()
         self.key_field = key_field
 
     def get_by_natural_key(self, key):
@@ -50,8 +50,8 @@ class NaturalKeyManager(FuzzyCountManager):
 
 class Source(models.Model):
     name = models.TextField(unique=True)
-    long_title = models.TextField()
-    home_page = models.URLField()
+    long_title = models.TextField(unique=True)
+    home_page = models.URLField(null=True)
     icon = models.ImageField(upload_to=icon_name, storage=SourceIconStorage(), null=True)
 
     # TODO replace with Django permissions something something
@@ -63,10 +63,12 @@ class Source(models.Model):
         return self.name
 
 
-class SourceHarvester(models.Model):
+class IngestConfig(models.Model):
     source = models.ForeignKey('Source')
     base_url = models.URLField()
     earliest_date = models.DateField(null=True)
+    rate_limit_allowance = models.PositiveIntegerField(default=5)
+    rate_limit_period = models.PositiveIntegerField(default=1)
 
     harvester = models.ForeignKey('Harvester')
     harvester_kwargs = JSONField(null=True)

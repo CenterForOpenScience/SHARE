@@ -3,7 +3,7 @@ import logging
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from share.normalize.links import IRILink
+from share.transform.tools.links import IRILink
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 

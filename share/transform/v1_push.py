@@ -1,8 +1,9 @@
 import re
 
-from share.normalize import ctx, tools
-from share.normalize.parsers import Parser
-from share.normalize.normalizer import Normalizer
+from share.transform import tools
+from share.transform.tools import ctx
+from share.transform.tools.parsers import Parser
+from share.transform.base import BaseTransformer
 
 THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 
@@ -193,5 +194,6 @@ class CreativeWork(Parser):
         return False
 
 
-class V1Normalizer(Normalizer):
+# TODO rename
+class V1Normalizer(BaseTransformer):
     root_parser = CreativeWork

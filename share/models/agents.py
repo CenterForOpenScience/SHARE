@@ -9,7 +9,7 @@ from django.apps import apps
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.fields import ShareManyToManyField
-from share.normalize.links import GuessAgentTypeLink
+from share.transform.tools.links import GuessAgentTypeLink
 from share.util import strip_whitespace, ModelGenerator
 
 
