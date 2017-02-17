@@ -36,6 +36,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
+TAMANDUA_ENABLED = bool(os.environ.get('TAMANDUA', False))
+
 if 'VERSION' not in os.environ and DEBUG:
     try:
         VERSION = subprocess.check_output(['git', 'describe']).decode().strip()
@@ -207,6 +209,15 @@ DATABASES = {
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
     },
+    'locking': {
+        'ENGINE': 'db.backends.postgresql',
+        'NAME': os.environ.get('DATABASE_NAME', 'share'),
+        'USER': os.environ.get('DATABASE_USER', 'postgres'),
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+        'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
+        'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
+    }
 }
 
 # Password validation

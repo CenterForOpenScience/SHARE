@@ -11,3 +11,5 @@ from share.models.registration import *  # noqa
 from share.models.identifiers import *  # noqa
 from share.models.relations import *  # noqa
 from share.models.banner import * # noqa
+from share.models.ingest import * # noqa
+from share.models.logs import * # noqa

@@ -115,4 +115,8 @@ class Migration(migrations.Migration):
         migrations.DeleteModel(
             name='FaviconImage',
         ),
+        migrations.RenameModel(
+            old_name='RawData',
+            new_name='RawDatum',
+        )
     ]

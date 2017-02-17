@@ -542,6 +542,14 @@ class ShareURLField(models.TextField):
         return super(ShareURLField, self).formfield(**defaults)
 
 
+# class VersionField(models.CharField):
+
+#     def __init__(self, *args, **kwargs):
+#         kwargs['max_length'] = 11
+#         super().__init__(*args, **kwargs)
+
+
+
 class GenericRelationNoCascade(GenericRelation):
     @property
     def bulk_related_objects(self):

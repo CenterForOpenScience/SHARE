@@ -14,7 +14,8 @@ from share.robot import RobotAppConfig
 # from share.models.base import ExtraData
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
-from share.models.core import RawData, NormalizedData, ShareUser
+from share.models.core import NormalizedData, ShareUser
+from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
 # from share.models.creative import AbstractCreativeWork
 # from share.models.agents import AbstractAgent
 # from share.models.identifiers import WorkIdentifier, AgentIdentifier
@@ -24,8 +25,6 @@ from share.models.banner import SiteBanner
 # from share.models.work_relations import AbstractWorkRelation
 # from share.models.agent_relations import AbstractAgentRelation
 # from share.models.contributions import AbstractContribution, Award
-from share.models.ingest import Source, SourceConfig, Harvester, Transformer
-from share.tasks import ApplyChangeSets
 from share.readonlyadmin import ReadOnlyAdmin
 
 
@@ -53,11 +52,6 @@ class ChangeSetAdmin(admin.ModelAdmin):
     actions = ['accept_changes']
     list_filter = ['status', ChangeSetSubmittedByFilter]
     raw_id_fields = ('normalized_data',)
-
-    def accept_changes(self, request, queryset):
-        ApplyChangeSets().apply_async(kwargs=dict(changeset_ids=[x[0] for x in queryset.values_list('id')], started_by_id=request.user.id))
-        messages.success(request, 'Scheduled {} changesets for acceptance.'.format(queryset.count()))
-    accept_changes.short_description = 'Accept changes'
 
     def submitted_by(self, obj):
         return obj.normalized_data.source
@@ -166,8 +160,8 @@ class TagAdmin(admin.ModelAdmin):
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
 
 
-class RawDataAdmin(admin.ModelAdmin):
-    raw_id_fields = ('tasks',)
+class RawDatumAdmin(admin.ModelAdmin):
+    raw_id_fields = ()
 
 
 class AccessTokenAdmin(admin.ModelAdmin):
@@ -210,7 +204,7 @@ admin.site.register(AccessToken, AccessTokenAdmin)
 # admin.site.register(Tag, TagAdmin)
 # admin.site.register(Subject)
 # admin.site.register(ExtraData)
-admin.site.register(RawData, RawDataAdmin)
+admin.site.register(RawDatum, RawDatumAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
 

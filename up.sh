@@ -17,11 +17,11 @@ shift # past argument or value
 done
 
 if [ -n "$BACKUP" ]; then
-    python manage.py dumpdata share.RawData --natural-foreign --natural-primary --format json | gzip > share_rawdata.json.gz
+    python manage.py dumpdata share.RawDatum --natural-foreign --natural-primary --format json | gzip > share_rawdata.json.gz
 fi
 
 python setup.py develop
-python manage.py celery purge -f
+python manage.py celery purge -f || true;
 python manage.py reset_db --noinput
 python manage.py migrate
 python manage.py loaddata ./share/models/initial_data.yaml

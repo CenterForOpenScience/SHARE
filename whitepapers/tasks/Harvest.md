@@ -1,4 +1,3 @@
-# Harvest Task
 
 
 ## Responsibilites
@@ -10,14 +9,14 @@
 
 
 ## Considerations
-* Ingestion MUST be able to respect rate limits
-* Ingestion SHOULD be able to collect data from arbitrary date ranges
-* Ingestion SHOULD NOT consume all available memory
-* Ingestion SHOULD have a reasonable timeout
+* Harvesters MUST be able to respect rate limits
+* Harvesters SHOULD be able to collect data from arbitrary date ranges
+* Harvesters SHOULD NOT consume all available memory
+* Harvesters SHOULD have a reasonable timeout
 
 
 ## Parameters
-* `ingest_config_id` -- The PK of the IngestConfig to use
+* `source_config_id` -- The PK of the IngestConfig to use
 * `start_date` --
 * `end_date` -- 
 * `limit` -- The maximum number of documents to collect. Defaults to `None` (Unlimited)
@@ -28,40 +27,61 @@
 * `force` -- Force the task to run, against all odds
 
 
+## Preface/Notes
+* This tasks requires *2* connections to the same database
+  * This allows the task to hold a lock while communicating progress to the outside world
+* The second connection, `logging`, *should not* be in a transaction at any point in this task
+
+
 ## Steps
 
-### Preventative measures
-* If the specified `ingest_config` is disabled and `force` or `ignore_disabled` is not set, crash
-* For the given `ingest_config` find up to the last 5 harvest jobs with the same harvester versions
-* If they are all failed, throw an exception (Refuse to run)
-
 ### Setup
-* Lock the `ingest_config` (NOWAIT)
-  * On failure, reschedule for a later run. (This should be allowed to happen many times before finally failing)
-* Get or create HarvestLog(`ingest_config_id`, `harvester_version`, `start_date`, `end_date`)
-  * if found and status is:
-    * `SUCCEEDED`, `SPLIT`, or `FAILED`: update timestamps and/or counts.
-    * `STARTED`: Log a warning (Should not have been able to lock the `ingest_config`) and update timestamps and/or counts.
-* Set HarvestLog status to `STARTED`
+* Resolve `start` and `end` arguments to `datetime` objects
+* Load the required harvester
+* NOT IMPLEMENTED [Optimizations](#optimizations)
+* Get or create `HarvestLog(start, end, source_config, harvester_version, source_config_version)`
+  * If created, `HarvestLog.status` is SUCCEEDED or SKIPPED, and `superfluous` is not set, set `HarvestLog.status` to SKIPPED and exit
+* Begin [catching exceptions](#catching-exceptions)
+* Begin a transaction in the `locking` connection
+* Lock the `source_config` using the `locking` connection (NOWAIT)
+  * On failure:
+    * Force = True, Ignore exception and continue
+    * Force = False, Set `HarvestLog.status` to RESCHEDULED and raise a `Retry`
+      * The total number of retries for this case should be high than other exceptions
+* NOT IMPLEMENTED [Check for consistent failures](#consistent-failures)
+* Check `SourceConfig.disabled`
+  * Unless `force` or `ignore_disabled` is `True`, crash
+* Set `HarvestLog.status` to STARTED and update `HarvestLog.date_started`.
+
+### Actual work
+* Begin a transaction in the `default` connection
+* Harvest data between [`start`, `end`]
+  * `RawData` should be populated regardless of exceptions
+* For any data collected, link them to `log`
+  * If linking fails, rollback the transaction using the `default` connection
+    * If no exceptions where raised during harvesting, reraise this exception
+* Commit the transaction using the `default` connection
+* If any exceptions were raised during harvesting raise them now
+* If `transform`, for any data collected, create an `IngestLog` and spawn an `IngestTask`
+
+### Clean up
+* Set `HarvestLog.status` to SUCCEEDED and increment `HarvestLog.completions`
+
+### Catching Exceptions
+* Set `HarvestLog.status` to FAILED and `HarvestLog.error` to the traceback of the caught exception
+* Rollback the transaction *only* if creating
+* Raise a `Retry`
+
+
+## Future Improvements
+
+### Consitent Failures
+* Check the last `x` `HarvestLog`s of `SourceConfig`
+  * If they are all FAILED, fail preemptively
+
+### Optimizations
+* Find `HarvestLog`s that cover the the span of `start` and `end`
+  * Skip this task if they exist and are SUCCEEDED
 * If the specified date range is >= [SOME LENGTH OF TIME] and `no_split` is False
   * Chunk the date range and spawn a harvest task for each chunk
   * Set status to `SPLIT` and exit
-* Load the harvester for the given `ingest_config`
-
-### Actually Harvest
-* Harvest data between the specified datetimes, respecting `limit` and `ingest_config.rate_limit`
-
-### Pass the data along
-* Begin catching any exceptions
-* For each piece of data recieved (Perferably in bulk/chunks)
-  * Get or create `SourceUniqueIdentifier(suid, source_id)`
-    * Question: Should SUIDs depend on `ingest_config_id` instead of `source_id`? If we're harvesting data in multiple formats from the same source, we probably want to keep the respective states separate.
-  * Get or create RawData(hash, suid)
-* For each piece of data (After saving to keep as transactional as possible)
-  * Get or create `TransformLog(raw_id, ingest_config_id, transformer_version)`
-  * if the log already exists and superfluous is not set, exit
-  * Start the `TransformTask(raw_id, ingest_config_id)` unless `transform` is `False`
-
-### Clean up
-* If an exception was caught, set status to `FAILED` and insert the exception/traceback
-* Otherwise set status to `SUCCEEDED`

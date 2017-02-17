@@ -14,24 +14,39 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='rawdata',
+            model_name='rawdatum',
             name='suid',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='share.SourceUniqueIdentifier'),
         ),
         migrations.AlterUniqueTogether(
-            name='rawdata',
+            name='rawdatum',
             unique_together=set([('suid', 'sha256')]),
         ),
         migrations.RemoveField(
-            model_name='rawdata',
+            model_name='rawdatum',
             name='app_label',
         ),
         migrations.RemoveField(
-            model_name='rawdata',
+            model_name='rawdatum',
             name='provider_doc_id',
         ),
         migrations.RemoveField(
-            model_name='rawdata',
+            model_name='rawdatum',
             name='source',
+        ),
+        migrations.RenameField(
+            model_name='rawdatum',
+            old_name='data',
+            new_name='datum',
+        ),
+        migrations.RenameField(
+            model_name='rawdatum',
+            old_name='date_harvested',
+            new_name='date_created',
+        ),
+        migrations.RenameField(
+            model_name='rawdatum',
+            old_name='date_seen',
+            new_name='date_modified',
         ),
     ]

@@ -54,6 +54,8 @@ class BaseHarvester(metaclass=abc.ABCMeta):
 
     def __init__(self, source_config, **kwargs):
         self.last_call = 0
+        self.new_raw_ids = []
+        self.old_raw_ids = []
         self.config = source_config
         self.kwargs = kwargs
         # TODO Make rate limit apply across threads
@@ -111,21 +113,13 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         return start_date, end_date
 
     def harvest(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
-        from share.models import RawData, SourceUniqueIdentifier
+        from share.models import RawDatum
         start_date, end_date = self._validate_dates(start_date, end_date)
 
-        raw_ids = []
-        with transaction.atomic():
-            rawdata = self.do_harvest(start_date, end_date, **kwargs)
-            assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
+        rawdata = ((identifier, self.encode_data(datum)) for identifier, datum in self.do_harvest(start_date, end_date, **kwargs))
+        assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
-            for doc_id, datum in rawdata:
-                suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=self.config)
-                raw_ids.append(RawData.objects.store_data(self.encode_data(datum), suid).id)
-                if limit is not None and len(raw_ids) >= limit:
-                    break
-
-        return raw_ids
+        yield from RawDatum.objects.store_chunk(self.config, rawdata, limit=limit)
 
     def raw(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
         start_date, end_date = self._validate_dates(start_date, end_date)
@@ -139,7 +133,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
                 break
 
     def harvest_by_id(self, doc_id):
-        from share.models import RawData, SourceUniqueIdentifier
+        from share.models import RawDatum, SourceUniqueIdentifier
         datum = self.fetch_by_id(doc_id)
         suid = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=self.config)
         return RawData.objects.store_data(self.encode_data(datum), suid)

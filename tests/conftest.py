@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.conf import settings
 from oauth2_provider.models import AccessToken, Application
 
-from share.models import Person, NormalizedData, Change, ChangeSet, RawData
+from share.models import Person, NormalizedData, Change, ChangeSet, RawDatum
 from share.models import Article, Institution
 from share.models import ShareUser
 from share.models import Harvester, Transformer, Source, SourceConfig, SourceUniqueIdentifier
@@ -77,6 +77,7 @@ def share_source(share_user):
 
 
 @pytest.fixture
+<<<<<<< HEAD
 def harvester_model():
     harvester = Harvester(key='testharvester')
     harvester.save()
@@ -112,7 +113,7 @@ def suid(source_config):
 
 @pytest.fixture
 def raw_data(suid):
-    raw_data = RawData(suid=suid, data={})
+    raw_data = RawDatum(suid=suid, data={})
     raw_data.save()
     return raw_data
 

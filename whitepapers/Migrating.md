@@ -21,3 +21,15 @@
 
 Logs for Create Delete Merge Split UnDelete
 New States
+
+
+## Integrating SUIDs
+1. Create `Source`, `SourceConfig`, `Harvester`, `Transformer` models/tables
+2. Populate `Source`s from `ShareUser`s that are robots
+3. Populate `Harvester`, `Transformer`, and `SourceConfig` from existing django apps
+4. Rename `RawData` -> `RawDatum` (This is done first for clarity)
+5. Create `SourceUniqueIdentifier` model/table
+6. Populate `SourceUniqueIdentifier`s from `RawData` using `provider_doc_id` and `app_label`
+
+Migrated `RawData` will remain unascoiated with any `HarvestLogs`.
+We'll rely on a combination of back-harvesting and Janitor tasks to slowly rediscover and log the `RawData`
