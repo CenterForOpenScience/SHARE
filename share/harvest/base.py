@@ -11,7 +11,6 @@ from typing import Iterator
 import pendulum
 import requests
 
-from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +53,8 @@ class BaseHarvester(metaclass=abc.ABCMeta):
 
     def __init__(self, source_config, **kwargs):
         self.last_call = 0
+        self.new_raw_ids = []
+        self.old_raw_ids = []
         self.config = source_config
         self.kwargs = kwargs
         # TODO Add custom user agent
@@ -112,21 +113,13 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         return start_date, end_date
 
     def harvest(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
-        from share.models import RawData, SourceUniqueIdentifier
+        from share.models import RawDatum
         start_date, end_date = self._validate_dates(start_date, end_date)
 
-        raw_ids = []
-        with transaction.atomic():
-            rawdata = self.do_harvest(start_date, end_date, **kwargs)
-            assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
+        rawdata = ((identifier, self.encode_data(datum)) for identifier, datum in self.do_harvest(start_date, end_date, **kwargs))
+        assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
-            for doc_id, datum in rawdata:
-                suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=self.config)
-                raw_ids.append(RawData.objects.store_data(self.encode_data(datum), suid).id)
-                if limit is not None and len(raw_ids) >= limit:
-                    break
-
-        return raw_ids
+        yield from RawDatum.objects.store_chunk(self.config, rawdata, limit=limit)
 
     def raw(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
         start_date, end_date = self._validate_dates(start_date, end_date)
@@ -140,21 +133,26 @@ class BaseHarvester(metaclass=abc.ABCMeta):
                 break
 
     def harvest_by_id(self, doc_id):
-        from share.models import RawData, SourceUniqueIdentifier
+        from share.models import RawDatum
         datum = self.fetch_by_id(doc_id)
-        suid = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=self.config)
-        return RawData.objects.store_data(self.encode_data(datum), suid)
+        return RawDatum.objects.store_data(self.encode_data(datum), doc_id, self.config)
 
-    def encode_data(self, data, pretty=False) -> bytes:
-        if isinstance(data, bytes):
+    def encode_data(self, data, pretty=False) -> str:
+        if isinstance(data, str):
             return data
+        if isinstance(data, bytes):
+            logger.warning(
+                '%r.encode_data got a bytes instance. '
+                'do_harvest should be returning str types as only the harvester will know how to properly encode the bytes'
+                'defaulting to decoding as utf-8',
+                self,
+            )
+            return data.decode('utf-8')
         if isinstance(data, dict):
             return self.encode_json(data, pretty=pretty)
-        if isinstance(data, str):
-            return data.encode()
         raise Exception('Unable to properly encode data blob {!r}. Data should be a dict, bytes, or str objects.'.format(data))
 
-    def encode_json(self, data: dict, pretty: bool=False) -> bytes:
+    def encode_json(self, data: dict, pretty: bool=False) -> str:
         """Orders a python dict recursively so it will always hash to the
         same value. Used for Dedupping harvest results
         Args:
@@ -163,7 +161,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         Returns:
             str: json.dumpsed ordered dictionary
         """
-        return json.dumps(data, sort_keys=True, indent=4 if pretty else None).encode()
+        return json.dumps(data, sort_keys=True, indent=4 if pretty else None)
 
     def _validate_dates(self, start_date, end_date):
         assert not (bool(start_date) ^ bool(end_date)), 'Must specify both a start and end date or neither'

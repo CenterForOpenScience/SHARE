@@ -15,7 +15,7 @@ class OAIHarvestException(Exception):
 
 
 class OAIHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     namespaces = {
         'dc': 'http://purl.org/dc/elements/1.1/',

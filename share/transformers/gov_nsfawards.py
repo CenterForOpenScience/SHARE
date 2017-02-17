@@ -103,5 +103,5 @@ class CreativeWork(Parser):
 
 
 class NSFTransformer(ChainTransformer):
-    VERSION = '0.0.1'
+    VERSION = 1
     root_parser = CreativeWork

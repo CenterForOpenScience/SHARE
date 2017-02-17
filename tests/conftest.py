@@ -5,12 +5,15 @@ import string
 
 import pytest
 
-from django.core.management import call_command
+from django.apps import apps
 from django.utils import timezone
+from django.db import connections
+from django.db import transaction
 from django.conf import settings
+from django.db.models.signals import post_save
 from oauth2_provider.models import AccessToken, Application
 
-from share.models import Person, NormalizedData, Change, ChangeSet, RawData
+from share.models import Person, NormalizedData, Change, ChangeSet, RawDatum
 from share.models import Article, Institution
 from share.models import ShareUser
 from share.models import Harvester, Transformer, Source, SourceConfig, SourceUniqueIdentifier
@@ -112,7 +115,7 @@ def suid(source_config):
 
 @pytest.fixture
 def raw_data(suid):
-    raw_data = RawData(suid=suid, data={})
+    raw_data = RawDatum(suid=suid, datum='{}')
     raw_data.save()
     return raw_data
 
@@ -197,6 +200,44 @@ def university_of_whales(change_ids):
 
 
 @pytest.fixture
-def django_db_setup(django_db_setup, django_db_blocker):
-    with django_db_blocker.unblock():
-        call_command('loaddata', 'tests/initial-data.yaml')
+def transactional_db(django_db_blocker, request):
+    # Django's/Pytest Django's handling of this is garbage
+    # The database is wipe of initial data and never repopulated so we have to do
+    # all of it ourselves
+    django_db_blocker.unblock()
+    request.addfinalizer(django_db_blocker.restore)
+
+    from django.test import TransactionTestCase
+    test_case = TransactionTestCase(methodName='__init__')
+    test_case._pre_setup()
+
+    # Dump all initial data into a string :+1:
+    for connection in connections.all():
+        if connection.settings_dict['TEST']['MIRROR']:
+            continue
+        connection._test_serialized_contents = connection.creation.serialize_db_to_string()
+
+    yield None
+
+    test_case.serialized_rollback = True
+    test_case._post_teardown()
+
+    # Disconnect post save listeners because they screw up deserialization
+    receivers, post_save.receivers = post_save.receivers, []
+
+    if test_case.available_apps is not None:
+        apps.unset_available_apps()
+
+    for connection in connections.all():
+        if connection.settings_dict['TEST']['MIRROR']:
+            connection.close()
+            continue
+        # Everything has to be in a single transaction to avoid violating key constraints
+        # It also makes it run significantly faster
+        with transaction.atomic():
+            connection.creation.deserialize_db_from_string(connection._test_serialized_contents)
+
+    if test_case.available_apps is not None:
+        apps.set_available_apps(test_case.available_apps)
+
+    post_save.receivers = receivers

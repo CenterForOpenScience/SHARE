@@ -23,7 +23,7 @@ class AgEconHarvester(BaseHarvester):
             Page with nearest date
             20 records/page
     """
-    VERSION = '0.0.1'
+    VERSION = 1
 
     fields = {
         'title': 'title',

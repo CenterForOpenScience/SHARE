@@ -55,3 +55,4 @@ install:
 script:
     - flake8 .
     - py.test tests
+    - behave

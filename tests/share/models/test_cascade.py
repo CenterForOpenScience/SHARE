@@ -200,8 +200,8 @@ class TestDeleteCascadeNonShareObjects:
         assert models.ChangeSet.objects.count() == 0
         assert models.AbstractCreativeWork.objects.count() == 0
 
-    def test_rawdata(self, suid):
-        work = factories.AbstractCreativeWorkFactory(change__change_set__normalized_data__raw=models.RawData.objects.store_data(b'', suid))
+    def test_rawdata(self, source_config):
+        work = factories.AbstractCreativeWorkFactory(change__change_set__normalized_data__raw=models.RawDatum.objects.store_data('unique', 'data', source_config))
         work.change.change_set.normalized_data.delete()
 
         assert models.Change.objects.count() == 0

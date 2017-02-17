@@ -71,3 +71,15 @@ Pass data to elasticsearch with `runbot`. Rerunning this command will get the mo
     cd docs/
     pip install -r requirements.txt
     make watch
+
+
+## Running Tests
+
+### Unit test suite
+
+  py.test
+
+### BDD Suite
+
+  behave
+

@@ -12,13 +12,13 @@ from api import schemas
 from api.authentication import APIV1TokenBackPortAuthentication
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
-    RawDataSerializer, ShareUserSerializer, SourceSerializer
-from share.models import RawData, NormalizedData, Source, SourceConfig, SourceUniqueIdentifier, Transformer
+    RawDatumSerializer, ShareUserSerializer, SourceSerializer
+from share.models import RawDatum, NormalizedData, Source, SourceConfig, Transformer
 from share.tasks import DisambiguatorTask
 from share.harvest.base import BaseHarvester
 
 
-__all__ = ('NormalizedDataViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
+__all__ = ('NormalizedDataViewSet', 'RawDatumViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -97,7 +97,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_202_ACCEPTED)
 
 
-class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
+class RawDatumViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Raw data, exactly as harvested from the data source.
 
@@ -106,18 +106,18 @@ class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
     parameters `object_id=<@id>` and `object_type=<@type>`
     """
 
-    serializer_class = RawDataSerializer
+    serializer_class = RawDatumSerializer
 
     def get_queryset(self):
         object_id = self.request.query_params.get('object_id', None)
         object_type = self.request.query_params.get('object_type', None)
         if object_id and object_type:
-            return RawData.objects.filter(
+            return RawDatum.objects.filter(
                 normalizeddata__changeset__changes__target_id=object_id,
                 normalizeddata__changeset__changes__target_type__model=object_type
             ).distinct('id').select_related('source')
         else:
-            return RawData.objects.all().select_related('source')
+            return RawDatum.objects.all().select_related('source')
 
 
 class V1DataView(views.APIView):
@@ -204,7 +204,6 @@ class V1DataView(views.APIView):
             )
 
         # store raw data, assuming you can only submit one at a time
-        raw = None
         with transaction.atomic():
             try:
                 doc_id = prelim_data['uris']['canonicalUri']
@@ -212,10 +211,9 @@ class V1DataView(views.APIView):
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
             config = self._get_source_config(request.user)
-            suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=config)
-            raw = RawData.objects.store_data(BaseHarvester.encode_json(self, prelim_data), suid)
+            raw = RawDatum.objects.store_data(doc_id, BaseHarvester.encode_json(self, prelim_data), config)
 
-        transformed_data = config.get_transformer().transform(raw.data)
+        transformed_data = config.get_transformer().transform(raw.datum)
         data = {}
         data['data'] = transformed_data
         serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})

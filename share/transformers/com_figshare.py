@@ -78,7 +78,7 @@ class DataSet(Parser):
 
 
 class FigshareTransformer(ChainTransformer):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     def get_root_parser(self, unwrapped):
         if 'files' in unwrapped:

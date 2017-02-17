@@ -115,5 +115,5 @@ class Project(CreativeWork):
 
 
 class OSFTransformer(ChainTransformer):
-    VERSION = '0.0.1'
+    VERSION = 1
     root_parser = Project

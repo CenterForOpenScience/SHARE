@@ -2,27 +2,32 @@ import datetime
 import logging
 import random
 import string
-from hashlib import sha256
 
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
 from django.core import validators
+from django.core.files.base import ContentFile
+from django.core.files.storage import Storage
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
+
 from oauth2_provider.models import AccessToken, Application
+
+from db.deletion import DATABASE_CASCADE
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
-from share.models.fuzzycount import FuzzyCountManager
 from share.models.validators import JSONLDValidator
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'RawData', 'NormalizedData', 'SourceUniqueIdentifier')
+__all__ = ('ShareUser', 'NormalizedData',)
 
 
 class ShareUserManager(BaseUserManager):
@@ -36,7 +41,7 @@ class ShareUserManager(BaseUserManager):
             raise ValueError('The given username must be set')
         email = self.normalize_email(email)
         user = self.model(username=username, email=email, **extra_fields)
-        user.set_password(password)
+        ShareUser.set_password(user, password)
         user.save(using=self._db)
         return user
 
@@ -178,76 +183,44 @@ def user_post_save(sender, instance, created, **kwargs):
             instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
-class SourceUniqueIdentifier(models.Model):
-    identifier = models.TextField()
-    source_config = models.ForeignKey('SourceConfig')
-
-    class Meta:
-        unique_together = ('identifier', 'source_config')
-
-    def __str__(self):
-        return '{} {}'.format(self.source_config_id, self.identifier)
-
-    def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.source_config_id, self.identifier)
-
-
-class RawDataManager(FuzzyCountManager):
-
-    def store_data(self, data, suid):
-        rd, created = self.get_or_create(
-            suid=suid,
-            sha256=sha256(data).hexdigest(),
-            defaults={'data': data},
-        )
-
-        if created:
-            logger.debug('Newly created RawData for document %s', suid)
-        else:
-            logger.debug('Saw exact copy of document %s', suid)
-
-        rd.save()  # Force timestamps to update
-        return rd
-
-
-class RawData(models.Model):
-    id = models.AutoField(primary_key=True)
-
-    suid = models.ForeignKey('SourceUniqueIdentifier')
-
-    data = models.TextField()
-    sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
-
-    date_seen = models.DateTimeField(auto_now=True)
-    date_harvested = models.DateTimeField(auto_now_add=True)
-
-    tasks = models.ManyToManyField('CeleryProviderTask')
-
-    objects = RawDataManager()
-
-    def __str__(self):
-        return '({}) {}'.format(self.id, self.suid)
-
-    @property
-    def processsed(self):
-        return self.date_processed is not None  # TODO: this field doesn't exist...
-
-    class Meta:
-        unique_together = (('suid', 'sha256'),)
-        verbose_name_plural = 'Raw data'
-
-    def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.suid)
-
-
 class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True, auto_now_add=True)
-    raw = models.ForeignKey(RawData, null=True)
-    # TODO Rename this to data
+    raw = models.ForeignKey('RawDatum', null=True)
     data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')
 
     def __str__(self):
         return '{} created at {}'.format(self.source.get_short_name(), self.created_at)
+
+
+class FaviconImage(models.Model):
+    user = models.OneToOneField('ShareUser', on_delete=DATABASE_CASCADE)
+    image = models.BinaryField()
+
+
+@deconstructible
+class FaviconStorage(Storage):
+    def _open(self, name, mode='rb'):
+        assert mode == 'rb'
+        favicon = FaviconImage.objects.get(user__username=name)
+        return ContentFile(favicon.image)
+
+    def _save(self, name, content):
+        user = ShareUser.objects.get(username=name)
+        FaviconImage.objects.update_or_create(user_id=user.id, defaults={'image': content.read()})
+        return name
+
+    def delete(self, name):
+        FaviconImage.objects.get(user__username=name).delete()
+
+    def get_available_name(self, name, max_length=None):
+        return name
+
+    def url(self, name):
+        return reverse('user_favicon', kwargs={'username': name})
+
+
+def favicon_name(instance, filename):
+    return instance.username

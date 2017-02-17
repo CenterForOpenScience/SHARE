@@ -16,10 +16,7 @@ import share.models.validators
 
 def create_share_robot_user(apps, schema_editor):
     ShareUser = apps.get_model('share', 'ShareUser')
-    try:
-        ShareUser.objects.create_robot_user(username=settings.APPLICATION_USERNAME, robot='')
-    except AssertionError:
-        pass
+    ShareUser.objects.db_manager(schema_editor.connection.alias).create_robot_user(username=settings.APPLICATION_USERNAME, robot='')
 
 
 class Migration(migrations.Migration):

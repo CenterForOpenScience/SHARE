@@ -36,6 +36,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
+TAMANDUA_ENABLED = bool(os.environ.get('TAMANDUA', False))
+
 if 'VERSION' not in os.environ and DEBUG:
     try:
         VERSION = subprocess.check_output(['git', 'describe']).decode().strip()
@@ -61,8 +63,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
 
+    # 'debug_toolbar',
+
     'djcelery',
-    'guardian',
+    # 'guardian',
     'django_filters',
     'django_extensions',
     'oauth2_provider',
@@ -85,9 +89,6 @@ INSTALLED_APPS = [
     'api',
 
     'bots.archive',
-    'bots.autocurate.person',
-    'bots.autocurate.tag',
-    'bots.automerge',
     'bots.elasticsearch',
 ]
 
@@ -171,7 +172,10 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
+
+INTERNAL_IPS = ['127.0.0.1']
 
 ROOT_URLCONF = 'project.urls'
 
@@ -196,7 +200,6 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'db.backends.postgresql',
@@ -206,8 +209,21 @@ DATABASES = {
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
+        'TEST': {'SERIALIZE': False},
     },
+    'locking': {
+        'ENGINE': 'db.backends.postgresql',
+        'NAME': os.environ.get('DATABASE_NAME', 'share'),
+        'USER': os.environ.get('DATABASE_USER', 'postgres'),
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+        'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
+        'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
+        'TEST': {'MIRROR': 'default', 'SERIALIZE': False},
+    }
 }
+
+# DATABASES['locking'] = DATABASES['default']
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -252,7 +268,7 @@ ANONYMOUS_USER_NAME = 'AnonymousUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
     'allauth.account.auth_backends.AuthenticationBackend',
-    'guardian.backends.ObjectPermissionBackend',
+    # 'guardian.backends.ObjectPermissionBackend',
 )
 
 PASSWORD_HASHERS = [
@@ -350,6 +366,11 @@ QUEUES = {
         'priority': 30,
         'modules': {'share.tasks.BotTask', },
     },
+    'BACKHARVEST': {
+        'name': 'backharvest',
+        'priority': -20,
+        'modules': set(),
+    }
 }
 
 CELERY_QUEUES = tuple(

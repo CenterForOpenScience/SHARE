@@ -6,7 +6,7 @@ from share.harvest import BaseHarvester
 
 
 class DataOneHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     def do_harvest(self, start_date, end_date):
         end_date = end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'

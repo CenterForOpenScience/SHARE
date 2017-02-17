@@ -17,7 +17,7 @@ django-mptt==0.8.5
 # Django 1.9 compatibility
 # Fix the Choices for TypedModel.type when using Django 1.9
 # django-typed-models==0.5.0
-git+https://github.com/craigds/django-typed-models.git@7c1eaec06e4a5db188b58cee5d86fae6897208b1
+git+https://github.com/cwisecarver/django-typed-models.git@80c95fd2f24456dba5be8ad69731468655fe1a1b
 djangorestframework==3.4.0
 djangorestframework-jsonapi==2.1.1
 feedparser==5.2.1

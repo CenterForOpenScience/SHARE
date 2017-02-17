@@ -8,7 +8,7 @@ from share.harvest import BaseHarvester
 
 # Built by inspecting http://www.researchregistry.com/browse-the-registry.html
 class ResearchRegistryHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     HEADERS = {
         'X-Knack-Application-Id': settings.RESEARCHREGISTRY_APPLICATION_ID,

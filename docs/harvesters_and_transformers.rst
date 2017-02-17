@@ -210,7 +210,7 @@ Best practices for writing a non-OAI Harvester
 - The harvester should be defined in ``share/harvesters/{harvester name}.py``.
 - When writing the harvester:
     - Inherit from ``share.harvest.BaseHarvester``
-    - Add the version of the harvester ``VERSION = '0.0.1'``
+    - Add the version of the harvester ``VERSION = 1``
     - Implement ``do_harvest(...)`` (and possibly additional helper functions) to make requests to the source and to yield the harvested records.
     - Check to see if the data returned by the source is paginated.
         - There will often be a resumption token to get the next page of results.
@@ -257,7 +257,7 @@ SHARE provides a set of tools for writing transformers, based on the idea of con
 
 
     class ExampleTransformer(ChainTransformer):
-        VERSION = '0.0.1'
+        VERSION = 1
         root_parser = CreativeWork
 
 

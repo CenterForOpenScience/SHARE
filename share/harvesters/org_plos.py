@@ -7,7 +7,7 @@ from share.harvest import BaseHarvester
 
 
 class PLOSHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     MAX_ROWS_PER_REQUEST = 999
 

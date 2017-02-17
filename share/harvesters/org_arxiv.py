@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class ArxivHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     namespaces = {
         'ns0': 'http://www.w3.org/2005/Atom'
