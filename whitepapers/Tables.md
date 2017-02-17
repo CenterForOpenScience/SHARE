@@ -35,7 +35,7 @@ Raw datum, exactly as it was given to SHARE.
 | Column         | Type | Indexed | Nullable | FK  | Default | Description                                                        |
 | :------------- | :--: | :-----: | :------: | :-: | :-----: | :----------------------------------------------------------------- |
 | `suid_id`      | int  |    ✓    |          |  ✓  |         | SUID for this datum                                                |
-| `data`         | text |         |          |     |         | The raw datum itself (typically JSON or XML string)                |
+| `datum`        | text |         |          |     |         | The raw datum itself (typically JSON or XML string)                |
 | `sha256`       | text | unique  |          |     |         | SHA-256 hash of `data`                                             |
 | `harvest_logs` | m2m  |         |          |     |         | List of HarvestLogs for harvester runs that found this exact datum |
 
@@ -44,18 +44,19 @@ Raw datum, exactly as it was given to SHARE.
 ### IngestConfig
 Describes one way to harvest metadata from a Source, and how to transform the result.
 
-| Column                 | Type  | Indexed | Nullable | FK  | Default | Description                                                                         |
-| :--------------------- | :---: | :-----: | :------: | :-: | :-----: | :---------------------------------------------------------------------------------- |
-| `source_id`            |  int  |    ✓    |          |  ✓  |         | Source to harvest from                                                              |
-| `base_url`             | text  |         |          |     |         | URL of the API or endpoint where the metadata is available                          |
-| `earliest_date`        | date  |         |    ✓     |     |         | Earliest date with available data                                                   |
-| `rate_limit_allowance` |  int  |         |          |     |    5    | Number of requests allowed every `rate_limit_period` seconds                        |
-| `rate_limit_period`    |  int  |         |          |     |    1    | Number of seconds for every `rate_limit_allowance` requests                         |
-| `harvester_id`         |  int  |    ✓    |          |  ✓  |         | Harvester to use                                                                    |
-| `harvester_kwargs`     | jsonb |         |    ✓     |     |         | JSON object passed to the harvester as kwargs                                       |
-| `transformer_id`       |  int  |    ✓    |          |  ✓  |         | Transformer to use                                                                  |
-| `transformer_kwargs`   | jsonb |         |    ✓     |     |         | JSON object passed to the transformer as kwargs, along with the harvested raw datum |
-| `disabled`             | bool  |         |          |     |  False  | True if this ingest config should not be run automatically                          |
+| Column                 | Type  | Indexed | Nullable | FK  |   Default   | Description                                                                                         |
+| :--------------------- | :---: | :-----: | :------: | :-: | :---------: | :-------------------------------------------------------------------------------------------------- |
+| `source_id`            |  int  |    ✓    |          |  ✓  |             | Source to harvest from                                                                              |
+| `base_url`             | text  |         |          |     |             | URL of the API or endpoint where the metadata is available                                          |
+| `earliest_date`        | date  |         |    ✓     |     |             | Earliest date with available data                                                                   |
+| `rate_limit_allowance` |  int  |         |          |     |      5      | Number of requests allowed every `rate_limit_period` seconds                                        |
+| `rate_limit_period`    |  int  |         |          |     |      1      | Number of seconds for every `rate_limit_allowance` requests                                         |
+| `harvester_id`         |  int  |    ✓    |          |  ✓  |             | Harvester to use                                                                                    |
+| `harvester_kwargs`     | jsonb |         |    ✓     |     |             | JSON object passed to the harvester as kwargs                                                       |
+| `transformer_id`       |  int  |    ✓    |          |  ✓  |             | Transformer to use                                                                                  |
+| `transformer_kwargs`   | jsonb |         |    ✓     |     |             | JSON object passed to the transformer as kwargs, along with the harvested raw datum                 |
+| `disabled`             | bool  |         |          |     |    False    | True if this ingest config should not be run automatically                                          |
+| `version`              | text  |    ✓    |          |     | 000.000.000 | Semantic version of this row, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
 
 ### Source
 A Source is a place metadata comes from.
