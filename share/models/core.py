@@ -2,7 +2,6 @@ import datetime
 import logging
 import random
 import string
-from hashlib import sha256
 
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -20,12 +19,10 @@ from oauth2_provider.models import AccessToken, Application
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
-from share.models.fuzzycount import FuzzyCountManager
 from share.models.validators import JSONLDValidator
-from share.models.ingest import SourceConfig
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'RawData', 'NormalizedData', 'SourceUniqueIdentifier')
+__all__ = ('ShareUser', 'NormalizedData',)
 
 
 class ShareUserManager(BaseUserManager):
@@ -179,74 +176,10 @@ def user_post_save(sender, instance, created, **kwargs):
         instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
-class SourceUniqueIdentifier(models.Model):
-    identifier = models.TextField()
-    source_config = models.ForeignKey('SourceConfig')
-
-    class Meta:
-        unique_together = ('identifier', 'source_config')
-
-    def __str__(self):
-        return '{} {}'.format(self.source_config_id, self.identifier)
-
-    def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.source_config_id, self.identifier)
-
-
-class RawDataManager(FuzzyCountManager):
-
-    def store_data(self, data, suid):
-        rd, created = self.get_or_create(
-            suid=suid,
-            sha256=sha256(data).hexdigest(),
-            defaults={'data': data},
-        )
-
-        if created:
-            logger.debug('Newly created RawData for document %s', suid)
-        else:
-            logger.debug('Saw exact copy of document %s', suid)
-
-        rd.save()  # Force timestamps to update
-        return rd
-
-
-class RawData(models.Model):
-    id = models.AutoField(primary_key=True)
-
-    # TODO non-null
-    suid = models.ForeignKey('SourceUniqueIdentifier', null=True)
-
-    data = models.TextField()
-    sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
-
-    date_seen = models.DateTimeField(auto_now=True)
-    date_harvested = models.DateTimeField(auto_now_add=True)
-
-    tasks = models.ManyToManyField('CeleryProviderTask')
-
-    objects = RawDataManager()
-
-    def __str__(self):
-        return '({}) {}'.format(self.id, self.suid)
-
-    @property
-    def processsed(self):
-        return self.date_processed is not None  # TODO: this field doesn't exist...
-
-    class Meta:
-        unique_together = (('suid', 'sha256'),)
-        verbose_name_plural = 'Raw data'
-
-    def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.suid)
-
-
 class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True, auto_now_add=True)
-    raw = models.ForeignKey(RawData, null=True)
-    # TODO Rename this to data
+    raw = models.ForeignKey('RawDatum', null=True)
     data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL)
     tasks = models.ManyToManyField('CeleryProviderTask')

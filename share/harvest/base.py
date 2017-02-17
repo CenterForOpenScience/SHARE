@@ -66,6 +66,7 @@ class BaseHarvester(metaclass=HarvesterMeta):
 
     def __init__(self, source_config, **kwargs):
         self.last_call = 0
+        self.raw_ids = []
         self.config = source_config
         self.kwargs = kwargs
         # TODO Make rate limit apply across threads
@@ -122,21 +123,19 @@ class BaseHarvester(metaclass=HarvesterMeta):
         return start_date, end_date
 
     def harvest(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
-        from share.models import RawData, SourceUniqueIdentifier
+        from share.models import RawDatum
         start_date, end_date = self._validate_dates(start_date, end_date)
 
-        raw_ids = []
         with transaction.atomic():
             rawdata = self.do_harvest(start_date, end_date, **kwargs)
             assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
             for doc_id, datum in rawdata:
-                suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=self.config)
-                raw_ids.append(RawData.objects.store_data(self.encode_data(datum), suid).id)
-                if limit is not None and len(raw_ids) >= limit:
+                self.raw_ids.append(RawDatum.objects.store_data(doc_id, self.encode_data(datum), self.source, self.config.label).id)
+                if limit is not None and len(self.raw_ids) >= limit:
                     break
 
-        return raw_ids
+        return self.raw_ids
 
     def raw(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
         start_date, end_date = self._validate_dates(start_date, end_date)
@@ -149,11 +148,10 @@ class BaseHarvester(metaclass=HarvesterMeta):
             if limit and count >= limit:
                 break
 
-    def harvest_by_id(self, doc_id):
-        from share.models import RawData
-        datum = self.fetch_by_id(doc_id)
-        suid = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=self.config)
-        return RawData.objects.store_data(self.encode_data(datum), suid)
+    def harvest_by_id(self, provider_id):
+        from share.models import RawDatum
+        datum = self.fetch_by_id(provider_id)
+        return RawDatum.objects.store_data(provider_id, self.encode_data(datum), self.source, self.config.label)
 
     def encode_data(self, data, pretty=False) -> bytes:
         if isinstance(data, bytes):

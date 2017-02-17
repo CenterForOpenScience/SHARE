@@ -45,7 +45,7 @@ class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(ser.data)
 
 
-class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
+class RawDatumDetailViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def rawdata(self, request, pk=None):
         if pk is None:
@@ -60,13 +60,13 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
 
         page = self.paginate_queryset(data)
         if page is not None:
-            ser = api_serializers.RawDataSerializer(page, many=True, context={'request': request})
+            ser = api_serializers.RawDatumSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(ser.data)
-        ser = api_serializers.RawDataSerializer(data, many=True, context={'request': request})
+        ser = api_serializers.RawDatumSerializer(data, many=True, context={'request': request})
         return Response(ser.data)
 
 
-class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, viewsets.ReadOnlyModelViewSet):
+class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDatumDetailViewSet, viewsets.ReadOnlyModelViewSet):
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     filter_class = ShareObjectFilterSet

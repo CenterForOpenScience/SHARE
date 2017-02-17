@@ -210,3 +210,15 @@ class DictHashingDict:
         if isinstance(val, (list, tuple)):
             val = tuple(self._hash(v) for v in val)
         return val
+
+
+def chunked(iterable, size=25):
+    iterable = iter(iterable)
+    try:
+        while True:
+            l = []
+            for _ in range(size):
+                l.append(next(iterable))
+            yield l
+    except StopIteration:
+        yield l

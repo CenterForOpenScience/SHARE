@@ -82,7 +82,7 @@ register_route(r'sourceregistrations', views.ProviderRegistrationViewSet)
 register_route(r'site_banners', views.SiteBannerViewSet)
 
 # workflow routes
-register_route(r'rawdata', views.RawDataViewSet)
+register_route(r'rawdata', views.RawDatumViewSet)
 register_route(r'user', views.ShareUserViewSet)
 register_route(r'sources', views.ProviderViewSet)
 

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from share.models import ShareUser, RawData, SourceConfig
+from share.models import ShareUser, RawDatum, SourceConfig
 from share.tasks import NormalizerTask
 
 
@@ -18,7 +18,7 @@ class Command(BaseCommand):
         config = SourceConfig.objects.get(label=options['source-config'])
 
         if not options['raws'] and options['all']:
-            options['raws'] = RawData.objects.filter(suid__source_config_id=config.id).values_list('id', flat=True)
+            options['raws'] = RawDatum.objects.filter(suid__source_config_id=config.id).values_list('id', flat=True)
 
         for raw in options['raws']:
             task_args = (user.id, config.label, raw,)

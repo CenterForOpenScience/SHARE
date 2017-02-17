@@ -366,6 +366,15 @@ DATABASES = {
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
     },
+    'locking': {
+        'ENGINE': 'db.backends.postgresql',
+        'NAME': os.environ.get('DATABASE_NAME', 'share'),
+        'USER': os.environ.get('DATABASE_USER', 'postgres'),
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+        'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
+        'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
+    }
 }
 
 # Password validation
