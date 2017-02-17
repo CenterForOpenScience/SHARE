@@ -1,5 +1,20 @@
 # Change Log
 
+## [2.4.0] - 2016-02-10
+## Added
+* New Harvesters
+  * Research Registry Harvester
+  * SSOAR
+* Status API endpoint
+
+## Changed
+* Updated set_specs for University of Kansas
+* ClinicalTrials.gov now output registrations
+* Source icons are now stored in the database
+
+## Fixed
+* Removed "Notify" from the page title in the browsable API
+
 ## [2.3.0] - 2016-02-02
 ## Added
 * Support for OSF Registries
