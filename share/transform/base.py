@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 import xmltodict
 
-from share.transform.tools.links import IRILink
+from share.transform.chain.links import IRILink
 
 class TransformerMeta(type):
     def __init__(cls, name, bases, attrs):

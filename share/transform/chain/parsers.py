@@ -6,8 +6,8 @@ from functools import reduce
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 
-from share.transform.tools.links import Context
-from share.transform.tools.links import AbstractLink
+from share.transform.chain.links import Context
+from share.transform.chain.links import AbstractLink
 
 
 # NOTE: Context is a thread local singleton

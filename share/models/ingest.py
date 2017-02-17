@@ -65,6 +65,9 @@ class Source(models.Model):
 
 
 class IngestConfig(models.Model):
+    # Previously known as the provider's app_label
+    label = models.TextField(unique=True)
+
     source = models.ForeignKey('Source')
     base_url = models.URLField()
     earliest_date = models.DateField(null=True)
@@ -79,6 +82,13 @@ class IngestConfig(models.Model):
 
     disabled = models.BooleanField(default=False)
 
+    def get_harvester(self):
+        return self.harvester.get_class()(self, **(self.harvester_kwargs or {}))
+
+    def get_transformer(self):
+        return self.transformer.get_class()(self, **(self.transformer_kwargs or {}))
+
+
 
 class Harvester(models.Model):
     key = models.TextField(unique=True)
@@ -90,6 +100,10 @@ class Harvester(models.Model):
     def natural_key(self):
         return self.key
 
+    def get_class(self):
+        from share.harvest import BaseHarvester
+        return BaseHarvester.registry[self.key]
+
 
 class Transformer(models.Model):
     key = models.TextField(unique=True)
@@ -100,3 +114,7 @@ class Transformer(models.Model):
 
     def natural_key(self):
         return self.key
+
+    def get_class(self):
+        from share.transform import BaseTransformer
+        return BaseTransformer.registry[self.key]

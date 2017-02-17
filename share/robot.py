@@ -43,9 +43,6 @@ class RobotAppConfig(AppConfig, metaclass=abc.ABCMeta):
         from share.models import ShareUser
         return ShareUser.objects.get(robot=self.name)
 
-    def authorization(self) -> str:
-        return 'Bearer ' + self.user.accesstoken_set.first().token
-
 
 class AbstractRobotMigration:
 

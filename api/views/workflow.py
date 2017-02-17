@@ -16,7 +16,7 @@ from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSer
 from share.models import RawData, ShareUser, NormalizedData
 from share.tasks import DisambiguatorTask
 from share.harvest.base import BaseHarvester
-from share.transform.v1_push import V1Normalizer
+from share.transform.v1_push import V1Transformer
 
 
 __all__ = ('NormalizedDataViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'V1DataView')
@@ -217,7 +217,7 @@ class V1DataView(views.APIView):
             raw = RawData.objects.store_data(doc_id, BaseHarvester.encode_json(self, prelim_data), request.user, app_label)
 
         # normalize data
-        normalized_data = V1Normalizer({}).normalize(raw.data)
+        normalized_data = V1Transformer({}).transform(raw.data)
         data = {}
         data['data'] = normalized_data
         serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})

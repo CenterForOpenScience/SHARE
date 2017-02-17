@@ -1,9 +1,8 @@
 import re
 
-from share.transform import tools
-from share.transform.tools import ctx
-from share.transform.tools.parsers import Parser
-from share.transform.chain import BaseTransformer
+from share.transform.chain import links as tools
+from share.transform.chain import ctx, ChainTransformer
+from share.transform.chain.parsers import Parser
 
 THE_REGEX = re.compile(r'(^the\s|\sthe\s)')
 

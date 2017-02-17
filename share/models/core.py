@@ -142,6 +142,9 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
+    def authorization(self) -> str:
+        return 'Bearer ' + self.accesstoken_set.first().token
+
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.username)
 
@@ -231,7 +234,7 @@ class RawData(models.Model):
         return self.date_processed is not None  # TODO: this field doesn't exist...
 
     class Meta:
-        unique_together = (('suid_id', 'sha256'),)
+        unique_together = (('suid', 'sha256'),)
         verbose_name_plural = 'Raw data'
 
     def __repr__(self):
