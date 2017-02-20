@@ -15,7 +15,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser, IngestConfig
+from share.models import RawData, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser, SourceConfig
 
 
 logger = logging.getLogger(__name__)
@@ -115,16 +115,16 @@ class AppTask(LoggedTask):
 
 
 # Backward-compatible hack until Tamandua's all set
-class IngestTask(LoggedTask):
+class SourceTask(LoggedTask):
 
     def setup(self, app_label, *args, **kwargs):
-        self.config = IngestConfig.objects.get(label=app_label)
+        self.config = SourceConfig.objects.get(label=app_label)
         self.source = self.config.source.user
         self.args = args
         self.kwargs = kwargs
 
 
-class HarvesterTask(IngestTask):
+class HarvesterTask(SourceTask):
 
     def apply_async(self, targs=None, tkwargs=None, **kwargs):
         tkwargs = tkwargs or {}
@@ -170,13 +170,13 @@ class HarvesterTask(IngestTask):
         }
 
 
-class NormalizerTask(IngestTask):
+class NormalizerTask(SourceTask):
 
     def do_run(self, raw_id):
         raw = RawData.objects.get(pk=raw_id)
         transformer = self.config.get_transformer()
 
-        assert raw.suid.ingest_config_id == self.config.id, 'RawData is from IngestConfig {}. Tried parsing it as {}'.format(raw.suid.ingest_config_id, self.config.id)
+        assert raw.suid.source_config_id == self.config.id, 'RawData is from SourceConfig {}. Tried parsing it as {}'.format(raw.suid.source_config_id, self.config.id)
 
         logger.info('Starting normalization for %s by %s', raw, transformer)
 

@@ -7,7 +7,7 @@ from db.deletion import DATABASE_CASCADE
 
 from share.models.fuzzycount import FuzzyCountManager
 
-__all__ = ('Source', 'IngestConfig', 'Harvester', 'Transformer')
+__all__ = ('Source', 'SourceConfig', 'Harvester', 'Transformer')
 
 class SourceIcon(models.Model):
     source = models.OneToOneField('Source', on_delete=DATABASE_CASCADE)
@@ -64,7 +64,7 @@ class Source(models.Model):
         return self.name
 
 
-class IngestConfig(models.Model):
+class SourceConfig(models.Model):
     # Previously known as the provider's app_label
     label = models.TextField(unique=True)
 

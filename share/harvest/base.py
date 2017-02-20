@@ -64,12 +64,12 @@ class HarvesterMeta(type):
 
 class BaseHarvester(metaclass=HarvesterMeta):
 
-    def __init__(self, ingest_config, **kwargs):
+    def __init__(self, source_config, **kwargs):
         self.last_call = 0
-        self.ingest_config = ingest_config
+        self.config = source_config
         self.kwargs = kwargs
         # TODO Make rate limit apply across threads
-        self.requests = RateLimittedProxy(requests, ingest_config.rate_limit_allowance, ingest_config.rate_limit_period)
+        self.requests = RateLimittedProxy(requests, self.config.rate_limit_allowance, self.config.rate_limit_period)
 
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, **kwargs) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         """Fetch date from this provider inside of the given date range.
@@ -131,7 +131,7 @@ class BaseHarvester(metaclass=HarvesterMeta):
             assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
             for doc_id, datum in rawdata:
-                suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, ingest_config=self.ingest_config)
+                suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=self.config)
                 raw_ids.append(RawData.objects.store_data(self.encode_data(datum), suid).id)
                 if limit is not None and len(raw_ids) >= limit:
                     break
@@ -152,7 +152,7 @@ class BaseHarvester(metaclass=HarvesterMeta):
     def harvest_by_id(self, doc_id):
         from share.models import RawData
         datum = self.fetch_by_id(doc_id)
-        suid = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, ingest_config=self.ingest_config)
+        suid = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=self.config)
         return RawData.objects.store_data(self.encode_data(datum), suid)
 
     def encode_data(self, data, pretty=False) -> bytes:

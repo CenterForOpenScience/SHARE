@@ -24,8 +24,8 @@ class BaseTransformer(metaclass=TransformerMeta):
 
     EMPTY_RE = re.compile(r'\s*(|none|empty)\s*', flags=re.I)
 
-    def __init__(self, ingest_config, **kwargs):
-        self.config = ingest_config
+    def __init__(self, source_config, **kwargs):
+        self.config = source_config
         self.kwargs = kwargs
         self.namespaces = kwargs.get('namespaces', self.NAMESPACES)
 

@@ -22,7 +22,7 @@ from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.validators import JSONLDValidator
-from share.models.ingest import IngestConfig
+from share.models.ingest import SourceConfig
 
 logger = logging.getLogger(__name__)
 __all__ = ('ShareUser', 'RawData', 'NormalizedData', 'SourceUniqueIdentifier')
@@ -181,16 +181,16 @@ def user_post_save(sender, instance, created, **kwargs):
 
 class SourceUniqueIdentifier(models.Model):
     identifier = models.TextField()
-    ingest_config = models.ForeignKey('IngestConfig')
+    source_config = models.ForeignKey('SourceConfig')
 
     class Meta:
-        unique_together = ('identifier', 'ingest_config')
+        unique_together = ('identifier', 'source_config')
 
     def __str__(self):
-        return '{} {}'.format(self.ingest_config_id, self.identifier)
+        return '{} {}'.format(self.source_config_id, self.identifier)
 
     def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.ingest_config_id, self.identifier)
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.source_config_id, self.identifier)
 
 
 class RawDataManager(FuzzyCountManager):
