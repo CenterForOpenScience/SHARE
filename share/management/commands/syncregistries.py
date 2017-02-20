@@ -15,5 +15,5 @@ class Command(BaseCommand):
         
     def sync(self, registry, model):
         for key, obj in registry.items():
-            model.objects.update_or_create(key=key, defaults={'version': obj.VERSION})
+            model.objects.update_or_create(key=key)
         model.objects.exclude(key__in=registry.keys()).delete()
