@@ -1,10 +1,5 @@
-import abc
-import json
 import uuid
 import re
-from collections import OrderedDict
-
-import xmltodict
 
 
 class TransformerMeta(type):
@@ -29,7 +24,8 @@ class BaseTransformer(metaclass=TransformerMeta):
 
     EMPTY_RE = re.compile(r'\s*(|none|empty)\s*', flags=re.I)
 
-    def __init__(self, **kwargs):
+    def __init__(self, ingest_config, **kwargs):
+        self.config = ingest_config
         self.kwargs = kwargs
         self.namespaces = kwargs.get('namespaces', self.NAMESPACES)
 

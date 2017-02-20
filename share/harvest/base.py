@@ -131,7 +131,7 @@ class BaseHarvester(metaclass=HarvesterMeta):
             assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
             for doc_id, datum in rawdata:
-                suid = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, ingest_config=self.ingest_config)
+                suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, ingest_config=self.ingest_config)
                 raw_ids.append(RawData.objects.store_data(self.encode_data(datum), suid).id)
                 if limit is not None and len(raw_ids) >= limit:
                     break

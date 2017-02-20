@@ -103,6 +103,8 @@ class AppTask(LoggedTask):
     def setup(self, app_label, *args, **kwargs):
         self.config = apps.get_app_config(app_label)
         self.source = self.config.user
+        self.args = args
+        self.kwargs = kwargs
 
     def log_values(self):
         return {
@@ -118,6 +120,8 @@ class IngestTask(LoggedTask):
     def setup(self, app_label, *args, **kwargs):
         self.config = IngestConfig.objects.get(label=app_label)
         self.source = self.config.source.user
+        self.args = args
+        self.kwargs = kwargs
 
 
 class HarvesterTask(IngestTask):
@@ -172,9 +176,9 @@ class NormalizerTask(IngestTask):
         raw = RawData.objects.get(pk=raw_id)
         transformer = self.config.get_transformer()
 
-        assert raw.source == self.source, 'RawData is from {}. Tried parsing it as {}'.format(raw.source, self.source)
+        assert raw.suid.ingest_config_id == self.config.id, 'RawData is from IngestConfig {}. Tried parsing it as {}'.format(raw.suid.ingest_config_id, self.config.id)
 
-        logger.info('Starting normalization for %s by %s', raw, normalizer)
+        logger.info('Starting normalization for %s by %s', raw, transformer)
 
         try:
             graph = transformer.transform(raw)

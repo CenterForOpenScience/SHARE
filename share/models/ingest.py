@@ -104,6 +104,10 @@ class Harvester(models.Model):
         from share.harvest import BaseHarvester
         return BaseHarvester.registry[self.key]
 
+    @property
+    def version(self):
+        return self.get_class().VERSION
+
 
 class Transformer(models.Model):
     key = models.TextField(unique=True)
@@ -118,3 +122,7 @@ class Transformer(models.Model):
     def get_class(self):
         from share.transform import BaseTransformer
         return BaseTransformer.registry[self.key]
+
+    @property
+    def version(self):
+        return self.get_class().VERSION

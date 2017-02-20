@@ -24,7 +24,7 @@ class OAIHarvester(BaseHarvester):
     until_param = 'until'
 
     def __init__(self, source, metadata_prefix, **kwargs):
-        super().__init__(source, kwargs)
+        super().__init__(source, **kwargs)
 
         self.url = source.base_url
         self.metadata_prefix = metadata_prefix
