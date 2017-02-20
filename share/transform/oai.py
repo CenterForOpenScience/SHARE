@@ -2,7 +2,7 @@ import re
 import logging
 from lxml import etree
 
-from share.transform.chain import ctx, tools, ChainTransformer
+from share.transform.chain import ctx, ChainTransformer, links as tools
 from share.transform.chain.parsers import Parser
 
 

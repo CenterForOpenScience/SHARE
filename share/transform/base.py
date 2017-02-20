@@ -6,7 +6,6 @@ from collections import OrderedDict
 
 import xmltodict
 
-from share.transform.chain.links import IRILink
 
 class TransformerMeta(type):
     def __init__(cls, name, bases, attrs):
@@ -40,7 +39,7 @@ class BaseTransformer(metaclass=TransformerMeta):
     def transform(self, raw_data):
         source_id = None
         if not isinstance(raw_data, (str, bytes)):
-            source_id = raw_data.provider_doc_id
+            source_id = raw_data.suid.identifier
             raw_data = raw_data.data
         if isinstance(raw_data, bytes):
             raw_data = raw_data.decode()
@@ -52,6 +51,7 @@ class BaseTransformer(metaclass=TransformerMeta):
         return jsonld
 
     def add_source_identifier(self, source_id, jsonld, root_ref):
+        from share.transform.chain.links import IRILink
         uri = IRILink(urn_fallback=True).execute(str(source_id))['IRI']
         if any(n['@type'].lower() == 'workidentifier' and n['uri'] == uri for n in jsonld['@graph']):
             return
