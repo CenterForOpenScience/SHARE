@@ -92,23 +92,23 @@ Each row corresponds to a Transformer implementation in python. (TODO: describe 
 ### HarvestLog
 Log entries to track the status of a specific harvester run.
 
-| Column                  |   Type    | Indexed | Nullable | FK  |     Default     | Description                                                                                                   |
+| Column                  | Type      | Indexed | Nullable | FK  | Default         | Description                                                                                                   |
 | :---------------------- | :-------: | :-----: | :------: | :-: | :-------------: | :------------------------------------------------------------------------------------------------------------ |
-| `ingest_config_id`      |    int    |    ✓    |          |  ✓  |                 | IngestConfig for this harvester run                                                                           |
-| `start_date`            | datetime  |    ✓    |          |     |                 | Beginning of the date range to harvest                                                                        |
-| `end_date`              | datetime  |    ✓    |          |     |                 | End of the date range to harvest                                                                              |
-| `status`                | enum(int) |    ✓    |          |     |     CREATED     | Status of the harvester run, one of {CREATED, STARTED, SPLIT, SUCCEEDED, FAILED, RESCHEDULED}                 |
-| `error`                 |   text    |         |          |     |       ""        | A custom error message or traceback describing why this job failed                                            |
-| `completions`           |    int    |         |          |     |        0        | The number of times `status` has been set to SUCCEEDED                                                        |
+| `source_config_id`      | int       | ✓       |          | ✓   |                 | IngestConfig for this harvester run                                                                           |
+| `start_date`            | datetime  | ✓       |          |     |                 | Beginning of the date range to harvest                                                                        |
+| `end_date`              | datetime  | ✓       |          |     |                 | End of the date range to harvest                                                                              |
+| `status`                | enum(int) | ✓       |          |     | CREATED         | Status of the harvester run, one of {CREATED, STARTED, SPLIT, SUCCEEDED, FAILED, RESCHEDULED, SKIPPED}        |
+| `error`                 | text      |         |          |     | ""              | A custom error message or traceback describing why this job failed                                            |
+| `completions`           | int       |         |          |     | 0               | The number of times `status` has been set to SUCCEEDED                                                        |
 | `date_started`          | datetime  |         |          |     |                 | Datetime `status` was last set to STARTED                                                                     |
-| `date_created`          | datetime  |         |          |     |       now       | Datetime this row was created                                                                                 |
+| `date_created`          | datetime  |         |          |     | now             | Datetime this row was created                                                                                 |
 | `date_modified`         | datetime  |         |          |     | now (on update) | Datetime this row was last modified                                                                           |
-| `share_version`         |   text    |         |          |     |     UNKNOWN     | The commitish at the time this job was last run                                                               |
-| `harvester_version`     |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the harvester, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010')      |
-| `ingest_config_version` |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the `IngestConfig`, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
+| `share_version`         | text      |         |          |     | UNKNOWN         | The commitish at the time this job was last run                                                               |
+| `harvester_version`     | text      | ✓       |          |     | 000.000.000     | Semantic version of the harvester, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010')      |
+| `source_config_version` | text      | ✓       |          |     | 000.000.000     | Semantic version of the `SourceConfig`, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
 
 #### Other indices
-* `ingest_config_id`, `harvester_version`, `start_date`, `end_date` (unique)
+* `source_config_id`, `harvester_version`, `start_date`, `end_date` (unique)
 
 #### Notes
 * In the future, jobs may attempt to optimize themselves by searching for jobs that have already harvested a section of it required date range
