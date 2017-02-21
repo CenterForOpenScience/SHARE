@@ -74,15 +74,13 @@ class GraphDisambiguator:
                     # look for matches in the database
                     instances = self._instances_for_node(n)
                     if instances:
-                        if n.instance:
-                            instances = list(set(instances + [n.instance]))
-                        if len(instances) == 1:
-                            n.instance = instances[0]
-                            logger.debug('Disambiguated %s to %r', n, n.instance)
-                        elif len(instances) >= self.MERGE_LIMIT:
-                            raise MergeLimitError('Too many matches! {} matched {} instances. Something is probably wrong.\nMatches: {}'.format(n, len(instances), instances))
+                        n.instances.update(instances)
+                        if len(n.instances) == 1:
+                            logger.debug('Disambiguated %s to %r', n, instances.pop())
+                        elif len(n.instances) >= self.MERGE_LIMIT:
+                            raise MergeLimitError('Too many matches! {} matched {} instances. Something is probably wrong.\nMatches: {}'.format(n, len(n.instances), n.instances))
                         else:
-                            self._emit_merges(n, instances)
+                            self._emit_merges(n)
                         finished_nodes.add(n)
                         changed = True
                     elif n.type == 'subject':
@@ -133,9 +131,9 @@ class GraphDisambiguator:
 
     def _query_pair(self, key, value):
         try:
-            if not value.instance:
+            if not value.instances:
                 return (None, None)
-            return ('{}__id'.format(key), value.instance.id)
+            return ('{}__id__in'.format(key), [i.id for i in value.instances])
         except AttributeError:
             return (key, value)
 
@@ -163,19 +161,19 @@ class GraphDisambiguator:
 
         source.graph.replace(source, replacement)
 
-    def _emit_merges(self, node, instances):
-        *to_merge, newest = sorted(instances, key=lambda n: n.date_modified)
-        node.instance = newest
-        newest_id = IDObfuscator.encode(newest)
-        for n in to_merge:
-            merge_node = node.graph.create(
+    def _emit_merges(self, node):
+        target = node.get_instance()
+        target_id = IDObfuscator.encode(target)
+        for n in node.instances:
+            if n == target:
+                continue
+            node.graph.create(
                 IDObfuscator.encode(n),
                 n._meta.model_name,
-                {'same_as': {'@id': newest_id, '@type': newest._meta.model_name}}
+                {'same_as': {'@id': target_id, '@type': target._meta.model_name}}
             )
-            merge_node.instance = n
 
-        logger.debug('Disambiguated %s to %s. Merging all into %r.', node, instances, newest)
+        logger.debug('Disambiguated %s to %s. Merging all into %r.', node, node.instances, target)
 
     class NodeIndex:
         def __init__(self):

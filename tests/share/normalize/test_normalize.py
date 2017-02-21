@@ -206,7 +206,7 @@ class TestChangeNode:
     @pytest.mark.django_db
     def test_load_instance(self, graph):
         tag = factories.TagFactory()
-        assert graph.create(IDObfuscator.encode(tag), 'tag', {}).instance == tag
+        assert graph.create(IDObfuscator.encode(tag), 'tag', {}).instances == set([tag])
 
     @pytest.mark.django_db
     def test_unresolveable(self, graph):
@@ -231,8 +231,8 @@ class TestChangeNode:
 
     @pytest.mark.django_db
     def test_change_datetime_change(self, graph):
-        tag = factories.AbstractCreativeWorkFactory()
-        assert graph.create(IDObfuscator.encode(tag), 'tag', {'date_updated': pendulum.fromtimestamp(0).isoformat()}).change == {'date_updated': pendulum.fromtimestamp(0).isoformat()}
+        work = factories.AbstractCreativeWorkFactory()
+        assert graph.create(IDObfuscator.encode(work), work._meta.model_name, {'date_updated': pendulum.fromtimestamp(0).isoformat()}).change == {'date_updated': pendulum.fromtimestamp(0).isoformat()}
 
     @pytest.mark.django_db
     def test_change_extra(self, graph):
@@ -246,7 +246,7 @@ class TestChangeNode:
         ))
         graph.namespace = 'testing'
         tag = graph.create(None, 'tag', {'extra': {'Same': 'here', 'Overwrite': 'you', 'New key': 'here'}})
-        tag.instance = tag_model
+        tag.instances = set([tag_model])
         assert tag.change == {'extra': {
             'New key': 'here',
             'Overwrite': 'you',
