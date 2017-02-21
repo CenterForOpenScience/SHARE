@@ -14,8 +14,10 @@ from hashlib import sha256
 
 from model_utils import Choices
 
+from django.db import DatabaseError
 from django.conf import settings
 from django.db import connection
+from django.db import connections
 # from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 # from django.contrib.auth.models import PermissionsMixin, Group
 from django.core import validators
@@ -38,6 +40,7 @@ from django.utils.translation import ugettext_lazy as _
 from share.models.fuzzycount import FuzzyCountManager
 from share.util import chunked
 # from share.models.validators import JSONLDValidator
+from share.harvest.exceptions import HarvesterConcurrencyError
 
 
 logger = logging.getLogger(__name__)
@@ -98,10 +101,14 @@ class Source(models.Model):
     def natural_key(self):
         return self.name
 
+    def __repr__(self):
+        return '<{}({})>'.format(self.__class__.__name__, self.name)
+
 
 class SourceConfig(models.Model):
     # Previously known as the provider's app_label
     label = models.TextField(unique=True)
+    version = models.TextField(default='000.000.000')
 
     source = models.ForeignKey('Source')
     base_url = models.URLField()
@@ -123,6 +130,26 @@ class SourceConfig(models.Model):
     def get_transformer(self):
         return self.transformer.get_class()(self, **(self.transformer_kwargs or {}))
 
+    def acquire_lock(self, using='locking'):
+        # NOTE: Must be in transaction
+        logger.debug('Attempting to lock %r', self)
+        try:
+            with connections[using].cursor() as cursor:
+                cursor.execute('''
+                    SELECT "id"
+                    FROM "{}"
+                    WHERE id = %s
+                    FOR NO KEY UPDATE NOWAIT;
+                '''.format(self._meta.db_table), (self.id,))
+        except DatabaseError:
+            logger.warning('Lock failed; another task is already harvesting %r.', self)
+            raise HarvesterConcurrencyError('Unable to lock {!r}'.format(self))
+        else:
+            logger.debug('Lock acquired on %r', self)
+
+    def __repr__(self):
+        return '<{}({}, {!r})>'.format(self.__class__.__name__, self.label, self.source)
+
 
 class Harvester(models.Model):
     key = models.TextField(unique=True)
@@ -131,16 +158,16 @@ class Harvester(models.Model):
 
     objects = NaturalKeyManager('key')
 
+    @property
+    def version(self):
+        return self.get_class().VERSION
+
     def natural_key(self):
         return self.key
 
     def get_class(self):
         from share.harvest import BaseHarvester
         return BaseHarvester.registry[self.key]
-
-    @property
-    def version(self):
-        return self.get_class().VERSION
 
 
 class Transformer(models.Model):
@@ -150,16 +177,16 @@ class Transformer(models.Model):
 
     objects = NaturalKeyManager('key')
 
+    @property
+    def version(self):
+        return self.get_class().VERSION
+
     def natural_key(self):
         return self.key
 
     def get_class(self):
         from share.transform import BaseTransformer
         return BaseTransformer.registry[self.key]
-
-    @property
-    def version(self):
-        return self.get_class().VERSION
 
 
 class HarvestLog(models.Model):
@@ -175,6 +202,7 @@ class HarvestLog(models.Model):
 
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)
     error = models.TextField(blank=True)
+    completions = models.IntegerField(default=0)
 
     end_date = models.DateTimeField()
     start_date = models.DateTimeField()
@@ -234,10 +262,12 @@ class HarvestLog(models.Model):
 class RawDatumManager(FuzzyCountManager):
 
     def link_to_log(self, log, datum_ids):
+        if not datum_ids:
+            return True
         logger.debug('Linking RawData to %r', log)
         with connection.cursor() as cursor:
             for chunk in chunked(datum_ids, size=500):
-                cursor.excecute('''
+                cursor.execute('''
                     INSERT INTO "{table}"
                         ("{rawdata}", "{harvesterlog}")
                     VALUES

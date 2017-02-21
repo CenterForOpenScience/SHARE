@@ -132,7 +132,7 @@ class HarvesterTask(SourceTask):
     def resolve_args(self, start, end):
         logger.debug('Coercing start and end (%r, %r) into datetimes', start, end)
         if not start and not end:
-            start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
+            start, end = datetime.datetime.utcnow() + datetime.timedelta(days=-1), datetime.datetime.utcnow()
         if type(end) is str:
             end = pendulum.parse(end.rstrip('Z'))  # TODO Fix me
         if type(start) is str:
@@ -146,6 +146,13 @@ class HarvesterTask(SourceTask):
         tkwargs.setdefault('start', (datetime.datetime.utcnow() + datetime.timedelta(-1)).isoformat())
         return super().apply_async(targs, tkwargs, **kwargs)
 
+    def log_values(self):
+        return {
+            **super().log_values(),
+            'app_label': self.config.label,
+            'app_version': self.config.harvester.version,
+        }
+
     def do_run(self, start=None, end=None, limit=None, force=False, superfluous=False, ignore_disabled=False, **kwargs):
         # Use the locking connection to avoid putting everything else in a transaction.
         with transaction.atomic(using='locking'):
@@ -154,43 +161,37 @@ class HarvesterTask(SourceTask):
             harvester = self.config.get_harvester()
 
             log, created = HarvestLog.objects.get_or_create(
-                end=end,
+                end_date=end,
+                start_date=start,
+                source_config=self.config,
                 harvester_version=self.config.harvester.version,
-                ingest_config=self.config,
-                ingest_config_version=self.config.version,
-                start=start,
-                defaults={
-                    'task_id': self.request.id,
-                    'status': HarvestLog.STATUS['created']
-                }
+                source_config_version=self.config.version,
+                defaults={'task_id': self.request.id}
             )
 
             try:
                 # Attempt to lock the harvester config to make sure this is the only job making requests
                 # to this specific source.
                 try:
-                    logger.debug('Attempting to lock %r', self.config)
-                    self.config.model.objects.using('locking').filter(id=self.config.id).select_for_update(nowait=True)
-                except DatabaseError:
-                    logger.warning('Lock failed; another task is already harvesting %r. ', self.config)
-                    if not force:
-                        raise HarvesterConcurrencyError('Unable to lock {!r}'.format(self.config))
+                    self.config.acquire_lock()
+                except HarvesterConcurrencyError as e:
+                    if force:
+                        logger.warning('Force is True; ignoring exception %r', e)
                     else:
-                        logger.warning('Force is True; ignoring exception')
-                else:
-                    logger.debug('Lock on %r aquired', self.config)
+                        raise e
 
                 # Don't run disabled harvesters unless special cased
                 if self.config.disabled and not force and not ignore_disabled:
                     raise HarvesterDisabledError('Harvester {!r} is disabled. Either enable it, run with force=True, or ignore_disabled=True'.format(self.config))
 
                 log.start()
+                error = None
                 logger.info('Harvesting %s - %s from %r', start, end, self.config)
 
                 try:
                     harvester.harvest(start, end, limit=limit, **kwargs)
                 except Exception as e:
-                    logger.warning('Harvesting %r failed; cleaning up')
+                    logger.warning('Harvesting %r failed; cleaning up', self.config)
                     error = e
 
                 logger.info('Collected %d RawData from %r', len(harvester.raw_ids), self.config)
@@ -232,13 +233,6 @@ class HarvesterTask(SourceTask):
                 raise self.retry(countdown=10, exc=e)
 
             log.succeed()
-
-    def log_values(self):
-        return {
-            **super().log_values(),
-            'app_label': self.config.label,
-            'app_version': self.config.harvester.version,
-        }
 
 
 class NormalizerTask(SourceTask):

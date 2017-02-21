@@ -55,6 +55,7 @@ class RateLimittedProxy:
 class HarvesterMeta(type):
     def __init__(cls, name, bases, attrs):
         if hasattr(cls, 'registry'):
+            cls.VERSION = '{:03}.{:03}.{:03}'.format(*(int(x) for x in attrs['VERSION'].split('.')))
             assert 'KEY' in attrs and attrs['KEY'] not in cls.registry
             cls.registry[attrs['KEY']] = cls
         else:
