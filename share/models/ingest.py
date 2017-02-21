@@ -1,46 +1,26 @@
-from django.contrib.postgres.fields import ArrayField, JSONField
-from django.core.files.storage import Storage
-from django.db import models
-from django.utils.deconstruct import deconstructible
-
-from db.deletion import DATABASE_CASCADE
-
-from share.models.fuzzycount import FuzzyCountManager
-
+from hashlib import sha256
 import datetime
 import logging
 import traceback
-from hashlib import sha256
 
 from model_utils import Choices
 
-from django.db import DatabaseError
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
+from django.core import validators
+from django.core.files.storage import Storage
+from django.db import DatabaseError
 from django.db import connection
 from django.db import connections
-# from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-# from django.contrib.auth.models import PermissionsMixin, Group
-from django.core import validators
-# from django.core.files.base import ContentFile
-# from django.core.files.storage import Storage
 from django.db import models
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
-# from django.core.urlresolvers import reverse
-# from django.utils import timezone
-# from django.utils.deconstruct import deconstructible
+from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
-# from oauth2_provider.models import AccessToken, Application
 
-# from db.deletion import DATABASE_CASCADE
+from db.deletion import DATABASE_CASCADE
 
-# from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
-
-# from share.models.fields import DateTimeAwareJSONField, ShareURLField
+from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models.fuzzycount import FuzzyCountManager
 from share.util import chunked
-# from share.models.validators import JSONLDValidator
-from share.harvest.exceptions import HarvesterConcurrencyError
 
 
 logger = logging.getLogger(__name__)
