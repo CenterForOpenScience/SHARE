@@ -52,35 +52,6 @@ def committed_source_config(transactional_db):
     return source_config
 
 
-# class TestHarvestLog:
-
-#     def test_m2m(self):
-#         pass
-
-
-# class TestHarvestResolveArgs:
-
-#     @pytest.mark.parametrize('input, expected', [
-#         (0, datetime.fromtimestamp(0)),
-#         (500000, datetime.fromtimestamp(500000)),
-#         ('2010-02-10', datetime.fromtimestamp(0)),
-#     ])
-#     def test_resolve(self):
-#         d.tzinfo is None or d.tzinfo.utcoffset(d) is None
-
-
-# class TestHarvestTaskLog:
-
-#     def test_disabled_harvester(self):
-#         pass
-
-#     def test_failed_harvest(self):
-#         pass
-
-#     def test_succeeds(self):
-#         pass
-
-
 class SyncedThread(threading.Thread):
 
     def __init__(self, target, args=(), kwargs={}):
@@ -104,13 +75,17 @@ class SyncedThread(threading.Thread):
         return super().join(timeout)
 
 
+def harvest(*args, **kwargs):
+    # Set retries to be really high to avoid retrying
+    return HarvesterTask().apply(args, kwargs, retries=999)
+
+
 @pytest.mark.django_db
 class TestHarvestTask:
 
     def test_succeeds(self, source_config, django_assert_num_queries):
-        # Set retries to be really high to avoid retrying
         with django_assert_num_queries(2):
-            HarvesterTask().apply((source_config.source.user.id, source_config.label, ), retries=999)
+            harvest(source_config.souce.user.id, source_config.label)
         assert HarvestLog.objects.filter(status=HarvestLog.STATUS.succeeded).count() == 1
 
     def test_errors_on_locked(self, committed_source_config):
@@ -118,7 +93,7 @@ class TestHarvestTask:
         t.start()
 
         with pytest.raises(HarvesterConcurrencyError):
-            HarvesterTask().apply((committed_source_config.source.user.id, committed_source_config.label, ), retries=999)
+            harvest(committed_source_config.source.user.id, committed_source_config.label)
 
         t.join()
 
@@ -128,7 +103,7 @@ class TestHarvestTask:
         t = SyncedThread(committed_source_config.acquire_lock)
         t.start()
 
-        HarvesterTask().apply((committed_source_config.source.user.id, committed_source_config.label, ), {'force': True}, retries=999)
+        harvest(committed_source_config.source.user.id, committed_source_config.label, force=True)
 
         t.join()
 
@@ -136,17 +111,17 @@ class TestHarvestTask:
         source_config.disabled = True
         source_config.save()
         with pytest.raises(HarvesterDisabledError):
-            HarvesterTask().apply((source_config.source.user.id, source_config.label, ), retries=999)
+            harvest(source_config.source.user.id, source_config.label)
 
     def test_harvester_disabled_force(self, source_config):
         source_config.disabled = True
         source_config.save()
-        HarvesterTask().apply((source_config.source.user.id, source_config.label, ), {'force': True}, retries=999)
+        harvest(source_config.source.user.id, source_config.label, force=True)
 
     def test_harvester_disabled_ignore(self, source_config):
         source_config.disabled = True
         source_config.save()
-        HarvesterTask().apply((source_config.source.user.id, source_config.label, ), {'ignore_disabled': True}, retries=999)
+        harvest(source_config.source.user.id, source_config.label, ignore_disabled=True)
 
     def test_marks_log_failed_with_tb(self, source_config):
         pass
