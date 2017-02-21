@@ -69,7 +69,7 @@ class TestPruneChangeGraph:
         graph = ChangeGraph(Graph(*input))
         ChangeSet.objects.from_graph(graph, normalized_data_id).accept()
 
-        assert all(n.instance is None for n in graph.nodes)
+        assert all(not n.instances for n in graph.nodes)
         GraphDisambiguator().find_instances(graph)
-        assert all(n.instance for n in graph.nodes)
-        assert all(n.instance._meta.model_name == n.type for n in graph.nodes)
+        assert all(n.instances for n in graph.nodes)
+        assert all(n.get_instance()._meta.model_name == n.type for n in graph.nodes)

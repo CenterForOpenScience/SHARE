@@ -213,14 +213,16 @@ class ChangeNode:
 
     @property
     def id(self):
-        return (self.instance and IDObfuscator.encode(self.instance)) or self._id
+        instance = self.get_instance()
+        return IDObfuscator.encode(instance) if instance else self._id
 
     @property
     def type(self):
         model = apps.get_app_config('share').get_model(self._type)
-        if not self.instance or len(model.mro()) >= len(type(self.instance).mro()):
+        instance = self.get_instance()
+        if not instance or len(model.mro()) >= len(type(instance).mro()):
             return self._type
-        return self.instance._meta.model_name.lower()
+        return instance._meta.model_name.lower()
 
     @property
     def ref(self):
@@ -229,14 +231,15 @@ class ChangeNode:
     @property
     def model(self):
         model = apps.get_model('share', self._type)
-        if not self.instance or len(model.mro()) >= len(type(self.instance).mro()):
+        instance = self.get_instance()
+        if not instance or len(model.mro()) >= len(type(instance).mro()):
             return model
         # Special case to allow creators to be downgraded to contributors
         # This allows OSF users to mark project contributors as bibiliographic or non-bibiliographic
         # and have that be reflected in SHARE
         if issubclass(model, apps.get_model('share', 'contributor')):
             return model
-        return type(self.instance)
+        return type(instance)
 
     @property
     def is_merge(self):
@@ -248,22 +251,23 @@ class ChangeNode:
 
     @property
     def is_skippable(self):
-        return self.instance and not self.change
+        return self.instances and not self.change
 
     @property
     def change(self):
         changes, relations = {}, {}
+        instance = self.get_instance()
 
         extra = copy.deepcopy(self.extra)
         if self.namespace:
-            if self.namespace and getattr(self.instance, 'extra', None):
+            if self.namespace and getattr(instance, 'extra', None):
                 # NOTE extra changes are only diffed at the top level
-                self.instance.extra.data.setdefault(self.namespace, {})
+                instance.extra.data.setdefault(self.namespace, {})
                 changes['extra'] = {
                     k: v
                     for k, v in extra.items()
-                    if k not in self.instance.extra.data[self.namespace]
-                    or self.instance.extra.data[self.namespace][k] != v
+                    if k not in instance.extra.data[self.namespace]
+                    or instance.extra.data[self.namespace][k] != v
                 }
             else:
                 changes['extra'] = extra
@@ -279,12 +283,12 @@ class ChangeNode:
         if self.is_blank:
             return {**changes, **self.attrs, **relations}
 
-        if self.instance and type(self.instance) is not self.model:
+        if instance and type(instance) is not self.model:
             changes['type'] = self.model._meta.label_lower
 
         attrs = {}
         for k, v in self.attrs.items():
-            old_value = getattr(self.instance, k)
+            old_value = getattr(instance, k)
             if isinstance(old_value, datetime.datetime):
                 v = pendulum.parse(v)
             if v != old_value:
@@ -297,16 +301,25 @@ class ChangeNode:
         self.graph = graph
         self._id = id
         self._type = type.lower()
-        self.instance = None
+        self.instances = set()
         self.attrs = attrs
         self.extra = attrs.pop('extra', {})
         self.context = attrs.pop('@context', {})
         self.namespace = namespace
 
         if not self.is_blank:
-            self.instance = IDObfuscator.load(self.id, None)
-            if not self.instance or self.instance._meta.concrete_model is not self.model._meta.concrete_model:
+            instance = IDObfuscator.load(self.id, None)
+            if not instance or instance._meta.concrete_model is not self.model._meta.concrete_model:
                 raise UnresolvableReference((self.id, self.type))
+            self.instances.add(instance)
+
+    def get_instance(self):
+        try:
+            return max(self.instances, key=lambda i: i.date_modified, default=None)
+        except AttributeError:
+            if len(self.instances) == 1:
+                return next(i for i in self.instances)
+            raise
 
     def related(self, name=None, forward=True, backward=True):
         edges = tuple(
@@ -333,12 +346,13 @@ class ChangeNode:
             name = edge.name if edge.subject == self else edge.remote_name
             node = edge.related if edge.subject == self else edge.subject
             many = edge.field.one_to_many if edge.subject == self else edge.field.remote_field.one_to_many
-            if not node.instance:
+            instance = node.get_instance()
+            if not instance:
                 continue
             if many:
-                relations.setdefault(name, []).append(node.instance.pk)
+                relations.setdefault(name, []).append(instance.pk)
             else:
-                relations[name] = node.instance.pk
+                relations[name] = instance.pk
 
         return {**self.attrs, **relations}
 

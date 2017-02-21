@@ -188,6 +188,33 @@ class TestMergingObjects:
         merged_snapshot = merge_snapshots(from_snapshot, into_snapshot)
         assert merged_snapshot == work_snapshot(into_work)
 
+    def test_implicitly_merge_with_existing_relations(self, Graph):
+        from_work, into_work = setup(Graph)[:2]
+        from_snapshot = work_snapshot(from_work)
+        into_snapshot = work_snapshot(into_work)
+
+        merge_cg = ChangeGraph(Graph(
+            CreativeWork(
+                sparse=True,
+                id='_:foo',
+                identifiers=[
+                    WorkIdentifier(uri=from_work.identifiers.first().uri),
+                    WorkIdentifier(uri=into_work.identifiers.first().uri),
+                ],
+                tags=[
+                    Tag(name=from_work.tags.first().name),
+                    Tag(name=into_work.tags.first().name),
+                ]
+            )
+        ))
+        merge_cg.process()
+        ChangeSet.objects.from_graph(merge_cg, NormalizedDataFactory().id).accept()
+
+        from_work.refresh_from_db()
+        assert from_work.same_as_id == into_work.id
+        merged_snapshot = merge_snapshots(from_snapshot, into_snapshot)
+        assert merged_snapshot == work_snapshot(into_work)
+
     def test_implicitly_merge_several_works(self, Graph):
         works = setup(Graph)
         snapshots = [work_snapshot(w) for w in works]
