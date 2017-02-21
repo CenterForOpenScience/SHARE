@@ -1,4 +1,3 @@
-import csv
 import datetime
 import bz2
 import io
@@ -10,6 +9,7 @@ import botocore
 from django.db import transaction
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.core import serializers
 
 from share.bot import Bot
 from share.models import CeleryProviderTask
@@ -32,27 +32,9 @@ def get_bucket(bucket_name):
     return bucket_name
 
 
-def queryset_to_compressed_csv(queryset, model):
+def queryset_to_compressed_json(queryset, model):
     compressed_output = io.BytesIO()
-    output = io.StringIO()
-    writer = csv.writer(output)
-
-    headers = []
-    for field in model._meta.fields:
-        headers.append(field.name)
-    writer.writerow(headers)
-
-    for obj in queryset:
-        row = []
-        for field in headers:
-            val = getattr(obj, field)
-            if callable(val):
-                val = val()
-            if isinstance(val, str):
-                val = val.encode('utf-8')
-            row.append(val)
-        writer.writerow(row)
-
+    output = io.StringIO(serializers.serialize('json', queryset))
     compressed_output.write(bz2.compress(str.encode(output.getvalue())))
 
     return compressed_output
@@ -98,7 +80,7 @@ class ArchiveBot(Bot):
                 raise Exception('Bucket name not set! Please define bucket name in project.settings')
             self.bucket = get_bucket(settings.CELERY_TASK_BUCKET_NAME)
 
-        logger.info('%s started converting queryset to csv data', self.started_by)
+        logger.info('%s started converting queryset to json data', self.started_by)
 
         self.chunk_size = chunk_size
 
@@ -169,7 +151,7 @@ class ArchiveBot(Bot):
             )
 
     def archive_queryset(self, page, model, location, task_name):
-        compressed_data = queryset_to_compressed_csv(page.object_list, model)
+        compressed_data = queryset_to_compressed_json(page.object_list, model)
         put_s3(self.bucket, location, compressed_data)
         logger.info('Finished archiving data for %s', task_name)
 
