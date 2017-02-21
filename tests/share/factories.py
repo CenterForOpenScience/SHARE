@@ -23,21 +23,21 @@ class SourceFactory(DjangoModelFactory):
 
 
 class HarvesterFactory(DjangoModelFactory):
-    key = factory.Faker('word')
+    key = factory.Faker('sentence')
 
     class Meta:
         model = models.Harvester
 
 
 class TransformerFactory(DjangoModelFactory):
-    key = factory.Faker('word')
+    key = factory.Faker('sentence')
 
     class Meta:
         model = models.Transformer
 
 
 class SourceConfigFactory(DjangoModelFactory):
-    label = factory.Faker('word')
+    label = factory.Faker('sentence')
     base_url = factory.Faker('url')
     source = factory.SubFactory(SourceFactory)
 

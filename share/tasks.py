@@ -154,26 +154,28 @@ class HarvesterTask(SourceTask):
         }
 
     def do_run(self, start=None, end=None, limit=None, force=False, superfluous=False, ignore_disabled=False, **kwargs):
+        # WARNING: Errors that occur here cannot be logged to the HarvestLog.
+        start, end = self.resolve_args(start, end)
+        logger.debug('Loading harvester for %r', self.config)
+        harvester = self.config.get_harvester()
+
+        log, created = HarvestLog.objects.get_or_create(
+            end_date=end,
+            start_date=start,
+            source_config=self.config,
+            harvester_version=self.config.harvester.version,
+            source_config_version=self.config.version,
+            defaults={'task_id': self.request.id}
+        )
+
         # Use the locking connection to avoid putting everything else in a transaction.
         with transaction.atomic(using='locking'):
-            start, end = self.resolve_args(start, end)
-            logger.debug('Loading harvester for %r', self.config)
-            harvester = self.config.get_harvester()
-
-            log, created = HarvestLog.objects.get_or_create(
-                end_date=end,
-                start_date=start,
-                source_config=self.config,
-                harvester_version=self.config.harvester.version,
-                source_config_version=self.config.version,
-                defaults={'task_id': self.request.id}
-            )
-
+            # Django recommends against trys inside of transactions, we're just preserving our lock as long as possible.
             try:
                 # Attempt to lock the harvester config to make sure this is the only job making requests
                 # to this specific source.
                 try:
-                    self.config.acquire_lock()
+                    self.config.acquire_lock(using='locking')
                 except HarvesterConcurrencyError as e:
                     if force:
                         logger.warning('Force is True; ignoring exception %r', e)

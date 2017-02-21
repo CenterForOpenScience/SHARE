@@ -83,9 +83,8 @@ def harvest(*args, **kwargs):
 @pytest.mark.django_db
 class TestHarvestTask:
 
-    def test_succeeds(self, source_config, django_assert_num_queries):
-        with django_assert_num_queries(2):
-            harvest(source_config.souce.user.id, source_config.label)
+    def test_succeeds(self, source_config):
+        harvest(source_config.source.user.id, source_config.label)
         assert HarvestLog.objects.filter(status=HarvestLog.STATUS.succeeded).count() == 1
 
     def test_errors_on_locked(self, committed_source_config):
@@ -97,7 +96,7 @@ class TestHarvestTask:
 
         t.join()
 
-        assert HarvestLog.objects.filter(status=HarvestLog.STATUS.reschedule).count() == 1
+        assert HarvestLog.objects.filter(status=HarvestLog.STATUS.rescheduled).count() == 1
 
     def test_force_ignores_lock_error(self, committed_source_config):
         t = SyncedThread(committed_source_config.acquire_lock)
