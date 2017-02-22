@@ -44,7 +44,7 @@ def put_s3(bucket, location, data):
     s3 = boto3.resource('s3')
     try:
         current_date = datetime.datetime.utcnow().isoformat()
-        s3.Object(bucket, location + current_date + '.bz2').put(Body=data.getvalue())
+        s3.Object(bucket, location + current_date + '.json.bz2').put(Body=data.getvalue())
     except botocore.exceptions.ClientError as e:
         raise botocore.exceptions.ClientError(e)
 
@@ -169,6 +169,6 @@ class ArchiveBot(Bot):
             while page.has_next():
                 page = paginator.page(page.next_page_number())
                 self.archive_queryset(page, model, location, task_name)
-                logger.info('Archived %d', page)
+                logger.info('Archived %d of %d', page.end_index(), total)
 
         delete_queryset(queryset)
