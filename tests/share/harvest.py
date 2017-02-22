@@ -1,13 +1,17 @@
+from faker import Factory
 import threading
 import pytest
 import datetime
 from share.models import HarvestLog
 from share.models import SourceConfig
+from share.models import SourceUniqueIdentifier
+from share.models import RawDatum
 from share.harvest import BaseHarvester
 from share.tasks import HarvesterTask
 from unittest import mock
 
 from django.db import transaction
+from django.conf import settings
 
 from share.harvest.exceptions import HarvesterConcurrencyError, HarvesterDisabledError
 
@@ -81,11 +85,18 @@ def harvest(*args, **kwargs):
 
 
 @pytest.mark.django_db
-class TestHarvestTask:
+class TestHarvestTaskSuccess:
 
     def test_succeeds(self, source_config):
         harvest(source_config.source.user.id, source_config.label)
         assert HarvestLog.objects.filter(status=HarvestLog.STATUS.succeeded).count() == 1
+
+    def test_increments_completions(self, source_config):
+        pass
+
+
+@pytest.mark.django_db
+class TestHarvestTask:
 
     def test_errors_on_locked(self, committed_source_config):
         t = SyncedThread(committed_source_config.acquire_lock)
@@ -122,6 +133,20 @@ class TestHarvestTask:
         source_config.save()
         harvest(source_config.source.user.id, source_config.label, ignore_disabled=True)
 
+    def test_harvest_fails(self, source_config):
+        source_config.harvester.get_class().do_harvest.side_effect = ValueError('In a test')
+        with pytest.raises(ValueError) as e:
+            harvest(source_config.source.user.id, source_config.label)
+        assert e.value.args == ('In a test', )
+        log = HarvestLog.objects.get(source_config=source_config)
+
+        assert log.status == HarvestLog.STATUS.failed
+        assert log.completions == 0
+        assert 'ValueError: In a test' in log.error
+
+    def test_partial_harvest_fails(self, source_config):
+        pass
+
     def test_marks_log_failed_with_tb(self, source_config):
         pass
 
@@ -143,5 +168,37 @@ class TestHarvestTask:
     def test_force_start_ingest_tasks(self, source_config):
         pass
 
-    def test_increments_completions(self, source_config):
+    def test_succeeds(self, source_config):
+        fake = Factory.create()
+        source_config.harvester.get_class()._rawdata = [(fake.sentence(), fake.text()) for _ in range(200)]
+
+        harvest(source_config.source.user.id, source_config.label)
+
+        log = HarvestLog.objects.get(source_config=source_config)
+
+        assert SourceUniqueIdentifier.objects.all().count() == 200
+        assert RawDatum.objects.all().count() == 200
+        assert log.status == HarvestLog.STATUS.succeeded
+        assert log.completions == 1
+        assert log.raw_data.all().count() == 200
+
+    def test_log_values(self, source_config):
+        harvest(source_config.source.user.id, source_config.label)
+        log = HarvestLog.objects.get(source_config=source_config)
+
+        assert log.task_id is not None
+        assert log.status == HarvestLog.STATUS.succeeded
+        assert log.error == ''
+        assert log.completions == 1
+        assert log.start_date.date() == datetime.date.today() - datetime.timedelta(days=1)
+        assert log.end_date.date() == datetime.date.today()
+        assert log.source_config == source_config
+        assert log.share_version == settings.VERSION
+        assert log.harvester_version == source_config.get_harvester().VERSION
+        assert log.source_config_version == source_config.version
+
+    def test_laziness(self, source_config):
+        pass
+
+    def test_superfluous(self, source_config):
         pass

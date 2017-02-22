@@ -29,23 +29,18 @@ Over time the "pipline" has changed significantly from its original inception. T
 ### There is no pipeline
 
 ```
-   +-----------------------------------------------------------------+
-   |                      Ingest                                     |
-   |                                                                 |
-   |                  +--------------------------------------------+ |
-   | +---------+      |                    ???                     | |
-   | | Harvest | ---> | Transform  --->  Regulate ---> Consolidate | |
-   | +---------+      +--------------------------------------------+ |
-   |                                                                 |
-   +-----------------------------------------------------------------+
+                 +--------------------------------------------+
++---------+      |                  Ingest                    |
+| Harvest | ---> | Transform  --->  Regulate ---> Consolidate |
++---------+      +--------------------------------------------+
 
-   +---------------+
-   | Deduplication |
-   +---------------+
++---------------+
+| Deduplication |
++---------------+
 
-   +----------+
-   | Assemble |
-   +----------+
++----------+
+| Assemble |
++----------+
 ```
 
 At first glance, the SHARE workflow may appear to be a pipeline. It is not. Data only addressed a single enity, briefly, in the begining of the workflow.

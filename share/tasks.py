@@ -196,11 +196,12 @@ class HarvesterTask(SourceTask):
                     logger.warning('Harvesting %r failed; cleaning up', self.config)
                     error = e
 
-                logger.info('Collected %d RawData from %r', len(harvester.raw_ids), self.config)
+                logger.info('Collected %d new RawData from %r', len(harvester.new_raw_ids), self.config)
+                logger.debug('Rediscovered %d RawData from %r', len(harvester.old_raw_ids), self.config)
 
                 try:
                     # Attempt to populate the throughtable for any RawData that made it to the database
-                    RawDatum.objects.link_to_log(log, harvester.raw_ids)
+                    RawDatum.objects.link_to_log(log, harvester.old_raw_ids + harvester.new_raw_ids)
                 except Exception as e:
                     logger.exception('Failed to link RawData to %r', log)
                     # Don't shadow the original error if it exists
@@ -218,9 +219,13 @@ class HarvesterTask(SourceTask):
                     logger.warning('Force is set to True; ignoring exception')
 
                 # TODO
-                # for raw_id in harvester.raw_ids:
+                # for raw_id in harvester.new_raw_ids:
                 #     task = IngestTask().apply_async((self.started_by.id, self.config.id, raw_id,))
                 #     logger.debug('Started normalizer task %s for %s', task, raw_id)
+
+                # if superfluous:
+                #     for raw_id in harvester.old_raw_ids:
+                #         pass
 
             except HarvesterConcurrencyError as e:
                 # If we did not create this log and the task ids don't match. There's a very good

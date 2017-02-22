@@ -24,7 +24,7 @@ from share.util import chunked
 
 
 logger = logging.getLogger(__name__)
-__all__ = ('Source', 'HarvestLog', 'RawDatum', 'SourceConfig', 'Harvester', 'Transformer')
+__all__ = ('Source', 'HarvestLog', 'RawDatum', 'SourceConfig', 'Harvester', 'Transformer', 'SourceUniqueIdentifier')
 
 
 class SourceIcon(models.Model):
@@ -215,9 +215,9 @@ class HarvestLog(models.Model):
 
         if not isinstance(exception, str):
             tb = traceback.TracebackException.from_exception(exception)
-            exception = tb.format(chain=True)
+            exception = '\n'.join(tb.format(chain=True))
 
-        self.status = HarvestLog.STATUS.rescheduled
+        self.status = HarvestLog.STATUS.failed
         self.error = exception
 
         if save:
@@ -249,27 +249,60 @@ class RawDatumManager(FuzzyCountManager):
             for chunk in chunked(datum_ids, size=500):
                 cursor.execute('''
                     INSERT INTO "{table}"
-                        ("{rawdata}", "{harvesterlog}")
+                        ("{rawdatum}", "{harvestlog}")
                     VALUES
-                        %s
-                    ON CONFLICT ("{rawdata}", "{harvesterlog}") DO NOTHING;
+                        {values}
+                    ON CONFLICT ("{rawdatum}", "{harvestlog}") DO NOTHING;
                 '''.format(
-                    table=RawDatum.logs.through._meta.table_name,
-                    rawdata=RawDatum.logs.through._meta.get_field('rawdata').column_name,
-                    harvestlog=RawDatum.logs.through._meta.get_field('harvestlog').column_name,
-                ), tuple((raw_id, log.id) for raw_id in chunk))
+                    values=', '.join(('%s', ) * len(chunk)),  # Nast hack. Fix when psycopg2 2.7 is released with execute_values
+                    table=RawDatum.logs.through._meta.db_table,
+                    rawdatum=RawDatum.logs.through._meta.get_field('rawdatum').column,
+                    harvestlog=RawDatum.logs.through._meta.get_field('harvestlog').column,
+                ), [(raw_id, log.id) for raw_id in chunk])
         return True
 
-    def store_data(self, identifier, data, config):
-        suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=identifier, config=config)
-        rd, created = self.get_or_create(suid=suid, data=data, sha256=sha256(data).hexdigest())
+    # def store_chunk(self, *data):
+    #     # (identifier, datum, config)
+    #     with connection.cursor() as cursor:
+    #         for chunk in chunked(data, 500):
+    #             suid_pks = cursor.execute('''
+    #                 INSERT INTO "{table}"
+    #                     ("{identifier}", "{source_config}")
+    #                 VALUES
+    #                     {values}
+    #                 ON CONFLICT
+    #                     ("{identifier}", "{source_config}")
+    #                 DO UPDATE SET
+    #                     id = "{table}".id
+    #                 RETURNING id
+    #                 ;
+    #             '''.format(
+    #             ))
+
+    #             suid_pks = cursor.execute('''
+    #                 INSERT INTO "{table}"
+    #                     ("{identifier}", "{source_config}")
+    #                 VALUES
+    #                     {values}
+    #                 ON CONFLICT
+    #                     ("{identifier}", "{source_config}")
+    #                 DO UPDATE SET
+    #                     id = "{table}".id
+    #                 RETURNING id
+    #                 ;
+    #             '''.format(
+    #             ))
+
+    def store_data(self, identifier, datum, config):
+        suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=identifier, source_config=config)
+        rd, created = self.get_or_create(suid=suid, datum=datum, sha256=sha256(datum).hexdigest())
 
         if created:
             logger.debug('New RawDatum for %r', suid)
         else:
             logger.debug('Found existing RawDatum for %r', suid)
 
-        return rd
+        return rd, created
 
 
 class SourceUniqueIdentifier(models.Model):
@@ -291,7 +324,10 @@ class RawDatum(models.Model):
     suid = models.ForeignKey(SourceUniqueIdentifier)
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
 
-    logs = models.ManyToManyField('HarvestLog')
+    # Hacky field to allow us to tell if a RawDatum was updated or created in bulk inserts
+    created = models.BooleanField(default=False)
+
+    logs = models.ManyToManyField('HarvestLog', related_name='raw_data')
 
     objects = RawDatumManager()
 
