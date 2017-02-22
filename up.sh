@@ -17,7 +17,7 @@ shift # past argument or value
 done
 
 if [ -n "$BACKUP" ]; then
-    python manage.py dumpdata share.RawData --natural-foreign --natural-primary --format json | gzip > share_rawdata.json.gz
+    python manage.py dumpdata share.RawDatum --natural-foreign --natural-primary --format json | gzip > share_rawdata.json.gz
 fi
 
 python manage.py celery purge -f

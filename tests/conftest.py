@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.conf import settings
 from oauth2_provider.models import AccessToken, Application
 
-from share.models import Person, NormalizedData, Change, ChangeSet, RawData
+from share.models import Person, NormalizedData, Change, ChangeSet, RawDatum
 from share.models import Article, Institution
 from share.models import ShareUser
 from share.change import ChangeGraph
@@ -70,7 +70,7 @@ def share_source():
 
 @pytest.fixture
 def raw_data(share_source):
-    raw_data = RawData(source=share_source, data={})
+    raw_data = RawDatum(source=share_source, data={})
     raw_data.save()
     return raw_data
 

@@ -12,6 +12,7 @@ import pendulum
 import requests
 
 from django.db import transaction
+from django.db.models.base import ModelBase
 from django.utils.functional import cached_property
 
 logger = logging.getLogger(__name__)
@@ -51,23 +52,28 @@ class RateLimittedProxy:
         return self._cache.setdefault(name, self.__class__(getattr(self._proxy_to, name), self._calls, self._per_second))
 
 
-class Harvester(metaclass=abc.ABCMeta):
+class HarvesterMeta(type):
+    def __init__(cls, name, bases, attrs):
+        if hasattr(cls, 'registry'):
+            cls.VERSION = '{:03}.{:03}.{:03}'.format(*(int(x) for x in attrs['VERSION'].split('.')))
+            assert 'KEY' in attrs and attrs['KEY'] not in cls.registry
+            cls.registry[attrs['KEY']] = cls
+        else:
+            # base class
+            cls.registry = {}
 
-    # TODO Make this apply across threads
-    rate_limit = (5, 1)  # Rate limit in requests per_second
 
-    def __init__(self, app_config):
+class BaseHarvester(metaclass=HarvesterMeta):
+
+    def __init__(self, source_config, **kwargs):
         self.last_call = 0
-        self.config = app_config
-        self.rate_limit = getattr(self.config, 'rate_limit', self.rate_limit)
-        self.allowance = self.rate_limit[0]
-        self.requests = RateLimittedProxy(requests, *self.rate_limit)
+        self.new_raw_ids = []
+        self.old_raw_ids = []
+        self.config = source_config
+        self.kwargs = kwargs
+        # TODO Make rate limit apply across threads
+        self.requests = RateLimittedProxy(requests, self.config.rate_limit_allowance, self.config.rate_limit_period)
 
-    @cached_property
-    def source(self):
-        return self.config.user
-
-    @abc.abstractmethod
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, **kwargs) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         """Fetch date from this provider inside of the given date range.
 
@@ -119,20 +125,13 @@ class Harvester(metaclass=abc.ABCMeta):
         return start_date, end_date
 
     def harvest(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
-        from share.models import RawData
+        from share.models import RawDatum
         start_date, end_date = self._validate_dates(start_date, end_date)
 
-        raw_ids = []
-        with transaction.atomic():
-            rawdata = self.do_harvest(start_date, end_date, **kwargs)
-            assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
+        rawdata = ((identifier, self.encode_data(datum)) for identifier, datum in self.do_harvest(start_date, end_date, **kwargs))
+        assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
 
-            for doc_id, datum in rawdata:
-                raw_ids.append(RawData.objects.store_data(doc_id, self.encode_data(datum), self.source, self.config.label).id)
-                if limit is not None and len(raw_ids) >= limit:
-                    break
-
-        return raw_ids
+        yield from RawDatum.objects.store_chunk(self.config, rawdata, limit=limit)
 
     def raw(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
         start_date, end_date = self._validate_dates(start_date, end_date)
@@ -146,9 +145,9 @@ class Harvester(metaclass=abc.ABCMeta):
                 break
 
     def harvest_by_id(self, provider_id):
-        from share.models import RawData
+        from share.models import RawDatum
         datum = self.fetch_by_id(provider_id)
-        return RawData.objects.store_data(provider_id, self.encode_data(datum), self.source, self.config.label)
+        return RawDatum.objects.store_data(provider_id, self.encode_data(datum), self.source, self.config.label)
 
     def encode_data(self, data, pretty=False) -> bytes:
         if isinstance(data, bytes):

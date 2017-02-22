@@ -45,7 +45,7 @@ class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(ser.data)
 
 
-class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
+class RawDatumDetailViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['get'])
     def rawdata(self, request, pk=None):
         if pk is None:
@@ -60,13 +60,13 @@ class RawDataDetailViewSet(viewsets.ReadOnlyModelViewSet):
 
         page = self.paginate_queryset(data)
         if page is not None:
-            ser = api_serializers.RawDataSerializer(page, many=True, context={'request': request})
+            ser = api_serializers.RawDatumSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(ser.data)
-        ser = api_serializers.RawDataSerializer(data, many=True, context={'request': request})
+        ser = api_serializers.RawDatumSerializer(data, many=True, context={'request': request})
         return Response(ser.data)
 
 
-class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, viewsets.ReadOnlyModelViewSet):
+class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDatumDetailViewSet, viewsets.ReadOnlyModelViewSet):
     # TODO: Add in scopes once we figure out who, why, and how.
     # required_scopes = ['', ]
     filter_class = ShareObjectFilterSet
@@ -95,6 +95,8 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
 
         filter_kwargs = {self.lookup_field: decoded_pk}
         obj = get_object_or_404(queryset, **filter_kwargs)
+        if obj.same_as_id:
+            obj = obj._meta.concrete_model.objects.get_canonical(obj.id)
 
         # May raise a permission denied
         self.check_object_permissions(self.request, obj)
@@ -111,11 +113,11 @@ class ShareUserView(views.APIView):
 
 
 @require_GET
-def user_favicon_view(request, username):
-    user = get_object_or_404(ShareUser, username=username)
-    if not user.favicon:
-        raise http.Http404('Favicon for user {} does not exist'.format(user.username))
-    response = http.FileResponse(user.favicon)
+def source_icon_view(request, source_name):
+    source = get_object_or_404(Source, name=source_name)
+    if not source.favicon:
+        raise http.Http404('Favicon for source {} does not exist'.format(source_name))
+    response = http.FileResponse(source.icon)
     response['Content-Type'] = 'image/x-icon'
     return response
 

@@ -61,9 +61,9 @@ class ShareModelSerializer(serializers.ModelSerializer):
         return ret
 
 
-class RawDataSerializer(ShareModelSerializer):
+class RawDatumSerializer(ShareModelSerializer):
     class Meta:
-        model = models.RawData
+        model = models.RawDatum
         fields = ('id', 'source', 'app_label', 'provider_doc_id', 'data', 'sha256', 'date_seen', 'date_harvested')
 
 

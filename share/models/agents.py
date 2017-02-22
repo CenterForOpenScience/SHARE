@@ -9,7 +9,7 @@ from django.apps import apps
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.fields import ShareManyToManyField
-from share.normalize.links import GuessAgentTypeLink
+from share.transform.chain.links import GuessAgentTypeLink
 from share.util import strip_whitespace, ModelGenerator
 
 
@@ -70,6 +70,7 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
 
     class Disambiguation:
         any = ('identifiers', 'work_relations')
+        constrain_types = True
 
     class Meta:
         db_table = 'share_agent'
@@ -88,6 +89,12 @@ globals().update(generator.subclasses_from_yaml(__file__, AbstractAgent))
 
 
 def normalize_person(cls, node, graph):
+    if node.attrs.get('location'):
+        node.attrs['location'] = strip_whitespace(node.attrs['location'])
+
+    if not node.is_blank and not ({'name', *NAME_PARTS.values()} & node.attrs.keys()):
+        return
+
     name = max(strip_whitespace(' '.join(
         node.attrs[x]
         for x in NAME_PARTS.values()
@@ -103,13 +110,10 @@ def normalize_person(cls, node, graph):
 
     node.attrs = {'name': ' '.join(parts[k] for k in NAME_PARTS.values() if k in parts), **parts}
 
-    if node.attrs.get('location'):
-        node.attrs['location'] = strip_whitespace(node.attrs['location'])
-
 Person.normalize = classmethod(normalize_person)  # noqa
 
 
-class UniqueNameDisambiguation:
+class UniqueNameDisambiguation(AbstractAgent.Disambiguation):
     any = AbstractAgent.Disambiguation.any + ('name',)
 
 Institution.Disambiguation = UniqueNameDisambiguation # noqa

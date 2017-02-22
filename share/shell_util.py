@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from share.models import RawData
+from share.models import RawDatum
 from share.util import IDObfuscator
 
 
@@ -9,7 +9,7 @@ def get_raws(obj):
     else:
         model = obj._meta.model
         id = obj.id
-    return RawData.objects.filter(
+    return RawDatum.objects.filter(
         normalizeddata__changeset__changes__target_id=id,
         normalizeddata__changeset__changes__target_type=ContentType.objects.get_for_model(model, for_concrete_model=True)
     )

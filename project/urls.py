@@ -22,7 +22,7 @@ from revproxy.views import ProxyView
 
 from osf_oauth2_adapter import views as osf_oauth2_adapter_views
 
-from api.views import APIVersionRedirectView, user_favicon_view
+from api.views import APIVersionRedirectView, source_icon_view
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -39,7 +39,7 @@ urlpatterns = [
         url=staticfiles_storage.url('favicon.ico'),
         permanent=False
     ), name='favicon'),
-    url(r'^favicons/(?P<username>[^/]+).ico$', user_favicon_view, name='user_favicon'),
+    url(r'^icons/(?P<source_name>[^/]+).ico$', source_icon_view, name='source_icon'),
 ]
 
 if settings.DEBUG:

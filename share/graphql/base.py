@@ -79,6 +79,11 @@ class AbstractShareObject(graphene.Interface):
             offset = (offset or 0) + limit
         return self.sources.all()[offset:limit]
 
+    # def __getattr__(self, attr):
+        # TODO if looking for resolve_*, return a default getter method
+        # for relationship fields, handle limit/offset and filter out non-null same_as
+        # maybe implement default resolve_total_* for relationships, too
+
 
 class User(DjangoObjectType):
     class Meta:

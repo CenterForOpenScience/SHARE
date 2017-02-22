@@ -12,10 +12,12 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.db import DatabaseError
 from django.db import transaction
 
 from share.change import ChangeGraph
-from share.models import RawData, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser
+from share.models import RawDatum, HarvestLog, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser, SourceConfig
+from share.harvest.exceptions import HarvesterConcurrencyError, HarvesterDisabledError
 
 
 logger = logging.getLogger(__name__)
@@ -114,7 +116,29 @@ class AppTask(LoggedTask):
         }
 
 
-class HarvesterTask(AppTask):
+# Backward-compatible hack until Tamandua's all set
+class SourceTask(LoggedTask):
+
+    def setup(self, app_label, *args, **kwargs):
+        self.config = SourceConfig.objects.get(label=app_label)
+        self.source = self.config.source.user
+        self.args = args
+        self.kwargs = kwargs
+
+
+class HarvesterTask(SourceTask):
+
+    @classmethod
+    def resolve_args(self, start, end):
+        logger.debug('Coercing start and end (%r, %r) into datetimes', start, end)
+        if not start and not end:
+            start, end = datetime.datetime.utcnow() + datetime.timedelta(days=-1), datetime.datetime.utcnow()
+        if type(end) is str:
+            end = pendulum.parse(end.rstrip('Z'))  # TODO Fix me
+        if type(start) is str:
+            start = pendulum.parse(start.rstrip('Z'))  # TODO Fix Me
+        logger.debug('Interpretting start and end as %r and %r', start, end)
+        return start, end
 
     def apply_async(self, targs=None, tkwargs=None, **kwargs):
         tkwargs = tkwargs or {}
@@ -122,49 +146,122 @@ class HarvesterTask(AppTask):
         tkwargs.setdefault('start', (datetime.datetime.utcnow() + datetime.timedelta(-1)).isoformat())
         return super().apply_async(targs, tkwargs, **kwargs)
 
-    def do_run(self, start: [str, datetime.datetime]=None, end: [str, datetime.datetime]=None, limit: int=None, force=False, **kwargs):
-        if self.config.disabled and not force:
-            raise Exception('Harvester {} is disabled. Either enable it or disable its celery beat entry'.format(self.config))
+    def log_values(self):
+        return {
+            **super().log_values(),
+            'app_label': self.config.label,
+            'app_version': self.config.harvester.version,
+        }
 
-        if not start and not end:
-            start, end = datetime.timedelta(days=-1), datetime.datetime.utcnow()
-        if type(end) is str:
-            end = pendulum.parse(end.rstrip('Z'))  # TODO Fix me
-        if type(start) is str:
-            start = pendulum.parse(start.rstrip('Z'))  # TODO Fix Me
+    def do_run(self, start=None, end=None, limit=None, force=False, superfluous=False, ignore_disabled=False, **kwargs):
+        # WARNING: Errors that occur here cannot be logged to the HarvestLog.
+        start, end = self.resolve_args(start, end)
+        logger.debug('Loading harvester for %r', self.config)
+        harvester = self.config.get_harvester()
 
-        harvester = self.config.harvester(self.config)
+        log, created = HarvestLog.objects.get_or_create(
+            end_date=end,
+            start_date=start,
+            source_config=self.config,
+            harvester_version=self.config.harvester.version,
+            source_config_version=self.config.version,
+            defaults={'task_id': self.request.id}
+        )
 
-        try:
-            logger.info('Starting harvester run for %s %s - %s', self.config.label, start, end)
-            raw_ids = harvester.harvest(start, end, limit=limit, **kwargs)
-            logger.info('Collected %d data blobs from %s', len(raw_ids), self.config.label)
-        except Exception as e:
-            logger.exception('Failed harvester task (%s, %s, %s)', self.config.label, start, end)
-            raise self.retry(countdown=10, exc=e)
+        # Use the locking connection to avoid putting everything else in a transaction.
+        with transaction.atomic(using='locking'):
+            # Django recommends against trys inside of transactions, we're just preserving our lock as long as possible.
+            try:
+                # Attempt to lock the harvester config to make sure this is the only job making requests
+                # to this specific source.
+                try:
+                    self.config.acquire_lock(using='locking')
+                except HarvesterConcurrencyError as e:
+                    if force:
+                        logger.warning('Force is True; ignoring exception %r', e)
+                    else:
+                        raise e
 
-        # attach task to each RawData
-        RawData.tasks.through.objects.bulk_create([
-            RawData.tasks.through(rawdata_id=raw_id, celeryprovidertask_id=self.task.id)
-            for raw_id in raw_ids
-        ])
-        for raw_id in raw_ids:
-            task = NormalizerTask().apply_async((self.started_by.id, self.config.label, raw_id,))
-            logger.debug('Started normalizer task %s for %s', task, raw_id)
+                # Don't run disabled harvesters unless special cased
+                if self.config.disabled and not force and not ignore_disabled:
+                    raise HarvesterDisabledError('Harvester {!r} is disabled. Either enable it, run with force=True, or ignore_disabled=True'.format(self.config))
+
+                log.start()
+                error = None
+                logger.info('Harvesting %s - %s from %r', start, end, self.config)
+
+                with transaction.atomic():
+                    datum_ids = {True: [], False: []}
+
+                    try:
+                        for datum in harvester.harvest(start, end, limit=limit, **kwargs):
+                            datum_ids[datum.created].append(datum.id)
+                            if datum.created:
+                                logger.debug('Found new %r from %r', datum, self.config)
+                            else:
+                                logger.debug('Rediscovered new %r from %r', datum, self.config)
+                    except Exception as e:
+                        logger.warning('Harvesting %r failed; cleaning up', self.config)
+                        error = e
+
+                    logger.info('Collected %d new RawData from %r', len(datum_ids[True]), self.config)
+                    logger.debug('Rediscovered %d RawData from %r', len(datum_ids[False]), self.config)
+
+                    try:
+                        # Attempt to populate the throughtable for any RawData that made it to the database
+                        RawDatum.objects.link_to_log(log, datum_ids[True] + datum_ids[False])
+                    except Exception as e:
+                        logger.exception('Failed to link RawData to %r', log)
+                        # Don't shadow the original error if it exists
+                        if error is None and not force:
+                            raise e
+                        elif error is not None and force:
+                            logger.warning('Force is set to True; ignoring exception')
+                        else:
+                            logger.warning('Harvesting also failed. Opting to raise that exception')
+
+                if error is not None and not force:
+                    logger.debug('Re-raising the harvester exception')
+                    raise error
+                elif error is not None and force:
+                    logger.warning('Force is set to True; ignoring exception')
+
+                # TODO
+                # for raw_id in harvester.new_raw_ids:
+                #     task = IngestTask().apply_async((self.started_by.id, self.config.id, raw_id,))
+                #     logger.debug('Started normalizer task %s for %s', task, raw_id)
+
+                # if superfluous:
+                #     for raw_id in harvester.old_raw_ids:
+                #         pass
+
+            except HarvesterConcurrencyError as e:
+                # If we did not create this log and the task ids don't match. There's a very good
+                # chance that this exact task is being run twice.
+                # if not created and log.task_id != self.task_id and log.date_modified - datetime.datetime.utcnow() > datetime.timedelta(minutes=10):
+                #     pass
+                log.reschedule(e)
+                raise self.retry(countdown=45, exc=e)
+            except Exception as e:
+                log.fail(e)
+                # logger.exception('Failed harvester task (%s, %s, %s)', self.config.label, start, end)
+                raise self.retry(countdown=10, exc=e)
+
+            log.succeed()
 
 
-class NormalizerTask(AppTask):
+class NormalizerTask(SourceTask):
 
     def do_run(self, raw_id):
-        raw = RawData.objects.get(pk=raw_id)
-        normalizer = self.config.normalizer(self.config)
+        raw = RawDatum.objects.get(pk=raw_id)
+        transformer = self.config.get_transformer()
 
-        assert raw.source == self.source, 'RawData is from {}. Tried parsing it as {}'.format(raw.source, self.source)
+        assert raw.suid.source_config_id == self.config.id, '{!r} is from {!r}. Tried parsing it as {!r}'.format(raw, raw.suid.source_config_id, self.config.id)
 
-        logger.info('Starting normalization for %s by %s', raw, normalizer)
+        logger.info('Starting normalization for %s by %s', raw, transformer)
 
         try:
-            graph = normalizer.normalize(raw)
+            graph = transformer.transform(raw)
 
             if not graph['@graph']:
                 logger.warning('Graph was empty for %s, skipping...', raw)
@@ -180,7 +277,7 @@ class NormalizerTask(AppTask):
                         'tasks': [self.task.id]
                     }
                 }
-            }, headers={'Authorization': self.config.authorization(), 'Content-Type': 'application/vnd.api+json'})
+            }, headers={'Authorization': self.source.authorization(), 'Content-Type': 'application/vnd.api+json'})
         except Exception as e:
             logger.exception('Failed normalizer task (%s, %d)', self.config.label, raw_id)
             raise self.retry(countdown=10, exc=e)
@@ -189,6 +286,13 @@ class NormalizerTask(AppTask):
             raise self.retry(countdown=10, exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content)))
 
         logger.info('Successfully submitted change for %s', raw)
+
+    def log_values(self):
+        return {
+            **super().log_values(),
+            'app_label': self.config.label,
+            'app_version': self.config.transformer.version,
+        }
 
 
 class DisambiguatorTask(LoggedTask):
@@ -208,7 +312,7 @@ class DisambiguatorTask(LoggedTask):
                 cg = ChangeGraph(self.normalized.data['@graph'], namespace=self.normalized.source.username)
                 cg.process()
                 cs = ChangeSet.objects.from_graph(cg, self.normalized.id)
-                if cs and (self.source.is_robot or self.source.is_trusted):
+                if cs and (self.source.is_robot or self.source.is_trusted or self.source.is_superuser):
                     # TODO: verify change set is not overwriting user created object
                     cs.accept()
         except Exception as e:

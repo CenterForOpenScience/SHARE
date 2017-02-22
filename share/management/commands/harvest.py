@@ -5,17 +5,16 @@ from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from share.models import ShareUser
+from share.models import ShareUser, SourceConfig
 from share.tasks import HarvesterTask, NormalizerTask
-from share.provider import ProviderAppConfig
 
 
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument('--all', action='store_true', help='Run all harvesters')
-        parser.add_argument('--force', action='store_true', help='Force disabled harvesters to run')
-        parser.add_argument('harvester', nargs='*', type=str, help='The name of the harvester to run')
+        parser.add_argument('--all', action='store_true', help='Harvest from all SourceConfigs')
+        parser.add_argument('--force', action='store_true', help='Force disabled SourceConfigs to run')
+        parser.add_argument('source-config', nargs='*', type=str, help='The name of the SourceConfig to harvest from')
         parser.add_argument('--async', action='store_true', help='Whether or not to use Celery')
 
         parser.add_argument('--days-back', type=int, help='The number of days to go back, defaults to 1')
@@ -55,28 +54,28 @@ class Command(BaseCommand):
         if options['set_spec']:
             task_kwargs['set_spec'] = options['set_spec']
 
-        if not options['harvester'] and options['all']:
-            options['harvester'] = [x.label for x in apps.get_app_configs() if isinstance(x, ProviderAppConfig) and not x.disabled]
+        if not options['source-config'] and options['all']:
+            options['source-config'] = SourceConfig.objects.filter(disabled=False).values_list('label', flat=True)
 
-        for harvester in options['harvester']:
-            apps.get_app_config(harvester)  # Die if the AppConfig can not be loaded
+        for label in options['source-config']:
+            assert SourceConfig.objects.filter(label=label).exists()
 
-            task_args = (user.id, harvester,)
+            task_args = (user.id, label,)
             if options['async']:
                 HarvesterTask().apply_async(task_args, task_kwargs)
-                self.stdout.write('Started job for harvester {}'.format(harvester))
+                self.stdout.write('Started harvest job for source config {}'.format(label))
             else:
-                self.stdout.write('Running harvester for {}'.format(harvester))
+                self.stdout.write('Running harvester for {}'.format(label))
                 HarvesterTask().apply(task_args, task_kwargs, throw=True)
 
     def harvest_ids(self, user, options):
-        if len(options['harvester']) != 1:
+        if len(options['source-config']) != 1:
             self.stdout.write('When harvesting by ID, only one harvester at a time, please.')
             return
         self.stdout.write('Harvesting documents by ID...')
-        app_name = options['harvester'][0]
-        config = apps.get_app_config(app_name)
-        harvester = config.harvester(config)
+        label = options['source-config'][0]
+        config = SourceConfig.objects.get(label=label)
+        harvester = config.get_harvester()
         for id in options['ids']:
             raw = harvester.harvest_by_id(id)
             task = NormalizerTask().apply_async((user.id, config.label, raw.id,))

@@ -1,7 +1,5 @@
-from share.normalize.links import *  # noqa
-from share.normalize.parsers import *  # noqa
-from share.normalize.links import Context
-from share.normalize.normalizer import Normalizer  # noqa
+from share.transform.chain.transformer import ChainTransformer
+from share.transform.chain.links import Context
 
 
 # Context singleton to be used for parser definitions

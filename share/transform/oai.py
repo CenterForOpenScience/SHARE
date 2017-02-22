@@ -2,9 +2,8 @@ import re
 import logging
 from lxml import etree
 
-from share.normalize import ctx, tools
-from share.normalize.parsers import Parser
-from share.normalize.normalizer import Normalizer
+from share.transform.chain import ctx, ChainTransformer, links as tools
+from share.transform.chain.parsers import Parser
 
 
 logger = logging.getLogger(__name__)
@@ -317,20 +316,30 @@ class OAICreativeWork(Parser):
         return [r for r in relation if r and re.sub('http|:|/', '', r) not in identifiers]
 
 
-class OAINormalizer(Normalizer):
+class OAITransformer(ChainTransformer):
+    """Transformer for OAI's oai_dc metadata format.
 
-    @property
-    def root_parser(self):
+    transformer_kwargs (TODO explain):
+        emitted_type
+        property_list
+        approved_sets
+    """
+
+    KEY = 'oai_dc'
+    VERSION = '0.0.1'
+
+    def get_root_parser(self):
         class RootParser(OAICreativeWork):
-            default_type = self.config.emitted_type.lower()
+            default_type = self.kwargs.get('emitted_type', 'creativework').lower()
             type_map = {
                 **{r.lower(): r for r in self.allowed_roots},
-                **{t.lower(): v for t, v in self.config.type_map.items()}
+                **{t.lower(): v for t, v in self.kwargs.get('type_map', {}).items()}
             }
 
-        if self.config.property_list:
-            logger.debug('Attaching addition properties %s to normalizer for %s'.format(self.config.property_list, self.config.label))
-            for prop in self.config.property_list:
+        property_list = self.kwargs.get('property_list')
+        if property_list:
+            logger.debug('Attaching addition properties %s to transformer for %s'.format(property_list, self.config.label))
+            for prop in property_list:
                 if prop in RootParser._extra:
                     logger.warning('Skipping property %s, it already exists', prop)
                     continue
@@ -338,14 +347,15 @@ class OAINormalizer(Normalizer):
 
         return RootParser
 
-    def do_normalize(self, data):
-        if self.config.approved_sets is not None:
+    def do_transform(self, data):
+        approved_sets = self.kwargs.get('approved_sets')
+        if approved_sets is not None:
             specs = set(x.replace('publication:', '') for x in etree.fromstring(data).xpath(
                 'ns0:header/ns0:setSpec/node()',
                 namespaces={'ns0': 'http://www.openarchives.org/OAI/2.0/'}
             ))
-            if not (specs & set(self.config.approved_sets)):
+            if not (specs & set(approved_sets)):
                 logger.warning('Series %s not found in approved_sets for %s', specs, self.config.label)
                 return None
 
-        return super().do_normalize(data)
+        return super().do_transform(data)
