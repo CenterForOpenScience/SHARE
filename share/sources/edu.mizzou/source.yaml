@@ -3,6 +3,20 @@ configs:
   disabled: false
   earliest_date: null
   harvester: oai
+  harvester_kwargs: {metadata_prefix: mods}
+  label: edu.mizzou.mods
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: mods
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+- base_url: https://mospace.umsystem.edu/oai/request
+  disabled: true
+  earliest_date: null
+  harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.mizzou
   rate_limit_allowance: 5

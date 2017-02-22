@@ -3,6 +3,35 @@ configs:
   disabled: false
   earliest_date: null
   harvester: oai
+  harvester_kwargs: {metadata_prefix: mods}
+  label: edu.scholarworks_montana.mods
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: mods
+  transformer_kwargs:
+    approved_sets: [col_1_3451, com_1_3, com_1_4, com_1_7, com_1_8, com_1_9, com_1_10,
+      com_1_11, com_1_13, com_1_14, com_1_15, com_1_16, com_1_17, com_1_18, com_1_19,
+      com_1_24, com_1_25, com_1_26, com_1_27, com_1_29, com_1_30, com_1_31, com_1_32,
+      com_1_33, com_1_35, com_1_37, com_1_38, com_1_39, com_1_40, com_1_42, com_1_43,
+      com_1_44, com_1_45, com_1_46, com_1_48, com_1_49, com_1_50, com_1_51, com_1_52,
+      com_1_53, com_1_54, com_1_55, com_1_56, com_1_57, com_1_60, com_1_65, com_1_66,
+      com_1_68, com_1_77, com_1_86, com_1_91, com_1_93, com_1_104, com_1_154, com_1_318,
+      com_1_388, com_1_404, com_1_732, com_1_2942, com_1_2949, com_1_2950, com_1_2951,
+      com_1_2952, com_1_2953, com_1_2954, com_1_9334, col_1_320, col_1_356, col_1_359,
+      col_1_405, col_1_733, col_1_2919, col_1_2922, col_1_2958, col_1_2961, col_1_2974,
+      col_1_2983, col_1_2994, col_1_3034, col_1_3036, col_1_3048, col_1_3420, col_1_3421,
+      col_1_3451, col_1_3455, col_1_3458, col_1_3460, col_1_3466, col_1_3494, col_1_3495,
+      col_1_8680, col_1_8684, col_1_8714, col_1_8716, col_1_8718, col_1_8719, col_1_8721,
+      col_1_8747, col_1_8821, col_1_8827, col_1_8870, col_1_8878, col_1_8931, col_1_9109,
+      col_1_9167, col_1_9191, col_1_9236, col_1_9306, col_1_9317, col_1_9335, col_1_9476,
+      col_1_9749]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+- base_url: http://scholarworks.montana.edu/oai/request
+  disabled: true
+  earliest_date: null
+  harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.scholarworks_montana
   rate_limit_allowance: 5

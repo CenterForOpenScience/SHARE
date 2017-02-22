@@ -103,3 +103,12 @@ class OAIHarvester(BaseHarvester):
         url.args['metadataPrefix'] = self.metadata_prefix
         url.args['identifier'] = provider_id
         return etree.tostring(self.fetch_page(url)[0][0], encoding=str)
+
+    def metadata_formats(self):
+        url = furl(self.url)
+        url.args['verb'] = 'ListMetadataFormats'
+        resp = self.requests.get(url.url)
+        resp.raise_for_status()
+        parsed = etree.fromstring(resp.content)
+        formats = parsed.xpath('//ns0:metadataPrefix', namespaces=self.namespaces)
+        return [f.text for f in formats]

@@ -70,11 +70,11 @@ class Parser(metaclass=ParserMeta):
             assert not isinstance(value, dict), 'Value for non-relational field {} must be a primitive type. Found {}'.format(field, value)
 
     def parse(self):
-        prev, Context().parser = Context().parser, self
+        Context().parsers.append(self)
         try:
             return self._do_parse()
         finally:
-            Context().parser = prev
+            Context().parsers.pop(-1)
 
     def _do_parse(self):
         if isinstance(self.schema, AbstractLink):

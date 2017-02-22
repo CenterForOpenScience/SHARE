@@ -6,6 +6,7 @@ import re
 import threading
 import dateutil
 import urllib
+import types
 
 import rfc3987
 
@@ -248,10 +249,14 @@ class Context(AnchorLink):
             self.clear()
         super().__init__()
 
+    @property
+    def parser(self):
+        return self.parsers[-1] if self.parsers else None
+
     def clear(self):
         self.graph = []
         self.frames = []
-        self.parser = None
+        self.parsers = []
         self._config = None
         self.pool = DictHashingDict()
 
@@ -484,6 +489,9 @@ class DelegateLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
+        # callable will return True for classes as well as functions
+        if isinstance(self._parser, types.FunctionType):
+            self._parser = self._parser(obj)
         return self._parser(obj).parse()
 
 
