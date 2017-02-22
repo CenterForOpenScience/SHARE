@@ -254,44 +254,78 @@ class RawDatumManager(FuzzyCountManager):
                         {values}
                     ON CONFLICT ("{rawdatum}", "{harvestlog}") DO NOTHING;
                 '''.format(
-                    values=', '.join(('%s', ) * len(chunk)),  # Nast hack. Fix when psycopg2 2.7 is released with execute_values
+                    values=', '.join('%s' for _ in range(len(chunk))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                     table=RawDatum.logs.through._meta.db_table,
                     rawdatum=RawDatum.logs.through._meta.get_field('rawdatum').column,
                     harvestlog=RawDatum.logs.through._meta.get_field('harvestlog').column,
                 ), [(raw_id, log.id) for raw_id in chunk])
         return True
 
-    # def store_chunk(self, *data):
-    #     # (identifier, datum, config)
-    #     with connection.cursor() as cursor:
-    #         for chunk in chunked(data, 500):
-    #             suid_pks = cursor.execute('''
-    #                 INSERT INTO "{table}"
-    #                     ("{identifier}", "{source_config}")
-    #                 VALUES
-    #                     {values}
-    #                 ON CONFLICT
-    #                     ("{identifier}", "{source_config}")
-    #                 DO UPDATE SET
-    #                     id = "{table}".id
-    #                 RETURNING id
-    #                 ;
-    #             '''.format(
-    #             ))
+    def store_chunk(self, source_config, data, limit=None):
+        # (identifier, datum)
+        done = 0
+        with connection.cursor() as cursor:
+            for chunk in chunked(data, 500):
+                if not chunk:
+                    break
 
-    #             suid_pks = cursor.execute('''
-    #                 INSERT INTO "{table}"
-    #                     ("{identifier}", "{source_config}")
-    #                 VALUES
-    #                     {values}
-    #                 ON CONFLICT
-    #                     ("{identifier}", "{source_config}")
-    #                 DO UPDATE SET
-    #                     id = "{table}".id
-    #                 RETURNING id
-    #                 ;
-    #             '''.format(
-    #             ))
+                if limit is not None and done + len(chunk) > limit:
+                    chunk = chunk[:limit - done]
+
+                cursor.execute('''
+                    INSERT INTO "{table}"
+                        ("{identifier}", "{source_config}")
+                    VALUES
+                        {values}
+                    ON CONFLICT
+                        ("{identifier}", "{source_config}")
+                    DO UPDATE SET
+                        id = "{table}".id
+                    RETURNING id
+                '''.format(
+                    table=SourceUniqueIdentifier._meta.db_table,
+                    identifier=SourceUniqueIdentifier._meta.get_field('identifier').column,
+                    source_config=SourceUniqueIdentifier._meta.get_field('source_config').column,
+                    values=', '.join('%s' for _ in range(len(chunk))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
+                ), [(identifier, source_config.id) for identifier, datum in chunk])
+
+                # fetchall returns a list of tuples. [(1, ), (2, ), ...]
+                suid_pks = [row[0] for row in cursor.fetchall()]
+
+                cursor.execute('''
+                    INSERT INTO "{table}"
+                        ("{suid}", "{hash}", "{datum}", "{created}")
+                    VALUES
+                        {values}
+                    ON CONFLICT
+                        ("{suid}", "{hash}")
+                    DO UPDATE SET
+                        "{created}" = FALSE
+                    RETURNING id, "{hash}", "{created}"
+                '''.format(
+                    table=RawDatum._meta.db_table,
+                    suid=RawDatum._meta.get_field('suid').column,
+                    hash=RawDatum._meta.get_field('sha256').column,
+                    datum=RawDatum._meta.get_field('datum').column,
+                    created=RawDatum._meta.get_field('created').column,
+                    values=', '.join('%s' for _ in range(len(chunk))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
+                ), [
+                    (suid_pk, sha256(datum).hexdigest(), datum, True)
+                    for suid_pk, (identifier, datum) in zip(suid_pks, chunk)
+                ])
+
+                for i, (raw_datum_pk, hash, created) in enumerate(cursor.fetchall()):
+                    yield RawDatum(
+                        pk=raw_datum_pk,
+                        sha256=hash,
+                        created=created,
+                        datum=chunk[i][1],
+                        suid=SourceUniqueIdentifier(pk=suid_pks[i], identifier=chunk[i][0], source_config=source_config)
+                    )
+
+                done += len(chunk)
+                if limit is not None and done >= limit:
+                    break
 
     def store_data(self, identifier, datum, config):
         suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=identifier, source_config=config)
@@ -316,7 +350,7 @@ class SourceUniqueIdentifier(models.Model):
         return '{} {}'.format(self.source_config_id, self.identifier)
 
     def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.source_config_id, self.identifier)
+        return '<{}({}, {!r})>'.format(self.__class__.__name__, self.source_config_id, self.identifier)
 
 
 class RawDatum(models.Model):
@@ -325,7 +359,8 @@ class RawDatum(models.Model):
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
 
     # Hacky field to allow us to tell if a RawDatum was updated or created in bulk inserts
-    created = models.BooleanField(default=False)
+    # Null default to avoid table rewrites
+    created = models.BooleanField(null=True, default=False)
 
     logs = models.ManyToManyField('HarvestLog', related_name='raw_data')
 
@@ -336,6 +371,6 @@ class RawDatum(models.Model):
         verbose_name_plural = 'Raw Data'
 
     def __repr__(self):
-        return '<{}({!r}, {})>'.format(self.__class__.__name__, self.suid, self.sha256)
+        return '<{}({}, {}...)>'.format(self.__class__.__name__, self.suid_id, self.sha256[:10])
 
     __str__ = __repr__
