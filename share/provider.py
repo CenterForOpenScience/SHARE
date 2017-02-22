@@ -4,9 +4,11 @@ import logging
 from celery.schedules import crontab
 
 from share.robot import RobotAppConfig
-from share.harvest.oai import OAIHarvester
 from share.normalize import Normalizer
+from share.harvest.oai import OAIHarvester
 from share.normalize.oai import OAINormalizer
+from share.harvest.mods import MODSHarvester
+from share.normalize.mods import MODSNormalizer
 
 logger = logging.getLogger(__name__)
 
@@ -69,3 +71,24 @@ class OAIProviderAppConfig(ProviderAppConfig, metaclass=abc.ABCMeta):
     @property
     def normalizer(self):
         return OAINormalizer
+
+
+class MODSProviderAppConfig(ProviderAppConfig, metaclass=abc.ABCMeta):
+
+    rate_limit = (5, 1)
+    approved_sets = None
+    property_list = []
+    emitted_type = 'CreativeWork'
+    type_map = {}
+
+    @abc.abstractproperty
+    def url(self):
+        return NotImplementedError
+
+    @property
+    def harvester(self):
+        return MODSHarvester
+
+    @property
+    def normalizer(self):
+        return MODSNormalizer
