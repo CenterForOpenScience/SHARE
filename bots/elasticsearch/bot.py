@@ -98,7 +98,7 @@ class ElasticSearchBot(Bot):
                 'sources': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
                 'subjects': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
                 'tags': {'type': 'string', 'fields': EXACT_FIELD},
-                'title': {'type': 'string'},
+                'title': {'type': 'string', 'fields': EXACT_FIELD},
                 'type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
                 'types': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
                 'withdrawn': {'type': 'boolean', 'include_in_all': False},
