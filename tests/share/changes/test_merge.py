@@ -36,7 +36,7 @@ initial_works = [
             Institution(9),
         ],
         related_works=[
-            DataSet(identifiers=[WorkIdentifier(4)], related_agents=[Consortium(10)])
+            DataSet(tags=[Tag(name='Breaks Tests N Stuff')], identifiers=[WorkIdentifier(4)], related_agents=[Consortium(10)])
         ]
     ),
     Publication(

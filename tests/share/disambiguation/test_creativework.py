@@ -174,3 +174,88 @@ class TestWorkDisambiguation:
         assert models.Publication.objects.count() == 1
         assert models.Publisher.objects.count() == 2
         assert models.Organization.objects.count() == 2
+
+    def test_no_timetraveling(self, Graph):
+        newer_graph = ChangeGraph(Graph(
+            Publication(
+                id=1,
+                sparse=True,
+                identifiers=[WorkIdentifier(1)],
+                date_updated='2017-02-03T18:07:53.385000',
+                is_deleted=False,
+            )
+        ))
+
+        newer_graph.process()
+        ChangeSet.objects.from_graph(newer_graph, NormalizedDataFactory().id).accept()
+
+        older_graph = ChangeGraph(Graph(
+            Publication(
+                id=1,
+                sparse=True,
+                identifiers=[WorkIdentifier(1)],
+                date_updated='2017-02-03T18:07:50.000000',
+                is_deleted=True,
+                title='Not Previously Changed'
+            )
+        ))
+
+        older_graph.process()
+        assert older_graph.nodes[0].change == {'title': 'Not Previously Changed'}
+
+    def test_no_timetraveling_many(self, Graph):
+        oldest_graph = ChangeGraph(Graph(
+            Publication(
+                id=1,
+                sparse=True,
+                is_deleted=True,
+                title='The first title',
+                description='The first description',
+                identifiers=[WorkIdentifier(1)],
+                date_updated='2016-02-03T18:07:50.000000',
+            )
+        ))
+
+        oldest_graph.process()
+        ChangeSet.objects.from_graph(oldest_graph, NormalizedDataFactory().id).accept()
+
+        newer_graph = ChangeGraph(Graph(
+            Publication(
+                id=1,
+                sparse=True,
+                is_deleted=False,
+                identifiers=[WorkIdentifier(1)],
+                date_updated='2017-02-03T18:07:50.000000',
+            )
+        ))
+
+        newer_graph.process()
+        ChangeSet.objects.from_graph(newer_graph, NormalizedDataFactory().id).accept()
+
+        newest_graph = ChangeGraph(Graph(
+            Publication(
+                id=1,
+                sparse=True,
+                title='The final title',
+                identifiers=[WorkIdentifier(1)],
+                date_updated='2017-02-03T18:07:53.385000',
+            )
+        ))
+
+        newest_graph.process()
+        ChangeSet.objects.from_graph(newest_graph, NormalizedDataFactory().id).accept()
+
+        older_graph = ChangeGraph(Graph(
+            Publication(
+                id=1,
+                sparse=True,
+                is_deleted=True,
+                title='The second title',
+                description='The final description',
+                identifiers=[WorkIdentifier(1)],
+                date_updated='2017-01-01T18:00:00.000000',
+            )
+        ))
+
+        older_graph.process()
+        assert older_graph.nodes[0].change == {'description': 'The final description'}
