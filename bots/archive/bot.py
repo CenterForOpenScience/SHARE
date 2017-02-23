@@ -42,9 +42,13 @@ def queryset_to_compressed_json(queryset, model):
 
 def put_s3(bucket, location, data):
     s3 = boto3.resource('s3')
+    current_date = datetime.datetime.utcnow().isoformat()
+    top_level_folder = settings.CELERY_TASK_FOLDER_NAME + '/' if settings.CELERY_TASK_FOLDER_NAME else ''
     try:
-        current_date = datetime.datetime.utcnow().isoformat()
-        s3.Object(bucket, location + current_date + '.json.bz2').put(Body=data.getvalue())
+        s3.Object(bucket, top_level_folder + location + current_date + '.json.bz2').put(
+            Body=data.getvalue(),
+            ServerSideEncryption='AES256'
+        )
     except botocore.exceptions.ClientError as e:
         raise botocore.exceptions.ClientError(e)
 
@@ -65,12 +69,12 @@ class ArchiveBot(Bot):
 
     def run(self, chunk_size=5000):
 
-        # check for storage settings
+        # require storage and folder settings on prod and staging
         if settings.DEBUG is False:
             if not settings.AWS_ACCESS_KEY_ID or not settings.AWS_SECRET_ACCESS_KEY:
                 raise Exception('No storage found! CeleryTasks will NOT be archived or deleted.')
-            if not settings.CELERY_TASK_BUCKET_NAME:
-                raise Exception('Bucket name not set! Please define bucket name in project.settings')
+            if not settings.CELERY_TASK_FOLDER_NAME:
+                raise Exception('Folder name not set! Please define folder name in project.settings')
 
         self.bucket = ''
         if not settings.AWS_ACCESS_KEY_ID or not settings.AWS_SECRET_ACCESS_KEY:
