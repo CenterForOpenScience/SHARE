@@ -96,27 +96,32 @@ class ArchiveBot(Bot):
         # bots.elasticsearch (24hrs)
         elasticsearch_tasks = CeleryProviderTask.objects.filter(
             app_label='elasticsearch',
-            timestamp__lt=current_time + one_day
+            timestamp__lt=current_time + one_day,
+            status=3
         )
         # normalizertask (1 week)
         normalizer_tasks = CeleryProviderTask.objects.filter(
             name='share.tasks.NormalizerTask',
-            timestamp__lt=current_time + one_week
+            timestamp__lt=current_time + one_week,
+            status=3
         )
         # disambiguatortask (1 week)
         disambiguator_tasks = CeleryProviderTask.objects.filter(
             name='share.tasks.DisambiguatorTask',
-            timestamp__lt=current_time + one_week
+            timestamp__lt=current_time + one_week,
+            status=3
         )
         # harvestertask (2 weeks)
         harvester_tasks = CeleryProviderTask.objects.filter(
             name='share.tasks.HarvesterTask',
-            timestamp__lt=current_time + two_weeks
+            timestamp__lt=current_time + two_weeks,
+            status=3
         )
         # archivetask (2 weeks)
         archive_tasks = CeleryProviderTask.objects.filter(
             name='share.tasks.ArchiveTask',
-            timestamp__lt=current_time + two_weeks
+            timestamp__lt=current_time + two_weeks,
+            status=3
         )
 
         if elasticsearch_tasks.exists():
