@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     'share',
     'api',
 
+    'bots.archive',
     'bots.autocurate.person',
     'bots.autocurate.tag',
     'bots.automerge',
@@ -619,6 +620,13 @@ PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
 SPRINGER_API_KEY = os.environ.get('SPRINGER_API_KEY')
 RESEARCHREGISTRY_APPLICATION_ID = os.environ.get('RESEARCHREGISTRY_APPLICATION_ID', '54a1ac1032e4beb07e04ac2c')
 RESEARCHREGISTRY_API_KEY = os.environ.get('RESEARCHREGISTRY_API_KEY', 'renderer')
+
+# Amazon Web Services Credentials
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+CELERY_TASK_BUCKET_NAME = os.environ.get('CELERY_TASK_BUCKET_NAME')
+CELERY_TASK_FOLDER_NAME = os.environ.get('CELERY_TASK_FOLDER_NAME')  # top level folder (e.g. prod, staging)
+
 
 import djcelery  # noqa
 djcelery.setup_loader()
