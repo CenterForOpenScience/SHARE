@@ -72,6 +72,5 @@ class CreativeWork(Parser):
 
 
 class FigshareV2Transformer(ChainTransformer):
-    KEY = 'com.figshare.v2'
     VERSION = '0.0.1'
     root_parser = CreativeWork

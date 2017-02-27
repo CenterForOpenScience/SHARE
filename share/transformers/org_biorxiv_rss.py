@@ -57,6 +57,5 @@ class Preprint(Parser):
 
 
 class BiorxivRSSTransformer(ChainTransformer):
-    KEY = 'org.biorxiv.rss'
     VERSION = '0.0.1'
     root_parser = Preprint

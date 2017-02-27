@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 class OAIHarvester(BaseHarvester):
-    KEY = 'oai'
     VERSION = '0.0.1'
 
     namespaces = {

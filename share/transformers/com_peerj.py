@@ -83,7 +83,6 @@ class Preprint(Article):
 
 
 class PeerJTransformer(ChainTransformer):
-    KEY = 'com.peerj'
     VERSION = '0.0.1'
 
     def get_root_parser(self, _):

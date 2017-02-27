@@ -103,6 +103,5 @@ class CreativeWork(Parser):
 
 
 class NSFTransformer(ChainTransformer):
-    KEY = 'gov.nsfawards'
     VERSION = '0.0.1'
     root_parser = CreativeWork

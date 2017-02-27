@@ -109,6 +109,5 @@ class CreativeWork(Parser):
 
 
 class LWBINTransformer(ChainTransformer):
-    KEY = 'ca.lwbin'
     VERSION = '0.0.1'
     root_parser = CreativeWork

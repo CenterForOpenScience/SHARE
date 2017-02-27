@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class BiorxivHarvester(BaseHarvester):
-    KEY = 'org.biorxiv.rss'
     VERSION = '0.0.1'
 
     namespaces = {

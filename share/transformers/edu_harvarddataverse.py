@@ -32,6 +32,5 @@ class CreativeWork(Parser):
 
 
 class HarvardTransformer(ChainTransformer):
-    KEY = 'edu.harvarddataverse'
     VERSION = '0.0.1'
     root_parser = CreativeWork

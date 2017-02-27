@@ -13,6 +13,5 @@ class CreativeWork(Parser):
 
 
 class DailySSRNTransformer(ChainTransformer):
-    KEY = 'com.dailyssrn'
     VERSION = '0.0.1'
     root_parser = CreativeWork

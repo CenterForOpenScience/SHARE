@@ -6,7 +6,6 @@ from share.harvest import BaseHarvester
 
 
 class USGSHarvester(BaseHarvester):
-    KEY = 'gov.usgs'
     VERSION = '0.0.1'
 
     def do_harvest(self, start_date, end_date):

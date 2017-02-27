@@ -142,6 +142,5 @@ class CreativeWork(Parser):
 
 
 class USGSTransformer(ChainTransformer):
-    KEY = 'gov.usgs'
     VERSION = '0.0.1'
     root_parser = CreativeWork

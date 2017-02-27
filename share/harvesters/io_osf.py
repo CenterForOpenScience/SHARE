@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class OSFHarvester(BaseHarvester):
-    KEY = 'io.osf'
     VERSION = '0.0.1'
 
     def build_url(self, start_date, end_date):

@@ -43,6 +43,5 @@ class CreativeWork(Parser):
 
 
 class NeurovaultTransformer(ChainTransformer):
-    KEY = 'org.neurovault'
     VERSION = '0.0.1'
     root_parser = CreativeWork

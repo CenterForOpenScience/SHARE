@@ -115,6 +115,5 @@ class Project(CreativeWork):
 
 
 class OSFTransformer(ChainTransformer):
-    KEY = 'io.osf'
     VERSION = '0.0.1'
     root_parser = Project

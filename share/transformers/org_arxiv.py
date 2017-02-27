@@ -90,6 +90,5 @@ class Preprint(Parser):
 
 
 class ArxivTransformer(ChainTransformer):
-    KEY = 'org.arxiv'
     VERSION = '0.0.1'
     root_parser = Preprint

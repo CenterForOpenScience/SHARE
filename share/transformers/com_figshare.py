@@ -78,7 +78,6 @@ class DataSet(Parser):
 
 
 class FigshareTransformer(ChainTransformer):
-    KEY = 'com.figshare'
     VERSION = '0.0.1'
 
     def get_root_parser(self, unwrapped):

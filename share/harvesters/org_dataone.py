@@ -6,7 +6,6 @@ from share.harvest import BaseHarvester
 
 
 class DataOneHarvester(BaseHarvester):
-    KEY = 'org.dataone'
     VERSION = '0.0.1'
 
     def do_harvest(self, start_date, end_date):

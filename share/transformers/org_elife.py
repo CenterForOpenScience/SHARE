@@ -157,6 +157,5 @@ class Article(Parser):
 
 
 class ElifeTransformer(ChainTransformer):
-    KEY = 'org.elife'
     VERSION = '0.0.1'
     root_parser = Article

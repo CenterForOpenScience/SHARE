@@ -7,7 +7,6 @@ from share.harvest import BaseHarvester
 
 
 class PLOSHarvester(BaseHarvester):
-    KEY = 'org.plos'
     VERSION = '0.0.1'
 
     MAX_ROWS_PER_REQUEST = 999

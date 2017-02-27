@@ -134,6 +134,5 @@ class Preprint(Parser):
 
 
 class AgeconTransformer(ChainTransformer):
-    KEY = 'edu.ageconsearch'
     VERSION = '0.0.1'
     root_parser = Preprint

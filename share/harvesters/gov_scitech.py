@@ -6,7 +6,6 @@ from share.harvest import BaseHarvester
 
 
 class SciTechHarvester(BaseHarvester):
-    KEY = 'gov.scitech'
     VERSION = '0.0.1'
 
     namespaces = {

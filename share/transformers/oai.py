@@ -326,7 +326,6 @@ class OAITransformer(ChainTransformer):
         type_map
     """
 
-    KEY = 'oai_dc'
     VERSION = '0.0.1'
 
     def get_root_parser(self, _):

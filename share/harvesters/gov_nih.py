@@ -18,7 +18,6 @@ class NIHHarvester(BaseHarvester):
     """
     h/t to @fabianvf for this harvester.
     """
-    KEY = 'gov.nih'
     VERSION = '0.0.1'
 
     namespaces = {'xsi': "http://www.w3.org/2001/XMLSchema-instance"}

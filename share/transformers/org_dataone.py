@@ -119,6 +119,5 @@ class DataSet(Parser):
 
 
 class DataoneTransformer(ChainTransformer):
-    KEY = 'org.dataone'
     VERSION = '0.0.1'
     root_parser = DataSet

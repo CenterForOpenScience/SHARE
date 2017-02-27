@@ -8,7 +8,6 @@ from share.harvest import BaseHarvester
 
 
 class SpringerHarvester(BaseHarvester):
-    KEY = 'com.springer'
     VERSION = '0.0.1'
 
     def __init__(self, app_config):

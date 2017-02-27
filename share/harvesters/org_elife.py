@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class ELifeHarvester(BaseHarvester):
-    KEY = 'org.elife'
     VERSION = '0.0.1'
 
     BASE_DATA_URL = 'https://raw.githubusercontent.com/elifesciences/elife-article-xml/master/{}'

@@ -105,6 +105,5 @@ class Preprint(Parser):
 
 
 class BiorxivTransformer(ChainTransformer):
-    KEY = 'org.biorxiv'
     VERSION = '0.0.1'
     root_parser = Preprint

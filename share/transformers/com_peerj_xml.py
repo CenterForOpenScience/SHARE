@@ -153,7 +153,6 @@ class Preprint(Article):
 
 
 class PeerJXMLTransformer(ChainTransformer):
-    KEY = 'com.peerj.xml'
     VERSION = '0.0.1'
 
     def get_root_parser(self, _):

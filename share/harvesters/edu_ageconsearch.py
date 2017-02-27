@@ -23,7 +23,6 @@ class AgEconHarvester(BaseHarvester):
             Page with nearest date
             20 records/page
     """
-    KEY = 'edu.ageconsearch'
     VERSION = '0.0.1'
 
     fields = {

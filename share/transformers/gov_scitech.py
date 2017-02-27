@@ -133,6 +133,5 @@ class CreativeWork(Parser):
 
 
 class ScitechTransformer(ChainTransformer):
-    KEY = 'gov.scitech'
     VERSION = '0.0.1'
     root_parser = CreativeWork

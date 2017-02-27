@@ -343,6 +343,5 @@ class Project(Parser):
 
 
 class NIHTransformer(ChainTransformer):
-    KEY = 'gov.nih'
     VERSION = '0.0.1'
     root_parser = Project

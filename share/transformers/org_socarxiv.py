@@ -12,6 +12,5 @@ class Preprint(io_osf.Project):
 
 
 class SocarxivTransformer(ChainTransformer):
-    KEY = 'org.socarxiv'
     VERSION = '0.0.1'
     root_parser = Preprint

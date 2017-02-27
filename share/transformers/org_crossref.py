@@ -138,6 +138,5 @@ class CreativeWork(Parser):
 
 
 class CrossrefTransformer(ChainTransformer):
-    KEY = 'org.crossref'
     VERSION = '0.0.1'
     root_parser = CreativeWork

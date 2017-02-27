@@ -60,6 +60,5 @@ class Article(Parser):
 
 
 class PLoSTransformer(ChainTransformer):
-    KEY = 'org.plos'
     VERSION = '0.0.1'
     root_parser = Article

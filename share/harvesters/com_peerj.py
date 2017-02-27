@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class PeerJHarvester(BaseHarvester):
-    KEY = 'com.peerj'
     VERSION = '0.0.1'
 
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum):

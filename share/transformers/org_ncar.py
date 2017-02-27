@@ -123,6 +123,5 @@ class DataSet(Parser):
 
 
 class NCARTransformer(ChainTransformer):
-    KEY = 'org.ncar'
     VERSION = '0.0.1'
     root_parser = DataSet

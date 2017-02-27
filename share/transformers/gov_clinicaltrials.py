@@ -121,6 +121,5 @@ class Registration(Parser):
 
 
 class ClinicalTrialsTransformer(ChainTransformer):
-    KEY = 'gov.clinicaltrials'
     VERSION = '0.0.1'
     root_parser = Registration

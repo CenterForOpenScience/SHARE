@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class ClinicalTrialsHarvester(BaseHarvester):
-    KEY = 'gov.clinicaltrials'
     VERSION = '0.0.1'
 
     def do_harvest(self, start_date, end_date):

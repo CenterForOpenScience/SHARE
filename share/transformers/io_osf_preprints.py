@@ -102,6 +102,5 @@ class Preprint(osf.Project):
 
 
 class PreprintTransformer(ChainTransformer):
-    KEY = 'io.osf.preprints'
     VERSION = '0.0.1'
     root_parser = Preprint

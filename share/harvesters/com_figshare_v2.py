@@ -6,7 +6,6 @@ from share.harvest import BaseHarvester
 
 
 class FigshareHarvester(BaseHarvester):
-    KEY = 'com.figshare.v2'
     VERSION = '0.0.1'
 
     page_size = 50

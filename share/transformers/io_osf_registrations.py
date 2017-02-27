@@ -22,6 +22,5 @@ class Registration(osf.Project):
 
 
 class OSFRegistrationsTransformer(ChainTransformer):
-    KEY = 'io.osf.registrations'
     VERSION = '0.0.1'
     root_parser = Registration

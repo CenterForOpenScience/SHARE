@@ -6,7 +6,6 @@ from share.harvest.base import BaseHarvester
 
 
 class LWBINHarvester(BaseHarvester):
-    KEY = 'ca.lwbin'
     VERSION = '0.0.1'
 
     # LWBIN does not have an HTTPS URL

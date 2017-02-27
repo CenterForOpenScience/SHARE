@@ -75,6 +75,5 @@ class Article(Parser):
 
 
 class BioMedCentralTransformer(ChainTransformer):
-    KEY = 'com.biomedcentral'
     VERSION = '0.0.1'
     root_parser = Article

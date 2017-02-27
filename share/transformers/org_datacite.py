@@ -702,6 +702,5 @@ class CreativeWork(Parser):
 
 
 class DataciteTransformer(ChainTransformer):
-    KEY = 'org.datacite'
     VERSION = '0.0.1'
     root_parser = CreativeWork

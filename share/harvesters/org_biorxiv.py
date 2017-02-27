@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class BiorxivHarvester(BaseHarvester):
-    KEY = 'org.biorxiv'
     VERSION = '0.0.1'
 
     def do_harvest(self, start_date, end_date):

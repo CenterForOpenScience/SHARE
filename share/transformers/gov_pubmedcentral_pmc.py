@@ -359,6 +359,5 @@ class Article(Parser):
 
 
 class PMCTransformer(SoupXMLTransformer):
-    KEY = 'gov.pubmedcentral.pmc'
     VERSION = '0.0.1'
     root_parser = Article

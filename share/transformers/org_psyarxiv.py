@@ -12,6 +12,5 @@ class Preprint(io_osf.Project):
 
 
 class PsyarxivTransformer(ChainTransformer):
-    KEY = 'org.psyarxiv'
     VERSION = '0.0.1'
     root_parser = Preprint

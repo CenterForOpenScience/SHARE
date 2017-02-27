@@ -8,7 +8,6 @@ from share.harvest import BaseHarvester
 
 # Built by inspecting http://www.researchregistry.com/browse-the-registry.html
 class ResearchRegistryHarvester(BaseHarvester):
-    KEY = 'com.researchregistry'
     VERSION = '0.0.1'
 
     HEADERS = {

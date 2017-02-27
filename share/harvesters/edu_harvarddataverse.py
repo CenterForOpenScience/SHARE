@@ -6,7 +6,6 @@ from share.harvest import BaseHarvester
 
 
 class HarvardDataverseHarvester(BaseHarvester):
-    KEY = 'edu.harvarddataverse'
     VERSION = '0.0.1'
 
     type = 'dataset'

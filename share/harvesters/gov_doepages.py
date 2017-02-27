@@ -6,7 +6,6 @@ from share.harvest import BaseHarvester
 
 
 class DoepagesHarvester(BaseHarvester):
-    KEY = 'gov.doepages'
     VERSION = '0.0.1'
 
     namespaces = {

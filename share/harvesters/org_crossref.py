@@ -4,7 +4,6 @@ from share.harvest import BaseHarvester
 
 
 class CrossRefHarvester(BaseHarvester):
-    KEY = 'org.crossref'
     VERSION = '0.0.1'
 
     def do_harvest(self, start_date, end_date):

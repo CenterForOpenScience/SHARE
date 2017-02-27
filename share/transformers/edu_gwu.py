@@ -98,6 +98,5 @@ class CreativeWork(Parser):
 
 
 class GWScholarSpaceTransformer(SoupXMLTransformer):
-    KEY = 'edu.gwu'
     VERSION = '0.0.1'
     root_parser = CreativeWork

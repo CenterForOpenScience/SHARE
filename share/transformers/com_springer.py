@@ -78,6 +78,5 @@ class Article(Parser):
 
 
 class SpringerTransformer(ChainTransformer):
-    KEY = 'com.springer'
     VERSION = '0.0.1'
     root_parser = Article

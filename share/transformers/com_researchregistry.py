@@ -130,6 +130,5 @@ class Registration(Parser):
 
 
 class RRTransformer(ChainTransformer):
-    KEY = 'com.researchregistry'
     VERSION = '0.0.1'
     root_parser = Registration
