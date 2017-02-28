@@ -3,6 +3,7 @@ import random
 import string
 import datetime
 import yaml
+from stevedore import extension
 
 from django.conf import settings
 from django.core.files import File
@@ -29,7 +30,19 @@ class Command(BaseCommand):
             source_dirs = [os.path.join(sources_dir, s) for s in os.listdir(sources_dir)]
 
         with transaction.atomic():
+            self.known_harvesters = self.sync_drivers('share.harvesters', Harvester)
+            self.known_transformers = self.sync_drivers('share.transformers', Transformer)
             self.update_sources(source_dirs)
+
+    def sync_drivers(self, namespace, model):
+        names = set(extension.ExtensionManager(namespace).entry_points_names())
+        for key in names:
+            model.objects.update_or_create(key=key)
+        # TODO? model.objects.exclude(key__in=names).delete()
+        missing = model.objects.exclude(key__in=names).values_list('key', flat=True)
+        if missing:
+            print('Warning: Missing {} drivers: {}'.format(model._meta.model_name, missing))
+        return names
 
     def update_sources(self, source_dirs):
         loaded_sources = set()
@@ -59,11 +72,11 @@ class Command(BaseCommand):
 
     def update_source_config(self, source, serialized):
         label = serialized.pop('label')
-        if serialized['harvester'] and not Harvester.objects.filter(key=serialized['harvester']).exists():
-            print('Missing harvester {}'.format(serialized['harvester']))
+        if serialized['harvester'] and serialized['harvester'] not in self.known_harvesters:
+            print('Unknown harvester {}! Skipping source config {}'.format(serialized['harvester'], label))
             return
-        if serialized['transformer'] and not Transformer.objects.filter(key=serialized['transformer']).exists():
-            print('Missing transformer {}'.format(serialized['transformer']))
+        if serialized['transformer'] and serialized['transformer'] not in self.known_transformers:
+            print('Unknown transformer {}! Skipping source config {}'.format(serialized['transformer'], label))
             return
         source_config, _ = SourceConfig.objects.update_or_create(
             label=label,
