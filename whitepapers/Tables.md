@@ -21,10 +21,10 @@ Identifier for a specific document from a specific source.
 | Column             | Type | Indexed | Nullable | FK  | Default | Description                                    |
 | :----------------- | :--: | :-----: | :------: | :-: | :-----: | :--------------------------------------------- |
 | `identifier`       | text |         |          |     |         | Identifier given to the document by the source |
-| `ingest_config_id` | int  |         |          |  ✓  |         | IngestConfig used to ingest the document       |
+| `source_config_id` | int  |         |          |  ✓  |         | SourceConfig used to ingest the document       |
 
 #### Other indices
-* `source_doc_id`, `ingest_config_id` (unique)
+* `source_doc_id`, `source_config_id` (unique)
 
 ### RawData
 Raw data, exactly as it was given to SHARE.
@@ -36,9 +36,9 @@ Raw data, exactly as it was given to SHARE.
 | `sha256`       | text | unique  |          |     |         | SHA-256 hash of `data`                                             |
 | `harvest_logs` | m2m  |         |          |     |         | List of HarvestLogs for harvester runs that found this exact datum |
 
-## Ingest Configuration
+## Source Configuration
 
-### IngestConfig
+### SourceConfig
 Describes one way to harvest metadata from a Source, and how to transform the result.
 
 | Column                 | Type  | Indexed | Nullable | FK  | Default | Description                                                                        |
@@ -48,11 +48,11 @@ Describes one way to harvest metadata from a Source, and how to transform the re
 | `earliest_date`        | date  |         |    ✓     |     |         | Earliest date with available data                                                  |
 | `rate_limit_allowance` |  int  |         |          |     |    5    | Number of requests allowed every `rate_limit_period` seconds                       |
 | `rate_limit_period`    |  int  |         |          |     |    1    | Number of seconds for every `rate_limit_allowance` requests                        |
-| `harvester_id`         |  int  |         |          |  ✓  |         | Harvester to use                                                                   |
+| `harvester_id`         |  int  |         |    ✓     |  ✓  |         | Harvester to use                                                                   |
 | `harvester_kwargs`     | jsonb |         |    ✓     |     |         | JSON object passed to the harvester as kwargs                                      |
 | `transformer_id`       |  int  |         |          |  ✓  |         | Transformer to use                                                                 |
 | `transformer_kwargs`   | jsonb |         |    ✓     |     |         | JSON object passed to the transformer as kwargs, along with the harvested raw data |
-| `disabled`             | bool  |         |          |     |  False  | True if this ingest config should not be run automatically                         |
+| `disabled`             | bool  |         |          |     |  False  | True if this source config should not be run automatically                         |
 
 ### Source
 A Source is a place metadata comes from.
@@ -90,7 +90,7 @@ Log entries to track the status of a specific harvester run.
 
 | Column              |   Type   | Indexed | Nullable | FK  | Default | Description                                                                                              |
 | :------------------ | :------: | :-----: | :------: | :-: | :-----: | :------------------------------------------------------------------------------------------------------- |
-| `ingest_config_id`  |   int    |         |          |  ✓  |         | IngestConfig for this harvester run                                                                      |
+| `source_config_id`  |   int    |         |          |  ✓  |         | SourceConfig for this harvester run                                                                      |
 | `harvester_version` |   text   |         |          |     |         | Semantic version of the harvester, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
 | `start_date`        | datetime |         |          |     |         | Beginning of the date range to harvest                                                                   |
 | `end_date`          | datetime |         |          |     |         | End of the date range to harvest                                                                         |
@@ -98,7 +98,7 @@ Log entries to track the status of a specific harvester run.
 | `status`            |   text   |         |          |     | INITIAL | Status of the harvester run, one of {INITIAL, STARTED, SPLIT, SUCCEEDED, FAILED}                         |
 
 #### Other indices
-* `ingest_config_id`, `harvester_version`, `start_date`, `end_date` (unique)
+* `source_config_id`, `harvester_version`, `start_date`, `end_date` (unique)
 
 ### TransformLog
 Log entries to track the status of a transform task
@@ -106,7 +106,7 @@ Log entries to track the status of a transform task
 | Column                |   Type   | Indexed | Nullable | FK  | Default | Description                                                                                                |
 | :-------------------- | :------: | :-----: | :------: | :-: | :-----: | :--------------------------------------------------------------------------------------------------------- |
 | `raw_id`              |   int    |         |          |  ✓  |         | RawData to be transformed                                                                                  |
-| `ingest_config_id`    |   int    |         |          |  ✓  |         | IngestConfig used                                                                                          |
+| `source_config_id`    |   int    |         |          |  ✓  |         | SourceConfig used                                                                                          |
 | `transformer_version` |   text   |         |          |     |         | Semantic version of the transformer, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
 | `started`             | datetime |         |          |     |         | Time `status` was set to STARTED                                                                           |
 | `status`              |   text   |         |          |     | INITIAL | Status of the transform task, one of {INITIAL, STARTED, RESCHEDULED, SUCCEEDED, FAILED}                    |
