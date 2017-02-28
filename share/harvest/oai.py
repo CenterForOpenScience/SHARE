@@ -1,6 +1,6 @@
 import abc
-import time
 import logging
+import time
 
 import pendulum
 from furl import furl
@@ -82,7 +82,7 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
                 continue
             resp.raise_for_status()
 
-        parsed = etree.fromstring(resp.content)
+        parsed = etree.fromstring(resp.content, parser=etree.XMLParser(recover=True))
 
         records = parsed.xpath('//ns0:record', namespaces=self.namespaces)
         token = (parsed.xpath('//ns0:resumptionToken/node()', namespaces=self.namespaces) + [None])[0]
