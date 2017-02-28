@@ -209,8 +209,7 @@ class RawDataManager(FuzzyCountManager):
 class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
-    # TODO non-null
-    suid = models.ForeignKey('SourceUniqueIdentifier', null=True)
+    suid = models.ForeignKey('SourceUniqueIdentifier')
 
     data = models.TextField()
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
