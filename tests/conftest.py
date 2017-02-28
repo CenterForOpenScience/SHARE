@@ -13,6 +13,7 @@ from oauth2_provider.models import AccessToken, Application
 from share.models import Person, NormalizedData, Change, ChangeSet, RawData
 from share.models import Article, Institution
 from share.models import ShareUser
+from share.models import Harvester, Transformer, Source, SourceConfig, SourceUniqueIdentifier
 from share.change import ChangeGraph
 
 
@@ -62,15 +63,56 @@ def robot_user():
 
 
 @pytest.fixture
-def share_source():
-    source = ShareUser(username='tester')
+def share_user():
+    user = ShareUser(username='tester')
+    user.save()
+    return user
+
+
+@pytest.fixture
+def share_source(share_user):
+    source = Source(name='sauce', long_title='Saucy sauce', user=share_user)
     source.save()
     return source
 
 
 @pytest.fixture
-def raw_data(share_source):
-    raw_data = RawData(source=share_source, data={})
+def harvester_model():
+    harvester = Harvester(key='testharvester')
+    harvester.save()
+    return harvester
+
+
+@pytest.fixture
+def transformer_model():
+    transformer = Transformer(key='testtransformer')
+    transformer.save()
+    return transformer
+
+
+@pytest.fixture
+def source_config(share_source, harvester_model, transformer_model):
+    config = SourceConfig(
+        label='sauce',
+        source=share_source,
+        base_url='http://example.com',
+        harvester=harvester_model,
+        transformer=transformer_model
+    )
+    config.save()
+    return config
+
+
+@pytest.fixture
+def suid(source_config):
+    suid = SourceUniqueIdentifier(identifier='this is a record', source_config=source_config)
+    suid.save()
+    return suid
+
+
+@pytest.fixture
+def raw_data(suid):
+    raw_data = RawData(suid=suid, data={})
     raw_data.save()
     return raw_data
 
@@ -81,8 +123,8 @@ def raw_data_id(raw_data):
 
 
 @pytest.fixture
-def normalized_data(share_source):
-    normalized_data = NormalizedData(source=share_source, data={})
+def normalized_data(share_user):
+    normalized_data = NormalizedData(source=share_user, data={})
     normalized_data.save()
     return normalized_data
 
@@ -108,10 +150,10 @@ def change_node():
 
 
 @pytest.fixture
-def change_factory(share_source, change_set, change_node):
+def change_factory(share_user, change_set, change_node):
     class ChangeFactory:
         def from_graph(self, graph, disambiguate=False):
-            nd = NormalizedData.objects.create(data=graph, source=share_source)
+            nd = NormalizedData.objects.create(data=graph, source=share_user)
             cg = ChangeGraph(graph['@graph'])
             cg.process(disambiguate=disambiguate)
             return ChangeSet.objects.from_graph(cg, nd.pk)
@@ -131,21 +173,21 @@ def change_ids(change_factory):
 
 
 @pytest.fixture
-def john_doe(share_source, change_ids):
+def john_doe(change_ids):
     john = Person.objects.create(given_name='John', family_name='Doe', change_id=change_ids.get())
     john.refresh_from_db()
     return john
 
 
 @pytest.fixture
-def jane_doe(share_source, change_ids):
+def jane_doe(change_ids):
     jane = Person.objects.create(given_name='Jane', family_name='Doe', change_id=change_ids.get())
     jane.refresh_from_db()
     return jane
 
 
 @pytest.fixture
-def all_about_anteaters(share_source, change_ids):
+def all_about_anteaters(change_ids):
     return Article.objects.create(title='All about Anteaters', change_id=change_ids.get())
 
 

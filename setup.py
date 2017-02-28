@@ -45,7 +45,7 @@ setup(
             'org.plos = share.transformers.org_plos:PLoSTransformer',
             'org.psyarxiv = share.transformers.org_psyarxiv:PsyarxivTransformer',
             'org.socarxiv = share.transformers.org_socarxiv:SocarxivTransformer',
-            'v1.push = share.transformers.v1_push:V1Transformer',
+            'v1_push = share.transformers.v1_push:V1Transformer',
         ],
         'share.harvesters': [
             'ca.lwbin = share.harvesters.ca_lwbin:LWBINHarvester',

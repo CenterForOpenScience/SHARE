@@ -13,10 +13,9 @@ from api.authentication import APIV1TokenBackPortAuthentication
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
     RawDataSerializer, ShareUserSerializer, ProviderSerializer
-from share.models import RawData, ShareUser, NormalizedData
+from share.models import RawData, ShareUser, NormalizedData, Source, SourceConfig, SourceUniqueIdentifier, Transformer
 from share.tasks import DisambiguatorTask
 from share.harvest.base import BaseHarvester
-from share.transformers.v1_push import V1Transformer
 
 
 __all__ = ('NormalizedDataViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'V1DataView')
@@ -204,7 +203,7 @@ class V1DataView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        app_label = request.user.username
+        config_label = '{}.v1'.format(request.user.username)
 
         # store raw data, assuming you can only submit one at a time
         raw = None
@@ -214,12 +213,26 @@ class V1DataView(views.APIView):
             except KeyError:
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
-            raw = RawData.objects.store_data(doc_id, BaseHarvester.encode_json(self, prelim_data), request.user, app_label)
+            source, _ = Source.objects.get_or_create(
+                user=request.user,
+                defaults={
+                    'name': request.user.username,
+                    'long_title': request.user.username,
+                }
+            )
+            config, _ = SourceConfig.objects.get_or_create(
+                label=config_label,
+                defaults={
+                    'source': source,
+                    'transformer': Transformer.objects.get(key='v1_push'),
+                }
+            )
+            suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=config)
+            raw = RawData.objects.store_data(BaseHarvester.encode_json(self, prelim_data), suid)
 
-        # normalize data
-        normalized_data = V1Transformer({}).transform(raw.data)
+        transformed_data = config.get_transformer().transform(raw.data)
         data = {}
-        data['data'] = normalized_data
+        data['data'] = transformed_data
         serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():

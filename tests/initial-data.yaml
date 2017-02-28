@@ -28,3 +28,11 @@
     model: "auth.Group"
     fields:
       name: "OSF_USERS"
+
+  -
+    model: "share.Transformer"
+    pk: 1
+    fields:
+      key: "v1_push"
+      date_created: "2016-06-24T13:33:03.681Z"
+      date_modified: "2016-06-24T13:33:03.681Z"

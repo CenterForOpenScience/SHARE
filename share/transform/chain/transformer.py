@@ -25,6 +25,10 @@ class ChainTransformer(BaseTransformer):
 
     root_parser = None
 
+    def __init__(self, *args, clean_up=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.clean_up = clean_up
+
     @property
     def allowed_roots(self):
         from share.models import AbstractCreativeWork
@@ -41,7 +45,8 @@ class ChainTransformer(BaseTransformer):
 
         root_ref = parser(unwrapped).parse()
         jsonld = ctx.jsonld
-        ctx.clear()  # Clean up
+        if self.clean_up:
+            ctx.clear()
         return jsonld, root_ref
 
     def unwrap_data(self, data):

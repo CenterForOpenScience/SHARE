@@ -182,7 +182,8 @@ class TestV1Transformer:
     ])
     def test_normalize(self, input, expected):
         ctx.clear()
-        actual = self.reconstruct(ctx.pool.pop(V1Transformer({}).do_transform(json.dumps(input))))
+        _, root_ref = V1Transformer({}, clean_up=False).do_transform(json.dumps(input))
+        actual = self.reconstruct(ctx.pool.pop(root_ref))
         assert expected == actual
 
     def reconstruct(self, document, extra=False):
