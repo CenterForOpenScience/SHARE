@@ -67,6 +67,12 @@ class Source(models.Model):
     def natural_key(self):
         return (self.name,)
 
+    def __repr__(self):
+        return '<{}({}, {}, {})>'.format(self.__class__.__name__, self.pk, self.name, self.long_title)
+
+    def __str__(self):
+        return repr(self)
+
 
 class SourceConfig(models.Model):
     # Previously known as the provider's app_label
@@ -97,6 +103,12 @@ class SourceConfig(models.Model):
     def get_transformer(self):
         return self.transformer.get_class()(self, **(self.transformer_kwargs or {}))
 
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.label)
+
+    def __str__(self):
+        return repr(self)
+
 
 class Harvester(models.Model):
     key = models.TextField(unique=True)
@@ -115,6 +127,12 @@ class Harvester(models.Model):
     def version(self):
         return self.get_class().VERSION
 
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.key)
+
+    def __str__(self):
+        return repr(self)
+
 
 class Transformer(models.Model):
     key = models.TextField(unique=True)
@@ -132,3 +150,9 @@ class Transformer(models.Model):
     @property
     def version(self):
         return self.get_class().VERSION
+
+    def __repr__(self):
+        return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.key)
+
+    def __str__(self):
+        return repr(self)
