@@ -20,6 +20,7 @@ if [ -n "$BACKUP" ]; then
     python manage.py dumpdata share.RawData --natural-foreign --natural-primary --format json | gzip > share_rawdata.json.gz
 fi
 
+python setup.py develop
 python manage.py celery purge -f
 python manage.py reset_db --noinput
 python manage.py migrate

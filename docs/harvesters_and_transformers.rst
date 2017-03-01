@@ -218,6 +218,7 @@ Best practices for writing a non-OAI Harvester
         - If the API does not then, if possible, check the date on each record returned and stop harvesting if the date on the record is older than the specified start date.
 - Add the harvester to ``entry_points`` in ``setup.py``
     - e.g. ``'com.example = share.harvesters.com_example:ExampleHarvester',``
+    - run ``python setup.py develop`` to make the harvester available in your local SHARE
 - Test by :ref:`running the harvester <running-sources>`
 
 .. _writing-transformers:
@@ -233,7 +234,9 @@ Best practices for writing a non-OAI Transformer
     - Utilize the ``Extra`` class
         - Raw data that does not fit into a defined :ref:`share model <share-models>` should be stored here.
         - Raw data that is otherwise altered in the transformer should also be stored here to ensure data integrity.
-
+- Add the transformer to ``entry_points`` in ``setup.py``
+    - e.g. ``'com.example = share.transformer.com_example:ExampleTransformer',``
+    - run ``python setup.py develop`` to make the transformer available in your local SHARE
 - Test by :ref:`running the transformer <running-sources>` against raw data you have harvested.
 
 .. _chain-transformer:
