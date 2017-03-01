@@ -1,6 +1,5 @@
 import abc
 import json
-import os
 import random
 import string
 import datetime
@@ -8,7 +7,6 @@ import datetime
 from django.apps import apps
 from django.db import migrations
 from django.conf import settings
-from django.core.files import File
 from django.apps import AppConfig
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -61,7 +59,6 @@ class RobotMigrations:
         self.config = app_config
 
     def migrations(self):
-        from share.provider import ProviderAppConfig
         return [InitialMigration(self.config).migration()]
 
 
