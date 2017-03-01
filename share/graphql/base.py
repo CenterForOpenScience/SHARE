@@ -1,7 +1,5 @@
 import graphene
 
-from django.core.urlresolvers import reverse
-
 from graphene_django import DjangoObjectType
 
 from share import models
@@ -11,7 +9,7 @@ from share.graphql.fields import JSONField
 
 class Source(DjangoObjectType):
     title = graphene.String()
-    favicon = graphene.String()
+    icon = graphene.String()
 
     class Meta:
         model = models.Source
@@ -26,7 +24,7 @@ class Source(DjangoObjectType):
         return instance.long_title
 
     @classmethod
-    def resolve_favicon(cls, instance, context, request, info):
+    def resolve_icon(cls, instance, context, request, info):
         return instance.icon.url
 
 

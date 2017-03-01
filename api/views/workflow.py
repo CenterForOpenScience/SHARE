@@ -12,13 +12,13 @@ from api import schemas
 from api.authentication import APIV1TokenBackPortAuthentication
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
-    RawDataSerializer, ShareUserSerializer, ProviderSerializer
-from share.models import RawData, ShareUser, NormalizedData, Source, SourceConfig, SourceUniqueIdentifier, Transformer
+    RawDataSerializer, ShareUserSerializer, SourceSerializer
+from share.models import RawData, NormalizedData, Source, SourceConfig, SourceUniqueIdentifier, Transformer
 from share.tasks import DisambiguatorTask
 from share.harvest.base import BaseHarvester
 
 
-__all__ = ('NormalizedDataViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'V1DataView')
+__all__ = ('NormalizedDataViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -31,11 +31,11 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
         return [self.request.user, ]
 
 
-class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = ProviderSerializer
+class SourceViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = SourceSerializer
 
     def get_queryset(self):
-        queryset = ShareUser.objects.exclude(robot='').exclude(long_title='')
+        queryset = Source.objects.exclude(user__robot='').exclude(long_title='')
         sort = self.request.query_params.get("sort")
         if sort:
             return queryset.order_by(sort)
