@@ -92,6 +92,7 @@ def work_snapshot(work):
         'outgoing_related_works': {(r.type, r.related.id) for r in work.outgoing_creative_work_relations.filter(same_as_id__isnull=True)},
     }
 
+
 def agent_snapshot(agent):
     # refresh from DB, even if type has changed
     agent = agent._meta.concrete_model.objects.get(id=agent.id)

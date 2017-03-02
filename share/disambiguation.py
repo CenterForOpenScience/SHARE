@@ -36,6 +36,7 @@ class GraphDisambiguator:
 
     def _disambiguate(self, change_graph, find_instances):
         changed = True
+        finished_nodes = set()
         # Sort by type and id as well to get consitent sorting
         nodes = sorted(change_graph.nodes, key=lambda x: (self._disambiguweight(x), x.type, x.id), reverse=True)
 
@@ -45,7 +46,7 @@ class GraphDisambiguator:
             self._index.clear()
 
             for n in tuple(nodes):
-                if n.is_merge:
+                if n.is_merge or n in finished_nodes:
                     continue
                 matches = self._index.get_matches(n)
                 if len(matches) > 1:
@@ -81,8 +82,10 @@ class GraphDisambiguator:
                         else:
                             self._emit_merges(n)
                         changed = True
-                    elif n.type == 'subject':
-                        raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
+                    if not self._depends_on_relations(n):
+                        if not n.instances and n.type == 'subject':
+                            raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
+                        finished_nodes.add(n)
 
                 self._index.add(n)
 
@@ -126,6 +129,11 @@ class GraphDisambiguator:
 
         sql, params = zip(*[concrete_model.objects.filter(unmerged_query & all_query & query).query.sql_with_params() for query in queries or [Q()]])
         return set(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT {};'.format(self.MERGE_LIMIT), sum(params, ())))
+
+    def _depends_on_relations(self, node):
+        fields = set(getattr(node.model.Disambiguation, 'all', ()))
+        fields.update(getattr(node.model.Disambiguation, 'any', ()))
+        return any(node.model._meta.get_field(f).is_relation for f in fields)
 
     def _query_pair(self, key, value):
         try:
