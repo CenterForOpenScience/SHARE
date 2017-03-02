@@ -51,6 +51,7 @@ class IsAffiliatedWith(Parser):
     related = tools.Delegate(AffiliatedAgent, ctx)
 
 
+# TODO
 class MODSAgent(Parser):
     """
     @type
@@ -172,6 +173,7 @@ class MODSCreativeWork(Parser):
 
     title = tools.Join(tools.RunPython(force_text, tools.Try(ctx['mods:titleInfo']['mods:title'])))
 
+    # TODO
     # This attribute is used with shareable="no" for data that may be proprietary or is rights
     # protected and should not be used outside of a local system (such as providing to harvesters).
     description = tools.Join(tools.RunPython(force_text, tools.Try(ctx['mods:abstract'])))
@@ -233,15 +235,14 @@ class MODSCreativeWork(Parser):
         tools.Try(ctx['mods:language']['mods:languageTerm']),
     )
 
-    # TODO
-    # subjects = tools.Map(
-    #     tools.Delegate(MODSThroughSubjects),
-    #     tools.Subjects(
-    #         tools.Concat(
-    #             tools.Try(ctx['mods:subject']['mods:topic']),
-    #         )
-    #     )
-    # )
+    subjects = tools.Map(
+        tools.Delegate(MODSThroughSubjects),
+        tools.Subjects(
+            tools.Concat(
+                tools.Try(ctx['mods:subject']['mods:topic']),
+            )
+        )
+    )
 
     tags = tools.Map(
         tools.Delegate(MODSThroughTags),
@@ -254,7 +255,7 @@ class MODSCreativeWork(Parser):
                         tools.Try(ctx.header.setSpec),
                         tools.Try(ctx['mods:genre']),
                         tools.Try(ctx['mods:classification']),
-                        # tools.Try(ctx['mods:subject']),
+                        tools.Try(ctx['mods:subject']['mods:topic']),
                     )
                 )
             ),
@@ -345,6 +346,9 @@ class MODSCreativeWork(Parser):
             return True
         return False
 
+    # TODO
+    # should check current models if no type map is given
+    # either use registries attribute of abstractcreativework or check if model exists
     def get_schema(self, types):
         if not types or not self.type_map:
             return self.default_type
@@ -425,26 +429,3 @@ class MODSNormalizer(Normalizer):
                 flattened_data[field] = unwrapped_data['record']['metadata']['mods:mods'][field]
 
         return flattened_data
-
-    def get_default_type_map(self):
-
-        def flatten_hierarchy(level):
-            types_list = []
-            for k in level.keys():
-                if isinstance(k, list):
-                    types_list.extend(k)
-                else:
-                    types_list.append(k)
-                if 'children' in level[k]:
-                    types_list.extend(flatten_hierarchy(level[k]['children']))
-
-            return types_list
-
-        # probably not the best way to do this but the api is loaded after share
-        yaml_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../share/models/creative.yaml')
-        with open(yaml_file) as fobj:
-            model_specs = sort_dict_by_key(yaml.load(fobj))
-
-        types = flatten_hierarchy(model_specs)
-
-        return {key.lower(): key.lower() for key in types}
