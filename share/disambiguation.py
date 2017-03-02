@@ -38,7 +38,6 @@ class GraphDisambiguator:
         changed = True
         # Sort by type and id as well to get consitent sorting
         nodes = sorted(change_graph.nodes, key=lambda x: (self._disambiguweight(x), x.type, x.id), reverse=True)
-        finished_nodes = set()
 
         while changed:
             changed = False
@@ -46,7 +45,7 @@ class GraphDisambiguator:
             self._index.clear()
 
             for n in tuple(nodes):
-                if n.is_merge or n in finished_nodes:
+                if n.is_merge:
                     continue
                 matches = self._index.get_matches(n)
                 if len(matches) > 1:
@@ -73,7 +72,7 @@ class GraphDisambiguator:
                 if find_instances:
                     # look for matches in the database
                     instances = self._instances_for_node(n)
-                    if instances:
+                    if instances and instances - n.instances:
                         n.instances.update(instances)
                         if len(n.instances) == 1:
                             logger.debug('Disambiguated %s to %r', n, instances.pop())
@@ -81,7 +80,6 @@ class GraphDisambiguator:
                             raise MergeLimitError('Too many matches! {} matched {} instances. Something is probably wrong.\nMatches: {}'.format(n, len(n.instances), n.instances))
                         else:
                             self._emit_merges(n)
-                        finished_nodes.add(n)
                         changed = True
                     elif n.type == 'subject':
                         raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
@@ -102,7 +100,7 @@ class GraphDisambiguator:
         concrete_model = node.model._meta.concrete_model
 
         if not info.all and not info.any:
-            return []
+            return set()
 
         all_query = Q()
         for k, v in info.all:
@@ -110,7 +108,7 @@ class GraphDisambiguator:
             if k and v:
                 all_query &= Q(**{k: v})
             else:
-                return []
+                return set()
 
         queries = []
         for k, v in info.any:
@@ -119,7 +117,7 @@ class GraphDisambiguator:
                 queries.append(all_query & Q(**{k: v}))
 
         if (info.all and not all_query.children) or (info.any and not queries):
-            return []
+            return set()
 
         if info.matching_types:
             all_query &= Q(type__in=info.matching_types)
@@ -127,7 +125,7 @@ class GraphDisambiguator:
         unmerged_query = Q(same_as__isnull=True) if hasattr(concrete_model, 'same_as') else Q()
 
         sql, params = zip(*[concrete_model.objects.filter(unmerged_query & all_query & query).query.sql_with_params() for query in queries or [Q()]])
-        return list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT {};'.format(self.MERGE_LIMIT), sum(params, ())))
+        return set(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT {};'.format(self.MERGE_LIMIT), sum(params, ())))
 
     def _query_pair(self, key, value):
         try:
@@ -162,6 +160,10 @@ class GraphDisambiguator:
         source.graph.replace(source, replacement)
 
     def _emit_merges(self, node):
+        from share.models.change import EXPLICITLY_MERGEABLE_MODELS
+        if node.model._meta.concrete_model.__name__ not in EXPLICITLY_MERGEABLE_MODELS:
+            # The matched instances will be automatically merged during an explicit merge
+            return
         target = node.get_instance()
         target_id = IDObfuscator.encode(target)
         for n in node.instances:
