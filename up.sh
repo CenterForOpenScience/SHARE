@@ -26,7 +26,6 @@ python manage.py reset_db --noinput
 python manage.py migrate
 python manage.py loaddata ./share/models/initial_data.yaml
 python manage.py addsubjects ./share/models/subjects.json
-python manage.py loadsources
 
 if [ -n "$BACKUP" ]; then
     python manage.py loaddata share_rawdata.json.gz
