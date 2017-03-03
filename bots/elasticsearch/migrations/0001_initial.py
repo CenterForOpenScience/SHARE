@@ -18,9 +18,6 @@ class Migration(migrations.Migration):
             code=share.robot.RobotUserMigration('elasticsearch'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('elasticsearch'),
-        ),
-        migrations.RunPython(
             code=share.robot.RobotScheduleMigration('elasticsearch'),
         ),
     ]

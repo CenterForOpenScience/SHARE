@@ -18,9 +18,6 @@ class Migration(migrations.Migration):
             code=share.robot.RobotUserMigration('autocurate.person'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('autocurate.person'),
-        ),
-        migrations.RunPython(
             code=share.robot.RobotScheduleMigration('autocurate.person'),
         ),
     ]

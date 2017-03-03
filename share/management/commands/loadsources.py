@@ -1,16 +1,16 @@
+import json
 import os
-import random
-import string
-import datetime
 import yaml
 from stevedore import extension
 
-from django.conf import settings
+from celery.schedules import crontab
+from djcelery.models import PeriodicTask
+from djcelery.models import CrontabSchedule
+
 from django.core.files import File
 from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.utils import timezone
 
 from share.models import ShareUser, Harvester, Transformer, SourceConfig, Source
 
@@ -38,7 +38,6 @@ class Command(BaseCommand):
         names = set(extension.ExtensionManager(namespace).entry_points_names())
         for key in names:
             model.objects.update_or_create(key=key)
-        # TODO? model.objects.exclude(key__in=names).delete()
         missing = model.objects.exclude(key__in=names).values_list('key', flat=True)
         if missing:
             print('Warning: Missing {} drivers: {}'.format(model._meta.model_name, missing))
@@ -85,29 +84,34 @@ class Command(BaseCommand):
                 **self.process_defaults(SourceConfig, serialized)
             }
         )
+        self.schedule_harvest_task(source_config.label, source_config.disabled)
 
     def get_or_create_user(self, username):
-        if ShareUser.objects.filter(username=username).exists():
+        try:
             return ShareUser.objects.get(username=username)
+        except ShareUser.DoesNotExist:
+            return ShareUser.objects.create_robot_user(
+                username=username,
+                robot=username,
+            )
 
-        user = ShareUser.objects.create_robot_user(
-            username=username,
-            robot=username,
-        )
-
-        Application = apps.get_model('oauth2_provider', 'Application')
-        AccessToken = apps.get_model('oauth2_provider', 'AccessToken')
-        application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
-        application = Application.objects.get(user=application_user)
-        client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
-        AccessToken.objects.create(
-            user=user,
-            application=application,
-            expires=(timezone.now() + datetime.timedelta(weeks=20 * 52)),  # 20 yrs
-            scope=settings.HARVESTER_SCOPES,
-            token=client_secret
-        )
-        return user
+    def schedule_harvest_task(self, label, disabled):
+        task_name = '{} harvester task'.format(label)
+        try:
+            PeriodicTask.objects.get(name=task_name)
+            return
+        except PeriodicTask.DoesNotExist:
+            pass
+        tab = CrontabSchedule.from_schedule(crontab(minute=0, hour=0))
+        tab.save()
+        PeriodicTask(
+            enabled=not disabled,
+            name=task_name,
+            task='share.tasks.HarvesterTask',
+            description='Harvesting',
+            args=json.dumps([1, label]),  # Note 1 should always be the system user
+            crontab=tab,
+        ).save()
 
     def process_defaults(self, model, defaults):
         ret = {}

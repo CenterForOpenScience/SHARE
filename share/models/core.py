@@ -150,15 +150,18 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
 @receiver(post_save, sender=ShareUser, dispatch_uid='share.share.models.share_user_post_save_handler')
 def user_post_save(sender, instance, created, **kwargs):
     """
-    If the user is being created and they're not a robot add them to the humans group.
-    If the user is being created and they're not a robot make them an oauth token.
+    If the user is being created and they're a robot:
+        make them an oauth token with harvester scopes.
+    If the user is being created and they're not a robot:
+        make them an oauth token with user scopes.
+        add them to the humans group.
     :param sender:
     :param instance:
     :param created:
     :param kwargs:
     :return:
     """
-    if created and not instance.is_robot and instance.username not in (settings.APPLICATION_USERNAME, settings.ANONYMOUS_USER_NAME):
+    if created and instance.username not in (settings.APPLICATION_USERNAME, settings.ANONYMOUS_USER_NAME):
         application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
         application = Application.objects.get(user=application_user)
         client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
@@ -168,10 +171,11 @@ def user_post_save(sender, instance, created, **kwargs):
             user=instance,
             application=application,
             expires=(timezone.now() + datetime.timedelta(weeks=20 * 52)),  # 20 yrs
-            scope=settings.USER_SCOPES,
+            scope=settings.HARVESTER_SCOPES if instance.is_robot else settings.USER_SCOPES,
             token=client_secret
         )
-        instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
+        if not instance.is_robot:
+            instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
 class SourceUniqueIdentifier(models.Model):
@@ -209,7 +213,7 @@ class RawDataManager(FuzzyCountManager):
 class RawData(models.Model):
     id = models.AutoField(primary_key=True)
 
-    suid = models.ForeignKey('SourceUniqueIdentifier')
+    suid = models.ForeignKey('SourceUniqueIdentifier', null=True)
 
     data = models.TextField()
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])

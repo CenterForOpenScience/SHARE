@@ -18,9 +18,6 @@ class Migration(migrations.Migration):
             code=share.robot.RobotUserMigration('automerge'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('automerge'),
-        ),
-        migrations.RunPython(
             code=share.robot.RobotScheduleMigration('automerge'),
         ),
     ]

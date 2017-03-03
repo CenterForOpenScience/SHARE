@@ -18,9 +18,6 @@ class Migration(migrations.Migration):
             code=share.robot.RobotUserMigration('archive'),
         ),
         migrations.RunPython(
-            code=share.robot.RobotOauthTokenMigration('archive'),
-        ),
-        migrations.RunPython(
             code=share.robot.RobotScheduleMigration('archive'),
         ),
     ]
