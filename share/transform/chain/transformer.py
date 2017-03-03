@@ -23,6 +23,8 @@ class ChainTransformer(BaseTransformer):
         'http://www.openarchives.org/OAI/2.0/oai_dc/': None,
     }
 
+    REMOVE_EMPTY = True
+
     root_parser = None
 
     def __init__(self, *args, clean_up=True, **kwargs):
@@ -40,7 +42,8 @@ class ChainTransformer(BaseTransformer):
         ctx._config = self.config
 
         unwrapped = self.unwrap_data(data)
-        self.remove_empty_values(unwrapped)
+        if self.REMOVE_EMPTY:
+            self.remove_empty_values(unwrapped)
         parser = self.get_root_parser(unwrapped)
 
         root_ref = parser(unwrapped).parse()

@@ -65,12 +65,7 @@ def Soup(chain, *args, **kwargs):
 
 
 class SoupXMLTransformer(ChainTransformer):
+    REMOVE_EMPTY = False
 
     def unwrap_data(self, data):
         return SoupXMLDict(data)
-
-    def do_normalize(self, data):
-        unwrapped = self.unwrap_data(data)
-        parser = self.get_root_parser(unwrapped)
-
-        return parser(unwrapped).parse()

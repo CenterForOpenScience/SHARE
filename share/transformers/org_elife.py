@@ -1,5 +1,5 @@
 from share.transform.chain import *  # noqa
-from share.transform.chain.soup import Soup, SoupXMLDict
+from share.transform.chain.soup import Soup, SoupXMLDict, SoupXMLTransformer
 
 
 class WorkIdentifier(Parser):
@@ -156,6 +156,6 @@ class Article(Parser):
         return '{}-{}-{}'.format(obj.year['#text'], obj.month['#text'], obj.day['#text'])
 
 
-class ElifeTransformer(ChainTransformer):
+class ElifeTransformer(SoupXMLTransformer):
     VERSION = '0.0.1'
     root_parser = Article

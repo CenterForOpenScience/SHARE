@@ -1,5 +1,5 @@
 from share.transform.chain import *  # noqa
-from share.transform.chain.soup import Soup, SoupXMLDict
+from share.transform.chain.soup import Soup, SoupXMLDict, SoupXMLTransformer
 
 
 class WorkIdentifier(Parser):
@@ -152,7 +152,7 @@ class Preprint(Article):
     pass
 
 
-class PeerJXMLTransformer(ChainTransformer):
+class PeerJXMLTransformer(SoupXMLTransformer):
     VERSION = '0.0.1'
 
     def get_root_parser(self, _):
