@@ -203,8 +203,6 @@ class V1DataView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        config_label = '{}.v1'.format(request.user.username)
-
         # store raw data, assuming you can only submit one at a time
         raw = None
         with transaction.atomic():
@@ -213,20 +211,7 @@ class V1DataView(views.APIView):
             except KeyError:
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
-            source, _ = Source.objects.get_or_create(
-                user=request.user,
-                defaults={
-                    'name': request.user.username,
-                    'long_title': request.user.username,
-                }
-            )
-            config, _ = SourceConfig.objects.get_or_create(
-                label=config_label,
-                defaults={
-                    'source': source,
-                    'transformer': Transformer.objects.get(key='v1_push'),
-                }
-            )
+            config = self._get_source_config(request.user)
             suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=config)
             raw = RawData.objects.store_data(BaseHarvester.encode_json(self, prelim_data), suid)
 
@@ -241,3 +226,23 @@ class V1DataView(views.APIView):
             return Response({'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
         else:
             return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+
+    def _get_source_config(self, user):
+        config_label = '{}.v1_push'.format(user.username)
+        try:
+            return SourceConfig.objects.get(label=config_label)
+        except SourceConfig.DoesNotExist:
+            source, _ = Source.objects.get_or_create(
+                user=user,
+                defaults={
+                    'name': user.username,
+                    'long_title': user.username,
+                }
+            )
+            config = SourceConfig(
+                label=config_label,
+                source=source,
+                transformer=Transformer.objects.get(key='v1_push'),
+            )
+            config.save()
+            return config
