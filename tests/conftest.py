@@ -77,7 +77,6 @@ def share_source(share_user):
 
 
 @pytest.fixture
-<<<<<<< HEAD
 def harvester_model():
     harvester = Harvester(key='testharvester')
     harvester.save()

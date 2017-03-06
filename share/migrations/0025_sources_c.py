@@ -13,6 +13,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RenameModel(
+            old_name='RawData',
+            new_name='RawDatum',
+        ),
         migrations.AlterField(
             model_name='rawdatum',
             name='suid',
