@@ -61,7 +61,8 @@ class Harvester(metaclass=abc.ABCMeta):
         self.config = app_config
         self.rate_limit = getattr(self.config, 'rate_limit', self.rate_limit)
         self.allowance = self.rate_limit[0]
-        self.requests = RateLimittedProxy(requests, *self.rate_limit)
+        # TODO Add custom user agent
+        self.requests = RateLimittedProxy(requests.Session(), *self.rate_limit)
 
     @cached_property
     def source(self):

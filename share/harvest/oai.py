@@ -11,6 +11,10 @@ from .harvester import Harvester
 logger = logging.getLogger(__name__)
 
 
+class OAIHarvestException(Exception):
+    pass
+
+
 class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
 
     metadata_prefix = 'oai_dc'
@@ -83,6 +87,10 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
             resp.raise_for_status()
 
         parsed = etree.fromstring(resp.content, parser=etree.XMLParser(recover=True))
+
+        error = parsed.xpath('//ns0:error', namespaces=self.namespaces)
+        if error:
+            raise OAIHarvestException(error[0].get('code'), error[0].text)
 
         records = parsed.xpath('//ns0:record', namespaces=self.namespaces)
         token = (parsed.xpath('//ns0:resumptionToken/node()', namespaces=self.namespaces) + [None])[0]
