@@ -87,9 +87,6 @@ INSTALLED_APPS = [
     'api',
 
     'bots.archive',
-    'bots.autocurate.person',
-    'bots.autocurate.tag',
-    'bots.automerge',
     'bots.elasticsearch',
 ]
 
