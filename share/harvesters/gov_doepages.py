@@ -6,7 +6,7 @@ from share.harvest import BaseHarvester
 
 
 class DoepagesHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     namespaces = {
         'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',

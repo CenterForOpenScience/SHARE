@@ -90,8 +90,8 @@ class AbstractBaseLog(models.Model):
 
     source_config = models.ForeignKey('SourceConfig')
 
-    share_version = models.TextField(default=settings.VERSION, validators=[VersionValidator])
-    source_config_version = models.TextField(validators=[VersionValidator])
+    share_version = models.TextField(default=settings.VERSION)
+    source_config_version = models.PositiveIntegerField()
 
     objects = AbstractLogManager()
 
@@ -155,7 +155,7 @@ class AbstractBaseLog(models.Model):
 class HarvestLog(AbstractBaseLog):
     end_date = models.DateTimeField()
     start_date = models.DateTimeField()
-    harvester_version = models.TextField(validators=[VersionValidator])
+    harvester_version = models.PositiveIntegerField()
 
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )

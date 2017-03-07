@@ -359,5 +359,5 @@ class Article(Parser):
 
 
 class PMCTransformer(SoupXMLTransformer):
-    VERSION = '0.0.1'
+    VERSION = 1
     root_parser = Article

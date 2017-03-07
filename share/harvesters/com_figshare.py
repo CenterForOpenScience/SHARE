@@ -6,7 +6,7 @@ from share.harvest import BaseHarvester
 
 
 class FigshareHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     # Other harvesters should not have to implement this method
     def shift_range(self, start_date, end_date):

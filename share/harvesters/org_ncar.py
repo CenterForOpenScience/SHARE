@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # TODO Could we use the OAI harvester instead, or is there something non-standard about NCAR?
 class NCARHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     namespaces = {
         'OAI-PMH': 'http://www.openarchives.org/OAI/2.0/',

@@ -4,7 +4,7 @@ from share.harvest import BaseHarvester
 
 
 class NeuroVaultHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     def do_harvest(self, start_date, end_date):
         api_url = self.config.base_url

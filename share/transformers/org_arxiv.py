@@ -90,5 +90,5 @@ class Preprint(Parser):
 
 
 class ArxivTransformer(ChainTransformer):
-    VERSION = '0.0.1'
+    VERSION = 1
     root_parser = Preprint

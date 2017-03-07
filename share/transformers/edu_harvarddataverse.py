@@ -32,5 +32,5 @@ class CreativeWork(Parser):
 
 
 class HarvardTransformer(ChainTransformer):
-    VERSION = '0.0.1'
+    VERSION = 1
     root_parser = CreativeWork

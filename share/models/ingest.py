@@ -92,7 +92,7 @@ class Source(models.Model):
 class SourceConfig(models.Model):
     # Previously known as the provider's app_label
     label = models.TextField(unique=True)
-    version = models.TextField(default='000.000.000')
+    version = models.PositiveIntegerField(default=1)
 
     source = models.ForeignKey('Source')
     base_url = models.URLField()

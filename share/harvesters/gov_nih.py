@@ -18,7 +18,7 @@ class NIHHarvester(BaseHarvester):
     """
     h/t to @fabianvf for this harvester.
     """
-    VERSION = '0.0.1'
+    VERSION = 1
 
     namespaces = {'xsi': "http://www.w3.org/2001/XMLSchema-instance"}
 

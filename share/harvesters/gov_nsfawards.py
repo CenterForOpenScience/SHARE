@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class NSFAwardsHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         url = furl(self.config.base_url)

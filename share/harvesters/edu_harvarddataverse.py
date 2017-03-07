@@ -6,7 +6,7 @@ from share.harvest import BaseHarvester
 
 
 class HarvardDataverseHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     type = 'dataset'
     MAX_ITEMS_PER_REQUEST = 1000

@@ -194,5 +194,5 @@ class CreativeWork(Parser):
 
 
 class V1Transformer(ChainTransformer):
-    VERSION = '0.0.1'
+    VERSION = 1
     root_parser = CreativeWork

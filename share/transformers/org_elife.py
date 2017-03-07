@@ -157,5 +157,5 @@ class Article(Parser):
 
 
 class ElifeTransformer(SoupXMLTransformer):
-    VERSION = '0.0.1'
+    VERSION = 1
     root_parser = Article

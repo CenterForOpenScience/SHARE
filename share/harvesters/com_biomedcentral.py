@@ -8,7 +8,7 @@ from share.harvest.base import BaseHarvester
 
 
 class BiomedCentralHarvester(BaseHarvester):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     def __init__(self, app_config):
         super().__init__(app_config)

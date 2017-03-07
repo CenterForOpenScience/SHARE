@@ -40,7 +40,7 @@ class HarvesterFactory(DjangoModelFactory):
 
         class MockHarvester(BaseHarvester):
             KEY = self.key
-            VERSION = '0.0.0'
+            VERSION = 1
 
             do_harvest = mock.Mock(return_value=[])
 
@@ -63,7 +63,7 @@ class TransformerFactory(DjangoModelFactory):
 
         class MockTransformer(BaseTransformer):
             KEY = self.key
-            VERSION = '0.0.0'
+            VERSION = 1
 
             def do_transform(self, data):
                 raise NotImplementedError('Transformers must implement do_transform')

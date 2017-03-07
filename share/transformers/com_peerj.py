@@ -83,7 +83,7 @@ class Preprint(Article):
 
 
 class PeerJTransformer(ChainTransformer):
-    VERSION = '0.0.1'
+    VERSION = 1
 
     def get_root_parser(self, _):
         if self.kwargs.get('emitted_type', None) == 'preprint':
