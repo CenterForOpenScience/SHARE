@@ -12,7 +12,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--all', action='store_true', help='Harvest from all SourceConfigs')
-        parser.add_argument('--force', action='store_true', help='Force disabled SourceConfigs to run')
+        parser.add_argument('--force', action='store_true', help='Force the harvest task to run against all odds')
+        parser.add_argument('--ignore-disabled', action='store_true', help='Allow disabled SourceConfigs to run')
         parser.add_argument('source-config', nargs='*', type=str, help='The name of the SourceConfig to harvest from')
         parser.add_argument('--async', action='store_true', help='Whether or not to use Celery')
 
@@ -31,7 +32,7 @@ class Command(BaseCommand):
             self.harvest_ids(user, options)
             return
 
-        task_kwargs = {'force': options.get('force', False)}
+        task_kwargs = {'force': options.get('force', False), 'ignore_disabled': options.get('ignore_disabled', False)}
 
         if options['days_back'] is not None and (options['start'] or options['end']):
             self.stdout.write('Please choose days-back OR a start date with end date, not both')

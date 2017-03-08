@@ -358,6 +358,11 @@ QUEUES = {
         'priority': 30,
         'modules': {'share.tasks.BotTask', },
     },
+    'BACKHARVEST': {
+        'name': 'backharvest',
+        'priority': -20,
+        'modules': set(),
+    }
 }
 
 CELERY_QUEUES = tuple(

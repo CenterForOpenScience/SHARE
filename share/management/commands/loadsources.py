@@ -30,8 +30,8 @@ class Command(BaseCommand):
             source_dirs = [os.path.join(sources_dir, s) for s in os.listdir(sources_dir)]
 
         with transaction.atomic():
-            self.known_harvesters = self.sync_drivers('share.harvesters', Harvester)
-            self.known_transformers = self.sync_drivers('share.transformers', Transformer)
+            self.known_harvesters = self.sync_drivers('share.harvesters', apps.get_model('share.Harvester'))
+            self.known_transformers = self.sync_drivers('share.transformers', apps.get_model('share.Transformer'))
             self.update_sources(source_dirs)
 
     def sync_drivers(self, namespace, model):
@@ -77,11 +77,11 @@ class Command(BaseCommand):
         if serialized['transformer'] and serialized['transformer'] not in self.known_transformers:
             print('Unknown transformer {}! Skipping source config {}'.format(serialized['transformer'], label))
             return
-        source_config, _ = SourceConfig.objects.update_or_create(
+        source_config, _ = apps.get_model('share.SourceConfig').objects.update_or_create(
             label=label,
             defaults={
                 'source': source,
-                **self.process_defaults(SourceConfig, serialized)
+                **self.process_defaults(apps.get_model('share.SourceConfig'), serialized)
             }
         )
         self.schedule_harvest_task(source_config.label, source_config.disabled)
