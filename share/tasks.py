@@ -1,4 +1,5 @@
 import abc
+import random
 import datetime
 import functools
 import logging
@@ -14,6 +15,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db import DatabaseError
 from django.db import transaction
+from django.utils import timezone
 
 from share.change import ChangeGraph
 from share.models import HarvestLog, IngestLog
@@ -138,7 +140,7 @@ class HarvesterTask(SourceTask):
     def resolve_args(self, start, end):
         logger.debug('Coercing start and end (%r, %r) into datetimes', start, end)
         if not start and not end:
-            start, end = datetime.datetime.utcnow() + datetime.timedelta(days=-1), datetime.datetime.utcnow()
+            start, end = timezone.now() + datetime.timedelta(days=-1), timezone.now()
         if type(end) is str:
             end = pendulum.parse(end.rstrip('Z'))  # TODO Fix me
         if type(start) is str:
@@ -148,8 +150,8 @@ class HarvesterTask(SourceTask):
 
     def apply_async(self, targs=None, tkwargs=None, **kwargs):
         tkwargs = tkwargs or {}
-        tkwargs.setdefault('end', datetime.datetime.utcnow().isoformat())
-        tkwargs.setdefault('start', (datetime.datetime.utcnow() + datetime.timedelta(-1)).isoformat())
+        tkwargs.setdefault('end', timezone.now().isoformat())
+        tkwargs.setdefault('start', (timezone.now() + datetime.timedelta(-1)).isoformat())
         return super().apply_async(targs, tkwargs, **kwargs)
 
     def log_values(self):
@@ -175,8 +177,18 @@ class HarvesterTask(SourceTask):
             defaults={'task_id': self.request.id}
         )
 
+        # TODO search for logs that contain our date range.
+        if not created and log.status == HarvestLog.STATUS.succeeded:
+            if not superfluous:
+                return logger.warning('%s - %s has already been harvested for %r. Force a re-run with superfluous=True', start, end, self.config)
+            else:
+                logger.info('%s - %s has already been harvested for %r. Re-running superfluously', start, end, self.config)
+
         # Use the locking connection to avoid putting everything else in a transaction.
         with transaction.atomic(using='locking'):
+            log.start()
+            error = None
+
             # Django recommends against trys inside of transactions, we're just preserving our lock as long as possible.
             try:
                 # Attempt to lock the harvester config to make sure this is the only job making requests
@@ -195,8 +207,6 @@ class HarvesterTask(SourceTask):
 
                 # TODO Evaluate splitting and other optimizations here
 
-                log.start()
-                error = None
                 logger.info('Harvesting %s - %s from %r', start, end, self.config)
 
                 with transaction.atomic():
@@ -272,10 +282,11 @@ class HarvesterTask(SourceTask):
                 # if not created and log.task_id != self.task_id and log.date_modified - datetime.datetime.utcnow() > datetime.timedelta(minutes=10):
                 #     pass
                 log.reschedule(e)
-                raise self.retry(countdown=45, exc=e)
+                # Kinda hacky, allow a stupidly large number of retries as there is no options for infinite
+                raise self.retry(countdown=random.randrange(10, 30), exc=e, max_retries=99999)
             except Exception as e:
                 log.fail(e)
-                # logger.exception('Failed harvester task (%s, %s, %s)', self.config.label, start, end)
+                logger.exception('Failed harvester task (%r, %s, %s)', self.config, start, end)
                 raise self.retry(countdown=10, exc=e)
 
             if force and error:

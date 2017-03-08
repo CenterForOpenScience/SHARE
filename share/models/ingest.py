@@ -136,6 +136,49 @@ class SourceConfig(models.Model):
         else:
             logger.debug('Lock acquired on %r', self)
 
+    def find_missing_dates(self):
+        from share.models import HarvestLog
+        # Thank god for stack overflow
+        # http://stackoverflow.com/questions/9604400/sql-query-to-show-gaps-between-multiple-date-ranges
+        with connection.cursor() as cursor:
+            cursor.execute('''
+                SELECT "{end_date}", "{start_date}"
+                FROM (
+                    SELECT DISTINCT "{start_date}", ROW_NUMBER() OVER (ORDER BY "{start_date}") RN
+                    FROM "{harvestlog}" T1
+                    WHERE T1."{source_config}" = %(source_config_id)s
+                    AND T1."{harvester_version}" = %(harvester_version)s
+                    AND NOT EXISTS (
+                        SELECT * FROM "{harvestlog}" T2
+                        WHERE T2."{source_config}" = %(source_config_id)s
+                        AND T2."{harvester_version}" = %(harvester_version)s
+                        AND T1."{start_date}" > T2."{start_date}"
+                        AND T1."{start_date}" < T2."{end_date}")
+                ) T1 JOIN (
+                    SELECT DISTINCT "{end_date}", ROW_NUMBER() OVER (ORDER BY "{end_date}") RN
+                    FROM "{harvestlog}" T1
+                    WHERE T1."{source_config}" = %(source_config_id)s
+                    AND T1."{harvester_version}" = %(harvester_version)s
+                    AND NOT EXISTS (
+                        SELECT * FROM "{harvestlog}" T2
+                        WHERE T2."{source_config}" = %(source_config_id)s
+                        AND T2."{harvester_version}" = %(harvester_version)s
+                        AND T1."{end_date}" > T2."{start_date}"
+                        AND T1."{end_date}" < T2."{end_date}")
+                ) T2 ON T1.RN - 1 = T2.RN
+                WHERE "{end_date}" < "{start_date}"
+            '''.format(
+                harvestlog=HarvestLog._meta.db_table,
+                end_date=HarvestLog._meta.get_field('end_date').column,
+                start_date=HarvestLog._meta.get_field('start_date').column,
+                source_config=HarvestLog._meta.get_field('source_config').column,
+                harvester_version=HarvestLog._meta.get_field('harvester_version').column,
+            ), {
+                'source_config_id': self.id,
+                'harvester_version': self.get_harvester().VERSION,
+            })
+            return cursor.fetchall()
+
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.label)
 
@@ -149,6 +192,10 @@ class Harvester(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     objects = NaturalKeyManager('key')
+
+    @property
+    def version(self):
+        return self.get_class().VERSION
 
     def natural_key(self):
         return (self.key,)
@@ -263,7 +310,7 @@ class RawDatumManager(FuzzyCountManager):
                     created=RawDatum._meta.get_field('created').column,
                     values=', '.join('%s' for _ in range(len(chunk))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                 ), [
-                    (suid.pk, sha256(datum).hexdigest(), datum, True)
+                    (suid.pk, sha256(datum).hexdigest(), datum.decode('utf-8'), True)
                     for suid, (identifier, datum) in zip(suids, chunk)
                 ])
 
@@ -301,16 +348,23 @@ class SourceUniqueIdentifier(models.Model):
 
 
 class RawDatum(models.Model):
+
     datum = models.TextField()
+
     suid = models.ForeignKey(SourceUniqueIdentifier)
+
+    # The sha256 of the datum
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
+
+    # Does this datum contain a full record or just a sparse update
+    # partial = models.NullBooleanField(null=True, default=False)
 
     # Hacky field to allow us to tell if a RawDatum was updated or created in bulk inserts
     # Null default to avoid table rewrites
     created = models.NullBooleanField(null=True, default=False)
 
-    date_modified = models.DateTimeField(auto_now=True, editable=False)
-    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    # date_modified = models.DateTimeField(auto_now=True, editable=False)
+    # date_created = models.DateTimeField(auto_now_add=True, editable=False)
 
     logs = models.ManyToManyField('HarvestLog', related_name='raw_data')
 
