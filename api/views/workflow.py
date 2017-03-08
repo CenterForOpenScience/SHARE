@@ -116,9 +116,9 @@ class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
             return RawData.objects.filter(
                 normalizeddata__changeset__changes__target_id=object_id,
                 normalizeddata__changeset__changes__target_type__model=object_type
-            ).distinct('id')
+            ).distinct('id').select_related('source')
         else:
-            return RawData.objects.all()
+            return RawData.objects.all().select_related('source')
 
 
 class V1DataView(views.APIView):
