@@ -309,3 +309,23 @@ class TestPostProviderRegistration:
     @pytest.mark.django_db
     def test_get_data(self, client):
         assert client.get('/api/v2/sourceregistrations/').status_code == 401
+
+    @pytest.mark.django_db
+    def test_get_data_authorized(self, trusted_user, client):
+        resp = client.get(
+            '/api/v2/sourceregistrations/',
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION='Bearer {}'.format(trusted_user.accesstoken_set.first()),
+        )
+
+        assert resp.status_code == 200
+        assert resp.json() == {
+            'data': [],
+            'links': {
+                'prev': None,
+                'next': None,
+                'last': 'http://testserver/api/v2/sourceregistrations/?page=1',
+                'first': 'http://testserver/api/v2/sourceregistrations/?page=1',
+            },
+            'meta': {'pagination': {'count': 0, 'page': 1, 'pages': 1}}
+        }
