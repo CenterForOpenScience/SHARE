@@ -41,7 +41,7 @@ class Query(graphene.ObjectType):
     @graphene.resolve_only_args
     def resolve_sources(self, limit=25, offset=0):
         # TODO Long title will need an index
-        return models.ShareUser.objects.exclude(robot='').exclude(long_title='').order_by('long_title')[offset:offset + limit]
+        return models.ShareUser.objects.exclude(long_title='').exclude(favicon='').order_by('long_title')[offset:offset + limit]
 
     def resolve_search(self, args, context, info):
         args.setdefault('from', 0)
