@@ -66,14 +66,13 @@ class ChangeManager(FuzzyCountManager):
             'target_version_type': ContentType.objects.get_for_model(node.model.VersionModel, for_concrete_model=True),
         }
 
-        target = node.get_instance()
-        if not target:
+        if not node.instance:
             assert not node.is_merge
             attrs['type'] = Change.TYPE.create
         else:
             attrs['type'] = Change.TYPE.merge if node.is_merge else Change.TYPE.update
-            attrs['target_id'] = target.pk
-            attrs['target_version_id'] = target.version.pk
+            attrs['target_id'] = node.instance.pk
+            attrs['target_version_id'] = node.instance.version.pk
 
         change = Change(**attrs)
 
