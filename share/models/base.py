@@ -19,7 +19,6 @@ from share.models import fields
 from share.models.change import Change
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.sql import ShareObjectManager
-from share.util import IDObfuscator
 
 
 class ShareObjectVersion(models.Model):
@@ -41,7 +40,7 @@ class ShareObjectMeta(ModelBase):
     # This if effectively the "ShareBaseClass"
     # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
     share_attrs = {
-        'change': lambda: models.ForeignKey(Change, related_name='affected_%(class)s', editable=False, on_delete=DATABASE_CASCADE),
+        'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False, on_delete=DATABASE_CASCADE),
         'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True, help_text=_('The date this record was modified by SHARE.')),
         'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False, help_text=_('The date of ingress to SHARE.')),
     }
@@ -170,9 +169,6 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
 
     class Meta:
         abstract = True
-
-    def __repr__(self):
-        return '<{} {} ({})>'.format(self._meta.object_name, self.id, IDObfuscator.encode(self))
 
     def administrative_change(self, **kwargs):
         from share.models import Change

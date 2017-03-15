@@ -95,8 +95,6 @@ class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDataDetailViewSet, 
 
         filter_kwargs = {self.lookup_field: decoded_pk}
         obj = get_object_or_404(queryset, **filter_kwargs)
-        if obj.same_as_id:
-            obj = obj._meta.concrete_model.objects.get_canonical(obj.id)
 
         # May raise a permission denied
         self.check_object_permissions(self.request, obj)

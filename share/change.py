@@ -3,13 +3,12 @@ import copy
 import logging
 import pendulum
 import datetime
-from functools import reduce
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 
 from share.disambiguation import GraphDisambiguator
-from share.util import TopologicalSorter
+from share.util import TopographicalSorter
 from share.util import IDObfuscator
 
 
@@ -85,7 +84,7 @@ class ChangeGraph:
             self.nodes.append(self._lookup[id, type])
 
             for k, v in tuple(blob.items()):
-                if isinstance(v, dict) and k not in {'extra', 'same_as'} and not k.startswith('@'):
+                if isinstance(v, dict) and k != 'extra' and not k.startswith('@'):
                     related = (v.pop('@id'), v.pop('@type').lower())
                     hints[(id, type), related] = k
                     relations.add(((id, type), related))
@@ -105,17 +104,17 @@ class ChangeGraph:
             self.relations[self._lookup[subject]].add(edge)
             self.relations[self._lookup[related]].add(edge)
 
-        self.sort_nodes()
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def prune(self):
         gd = GraphDisambiguator()
         gd.prune(self)
-        self.sort_nodes()
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def disambiguate(self):
         gd = GraphDisambiguator()
         gd.find_instances(self)
-        self.sort_nodes()
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def normalize(self):
         # Freeze nodes to avoid oddities with inserting and removing nodes
@@ -141,7 +140,7 @@ class ChangeGraph:
         if disambiguate:
             gd.find_instances(self)
 
-        self.sort_nodes()
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def get(self, id, type):
         return self._lookup[(id, type)]
@@ -203,11 +202,6 @@ class ChangeGraph:
             for n in sorted(self.nodes, key=lambda x: x.type + str(x.id))
         ]
 
-    def sort_nodes(self):
-        # Put merge nodes first, then everything else sorted topologically
-        nonmerges, merges = reduce(lambda lists, n: lists[n.is_merge].append(n) or lists, self.nodes, ([], []))
-        self.nodes = merges + TopologicalSorter(nonmerges, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
-
 
 class ChangeNode:
 
@@ -240,7 +234,7 @@ class ChangeNode:
 
     @property
     def is_merge(self):
-        return 'same_as' in self.attrs
+        return False  # TODO
 
     @property
     def is_blank(self):
@@ -248,7 +242,7 @@ class ChangeNode:
 
     @property
     def is_skippable(self):
-        return self.instance and not self.change
+        return self.is_merge or (self.instance and not self.change)
 
     @property
     def change(self):

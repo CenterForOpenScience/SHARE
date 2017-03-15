@@ -4,21 +4,14 @@ import pendulum
 from django.db.models import Q, DateTimeField
 from django.core.exceptions import ValidationError
 
-from share.util import DictHashingDict, IDObfuscator
+from share.util import DictHashingDict
 
 __all__ = ('GraphDisambiguator', )
 
 logger = logging.getLogger(__name__)
 
 
-class MergeLimitError(Exception):
-    pass
-
-
 class GraphDisambiguator:
-
-    # Raise an error if at least this many objects are about to be merged together.
-    MERGE_LIMIT = 5
 
     def __init__(self):
         self._index = self.NodeIndex()
@@ -38,7 +31,6 @@ class GraphDisambiguator:
         changed = True
         # Sort by type and id as well to get consitent sorting
         nodes = sorted(change_graph.nodes, key=lambda x: (self._disambiguweight(x), x.type, x.id), reverse=True)
-        finished_nodes = set()
 
         while changed:
             changed = False
@@ -46,7 +38,7 @@ class GraphDisambiguator:
             self._index.clear()
 
             for n in tuple(nodes):
-                if n.is_merge or n in finished_nodes:
+                if n.is_merge or (find_instances and n.instance):
                     continue
                 matches = self._index.get_matches(n)
                 if len(matches) > 1:
@@ -72,19 +64,21 @@ class GraphDisambiguator:
 
                 if find_instances:
                     # look for matches in the database
-                    instances = self._instances_for_node(n)
-                    if instances:
-                        if n.instance:
-                            instances = list(set(instances + [n.instance]))
-                        if len(instances) == 1:
-                            n.instance = instances[0]
-                            logger.debug('Disambiguated %s to %r', n, n.instance)
-                        elif len(instances) >= self.MERGE_LIMIT:
-                            raise MergeLimitError('Too many matches! {} matched {} instances. Something is probably wrong.\nMatches: {}'.format(n, len(instances), instances))
-                        else:
-                            self._emit_merges(n, instances)
-                        finished_nodes.add(n)
+                    instance = self._instance_for_node(n)
+                    # if instance and isinstance(instance, list):
+                    #     same_type = [i for i in instance if isinstance(i, n.model)]
+                    #     if not same_type:
+                    #         logger.error('Found multiple matches for %s, and none were of type %s: %s', n, n.model, instance)
+                    #         raise NotImplementedError('Multiple matches found', n, instance)
+                    #     elif len(same_type) > 1:
+                    #         logger.error('Found multiple matches of type %s for %s: %s', n.model, n, same_type)
+                    #         raise NotImplementedError('Multiple matches found', n, same_type)
+                    #     logger.warning('Found multiple matches for %s, but only one of type %s, fortunately.', n, n.model)
+                    #     instance = same_type.pop()
+                    if instance:
                         changed = True
+                        n.instance = instance
+                        logger.debug('Disambiguated %s to %s', n, instance)
                     elif n.type == 'subject':
                         raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
 
@@ -99,12 +93,12 @@ class GraphDisambiguator:
         fk_count = sum(1 for f in node.model._meta.get_fields() if f.editable and (f.many_to_one or f.one_to_one) and f.name not in ignored)
         return fk_count if fk_count == 1 else -fk_count
 
-    def _instances_for_node(self, node):
+    def _instance_for_node(self, node):
         info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
 
         if not info.all and not info.any:
-            return []
+            return None
 
         all_query = Q()
         for k, v in info.all:
@@ -112,7 +106,7 @@ class GraphDisambiguator:
             if k and v:
                 all_query &= Q(**{k: v})
             else:
-                return []
+                return None
 
         queries = []
         for k, v in info.any:
@@ -121,15 +115,34 @@ class GraphDisambiguator:
                 queries.append(all_query & Q(**{k: v}))
 
         if (info.all and not all_query.children) or (info.any and not queries):
-            return []
+            return None
 
         if info.matching_types:
             all_query &= Q(type__in=info.matching_types)
 
-        unmerged_query = Q(same_as__isnull=True) if hasattr(concrete_model, 'same_as') else Q()
+        constrain = [Q()]
+        if hasattr(node.model, '_typedmodels_type'):
+            constrain.append(Q(type__in=node.model.get_types()))
+            constrain.append(Q(type=node.model._typedmodels_type))
 
-        sql, params = zip(*[concrete_model.objects.filter(unmerged_query & all_query & query).query.sql_with_params() for query in queries or [Q()]])
-        return list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT {};'.format(self.MERGE_LIMIT), sum(params, ())))
+        for q in constrain:
+            sql, params = zip(*[concrete_model.objects.filter(all_query & query & q).query.sql_with_params() for query in queries or [Q()]])
+            found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT 2;', sum(params, ())))
+
+            if not found:
+                logger.debug('No %ss found for %s %s', concrete_model, all_query & q, queries)
+                return None
+            if len(found) == 1:
+                return found[0]
+            if all_query.children:
+                logger.warning('Multiple %ss returned for %s (The main query) bailing', concrete_model, all_query)
+                break
+            if all('__' in str(query) for query in queries):
+                logger.warning('Multiple %ss returned for %s (The any query) bailing', concrete_model, queries)
+                break
+
+        logger.error('Could not disambiguate %s. Too many results found from %s %s', node.model, all_query, queries)
+        raise NotImplementedError('Multiple {0}s found'.format(node.model))
 
     def _query_pair(self, key, value):
         try:
@@ -162,20 +175,6 @@ class GraphDisambiguator:
             Person.normalize(replacement, replacement.graph)
 
         source.graph.replace(source, replacement)
-
-    def _emit_merges(self, node, instances):
-        *to_merge, newest = sorted(instances, key=lambda n: n.date_modified)
-        node.instance = newest
-        newest_id = IDObfuscator.encode(newest)
-        for n in to_merge:
-            merge_node = node.graph.create(
-                IDObfuscator.encode(n),
-                n._meta.model_name,
-                {'same_as': {'@id': newest_id, '@type': newest._meta.model_name}}
-            )
-            merge_node.instance = n
-
-        logger.debug('Disambiguated %s to %s. Merging all into %r.', node, instances, newest)
 
     class NodeIndex:
         def __init__(self):
