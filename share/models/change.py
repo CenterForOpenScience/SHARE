@@ -154,10 +154,6 @@ class Change(models.Model):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
         logger.debug('Accepting change node ({}, {})'.format(ContentType.objects.get_for_id(self.model_type_id), self.node_id))
-
-        # Verify this is pointing at the right object
-        if self.target_id:
-            self.target = self.target_type.model_class().objects.get_canonical(self.target_id)
         ret = self._accept(save)
 
         if save:

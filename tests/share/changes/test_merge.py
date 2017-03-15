@@ -29,7 +29,7 @@ initial_works = [
         tags=[Tag(name='Ghosts N Stuff')],
         identifiers=[WorkIdentifier(3)],
         related_agents=[
-            Person(1),
+            Person(5),
             Person(6),
             Person(7, identifiers=[AgentIdentifier(2)]),
             Organization(8, name='Aperture Science'),
@@ -84,12 +84,11 @@ def work_snapshot(work):
     }
     return {
         **attributes,
-        'concrete_type': 'share.abstractcreativework',
-        'tags': {t.name for t in work.tags.filter(same_as_id__isnull=True)},
-        'identifiers': {i.uri for i in work.identifiers.filter(same_as_id__isnull=True)},
-        'related_agents': {(r.type, r.agent.id) for r in work.agent_relations.filter(same_as_id__isnull=True)},
-        'incoming_related_works': {(r.type, r.subject.id) for r in work.incoming_creative_work_relations.filter(same_as_id__isnull=True)},
-        'outgoing_related_works': {(r.type, r.related.id) for r in work.outgoing_creative_work_relations.filter(same_as_id__isnull=True)},
+        'tags': {t.name for t in work.tags.all()},
+        'identifiers': {i.uri for i in work.identifiers.all()},
+        'related_agents': {(r.type, r.agent.name) for r in work.agent_relations.all()},
+        'incoming_related_works': {(r.type, r.subject.title) for r in work.incoming_creative_work_relations.all()},
+        'outgoing_related_works': {(r.type, r.related.title) for r in work.outgoing_creative_work_relations.all()},
     }
 
 
@@ -103,30 +102,14 @@ def agent_snapshot(agent):
     }
     return {
         **attributes,
-        'concrete_type': 'share.abstractagent',
-        'identifiers': {i.uri for i in agent.identifiers.filter(same_as_id__isnull=True)},
-        'related_works': {(r.type, r.creative_work.id) for r in agent.work_relations.filter(same_as_id__isnull=True)},
-        'incoming_related_agents': {(r.type, r.subject.id) for r in agent.incoming_agent_relations.filter(same_as_id__isnull=True)},
-        'outgoing_related_agents': {(r.type, r.related.id) for r in agent.outgoing_agent_relations.filter(same_as_id__isnull=True)},
+        'identifiers': {i.uri for i in agent.identifiers.all()},
+        'related_works': {(r.type, r.creative_work.title) for r in agent.work_relations.all()},
+        'incoming_related_agents': {(r.type, r.subject.title) for r in agent.incoming_agent_relations.all()},
+        'outgoing_related_agents': {(r.type, r.related.title) for r in agent.outgoing_agent_relations.all()},
     }
 
 
-def resolve_snapshot(snapshot):
-    def resolve_tuples(tuples, model):
-        return {(t[0], model.objects.get_canonical(t[1]).id) for t in tuples}
-    if snapshot['concrete_type'] == 'share.abstractcreativework':
-        snapshot['related_agents'] = resolve_tuples(snapshot['related_agents'], models.Agent)
-        snapshot['incoming_related_works'] = resolve_tuples(snapshot['incoming_related_works'], models.CreativeWork)
-        snapshot['outgoing_related_works'] = resolve_tuples(snapshot['outgoing_related_works'], models.CreativeWork)
-    elif snapshot['concrete_type'] == 'share.abstractagent':
-        snapshot['related_works'] = resolve_tuples(snapshot['related_works'], models.CreativeWork)
-        snapshot['incoming_related_agents'] = resolve_tuples(snapshot['incoming_related_agents'], models.Agent)
-        snapshot['outgoing_related_agents'] = resolve_tuples(snapshot['outgoing_related_agents'], models.Agent)
-
-
 def merge_snapshots(older, newer):
-    resolve_snapshot(older)
-    resolve_snapshot(newer)
     merged = {}
     for k, v in newer.items():
         if isinstance(v, set):
@@ -232,34 +215,6 @@ class TestMergingObjects:
         merged_snapshot = merge_snapshots(from_snapshot, into_snapshot)
         assert merged_snapshot == work_snapshot(into_work)
 
-    def test_implicitly_merge_with_same_existing_relations(self, Graph):
-        setup(Graph)
-        tag_name = 'science'
-        from_work, into_work = models.CreativeWork.objects.filter(tags__name=tag_name).order_by('date_modified')[:2]
-        from_snapshot = work_snapshot(from_work)
-        into_snapshot = work_snapshot(into_work)
-
-        merge_cg = ChangeGraph(Graph(
-            CreativeWork(
-                sparse=True,
-                id='_:foo',
-                identifiers=[
-                    WorkIdentifier(uri=from_work.identifiers.first().uri),
-                    WorkIdentifier(uri=into_work.identifiers.first().uri),
-                ],
-                tags=[
-                    Tag(name=tag_name),
-                ]
-            )
-        ))
-        merge_cg.process()
-        ChangeSet.objects.from_graph(merge_cg, NormalizedDataFactory().id).accept()
-
-        from_work.refresh_from_db()
-        assert from_work.same_as_id == into_work.id
-        merged_snapshot = merge_snapshots(from_snapshot, into_snapshot)
-        assert merged_snapshot == work_snapshot(into_work)
-
     def test_implicitly_merge_several_works(self, Graph):
         works = setup(Graph)
         snapshots = [work_snapshot(w) for w in works]
@@ -341,28 +296,6 @@ class TestMergingObjects:
         from_agent.refresh_from_db()
         assert from_agent.same_as_id == into_agent.id
         assert merge_snapshots(from_snapshot, into_snapshot) == agent_snapshot(into_agent)
-
-    def test_merge_agents_across_works(self, Graph):
-        setup(Graph)
-        merge_input = Graph(
-            CreativeWork(
-                sparse=True,
-                id='_:faoeu',
-                identifiers=[WorkIdentifier(3)],
-                related_agents=[
-                    Person(1, identifiers=[AgentIdentifier(1)]),
-                ]
-            )
-        )
-        agent_uri = next(n['uri'] for n in merge_input if n['@type'] == 'agentidentifier')
-        agent = models.Agent.objects.get(identifiers__uri=agent_uri)
-        assert agent.related_works.count() == 1
-
-        merge_cg = ChangeGraph(merge_input)
-        merge_cg.process()
-        ChangeSet.objects.from_graph(merge_cg, NormalizedDataFactory().id).accept()
-        agent = models.Agent.objects.get_canonical(agent.id)
-        assert agent.related_works.count() == 2
 
     def test_merged_names_not_unique(self, Graph):
         from_org, into_org = setup(Graph, filter_type=models.Organization)[:2]
