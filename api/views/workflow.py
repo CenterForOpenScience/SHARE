@@ -36,7 +36,7 @@ class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProviderSerializer
 
     def get_queryset(self):
-        queryset = ShareUser.objects.exclude(robot='').exclude(long_title='')
+        queryset = ShareUser.objects.exclude(long_title='').exclude(favicon='')
         sort = self.request.query_params.get("sort")
         if sort:
             return queryset.order_by(sort)

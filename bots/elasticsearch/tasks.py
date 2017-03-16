@@ -121,13 +121,13 @@ class IndexSourceTask(AppTask):
     def bulk_stream(self, es_index):
         ShareUser = apps.get_model('share.ShareUser')
         opts = {'_index': es_index, '_type': 'sources'}
-        for source in ShareUser.objects.exclude(robot='').exclude(long_title='').all():
-            yield {'_op_type': 'index', '_id': source.robot, **self.serialize(source), **opts}
+        for source in ShareUser.objects.exclude(long_title='').exclude(favicon='').all():
+            yield {'_op_type': 'index', '_id': source.username, **self.serialize(source), **opts}
 
     def serialize(self, source):
         return {
-            'id': source.robot,
+            'id': source.username,
             'type': 'source',
             'name': safe_substr(source.long_title),
-            'short_name': safe_substr(source.robot)
+            'short_name': safe_substr(source.username)
         }
