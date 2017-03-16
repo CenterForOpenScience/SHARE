@@ -276,8 +276,27 @@ class ChangeNode:
         if self.instance and type(self.instance) is not self.model:
             changes['type'] = self.model._meta.label_lower
 
+        # Hacky fix for SHARE-604
+        # If the given date_updated is older than the current one, don't accept any changes that would overwrite newer changes
+        ignore_attrs = set()
+        if issubclass(self.model, apps.get_model('share', 'creativework')) and 'date_updated' in self.attrs and self.instance.date_updated:
+            date_updated = pendulum.parse(self.attrs['date_updated'])
+            if date_updated < self.instance.date_updated:
+                logger.warning('%s appears to be from the past, change date_updated (%s) is older than the current (%s). Ignoring conflicting changes.', self, self.attrs['date_updated'], self.instance.date_updated)
+                # Just in case
+                ignore_attrs.update(self.instance.change.change.keys())
+
+                # Go back until we find a change that is older than us
+                for version in self.instance.versions.select_related('change').all():
+                    if not version.date_updated or date_updated > version.date_updated:
+                        break
+                    ignore_attrs.update(version.change.change.keys())
+
         attrs = {}
         for k, v in self.attrs.items():
+            if k in ignore_attrs:
+                logger.debug('Ignoring potentially conflicting change to "%s"', k)
+                continue
             old_value = getattr(self.instance, k)
             if isinstance(old_value, datetime.datetime):
                 v = pendulum.parse(v)

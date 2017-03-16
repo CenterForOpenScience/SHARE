@@ -24,8 +24,8 @@ The technical side of SHARE has many pieces that you can interact with:
    - Corrections and Updates
 
 .. _`/api/v2/search/creativeworks/_search`: https://share.osf.io/api/v2/search/creativeworks/_search
-.. _Ember application: /ember_app.html
-.. _elasticsearch docs: /elasticsearch.html
+.. _Ember application: /page/ember_app.html
+.. _elasticsearch docs: /page/elasticsearch.html
 
 Guide
 =====
