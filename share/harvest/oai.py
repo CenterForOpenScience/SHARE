@@ -89,7 +89,7 @@ class OAIHarvester(Harvester, metaclass=abc.ABCMeta):
         parsed = etree.fromstring(resp.content, parser=etree.XMLParser(recover=True))
 
         error = parsed.xpath('//ns0:error', namespaces=self.namespaces)
-        if error:
+        if error and (len(error) > 1 or error[0].get('code') != 'noRecordsMatch'):
             raise OAIHarvestException(error[0].get('code'), error[0].text)
 
         records = parsed.xpath('//ns0:record', namespaces=self.namespaces)
