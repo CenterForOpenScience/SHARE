@@ -66,29 +66,31 @@ class IDObfuscator:
         return int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
 
     @classmethod
-    def load(cls, id, *args, canonical=True):
+    def resolve(cls, id):
         model, pk = cls.decode(id)
-        try:
-            if canonical:
-                return model.objects.get_canonical(id=pk)
-            else:
-                return model.objects.get(id=pk)
-        except model.DoesNotExist:
-            if args:
-                return args[0]
-            raise
+        return model.objects.get(pk=pk)
 
     @classmethod
     def resolver(cls, self, args, context, info):
-        return cls.load(args.get('id', ''))
+        return cls.resolve(args.get('id', ''))
+
+    @classmethod
+    def load(cls, id, *args):
+        model, pk = cls.decode(id)
+        try:
+            return model.objects.get(pk=pk)
+        except model.NotFoundError:
+            if args:
+                return args[0]
+            raise
 
 
 class CyclicalDependency(Exception):
     pass
 
 
-class TopologicalSorter:
-    """Sort a list of nodes topologically, so a node is always preceded by its dependencies"""
+class TopographicalSorter:
+    """Sort a list of nodes topographically, so a node is always preceded by its dependencies"""
 
     # `nodes`: Iterable of objects
     # `dependencies`: Callable that takes a single argument (a node) and returns an iterable of its dependent nodes (or keys, if `key` is given)

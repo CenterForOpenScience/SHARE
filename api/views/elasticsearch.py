@@ -34,7 +34,7 @@ class ElasticSearchView(views.APIView):
     def post(self, request, *args, url_bits='', **kwargs):
         # Disallow posting to any non-search endpoint
         bits = list(filter(None, url_bits.split('/')))
-        if len(bits) > 2 or bits[-1] not in ('_search', '_suggest'):
+        if len(bits) > 2 or bits[-1] not in ('_count', '_search', '_suggest'):
             return http.HttpResponseBadRequest()
         return self._handle_request(request, url_bits)
 

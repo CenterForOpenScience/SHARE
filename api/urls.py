@@ -7,7 +7,6 @@ from rest_framework.routers import DefaultRouter
 from graphene_django.views import GraphQLView
 
 from share import models
-from share.graphql.middleware import SameAsMiddleware
 
 from api import views
 from api.pagination import FuzzyPageNumberPagination
@@ -97,7 +96,7 @@ urlpatterns = [
     url(r'status/?', views.ServerStatusView.as_view(), name='status'),
     url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
     url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
-    url(r'graph/?', GraphQLView.as_view(graphiql=True, middleware=[SameAsMiddleware])),
+    url(r'graph/?', GraphQLView.as_view(graphiql=True)),
     url(r'userinfo/?', ensure_csrf_cookie(views.ShareUserView.as_view()), name='userinfo'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
 

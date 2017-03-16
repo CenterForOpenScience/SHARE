@@ -1,6 +1,16 @@
 # Change Log
 
-## [2.4.0] - 2016-02-10
+## [2.5.0] - 2017-03-15
+## Added
+* Title now has an "exact" multi-field in elasticsearch
+* A robot that archives old succeeded celery jobs
+* New Harvesters
+  * Scholarly Commons @ JMU
+
+## Fixed
+* Compensate for potential race conditions with the push API
+
+## [2.4.0] - 2017-02-10
 ## Added
 * New Harvesters
   * Research Registry Harvester
@@ -15,7 +25,7 @@
 ## Fixed
 * Removed "Notify" from the page title in the browsable API
 
-## [2.3.0] - 2016-02-02
+## [2.3.0] - 2017-02-02
 ## Added
 * Support for OSF Registries
 * New Harvesters

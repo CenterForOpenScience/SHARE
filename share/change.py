@@ -3,13 +3,12 @@ import copy
 import logging
 import pendulum
 import datetime
-from functools import reduce
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 
 from share.disambiguation import GraphDisambiguator
-from share.util import TopologicalSorter
+from share.util import TopographicalSorter
 from share.util import IDObfuscator
 
 
@@ -85,7 +84,7 @@ class ChangeGraph:
             self.nodes.append(self._lookup[id, type])
 
             for k, v in tuple(blob.items()):
-                if isinstance(v, dict) and k not in {'extra', 'same_as'} and not k.startswith('@'):
+                if isinstance(v, dict) and k != 'extra' and not k.startswith('@'):
                     related = (v.pop('@id'), v.pop('@type').lower())
                     hints[(id, type), related] = k
                     relations.add(((id, type), related))
@@ -105,17 +104,17 @@ class ChangeGraph:
             self.relations[self._lookup[subject]].add(edge)
             self.relations[self._lookup[related]].add(edge)
 
-        self.sort_nodes()
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def prune(self):
         gd = GraphDisambiguator()
         gd.prune(self)
-        self.sort_nodes()
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def disambiguate(self):
         gd = GraphDisambiguator()
         gd.find_instances(self)
-        self.sort_nodes()
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def normalize(self):
         # Freeze nodes to avoid oddities with inserting and removing nodes
@@ -141,7 +140,7 @@ class ChangeGraph:
         if disambiguate:
             gd.find_instances(self)
 
-        self.sort_nodes()
+        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def get(self, id, type):
         return self._lookup[(id, type)]
@@ -203,26 +202,19 @@ class ChangeGraph:
             for n in sorted(self.nodes, key=lambda x: x.type + str(x.id))
         ]
 
-    def sort_nodes(self):
-        # Put merge nodes first, then everything else sorted topologically
-        nonmerges, merges = reduce(lambda lists, n: lists[n.is_merge].append(n) or lists, self.nodes, ([], []))
-        self.nodes = merges + TopologicalSorter(nonmerges, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
-
 
 class ChangeNode:
 
     @property
     def id(self):
-        instance = self.get_instance()
-        return IDObfuscator.encode(instance) if instance else self._id
+        return (self.instance and IDObfuscator.encode(self.instance)) or self._id
 
     @property
     def type(self):
         model = apps.get_app_config('share').get_model(self._type)
-        instance = self.get_instance()
-        if not instance or len(model.mro()) >= len(type(instance).mro()):
+        if not self.instance or len(model.mro()) >= len(type(self.instance).mro()):
             return self._type
-        return instance._meta.model_name.lower()
+        return self.instance._meta.model_name.lower()
 
     @property
     def ref(self):
@@ -231,19 +223,18 @@ class ChangeNode:
     @property
     def model(self):
         model = apps.get_model('share', self._type)
-        instance = self.get_instance()
-        if not instance or len(model.mro()) >= len(type(instance).mro()):
+        if not self.instance or len(model.mro()) >= len(type(self.instance).mro()):
             return model
         # Special case to allow creators to be downgraded to contributors
         # This allows OSF users to mark project contributors as bibiliographic or non-bibiliographic
         # and have that be reflected in SHARE
         if issubclass(model, apps.get_model('share', 'contributor')):
             return model
-        return type(instance)
+        return type(self.instance)
 
     @property
     def is_merge(self):
-        return 'same_as' in self.attrs
+        return False  # TODO
 
     @property
     def is_blank(self):
@@ -251,23 +242,22 @@ class ChangeNode:
 
     @property
     def is_skippable(self):
-        return self.instances and not self.change
+        return self.is_merge or (self.instance and not self.change)
 
     @property
     def change(self):
         changes, relations = {}, {}
-        instance = self.get_instance()
 
         extra = copy.deepcopy(self.extra)
         if self.namespace:
-            if self.namespace and getattr(instance, 'extra', None):
+            if self.namespace and getattr(self.instance, 'extra', None):
                 # NOTE extra changes are only diffed at the top level
-                instance.extra.data.setdefault(self.namespace, {})
+                self.instance.extra.data.setdefault(self.namespace, {})
                 changes['extra'] = {
                     k: v
                     for k, v in extra.items()
-                    if k not in instance.extra.data[self.namespace]
-                    or instance.extra.data[self.namespace][k] != v
+                    if k not in self.instance.extra.data[self.namespace]
+                    or self.instance.extra.data[self.namespace][k] != v
                 }
             else:
                 changes['extra'] = extra
@@ -283,21 +273,21 @@ class ChangeNode:
         if self.is_blank:
             return {**changes, **self.attrs, **relations}
 
-        if instance and type(instance) is not self.model:
+        if self.instance and type(self.instance) is not self.model:
             changes['type'] = self.model._meta.label_lower
 
         # Hacky fix for SHARE-604
         # If the given date_updated is older than the current one, don't accept any changes that would overwrite newer changes
         ignore_attrs = set()
-        if issubclass(self.model, apps.get_model('share', 'creativework')) and 'date_updated' in self.attrs and instance.date_updated:
+        if issubclass(self.model, apps.get_model('share', 'creativework')) and 'date_updated' in self.attrs and self.instance.date_updated:
             date_updated = pendulum.parse(self.attrs['date_updated'])
-            if date_updated < instance.date_updated:
-                logger.warning('%s appears to be from the past, change date_updated (%s) is older than the current (%s). Ignoring conflicting changes.', self, self.attrs['date_updated'], instance.date_updated)
+            if date_updated < self.instance.date_updated:
+                logger.warning('%s appears to be from the past, change date_updated (%s) is older than the current (%s). Ignoring conflicting changes.', self, self.attrs['date_updated'], self.instance.date_updated)
                 # Just in case
-                ignore_attrs.update(instance.change.change.keys())
+                ignore_attrs.update(self.instance.change.change.keys())
 
                 # Go back until we find a change that is older than us
-                for version in instance.versions.select_related('change').all():
+                for version in self.instance.versions.select_related('change').all():
                     if not version.date_updated or date_updated > version.date_updated:
                         break
                     ignore_attrs.update(version.change.change.keys())
@@ -307,7 +297,7 @@ class ChangeNode:
             if k in ignore_attrs:
                 logger.debug('Ignoring potentially conflicting change to "%s"', k)
                 continue
-            old_value = getattr(instance, k)
+            old_value = getattr(self.instance, k)
             if isinstance(old_value, datetime.datetime):
                 v = pendulum.parse(v)
             if v != old_value:
@@ -320,25 +310,16 @@ class ChangeNode:
         self.graph = graph
         self._id = id
         self._type = type.lower()
-        self.instances = set()
+        self.instance = None
         self.attrs = attrs
         self.extra = attrs.pop('extra', {})
         self.context = attrs.pop('@context', {})
         self.namespace = namespace
 
         if not self.is_blank:
-            instance = IDObfuscator.load(self.id, None)
-            if not instance or instance._meta.concrete_model is not self.model._meta.concrete_model:
+            self.instance = IDObfuscator.load(self.id, None)
+            if not self.instance or self.instance._meta.concrete_model is not self.model._meta.concrete_model:
                 raise UnresolvableReference((self.id, self.type))
-            self.instances.add(instance)
-
-    def get_instance(self):
-        try:
-            return max(self.instances, key=lambda i: i.date_modified, default=None)
-        except AttributeError:
-            if len(self.instances) == 1:
-                return next(i for i in self.instances)
-            raise
 
     def related(self, name=None, forward=True, backward=True):
         edges = tuple(
@@ -365,13 +346,12 @@ class ChangeNode:
             name = edge.name if edge.subject == self else edge.remote_name
             node = edge.related if edge.subject == self else edge.subject
             many = edge.field.one_to_many if edge.subject == self else edge.field.remote_field.one_to_many
-            instance = node.get_instance()
-            if not instance:
+            if not node.instance:
                 continue
             if many:
-                relations.setdefault(name, []).append(instance.pk)
+                relations.setdefault(name, []).append(node.instance.pk)
             else:
-                relations[name] = instance.pk
+                relations[name] = node.instance.pk
 
         return {**self.attrs, **relations}
 
