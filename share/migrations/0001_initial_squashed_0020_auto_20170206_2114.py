@@ -2594,6 +2594,10 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(create_share_robot_user),
         migrations.RunSQL(
+            "CREATE UNIQUE INDEX share_agent_unique_institution_organization_names ON share_agent (name) WHERE type in ('share.institution', 'share.organization', 'share.consortium');",
+            reverse_sql="DROP INDEX IF EXISTS share_agent_unique_institution_organization_names;"
+        ),
+        migrations.RunSQL(
             sql='CREATE OR REPLACE FUNCTION before_share_extradata_change() RETURNS trigger AS $$\n        DECLARE\n            vid INTEGER;\n        BEGIN\n            INSERT INTO share_extradataversion(persistent_id, action, change_id, data, date_created, date_modified, same_as_id, same_as_version_id) VALUES (NEW.id, TG_OP, NEW.change_id, NEW.data, NEW.date_created, NEW.date_modified, NEW.same_as_id, NEW.same_as_version_id) RETURNING (id) INTO vid;\n            NEW.version_id = vid;\n            RETURN NEW;\n        END;\n        $$ LANGUAGE plpgsql;',
             reverse_sql='DROP FUNCTION before_share_extradata_change();',
         ),
