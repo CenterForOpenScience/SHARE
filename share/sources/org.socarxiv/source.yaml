@@ -1,0 +1,14 @@
+configs:
+- base_url: https://socopen.org/
+  disabled: false
+  earliest_date: null
+  harvester: null
+  label: org.socarxiv
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: org.socarxiv
+  transformer_kwargs: {}
+home_page: https://socopen.org/
+long_title: SocArXiv
+name: org.socarxiv
+user: providers.org.socarxiv

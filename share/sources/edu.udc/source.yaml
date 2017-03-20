@@ -1,0 +1,19 @@
+configs:
+- base_url: http://conservancy.umn.edu/oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.udc
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [com_11299_45272, com_11299_169792, com_11299_166578]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://conservancy.umn.edu/
+long_title: University of Minnesota, Digital Conservancy
+name: edu.udc
+user: providers.edu.udc

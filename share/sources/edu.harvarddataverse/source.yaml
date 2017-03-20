@@ -1,0 +1,15 @@
+configs:
+- base_url: https://dataverse.harvard.edu/api/search/
+  disabled: false
+  earliest_date: null
+  harvester: edu.harvarddataverse
+  harvester_kwargs: {}
+  label: edu.harvarddataverse
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: edu.harvarddataverse
+  transformer_kwargs: {}
+home_page: https://dataverse.harvard.edu
+long_title: Harvard Dataverse
+name: edu.harvarddataverse
+user: providers.edu.harvarddataverse

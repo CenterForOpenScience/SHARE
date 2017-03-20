@@ -27,7 +27,7 @@ def test_build_trigger():
 class TestVersioning:
 
     @pytest.mark.django_db
-    def test_timestamping(share_source, change_ids):
+    def test_timestamping(self, change_ids):
         p = Person(given_name='John', family_name='Doe', change_id=change_ids.get())
         p.save()
 
@@ -43,7 +43,7 @@ class TestVersioning:
         assert created == p.date_created
 
     @pytest.mark.django_db
-    def test_creates_version(share_source, change_ids):
+    def test_creates_version(self, change_ids):
         p = Person(given_name='John', family_name='Doe', change_id=change_ids.get())
         p.save()
         p.refresh_from_db()

@@ -1,0 +1,29 @@
+configs:
+- base_url: https://api.archives-ouvertes.fr/oai/hal/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: fr.archives-ouvertes.hal
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: publication
+    property_list: []
+    type_map: {'info:eu-repo/semantics/ConferenceItem': conferencepaper, 'info:eu-repo/semantics/ConferencePaper': conferencepaper,
+      'info:eu-repo/semantics/ConferencePoster': poster, 'info:eu-repo/semantics/article': article,
+      'info:eu-repo/semantics/bachelorThesis': thesis, 'info:eu-repo/semantics/book': book,
+      'info:eu-repo/semantics/bookPart': book, 'info:eu-repo/semantics/conferenceContribution': conferencepaper,
+      'info:eu-repo/semantics/conferenceObject': conferencepaper, 'info:eu-repo/semantics/conferencePaper': conferencepaper,
+      'info:eu-repo/semantics/conferencePoster': poster, 'info:eu-repo/semantics/conferenceProceedings': conferencepaper,
+      'info:eu-repo/semantics/contributionToPeriodical': article, 'info:eu-repo/semantics/doctoralThesis': thesis,
+      'info:eu-repo/semantics/lecture': presentation, 'info:eu-repo/semantics/masterThesis': thesis,
+      'info:eu-repo/semantics/patent': patent, 'info:eu-repo/semantics/preprint': preprint,
+      'info:eu-repo/semantics/report': report, 'info:eu-repo/semantics/reportPart': report,
+      'info:eu-repo/semantics/studentThesis': thesis, 'info:eu-repo/semantics/workingPaper': workingpaper}
+home_page: https://hal.archives-ouvertes.fr/
+long_title: Hyper Articles en Ligne (HAL)
+name: fr.archives-ouvertes.hal
+user: providers.fr.archives-ouvertes.hal

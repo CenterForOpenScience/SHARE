@@ -1,0 +1,15 @@
+configs:
+- base_url: https://api.springer.com/meta/v1/json
+  disabled: false
+  earliest_date: null
+  harvester: com.springer
+  harvester_kwargs: {}
+  label: com.springer
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: com.springer
+  transformer_kwargs: {}
+home_page: http://www.springer.com/us/
+long_title: Springer
+name: com.springer
+user: providers.com.springer

@@ -1,0 +1,19 @@
+configs:
+- base_url: http://authors.library.caltech.edu/cgi/oai2
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.caltech
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://authors.library.caltech.edu/
+long_title: CaltechAUTHORS
+name: edu.caltech
+user: providers.edu.caltech

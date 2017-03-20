@@ -1,0 +1,15 @@
+configs:
+- base_url: http://elifesciences.org/
+  disabled: false
+  earliest_date: null
+  harvester: org.elife
+  harvester_kwargs: {}
+  label: org.elife
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: org.elife
+  transformer_kwargs: {}
+home_page: http://elifesciences.org/
+long_title: eLife Sciences
+name: org.elife
+user: providers.org.elife

@@ -1,0 +1,19 @@
+configs:
+- base_url: http://uknowledge.uky.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.uky
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://uknowledge.uky.edu
+long_title: UKnowledge @ University of Kentucky
+name: edu.uky
+user: providers.edu.uky

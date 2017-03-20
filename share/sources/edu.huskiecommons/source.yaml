@@ -1,0 +1,19 @@
+configs:
+- base_url: http://commons.lib.niu.edu/oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.huskiecommons
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://commons.lib.niu.edu
+long_title: Huskie Commons @ Northern Illinois University
+name: edu.huskiecommons
+user: providers.edu.huskiecommons

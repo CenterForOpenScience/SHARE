@@ -12,14 +12,13 @@ from api import schemas
 from api.authentication import APIV1TokenBackPortAuthentication
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
-    RawDataSerializer, ShareUserSerializer, ProviderSerializer
-from share.models import RawData, ShareUser, NormalizedData
+    RawDataSerializer, ShareUserSerializer, SourceSerializer
+from share.models import RawData, NormalizedData, Source, SourceConfig, SourceUniqueIdentifier, Transformer
 from share.tasks import DisambiguatorTask
-from share.harvest.harvester import Harvester
-from share.normalize.v1_push import V1Normalizer
+from share.harvest.base import BaseHarvester
 
 
-__all__ = ('NormalizedDataViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'ProviderViewSet', 'V1DataView')
+__all__ = ('NormalizedDataViewSet', 'RawDataViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
 
 
 class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -32,11 +31,11 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
         return [self.request.user, ]
 
 
-class ProviderViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = ProviderSerializer
+class SourceViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = SourceSerializer
 
     def get_queryset(self):
-        queryset = ShareUser.objects.exclude(long_title='').exclude(favicon='')
+        queryset = Source.objects.all()
         sort = self.request.query_params.get("sort")
         if sort:
             return queryset.order_by(sort)
@@ -204,8 +203,6 @@ class V1DataView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        app_label = request.user.username
-
         # store raw data, assuming you can only submit one at a time
         raw = None
         with transaction.atomic():
@@ -214,12 +211,13 @@ class V1DataView(views.APIView):
             except KeyError:
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
-            raw = RawData.objects.store_data(doc_id, Harvester.encode_json(self, prelim_data), request.user, app_label)
+            config = self._get_source_config(request.user)
+            suid, _ = SourceUniqueIdentifier.objects.get_or_create(identifier=doc_id, source_config=config)
+            raw = RawData.objects.store_data(BaseHarvester.encode_json(self, prelim_data), suid)
 
-        # normalize data
-        normalized_data = V1Normalizer({}).normalize(raw.data)
+        transformed_data = config.get_transformer().transform(raw.data)
         data = {}
-        data['data'] = normalized_data
+        data['data'] = transformed_data
         serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():
@@ -228,3 +226,23 @@ class V1DataView(views.APIView):
             return Response({'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
         else:
             return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+
+    def _get_source_config(self, user):
+        config_label = '{}.v1_push'.format(user.username)
+        try:
+            return SourceConfig.objects.get(label=config_label)
+        except SourceConfig.DoesNotExist:
+            source, _ = Source.objects.get_or_create(
+                user=user,
+                defaults={
+                    'name': user.username,
+                    'long_title': user.username,
+                }
+            )
+            config = SourceConfig(
+                label=config_label,
+                source=source,
+                transformer=Transformer.objects.get(key='v1_push'),
+            )
+            config.save()
+            return config

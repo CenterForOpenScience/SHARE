@@ -1,0 +1,15 @@
+configs:
+- base_url: http://130.179.67.140/api/3/action/current_package_list_with_resources
+  disabled: false
+  earliest_date: null
+  harvester: ca.lwbin
+  harvester_kwargs: {}
+  label: ca.lwbin
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: ca.lwbin
+  transformer_kwargs: {}
+home_page: http://130.179.67.140
+long_title: Lake Winnipeg Basin Information Network
+name: ca.lwbin
+user: providers.ca.lwbin

@@ -1,0 +1,28 @@
+configs:
+- base_url: http://connect.biorxiv.org/biorxiv_xml.php
+  disabled: false
+  earliest_date: null
+  harvester: org.biorxiv.rss
+  harvester_kwargs: {}
+  label: org.biorxiv.rss
+  rate_limit_allowance: 1
+  rate_limit_period: 3
+  transformer: org.biorxiv.rss
+  transformer_kwargs: {}
+- base_url: http://biorxiv.org/search/
+  disabled: false
+  earliest_date: null
+  harvester: org.biorxiv
+  harvester_kwargs: {}
+  label: org.biorxiv
+  rate_limit_allowance: 1
+  rate_limit_period: 5
+  transformer: org.biorxiv
+  transformer_kwargs:
+      namespaces:
+          'http://purl.org/rss/1.0/': null
+          'http://purl.org/dc/elements/1.1/': dc
+home_page: http://biorxiv.org/
+long_title: bioRxiv
+name: org.biorxiv.rss
+user: providers.org.biorxiv.rss

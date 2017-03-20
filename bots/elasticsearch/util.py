@@ -59,9 +59,10 @@ def fetch_agent(pks):
                                             , 'related_types', COALESCE(related_types, '{}')))
                 FROM share_agent AS agent
                 LEFT JOIN LATERAL (
-                            SELECT array_agg(source.long_title) AS sources
+                            SELECT array_agg(DISTINCT source.long_title) AS sources
                             FROM share_agent_sources AS throughsources
-                            JOIN share_shareuser AS source ON throughsources.shareuser_id = source.id
+                            JOIN share_shareuser AS shareuser ON throughsources.shareuser_id = shareuser.id
+                            JOIN share_source AS source ON shareuser.id = source.user_id
                             WHERE throughsources.abstractagent_id = agent.id
                             ) AS sources ON TRUE
                 LEFT JOIN LATERAL (
@@ -183,9 +184,10 @@ def fetch_creativework(pks):
                             WHERE identifier.creative_work_id = creativework.id
                             ) AS links ON TRUE
                 LEFT JOIN LATERAL (
-                            SELECT array_agg(source.long_title) AS sources
+                            SELECT array_agg(DISTINCT source.long_title) AS sources
                             FROM share_creativework_sources AS throughsources
-                            JOIN share_shareuser AS source ON throughsources.shareuser_id = source.id
+                            JOIN share_shareuser AS shareuser ON throughsources.shareuser_id = shareuser.id
+                            JOIN share_source AS source ON shareuser.id = source.user_id
                             WHERE throughsources.abstractcreativework_id = creativework.id
                             ) AS sources ON TRUE
                 LEFT JOIN LATERAL (
