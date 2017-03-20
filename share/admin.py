@@ -4,12 +4,21 @@ import importlib
 
 import celery
 
+from django import forms
 from django.apps import apps
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
-from oauth2_provider.models import AccessToken
-from django.utils import timezone
 from django.contrib.admin.views.main import ChangeList
+from django.contrib.admin.widgets import AdminDateWidget
+from django.core import management
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.utils import timezone
+from django.utils.html import format_html
+
+from oauth2_provider.models import AccessToken
 
 from share.robot import RobotAppConfig
 from share.models.celery import CeleryTask
@@ -226,6 +235,71 @@ class HarvestLogAdmin(admin.ModelAdmin):
     status_.allow_tags = True
 
 
+class HarvestForm(forms.Form):
+    start = forms.DateField(widget=AdminDateWidget())
+    end = forms.DateField(widget=AdminDateWidget())
+
+
+class SourceConfigAdmin(admin.ModelAdmin):
+    list_display = ('label', 'source_', 'version', 'disabled', 'source_config_actions')
+    readonly_fields = ('source_config_actions',)
+    list_select_related = ('source',)
+
+    def source_(self, obj):
+        return obj.source.long_title
+
+    def get_urls(self):
+        urls = super().get_urls()
+        return [
+            url(
+                r'^(?P<config_id>.+)/harvest/$',
+                self.admin_site.admin_view(self.harvest),
+                name='source-config-harvest'
+            )
+        ] + urls
+
+    def source_config_actions(self, obj):
+        if obj.harvester_id is None:
+            return None
+        return format_html(
+            '<a class="button" href="{}">Harvest</a>',
+            reverse('admin:source-config-harvest', args=[obj.pk]),
+        )
+    source_config_actions.short_description = 'Actions'
+    source_config_actions.allow_tags = True
+
+    def harvest(self, request, config_id):
+        config = self.get_object(request, config_id)
+        if config.harvester_id is None:
+            raise ValueError('You need a harvester to harvest.')
+
+        if request.method == 'POST':
+            form = HarvestForm(request.POST)
+            if form.is_valid():
+                kwargs = {
+                    'start': form.cleaned_data['start'],
+                    'end': form.cleaned_data['end'],
+                    'async': True,
+                    'ignore_disabled': True
+                }
+                management.call_command('fullharvest', config.label, **kwargs)
+                self.message_user(request, 'Started harvesting {}!'.format(config.label))
+                url = reverse(
+                    'admin:share_harvestlog_changelist',
+                    current_app=self.admin_site.name,
+                )
+                return HttpResponseRedirect(url)
+        else:
+            form = HarvestForm(initial={'start': config.earliest_date, 'end': timezone.now().date()})
+
+        context = self.admin_site.each_context(request)
+        context['opts'] = self.model._meta
+        context['form'] = form
+        context['source_config'] = config
+        context['title'] = 'Harvest {}'.format(config.label)
+        return TemplateResponse(request, 'admin/harvest.html', context)
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -240,5 +314,5 @@ admin.site.register(SiteBanner, SiteBannerAdmin)
 admin.site.register(Harvester)
 admin.site.register(ShareUser)
 admin.site.register(Source)
-admin.site.register(SourceConfig)
+admin.site.register(SourceConfig, SourceConfigAdmin)
 admin.site.register(Transformer)

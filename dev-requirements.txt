@@ -8,3 +8,4 @@ pytest==3.0.6
 behave==1.2.5
 # pulling from github because master has django_assert_num_queries context mgr
 git+https://github.com/pytest-dev/pytest-django.git@master
+django-debug-toolbar==1.7

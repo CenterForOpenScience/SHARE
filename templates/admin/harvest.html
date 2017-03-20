@@ -1,0 +1,52 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_static admin_modify admin_urls %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {# hackily include js required for django admin datepicker #}
+    <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+    {{ form.media }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+        &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+        &rsaquo; <a href="{% url 'admin:share_sourceconfig_change' source_config.id %}">{{ source_config.label }}</a>
+        &rsaquo; Harvest
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+        <form action="" method="POST">
+            {% csrf_token %}
+            {% if form.non_field_errors|length > 0 %}
+                <p class="errornote">
+                    "Please correct the errors below."
+                </p>
+                {{ form.non_field_errors }}
+            {% endif %}
+            <fieldset class="module aligned">
+                {% for field in form %}
+                    <div class="form-row">
+                        {{ field.errors }}
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.field.help_text %}
+                            <p class="help">
+                                {{ field.field.help_text|safe }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </fieldset>
+            <div class="submit-row">
+                <input type="submit" class="default" value="Start Harvest!">
+            </div>
+        </form>
+    </div>
+{% endblock %}

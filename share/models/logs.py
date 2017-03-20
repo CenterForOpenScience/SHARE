@@ -77,8 +77,8 @@ class AbstractBaseLog(models.Model):
         (3, 'succeeded', _('Succeeded')),
         (4, 'rescheduled', _('Rescheduled')),
         (5, 'defunct', _('Defunct')),
-        (5, 'forced', _('Forced')),
-        (7, 'skipped', _('Defunct')),
+        (6, 'forced', _('Forced')),
+        (7, 'skipped', _('Skipped')),
     )
 
     class SkipReasons(enum.Enum):

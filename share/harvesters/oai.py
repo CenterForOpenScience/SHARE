@@ -62,7 +62,7 @@ class OAIHarvester(BaseHarvester):
             for record in records:
                 yield (
                     record.xpath('ns0:header/ns0:identifier', namespaces=self.namespaces)[0].text,
-                    etree.tostring(record),
+                    etree.tostring(record, encoding=str),
                 )
 
             if not token or not records:
@@ -102,4 +102,4 @@ class OAIHarvester(BaseHarvester):
         url.args['verb'] = 'GetRecord'
         url.args['metadataPrefix'] = self.metadata_prefix
         url.args['identifier'] = provider_id
-        return etree.tostring(self.fetch_page(url)[0][0])
+        return etree.tostring(self.fetch_page(url)[0][0], encoding=str)

@@ -9,17 +9,17 @@ class BaseTransformer(metaclass=abc.ABCMeta):
         self.kwargs = kwargs
 
     @abc.abstractmethod
-    def do_transform(self, data):
+    def do_transform(self, datum):
         raise NotImplementedError('Transformers must implement do_transform')
 
-    def transform(self, raw_data):
+    def transform(self, datum):
         source_id = None
-        if not isinstance(raw_data, (str, bytes)):
-            source_id = raw_data.suid.identifier
-            raw_data = raw_data.data
-        if isinstance(raw_data, bytes):
-            raw_data = raw_data.decode()
-        jsonld, root_ref = self.do_transform(raw_data)
+        if not isinstance(datum, (str, bytes)):
+            source_id = datum.suid.identifier
+            datum = datum.datum
+        if isinstance(datum, bytes):
+            datum = datum.decode()
+        jsonld, root_ref = self.do_transform(datum)
 
         if source_id and jsonld and root_ref:
             self.add_source_identifier(source_id, jsonld, root_ref)

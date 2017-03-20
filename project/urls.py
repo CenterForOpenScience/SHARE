@@ -43,12 +43,8 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns.extend([
-        url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL))
-    ])
-    # from django.conf.urls import include, url
-
-    # import debug_toolbar
-    # urlpatterns += [
-    #     url(r'^__debug__/', include(debug_toolbar.urls)),
-    # ]
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
+    ]

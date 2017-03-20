@@ -77,7 +77,7 @@ ul#id_approved_sets {
   margin-right: auto;
 }
 
-input {
+#login-form input {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-right: 10px;
@@ -89,14 +89,14 @@ input {
   margin-top: 30px;
 }
 
-.btn-bottom {
+#login-form .btn-bottom {
   margin-right: 50px;
   margin-top: 20px;
   float: right;
 
 }
 
-textarea {
+#login-form textarea {
   width: 100%;
   padding-top: 8px;
   padding-bottom: 8px;
@@ -105,7 +105,7 @@ textarea {
   border-color: #A3A3A3;
 }
 
-input[type=text] {
+#login-form input[type=text] {
   width: 100%;
   padding-top: 8px;
   padding-bottom: 8px;
@@ -113,20 +113,20 @@ input[type=text] {
   padding-left: 10px;
 }
 
-input[type=url] {
+#login-form input[type=url] {
   width: 100%;
 }
 
-input[type=number] {
+#login-form input[type=number] {
   margin-right: 10px;
   width: 75px;
 }
 
-input[type=email] {
+#login-form input[type=email] {
   width: 100%;
 }
 
-input[type=password] {
+#login-form input[type=password] {
   width: 100%;
 }
 

@@ -36,8 +36,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'c^0=k9r3i2@kh=*=(w2r_-sc#fd!+b23y%)gs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
-TAMANDUA_ENABLED = bool(os.environ.get('TAMANDUA', False))
-
 if 'VERSION' not in os.environ and DEBUG:
     try:
         VERSION = subprocess.check_output(['git', 'describe']).decode().strip()
@@ -62,8 +60,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-
-    # 'debug_toolbar',
 
     'djcelery',
     # 'guardian',
@@ -92,6 +88,10 @@ INSTALLED_APPS = [
     'bots.elasticsearch',
 ]
 
+if DEBUG:
+    INSTALLED_APPS += [
+        'debug_toolbar'
+    ]
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
 USER_SCOPES = 'approve_changesets'
@@ -172,8 +172,11 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
+if DEBUG:
+    MIDDLEWARE_CLASSES += [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ]
 
 INTERNAL_IPS = ['127.0.0.1']
 
