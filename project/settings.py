@@ -238,6 +238,7 @@ INSTALLED_APPS = [
     'providers.org.socarxiv',
     'providers.org.stepic',
     'providers.org.tdar',
+    'providers.org.tdar.mods',
     'providers.org.ttu',
     'providers.org.ucescholarship',
     'providers.org.zenodo',

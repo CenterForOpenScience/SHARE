@@ -22,6 +22,7 @@ class Normalizer(metaclass=abc.ABCMeta):
         'http://purl.org/dc/elements/1.1/': 'dc',
         'http://www.openarchives.org/OAI/2.0/': None,
         'http://www.openarchives.org/OAI/2.0/oai_dc/': None,
+        'http://www.loc.gov/mods/v3': 'mods'
     }
 
     EMPTY_RE = re.compile(r'\s*(|none|empty)\s*', flags=re.I)

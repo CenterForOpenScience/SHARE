@@ -6,6 +6,7 @@ import re
 import threading
 import dateutil
 import urllib
+import types
 
 import rfc3987
 
@@ -484,6 +485,9 @@ class DelegateLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
+        # callable will return True for classes as well as functions
+        if isinstance(self._parser, types.FunctionType):
+            self._parser = self._parser(self)
         return self._parser(obj).parse()
 
 
