@@ -98,7 +98,7 @@ class AbstractBaseLog(models.Model):
 
     source_config = models.ForeignKey('SourceConfig', editable=False, related_name='harvest_logs')
 
-    share_version = models.TextField(default=get_share_version)
+    share_version = models.TextField(default=get_share_version, editable=False)
     source_config_version = models.PositiveIntegerField()
 
     objects = AbstractLogManager()

@@ -44,7 +44,7 @@ if 'VERSION' not in os.environ and DEBUG:
 else:
     VERSION = os.environ.get('VERSION') or 'UNKNOWN'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
+ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(' ') if h]
 
 AUTH_USER_MODEL = 'share.ShareUser'
 

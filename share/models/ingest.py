@@ -272,6 +272,7 @@ class RawDatumManager(FuzzyCountManager):
             Generator[MemoryFriendlyRawDatum]
         """
         done = 0
+        now = timezone.now()
 
         with connection.cursor() as cursor:
             for chunk in chunked(data, 500):
@@ -281,6 +282,8 @@ class RawDatumManager(FuzzyCountManager):
 
                 if not chunk:
                     break
+
+                identifiers = {(identifier, source_config.id) for identifier, datum in chunk}
 
                 cursor.execute('''
                     INSERT INTO "{table}"
@@ -296,14 +299,22 @@ class RawDatumManager(FuzzyCountManager):
                     table=SourceUniqueIdentifier._meta.db_table,
                     identifier=SourceUniqueIdentifier._meta.get_field('identifier').column,
                     source_config=SourceUniqueIdentifier._meta.get_field('source_config').column,
-                    values=', '.join('%s' for _ in range(len(chunk))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
+                    values=', '.join('%s' for _ in range(len(identifiers))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                     fields=', '.join('"{}"'.format(field.column) for field in SourceUniqueIdentifier._meta.concrete_fields),
-                ), [(identifier, source_config.id) for identifier, datum in chunk])
+                ), list(identifiers))  # NOTE: This is a set comprehension
 
+                suids = {}
                 fields = [field.attname for field in SourceUniqueIdentifier._meta.concrete_fields]
-                suids = [SourceUniqueIdentifier.from_db(db, fields, row) for row in cursor.fetchall()]
+                for row in cursor.fetchall():
+                    suid = SourceUniqueIdentifier.from_db(db, fields, row)
+                    suids[suid.pk] = suid
+                    suids[suid.identifier] = suid
 
-                now = timezone.now()
+                raw_data = {}
+                for identifier, datum in chunk:
+                    hash_ = sha256(datum.encode('utf-8')).hexdigest()
+                    raw_data[identifier, hash_] = (suids[identifier].pk, hash_, datum, now, now)
+
                 cursor.execute('''
                     INSERT INTO "{table}"
                         ("{suid}", "{hash}", "{datum}", "{date_created}", "{date_modified}")
@@ -313,7 +324,7 @@ class RawDatumManager(FuzzyCountManager):
                         ("{suid}", "{hash}")
                     DO UPDATE SET
                         "{date_modified}" = %s
-                    RETURNING id, "{hash}", "{date_created}", "{date_modified}"
+                    RETURNING id, "{suid}", "{hash}", "{date_created}", "{date_modified}"
                 '''.format(
                     table=RawDatum._meta.db_table,
                     suid=RawDatum._meta.get_field('suid').column,
@@ -321,16 +332,14 @@ class RawDatumManager(FuzzyCountManager):
                     datum=RawDatum._meta.get_field('datum').column,
                     date_created=RawDatum._meta.get_field('date_created').column,
                     date_modified=RawDatum._meta.get_field('date_modified').column,
-                    values=', '.join('%s' for _ in range(len(chunk))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
-                ), [
-                    (suid.pk, sha256(datum.encode('utf-8')).hexdigest(), datum, now, now)
-                    for suid, (identifier, datum) in zip(suids, chunk)
-                ] + [now])
+                    values=', '.join('%s' for _ in range(len(raw_data))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
+                ), list(raw_data.values()) + [now])
 
-                for suid, row in zip(suids, cursor.fetchall()):
-                    yield MemoryFriendlyRawDatum.from_db(db, ('id', 'suid', 'sha256', 'date_created', 'date_modified'), row[:1] + (suid, ) + row[1:])
+                for row in cursor.fetchall():
+                    yield MemoryFriendlyRawDatum.from_db(db, ('id', 'suid', 'sha256', 'date_created', 'date_modified'), row[:1] + (suids[row[1]], ) + row[2:])
 
-                done += len(chunk)
+                import ipdb; ipdb.set_trace()
+                done += len(raw_data)
                 if limit is not None and done >= limit:
                     break
 

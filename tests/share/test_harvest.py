@@ -224,6 +224,42 @@ class TestHarvestTask:
         else:
             assert mock_ingest_task().apply_async.call_count == 0
 
+    def test_handles_duplicate_values(self, monkeypatch, source_config):
+        fake = Factory.create()
+        mock_ingest_task = mock.Mock()
+        monkeypatch.setattr('share.tasks.NormalizerTask', mock_ingest_task)
+
+        source_config.harvester.get_class().do_harvest.return_value = [(fake.sentence(), str(i * 50)) for i in range(100)] * 3
+
+        harvest(source_config.source.user.id, source_config.label, ingest=False)
+
+        log = HarvestLog.objects.get(source_config=source_config)
+
+        assert log.completions == 1
+        assert log.status == HarvestLog.STATUS.succeeded
+        assert log.raw_data.count() == 100
+
+    def test_handles_duplicate_values_limit(self, monkeypatch, source_config):
+        fake = Factory.create()
+        mock_ingest_task = mock.Mock()
+        monkeypatch.setattr('share.tasks.NormalizerTask', mock_ingest_task)
+
+        padding = [(fake.sentence(), str(i * 50)) for i in range(20)]
+        source_config.harvester.get_class().do_harvest.return_value = []
+
+        for i in range(10):
+            source_config.harvester.get_class().do_harvest.return_value.extend([(fake.sentence(), str(i * 50)) for i in range(5)])
+            source_config.harvester.get_class().do_harvest.return_value.extend(padding)
+
+        import ipdb; ipdb.set_trace()
+        harvest(source_config.source.user.id, source_config.label, limit=60, ingest=False)
+
+        log = HarvestLog.objects.get(source_config=source_config)
+
+        assert log.completions == 1
+        assert log.status == HarvestLog.STATUS.succeeded
+        assert log.raw_data.count() == 60
+
     @pytest.mark.parametrize('start, end, result', [
         (None, '2012-01-01', ValueError('"start" and "end" must either both be supplied or omitted')),
         ('2012-01-01', None, ValueError('"start" and "end" must either both be supplied or omitted')),
