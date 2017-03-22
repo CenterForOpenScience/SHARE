@@ -271,19 +271,23 @@ class RawDatumManager(FuzzyCountManager):
         Returns:
             Generator[MemoryFriendlyRawDatum]
         """
-        done = 0
+        unique_data = set()
         now = timezone.now()
 
         with connection.cursor() as cursor:
             for chunk in chunked(data, 500):
+                chunk_data = []
+                for identifier, datum in chunk:
+                    if limit is not None and len(unique_data) >= limit:
+                        break
+                    hash_ = sha256(datum.encode('utf-8')).hexdigest()
+                    chunk_data.append((identifier, hash_, datum))
+                    unique_data.add((identifier, hash_))
 
-                if limit is not None and done + len(chunk) > limit:
-                    chunk = chunk[:limit - done]
-
-                if not chunk:
+                if not chunk_data:
                     break
 
-                identifiers = list({(identifier, source_config.id) for identifier, datum in chunk})
+                identifiers = list({(identifier, source_config.id) for identifier, _, _ in chunk_data})
 
                 cursor.execute('''
                     INSERT INTO "{table}"
@@ -311,8 +315,7 @@ class RawDatumManager(FuzzyCountManager):
                     suids[suid.identifier] = suid
 
                 raw_data = {}
-                for identifier, datum in chunk:
-                    hash_ = sha256(datum.encode('utf-8')).hexdigest()
+                for identifier, hash_, datum in chunk_data:
                     raw_data[identifier, hash_] = (suids[identifier].pk, hash_, datum, now, now)
 
                 cursor.execute('''
@@ -338,8 +341,7 @@ class RawDatumManager(FuzzyCountManager):
                 for row in cursor.fetchall():
                     yield MemoryFriendlyRawDatum.from_db(db, ('id', 'suid', 'sha256', 'date_created', 'date_modified'), row[:1] + (suids[row[1]], ) + row[2:])
 
-                done += len(raw_data)
-                if limit is not None and done >= limit:
+                if limit is not None and len(unique_data) >= limit:
                     break
 
     def store_data(self, identifier, datum, config):

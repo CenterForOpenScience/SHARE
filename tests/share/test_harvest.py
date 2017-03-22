@@ -244,7 +244,7 @@ class TestHarvestTask:
         mock_ingest_task = mock.Mock()
         monkeypatch.setattr('share.tasks.NormalizerTask', mock_ingest_task)
 
-        padding = [(fake.sentence(), str(i * 50)) for i in range(30)]
+        padding = [(fake.sentence(), str(i * 50)) for i in range(20)]
         source_config.harvester.get_class().do_harvest.return_value = []
 
         for i in range(10):
@@ -257,7 +257,7 @@ class TestHarvestTask:
 
         assert log.completions == 1
         assert log.status == HarvestLog.STATUS.succeeded
-        assert log.raw_data.count() == 40
+        assert log.raw_data.count() == 60
 
     @pytest.mark.parametrize('start, end, result', [
         (None, '2012-01-01', ValueError('"start" and "end" must either both be supplied or omitted')),
