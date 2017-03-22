@@ -1,0 +1,15 @@
+configs:
+- base_url: https://api.mendeley.com/datasets
+  disabled: false
+  earliest_date: null
+  harvester: com.mendeley.data
+  harvester_kwargs: {}
+  label: com.mendeley.data
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: com.mendeley.data
+  transformer_kwargs: {}
+home_page: https://data.mendeley.com/
+long_title: Mendeley Data
+name: com.mendeley.data
+user: providers.com.mendeley.data
