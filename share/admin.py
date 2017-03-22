@@ -247,7 +247,7 @@ class HarvestLogAdmin(admin.ModelAdmin):
 class HarvestForm(forms.Form):
     start = forms.DateField(widget=AdminDateWidget())
     end = forms.DateField(widget=AdminDateWidget())
-    superfluous = forms.BooleanField()
+    superfluous = forms.BooleanField(required=False)
 
     def clean(self):
         super().clean()
