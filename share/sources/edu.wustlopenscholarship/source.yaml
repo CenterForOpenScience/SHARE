@@ -1,0 +1,21 @@
+configs:
+- base_url: http://openscholarship.wustl.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.wustlopenscholarship
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [cse_research, facpubs, art_sci_facpubs, lib_research, artarch_facpubs,
+      bio_facpubs, brown_facpubs, cfh_facpubs, engl_facpubs, hist_facpubs, math_facpubs,
+      psych_facpubs, lib_present, lib_papers, wgssprogram]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://openscholarship.wustl.edu
+long_title: Washington University Open Scholarship
+name: edu.wustlopenscholarship
+user: providers.edu.wustlopenscholarship

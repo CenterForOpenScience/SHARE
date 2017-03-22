@@ -1,0 +1,18 @@
+configs:
+- base_url: http://commons.lib.jmu.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.jmu
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://commons.lib.jmu.edu/
+long_title: Scholarly Commons @ JMU
+name: edu.jmu
+user: providers.edu.jmu

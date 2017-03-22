@@ -1,0 +1,19 @@
+configs:
+- base_url: https://collections.lib.utah.edu/oai
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: edu.utah
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [ir_uspace]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://lib.utah.edu/
+long_title: University of Utah
+name: edu.utah
+user: providers.edu.utah

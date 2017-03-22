@@ -88,28 +88,46 @@ Each row corresponds to a Transformer implementation in python. (TODO: describe 
 ### HarvestLog
 Log entries to track the status of a specific harvester run.
 
-| Column              |   Type   | Indexed | Nullable | FK  | Default | Description                                                                                              |
-| :------------------ | :------: | :-----: | :------: | :-: | :-----: | :------------------------------------------------------------------------------------------------------- |
-| `source_config_id`  |   int    |         |          |  ✓  |         | SourceConfig for this harvester run                                                                      |
-| `harvester_version` |   text   |         |          |     |         | Semantic version of the harvester, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
-| `start_date`        | datetime |         |          |     |         | Beginning of the date range to harvest                                                                   |
-| `end_date`          | datetime |         |          |     |         | End of the date range to harvest                                                                         |
-| `started`           | datetime |         |          |     |         | Time `status` was set to STARTED                                                                         |
-| `status`            |   text   |         |          |     | INITIAL | Status of the harvester run, one of {INITIAL, STARTED, SPLIT, SUCCEEDED, FAILED}                         |
+| Column                  |   Type    | Indexed | Nullable | FK  |     Default     | Description                                                                                                   |
+| :---------------------- | :-------: | :-----: | :------: | :-: | :-------------: | :------------------------------------------------------------------------------------------------------------ |
+| `source_config_id`      |    int    |    ✓    |          |  ✓  |                 | IngestConfig for this harvester run                                                                           |
+| `start_date`            | datetime  |    ✓    |          |     |                 | Beginning of the date range to harvest                                                                        |
+| `end_date`              | datetime  |    ✓    |          |     |                 | End of the date range to harvest                                                                              |
+| `status`                | enum(int) |    ✓    |          |     |     CREATED     | Status of the harvester run, one of {CREATED, STARTED, SPLIT, SUCCEEDED, FAILED, RESCHEDULED, SKIPPED}        |
+| `error`                 |   text    |         |          |     |       ""        | A custom error message or traceback describing why this job failed                                            |
+| `completions`           |    int    |         |          |     |        0        | The number of times `status` has been set to SUCCEEDED                                                        |
+| `date_started`          | datetime  |         |          |     |                 | Datetime `status` was last set to STARTED                                                                     |
+| `date_created`          | datetime  |         |          |     |       now       | Datetime this row was created                                                                                 |
+| `date_modified`         | datetime  |         |          |     | now (on update) | Datetime this row was last modified                                                                           |
+| `share_version`         |   text    |         |          |     |     UNKNOWN     | The commitish at the time this job was last run                                                               |
+| `harvester_version`     |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the harvester, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010')      |
+| `source_config_version` |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the `SourceConfig`, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
 
 #### Other indices
 * `source_config_id`, `harvester_version`, `start_date`, `end_date` (unique)
 
-### TransformLog
-Log entries to track the status of a transform task
 
-| Column                |   Type   | Indexed | Nullable | FK  | Default | Description                                                                                                |
-| :-------------------- | :------: | :-----: | :------: | :-: | :-----: | :--------------------------------------------------------------------------------------------------------- |
-| `raw_id`              |   int    |         |          |  ✓  |         | RawData to be transformed                                                                                  |
-| `source_config_id`    |   int    |         |          |  ✓  |         | SourceConfig used                                                                                          |
-| `transformer_version` |   text   |         |          |     |         | Semantic version of the transformer, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
-| `started`             | datetime |         |          |     |         | Time `status` was set to STARTED                                                                           |
-| `status`              |   text   |         |          |     | INITIAL | Status of the transform task, one of {INITIAL, STARTED, RESCHEDULED, SUCCEEDED, FAILED}                    |
+### IngestLog
+Log entries to track the status of an ingest task
+
+| Column                  |   Type    | Indexed | Nullable | FK  |     Default     | Description                                                                                                   |
+| :---------------------- | :-------: | :-----: | :------: | :-: | :-------------: | :------------------------------------------------------------------------------------------------------------ |
+| `raw_datum_id`          |    int    |    ✓    |          |  ✓  |                 | RawDatum to be transformed                                                                                    |
+| `source_config_id`      |    int    |    ✓    |          |  ✓  |                 | IngestConfig used                                                                                             |
+| `status`                | enum(int) |    ✓    |          |     |     CREATED     | Status of the transformer run, one of {CREATED, STARTED, SUCCEEDED, FAILED, RESCHEDULED}                      |
+| `error`                 |   text    |         |          |     |       ""        | A custom error message or traceback describing why this job failed                                            |
+| `completions`           |    int    |         |          |     |        0        | The number of times `status` has been set to SUCCEEDED                                                        |
+| `date_started`          | datetime  |         |    ✓     |     |                 | Datetime `status` was last set to STARTED                                                                     |
+| `date_created`          | datetime  |         |          |     |       now       | Datetime this row was created                                                                                 |
+| `date_modified`         | datetime  |         |          |     | now (on update) | Datetime this row was last modified                                                                           |
+| `share_version`         |   text    |         |          |     |     UNKNOWN     | The commitish at the time this job was last run                                                               |
+| `transformer_version`   |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the transformer, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010')    |
+| `regulator_version`     |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the regulator, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010')      |
+| `consolidator_version`  |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the consolidator, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010')   |
+| `source_config_version` |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the `IngestConfig`, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
 
 #### Other indices
 * `raw_id`, `transformer_version` (unique)
+
+#### Notes
+* `regulator_version` and `consolidator_version` will be mutable. Whenever the regulator or consolidator version gets bumped existing jobs should be updated.

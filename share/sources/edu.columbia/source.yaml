@@ -1,0 +1,19 @@
+configs:
+- base_url: http://academiccommons.columbia.edu/catalog/oai
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.columbia
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://academiccommons.columbia.edu/
+long_title: Columbia Academic Commons
+name: edu.columbia
+user: providers.edu.columbia

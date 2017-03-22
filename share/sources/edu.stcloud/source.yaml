@@ -1,0 +1,22 @@
+configs:
+- base_url: http://repository.stcloudstate.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.stcloud
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [ews_facpubs, ews_wps, hist_facwp, comm_facpubs, anth_facpubs,
+      soc_facpubs, soc_ug_research, chem_facpubs, phys_present, lrs_facpubs, cfs_facpubs,
+      hurl_facpubs, ed_facpubs, cpcf_gradresearch, econ_facpubs, econ_wps, econ_seminars,
+      stcloud_ling]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://stcloudstate.edu/
+long_title: The repository at St Cloud State
+name: edu.stcloud
+user: providers.edu.stcloud

@@ -9,7 +9,7 @@ from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 
 def create_human_group(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
-    Group.objects.create(name=OsfOauth2AdapterConfig.humans_group_name)
+    Group.objects.db_manager(schema_editor.connection.alias).create(name=OsfOauth2AdapterConfig.humans_group_name)
 
 
 class Migration(migrations.Migration):

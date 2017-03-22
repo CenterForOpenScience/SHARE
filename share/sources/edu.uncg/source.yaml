@@ -1,0 +1,19 @@
+configs:
+- base_url: http://libres.uncg.edu/ir/oai/oai.aspx
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.uncg
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [UNCG]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://libres.uncg.edu/ir
+long_title: UNC-Greensboro
+name: edu.uncg
+user: providers.edu.uncg

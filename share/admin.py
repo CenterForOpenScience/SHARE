@@ -1,30 +1,34 @@
 import ast
+import datetime
 import importlib
+from furl import furl
 
 import celery
 
+from django import forms
 from django.apps import apps
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
-from oauth2_provider.models import AccessToken
-from django.contrib import messages
 from django.contrib.admin.views.main import ChangeList
+from django.contrib.admin.widgets import AdminDateWidget
+from django.core import management
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.utils import timezone
+from django.utils.html import format_html
+
+from oauth2_provider.models import AccessToken
 
 from share.robot import RobotAppConfig
-# from share.models.base import ExtraData
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
-from share.models.core import RawData, NormalizedData, ShareUser
-# from share.models.creative import AbstractCreativeWork
-# from share.models.agents import AbstractAgent
-# from share.models.identifiers import WorkIdentifier, AgentIdentifier
-# from share.models.meta import Tag, Subject
+from share.models.core import NormalizedData, ShareUser
+from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
+from share.models.logs import HarvestLog
 from share.models.registration import ProviderRegistration
 from share.models.banner import SiteBanner
-# from share.models.work_relations import AbstractWorkRelation
-# from share.models.agent_relations import AbstractAgentRelation
-# from share.models.contributions import AbstractContribution, Award
-from share.tasks import ApplyChangeSets
 from share.readonlyadmin import ReadOnlyAdmin
 
 
@@ -52,11 +56,6 @@ class ChangeSetAdmin(admin.ModelAdmin):
     actions = ['accept_changes']
     list_filter = ['status', ChangeSetSubmittedByFilter]
     raw_id_fields = ('normalized_data',)
-
-    def accept_changes(self, request, queryset):
-        ApplyChangeSets().apply_async(kwargs=dict(changeset_ids=[x[0] for x in queryset.values_list('id')], started_by_id=request.user.id))
-        messages.success(request, 'Scheduled {} changesets for acceptance.'.format(queryset.count()))
-    accept_changes.short_description = 'Accept changes'
 
     def submitted_by(self, obj):
         return obj.normalized_data.source
@@ -165,8 +164,8 @@ class TagAdmin(admin.ModelAdmin):
     raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
 
 
-class RawDataAdmin(admin.ModelAdmin):
-    raw_id_fields = ('tasks',)
+class RawDatumAdmin(admin.ModelAdmin):
+    raw_id_fields = ()
 
 
 class AccessTokenAdmin(admin.ModelAdmin):
@@ -195,29 +194,155 @@ class SiteBannerAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+class SourceConfigFilter(admin.SimpleListFilter):
+    title = 'Source Config'
+    parameter_name = 'source_config'
+
+    def lookups(self, request, model_admin):
+        # TODO make this into a cool hierarchy deal
+        # return SourceConfig.objects.select_related('source').values_list('
+        return SourceConfig.objects.order_by('label').values_list('id', 'label')
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(source_config=self.value())
+
+
+class HarvestLogAdmin(admin.ModelAdmin):
+    list_display = ('id', 'source', 'label', 'share_version', 'status_', 'start_date_', 'end_date_', 'harvest_log_actions', )
+    list_filter = ('status', SourceConfigFilter, )
+    list_select_related = ('source_config__source', )
+    readonly_fields = ('harvest_log_actions',)
+
+    def source(self, obj):
+        return obj.source_config.source.long_title
+
+    def label(self, obj):
+        return obj.source_config.label
+
+    def start_date_(self, obj):
+        return obj.start_date.date().isoformat()
+
+    def end_date_(self, obj):
+        return obj.end_date.date().isoformat()
+
+    def status_(self, obj):
+        if obj.status == HarvestLog.STATUS.created and (timezone.now() - obj.date_modified) > datetime.timedelta(minutes=60):
+            return '<span style="font-weight: bold;">Lost</span>'
+        return format_html(
+            '<span style="font-weight: bold; color: {}">{}</span>',
+            ['blue', 'cyan', 'red', 'green', 'goldenrod', 'orange'][obj.status],
+            HarvestLog.STATUS[obj.status].title(),
+        )
+
+    def harvest_log_actions(self, obj):
+        url = furl(reverse('admin:source-config-harvest', args=[obj.source_config_id]))
+        url.args['start'] = self.start_date_(obj)
+        url.args['end'] = self.end_date_(obj)
+        url.args['superfluous'] = True
+        return format_html('<a class="button" href="{}">Restart</a>', url.url)
+    harvest_log_actions.short_description = 'Actions'
+
+
+class HarvestForm(forms.Form):
+    start = forms.DateField(widget=AdminDateWidget())
+    end = forms.DateField(widget=AdminDateWidget())
+    superfluous = forms.BooleanField()
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data['start'] > self.cleaned_data['end']:
+            raise forms.ValidationError('Start date cannot be after end date.')
+
+
+class SourceConfigAdmin(admin.ModelAdmin):
+    list_display = ('label', 'source_', 'version', 'enabled', 'source_config_actions')
+    list_select_related = ('source',)
+    readonly_fields = ('source_config_actions',)
+
+    def source_(self, obj):
+        return obj.source.long_title
+
+    def enabled(self, obj):
+        return not obj.disabled
+    enabled.boolean = True
+
+    def get_urls(self):
+        return [
+            url(
+                r'^(?P<config_id>.+)/harvest/$',
+                self.admin_site.admin_view(self.harvest),
+                name='source-config-harvest'
+            )
+        ] + super().get_urls()
+
+    def source_config_actions(self, obj):
+        if obj.harvester_id is None:
+            return ''
+        return format_html(
+            '<a class="button" href="{}">Harvest</a>',
+            reverse('admin:source-config-harvest', args=[obj.pk]),
+        )
+    source_config_actions.short_description = 'Actions'
+
+    def harvest(self, request, config_id):
+        config = self.get_object(request, config_id)
+        if config.harvester_id is None:
+            raise ValueError('You need a harvester to harvest.')
+
+        if request.method == 'POST':
+            form = HarvestForm(request.POST)
+            if form.is_valid():
+                kwargs = {
+                    'start': form.cleaned_data['start'],
+                    'end': form.cleaned_data['end'],
+                    'superfluous': form.cleaned_data['superfluous'],
+                    'async': True,
+                    'ignore_disabled': True
+                }
+                management.call_command('fullharvest', config.label, **kwargs)
+                self.message_user(request, 'Started harvesting {}!'.format(config.label))
+                url = reverse(
+                    'admin:share_harvestlog_changelist',
+                    current_app=self.admin_site.name,
+                )
+                return HttpResponseRedirect(url)
+        else:
+            initial = {'start': config.earliest_date, 'end': timezone.now().date()}
+            for field in HarvestForm.base_fields.keys():
+                if field in request.GET:
+                    initial[field] = request.GET[field]
+            form = HarvestForm(initial=initial)
+
+        context = self.admin_site.each_context(request)
+        context['opts'] = self.model._meta
+        context['form'] = form
+        context['source_config'] = config
+        context['title'] = 'Harvest {}'.format(config.label)
+        return TemplateResponse(request, 'admin/harvest.html', context)
+
+
+class SourceAdminInline(admin.StackedInline):
+    model = Source
+
+
+class ShareUserAdmin(admin.ModelAdmin):
+    inlines = (SourceAdminInline,)
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
-# admin.site.register(AbstractAgentRelation)
-# admin.site.register(AbstractWorkRelation)
-# admin.site.register(AbstractContribution)
-
-# admin.site.register(AgentIdentifier)
-# admin.site.register(WorkIdentifier)
-
-# admin.site.register(Award)
-# admin.site.register(Tag, TagAdmin)
-# admin.site.register(Subject)
-# admin.site.register(ExtraData)
-admin.site.register(RawData, RawDataAdmin)
-admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(CeleryTask, CeleryTaskAdmin)
-
-# admin.site.register(AbstractAgent, AbstractAgentAdmin)
-# admin.site.register(AbstractCreativeWork, AbstractCreativeWorkAdmin)
-
 admin.site.register(ChangeSet, ChangeSetAdmin)
-admin.site.register(ShareUser)
+admin.site.register(HarvestLog, HarvestLogAdmin)
+admin.site.register(NormalizedData, NormalizedDataAdmin)
+admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)
+admin.site.register(RawDatum, RawDatumAdmin)
 admin.site.register(SiteBanner, SiteBannerAdmin)
 
-admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)
+admin.site.register(Harvester)
+admin.site.register(ShareUser, ShareUserAdmin)
+admin.site.register(Source)
+admin.site.register(SourceConfig, SourceConfigAdmin)
+admin.site.register(Transformer)

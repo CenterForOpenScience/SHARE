@@ -1,0 +1,19 @@
+configs:
+- base_url: https://dspace.nku.edu/oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.nku
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [com_11216_7, com_11216_20, col_11216_168]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: https://dspace.nku.edu
+long_title: NKU Institutional Repository
+name: edu.nku
+user: providers.edu.nku

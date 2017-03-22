@@ -1,0 +1,19 @@
+configs:
+- base_url: http://www.rcaap.pt/oai
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: pt.rcaap
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [portugal]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://www.rcaap.pt
+long_title: "RCAAP - Reposit\xF3rio Cient\xEDfico de Acesso Aberto de Portugal"
+name: pt.rcaap
+user: providers.pt.rcaap

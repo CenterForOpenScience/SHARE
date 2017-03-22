@@ -5,14 +5,18 @@ import string
 
 import pytest
 
-from django.core.management import call_command
+from django.apps import apps
 from django.utils import timezone
+from django.db import connections
+from django.db import transaction
 from django.conf import settings
+from django.db.models.signals import post_save
 from oauth2_provider.models import AccessToken, Application
 
-from share.models import Person, NormalizedData, Change, ChangeSet, RawData
+from share.models import Person, NormalizedData, Change, ChangeSet, RawDatum
 from share.models import Article, Institution
 from share.models import ShareUser
+from share.models import Harvester, Transformer, Source, SourceConfig, SourceUniqueIdentifier
 from share.change import ChangeGraph
 
 
@@ -62,15 +66,56 @@ def robot_user():
 
 
 @pytest.fixture
-def share_source():
-    source = ShareUser(username='tester')
+def share_user():
+    user = ShareUser(username='tester')
+    user.save()
+    return user
+
+
+@pytest.fixture
+def share_source(share_user):
+    source = Source(name='sauce', long_title='Saucy sauce', user=share_user)
     source.save()
     return source
 
 
 @pytest.fixture
-def raw_data(share_source):
-    raw_data = RawData(source=share_source, data={})
+def harvester_model():
+    harvester = Harvester(key='testharvester')
+    harvester.save()
+    return harvester
+
+
+@pytest.fixture
+def transformer_model():
+    transformer = Transformer(key='testtransformer')
+    transformer.save()
+    return transformer
+
+
+@pytest.fixture
+def source_config(share_source, harvester_model, transformer_model):
+    config = SourceConfig(
+        label='sauce',
+        source=share_source,
+        base_url='http://example.com',
+        harvester=harvester_model,
+        transformer=transformer_model
+    )
+    config.save()
+    return config
+
+
+@pytest.fixture
+def suid(source_config):
+    suid = SourceUniqueIdentifier(identifier='this is a record', source_config=source_config)
+    suid.save()
+    return suid
+
+
+@pytest.fixture
+def raw_data(suid):
+    raw_data = RawDatum(suid=suid, datum='{}')
     raw_data.save()
     return raw_data
 
@@ -81,8 +126,8 @@ def raw_data_id(raw_data):
 
 
 @pytest.fixture
-def normalized_data(share_source):
-    normalized_data = NormalizedData(source=share_source, data={})
+def normalized_data(share_user):
+    normalized_data = NormalizedData(source=share_user, data={})
     normalized_data.save()
     return normalized_data
 
@@ -108,10 +153,10 @@ def change_node():
 
 
 @pytest.fixture
-def change_factory(share_source, change_set, change_node):
+def change_factory(share_user, change_set, change_node):
     class ChangeFactory:
         def from_graph(self, graph, disambiguate=False):
-            nd = NormalizedData.objects.create(data=graph, source=share_source)
+            nd = NormalizedData.objects.create(data=graph, source=share_user)
             cg = ChangeGraph(graph['@graph'])
             cg.process(disambiguate=disambiguate)
             return ChangeSet.objects.from_graph(cg, nd.pk)
@@ -131,21 +176,21 @@ def change_ids(change_factory):
 
 
 @pytest.fixture
-def john_doe(share_source, change_ids):
+def john_doe(change_ids):
     john = Person.objects.create(given_name='John', family_name='Doe', change_id=change_ids.get())
     john.refresh_from_db()
     return john
 
 
 @pytest.fixture
-def jane_doe(share_source, change_ids):
+def jane_doe(change_ids):
     jane = Person.objects.create(given_name='Jane', family_name='Doe', change_id=change_ids.get())
     jane.refresh_from_db()
     return jane
 
 
 @pytest.fixture
-def all_about_anteaters(share_source, change_ids):
+def all_about_anteaters(change_ids):
     return Article.objects.create(title='All about Anteaters', change_id=change_ids.get())
 
 
@@ -155,6 +200,44 @@ def university_of_whales(change_ids):
 
 
 @pytest.fixture
-def django_db_setup(django_db_setup, django_db_blocker):
-    with django_db_blocker.unblock():
-        call_command('loaddata', 'tests/initial-data.yaml')
+def transactional_db(django_db_blocker, request):
+    # Django's/Pytest Django's handling of this is garbage
+    # The database is wipe of initial data and never repopulated so we have to do
+    # all of it ourselves
+    django_db_blocker.unblock()
+    request.addfinalizer(django_db_blocker.restore)
+
+    from django.test import TransactionTestCase
+    test_case = TransactionTestCase(methodName='__init__')
+    test_case._pre_setup()
+
+    # Dump all initial data into a string :+1:
+    for connection in connections.all():
+        if connection.settings_dict['TEST']['MIRROR']:
+            continue
+        connection._test_serialized_contents = connection.creation.serialize_db_to_string()
+
+    yield None
+
+    test_case.serialized_rollback = True
+    test_case._post_teardown()
+
+    # Disconnect post save listeners because they screw up deserialization
+    receivers, post_save.receivers = post_save.receivers, []
+
+    if test_case.available_apps is not None:
+        apps.unset_available_apps()
+
+    for connection in connections.all():
+        if connection.settings_dict['TEST']['MIRROR']:
+            connection.close()
+            continue
+        # Everything has to be in a single transaction to avoid violating key constraints
+        # It also makes it run significantly faster
+        with transaction.atomic():
+            connection.creation.deserialize_db_from_string(connection._test_serialized_contents)
+
+    if test_case.available_apps is not None:
+        apps.set_available_apps(test_case.available_apps)
+
+    post_save.receivers = receivers

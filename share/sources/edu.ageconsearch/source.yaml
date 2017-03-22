@@ -1,0 +1,15 @@
+configs:
+- base_url: http://ageconsearch.umn.edu/browse-date
+  disabled: false
+  earliest_date: null
+  harvester: edu.ageconsearch
+  harvester_kwargs: {}
+  label: edu.ageconsearch
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: edu.ageconsearch
+  transformer_kwargs: {}
+home_page: http://ageconsearch.umn.edu/
+long_title: AgEcon Search
+name: edu.ageconsearch
+user: providers.edu.ageconsearch

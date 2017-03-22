@@ -1,0 +1,19 @@
+configs:
+- base_url: http://calhoun.nps.edu/oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.calhoun
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [com_10945_7075, com_10945_6, col_10945_17]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://calhoun.nps.edu
+long_title: 'Calhoun: Institutional Archive of the Naval Postgraduate School'
+name: edu.calhoun
+user: providers.edu.calhoun

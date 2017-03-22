@@ -1,0 +1,18 @@
+configs:
+- base_url: https://www.earthsystemgrid.org/oai/repository
+  disabled: false
+  earliest_date: null
+  harvester: org.ncar
+  harvester_kwargs: {}
+  label: org.ncar
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: org.ncar
+  transformer_kwargs:
+      namespaces:
+          'http://gcmd.gsfc.nasa.gov/Aboutus/xml/dif/': null
+          'http://www.openarchives.org/OAI/2.0/': null
+home_page: http://www.earthsystemgrid.org/
+long_title: Earth System Grid at NCAR
+name: org.ncar
+user: providers.org.ncar

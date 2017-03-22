@@ -1,0 +1,19 @@
+configs:
+- base_url: http://eprints.rclis.org/cgi/oai2
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: org.elis
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: article
+    property_list: []
+    type_map: {}
+home_page: eprints.rclis.org
+long_title: Eprints in Library and Information Science
+name: org.elis
+user: providers.org.elis

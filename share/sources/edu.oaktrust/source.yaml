@@ -1,0 +1,19 @@
+configs:
+- base_url: http://oaktrust.library.tamu.edu/dspace-oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.oaktrust
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://oaktrust.library.tamu.edu
+long_title: The OAKTrust Digital Repository at Texas A&M
+name: edu.oaktrust
+user: providers.edu.oaktrust

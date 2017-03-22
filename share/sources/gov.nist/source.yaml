@@ -1,0 +1,19 @@
+configs:
+- base_url: https://materialsdata.nist.gov/dspace/oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: gov.nist
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: https://materialsdata.nist.gov
+long_title: NIST MaterialsData
+name: gov.nist
+user: providers.gov.nist
