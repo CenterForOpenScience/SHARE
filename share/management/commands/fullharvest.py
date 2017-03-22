@@ -12,6 +12,7 @@ from share.models import ShareUser, SourceConfig
 def parse_date(date):
     return pendulum.parse(date).date()
 
+
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
@@ -22,6 +23,7 @@ class Command(BaseCommand):
         parser.add_argument('--end', default=None, type=parse_date, help='')
         parser.add_argument('--ignore-disabled', action='store_true', help='')
         parser.add_argument('--no-ingest', action='store_false', help='')
+        parser.add_argument('--superfluous', action='store_true', help='')
 
     def handle(self, *args, **options):
         source_config = SourceConfig.objects.get(label=options['source_config'])
@@ -43,6 +45,7 @@ class Command(BaseCommand):
                     'end': task_end.isoformat(),
                     'ingest': bool(options['no_ingest']),
                     'ignore_disabled': bool(options['ignore_disabled']),
+                    'superfluous': bool(options['superfluous']),
                 }, queue='backharvest', routing_key='backharvest')
                 self.stdout.write('Started HarvesterTask({}, {}, {})'.format(options['source_config'], task_start, task_end))
             else:
@@ -50,5 +53,6 @@ class Command(BaseCommand):
                     'start': task_start.isoformat(),
                     'end': task_end.isoformat(),
                     'ingest': bool(options['no_ingest']),
-                    'ignore_disabled': bool(options['ignore_disabled'])
+                    'ignore_disabled': bool(options['ignore_disabled']),
+                    'superfluous': bool(options['superfluous']),
                 }, throw=True)

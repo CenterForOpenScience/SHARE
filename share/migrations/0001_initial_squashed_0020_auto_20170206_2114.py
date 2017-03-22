@@ -378,7 +378,7 @@ class Migration(migrations.Migration):
                 ('data', share.models.fields.DateTimeAwareJSONField(default=dict)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_extradata', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_extradata', to='share.Change')),
                 ('same_as', models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraData')),
             ],
             options={
@@ -393,7 +393,7 @@ class Migration(migrations.Migration):
                 ('data', share.models.fields.DateTimeAwareJSONField(default=dict)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_extradataversion', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_extradataversion', to='share.Change')),
                 ('persistent_id', models.ForeignKey(db_column='persistent_id', on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraData')),
                 ('same_as', models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraData')),
                 ('same_as_version', models.ForeignKey(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraDataVersion')),
@@ -490,7 +490,7 @@ class Migration(migrations.Migration):
                 ('name', models.TextField(unique=True)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_tag', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_tag', to='share.Change')),
                 ('extra', models.OneToOneField(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
                 ('extra_version', models.OneToOneField(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraDataVersion')),
                 ('same_as', models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.Tag')),
@@ -507,7 +507,7 @@ class Migration(migrations.Migration):
                 ('name', models.TextField()),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_tagversion', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_tagversion', to='share.Change')),
                 ('extra', models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
                 ('extra_version', models.ForeignKey(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraDataVersion')),
                 ('persistent_id', models.ForeignKey(db_column='persistent_id', on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.Tag')),
@@ -527,7 +527,7 @@ class Migration(migrations.Migration):
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
                 ('award', models.ForeignKey(on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.Award')),
                 ('award_version', models.ForeignKey(db_index=False, editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AwardVersion')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughawards', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughawards', to='share.Change')),
                 ('extra', models.OneToOneField(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
                 ('extra_version', models.OneToOneField(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraDataVersion')),
                 ('funder', models.ForeignKey(on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.AbstractAgentWorkRelation')),
@@ -547,7 +547,7 @@ class Migration(migrations.Migration):
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
                 ('award', models.ForeignKey(db_index=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.Award')),
                 ('award_version', models.ForeignKey(db_index=False, editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AwardVersion')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughawardsversion', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughawardsversion', to='share.Change')),
                 ('extra', models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
                 ('extra_version', models.ForeignKey(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraDataVersion')),
                 ('funder', models.ForeignKey(db_index=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractAgentWorkRelation')),
@@ -567,7 +567,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughcontributor', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughcontributor', to='share.Change')),
                 ('extra', models.OneToOneField(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
                 ('extra_version', models.OneToOneField(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraDataVersion')),
                 ('related', models.ForeignKey(on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractAgentWorkRelation')),
@@ -582,7 +582,7 @@ class Migration(migrations.Migration):
                 ('action', models.TextField(max_length=10)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughcontributorversion', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughcontributorversion', to='share.Change')),
                 ('extra', models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
                 ('extra_version', models.ForeignKey(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ExtraDataVersion')),
                 ('persistent_id', models.ForeignKey(db_column='persistent_id', on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.ThroughContributor')),
@@ -603,7 +603,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughsubjects', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughsubjects', to='share.Change')),
                 ('creative_work', models.ForeignKey(on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='subject_relations', to='share.AbstractCreativeWork')),
                 ('creative_work_version', models.ForeignKey(db_index=False, editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractCreativeWorkVersion')),
                 ('extra', models.OneToOneField(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
@@ -621,7 +621,7 @@ class Migration(migrations.Migration):
                 ('action', models.TextField(max_length=10)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughsubjectsversion', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughsubjectsversion', to='share.Change')),
                 ('creative_work', models.ForeignKey(db_index=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractCreativeWork')),
                 ('creative_work_version', models.ForeignKey(db_index=False, editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractCreativeWorkVersion')),
                 ('extra', models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
@@ -642,7 +642,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughtags', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughtags', to='share.Change')),
                 ('creative_work', models.ForeignKey(on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='tag_relations', to='share.AbstractCreativeWork')),
                 ('creative_work_version', models.ForeignKey(db_index=False, editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractCreativeWorkVersion')),
                 ('extra', models.OneToOneField(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
@@ -660,7 +660,7 @@ class Migration(migrations.Migration):
                 ('action', models.TextField(max_length=10)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughtagsversion', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_throughtagsversion', to='share.Change')),
                 ('creative_work', models.ForeignKey(db_index=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractCreativeWork')),
                 ('creative_work_version', models.ForeignKey(db_index=False, editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractCreativeWorkVersion')),
                 ('extra', models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
@@ -685,7 +685,7 @@ class Migration(migrations.Migration):
                 ('scheme', models.TextField(editable=False, help_text='A prefix to URI indicating how the following data should be interpreted.')),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_workidentifier', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_workidentifier', to='share.Change')),
                 ('creative_work', models.ForeignKey(on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='identifiers', to='share.AbstractCreativeWork')),
                 ('creative_work_version', models.ForeignKey(db_index=False, editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractCreativeWorkVersion')),
                 ('extra', models.OneToOneField(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
@@ -706,7 +706,7 @@ class Migration(migrations.Migration):
                 ('scheme', models.TextField(editable=False, help_text='A prefix to URI indicating how the following data should be interpreted.')),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
-                ('change', models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_workidentifierversion', to='share.Change')),
+                ('change', models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_workidentifierversion', to='share.Change')),
                 ('creative_work', models.ForeignKey(db_index=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractCreativeWork')),
                 ('creative_work_version', models.ForeignKey(db_index=False, editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.AbstractCreativeWorkVersion')),
                 ('extra', models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.ExtraData')),
@@ -888,7 +888,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='awardversion',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_awardversion', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_awardversion', to='share.Change'),
         ),
         migrations.AddField(
             model_name='awardversion',
@@ -918,7 +918,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='award',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_award', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_award', to='share.Change'),
         ),
         migrations.AddField(
             model_name='award',
@@ -953,7 +953,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='agentidentifierversion',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_agentidentifierversion', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_agentidentifierversion', to='share.Change'),
         ),
         migrations.AddField(
             model_name='agentidentifierversion',
@@ -983,7 +983,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='agentidentifier',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_agentidentifier', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_agentidentifier', to='share.Change'),
         ),
         migrations.AddField(
             model_name='agentidentifier',
@@ -1018,7 +1018,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractworkrelationversion',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractworkrelationversion', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractworkrelationversion', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractworkrelationversion',
@@ -1068,7 +1068,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractworkrelation',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractworkrelation', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractworkrelation', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractworkrelation',
@@ -1123,7 +1123,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractcreativeworkversion',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractcreativeworkversion', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractcreativeworkversion', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractcreativeworkversion',
@@ -1188,7 +1188,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractcreativework',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractcreativework', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractcreativework', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractcreativework',
@@ -1268,7 +1268,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractagentworkrelationversion',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentworkrelationversion', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentworkrelationversion', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractagentworkrelationversion',
@@ -1328,7 +1328,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractagentworkrelation',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentworkrelation', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentworkrelation', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractagentworkrelation',
@@ -1383,7 +1383,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractagentversion',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentversion', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentversion', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractagentversion',
@@ -1433,7 +1433,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractagentrelationversion',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentrelationversion', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentrelationversion', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractagentrelationversion',
@@ -1483,7 +1483,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractagentrelation',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentrelation', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagentrelation', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractagentrelation',
@@ -1538,7 +1538,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abstractagent',
             name='change',
-            field=models.ForeignKey(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagent', to='share.Change'),
+            field=models.OneToOneField(editable=False, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='affected_abstractagent', to='share.Change'),
         ),
         migrations.AddField(
             model_name='abstractagent',

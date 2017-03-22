@@ -11,6 +11,34 @@ import share.models.ingest
 import share.models.logs
 
 
+def migrate_push_sources(apps, schema_editor):
+    from django.core.files.base import ContentFile
+    FaviconImage = apps.get_model('share', 'FaviconImage')
+    ShareUser = apps.get_model('share', 'ShareUser')
+    Source = apps.get_model('share', 'Source')
+    SourceConfig = apps.get_model('share', 'SourceConfig')
+
+    for user in ShareUser.objects.filter(is_trusted=True):
+        source = Source(
+            user=user,
+            name=user.username,
+            long_title=user.long_title or user.username,
+            home_page=user.home_page,
+        )
+        source.save()
+        try:
+            icon = ContentFile(FaviconImage.objects.get(user_id=user.id).image)
+            source.icon.save(source.name, icon)
+        except FaviconImage.DoesNotExist:
+            pass
+
+        config = SourceConfig(
+            label=user.username,
+            source=source,
+        )
+        config.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -36,13 +64,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('task_id', models.UUIDField(null=True)),
-                ('status', models.IntegerField(choices=[(0, 'Enqueued'), (1, 'In Progress'), (2, 'Failed'), (3, 'Succeeded'), (4, 'Rescheduled'), (5, 'Defunct'), (5, 'Forced'), (7, 'Defunct')], db_index=True, default=0)),
+                ('status', models.IntegerField(choices=[(0, 'Enqueued'), (1, 'In Progress'), (2, 'Failed'), (3, 'Succeeded'), (4, 'Rescheduled'), (5, 'Defunct'), (6, 'Forced'), (7, 'Skipped')], db_index=True, default=0)),
                 ('context', models.TextField(blank=True, default='')),
                 ('completions', models.IntegerField(default=0)),
                 ('date_started', models.DateTimeField(blank=True, null=True)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True)),
-                ('share_version', models.TextField(default=share.models.logs.get_share_version)),
+                ('share_version', models.TextField(default=share.models.logs.get_share_version, editable=False)),
                 ('source_config_version', models.PositiveIntegerField()),
                 ('end_date', models.DateTimeField(db_index=True)),
                 ('start_date', models.DateTimeField(db_index=True)),
@@ -65,7 +93,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('label', models.TextField(unique=True)),
                 ('version', models.PositiveIntegerField(default=1)),
-                ('base_url', models.URLField()),
+                ('base_url', models.URLField(null=True)),
                 ('earliest_date', models.DateField(null=True)),
                 ('rate_limit_allowance', models.PositiveIntegerField(default=5)),
                 ('rate_limit_period', models.PositiveIntegerField(default=1)),
@@ -81,7 +109,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('image', models.BinaryField()),
-                ('source', models.OneToOneField(on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), to='share.Source')),
+                ('source_name', models.TextField(unique=True)),
             ],
         ),
         migrations.CreateModel(
@@ -120,18 +148,6 @@ class Migration(migrations.Migration):
             old_name='data',
             new_name='datum',
         ),
-        migrations.RemoveField(
-            model_name='shareuser',
-            name='favicon',
-        ),
-        migrations.RemoveField(
-            model_name='shareuser',
-            name='home_page',
-        ),
-        migrations.RemoveField(
-            model_name='shareuser',
-            name='long_title',
-        ),
         migrations.AlterField(
             model_name='rawdatum',
             name='id',
@@ -149,7 +165,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sourceconfig',
             name='transformer',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='share.Transformer'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='share.Transformer'),
         ),
         migrations.AddField(
             model_name='source',
@@ -173,5 +189,21 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='harvestlog',
             unique_together=set([('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version')]),
+        ),
+        migrations.RunPython(migrate_push_sources),
+        migrations.RemoveField(
+            model_name='shareuser',
+            name='favicon',
+        ),
+        migrations.RemoveField(
+            model_name='shareuser',
+            name='home_page',
+        ),
+        migrations.RemoveField(
+            model_name='shareuser',
+            name='long_title',
+        ),
+        migrations.DeleteModel(
+            name='FaviconImage',
         ),
     ]

@@ -17,8 +17,6 @@ from django.db.models.query_utils import DeferredAttribute
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
-from db.deletion import DATABASE_CASCADE
-
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models.fuzzycount import FuzzyCountManager
 from share.util import chunked
@@ -29,7 +27,7 @@ __all__ = ('Source', 'RawDatum', 'SourceConfig', 'Harvester', 'Transformer', 'So
 
 
 class SourceIcon(models.Model):
-    source = models.OneToOneField('Source', on_delete=DATABASE_CASCADE)
+    source_name = models.TextField(unique=True)
     image = models.BinaryField()
 
 
@@ -37,16 +35,15 @@ class SourceIcon(models.Model):
 class SourceIconStorage(Storage):
     def _open(self, name, mode='rb'):
         assert mode == 'rb'
-        icon = SourceIcon.objects.get(source__name=name)
+        icon = SourceIcon.objects.get(source_name=name)
         return ContentFile(icon.image)
 
     def _save(self, name, content):
-        source = Source.objects.get(name=name)
-        SourceIcon.objects.update_or_create(source_id=source.id, defaults={'image': content.read()})
+        SourceIcon.objects.update_or_create(source_name=name, defaults={'image': content.read()})
         return name
 
     def delete(self, name):
-        SourceIcon.objects.get(source__name=name).delete()
+        SourceIcon.objects.get(source_name=name).delete()
 
     def get_available_name(self, name, max_length=None):
         return name
@@ -95,15 +92,18 @@ class SourceConfig(models.Model):
     version = models.PositiveIntegerField(default=1)
 
     source = models.ForeignKey('Source')
-    base_url = models.URLField()
+    base_url = models.URLField(null=True)
     earliest_date = models.DateField(null=True)
     rate_limit_allowance = models.PositiveIntegerField(default=5)
     rate_limit_period = models.PositiveIntegerField(default=1)
 
+    # Allow null for push sources
     harvester = models.ForeignKey('Harvester', null=True)
     harvester_kwargs = JSONField(null=True)
 
-    transformer = models.ForeignKey('Transformer')
+    # Allow null for push sources
+    # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
+    transformer = models.ForeignKey('Transformer', null=True)
     transformer_kwargs = JSONField(null=True)
 
     disabled = models.BooleanField(default=False)
@@ -283,7 +283,7 @@ class RawDatumManager(FuzzyCountManager):
                 if not chunk:
                     break
 
-                identifiers = {(identifier, source_config.id) for identifier, datum in chunk}
+                identifiers = list({(identifier, source_config.id) for identifier, datum in chunk})
 
                 cursor.execute('''
                     INSERT INTO "{table}"
@@ -301,7 +301,7 @@ class RawDatumManager(FuzzyCountManager):
                     source_config=SourceUniqueIdentifier._meta.get_field('source_config').column,
                     values=', '.join('%s' for _ in range(len(identifiers))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                     fields=', '.join('"{}"'.format(field.column) for field in SourceUniqueIdentifier._meta.concrete_fields),
-                ), list(identifiers))  # NOTE: This is a set comprehension
+                ), identifiers)
 
                 suids = {}
                 fields = [field.attname for field in SourceUniqueIdentifier._meta.concrete_fields]
@@ -338,7 +338,6 @@ class RawDatumManager(FuzzyCountManager):
                 for row in cursor.fetchall():
                     yield MemoryFriendlyRawDatum.from_db(db, ('id', 'suid', 'sha256', 'date_created', 'date_modified'), row[:1] + (suids[row[1]], ) + row[2:])
 
-                import ipdb; ipdb.set_trace()
                 done += len(raw_data)
                 if limit is not None and done >= limit:
                     break
