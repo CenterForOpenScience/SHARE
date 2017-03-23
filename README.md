@@ -24,9 +24,10 @@ It is useful to set up a [virtual environment](http://virtualenvwrapper.readthed
     mkvirtualenv share -p `which python3.5`
     workon share
 
-Once in the `share` virtual environment, install the necessary requirements.
+Once in the `share` virtual environment, install the necessary requirements, then setup SHARE.
 
     pip install -r requirements.txt
+    python setup.py develop
 
 `docker-compose` assumes [Docker](https://www.docker.com/) is installed and running. `docker-compose up -d web` creates and starts containers for elasticsearch, rabbitmq, and postgres. Finally, `./up.sh` ensures everything has been installed properly.
 
