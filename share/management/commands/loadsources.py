@@ -97,21 +97,18 @@ class Command(BaseCommand):
 
     def schedule_harvest_task(self, label, disabled):
         task_name = '{} harvester task'.format(label)
-        try:
-            PeriodicTask.objects.get(name=task_name)
-            return
-        except PeriodicTask.DoesNotExist:
-            pass
         tab = CrontabSchedule.from_schedule(crontab(minute=0, hour=0))
         tab.save()
-        PeriodicTask(
-            enabled=not disabled,
+        PeriodicTask.objects.update_or_create(
             name=task_name,
-            task='share.tasks.HarvesterTask',
-            description='Harvesting',
-            args=json.dumps([1, label]),  # Note 1 should always be the system user
-            crontab=tab,
-        ).save()
+            defaults={
+                'enabled': not disabled,
+                'task': 'share.tasks.HarvesterTask',
+                'description': 'Harvesting',
+                'args': json.dumps([1, label]),  # Note 1 should always be the system user
+                'crontab': tab,
+            }
+        )
 
     def process_defaults(self, model, defaults):
         ret = {}
