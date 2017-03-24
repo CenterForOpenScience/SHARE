@@ -48,9 +48,15 @@ class ChainTransformer(BaseTransformer):
 
         root_ref = parser(unwrapped).parse()
         jsonld = ctx.jsonld
+        return jsonld, root_ref
+
+    def transform(self, datum):
+        ret = super().transform(datum)
+
         if self.clean_up:
             ctx.clear()
-        return jsonld, root_ref
+
+        return ret
 
     def unwrap_data(self, data):
         if data.startswith('<'):
