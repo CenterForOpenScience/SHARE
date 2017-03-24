@@ -93,18 +93,18 @@ class SourceConfig(models.Model):
 
     source = models.ForeignKey('Source')
     base_url = models.URLField(null=True)
-    earliest_date = models.DateField(null=True)
+    earliest_date = models.DateField(null=True, blank=True)
     rate_limit_allowance = models.PositiveIntegerField(default=5)
     rate_limit_period = models.PositiveIntegerField(default=1)
 
     # Allow null for push sources
     harvester = models.ForeignKey('Harvester', null=True)
-    harvester_kwargs = JSONField(null=True)
+    harvester_kwargs = JSONField(null=True, blank=True)
 
     # Allow null for push sources
     # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
     transformer = models.ForeignKey('Transformer', null=True)
-    transformer_kwargs = JSONField(null=True)
+    transformer_kwargs = JSONField(null=True, blank=True)
 
     disabled = models.BooleanField(default=False)
 
