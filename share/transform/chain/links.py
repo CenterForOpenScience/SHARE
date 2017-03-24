@@ -491,7 +491,8 @@ class DelegateLink(AbstractLink):
     def execute(self, obj):
         # callable will return True for classes as well as functions
         if isinstance(self._parser, types.FunctionType):
-            self._parser = self._parser(obj)
+            parser = self._parser(obj)
+            return parser(obj).parse()
         return self._parser(obj).parse()
 
 
