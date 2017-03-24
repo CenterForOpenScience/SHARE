@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def force_text(data):
     if isinstance(data, dict):
-        return data['#text']
+        return data.get('#text', '')
 
     if isinstance(data, str):
         return data
