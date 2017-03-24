@@ -75,12 +75,14 @@ def harvest(args, argv):
     }.items() if v is not None}
 
     for doc_id, data in harvester.raw(start_date, end_date, **kwargs):
+        decoded = data
+        if not isinstance(decoded, str):
+            decoded = data.decode()
         if args['--print']:
             print('Harvested data with identifier "{}"'.format(doc_id))
-            print(data.decode())
+            print(decoded)
             print('\n')
         else:
-            decoded = data.decode()
             suffix = '.xml' if decoded.startswith('<') else '.json'
             with open(os.path.join(args['--out'], re.sub(r'[:\\\/\?\*]', '', str(doc_id))) + suffix, 'w') as fobj:
                 fobj.write(decoded)
