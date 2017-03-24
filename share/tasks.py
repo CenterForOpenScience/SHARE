@@ -168,8 +168,7 @@ class HarvesterTask(SourceTask):
         )
 
         if not created:
-            log.status = HarvestLog.STATUS.created
-            log.save()
+            log.reschedule()
 
         tkwargs.setdefault('end', start.isoformat())
         tkwargs.setdefault('start', start.isoformat())
@@ -289,7 +288,6 @@ class HarvesterTask(SourceTask):
                 # chance that this exact task is being run twice.
                 # if not created and log.task_id != self.task_id and log.date_modified - datetime.datetime.utcnow() > datetime.timedelta(minutes=10):
                 #     pass
-                log.reschedule(e)
                 # Kinda hacky, allow a stupidly large number of retries as there is no options for infinite
                 raise self.retry(countdown=random.randrange(10, 30), exc=e, max_retries=99999)
             except Exception as e:
