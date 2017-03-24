@@ -140,7 +140,7 @@ class AbstractBaseLog(models.Model):
             self.save()
         return True
 
-    def reschedule(self, exception, save=True):
+    def reschedule(self, save=True):
         self.status = self.STATUS.rescheduled
         if save:
             self.save()
