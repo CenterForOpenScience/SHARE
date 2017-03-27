@@ -24,12 +24,15 @@ from osf_oauth2_adapter import views as osf_oauth2_adapter_views
 
 from api.views import APIVersionRedirectView, source_icon_view
 
+from share.oaipmh.views import OAIPMHView
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/v2/', include('api.urls', namespace='api')),
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
     url(r'^api/v1/', include('api.urls_v1', namespace='api_v1')),
+    url(r'^oai-pmh/', OAIPMHView.as_view(), name='oai-pmh'),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^accounts/social/login/cancelled/', osf_oauth2_adapter_views.login_errored_cancelled),
     url(r'^accounts/social/login/error/', osf_oauth2_adapter_views.login_errored_cancelled),

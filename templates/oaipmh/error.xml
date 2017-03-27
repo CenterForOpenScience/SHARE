@@ -1,0 +1,5 @@
+{% extends "oaipmh/base.xml" %}
+
+{% block content %}
+    <error code="{{ error_code }}">{{ error }}</error>
+{% endblock %}
