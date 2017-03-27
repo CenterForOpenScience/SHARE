@@ -133,7 +133,7 @@ class SourceTask(LoggedTask):
 class HarvesterTask(SourceTask):
 
     @classmethod
-    def resolve_date_range(self, start, end):
+    def resolve_date_range(cls, start, end):
         logger.debug('Coercing start and end (%r, %r) into UTC dates', start, end)
 
         if bool(start) ^ bool(end):
@@ -170,7 +170,7 @@ class HarvesterTask(SourceTask):
         if not created and log.status != log.STATUS.rescheduled:
             log.reschedule()
 
-        tkwargs.setdefault('end', start.isoformat())
+        tkwargs.setdefault('end', end.isoformat())
         tkwargs.setdefault('start', start.isoformat())
 
         return super().apply_async(targs, tkwargs, **kwargs)

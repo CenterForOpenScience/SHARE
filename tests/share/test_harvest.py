@@ -260,6 +260,7 @@ class TestHarvestTask:
         assert log.raw_data.count() == 60
 
     @pytest.mark.parametrize('start, end, result', [
+        (None, None, (pendulum.parse(pendulum.today().date().isoformat()) - datetime.timedelta(days=1), pendulum.parse(pendulum.today().date().isoformat()))),
         (None, '2012-01-01', ValueError('"start" and "end" must either both be supplied or omitted')),
         ('2012-01-01', None, ValueError('"start" and "end" must either both be supplied or omitted')),
         ('2012-01-01', '2012-01-02', (pendulum.parse('2012-01-01'), pendulum.parse('2012-01-02'))),
