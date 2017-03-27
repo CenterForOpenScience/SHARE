@@ -9,7 +9,7 @@
         <deletedRecord>{{ deleted_record }}</deletedRecord>
         <granularity>{{ granularity }}</granularity>
         {% for email in admin_emails %}
-            <adminEmail>{{ email }}</adminEmail>
+        <adminEmail>{{ email }}</adminEmail>
         {% endfor %}
         <description>
             <oai-identifier

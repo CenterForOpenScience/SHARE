@@ -4,6 +4,6 @@
     xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
     http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
     <responseDate>{{ response_date }}</responseDate>
-    <request{% if verb %} verb="{{ verb }}"{% endif %} {# TODO arguments #}>{{ request_url }}</request>
+    <request{% if verb %} verb="{{ verb }}"{% endif %}{% for k, v in kwargs.items %} {{k}}="{{v}}"{% endfor %}>{{ request_url }}</request>
     {% block content %}{% endblock %}
 </OAI-PMH>
