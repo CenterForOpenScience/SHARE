@@ -135,7 +135,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
     def harvest_by_id(self, doc_id):
         from share.models import RawDatum
         datum = self.fetch_by_id(doc_id)
-        return RawDatum.objects.store_data(self.encode_data(datum), doc_id, self.config)
+        return RawDatum.objects.store_data(doc_id, self.encode_data(datum), self.config)
 
     def encode_data(self, data, pretty=False) -> str:
         if isinstance(data, str):
