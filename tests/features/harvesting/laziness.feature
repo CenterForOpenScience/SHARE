@@ -41,4 +41,3 @@ Feature: Harvester Laziness
       | failed  |
       | skipped |
       | forced  |
-      | defunct |

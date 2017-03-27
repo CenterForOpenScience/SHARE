@@ -18,9 +18,9 @@ from django.db import transaction
 from django.utils import timezone
 
 from share.change import ChangeGraph
+from share.harvest.exceptions import HarvesterConcurrencyError, HarvesterDisabledError
 from share.models import HarvestLog
 from share.models import RawDatum, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser, SourceConfig
-from share.harvest.exceptions import HarvesterConcurrencyError, HarvesterDisabledError
 
 
 logger = logging.getLogger(__name__)
@@ -133,31 +133,29 @@ class SourceTask(LoggedTask):
 class HarvesterTask(SourceTask):
 
     @classmethod
-    def resolve_date_range(cls, start, end):
+    def resolve_date_range(cls, start, end, clean=True):
         logger.debug('Coercing start and end (%r, %r) into UTC dates', start, end)
 
         if bool(start) ^ bool(end):
             raise ValueError('"start" and "end" must either both be supplied or omitted')
 
         if not start and not end:
-            start, end = timezone.now() + datetime.timedelta(days=-1), timezone.now()
+            start, end = datetime.date.today() - datetime.timedelta(days=1), datetime.date.today()
         if type(end) is str:
-            end = pendulum.parse(end.rstrip('Z'))  # TODO Fix me
+            end = pendulum.timezone('utc').convert(pendulum.parse(end.rstrip('Z'))).date()
         if type(start) is str:
-            start = pendulum.parse(start.rstrip('Z'))  # TODO Fix Me
-
-        end = datetime.datetime.combine(end.date(), datetime.time(0, 0, 0, 0, timezone.utc))
-        start = datetime.datetime.combine(start.date(), datetime.time(0, 0, 0, 0, timezone.utc))
+            start = pendulum.timezone('utc').convert(pendulum.parse(start.rstrip('Z'))).date()
 
         logger.debug('Interpretting start and end as %r and %r', start, end)
         return start, end
 
-    def apply_async(self, targs=None, tkwargs=None, **kwargs):
+    @classmethod
+    def _preapply(cls, targs=None, tkwargs=None, restarted=False, **kwargs):
         tkwargs = tkwargs or {}
-        start, end = self.resolve_date_range(tkwargs.get('start'), tkwargs.get('end'))
+        start, end = cls.resolve_date_range(tkwargs.get('start'), tkwargs.get('end'))
 
         # TODO This should not be here but it's the best place too hook in right now
-        config = SourceConfig.objects.select_related('harvester', 'transformer').get(label=targs[1])
+        config = SourceConfig.objects.select_related('harvester', 'transformer').filter(label=targs[1])[0]
         log, created = HarvestLog.objects.get_or_create(
             end_date=end,
             start_date=start,
@@ -167,13 +165,27 @@ class HarvesterTask(SourceTask):
             defaults={'status': HarvestLog.STATUS.created}
         )
 
-        if not created and log.status != log.STATUS.rescheduled:
-            log.reschedule()
+        if not created:
+            kwargs['task_id'] = log.task_id  # Preserve the old task id
+            log.share_version = settings.VERSION  # Update version, it may have changed
 
-        tkwargs.setdefault('end', end.isoformat())
-        tkwargs.setdefault('start', start.isoformat())
+            if log.status != log.STATUS.rescheduled:
+                log.status = log.STATUS.retried
 
-        return super().apply_async(targs, tkwargs, **kwargs)
+            log.save()
+
+        tkwargs['end'] = end.isoformat()
+        tkwargs['start'] = start.isoformat()
+
+        return targs, tkwargs, kwargs
+
+    def apply(self, targs=None, tkwargs=None, restarted=False, **kwargs):
+        targs, tkwargs, kwargs = self._preapply(targs, tkwargs, restarted=restarted, **kwargs)
+        return SourceTask.apply(self, targs, tkwargs, **kwargs)
+
+    def apply_async(self, targs=None, tkwargs=None, restarted=False, **kwargs):
+        targs, tkwargs, kwargs = self._preapply(targs, tkwargs, restarted=restarted, **kwargs)
+        return SourceTask.apply_async(self, targs, tkwargs, **kwargs)
 
     def log_values(self):
         return {
@@ -185,7 +197,8 @@ class HarvesterTask(SourceTask):
     # start and end *should* be dates. They will be turned into dates if not
     def do_run(self, start=None, end=None, limit=None, force=False, superfluous=False, ignore_disabled=False, ingest=True, **kwargs):
         # WARNING: Errors that occur here cannot be logged to the HarvestLog.
-        start, end = self.resolve_date_range(start, end)
+        # NOTE: We don't clean (Force to be UTC dates) the times here to avoid accidentally creating another HarvestLog
+        start, end = self.resolve_date_range(start, end, clean=False)
         logger.debug('Loading harvester for %r', self.config)
         harvester = self.config.get_harvester()
 
@@ -200,12 +213,14 @@ class HarvesterTask(SourceTask):
         )
 
         # TODO search for logs that contain our date range.
-        if not created and log.status in (HarvestLog.STATUS.succeeded, HarvestLog.STATUS.skipped):
+        if not created and log.completions > 0:
             if not superfluous:
                 log.skip(HarvestLog.SkipReasons.duplicated)
                 return logger.warning('%s - %s has already been harvested for %r. Force a re-run with superfluous=True', start, end, self.config)
             else:
                 logger.info('%s - %s has already been harvested for %r. Re-running superfluously', start, end, self.config)
+        elif not created:
+            log.task_id = self.request.id
 
         # Use the locking connection to avoid putting everything else in a transaction.
         with transaction.atomic(using='locking'):
@@ -236,7 +251,12 @@ class HarvesterTask(SourceTask):
                     datum_ids = {True: [], False: []}
 
                     try:
-                        for datum in harvester.harvest(start, end, limit=limit, **kwargs):
+                        # Harvesters expect datetime objects currently.
+                        # TODO Update Harvesters to accept dates only
+                        h_end = datetime.datetime.combine(end, datetime.time(0, 0, 0, 0, timezone.utc))
+                        h_start = datetime.datetime.combine(start, datetime.time(0, 0, 0, 0, timezone.utc))
+
+                        for datum in harvester.harvest(h_start, h_end, limit=limit, **kwargs):
                             datum_ids[datum.created].append(datum.id)
                             if datum.created:
                                 logger.debug('Found new %r from %r', datum, self.config)

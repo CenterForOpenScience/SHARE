@@ -3,6 +3,7 @@ import datetime
 import math
 import random
 import threading
+import uuid
 
 import pendulum
 
@@ -14,7 +15,6 @@ from django.conf import settings
 from django.db import DatabaseError
 from django.db import connections
 from django.db import transaction
-from django.utils import timezone
 
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.harvest.exceptions import HarvesterDisabledError
@@ -56,9 +56,9 @@ class SyncedThread(threading.Thread):
         return super().join(timeout)
 
 
-def harvest(*args, **kwargs):
+def harvest(*args, retries=99999999, task_id=None, **kwargs):
     # Set retries to be really high to avoid retrying
-    return HarvesterTask().apply(args, kwargs, retries=99999999)
+    return HarvesterTask().apply(args, kwargs, task_id=task_id, retries=retries)
 
 
 @pytest.mark.django_db
@@ -111,6 +111,32 @@ class TestHarvestTask:
         assert log.completions == 0
         assert 'ValueError: In a test' in log.context
 
+    def test_harvest_preapply(self, source_config):
+        log = factories.HarvestLogFactory(source_config=source_config, status=HarvestLog.STATUS.failed)
+
+        HarvesterTask._preapply(
+            (1, source_config.label),
+            {'start': log.start_date, 'end': log.end_date}
+        )
+
+        log.refresh_from_db()
+
+        assert HarvestLog.objects.count() == 1
+        assert log.status == HarvestLog.STATUS.retried
+
+    def test_harvest_preapply_rescheduled(self, source_config):
+        log = factories.HarvestLogFactory(source_config=source_config, status=HarvestLog.STATUS.rescheduled)
+
+        HarvesterTask._preapply(
+            (1, source_config.label),
+            {'start': log.start_date, 'end': log.end_date}
+        )
+
+        log.refresh_from_db()
+
+        assert HarvestLog.objects.count() == 1
+        assert log.status == HarvestLog.STATUS.rescheduled
+
     def test_harvest_database_error(self, source_config):
         def do_harvest(*args, **kwargs):
             yield ('doc1', b'doc1data')
@@ -150,15 +176,16 @@ class TestHarvestTask:
         assert 'ValueError: In a test' in log.context
 
     def test_log_values(self, source_config):
-        harvest(source_config.source.user.id, source_config.label)
+        task_id = uuid.uuid4()
+        harvest(source_config.source.user.id, source_config.label, task_id=str(task_id))
         log = HarvestLog.objects.get(source_config=source_config)
 
-        assert log.task_id is not None
+        assert log.task_id == task_id
         assert log.status == HarvestLog.STATUS.succeeded
         assert log.context == ''
         assert log.completions == 1
-        assert log.start_date.date() == datetime.date.today() - datetime.timedelta(days=1)
-        assert log.end_date.date() == datetime.date.today()
+        assert log.start_date == (datetime.date.today() - datetime.timedelta(days=1))
+        assert log.end_date == datetime.date.today()
         assert log.source_config == source_config
         assert log.share_version == settings.VERSION
         assert log.harvester_version == source_config.get_harvester().VERSION
@@ -198,7 +225,7 @@ class TestHarvestTask:
         list(RawDatum.objects.store_chunk(source_config, random.sample(source_config.harvester.get_class().do_harvest.return_value, rediscovered)))
 
         # TODO Drop this number....
-        with django_assert_num_queries(15 + math.ceil((count if limit is None or count < limit else limit) / 500) * 3):
+        with django_assert_num_queries(17 + math.ceil((count if limit is None or count < limit else limit) / 500) * 3):
             harvest(source_config.source.user.id, source_config.label, superfluous=superfluous, limit=limit, ingest=ingest)
 
         log = HarvestLog.objects.get(source_config=source_config)
@@ -285,8 +312,8 @@ class TestHarvestTask:
         x = HarvestLog.objects.first()
 
         assert x
-        assert x.end_date == datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0, 0, 0, timezone.utc))
-        assert x.start_date == datetime.datetime.combine(datetime.date.today() - datetime.timedelta(1), datetime.time(0, 0, 0, 0, timezone.utc))
+        assert x.end_date == datetime.date.today()
+        assert x.start_date == (datetime.date.today() - datetime.timedelta(1))
 
     def test_apply_async_creates_log(self, source_config, monkeypatch):
         mock_apply_async = mock.Mock()
@@ -297,8 +324,8 @@ class TestHarvestTask:
         x = HarvestLog.objects.first()
 
         assert x
-        assert x.end_date == datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0, 0, 0, timezone.utc))
-        assert x.start_date == datetime.datetime.combine(datetime.date.today() - datetime.timedelta(1), datetime.time(0, 0, 0, 0, timezone.utc))
+        assert x.end_date == datetime.date.today()
+        assert x.start_date == (datetime.date.today() - datetime.timedelta(1))
         assert x.source_config == source_config
         assert x.status == HarvestLog.STATUS.created
         assert x.harvester_version == source_config.get_harvester().VERSION

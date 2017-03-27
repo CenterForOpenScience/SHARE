@@ -1,9 +1,13 @@
-import pkg_resources
 from unittest import mock
+import datetime
+import pkg_resources
+
 import stevedore
 
 import factory
 from factory.django import DjangoModelFactory
+
+from django.utils import timezone
 
 from share import models
 from share.harvest import BaseHarvester
@@ -85,3 +89,19 @@ class SourceConfigFactory(DjangoModelFactory):
 
     class Meta:
         model = models.SourceConfig
+
+
+class HarvestLogFactory(DjangoModelFactory):
+    source_config = factory.SubFactory(SourceConfigFactory)
+    start_date = factory.Faker('date_time')
+
+    class Meta:
+        model = models.HarvestLog
+
+    @classmethod
+    def _generate(cls, create, attrs):
+        attrs['source_config_version'] = attrs['source_config'].version
+        attrs['harvester_version'] = attrs['source_config'].harvester.version
+        attrs['start_date'] = datetime.datetime.combine(attrs['start_date'].date(), datetime.time(0, 0, 0, 0, timezone.utc))
+        attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
+        return super()._generate(create, attrs)

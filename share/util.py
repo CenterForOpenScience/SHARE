@@ -1,7 +1,7 @@
-import re
-import os
-import yaml
 from collections import OrderedDict
+import os
+import re
+import yaml
 
 
 WHITESPACE_RE = r'\s+'
