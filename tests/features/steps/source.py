@@ -42,6 +42,7 @@ def update_harvester(context, label, version):
 @behave.when('{label} is harvested')
 @behave.when('{label} is harvested for {start} to {end}')
 def start_harvest(context, label, start=None, end=None):
+    start, end = tasks.HarvesterTask.resolve_date_range(start, end)
     tasks.HarvesterTask().apply((1, label), {'start': start, 'end': end}, retries=99999999999)
 
 

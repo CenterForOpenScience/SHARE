@@ -30,6 +30,7 @@ from share.models.logs import HarvestLog
 from share.models.registration import ProviderRegistration
 from share.models.banner import SiteBanner
 from share.readonlyadmin import ReadOnlyAdmin
+from share.tasks import HarvesterTask
 
 
 class NormalizedDataAdmin(admin.ModelAdmin):
@@ -213,6 +214,18 @@ class HarvestLogAdmin(admin.ModelAdmin):
     list_filter = ('status', SourceConfigFilter, )
     list_select_related = ('source_config__source', )
     readonly_fields = ('harvest_log_actions',)
+    actions = ('restart_tasks', )
+
+    STATUS_COLORS = {
+        HarvestLog.STATUS.created: 'blue',
+        HarvestLog.STATUS.started: 'cyan',
+        HarvestLog.STATUS.failed: 'red',
+        HarvestLog.STATUS.succeeded: 'green',
+        HarvestLog.STATUS.rescheduled: 'goldenrod',
+        HarvestLog.STATUS.forced: 'maroon',
+        HarvestLog.STATUS.skipped: 'orange',
+        HarvestLog.STATUS.retried: 'darkseagreen',
+    }
 
     def source(self, obj):
         return obj.source_config.source.long_title
@@ -227,13 +240,21 @@ class HarvestLogAdmin(admin.ModelAdmin):
         return obj.end_date.date().isoformat()
 
     def status_(self, obj):
-        if obj.status == HarvestLog.STATUS.created and (timezone.now() - obj.date_modified) > datetime.timedelta(minutes=60):
-            return '<span style="font-weight: bold;">Lost</span>'
+        if obj.status == HarvestLog.STATUS.created and (timezone.now() - obj.date_modified) > datetime.timedelta(days=1, hours=6):
+            return format_html('<span style="font-weight: bold;">Lost</span>')
         return format_html(
             '<span style="font-weight: bold; color: {}">{}</span>',
-            ['blue', 'cyan', 'red', 'green', 'goldenrod', 'orange'][obj.status],
+            self.STATUS_COLORS[obj.status],
             HarvestLog.STATUS[obj.status].title(),
         )
+
+    def restart_tasks(self, request, queryset):
+        for log in queryset.select_related('source_config'):
+            HarvesterTask().apply_async((1, log.source_config.label), {
+                'end': log.end_date.isoformat(),
+                'start': log.start_date.isoformat(),
+            }, task_id=log.task_id, restarted=True)
+    restart_tasks.short_description = 'Restart selected tasks'
 
     def harvest_log_actions(self, obj):
         url = furl(reverse('admin:source-config-harvest', args=[obj.source_config_id]))
@@ -298,7 +319,8 @@ class SourceConfigAdmin(admin.ModelAdmin):
                     'end': form.cleaned_data['end'],
                     'superfluous': form.cleaned_data['superfluous'],
                     'async': True,
-                    'ignore_disabled': True
+                    'quiet': True,
+                    'ignore_disabled': True,
                 }
                 management.call_command('fullharvest', config.label, **kwargs)
                 self.message_user(request, 'Started harvesting {}!'.format(config.label))

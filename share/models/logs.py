@@ -2,6 +2,7 @@ import enum
 import itertools
 import logging
 import traceback
+import types
 
 from model_utils import Choices
 
@@ -35,18 +36,30 @@ class AbstractLogManager(models.Manager):
         RETURNING {fields}
     '''
 
-    def bulk_create_or_get(self, fields, data, db_alias='default'):
+    _bulk_tmpl_nothing = '''
+        INSERT INTO "{table}"
+            ({insert})
+        VALUES
+            {{values}}
+        ON CONFLICT ({constraint})
+        DO NOTHING
+        RETURNING {fields}
+    '''
 
-        default_fields, default_values = (), ()
-        for field in self.model._meta.concrete_fields:
-            if field.name in fields:
-                continue
-            if not field.null and field.default is not models.NOT_PROVIDED:
-                default_fields += (field.name, )
-                default_values += (field.default, )
-            if isinstance(field, models.DateTimeField) and (field.auto_now or field.auto_now_add):
-                default_fields += (field.name, )
-                default_values += (timezone.now(), )
+    def bulk_create_or_nothing(self, fields, data, db_alias='default'):
+        default_fields, default_values = self._build_defaults(fields)
+
+        query = self._bulk_tmpl_nothing.format(
+            table=self.model._meta.db_table,
+            fields=', '.join('"{}"'.format(field.column) for field in self.model._meta.concrete_fields),
+            insert=', '.join('"{}"'.format(self.model._meta.get_field(field).column) for field in itertools.chain(fields + default_fields)),
+            constraint=', '.join('"{}"'.format(self.model._meta.get_field(field).column) for field in self.model._meta.unique_together[0]),
+        )
+
+        return self._bulk_query(query, default_values, data, db_alias)
+
+    def bulk_create_or_get(self, fields, data, db_alias='default'):
+        default_fields, default_values = self._build_defaults(fields)
 
         query = self._bulk_tmpl.format(
             table=self.model._meta.db_table,
@@ -55,6 +68,9 @@ class AbstractLogManager(models.Manager):
             constraint=', '.join('"{}"'.format(self.model._meta.get_field(field).column) for field in self.model._meta.unique_together[0]),
         )
 
+        return self._bulk_query(query, default_values, data, db_alias)
+
+    def _bulk_query(self, query, default_values, data, db_alias):
         fields = [field.name for field in self.model._meta.concrete_fields]
 
         with connection.cursor() as cursor:
@@ -68,6 +84,22 @@ class AbstractLogManager(models.Manager):
                 for row in cursor.fetchall():
                     yield self.model.from_db(db_alias, fields, row)
 
+    def _build_defaults(self, fields):
+        default_fields, default_values = (), ()
+        for field in self.model._meta.concrete_fields:
+            if field.name in fields:
+                continue
+            if not field.null and field.default is not models.NOT_PROVIDED:
+                default_fields += (field.name, )
+                if isinstance(field.default, types.FunctionType):
+                    default_values += (field.default(), )
+                else:
+                    default_values += (field.default, )
+            if isinstance(field, models.DateTimeField) and (field.auto_now or field.auto_now_add):
+                default_fields += (field.name, )
+                default_values += (timezone.now(), )
+        return default_fields, default_values
+
 
 class AbstractBaseLog(models.Model):
     STATUS = Choices(
@@ -76,9 +108,11 @@ class AbstractBaseLog(models.Model):
         (2, 'failed', _('Failed')),
         (3, 'succeeded', _('Succeeded')),
         (4, 'rescheduled', _('Rescheduled')),
-        (5, 'defunct', _('Defunct')),
+        # Used to be "defunct" which turnout to be defunct
+        # Removed to avoid confusion but number has been left the same for backwards compatibility
         (6, 'forced', _('Forced')),
         (7, 'skipped', _('Skipped')),
+        (8, 'retried', _('Retrying')),
     )
 
     class SkipReasons(enum.Enum):
@@ -173,23 +207,40 @@ class AbstractBaseLog(models.Model):
 
 
 class HarvestLog(AbstractBaseLog):
-    # TODO These should be dates in the future
     # May want to look into using DateRange in the future
-    # It's easy to go from DateTime -> Date than the other way around
-    end_date = models.DateTimeField(db_index=True)
-    start_date = models.DateTimeField(db_index=True)
+    end_date = models.DateField(db_index=True)
+    start_date = models.DateField(db_index=True)
     harvester_version = models.PositiveIntegerField()
 
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
 
+    def spawn_task(self, ingest=False, force=False, limit=None, superfluous=False, ignore_disabled=False, async=True):
+        from share.tasks import HarvesterTask
+        # TODO Move most if not all of the logic for task argument massaging here.
+        # It's bad to have two places already but this is required to backharvest a source without timing out on uwsgi
+        task = HarvesterTask()
 
-# class IngestLog(AbstractBaseLog):
-#     raw_datum = models.ForeignKey('RawDatum')
+        targs = (1, self.source_config.label)
+        tkwargs = {
+            'end': self.end_date.isoformat(),
+            'start': self.start_date.isoformat(),
+            'ingest': ingest,
+            'limit': limit,
+            'force': force,
+            'superfluous': superfluous
+        }
 
-#     regulator_version = models.TextField(blank=True, default='', validators=[VersionValidator])
-#     transformer_version = models.TextField(validators=[VersionValidator])
-#     consolidator_version = models.TextField(blank=True, default='', validators=[VersionValidator])
+        if async:
+            return HarvesterTask.mro()[1].apply_async(task, targs, tkwargs, task_id=self.task_id)
+        return HarvesterTask.mro()[1].apply(task, targs, tkwargs, task_id=self.task_id, throw=True)
 
-#     class Meta:
-#         unique_together = ('raw_datum', 'transformer_version')
+    def __repr__(self):
+        return '<{type}({id}, {status}, {source}, {start_date}, {end_date})>'.format(
+            type=type(self).__name__,
+            id=self.id,
+            source=self.source_config.label,
+            status=self.STATUS[self.status],
+            end_date=self.end_date.isoformat(),
+            start_date=self.start_date.isoformat(),
+        )

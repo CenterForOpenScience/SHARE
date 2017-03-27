@@ -2,11 +2,11 @@ import datetime
 import pendulum
 
 from django.utils import timezone
-from django.conf import settings
+from django.db import transaction
 from django.core.management.base import BaseCommand
 
 from share.tasks import HarvesterTask
-from share.models import ShareUser, SourceConfig
+from share.models import SourceConfig, HarvestLog
 
 
 def parse_date(date):
@@ -24,35 +24,39 @@ class Command(BaseCommand):
         parser.add_argument('--ignore-disabled', action='store_true', help='')
         parser.add_argument('--no-ingest', action='store_false', help='')
         parser.add_argument('--superfluous', action='store_true', help='')
+        parser.add_argument('--quiet', action='store_true', help='')
 
     def handle(self, *args, **options):
-        source_config = SourceConfig.objects.get(label=options['source_config'])
-        system_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+
+        source_config = SourceConfig.objects.filter(label=options['source_config'])[0]
 
         start = options.get('start') or source_config.earliest_date
         end = options.get('end') or timezone.now().date()
+        start, end = HarvesterTask.resolve_date_range(start, end)
+        quiet = options.pop('quiet')
 
+        fields = ('start_date', 'end_date', 'source_config', 'harvester_version', 'source_config_version')
+        data = (
+            (*dates, source_config.id, source_config.harvester.version, source_config.version)
+            for dates in self._date_gen(start, end, datetime.timedelta(options.pop('interval')))
+        )
+
+        with transaction.atomic():
+            for log in HarvestLog.objects.bulk_create_or_nothing(fields, data):
+                log._source_config_cache = source_config
+                log.spawn_task(**{
+                    k: v for k, v in options.items()
+                    if k in ('limit', 'force', 'superfluous', 'ingest', 'ignore_disabled')
+                })
+                if not quiet:
+                    self.stdout.write('Started HarvesterTask({}, {}, {})'.format(options['source_config'], log.start_date, log.end_date))
+
+    def _date_gen(self, start, end, interval):
         task_end = start
         while task_end < end:
-            task_start, task_end = task_end, task_end + datetime.timedelta(options['interval'])
+            task_start, task_end = task_end, task_end + interval
 
             if task_end > end:
                 task_end = end
 
-            if options['async']:
-                HarvesterTask().apply_async((system_user.id, options['source_config'], ), {
-                    'start': task_start.isoformat(),
-                    'end': task_end.isoformat(),
-                    'ingest': bool(options['no_ingest']),
-                    'ignore_disabled': bool(options['ignore_disabled']),
-                    'superfluous': bool(options['superfluous']),
-                }, queue='backharvest', routing_key='backharvest')
-                self.stdout.write('Started HarvesterTask({}, {}, {})'.format(options['source_config'], task_start, task_end))
-            else:
-                HarvesterTask().apply((system_user.id, options['source_config'], ), {
-                    'start': task_start.isoformat(),
-                    'end': task_end.isoformat(),
-                    'ingest': bool(options['no_ingest']),
-                    'ignore_disabled': bool(options['ignore_disabled']),
-                    'superfluous': bool(options['superfluous']),
-                }, throw=True)
+            yield task_start, task_end
