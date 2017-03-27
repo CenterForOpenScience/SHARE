@@ -415,23 +415,28 @@ class MODSCreativeWork(Parser):
             tokens.extend([x.strip() for x in re.split(r'(?: - )|\.|,', item) if x])
         return tokens
 
+    # Map titleInfos to a string: https://www.loc.gov/standards/mods/userguide/titleinfo.html#mappings
     def join_title_info(self, obj):
+        def get_part(title_info, part_name, delimiter=''):
+            part = force_text(title_info.get(part_name, '')).strip()
+            return delimiter + part if part else ''
+
         title_infos = get_list(obj, 'mods:titleInfo')
-        title = ''
+        titles = []
         for title_info in title_infos:
-            title += force_text(title_info.get('mods:nonSort', ''))
-            title += force_text(title_info.get('mods:title', ''))
-            if 'mods:subTitle' in title_info:
-                title += ': ' + force_text(title_info['mods:subTitle'])
-            if 'mods:partNumber' in title_info:
-                title += '. ' + force_text(title_info['mods:partNumber'])
-            if 'mods:partName' in title_info:
-                title += '. ' + force_text(title_info['mods:partName'])
-        return title
+            title = ''
+            title += get_part(title_info, 'mods:nonSort')
+            title += get_part(title_info, 'mods:title')
+            title += get_part(title_info, 'mods:subTitle', ': ')
+            title += get_part(title_info, 'mods:partNumber', '. ')
+            title += get_part(title_info, 'mods:partName', ': ')
+            if title:
+                titles.append(title)
+        return '. '.join(titles)
 
     def filter_names(self, obj, *roles, invert=False):
-        filtered = []
         names = get_list(obj, 'mods:name')
+        filtered = [*names] if invert else []
         for name in names:
             name_roles = get_list(name, 'mods:role')
             for role in name_roles:
@@ -439,7 +444,10 @@ class MODSCreativeWork(Parser):
                 name_roles = {force_text(r).lower() for r in role_terms}
                 name_roles.update({self.role_map[r] for r in name_roles if r in self.role_map})
                 if name_roles.intersection(roles):
-                    filtered.append(name)
+                    if invert:
+                        filtered.remove(name)
+                    else:
+                        filtered.append(name)
         return filtered
 
 
