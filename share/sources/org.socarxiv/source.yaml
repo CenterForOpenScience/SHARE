@@ -1,6 +1,6 @@
 configs:
 - base_url: https://socopen.org/
-  disabled: false
+  disabled: true
   earliest_date: null
   harvester: null
   label: org.socarxiv

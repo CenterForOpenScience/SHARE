@@ -133,7 +133,7 @@ class SourceTask(LoggedTask):
 class HarvesterTask(SourceTask):
 
     @classmethod
-    def resolve_date_range(cls, start, end, clean=True):
+    def resolve_date_range(cls, start, end):
         logger.debug('Coercing start and end (%r, %r) into UTC dates', start, end)
 
         if bool(start) ^ bool(end):
@@ -197,10 +197,9 @@ class HarvesterTask(SourceTask):
     # start and end *should* be dates. They will be turned into dates if not
     def do_run(self, start=None, end=None, limit=None, force=False, superfluous=False, ignore_disabled=False, ingest=True, **kwargs):
         # WARNING: Errors that occur here cannot be logged to the HarvestLog.
-        # NOTE: We don't clean (Force to be UTC dates) the times here to avoid accidentally creating another HarvestLog
-        start, end = self.resolve_date_range(start, end, clean=False)
         logger.debug('Loading harvester for %r', self.config)
         harvester = self.config.get_harvester()
+        start, end = self.resolve_date_range(start, end)
 
         # TODO optimize into 1 query with ON CONFLICT
         log, created = HarvestLog.objects.get_or_create(

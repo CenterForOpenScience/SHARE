@@ -15,7 +15,7 @@ configs:
   transformer: io.osf
   transformer_kwargs: {}
 - base_url: http://osf.io/api/v2/preprints/
-  disabled: false
+  disabled: true
   earliest_date: null
   harvester: io.osf
   harvester_kwargs:
