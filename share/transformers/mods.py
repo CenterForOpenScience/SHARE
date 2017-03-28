@@ -72,8 +72,8 @@ class MODSAgent(Parser):
         tools.Delegate(MODSAgentIdentifier),
         tools.Unique(tools.Map(
             tools.Try(tools.IRI(), exceptions=(ValueError, )),
-            tools.RunPython(
-                force_text,
+            tools.Map(
+                tools.RunPython(force_text),
                 tools.Filter(
                     lambda obj: 'invalid' not in obj,
                     tools.Try(ctx['mods:nameIdentifier']),
@@ -234,8 +234,8 @@ class MODSCreativeWork(Parser):
         tools.Delegate(MODSWorkIdentifier),
         tools.Unique(tools.Map(
             tools.Try(tools.IRI(), exceptions=(ValueError, )),
-            tools.RunPython(
-                force_text,
+            tools.Map(
+                tools.RunPython(force_text),
                 tools.Filter(
                     lambda obj: 'invalid' not in obj,
                     tools.Concat(
