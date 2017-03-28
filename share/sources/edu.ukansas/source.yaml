@@ -3,6 +3,35 @@ configs:
   disabled: false
   earliest_date: null
   harvester: oai
+  harvester_kwargs: {metadata_prefix: mods}
+  label: edu.ukansas.mods
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: mods
+  transformer_kwargs:
+    approved_sets: [com_1808_978, com_1808_118, com_1808_84, com_1808_1666, com_1808_1029,
+      com_1808_7799, com_1808_8834, com_1808_377, com_1808_7165, com_1808_1069, com_1808_65,
+      com_1808_907, com_1808_7105, com_1808_3892, com_1808_5894, com_1808_62, com_1808_224,
+      com_1808_64, com_1808_97, com_1808_1776, com_1808_5634, com_1808_1260, com_1808_8219,
+      com_1808_8701, com_1808_9235, com_1808_4471, com_1808_291, com_1808_267, com_1808_231,
+      com_1808_592, com_1808_979, com_1808_8717, com_1808_1049, com_1808_1050, com_1808_1051,
+      com_1808_1052, com_1808_1483, com_1808_1815, com_1808_87, com_1808_408, com_1808_776,
+      com_1808_5725, com_1808_5724, com_1808_284, com_1808_6210, com_1808_54, com_1808_363,
+      com_1808_3604, com_1808_913, com_1808_9053, com_1808_7115, com_1808_276, com_1808_748,
+      com_1808_9219, com_1808_21, com_1808_9232, com_1808_238, com_1808_275, com_1808_263,
+      com_1808_100, com_1808_5423, com_1808_8837, com_1808_984, com_1808_56, com_1808_1060,
+      com_1808_2088, com_1808_80, com_1808_981, com_1808_96, com_1808_109, com_1808_234,
+      com_1808_89, com_1808_4073, com_1808_594, com_1808_8689, com_1808_3598, com_1808_9214,
+      com_1808_466, com_1808_6080, com_1808_60, com_1808_7240, com_1808_735, com_1808_789,
+      com_1808_4373, com_1808_287, com_1808_82, com_1808_2076, com_1808_774, com_1808_6803,
+      com_1808_1811, com_1808_197, com_1808_8721, com_1808_6204]
+    emitted_type: CreativeWork
+    property_list: [publisher, language, relation, date, identifier, type]
+    type_map: {}
+- base_url: https://kuscholarworks.ku.edu/oai/request
+  disabled: true
+  earliest_date: null
+  harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.ukansas
   rate_limit_allowance: 5

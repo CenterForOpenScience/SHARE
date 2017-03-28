@@ -3,6 +3,38 @@ configs:
   disabled: false
   earliest_date: null
   harvester: oai
+  harvester_kwargs: {metadata_prefix: mods}
+  label: edu.uhawaii.mods
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: mods
+  transformer_kwargs:
+    approved_sets: [com_10125_562, com_10125_565, com_10125_569, com_10125_572, com_10125_574,
+      com_10125_576, com_10125_1913, com_10125_579, com_10125_1915, com_10125_770,
+      com_10125_1917, com_10125_860, com_10125_1919, com_10125_1921, com_10125_1929,
+      com_10125_863, com_10125_1931, com_10125_1933, com_10125_866, com_10125_1935,
+      com_10125_869, com_10125_1940, com_10125_1937, com_10125_1941, com_10125_1944,
+      com_10125_872, com_10125_875, com_10125_339, com_10125_1881, com_10125_1880,
+      com_10125_1878, com_10125_1883, com_10125_307, com_10125_1816, com_10125_1383,
+      com_10125_878, com_10125_1877, com_10125_1135, com_10125_323, com_10125_349,
+      com_10125_561, com_10125_1699, com_10125_1700, com_10125_1138, com_10125_1140,
+      com_10125_1832, com_10125_1677, com_10125_30, com_10125_31, com_10125_1819,
+      com_10125_321, com_10125_531, com_10125_19, com_10125_324, com_10125_530, com_10125_310,
+      com_10125_1221, com_10125_312, com_10125_1222, com_10125_1300, com_10125_598,
+      com_10125_317, com_10125_364, com_10125_370, com_10125_386, com_10125_823, com_10125_856,
+      com_10125_956, com_10125_1036, com_10125_1041, com_10125_1046, com_10125_1051,
+      com_10125_490, com_10125_365, com_10125_495, com_10125_634, com_10125_430, com_10125_961,
+      com_10125_968, com_10125_971, com_10125_974, com_10125_979, com_10125_435, com_10125_624,
+      com_10125_1085, com_10125_1090, com_10125_1115, com_10125_1120, com_10125_1125,
+      com_10125_1130, com_10125_629, com_10125_450, com_10125_289, com_10125_25, com_10125_738,
+      com_10125_1820, com_10125_286, com_10125_1696, com_10125_1678, com_10125_1701]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+- base_url: https://scholarspace.manoa.hawaii.edu/dspace-oai/request
+  disabled: true
+  earliest_date: null
+  harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.uhawaii
   rate_limit_allowance: 5

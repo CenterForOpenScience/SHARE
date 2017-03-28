@@ -3,6 +3,36 @@ configs:
   disabled: false
   earliest_date: null
   harvester: oai
+  harvester_kwargs: {metadata_prefix: mods}
+  label: es.csic.mods
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: mods
+  transformer_kwargs:
+    approved_sets: [com_10261_40, com_10261_25, com_10261_66, com_10261_111, com_10261_79,
+      com_10261_52, com_10261_67, com_10261_10, com_10261_92, com_10261_71, com_10261_29,
+      com_10261_55, com_10261_72, com_10261_88, com_10261_107, com_10261_135, com_10261_93,
+      com_10261_115, com_10261_86, com_10261_104, com_10261_57, com_10261_76, com_10261_100,
+      com_10261_85, com_10261_17, com_10261_18, com_10261_73, com_10261_13, com_10261_75,
+      com_10261_16, com_10261_59, com_10261_19, com_10261_91, com_10261_24, com_10261_54,
+      com_10261_132, com_10261_84, com_10261_65, com_10261_94, com_10261_32, com_10261_74,
+      com_10261_131, com_10261_58, com_10261_97, com_10261_87, com_10261_96, com_10261_41,
+      com_10261_103, com_10261_112, com_10261_39, com_10261_109, com_10261_80, com_10261_35,
+      com_10261_101, com_10261_78, com_10261_31, com_10261_89, com_10261_98, com_10261_70,
+      com_10261_56, com_10261_14, com_10261_27, com_10261_23, com_10261_82, com_10261_20,
+      com_10261_102, com_10261_95, com_10261_69, com_10261_113, com_10261_61, com_10261_37,
+      com_10261_63, com_10261_83, com_10261_21, com_10261_62, com_10261_22, com_10261_105,
+      com_10261_38, com_10261_60, com_10261_108, com_10261_28, com_10261_36, com_10261_90,
+      com_10261_133, com_10261_64, com_10261_34, com_10261_81, com_10261_33, com_10261_15,
+      com_10261_53, com_10261_106, com_10261_99, com_10261_68, com_10261_130, com_10261_11,
+      com_10261_77, com_10261_26, com_10261_12, com_10261_51, com_10261_42]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+- base_url: http://digital.csic.es/dspace-oai/request
+  disabled: true
+  earliest_date: null
+  harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: es.csic
   rate_limit_allowance: 5
