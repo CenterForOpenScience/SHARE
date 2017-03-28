@@ -1,0 +1,10 @@
+{% extends "oaipmh/base.xml" %}
+
+{% block content %}
+    <ListIdentifiers>
+        {% for record in records %}
+            {% include 'oaipmh/recordheader.xml' with header=record %}
+        {% endfor %}
+        {# TODO resumptionToken #}
+    </ListIdentifiers>
+{% endblock %}

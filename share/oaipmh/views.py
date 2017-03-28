@@ -1,3 +1,4 @@
+import dateutil
 from datetime import datetime
 
 from django.core.urlresolvers import reverse
@@ -11,10 +12,10 @@ from share.util import IDObfuscator, InvalidID
 
 
 class OAIVerb:
-    def __init__(self, template, required_args=(), optional_args=(), exclusive_arg=None):
+    def __init__(self, template, required_args=set(), optional_args=set(), exclusive_arg=None):
         self.template = template
-        self.required_args = set(required_args)
-        self.optional_args = set(optional_args)
+        self.required_args = required_args
+        self.optional_args = optional_args
         self.exclusive_arg = exclusive_arg
 
     def validate(self, kwargs):
@@ -48,11 +49,14 @@ class OAIPMHView(View):
     ]
     VERBS = {
         'Identify': OAIVerb('oaipmh/identify.xml'),
-        'ListMetadataFormats': OAIVerb('oaipmh/listformats.xml', optional_args=('identifier',)),
-        'GetRecord': OAIVerb('oaipmh/getrecord.xml', required_args=('identifier', 'metadataPrefix')),
+        'ListMetadataFormats': OAIVerb('oaipmh/listformats.xml', optional_args={'identifier'}),
         'ListSets': OAIVerb('oaipmh/listsets.xml', exclusive_arg='resumptionToken'),
+        'ListIdentifiers': OAIVerb('oaipmh/listidentifiers.xml', required_args={'metadataPrefix'}, optional_args={'from', 'until', 'set'}, exclusive_arg='resumptionToken'),
+        'ListRecords': OAIVerb('oaipmh/listrecords.xml', required_args={'metadataPrefix'}, optional_args={'from', 'until', 'set'}, exclusive_arg='resumptionToken'),
+        'GetRecord': OAIVerb('oaipmh/getrecord.xml', required_args={'identifier', 'metadataPrefix'}),
     }
     ERROR_TEMPLATE = 'oaipmh/error.xml'
+    PAGE_SIZE = 100
 
     def get(self, request):
         return self.oai_response(**request.GET)
@@ -86,6 +90,23 @@ class OAIPMHView(View):
             template = self.ERROR_TEMPLATE
         return SimpleTemplateResponse(template, context=self.context, content_type=self.CONTENT_TYPE)
 
+    def oai_identifier(self, work):
+        if isinstance(work, int):
+            share_id = IDObfuscator.encode_id(work, AbstractCreativeWork)
+        else:
+            share_id = IDObfuscator.encode(work)
+        return 'oai{delim}{repository}{delim}{id}'.format(id=share_id, repository=self.REPOSITORY_IDENTIFIER, delim=self.IDENTIFER_DELIMITER)
+
+    def resolve_oai_identifier(self, identifier):
+        try:
+            splid = identifier.split(self.IDENTIFER_DELIMITER)
+            if len(splid) != 3 or splid[:2] != ['oai', self.REPOSITORY_IDENTIFIER]:
+                raise InvalidID(identifier)
+            return IDObfuscator.resolve(splid[-1])
+        except (AbstractCreativeWork.DoesNotExist, InvalidID):
+            self.errors.append(oai_errors.BadRecordID(identifier))
+            return None
+
     def _do_identify(self, kwargs):
         self.context.update({
             'repository_name': 'SHARE',
@@ -110,38 +131,52 @@ class OAIPMHView(View):
             return
         self.context['sets'] = Source.objects.values_list('name', 'long_title')
 
+    def _do_listidentifiers(self, kwargs):
+        # TODO resumptionToken
+        queryset = self._record_queryset(kwargs)
+        if self.errors:
+            return
+        if not queryset.exists():
+            self.errors.append(oai_errors.NoResults())
+            return
+        # TODO is there a way to prefetch Sources just for this page? https://code.djangoproject.com/ticket/26780
+        self.context['records'] = [self._record_header_context(work) for work in queryset[:self.PAGE_SIZE]]
+
+    def _do_listrecords(self, kwargs):
+        # TODO resumptionToken
+        queryset = self._record_queryset(kwargs)
+        if self.errors:
+            return
+        if not queryset.exists():
+            self.errors.append(oai_errors.NoResults())
+            return
+        # TODO is there a way to prefetch Sources/Relations/Identifiers just for this page? https://code.djangoproject.com/ticket/26780
+        format = self._get_format(kwargs)
+        self.context['format'] = format
+        self.context['records'] = [
+            (self._record_header_context(work), format.work_context(work, self))
+            for work in queryset[:self.PAGE_SIZE]
+        ]
+
     def _do_getrecord(self, kwargs):
+        format = self._get_format(kwargs)
+        work = self.resolve_oai_identifier(kwargs['identifier'])
+        if self.errors:
+            return
+        self.context.update({
+            'header': self._record_header_context(work),
+            'format': format,
+            'work': format.work_context(work, self),
+        })
+
+    def _get_format(self, kwargs):
         try:
             prefix = kwargs['metadataPrefix']
             format = next(f for f in self.FORMATS if f.prefix == prefix)()
         except StopIteration:
             self.errors.append(oai_errors.BadFormat(prefix))
+        return format
 
-        work = self.resolve_oai_identifier(kwargs['identifier'])
-        if self.errors:
-            return
-        self.context.update({
-            **self._record_header_context(work),
-            'format': format,
-            'work': format.work_context(work, self),
-        })
-
-    def oai_identifier(self, work):
-        if isinstance(work, int):
-            share_id = IDObfuscator.encode_id(work, AbstractCreativeWork)
-        else:
-            share_id = IDObfuscator.encode(work)
-        return 'oai{delim}{repository}{delim}{id}'.format(id=share_id, repository=self.REPOSITORY_IDENTIFIER, delim=self.IDENTIFER_DELIMITER)
-
-    def resolve_oai_identifier(self, identifier):
-        try:
-            splid = identifier.split(self.IDENTIFER_DELIMITER)
-            if len(splid) != 3 or splid[:2] != ['oai', self.REPOSITORY_IDENTIFIER]:
-                raise InvalidID(identifier)
-            return IDObfuscator.resolve(splid[-1])
-        except (AbstractCreativeWork.DoesNotExist, InvalidID):
-            self.errors.append(oai_errors.BadRecordID(identifier))
-            return None
 
     def _record_header_context(self, work):
         return {
@@ -149,3 +184,42 @@ class OAIPMHView(View):
             'datestamp': format_datetime(work.date_modified),
             'set_specs': work.sources.values_list('source__name', flat=True),
         }
+    
+    def _record_queryset(self, kwargs):
+        queryset = AbstractCreativeWork.objects.all()
+        if 'from' in kwargs:
+            try:
+                from_ = dateutil.parser.parse(kwargs['from'])
+                queryset = queryset.filter(date_modified__gte=from_)
+            except ValueError:
+                self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
+        if 'until' in kwargs:
+            try:
+                until = dateutil.parser.parse(kwargs['until'])
+                queryset = queryset.filter(date_modified__lte=until)
+            except ValueError:
+                self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
+        if 'set' in kwargs:
+            queryset = queryset.filter(sources__source__name=kwargs['set'])
+
+        return queryset
+    
+    def _get_resumption_token(self, kwargs):
+        if 'from' in kwargs:
+            try:
+                from_ = dateutil.parser.parse(kwargs['from'])
+            except ValueError:
+                self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
+        if 'until' in kwargs:
+            try:
+                until = dateutil.parser.parse(kwargs['until'])
+            except ValueError:
+                self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
+        return self._format_resumption_token(from_, until, kwargs.get('set', ''), self.PAGE_SIZE)
+
+    def _format_resumption_token(self, from_, until, set_spec, cursor):
+        # TODO something more opaque, maybe
+        return '{}|{}|{}|{}'.format(format_datetime(from_), format_datetime(until), set_spec, cursor)
+
+    def _resume_queryset(self, resumption_token):
+        from_, until, set_spec, cursor = resumption_token.split('|')

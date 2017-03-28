@@ -1,0 +1,15 @@
+{% extends "oaipmh/base.xml" %}
+
+{% block content %}
+    <ListRecords>
+        {% for header, work in records %}
+            <record>
+                {% include 'oaipmh/recordheader.xml' %}
+                <metadata>
+                    {% include format.template %}
+                </metadata>
+            </record>
+        {% endfor %}
+        {# TODO resumptionToken #}
+    </ListRecords>
+{% endblock %}

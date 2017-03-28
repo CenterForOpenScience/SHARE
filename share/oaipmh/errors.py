@@ -28,3 +28,8 @@ class BadRecordID(OAIError):
 class BadResumptionToken(OAIError):
     def __init__(self, token):
         super().__init__('badResumptionToken', 'Invalid or expired resumption token: {}'.format(token))
+
+
+class NoResults(OAIError):
+    def __init__(self):
+        super().__init__('noRecordsMatch', 'No records match that query')
