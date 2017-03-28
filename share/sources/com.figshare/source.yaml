@@ -20,6 +20,6 @@ configs:
   transformer: com.figshare.v2
   transformer_kwargs: {}
 home_page: https://figshare.com/
-long_title: figshare v1
+long_title: figshare
 name: com.figshare
 user: providers.com.figshare
