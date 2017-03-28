@@ -23,3 +23,8 @@ class BadFormat(OAIError):
 class BadRecordID(OAIError):
     def __init__(self, identifier):
         super().__init__('idDoesNotExist', 'Invalid record identifier: {}'.format(identifier))
+
+
+class BadResumptionToken(OAIError):
+    def __init__(self, token):
+        super().__init__('badResumptionToken', 'Invalid or expired resumption token: {}'.format(token))

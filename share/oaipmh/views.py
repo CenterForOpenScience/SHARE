@@ -4,8 +4,9 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import View
 from django.template.response import SimpleTemplateResponse
 
-from share.models import AbstractCreativeWork
+from share.models import AbstractCreativeWork, Source
 from share.oaipmh import errors as oai_errors, formats
+from share.oaipmh.util import format_datetime
 from share.util import IDObfuscator, InvalidID
 
 
@@ -49,6 +50,7 @@ class OAIPMHView(View):
         'Identify': OAIVerb('oaipmh/identify.xml'),
         'ListMetadataFormats': OAIVerb('oaipmh/listformats.xml', optional_args=('identifier',)),
         'GetRecord': OAIVerb('oaipmh/getrecord.xml', required_args=('identifier', 'metadataPrefix')),
+        'ListSets': OAIVerb('oaipmh/listsets.xml', exclusive_arg='resumptionToken'),
     }
     ERROR_TEMPLATE = 'oaipmh/error.xml'
 
@@ -61,7 +63,7 @@ class OAIPMHView(View):
     def oai_response(self, **kwargs):
         self.errors = []
         self.context = {
-            'response_date': self.format_datetime(datetime.now()),
+            'response_date': format_datetime(datetime.now()),
             'request_url': self.request.build_absolute_uri().rpartition('?')[0],
         }
         verb_name = kwargs.pop('verb', [])
@@ -89,7 +91,7 @@ class OAIPMHView(View):
             'repository_name': 'SHARE',
             'base_url': self.request.build_absolute_uri(reverse('oai-pmh')),
             'protocol_version': '2.0',
-            'earliest_datestamp': self.format_datetime(AbstractCreativeWork.objects.order_by('date_modified').values_list('date_modified', flat=True)[0]),
+            'earliest_datestamp': format_datetime(AbstractCreativeWork.objects.order_by('date_modified').values_list('date_modified', flat=True)[0]),
             'deleted_record': 'no',
             'granularity': 'YYYY-MM-DDThh:mm:ssZ',
             'admin_emails': ['share-support@osf.io'],
@@ -102,6 +104,12 @@ class OAIPMHView(View):
     def _do_listmetadataformats(self, kwargs):
         self.context['formats'] = self.FORMATS
 
+    def _do_listsets(self, kwargs):
+        if 'resumptionToken' in kwargs:
+            self.errors.append(oai_errors.BadResumptionToken(kwargs['resumptionToken']))
+            return
+        self.context['sets'] = Source.objects.values_list('name', 'long_title')
+
     def _do_getrecord(self, kwargs):
         try:
             prefix = kwargs['metadataPrefix']
@@ -113,12 +121,10 @@ class OAIPMHView(View):
         if self.errors:
             return
         self.context.update({
-            'work': format.work_context(work),
-            **self._record_header_context(work)
+            **self._record_header_context(work),
+            'format': format,
+            'work': format.work_context(work, self),
         })
-
-    def format_datetime(self, dt):
-        return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
 
     def oai_identifier(self, work):
         if isinstance(work, int):
@@ -130,7 +136,7 @@ class OAIPMHView(View):
     def resolve_oai_identifier(self, identifier):
         try:
             splid = identifier.split(self.IDENTIFER_DELIMITER)
-            if len(splid) != 3 or splid[:1] != ['oai', self.REPOSITORY_IDENTIFIER]:
+            if len(splid) != 3 or splid[:2] != ['oai', self.REPOSITORY_IDENTIFIER]:
                 raise InvalidID(identifier)
             return IDObfuscator.resolve(splid[-1])
         except (AbstractCreativeWork.DoesNotExist, InvalidID):
@@ -140,6 +146,6 @@ class OAIPMHView(View):
     def _record_header_context(self, work):
         return {
             'oai_identifier': self.oai_identifier(work),
-            'datestamp': self.format_datetime(work.date_modified),
+            'datestamp': format_datetime(work.date_modified),
             'set_specs': work.sources.values_list('source__name', flat=True),
         }

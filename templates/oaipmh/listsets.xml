@@ -1,0 +1,12 @@
+{% extends "oaipmh/base.xml" %}
+
+{% block content %}
+    <ListSets>
+        {% for set_spec, set_name in sets %}
+        <set>
+            <setSpec>{{ set_spec }}</setSpec>
+            <setName>{{ set_name }}</setName>
+        </set>
+        {% endfor %}
+    </ListSets>
+{% endblock %}
