@@ -31,6 +31,7 @@ setup(
             'io.osf = share.transformers.io_osf:OSFTransformer',
             'io.osf.preprints = share.transformers.io_osf_preprints:PreprintTransformer',
             'io.osf.registrations = share.transformers.io_osf_registrations:OSFRegistrationsTransformer',
+            'mods = share.transformers.mods:MODSTransformer',
             'oai_dc = share.transformers.oai:OAITransformer',
             'org.arxiv = share.transformers.org_arxiv:ArxivTransformer',
             'org.biorxiv = share.transformers.org_biorxiv:BiorxivTransformer',

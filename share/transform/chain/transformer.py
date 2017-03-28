@@ -21,6 +21,7 @@ class ChainTransformer(BaseTransformer):
         'http://purl.org/dc/elements/1.1/': 'dc',
         'http://www.openarchives.org/OAI/2.0/': None,
         'http://www.openarchives.org/OAI/2.0/oai_dc/': None,
+        'http://www.loc.gov/mods/v3': 'mods',
     }
 
     REMOVE_EMPTY = True
