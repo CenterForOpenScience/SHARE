@@ -22,13 +22,6 @@ class OAIVerb:
         keys = set(kwargs.keys())
         errors = []
 
-        if self.exclusive_arg and self.exclusive_arg in keys and (len(keys) > 1 or len(keys[self.exclusive_arg]) > 1):
-            errors.append(oai_errors.BadArgument('Exclusive', self.exclusive_arg))
-
-        missing = self.required_args - keys
-        for arg in missing:
-            errors.append(oai_errors.BadArgument('Required', arg))
-
         illegal = keys - self.required_args - self.optional_args - set([self.exclusive_arg])
         for arg in illegal:
             errors.append(oai_errors.BadArgument('Illegal', arg))
@@ -36,6 +29,14 @@ class OAIVerb:
         repeated = [k for k, v in kwargs.items() if len(v) > 1]
         for arg in repeated:
             errors.append(oai_errors.BadArgument('Repeated', arg))
+
+        if self.exclusive_arg and self.exclusive_arg in keys:
+            if (len(keys) > 1 or len(kwargs[self.exclusive_arg]) > 1):
+                errors.append(oai_errors.BadArgument('Exclusive', self.exclusive_arg))
+        else:
+            missing = self.required_args - keys
+            for arg in missing:
+                errors.append(oai_errors.BadArgument('Required', arg))
 
         return errors
 
@@ -132,31 +133,13 @@ class OAIPMHView(View):
         self.context['sets'] = Source.objects.values_list('name', 'long_title')
 
     def _do_listidentifiers(self, kwargs):
-        # TODO resumptionToken
-        queryset = self._record_queryset(kwargs)
-        if self.errors:
-            return
-        if not queryset.exists():
-            self.errors.append(oai_errors.NoResults())
-            return
-        # TODO is there a way to prefetch Sources just for this page? https://code.djangoproject.com/ticket/26780
-        self.context['records'] = [self._record_header_context(work) for work in queryset[:self.PAGE_SIZE]]
+        works = self._load_page(kwargs)
+        self.context['records'] = [self._record_header_context(work) for work in works]
 
     def _do_listrecords(self, kwargs):
-        # TODO resumptionToken
-        queryset = self._record_queryset(kwargs)
-        if self.errors:
-            return
-        if not queryset.exists():
-            self.errors.append(oai_errors.NoResults())
-            return
-        # TODO is there a way to prefetch Sources/Relations/Identifiers just for this page? https://code.djangoproject.com/ticket/26780
-        format = self._get_format(kwargs)
-        self.context['format'] = format
-        self.context['records'] = [
-            (self._record_header_context(work), format.work_context(work, self))
-            for work in queryset[:self.PAGE_SIZE]
-        ]
+        works = self._load_page(kwargs)
+        format = self.context['format']
+        self.context['records'] = [(self._record_header_context(work), format.work_context(work, self)) for work in works]
 
     def _do_getrecord(self, kwargs):
         format = self._get_format(kwargs)
@@ -169,14 +152,12 @@ class OAIPMHView(View):
             'work': format.work_context(work, self),
         })
 
-    def _get_format(self, kwargs):
+    def _get_format(self, prefix):
         try:
-            prefix = kwargs['metadataPrefix']
             format = next(f for f in self.FORMATS if f.prefix == prefix)()
         except StopIteration:
             self.errors.append(oai_errors.BadFormat(prefix))
         return format
-
 
     def _record_header_context(self, work):
         return {
@@ -184,7 +165,28 @@ class OAIPMHView(View):
             'datestamp': format_datetime(work.date_modified),
             'set_specs': work.sources.values_list('source__name', flat=True),
         }
-    
+
+    def _load_page(self, kwargs):
+        if 'resumptionToken' in kwargs:
+            queryset, next_token, prefix, cursor = self._resume(kwargs['resumptionToken'])
+        else:
+            queryset = self._record_queryset(kwargs)
+            next_token = self._get_resumption_token(kwargs)
+            prefix = kwargs['metadataPrefix']
+            cursor = 0
+        self.context['format'] = self._get_format(prefix)
+        if self.errors:
+            return []
+        if not queryset.exists():
+            self.errors.append(oai_errors.NoResults())
+            return []
+        # TODO is there a way to prefetch Sources/Relations/Identifiers just for this slice? https://code.djangoproject.com/ticket/26780
+        works = queryset[cursor:cursor + self.PAGE_SIZE + 1]
+        if len(works) > self.PAGE_SIZE:
+            self.context['resumption_token'] = next_token
+            works = works[:self.PAGE_SIZE]
+        return works
+
     def _record_queryset(self, kwargs):
         queryset = AbstractCreativeWork.objects.all()
         if 'from' in kwargs:
@@ -203,8 +205,26 @@ class OAIPMHView(View):
             queryset = queryset.filter(sources__source__name=kwargs['set'])
 
         return queryset
-    
+
+    def _resume(self, resumption_token):
+        from_, until, set_spec, prefix, cursor = resumption_token.split('|')
+        kwargs = {}
+        if from_:
+            kwargs['from'] = from_
+        if until:
+            kwargs['until'] = until
+        if set_spec:
+            kwargs['set'] = set_spec
+        cursor = int(cursor)
+        queryset = self._record_queryset(kwargs)
+        kwargs['cursor'] = cursor + self.PAGE_SIZE
+        kwargs['metadataPrefix'] = prefix
+        next_token = self._get_resumption_token(kwargs)
+        return queryset, next_token, prefix, cursor
+
     def _get_resumption_token(self, kwargs):
+        from_ = None
+        until = None
         if 'from' in kwargs:
             try:
                 from_ = dateutil.parser.parse(kwargs['from'])
@@ -215,11 +235,10 @@ class OAIPMHView(View):
                 until = dateutil.parser.parse(kwargs['until'])
             except ValueError:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
-        return self._format_resumption_token(from_, until, kwargs.get('set', ''), self.PAGE_SIZE)
+        set_spec = kwargs.get('set', '')
+        cursor = kwargs.get('cursor', self.PAGE_SIZE)
+        return self._format_resumption_token(from_, until, set_spec, kwargs['metadataPrefix'], cursor)
 
-    def _format_resumption_token(self, from_, until, set_spec, cursor):
+    def _format_resumption_token(self, from_, until, set_spec, prefix, cursor):
         # TODO something more opaque, maybe
-        return '{}|{}|{}|{}'.format(format_datetime(from_), format_datetime(until), set_spec, cursor)
-
-    def _resume_queryset(self, resumption_token):
-        from_, until, set_spec, cursor = resumption_token.split('|')
+        return '{}|{}|{}|{}|{}'.format(format_datetime(from_) if from_ else '', format_datetime(until) if until else '', set_spec, prefix, cursor)

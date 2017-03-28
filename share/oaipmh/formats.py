@@ -1,6 +1,7 @@
 from share.models import Contributor
 from share.oaipmh.util import format_datetime
 
+
 class OAIFormat:
     @property
     def prefix(self):

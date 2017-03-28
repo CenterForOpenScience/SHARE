@@ -5,6 +5,6 @@
         {% for record in records %}
             {% include 'oaipmh/recordheader.xml' with header=record %}
         {% endfor %}
-        {# TODO resumptionToken #}
+        <resumptionToken>{{ resumption_token }}</resumptionToken>
     </ListIdentifiers>
 {% endblock %}
