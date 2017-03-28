@@ -101,8 +101,9 @@ class MODSAgent(Parser):
             return 'person'
         if name_type == 'conference':
             return 'organization'
+        # TODO SHARE-718
         # if name_type == 'family':
-        #    return 'organization'
+        #    return 'family'
         if name_type == 'corporate':
             return GuessAgentTypeLink(default='organization').execute(self.squash_name_parts(obj))
         return GuessAgentTypeLink().execute(self.squash_name_parts(obj))
@@ -302,12 +303,10 @@ class MODSCreativeWork(Parser):
                 tools.RunPython('tokenize'),
                 tools.Map(
                     tools.RunPython(force_text),
-                    tools.Concat(
-                        tools.Try(ctx.header.setSpec),
-                        tools.Try(ctx['mods:genre']),
-                        tools.Try(ctx['mods:classification']),
-                        tools.Try(ctx['mods:subject']['mods:topic']),
-                    )
+                    tools.Try(ctx.header.setSpec),
+                    tools.Try(ctx['mods:genre']),
+                    tools.Try(ctx['mods:classification']),
+                    tools.Try(ctx['mods:subject']['mods:topic']),
                 )
             ),
             deep=True
