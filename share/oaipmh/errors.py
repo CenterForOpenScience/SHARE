@@ -13,3 +13,13 @@ class BadVerb(OAIError):
 class BadArgument(OAIError):
     def __init__(self, reason, name):
         super().__init__('badArgument', '{} argument: {}'.format(reason, name))
+
+
+class BadFormat(OAIError):
+    def __init__(self, prefix):
+        super().__init__('cannotDisseminateFormat', 'Invalid metadataPrefix: {}'.format(prefix))
+
+
+class BadRecordID(OAIError):
+    def __init__(self, identifier):
+        super().__init__('idDoesNotExist', 'Invalid record identifier: {}'.format(identifier))

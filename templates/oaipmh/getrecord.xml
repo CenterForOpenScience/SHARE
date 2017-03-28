@@ -1,0 +1,18 @@
+{% extends "oaipmh/base.xml" %}
+
+{% block content %}
+    <GetRecord>
+        <record>
+            <header>
+                <identifier>{{ oai_identifier }}</identifier>
+                <datestamp>{{ datestamp }}</datestamp>
+                {% for set_spec in set_specs %}
+                <setSpec>{{ set_spec }}</setSpec>
+                {% endfor %}
+            </header>
+            <metadata>
+                {% include format.template %}
+            </metadata>
+        </record>
+    </GetRecord>
+{% endblock %}

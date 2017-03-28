@@ -5,8 +5,8 @@ from django.views.generic.base import View
 from django.template.response import SimpleTemplateResponse
 
 from share.models import AbstractCreativeWork
-
 from share.oaipmh import errors as oai_errors, formats
+from share.util import IDObfuscator, InvalidID
 
 
 class OAIVerb:
@@ -39,6 +39,8 @@ class OAIVerb:
 
 
 class OAIPMHView(View):
+    REPOSITORY_IDENTIFIER = 'share.osf.io'
+    IDENTIFER_DELIMITER = ':'
     CONTENT_TYPE = 'text/xml'
     FORMATS = [
         formats.DublinCoreFormat,
@@ -46,6 +48,7 @@ class OAIPMHView(View):
     VERBS = {
         'Identify': OAIVerb('oaipmh/identify.xml'),
         'ListMetadataFormats': OAIVerb('oaipmh/listformats.xml', optional_args=('identifier',)),
+        'GetRecord': OAIVerb('oaipmh/getrecord.xml', required_args=('identifier', 'metadataPrefix')),
     }
     ERROR_TEMPLATE = 'oaipmh/error.xml'
 
@@ -58,7 +61,7 @@ class OAIPMHView(View):
     def oai_response(self, **kwargs):
         self.errors = []
         self.context = {
-            'response_date': self._format_datetime(datetime.now()),
+            'response_date': self.format_datetime(datetime.now()),
             'request_url': self.request.build_absolute_uri().rpartition('?')[0],
         }
         verb_name = kwargs.pop('verb', [])
@@ -74,30 +77,69 @@ class OAIPMHView(View):
                 kwargs = {k: v[0] for k, v in kwargs.items()}
                 self.context['kwargs'] = kwargs
                 template = verb.template
-                getattr(self, '_do_{}'.format(verb_name.lower()))()
+                getattr(self, '_do_{}'.format(verb_name.lower()))(kwargs)
 
         if self.errors:
             self.context['errors'] = self.errors
             template = self.ERROR_TEMPLATE
         return SimpleTemplateResponse(template, context=self.context, content_type=self.CONTENT_TYPE)
 
-    def _do_identify(self):
+    def _do_identify(self, kwargs):
         self.context.update({
             'repository_name': 'SHARE',
             'base_url': self.request.build_absolute_uri(reverse('oai-pmh')),
             'protocol_version': '2.0',
-            'earliest_datestamp': self._format_datetime(AbstractCreativeWork.objects.order_by('date_modified').values_list('date_modified', flat=True)[0]),
+            'earliest_datestamp': self.format_datetime(AbstractCreativeWork.objects.order_by('date_modified').values_list('date_modified', flat=True)[0]),
             'deleted_record': 'no',
             'granularity': 'YYYY-MM-DDThh:mm:ssZ',
             'admin_emails': ['share-support@osf.io'],
             'identifier_scheme': 'oai',
-            'repository_identifier': 'share.osf.io',
-            'identifier_delimiter': ':',
-            'sample_identifier': 'oai:share.osf.io:461BC-00F-638',
+            'repository_identifier': self.REPOSITORY_IDENTIFIER,
+            'identifier_delimiter': self.IDENTIFER_DELIMITER,
+            'sample_identifier': self.oai_identifier(1),
         })
 
-    def _do_listmetadataformats(self):
-        self.context['formats'] = [f() for f in self.FORMATS]
+    def _do_listmetadataformats(self, kwargs):
+        self.context['formats'] = self.FORMATS
 
-    def _format_datetime(self, dt):
+    def _do_getrecord(self, kwargs):
+        try:
+            prefix = kwargs['metadataPrefix']
+            format = next(f for f in self.FORMATS if f.prefix == prefix)()
+        except StopIteration:
+            self.errors.append(oai_errors.BadFormat(prefix))
+
+        work = self.resolve_oai_identifier(kwargs['identifier'])
+        if self.errors:
+            return
+        self.context.update({
+            'work': format.work_context(work),
+            **self._record_header_context(work)
+        })
+
+    def format_datetime(self, dt):
         return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    def oai_identifier(self, work):
+        if isinstance(work, int):
+            share_id = IDObfuscator.encode_id(work, AbstractCreativeWork)
+        else:
+            share_id = IDObfuscator.encode(work)
+        return 'oai{delim}{repository}{delim}{id}'.format(id=share_id, repository=self.REPOSITORY_IDENTIFIER, delim=self.IDENTIFER_DELIMITER)
+
+    def resolve_oai_identifier(self, identifier):
+        try:
+            splid = identifier.split(self.IDENTIFER_DELIMITER)
+            if len(splid) != 3 or splid[:1] != ['oai', self.REPOSITORY_IDENTIFIER]:
+                raise InvalidID(identifier)
+            return IDObfuscator.resolve(splid[-1])
+        except (AbstractCreativeWork.DoesNotExist, InvalidID):
+            self.errors.append(oai_errors.BadRecordID(identifier))
+            return None
+
+    def _record_header_context(self, work):
+        return {
+            'oai_identifier': self.oai_identifier(work),
+            'datestamp': self.format_datetime(work.date_modified),
+            'set_specs': work.sources.values_list('source__name', flat=True),
+        }
