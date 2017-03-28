@@ -27,7 +27,6 @@ class Command(BaseCommand):
         parser.add_argument('--quiet', action='store_true', help='')
 
     def handle(self, *args, **options):
-
         source_config = SourceConfig.objects.filter(label=options['source_config'])[0]
 
         start = options.get('start') or source_config.earliest_date

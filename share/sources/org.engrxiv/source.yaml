@@ -1,6 +1,6 @@
 configs:
 - base_url: http://engrxiv.org
-  disabled: false
+  disabled: true
   earliest_date: null
   harvester: null
   label: org.engrxiv
