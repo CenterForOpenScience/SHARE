@@ -166,7 +166,7 @@ class HarvesterTask(SourceTask):
         )
 
         if not created:
-            kwargs['task_id'] = log.task_id  # Preserve the old task id
+            kwargs['task_id'] = str(log.task_id)  # Preserve the old task id
             log.share_version = settings.VERSION  # Update version, it may have changed
 
             if log.status != log.STATUS.rescheduled:
