@@ -1,7 +1,7 @@
 .. _harvesters-and-transformers:
 
 Harvesters and Transformers
-==========================
+===========================
 
 A `harvester` gathers raw data from a source using their API.
 
@@ -11,49 +11,31 @@ Start Up
 --------
 
     1. Install `Docker <https://docs.docker.com/engine/installation/>`_.
-    2. Make sure you're using Python3 - install with `conda <http://conda.pydata.org/miniconda.html>`_ , or `homebrew <http://blog.manbolo.com/2013/02/04/how-to-install-python-3-and-pydev-on-osx#2>`_
+    2. Make sure you're using Python3 - install with `miniconda <http://conda.pydata.org/miniconda.html>`_ , or `homebrew <http://blog.manbolo.com/2013/02/04/how-to-install-python-3-and-pydev-on-osx#2>`_
     3. Install everything inside a Virtual Enviornment - created with `Conda <http://conda.pydata.org/docs/using/envs.html>`_ or `Virtualenv <https://virtualenv.pypa.io/en/stable/>`_ or your python enviornment of choice.
 
 Installation (inside a virtual environment)::
 
     pip install -r requirements.txt
 
-    // Creates and starts containers for elasticsearch, rabbitmq,
+    // Creates, starts, and sets up containers for elasticsearch,
     // postgres, and the server
-    docker-compose up -d web
-
-    ./up.sh
-    ---------------- or ----------------
-    pg
-    createuser share
-    psql
-        CREATE DATABASE share;
-    python manage.py makemigrations
-    python manage.py maketriggermigrations
-    python manage.py makeprovidermigrations
-    python manage.py migrate
-    python manage.py createsuperuser
-
+    docker-compose build web
+    docker-compose run --rm web ./bootstrap.sh
 
 To run the server in a virtual environment instead of Docker::
 
-    docker stop share_web_1
+    docker-compose stop web
     python manage.py runserver
 
 To run celery worker::
 
     python manage.py celery worker -l DEBUG
 
-To monitor your celery tasks::
-
-    python manage.py celery flower
-
-Visit http://localhost:5555/dashboard to keep an eye on your harvesting and transforming tasks
-
 .. _running-sources:
 
 Running Existing Harvesters and Transformers
--------------------------------------------
+--------------------------------------------
 
 To see a list of all sources and their names for harvesting, visit https://share.osf.io/api/sources/
 
@@ -126,7 +108,7 @@ To automatically add all harvested and accepted documents to Elasticsearch::
 
 
 Writing a Harvester and Transformer
-----------------------------------
+-----------------------------------
 
 See the transformers and harvesters located in the ``share/transformers/`` and ``share/harvesters/`` directories for more examples of syntax and best practices.
 
@@ -162,10 +144,11 @@ Writing a source.yaml file
 The ``source.yaml`` file contains information about the source itself, and one or more configs that describe how to harvest and transform data from that source.
 
 .. code-block:: yaml
+
     name: com.example
     long_title: Example SHARE Source for Examples
     home_page: http://example.com/
-    user: providers.com.example
+    user: sources.com.example
     configs:
     - label: com.example.oai
       base_url: http://example.com/oai/
@@ -224,11 +207,11 @@ Best practices for writing a non-OAI Harvester
 .. _writing-transformers:
 
 Best practices for writing a non-OAI Transformer
-"""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""
 
 - The transformer should be defined in ``share/transformers/{transformer name}.py``.
 - When writing the transformer:
-    - Determine what information from the source record should be stored as part of the ``CreativeWork`` :ref:`model <creative-work>` (i.e. if the record clearly defines a title, description, contributors, etc.).
+    - Determine what information from the source record should be stored as part of the ``CreativeWork`` :ref:`model <share-models>` (i.e. if the record clearly defines a title, description, contributors, etc.).
     - Use the :ref:`chain transformer tools <chain-transformer>` as necessary to correctly parse the raw data.
         - Alternatively, implement ``share.transform.BaseTransformer`` to create a transformer from scratch.
     - Utilize the ``Extra`` class
