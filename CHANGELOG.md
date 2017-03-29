@@ -1,5 +1,37 @@
 # Change Log
 
+# [2.6.0] - 2017-03-28
+## Added
+* Sources
+  * A table for managing SHARE data sources
+  * Replaces the apps in the providers folder
+* SourceConfigs
+  * A table for managing different methods of acquire data from given source
+  * Replaces nested apps/app labels
+* HarvestLogs
+  * First class support for managing harvesting/back harvesting
+* Source Unique Identifiers
+  * First class representation of what was RawData.provider_doc_id
+* The Django admin now supports starting harvesters over long periods of time
+* Support for the MODs OAI PHM prefix
+
+## Removed
+* Provider Django applications have been removed
+* Source specific fields have been removed from ShareUser
+
+## Changed
+* Harvesters have been relocated to share/harvesters/
+* Various renaming/vocabulary changes
+  * RawData -> RawDatum
+  * Favicon -> Icon
+  * Provider -> Source
+  * Provider App -> SourceConfig
+  * Normalizer -> Transformer
+* Updates to the getting started guide
+* Squashed migrations to speed up local development
+* Harvesters are now expected to return utf-8 strings
+* Sources are no longer tied to the ShareUser model
+
 ## [2.5.0] - 2017-03-15
 ## Added
 * Title now has an "exact" multi-field in elasticsearch
