@@ -195,19 +195,23 @@ class OAIPMHView(View):
             works = works[:self.PAGE_SIZE]
         return works
 
-    def _record_queryset(self, kwargs):
+    def _record_queryset(self, kwargs, catch=True):
         queryset = AbstractCreativeWork.objects.filter(is_deleted=False, same_as_id__isnull=True)
         if 'from' in kwargs:
             try:
                 from_ = dateutil.parser.parse(kwargs['from'])
                 queryset = queryset.filter(date_modified__gte=from_)
             except ValueError:
+                if not catch:
+                    raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
         if 'until' in kwargs:
             try:
                 until = dateutil.parser.parse(kwargs['until'])
                 queryset = queryset.filter(date_modified__lte=until)
             except ValueError:
+                if not catch:
+                    raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
         if 'set' in kwargs:
             queryset = queryset.filter(sources__source__name=kwargs['set'])
@@ -230,22 +234,18 @@ class OAIPMHView(View):
         next_token = self._get_resumption_token(kwargs)
         return queryset, next_token, prefix, cursor
 
-    def _get_resumption_token(self, kwargs, catch=True):
+    def _get_resumption_token(self, kwargs):
         from_ = None
         until = None
         if 'from' in kwargs:
             try:
                 from_ = dateutil.parser.parse(kwargs['from'])
             except ValueError:
-                if not catch:
-                    raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
         if 'until' in kwargs:
             try:
                 until = dateutil.parser.parse(kwargs['until'])
             except ValueError:
-                if not catch:
-                    raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
         set_spec = kwargs.get('set', '')
         cursor = kwargs.get('cursor', self.PAGE_SIZE)
