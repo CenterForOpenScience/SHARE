@@ -234,10 +234,10 @@ class HarvestLogAdmin(admin.ModelAdmin):
         return obj.source_config.label
 
     def start_date_(self, obj):
-        return obj.start_date.date().isoformat()
+        return obj.start_date.isoformat()
 
     def end_date_(self, obj):
-        return obj.end_date.date().isoformat()
+        return obj.end_date.isoformat()
 
     def status_(self, obj):
         if obj.status == HarvestLog.STATUS.created and (timezone.now() - obj.date_modified) > datetime.timedelta(days=1, hours=6):
