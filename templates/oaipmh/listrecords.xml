@@ -3,12 +3,7 @@
 {% block content %}
     <ListRecords>
         {% for header, work in records %}
-            <record>
-                {% include 'oaipmh/recordheader.xml' %}
-                <metadata>
-                    {% include format.template %}
-                </metadata>
-            </record>
+            {% include 'oaipmh/record.xml' %}
         {% endfor %}
         <resumptionToken>{{ resumption_token }}</resumptionToken>
     </ListRecords>

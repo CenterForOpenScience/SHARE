@@ -109,11 +109,12 @@ class OAIPMHView(View):
             return None
 
     def _do_identify(self, kwargs):
+        earliest = AbstractCreativeWork.objects.order_by('date_modified').values_list('date_modified', flat=True)
         self.context.update({
             'repository_name': 'SHARE',
             'base_url': self.request.build_absolute_uri(reverse('oai-pmh')),
             'protocol_version': '2.0',
-            'earliest_datestamp': format_datetime(AbstractCreativeWork.objects.order_by('date_modified').values_list('date_modified', flat=True)[0]),
+            'earliest_datestamp': format_datetime(earliest[0]) if earliest else None,
             'deleted_record': 'no',
             'granularity': 'YYYY-MM-DDThh:mm:ssZ',
             'admin_emails': ['share-support@osf.io'],
@@ -125,6 +126,8 @@ class OAIPMHView(View):
 
     def _do_listmetadataformats(self, kwargs):
         self.context['formats'] = self.FORMATS
+        if 'identifier' in kwargs:
+            self.resolve_oai_identifier(kwargs['identifier'])
 
     def _do_listsets(self, kwargs):
         if 'resumptionToken' in kwargs:
@@ -134,32 +137,33 @@ class OAIPMHView(View):
 
     def _do_listidentifiers(self, kwargs):
         works = self._load_page(kwargs)
-        self.context['records'] = [self._record_header_context(work) for work in works]
+        self.context['records'] = [self._header_context(work) for work in works]
 
     def _do_listrecords(self, kwargs):
         works = self._load_page(kwargs)
-        format = self.context['format']
-        self.context['records'] = [(self._record_header_context(work), format.work_context(work, self)) for work in works]
+        self.context['records'] = [(
+            self._header_context(work),
+            self.context['format'].work_context(work, self)
+        ) for work in works]
 
     def _do_getrecord(self, kwargs):
-        format = self._get_format(kwargs)
+        format = self._get_format(kwargs['metadataPrefix'])
         work = self.resolve_oai_identifier(kwargs['identifier'])
         if self.errors:
             return
         self.context.update({
-            'header': self._record_header_context(work),
+            'header': self._header_context(work),
             'format': format,
             'work': format.work_context(work, self),
         })
 
     def _get_format(self, prefix):
         try:
-            format = next(f for f in self.FORMATS if f.prefix == prefix)()
+            return next(f for f in self.FORMATS if f.prefix == prefix)()
         except StopIteration:
             self.errors.append(oai_errors.BadFormat(prefix))
-        return format
 
-    def _record_header_context(self, work):
+    def _header_context(self, work):
         return {
             'oai_identifier': self.oai_identifier(work),
             'datestamp': format_datetime(work.date_modified),
@@ -168,7 +172,11 @@ class OAIPMHView(View):
 
     def _load_page(self, kwargs):
         if 'resumptionToken' in kwargs:
-            queryset, next_token, prefix, cursor = self._resume(kwargs['resumptionToken'])
+            try:
+                queryset, next_token, prefix, cursor = self._resume(kwargs['resumptionToken'])
+            except ValueError:
+                self.errors.append(oai_errors.BadResumptionToken(kwargs['resumptionToken']))
+                return []
         else:
             queryset = self._record_queryset(kwargs)
             next_token = self._get_resumption_token(kwargs)
@@ -188,7 +196,7 @@ class OAIPMHView(View):
         return works
 
     def _record_queryset(self, kwargs):
-        queryset = AbstractCreativeWork.objects.all()
+        queryset = AbstractCreativeWork.objects.filter(is_deleted=False, same_as_id__isnull=True)
         if 'from' in kwargs:
             try:
                 from_ = dateutil.parser.parse(kwargs['from'])
@@ -206,8 +214,8 @@ class OAIPMHView(View):
 
         return queryset
 
-    def _resume(self, resumption_token):
-        from_, until, set_spec, prefix, cursor = resumption_token.split('|')
+    def _resume(self, token):
+        from_, until, set_spec, prefix, cursor = token.split('|')
         kwargs = {}
         if from_:
             kwargs['from'] = from_
@@ -216,24 +224,28 @@ class OAIPMHView(View):
         if set_spec:
             kwargs['set'] = set_spec
         cursor = int(cursor)
-        queryset = self._record_queryset(kwargs)
+        queryset = self._record_queryset(kwargs, catch=False)
         kwargs['cursor'] = cursor + self.PAGE_SIZE
         kwargs['metadataPrefix'] = prefix
         next_token = self._get_resumption_token(kwargs)
         return queryset, next_token, prefix, cursor
 
-    def _get_resumption_token(self, kwargs):
+    def _get_resumption_token(self, kwargs, catch=True):
         from_ = None
         until = None
         if 'from' in kwargs:
             try:
                 from_ = dateutil.parser.parse(kwargs['from'])
             except ValueError:
+                if not catch:
+                    raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
         if 'until' in kwargs:
             try:
                 until = dateutil.parser.parse(kwargs['until'])
             except ValueError:
+                if not catch:
+                    raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
         set_spec = kwargs.get('set', '')
         cursor = kwargs.get('cursor', self.PAGE_SIZE)
