@@ -69,7 +69,7 @@ class Source(models.Model):
     name = models.TextField(unique=True)
     long_title = models.TextField(unique=True)
     home_page = models.URLField(null=True)
-    icon = models.ImageField(upload_to=icon_name, storage=SourceIconStorage(), null=True)
+    icon = models.ImageField(upload_to=icon_name, storage=SourceIconStorage(), blank=True)
 
     # TODO replace with Django permissions something something, allow multiple sources per user
     user = models.OneToOneField('ShareUser')
