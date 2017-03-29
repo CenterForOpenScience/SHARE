@@ -44,7 +44,7 @@ if 'VERSION' not in os.environ and DEBUG:
 else:
     VERSION = os.environ.get('VERSION') or 'UNKNOWN'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
+ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(' ') if h]
 
 AUTH_USER_MODEL = 'share.ShareUser'
 
@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     'djcelery',
-    'guardian',
+    # 'guardian',
     'django_filters',
     'django_extensions',
     'oauth2_provider',
@@ -85,172 +85,13 @@ INSTALLED_APPS = [
     'api',
 
     'bots.archive',
-    'bots.autocurate.person',
-    'bots.autocurate.tag',
-    'bots.automerge',
     'bots.elasticsearch',
-
-    'providers.au.uow',
-    'providers.be.ghent',
-    'providers.br.pcurio',
-    'providers.ca.lwbin',
-    'providers.ca.umontreal',
-    'providers.ca.uwo',
-    'providers.ch.cern',
-    'providers.com.biomedcentral',
-    'providers.com.dailyssrn',
-    'providers.com.figshare',
-    'providers.com.figshare.v2',
-    'providers.com.nature',
-    'providers.com.peerj',
-    'providers.com.peerj.preprints',
-    'providers.com.peerj.xml',
-    'providers.com.researchregistry',
-    'providers.com.springer',
-    'providers.edu.ageconsearch',
-    'providers.edu.asu',
-    'providers.edu.boise_state',
-    'providers.edu.calhoun',
-    'providers.edu.calpoly',
-    'providers.edu.caltech',
-    'providers.edu.chapman',
-    'providers.edu.citeseerx',
-    'providers.edu.cmu',
-    'providers.edu.colostate',
-    'providers.edu.columbia',
-    'providers.edu.cornell',
-    'providers.edu.csuohio',
-    'providers.edu.cuny',
-    'providers.edu.cuscholar',
-    'providers.edu.dash',
-    'providers.edu.digitalhoward',
-    'providers.edu.duke',
-    'providers.edu.fit',
-    'providers.edu.gwu',
-    'providers.edu.harvarddataverse',
-    'providers.edu.huskiecommons',
-    'providers.edu.iastate',
-    'providers.edu.icpsr',
-    'providers.edu.iowaresearch',
-    'providers.edu.iu',
-    'providers.edu.iwu_commons',
-    'providers.edu.jmu',
-    'providers.edu.kent',
-    'providers.edu.krex',
-    'providers.edu.mason',
-    'providers.edu.mit',
-    'providers.edu.mizzou',
-    'providers.edu.nku',
-    'providers.edu.oaktrust',
-    'providers.edu.opensiuc',
-    'providers.edu.pcom',
-    'providers.edu.pdxscholar',
-    'providers.edu.purdue',
-    'providers.edu.purdue.epubs',
-    'providers.edu.richmond',
-    'providers.edu.scholarsarchiveosu',
-    'providers.edu.scholarsbank',
-    'providers.edu.scholarscompass_vcu',
-    'providers.edu.scholarworks_umass',
-    'providers.edu.scholarworks_montana',
-    'providers.edu.smithsonian',
-    'providers.edu.stcloud',
-    'providers.edu.texasstate',
-    'providers.edu.triceratops',
-    'providers.edu.trinity',
-    'providers.edu.u_south_fl',
-    'providers.edu.ucf',
-    'providers.edu.udc',
-    'providers.edu.udel',
-    'providers.edu.uhawaii',
-    'providers.edu.uiucideals',
-    'providers.edu.ukansas',
-    'providers.edu.uky',
-    'providers.edu.umassmed',
-    'providers.edu.umd',
-    'providers.edu.umich',
-    'providers.edu.uncg',
-    'providers.edu.unl_digitalcommons',
-    'providers.edu.upennsylvania',
-    'providers.edu.ut_chattanooga',
-    'providers.edu.utah',
-    'providers.edu.utahstate',
-    'providers.edu.utaustin',
-    'providers.edu.utktrace',
-    'providers.edu.utuskegee',
-    'providers.edu.uwashington',
-    'providers.edu.valposcholar',
-    'providers.edu.vivo',
-    'providers.edu.vtech',
-    'providers.edu.wash_state_u',
-    'providers.edu.waynestate',
-    'providers.edu.wisconsin',
-    'providers.edu.wm',
-    'providers.edu.wustlopenscholarship',
-    'providers.fr.archives-ouvertes.hal',
-    'providers.es.csic',
-    'providers.et.edu.addis_ababa',
-    'providers.eu.econstor',
-    'providers.gov.clinicaltrials',
-    'providers.gov.doepages',
-    'providers.gov.nih',
-    'providers.gov.nist',
-    'providers.gov.nodc',
-    'providers.gov.nsfawards',
-    'providers.gov.pubmedcentral',
-    'providers.gov.pubmedcentral.pmc',
-    'providers.gov.scitech',
-    'providers.gov.usgs',
-    'providers.info.spdataverse',
-    'providers.info.ssoar',
-    'providers.io.osf',
-    'providers.io.osf.preprints',
-    'providers.io.osf.registrations',
-    'providers.org.arxiv',
-    'providers.org.arxiv.oai',
-    'providers.org.bhl',
-    'providers.org.biorxiv',
-    'providers.org.biorxiv.rss',
-    'providers.org.cogprints',
-    'providers.org.crossref',
-    'providers.org.datacite',
-    'providers.org.datacite.oai',
-    'providers.org.dataone',
-    'providers.org.dryad',
-    'providers.org.elife',
-    'providers.org.elis',
-    'providers.org.engrxiv',
-    'providers.org.erudit',
-    'providers.org.mblwhoilibrary',
-    'providers.org.mla',
-    'providers.org.mpra',
-    'providers.org.ncar',
-    'providers.org.neurovault',
-    'providers.org.newprairiepress',
-    'providers.org.philpapers',
-    'providers.org.plos',
-    'providers.org.preprints',
-    'providers.org.psyarxiv',
-    'providers.org.repec',
-    'providers.org.seafdec',
-    'providers.org.shareok',
-    'providers.org.sldr',
-    'providers.org.socarxiv',
-    'providers.org.stepic',
-    'providers.org.tdar',
-    'providers.org.ttu',
-    'providers.org.ucescholarship',
-    'providers.org.zenodo',
-    'providers.org.zenodo.datacite',
-    'providers.pe.upc',
-    'providers.pt.rcaap',
-    'providers.ru.cyberleninka',
-    'providers.tr.edu.hacettepe',
-    'providers.uk.cambridge',
-    'providers.uk.lshtm',
-    'providers.za.csir',
 ]
 
+if DEBUG:
+    INSTALLED_APPS += [
+        # 'debug_toolbar'
+    ]
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
 USER_SCOPES = 'approve_changesets'
@@ -332,6 +173,12 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+if DEBUG:
+    MIDDLEWARE_CLASSES += [
+        # 'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ]
+
+INTERNAL_IPS = ['127.0.0.1']
 
 ROOT_URLCONF = 'project.urls'
 
@@ -356,7 +203,6 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'db.backends.postgresql',
@@ -366,8 +212,21 @@ DATABASES = {
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
+        'TEST': {'SERIALIZE': False},
     },
+    'locking': {
+        'ENGINE': 'db.backends.postgresql',
+        'NAME': os.environ.get('DATABASE_NAME', 'share'),
+        'USER': os.environ.get('DATABASE_USER', 'postgres'),
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+        'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
+        'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
+        'TEST': {'MIRROR': 'default', 'SERIALIZE': False},
+    }
 }
+
+# DATABASES['locking'] = DATABASES['default']
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -412,7 +271,7 @@ ANONYMOUS_USER_NAME = 'AnonymousUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
     'allauth.account.auth_backends.AuthenticationBackend',
-    'guardian.backends.ObjectPermissionBackend',
+    # 'guardian.backends.ObjectPermissionBackend',
 )
 
 PASSWORD_HASHERS = [
@@ -510,6 +369,11 @@ QUEUES = {
         'priority': 30,
         'modules': {'share.tasks.BotTask', },
     },
+    'BACKHARVEST': {
+        'name': 'backharvest',
+        'priority': -20,
+        'modules': set(),
+    }
 }
 
 CELERY_QUEUES = tuple(

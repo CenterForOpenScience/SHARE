@@ -7,9 +7,9 @@ Options:
   -v, --version  Show version.
 
 Commands:
-    harvest      Run a specific harvester
-    normalize    Normalize the given files with a specific harvester
-    providers    Print a list of installed providers
+    harvest      Run the harvester for a specific source config
+    transform    Transform the given files with a specific source config
+    sources      Print a list of installed source configs
 
 See 'share <command> --help' for more information on a specific command.
 """
@@ -29,8 +29,7 @@ import django
 from django.apps import apps
 from django.conf import settings
 
-from share.normalize import ctx
-from share.provider import ProviderAppConfig
+from share.transform.chain import ctx
 
 __version__ = 'share 0.0.0'
 
@@ -48,19 +47,20 @@ def command(func):
 @command
 def harvest(args, argv):
     """
-    Usage: share harvest <provider> [--limit=LIMIT] [--print | --out=DIR] [--days-back=DAYS] [--start=MM-DD-YYYY] [--end=MM-DD-YY] [--set-spec=SET]
+    Usage: share harvest <sourceconfig> [--limit=LIMIT] [--print | --out=DIR] [--days-back=DAYS] [--start=MM-DD-YYYY] [--end=MM-DD-YY] [--set-spec=SET]
 
     Options:
         -l, --limit=NUMBER      Limit the harvester to NUMBER of documents
         -p, --print             Print results to stdout rather than to a file
-        -o, --out=DIR           The directory to store the harvested data in. Defaults to ./<provider>
+        -o, --out=DIR           The directory to store the harvested data in. Defaults to ./<sourceconfig>
         -d, --days-back=DAYS    Number of days back to harvest [default: 1]
         -s, --start=YYYY-MM-DD  The start date for the harvester to begin, defaults to one day in the past
         -e, --end=YYYY-MM-DD    The start date for the harvester to end, defaults to today
         --set-spec=SET          The OAI setSpec to limit harvesting to.
     """
-    config = apps.get_app_config(args['<provider>'])
-    harvester = config.harvester(config)
+    from share.models import SourceConfig
+    config = SourceConfig.objects.get(label=(args['<sourceconfig>']))
+    harvester = config.get_harvester()
 
     if not args['--print']:
         args['--out'] = args['--out'] or os.path.join(os.curdir, config.label)
@@ -75,30 +75,33 @@ def harvest(args, argv):
     }.items() if v is not None}
 
     for doc_id, data in harvester.raw(start_date, end_date, **kwargs):
+        decoded = data
+        if not isinstance(decoded, str):
+            decoded = data.decode()
         if args['--print']:
             print('Harvested data with identifier "{}"'.format(doc_id))
-            print(data.decode())
+            print(decoded)
             print('\n')
         else:
-            decoded = data.decode()
             suffix = '.xml' if decoded.startswith('<') else '.json'
             with open(os.path.join(args['--out'], re.sub(r'[:\\\/\?\*]', '', str(doc_id))) + suffix, 'w') as fobj:
                 fobj.write(decoded)
 
 
 @command
-def normalize(args, argv):
+def transform(args, argv):
     """
-    Usage: share normalize <provider> FILE ...
-           share normalize <provider> --directory=DIR
+    Usage: share transform <sourceconfig> FILE ...
+           share transform <sourceconfig> --directory=DIR
 
     Options:
-        -d, --directory=DIR  Normalize all JSON files in DIR
+        -d, --directory=DIR  Transform all JSON files in DIR
 
-    Normalize all given JSON files. Results will be printed to stdout.
+    Transform all given JSON files. Results will be printed to stdout.
     """
-    config = apps.get_app_config(args['<provider>'])
-    normalizer = config.normalizer(config)
+    from share.models import SourceConfig
+    config = SourceConfig.objects.get(label=args['<sourceconfig>'])
+    transformer = config.get_transformer()
 
     if args['FILE']:
         files = args['FILE']
@@ -111,35 +114,36 @@ def normalize(args, argv):
         from ipdb import launch_ipdb_on_exception
         with launch_ipdb_on_exception():
             print('Parsed raw data "{}" into'.format(name))
-            pprint(normalizer.normalize(data))
+            pprint(transformer.transform(data))
             print('\n')
 
 
 @command
-def providers(args, argv):
+def sources(args, argv):
     """
-    Usage: share providers
+    Usage: share sources
 
-    Print out a list of currently installed providers
+    Print out a list of currently installed source configs
     """
-    for config in apps.get_app_configs():
-        if isinstance(config, ProviderAppConfig):
-            print(config.label)
+    from share.models import SourceConfig
+    for config in SourceConfig.objects.values_list('label', flat=True):
+        print(config)
 
 
 @command
 def debug(args, argv):
     """
-    Usage: share debug <provider> FILE
+    Usage: share debug <sourceconfig> FILE
 
     """
-    config = apps.get_app_config(args['<provider>'])
-    normalizer = config.normalizer(config)
+    from share.models import SourceConfig
+    config = SourceConfig.objects.get(label=args['<sourceconfig>'])
+    transformer = config.get_transformer()
 
     with open(args['FILE']) as fobj:
-        data = normalizer.unwrap_data(fobj.read())
+        data = transformer.unwrap_data(fobj.read())
 
-    parser = normalizer.get_root_parser()
+    parser = transformer.get_root_parser(data)
 
     def execute(data, chain):
         return chain.chain()[0].run(data)
@@ -150,7 +154,7 @@ def debug(args, argv):
     print('parser: {}'.format(parser))
     print('data: {}'.format(type(data)))
     print('e, execute: {}'.format(execute))
-    print('normalizer: {}'.format(normalizer))
+    print('transformer: {}'.format(transformer))
 
     import ipdb
     ipdb.set_trace()
@@ -168,5 +172,4 @@ def main():
 
 if __name__ == '__main__':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
-    settings.DATABASES = {}
     main()

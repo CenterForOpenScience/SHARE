@@ -1,0 +1,19 @@
+configs:
+- base_url: http://purr.purdue.edu/oaipmh
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.purdue
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://purr.purdue.edu
+long_title: PURR - Purdue University Research Repository
+name: edu.purdue
+user: providers.edu.purdue

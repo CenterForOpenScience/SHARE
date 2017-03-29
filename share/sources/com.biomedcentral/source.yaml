@@ -1,0 +1,15 @@
+configs:
+- base_url: http://www.springer.com/us/
+  disabled: false
+  earliest_date: null
+  harvester: com.biomedcentral
+  harvester_kwargs: {}
+  label: com.biomedcentral
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: com.biomedcentral
+  transformer_kwargs: {}
+home_page: http://www.springer.com/us/
+long_title: BioMed Central
+name: com.biomedcentral
+user: providers.com.biomedcentral

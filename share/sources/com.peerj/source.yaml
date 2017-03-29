@@ -1,0 +1,55 @@
+configs:
+- base_url: https://peerj.com/articles/index.json
+  disabled: false
+  harvester: com.peerj
+  harvester_kwargs: {}
+  label: com.peerj
+  transformer: com.peerj
+  transformer_kwargs: {}
+- base_url: https://peerj.com/articles/index.json
+  disabled: false
+  harvester: com.peerj
+  harvester_kwargs:
+      fetch_xml: true
+  label: com.peerj.xml
+  transformer: com.peerj.xml
+  transformer_kwargs: {}
+- base_url: https://peerj.com/preprints/index.json
+  disabled: false
+  harvester: com.peerj
+  harvester_kwargs:
+      fetch_xml: true
+      identifier_prefix: preprints-
+  label: com.peerj.preprints
+  transformer: com.peerj.xml
+  transformer_kwargs:
+      emitted_type: preprint
+- base_url: https://peerj.com/articles/index.json?journal=cs
+  disabled: false
+  harvester: com.peerj
+  harvester_kwargs: {}
+  label: com.peerj.cs
+  transformer: com.peerj
+  transformer_kwargs: {}
+- base_url: https://peerj.com/articles/index.json?journal=cs
+  disabled: false
+  harvester: com.peerj
+  harvester_kwargs:
+      fetch_xml: true
+  label: com.peerj.cs.xml
+  transformer: com.peerj.xml
+  transformer_kwargs: {}
+- base_url: https://peerj.com/preprints/index.json?journal=cs
+  disabled: false
+  harvester: com.peerj
+  harvester_kwargs:
+      fetch_xml: true
+      identifier_prefix: preprints-
+  label: com.peerj.cs.preprints
+  transformer: com.peerj.xml
+  transformer_kwargs:
+      emitted_type: preprint
+home_page: https://peerj.com/
+long_title: PeerJ
+name: com.peerj
+user: providers.com.peerj

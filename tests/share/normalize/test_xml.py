@@ -1,6 +1,6 @@
 import xmltodict
 
-from share.normalize import *  # noqa
+from share.transform.chain import *  # noqa
 
 
 EXAMPLE = '''

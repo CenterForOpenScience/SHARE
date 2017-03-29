@@ -1,7 +1,5 @@
 import graphene
 
-from django.core.urlresolvers import reverse
-
 from graphene_django import DjangoObjectType
 
 from share import models
@@ -11,28 +9,23 @@ from share.graphql.fields import JSONField
 
 class Source(DjangoObjectType):
     title = graphene.String()
-    favicon = graphene.String()
-    date_added = graphene.String()
+    icon = graphene.String()
 
     class Meta:
-        model = models.ShareUser
-        only_fields = ('id', 'home_page', 'is_active', )
+        model = models.Source
+        only_fields = ('id', 'home_page', )
 
     @classmethod
     def resolve_id(cls, instance, context, request, info):
-        return instance.robot.replace('providers.', '', 1)
+        return instance.name
 
     @classmethod
     def resolve_title(cls, instance, context, request, info):
         return instance.long_title
 
     @classmethod
-    def resolve_favicon(cls, instance, context, request, info):
-        return reverse('user_favicon', kwargs={'username': instance.username})
-
-    @classmethod
-    def resolve_date_added(cls, instance, context, request, info):
-        return instance.date_joined.isoformat()
+    def resolve_icon(cls, instance, context, request, info):
+        return instance.icon.url
 
 
 class AbstractShareObject(graphene.Interface):
@@ -77,7 +70,7 @@ class AbstractShareObject(graphene.Interface):
     def resolve_sources(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
-        return self.sources.all()[offset:limit]
+        return [user.source for user in self.sources.select_related('source').all()[offset:limit]]
 
 
 class User(DjangoObjectType):

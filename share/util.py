@@ -1,7 +1,7 @@
-import re
-import os
-import yaml
 from collections import OrderedDict
+import os
+import re
+import yaml
 
 
 WHITESPACE_RE = r'\s+'
@@ -212,3 +212,19 @@ class DictHashingDict:
         if isinstance(val, (list, tuple)):
             val = tuple(self._hash(v) for v in val)
         return val
+
+
+def chunked(iterable, size=25, fail_fast=False):
+    iterable = iter(iterable)
+    try:
+        while True:
+            l = []
+            for _ in range(size):
+                l.append(next(iterable))
+            yield l
+    except StopIteration:
+        yield l
+    except Exception as e:
+        if not fail_fast and l:
+            yield l
+        raise e

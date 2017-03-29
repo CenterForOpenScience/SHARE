@@ -1,0 +1,15 @@
+configs:
+- base_url: https://cn.dataone.org/cn/v2/query/solr/
+  disabled: false
+  earliest_date: null
+  harvester: org.dataone
+  harvester_kwargs: {}
+  label: org.dataone
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: org.dataone
+  transformer_kwargs: {}
+home_page: https://www.dataone.org/
+long_title: 'DataONE: Data Observation Network for Earth'
+name: org.dataone
+user: providers.org.dataone

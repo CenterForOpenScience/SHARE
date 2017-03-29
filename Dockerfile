@@ -57,4 +57,6 @@ ARG GIT_COMMIT=
 ENV VERSION ${GIT_TAG}
 ENV GIT_COMMIT ${GIT_COMMIT}
 
+RUN python setup.py develop
+
 CMD ["python", "manage.py", "--help"]

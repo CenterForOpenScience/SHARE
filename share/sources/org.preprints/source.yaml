@@ -1,0 +1,19 @@
+configs:
+- base_url: http://www.preprints.org/oaipmh/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: org.preprints
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: preprint
+    property_list: []
+    type_map: {}
+home_page: http://www.preprints.org
+long_title: Preprints.org
+name: org.preprints
+user: providers.org.preprints

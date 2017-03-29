@@ -1,0 +1,20 @@
+configs:
+- base_url: http://digitalcommons.pcom.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.pcom
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: [biomed, pa_systematic_reviews, psychology_dissertations, scholarly_papers,
+      research_day, posters]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://digitalcommons.pcom.edu
+long_title: DigitalCommons@PCOM
+name: edu.pcom
+user: providers.edu.pcom

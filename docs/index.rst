@@ -6,13 +6,13 @@ SHARE is a higher education initiative whose mission is to maximize research imp
 discoverable, and reusable. To fulfill this mission SHARE is building a free, open, data set about research and scholarly
 activities across their life cycle.
 
-SHARE harvests metadata nightly from 100+ repositories, normalizes that metadata into one format, and makes it accessable via a web API.
+SHARE harvests metadata nightly from 100+ repositories, transforms that metadata into one format, and makes it accessable via a web API.
 
 The technical side of SHARE has many pieces that you can interact with:
 
-- API Endpoints for accessing the raw and normalized metadata
+- API Endpoints for accessing the raw and transformed metadata
     + https://share.osf.io/api
-- A search endpoint powered by elasticsearch that indexes the normalized data allowing:
+- A search endpoint powered by elasticsearch that indexes the transformed data allowing:
    - Thorough search of creative works:
         + Creative works: `</api/v2/search/creativeworks/_search_>`_
         + more info on the `elasticsearch docs`_ page
@@ -34,7 +34,7 @@ Guide
     :maxdepth: 2
 
     quickstart
-    harvesters_and_normalizers
+    harvesters_and_transformers
     share_models
     elasticsearch
     share_api

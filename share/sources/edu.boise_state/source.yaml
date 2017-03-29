@@ -1,0 +1,19 @@
+configs:
+- base_url: http://scholarworks.boisestate.edu/do/oai/
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.boise_state
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://scholarworks.boisestate.edu
+long_title: Boise State University ScholarWorks
+name: edu.boise_state
+user: providers.edu.boise_state

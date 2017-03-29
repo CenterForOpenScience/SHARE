@@ -25,7 +25,7 @@ Switch into the share environment for the first time::
     workon share
 Note - These instructions are for getting up and running with the simplest steps possible and is good as more of a refresher --
 for more details, or getting started for the first time, please see the section on getting up and
-running on the :ref:`Harvesters and Normalizers section <harvesters-and-normalizers>`.
+running on the :ref:`Harvesters and Transformers section <harvesters-and-transformers>`.
 
 
 THE SHARE Pipeline can be setup locally for testing and modifications.
@@ -54,7 +54,7 @@ Run a harvester::
 
 To see a list of all providers, as well as their names for harvesting, visit https://share.osf.io/api/providers/
 
-For more information, see the section on :ref:`Harvesters and Normalizers <harvesters-and-normalizers>`.
+For more information, see the section on :ref:`Harvesters and Transformers <harvesters-and-transformers>`.
 
 
 sharepa

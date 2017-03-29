@@ -1,0 +1,19 @@
+configs:
+- base_url: http://philpapers.org/oai.pl
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false, until_param: to}
+  label: org.philpapers
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: publication
+    property_list: []
+    type_map: {'info:eu-repo/semantics/article': article, 'info:eu-repo/semantics/book': book}
+home_page: http://philpapers.org
+long_title: PhilPapers
+name: org.philpapers
+user: providers.org.philpapers

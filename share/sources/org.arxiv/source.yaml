@@ -1,0 +1,32 @@
+configs:
+- base_url: https://export.arxiv.org/api/query
+  disabled: false
+  earliest_date: null
+  harvester: org.arxiv
+  harvester_kwargs: {}
+  label: org.arxiv
+  rate_limit_allowance: 1
+  rate_limit_period: 3
+  transformer: org.arxiv
+  transformer_kwargs:
+      namespaces:
+          'http://www.w3.org/2005/Atom': null
+          'http://arxiv.org/schemas/atom': arxiv
+- base_url: http://export.arxiv.org/oai2
+  disabled: true
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
+  label: org.arxiv.oai
+  rate_limit_allowance: 1
+  rate_limit_period: 20
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: preprint
+    property_list: []
+    type_map: {}
+home_page: http://arxiv.org
+long_title: arXiv
+name: org.arxiv
+user: providers.org.arxiv

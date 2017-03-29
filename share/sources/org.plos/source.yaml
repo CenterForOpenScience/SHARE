@@ -1,0 +1,15 @@
+configs:
+- base_url: http://api.plos.org/search
+  disabled: false
+  earliest_date: null
+  harvester: org.plos
+  harvester_kwargs: {}
+  label: org.plos
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: org.plos
+  transformer_kwargs: {}
+home_page: https://plos.org/
+long_title: Public Library of Science
+name: org.plos
+user: providers.org.plos

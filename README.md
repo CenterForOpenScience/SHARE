@@ -24,31 +24,20 @@ It is useful to set up a [virtual environment](http://virtualenvwrapper.readthed
     mkvirtualenv share -p `which python3.5`
     workon share
 
-Once in the `share` virtual environment, install the necessary requirements.
+Once in the `share` virtual environment, install the necessary requirements, then setup SHARE.
 
     pip install -r requirements.txt
+    python setup.py develop
 
-`docker-compose` assumes [Docker](https://www.docker.com/) is installed and running. `docker-compose up -d web` creates and starts containers for elasticsearch, rabbitmq, and postgres. Finally, `./up.sh` ensures everything has been installed properly.
+`docker-compose` assumes [Docker](https://www.docker.com/) is installed and running. Running `./bootstrap.sh` will create and provision the database. If there are any SHARE containers running, make sure to stop them before bootstrapping using `docker-compose stop`.
 
-    docker-compose up -d web
-    ./up.sh
-
-    ---------------- or ----------------
-
-    pg
-    createuser share
-    psql
-        CREATE DATABASE share;
-    python manage.py makemigrations
-    python manage.py maketriggermigrations
-    python manage.py makeprovidermigrations
-    python manage.py migrate
-    python manage.py createsuperuser
+    docker-compose build web
+    docker-compose run --rm web ./bootstrap.sh
 
 ## Run
 Run the API server
 
-    python manage.py runserver
+    docker-compose up -d web
 
 Run Celery
 
@@ -60,14 +49,25 @@ This is particularly applicable to running [ember-share](https://github.com/Cent
 Harvest data from providers, for example
 
     ./manage.py harvest com.nature --async
-    ./manage.py harvest io.osf --async
+    ./manage.py harvest com.peerj.preprints --async
 
 Pass data to elasticsearch with `runbot`. Rerunning this command will get the most recently harvested data. This can take a minute or two to finish.
 
     ./manage.py runbot elasticsearch
 
-## Build docs
+## Building docs
 
     cd docs/
     pip install -r requirements.txt
     make watch
+
+## Running Tests
+
+### Unit test suite
+
+  py.test
+
+### BDD Suite
+
+  behave
+

@@ -4,60 +4,63 @@ import hashlib
 from django.core import exceptions
 from django.db.utils import IntegrityError
 
-from share.models import RawData
+from share.models import RawDatum
 
 
 @pytest.mark.django_db
-class TestRawData:
+class TestRawDatum:
 
-    def test_doesnt_mangle_data(self, share_source):
-        rd = RawData(source=share_source, app_label='foo', data=b'This is just some data')
+    def test_doesnt_mangle_data(self, suid):
+        rd = RawDatum(suid=suid, datum='This is just some data')
         rd.save()
 
-        assert RawData.objects.first().data == 'This is just some data'
+        assert RawDatum.objects.first().datum == 'This is just some data'
 
-    def test_must_have_data(self, share_source):
-        rd = RawData(source=share_source, app_label='foo')
+    def test_must_have_data(self, suid):
+        rd = RawDatum(suid)
 
         with pytest.raises(exceptions.ValidationError) as e:
             rd.clean_fields()
             rd.save()
 
-        assert 'This field cannot be blank.' == e.value.message_dict['data'][0]
+        assert 'This field cannot be blank.' == e.value.message_dict['datum'][0]
 
-    def test_must_have_source(self):
-        rd = RawData(data='SomeData', app_label='foo')
+    def test_must_have_suid(self):
+        rd = RawDatum(datum='SomeData')
 
         with pytest.raises(IntegrityError) as e:
             rd.save()
 
-        assert 'null value in column "source_id" violates not-null constraint' in e.value.args[0]
+        assert 'null value in column "suid_id" violates not-null constraint' in e.value.args[0]
 
-    def test_store_data(self, share_source):
-        rd = RawData.objects.store_data('myid', b'mydatums', share_source, 'applabel')
+    def test_store_data(self, source_config):
+        rd = RawDatum.objects.store_data('unique', 'mydatums', source_config)
 
-        assert rd.date_seen is not None
-        assert rd.date_harvested is not None
+        assert rd.date_modified is not None
+        assert rd.date_created is not None
 
-        assert rd.data == b'mydatums'
-        assert rd.source == share_source
-        assert rd.app_label == 'applabel'
-        assert rd.provider_doc_id == 'myid'
+        assert rd.datum == 'mydatums'
+        assert rd.suid.identifier == 'unique'
+        assert rd.suid.source_config == source_config
         assert rd.sha256 == hashlib.sha256(b'mydatums').hexdigest()
 
-    def test_store_data_dedups_simple(self, share_source):
-        rd1 = RawData.objects.store_data('myid', b'mydatums', share_source, 'applabel')
-        rd2 = RawData.objects.store_data('myid', b'mydatums', share_source, 'applabel')
+    def test_store_data_dedups_simple(self, source_config):
+        rd1 = RawDatum.objects.store_data('unique', 'mydatums', source_config)
+        rd2 = RawDatum.objects.store_data('unique', 'mydatums', source_config)
 
         assert rd1.pk == rd2.pk
-        assert rd1.date_seen < rd2.date_seen
-        assert rd1.date_harvested == rd2.date_harvested
+        assert rd1.created is True
+        assert rd2.created is False
+        assert rd1.date_created == rd2.date_created
+        assert rd1.date_modified < rd2.date_modified
 
-    def test_store_data_dedups_complex(self, share_source):
-        data = b'{"providerUpdatedDateTime":"2016-08-25T11:37:40Z","uris":{"canonicalUri":"https://provider.domain/files/7d2792031","providerUris":["https://provider.domain/files/7d2792031"]},"contributors":[{"name":"Person1","email":"one@provider.domain"},{"name":"Person2","email":"two@provider.domain"},{"name":"Person3","email":"three@provider.domain"},{"name":"Person4","email":"dxm6@psu.edu"}],"title":"ReducingMorbiditiesinNeonatesUndergoingMRIScannig"}'
-        rd1 = RawData.objects.store_data('myid', data, share_source, 'applabel')
-        rd2 = RawData.objects.store_data('myid', data, share_source, 'applabel')
+    def test_store_data_dedups_complex(self, source_config):
+        data = '{"providerUpdatedDateTime":"2016-08-25T11:37:40Z","uris":{"canonicalUri":"https://provider.domain/files/7d2792031","providerUris":["https://provider.domain/files/7d2792031"]},"contributors":[{"name":"Person1","email":"one@provider.domain"},{"name":"Person2","email":"two@provider.domain"},{"name":"Person3","email":"three@provider.domain"},{"name":"Person4","email":"dxm6@psu.edu"}],"title":"ReducingMorbiditiesinNeonatesUndergoingMRIScannig"}'
+        rd1 = RawDatum.objects.store_data('unique', data, source_config)
+        rd2 = RawDatum.objects.store_data('unique', data, source_config)
 
         assert rd1.pk == rd2.pk
-        assert rd1.date_seen < rd2.date_seen
-        assert rd1.date_harvested == rd2.date_harvested
+        assert rd1.created is True
+        assert rd2.created is False
+        assert rd1.date_modified < rd2.date_modified
+        assert rd1.date_created == rd2.date_created

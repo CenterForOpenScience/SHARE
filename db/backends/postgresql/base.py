@@ -7,6 +7,7 @@ from django.db.backends.postgresql.base import \
 from django.db.backends.postgresql.base import *
 
 from db.backends.postgresql.schema import DatabaseSchemaEditor
+from db.backends.postgresql.creation import DatabaseCreation
 
 
 class server_side_cursors(object):
@@ -47,6 +48,8 @@ class DatabaseWrapper(PostgresqlDatabaseWrapper):
             item.value
     """
 
+    # In django 1.10
+    # creation_class = DatabaseCreation
     SchemaEditorClass = DatabaseSchemaEditor
 
     def __init__(self, *args, **kwargs):
@@ -54,6 +57,8 @@ class DatabaseWrapper(PostgresqlDatabaseWrapper):
         self.server_side_cursor_itersize = None
 
         super(DatabaseWrapper, self).__init__(*args, **kwargs)
+
+        self.creation = DatabaseCreation(self)
 
     def create_cursor(self):
         if not self.server_side_cursors:
