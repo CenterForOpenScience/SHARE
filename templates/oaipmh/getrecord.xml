@@ -1,7 +1,0 @@
-{% extends "oaipmh/base.xml" %}
-
-{% block content %}
-    <GetRecord>
-        {% include 'oaipmh/record.xml' %}
-    </GetRecord>
-{% endblock %}

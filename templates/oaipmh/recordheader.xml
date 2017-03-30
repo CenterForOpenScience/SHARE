@@ -1,7 +1,0 @@
-<header>
-    <identifier>{{ header.oai_identifier }}</identifier>
-    <datestamp>{{ header.datestamp }}</datestamp>
-    {% for set_spec in header.set_specs %}
-    <setSpec>{{ set_spec }}</setSpec>
-    {% endfor %}
-</header>

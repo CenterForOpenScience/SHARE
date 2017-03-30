@@ -6,8 +6,14 @@ class OAIError:
 
 
 class BadVerb(OAIError):
-    def __init__(self, verbs):
-        super().__init__('badVerb', 'Illegal OAI verb: {}'.format(', '.join(verbs)))
+    def __init__(self, verbs=None):
+        if not verbs:
+            message = 'Missing OAI verb'
+        elif len(verbs) > 1:
+            message = 'Multiple OAI verbs: {}'.format(', '.join(verbs))
+        else:
+            message = 'Illegal OAI verb: {}'.format(verbs[0])
+        super().__init__('badVerb', message)
 
 
 class BadArgument(OAIError):
