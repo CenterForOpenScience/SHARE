@@ -53,8 +53,8 @@ class AgEconHarvester(BaseHarvester):
 
     # Fetch the list of work urls on a single result page and return results within date range
     def fetch_records(self, start_date, end_date):
-        logger.info('Harvesting % - %s', start_date, end_date)
-        logger.debug('Fetching page %s', self.base_url)
+        logger.info('Harvesting %s - %s', start_date, end_date)
+        logger.debug('Fetching page %s', self.config.base_url)
 
         url = furl(self.config.base_url)
         url.args['starts_with'] = start_date
