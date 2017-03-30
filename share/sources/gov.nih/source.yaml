@@ -6,8 +6,8 @@ configs:
   harvester_kwargs:
       table_url: https://exporter.nih.gov/ExPORTER_Catalog.aspx/
   label: gov.nih
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: gov.nih
   transformer_kwargs: {}
 home_page: http://exporter.nih.gov/
