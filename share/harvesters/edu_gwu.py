@@ -17,7 +17,7 @@ class GWScholarSpaceHarvester(BaseHarvester):
         start_date = start_date.date()
 
         # There is no apparent way to filter by date range, just sort by date.
-        url = furl(self.config.base_url)
+        url = furl(self.config.base_url + '/catalog')
         url.args['per_page'] = 10  # If it gets more active, consider upping to 50 or 100
         url.args['sort'] = 'system_modified_dtsi+desc'
 
@@ -44,7 +44,7 @@ class GWScholarSpaceHarvester(BaseHarvester):
 
             logger.info('On document %d of %d (%d%%)', count, total, (count / total) * 100)
             for link in links:
-                item_response = self.requests.get('https://scholarspace.library.gwu.edu' + link)
+                item_response = self.requests.get(self.config.base_url + link)
                 if item_response.status_code // 100 != 2:
                     logger.warning('Got non-200 status %s from %s', item_response, link)
                     continue
