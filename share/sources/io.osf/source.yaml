@@ -10,8 +10,8 @@ configs:
           contributors: relationships.contributors.links.related.href
           institutions: relationships.affiliated_institutions.links.related.href
   label: io.osf
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: io.osf
   transformer_kwargs: {}
 - base_url: http://osf.io/api/v2/preprints/
@@ -20,11 +20,11 @@ configs:
   harvester: io.osf
   harvester_kwargs:
       path: v2/preprint_providers/osf/preprints/
-      embed_attrs: 
+      embed_attrs:
           contributors: relationships.contributors.links.related.href
   label: io.osf.preprints
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: io.osf.preprints
   transformer_kwargs: {}
 - base_url: http://api.osf.io/registrations/
@@ -40,8 +40,8 @@ configs:
           contributors: relationships.contributors.links.related.href
           institutions: relationships.affiliated_institutions.links.related.href
   label: io.osf.registrations
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: io.osf.registrations
   transformer_kwargs: {}
 home_page: http://osf.io/
