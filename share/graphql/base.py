@@ -25,7 +25,7 @@ class Source(DjangoObjectType):
 
     @classmethod
     def resolve_icon(cls, instance, context, request, info):
-        return instance.icon.url
+        return instance.icon.url if instance.icon else None
 
 
 class AbstractShareObject(graphene.Interface):

@@ -117,8 +117,13 @@ class IndexSourceTask(AppTask):
     def bulk_stream(self, es_index):
         Source = apps.get_model('share.Source')
         opts = {'_index': es_index, '_type': 'sources'}
-        for source in Source.objects.exclude(long_title='').all():
-            yield {'_op_type': 'index', '_id': source.name, **self.serialize(source), **opts}
+
+        for source in Source.objects.all():
+            # remove sources from search that don't appear on the sources page
+            if not source.icon:
+                yield {'_op_type': 'delete', '_id': source.name, **opts}
+            else:
+                yield {'_op_type': 'index', '_id': source.name, **self.serialize(source), **opts}
 
     def serialize(self, source):
         return {
