@@ -39,7 +39,6 @@ Guide
     elasticsearch
     share_api
     ember_app
-    troubleshooting
 
 Contribute
 ==========
