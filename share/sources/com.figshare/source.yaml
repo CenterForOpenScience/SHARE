@@ -5,8 +5,8 @@ configs:
   harvester: com.figshare
   harvester_kwargs: {}
   label: com.figshare
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: com.figshare
   transformer_kwargs: {}
 - base_url: https://api.figshare.com/v2/articles
@@ -15,8 +15,8 @@ configs:
   harvester: com.figshare.v2
   harvester_kwargs: {}
   label: com.figshare.v2
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: com.figshare.v2
   transformer_kwargs: {}
 home_page: https://figshare.com/

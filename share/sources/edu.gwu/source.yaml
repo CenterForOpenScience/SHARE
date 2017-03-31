@@ -1,12 +1,12 @@
 configs:
-- base_url: https://scholarspace.library.gwu.edu/catalog
+- base_url: https://scholarspace.library.gwu.edu
   disabled: false
   earliest_date: null
   harvester: edu.gwu
   harvester_kwargs: {}
   label: edu.gwu
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: edu.gwu
   transformer_kwargs: {}
 home_page: https://scholarspace.library.gwu.edu

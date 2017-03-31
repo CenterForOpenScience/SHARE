@@ -5,8 +5,8 @@ configs:
   harvester: gov.clinicaltrials
   harvester_kwargs: {}
   label: gov.clinicaltrials
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: gov.clinicaltrials
   transformer_kwargs: {}
 home_page: https://clinicaltrials.gov/

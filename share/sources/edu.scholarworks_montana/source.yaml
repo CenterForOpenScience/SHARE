@@ -5,8 +5,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.scholarworks_montana.mods
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: mods
   transformer_kwargs:
     approved_sets: [col_1_3451, com_1_3, com_1_4, com_1_7, com_1_8, com_1_9, com_1_10,
@@ -34,8 +34,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.scholarworks_montana
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: oai_dc
   transformer_kwargs:
     approved_sets: [col_1_3451, com_1_3, com_1_4, com_1_7, com_1_8, com_1_9, com_1_10,
