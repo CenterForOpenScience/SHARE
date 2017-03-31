@@ -20,6 +20,7 @@ SOURCES_DIR = 'sources'
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('sources', nargs='*', type=str, help='Names of the sources to load (if omitted, load all)')
+        parser.add_argument('--overwrite', action='store_true', help='Overwrite existing sources and source configs')
 
     def handle(self, *args, **options):
         sources = options.get('sources')
@@ -32,7 +33,7 @@ class Command(BaseCommand):
         with transaction.atomic():
             self.known_harvesters = self.sync_drivers('share.harvesters', apps.get_model('share.Harvester'))
             self.known_transformers = self.sync_drivers('share.transformers', apps.get_model('share.Transformer'))
-            self.update_sources(source_dirs)
+            self.update_sources(source_dirs, overwrite=options.get('overwrite'))
 
     def sync_drivers(self, namespace, model):
         names = set(extension.ExtensionManager(namespace).entry_points_names())
@@ -43,7 +44,7 @@ class Command(BaseCommand):
             print('Warning: Missing {} drivers: {}'.format(model._meta.model_name, missing))
         return names
 
-    def update_sources(self, source_dirs):
+    def update_sources(self, source_dirs, overwrite):
         loaded_sources = set()
         loaded_configs = set()
         for source_dir in source_dirs:
@@ -55,21 +56,23 @@ class Command(BaseCommand):
             loaded_sources.add(name)
 
             user = self.get_or_create_user(serialized.pop('user'))
-            source, _ = Source.objects.update_or_create(
-                name=name,
-                defaults={
-                    'user': user,
-                    **self.process_defaults(Source, serialized)
-                }
-            )
+            source_defaults = {
+                'user': user,
+                **self.process_defaults(Source, serialized)
+            }
+            if overwrite:
+                source, _ = Source.objects.update_or_create(name=name, defaults=source_defaults)
+            else:
+                source, _ = Source.objects.get_or_create(name=name, defaults=source_defaults)
+
             with open(os.path.join(source_dir, 'icon.ico'), 'rb') as fobj:
                 source.icon.save(name, File(fobj))
             for config in configs:
                 assert config['label'] not in loaded_configs
                 loaded_configs.add(config['label'])
-                self.update_source_config(source, config)
+                self.update_source_config(source, config, overwrite)
 
-    def update_source_config(self, source, serialized):
+    def update_source_config(self, source, serialized, overwrite):
         label = serialized.pop('label')
         if serialized['harvester'] and serialized['harvester'] not in self.known_harvesters:
             print('Unknown harvester {}! Skipping source config {}'.format(serialized['harvester'], label))
@@ -77,14 +80,18 @@ class Command(BaseCommand):
         if serialized['transformer'] and serialized['transformer'] not in self.known_transformers:
             print('Unknown transformer {}! Skipping source config {}'.format(serialized['transformer'], label))
             return
-        source_config, _ = apps.get_model('share.SourceConfig').objects.update_or_create(
-            label=label,
-            defaults={
-                'source': source,
-                **self.process_defaults(apps.get_model('share.SourceConfig'), serialized)
-            }
-        )
-        self.schedule_harvest_task(source_config.label, source_config.disabled)
+
+        SourceConfig = apps.get_model('share.SourceConfig')
+        config_defaults = {
+            'source': source,
+            **self.process_defaults(SourceConfig, serialized)
+        }
+        if overwrite:
+            source_config, created = SourceConfig.objects.update_or_create(label=label, defaults=config_defaults)
+        else:
+            source_config, created = SourceConfig.objects.get_or_create(label=label, defaults=config_defaults)
+        if overwrite or created:
+            self.schedule_harvest_task(source_config.label, source_config.disabled)
 
     def get_or_create_user(self, username):
         try:
