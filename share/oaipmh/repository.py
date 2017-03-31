@@ -92,7 +92,7 @@ class OAIRepository:
     def _load_page(self, kwargs):
         if 'resumptionToken' in kwargs:
             try:
-                queryset, next_token, format, cursor = self._resume(kwargs['resumptionToken'])
+                queryset, next_token, metadataRenderer, cursor = self._resume(kwargs['resumptionToken'])
             except (ValueError, KeyError):
                 self.errors.append(oai_errors.BadResumptionToken(kwargs['resumptionToken']))
         else:
