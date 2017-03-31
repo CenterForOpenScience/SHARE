@@ -52,7 +52,7 @@ Run a harvester::
 
     python manage.py harvest domain.providername --async
 
-To see a list of all providers, as well as their names for harvesting, visit https://share.osf.io/api/providers/
+To see a list of all providers, as well as their names for harvesting, visit https://share.osf.io/api/v2/sources
 
 For more information, see the section on :ref:`Harvesters and Transformers <harvesters-and-transformers>`.
 
