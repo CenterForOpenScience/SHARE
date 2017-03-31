@@ -5,8 +5,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.uhawaii.mods
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: mods
   transformer_kwargs:
     approved_sets: [com_10125_562, com_10125_565, com_10125_569, com_10125_572, com_10125_574,
@@ -37,8 +37,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.uhawaii
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: oai_dc
   transformer_kwargs:
     approved_sets: [com_10125_562, com_10125_565, com_10125_569, com_10125_572, com_10125_574,

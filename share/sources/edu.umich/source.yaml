@@ -5,8 +5,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.umich.mods
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: mods
   transformer_kwargs:
     approved_sets: [col_2027.42_57773, col_2027.42_62481, col_2027.42_60130, col_2027.42_51534,
@@ -43,8 +43,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.umich
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: oai_dc
   transformer_kwargs:
     approved_sets: [col_2027.42_57773, col_2027.42_62481, col_2027.42_60130, col_2027.42_51534,

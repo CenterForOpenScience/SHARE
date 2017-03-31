@@ -215,7 +215,7 @@ class HarvestLog(AbstractBaseLog):
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
 
-    def spawn_task(self, ingest=False, force=False, limit=None, superfluous=False, ignore_disabled=False, async=True):
+    def spawn_task(self, ingest=True, force=False, limit=None, superfluous=False, ignore_disabled=False, async=True):
         from share.tasks import HarvesterTask
         # TODO Move most if not all of the logic for task argument massaging here.
         # It's bad to have two places already but this is required to backharvest a source without timing out on uwsgi

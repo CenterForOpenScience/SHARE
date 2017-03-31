@@ -5,8 +5,8 @@ configs:
   harvester: com.springer
   harvester_kwargs: {}
   label: com.springer
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: com.springer
   transformer_kwargs: {}
 home_page: http://www.springer.com/us/

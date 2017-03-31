@@ -5,8 +5,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: es.csic.mods
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: mods
   transformer_kwargs:
     approved_sets: [com_10261_40, com_10261_25, com_10261_66, com_10261_111, com_10261_79,
@@ -35,8 +35,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: es.csic
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: oai_dc
   transformer_kwargs:
     approved_sets: [com_10261_40, com_10261_25, com_10261_66, com_10261_111, com_10261_79,

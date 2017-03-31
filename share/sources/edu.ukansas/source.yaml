@@ -5,8 +5,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.ukansas.mods
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: mods
   transformer_kwargs:
     approved_sets: [com_1808_978, com_1808_118, com_1808_84, com_1808_1666, com_1808_1029,
@@ -34,8 +34,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.ukansas
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: oai_dc
   transformer_kwargs:
     approved_sets: [com_1808_978, com_1808_118, com_1808_84, com_1808_1666, com_1808_1029,

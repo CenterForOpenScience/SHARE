@@ -5,8 +5,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: gov.pubmedcentral
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: oai_dc
   transformer_kwargs:
     approved_sets: null
@@ -19,8 +19,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: pmc_fm, time_granularity: false}
   label: gov.pubmedcentral.pmc
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: gov.pubmedcentral.pmc
   transformer_kwargs:
       namespaces:

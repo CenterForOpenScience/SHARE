@@ -5,8 +5,8 @@ configs:
   harvester: org.ncar
   harvester_kwargs: {}
   label: org.ncar
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: org.ncar
   transformer_kwargs:
       namespaces:

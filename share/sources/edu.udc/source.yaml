@@ -5,8 +5,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.udc.mods
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: mods
   transformer_kwargs:
     approved_sets: [com_11299_45272, com_11299_169792, com_11299_166578]
@@ -19,8 +19,8 @@ configs:
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.udc
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: oai_dc
   transformer_kwargs:
     approved_sets: [com_11299_45272, com_11299_169792, com_11299_166578]

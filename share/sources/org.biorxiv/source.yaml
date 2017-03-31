@@ -16,7 +16,7 @@ configs:
   harvester_kwargs: {}
   label: org.biorxiv
   rate_limit_allowance: 1
-  rate_limit_period: 5
+  rate_limit_period: 20
   transformer: org.biorxiv
   transformer_kwargs:
       namespaces:

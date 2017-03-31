@@ -5,8 +5,8 @@ configs:
   harvester: org.plos
   harvester_kwargs: {}
   label: org.plos
-  rate_limit_allowance: 5
-  rate_limit_period: 1
+  rate_limit_allowance: 1
+  rate_limit_period: 2
   transformer: org.plos
   transformer_kwargs: {}
 home_page: https://plos.org/
