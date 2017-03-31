@@ -555,6 +555,8 @@ Code Examples
 
 .. _normalizeddata endpoint: https://share.osf.io/api/normalizeddata
 
+.. _SHARE type: https://share.osf.io/api/v2/schema
+
 .. _SHARE website: https://share.osf.io
 
 .. _OAuth2: http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html
