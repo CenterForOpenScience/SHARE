@@ -1,0 +1,15 @@
+configs:
+- base_url: http://open.bu.edu/oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: mods}
+  label: edu.bu.open
+  rate_limit_allowance: 1
+  rate_limit_period: 2
+  transformer: mods
+  transformer_kwargs: {}
+home_page: https://open.bu.edu/
+long_title: OpenBU
+name: edu.bu.open
+user: providers.edu.bu.open
