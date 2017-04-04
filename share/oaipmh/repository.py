@@ -106,11 +106,12 @@ class OAIRepository:
             self.errors.append(oai_errors.NoResults())
             return [], None, None
         # TODO is there a way to prefetch Sources/Relations/Identifiers just for this slice? https://code.djangoproject.com/ticket/26780
-        works = queryset[cursor:cursor + self.PAGE_SIZE + 1]
-        if len(works) > self.PAGE_SIZE:
-            works = works[:self.PAGE_SIZE]
-        else:
+        works = list(queryset[cursor:cursor + self.PAGE_SIZE + 1])
+        if len(works) <= self.PAGE_SIZE:
+            # Last page
             next_token = None
+        else:
+            works = works[:self.PAGE_SIZE]
         return works, next_token, metadataRenderer
 
     def _record_queryset(self, kwargs, catch=True):
