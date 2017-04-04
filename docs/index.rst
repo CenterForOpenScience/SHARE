@@ -16,10 +16,9 @@ The technical side of SHARE has many pieces that you can interact with:
         + more info on the `elasticsearch docs`_ page
    - Data aggregations across fields
 - An `Ember application`_ using the SHARE API for:
+   - Searching the SHARE database
    - Discovering new Projects
-   - Curation
    - Corrections and Updates
-- A python library called ``sharepa`` for SHARE Parsing and Analysis
 - API Endpoints for accessing transformed metadata
     + https://share.osf.io/api/v2
 
@@ -48,6 +47,8 @@ Contribute
 
 Get In Touch
 ============
+
+For emails about technical support: share-support@osf.io
 
 ::
 
