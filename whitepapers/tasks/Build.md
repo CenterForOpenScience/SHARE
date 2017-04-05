@@ -1,4 +1,4 @@
-# Build Task
+# Build Task (NOT IMPLEMENTED)
 
 
 ## Responsibilities
@@ -22,6 +22,3 @@
     * If # found > 1 or < 1 Crash
   * Update Build Date and Build Version
   * Set Build Key to SHA256(Source Weight + State Id + State Last Modified For each State ordered by state Id)
-
-
-# Needed to allow serving favicons from the DB
