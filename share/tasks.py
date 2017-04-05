@@ -1,8 +1,8 @@
 import abc
-import random
 import datetime
 import functools
 import logging
+import random
 import threading
 
 import pendulum
@@ -309,12 +309,18 @@ class HarvesterTask(SourceTask):
                 # if not created and log.task_id != self.task_id and log.date_modified - datetime.datetime.utcnow() > datetime.timedelta(minutes=10):
                 #     pass
                 log.reschedule()
+                # Use random to add jitter to help break up locking issues
                 # Kinda hacky, allow a stupidly large number of retries as there is no options for infinite
-                raise self.retry(countdown=random.randrange(10, 30), exc=e, max_retries=99999)
+                raise self.retry(
+                    exc=e,
+                    max_retries=99999,
+                    countdown=min((random.random() + 1) * (settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries), 60 * 15)
+                )
             except Exception as e:
                 log.fail(e)
                 logger.exception('Failed harvester task (%r, %s, %s)', self.config, start, end)
-                raise self.retry(countdown=10, exc=e)
+                # No log needed here, max retries is 3
+                raise self.retry(countdown=min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15), exc=e)
 
             if force and error:
                 log.forced(error)
