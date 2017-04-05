@@ -23,48 +23,7 @@ The `Source`, `SourceConfig`, `Harvester`, and `Transformer` models.
 
 
 ## User Stories
-
-
-
-## Tables
-### RawDatum
-Raw datum, exactly as it was given to SHARE.
-
-| Column         | Type | Indexed | Nullable | FK  | Default | Description                                                        |
-| :------------- | :--: | :-----: | :------: | :-: | :-----: | :----------------------------------------------------------------- |
-| `suid_id`      | int  |    ✓    |          |  ✓  |         | SUID for this datum                                                |
-| `datum`        | text |         |          |     |         | The raw datum itself (typically JSON or XML string)                |
-| `sha256`       | text | unique  |          |     |         | SHA-256 hash of `data`                                             |
-| `harvest_logs` | m2m  |         |          |     |         | List of HarvestLogs for harvester runs that found this exact datum |
-
-### HarvestLog
-Log entries to track the status of a specific harvester run.
-
-| Column                  |   Type    | Indexed | Nullable | FK  |     Default     | Description                                                                                                   |
-| :---------------------- | :-------: | :-----: | :------: | :-: | :-------------: | :------------------------------------------------------------------------------------------------------------ |
-| `source_config_id`      |    int    |    ✓    |          |  ✓  |                 | IngestConfig for this harvester run                                                                           |
-| `start_date`            | datetime  |    ✓    |          |     |                 | Beginning of the date range to harvest                                                                        |
-| `end_date`              | datetime  |    ✓    |          |     |                 | End of the date range to harvest                                                                              |
-| `status`                | enum(int) |    ✓    |          |     |     CREATED     | Status of the harvester run, one of {CREATED, STARTED, SPLIT, SUCCEEDED, FAILED, RESCHEDULED, SKIPPED}        |
-| `error`                 |   text    |         |          |     |       ""        | A custom error message or traceback describing why this job failed                                            |
-| `completions`           |    int    |         |          |     |        0        | The number of times `status` has been set to SUCCEEDED                                                        |
-| `date_started`          | datetime  |         |          |     |                 | Datetime `status` was last set to STARTED                                                                     |
-| `date_created`          | datetime  |         |          |     |       now       | Datetime this row was created                                                                                 |
-| `date_modified`         | datetime  |         |          |     | now (on update) | Datetime this row was last modified                                                                           |
-| `share_version`         |   text    |         |          |     |     UNKNOWN     | The commitish at the time this job was last run                                                               |
-| `harvester_version`     |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the harvester, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010')      |
-| `source_config_version` |   text    |    ✓    |          |     |   000.000.000   | Semantic version of the `SourceConfig`, with each segment padded to 3 digits (e.g. '1.2.10' => '001.002.010') |
-
-#### Other indices
-* `source_config_id`, `harvester_version`, `start_date`, `end_date` (unique)
-
-### HarvestLogRawDatum
-Through-table that links a `RawDatum` to a `HarvestLog`. (Let Django generate this)
-
-| Column           | Type | Indexed | Nullable | FK  | Default | Description |
-| :--------------- | :--: | :-----: | :------: | :-: | :-----: | :---------- |
-| `harvest_log_id` | int  |    ✓    |          |  ✓  |         |             |
-| `rawdatum_id`    | int  |    ✓    |          |  ✓  |         |             |
+TODO
 
 
 #### Notes
@@ -73,3 +32,4 @@ Through-table that links a `RawDatum` to a `HarvestLog`. (Let Django generate th
 
 
 ## FAQ
+TODO
