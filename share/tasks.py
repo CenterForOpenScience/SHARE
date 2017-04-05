@@ -275,15 +275,16 @@ class HarvesterTask(SourceTask):
                     logger.debug('Rediscovered %d RawData from %r', len(datum_ids[False]), self.config)
 
                     try:
-                        # Attempt to populate the throughtable for any RawData that made it to the database
+                        # Attempt to populate the throughtable for any RawDatum that made it to the database
                         RawDatum.objects.link_to_log(log, datum_ids[True] + datum_ids[False])
                     except Exception as e:
                         logger.exception('Failed to link RawData to %r', log)
                         # Don't shadow the original error if it exists
-                        if error is None and not force:
-                            raise e
-                        elif error is not None and force:
-                            logger.warning('Force is set to True; ignoring exception')
+                        if error is None:
+                            if force:
+                                logger.warning('Force is set to True; ignoring exception')
+                            else:
+                                raise e
                         else:
                             logger.warning('Harvesting also failed. Opting to raise that exception')
 

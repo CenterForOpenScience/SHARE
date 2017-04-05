@@ -57,7 +57,7 @@ A Source is a place metadata comes from.
 | `user_id`    |  int  |    ✓    |          |  ✓  |         | User with permission to submit data as this source (TODO: replace with django permissions stuff) |
 
 ### Harvester
-Each row corresponds to a Harvester implementation in python. (TODO: describe those somewhere)
+Each row corresponds to a Harvester implementation in python.
 
 | Column          |   Type   | Indexed | Nullable | FK  |     Default     | Description                                                      |
 | :-------------- | :------: | :-----: | :------: | :-: | :-------------: | :--------------------------------------------------------------- |
@@ -66,7 +66,7 @@ Each row corresponds to a Harvester implementation in python. (TODO: describe th
 | `date_modified` | datetime |         |          |     | now (on update) |                                                                  |
 
 ### Transformer
-Each row corresponds to a Transformer implementation in python. (TODO: describe those somewhere)
+Each row corresponds to a Transformer implementation in python.
 
 | Column          |   Type   | Indexed | Nullable | FK  |     Default     | Description                                                        |
 | :-------------- | :------: | :-----: | :------: | :-: | :-------------: | :----------------------------------------------------------------- |
@@ -99,7 +99,7 @@ Log entries to track the status of a specific harvester run.
 * `source_config_id`, `start_date`, `end_date`, `harvester_version`, `source_config_version` (unique)
 
 
-### IngestLog (TODO)
+### IngestLog (NOT IMPLEMENTED)
 Log entries to track the status of an ingest task
 
 | Column                  |   Type    | Indexed | Nullable | FK  |     Default     | Description                                                                                                   |
