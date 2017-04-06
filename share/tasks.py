@@ -314,7 +314,7 @@ class HarvesterTask(SourceTask):
                 raise self.retry(
                     exc=e,
                     max_retries=99999,
-                    countdown=min((random.random() + 1) * (settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries), (random.random() + 1) * 60 * 15)
+                    countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
                 )
             except Exception as e:
                 log.fail(e)
