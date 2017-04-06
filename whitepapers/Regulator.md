@@ -1,1 +1,0 @@
-# Regulator (NOT IMPLEMENTED)
