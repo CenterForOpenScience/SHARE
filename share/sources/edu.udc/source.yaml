@@ -9,7 +9,7 @@ configs:
   rate_limit_period: 2
   transformer: mods
   transformer_kwargs:
-    approved_sets: [com_11299_45272, com_11299_169792, com_11299_166578]
+    approved_sets: [com_11299_45272, col_11299_169792, col_11299_166578]
     emitted_type: CreativeWork
     property_list: []
     type_map: {}
@@ -23,7 +23,7 @@ configs:
   rate_limit_period: 2
   transformer: oai_dc
   transformer_kwargs:
-    approved_sets: [com_11299_45272, com_11299_169792, com_11299_166578]
+    approved_sets: [com_11299_45272, col_11299_169792, col_11299_166578]
     emitted_type: CreativeWork
     property_list: []
     type_map: {}
