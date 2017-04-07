@@ -115,9 +115,9 @@ class RawDatumViewSet(viewsets.ReadOnlyModelViewSet):
             return RawDatum.objects.filter(
                 normalizeddata__changeset__changes__target_id=object_id,
                 normalizeddata__changeset__changes__target_type__model=object_type
-            ).distinct('id').select_related('source')
+            ).distinct('id').select_related('suid')
         else:
-            return RawDatum.objects.all().select_related('source')
+            return RawDatum.objects.all().select_related('suid')
 
 
 class V1DataView(views.APIView):
