@@ -56,25 +56,37 @@ A change is represented as a JSON object with a single key, ``@graph``, containi
 
 - ``@type`` MUST be a `SHARE type`_.
 
-    .. note:: ``@type`` is case insensitive.
+    .. note:: ``@type`` is case sensitive and expects title case, lowercase, or uppercase types.
 
     .. code-block:: javascript
 
-        // GOOD: A Type from the linked page
+        // GOOD: Title case for a type from the linked page
         {
             "@type": "Preprint"
             // Omitted...
         }
 
-        // GOOD: Another type from the linked page
+        // GOOD: All lowercase for a type from the linked page
         {
-            "@id": "cReAtIvEwOrK"
+            "@type": "article"
+            // Omitted...
+        }
+
+        // GOOD: All uppercase for a type from the linked page
+        {
+            "@type": "CREATIVEWORK"
+            // Omitted...
+        }
+
+        // BAD: Other casing of a type from the linked page
+        {
+            "@type": "cReAtIvEwOrK"
             // Omitted...
         }
 
         // BAD: Anything else
         {
-            "@id": "Unicorn"
+            "@type": "Unicorn"
             // Omitted...
         }
 
@@ -554,6 +566,8 @@ Code Examples
 .. _browsable SHARE API docs: https://share.osf.io/api/
 
 .. _normalizeddata endpoint: https://share.osf.io/api/normalizeddata
+
+.. _SHARE type: https://share.osf.io/api/v2/schema
 
 .. _SHARE website: https://share.osf.io
 
