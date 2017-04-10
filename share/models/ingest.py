@@ -9,7 +9,6 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
 from django.core.urlresolvers import reverse
 from django.db import DEFAULT_DB_ALIAS
-from django.db import DatabaseError
 from django.db import connection
 from django.db import connections
 from django.db import models
@@ -122,18 +121,11 @@ class SourceConfig(models.Model):
     def acquire_lock(self, using='locking'):
         # NOTE: Must be in transaction
         logger.debug('Attempting to lock %r', self)
-        try:
-            with connections[using].cursor() as cursor:
-                cursor.execute('''
-                    SELECT "id"
-                    FROM "{}"
-                    WHERE id = %s
-                    FOR NO KEY UPDATE NOWAIT;
-                '''.format(self._meta.db_table), (self.id,))
-        except DatabaseError:
-            logger.warning('Lock failed; another task is already harvesting %r.', self)
-            raise HarvesterConcurrencyError('Unable to lock {!r}'.format(self))
-        else:
+        with connections[using].cursor() as cursor:
+            cursor.execute('''SELECT pg_try_advisory_lock('{}'::regclass::integer, {});'''.format(self._meta.db_table, self.id))
+            if not cursor.fetchone()[0]:
+                logger.warning('Lock failed; another task is already harvesting %r.', self)
+                raise HarvesterConcurrencyError('Unable to lock {!r}'.format(self))
             logger.debug('Lock acquired on %r', self)
 
     def find_missing_dates(self):
