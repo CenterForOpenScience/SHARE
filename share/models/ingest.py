@@ -122,7 +122,7 @@ class SourceConfig(models.Model):
         # NOTE: Must be in transaction
         logger.debug('Attempting to lock %r', self)
         with connections[using].cursor() as cursor:
-            cursor.execute('''SELECT pg_try_advisory_lock('{}'::regclass::integer, {});'''.format(self._meta.db_table, self.id))
+            cursor.execute("SELECT pg_try_advisory_xact_lock(%s::regclass::integer, %s);", (self._meta.db_table, self.id))
             if not cursor.fetchone()[0]:
                 logger.warning('Lock failed; another task is already harvesting %r.', self)
                 raise HarvesterConcurrencyError('Unable to lock {!r}'.format(self))
