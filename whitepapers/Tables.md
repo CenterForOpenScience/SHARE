@@ -84,8 +84,8 @@ Log entries to track the status of a specific harvester run.
 | `task_id`               |   uuid    |         |    ✓     |     |                 | UUID of the celery task running the harvester                                                                 |
 | `status`                | enum(int) |    ✓    |          |     |     created     | Status of the harvester run, one of {created, started, failed, succeeded, rescheduled, forced, skipped, retried} |
 | `context`               |   text    |         |          |     |       ""        | A custom message or traceback describing why this job failed or was skipped                                   |
-| `completions`           |    int    |         |          |     |        0        | The number of times `status` has been set to SUCCEEDED                                                        |
-| `date_started`          | datetime  |         |    ✓     |     |                 | Datetime `status` was last set to STARTED                                                                     |
+| `completions`           |    int    |         |          |     |        0        | The number of times `status` has been set to `succeeded`                                                        |
+| `date_started`          | datetime  |         |    ✓     |     |                 | Datetime `status` was last set to `started`                                                                     |
 | `date_created`          | datetime  |         |          |     |       now       | Datetime this row was created                                                                                 |
 | `date_modified`         | datetime  |    ✓    |          |     | now (on update) | Datetime this row was last modified                                                                           |
 | `source_config_id`      |    int    |    ✓    |          |  ✓  |                 | SourceConfig for this harvester run                                                                           |
@@ -107,20 +107,23 @@ Log entries to track the status of an ingest task
 | `task_id`               |   uuid    |         |    ✓     |     |                 | UUID of the celery task running the harvester                                                                 |
 | `status`                | enum(int) |    ✓    |          |     |     created     | Status of the harvester run, one of {created, started, failed, succeeded, rescheduled, forced, skipped, retried} |
 | `context`               |   text    |         |          |     |       ""        | A custom message or traceback describing why this job failed or was skipped                                   |
-| `completions`           |    int    |         |          |     |        0        | The number of times `status` has been set to SUCCEEDED                                                        |
-| `date_started`          | datetime  |         |    ✓     |     |                 | Datetime `status` was last set to STARTED                                                                     |
+| `completions`           |    int    |         |          |     |        0        | The number of times `status` has been set to `succeeded`                                                        |
+| `date_started`          | datetime  |         |    ✓     |     |                 | Datetime `status` was last set to `started`                                                                     |
 | `date_created`          | datetime  |         |          |     |       now       | Datetime this row was created                                                                                 |
 | `date_modified`         | datetime  |    ✓    |          |     | now (on update) | Datetime this row was last modified                                                                           |
-| `source_config_id`      |    int    |    ✓    |          |  ✓  |                 | SourceConfig for this harvester run                                                                           |
 | `share_version`         |   text    |         |          |     |     UNKNOWN     | The commitish at the time this job was last run                                                               |
-| `source_config_version` |    int    |         |          |     |                 | Version of the `SourceConfig` on the last attempted run                                                       |
-| `raw_datum_id`          |    int    |    ✓    |          |  ✓  |                 | RawDatum to be transformed                                                                                    |
-| `transformer_version`   |    int    |         |          |     |                 | Version of the transformer    |
-| `regulator_version`     |    int    |         |          |     |                 | Version of the regulator      |
-| `consolidator_version`  |    int    |         |          |     |                 | Version of the consolidator   |
+| `suid_id`               |    int    |    ✓    |          |  ✓  |                 | SUID of the document to ingest                                                                                |
+| `latest_raw_id`         |    int    |    ✓    |          |  ✓  |                 | The latest (or only) RawDatum this job will (or did) ingest                                                   |
+| `source_config_version` |    int    |         |          |     |                 | Version of the SUID's `SourceConfig` on the last attempted run                                                |
+| `transformer_version`   |    int    |         |          |     |                 | Version of the Transformer    |
+| `regulator_version`     |    int    |         |          |     |                 | Version of the Regulator      |
+| `consolidator_version`  |    int    |         |          |     |                 | Version of the Consolidator   |
+| `transformed_data`      |   text    |         |    ✓     |     |                 | Serialized output from the Transformer                                                                        |
+| `regulator_log`         |   text    |         |    ✓     |     |                 | Human-readable summary of modifications made by the Regulator, with a reason for each                         |
+| `regulated_data`        |   text    |         |    ✓     |     |                 | Serialized output from the Regulator                                                                          |
 
 #### Other indices
-* `raw_id`, `transformer_version` (unique)
+* `suid_id`, `latest_raw_id`, `source_config_version`, `transformer_version`, `regulator_version`, `consolidator_version` (unique)
 
 #### Notes
 * `regulator_version` and `consolidator_version` will be mutable. Whenever the regulator or consolidator version gets bumped existing jobs should be updated.

@@ -1,11 +1,11 @@
 # Harvest Task
 
 ## Responsibilites
-* Collecting data from a remote source given a source config and date range
-* Teasing the collected data into individual blobs
-* Extracting SUIDs for each blob
-* Storing each (SUID, blob) pair as a RawDatum
-* Spawning the transform task for each blob
+* Collect data from a remote source given a source config and date range
+* Tease the collected data into individual blobs
+* Extract SUIDs for each blob
+* Store each (SUID, blob) pair as a RawDatum
+* Spawn the transform task for each blob
 
 
 ## Considerations

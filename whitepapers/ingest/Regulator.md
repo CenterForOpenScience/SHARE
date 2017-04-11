@@ -1,20 +1,18 @@
 # Regulator (NOT IMPLEMENTED)
 
-Input:
-* [Graph](./Graph.md) object, output from a [Transformer](./Transformer.md)
+## Responsibilities
+* Run a series of cleaning steps on a Graph, modifying it in place.
+* Generate a human-readable reason for each modification.
+* Validate the Graph against a set of criteria.
+* If the Graph has problems the Regulator cannot fix, or if the Graph fails validation, halt with an error.
 
-The Regulator runs a series of cleaning steps on a Graph, then validates the Graph against a set of criteria.
-If the Graph has problems the Regulator cannot fix, or if the Graph fails validation, the Regulator will stop with an error.
-
-## Considerations
-
-* The Regulator should maintain a log of every modification made to the graph
-  * Human-readable reasons for each action
+## Parameters
+* `graph` -- [Graph](./Graph.md) object, output from a [Transformer](./Transformer.md)
+* `suid` -- Source Unique Identifier
 
 ## Phases of Regulation
-
 * Source-specific Phase
-  * SourceConfigs can contain a list of regulator steps that will run first
+  * `suid.source_config` can contain a list of regulator steps that will run first
 * Node Phase
   * Static list of regulator steps that run on each node individually
   * Each step makes decisions based only on the information in the given node
@@ -36,7 +34,6 @@ If the Graph has problems the Regulator cannot fix, or if the Graph fails valida
     * Halts with an error if the graph fails
 
 ## Example Steps
-
 * Node Steps
   * tokenize
     * recognize when a single field has multiple values
