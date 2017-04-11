@@ -52,6 +52,9 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='Harvester',
+            managers=[
+                ('objects', share.models.ingest.NaturalKeyManager('key')),
+            ],
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('key', models.TextField(unique=True)),
@@ -79,6 +82,9 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='Source',
+            managers=[
+                ('objects', share.models.ingest.NaturalKeyManager('name')),
+            ],
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField(unique=True)),
@@ -89,6 +95,9 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='SourceConfig',
+            managers=[
+                ('objects', share.models.ingest.NaturalKeyManager('label')),
+            ],
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('label', models.TextField(unique=True)),
@@ -122,6 +131,9 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='Transformer',
+            managers=[
+                ('objects', share.models.ingest.NaturalKeyManager('key')),
+            ],
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('key', models.TextField(unique=True)),

@@ -89,6 +89,12 @@ class TestHarvestTask:
         with pytest.raises(HarvesterDisabledError):
             harvest(source_config.source.user.id, source_config.label)
 
+    def test_harvester_source_deleted(self, source_config):
+        source_config.source.is_deleted = True
+        source_config.source.save()
+        with pytest.raises(HarvesterDisabledError):
+            harvest(source_config.source.user.id, source_config.label)
+
     def test_harvester_disabled_force(self, source_config):
         source_config.disabled = True
         source_config.save()

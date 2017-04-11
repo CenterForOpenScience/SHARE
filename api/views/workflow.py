@@ -35,8 +35,8 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SourceSerializer
 
     def get_queryset(self):
-        queryset = Source.objects.exclude(icon='')
-        sort = self.request.query_params.get("sort")
+        queryset = Source.objects.exclude(icon='').exclude(is_deleted=True)
+        sort = self.request.query_params.get('sort')
         if sort:
             return queryset.order_by(sort)
         return queryset

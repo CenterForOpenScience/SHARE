@@ -70,7 +70,7 @@ class AbstractShareObject(graphene.Interface):
     def resolve_sources(self, limit=None, offset=None):
         if limit:
             offset = (offset or 0) + limit
-        return [user.source for user in self.sources.select_related('source').all()[offset:limit]]
+        return [user.source for user in self.sources.select_related('source').exclude(source__icon='').exclude(source__is_deleted=True)[offset:limit]]
 
 
 class User(DjangoObjectType):

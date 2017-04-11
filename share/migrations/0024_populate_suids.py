@@ -7,7 +7,7 @@ from django.core import management
 
 
 def load_sources(apps, schema_editor):
-    management.call_command('loadsources')
+    management.call_command('loadsources', apps=apps)
 
 
 class Migration(migrations.Migration):
