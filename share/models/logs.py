@@ -231,9 +231,11 @@ class HarvestLog(AbstractBaseLog):
             'superfluous': superfluous
         }
 
+        task_id = str(self.task_id) if self.task_id else None
+
         if async:
-            return HarvesterTask.mro()[1].apply_async(task, targs, tkwargs, task_id=self.task_id)
-        return HarvesterTask.mro()[1].apply(task, targs, tkwargs, task_id=self.task_id, throw=True)
+            return HarvesterTask.mro()[1].apply_async(task, targs, tkwargs, task_id=task_id)
+        return HarvesterTask.mro()[1].apply(task, targs, tkwargs, task_id=task_id, throw=True)
 
     def __repr__(self):
         return '<{type}({id}, {status}, {source}, {start_date}, {end_date})>'.format(

@@ -191,6 +191,29 @@ class TestHarvestTask:
         assert log.harvester_version == source_config.get_harvester().VERSION
         assert log.source_config_version == source_config.version
 
+    def test_spawn_task(self, source_config):
+        task_id = uuid.uuid4()
+        harvest(source_config.source.user.id, source_config.label, task_id=str(task_id))
+        log = HarvestLog.objects.get(source_config=source_config)
+
+        assert isinstance(log.task_id, uuid.UUID)
+
+        result = log.spawn_task(async=False)
+
+        assert uuid.UUID(result.task_id)
+
+    def test_spawn_task_no_task_id(self, source_config):
+        task_id = uuid.uuid4()
+        harvest(source_config.source.user.id, source_config.label, task_id=str(task_id))
+        log = HarvestLog.objects.get(source_config=source_config)
+
+        log.task_id = None
+        log.save()
+
+        result = log.spawn_task(async=False)
+
+        assert uuid.UUID(result.task_id)
+
     def test_laziness(self, source_config):
         pass
 
