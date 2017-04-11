@@ -1,13 +1,13 @@
 # Regulator (NOT IMPLEMENTED)
 
 ## Responsibilities
-* Run a series of cleaning steps on a Graph, modifying it in place.
+* Run a series of cleaning steps on a graph, modifying it in place.
 * Generate a human-readable reason for each modification.
-* Validate the Graph against a set of criteria.
-* If the Graph has problems the Regulator cannot fix, or if the Graph fails validation, halt with an error.
+* Validate the graph against a set of criteria.
+* If the graph has problems the Regulator cannot fix, or if the graph fails validation, halt with an error.
 
 ## Parameters
-* `graph` -- [Graph](./Graph.md) object, output from a [Transformer](./Transformer.md)
+* `graph` -- [StateGraph](./Graph.md) object, output from a [Transformer](./Transformer.md)
 * `suid` -- Source Unique Identifier
 
 ## Phases of Regulation

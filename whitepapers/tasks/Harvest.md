@@ -5,7 +5,7 @@
 * Tease the collected data into individual blobs
 * Extract SUIDs for each blob
 * Store each (SUID, blob) pair as a RawDatum
-* Spawn the transform task for each blob
+* Spawn an IngestTask for each blob
 
 
 ## Considerations
@@ -27,50 +27,35 @@
 * `force` -- Force the task to run, against all odds
 
 
-## Preface/Notes
-* This tasks requires *2* connections to the same database
-  * This allows the task to hold a lock while communicating progress to the outside world
-* The second connection, `logging`, *should not* be in a transaction at any point in this task
-
-
 ## Steps
 
 ### Setup
 * Load the source config and its required harvester
-* Resolve `start` and `end` arguments to `date` objects
 * NOT IMPLEMENTED: [Optimizations](#optimizations)
 * Get or create `HarvestLog(start, end, source_config, harvester_version, source_config_version)`
   * If `HarvestLog` already exists, `HarvestLog.completions` is non-zero, and `superfluous` is not set, set `HarvestLog.status` to `skipped` and exit
-* Begin a transaction in the `locking` connection
-* Begin [catching exceptions](#catching-exceptions)
-* Lock the `source_config` using the `locking` connection (NOWAIT)
+* Obtain a Harvest lock on `source_config_id`
   * On failure:
-    * if `force` is True, ignore exception and continue
+    * if `force` is True, ignore and continue
     * if `force` is False, set `HarvestLog.status` to `rescheduled` and raise a `Retry`
-      * The total number of retries for this case should be high than other exceptions
 * NOT IMPLEMENTED: [Check for consistent failures](#consistent-failures)
 * Check `SourceConfig.disabled`
   * Unless `force` or `ignore_disabled` is `True`, crash
 * Set `HarvestLog.status` to `started` and update `HarvestLog.date_started`.
 
 ### Actual work
-* Begin a transaction in the `default` connection
 * Harvest data between [`start`, `end`]
   * `RawDatum` should be populated regardless of exceptions
 * For any data collected, link them to the `HarvestLog`
-  * If linking fails, rollback the transaction using the `default` connection
-    * If no exceptions where raised during harvesting, reraise this exception
-* Commit the transaction using the `default` connection
-* If any exceptions were raised during harvesting raise them now
-* If `ingest`, for any data collected, spawn a `NormalizerTask` (NOT IMPLEMENTED: create an `IngestLog` and spawn an `IngestTask` instead)
-  * If `superfluous` is false, do not start a `NormalizerTask` for any `RawDatum` that is an exact duplicate of previously harvested data.
+* If `ingest`, for any data collected, create an `IngestLog` and spawn an `IngestTask`
+  * If `superfluous` is false, do not ingest any `RawDatum` that is an exact duplicate of previously harvested data.
 
 ### Clean up
 * Set `HarvestLog.status` to `succeeded` and increment `HarvestLog.completions`
 
-### Catching Exceptions
-* Set `HarvestLog.status` to `failed` and `HarvestLog.context` to the traceback of the caught exception
-* Rollback the transaction *only* on a DatabaseError or failing to link RawDatum to the `HarvestLog`
+## Errors
+If any errors arise while harvesting:
+* Set `HarvestLog.status` to `failed` and `HarvestLog.context` to the traceback of the caught exception, or any other error information.
 * Raise a `Retry`
 
 

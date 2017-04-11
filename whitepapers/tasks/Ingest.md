@@ -23,12 +23,13 @@
   * If not found, panic.
   * If `IngestLog.status` is `succeeded` and `superfluous` is `False`, exit.
 * Obtain an Ingest lock on `suid_id`
-  * If the lock times out/isn't granted, set `IngestLog.status` to `rescheduled` and raise a retry.
+  * If the lock times out/isn't granted, set `IngestLog.status` to `rescheduled` and raise a `Retry`.
 * Load the most recent RawDatum for the given SUID.
   * If not found, log an error and exit.
   * TODO: Once `RawDatum.partial` is implemented, load all raw data from the most recent back to the last with `partial=False`.
   * If the SUID's latest RawDatum is more recent than `IngestLog.latest_raw_id`, update `IngestLog.latest_raw_id`
     * If update violates unique constraint, exit. Another task has already ingested the latest data.
+  * Link the RawDatum to the `IngestLog`
 * Set `IngestLog.status` to `started` and update `IngestLog.date_started`
 
 
@@ -60,7 +61,7 @@
 
 
 ## Errors
-If any errors arise during ingestion:
+If any errors arise while ingesting:
 * Set `IngestLog.status` to `failed`.
-* Set `IngestLog.context` to the exception or any error information.
-* Exit.
+* Set `IngestLog.context` to the traceback of the caught exception, or any other error information.
+* Raise a `Retry`

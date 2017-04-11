@@ -21,7 +21,8 @@ A piece of raw data, exactly as it was given to SHARE.
 | `suid_id`      | int  |    ✓    |          |  ✓  |         | SUID for this datum                                                |
 | `datum`        | text |         |          |     |         | The raw datum itself (typically JSON or XML string)                |
 | `sha256`       | text |         |          |     |         | SHA-256 hash of `data`                                             |
-| `logs`         | m2m  |         |          |     |         | List of HarvestLogs for harvester runs that found this exact datum |
+| `harvest_logs` | m2m  |         |          |     |         | List of HarvestLogs for harvester runs that found this exact datum |
+| `ingest_logs`  | m2m  |         |          |     |         | List of IngestLogs that ingested this datum                        |
 
 #### Other indices
 * `suid_id`, `sha256` (unique)
