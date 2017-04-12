@@ -55,7 +55,9 @@ def icon_name(instance, filename):
     return instance.name
 
 
-class NaturalKeyManager(FuzzyCountManager):
+class NaturalKeyManager(models.Manager):
+    use_in_migrations = True
+
     def __init__(self, *key_fields):
         super(NaturalKeyManager, self).__init__()
         self.key_fields = key_fields
@@ -69,6 +71,7 @@ class Source(models.Model):
     long_title = models.TextField(unique=True)
     home_page = models.URLField(null=True)
     icon = models.ImageField(upload_to=icon_name, storage=SourceIconStorage(), blank=True)
+    is_deleted = models.BooleanField(default=False)
 
     # TODO replace with Django permissions something something, allow multiple sources per user
     user = models.OneToOneField('ShareUser')

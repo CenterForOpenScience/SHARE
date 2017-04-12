@@ -64,6 +64,7 @@ def fetch_agent(pks):
                             JOIN share_shareuser AS shareuser ON throughsources.shareuser_id = shareuser.id
                             JOIN share_source AS source ON shareuser.id = source.user_id
                             WHERE throughsources.abstractagent_id = agent.id
+                            AND NOT source.is_deleted
                             ) AS sources ON TRUE
                 LEFT JOIN LATERAL (
                             SELECT array_agg(identifier.uri) AS identifiers
@@ -121,7 +122,7 @@ def fetch_creativework(pks):
                     , 'justification', creativework.justification
                     , 'tags', COALESCE(tags, '{}')
                     , 'identifiers', COALESCE(identifiers, '{}')
-                    , 'sources', sources
+                    , 'sources', COALESCE(sources, '{}')
                     , 'subjects', COALESCE(subjects, '{}')
                     , 'related_agents', COALESCE(related_agents, '{}')
                     , 'retractions', COALESCE(retractions, '{}')
@@ -189,6 +190,7 @@ def fetch_creativework(pks):
                             JOIN share_shareuser AS shareuser ON throughsources.shareuser_id = shareuser.id
                             JOIN share_source AS source ON shareuser.id = source.user_id
                             WHERE throughsources.abstractcreativework_id = creativework.id
+                            AND NOT source.is_deleted
                             ) AS sources ON TRUE
                 LEFT JOIN LATERAL (
                             SELECT array_agg(tag.name) AS tags

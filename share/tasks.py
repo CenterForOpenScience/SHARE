@@ -240,7 +240,7 @@ class HarvesterTask(SourceTask):
                         raise e
 
                 # Don't run disabled harvesters unless special cased
-                if self.config.disabled and not force and not ignore_disabled:
+                if (self.config.disabled or self.config.source.is_deleted) and not (force or ignore_disabled):
                     raise HarvesterDisabledError('Harvester {!r} is disabled. Either enable it, run with force=True, or ignore_disabled=True'.format(self.config))
 
                 # TODO Evaluate splitting and other optimizations here
