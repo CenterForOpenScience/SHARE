@@ -150,6 +150,10 @@ class ElasticSearchBot(Bot):
         self.es_setup = bool(kwargs.pop('es_setup', False))
         self.es_url = kwargs.pop('es_url', settings.ELASTICSEARCH_URL)
         self.es_index = kwargs.pop('es_index', settings.ELASTICSEARCH_INDEX)
+        self.es_models = kwargs.pop('es_models', None)
+
+        if self.es_models:
+            self.es_models = [x.lower() for x in self.es_models]
 
         if kwargs:
             raise TypeError('__init__ got unexpect keyword arguments {}'.format(kwargs))
@@ -164,6 +168,9 @@ class ElasticSearchBot(Bot):
 
         logger.info('Loading up indexed models')
         for model_name in self.config.INDEX_MODELS:
+            if self.es_models and model_name.lower() not in self.es_models:
+                continue
+
             model = apps.get_model('share', model_name)
 
             if self.es_filter:

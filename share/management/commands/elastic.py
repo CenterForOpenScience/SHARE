@@ -16,6 +16,7 @@ class Command(BaseCommand):
         parser.add_argument('--index', type=str, help='Force the value of ELASTICSEARCH_INDEX for all tasks and subtasks')
         parser.add_argument('--setup', action='store_true', help='Set up Elasticsearch index, settings, and mappings')
         parser.add_argument('--filter', type=json.loads, help='Set up Elasticsearch index, including settings and mappings')
+        parser.add_argument('--models', nargs='*', type=str, help='Only index the given models')
 
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
@@ -26,9 +27,8 @@ class Command(BaseCommand):
             'es_index': options.get('index'),
             'es_setup': options.get('setup'),
             'es_filter': options.get('filter'),
+            'es_models': options.get('models'),
         }.items() if v}
-
-        print(task_args, task_kwargs)
 
         if options['async']:
             BotTask().apply_async(task_args, task_kwargs)

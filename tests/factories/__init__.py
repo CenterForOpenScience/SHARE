@@ -13,6 +13,9 @@ from share import models
 from share.harvest import BaseHarvester
 from share.transform import BaseTransformer
 
+# TODO move these over
+from tests.share.models.factories import AbstractCreativeWorkFactory  # noqa
+
 
 class ShareUserFactory(DjangoModelFactory):
     username = factory.Faker('name')
@@ -25,6 +28,7 @@ class ShareUserFactory(DjangoModelFactory):
 class SourceFactory(DjangoModelFactory):
     name = factory.Faker('company')
     long_title = factory.Faker('sentence')
+    icon = factory.SelfAttribute('name')
 
     user = factory.SubFactory(ShareUserFactory)
 

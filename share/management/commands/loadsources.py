@@ -12,8 +12,6 @@ from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from share.models import ShareUser, Source
-
 SOURCES_DIR = 'sources'
 
 
@@ -23,16 +21,20 @@ class Command(BaseCommand):
         parser.add_argument('--overwrite', action='store_true', help='Overwrite existing sources and source configs')
 
     def handle(self, *args, **options):
+        # If we're running in a migrations we need to use the correct apps
+        self.apps = options.get('apps', apps)
+
+        import share
         sources = options.get('sources')
-        sources_dir = os.path.join(apps.get_app_config('share').path, SOURCES_DIR)
+        sources_dir = os.path.join(share.__path__[0], SOURCES_DIR)
         if sources:
             source_dirs = [os.path.join(sources_dir, s) for s in sources]
         else:
             source_dirs = [os.path.join(sources_dir, s) for s in os.listdir(sources_dir)]
 
         with transaction.atomic():
-            self.known_harvesters = self.sync_drivers('share.harvesters', apps.get_model('share.Harvester'))
-            self.known_transformers = self.sync_drivers('share.transformers', apps.get_model('share.Transformer'))
+            self.known_harvesters = self.sync_drivers('share.harvesters', self.apps.get_model('share.Harvester'))
+            self.known_transformers = self.sync_drivers('share.transformers', self.apps.get_model('share.Transformer'))
             self.update_sources(source_dirs, overwrite=options.get('overwrite'))
 
     def sync_drivers(self, namespace, model):
@@ -45,6 +47,7 @@ class Command(BaseCommand):
         return names
 
     def update_sources(self, source_dirs, overwrite):
+        Source = self.apps.get_model('share.Source')
         loaded_sources = set()
         loaded_configs = set()
         for source_dir in source_dirs:
@@ -81,7 +84,7 @@ class Command(BaseCommand):
             print('Unknown transformer {}! Skipping source config {}'.format(serialized['transformer'], label))
             return
 
-        SourceConfig = apps.get_model('share.SourceConfig')
+        SourceConfig = self.apps.get_model('share.SourceConfig')
         config_defaults = {
             'source': source,
             **self.process_defaults(SourceConfig, serialized)
@@ -94,6 +97,8 @@ class Command(BaseCommand):
             self.schedule_harvest_task(source_config.label, source_config.disabled)
 
     def get_or_create_user(self, username):
+        ShareUser = self.apps.get_model('share.ShareUser')
+
         try:
             return ShareUser.objects.get(username=username)
         except ShareUser.DoesNotExist:
