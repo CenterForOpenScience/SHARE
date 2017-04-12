@@ -34,19 +34,19 @@
 
 
 ### Ingest
-* Transform
+* [Transform](../ingest/Transformer.md)
   * Load the Transformer from the SUID's SourceConfig.
   * Update `IngestLog.transformer_version`.
-  * Use the Transformer to transform the raw data into a StateGraph.
+  * Use the Transformer to transform the raw data into a [StateGraph](../ingest/Graph.md).
   * Serialize the StateGraph to `IngestLog.transformed_data`.
-* Regulate
+* [Regulate](../ingest/Regulator.md)
   * Load the Regulator.
   * Update `IngestLog.regulator_version`.
   * Use the Regulator to clean the StateGraph.
     * Save list of modifications with reasons to `IngestLog.regulator_log`.
   * Serialize the cleaned StateGraph to `IngestLog.regulated_data`.
   * Use the Regulator to validate the cleaned StateGraph.
-* NOT IMPLEMENTED: Consolidate
+* NOT IMPLEMENTED: [Consolidate](../ingest/Consolidator.md)
   * Load the Consolidator.
   * Update `IngestLog.consolidator_version`.
   * Use Consolidator to update the given SUID's States to match the validated StateGraph.

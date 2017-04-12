@@ -4,6 +4,7 @@ Each stage of the [Ingest Pipeline](./README.md) creates, modifies, or uses a St
 
 ## Requirements
 * StateGraph
+  * Set of individually addressable nodes
   * Add a Node
   * Remove a Node
   * Iterate over:
@@ -12,8 +13,8 @@ Each stage of the [Ingest Pipeline](./README.md) creates, modifies, or uses a St
     * Nodes with a matching field/value pair
     * Nodes that match a given filter
   * Serialize/deserialize graph to/from a string
+    * Support deserializing graphs from old/obsolete data models
 * Node
-  * Get ID (immutable, unique within the graph)
   * Get/set/modify model
   * Get/set/modify field values, given field name
     * For foreign key fields, value is the Node pointed to
