@@ -41,7 +41,7 @@ class EndpointGenerator:
 
     def generate_serializer(self, subclass):
         class_name = subclass.__name__ + 'Serializer'
-        meta_class = type('Meta', (BaseShareSerializer.Meta,), {'model': subclass})
+        meta_class = type('Meta', (BaseShareSerializer.Meta,), {'model': subclass, 'fields': '__all__'})
         generated_serializer = type(class_name, (BaseShareSerializer,), {
             'Meta': meta_class
         })

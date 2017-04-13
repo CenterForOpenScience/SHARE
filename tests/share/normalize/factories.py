@@ -345,6 +345,7 @@ class WorkIdentifierFactory(ShareObjectFactory):
     def _parse(self, *args, **kwargs):
         if self.attrs.pop('parse'):
             parsed = IRILink().execute(self.attrs['uri'])
+            self.attrs['uri'] = parsed['IRI']
             self.attrs['scheme'] = parsed['scheme']
             self.attrs['host'] = parsed['authority']
 
@@ -358,6 +359,7 @@ class AgentIdentifierFactory(ShareObjectFactory):
     def _parse(self, *args, **kwargs):
         if self.attrs.pop('parse'):
             parsed = IRILink().execute(self.attrs['uri'])
+            self.attrs['uri'] = parsed['IRI']
             self.attrs['scheme'] = parsed['scheme']
             self.attrs['host'] = parsed['authority']
 
