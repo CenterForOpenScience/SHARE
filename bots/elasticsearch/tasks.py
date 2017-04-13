@@ -120,7 +120,7 @@ class IndexSourceTask(AppTask):
 
         for source in Source.objects.all():
             # remove sources from search that don't appear on the sources page
-            if not source.icon or not source.is_active:
+            if not source.icon or source.is_deleted:
                 yield {'_op_type': 'delete', '_id': source.name, **opts}
             else:
                 yield {'_op_type': 'index', '_id': source.name, **self.serialize(source), **opts}
