@@ -1,5 +1,6 @@
 import random
 import uuid
+from datetime import timezone
 
 import factory
 from factory import fuzzy
@@ -102,7 +103,7 @@ class AgentFactory(TypedShareObjectFactory):
 class AbstractCreativeWorkFactory(TypedShareObjectFactory):
     title = factory.Faker('sentence')
     description = factory.Faker('paragraph')
-    date_updated = factory.Faker('date')
+    date_updated = factory.Faker('date_time', tzinfo=timezone.utc)
 
     class Meta:
         model = models.AbstractCreativeWork

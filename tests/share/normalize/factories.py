@@ -294,11 +294,11 @@ class AbstractCreativeWorkFactory(TypedShareObjectFactory):
 
     # identifiers = factory.SubFactory(WorkIdentifierFactory)
     # related_works = factory.SubFactory(RelatedWorkFactory)
-    date_updated = factory.Faker('date', pattern="%Y-%m-%d")
-    date_published = factory.Faker('date', pattern="%Y-%m-%d")
+    date_updated = factory.Faker('date', pattern='%Y-%m-%dT%H:%M:%SZ')
+    date_published = factory.Faker('date', pattern='%Y-%m-%dT%H:%M:%SZ')
     rights = factory.Faker('paragraph')
     free_to_read_type = factory.Faker('sentence')
-    free_to_read_date = factory.Faker('date', pattern="%Y-%m-%d")
+    free_to_read_date = factory.Faker('date', pattern='%Y-%m-%dT%H:%M:%SZ')
     is_deleted = False
 
     class Meta:

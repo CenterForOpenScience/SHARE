@@ -12,6 +12,8 @@ from api import views
 from api.serializers import BaseShareSerializer
 from api.views.share import ShareObjectViewSet
 
+app_name = 'api'
+
 router = DefaultRouter()
 
 
