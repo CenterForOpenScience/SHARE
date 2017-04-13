@@ -89,7 +89,7 @@ class JSONLDValidator:
     def json_schema_for_field(self, field):
         if field.is_relation:
             if field.many_to_many:
-                model = field.rel.through._meta.concrete_model
+                model = field.remote_field.through._meta.concrete_model
             else:
                 model = field.related_model._meta.concrete_model
 
@@ -162,5 +162,5 @@ class JSONLDValidator:
         fields = model._meta.get_fields()
         allowed_fields = [f for f in fields if f.editable and f.name not in excluded]
         # Include one-to-many relations to models with no other relations
-        allowed_fields.extend(f for f in fields if f.one_to_many and f.name not in excluded and hasattr(f.related_model, 'VersionModel') and not [rf for rf in f.related_model._meta.get_fields() if rf.editable and rf.is_relation and rf.rel != f and rf.name not in excluded])
+        allowed_fields.extend(f for f in fields if f.one_to_many and f.name not in excluded and hasattr(f.related_model, 'VersionModel') and not [rf for rf in f.related_model._meta.get_fields() if rf.editable and rf.is_relation and rf.remote_field != f and rf.name not in excluded])
         return allowed_fields

@@ -29,7 +29,7 @@ class DatabaseSchemaEditor(PostgresDatabaseSchemaEditor):
             column=self.quote_name(from_column),
             to_table=self.quote_name(to_table),
             to_column=self.quote_name(to_column),
-            on_delete=field.rel.on_delete.clause if isinstance(field.rel.on_delete, deletion.DatabaseOnDelete) else self.ON_DELETE_DEFAULT,
-            on_update=field.rel.on_delete.clause if isinstance(field.rel.on_delete, deletion.DatabaseOnDelete) else self.ON_UPDATE_DEFAULT,
+            on_delete=field.remote_field.on_delete.clause if isinstance(field.remote_field.on_delete, deletion.DatabaseOnDelete) else self.ON_DELETE_DEFAULT,
+            on_update=field.remote_field.on_delete.clause if isinstance(field.remote_field.on_delete, deletion.DatabaseOnDelete) else self.ON_UPDATE_DEFAULT,
             deferrable=self.connection.ops.deferrable_sql(),
         )

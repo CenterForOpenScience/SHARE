@@ -150,7 +150,7 @@ class Change(models.Model):
         if save:
             # Psuedo hack, sources.add(...) tries to do some safety checks.
             # Don't do that. We have a database. That is its job. Let it do its job.
-            through_meta = ret._meta.get_field('sources').rel.through._meta
+            through_meta = ret._meta.get_field('sources').remote_field.through._meta
 
             with connection.cursor() as cursor:
                 cursor.execute('''

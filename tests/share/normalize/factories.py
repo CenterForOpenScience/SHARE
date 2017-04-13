@@ -137,7 +137,7 @@ class GraphContructor:
                 continue
             if f.name not in relations:
                 logger.warning('Found missing required field %s. Inserting default', f)
-                relations[f.name] = {'type': f.rel.model._meta.concrete_model._meta.model_name}
+                relations[f.name] = {'type': f.remote_field.model._meta.concrete_model._meta.model_name}
             node[f.name] = self.build_node({**relations.pop(f.name)})
 
         kwargs = {}
@@ -168,7 +168,7 @@ class GraphContructor:
                     related = [self.build_node({**v}) for v in value]
                     for rel in related:
                         obj._related.append(self.build_node({
-                            'type': field.rel.through._meta.model_name,
+                            'type': field.remote_field.through._meta.model_name,
                             field.m2m_field_name(): obj,
                             field.m2m_reverse_field_name(): rel,
                         }))
