@@ -7,6 +7,9 @@ python:
 
 sudo: false
 
+services:
+  - elasticsearch
+
 cache:
     directories:
       - $HOME/.cache
@@ -50,6 +53,9 @@ install:
     - travis_retry pip install flake8==3.0.4 --force-reinstall --upgrade
     - travis_retry pip install -r dev-requirements.txt
     - travis_retry pip install .
+
+before_script:
+  - sleep 10  # Elasticsearch takes a little while to start up
 
 # Run Python tests and flake8
 script:
