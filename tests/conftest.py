@@ -20,6 +20,16 @@ from share.models import Harvester, Transformer, Source, SourceConfig, SourceUni
 from share.change import ChangeGraph
 
 
+def pytest_configure(config):
+    if config.option.usepdb:
+        try:
+            import IPython.core.debugger  # noqa
+        except ImportError:
+            return
+        else:
+            config.option.usepdb_cls = 'IPython.core.debugger:Pdb'
+
+
 @pytest.fixture
 def client():
     from django.test.client import Client
