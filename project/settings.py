@@ -69,7 +69,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'revproxy',
-    'mptt',
     'graphene_django',
 
     'allauth',
