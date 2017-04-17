@@ -27,7 +27,7 @@ __all__ = ('ShareUser', 'NormalizedData',)
 class ShareUserManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, username, email, password, **extra_fields):
+    def _create_user(self, username, email, password, save=True, **extra_fields):
         """
         Creates and saves a User with the given username, email and password.
         """
@@ -36,7 +36,8 @@ class ShareUserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(username=username, email=email, **extra_fields)
         ShareUser.set_password(user, password)
-        user.save(using=self._db)
+        if save:
+            user.save(using=self._db)
         return user
 
     def create_user(self, username, email=None, password=None, **extra_fields):
