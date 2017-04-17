@@ -7,16 +7,13 @@ python:
 
 sudo: false
 
-services:
-  - elasticsearch
-
 cache:
     directories:
       - $HOME/.cache
 
 env:
   global:
-    - ES_VERSION=2.4.2 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+    - ES_VERSION=2.4.2 ES_DOWNLOAD_URL=https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz
     - DATABASE_PORT="54321"
     - PROJECT_DIR="$PWD"
     - WHEELHOUSE="$HOME/.cache/wheelhouse"
