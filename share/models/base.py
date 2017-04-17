@@ -15,6 +15,7 @@ from typedmodels import models as typedmodels
 
 from db.deletion import DATABASE_CASCADE
 
+from share import util
 from share.models import fields
 from share.models.change import Change
 from share.models.fuzzycount import FuzzyCountManager
@@ -179,10 +180,17 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
         with transaction.atomic():
             assert kwargs, 'Don\'t make empty changes'
 
+            serialized = {}
+            for key, value in tuple(kwargs.items()):
+                if isinstance(value, ShareObject):
+                    serialized[key] = {'@id': util.IDObfuscator.encode(value), '@type': value._meta.model_name}
+                else:
+                    serialized[key] = value
+
             nd = NormalizedData.objects.create(
                 source=ShareUser.objects.get(username='system'),
                 data={
-                    '@graph': [{'@id': self.pk, '@type': self._meta.model_name, **kwargs}]
+                    '@graph': [{'@id': self.pk, '@type': self._meta.model_name, **serialized}]
                 }
             )
 

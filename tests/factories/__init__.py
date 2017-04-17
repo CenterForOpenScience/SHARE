@@ -14,6 +14,7 @@ from share.harvest import BaseHarvester
 from share.transform import BaseTransformer
 
 # TODO move these over
+from tests.share.models.factories import WorkIdentifierFactory  # noqa
 from tests.share.models.factories import AbstractCreativeWorkFactory  # noqa
 
 

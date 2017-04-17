@@ -7,6 +7,8 @@ from share.models import AgentIdentifier
 from share.models.base import ShareObject
 from share.management.commands.maketriggermigrations import Command
 
+from tests import factories
+
 
 @pytest.mark.django_db
 def test_build_trigger():
@@ -153,3 +155,14 @@ class TestAdministrativeChange:
         with pytest.raises(Article.DoesNotExist):
             all_about_anteaters.refresh_from_db()
         assert Preprint.objects.get(pk=all_about_anteaters.pk)
+
+    def test_related_objects(self):
+        work = factories.AbstractCreativeWorkFactory()
+        identifier = factories.WorkIdentifierFactory()
+
+        assert identifier.creative_work != work
+
+        identifier.administrative_change(creative_work=work)
+        identifier.refresh_from_db()
+
+        assert identifier.creative_work == work
