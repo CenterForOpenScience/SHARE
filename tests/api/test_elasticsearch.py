@@ -39,6 +39,12 @@ class TestElasticSearchProxy:
         assert client.post('/api/v2/search/type/id/some/thing/else/_count').status_code == 400
         assert client.post('/api/v2/search/type/id/some/thing/else/_count/').status_code == 400
 
+    def test_scroll_not_implemented(self, client):
+        assert client.post('/api/v2/search/_search/scroll').status_code == 501
+        assert client.post('/api/v2/search/_search/?scroll=1m').status_code == 501
+        assert client.get('/api/v2/search/_search/scroll').status_code == 501
+        assert client.get('/api/v2/search/_search/?scroll=1m').status_code == 501
+
     def test_post_search(self, client):
         urls = (
             '/api/v2/search/_search',

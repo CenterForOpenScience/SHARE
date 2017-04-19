@@ -29,17 +29,29 @@ class ElasticSearchView(views.APIView):
     renderer_classes = (JSONRenderer, )
 
     def get(self, request, *args, url_bits='', **kwargs):
+        # Handle scroll API requests
+        bits = list(filter(None, url_bits.split('/')))
+        if bits[-1] == 'scroll':
+            return http.HttpResponse(reason='Scroll is not supported.', status=501)
+        if len(bits) > 2:
+            return http.HttpResponseBadRequest()
         return self._handle_request(request, url_bits)
 
     def post(self, request, *args, url_bits='', **kwargs):
         # Disallow posting to any non-search endpoint
         bits = list(filter(None, url_bits.split('/')))
+        if bits[-1] == 'scroll':
+            return http.HttpResponse(reason='Scroll is not supported.', status=501)
         if len(bits) > 2 or bits[-1] not in ('_count', '_search', '_suggest'):
             return http.HttpResponseBadRequest()
         return self._handle_request(request, url_bits)
 
     def _handle_request(self, request, url_bits):
         params = request.query_params.copy()
+
+        if 'scroll' in params:
+            return http.HttpResponse(reason='Scroll is not supported.', status=501)
+
         v = params.pop('v', None)
         index = settings.ELASTICSEARCH_INDEX
         if v:
