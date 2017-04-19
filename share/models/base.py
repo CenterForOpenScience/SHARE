@@ -1,6 +1,6 @@
 import re
+import sys
 import copy
-import inspect
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -94,7 +94,8 @@ class ShareObjectMeta(ModelBase):
         })
 
         # Inject <classname>Version into the module of the original class definition
-        next(frame for frame in inspect.stack() if 'class {}('.format(name) in frame.code_context[0]).frame.f_globals.update({concrete.VersionModel.__name__: concrete.VersionModel})
+        __import__(concrete.__module__)
+        setattr(sys.modules[concrete.__module__], concrete.VersionModel.__name__, concrete.VersionModel)
 
         return concrete
 
