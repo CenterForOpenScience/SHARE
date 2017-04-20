@@ -26,24 +26,24 @@ class TestElasticSearchProxy:
         assert client.delete('/api/v2/search/type/index/_bulk').status_code == 404
 
     def test_limitted_post(self, client):
-        assert client.post('/api/v2/search/type').status_code == 400
-        assert client.post('/api/v2/search/type/').status_code == 400
-        assert client.post('/api/v2/search/type/id').status_code == 400
-        assert client.post('/api/v2/search/type/id/').status_code == 400
-        assert client.post('/api/v2/search/type/id/some/thing/else').status_code == 400
-        assert client.post('/api/v2/search/type/id/some/thing/else/').status_code == 400
-        assert client.post('/api/v2/search/type/id/_search').status_code == 400
-        assert client.post('/api/v2/search/type/id/_search/').status_code == 400
-        assert client.post('/api/v2/search/type/id/some/thing/else/_search').status_code == 400
-        assert client.post('/api/v2/search/type/id/some/thing/else/_search/').status_code == 400
-        assert client.post('/api/v2/search/type/id/some/thing/else/_count').status_code == 400
-        assert client.post('/api/v2/search/type/id/some/thing/else/_count/').status_code == 400
+        assert client.post('/api/v2/search/type').status_code == 403
+        assert client.post('/api/v2/search/type/').status_code == 403
+        assert client.post('/api/v2/search/type/id').status_code == 403
+        assert client.post('/api/v2/search/type/id/').status_code == 403
+        assert client.post('/api/v2/search/type/id/some/thing/else').status_code == 403
+        assert client.post('/api/v2/search/type/id/some/thing/else/').status_code == 403
+        assert client.post('/api/v2/search/type/id/_search').status_code == 403
+        assert client.post('/api/v2/search/type/id/_search/').status_code == 403
+        assert client.post('/api/v2/search/type/id/some/thing/else/_search').status_code == 403
+        assert client.post('/api/v2/search/type/id/some/thing/else/_search/').status_code == 403
+        assert client.post('/api/v2/search/type/id/some/thing/else/_count').status_code == 403
+        assert client.post('/api/v2/search/type/id/some/thing/else/_count/').status_code == 403
 
-    def test_scroll_not_implemented(self, client):
-        assert client.post('/api/v2/search/_search/scroll').status_code == 501
-        assert client.post('/api/v2/search/_search/?scroll=1m').status_code == 501
-        assert client.get('/api/v2/search/_search/scroll').status_code == 501
-        assert client.get('/api/v2/search/_search/?scroll=1m').status_code == 501
+    def test_scroll_forbidden(self, client):
+        assert client.post('/api/v2/search/_search/scroll').status_code == 403
+        assert client.post('/api/v2/search/_search/?scroll=1m').status_code == 403
+        assert client.get('/api/v2/search/_search/scroll').status_code == 403
+        assert client.get('/api/v2/search/_search/?scroll=1m').status_code == 403
 
     def test_post_search(self, client):
         urls = (
@@ -54,7 +54,7 @@ class TestElasticSearchProxy:
             '/api/v2/search/type/_count',
             '/api/v2/search/type/_count/',
             '/api/v2/search/type/_search',
-            '/api/v2/search/type/_search',
+            '/api/v2/search/type/_search/',
             '/api/v2/search/type/_suggest',
         )
         with mock.patch('api.views.elasticsearch.requests.post') as post:

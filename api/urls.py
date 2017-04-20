@@ -98,7 +98,14 @@ urlpatterns = [
     url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
     url(r'graph/?', GraphQLView.as_view(graphiql=True)),
     url(r'userinfo/?', ensure_csrf_cookie(views.ShareUserView.as_view()), name='userinfo'),
-    url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
+
+    # only match _count, _search, _suggest requests
+    url(
+        r'search/(?!.*_bulk\/?$)(?P<url_bits>(_|[a-zA-Z]+/_)((?=search)|(?=count)|(?=suggest))[a-zA-Z]{5,7}/{0,1}$)',
+        csrf_exempt(views.ElasticSearchView.as_view()),
+        name='search'
+    ),
+    url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearch403View.as_view()), name='search_403'),
 
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
     url(r'schema/creativework/hierarchy/?$', views.ModelTypesView.as_view(), name='modeltypes'),
