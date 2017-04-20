@@ -1,4 +1,5 @@
 from unittest import mock
+import pytest
 
 
 class TestElasticSearchProxy:
@@ -61,3 +62,18 @@ class TestElasticSearchProxy:
             post.return_value = mock.Mock(status_code=200, json=lambda: {})
             for url in urls:
                 assert client.post(url, '{}', content_type='application/json').status_code == 200
+
+    @pytest.mark.parametrize('url', (
+        '/api/v2/search/_search',
+        '/api/v2/search/_search/',
+        '/api/v2/search/type/_count',
+        '/api/v2/search/type/_count/',
+        '/api/v2/search/type/_search',
+        '/api/v2/search/type/_search/',
+        '/api/v2/search/_mappings/',
+        '/api/v2/search/_mappings',
+        '/api/v2/search/_mappings/creativeworks',
+        '/api/v2/search/_mappings/creativeworks/',
+    ))
+    def test_get_search(self, client, url):
+        assert client.get(url).status_code == 200

@@ -105,6 +105,8 @@ urlpatterns = [
         csrf_exempt(views.ElasticSearchView.as_view()),
         name='search'
     ),
+    # match _mappings requests
+    url(r'search/(?P<url_bits>_mappings(/.+|$|/))', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
     url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearch403View.as_view()), name='search_403'),
 
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
