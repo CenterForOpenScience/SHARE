@@ -1,3 +1,5 @@
+from typedmodels.models import TypedModel
+
 from django.conf.urls import url
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -28,11 +30,10 @@ class EndpointGenerator:
 
         generated_endpoints = []
         for subclass in subclasses:
-            if not (subclass._meta.proxied_children and subclass is subclass._meta.concrete_model):
-                generated_endpoints.append(subclass)
-            elif (subclass._meta.proxied_children and subclass is subclass._meta.concrete_model):
+            if issubclass(subclass, TypedModel) and subclass._meta.concrete_model is subclass:
                 generated_endpoints.extend(subclass.get_type_classes())
-
+            else:
+                generated_endpoints.append(subclass)
         self.generate_endpoints(generated_endpoints)
 
     def generate_endpoints(self, subclasses):

@@ -13,6 +13,8 @@ import factory.fuzzy
 
 import nameparser
 
+from typedmodels.models import TypedModel
+
 from django.apps import apps
 
 from share import models
@@ -250,8 +252,9 @@ class TypedShareObjectFactory(ShareObjectFactory):
     def type(stub):
         model_name = re.sub('Factory$', '', stub._LazyStub__model_class.__name__)
         model = apps.get_model('share', model_name)
-
-        return random.choice([m.model_name.lower() for m in model._meta.concrete_model._meta.proxied_children or [model._meta]])
+        if issubclass(model, TypedModel) and model._meta.concrete_model is model:
+            model = random.choice(model._meta.concrete_model.get_type_classes())
+        return model._meta.model_name.lower()
 
 
 class AbstractAgentFactory(TypedShareObjectFactory):

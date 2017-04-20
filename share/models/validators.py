@@ -6,6 +6,8 @@ from collections import OrderedDict
 from jsonschema import exceptions
 from jsonschema import Draft4Validator, draft4_format_checker
 
+from typedmodels.models import TypedModel
+
 from django.db import connection
 from django.apps import apps
 from django.core.exceptions import ValidationError
@@ -67,7 +69,7 @@ class JSONLDValidator:
         model = apps.app_configs['share'].models.get(value['@type'].lower())
 
         # concrete model is not valid for typed models
-        if model is None or (model._meta.proxied_children and model == model._meta.concrete_model):
+        if model is None or (issubclass(model, TypedModel) and model._meta.concrete_model is model):
             raise ValidationError("'{}' is not a valid type".format(value['@type']))
 
         self.validator_for(model).validate(value)
@@ -93,6 +95,11 @@ class JSONLDValidator:
             else:
                 model = field.related_model._meta.concrete_model
 
+            if issubclass(model, TypedModel) and model._meta.concrete_model is model:
+                allowed_models = model.get_type_classes()
+            else:
+                allowed_models = [model]
+
             rel = {
                 'type': 'object',
                 'description': getattr(field, 'description', ''),
@@ -105,13 +112,10 @@ class JSONLDValidator:
                         # Generate all acceptable variants of the class name
                         # Class, CLASS, class
                         [
-                            options.model.__name__,
-                            options.model.__name__.upper(),
-                            options.model.__name__.lower(),
-                        ] for options in
-                        # Grab the concrete variant of this model. If it is a typed model iterate over all proxied models
-                        # otherwise just use the model
-                        model._meta.proxied_children or [model._meta]
+                            m.__name__,
+                            m.__name__.upper(),
+                            m.__name__.lower(),
+                        ] for m in allowed_models
                     ], []))},
                 }
             }

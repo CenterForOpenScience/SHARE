@@ -88,7 +88,8 @@ class TypedShareObjectFactory(ShareObjectFactory):
 
     @factory.lazy_attribute
     def type(stub):
-        return random.choice([m.label.lower() for m in stub._LazyStub__model_class._meta.model._meta.concrete_model._meta.proxied_children])
+        model = random.choice(stub._LazyStub__model_class._meta.model._meta.concrete_model.get_type_classes())
+        return model._meta.label.lower()
 
 
 class AgentFactory(TypedShareObjectFactory):
