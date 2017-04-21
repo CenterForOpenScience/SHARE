@@ -20,6 +20,7 @@ from django.utils import timezone
 from share.change import ChangeGraph
 from share.harvest.exceptions import HarvesterConcurrencyError, HarvesterDisabledError
 from share.models import HarvestLog
+from share.models import Source
 from share.models import RawDatum, NormalizedData, ChangeSet, CeleryTask, CeleryProviderTask, ShareUser, SourceConfig
 
 
@@ -383,21 +384,21 @@ class DisambiguatorTask(LoggedTask):
         # Load all relevant ContentTypes in a single query
         ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
-        logger.info('%s started make JSON patches for NormalizedData %s at %s', self.started_by, self.normalized.id, datetime.datetime.utcnow().isoformat())
+        logger.info('%s started disambiguation for NormalizedData %s at %s', self.started_by, self.normalized.id, datetime.datetime.utcnow().isoformat())
 
         try:
             with transaction.atomic():
                 cg = ChangeGraph(self.normalized.data['@graph'], namespace=self.normalized.source.username)
                 cg.process()
                 cs = ChangeSet.objects.from_graph(cg, self.normalized.id)
-                if cs and (self.source.is_robot or self.source.is_trusted):
+                if cs and (self.source.is_robot or self.source.is_trusted or Source.objects.filter(user=self.source).exists()):
                     # TODO: verify change set is not overwriting user created object
                     cs.accept()
         except Exception as e:
-            logger.info('Failed make JSON patches for NormalizedData %s with exception %s. Retrying...', self.normalized.id, e)
+            logger.exception('Failed disambiguation for NormalizedData %s. Retrying...', self.normalized.id)
             raise self.retry(countdown=10, exc=e)
 
-        logger.info('Finished make JSON patches for NormalizedData %s by %s at %s', self.normalized.id, self.started_by, datetime.datetime.utcnow().isoformat())
+        logger.info('Finished disambiguation for NormalizedData %s by %s at %s', self.normalized.id, self.started_by, datetime.datetime.utcnow().isoformat())
 
 
 class BotTask(AppTask):
