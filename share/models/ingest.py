@@ -12,7 +12,6 @@ from django.db import DEFAULT_DB_ALIAS
 from django.db import connection
 from django.db import connections
 from django.db import models
-from django.db.models.query_utils import DeferredAttribute
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
