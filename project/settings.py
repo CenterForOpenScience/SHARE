@@ -19,7 +19,6 @@ from kombu import Queue, Exchange
 
 # Suppress select django deprecation messages
 LOGGING = DEFAULT_LOGGING
-LOGGING_CONFIG = 'project.log.configure'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
