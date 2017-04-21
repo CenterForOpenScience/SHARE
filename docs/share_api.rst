@@ -3,6 +3,28 @@ SHARE API
 
 Checkout the `browsable SHARE API docs`_.
 
+Getting Started
+---------------
+
+Before pushing data to production it is highly recommended to use our staging environment.
+
+1. Go to `the staging OSF`_ and `register for an account`_
+2. Navigate to `staging SHARE`_ and login.
+3. `Register to become a source`_.
+4. Send an email to share-support@osf.io and wait for us to approve your account.
+5. Once approved, the API token from your `staging SHARE profile page`_ can be used to push data.
+
+To become a Source for production repeat the above steps at `https://share.osf.io` with a `production OSF account`_.
+
+    .. note:: Our Staging enviroment is constantly being updated with new code. If something doesn't work, try again in a day or two before contacting us at share-support@osf.io
+
+.. _the staging OSF: https://staging.osf.io
+.. _register for an account: https://staging.osf.io/register/
+.. _staging SHARE: https://staging-share.osf.io
+.. _Register to become a source: https://staging-share.osf.io/registration
+.. _staging SHARE profile page: https://staging-share.osf.io/profile
+.. _production OSF account: https://staging.osf.io/register/
+
 Push data directly into the SHARE database
 ------------------------------------------
 
