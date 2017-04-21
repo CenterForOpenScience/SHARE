@@ -153,7 +153,7 @@ REST_FRAMEWORK = {
 }
 
 GRAPHENE = {
-    'SCHEMA': 'share.graphql.schema'
+    'SCHEMA': 'share.graphql.schema.schema'
 }
 
 MIDDLEWARE_CLASSES = [

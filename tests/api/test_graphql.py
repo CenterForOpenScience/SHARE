@@ -1,10 +1,15 @@
 import pytest
 from collections import OrderedDict
 
-from share.graphql import schema
 from share.util import IDObfuscator
 
 from tests import factories
+
+
+@pytest.fixture
+def schema():
+    from share.graphql.schema import schema
+    return schema
 
 
 @pytest.mark.django_db
@@ -15,7 +20,7 @@ class TestCreativeWorks:
         }
     '''
 
-    def test_basic_case(self):
+    def test_basic_case(self, schema):
         x = factories.AbstractCreativeWorkFactory()
         source = factories.SourceFactory()
         x.sources.add(source.user)
@@ -47,7 +52,7 @@ class TestCreativeWorks:
             ]))
         ])
 
-    def test_deleted_sources(self):
+    def test_deleted_sources(self, schema):
         x = factories.AbstractCreativeWorkFactory()
         source = factories.SourceFactory(is_deleted=True)
         x.sources.add(source.user)
@@ -77,7 +82,7 @@ class TestCreativeWorks:
             ]))
         ])
 
-    def test_no_icon(self):
+    def test_no_icon(self, schema):
         x = factories.AbstractCreativeWorkFactory()
         source = factories.SourceFactory(icon='')
         x.sources.add(source.user)
