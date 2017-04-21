@@ -227,7 +227,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'http://localhost:8000/')
+LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'http://localhost:38000/')
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
@@ -293,7 +293,7 @@ STATICFILES_FINDERS = (
 
 ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
-    'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
+    'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:39200/'),
     'INDEX': os.environ.get('ELASTIC_SEARCH_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
@@ -364,7 +364,7 @@ CELERY_RETRY_BACKOFF_BASE = int(os.environ.get('CELERY_RETRY_BACKOFF_BASE', 2 if
 # Celery Settings
 
 CELERY_TIMEZONE = 'UTC'
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://'),
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:35672'),
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
@@ -513,8 +513,8 @@ SITE_ID = 1
 PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 
 EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share' if DEBUG else '')
-EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
-SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
+EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:34200').rstrip('/') + '/'
+SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:38000').rstrip('/') + '/'
 SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', SHARE_API_URL + EMBER_SHARE_PREFIX).rstrip('/') + '/'
 SHARE_USER_AGENT = os.environ.get('SHARE_USER_AGENT', 'SHAREbot/{} (+{})'.format(VERSION, SHARE_WEB_URL))
 

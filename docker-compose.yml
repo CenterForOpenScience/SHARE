@@ -28,21 +28,21 @@ services:
   elasticsearch:
     image: elasticsearch:5.4
     ports:
-      - 9200:9200
+      - 39200:9200
     environment:
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
 
   rabbitmq:
     image: rabbitmq:management
     ports:
-      - 5672:5672
-      - 15672:15672
+      - 35672:5672
+      - 45672:15672
 
   postgres:
     image: postgres
     command: /bin/bash -c "sed -i -e 's/max_connections.*/max_connections = 5000/' /var/lib/postgresql/data/postgresql.conf || true && sed -i -e 's/#log_min_duration_statement = .*/log_min_duration_statement = 0/' /var/lib/postgresql/data/postgresql.conf || true && /docker-entrypoint.sh postgres"
     ports:
-      - 5432:5432
+      - 35432:5432
     environment:
       POSTGRES_DB: share
 
@@ -70,7 +70,7 @@ services:
     build: .
     command: python manage.py runserver --noreload 0.0.0.0:8000
     ports:
-      - 8000:8000
+      - 38000:8000
     depends_on:
       - postgres
       - rabbitmq
@@ -85,4 +85,4 @@ services:
       DATABASE_HOST: postgres
       BROKER_URL: amqp://guest:guest@rabbitmq:5672/
       ELASTICSEARCH_URL: http://elasticsearch:9200/
-      EMBER_SHARE_URL: http://192.168.168.167:4200
+      EMBER_SHARE_URL: http://192.168.168.167:34200
