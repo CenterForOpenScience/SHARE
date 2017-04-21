@@ -7,6 +7,7 @@ from share.graphql.base import Identifier
 from share.graphql.base import AbstractShareObject
 from share.graphql.relations import AbstractAgentRelation
 from share.graphql.relations import AbstractAgentWorkRelation
+from share.util import IDObfuscator
 
 
 class AbstractAgent(AbstractShareObject):
@@ -57,5 +58,7 @@ class AbstractAgent(AbstractShareObject):
 
 for klass in models.Agent.get_type_classes():
     locals()[klass.__name__] = type(klass.__name__, (DjangoObjectType, ), {
+        'id': graphene.String(),
+        'resolve_id': graphene.resolve_only_args(lambda self: IDObfuscator.encode(self)),
         'Meta': type('Meta', (), {'model': klass, 'interfaces': (AbstractShareObject, AbstractAgent, )})
     })
