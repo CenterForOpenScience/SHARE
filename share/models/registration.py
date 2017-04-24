@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 
 from db.deletion import DATABASE_CASCADE
 
+
 class ProviderRegistration(models.Model):
 
     STATUS = Choices(
