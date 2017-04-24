@@ -7,10 +7,15 @@ from celery.schedules import crontab
 from djcelery.models import PeriodicTask
 from djcelery.models import CrontabSchedule
 
-from django.core.files import File
 from django.apps import apps
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
+import share
+from share.models.core import user_post_save
 
 SOURCES_DIR = 'sources'
 
@@ -24,13 +29,15 @@ class Command(BaseCommand):
         # If we're running in a migrations we need to use the correct apps
         self.apps = options.get('apps', apps)
 
-        import share
         sources = options.get('sources')
         sources_dir = os.path.join(share.__path__[0], SOURCES_DIR)
         if sources:
             source_dirs = [os.path.join(sources_dir, s) for s in sources]
         else:
             source_dirs = [os.path.join(sources_dir, s) for s in os.listdir(sources_dir)]
+
+        if self.apps.get_model('share.ShareUser').__module__ == '__fake__':
+            receiver(post_save, sender=self.apps.get_model('share.ShareUser'), dispatch_uid='__fake__.share.models.share_user_post_save_handler')(user_post_save)
 
         with transaction.atomic():
             self.known_harvesters = self.sync_drivers('share.harvesters', self.apps.get_model('share.Harvester'))
