@@ -1,6 +1,6 @@
 configs:
 - base_url: http://academiccommons.columbia.edu/catalog/oai
-  disabled: false
+  disabled: true
   earliest_date: null
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
