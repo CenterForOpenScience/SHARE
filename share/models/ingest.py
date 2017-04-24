@@ -7,11 +7,11 @@ from django.contrib.postgres.fields import JSONField
 from django.core import validators
 from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
-from django.core.urlresolvers import reverse
 from django.db import DEFAULT_DB_ALIAS
 from django.db import connection
 from django.db import connections
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 

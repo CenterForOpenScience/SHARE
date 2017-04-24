@@ -147,6 +147,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
 
     class Meta:
         abstract = True
+        base_manager_name = 'objects'
 
     def administrative_change(self, **kwargs):
         from share.models import Change
@@ -230,7 +231,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
             if not pk_set:
                 fields = [f for f in fields if not isinstance(f, AutoField)]
 
-            update_pk = bool(meta.has_auto_field and not pk_set)
+            update_pk = bool(meta.auto_field is not None and not pk_set)
             result = self._do_insert(cls._base_manager, using, fields, update_pk, raw)
             if update_pk:
                 ### ACTUAL CHANGE HERE ###

@@ -12,9 +12,9 @@ import requests
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db import DatabaseError
 from django.db import transaction
+from django.urls import reverse
 from django.utils import timezone
 
 from share.change import ChangeGraph
