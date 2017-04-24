@@ -1,4 +1,3 @@
-import time
 import logging
 
 from furl import furl
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class ClinicalTrialsHarvester(BaseHarvester):
-    VERSION = 1
+    VERSION = 2
 
     def do_harvest(self, start_date, end_date):
         end_date = end_date.date()
@@ -46,16 +45,10 @@ class ClinicalTrialsHarvester(BaseHarvester):
                 for record in all_records_doc.xpath('//clinical_study')
             ]
 
-            logger.info("There are {} record urls to harvest - this may take a while...".format(len(record_urls)))
-            for url in record_urls:
-                try:
-                    record_resp = self.requests.get(url)
-                except self.requests.exceptions.ConnectionError as e:
-                    logger.warning('Connection error: {}, wait a bit...'.format(e))
-                    time.sleep(30)
-                    record_resp = self.requests.get(url)
+            total = len(record_urls)
+            for i, url in enumerate(record_urls):
+                logger.debug('[%d / %d] Requesting %s', i, total, url)
+                record_resp = self.requests.get(url)
 
-                doc = etree.XML(record_resp.content)
-                record = etree.tostring(doc)
-                doc_id = doc.xpath('//nct_id/node()')[0]
-                yield (doc_id, record)
+                doc = etree.fromstring(record_resp.content, parser=etree.XMLParser(recover=True))
+                yield doc.xpath('//nct_id/node()')[0], etree.tostring(doc, encoding=str)
