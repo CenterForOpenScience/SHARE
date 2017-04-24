@@ -4,6 +4,8 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
 
+from db.deletion import DATABASE_CASCADE
+
 
 class SiteBanner(models.Model):
     COLOR = Choices(
@@ -21,6 +23,6 @@ class SiteBanner(models.Model):
     icon = models.CharField(blank=True, max_length=31, default='exclamation')
 
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', on_delete=DATABASE_CASCADE)
     last_modified_at = models.DateTimeField(auto_now=True)
-    last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', on_delete=DATABASE_CASCADE)

@@ -13,6 +13,8 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from db.deletion import DATABASE_CASCADE
+
 from oauth2_provider.models import AccessToken, Application
 
 from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
@@ -183,9 +185,9 @@ def user_post_save(sender, instance, created, **kwargs):
 class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True, auto_now_add=True)
-    raw = models.ForeignKey('RawDatum', null=True)
+    raw = models.ForeignKey('RawDatum', null=True, on_delete=DATABASE_CASCADE)
     data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
-    source = models.ForeignKey(settings.AUTH_USER_MODEL)
+    source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=DATABASE_CASCADE)
     tasks = models.ManyToManyField('CeleryProviderTask')
 
     def __str__(self):

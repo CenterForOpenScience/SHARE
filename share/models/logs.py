@@ -12,6 +12,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from db.deletion import DATABASE_CASCADE
+
 from share.util import chunked
 
 
@@ -130,7 +132,7 @@ class AbstractBaseLog(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True, editable=False, db_index=True)
 
-    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='harvest_logs')
+    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='harvest_logs', on_delete=DATABASE_CASCADE)
 
     share_version = models.TextField(default=get_share_version, editable=False)
     source_config_version = models.PositiveIntegerField()
