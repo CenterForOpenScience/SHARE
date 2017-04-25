@@ -1,6 +1,6 @@
 configs:
 - base_url: https://scholarworks.iu.edu/dspace-oai/request
-  disabled: false
+  disabled: true
   earliest_date: null
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
