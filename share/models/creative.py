@@ -39,7 +39,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     class Disambiguation:
         any = ('identifiers',)
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         db_table = 'share_creativework'
 
     def __str__(self):

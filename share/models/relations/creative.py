@@ -17,7 +17,7 @@ class AbstractWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
         all = ('subject', 'related')
         constrain_types = True
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         db_table = 'share_workrelation'
         unique_together = ('subject', 'related', 'type')
 

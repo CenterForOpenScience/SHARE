@@ -15,8 +15,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
-from db.deletion import DATABASE_CASCADE
-
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models.fuzzycount import FuzzyCountManager
 from share.util import chunked
@@ -83,7 +81,7 @@ class Source(models.Model):
     canonical = models.BooleanField(default=False, db_index=True)
 
     # TODO replace with Django permissions something something, allow multiple sources per user
-    user = models.OneToOneField('ShareUser', on_delete=DATABASE_CASCADE)
+    user = models.OneToOneField('ShareUser', on_delete=models.CASCADE)
 
     objects = NaturalKeyManager('name')
 
@@ -102,19 +100,19 @@ class SourceConfig(models.Model):
     label = models.TextField(unique=True)
     version = models.PositiveIntegerField(default=1)
 
-    source = models.ForeignKey('Source', on_delete=DATABASE_CASCADE)
+    source = models.ForeignKey('Source', on_delete=models.CASCADE)
     base_url = models.URLField(null=True)
     earliest_date = models.DateField(null=True, blank=True)
     rate_limit_allowance = models.PositiveIntegerField(default=5)
     rate_limit_period = models.PositiveIntegerField(default=1)
 
     # Allow null for push sources
-    harvester = models.ForeignKey('Harvester', null=True, on_delete=DATABASE_CASCADE)
+    harvester = models.ForeignKey('Harvester', null=True, on_delete=models.CASCADE)
     harvester_kwargs = JSONField(null=True, blank=True)
 
     # Allow null for push sources
     # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
-    transformer = models.ForeignKey('Transformer', null=True, on_delete=DATABASE_CASCADE)
+    transformer = models.ForeignKey('Transformer', null=True, on_delete=models.CASCADE)
     transformer_kwargs = JSONField(null=True, blank=True)
 
     disabled = models.BooleanField(default=False)
@@ -358,7 +356,7 @@ class RawDatumManager(FuzzyCountManager):
 
 class SourceUniqueIdentifier(models.Model):
     identifier = models.TextField()
-    source_config = models.ForeignKey('SourceConfig', on_delete=DATABASE_CASCADE)
+    source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('identifier', 'source_config')
@@ -374,7 +372,7 @@ class RawDatum(models.Model):
 
     datum = models.TextField()
 
-    suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=DATABASE_CASCADE)
+    suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=models.CASCADE)
 
     # The sha256 of the datum
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])

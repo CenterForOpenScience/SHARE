@@ -29,6 +29,7 @@ class ShareObjectVersion(models.Model):
     class Meta:
         abstract = True
         ordering = ('-date_modified', )
+        base_manager_name = 'objects'
 
     def __repr__(self):
         return '<{type}({id}, of {persistent_id} at {date_modified})>'.format(

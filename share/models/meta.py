@@ -4,8 +4,6 @@ import logging
 from django.db import models
 from django.db import IntegrityError
 
-from db.deletion import DATABASE_CASCADE
-
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey
 from share.models.fuzzycount import FuzzyCountManager
@@ -58,7 +56,7 @@ class SubjectManager(FuzzyCountManager):
 
 
 class Subject(models.Model):
-    parent = models.ForeignKey('self', null=True, on_delete=DATABASE_CASCADE)
+    parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
     name = models.TextField(unique=True, db_index=True)
 
     objects = SubjectManager()
@@ -82,7 +80,7 @@ class ThroughTags(ShareObject):
     tag = ShareForeignKey(Tag, related_name='work_relations')
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='tag_relations')
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         unique_together = ('tag', 'creative_work')
         verbose_name_plural = 'through tags'
 
@@ -91,10 +89,10 @@ class ThroughTags(ShareObject):
 
 
 class ThroughSubjects(ShareObject):
-    subject = models.ForeignKey('Subject', related_name='work_relations', on_delete=DATABASE_CASCADE)
+    subject = models.ForeignKey('Subject', related_name='work_relations', on_delete=models.CASCADE)
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='subject_relations')
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         unique_together = ('subject', 'creative_work')
         verbose_name_plural = 'through subjects'
 
