@@ -105,7 +105,7 @@ class OAIRepository:
         if not queryset.exists():
             self.errors.append(oai_errors.NoResults())
             return [], None, None
-        # TODO is there a way to prefetch Sources/Relations/Identifiers just for this slice? https://code.djangoproject.com/ticket/26780
+        # TODO use django-include to prefetch relations/agents/identifiers/etc. in one query
         works = list(queryset[cursor:cursor + self.PAGE_SIZE + 1])
         if len(works) <= self.PAGE_SIZE:
             # Last page
@@ -115,7 +115,7 @@ class OAIRepository:
         return works, next_token, metadataRenderer
 
     def _record_queryset(self, kwargs, catch=True):
-        queryset = AbstractCreativeWork.objects.filter(is_deleted=False, same_as_id__isnull=True)
+        queryset = AbstractCreativeWork.objects.filter(is_deleted=False, same_as_id__isnull=True).order_by('-date_modified')
         if 'from' in kwargs:
             try:
                 from_ = dateutil.parser.parse(kwargs['from'])
