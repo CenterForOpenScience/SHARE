@@ -166,15 +166,17 @@ def user_post_save(sender, instance, created, **kwargs):
         application = Application.objects.get(user=application_user)
         client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
 
+        is_robot = instance.robot != ''  # Required to work in migrations and the like
+
         # create oauth2 token for user
         AccessToken.objects.create(
-            user=instance,
+            user_id=instance.id,
             application=application,
             expires=(timezone.now() + datetime.timedelta(weeks=20 * 52)),  # 20 yrs
-            scope=settings.HARVESTER_SCOPES if instance.is_robot else settings.USER_SCOPES,
+            scope=settings.HARVESTER_SCOPES if is_robot else settings.USER_SCOPES,
             token=client_secret
         )
-        if not instance.is_robot:
+        if not is_robot:
             instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 

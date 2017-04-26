@@ -1,6 +1,7 @@
 from unittest import mock
 import datetime
 import pkg_resources
+import hashlib
 
 import stevedore
 
@@ -14,6 +15,8 @@ from share.harvest import BaseHarvester
 from share.transform import BaseTransformer
 
 # TODO move these over
+from tests.share.models.factories import NormalizedDataFactory  # noqa
+from tests.share.models.factories import AgentFactory as AbstractAgentFactory # noqa
 from tests.share.models.factories import WorkIdentifierFactory  # noqa
 from tests.share.models.factories import AbstractCreativeWorkFactory  # noqa
 
@@ -79,6 +82,7 @@ class TransformerFactory(DjangoModelFactory):
 
         mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
         mock_entry.name = self.key
+        mock_entry.module_name = self.key
         mock_entry.resolve.return_value = MockTransformer
 
         stevedore.DriverManager.ENTRY_POINT_CACHE['share.transformers'].append(mock_entry)
@@ -109,4 +113,27 @@ class HarvestLogFactory(DjangoModelFactory):
         attrs['harvester_version'] = attrs['source_config'].harvester.version
         attrs['start_date'] = datetime.datetime.combine(attrs['start_date'].date(), datetime.time(0, 0, 0, 0, timezone.utc))
         attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
+        return super()._generate(create, attrs)
+
+
+class SourceUniqueIdentifierFactory(DjangoModelFactory):
+    identifier = factory.Faker('sentence')
+    source_config = factory.SubFactory(SourceConfigFactory)
+
+    class Meta:
+        model = models.SourceUniqueIdentifier
+
+
+class RawDatumFactory(DjangoModelFactory):
+    datum = factory.Faker('text')
+    suid = factory.SubFactory(SourceUniqueIdentifierFactory)
+
+    class Meta:
+        model = models.RawDatum
+
+    @classmethod
+    def _generate(cls, create, attrs):
+        if 'sha256' not in attrs:
+            attrs['sha256'] = hashlib.sha256(attrs.get('datum', '').encode()).hexdigest()
+
         return super()._generate(create, attrs)

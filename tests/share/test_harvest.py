@@ -18,6 +18,7 @@ from django.db import transaction
 
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.harvest.exceptions import HarvesterDisabledError
+from share.models import Source
 from share.models import HarvestLog
 from share.models import RawDatum
 from share.tasks import HarvesterTask
@@ -59,6 +60,12 @@ class SyncedThread(threading.Thread):
 def harvest(*args, retries=99999999, task_id=None, **kwargs):
     # Set retries to be really high to avoid retrying
     return HarvesterTask().apply(args, kwargs, task_id=task_id, retries=retries)
+
+
+@pytest.mark.django_db
+def test_sources_have_access_tokens():
+    for source in Source.objects.all()[:10]:
+        assert source.user.authorization()
 
 
 @pytest.mark.django_db

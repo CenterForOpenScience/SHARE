@@ -88,11 +88,6 @@ INSTALLED_APPS = [
     'bots.elasticsearch',
 ]
 
-if DEBUG:
-    INSTALLED_APPS += [
-        # 'debug_toolbar'
-    ]
-
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
 USER_SCOPES = 'approve_changesets'
 
@@ -137,6 +132,7 @@ APPLICATION_USERNAME = 'system'
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
+    'ORDERING_PARAM': 'sort',
     'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.FuzzyPageNumberPagination',
     'DEFAULT_PARSER_CLASSES': (
@@ -173,10 +169,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-if DEBUG:
-    MIDDLEWARE_CLASSES += [
-        # 'debug_toolbar.middleware.DebugToolbarMiddleware',
-    ]
 
 INTERNAL_IPS = ['127.0.0.1']
 
@@ -497,3 +489,11 @@ CELERY_TASK_FOLDER_NAME = os.environ.get('CELERY_TASK_FOLDER_NAME')  # top level
 
 import djcelery  # noqa
 djcelery.setup_loader()
+
+if DEBUG and os.environ.get('TOOLBAR', False):
+    INSTALLED_APPS += ('debug_toolbar', )
+    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda _: True
+    }
+    ALLOWED_HOSTS.append('localhost')

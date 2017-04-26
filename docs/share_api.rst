@@ -25,6 +25,23 @@ To become a Source for production repeat the above steps at `https://share.osf.i
 .. _staging SHARE profile page: https://staging-share.osf.io/profile
 .. _production OSF account: https://staging.osf.io/register/
 
+
+Paging in the API
+-----------------
+
+The SHARE API implements diffent paging strategies depending on the endpoint. All of them, however, conform to the `JSON API paging spec`_.
+
+  .. code-block:: python
+
+    import requests
+
+    r = requests.get(
+        'https://share.osf.io/api/v2/normalizeddata/',
+        headers={'Content-Type': 'application/vnd.api+json'}
+    )
+    next_link = r.json()['links']['next']
+
+
 Push data directly into the SHARE database
 ------------------------------------------
 
@@ -604,3 +621,5 @@ Code Examples
 .. _JSON-LD nodes: https://www.w3.org/TR/json-ld/#dfn-node
 
 .. _blank node identifier: https://www.w3.org/TR/rdf11-concepts/#dfn-blank-node-identifier
+
+.. _JSON API paging spec: http://jsonapi.org/format/#fetching-pagination
