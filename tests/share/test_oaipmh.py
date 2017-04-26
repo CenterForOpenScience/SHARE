@@ -155,17 +155,17 @@ class TestOAILists:
             assert errors[0].attrib.get('code') == 'noRecordsMatch'
             return
 
-        datestamps = []
         pages = 0
+        count = 0
         token = None
         while True:
             if token:
                 parsed = oai_request({'verb': verb, 'resumptionToken': token}, post)
             else:
                 parsed = oai_request({'verb': verb, 'metadataPrefix': 'oai_dc', **params}, post)
-            page = parsed.xpath('//ns0:header/ns0:datestamp', namespaces=NAMESPACES)
-            datestamps.extend(page)
+            page = parsed.xpath('//ns0:header/ns0:identifier', namespaces=NAMESPACES)
             pages += 1
+            count += len(page)
             token = parsed.xpath('//ns0:resumptionToken', namespaces=NAMESPACES)
             assert len(token) == 1
             token = token[0].text
@@ -175,7 +175,5 @@ class TestOAILists:
                 assert len(page) <= page_size
                 break
 
-        assert len(datestamps) == expected_count
+        assert count == expected_count
         assert pages == math.ceil(expected_count / page_size)
-        for i in range(len(datestamps) - 1):
-            assert datestamps[i].text >= datestamps[i + 1].text
