@@ -1,5 +1,4 @@
-from rest_framework import viewsets, views, status
-from rest_framework.decorators import detail_route
+from rest_framework import viewsets, views
 from rest_framework.response import Response
 
 from rest_framework_json_api import serializers
@@ -10,66 +9,19 @@ from django.views.decorators.http import require_GET
 from django.views.generic.base import RedirectView
 from django.shortcuts import get_object_or_404
 
-from api.filters import ShareObjectFilterSet
+from api.pagination import CursorPagination
 from api import serializers as api_serializers
 
 from share.util import IDObfuscator, InvalidID
 from share.models import Source
 
 
-class VersionsViewSet(viewsets.ReadOnlyModelViewSet):
-    @detail_route(methods=['get'])
-    def versions(self, request, pk=None):
-        if pk is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        versions = self.get_object().versions.all()
-        page = self.paginate_queryset(versions)
-        if page is not None:
-            ser = self.get_serializer(page, many=True, version_serializer=True)
-            return self.get_paginated_response(ser.data)
-        ser = self.get_serializer(versions, many=True, version_serializer=True)
-        return Response(ser.data)
-
-
-class ChangesViewSet(viewsets.ReadOnlyModelViewSet):
-    @detail_route(methods=['get'])
-    def changes(self, request, pk=None):
-        if pk is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        changes = self.get_object().changes.all()
-        page = self.paginate_queryset(changes)
-        if page is not None:
-            ser = api_serializers.ChangeSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(ser.data)
-        ser = api_serializers.ChangeSerializer(changes, many=True, context={'request': request})
-        return Response(ser.data)
-
-
-class RawDatumDetailViewSet(viewsets.ReadOnlyModelViewSet):
-    @detail_route(methods=['get'])
-    def rawdata(self, request, pk=None):
-        if pk is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        data = []
-        obj = self.get_object()
-        if not obj.changes.exists():
-            data.append(obj.change.change_set.normalized_data.raw)
-        else:
-            changes = obj.changes.all()
-            data = [change.change_set.normalized_data.raw for change in changes]
-
-        page = self.paginate_queryset(data)
-        if page is not None:
-            ser = api_serializers.RawDatumSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(ser.data)
-        ser = api_serializers.RawDatumSerializer(data, many=True, context={'request': request})
-        return Response(ser.data)
-
-
-class ShareObjectViewSet(ChangesViewSet, VersionsViewSet, RawDatumDetailViewSet, viewsets.ReadOnlyModelViewSet):
-    # TODO: Add in scopes once we figure out who, why, and how.
-    # required_scopes = ['', ]
-    filter_class = ShareObjectFilterSet
+class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
+    ordering = ('-id', )
+    pagination_class = CursorPagination
+    # Can't expose these until we have indexes added, both ascending and descending
+    # filter_backends = (filters.OrderingFilter,)
+    # ordering_fields = ('id', 'date_updated')
 
     # override to convert encoded pk to an actual pk
     def get_object(self):

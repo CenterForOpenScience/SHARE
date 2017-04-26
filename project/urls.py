@@ -43,8 +43,12 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    # import debug_toolbar
     urlpatterns += [
-        # url(r'^__debug__/', include(debug_toolbar.urls)),
         url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
     ]
+
+    if 'debug_toolbar' in settings.INSTALLED_APPS:
+        import debug_toolbar
+        urlpatterns += [
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ]
