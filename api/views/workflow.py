@@ -9,6 +9,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 
 from api import schemas
+from api.pagination import CursorPagination
 from api.authentication import APIV1TokenBackPortAuthentication
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
@@ -70,6 +71,8 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
                        }
         Success:       200 OK
     """
+    ordering = ('-id', )
+    pagination_class = CursorPagination
     permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
     required_scopes = ['upload_normalized_manuscript', ]
     resource_name = 'NormalizedData'
@@ -106,6 +109,8 @@ class RawDatumViewSet(viewsets.ReadOnlyModelViewSet):
     parameters `object_id=<@id>` and `object_type=<@type>`
     """
 
+    ordering = ('-id', )
+    pagination_class = CursorPagination
     serializer_class = RawDatumSerializer
 
     def get_queryset(self):

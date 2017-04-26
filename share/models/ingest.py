@@ -360,23 +360,6 @@ class RawDatumManager(FuzzyCountManager):
         return rd
 
 
-# class SUIDManager(FuzzyCountManager):
-#     _bulk_tmpl = '''
-#         INSERT INTO "{table}"
-#             ("{identifier}", "{source_config}")
-#         VALUES
-#             {values}
-#         ON CONFLICT
-#             ("{identifier}", "{source_config}")
-#         DO UPDATE SET
-#             id = "{table}".id
-#         RETURNING {fields}
-#     '''
-
-#     def bulk_get_or_create(self, data, chunk_size=500):
-#         pass
-
-
 class SourceUniqueIdentifier(models.Model):
     identifier = models.TextField()
     source_config = models.ForeignKey('SourceConfig')

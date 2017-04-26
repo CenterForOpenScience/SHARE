@@ -1,10 +1,12 @@
 import logging
+from collections import OrderedDict
 
 from django.core.paginator import Paginator
 from django.utils.functional import cached_property
 
+from rest_framework.views import Response
 from rest_framework_json_api.pagination import PageNumberPagination
-
+from rest_framework.pagination import CursorPagination
 
 logger = logging.getLogger(__name__)
 
@@ -22,3 +24,17 @@ class FuzzyPaginator(Paginator):
 class FuzzyPageNumberPagination(PageNumberPagination):
 
     django_paginator_class = FuzzyPaginator
+
+
+class CursorPagination(CursorPagination):
+    ordering = '-id'
+    cursor_query_param = 'page[cursor]'
+
+    def get_paginated_response(self, data):
+        return Response({
+            'results': data,
+            'links': OrderedDict([
+                ('next', self.get_next_link()),
+                ('prev', self.get_previous_link()),
+            ])
+        })
