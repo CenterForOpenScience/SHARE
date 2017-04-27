@@ -6,6 +6,7 @@ import datetime
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
+from django.utils.functional import cached_property
 
 from share.disambiguation import GraphDisambiguator
 from share.util import TopographicalSorter
@@ -68,6 +69,13 @@ class GraphEdge:
 
 
 class ChangeGraph:
+
+    @cached_property
+    def source(self):
+        if not self.namespace:
+            return None
+
+        return apps.get_model('share.Source').objects.get(user__username=self.namespace)
 
     def __init__(self, data, namespace=None):
         self.nodes = []
@@ -242,7 +250,12 @@ class ChangeNode:
 
     @property
     def is_skippable(self):
-        return self.is_merge or (self.instance and not self.change)
+        if self.instance and self.graph.source:
+            new_source = not self.instance.sources.filter(source=self.graph.source).exists()
+        else:
+            new_source = False
+
+        return not new_source and (self.is_merge or (self.instance and not self.change))
 
     @property
     def change(self):

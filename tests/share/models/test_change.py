@@ -3,13 +3,17 @@ import pendulum
 
 from django.db import IntegrityError
 
-from share.models import Tag
-from share.models import Person
 from share.models import AbstractCreativeWork
 from share.models import AgentWorkRelation
+from share.models import NormalizedData
+from share.models import Person
+from share.models import Tag
 from share.models.change import Change
 from share.models.change import ChangeSet
+from share.tasks import DisambiguatorTask
 from share.util import IDObfuscator
+
+from tests import factories
 
 
 @pytest.fixture
@@ -269,3 +273,27 @@ class TestChangeGraph:
         }, disambiguate=True)
 
         assert change_set is None
+
+    def test_add_multiple_sources(self):
+        source1 = factories.SourceFactory()
+        source2 = factories.SourceFactory()
+
+        work = factories.AbstractCreativeWorkFactory(title='All about Canada')
+        data = {'@id': IDObfuscator.encode(work), '@type': 'creativework', 'title': 'All aboot Canada'}
+
+        nd1 = NormalizedData.objects.create(source=source1.user, data={'@graph': [data]})
+        nd2 = NormalizedData.objects.create(source=source2.user, data={'@graph': [data]})
+
+        assert work.sources.count() == 0
+
+        DisambiguatorTask().apply((1, nd1.id))
+
+        work.refresh_from_db()
+        assert work.title == 'All aboot Canada'
+        assert work.sources.count() == 1
+
+        DisambiguatorTask().apply((1, nd2.id))
+
+        work.refresh_from_db()
+        assert work.title == 'All aboot Canada'
+        assert work.sources.count() == 2
