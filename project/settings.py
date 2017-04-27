@@ -335,7 +335,7 @@ CELERY_RESULT_PERSISTENT = True
 # CELERY_SEND_TASK_SENT_EVENT = True
 CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERY_RESULT_BACKEND = 'share.celery:DatabaseBackend'
 
 # Celery Queues
 QUEUES = {
