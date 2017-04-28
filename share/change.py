@@ -289,21 +289,40 @@ class ChangeNode:
         if self.instance and type(self.instance) is not self.model:
             changes['type'] = self.model._meta.label_lower
 
-        # Hacky fix for SHARE-604
-        # If the given date_updated is older than the current one, don't accept any changes that would overwrite newer changes
         ignore_attrs = set()
-        if issubclass(self.model, apps.get_model('share', 'creativework')) and 'date_updated' in self.attrs and self.instance.date_updated:
-            date_updated = pendulum.parse(self.attrs['date_updated'])
-            if date_updated < self.instance.date_updated:
-                logger.warning('%s appears to be from the past, change date_updated (%s) is older than the current (%s). Ignoring conflicting changes.', self, self.attrs['date_updated'], self.instance.date_updated)
-                # Just in case
-                ignore_attrs.update(self.instance.change.change.keys())
+        if issubclass(self.model, apps.get_model('share', 'creativework')):
 
-                # Go back until we find a change that is older than us
-                for version in self.instance.versions.select_related('change').all():
-                    if not version.date_updated or date_updated > version.date_updated:
-                        break
-                    ignore_attrs.update(version.change.change.keys())
+            # Hacky fix for SHARE-604
+            # If the given date_updated is older than the current one, don't accept any changes that would overwrite newer changes
+            if 'date_updated' in self.attrs and self.instance.date_updated:
+                date_updated = pendulum.parse(self.attrs['date_updated'])
+                if date_updated < self.instance.date_updated:
+                    logger.warning('%s appears to be from the past, change date_updated (%s) is older than the current (%s). Ignoring conflicting changes.', self, self.attrs['date_updated'], self.instance.date_updated)
+                    # Just in case
+                    ignore_attrs.update(self.instance.change.change.keys())
+
+                    # Go back until we find a change that is older than us
+                    for version in self.instance.versions.select_related('change').all():
+                        if not version.date_updated or date_updated > version.date_updated:
+                            break
+                        ignore_attrs.update(version.change.change.keys())
+
+            # If we get changes from a source that hasn't been marked as canonical
+            # don't allow attributes set by canonical sources to be changed.
+            # Stops aggregators from overwriting the most correct information
+            # IE CrossRef sometimes turns preprints into articles/publications
+            if self.graph.source and not self.graph.source.canonical:
+                prev_changes = list(self.instance.changes.filter(change_set__normalized_data__source__source__canonical=True).values_list('change', flat=True))
+                canonical_keys = set(key for change in prev_changes for key in change.keys())
+                if prev_changes and set(self.attrs.keys()) & canonical_keys:
+                    canonical_sources = list(self.instance.sources.filter(source__canonical=True).values_list('username', flat=True))
+                    logger.warning('Recieved changes from a non-canonical source %s that conflict with one of %s. Ignoring conflicting changes', self.graph.source, canonical_sources)
+                    ignore_attrs.update(canonical_keys)
+
+                    # Appears that type doesn't get added to changes or at least the first change
+                    # Safe to assume the type was set by the canonical source
+                    ignore_attrs.add('type')
+                    changes.pop('type', None)
 
         attrs = {}
         for k, v in self.attrs.items():

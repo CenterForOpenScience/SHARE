@@ -48,3 +48,4 @@ home_page: http://osf.io/
 long_title: OSF
 name: io.osf
 user: providers.io.osf
+canonical: true

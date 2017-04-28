@@ -12,3 +12,4 @@ home_page: http://psyarxiv.org
 long_title: PsyArXiv
 name: org.psyarxiv
 user: providers.org.psyarxiv
+canonical: true

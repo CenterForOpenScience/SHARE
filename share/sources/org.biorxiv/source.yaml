@@ -35,3 +35,4 @@ home_page: http://biorxiv.org/
 long_title: bioRxiv
 name: org.biorxiv
 user: providers.org.biorxiv
+canonical: true

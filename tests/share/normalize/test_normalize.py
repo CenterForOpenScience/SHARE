@@ -6,6 +6,7 @@ from share import models
 from share.change import ChangeGraph
 from share.util import IDObfuscator, InvalidID
 
+from tests.factories import SourceFactory
 from tests.share.models import factories
 
 
@@ -236,15 +237,16 @@ class TestChangeNode:
 
     @pytest.mark.django_db
     def test_change_extra(self, graph):
+        source = SourceFactory()
         tag_model = factories.AbstractCreativeWorkFactory(extra=factories.ExtraDataFactory(
             change=factories.ChangeFactory(),
-            data={'testing': {
+            data={source.user.username: {
                 'Same': 'here',
                 'Overwrite': 'me',
                 'Dont touch': 'this one',
             }}
         ))
-        graph.namespace = 'testing'
+        graph.namespace = source.user.username
         tag = graph.create(None, 'tag', {'extra': {'Same': 'here', 'Overwrite': 'you', 'New key': 'here'}})
         tag.instance = tag_model
         assert tag.change == {'extra': {
@@ -252,7 +254,9 @@ class TestChangeNode:
             'Overwrite': 'you',
         }}
 
+    @pytest.mark.django_db
     def test_extra(self, graph):
-        graph.namespace = 'testing'
+        source = SourceFactory()
+        graph.namespace = source.user.username
         tag = graph.create(None, 'tag', {'extra': {'Additional': 'data'}})
         assert tag.change == {'extra': {'Additional': 'data'}}
