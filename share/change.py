@@ -311,7 +311,8 @@ class ChangeNode:
             # don't allow attributes set by canonical sources to be changed.
             # Stops aggregators from overwriting the most correct information
             # IE CrossRef sometimes turns preprints into articles/publications
-            if self.graph.source and not self.graph.source.canonical:
+            # TODO Write a test case for subjects
+            if self.graph.source and not self.graph.source.canonical and hasattr(self.instance, 'sources'):
                 prev_changes = list(self.instance.changes.filter(change_set__normalized_data__source__source__canonical=True).values_list('change', flat=True))
                 canonical_keys = set(key for change in prev_changes for key in change.keys())
                 if prev_changes and set(self.attrs.keys()) & canonical_keys:
