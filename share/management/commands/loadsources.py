@@ -12,6 +12,7 @@ from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.dispatch import receiver
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models.signals import post_save
 
 import share
@@ -132,7 +133,14 @@ class Command(BaseCommand):
     def process_defaults(self, model, defaults):
         ret = {}
         for k, v in defaults.items():
-            field = model._meta.get_field(k)
+            try:
+                field = model._meta.get_field(k)
+            except FieldDoesNotExist:
+                # This script gets run by the migrations fairly early on
+                # If new fields have been added the original run of this script will
+                # fail unless we ignore those fields.
+                self.stderr.write('Found extra field {}, skipping...'.format(k))
+                continue
             if field.is_relation and v is not None:
                 natural_key = tuple(v) if isinstance(v, list) else (v,)
                 ret[k] = field.related_model.objects.get_by_natural_key(natural_key)

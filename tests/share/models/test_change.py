@@ -3,13 +3,17 @@ import pendulum
 
 from django.db import IntegrityError
 
-from share.models import Tag
-from share.models import Person
 from share.models import AbstractCreativeWork
 from share.models import AgentWorkRelation
+from share.models import NormalizedData
+from share.models import Person
+from share.models import Tag
 from share.models.change import Change
 from share.models.change import ChangeSet
+from share.tasks import DisambiguatorTask
 from share.util import IDObfuscator
+
+from tests import factories
 
 
 @pytest.fixture
@@ -100,115 +104,6 @@ class TestChange:
         assert change_set.changes.count() == 1
         assert change_set.changes.first().target == preprint
 
-    # def test_update_requires_saved(self, share_source):
-    #     p = Person(given_name='John', family_name='Doe', source=share_source)
-
-    #     with pytest.raises(AssertionError):
-    #         ChangeRequest.objects.update_object(p, share_source)
-
-    # def test_create_requires_unsaved(self, share_source):
-    #     change = ChangeRequest.objects.create_object(
-    #         Person(given_name='John', family_name='Doe', source=share_source),
-    #         share_source
-    #     )
-    #     change.save()
-    #     p = change.accept()
-
-    #     with pytest.raises(AssertionError):
-    #         ChangeRequest.objects.create_object(p, share_source)
-
-    # def test_requirements(self, share_source):
-    #     p = Person(given_name='Jane', family_name='Doe', source=share_source)
-    #     p_change = ChangeRequest.objects.create_object(p, share_source)
-
-    #     e = Email(email='example@example.com', source=share_source)
-    #     e_change = ChangeRequest.objects.create_object(e, share_source)
-
-    #     pe = PersonEmail(email=e, person=p, source=share_source)
-
-    #     change = ChangeRequest.objects.create_object(pe, share_source)
-
-    #     assert change.depends_on.count() == 2
-
-    #     expected = {
-    #         'email_id': e_change,
-    #         'person_id': p_change,
-    #     }
-
-    #     for req in change.depends_on.all():
-    #         assert req.change == change
-    #         assert req.requirement == expected[req.field]
-
-    # def test_requirements_must_be_accepted(self, share_source):
-    #     p = Person(given_name='Jane', family_name='Doe', source=share_source)
-    #     ChangeRequest.objects.create_object(p, share_source)
-
-    #     e = Email(email='example@example.com', source=share_source)
-    #     ChangeRequest.objects.create_object(e, share_source)
-
-    #     pe = PersonEmail(email=e, person=p, source=share_source)
-
-    #     change = ChangeRequest.objects.create_object(pe, share_source)
-
-    #     with pytest.raises(AssertionError) as e:
-    #         change.accept()
-
-    #     assert e.value.args[0] == 'Not all dependancies have been accepted'
-
-    # def test_accept_requirements(self, share_source):
-    #     p = Person(given_name='Jane', family_name='Doe', source=share_source)
-    #     ChangeRequest.objects.create_object(p, share_source).accept()
-
-    #     e = Email(email='example@example.com', is_primary=False, source=share_source)
-    #     ChangeRequest.objects.create_object(e, share_source).accept()
-
-    #     change = ChangeRequest.objects.create_object(
-    #         PersonEmail(email=e, person=p, source=share_source),
-    #         share_source
-    #     )
-    #     pe = change.accept()
-
-    #     pe.refresh_from_db()
-
-    #     assert pe.change == change
-    #     assert pe.person.given_name == 'Jane'
-    #     assert pe.person.family_name == 'Doe'
-    #     assert pe.email.email == 'example@example.com'
-
-    # def test_mixed_requirements(self, share_source):
-    #     p = ChangeRequest.objects.create_object(
-    #         Person(given_name='Jane', family_name='Doe', source=share_source),
-    #         share_source
-    #     ).accept()
-
-    #     e = Email(email='example@example.com', is_primary=False, source=share_source)
-    #     e_change = ChangeRequest.objects.create_object(e, share_source)
-
-    #     change = ChangeRequest.objects.create_object(
-    #         PersonEmail(email=e, person=p, source=share_source),
-    #         share_source
-    #     )
-
-    #     assert change.depends_on.count() == 1
-    #     assert change.depends_on.first().requirement == e_change
-
-    # def test_recurse(self, share_source):
-    #     p = Person(given_name='Jane', family_name='Doe', source=share_source)
-    #     ChangeRequest.objects.create_object(p, share_source)
-
-    #     e = Email(email='example@example.com', is_primary=True, source=share_source)
-    #     ChangeRequest.objects.create_object(e, share_source)
-
-    #     pe = PersonEmail(email=e, person=p, source=share_source)
-    #     change = ChangeRequest.objects.create_object(pe, share_source)
-
-    #     pe = change.accept(recurse=True)
-
-    #     pe.refresh_from_db()
-
-    #     assert pe.person.given_name == 'Jane'
-    #     assert pe.email.email == 'example@example.com'
-
 
 @pytest.mark.django_db
 class TestChangeGraph:
@@ -269,3 +164,27 @@ class TestChangeGraph:
         }, disambiguate=True)
 
         assert change_set is None
+
+    def test_add_multiple_sources(self):
+        source1 = factories.SourceFactory()
+        source2 = factories.SourceFactory()
+
+        work = factories.AbstractCreativeWorkFactory(title='All about Canada')
+        data = {'@id': IDObfuscator.encode(work), '@type': 'creativework', 'title': 'All aboot Canada'}
+
+        nd1 = NormalizedData.objects.create(source=source1.user, data={'@graph': [data]})
+        nd2 = NormalizedData.objects.create(source=source2.user, data={'@graph': [data]})
+
+        assert work.sources.count() == 0
+
+        DisambiguatorTask().apply((1, nd1.id))
+
+        work.refresh_from_db()
+        assert work.title == 'All aboot Canada'
+        assert work.sources.count() == 1
+
+        DisambiguatorTask().apply((1, nd2.id))
+
+        work.refresh_from_db()
+        assert work.title == 'All aboot Canada'
+        assert work.sources.count() == 2

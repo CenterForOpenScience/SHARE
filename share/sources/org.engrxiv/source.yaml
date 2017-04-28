@@ -12,3 +12,4 @@ home_page: http://engrxiv.org
 long_title: engrXiv
 name: org.engrxiv
 user: providers.org.engrxiv
+canonical: true

@@ -30,3 +30,4 @@ home_page: http://arxiv.org
 long_title: arXiv
 name: org.arxiv
 user: providers.org.arxiv
+canonical: true

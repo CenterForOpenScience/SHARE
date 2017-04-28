@@ -4,6 +4,7 @@ from share import models
 from share.change import ChangeGraph
 from share.models import ChangeSet
 
+from tests import factories
 from tests.share.models.factories import NormalizedDataFactory
 from tests.share.normalize.factories import *
 
@@ -259,3 +260,44 @@ class TestWorkDisambiguation:
 
         older_graph.process()
         assert older_graph.nodes[0].change == {'description': 'The final description'}
+
+    @pytest.mark.parametrize('first_canonical, second_canonical, change', [
+        (True, False, {}),
+        (True, True, {'type': 'share.article', 'title': 'The Second Title'}),
+        (False, True, {'type': 'share.article', 'title': 'The Second Title'}),
+        (False, False, {'type': 'share.article', 'title': 'The Second Title'}),
+    ])
+    def test_canonical(self, Graph, first_canonical, second_canonical, change):
+        first_source = factories.SourceFactory(canonical=first_canonical)
+        second_source = factories.SourceFactory(canonical=second_canonical)
+
+        first_graph = ChangeGraph(Graph(
+            Preprint(
+                id=1,
+                title='The first title',
+                identifiers=[WorkIdentifier(1)],
+            )
+        ), namespace=first_source.user.username)
+
+        second_graph = ChangeGraph(Graph(
+            Article(
+                id=1,
+                title='The Second Title',
+                identifiers=[WorkIdentifier(1)],
+            )
+        ), namespace=second_source.user.username)
+
+        first_graph.process()
+        (cw, _) = ChangeSet.objects.from_graph(first_graph, NormalizedDataFactory(source=first_source.user).id).accept()
+
+        assert cw.type == 'share.preprint'
+        assert cw.title == 'The first title'
+
+        second_graph.process()
+        ChangeSet.objects.from_graph(second_graph, NormalizedDataFactory(source=second_source.user).id).accept()
+
+        cw = models.AbstractCreativeWork.objects.get(id=cw.id)
+
+        assert second_graph.nodes[0].change == change
+        assert cw.type == change.get('type', 'share.preprint')
+        assert cw.title == change.get('title', 'The first title')
