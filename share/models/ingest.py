@@ -73,6 +73,14 @@ class Source(models.Model):
     icon = models.ImageField(upload_to=icon_name, storage=SourceIconStorage(), blank=True)
     is_deleted = models.BooleanField(default=False)
 
+    # Whether or not this SourceConfig collects original content
+    # If True changes made by this source cannot be overwritten
+    # This should probably be on SourceConfig but placing it on Source
+    # is much easier for the moment.
+    # I also haven't seen a situation where a Source has two feeds that we harvest
+    # where one provider unreliable metadata but the other does not.
+    canonical = models.BooleanField(default=False, db_index=True)
+
     # TODO replace with Django permissions something something, allow multiple sources per user
     user = models.OneToOneField('ShareUser')
 

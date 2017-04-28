@@ -12,3 +12,4 @@ home_page: https://socopen.org/
 long_title: SocArXiv
 name: org.socarxiv
 user: providers.org.socarxiv
+canonical: true

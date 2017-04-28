@@ -30,7 +30,7 @@ class ShareUserFactory(DjangoModelFactory):
 
 
 class SourceFactory(DjangoModelFactory):
-    name = factory.Faker('company')
+    name = factory.Faker('sentence')
     long_title = factory.Faker('sentence')
     icon = factory.SelfAttribute('name')
 
