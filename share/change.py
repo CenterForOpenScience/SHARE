@@ -250,7 +250,7 @@ class ChangeNode:
 
     @property
     def is_skippable(self):
-        if self.instance and self.graph.source:
+        if self.instance and self.graph.source and hasattr(self.instance, 'sources'):
             new_source = not self.instance.sources.filter(source=self.graph.source).exists()
         else:
             new_source = False
