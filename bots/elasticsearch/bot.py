@@ -1,4 +1,6 @@
 import logging
+import requests
+import pendulum
 
 from django.apps import apps
 from django.conf import settings
@@ -160,6 +162,12 @@ class ElasticSearchBot(Bot):
 
         self.es_client = Elasticsearch(self.es_url)
 
+    def get_most_recently_modified(self):
+        headers = {'Content-Type': 'application/json'}
+        url = '{}/{}/creativeworks/_search'.format(settings.ELASTICSEARCH_URL, settings.ELASTICSEARCH_INDEX)
+        resp = requests.post(url, headers=headers, data='{"sort": {"date_modified": "desc"}}').json()
+        return resp['hits']['hits'][0]['_source']['date_modified']
+
     def run(self, chunk_size=500):
         if self.es_setup:
             self.setup()
@@ -177,8 +185,10 @@ class ElasticSearchBot(Bot):
                 logger.info('Looking for %ss that match %s', model, self.es_filter)
                 qs = model.objects.filter(**self.es_filter).values_list('id', flat=True)
             else:
-                logger.info('Looking for %ss that have been modified after %s', model, self.last_run)
-                qs = model.objects.filter(date_modified__gt=self.last_run).values_list('id', flat=True)
+                most_recent_result = pendulum.parse(self.get_most_recently_modified())
+                adjusted_most_recent_result = most_recent_result.subtract(minutes=5)
+                logger.info('Looking for %ss that have been modified after %s', model, adjusted_most_recent_result)
+                qs = model.objects.filter(date_modified__gt=adjusted_most_recent_result).values_list('id', flat=True)
 
             count = qs.count()
 
