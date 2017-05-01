@@ -40,7 +40,7 @@ class IndexModelTask(AppTask):
         model = apps.get_model('share', model_name)
         es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
 
-        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids, es_index or settings.ELASTICSEARCH_INDEX), raise_on_error=False):
+        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids, es_index or settings.ELASTICSEARCH_INDEX), chunk_size=175, max_chunk_bytes=90 * 1024 ** 2, raise_on_error=False):
             if not ok:
                 logger.warning(resp)
             else:
