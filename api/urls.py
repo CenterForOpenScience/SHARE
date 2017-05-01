@@ -72,6 +72,7 @@ class EndpointGenerator:
         route_name = subclass._meta.verbose_name_plural.replace(' ', '')
         register_route(route_name, viewset)
 
+
 # generated model routes
 EndpointGenerator()
 

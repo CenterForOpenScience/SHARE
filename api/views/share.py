@@ -19,6 +19,7 @@ from api import serializers as api_serializers
 from share.util import IDObfuscator, InvalidID
 from share.models import Source, AbstractCreativeWork
 
+
 def _get_queryset(klass):
     """
     Returns a QuerySet from a Model, Manager, or QuerySet. Supports get_object_or_404_or_403.
@@ -58,9 +59,10 @@ def get_object_or_404_or_403(klass, *args, **kwargs):
     try:
         return queryset.get(*args, **kwargs)
     except queryset.model.DoesNotExist:
-        if AbstractCreativeWork.objects.filter(id = kwargs['pk']).count() == 1:
+        if AbstractCreativeWork.objects.filter(id=kwargs['pk']).count() == 1:
             raise PermissionDenied('Query is forbidden for the given %s.' % queryset.model._meta.object_name)
         raise Http404('No %s matches the given query.' % queryset.model._meta.object_name)
+
 
 class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('-id', )
@@ -110,7 +112,7 @@ class ShareUserView(views.APIView):
 
 @require_GET
 def source_icon_view(request, source_name):
-    source = get_object_or_404(Source, name=source_name)
+    source = get_object_or_404_or_403(Source, name=source_name)
     if not source.icon:
         raise http.Http404('Favicon for source {} does not exist'.format(source_name))
     response = http.FileResponse(source.icon)
