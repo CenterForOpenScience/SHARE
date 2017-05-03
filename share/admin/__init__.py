@@ -21,16 +21,21 @@ from django.utils.html import format_html
 
 from oauth2_provider.models import AccessToken
 
-from share.robot import RobotAppConfig
+from share.admin.readonly import ReadOnlyAdmin
+from share.admin.share_objects import CreativeWorkAdmin
+from share.models.banner import SiteBanner
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
 from share.models.core import NormalizedData, ShareUser
+from share.models.creative import AbstractCreativeWork
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
 from share.models.logs import HarvestLog
 from share.models.registration import ProviderRegistration
-from share.models.banner import SiteBanner
-from share.readonlyadmin import ReadOnlyAdmin
+from share.robot import RobotAppConfig
 from share.tasks import HarvesterTask
+
+
+admin.site.register(AbstractCreativeWork, CreativeWorkAdmin)
 
 
 class NormalizedDataAdmin(admin.ModelAdmin):
@@ -143,26 +148,6 @@ class CeleryTaskAdmin(admin.ModelAdmin):
             kwargs = ast.literal_eval(task.kwargs)
             Task().apply_async(args, kwargs, task_id=task_id)
     retry_tasks.short_description = 'Retry tasks'
-
-
-class AbstractCreativeWorkAdmin(admin.ModelAdmin):
-    list_display = ('type', 'title', 'num_contributors')
-    list_filter = ['type']
-    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version', 'subjects')
-
-    def num_contributors(self, obj):
-        return obj.contributors.count()
-    num_contributors.short_description = 'Contributors'
-
-
-class AbstractAgentAdmin(admin.ModelAdmin):
-    list_display = ('type', 'name')
-    list_filter = ('type',)
-    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
-
-
-class TagAdmin(admin.ModelAdmin):
-    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
 
 
 class RawDatumAdmin(admin.ModelAdmin):

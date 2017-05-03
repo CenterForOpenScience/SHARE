@@ -18,7 +18,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     date_published = models.DateTimeField(null=True)
     date_updated = models.DateTimeField(null=True)
     free_to_read_type = ShareURLField(blank=True)
-    free_to_read_date = models.DateTimeField(null=True)
+    free_to_read_date = models.DateTimeField(blank=True, null=True)
     rights = models.TextField(blank=True, null=True)
     language = models.TextField(blank=True, null=True, help_text=_('The ISO 3166-1 alpha-2 country code indicating the language of this record.'))
 
@@ -41,6 +41,7 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     class Meta(ShareObject.Meta):
         db_table = 'share_creativework'
+        verbose_name_plural = 'Creative Works'
 
     def __str__(self):
         return self.title

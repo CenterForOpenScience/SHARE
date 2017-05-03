@@ -150,14 +150,16 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
         abstract = True
         base_manager_name = 'objects'
 
-    def administrative_change(self, **kwargs):
+    def administrative_change(self, allow_empty=False, **kwargs):
         from share.models import Change
         from share.models import ChangeSet
         from share.models import NormalizedData
         from share.models import ShareUser
 
         with transaction.atomic():
-            assert kwargs, 'Don\'t make empty changes'
+            if not kwargs and not allow_empty:
+                # Empty changes can be made to force modified_date to update
+                raise ValueError('Pass allow_empty=True to allow empty changes')
 
             serialized = {}
             for key, value in tuple(kwargs.items()):
