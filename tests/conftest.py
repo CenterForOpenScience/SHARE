@@ -12,12 +12,15 @@ from django.db import transaction
 from django.conf import settings
 from django.db.models.signals import post_save
 from oauth2_provider.models import AccessToken, Application
+from urllib3.connection import ConnectionError
+from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 
 from share.models import Person, NormalizedData, Change, ChangeSet, RawDatum
 from share.models import Article, Institution
 from share.models import ShareUser
 from share.models import Harvester, Transformer, Source, SourceConfig, SourceUniqueIdentifier
 from share.change import ChangeGraph
+from bots.elasticsearch.bot import ElasticSearchBot
 
 
 def pytest_configure(config):
@@ -207,6 +210,25 @@ def all_about_anteaters(change_ids):
 @pytest.fixture
 def university_of_whales(change_ids):
     return Institution.objects.create(name='University of Whales', change_id=change_ids.get())
+
+
+@pytest.fixture
+def elastic(settings):
+    settings.ELASTICSEARCH_TIMEOUT = 5
+    settings.ELASTICSEARCH_INDEX = 'test_' + settings.ELASTICSEARCH_INDEX
+
+    bot = ElasticSearchBot(apps.get_app_config('elasticsearch'), 1, es_setup=False)
+
+    try:
+        bot.es_client.indices.delete(index=settings.ELASTICSEARCH_INDEX, ignore=[400, 404])
+
+        bot.setup()
+    except (ConnectionError, ElasticConnectionError):
+        raise pytest.skip('Elasticsearch unavailable')
+
+    yield bot
+
+    bot.es_client.indices.delete(index=settings.ELASTICSEARCH_INDEX, ignore=[400, 404])
 
 
 @pytest.fixture

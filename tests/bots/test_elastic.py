@@ -1,36 +1,11 @@
 import pytest
-from urllib3.connection import ConnectionError
-
-from django.apps import apps
 
 from elasticsearch.exceptions import NotFoundError
-from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 
 from share.util import IDObfuscator
-
 from bots.elasticsearch import tasks
-from bots.elasticsearch.bot import ElasticSearchBot
 
 from tests import factories
-
-
-@pytest.fixture
-def elastic(settings):
-    settings.ELASTICSEARCH_TIMEOUT = 5
-    settings.ELASTICSEARCH_INDEX = 'test_' + settings.ELASTICSEARCH_INDEX
-
-    bot = ElasticSearchBot(apps.get_app_config('elasticsearch'), 1, es_setup=False)
-
-    try:
-        bot.es_client.indices.delete(index=settings.ELASTICSEARCH_INDEX, ignore=[400, 404])
-
-        bot.setup()
-    except (ConnectionError, ElasticConnectionError):
-        raise pytest.skip('Elasticsearch unavailable')
-
-    yield bot
-
-    bot.es_client.indices.delete(index=settings.ELASTICSEARCH_INDEX, ignore=[400, 404])
 
 
 @pytest.mark.django_db
