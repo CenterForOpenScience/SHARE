@@ -92,30 +92,30 @@ class OAIRepository:
     def _load_page(self, kwargs):
         if 'resumptionToken' in kwargs:
             try:
-                queryset, next_token, metadataRenderer, cursor = self._resume(kwargs['resumptionToken'])
+                queryset, kwargs = self._resume(kwargs['resumptionToken'])
+                metadataRenderer = self._get_metadata_renderer(kwargs['metadataPrefix'], catch=False)
             except (ValueError, KeyError):
                 self.errors.append(oai_errors.BadResumptionToken(kwargs['resumptionToken']))
         else:
             queryset = self._record_queryset(kwargs)
-            next_token = self._get_resumption_token(kwargs)
             metadataRenderer = self._get_metadata_renderer(kwargs['metadataPrefix'])
-            cursor = 0
         if self.errors:
             return [], None, None
         if not queryset.exists():
             self.errors.append(oai_errors.NoResults())
             return [], None, None
-        # TODO is there a way to prefetch Sources/Relations/Identifiers just for this slice? https://code.djangoproject.com/ticket/26780
-        works = list(queryset[cursor:cursor + self.PAGE_SIZE + 1])
+        # TODO use django-include to prefetch relations/agents/identifiers/etc. in one query
+        works = list(queryset[:self.PAGE_SIZE + 1])
         if len(works) <= self.PAGE_SIZE:
             # Last page
             next_token = None
         else:
             works = works[:self.PAGE_SIZE]
+            next_token = self._get_resumption_token(kwargs, works[-1].id)
         return works, next_token, metadataRenderer
 
     def _record_queryset(self, kwargs, catch=True):
-        queryset = AbstractCreativeWork.objects.filter(is_deleted=False, same_as_id__isnull=True)
+        queryset = AbstractCreativeWork.objects.filter(is_deleted=False, same_as_id__isnull=True).order_by('id')
         if 'from' in kwargs:
             try:
                 from_ = dateutil.parser.parse(kwargs['from'])
@@ -138,7 +138,7 @@ class OAIRepository:
         return queryset
 
     def _resume(self, token):
-        from_, until, set_spec, prefix, cursor = token.split('|')
+        from_, until, set_spec, prefix, last_id = token.split('|')
         kwargs = {}
         if from_:
             kwargs['from'] = from_
@@ -146,15 +146,11 @@ class OAIRepository:
             kwargs['until'] = until
         if set_spec:
             kwargs['set'] = set_spec
-        cursor = int(cursor)
-        queryset = self._record_queryset(kwargs, catch=False)
-        kwargs['cursor'] = cursor + self.PAGE_SIZE
         kwargs['metadataPrefix'] = prefix
-        next_token = self._get_resumption_token(kwargs)
-        metadataRenderer = self._get_metadata_renderer(prefix, catch=False)
-        return queryset, next_token, metadataRenderer, cursor
+        queryset = self._record_queryset(kwargs, catch=False).filter(id__gt=int(last_id))
+        return queryset, kwargs
 
-    def _get_resumption_token(self, kwargs):
+    def _get_resumption_token(self, kwargs, last_id):
         from_ = None
         until = None
         if 'from' in kwargs:
@@ -168,9 +164,8 @@ class OAIRepository:
             except ValueError:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
         set_spec = kwargs.get('set', '')
-        cursor = kwargs.get('cursor', self.PAGE_SIZE)
-        return self._format_resumption_token(from_, until, set_spec, kwargs['metadataPrefix'], cursor)
+        return self._format_resumption_token(from_, until, set_spec, kwargs['metadataPrefix'], last_id)
 
-    def _format_resumption_token(self, from_, until, set_spec, prefix, cursor):
+    def _format_resumption_token(self, from_, until, set_spec, prefix, last_id):
         # TODO something more opaque, maybe
-        return '{}|{}|{}|{}|{}'.format(format_datetime(from_) if from_ else '', format_datetime(until) if until else '', set_spec, prefix, cursor)
+        return '{}|{}|{}|{}|{}'.format(format_datetime(from_) if from_ else '', format_datetime(until) if until else '', set_spec, prefix, last_id)

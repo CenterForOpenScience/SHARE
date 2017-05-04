@@ -163,19 +163,25 @@ class DublinCoreRenderer(MetadataRenderer):
         if work.title:
             SubEl(dc, 'dc:title', work.title)
 
-        for relation in work.agent_relations.filter(type='share.creator').order_by('order_cited').select_related('agent'):
+        agent_relation_types = ['share.creator', 'share.publisher'] + list(self.contributor_types)
+        agent_relations = {k: [] for k in agent_relation_types}
+
+        for relation in work.agent_relations.filter(type__in=agent_relation_types).order_by('order_cited').select_related('agent'):
+            agent_relations[relation.type].append(relation)
+
+        for relation in agent_relations['share.creator']:
             SubEl(dc, 'dc:creator', relation.cited_as or relation.agent.name)
 
-        for subject in work.subjects.values_list('name', flat=True):
+        for subject in work.subjects.values_list('name', flat=True).order_by('id'):
             SubEl(dc, 'dc:subject', subject)
 
         if work.description:
             SubEl(dc, 'dc:description', work.description)
 
-        for relation in work.agent_relations.filter(type='share.publisher').select_related('agent'):
+        for relation in agent_relations['share.publisher']:
             SubEl(dc, 'dc:publisher', relation.cited_as or relation.agent.name)
 
-        for relation in work.agent_relations.filter(type__in=self.contributor_types).select_related('agent'):
+        for relation in sorted([relation for type_ in self.contributor_types for relation in agent_relations[type_]], key=lambda x: x.order_cited or -1):
             SubEl(dc, 'dc:contributor', relation.cited_as or relation.agent.name)
 
         date = work.date_published or work.date_updated
@@ -190,11 +196,11 @@ class DublinCoreRenderer(MetadataRenderer):
         if work.language:
             SubEl(dc, 'dc:language', work.language)
 
-        for id in work.incoming_creative_work_relations.values_list('subject_id', flat=True):
-            SubEl(dc, 'dc:relation', self.repository.oai_identifier(id))
-
-        for id in work.outgoing_creative_work_relations.values_list('related_id', flat=True):
-            SubEl(dc, 'dc:relation', self.repository.oai_identifier(id))
+        for (subject_id, related_id) in work.incoming_creative_work_relations.values_list('subject_id', 'related_id').order_by('id'):
+            if work.id == subject_id:
+                SubEl(dc, 'dc:relation', self.repository.oai_identifier(related_id))
+            else:
+                SubEl(dc, 'dc:relation', self.repository.oai_identifier(subject_id))
 
         if work.rights:
             SubEl(dc, 'dc:rights', work.rights)
