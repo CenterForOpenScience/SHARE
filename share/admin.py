@@ -280,6 +280,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
     list_display = ('label', 'source_', 'version', 'enabled', 'source_config_actions')
     list_select_related = ('source',)
     readonly_fields = ('source_config_actions',)
+    search_fields = ['label', 'source__name', 'source__long_title']
 
     def source_(self, obj):
         return obj.source.long_title
@@ -352,6 +353,10 @@ class ShareUserAdmin(admin.ModelAdmin):
     inlines = (SourceAdminInline,)
 
 
+class SourceAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'long_title']
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -365,6 +370,6 @@ admin.site.register(SiteBanner, SiteBannerAdmin)
 
 admin.site.register(Harvester)
 admin.site.register(ShareUser, ShareUserAdmin)
-admin.site.register(Source)
+admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
 admin.site.register(Transformer)

@@ -52,18 +52,6 @@ Run a harvester::
 
     python manage.py harvest domain.providername --async
 
-To see a list of all providers, as well as their names for harvesting, visit https://share.osf.io/api/providers/
+To see a list of all providers, as well as their names for harvesting, visit https://share.osf.io/api/v2/sources
 
 For more information, see the section on :ref:`Harvesters and Transformers <harvesters-and-transformers>`.
-
-
-sharepa
-^^^^^^^
-sharepa is the SHARE Parsing and Analysis Library. It is a python library that you can install to directly access SHARE's
-elasticsearch API, and use to quickly generate summary statistics covering the metadata in SHARE.
-
-You can find the `source code for sharepa on GitHub <https://github.com/CenterForOpenScience/sharepa>`_.
-
-Install sharepa by running::
-
-    pip install sharepa
