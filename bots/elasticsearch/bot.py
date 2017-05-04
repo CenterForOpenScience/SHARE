@@ -1,5 +1,4 @@
 import logging
-import requests
 import pendulum
 
 from django.apps import apps
@@ -163,9 +162,11 @@ class ElasticSearchBot(Bot):
         self.es_client = Elasticsearch(self.es_url)
 
     def get_most_recently_modified(self):
-        headers = {'Content-Type': 'application/json'}
-        url = '{}/{}/creativeworks/_search'.format(settings.ELASTICSEARCH_URL, settings.ELASTICSEARCH_INDEX)
-        resp = requests.post(url, headers=headers, data='{"sort": {"date_modified": "desc"}}').json()
+        resp = self.es_client.search(
+            index=(self.es_index or settings.ELASTICSEARCH_INDEX),
+            doc_type='creativeworks',
+            body='{"sort": {"date_modified": "desc"}}'
+        )
         return resp['hits']['hits'][0]['_source']['date_modified']
 
     def run(self, chunk_size=500):

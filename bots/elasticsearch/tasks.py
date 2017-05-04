@@ -1,8 +1,11 @@
 import logging
 import re
+import pendulum
 
 from django.apps import apps
 from django.conf import settings
+from django.db.models import Max
+from django.db.models import Min
 
 from elasticsearch import helpers
 from elasticsearch import Elasticsearch
@@ -11,6 +14,7 @@ from share.models import Agent
 from share.models import CreativeWork
 from share.models import Subject
 from share.models import Tag
+from share.models import ShareUser
 from share.tasks import AppTask
 from share.util import IDObfuscator
 
@@ -132,3 +136,73 @@ class IndexSourceTask(AppTask):
             'name': safe_substr(source.long_title),
             'short_name': safe_substr(source.name)
         }
+
+
+class JanitorTask(AppTask):
+    '''
+    Looks for discrepancies between postgres and elastic search numbers
+    Re-indexes time periods that differ in count
+    '''
+    def check_counts_in_range(self, min_date, max_date):
+        partial_database_count = CreativeWork.objects.exclude(title='').exclude(is_deleted=True).filter(
+            date_created__range=[min_date.isoformat(), max_date.isoformat()]
+        ).count()
+        partial_es_count = self.es_client.count(
+            index=(self.es_index or settings.ELASTICSEARCH_INDEX),
+            doc_type='creativeworks',
+            body={
+                'query': {
+                    'range': {
+                        'date_modified': {
+                            'gte': '{}'.format(min_date.isoformat()),
+                            'lte': '{}'.format(max_date.isoformat())
+                        }
+                    }
+                }
+            }
+        )['count']
+        return (partial_database_count == partial_es_count, partial_database_count, partial_es_count)
+
+    def get_date_range_parts(self, min_date, max_date):
+        middle_date = min_date.average(max_date)
+        return {
+            'first_half': {'min_date': min_date, 'max_date': middle_date},
+            'second_half': {'min_date': middle_date, 'max_date': max_date}
+        }
+
+    def pseudo_bisection_method(self, min_date, max_date):
+        '''
+        Checks if the database count matches the ES count
+        If counts differ, split the date range in half and check counts in smaller ranges
+        Pseudo binary because it can't throw away half the results based on the middle value
+        '''
+        from bots.elasticsearch.bot import ElasticSearchBot
+
+        counts_match, db_count, es_count = self.check_counts_in_range(min_date, max_date)
+
+        if counts_match:
+            return
+        if db_count <= 500:
+            logger.info('Counts for {} to {} do not match. {} creativeworks in ES, {} creativeworks in database.'.format(min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'), es_count, db_count))
+            logger.info('Reindexing records created from {} to {}.'.format(min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p')))
+
+            bot = apps.get_app_config('elasticsearch').get_bot(
+                ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
+                es_filter={'date_created__range': [min_date.isoformat(), max_date.isoformat()]},
+            )
+            bot.run()
+            return
+
+        for key, value in self.get_date_range_parts(min_date, max_date).items():
+            self.pseudo_bisection_method(value['min_date'], value['max_date'])
+
+    def do_run(self, es_url=None, es_index=None):
+        self.es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
+        self.es_index = es_index
+
+        # get range of date_created in database
+        postgres_high_low = CreativeWork.objects.all().aggregate(lowest=Min('date_created'), highest=Max('date_created'))
+        min_date = pendulum.instance(postgres_high_low['lowest'])
+        max_date = pendulum.instance(postgres_high_low['highest'])
+
+        self.pseudo_bisection_method(min_date, max_date)

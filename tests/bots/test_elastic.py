@@ -105,3 +105,20 @@ class TestIndexSource:
 
         with pytest.raises(NotFoundError):
             elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(work2))
+
+
+@pytest.mark.django_db
+class TestJanitorTask:
+    def test_missing_records_get_indexed(self, elastic):
+        x = factories.AbstractCreativeWorkFactory()
+        source = factories.SourceFactory()
+        x.sources.add(source.user)
+
+        y = factories.AbstractCreativeWorkFactory()
+        source = factories.SourceFactory()
+        y.sources.add(source.user)
+
+        tasks.JanitorTask().apply((1, elastic.config.label))
+
+        assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(x))['found'] is True
+        assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(y))['found'] is True
