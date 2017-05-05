@@ -78,7 +78,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
     resource_name = 'NormalizedData'
 
     def get_serializer_class(self):
-        if not self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated:
             return BasicNormalizedDataSerializer
         elif self.request.user.is_robot:
             return FullNormalizedDataSerializer

@@ -2,7 +2,7 @@ from datetime import datetime
 from io import StringIO
 from xml.etree.ElementTree import ElementTree, Element, SubElement
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from share.models import Contributor
 from share.oaipmh.util import format_datetime

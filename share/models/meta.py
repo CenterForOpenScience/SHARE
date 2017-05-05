@@ -56,7 +56,7 @@ class SubjectManager(FuzzyCountManager):
 
 
 class Subject(models.Model):
-    parent = models.ForeignKey('self', null=True)
+    parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
     name = models.TextField(unique=True, db_index=True)
 
     objects = SubjectManager()
@@ -80,7 +80,7 @@ class ThroughTags(ShareObject):
     tag = ShareForeignKey(Tag, related_name='work_relations')
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='tag_relations')
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         unique_together = ('tag', 'creative_work')
         verbose_name_plural = 'through tags'
 
@@ -89,10 +89,10 @@ class ThroughTags(ShareObject):
 
 
 class ThroughSubjects(ShareObject):
-    subject = models.ForeignKey('Subject', related_name='work_relations')
+    subject = models.ForeignKey('Subject', related_name='work_relations', on_delete=models.CASCADE)
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='subject_relations')
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         unique_together = ('subject', 'creative_work')
         verbose_name_plural = 'through subjects'
 

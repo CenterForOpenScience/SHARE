@@ -85,7 +85,6 @@ class InsertReturnVersionQuerySet(FuzzyCountQuerySet):
 
 
 class ShareObjectManager(FuzzyCountManager):
-    use_for_related_fields = True
 
     def get_queryset(self):
         return InsertReturnVersionQuerySet(self.model, using=self._db)

@@ -183,9 +183,9 @@ def user_post_save(sender, instance, created, **kwargs):
 class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True, auto_now_add=True)
-    raw = models.ForeignKey('RawDatum', null=True)
+    raw = models.ForeignKey('RawDatum', null=True, on_delete=models.CASCADE)
     data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
-    source = models.ForeignKey(settings.AUTH_USER_MODEL)
+    source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryProviderTask')
 
     def __str__(self):

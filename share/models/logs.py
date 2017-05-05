@@ -130,7 +130,7 @@ class AbstractBaseLog(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True, editable=False, db_index=True)
 
-    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='harvest_logs')
+    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='harvest_logs', on_delete=models.CASCADE)
 
     share_version = models.TextField(default=get_share_version, editable=False)
     source_config_version = models.PositiveIntegerField()

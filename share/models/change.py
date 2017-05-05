@@ -81,7 +81,7 @@ class ChangeSet(models.Model):
 
     status = models.IntegerField(choices=STATUS, default=STATUS.pending)
     submitted_at = models.DateTimeField(auto_now_add=True)
-    normalized_data = models.ForeignKey(NormalizedData)
+    normalized_data = models.ForeignKey(NormalizedData, on_delete=models.CASCADE)
 
     _changes_cache = []
 
@@ -126,17 +126,17 @@ class Change(models.Model):
 
     type = models.IntegerField(choices=TYPE, editable=False)
     # The non-concrete type that this change has made
-    model_type = models.ForeignKey(ContentType, related_name='+', db_index=False)
+    model_type = models.ForeignKey(ContentType, related_name='+', db_index=False, on_delete=models.CASCADE)
 
     target_id = models.PositiveIntegerField(null=True)
     target = GenericForeignKey('target_type', 'target_id')
-    target_type = models.ForeignKey(ContentType, related_name='target_%(class)s')
+    target_type = models.ForeignKey(ContentType, related_name='target_%(class)s', on_delete=models.CASCADE)
 
-    target_version_type = models.ForeignKey(ContentType, related_name='target_version_%(class)s', db_index=False)
+    target_version_type = models.ForeignKey(ContentType, related_name='target_version_%(class)s', db_index=False, on_delete=models.CASCADE)
     target_version_id = models.PositiveIntegerField(null=True, db_index=False)
     target_version = GenericForeignKey('target_version_type', 'target_version_id')
 
-    change_set = models.ForeignKey(ChangeSet, related_name='changes')
+    change_set = models.ForeignKey(ChangeSet, related_name='changes', on_delete=models.CASCADE)
 
     class Meta:
         ordering = ('pk', )
@@ -150,7 +150,7 @@ class Change(models.Model):
         if save:
             # Psuedo hack, sources.add(...) tries to do some safety checks.
             # Don't do that. We have a database. That is its job. Let it do its job.
-            through_meta = ret._meta.get_field('sources').rel.through._meta
+            through_meta = ret._meta.get_field('sources').remote_field.through._meta
 
             with connection.cursor() as cursor:
                 cursor.execute('''

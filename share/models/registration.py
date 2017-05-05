@@ -16,7 +16,7 @@ class ProviderRegistration(models.Model):
 
     status = models.IntegerField(choices=STATUS, default=STATUS.pending)
     submitted_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     contact_name = models.TextField(max_length=300)
     contact_email = models.EmailField()

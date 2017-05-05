@@ -29,6 +29,15 @@ class ShareObjectVersion(models.Model):
     class Meta:
         abstract = True
         ordering = ('-date_modified', )
+        base_manager_name = 'objects'
+
+    def __repr__(self):
+        return '<{type}({id}, of {persistent_id} at {date_modified})>'.format(
+            type=type(self).__name__,
+            id=self.id,
+            persistent_id=self.persistent_id_id,
+            date_modified=self.date_modified,
+        )
 
 
 # Generates 2 class from the original definition of the model
@@ -63,7 +72,7 @@ class ShareObjectMeta(ModelBase):
                 if isinstance(val, (fields.ShareForeignKey, fields.ShareManyToManyField, fields.ShareOneToOneField)):
                     val._kwargs = {**val._kwargs, 'related_name': '+', 'db_index': False}
             if key == 'Meta':
-                val = type('VersionMeta', (val, ), {'unique_together': None, 'db_table': val.db_table + 'version' if hasattr(val, 'db_table') else None})
+                val = type('VersionMeta', (val, ShareObjectVersion.Meta), {'unique_together': None, 'db_table': val.db_table + 'version' if hasattr(val, 'db_table') else None})
             version_attrs[key] = val
 
         # TODO Fix this in some non-horrid fashion
@@ -74,7 +83,7 @@ class ShareObjectMeta(ModelBase):
             **version_attrs,
             **cls.share_attrs,
             **{k: v() for k, v in cls.share_attrs.items()},  # Excluded sources from versions. They never get filled out
-            'persistent_id': models.ForeignKey(name, db_column='persistent_id', related_name='+', on_delete=DATABASE_CASCADE),
+            'persistent_id': models.ForeignKey(name, db_column='persistent_id', related_name='versions', on_delete=DATABASE_CASCADE),
             '__qualname__': attrs['__qualname__'] + 'Version',
             'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
         })
@@ -123,41 +132,10 @@ class TypedShareObjectMeta(ShareObjectMeta, typedmodels.TypedModelMetaclass):
         return super(TypedShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 
 
-class VersionManagerDescriptor:
-
-    def __init__(self, model):
-        self.model = model
-
-    def __get__(self, instance, type=None):
-        if instance is not None:
-            return VersionManager(self.model, instance)
-        return VersionManager(self.model, instance)
-
-
-class VersionManager(FuzzyCountManager):
-
-    def __init__(self, model=None, instance=None):
-        super().__init__()
-        self.model = model
-        self.instance = instance
-
-    def get_queryset(self):
-        qs = self._queryset_class(model=self.model.VersionModel, using=self._db, hints=self._hints).order_by('-date_modified')
-        if self.instance:
-            return qs.filter(persistent_id=self.instance.id)
-        return qs
-
-    def contribute_to_class(self, model, name):
-        super().contribute_to_class(model, name)
-        if not model._meta.abstract:
-            setattr(model, name, VersionManagerDescriptor(model))
-
-
 class ExtraData(models.Model, metaclass=ShareObjectMeta):
     data = fields.DateTimeAwareJSONField(default=dict)
 
     objects = FuzzyCountManager()
-    versions = VersionManager()
 
     class Meta:
         abstract = False
@@ -166,11 +144,11 @@ class ExtraData(models.Model, metaclass=ShareObjectMeta):
 class ShareObject(models.Model, metaclass=ShareObjectMeta):
     id = models.AutoField(primary_key=True)
     objects = ShareObjectManager()
-    versions = VersionManager()
     changes = fields.GenericRelationNoCascade('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=True)
 
     class Meta:
         abstract = True
+        base_manager_name = 'objects'
 
     def administrative_change(self, **kwargs):
         from share.models import Change
@@ -254,7 +232,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
             if not pk_set:
                 fields = [f for f in fields if not isinstance(f, AutoField)]
 
-            update_pk = bool(meta.has_auto_field and not pk_set)
+            update_pk = bool(meta.auto_field is not None and not pk_set)
             result = self._do_insert(cls._base_manager, using, fields, update_pk, raw)
             if update_pk:
                 ### ACTUAL CHANGE HERE ###
