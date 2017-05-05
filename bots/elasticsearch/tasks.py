@@ -6,7 +6,6 @@ import celery
 
 from django.apps import apps
 from django.conf import settings
-from django.db.models import Max
 from django.db.models import Min
 
 from elasticsearch import helpers
@@ -176,8 +175,6 @@ def pseudo_bisection_method(self, min_date, max_date):
     If counts differ, split the date range in half and check counts in smaller ranges
     Pseudo binary because it can't throw away half the results based on the middle value
     '''
-    from bots.elasticsearch.bot import ElasticSearchBot
-
     MAX_DB_COUNT = 500
     MIN_MISSING_RATIO = 0.7
 
