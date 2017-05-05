@@ -1,4 +1,5 @@
 from hashlib import sha256
+import contextlib
 import logging
 
 from stevedore import driver
@@ -15,7 +16,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
-from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models.fuzzycount import FuzzyCountManager
 from share.util import chunked
 
@@ -109,6 +109,14 @@ class SourceConfig(models.Model):
     # Allow null for push sources
     harvester = models.ForeignKey('Harvester', null=True, on_delete=models.CASCADE)
     harvester_kwargs = JSONField(null=True, blank=True)
+    harvest_interval = models.DurationField(default='1 day')
+    harvest_after = models.TimeField(default='02:00')
+    full_harvest = models.BooleanField(default=False, help_text=(
+        'Whether or not this SourceConfig should be fully harvested. '
+        'Requires earliest_date to be set. '
+        'The schedule harvests task will create all logs necessary if this flag is set. '
+        'This should never be set to True by default. '
+    ))
 
     # Allow null for push sources
     # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
@@ -122,21 +130,34 @@ class SourceConfig(models.Model):
     def natural_key(self):
         return (self.label,)
 
-    def get_harvester(self):
-        return self.harvester.get_class()(self, **(self.harvester_kwargs or {}))
+    def get_harvester(self, **kwargs):
+        return self.harvester.get_class()(self, **{**kwargs, **(self.harvester_kwargs or {})})
 
     def get_transformer(self):
         return self.transformer.get_class()(self, **(self.transformer_kwargs or {}))
 
-    def acquire_lock(self, using='locking'):
+    @contextlib.contextmanager
+    def acquire_lock(self, required=True, using='default'):
+        from share.harvest.exceptions import HarvesterConcurrencyError
+
         # NOTE: Must be in transaction
         logger.debug('Attempting to lock %r', self)
         with connections[using].cursor() as cursor:
-            cursor.execute("SELECT pg_try_advisory_xact_lock(%s::regclass::integer, %s);", (self._meta.db_table, self.id))
-            if not cursor.fetchone()[0]:
+            cursor.execute("SELECT pg_try_advisory_lock(%s::regclass::integer, %s);", (self._meta.db_table, self.id))
+            locked = cursor.fetchone()[0]
+            if not locked and required:
                 logger.warning('Lock failed; another task is already harvesting %r.', self)
                 raise HarvesterConcurrencyError('Unable to lock {!r}'.format(self))
-            logger.debug('Lock acquired on %r', self)
+            elif locked:
+                logger.debug('Lock acquired on %r', self)
+            else:
+                logger.warning('Lock not acquired on %r', self)
+            try:
+                yield
+            finally:
+                if locked:
+                    cursor.execute("SELECT pg_advisory_unlock(%s::regclass::integer, %s);", (self._meta.db_table, self.id))
+                    logger.debug('Lock released on %r', self)
 
     def find_missing_dates(self):
         from share.models import HarvestLog

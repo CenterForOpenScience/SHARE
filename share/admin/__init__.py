@@ -1,18 +1,11 @@
-import ast
 import datetime
-import importlib
 from furl import furl
 
-import celery
-
 from django import forms
-from django.apps import apps
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
-from django.contrib.admin.views.main import ChangeList
 from django.contrib.admin.widgets import AdminDateWidget
-from django.core import management
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -21,21 +14,23 @@ from django.utils.html import format_html
 
 from oauth2_provider.models import AccessToken
 
+from share import tasks
+from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.share_objects import CreativeWorkAdmin
+from share.harvest.scheduler import HarvestScheduler
 from share.models.banner import SiteBanner
-from share.models.celery import CeleryTask
+from share.models.celery import CeleryTaskResult
 from share.models.change import ChangeSet
 from share.models.core import NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
 from share.models.logs import HarvestLog
 from share.models.registration import ProviderRegistration
-from share.robot import RobotAppConfig
-from share.tasks import HarvesterTask
 
 
 admin.site.register(AbstractCreativeWork, CreativeWorkAdmin)
+admin.site.register(CeleryTaskResult, CeleryTaskResultAdmin)
 
 
 class NormalizedDataAdmin(admin.ModelAdmin):
@@ -73,81 +68,6 @@ class ChangeSetAdmin(admin.ModelAdmin):
 
     def status_(self, obj):
         return ChangeSet.STATUS[obj.status].title()
-
-
-class AppLabelFilter(admin.SimpleListFilter):
-    title = 'App Label'
-    parameter_name = 'app_label'
-
-    def lookups(self, request, model_admin):
-        return sorted([
-            (config.label, config.label)
-            for config in apps.get_app_configs()
-            if isinstance(config, RobotAppConfig)
-        ])
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(app_label=self.value())
-        return queryset
-
-
-class TaskNameFilter(admin.SimpleListFilter):
-    title = 'Task'
-    parameter_name = 'task'
-
-    def lookups(self, request, model_admin):
-        return sorted(
-            (key, key)
-            for key in celery.current_app.tasks.keys()
-            if key.startswith('share.')
-        )
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(name=self.value())
-        return queryset
-
-
-class CeleryTaskChangeList(ChangeList):
-    def get_ordering(self, request, queryset):
-        return ['-timestamp']
-
-
-class CeleryTaskAdmin(admin.ModelAdmin):
-    list_display = ('timestamp', 'name', 'status', 'provider', 'app_label', 'started_by')
-    actions = ['retry_tasks']
-    list_filter = ['status', TaskNameFilter, AppLabelFilter, 'started_by']
-    list_select_related = ('provider', 'started_by')
-    fields = (
-        ('app_label', 'app_version'),
-        ('started_by', 'provider'),
-        ('uuid', 'name'),
-        ('args', 'kwargs'),
-        'timestamp',
-        'status',
-        'traceback',
-    )
-    readonly_fields = ('name', 'uuid', 'args', 'kwargs', 'status', 'app_version', 'app_label', 'timestamp', 'status', 'traceback', 'started_by', 'provider')
-
-    def traceback(self, task):
-        return apps.get_model('djcelery', 'taskmeta').objects.filter(task_id=task.uuid).first().traceback
-
-    def get_changelist(self, request, **kwargs):
-        return CeleryTaskChangeList
-
-    def retry_tasks(self, request, queryset):
-        for task in queryset:
-            task_id = str(task.uuid)
-            parts = task.name.rpartition('.')
-            Task = getattr(importlib.import_module(parts[0]), parts[2])
-            if task.app_label:
-                args = (task.started_by.id, task.app_label) + ast.literal_eval(task.args)
-            else:
-                args = (task.started_by.id,) + ast.literal_eval(task.args)
-            kwargs = ast.literal_eval(task.kwargs)
-            Task().apply_async(args, kwargs, task_id=task_id)
-    retry_tasks.short_description = 'Retry tasks'
 
 
 class RawDatumAdmin(admin.ModelAdmin):
@@ -210,6 +130,7 @@ class HarvestLogAdmin(admin.ModelAdmin):
         HarvestLog.STATUS.forced: 'maroon',
         HarvestLog.STATUS.skipped: 'orange',
         HarvestLog.STATUS.retried: 'darkseagreen',
+        HarvestLog.STATUS.cancelled: 'grey',
     }
 
     def source(self, obj):
@@ -235,10 +156,7 @@ class HarvestLogAdmin(admin.ModelAdmin):
 
     def restart_tasks(self, request, queryset):
         for log in queryset.select_related('source_config'):
-            HarvesterTask().apply_async((1, log.source_config.label), {
-                'end': log.end_date.isoformat(),
-                'start': log.start_date.isoformat(),
-            }, task_id=log.task_id, restarted=True)
+            tasks.harvest.apply_async({'log_id': log.id}, task_id=log.task_id)
     restart_tasks.short_description = 'Restart selected tasks'
 
     def harvest_log_actions(self, obj):
@@ -300,20 +218,11 @@ class SourceConfigAdmin(admin.ModelAdmin):
         if request.method == 'POST':
             form = HarvestForm(request.POST)
             if form.is_valid():
-                kwargs = {
-                    'start': form.cleaned_data['start'],
-                    'end': form.cleaned_data['end'],
-                    'superfluous': form.cleaned_data['superfluous'],
-                    'async': True,
-                    'quiet': True,
-                    'ignore_disabled': True,
-                }
-                management.call_command('fullharvest', config.label, **kwargs)
+                for log in HarvestScheduler(config).range(form.cleaned_data['start'], form.cleaned_data['end']):
+                    tasks.harvest.apply_async((), {'log_id': log.id, 'superfluous': form.cleaned_data['superfluous']})
+
                 self.message_user(request, 'Started harvesting {}!'.format(config.label))
-                url = reverse(
-                    'admin:share_harvestlog_changelist',
-                    current_app=self.admin_site.name,
-                )
+                url = reverse('admin:share_harvestlog_changelist', current_app=self.admin_site.name)
                 return HttpResponseRedirect(url)
         else:
             initial = {'start': config.earliest_date, 'end': timezone.now().date()}
@@ -406,7 +315,6 @@ class SourceAdmin(admin.ModelAdmin):
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
-admin.site.register(CeleryTask, CeleryTaskAdmin)
 admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(HarvestLog, HarvestLogAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)

@@ -1,14 +1,18 @@
 from unittest import mock
 import datetime
-import pkg_resources
 import hashlib
+import pkg_resources
+import uuid
 
 import stevedore
 
 import factory
+from factory import fuzzy
 from factory.django import DjangoModelFactory
 
 from django.utils import timezone
+
+from project import celery_app
 
 from share import models
 from share.harvest import BaseHarvester
@@ -40,6 +44,14 @@ class SourceFactory(DjangoModelFactory):
         model = models.Source
 
 
+class ListGenerator(list):
+
+    def __call__(self, *args, **kwargs):
+        if hasattr(self, 'side_effect'):
+            raise self.side_effect
+        return (x for x in self)
+
+
 class HarvesterFactory(DjangoModelFactory):
     key = factory.Faker('bs')
 
@@ -54,7 +66,7 @@ class HarvesterFactory(DjangoModelFactory):
             KEY = self.key
             VERSION = 1
 
-            do_harvest = mock.Mock(return_value=[])
+            _do_fetch = ListGenerator()
 
         mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
         mock_entry.name = self.key
@@ -137,3 +149,12 @@ class RawDatumFactory(DjangoModelFactory):
             attrs['sha256'] = hashlib.sha256(attrs.get('datum', '').encode()).hexdigest()
 
         return super()._generate(create, attrs)
+
+
+class CeleryTaskResultFactory(DjangoModelFactory):
+    task_id = factory.Sequence(lambda x: uuid.uuid4())
+    task_name = fuzzy.FuzzyChoice(list(celery_app.tasks.keys()))
+    status = fuzzy.FuzzyChoice(list(zip(*models.CeleryTaskResult._meta.get_field('status').choices))[0])
+
+    class Meta:
+        model = models.CeleryTaskResult

@@ -28,13 +28,13 @@ class OAIHarvester(BaseHarvester):
     set_spec = None
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        self.metadata_prefix = kwargs.pop('metadata_prefix')
+        self.time_granularity = kwargs.pop('time_granularity', self.time_granularity)
+        self.from_param = kwargs.pop('from_param', self.from_param)
+        self.until_param = kwargs.pop('until_param', self.until_param)
+        self.set_spec = kwargs.pop('set_spec', self.set_spec)
 
-        self.metadata_prefix = kwargs.get('metadata_prefix')
-        self.time_granularity = kwargs.get('time_granularity', self.time_granularity)
-        self.from_param = kwargs.get('from_param', self.from_param)
-        self.until_param = kwargs.get('until_param', self.until_param)
-        self.set_spec = kwargs.get('set_spec', self.set_spec)
+        super().__init__(*args, **kwargs)
 
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, set_spec=None) -> list:
         url = furl(self.config.base_url)

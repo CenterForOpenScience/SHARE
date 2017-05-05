@@ -1,5 +1,4 @@
 import random
-import uuid
 from datetime import timezone
 
 import factory
@@ -9,14 +8,6 @@ from factory.django import DjangoModelFactory
 from django.contrib.contenttypes.models import ContentType
 
 from share import models
-
-
-class CeleryProviderTaskFactory(DjangoModelFactory):
-    uuid = str(uuid.uuid4())
-    status = 1
-
-    class Meta:
-        model = models.CeleryProviderTask
 
 
 class ShareUserFactory(DjangoModelFactory):

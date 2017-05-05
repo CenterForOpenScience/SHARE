@@ -27,7 +27,7 @@ if [ -n "$FORCE" ]; then
   echo "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'share' AND pid <> pg_backend_pid();" | python manage.py dbshell
 fi
 
-python manage.py celery purge -f || true;
+celery -A project purge -f 2>/dev/null || true;
 python manage.py reset_db --noinput
 python manage.py migrate
 python manage.py addsubjects ./share/models/subjects.json

@@ -15,8 +15,6 @@ import subprocess
 
 from django.utils.log import DEFAULT_LOGGING
 
-from kombu import Queue, Exchange
-
 from celery.schedules import crontab
 
 # Suppress select django deprecation messages
@@ -62,8 +60,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
 
-    'djcelery',
-    # 'guardian',
+    'django_celery_beat',
+
     'django_filters',
     'django_extensions',
     'oauth2_provider',
@@ -84,7 +82,6 @@ INSTALLED_APPS = [
     'share',
     'api',
 
-    'bots.archive',
     'bots.elasticsearch',
 ]
 
@@ -206,16 +203,6 @@ DATABASES = {
         'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE')) if os.environ.get('CONN_MAX_AGE') else None,
         'TEST': {'SERIALIZE': False},
     },
-    'locking': {
-        'ENGINE': 'db.backends.postgresql',
-        'NAME': os.environ.get('DATABASE_NAME', 'share'),
-        'USER': os.environ.get('DATABASE_USER', 'postgres'),
-        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
-        'PORT': os.environ.get('DATABASE_PORT', '5432'),
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
-        'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE')) if os.environ.get('CONN_MAX_AGE') else None,
-        'TEST': {'MIRROR': 'default', 'SERIALIZE': False},
-    }
 }
 
 
@@ -279,13 +266,9 @@ PASSWORD_HASHERS = [
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -293,10 +276,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATICFILES_DIRS = (
-    os.path.join(
-        os.path.dirname(__file__),
-        'static'
-    ),
+    os.path.join(os.path.dirname(__file__), 'static'),
 )
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -317,79 +297,58 @@ CELERY_RETRY_BACKOFF_BASE = int(os.environ.get('CELERY_RETRY_BACKOFF_BASE', 2 if
 
 # Celery Settings
 
-BROKER_URL = os.environ.get('BROKER_URL', 'amqp://'),
-
 CELERY_TIMEZONE = 'UTC'
-CELERYBEAT_SCHEDULE = {
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://'),
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULE = {
+    # Once a minute
+    'Update Search': {
+        'task': 'bots.elasticsearch.tasks.update_elasticsearch',
+        'schedule': 60,
+    },
+    # Every 2 minutes
+    'Harvest Task': {
+        'task': 'share.tasks.harvest',
+        'schedule': 120,
+    },
     # Executes daily at 11:30 P.M
-    'es-janitor-task': {
-        'task': 'bots.elasticsearch.tasks.JanitorTask',
+    'Elasticsearch Janitor': {
+        'task': 'bots.elasticsearch.tasks.elasticsearch_janitor',
         'schedule': crontab(hour=23, minute=30),
-        'args': (1, 'elasticsearch'),
     },
-}
 
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_ACCEPT_CONTENT = ['json']
-
-CELERY_ACKS_LATE = True
-# CELERY_TRACK_STARTED = True
-CELERY_RESULT_PERSISTENT = True
-# CELERY_SEND_EVENTS = True
-# CELERY_SEND_TASK_SENT_EVENT = True
-CELERY_LOADER = 'djcelery.loaders.DjangoLoader'
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
-CELERY_RESULT_BACKEND = 'share.celery:DatabaseBackend'
-
-# Celery Queues
-QUEUES = {
-    'DEFAULT': {
-        'name': 'celery',
-        'priority': 0,
-        'modules': set(),
-    },
-    'GEVENT': {
-        'name': 'gevent',
-        'priority': 0,
-        'modules': {'bots.elasticsearch', },
-    },
-    'LOW': {
-        'name': 'low',
-        'priority': -10,
-        'modules': {'share.tasks.HarvesterTask', },
-    },
-    'MED': {
-        'name': 'med',
-        'priority': 20,
-        'modules': {'share.tasks.DisambiguatorTask', },
-    },
-    'HIGH': {
-        'name': 'high',
-        'priority': 30,
-        'modules': {'share.tasks.BotTask', },
-    },
-    'BACKHARVEST': {
-        'name': 'backharvest',
-        'priority': -20,
-        'modules': set(),
+    # Once an hour
+    'Schedule Harvests': {
+        'task': 'share.tasks.schedule_harvests',
+        'schedule': crontab(minute=0)
     }
 }
 
-CELERY_QUEUES = tuple(
-    Queue(
-        v['name'],
-        Exchange(v['name']),
-        routing_key=v['name'],
-        consumer_arguments={'x-priority': v['priority']}
-    ) for v in QUEUES.values()
-)
+CELERY_RESULT_EXPIRES = 60 * 60 * 24 * 3  # 4 days
+CELERY_RESULT_BACKEND = 'share.celery:CeleryDatabaseBackend'
 
-CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
-CELERY_ROUTES = ('share.celery.CeleryRouter', )
-CELERY_IGNORE_RESULT = True
-CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+# Don't reject tasks that were present on a worker when it was killed
+CELERY_TASK_REJECT_ON_WORKER_LOST = False
+
+# Don't remove tasks from RabbitMQ until they are finished
+CELERY_TASK_ACKS_LATE = True
+
+CELERY_TASK_TRACK_STARTED = True
+
+CELERY_TASK_DEFAULT_QUEUE = 'share_default'
+CELERY_TASK_DEFAULT_EXCHANGE = 'share_default'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'share_default'
+
+CELERY_TASK_ROUTES = {
+    'bots.elasticsearch.*': {'priority': 50, 'queue': 'elasticsearch'},
+    'share.tasks.harvest': {'priority': 0, 'queue': 'harvest'},
+    'share.tasks.transform': {'priority': 20, 'queue': 'transform'},
+    'share.tasks.disambiguate': {'priority': 20, 'queue': 'disambiguate'},
+}
+
+CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}
+CELERY_TASK_QUEUES[CELERY_TASK_DEFAULT_QUEUE] = {}
 
 # Logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
@@ -495,9 +454,6 @@ CELERY_TASK_BUCKET_NAME = os.environ.get('CELERY_TASK_BUCKET_NAME')
 CELERY_TASK_FOLDER_NAME = os.environ.get('CELERY_TASK_FOLDER_NAME')  # top level folder (e.g. prod, staging)
 
 
-import djcelery  # noqa
-djcelery.setup_loader()
-
 if DEBUG and os.environ.get('TOOLBAR', False):
     INSTALLED_APPS += ('debug_toolbar', )
     MIDDLEWARE += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
@@ -505,3 +461,6 @@ if DEBUG and os.environ.get('TOOLBAR', False):
         'SHOW_TOOLBAR_CALLBACK': lambda _: True
     }
     ALLOWED_HOSTS.append('localhost')
+
+if DEBUG and os.environ.get('PROF', False):
+    MIDDLEWARE += ('api.middleware.ProfileMiddleware', )

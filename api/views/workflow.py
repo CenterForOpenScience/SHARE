@@ -15,8 +15,8 @@ from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
     RawDatumSerializer, ShareUserSerializer, SourceSerializer
 from share.models import RawDatum, NormalizedData, Source, SourceConfig, Transformer
-from share.tasks import DisambiguatorTask
-from share.harvest.base import BaseHarvester
+from share.tasks import disambiguate
+from share.harvest.serialization import DictSerializer
 
 
 __all__ = ('NormalizedDataViewSet', 'RawDatumViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
@@ -91,7 +91,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             nm_instance = serializer.save()
-            async_result = DisambiguatorTask().delay(request.user.id, nm_instance.id)
+            async_result = disambiguate.delay(nm_instance.id)
             # TODO Fix Me
             return Response({
                 'id': nm_instance.id,
@@ -216,7 +216,7 @@ class V1DataView(views.APIView):
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
             config = self._get_source_config(request.user)
-            raw = RawDatum.objects.store_data(doc_id, BaseHarvester.encode_json(self, prelim_data), config)
+            raw = RawDatum.objects.store_data(doc_id, DictSerializer(pretty=False).serialize(prelim_data), config)
 
         transformed_data = config.get_transformer().transform(raw.datum)
         data = {}
@@ -225,10 +225,9 @@ class V1DataView(views.APIView):
 
         if serializer.is_valid():
             nm_instance = serializer.save()
-            async_result = DisambiguatorTask().delay(request.user.id, nm_instance.id)
+            async_result = disambiguate.delay(nm_instance.id)
             return Response({'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
-        else:
-            return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
     def _get_source_config(self, user):
         config_label = '{}.v1_push'.format(user.username)
