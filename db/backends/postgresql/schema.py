@@ -8,6 +8,8 @@ class DatabaseSchemaEditor(PostgresDatabaseSchemaEditor):
     ON_DELETE_DEFAULT = 'NO ACTION'
     ON_UPDATE_DEFAULT = 'NO ACTION'
 
+    sql_create_index_concurrently = 'CREATE INDEX CONCURRENTLY %(name)s ON %(table)s (%(columns)s)%(extra)s'
+
     sql_create_fk = (
         'ALTER TABLE {table} ADD CONSTRAINT {name} FOREIGN KEY ({column}) '
         'REFERENCES {to_table} ({to_column}) ON DELETE {on_delete} ON UPDATE {on_update}{deferrable}'  # deferrable happens to always have a space in front of it
