@@ -1,6 +1,8 @@
 import logging
 import re
+
 import pendulum
+import celery
 
 from django.apps import apps
 from django.conf import settings
@@ -138,67 +140,71 @@ class IndexSourceTask(AppTask):
         }
 
 
+def check_counts_in_range(self, min_date, max_date):
+    partial_database_count = CreativeWork.objects.exclude(title='').exclude(is_deleted=True).filter(
+        date_created__range=[min_date, max_date]
+    ).count()
+    partial_es_count = self.es_client.count(
+        index=(self.es_index or settings.ELASTICSEARCH_INDEX),
+        doc_type='creativeworks',
+        body={
+            'query': {
+                'range': {
+                    'date_modified': {
+                        'gte': '{}'.format(min_date.isoformat()),
+                        'lte': '{}'.format(max_date.isoformat())
+                    }
+                }
+            }
+        }
+    )['count']
+    return (partial_database_count == partial_es_count, partial_database_count, partial_es_count)
+
+
+def get_date_range_parts(min_date, max_date):
+    middle_date = min_date.average(max_date)
+    return {
+        'first_half': {'min_date': min_date, 'max_date': middle_date},
+        'second_half': {'min_date': middle_date, 'max_date': max_date}
+    }
+
+
+@celery.task
+def pseudo_bisection_method(self, min_date, max_date):
+    '''
+    Checks if the database count matches the ES count
+    If counts differ, split the date range in half and check counts in smaller ranges
+    Pseudo binary because it can't throw away half the results based on the middle value
+    '''
+    from bots.elasticsearch.bot import ElasticSearchBot
+
+    MAX_DB_COUNT = 500
+    MIN_MISSING_RATIO = 0.7
+
+    counts_match, db_count, es_count = check_counts_in_range(self, min_date, max_date)
+
+    if counts_match:
+        return
+    if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
+        logger.info('Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'), es_count, db_count)
+        logger.info('Reindexing records created from %s to %s.', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'))
+
+        bot = apps.get_app_config('elasticsearch').get_bot(
+            ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
+            es_filter={'date_created__range': [min_date.isoformat(), max_date.isoformat()]},
+        )
+        bot.run()
+        return
+
+    for key, value in get_date_range_parts(min_date, max_date).items():
+        pseudo_bisection_method.apply_async((self, value['min_date'], value['max_date']))
+
+
 class JanitorTask(AppTask):
     '''
     Looks for discrepancies between postgres and elastic search numbers
     Re-indexes time periods that differ in count
     '''
-    def check_counts_in_range(self, min_date, max_date):
-        partial_database_count = CreativeWork.objects.exclude(title='').exclude(is_deleted=True).filter(
-            date_created__range=[min_date, max_date]
-        ).count()
-        partial_es_count = self.es_client.count(
-            index=(self.es_index or settings.ELASTICSEARCH_INDEX),
-            doc_type='creativeworks',
-            body={
-                'query': {
-                    'range': {
-                        'date_modified': {
-                            'gte': '{}'.format(min_date.isoformat()),
-                            'lte': '{}'.format(max_date.isoformat())
-                        }
-                    }
-                }
-            }
-        )['count']
-        return (partial_database_count == partial_es_count, partial_database_count, partial_es_count)
-
-    def get_date_range_parts(self, min_date, max_date):
-        middle_date = min_date.average(max_date)
-        return {
-            'first_half': {'min_date': min_date, 'max_date': middle_date},
-            'second_half': {'min_date': middle_date, 'max_date': max_date}
-        }
-
-    def pseudo_bisection_method(self, min_date, max_date):
-        '''
-        Checks if the database count matches the ES count
-        If counts differ, split the date range in half and check counts in smaller ranges
-        Pseudo binary because it can't throw away half the results based on the middle value
-        '''
-        from bots.elasticsearch.bot import ElasticSearchBot
-
-        MAX_DB_COUNT = 500
-        MIN_MISSING_RATIO = 0.7
-
-        counts_match, db_count, es_count = self.check_counts_in_range(min_date, max_date)
-
-        if counts_match:
-            return
-        if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
-            logger.info('Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'), es_count, db_count)
-            logger.info('Reindexing records created from %s to %s.', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'))
-
-            bot = apps.get_app_config('elasticsearch').get_bot(
-                ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
-                es_filter={'date_created__range': [min_date.isoformat(), max_date.isoformat()]},
-            )
-            bot.run()
-            return
-
-        for key, value in self.get_date_range_parts(min_date, max_date).items():
-            self.pseudo_bisection_method(value['min_date'], value['max_date'])
-
     def do_run(self, es_url=None, es_index=None):
         self.es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
         self.es_index = es_index
@@ -207,4 +213,4 @@ class JanitorTask(AppTask):
         min_date = pendulum.instance(CreativeWork.objects.all().aggregate(Min('date_created'))['date_created__min'])
         max_date = pendulum.utcnow()
 
-        self.pseudo_bisection_method(min_date, max_date)
+        pseudo_bisection_method.apply_async((self, min_date, max_date))
