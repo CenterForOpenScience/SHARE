@@ -165,7 +165,7 @@ class ElasticSearchBot(Bot):
         resp = self.es_client.search(
             index=(self.es_index or settings.ELASTICSEARCH_INDEX),
             doc_type='creativeworks',
-            body='{"sort": {"date_modified": "desc"}}'
+            body='{"sort": {"date_modified": "desc"}, "size": 1}'
         )
         return resp['hits']['hits'][0]['_source']['date_modified']
 
