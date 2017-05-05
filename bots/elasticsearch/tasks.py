@@ -145,7 +145,7 @@ class JanitorTask(AppTask):
     '''
     def check_counts_in_range(self, min_date, max_date):
         partial_database_count = CreativeWork.objects.exclude(title='').exclude(is_deleted=True).filter(
-            date_created__range=[min_date.isoformat(), max_date.isoformat()]
+            date_created__range=[min_date, max_date]
         ).count()
         partial_es_count = self.es_client.count(
             index=(self.es_index or settings.ELASTICSEARCH_INDEX),
@@ -178,13 +178,16 @@ class JanitorTask(AppTask):
         '''
         from bots.elasticsearch.bot import ElasticSearchBot
 
+        MAX_DB_COUNT = 500
+        MIN_MISSING_RATIO = 0.7
+
         counts_match, db_count, es_count = self.check_counts_in_range(min_date, max_date)
 
         if counts_match:
             return
-        if db_count <= 500:
-            logger.info('Counts for {} to {} do not match. {} creativeworks in ES, {} creativeworks in database.'.format(min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'), es_count, db_count))
-            logger.info('Reindexing records created from {} to {}.'.format(min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p')))
+        if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
+            logger.info('Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'), es_count, db_count)
+            logger.info('Reindexing records created from %s to %s.', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'))
 
             bot = apps.get_app_config('elasticsearch').get_bot(
                 ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
@@ -200,9 +203,8 @@ class JanitorTask(AppTask):
         self.es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
         self.es_index = es_index
 
-        # get range of date_created in database
-        postgres_high_low = CreativeWork.objects.all().aggregate(lowest=Min('date_created'), highest=Max('date_created'))
-        min_date = pendulum.instance(postgres_high_low['lowest'])
-        max_date = pendulum.instance(postgres_high_low['highest'])
+        # get range of date_created in database; assumes current time is the max
+        min_date = pendulum.instance(CreativeWork.objects.all().aggregate(Min('date_created'))['date_created__min'])
+        max_date = pendulum.utcnow()
 
         self.pseudo_bisection_method(min_date, max_date)
