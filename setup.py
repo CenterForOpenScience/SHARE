@@ -1,14 +1,25 @@
+import subprocess
+
 from setuptools import setup, find_packages
+
+
+try:
+    __version__ = subprocess.check_output(['git', 'describe']).decode().strip().split('-')[0]
+except subprocess.CalledProcessError:
+    __version__ = '0.0.0'
 
 setup(
     name='share',
-    scripts=['bin/share'],
+    version=__version__,
     packages=find_packages(exclude=('tests*')),
     provides=[
         'share.transformers',
         'share.harvesters'
     ],
     entry_points={
+        'console_scripts': [
+            'sharectl = share.bin.__main__:main',
+        ],
         'share.transformers': [
             'ca.lwbin = share.transformers.ca_lwbin:LWBINTransformer',
             'com.biomedcentral = share.transformers.com_biomedcentral:BioMedCentralTransformer',

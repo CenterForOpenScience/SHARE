@@ -1,4 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
+
+from share import tasks  # noqa
 from share.models import RawDatum
 from share.util import IDObfuscator
 

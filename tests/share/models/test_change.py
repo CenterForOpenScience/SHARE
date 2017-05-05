@@ -10,7 +10,7 @@ from share.models import Person
 from share.models import Tag
 from share.models.change import Change
 from share.models.change import ChangeSet
-from share.tasks import DisambiguatorTask
+from share import tasks
 from share.util import IDObfuscator
 
 from tests import factories
@@ -177,13 +177,13 @@ class TestChangeGraph:
 
         assert work.sources.count() == 0
 
-        DisambiguatorTask().apply((1, nd1.id))
+        tasks.disambiguate(nd1.id)
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'
         assert work.sources.count() == 1
 
-        DisambiguatorTask().apply((1, nd2.id))
+        tasks.disambiguate(nd2.id)
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'

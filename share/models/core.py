@@ -186,7 +186,7 @@ class NormalizedData(models.Model):
     raw = models.ForeignKey('RawDatum', null=True, on_delete=models.CASCADE)
     data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    tasks = models.ManyToManyField('CeleryProviderTask')
+    tasks = models.ManyToManyField('CeleryTaskResult')
 
     def __str__(self):
         return '{} created at {}'.format(self.source.get_short_name(), self.created_at)
