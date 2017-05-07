@@ -37,16 +37,16 @@ def sanitize_for_xml(s):
 def parse_date(s):
     if not s:
         return None
-    s = s.replace('+00:', '00')
-    try:
-        return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S.%f%z')
-    except ValueError:
-        pass
-    try:
-        return datetime.datetime.strptime(s, '%Y-%m-%dT%H:%M:%S%z')
-    except ValueError:
-        pass
-    logger.warning('Could not parse data %s', s)
+
+    # strptime can't parse +00:00
+    s = re.sub(r'\+(\d\d):(\d\d)', r'+\1\2', s)
+
+    for date_fmt in ('%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%f%z'):
+        try:
+            return datetime.datetime.strptime(s, date_fmt)
+        except ValueError:
+            pass
+    logger.error('Could not parse date "%s"', s)
     return None
 
 
@@ -60,15 +60,24 @@ class CreativeWorksRSS(Feed):
         return sanitize_for_xml('SHARE: Atom feed for query: {}'.format(query))
 
     def get_object(self, request):
+        self._order = request.GET.get('order')
         elastic_query = request.GET.get('elasticQuery')
 
+        if self._order not in {'date_modified', 'date_updated'}:
+            self._order = 'date_modified'
+
         elastic_data = {
-            'sort': {'date_modified': 'desc'},
+            'sort': {self._order: 'desc'},
             'from': request.GET.get('from', 0),
             'size': RESULTS_PER_PAGE
         }
+
         if elastic_query:
-            elastic_data['query'] = json.loads(elastic_query)
+            try:
+                elastic_data['query'] = json.loads(elastic_query)
+            except ValueError:
+                pass  # Don't die on malformed JSON
+
         return elastic_data
 
     def items(self, obj):
@@ -98,10 +107,10 @@ class CreativeWorksRSS(Feed):
         return '{}{}/{}'.format(settings.SHARE_WEB_URL, item.get('type').replace(' ', ''), item.get('id'))
 
     def item_pubdate(self, item):
-        return parse_date(item.get('date'))
+        return parse_date(item.get('date_published'))
 
     def item_updateddate(self, item):
-        return parse_date(item.get('date_updated'))
+        return parse_date(item.get(self._order))
 
     def item_categories(self, item):
         categories = item.get('subjects', [])

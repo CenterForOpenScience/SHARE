@@ -102,7 +102,8 @@ class AgentFactory(TypedShareObjectFactory):
 class AbstractCreativeWorkFactory(TypedShareObjectFactory):
     title = factory.Faker('sentence')
     description = factory.Faker('paragraph')
-    date_updated = factory.Faker('date')
+    date_updated = factory.Faker('date_time_this_decade')
+    date_published = factory.Faker('date_time_this_decade')
 
     class Meta:
         model = models.AbstractCreativeWork
