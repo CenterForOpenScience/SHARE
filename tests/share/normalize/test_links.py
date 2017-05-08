@@ -1,5 +1,4 @@
 import pytest
-import rfc3987
 import calendar
 import pendulum
 
@@ -143,7 +142,6 @@ def test_doi_link(doi, result):
             DOILink().execute(doi)
         assert e.value.args == result.args
     else:
-        assert rfc3987.parse(result)  # Extra URL validation
         assert DOILink().execute(doi)['IRI'] == result
 
 
@@ -167,7 +165,6 @@ def test_arxiv_link(arxiv_id, result):
             ArXivLink().execute(arxiv_id)
         assert e.value.args == result.args
     else:
-        assert rfc3987.parse(result)  # Extra URL validation
         assert ArXivLink().execute(arxiv_id)['IRI'] == result
 
 
@@ -192,7 +189,6 @@ def test_ark_link(ark_id, result):
             ARKLink().execute(ark_id)
         assert e.value.args == result.args
     else:
-        assert rfc3987.parse(result)  # Extra URL validation
         assert ARKLink().execute(ark_id)['IRI'] == result
 
 
@@ -230,7 +226,6 @@ def test_urn_link(urn, result):
             URNLink().execute(urn)
         assert e.value.args == result.args
     else:
-        assert rfc3987.parse(result)  # Extra URL validation
         assert URNLink().execute(urn)['IRI'] == result
 
 

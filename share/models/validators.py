@@ -14,6 +14,7 @@ from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 
 from share.models.fields import ShareURLField
+from share.transform.chain.links import IRILink
 
 
 def is_valid_jsonld(value):
@@ -168,3 +169,13 @@ class JSONLDValidator:
         # Include one-to-many relations to models with no other relations
         allowed_fields.extend(f for f in fields if f.one_to_many and f.name not in excluded and hasattr(f.related_model, 'VersionModel') and not [rf for rf in f.related_model._meta.get_fields() if rf.editable and rf.is_relation and rf.remote_field != f and rf.name not in excluded])
         return allowed_fields
+
+
+def is_valid_iri(iri):
+    if not isinstance(iri, str):
+        return False
+    IRILink().execute(iri)
+    return True
+
+
+draft4_format_checker.checks('uri', raises=ValueError)(is_valid_iri)
