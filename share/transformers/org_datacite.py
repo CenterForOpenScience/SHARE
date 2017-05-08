@@ -62,6 +62,10 @@ def force_text(data):
     if data is None:
         return ''
     if isinstance(data, dict):
+        if 'description' in data:
+            if '#text' in data['description']:
+                return data['description']['#text']
+            raise Exception('description is not in {}'.format(data))
         if '#text' in data:
             return data['#text']
         raise Exception('#text is not in {}'.format(data))
@@ -490,7 +494,7 @@ class CreativeWork(Parser):
     )
     description = tools.RunPython(
         force_text,
-        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description[0])
+        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions)
     )
 
     rights = tools.Try(
@@ -551,12 +555,12 @@ class CreativeWork(Parser):
     tags = tools.Map(
         tools.Delegate(ThroughTags),
         tools.RunPython(
-            force_text,
+            'text_list',
             tools.Concat(
                 tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_datacite'], 'type'),
                 tools.RunPython(
                     'text_list',
-                    (tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)))
+                    tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)
                 ),
                 tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.formats.format),
                 tools.Try(ctx.record.metadata['oai_datacite'].datacentreSymbol),
