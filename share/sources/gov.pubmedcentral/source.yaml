@@ -1,6 +1,6 @@
 configs:
 - base_url: https://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi
-  disabled: false
+  disabled: true
   earliest_date: null
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
