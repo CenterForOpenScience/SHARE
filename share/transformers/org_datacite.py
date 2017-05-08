@@ -62,10 +62,6 @@ def force_text(data):
     if data is None:
         return ''
     if isinstance(data, dict):
-        if 'description' in data:
-            if '#text' in data['description']:
-                return data['description']['#text']
-            raise Exception('description is not in {}'.format(data))
         if '#text' in data:
             return data['#text']
         raise Exception('#text is not in {}'.format(data))
@@ -492,9 +488,14 @@ class CreativeWork(Parser):
         force_text,
         tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.titles.title)
     )
-    description = tools.RunPython(
-        force_text,
-        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions)
+
+    description = tools.Try(
+        tools.Join(
+            tools.RunPython(
+                'text_list',
+                tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description)
+            )
+        )
     )
 
     rights = tools.Try(
