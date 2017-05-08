@@ -150,8 +150,8 @@ def check_counts_in_range(self, min_date, max_date):
             'query': {
                 'range': {
                     'date_modified': {
-                        'gte': '{}'.format(min_date.isoformat()),
-                        'lte': '{}'.format(max_date.isoformat())
+                        'gte': min_date.isoformat(),
+                        'lte': max_date.isoformat()
                     }
                 }
             }
@@ -169,7 +169,7 @@ def get_date_range_parts(min_date, max_date):
 
 
 @celery.task
-def pseudo_bisection_method(self, min_date, max_date):
+def pseudo_bisection(self, min_date, max_date):
     '''
     Checks if the database count matches the ES count
     If counts differ, split the date range in half and check counts in smaller ranges
@@ -194,7 +194,7 @@ def pseudo_bisection_method(self, min_date, max_date):
         return
 
     for key, value in get_date_range_parts(min_date, max_date).items():
-        pseudo_bisection_method.apply_async((self, value['min_date'], value['max_date']))
+        pseudo_bisection.apply_async((self, value['min_date'], value['max_date']))
 
 
 class JanitorTask(AppTask):
@@ -210,4 +210,4 @@ class JanitorTask(AppTask):
         min_date = pendulum.instance(CreativeWork.objects.all().aggregate(Min('date_created'))['date_created__min'])
         max_date = pendulum.utcnow()
 
-        pseudo_bisection_method.apply_async((self, min_date, max_date))
+        pseudo_bisection.apply_async((self, min_date, max_date))
