@@ -39,6 +39,7 @@ RUN update-ca-certificates
 RUN mkdir -p /code
 WORKDIR /code
 
+RUN pip install uwsgi==2.0.13
 RUN pip install -U pip
 
 COPY ./requirements.txt /code/requirements.txt
