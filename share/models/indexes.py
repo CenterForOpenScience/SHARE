@@ -12,7 +12,7 @@ class ConcurrentIndex(Index):
 
     def create_sql(self, model, schema_editor, using=''):
         if schema_editor.atomic_migration:
-            raise ValueError('Migrations creating concurrent indexes must have "atomic = True"')
+            raise ValueError('Migrations creating concurrent indexes must have "atomic = False"')
 
         try:
             sql_create_index = schema_editor.sql_create_index_concurrently

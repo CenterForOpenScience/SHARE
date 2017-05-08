@@ -13,7 +13,6 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from share.util import chunked
-from share.models.indexes import ConcurrentIndex
 
 
 __all__ = ('HarvestLog', )
@@ -215,9 +214,6 @@ class HarvestLog(AbstractBaseLog):
 
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
-        indexes = [
-            ConcurrentIndex(fields=['harvester_version'])
-        ]
 
     def spawn_task(self, ingest=True, force=False, limit=None, superfluous=False, ignore_disabled=False, async=True):
         from share.tasks import HarvesterTask
