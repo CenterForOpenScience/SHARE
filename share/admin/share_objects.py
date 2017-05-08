@@ -11,6 +11,7 @@ from django.utils.functional import cached_property
 from share.models import AbstractCreativeWork
 from share.models import Source
 from share.util import IDObfuscator
+from share.util import InvalidID
 
 
 class FuzzyPaginator(Paginator):
@@ -88,16 +89,21 @@ class ShareObjectAdmin(admin.ModelAdmin):
     list_filter = (TypedModelFilter, SourcesFilter, )
     # Django forces order by pk desc which results in a seqscan if we add anything else
     # ordering = ('-date_modified', )
-    readonly_fields = ('date_created', 'date_modified', )
+    readonly_fields = ('encoded_id', 'date_created', 'date_modified', )
     show_full_result_count = False
     paginator = FuzzyPaginator
+
+    # view_on_site doesn't actually call get_absolute_url
+    def view_on_site(self, obj):
+        return obj.get_absolute_url()
 
     def get_search_results(self, request, queryset, search_term):
         ret = super().get_search_results(request, queryset, search_term)
         return ret
 
     def get_type(self, obj):
-        return obj._meta.verbose_name_plural.title()
+        return obj._meta.verbose_name.title()
+    get_type.short_description = 'Type'
 
     def encoded_id(self, obj):
         return IDObfuscator.encode(obj)
@@ -136,6 +142,11 @@ class CreativeWorkAdmin(ShareObjectAdmin):
     show_change_link = False
 
     def get_search_results(self, request, queryset, search_term):
+        try:
+            return queryset.filter(id=IDObfuscator.decode_id(search_term)), False
+        except InvalidID:
+            pass
+
         # Overriden because there is no way to opt out of a case insensitive search
         search_fields = self.get_search_fields(request)
         use_distinct = bool(search_term)
