@@ -19,6 +19,7 @@ from share import util
 from share.models import fields
 from share.models.change import Change
 from share.models.fuzzycount import FuzzyCountManager
+from share.models.indexes import ConcurrentIndex
 from share.models.sql import ShareObjectManager
 
 
@@ -149,6 +150,9 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
     class Meta:
         abstract = True
         base_manager_name = 'objects'
+        indexes = [
+            ConcurrentIndex(fields=['date_created'])
+        ]
 
     def administrative_change(self, **kwargs):
         from share.models import Change
