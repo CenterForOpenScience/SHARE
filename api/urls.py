@@ -1,4 +1,6 @@
 from django.conf.urls import url
+from django.core.exceptions import FieldDoesNotExist
+
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 
@@ -58,8 +60,11 @@ class EndpointGenerator:
         if subclass.__name__ == 'AgentIdentifier':
             queryset = queryset.exclude(scheme='mailto')
 
-        if 'is_deleted' in [field.name for field in serializer.Meta.model._meta.get_fields()]:
-            queryset = queryset.exclude(is_deleted=True)
+        try:
+            if serializer.Meta.model._meta.get_field('is_deleted'):
+                queryset = queryset.exclude(is_deleted=True)
+        except FieldDoesNotExist:
+            pass
 
         generated_viewset = type(class_name, (ShareObjectViewSet,), {
             'queryset': queryset,

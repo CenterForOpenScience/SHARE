@@ -47,7 +47,7 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
             raise serializers.ValidationError('Invalid ID')
 
         try:
-            if AbstractCreativeWork.objects.filter(id=decoded_pk)[0].is_deleted:
+            if AbstractCreativeWork.objects.filter(id=decoded_pk).first().is_deleted:
                 raise PermissionDenied('Query is forbidden for the given %s.' % queryset.model._meta.object_name)
         except AttributeError:
             pass
