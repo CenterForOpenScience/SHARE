@@ -93,10 +93,6 @@ class ShareObjectAdmin(admin.ModelAdmin):
     show_full_result_count = False
     paginator = FuzzyPaginator
 
-    # view_on_site doesn't actually call get_absolute_url
-    def view_on_site(self, obj):
-        return obj.get_absolute_url()
-
     def get_search_results(self, request, queryset, search_term):
         ret = super().get_search_results(request, queryset, search_term)
         return ret

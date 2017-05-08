@@ -151,11 +151,7 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
         base_manager_name = 'objects'
 
     def get_absolute_url(self):
-        return '/{}{}/{}'.format(
-            settings.EMBER_SHARE_PREFIX + '/' if settings.EMBER_SHARE_PREFIX else '',
-            self._meta.model_name,
-            util.IDObfuscator.encode(self)
-        )
+        return '{}{}/{}'.format(settings.SHARE_WEB_URL, self._meta.model_name, util.IDObfuscator.encode(self))
 
     def administrative_change(self, allow_empty=False, **kwargs):
         from share.models import Change
