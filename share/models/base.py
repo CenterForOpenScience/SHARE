@@ -154,14 +154,19 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
             ConcurrentIndex(fields=['date_created'])
         ]
 
-    def administrative_change(self, **kwargs):
+    def get_absolute_url(self):
+        return '{}{}/{}'.format(settings.SHARE_WEB_URL, self._meta.model_name, util.IDObfuscator.encode(self))
+
+    def administrative_change(self, allow_empty=False, **kwargs):
         from share.models import Change
         from share.models import ChangeSet
         from share.models import NormalizedData
         from share.models import ShareUser
 
         with transaction.atomic():
-            assert kwargs, 'Don\'t make empty changes'
+            if not kwargs and not allow_empty:
+                # Empty changes can be made to force modified_date to update
+                raise ValueError('Pass allow_empty=True to allow empty changes')
 
             serialized = {}
             for key, value in tuple(kwargs.items()):

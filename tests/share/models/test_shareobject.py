@@ -129,9 +129,12 @@ class TestVersioning:
 class TestAdministrativeChange:
 
     def test_must_change(self, john_doe):
-        with pytest.raises(AssertionError) as e:
+        with pytest.raises(ValueError) as e:
             john_doe.administrative_change()
-        assert e.value.args == ('Don\'t make empty changes', )
+        assert e.value.args == ('Pass allow_empty=True to allow empty changes', )
+
+    def test_allow_empty(self, john_doe):
+        john_doe.administrative_change(allow_empty=True)
 
     def test_works(self, john_doe):
         assert john_doe.version == john_doe.versions.first()
