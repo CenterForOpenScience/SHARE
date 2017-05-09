@@ -139,19 +139,20 @@ class IndexSourceTask(AppTask):
         }
 
 
-def check_counts_in_range(self, min_date, max_date):
+def check_counts_in_range(es_url, es_index, min_date, max_date):
+    es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
     partial_database_count = CreativeWork.objects.exclude(title='').exclude(is_deleted=True).filter(
         date_created__range=[min_date, max_date]
     ).count()
-    partial_es_count = self.es_client.count(
-        index=(self.es_index or settings.ELASTICSEARCH_INDEX),
+    partial_es_count = es_client.count(
+        index=(es_index or settings.ELASTICSEARCH_INDEX),
         doc_type='creativeworks',
         body={
             'query': {
                 'range': {
                     'date_modified': {
-                        'gte': min_date.isoformat(),
-                        'lte': max_date.isoformat()
+                        'gte': min_date,
+                        'lte': max_date
                     }
                 }
             }
@@ -161,15 +162,15 @@ def check_counts_in_range(self, min_date, max_date):
 
 
 def get_date_range_parts(min_date, max_date):
-    middle_date = min_date.average(max_date)
+    middle_date = pendulum.parse(min_date).average(pendulum.parse(max_date))
     return {
-        'first_half': {'min_date': min_date, 'max_date': middle_date},
-        'second_half': {'min_date': middle_date, 'max_date': max_date}
+        'first_half': {'min_date': min_date, 'max_date': middle_date.isoformat()},
+        'second_half': {'min_date': middle_date.isoformat(), 'max_date': max_date}
     }
 
 
 @celery.task
-def pseudo_bisection(self, min_date, max_date):
+def pseudo_bisection(es_url, es_index, min_date, max_date):
     '''
     Checks if the database count matches the ES count
     If counts differ, split the date range in half and check counts in smaller ranges
@@ -178,7 +179,7 @@ def pseudo_bisection(self, min_date, max_date):
     MAX_DB_COUNT = 500
     MIN_MISSING_RATIO = 0.7
 
-    counts_match, db_count, es_count = check_counts_in_range(self, min_date, max_date)
+    counts_match, db_count, es_count = check_counts_in_range(es_url, es_index, min_date, max_date)
 
     if counts_match:
         return
@@ -188,13 +189,13 @@ def pseudo_bisection(self, min_date, max_date):
 
         bot = apps.get_app_config('elasticsearch').get_bot(
             ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
-            es_filter={'date_created__range': [min_date.isoformat(), max_date.isoformat()]},
+            es_filter={'date_created__range': [min_date, max_date]},
         )
         bot.run()
         return
 
     for key, value in get_date_range_parts(min_date, max_date).items():
-        pseudo_bisection.apply_async((self, value['min_date'], value['max_date']))
+        pseudo_bisection.apply_async((es_url, es_index, value['min_date'], value['max_date']))
 
 
 class JanitorTask(AppTask):
@@ -203,11 +204,8 @@ class JanitorTask(AppTask):
     Re-indexes time periods that differ in count
     '''
     def do_run(self, es_url=None, es_index=None):
-        self.es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
-        self.es_index = es_index
-
         # get range of date_created in database; assumes current time is the max
         min_date = pendulum.instance(CreativeWork.objects.all().aggregate(Min('date_created'))['date_created__min'])
         max_date = pendulum.utcnow()
 
-        pseudo_bisection.apply_async((self, min_date, max_date))
+        pseudo_bisection.apply_async((es_url, es_index, min_date.isoformat(), max_date.isoformat()))
