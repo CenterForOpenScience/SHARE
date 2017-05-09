@@ -2,7 +2,6 @@ from rest_framework import viewsets, views
 from rest_framework.response import Response
 
 from rest_framework_json_api import serializers
-from rest_framework.exceptions import PermissionDenied
 
 from django import http
 from django.conf import settings
@@ -11,15 +10,17 @@ from django.views.generic.base import RedirectView
 from django.shortcuts import get_object_or_404
 
 from api.pagination import CursorPagination
+from api.permissions import IsDeletedPremissions
 from api import serializers as api_serializers
 
 from share.util import IDObfuscator, InvalidID
-from share.models import Source, AbstractCreativeWork
+from share.models import Source
 
 
 class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('-id', )
     pagination_class = CursorPagination
+    permission_classes = [IsDeletedPremissions, ]
     # Can't expose these until we have indexes added, both ascending and descending
     # filter_backends = (filters.OrderingFilter,)
     # ordering_fields = ('id', 'date_updated')
@@ -46,12 +47,6 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
         except InvalidID:
             raise serializers.ValidationError('Invalid ID')
 
-        try:
-            if AbstractCreativeWork.objects.filter(id=decoded_pk).first().is_deleted:
-                raise PermissionDenied('Query is forbidden for the given %s.' % queryset.model._meta.object_name)
-        except AttributeError:
-            pass
-
         filter_kwargs = {self.lookup_field: decoded_pk}
         obj = get_object_or_404(queryset, **filter_kwargs)
 
@@ -60,9 +55,19 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
 
         return obj
 
+    # Override to filter out deleted items
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset.filter(is_deleted=False))
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 # Other
-
 class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
         ser = api_serializers.ShareUserSerializer(request.user, token=True)

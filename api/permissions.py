@@ -1,6 +1,8 @@
 from oauth2_provider.ext.rest_framework import TokenHasScope
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 import logging
+from rest_framework.exceptions import PermissionDenied
+from share.models import AbstractCreativeWork
 
 log = logging.getLogger(__name__)
 
@@ -27,3 +29,18 @@ class ReadOnlyOrTokenHasScopeOrIsAuthenticated(TokenHasScope, IsAuthenticated, B
         assert False, ('TokenHasScope requires either the'
                        '`oauth2_provider.rest_framework.OAuth2Authentication` authentication '
                        'class to be used.')
+
+
+class IsDeletedPremissions(BasePermission):
+    """
+    Permission check for deleted objects.
+    """
+    def has_object_permission(self, request, view, obj):
+        try:
+            if AbstractCreativeWork.objects.filter(id=obj.id).first().is_deleted:
+                raise PermissionDenied('Query is forbidden for the given object.')
+            else:
+                return True
+        except AttributeError:
+            pass
+
