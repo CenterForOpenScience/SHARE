@@ -21,6 +21,6 @@ class SiteBanner(models.Model):
     icon = models.CharField(blank=True, max_length=31, default='exclamation')
 
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', on_delete=models.CASCADE)
     last_modified_at = models.DateTimeField(auto_now=True)
-    last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', on_delete=models.CASCADE)

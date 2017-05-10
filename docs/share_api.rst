@@ -3,6 +3,29 @@ SHARE API
 
 Checkout the `browsable SHARE API docs`_.
 
+Getting Started
+---------------
+
+Before pushing data to production it is highly recommended to use our staging environment.
+
+1. Go to `the staging OSF`_ and `register for an account`_
+2. Navigate to `staging SHARE`_ and login.
+3. `Register to become a source`_.
+4. Send an email to share-support@osf.io and wait for us to approve your account.
+5. Once approved, the API token from your `staging SHARE profile page`_ can be used to push data.
+
+To become a Source for production repeat the above steps at `https://share.osf.io` with a `production OSF account`_.
+
+    .. note:: Our Staging enviroment is constantly being updated with new code. If something doesn't work, try again in a day or two before contacting us at share-support@osf.io
+
+.. _the staging OSF: https://staging.osf.io
+.. _register for an account: https://staging.osf.io/register/
+.. _staging SHARE: https://staging-share.osf.io
+.. _Register to become a source: https://staging-share.osf.io/registration
+.. _staging SHARE profile page: https://staging-share.osf.io/profile
+.. _production OSF account: https://staging.osf.io/register/
+
+
 Paging in the API
 -----------------
 
@@ -72,25 +95,37 @@ A change is represented as a JSON object with a single key, ``@graph``, containi
 
 - ``@type`` MUST be a `SHARE type`_.
 
-    .. note:: ``@type`` is case insensitive.
+    .. note:: ``@type`` is case sensitive and expects title case, lowercase, or uppercase types.
 
     .. code-block:: javascript
 
-        // GOOD: A Type from the linked page
+        // GOOD: Title case for a type from the linked page
         {
             "@type": "Preprint"
             // Omitted...
         }
 
-        // GOOD: Another type from the linked page
+        // GOOD: All lowercase for a type from the linked page
         {
-            "@id": "cReAtIvEwOrK"
+            "@type": "article"
+            // Omitted...
+        }
+
+        // GOOD: All uppercase for a type from the linked page
+        {
+            "@type": "CREATIVEWORK"
+            // Omitted...
+        }
+
+        // BAD: Other casing of a type from the linked page
+        {
+            "@type": "cReAtIvEwOrK"
             // Omitted...
         }
 
         // BAD: Anything else
         {
-            "@id": "Unicorn"
+            "@type": "Unicorn"
             // Omitted...
         }
 
@@ -503,7 +538,7 @@ Example Data
 
 
 Code Examples
-~~~~~~~~
+~~~~~~~~~~~~~
 
     Python
 
@@ -570,6 +605,8 @@ Code Examples
 .. _browsable SHARE API docs: https://share.osf.io/api/
 
 .. _normalizeddata endpoint: https://share.osf.io/api/normalizeddata
+
+.. _SHARE type: https://share.osf.io/api/v2/schema
 
 .. _SHARE website: https://share.osf.io
 

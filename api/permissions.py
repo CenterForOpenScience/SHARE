@@ -12,7 +12,7 @@ class ReadOnlyOrTokenHasScopeOrIsAuthenticated(TokenHasScope, IsAuthenticated, B
         if request.method in SAFE_METHODS:
             return True
 
-        if request.user and request.user.is_authenticated():
+        if request.user and request.user.is_authenticated:
             return True
 
         token = request.auth
@@ -36,10 +36,8 @@ class IsDeletedPremissions(BasePermission):
     Permission check for deleted objects.
     """
     def has_object_permission(self, request, view, obj):
-        try:
-            if AbstractCreativeWork.objects.filter(id=obj.id).first().is_deleted:
+        TargetObject = AbstractCreativeWork.objects.filter(id=obj.id).first()
+        if hasattr(TargetObject, 'is_deleted'):
+            if TargetObject.is_deleted:
                 raise PermissionDenied('Query is forbidden for the given object.')
-            else:
-                return True
-        except AttributeError:
-            pass
+        return True

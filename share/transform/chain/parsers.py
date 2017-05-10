@@ -62,7 +62,7 @@ class Parser(metaclass=ParserMeta):
 
     def validate(self, field, value):
         if field.is_relation:
-            if field.one_to_many or field.rel.many_to_many:
+            if field.one_to_many or field.remote_field.many_to_many:
                 assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
             else:
                 assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
@@ -95,7 +95,7 @@ class Parser(metaclass=ParserMeta):
 
             value = chain.run(self.context)
 
-            if value and field.is_relation and (field.one_to_many or field.rel.many_to_many):
+            if value and field.is_relation and (field.one_to_many or field.remote_field.many_to_many):
                 field_name = field.field.name if field.one_to_many else field.m2m_field_name()
                 for v in tuple(value):  # Freeze list so we can modify it will iterating
                     # Allow filling out either side of recursive relations

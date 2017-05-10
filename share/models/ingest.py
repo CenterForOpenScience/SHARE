@@ -7,12 +7,11 @@ from django.contrib.postgres.fields import JSONField
 from django.core import validators
 from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
-from django.core.urlresolvers import reverse
 from django.db import DEFAULT_DB_ALIAS
 from django.db import connection
 from django.db import connections
 from django.db import models
-from django.db.models.query_utils import DeferredAttribute
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
@@ -82,7 +81,7 @@ class Source(models.Model):
     canonical = models.BooleanField(default=False, db_index=True)
 
     # TODO replace with Django permissions something something, allow multiple sources per user
-    user = models.OneToOneField('ShareUser')
+    user = models.OneToOneField('ShareUser', on_delete=models.CASCADE)
 
     objects = NaturalKeyManager('name')
 
@@ -101,19 +100,19 @@ class SourceConfig(models.Model):
     label = models.TextField(unique=True)
     version = models.PositiveIntegerField(default=1)
 
-    source = models.ForeignKey('Source')
+    source = models.ForeignKey('Source', on_delete=models.CASCADE)
     base_url = models.URLField(null=True)
     earliest_date = models.DateField(null=True, blank=True)
     rate_limit_allowance = models.PositiveIntegerField(default=5)
     rate_limit_period = models.PositiveIntegerField(default=1)
 
     # Allow null for push sources
-    harvester = models.ForeignKey('Harvester', null=True)
+    harvester = models.ForeignKey('Harvester', null=True, on_delete=models.CASCADE)
     harvester_kwargs = JSONField(null=True, blank=True)
 
     # Allow null for push sources
     # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
-    transformer = models.ForeignKey('Transformer', null=True)
+    transformer = models.ForeignKey('Transformer', null=True, on_delete=models.CASCADE)
     transformer_kwargs = JSONField(null=True, blank=True)
 
     disabled = models.BooleanField(default=False)
@@ -272,80 +271,75 @@ class RawDatumManager(FuzzyCountManager):
             data Generator[(str, str)]: (identifier, datum)
 
         Returns:
-            Generator[MemoryFriendlyRawDatum]
+            Generator[RawDatum]
         """
         unique_data = set()
         now = timezone.now()
 
-        with connection.cursor() as cursor:
-            for chunk in chunked(data, 500):
-                chunk_data = []
-                for identifier, datum in chunk:
-                    if limit is not None and len(unique_data) >= limit:
-                        break
-                    hash_ = sha256(datum.encode('utf-8')).hexdigest()
-                    chunk_data.append((identifier, hash_, datum))
-                    unique_data.add((identifier, hash_))
-
-                if not chunk_data:
+        for chunk in chunked(data, 500):
+            chunk_data = []
+            for identifier, datum in chunk:
+                if limit is not None and len(unique_data) >= limit:
                     break
+                hash_ = sha256(datum.encode('utf-8')).hexdigest()
+                chunk_data.append((identifier, hash_, datum))
+                unique_data.add((identifier, hash_))
 
-                identifiers = list({(identifier, source_config.id) for identifier, _, _ in chunk_data})
+            if not chunk_data:
+                break
 
-                cursor.execute('''
+            identifiers = list({(identifier, source_config.id) for identifier, _, _ in chunk_data})
+
+            suids = SourceUniqueIdentifier.objects.raw('''
+                INSERT INTO "{table}"
+                    ("{identifier}", "{source_config}")
+                VALUES
+                    {values}
+                ON CONFLICT
+                    ("{identifier}", "{source_config}")
+                DO UPDATE SET
+                    id = "{table}".id
+                RETURNING {fields}
+            '''.format(
+                table=SourceUniqueIdentifier._meta.db_table,
+                identifier=SourceUniqueIdentifier._meta.get_field('identifier').column,
+                source_config=SourceUniqueIdentifier._meta.get_field('source_config').column,
+                values=', '.join('%s' for _ in range(len(identifiers))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
+                fields=', '.join('"{}"'.format(field.column) for field in SourceUniqueIdentifier._meta.concrete_fields),
+            ), identifiers)
+
+            suid_map = {suid.identifier: suid for suid in suids}
+
+            raw_data = {}
+            for identifier, hash_, datum in chunk_data:
+                raw_data[identifier, hash_] = (suid_map[identifier].pk, hash_, datum, now, now)
+
+            # Defer 'datum' by omitting it from the returned fields
+            yield from RawDatum.objects.raw(
+                '''
                     INSERT INTO "{table}"
-                        ("{identifier}", "{source_config}")
-                    VALUES
-                        {values}
-                    ON CONFLICT
-                        ("{identifier}", "{source_config}")
-                    DO UPDATE SET
-                        id = "{table}".id
-                    RETURNING {fields}
-                '''.format(
-                    table=SourceUniqueIdentifier._meta.db_table,
-                    identifier=SourceUniqueIdentifier._meta.get_field('identifier').column,
-                    source_config=SourceUniqueIdentifier._meta.get_field('source_config').column,
-                    values=', '.join('%s' for _ in range(len(identifiers))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
-                    fields=', '.join('"{}"'.format(field.column) for field in SourceUniqueIdentifier._meta.concrete_fields),
-                ), identifiers)
-
-                suids = {}
-                fields = [field.attname for field in SourceUniqueIdentifier._meta.concrete_fields]
-                for row in cursor.fetchall():
-                    suid = SourceUniqueIdentifier.from_db(db, fields, row)
-                    suids[suid.pk] = suid
-                    suids[suid.identifier] = suid
-
-                raw_data = {}
-                for identifier, hash_, datum in chunk_data:
-                    raw_data[identifier, hash_] = (suids[identifier].pk, hash_, datum, now, now)
-
-                cursor.execute('''
-                    INSERT INTO "{table}"
-                        ("{suid}", "{hash}", "{datum}", "{date_created}", "{date_modified}")
+                        ("{suid}", "{hash}", "{datum}", "{date_modified}", "{date_created}")
                     VALUES
                         {values}
                     ON CONFLICT
                         ("{suid}", "{hash}")
                     DO UPDATE SET
                         "{date_modified}" = %s
-                    RETURNING id, "{suid}", "{hash}", "{date_created}", "{date_modified}"
+                    RETURNING id, "{suid}", "{hash}", "{date_modified}", "{date_created}"
                 '''.format(
                     table=RawDatum._meta.db_table,
                     suid=RawDatum._meta.get_field('suid').column,
                     hash=RawDatum._meta.get_field('sha256').column,
                     datum=RawDatum._meta.get_field('datum').column,
-                    date_created=RawDatum._meta.get_field('date_created').column,
                     date_modified=RawDatum._meta.get_field('date_modified').column,
+                    date_created=RawDatum._meta.get_field('date_created').column,
                     values=', '.join('%s' for _ in range(len(raw_data))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
-                ), list(raw_data.values()) + [now])
+                ),
+                list(raw_data.values()) + [now]
+            )
 
-                for row in cursor.fetchall():
-                    yield MemoryFriendlyRawDatum.from_db(db, ('id', 'suid', 'sha256', 'date_created', 'date_modified'), row[:1] + (suids[row[1]], ) + row[2:])
-
-                if limit is not None and len(unique_data) >= limit:
-                    break
+            if limit is not None and len(unique_data) >= limit:
+                break
 
     def store_data(self, identifier, datum, config):
         """
@@ -362,7 +356,7 @@ class RawDatumManager(FuzzyCountManager):
 
 class SourceUniqueIdentifier(models.Model):
     identifier = models.TextField()
-    source_config = models.ForeignKey('SourceConfig')
+    source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('identifier', 'source_config')
@@ -378,7 +372,7 @@ class RawDatum(models.Model):
 
     datum = models.TextField()
 
-    suid = models.ForeignKey(SourceUniqueIdentifier)
+    suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=models.CASCADE)
 
     # The sha256 of the datum
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
@@ -408,14 +402,3 @@ class RawDatum(models.Model):
         return '<{}({}, {}...)>'.format(self.__class__.__name__, self.suid_id, self.sha256[:10])
 
     __str__ = __repr__
-
-
-# NOTE How this works changes in Django 1.10
-class MemoryFriendlyRawDatum(RawDatum):
-
-    datum = DeferredAttribute('datum', RawDatum)
-
-    _deferred = True
-
-    class Meta:
-        proxy = True

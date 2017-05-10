@@ -13,6 +13,8 @@ import factory.fuzzy
 
 import nameparser
 
+from typedmodels.models import TypedModel
+
 from django.apps import apps
 
 from share import models
@@ -137,7 +139,7 @@ class GraphContructor:
                 continue
             if f.name not in relations:
                 logger.warning('Found missing required field %s. Inserting default', f)
-                relations[f.name] = {'type': f.rel.model._meta.concrete_model._meta.model_name}
+                relations[f.name] = {'type': f.remote_field.model._meta.concrete_model._meta.model_name}
             node[f.name] = self.build_node({**relations.pop(f.name)})
 
         kwargs = {}
@@ -168,7 +170,7 @@ class GraphContructor:
                     related = [self.build_node({**v}) for v in value]
                     for rel in related:
                         obj._related.append(self.build_node({
-                            'type': field.rel.through._meta.model_name,
+                            'type': field.remote_field.through._meta.model_name,
                             field.m2m_field_name(): obj,
                             field.m2m_reverse_field_name(): rel,
                         }))
@@ -250,8 +252,9 @@ class TypedShareObjectFactory(ShareObjectFactory):
     def type(stub):
         model_name = re.sub('Factory$', '', stub._LazyStub__model_class.__name__)
         model = apps.get_model('share', model_name)
-
-        return random.choice([m.model_name.lower() for m in model._meta.concrete_model._meta.proxied_children or [model._meta]])
+        if issubclass(model, TypedModel) and model._meta.concrete_model is model:
+            model = random.choice(model._meta.concrete_model.get_type_classes())
+        return model._meta.model_name.lower()
 
 
 class AbstractAgentFactory(TypedShareObjectFactory):
@@ -294,11 +297,11 @@ class AbstractCreativeWorkFactory(TypedShareObjectFactory):
 
     # identifiers = factory.SubFactory(WorkIdentifierFactory)
     # related_works = factory.SubFactory(RelatedWorkFactory)
-    date_updated = factory.Faker('date', pattern="%Y-%m-%d")
-    date_published = factory.Faker('date', pattern="%Y-%m-%d")
+    date_updated = factory.Faker('date', pattern='%Y-%m-%dT%H:%M:%SZ')
+    date_published = factory.Faker('date', pattern='%Y-%m-%dT%H:%M:%SZ')
     rights = factory.Faker('paragraph')
     free_to_read_type = factory.Faker('sentence')
-    free_to_read_date = factory.Faker('date', pattern="%Y-%m-%d")
+    free_to_read_date = factory.Faker('date', pattern='%Y-%m-%dT%H:%M:%SZ')
     is_deleted = False
 
     class Meta:
@@ -345,6 +348,7 @@ class WorkIdentifierFactory(ShareObjectFactory):
     def _parse(self, *args, **kwargs):
         if self.attrs.pop('parse'):
             parsed = IRILink().execute(self.attrs['uri'])
+            self.attrs['uri'] = parsed['IRI']
             self.attrs['scheme'] = parsed['scheme']
             self.attrs['host'] = parsed['authority']
 
@@ -358,6 +362,7 @@ class AgentIdentifierFactory(ShareObjectFactory):
     def _parse(self, *args, **kwargs):
         if self.attrs.pop('parse'):
             parsed = IRILink().execute(self.attrs['uri'])
+            self.attrs['uri'] = parsed['IRI']
             self.attrs['scheme'] = parsed['scheme']
             self.attrs['host'] = parsed['authority']
 

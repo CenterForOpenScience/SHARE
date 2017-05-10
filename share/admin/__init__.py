@@ -13,24 +13,29 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.views.main import ChangeList
 from django.contrib.admin.widgets import AdminDateWidget
 from django.core import management
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
 from oauth2_provider.models import AccessToken
 
-from share.robot import RobotAppConfig
+from share.admin.readonly import ReadOnlyAdmin
+from share.admin.share_objects import CreativeWorkAdmin
+from share.models.banner import SiteBanner
 from share.models.celery import CeleryTask
 from share.models.change import ChangeSet
 from share.models.core import NormalizedData, ShareUser
+from share.models.creative import AbstractCreativeWork
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
 from share.models.logs import HarvestLog
 from share.models.registration import ProviderRegistration
-from share.models.banner import SiteBanner
-from share.readonlyadmin import ReadOnlyAdmin
+from share.robot import RobotAppConfig
 from share.tasks import HarvesterTask
+
+
+admin.site.register(AbstractCreativeWork, CreativeWorkAdmin)
 
 
 class NormalizedDataAdmin(admin.ModelAdmin):
@@ -143,26 +148,6 @@ class CeleryTaskAdmin(admin.ModelAdmin):
             kwargs = ast.literal_eval(task.kwargs)
             Task().apply_async(args, kwargs, task_id=task_id)
     retry_tasks.short_description = 'Retry tasks'
-
-
-class AbstractCreativeWorkAdmin(admin.ModelAdmin):
-    list_display = ('type', 'title', 'num_contributors')
-    list_filter = ['type']
-    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version', 'subjects')
-
-    def num_contributors(self, obj):
-        return obj.contributors.count()
-    num_contributors.short_description = 'Contributors'
-
-
-class AbstractAgentAdmin(admin.ModelAdmin):
-    list_display = ('type', 'name')
-    list_filter = ('type',)
-    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
-
-
-class TagAdmin(admin.ModelAdmin):
-    raw_id_fields = ('change', 'extra', 'extra_version', 'same_as', 'same_as_version',)
 
 
 class RawDatumAdmin(admin.ModelAdmin):
@@ -280,6 +265,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
     list_display = ('label', 'source_', 'version', 'enabled', 'source_config_actions')
     list_select_related = ('source',)
     readonly_fields = ('source_config_actions',)
+    search_fields = ['label', 'source__name', 'source__long_title']
 
     def source_(self, obj):
         return obj.source.long_title
@@ -352,6 +338,71 @@ class ShareUserAdmin(admin.ModelAdmin):
     inlines = (SourceAdminInline,)
 
 
+class SourceAddForm(forms.ModelForm):
+
+    title = forms.CharField(min_length=3, max_length=255, help_text='What this source will be displayed as to the end user. Must be unique.')
+    url = forms.URLField(min_length=11, max_length=255, help_text='The home page or canonical URL for this source, make sure it is unique!.\nThe reverse DNS notation prepended with "sources." will be used to create a user for this source. IE share.osf.io -> sources.io.osf.share')
+
+    class Meta:
+        model = Source
+        exclude = ('access_token', )
+        fields = ('title', 'url', 'icon', )
+
+    def validate_unique(self):
+        # Forces validation checks on every field
+        try:
+            self.instance.validate_unique()
+        except forms.ValidationError as e:
+            # Translate field names because I'm a bad person
+            if 'long_title' in e.error_dict:
+                e.error_dict['title'] = e.error_dict.pop('long_title')
+            if 'name' in e.error_dict:
+                e.error_dict['url'] = e.error_dict.pop('name')
+            if 'home_page' in e.error_dict:
+                e.error_dict['url'] = e.error_dict.pop('home_page')
+            self._update_errors(e)
+
+    def _post_clean(self):
+        if not self._errors:
+            self.instance.home_page = self.cleaned_data['url'].lower().strip('/')
+            self.instance.long_title = self.cleaned_data.pop('title')
+            self.instance.name = '.'.join(reversed(self.instance.home_page.split('//')[1].split('.')))
+        return super()._post_clean()
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        user = ShareUser.objects.create_user(username='sources.' + instance.name, save=commit)
+        user.set_unusable_password()
+        instance.user = user
+
+        if commit:
+            instance.save()
+
+        return instance
+
+
+class SourceAdmin(admin.ModelAdmin):
+    search_fields = ('name', 'long_title')
+    readonly_fields = ('access_token', )
+
+    def add_view(self, *args, **kwargs):
+        self.form = SourceAddForm
+        return super().add_view(*args, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        if obj.user and not (obj.user_id or obj.user.id):
+            obj.user.save()
+            obj.user_id = obj.user.id  # Django is weird
+        obj.save()
+
+    def access_token(self, obj):
+        tokens = obj.user.accesstoken_set.all()
+        if tokens:
+            return tokens[0].token
+        return None
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -365,6 +416,6 @@ admin.site.register(SiteBanner, SiteBannerAdmin)
 
 admin.site.register(Harvester)
 admin.site.register(ShareUser, ShareUserAdmin)
-admin.site.register(Source)
+admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
 admin.site.register(Transformer)

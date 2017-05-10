@@ -261,7 +261,7 @@ class TestHarvestTask:
         list(RawDatum.objects.store_chunk(source_config, random.sample(source_config.harvester.get_class().do_harvest.return_value, rediscovered)))
 
         # TODO Drop this number....
-        with django_assert_num_queries(17 + math.ceil((count if limit is None or count < limit else limit) / 500) * 3):
+        with django_assert_num_queries(19 + math.ceil((count if limit is None or count < limit else limit) / 500) * 3):
             harvest(source_config.source.user.id, source_config.label, superfluous=superfluous, limit=limit, ingest=ingest)
 
         log = HarvestLog.objects.get(source_config=source_config)

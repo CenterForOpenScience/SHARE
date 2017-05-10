@@ -71,7 +71,7 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
     class Disambiguation:
         any = ('identifiers', 'work_relations')
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         db_table = 'share_agent'
         index_together = (
             ('type', 'name',)

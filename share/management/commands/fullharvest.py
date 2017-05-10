@@ -41,7 +41,7 @@ class Command(BaseCommand):
         )
 
         with transaction.atomic():
-            for log in HarvestLog.objects.bulk_create_or_nothing(fields, data):
+            for log in HarvestLog.objects.bulk_create_or_get(fields, data):
                 log._source_config_cache = source_config
                 log.spawn_task(**{
                     k: v for k, v in options.items()

@@ -10,18 +10,17 @@ SHARE harvests metadata nightly from 100+ repositories, transforms that metadata
 
 The technical side of SHARE has many pieces that you can interact with:
 
-- API Endpoints for accessing the raw and transformed metadata
-    + https://share.osf.io/api
 - A search endpoint powered by elasticsearch that indexes the transformed data allowing:
    - Thorough search of creative works:
         + Creative works: `</api/v2/search/creativeworks/_search_>`_
         + more info on the `elasticsearch docs`_ page
    - Data aggregations across fields
-- A python library called ``sharepa`` for SHARE Parsing and Analysis
 - An `Ember application`_ using the SHARE API for:
+   - Searching the SHARE database
    - Discovering new Projects
-   - Curation
    - Corrections and Updates
+- API Endpoints for accessing transformed metadata
+    + https://share.osf.io/api/v2
 
 .. _`/api/v2/search/creativeworks/_search`: https://share.osf.io/api/v2/search/creativeworks/_search
 .. _Ember application: /page/ember_app.html
@@ -39,7 +38,6 @@ Guide
     elasticsearch
     share_api
     ember_app
-    troubleshooting
 
 Contribute
 ==========
@@ -49,6 +47,8 @@ Contribute
 
 Get In Touch
 ============
+
+For emails about technical support: share-support@osf.io
 
 ::
 

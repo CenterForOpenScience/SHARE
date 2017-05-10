@@ -1,3 +1,5 @@
+from typedmodels.models import TypedModel
+
 from django.conf.urls import url
 
 from django.views.decorators.csrf import csrf_exempt
@@ -13,6 +15,8 @@ from api import views
 from api.serializers import BaseShareSerializer
 from api.views.share import ShareObjectViewSet
 
+app_name = 'api'
+
 router = DefaultRouter()
 
 
@@ -27,11 +31,10 @@ class EndpointGenerator:
 
         generated_endpoints = []
         for subclass in subclasses:
-            if not (subclass._meta.proxied_children and subclass is subclass._meta.concrete_model):
-                generated_endpoints.append(subclass)
-            elif (subclass._meta.proxied_children and subclass is subclass._meta.concrete_model):
+            if issubclass(subclass, TypedModel) and subclass._meta.concrete_model is subclass:
                 generated_endpoints.extend(subclass.get_type_classes())
-
+            else:
+                generated_endpoints.append(subclass)
         self.generate_endpoints(generated_endpoints)
 
     def generate_endpoints(self, subclasses):
@@ -40,7 +43,7 @@ class EndpointGenerator:
 
     def generate_serializer(self, subclass):
         class_name = subclass.__name__ + 'Serializer'
-        meta_class = type('Meta', (BaseShareSerializer.Meta,), {'model': subclass})
+        meta_class = type('Meta', (BaseShareSerializer.Meta,), {'model': subclass, 'fields': '__all__'})
         generated_serializer = type(class_name, (BaseShareSerializer,), {
             'Meta': meta_class
         })
@@ -98,7 +101,30 @@ urlpatterns = [
     url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
     url(r'graph/?', GraphQLView.as_view(graphiql=True)),
     url(r'userinfo/?', ensure_csrf_cookie(views.ShareUserView.as_view()), name='userinfo'),
-    url(r'search/(?!.*_bulk\/?$)(?P<url_bits>.*)', csrf_exempt(views.ElasticSearchView.as_view()), name='search'),
+
+    # only match _count and _search requests
+    url(
+        r'search/(?P<url_bits>(?:\w+/)?_(?:search|count)/?)$',
+        csrf_exempt(views.ElasticSearchView.as_view()),
+        name='search'
+    ),
+    # match _suggest requests
+    url(
+        r'search/(?P<url_bits>(?:\w+/)?_(?:suggest)/?)$',
+        csrf_exempt(views.ElasticSearchPostOnlyView.as_view()),
+        name='search_post'
+    ),
+    # match _mappings requests
+    url(
+        r'search/(?P<url_bits>_mappings(/.+|$|/))',
+        csrf_exempt(views.ElasticSearchGetOnlyView.as_view()),
+        name='search_get'
+    ),
+    url(
+        r'search/(?P<url_bits>.*)',
+        csrf_exempt(views.ElasticSearch403View.as_view()),
+        name='search_403'
+    ),
 
     url(r'schema/?$', views.SchemaView.as_view(), name='schema'),
     url(r'schema/creativework/hierarchy/?$', views.ModelTypesView.as_view(), name='modeltypes'),

@@ -25,7 +25,7 @@ class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
         any = ('agent', 'cited_as')  # TODO could be multiple people with the same cited_as on a work... could use order_cited for Creators, but what to do for other contributors?
         constrain_types = True
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         db_table = 'share_agentworkrelation'
         unique_together = ('agent', 'creative_work', 'type')
 
@@ -47,7 +47,7 @@ class ThroughContributor(ShareObject):
     class Disambiguation:
         all = ('subject', 'related')
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         unique_together = ('subject', 'related')
 
 
@@ -77,7 +77,7 @@ class ThroughAwards(ShareObject):
     funder = ShareForeignKey(AbstractAgentWorkRelation)
     award = ShareForeignKey(Award)
 
-    class Meta:
+    class Meta(ShareObject.Meta):
         unique_together = ('funder', 'award')
         verbose_name_plural = 'through awards'
 

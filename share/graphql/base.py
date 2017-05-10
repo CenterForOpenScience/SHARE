@@ -3,7 +3,6 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from share import models
-from share.util import IDObfuscator
 from share.graphql.fields import JSONField
 
 
@@ -46,10 +45,6 @@ class AbstractShareObject(graphene.Interface):
     @classmethod
     def resolve_type(cls, instance, context, info):
         return info.schema.get_type(type(instance).__name__)
-
-    @graphene.resolve_only_args
-    def resolve_id(self):
-        return IDObfuscator.encode(self)
 
     @graphene.resolve_only_args
     def resolve_types(self):

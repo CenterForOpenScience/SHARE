@@ -12,9 +12,9 @@ import requests
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db import DatabaseError
 from django.db import transaction
+from django.urls import reverse
 from django.utils import timezone
 
 from share.change import ChangeGraph
@@ -225,7 +225,6 @@ class HarvesterTask(SourceTask):
 
         # Use the locking connection to avoid putting everything else in a transaction.
         with transaction.atomic(using='locking'):
-            log.start()
             error = None
 
             # Django recommends against trys inside of transactions, we're just preserving our lock as long as possible.
@@ -246,6 +245,7 @@ class HarvesterTask(SourceTask):
 
                 # TODO Evaluate splitting and other optimizations here
 
+                log.start()
                 logger.info('Harvesting %s - %s from %r', start, end, self.config)
 
                 with transaction.atomic():

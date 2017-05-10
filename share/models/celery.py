@@ -21,9 +21,9 @@ class CeleryTask(TypedModel):
     args = models.TextField(blank=True)
     kwargs = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
-    started_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='started_by', null=True)
+    started_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='started_by', null=True, on_delete=models.CASCADE)
     # TODO rename to 'source'
-    provider = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='provider', null=True)
+    provider = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='provider', null=True, on_delete=models.CASCADE)
     status = models.IntegerField(choices=STATUS)
 
     objects = FuzzyCountManager()
