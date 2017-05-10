@@ -43,4 +43,3 @@ class IsDeletedPremissions(BasePermission):
                 return True
         except AttributeError:
             pass
-
