@@ -11,10 +11,9 @@
 ## Changes to SHARE:
   - New Model: "Taxonomy"
   - Changes to Model: "Subject"
-    - Unique indexes on Subjects will move from `[name]` to `[name, taxonomy_id]` if the OSF requirements are ammenable to this
+    - Unique indexes on Subjects will move from `[name]` to `[name, taxonomy_id]` if the OSF requirements are amenable to this
       Otherwise it will become `[name, taxonomy_id, parent_id]`
-  - If we can upgrade to elasticsearch 5.4+ in time SHARE will index subjects using the new Path Hierarchy Tokenizer.
-    Otherwise subjects will be manually indexed to act like the Path Hierarchy Tokenizer
+  - Subjects will be indexed using the Path Hierarchy Tokenizer.
   - Subjects will be indexed with the first element as the name of their Taxonomy to namespaces them appropriately
     IE: Bepress/A/B/C or Engrxiv/A/B/C
   - The Elasticsearch task will be updated to look for any related models that have been recently updated as well
@@ -60,12 +59,14 @@
 ## Situations:
 
 ### Reference
+```
 Taxonomy X:
   Subject Alpha -> Bepress A
     Subject Bravo -> Bepress B
       Subject Charlie -> Bepress C
     Subject Delta -> Bepress B
   Subject Echo -> Bepress D
+
 
 Given SHARE is aware of custom Taxonomy X
 When SHARE recieves a work, "Gamma", with subjects [Alpha, Bravo, Charlie]
@@ -84,8 +85,8 @@ Then SHARE will not modify the submitted subjects
     "Charlie" may currently imply that "Bepress C" is attached to "Gamma". If "Charlie" is
     ever redefined to be a different Bepress subject that implication will no longer be true.
 
-  Rammifications:
-    If "Gamma" is being submitted with "Bepress C" because "Charlie" impies it, "Bepress C" will
+  Ramifications:
+    If "Gamma" is being submitted with "Bepress C" because "Charlie" implies it, "Bepress C" will
     have to be explicitly removed if "Charlie" is redefined.
     Works should only be submitted with subjects explicitly assigned by the user.
 
@@ -96,13 +97,13 @@ Then SHARE will mark Delta as deleted and reindex all works attached to "Delta"
   Reasoning:
     "Delta" will have to exist for SHARE to detect the need to remove the subject from existing
     works.
-
+ ```
 ### Strange Situations:
   - Custom Taxonomy item added
     - Foxtrot is added to Taxonomy X
   - Custom Taxonomy item removed
-    - Bravo is added to Taxonomy X
-    - Echo is added to Taxonomy X
+    - Bravo is removed to Taxonomy X
+    - Echo is removed to Taxonomy X
   - Custom Taxonomy item renamed
     - Echo -> Romeo is added to Taxonomy X
   - Custom Taxonomy item redefined
