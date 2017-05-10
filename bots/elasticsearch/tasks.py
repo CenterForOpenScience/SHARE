@@ -184,8 +184,18 @@ def pseudo_bisection(es_url, es_index, min_date, max_date):
     if counts_match:
         return
     if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
-        logger.info('Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'), es_count, db_count)
-        logger.info('Reindexing records created from %s to %s.', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'))
+        logger.info(
+            'Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.',
+            pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
+            pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
+            es_count,
+            db_count
+        )
+        logger.info(
+            'Reindexing records created from %s to %s.',
+            pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
+            pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p')
+        )
 
         bot = apps.get_app_config('elasticsearch').get_bot(
             ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
