@@ -115,3 +115,18 @@ class TestIndexSource:
 
         with pytest.raises(NotFoundError):
             elastic.es_client.get(index=elastic.es_index, doc_type='sources', id=source.name)
+
+    def test_51_identifiers_rejected(self, elastic):
+        work1 = factories.AbstractCreativeWorkFactory()
+        work2 = factories.AbstractCreativeWorkFactory()
+        for i in range(50):
+            factories.WorkIdentifierFactory(uri='http://example.com/{}'.format(i), creative_work=work1)
+            factories.WorkIdentifierFactory(uri='http://example.com/{}/{}'.format(i, i), creative_work=work2)
+        factories.WorkIdentifierFactory(creative_work=work2)
+
+        tasks.IndexModelTask().apply((1, elastic.config.label, 'creativework', [work1.id, work2.id]))
+
+        elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(work1))
+
+        with pytest.raises(NotFoundError):
+            elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(work2))
