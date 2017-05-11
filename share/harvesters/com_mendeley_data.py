@@ -42,7 +42,7 @@ class MendeleyHarvester(BaseHarvester):
         return self.fetch_records(furl(self.config.base_url).set(query_params={
             'modified_since': start_date.isoformat(),
             'fields': 'results.*',
-            'limit': '5',  # TODO: change back to 500
+            'limit': '500',
             'sort': 'publish_date',
             'order': 'asc',
         }).url, headers, end_date)
@@ -50,22 +50,9 @@ class MendeleyHarvester(BaseHarvester):
     def fetch_records(self, url, headers, end_date):
 
         resp = self.requests.get(url, headers=headers)
-        total = len(resp.json()['results'])
-
-        # TODO use pagination
-        # import ipdb; ipdb.set_trace()
-        # if 'Link' in resp.headers:
-        #     next_link = resp.headers['Link'].split(';')
-        #     next_resp = self.requests.get(next_link[0].strip('<>'), headers=headers)
-        if total == 500:
-            print('Total more than 500.')
 
         while True:
             for dataset in resp.json()['results']:
-                # Many record are only {'available': False}
-                # Using the API, there is no documented way to filter them out
-                if dataset['available'] is False:
-                    continue
                 # modified_since filters on publish_date
                 if pendulum.parse(dataset['publish_date']) > end_date:
                     break
@@ -79,7 +66,17 @@ class MendeleyHarvester(BaseHarvester):
                             continue
                 yield (dataset['id'], dataset)
 
+            if 'Link' in resp.headers:
+                next_link = resp.headers['Link'].split(';')
+                resp = self.requests.get(next_link[0].strip('<>'), headers=headers)
+            else:
+                break
+
     def get_contributor_profile(self, headers, contributor_uuid):
-        headers['Accept'] = 'application/vnd.mendeley-profiles.1+json'
+        token = headers['Authorization']
+        contributor_headers = {
+            'Authorization': token,
+            'Accept': 'application/vnd.mendeley-profiles.1+json'
+        }
         profile_url = furl('https://api.mendeley.com/profiles/').join(contributor_uuid).url
-        return self.requests.get(profile_url, headers=headers)
+        return self.requests.get(profile_url, headers=contributor_headers)
