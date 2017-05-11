@@ -17,6 +17,8 @@ from django.utils.log import DEFAULT_LOGGING
 
 from kombu import Queue, Exchange
 
+from celery.schedules import crontab
+
 # Suppress select django deprecation messages
 LOGGING = DEFAULT_LOGGING
 
@@ -320,7 +322,14 @@ CELERY_RETRY_BACKOFF_BASE = int(os.environ.get('CELERY_RETRY_BACKOFF_BASE', 2 if
 BROKER_URL = os.environ.get('BROKER_URL', 'amqp://'),
 
 CELERY_TIMEZONE = 'UTC'
-CELERYBEAT_SCHEDULE = {}
+CELERYBEAT_SCHEDULE = {
+    # Executes daily at 11:30 P.M
+    'es-janitor-task': {
+        'task': 'bots.elasticsearch.tasks.JanitorTask',
+        'schedule': crontab(hour=23, minute=30),
+        'args': (1, 'elasticsearch'),
+    },
+}
 
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
