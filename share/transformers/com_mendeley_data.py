@@ -10,12 +10,48 @@ def format_mendeley_address(ctx):
         country=ctx['country']
     )
 
+RELATION_MAP = {
+    'related_to': '',
+    'derived_from': 'IsDerivedFrom',
+    'source_of': 'IsDerivedFrom',
+    'compiles': 'Compiles',
+    'compiled_by': 'Compiles',
+    'cites': 'Cites',
+    'cited_by': 'Cites',
+}
+
+INVERSE_RELATIONS = (
+    'cited_by',
+    'compiled_by',
+    'derived_from',
+)
+
+RELATIONS = (
+    'cites',
+    'compiles',
+    'source_of',
+    'related_to',
+)
+
+
+def get_related_works(options, inverse):
+    results = []
+    for option in options:
+        relation = option['rel']
+        if inverse and relation in INVERSE_RELATIONS:
+            results.append(option)
+        elif not inverse and relation in RELATIONS:
+            results.append(option)
+    return results
+
+
+def get_relation_type(relation_type):
+    normalized_relation = RELATION_MAP[relation_type]
+    return normalized_relation or 'WorkRelation'
+
 
 class WorkIdentifier(Parser):
-    uri = Try(
-        IRI(ctx),
-        exceptions=(ValueError,)
-    )
+    uri = ctx
 
 
 class Tag(Parser):
@@ -37,20 +73,37 @@ class ThroughSubjects(Parser):
     subject = Delegate(Subject, ctx)
 
 
-# class RelatedWork(Parser):
-#     schema = ctx.type
-#     identifiers = Map(Delegate(RelatedWorkIdentifier), ctx)
+class RelatedWork(Parser):
+    schema = ctx.type
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        Try(
+            IRI(ctx.href),
+            exceptions=(ValueError,)
+        )
+    )
 
 
-# class WorkRelation(Parser):
-#     schema = RunPython(get_relation_type, ctx.rel)
-#     related = Delegate(RelatedWork, ctx)
+class WorkRelation(Parser):
+    schema = RunPython(get_relation_type, ctx.rel)
+    related = Delegate(RelatedWork, ctx)
+
+
+class InverseWorkRelation(Parser):
+    schema = RunPython(get_relation_type, ctx.rel)
+    subject = Delegate(RelatedWork, ctx)
 
 
 class RelatedArticle(Parser):
     schema = 'Article'
     title = Try(ctx.title)
-    identifiers = Map(Delegate(WorkIdentifier), ctx.doi)
+    identifiers = Map(
+        Delegate(WorkIdentifier),
+        Try(
+            IRI(ctx.doi),
+            exceptions=(ValueError,)
+        )
+    )
 
     class Extra:
         journal = Try(ctx.journal)
@@ -64,10 +117,7 @@ class UsesDataFrom(Parser):
 
 
 class AgentIdentifier(Parser):
-    uri = Try(
-        IRI(ctx),
-        exceptions=(ValueError,)
-    )
+    uri = ctx
 
 
 class AgentInstitution(Parser):
@@ -75,23 +125,39 @@ class AgentInstitution(Parser):
 
     name = Try(ctx.name)
     location = Try(RunPython(format_mendeley_address, ctx))
-    identifiers = Map(Delegate(AgentIdentifier), Try(ctx.urls))
+    identifiers = Map(
+        Delegate(AgentIdentifier),
+        Concat(
+            Try(
+                IRI(ctx.urls),
+                exceptions=(ValueError,)
+            ),
+            Try(
+                IRI(ctx.profile_url),
+                exceptions=(ValueError,)
+            )
+        )
+    )
 
     class Extra:
-        scival_id = ctx.scival_id,
-        institution_id = ctx.institution_id,
-        name = ctx.name,
-        city = ctx.city,
-        state = ctx.state,
-        country = ctx.country,
-        parent_id = ctx.parent_id,
-        urls = ctx.urls,
-        profile_url = ctx.profile_url,
-        alt_names = ctx.alt_names
+        name = Try(ctx.name)
+        scival_id = Try(ctx.scival_id)
+        instituion_id = Try(ctx.id)
+        city = Try(ctx.city)
+        state = Try(ctx.state)
+        country = Try(ctx.country)
+        parent_id = Try(ctx.parent_id)
+        urls = Try(ctx.urls)
+        profile_url = Try(ctx.profile_url)
+        alt_names = Try(ctx.alt_names)
 
 
 class AgentWorkRelation(Parser):
     agent = Delegate(AgentInstitution, ctx)
+
+
+class IsAffiliatedWith(Parser):
+    related = Delegate(AgentInstitution, ctx)
 
 
 class Person(Parser):
@@ -146,11 +212,22 @@ class Person(Parser):
 
     identifiers = Map(
         Delegate(AgentIdentifier),
-        Try(ctx.full_profile.orcid_id),
-        Try(ctx.full_profile.link),
+        Concat(
+            Try(
+                IRI(ctx.full_profile.orcid_id),
+                exceptions=(ValueError,)
+            ),
+            Try(
+                IRI(ctx.full_profile.link),
+                exceptions=(ValueError,)
+            )
+        )
     )
 
-    # related_agents = Map(Delegate(), Try(ctx.institution_details))
+    related_agents = Concat(
+        Map(Delegate(IsAffiliatedWith), Try(ctx.full_profile.institution_details)),
+        Map(Delegate(IsAffiliatedWith), Try(ctx.institution)),
+    )
 
     class Extra:
         profile_id = Try(ctx.profile_id)
@@ -285,16 +362,33 @@ class DataSet(Parser):
             Delegate(UsesDataFrom),
             Try(ctx.articles)  # Journal articles associated with the dataset
         ),
-        # Map(
-        #     Delegate(WorkRelation),
-        #     Try(ctx.related_links)
-        # )
+        Map(
+            Delegate(WorkRelation),
+            RunPython(
+                get_related_works,
+                Try(ctx.related_links),
+                False
+            )
+        ),
+        Map(
+            Delegate(InverseWorkRelation),
+            RunPython(
+                get_related_works,
+                Try(ctx.related_links),
+                True
+            )
+        )
     )
 
     identifiers = Map(
         Delegate(WorkIdentifier),
-        RunPython(lambda mendeley_id: 'https://data.mendeley.com/datasets/{}'.format(mendeley_id) if mendeley_id else None, Try(ctx.id)),
-        Try(ctx.doi.id)
+        Concat(
+            RunPython(lambda mendeley_id: 'https://data.mendeley.com/datasets/{}'.format(mendeley_id) if mendeley_id else None, Try(ctx.id)),
+            Try(
+                IRI(ctx.doi.id),
+                exceptions=(ValueError,)
+            )
+        )
     )
 
     def filter_contributors(self, contributor_list, contributor_type):
@@ -304,7 +398,7 @@ class DataSet(Parser):
                 if not contributor['contribution'] and contributor_type == 'creator':
                     filtered.append(contributor)
                 elif contributor['contribution'] and contributor_type == 'contributor':
-                    filtered.append('contributor')
+                    filtered.append(contributor)
             except KeyError:
                 if contributor_type == 'creator':
                     filtered.append(contributor)
@@ -315,24 +409,24 @@ class DataSet(Parser):
         http://dev.mendeley.com/methods/#datasets
         http://dev.mendeley.com/methods/#profile-attributes
         """
-        mendeley_id = ctx.id
-        doi = ctx.doi
-        name = ctx.name
-        description = ctx.description
-        version = ctx.version
-        contributors = ctx.contributors
-        versions = ctx.versions
-        files = ctx.files
-        articles = ctx.articles
-        categories = ctx.categories
-        institutions = ctx.institutions
-        metrics = ctx.metrics
-        available = ctx.available
-        method = ctx.method
+        mendeley_id = Try(ctx.id)
+        doi = Try(ctx.doi)
+        name = Try(ctx.name)
+        description = Try(ctx.description)
+        version = Try(ctx.version)
+        contributors = Try(ctx.contributors)
+        versions = Try(ctx.versions)
+        files = Try(ctx.files)
+        articles = Try(ctx.articles)
+        categories = Try(ctx.categories)
+        institutions = Try(ctx.institutions)
+        metrics = Try(ctx.metrics)
+        available = Try(ctx.available)
+        method = Try(ctx.method)
         related_links = Try(ctx.related_links)
         publish_date = ctx.publish_date
-        data_licence = ctx.data_licence
-        owner_id = ctx.owner_id
+        data_licence = Try(ctx.data_licence)
+        owner_id = Try(ctx.owner_id)
         embargo_date = Try(ctx.embargo_date)
 
 

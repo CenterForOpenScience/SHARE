@@ -42,7 +42,7 @@ class MendeleyHarvester(BaseHarvester):
         return self.fetch_records(furl(self.config.base_url).set(query_params={
             'modified_since': start_date.isoformat(),
             'fields': 'results.*',
-            'limit': '500',
+            'limit': '100',  # chance of timing out with larger requests
             'sort': 'publish_date',
             'order': 'asc',
         }).url, headers, end_date)
