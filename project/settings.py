@@ -203,7 +203,7 @@ DATABASES = {
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
-        'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
+        'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE')) if os.environ.get('CONN_MAX_AGE') else None,
         'TEST': {'SERIALIZE': False},
     },
     'locking': {
@@ -213,16 +213,14 @@ DATABASES = {
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
-        'CONN_MAX_AGE': os.environ.get('CONN_MAX_AGE', None),
+        'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE')) if os.environ.get('CONN_MAX_AGE') else None,
         'TEST': {'MIRROR': 'default', 'SERIALIZE': False},
     }
 }
 
-# DATABASES['locking'] = DATABASES['default']
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
