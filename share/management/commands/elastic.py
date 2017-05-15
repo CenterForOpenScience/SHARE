@@ -6,6 +6,8 @@ from django.core.management.base import BaseCommand
 from share.tasks import BotTask
 from share.models import ShareUser
 
+from bots.elasticsearch.tasks import JanitorTask
+
 
 class Command(BaseCommand):
 
@@ -17,6 +19,8 @@ class Command(BaseCommand):
         parser.add_argument('--setup', action='store_true', help='Set up Elasticsearch index, settings, and mappings')
         parser.add_argument('--filter', type=json.loads, help='Set up Elasticsearch index, including settings and mappings')
         parser.add_argument('--models', nargs='*', type=str, help='Only index the given models')
+        parser.add_argument('--janitor', action='store_true', help='Run the janitor task')
+        parser.add_argument('--dry', action='store_true', help='When running with --janitor, don\'t reindex missing documents')
 
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
@@ -29,6 +33,14 @@ class Command(BaseCommand):
             'es_filter': options.get('filter'),
             'es_models': options.get('models'),
         }.items() if v}
+
+        if options['janitor']:
+            task_kwargs['dry'] = bool(options.get('dry', False))
+            if options['async']:
+                JanitorTask().apply_async(task_args, task_kwargs)
+            else:
+                JanitorTask().apply(task_args, task_kwargs)
+            return 0
 
         if options['async']:
             BotTask().apply_async(task_args, task_kwargs)
