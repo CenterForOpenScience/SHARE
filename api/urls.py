@@ -1,7 +1,6 @@
 from typedmodels.models import TypedModel
 
 from django.conf.urls import url
-
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 

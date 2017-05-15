@@ -5,9 +5,11 @@ from rest_framework_json_api import serializers
 
 from django import http
 from django.conf import settings
+from django.core.exceptions import FieldError
+from django.db.models.query import QuerySet
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from django.views.generic.base import RedirectView
-from django.shortcuts import get_object_or_404
 
 from api.pagination import CursorPagination
 from api.permissions import IsDeletedPremissions
@@ -21,13 +23,34 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('-id', )
     pagination_class = CursorPagination
     permission_classes = [IsDeletedPremissions, ]
+
     # Can't expose these until we have indexes added, both ascending and descending
     # filter_backends = (filters.OrderingFilter,)
     # ordering_fields = ('id', 'date_updated')
 
-    # override to convert encoded pk to an actual pk
+    # Override get_queryset to handle items marked as deleted.
+    def get_queryset(self, list=True):
+
+        assert self.queryset is not None, (
+            "'%s' should either include a `queryset` attribute, "
+            "or override the `get_queryset()` method."
+            % self.__class__.__name__
+        )
+
+        queryset = self.queryset
+        if isinstance(queryset, QuerySet):
+            # Ensure queryset is re-evaluated on each request.
+            queryset = queryset.all()
+            if list:
+                try:
+                    queryset = queryset.filter(is_deleted=False)
+                except FieldError:
+                    pass
+        return queryset
+
+    # Override to convert encoded pk to an actual pk
     def get_object(self):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.filter_queryset(self.get_queryset(False))
 
         # Perform the lookup filtering.
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
@@ -54,22 +77,6 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
         self.check_object_permissions(self.request, obj)
 
         return obj
-
-    # Override to filter out deleted items
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        try:
-            queryset = queryset.filter(is_deleted=False)
-        except:
-            pass
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
 
 # Other

@@ -1,8 +1,9 @@
-from oauth2_provider.ext.rest_framework import TokenHasScope
-from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 import logging
+
+from oauth2_provider.ext.rest_framework import TokenHasScope
 from rest_framework.exceptions import PermissionDenied
-from share.models import AbstractCreativeWork
+from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
+
 
 log = logging.getLogger(__name__)
 
@@ -36,8 +37,6 @@ class IsDeletedPremissions(BasePermission):
     Permission check for deleted objects.
     """
     def has_object_permission(self, request, view, obj):
-        TargetObject = AbstractCreativeWork.objects.filter(id=obj.id).first()
-        if hasattr(TargetObject, 'is_deleted'):
-            if TargetObject.is_deleted:
+        if hasattr(obj, 'is_deleted') and obj.is_deleted:
                 raise PermissionDenied('Query is forbidden for the given object.')
         return True
