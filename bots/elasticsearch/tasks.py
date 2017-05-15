@@ -197,16 +197,17 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
         )
         return
 
-    if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
-        logger.debug('Threshold of %d total works to index or %d%% missing works exceeded', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
+    logger.warning(
+        'Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.',
+        pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
+        pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
+        es_count,
+        db_count
+    )
 
-        logger.warning(
-            'Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.',
-            pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
-            pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
-            es_count,
-            db_count
-        )
+    if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
+        logger.debug('Met the threshold of %d total works to index or %d%% missing works.', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
+
         logger.info(
             'Reindexing records created from %s to %s.',
             pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
@@ -215,24 +216,33 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
 
         if dry:
             logger.debug('dry=True, not reindexing missing works')
-        else:
-            logger.debug('dry=False, reindexing missing works')
-            bot = apps.get_app_config('elasticsearch').get_bot(
-                ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
-                es_filter={'date_created__range': [min_date, max_date]},
-            )
-            bot.run()
+            return
+
+        logger.debug('dry=False, reindexing missing works')
+        bot = apps.get_app_config('elasticsearch').get_bot(
+            ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
+            es_filter={'date_created__range': [min_date, max_date]},
+        )
+        bot.run()
         return
 
-        logger.debug('Threshold of %d total works to index or %d%% missing works not exceeded', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
+    logger.debug('Did NOT meet the threshold of %d total works to index or %d%% missing works.', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
 
     for key, value in get_date_range_parts(min_date, max_date).items():
-        logger.debug('Starting bisection of %s to %s', value['min_date'], value['max_date'])
+        logger.info('Starting bisection of %s to %s', value['min_date'], value['max_date'])
 
-        if self.request.delivery_info.get('is_eager'):
-            pseudo_bisection(es_url, es_index, value['min_date'], value['max_date'], dry=dry)
-        else:
-            pseudo_bisection.apply_async((es_url, es_index, value['min_date'], value['max_date']), {'dry': dry})
+        if self.request.delivery_info is None:
+            logger.warning('request.delivery_info is None. Assuming a non-eager context.')
+
+        targs, tkwargs = (es_url, es_index, value['min_date'], value['max_date']), {'dry': dry}
+
+        if self.request.delivery_info and self.request.delivery_info.get('is_eager'):
+            logger.debug('Running in an eager context. Running child tasks synchronously.')
+            pseudo_bisection.apply(targs, tkwargs)
+            return
+
+        pseudo_bisection.apply_async(targs, tkwargs)
+        return
 
 
 class JanitorTask(AppTask):
@@ -252,4 +262,4 @@ class JanitorTask(AppTask):
         max_date = pendulum.utcnow()
         min_date = pendulum.instance(min_date)
 
-        pseudo_bisection(es_url, es_index, min_date.isoformat(), max_date.isoformat(), dry=dry)
+        pseudo_bisection.apply((es_url, es_index, min_date.isoformat(), max_date.isoformat()), {'dry': dry})
