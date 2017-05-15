@@ -169,8 +169,8 @@ def get_date_range_parts(min_date, max_date):
     }
 
 
-@celery.task
-def pseudo_bisection(es_url, es_index, min_date, max_date):
+@celery.task(bind=True)
+def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
     '''
     Checks if the database count matches the ES count
     If counts differ, split the date range in half and check counts in smaller ranges
@@ -179,12 +179,28 @@ def pseudo_bisection(es_url, es_index, min_date, max_date):
     MAX_DB_COUNT = 500
     MIN_MISSING_RATIO = 0.7
 
+    logger.debug(
+        'Checking counts for %s to %s',
+        pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
+        pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
+    )
+
     counts_match, db_count, es_count = check_counts_in_range(es_url, es_index, min_date, max_date)
 
     if counts_match:
-        return
-    if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
         logger.info(
+            'Counts for %s to %s match. %s creativeworks in ES, %s creativeworks in database.',
+            pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
+            pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
+            es_count,
+            db_count
+        )
+        return
+
+    if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
+        logger.debug('Threshold of %d total works to index or %d%% missing works exceeded', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
+
+        logger.warning(
             'Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.',
             pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
             pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
@@ -197,15 +213,26 @@ def pseudo_bisection(es_url, es_index, min_date, max_date):
             pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p')
         )
 
-        bot = apps.get_app_config('elasticsearch').get_bot(
-            ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
-            es_filter={'date_created__range': [min_date, max_date]},
-        )
-        bot.run()
+        if dry:
+            logger.debug('dry=True, not reindexing missing works')
+        else:
+            logger.debug('dry=False, reindexing missing works')
+            bot = apps.get_app_config('elasticsearch').get_bot(
+                ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
+                es_filter={'date_created__range': [min_date, max_date]},
+            )
+            bot.run()
         return
 
+        logger.debug('Threshold of %d total works to index or %d%% missing works not exceeded', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
+
     for key, value in get_date_range_parts(min_date, max_date).items():
-        pseudo_bisection.apply_async((es_url, es_index, value['min_date'], value['max_date']))
+        logger.debug('Starting bisection of %s to %s', value['min_date'], value['max_date'])
+
+        if self.request.delivery_info.get('is_eager'):
+            pseudo_bisection(es_url, es_index, value['min_date'], value['max_date'], dry=dry)
+        else:
+            pseudo_bisection.apply_async((es_url, es_index, value['min_date'], value['max_date']), {'dry': dry})
 
 
 class JanitorTask(AppTask):
@@ -213,9 +240,16 @@ class JanitorTask(AppTask):
     Looks for discrepancies between postgres and elastic search numbers
     Re-indexes time periods that differ in count
     '''
-    def do_run(self, es_url=None, es_index=None):
+    def do_run(self, es_url=None, es_index=None, dry=False):
         # get range of date_created in database; assumes current time is the max
-        min_date = pendulum.instance(CreativeWork.objects.all().aggregate(Min('date_created'))['date_created__min'])
-        max_date = pendulum.utcnow()
+        logger.debug('Starting Elasticsearch JanitorTask')
 
-        pseudo_bisection.apply_async((es_url, es_index, min_date.isoformat(), max_date.isoformat()))
+        min_date = CreativeWork.objects.all().aggregate(Min('date_created'))['date_created__min']
+        if not min_date:
+            logger.warning('No CreativeWorks are present in Postgres. Exiting')
+            return
+
+        max_date = pendulum.utcnow()
+        min_date = pendulum.instance(min_date)
+
+        pseudo_bisection(es_url, es_index, min_date.isoformat(), max_date.isoformat(), dry=dry)
