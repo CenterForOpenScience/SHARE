@@ -21,9 +21,19 @@ class Command(BaseCommand):
         parser.add_argument('--start', type=str, help='The day to start harvesting, in the format YYYY-MM-DD')
         parser.add_argument('--end', type=str, help='The day to end harvesting, in the format YYYY-MM-DD')
         parser.add_argument('--limit', type=int, help='The maximum number of works to harvest, defaults to no limit')
+        parser.add_argument('--superfluous', action='store_true', help='Re-run this harvest, even if it has already been completed')
+        parser.add_argument('--ingest', dest='ingest', action='store_true')
+        parser.add_argument('--no-ingest', dest='ingest', action='store_false')
 
         parser.add_argument('--ids', nargs='*', type=str, help='Harvest specific works by identifier, instead of by date range.')
         parser.add_argument('--set-spec', type=str, help='Filter harvested works by OAI setSpecs')
+
+        parser.set_defaults(
+            force=False,
+            ignore_disabled=False,
+            ingest=True,
+            superfluous=False,
+        )
 
     def handle(self, *args, **options):
         user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
@@ -32,7 +42,12 @@ class Command(BaseCommand):
             self.harvest_ids(user, options)
             return
 
-        task_kwargs = {'force': options.get('force', False), 'ignore_disabled': options.get('ignore_disabled', False)}
+        task_kwargs = {
+            'force': options['force'],
+            'ignore_disabled': options['ignore_disabled'],
+            'ingest': options['ingest'],
+            'superfluous': options['superfluous'],
+        }
 
         if options['days_back'] is not None and (options['start'] or options['end']):
             self.stdout.write('Please choose days-back OR a start date with end date, not both')
