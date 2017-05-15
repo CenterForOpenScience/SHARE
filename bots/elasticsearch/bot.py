@@ -167,7 +167,9 @@ class ElasticSearchBot(Bot):
             doc_type='creativeworks',
             body='{"sort": {"date_modified": "desc"}, "size": 1}'
         )
-        return resp['hits']['hits'][0]['_source']['date_modified']
+        if resp['hits']['hits']:
+            return resp['hits']['hits'][0]['_source']['date_modified']
+        return '2000-01-01T00:00:00-00:00'
 
     def run(self, chunk_size=500):
         if self.es_setup:
