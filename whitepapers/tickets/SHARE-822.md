@@ -2,13 +2,126 @@
 
 
 ## Goals:
-   - Support OSF's Custom Taxonomies requirements
-   - Have a solution that can be used by any parties interested in enhancing SHARE
-   - Migrate the existing Subjecting system to this new solution
-   - Continue to use the Bepress taxonomy as SHARE's central taxonomy
+ - Support OSF's Custom Taxonomies requirements
+ - Have a solution that can be used by any parties interested in enhancing SHARE
+ - Migrate the existing Subjecting system to this new solution
+ - Continue to use the Bepress taxonomy as SHARE's central taxonomy
+
+
+## Reference
+The following values will be refered to for examples throughout this document
+
+```
+Taxonomy X:
+  Subject Alpha -> Bepress A
+    Subject Bravo -> Bepress B
+      Subject Charlie -> Bepress C
+    Subject Delta -> Bepress B
+  Subject Echo -> Bepress D
+```
+
+
+
+## Changes to OSF
+
+Changes are to be done by the OSF team.
+
+OSF's serialization of `Subject`s and `ThroughSubject`s in the `on_preprint` updated method will neeed to be modified.
+
+
+### Subject
+
+```javascript
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+
+  "properties": {
+    "@id": {"type": "string"},  // Unchanged
+    "@type": {"enum": ["subject"] },  // Unchanged
+    "name": {"type": "string"}, // Unchanged
+    "parent": {"type": {"$ref": "#/definitions/reference"}},  // Unchanged
+
+    "central_synonyms": {
+      "type": {"$ref": "#/definitions/reference"}
+      "default": null,
+      "description": "The central (Currently Bepress) subject that this subject is equivalent to."
+      // Nullable right now. It might make sense to make this a self reference for Bepress Subject
+      // Either way if a matching Name of Bepress is not found this entire graph will be rejected
+    },
+    "is_deleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Indicates whether or not this subject will be surfaced in SHARE.",
+    },
+    "uri": {
+      "type": "uri",
+      "description": "A URI to this subject, does not have to resolve. Allows uses to specify the exact subject to change"
+      // We could potentially use @id for the same purpose
+    }
+  },
+
+  "additionalProperties": false,
+  "required": ["@id", "@type", "name", "uri"]
+
+  "definitions": {
+    "reference": {
+      "type": "object",
+      "properties": {
+          "@id": { "type": "string" },
+          "@type": { "type": "string" }
+      },
+      "additionalProperties": false
+      "required": [ "@id", "@type" ],
+    }
+  }
+}
+```
+
+### ThroughSubjects
+
+```javascript
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+
+  "properties": {
+    "@id": {"type": "string"},  // Unchanged
+    "@type": {"enum": ["throughsubjects"] },  // Unchanged
+    "subject": {"type": {"$ref": "#/definitions/reference"}}  // Unchanged
+    "creative_work": {"type": {"$ref": "#/definitions/reference"}}  // Unchanged
+
+    "is_deleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Indicates whether or not this subject will be surfaced in SHARE.",
+    },
+    "uri": {
+      "type": "uri",
+      "description": "A URI to this throughsubject, does not have to resolve. Allows users to explicitly remove subjects. Note: If URI is omitted, there will be no programatic way to remove this ThroughSubject."
+    }
+  },
+
+  "additionalProperties": false,
+  "required": ["@id", "@type", "name"]
+
+  "definitions": {
+    "reference": {
+      "type": "object",
+      "properties": {
+          "@id": { "type": "string" },
+          "@type": { "type": "string" }
+      },
+      "additionalProperties": false
+      "required": [ "@id", "@type" ],
+    }
+  }
+}
+```
 
 
 ## Changes to SHARE:
+
   - New Model: "Taxonomy"
   - Changes to Model: "Subject"
     - Unique indexes on Subjects will move from `[name]` to `[name, taxonomy_id]` if the OSF requirements are amenable to this
@@ -19,7 +132,9 @@
   - The Elasticsearch task will be updated to look for any related models that have been recently updated as well
   - A page will be added to the admin interface to support manually fixing Taxonomies if required
 
-### Taxonomy
+### New Models
+
+#### Taxonomy
 
 | Column        |   Type   | Indexed | Nullable | FK  | Default | Description                                    |
 | :------------ | :------: | :-----: | :------: | :-: | :-----: | :--------------------------------------------- |
@@ -33,7 +148,7 @@
 | 1   | Bepress       | False   |
 | 1   | My custom tax | False   |
 
-## Subject
+#### Subject
 
 | Column        |   Type   | Indexed | Nullable | FK  | Default | Description                                                                                        |
 | :------------ | :------: | :-----: | :------: | :-: | :-----: | :------------------------------------------------------------------------------------------------- |
@@ -52,21 +167,23 @@
 | 2   | Civil Law  | False   | Civil Law | 1           | 2          | 1         |
 | 3   | Custom Law | False   | 538df3e1  | 2           | 1          | 1         |
 
-## Changes to OSF: 
-  - Whenever a custom taxonomy if modified the ne
-  - The on_preprint updated method will now serialize subjects as:
 
-## Situations:
+### Changes to Admin
+  - The Django admin should have a subjects page added to it to allow manual correction of errors
 
-### Reference
-```
-Taxonomy X:
-  Subject Alpha -> Bepress A
-    Subject Bravo -> Bepress B
-      Subject Charlie -> Bepress C
-    Subject Delta -> Bepress B
-  Subject Echo -> Bepress D
+### Changes to Elasticsearch
+  - The `subjects` fields of `CreativeWorks` will now use the Path Hierarch Tokenizer
+  - Subjects should be deduplicated before being indexed into elasticsearch
+    - A work with subject `Alpha` and `Charlie` will be indexed as `Taxonomy/Alpha/Bravo/Charlie`
+  - Subjects and ThroughSubjects that have been marked as `is_deleted` should not be included in `subjects`
+  - The `date_modified` of subjects will now be considered when looking for works that are out of date
 
+### Changes to Changes
+  - If a model does not have a `date_updated` field and the `NormalizedData` that it originates from does, that date will be used in place of `date_updated`
+    when resolving conflicting changes.
+
+
+## Situations
 
 Given SHARE is aware of custom Taxonomy X
 When SHARE recieves a work, "Gamma", with subjects [Alpha, Bravo, Charlie]
@@ -98,16 +215,18 @@ Then SHARE will mark Delta as deleted and reindex all works attached to "Delta"
     "Delta" will have to exist for SHARE to detect the need to remove the subject from existing
     works.
  ```
-### Strange Situations:
-  - Custom Taxonomy item added
-    - Foxtrot is added to Taxonomy X
-  - Custom Taxonomy item removed
-    - Bravo is removed to Taxonomy X
-    - Echo is removed to Taxonomy X
-  - Custom Taxonomy item renamed
-    - Echo -> Romeo is added to Taxonomy X
-  - Custom Taxonomy item redefined
-    - Alpha -> Bepress B is added to Taxonomy X
-  - Custom Taxonomy item duplicated
-    - Foxtrot -> Bepress A is added to Taxonomy X
-  - Preprint with Custom Taxonomy moves providers
+
+### Strange Situations
+
+- Custom Taxonomy item added
+  - Foxtrot is added to Taxonomy X
+- Custom Taxonomy item removed
+  - Bravo is removed to Taxonomy X
+  - Echo is removed to Taxonomy X
+- Custom Taxonomy item renamed
+  - Echo -> Romeo is added to Taxonomy X
+- Custom Taxonomy item redefined
+  - Alpha -> Bepress B is added to Taxonomy X
+- Custom Taxonomy item duplicated
+  - Foxtrot -> Bepress A is added to Taxonomy X
+- Preprint with Custom Taxonomy moves providers
