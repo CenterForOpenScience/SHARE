@@ -55,10 +55,15 @@ class OAIHarvester(BaseHarvester):
         return self.fetch_records(url)
 
     def fetch_records(self, url: furl) -> list:
-        token = None
+        token, used_tokens = None, set()
 
         while True:
             records, token = self.fetch_page(url, token=token)
+
+            if token in used_tokens:
+                raise ValueError('Found duplicate resumption token "{}" from {!r}'.format(token, self))
+            used_tokens.add(token)
+
             for record in records:
                 yield (
                     record.xpath('ns0:header/ns0:identifier', namespaces=self.namespaces)[0].text,

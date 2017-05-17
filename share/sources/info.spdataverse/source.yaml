@@ -1,6 +1,6 @@
 configs:
-- base_url: http://dataverse.scholarsportal.info/dvn/OAIHandler
-  disabled: false
+- base_url: http://dataverse.scholarsportal.info/
+  disabled: true
   earliest_date: null
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
@@ -13,7 +13,7 @@ configs:
     emitted_type: CreativeWork
     property_list: []
     type_map: {}
-home_page: http://dataverse.scholarsportal.info/dvn/
+home_page: http://dataverse.scholarsportal.info/
 long_title: Scholars Portal dataverse
 name: info.spdataverse
 user: providers.info.spdataverse

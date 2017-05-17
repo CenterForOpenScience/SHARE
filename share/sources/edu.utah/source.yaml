@@ -1,6 +1,6 @@
 configs:
 - base_url: https://collections.lib.utah.edu/oai
-  disabled: true
+  disabled: false
   earliest_date: null
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}

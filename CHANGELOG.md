@@ -1,5 +1,32 @@
 # Change Log
 
+# [2.8.0] - 2017-05-12
+## Added
+* Elasticsearch Janitor task to keep Postgres and ES in sync
+* Concurrently added indexes
+* Admin updates to allow quicker fixing of broken data
+* More test coverage
+
+## Removed
+* Elasticsearch's scroll API explicitly disabled
+
+## Changed
+* Upgraded to Django 1.11
+* Elasticsearch now pulls last_modified from itself rather than Postgres
+
+## Fixed
+* API pagination no longer times out on large collections
+* Timestamps are now included in the ATOM feed
+
+# [2.7.0] - 2017-05-04
+## Added
+* OAI endpoint
+* Sources
+  * OpenBU
+
+## Changed
+* Updated documentation
+
 # [2.6.0] - 2017-03-28
 ## Added
 * Sources

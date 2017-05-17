@@ -151,6 +151,7 @@ def fetch_creativework(pks):
                                         FROM share_agentidentifier AS identifier
                                         WHERE identifier.agent_id = agent.id
                                         AND identifier.scheme != 'mailto'
+                                        LIMIT 51
                                         ) AS identifiers ON TRUE
                             LEFT JOIN LATERAL (
                                         SELECT json_agg(json_strip_nulls(json_build_object(
@@ -237,6 +238,7 @@ def fetch_creativework(pks):
                             ) AS retractions ON TRUE
                 WHERE creativework.id IN %s
                 AND creativework.title != ''
+                AND COALESCE(array_length(identifiers, 1), 0) < 51
             ''', (tuple(pks), ))
 
             while True:
