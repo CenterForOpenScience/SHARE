@@ -43,23 +43,6 @@ def format_address(address1='', address2='', city='', state_or_province='', post
     return address1
 
 
-def text_list(self, data):
-    text_list = []
-    if isinstance(data, list):
-        for item in data:
-            if isinstance(item, dict):
-                if '#text' in item:
-                    text_list.append(item['#text'])
-                    continue
-            elif isinstance(item, str):
-                text_list.append(item)
-                continue
-            logger.warning('#text is not in {} and it is not a string'.format(item))
-        return text_list
-    else:
-        raise Exception('{} is not a list.'.format(data))
-
-
 def force_text(data):
     if isinstance(data, dict):
         if '#text' in data:
