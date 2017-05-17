@@ -4,6 +4,7 @@ from lxml import etree
 
 from share.transform.chain import ctx, ChainTransformer, links as tools
 from share.transform.chain.parsers import Parser
+from share.transform.chain.utils import force_text
 
 
 logger = logging.getLogger(__name__)
@@ -77,13 +78,7 @@ class OAIAgentWorkRelation(Parser):
     cited_as = tools.RunPython('force_text', ctx)
 
     def force_text(self, data):
-        if isinstance(data, dict):
-            return data['#text']
-
-        if isinstance(data, str):
-            return data
-
-        raise TypeError(data)
+        return force_text(data)
 
 
 class OAIContributor(OAIAgentWorkRelation):
@@ -270,26 +265,7 @@ class OAICreativeWork(Parser):
         return self.default_type
 
     def force_text(self, data):
-        if isinstance(data, dict):
-            return data['#text']
-
-        if isinstance(data, str):
-            return data
-
-        fixed = []
-        for datum in (data or []):
-            if datum is None:
-                continue
-            if isinstance(datum, dict):
-                if '#text' not in datum:
-                    logger.warn('Skipping %s, no #text key exists', datum)
-                    continue
-                fixed.append(datum['#text'])
-            elif isinstance(datum, str):
-                fixed.append(datum)
-            else:
-                raise Exception(datum)
-        return fixed
+        return force_text(data)
 
     def tokenize(self, data):
         if isinstance(data, str):

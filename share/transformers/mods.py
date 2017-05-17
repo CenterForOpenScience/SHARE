@@ -7,32 +7,10 @@ import xmltodict
 from share.transform.chain import ChainTransformer, ctx, links as tools
 from share.transform.chain.links import GuessAgentTypeLink
 from share.transform.chain.parsers import Parser
+from share.transform.chain.utils import force_text
 
 
 logger = logging.getLogger(__name__)
-
-
-def force_text(data):
-    if isinstance(data, dict):
-        return data.get('#text', '')
-
-    if isinstance(data, str):
-        return data
-
-    fixed = []
-    for datum in (data or []):
-        if datum is None:
-            continue
-        if isinstance(datum, dict):
-            if '#text' not in datum:
-                logger.warn('Skipping %s, no #text key exists', datum)
-                continue
-            fixed.append(datum['#text'])
-        elif isinstance(datum, str):
-            fixed.append(datum)
-        else:
-            raise Exception(datum)
-    return '\n'.join(fixed)
 
 
 def get_list(dct, key):
