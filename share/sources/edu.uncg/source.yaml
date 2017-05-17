@@ -1,7 +1,7 @@
 configs:
 - base_url: http://libres.uncg.edu/ir/oai/oai.aspx
   disabled: false
-  earliest_date: null
+  earliest_date: 2013-04-18T09:58:43Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.uncg

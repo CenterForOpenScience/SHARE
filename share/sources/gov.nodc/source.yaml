@@ -1,7 +1,7 @@
 configs:
-- base_url: https://data.nodc.noaa.gov/cgi-bin/oai-pmh?verb=ListRecords&metadataPrefix=oai_dc
+- base_url: https://data.nodc.noaa.gov/cgi-bin/oai-pmh
   disabled: false
-  earliest_date: null
+  earliest_date: null  # earliestDatestamp is earliest published
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: gov.nodc

@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://papyrus.bib.umontreal.ca/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2005-05-18T18:27:23Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: ca.umontreal.mods

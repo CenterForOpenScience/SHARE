@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: https://www.repository.cam.ac.uk/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2003-12-17T12:10:39Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: uk.cambridge.mods

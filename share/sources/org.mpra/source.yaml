@@ -1,7 +1,7 @@
 configs:
-- base_url: http://mpra.ub.uni-muenchen.de/perl/oai2
+- base_url: https://mpra.ub.uni-muenchen.de/cgi/oai2
   disabled: false
-  earliest_date: null
+  earliest_date: 2013-02-11T09:33:04Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: org.mpra

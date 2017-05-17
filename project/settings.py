@@ -329,7 +329,12 @@ if not DEBUG:
         'RawData Janitor': {
             'task': 'share.janitor.tasks.rawdata_janitor',
             'schedule': crontab(minute=0)  # hourly
-        }
+        },
+        'Source Stats': {
+            'task': 'share.tasks.source_stats',
+            'schedule': crontab(minute=0, hour='3,9,15,21'),  # every 6 hours
+            'args': (),
+        },
     }
 
 CELERY_RESULT_EXPIRES = 60 * 60 * 24 * 3  # 4 days

@@ -1,7 +1,8 @@
+# DSpace
 configs:
-- base_url: http://repository.seafdec.org.ph/oai/request
+- base_url: https://repository.seafdec.org.ph/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2011-05-12T09:05:01Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: org.seafdec.mods

@@ -1,7 +1,7 @@
 configs:
-- base_url: http://philpapers.org/oai.pl
+- base_url: https://philpapers.org/oai.pl
   disabled: false
-  earliest_date: null
+  earliest_date: null  # earliestDatestamp is earliest published
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false, until_param: to}
   label: org.philpapers

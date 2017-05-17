@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://repository.lib.fit.edu/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2012-11-29T19:21:49Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.fit.mods
