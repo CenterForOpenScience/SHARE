@@ -118,6 +118,12 @@ urlpatterns = [
         csrf_exempt(views.ElasticSearchGetOnlyView.as_view()),
         name='search_get'
     ),
+    # match specific document requests
+    url(
+        r'search/(?P<url_bits>[^_][\w_-]+/[^_][\w_-]+/?$)',
+        csrf_exempt(views.ElasticSearchGetOnlyView.as_view()),
+        name='search_get'
+    ),
     url(
         r'search/(?P<url_bits>.*)',
         csrf_exempt(views.ElasticSearch403View.as_view()),

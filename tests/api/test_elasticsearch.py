@@ -1,5 +1,6 @@
-from unittest import mock
 from furl import furl
+from unittest import mock
+import pytest
 
 
 class TestElasticSearchProxy:
@@ -32,65 +33,59 @@ class TestElasticSearchProxy:
         assert client.get('/api/v2/search/_search/scroll').status_code == 403
         assert client.get('/api/v2/search/_search/?scroll=1m').status_code == 403
 
-    def test_limitted_post(self, client):
-
-        urls = (
-            '/api/v2/search/type',
-            '/api/v2/search/type/',
-            '/api/v2/search/type/id',
-            '/api/v2/search/type/id/',
-            '/api/v2/search/type/id/some/thing/else',
-            '/api/v2/search/type/id/some/thing/else/',
-            '/api/v2/search/type/id/_search',
-            '/api/v2/search/type/id/_search/',
-            '/api/v2/search/type/id/some/thing/else/_search',
-            '/api/v2/search/type/id/some/thing/else/_search/',
-            '/api/v2/search/type/id/some/thing/else/_count',
-            '/api/v2/search/type/id/some/thing/else/_count/',
-            '/api/v2/search/_coun',
-            '/api/v2/search/__count',
-            '/api/v2/search/_counttttttttttt',
-            '/api/v2/search/_sear',
-            '/api/v2/search/__search',
-            '/api/v2/search/_searchh',
-            '/api/v2/search/_sugges',
-            '/api/v2/search/__suggest',
-            '/api/v2/search/_ssuggest',
-        )
+    @pytest.mark.parametrize('url', [
+        '/api/v2/search/type',
+        '/api/v2/search/type/',
+        '/api/v2/search/type/id',
+        '/api/v2/search/type/id/',
+        '/api/v2/search/type/id/some/thing/else',
+        '/api/v2/search/type/id/some/thing/else/',
+        '/api/v2/search/type/id/_search',
+        '/api/v2/search/type/id/_search/',
+        '/api/v2/search/type/id/some/thing/else/_search',
+        '/api/v2/search/type/id/some/thing/else/_search/',
+        '/api/v2/search/type/id/some/thing/else/_count',
+        '/api/v2/search/type/id/some/thing/else/_count/',
+        '/api/v2/search/_coun',
+        '/api/v2/search/__count',
+        '/api/v2/search/_counttttttttttt',
+        '/api/v2/search/_sear',
+        '/api/v2/search/__search',
+        '/api/v2/search/_searchh',
+        '/api/v2/search/_sugges',
+        '/api/v2/search/__suggest',
+        '/api/v2/search/_ssuggest',
+    ])
+    def test_limitted_post(self, url, client):
         with mock.patch('api.views.elasticsearch.requests.post') as post:
-            post.return_value = mock.Mock(status_code=403, json=lambda: {})
-            for url in urls:
-                assert client.post(url, '{}', content_type='application/json').status_code == 403
+            post.return_value = mock.Mock(status_code=500, json=lambda: {})
+            assert client.post(url, '{}', content_type='application/json').status_code in (403, 405)
 
-    def test_limitted_get(self, client):
-
-        urls = (
-            '/api/v2/search/type',
-            '/api/v2/search/type/',
-            '/api/v2/search/type/id',
-            '/api/v2/search/type/id/',
-            '/api/v2/search/type/id/some/thing/else',
-            '/api/v2/search/type/id/some/thing/else/',
-            '/api/v2/search/type/id/_search',
-            '/api/v2/search/type/id/_search/',
-            '/api/v2/search/type/id/some/thing/else/_search',
-            '/api/v2/search/type/id/some/thing/else/_search/',
-            '/api/v2/search/type/id/some/thing/else/_count',
-            '/api/v2/search/type/id/some/thing/else/_count/',
-            '/api/v2/search/_coun',
-            '/api/v2/search/__count',
-            '/api/v2/search/_counttttttttttt',
-            '/api/v2/search/_sear',
-            '/api/v2/search/__search',
-            '/api/v2/search/_searchh',
-            '/api/v2/search/_mapping',
-            '/api/v2/search/__mappings',
-            '/api/v2/search/_mappingss',
-        )
+    @pytest.mark.parametrize('url', [
+        '/api/v2/search/type',
+        '/api/v2/search/type/',
+        '/api/v2/search/type/id/some/thing/else',
+        '/api/v2/search/type/id/some/thing/else/',
+        '/api/v2/search/type/id/_search',
+        '/api/v2/search/type/id/_search/',
+        '/api/v2/search/type/id/some/thing/else/_search',
+        '/api/v2/search/type/id/some/thing/else/_search/',
+        '/api/v2/search/type/id/some/thing/else/_count',
+        '/api/v2/search/type/id/some/thing/else/_count/',
+        '/api/v2/search/_coun',
+        '/api/v2/search/__count',
+        '/api/v2/search/_counttttttttttt',
+        '/api/v2/search/_sear',
+        '/api/v2/search/__search',
+        '/api/v2/search/_searchh',
+        '/api/v2/search/_mapping',
+        '/api/v2/search/__mappings',
+        '/api/v2/search/_mappingss',
+    ])
+    def test_limitted_get(self, url, client):
         with mock.patch('api.views.elasticsearch.requests.get') as get:
-            get.return_value = mock.Mock(status_code=403, json=lambda: {})
-            for url in urls:
-                assert client.post(url).status_code == 403
+            get.return_value = mock.Mock(status_code=500, json=lambda: {})
+            assert client.post(url).status_code == 403
 
     def test_post_search(self, client):
         urls = (
@@ -118,27 +113,30 @@ class TestElasticSearchProxy:
             '/api/v2/search/_mappings/creativeworks/',
         )
         with mock.patch('api.views.elasticsearch.requests.post') as post:
-            post.return_value = mock.Mock(status_code=405, json=lambda: {})
+            post.return_value = mock.Mock(status_code=500, json=lambda: {})
             for url in urls:
                 assert client.post(url, '{}', content_type='application/json').status_code == 405
 
-    def test_get_search(self, client):
-        urls = (
-            '/api/v2/search/_search',
-            '/api/v2/search/_search/',
-            '/api/v2/search/type/_count',
-            '/api/v2/search/type/_count/',
-            '/api/v2/search/type/_search',
-            '/api/v2/search/type/_search/',
-            '/api/v2/search/_mappings/',
-            '/api/v2/search/_mappings',
-            '/api/v2/search/_mappings/creativeworks',
-            '/api/v2/search/_mappings/creativeworks/',
-        )
+    @pytest.mark.parametrize('url', [
+        '/api/v2/search/_search',
+        '/api/v2/search/_search/',
+        '/api/v2/search/type/_count',
+        '/api/v2/search/type/_count/',
+        '/api/v2/search/type/_search',
+        '/api/v2/search/type/_search/',
+        '/api/v2/search/_mappings/',
+        '/api/v2/search/_mappings',
+        '/api/v2/search/_mappings/creativeworks',
+        '/api/v2/search/_mappings/creativeworks/',
+        '/api/v2/search/creativeworks/some-id',
+        '/api/v2/search/creativeworks/some-id/',
+        '/api/v2/search/agent/some-id/',
+        '/api/v2/search/agent/some_id/',
+    ])
+    def test_get_search(self, url, client):
         with mock.patch('api.views.elasticsearch.requests.get') as get:
             get.return_value = mock.Mock(status_code=200, json=lambda: {})
-            for url in urls:
-                assert client.get(url).status_code == 200
+            assert client.get(url).status_code == 200
 
     def test_cannot_get(self, client):
         urls = (
@@ -148,7 +146,7 @@ class TestElasticSearchProxy:
             '/api/v2/search/type/_suggest/',
         )
         with mock.patch('api.views.elasticsearch.requests.get') as get:
-            get.return_value = mock.Mock(status_code=405, json=lambda: {})
+            get.return_value = mock.Mock(status_code=500, json=lambda: {})
             for url in urls:
                 assert client.get(url).status_code == 405
 
