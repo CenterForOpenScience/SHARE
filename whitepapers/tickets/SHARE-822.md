@@ -42,7 +42,7 @@ OSF's serialization of `Subject`s and `ThroughSubject`s in the `on_preprint` upd
     "name": {"type": "string"}, // Unchanged
     "parent": {"type": {"$ref": "#/definitions/reference"}},  // Unchanged
 
-    "central_synonyms": {
+    "central_synonym": {
       "type": {"$ref": "#/definitions/reference"}
       "default": null,
       "description": "The central (Currently Bepress) subject that this subject is equivalent to."
