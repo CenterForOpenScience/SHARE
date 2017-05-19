@@ -11,14 +11,17 @@ cache:
     directories:
       - $HOME/.cache
 
+dist: trusty
+
 env:
   global:
-    - ES_VERSION=2.4.2 ES_DOWNLOAD_URL=https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz
+    - ES_JAVA_OPTS="-Xms512m -Xmx512m"
+    - ES_VERSION=5.4.0 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
     - DATABASE_PORT="54321"
     - PROJECT_DIR="$PWD"
     - WHEELHOUSE="$HOME/.cache/wheelhouse"
     - LIBXML2_DEB="libxml2_2.7.8.dfsg-5.1ubuntu4.15_amd64.deb"
-    - POSTGRES_DEB="postgresql-9.5_9.5.5-1.pgdg12.4+1_amd64.deb"
+    - POSTGRES_DEB="postgresql-9.5_9.5.1-1.pgdg60+1_amd64.deb"
 
 before_install:
     # cache directories

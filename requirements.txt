@@ -19,7 +19,7 @@ django[bcrypt]==1.11  # BSD 3 Clause
 djangorestframework-jsonapi==2.1.1  # MIT
 djangorestframework==3.6.2  # BSD
 docopt==0.6.2  # MIT
-elasticsearch==2.3.0  # Apache 2.0
+elasticsearch==5.4.0  # Apache 2.0
 furl==0.4.95  # None
 gevent==1.1.1  # MIT
 graphene==1.4  # MIT

@@ -56,6 +56,42 @@ class TestElasticSearchBot:
         assert doc['_source']['title'] == x.title
         assert doc['_source']['sources'] == []
 
+    def test_51_identifiers_rejected(self, elastic):
+        work1 = factories.AbstractCreativeWorkFactory()
+        work2 = factories.AbstractCreativeWorkFactory()
+        for i in range(50):
+            factories.WorkIdentifierFactory(uri='http://example.com/{}'.format(i), creative_work=work1)
+            factories.WorkIdentifierFactory(uri='http://example.com/{}/{}'.format(i, i), creative_work=work2)
+        factories.WorkIdentifierFactory(creative_work=work2)
+
+        tasks.IndexModelTask().apply((1, elastic.config.label, 'creativework', [work1.id, work2.id]))
+
+        elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(work1))
+
+        with pytest.raises(NotFoundError):
+            elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(work2))
+
+    def test_aggregation(self, elastic):
+        work = factories.AbstractCreativeWorkFactory()
+
+        sources = [factories.SourceFactory() for _ in range(4)]
+        work.sources.add(*[s.user for s in sources])
+
+        tasks.IndexModelTask().apply((1, elastic.config.label, 'creativework', [work.id]))
+
+        elastic.es_client.indices.refresh(index=elastic.es_index)
+
+        resp = elastic.es_client.search(index=elastic.es_index, doc_type='creativeworks', body={
+            'size': 0,
+            'aggregations': {
+                'sources': {
+                    'terms': {'field': 'sources', 'size': 500}
+                }
+            }
+        })
+
+        assert sorted(resp['aggregations']['sources']['buckets'], key=lambda x: x['key']) == sorted([{'key': source.long_title, 'doc_count': 1} for source in sources], key=lambda x: x['key'])
+
 
 @pytest.mark.django_db
 class TestIndexSource:
@@ -90,21 +126,6 @@ class TestIndexSource:
 
         with pytest.raises(NotFoundError):
             elastic.es_client.get(index=elastic.es_index, doc_type='sources', id=source.name)
-
-    def test_51_identifiers_rejected(self, elastic):
-        work1 = factories.AbstractCreativeWorkFactory()
-        work2 = factories.AbstractCreativeWorkFactory()
-        for i in range(50):
-            factories.WorkIdentifierFactory(uri='http://example.com/{}'.format(i), creative_work=work1)
-            factories.WorkIdentifierFactory(uri='http://example.com/{}/{}'.format(i, i), creative_work=work2)
-        factories.WorkIdentifierFactory(creative_work=work2)
-
-        tasks.IndexModelTask().apply((1, elastic.config.label, 'creativework', [work1.id, work2.id]))
-
-        elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(work1))
-
-        with pytest.raises(NotFoundError):
-            elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(work2))
 
 
 @pytest.mark.django_db
