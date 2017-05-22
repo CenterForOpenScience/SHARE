@@ -11,6 +11,8 @@ from typing import Iterator
 import pendulum
 import requests
 
+from django.conf import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +59,11 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         self.old_raw_ids = []
         self.config = source_config
         self.kwargs = kwargs
-        # TODO Add custom user agent
+
+        session = requests.Session()
+        session.headers.update({'User-Agent': settings.SHARE_USER_AGENT})
         # TODO Make rate limit apply across threads
-        self.requests = RateLimittedProxy(requests.Session(), self.config.rate_limit_allowance, self.config.rate_limit_period)
+        self.requests = RateLimittedProxy(session, self.config.rate_limit_allowance, self.config.rate_limit_period)
 
     @abc.abstractmethod
     def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, **kwargs) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
