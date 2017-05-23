@@ -1,6 +1,21 @@
+# DSpace
 configs:
-- base_url: http://researchspace.csir.co.za/oai/request
+- base_url: https://researchspace.csir.co.za/dspace/oai/request
   disabled: false
+  earliest_date: 2006-10-12 09:49:41
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: mods}
+  label: za.csir.mods
+  rate_limit_allowance: 1
+  rate_limit_period: 2
+  transformer: mods
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+- base_url: http://researchspace.csir.co.za/oai/request
+  disabled: true
   earliest_date: null
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
@@ -13,7 +28,7 @@ configs:
     emitted_type: CreativeWork
     property_list: []
     type_map: {}
-home_page: http://researchspace.csir.co.za
+home_page: http://researchspace.csir.co.za/dspace
 long_title: CSIR Researchspace
 name: za.csir
 user: providers.za.csir

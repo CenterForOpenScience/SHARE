@@ -470,9 +470,14 @@ class CreativeWork(Parser):
         force_text,
         tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.titles.title)
     )
-    description = tools.RunPython(
-        force_text,
-        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description[0])
+
+    description = tools.Try(
+        tools.Join(
+            tools.RunPython(
+                force_text,
+                tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description)
+            )
+        )
     )
 
     rights = tools.Try(
