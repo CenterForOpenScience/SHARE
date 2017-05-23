@@ -11,7 +11,7 @@ def format_mendeley_address(ctx):
     )
 
 RELATION_MAP = {
-    'related_to': '',
+    'related_to': 'WorkRelation',
     'derived_from': 'IsDerivedFrom',
     'source_of': 'IsDerivedFrom',
     'compiles': 'Compiles',
@@ -20,18 +20,18 @@ RELATION_MAP = {
     'cited_by': 'Cites',
 }
 
-INVERSE_RELATIONS = (
+INVERSE_RELATIONS = {
     'cited_by',
     'compiled_by',
-    'derived_from',
-)
+    'derived_from'
+}
 
-RELATIONS = (
+RELATIONS = {
     'cites',
     'compiles',
     'source_of',
     'related_to',
-)
+}
 
 
 def get_related_works(options, inverse):
@@ -46,8 +46,13 @@ def get_related_works(options, inverse):
 
 
 def get_relation_type(relation_type):
-    normalized_relation = RELATION_MAP[relation_type]
-    return normalized_relation or 'WorkRelation'
+    return RELATION_MAP.get(relation_type, 'WorkRelation')
+
+
+def get_related_work_type(work_type):
+    if work_type == 'other':
+        return 'creativework'
+    return work_type
 
 
 class WorkIdentifier(Parser):
@@ -74,7 +79,7 @@ class ThroughSubjects(Parser):
 
 
 class RelatedWork(Parser):
-    schema = ctx.type
+    schema = RunPython(get_related_work_type, ctx.type)
     identifiers = Map(
         Delegate(WorkIdentifier),
         Try(
