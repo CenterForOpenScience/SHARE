@@ -488,9 +488,14 @@ class CreativeWork(Parser):
         force_text,
         tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.titles.title)
     )
-    description = tools.RunPython(
-        force_text,
-        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description[0])
+
+    description = tools.Try(
+        tools.Join(
+            tools.RunPython(
+                'text_list',
+                tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description)
+            )
+        )
     )
 
     rights = tools.Try(
@@ -541,9 +546,7 @@ class CreativeWork(Parser):
         tools.Subjects(
             tools.RunPython(
                 'text_list',
-                tools.Concat(
-                    tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject),
-                )
+                tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)
             )
         )
     )
@@ -551,12 +554,12 @@ class CreativeWork(Parser):
     tags = tools.Map(
         tools.Delegate(ThroughTags),
         tools.RunPython(
-            force_text,
+            'text_list',
             tools.Concat(
                 tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_datacite'], 'type'),
                 tools.RunPython(
                     'text_list',
-                    (tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)))
+                    tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)
                 ),
                 tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.formats.format),
                 tools.Try(ctx.record.metadata['oai_datacite'].datacentreSymbol),
