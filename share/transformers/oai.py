@@ -4,6 +4,7 @@ from lxml import etree
 
 from share.transform.chain import ctx, ChainTransformer, links as tools
 from share.transform.chain.parsers import Parser
+from share.transform.chain.utils import force_text
 
 
 logger = logging.getLogger(__name__)
@@ -73,17 +74,8 @@ class OAIWorkRelation(Parser):
 class OAIAgentWorkRelation(Parser):
     schema = 'AgentWorkRelation'
 
-    agent = tools.Delegate(OAIAgent, tools.RunPython('force_text', ctx))
-    cited_as = tools.RunPython('force_text', ctx)
-
-    def force_text(self, data):
-        if isinstance(data, dict):
-            return data['#text']
-
-        if isinstance(data, str):
-            return data
-
-        raise TypeError(data)
+    agent = tools.Delegate(OAIAgent, tools.RunPython(force_text, ctx))
+    cited_as = tools.RunPython(force_text, ctx)
 
 
 class OAIContributor(OAIAgentWorkRelation):
@@ -114,8 +106,8 @@ class OAICreativeWork(Parser):
         )
     )
 
-    title = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:title'])))
-    description = tools.Join(tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:description'])))
+    title = tools.Join(tools.RunPython(force_text, tools.Try(ctx.record.metadata.dc['dc:title'])))
+    description = tools.Join(tools.RunPython(force_text, tools.Try(ctx.record.metadata.dc['dc:description'])))
 
     identifiers = tools.Map(
         tools.Delegate(OAIWorkIdentifier),
@@ -124,7 +116,7 @@ class OAICreativeWork(Parser):
             tools.Filter(
                 not_citation,
                 tools.RunPython(
-                    'force_text',
+                    force_text,
                     tools.Concat(
                         tools.Try(ctx.record.metadata.dc['dc:identifier']),
                         tools.Try(ctx.record.header['identifier'])
@@ -155,7 +147,7 @@ class OAICreativeWork(Parser):
         ),
         tools.Map(
             tools.Delegate(OAIPublisher),
-            tools.RunPython('force_text', tools.Try(ctx.record.metadata.dc['dc:publisher']))
+            tools.RunPython(force_text, tools.Try(ctx.record.metadata.dc['dc:publisher']))
         ),
     )
 
@@ -172,7 +164,7 @@ class OAICreativeWork(Parser):
             tools.Map(
                 tools.RunPython('tokenize'),
                 tools.RunPython(
-                    'force_text',
+                    force_text,
                     tools.Concat(
                         tools.Try(ctx.record.header.setSpec),
                         tools.Try(ctx.record.metadata.dc['dc:type']),
@@ -190,7 +182,7 @@ class OAICreativeWork(Parser):
             tools.Map(
                 tools.RunPython('tokenize'),
                 tools.RunPython(
-                    'force_text',
+                    force_text,
                     tools.Concat(
                         tools.Try(ctx.record.header.setSpec),
                         tools.Try(ctx.record.metadata.dc['dc:type']),
@@ -268,28 +260,6 @@ class OAICreativeWork(Parser):
             if t in self.type_map:
                 return self.type_map[t]
         return self.default_type
-
-    def force_text(self, data):
-        if isinstance(data, dict):
-            return data['#text']
-
-        if isinstance(data, str):
-            return data
-
-        fixed = []
-        for datum in (data or []):
-            if datum is None:
-                continue
-            if isinstance(datum, dict):
-                if '#text' not in datum:
-                    logger.warn('Skipping %s, no #text key exists', datum)
-                    continue
-                fixed.append(datum['#text'])
-            elif isinstance(datum, str):
-                fixed.append(datum)
-            else:
-                raise Exception(datum)
-        return fixed
 
     def tokenize(self, data):
         if isinstance(data, str):

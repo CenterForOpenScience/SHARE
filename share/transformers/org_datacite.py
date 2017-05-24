@@ -2,6 +2,7 @@ import logging
 
 from share.transform.chain import ctx, links as tools, ChainTransformer
 from share.transform.chain.parsers import Parser
+from share.transform.chain.utils import force_text
 
 
 logger = logging.getLogger(__name__)
@@ -54,25 +55,6 @@ def get_contributors(options, contrib_type):
         if val:
             contribs.append(val)
     return contribs
-
-
-def force_text(data):
-    if isinstance(data, str):
-        return data
-    if data is None:
-        return ''
-    if isinstance(data, dict):
-        if '#text' in data:
-            return data['#text']
-        raise Exception('#text is not in {}'.format(data))
-    if isinstance(data, list):
-        for item in data:
-            try:
-                return force_text(item)
-            except Exception:
-                pass
-        raise Exception('No value in list {} is a string.'.format(data))
-    raise Exception('{} is not a string or a dictionary.'.format(data))
 
 
 def get_agent_type(agent, person=False):
@@ -492,7 +474,7 @@ class CreativeWork(Parser):
     description = tools.Try(
         tools.Join(
             tools.RunPython(
-                'text_list',
+                force_text,
                 tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.descriptions.description)
             )
         )
@@ -501,7 +483,7 @@ class CreativeWork(Parser):
     rights = tools.Try(
         tools.Join(
             tools.RunPython(
-                'text_list',
+                force_text,
                 tools.Concat(ctx.record.metadata['oai_datacite'].payload.resource.rightsList.rights)
             )
         )
@@ -545,8 +527,10 @@ class CreativeWork(Parser):
         tools.Delegate(ThroughSubjects),
         tools.Subjects(
             tools.RunPython(
-                'text_list',
-                tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)
+                force_text,
+                tools.Concat(
+                    tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject),
+                )
             )
         )
     )
@@ -554,12 +538,12 @@ class CreativeWork(Parser):
     tags = tools.Map(
         tools.Delegate(ThroughTags),
         tools.RunPython(
-            'text_list',
+            force_text,
             tools.Concat(
                 tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_datacite'], 'type'),
                 tools.RunPython(
-                    'text_list',
-                    tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)
+                    force_text,
+                    (tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)))
                 ),
                 tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.formats.format),
                 tools.Try(ctx.record.metadata['oai_datacite'].datacentreSymbol),
@@ -686,22 +670,6 @@ class CreativeWork(Parser):
             return date
         # raise KeyError to break TryLink
         raise KeyError()
-
-    def text_list(self, data):
-        text_list = []
-        if isinstance(data, list):
-            for item in data:
-                if isinstance(item, dict):
-                    if '#text' in item:
-                        text_list.append(item['#text'])
-                        continue
-                elif isinstance(item, str):
-                    text_list.append(item)
-                    continue
-                logger.warning('#text is not in {} and it is not a string'.format(item))
-            return text_list
-        else:
-            raise Exception('{} is not a list.'.format(data))
 
 
 class DataciteTransformer(ChainTransformer):
