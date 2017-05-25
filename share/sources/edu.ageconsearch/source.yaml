@@ -1,14 +1,18 @@
 configs:
-- base_url: http://ageconsearch.umn.edu/browse-date
+- base_url: http://ageconsearch.tind.io/search
   disabled: false
   earliest_date: null
-  harvester: edu.ageconsearch
-  harvester_kwargs: {}
-  label: edu.ageconsearch
+  harvester: io.tind
+  harvester_kwargs:
+      collection: AgEcon Search
+      page_size: 100
+      format_code: xo
+  label: edu.ageconsearch.tind
   rate_limit_allowance: 1
   rate_limit_period: 2
-  transformer: edu.ageconsearch
-  transformer_kwargs: {}
+  transformer: mods
+  transformer_kwargs:
+      emitted_type: Preprint
 home_page: http://ageconsearch.umn.edu/
 long_title: AgEcon Search
 name: edu.ageconsearch
