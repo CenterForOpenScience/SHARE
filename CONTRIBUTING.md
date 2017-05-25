@@ -2,7 +2,7 @@
 
 ## Style Guide
 
-In the following templates, `TYPE` may be any of `Fix`, `Feature`, `Task`, or `Enhancement`.
+In the following templates, `TYPE` may be any of `Task`, `Bug`, `Feature`, or `Improvement`, or `Quick`.
 
 ### Commit Messages
 
