@@ -240,8 +240,7 @@ class MODSCreativeWork(Parser):
                     lambda obj: 'invalid' not in obj,
                     tools.Concat(
                         tools.Try(ctx['mods:identifier']),
-                        tools.Try(ctx.header['identifier']),
-                        tools.Try(ctx['mods:location']['mods:url']),
+                        tools.Try(ctx.header['identifier'])
                     )
                 )
             )

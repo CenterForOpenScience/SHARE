@@ -13,6 +13,13 @@ configs:
   transformer: mods
   transformer_kwargs:
       emitted_type: Preprint
+- base_url: http://ageconsearch.umn.edu/browse-date
+  disabled: true
+  earliest_date: null
+  harvester: null
+  label: edu.ageconsearch
+  transformer: edu.ageconsearch
+  transformer_kwargs: {}
 home_page: http://ageconsearch.umn.edu/
 long_title: AgEcon Search
 name: edu.ageconsearch

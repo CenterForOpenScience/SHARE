@@ -19,6 +19,7 @@ setup(
             'com.peerj.xml = share.transformers.com_peerj_xml:PeerJXMLTransformer',
             'com.researchregistry = share.transformers.com_researchregistry:RRTransformer',
             'com.springer = share.transformers.com_springer:SpringerTransformer',
+            'edu.ageconsearch = share.transformers.edu_ageconsearch:AgeconTransformer',
             'edu.gwu = share.transformers.edu_gwu:GWScholarSpaceTransformer',
             'edu.harvarddataverse = share.transformers.edu_harvarddataverse:HarvardTransformer',
             'gov.clinicaltrials = share.transformers.gov_clinicaltrials:ClinicalTrialsTransformer',
