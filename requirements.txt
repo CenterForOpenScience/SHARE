@@ -25,6 +25,7 @@ gevent==1.1.1  # MIT
 graphene==1.4  # MIT
 jsonschema==2.5.1  # MIT
 lxml==3.6.0  # BSD
+markdown==2.6.8  # BSD
 nameparser==0.4.0  # LGPL
 newrelic==2.68.0.50  # newrelic APM agent, Custom License
 pendulum==0.6.2  # MIT
