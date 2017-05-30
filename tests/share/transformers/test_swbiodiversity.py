@@ -38,7 +38,7 @@ def test_func():
     assert result['@graph'][3]['@type'] == 'dataset'
     assert result['@graph'][3]['description'] == 'test description'
     assert result['@graph'][3]['title'] == 'A. Michael Powell Herbarium (SRSC)'
-    assert result['@graph'][3]['usage-rights'] == 'CC BY-NC (Attribution-Non-Commercial)'
+    assert result['@graph'][3]['extra']['usage_rights'] == 'CC BY-NC (Attribution-Non-Commercial)'
     assert result['@graph'][3]['extra']['access_rights'] == 'Sul Ross University'
     assert result['@graph'][3]['extra']['identifiers'] == '223'
     assert result['@graph'][3]['extra']['collection_statistics'] == {

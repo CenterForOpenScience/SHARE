@@ -39,7 +39,6 @@ class Creator(Parser):
 class Dataset(Parser):
     title = tools.Try(ctx['title'])
     description = tools.Try(ctx['description'])
-    rights = tools.Try(ctx['usage-rights'])
 
     #
     related_agents = tools.Map(tools.Delegate(Creator), tools.Try(ctx.contact))
@@ -49,6 +48,7 @@ class Dataset(Parser):
     class Extra:
         identifiers = tools.Try(ctx['identifier'])
         access_rights = tools.Try(ctx['access-rights'])
+        usage_rights = tools.Try(ctx['usage-rights'])
         collection_statistics = tools.Try(ctx['collection-statistics'])
 
 
