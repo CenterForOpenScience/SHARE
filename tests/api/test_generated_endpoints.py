@@ -109,11 +109,12 @@ class TestGeneratedEndpoints:
 
         response = client.get('/api/v2/datasets/{}/'.format(encoded_id))
         assert response.status_code == 403
-        assert response.json() == {"errors":[{"source":{"pointer":"/data"},"detail":"This data set has been removed.","status":"403"}]}
+        assert response.json() == {"errors": [{"source": {"pointer": "/data"}, "detail": "This data set has been removed.", "status": "403"}]}
 
         response = client.get('/api/v2/datasets/')
         assert response.status_code == 200
         assert response.json() == {'data': [], 'links': {'next': None, 'prev': None}}
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('endpoint, factory', [
