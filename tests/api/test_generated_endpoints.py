@@ -96,44 +96,24 @@ class TestGeneratedEndpoints:
             assert actual['data']['attributes'][value] == expected[camelCase_to_underscore(value)]
 
     def test_can_delete_work(self, client, normalized_data_id):
-        graph = ChangeGraph([{
-            '@id': '_:abc',
-            '@type': 'workidentifier',
-            'uri': 'http://osf.io/faq',
-            'creative_work': {'@id': '_:789', '@type': 'dataset'}
-        }, {
-            '@id': '_:789',
-            'is_deleted': False,
-            '@type': 'dataset',
-        }])
-
-        graph.process()
-        preprint, identifier = ChangeSet.objects.from_graph(graph, normalized_data_id).accept()
+        preprint = factories.AbstractCreativeWorkFactory(is_deleted=False)
+        preprint.administrative_change(type='share.dataset')
         assert preprint.is_deleted is False
 
         encoded_id = IDObfuscator.encode(preprint)
-        response = client.get('/api/v2/{}/{}/'.format('datasets', encoded_id))
+        response = client.get('/api/v2/datasets/{}/'.format(encoded_id))
         assert response.status_code == 200
 
-        graph = ChangeGraph([{
-            '@id': '_:abc',
-            '@type': 'workidentifier',
-            'uri': 'http://osf.io/faq',
-            'creative_work': {'@id': '_:789', '@type': 'dataset'}
-        }, {
-            '@id': '_:789',
-            'is_deleted': True,
-            '@type': 'dataset',
-        }])
-
-        graph.process()
-        ChangeSet.objects.from_graph(graph, normalized_data_id).accept()
-        preprint.refresh_from_db()
+        preprint.administrative_change(is_deleted=True)
         assert preprint.is_deleted is True
 
-        response = client.get('/api/v2/{}/{}/'.format('datasets', encoded_id))
+        response = client.get('/api/v2/datasets/{}/'.format(encoded_id))
         assert response.status_code == 403
+        assert response.json() == {"errors":[{"source":{"pointer":"/data"},"detail":"This data set has been removed.","status":"403"}]}
 
+        response = client.get('/api/v2/datasets/')
+        assert response.status_code == 200
+        assert response.json() == {'data': [], 'links': {'next': None, 'prev': None}}
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('endpoint, factory', [

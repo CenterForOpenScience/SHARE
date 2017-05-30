@@ -5,8 +5,6 @@ from rest_framework_json_api import serializers
 
 from django import http
 from django.conf import settings
-from django.core.exceptions import FieldError
-from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from django.views.generic.base import RedirectView
@@ -22,7 +20,7 @@ from share.models import Source
 class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('-id', )
     pagination_class = CursorPagination
-    permission_classes = [IsDeletedPremissions, ]
+    permission_classes = (IsDeletedPremissions, )
 
     # Can't expose these until we have indexes added, both ascending and descending
     # filter_backends = (filters.OrderingFilter,)
@@ -30,22 +28,9 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     # Override get_queryset to handle items marked as deleted.
     def get_queryset(self, list=True):
-
-        assert self.queryset is not None, (
-            "'%s' should either include a `queryset` attribute, "
-            "or override the `get_queryset()` method."
-            % self.__class__.__name__
-        )
-
-        queryset = self.queryset
-        if isinstance(queryset, QuerySet):
-            # Ensure queryset is re-evaluated on each request.
-            queryset = queryset.all()
-            if list:
-                try:
-                    queryset = queryset.filter(is_deleted=False)
-                except FieldError:
-                    pass
+        queryset = super().get_queryset()
+        if list and hasattr(queryset.model, 'is_deleted'):
+            return queryset.exclude(is_deleted=True)
         return queryset
 
     # Override to convert encoded pk to an actual pk

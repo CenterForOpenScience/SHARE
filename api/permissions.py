@@ -38,5 +38,5 @@ class IsDeletedPremissions(BasePermission):
     """
     def has_object_permission(self, request, view, obj):
         if hasattr(obj, 'is_deleted') and obj.is_deleted:
-                raise PermissionDenied('Query is forbidden for the given object.')
+            raise PermissionDenied('This {} has been removed.'.format(obj._meta.verbose_name))
         return True
