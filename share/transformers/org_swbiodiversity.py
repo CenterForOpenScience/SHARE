@@ -1,4 +1,4 @@
-from share.transform.chain import ctx, ChainTransformer, Maybe
+from share.transform.chain import ctx, ChainTransformer
 from share.transform.chain import links as tools
 from share.transform.chain.parsers import Parser
 
@@ -28,9 +28,7 @@ class IsAffiliatedWith(Parser):
 
 
 class Person(Parser):
-    given_name = Maybe(ctx, 'first_name')
-    family_name = Maybe(ctx, 'last_name')
-    additional_name = Maybe(ctx, 'middle_name')
+    name = tools.Try(ctx.name)
     identifiers = tools.Map(tools.Delegate(AgentIdentifier), tools.Try(ctx.email))
 
 
@@ -44,25 +42,14 @@ class Dataset(Parser):
     rights = tools.Try(ctx['usage-rights'])
 
     #
-    related_agents = tools.Map(tools.Delegate(Creator), tools.RunPython('get_contributors', ctx))
+    related_agents = tools.Map(tools.Delegate(Creator), tools.Try(ctx.contact))
 
     # related_works
 
     class Extra:
         identifiers = tools.Try(ctx['identifier'])
-        access_rights = ctx['access-rights']
-        collection_statistics = ctx['collection-statistics']
-
-    def get_contributors(self, link):
-        author = link['contact']['name']
-        email = link['contact']['email']
-
-        contribs = [{
-            'author': author,
-            'email': email
-        }]
-
-        return contribs
+        access_rights = tools.Try(ctx['access-rights'])
+        collection_statistics = tools.Try(ctx['collection-statistics'])
 
 
 class SWTransformer(ChainTransformer):
