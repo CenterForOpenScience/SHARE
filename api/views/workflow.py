@@ -14,8 +14,7 @@ from api import schemas
 from api.pagination import CursorPagination
 from api.authentication import APIV1TokenBackPortAuthentication
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
-from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
-    RawDatumSerializer, ShareUserSerializer, SourceSerializer
+from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer,RawDatumSerializer, ShareUserSerializer, SourceSerializer
 from share.models import RawDatum, NormalizedData, Source, SourceConfig, Transformer
 from share.tasks import disambiguate
 from share.harvest.serialization import DictSerializer
@@ -43,7 +42,6 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Source.objects.exclude(icon='').exclude(is_deleted=True)
-
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
     """View showing all normalized data in the SHARE Dataset.

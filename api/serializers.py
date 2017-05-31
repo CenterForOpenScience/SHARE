@@ -5,10 +5,10 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework_json_api import serializers
 
 from share import models
-from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult
+
+from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult, logs
 
 from api import fields
-
 
 class BaseShareSerializer(serializers.ModelSerializer):
 
@@ -132,11 +132,15 @@ class ShareUserSerializer(ShareModelSerializer):
             'is_active', 'gravatar', 'locale', 'time_zone'
         )
 
-
 class SourceSerializer(ShareModelSerializer):
     class Meta:
         model = models.Source
         fields = ('name', 'home_page', 'long_title', 'icon')
+
+class HarvestLogSerializer(ShareModelSerializer):
+    class Meta:
+        model = models.HarvestLog
+        fields = '__all__'
 
 
 class SiteBannerSerializer(ShareModelSerializer):
