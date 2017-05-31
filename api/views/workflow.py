@@ -56,6 +56,7 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return Source.objects.exclude(icon='').exclude(is_deleted=True)
 
+
     def create(self, request, *args, **kwargs):
         try:
             long_title = request.data['long_title']
@@ -127,6 +128,7 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
             },
             status=status.HTTP_201_CREATED
         )
+
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):

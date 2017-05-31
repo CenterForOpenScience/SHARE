@@ -5,10 +5,13 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework_json_api import serializers
 
 from share import models
-from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult, HarvestLogs
+
+from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult, HarvestLog
+
+
+from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult, logs
 
 from api import fields
-
 
 class BaseShareSerializer(serializers.ModelSerializer):
 
@@ -146,6 +149,7 @@ class SourceConfigSerializer(ShareModelSerializer):
     class Meta:
         model = models.SourceConfig
         fields = '__all__'
+
 
 class SiteBannerSerializer(ShareModelSerializer):
     color = serializers.SerializerMethodField()
