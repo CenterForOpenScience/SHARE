@@ -27,7 +27,7 @@ class GWScholarSpaceHarvester(BaseHarvester):
 
     def fetch_records(self, url, start_date, end_date):
         count, page = 0, 1
-        resp = self.requests.get(furl(url).set(query_params={'page': page}))
+        resp = self.requests.get(furl(url).set(query_params={'page': page}), timeout=self.request_timeout)
         soup = BeautifulSoup(resp.content, 'lxml')
         try:
             total = int(soup.select('#sortAndPerPage .page_entries strong')[-1].text.replace(',', ''))

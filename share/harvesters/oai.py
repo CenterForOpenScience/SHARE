@@ -79,7 +79,7 @@ class OAIHarvester(BaseHarvester):
 
         while True:
             logger.info('Making request to {}'.format(url.url))
-            resp = self.requests.get(url.url)
+            resp = self.requests.get(url.url, timeout=self.request_timeout)
             if resp.ok:
                 break
             if resp.status_code == 503:
@@ -112,7 +112,7 @@ class OAIHarvester(BaseHarvester):
     def metadata_formats(self):
         url = furl(self.config.base_url)
         url.args['verb'] = 'ListMetadataFormats'
-        resp = self.requests.get(url.url)
+        resp = self.requests.get(url.url, timeout=self.request_timeout)
         resp.raise_for_status()
         parsed = etree.fromstring(resp.content)
         formats = parsed.xpath('//ns0:metadataPrefix', namespaces=self.namespaces)
