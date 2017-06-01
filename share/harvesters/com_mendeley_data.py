@@ -69,9 +69,9 @@ class MendeleyHarvester(BaseHarvester):
                             continue
                 yield (dataset['id'], dataset)
 
-            if 'Link' in resp.headers:
+            try:
                 resp = self.requests.get(resp.links['next']['url'], headers=headers)
-            else:
+            except KeyError:
                 break
 
     def get_contributor_profile(self, headers, contributor_uuid):
