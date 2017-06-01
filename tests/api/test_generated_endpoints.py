@@ -4,6 +4,7 @@ import re
 
 from share.change import ChangeGraph
 from share.models import ChangeSet
+from share.util import IDObfuscator
 
 from tests import factories
 from tests.share.models.factories import NormalizedDataFactory
@@ -17,6 +18,7 @@ def camelCase_to_underscore(name):
 initial = [
     Preprint(
         id=1,
+        is_deleted=False,
         identifiers=[WorkIdentifier(1, id=1)],
         agent_relations=[
             Contributor(agent=Organization(id=1, name='American Heart Association')),
@@ -83,7 +85,6 @@ class TestGeneratedEndpoints:
             if obj['@type'] == model:
                 expected_id = obj['@id']
                 expected = obj
-
         response = client.get('/api/v2/{}/{}/'.format(route, expected_id))
 
         actual = json.loads(response.content.decode(encoding='UTF-8'))
@@ -93,6 +94,26 @@ class TestGeneratedEndpoints:
         assert actual['data']['attributes']['type'] == expected['@type']
         for value in controlled_values:
             assert actual['data']['attributes'][value] == expected[camelCase_to_underscore(value)]
+
+    def test_can_delete_work(self, client, normalized_data_id):
+        preprint = factories.AbstractCreativeWorkFactory(is_deleted=False)
+        preprint.administrative_change(type='share.dataset')
+        assert preprint.is_deleted is False
+
+        encoded_id = IDObfuscator.encode(preprint)
+        response = client.get('/api/v2/datasets/{}/'.format(encoded_id))
+        assert response.status_code == 200
+
+        preprint.administrative_change(is_deleted=True)
+        assert preprint.is_deleted is True
+
+        response = client.get('/api/v2/datasets/{}/'.format(encoded_id))
+        assert response.status_code == 403
+        assert response.json() == {"errors": [{"source": {"pointer": "/data"}, "detail": "This data set has been removed.", "status": "403"}]}
+
+        response = client.get('/api/v2/datasets/')
+        assert response.status_code == 200
+        assert response.json() == {'data': [], 'links': {'next': None, 'prev': None}}
 
 
 @pytest.mark.django_db
