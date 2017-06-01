@@ -37,31 +37,15 @@ class OSFHarvester(BaseHarvester):
                 if record['attributes'].get('tags') and QA_TAG in record['attributes']['tags']:
                     continue
 
-                for attr, key in self.kwargs.get('embed_attrs', {}).items():
-                    url = record
-                    try:
-                        for key in key.split('.'):
-                            url = url[key]
-                    except KeyError:
-                        logger.warning('Could not access attribute %s at %s', attr, key)
-                        continue
-                    url = furl(url).add(args={'page[size]': 100})
+                record = self.populate_embeds(record)
 
-                    data = []
-                    while True:
-                        resp, _next_page = self.fetch_page(url)
-                        data.extend(resp.json()['data'])
-
-                        if not _next_page:
-                            break
-                    record[attr] = data
                 yield record['id'], record
 
             if not next_page:
                 break
 
     def fetch_page(self, url, next_page=None):
-        logger.info('Making request to {}'.format(url.url))
+        logger.debug('Making request to {}'.format(url.url))
 
         records = self.requests.get(url.url)
 
@@ -71,6 +55,31 @@ class OSFHarvester(BaseHarvester):
         next_page = records.json()['links'].get('next')
         next_page = furl(next_page) if next_page else None
 
-        logger.info('Found {} records.'.format(len(records.json()['data'])))
+        logger.debug('Found {} records.'.format(len(records.json()['data'])))
 
         return records, next_page
+
+    def populate_embeds(self, record):
+        for attr, key in self.kwargs.get('embed_attrs', {}).items():
+            embedded = record
+            try:
+                for key in key.split('.'):
+                    embedded = embedded[key]
+            except KeyError:
+                logger.warning('Could not access attribute %s at %s', attr, key)
+                continue
+
+            logger.info('Populating embedded attribute "{}" for "{}"'.format(attr, record['id']))
+
+            data = []
+            url = furl(embedded).add(args={'page[size]': 100})
+
+            while True:
+                resp, url = self.fetch_page(url)
+                data.extend(resp.json()['data'])
+
+                if not url:
+                    break
+
+            record[attr] = data
+        return record
