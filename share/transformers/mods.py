@@ -174,8 +174,6 @@ class MODSCreator(MODSContributor):
 class MODSPublisher(MODSAgentWorkRelation):
     schema = 'Publisher'
 
-    agent = tools.Delegate(MODSAgent.using(schema=tools.GuessAgentType(ctx, default='organization')), ctx)
-
 
 class MODSSimpleAgent(Parser):
     schema = tools.GuessAgentType(ctx, default='organization')
