@@ -9,6 +9,7 @@ from rest_framework import filters
 from rest_framework.exceptions import ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
+from rest_framework.serializers import ValidationError
 
 from api import schemas
 from api.pagination import CursorPagination
@@ -40,9 +41,74 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('id', )
     ordering_fields = ('long_title', )
     serializer_class = SourceSerializer
+    permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
 
     def get_queryset(self):
         return Source.objects.exclude(icon='').exclude(is_deleted=True)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            home_page = request.data['home_page']
+            long_title = request.data['long_title']
+            # icon = request.data['icon']
+        except KeyError as e:
+            raise ValidationError('{} is a required attribute.'.format(e))
+
+        label = '.'.join(reversed(home_page.split('//')[1].split('.')))
+
+        user_serializer = ShareUserSerializer(
+            data={'username': label, 'is_trusted': True},
+            context={'request': request}
+        )
+
+        if user_serializer.is_valid(raise_exception=True):
+
+            user_instance = user_serializer.save()
+
+            source_instance = Source(
+                user_id=user_instance.id,
+                long_title=long_title,
+                home_page=home_page,
+                name=label
+            )  # icon=icon
+            source_instance.save()
+
+            source_config_instance = SourceConfig(source_id=source_instance.id, label=label)
+            source_config_instance.save()
+
+            return Response(
+                {
+                    'id': source_instance.id,
+                    'type': 'Source',
+                    'attributes': {
+                        'long_title': source_instance.long_title,
+                        'name': source_instance.name,
+                        'home_page': source_instance.home_page
+                    },
+                    'relationships': {
+                        'share_user': {
+                            'data': {
+                                'id': user_instance.id,
+                                'type': 'ShareUser',
+                                'attributes': {
+                                    'username': user_instance.username,
+                                    'authorization_token': user_instance.authorization()
+                                }
+                            }
+                        },
+                        'source_config': {
+                            'data': {
+                                'id': source_config_instance.id,
+                                'type': 'SourceConfig',
+                                'attributes': {
+                                    'label': source_config_instance.label
+                                }
+                            }
+                        }
+                    }
+                },
+                status=status.HTTP_202_ACCEPTED
+            )
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
