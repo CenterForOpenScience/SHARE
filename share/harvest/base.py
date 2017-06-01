@@ -36,6 +36,15 @@ class BaseHarvester(metaclass=abc.ABCMeta):
 
     SERIALIZER_CLASS = DeprecatedDefaultSerializer
 
+    network_read_timeout = 30
+    network_connect_timeout = 31
+
+    @property
+    def request_timeout(self):
+        """The timeout tuple for requests (connect, read)
+        """
+        return (self.network_connect_timeout, self.network_read_timeout)
+
     def __init__(self, source_config, pretty=False, **kwargs):
         """
 
@@ -53,6 +62,9 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         self.session.headers.update({'User-Agent': settings.SHARE_USER_AGENT})
         # TODO Make rate limit apply across threads
         self.requests = RateLimittedProxy(self.session, self.config.rate_limit_allowance, self.config.rate_limit_period)
+
+        self.network_read_timeout = kwargs.get('network_read_timeout', self.network_read_timeout)
+        self.network_connect_timeout = kwargs.get('network_connect_timeout', self.network_connect_timeout)
 
     def fetch_id(self, identifier):
         """Fetch a document by provider ID.

@@ -32,7 +32,7 @@ class BiomedCentralHarvester(BaseHarvester):
 
     def fetch_records(self, date):
         self.offset = 0
-        resp = self.requests.get(self.build_url(date))
+        resp = self.requests.get(self.build_url(date), timeout=self.request_timeout)
         total = int(resp.json()['result'][0]['total'])
 
         while self.offset < total:
