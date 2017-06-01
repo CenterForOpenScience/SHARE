@@ -5,7 +5,7 @@ from django.db import models
 from django.db import IntegrityError
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey
+from share.models.fields import ShareForeignKey, ShareURLField
 from share.models.fuzzycount import FuzzyCountManager
 from share.util import strip_whitespace
 
@@ -50,16 +50,33 @@ class Tag(ShareObject):
         all = ('name',)
 
 
+class Taxonomy(models.Model):
+    name = models.TextField(unique=True)
+    is_deleted = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+
 class SubjectManager(FuzzyCountManager):
     def get_by_natural_key(self, subject):
         return self.get(name=subject)
 
 
-class Subject(models.Model):
-    parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
-    name = models.TextField(unique=True, db_index=True)
+class Subject(ShareObject):
+    name = models.TextField()
+    is_deleted = models.BooleanField(default=False)
+    uri = ShareURLField(unique=True, null=True)
+    taxonomy = models.ForeignKey(Taxonomy, on_delete=models.CASCADE)
+    parent = ShareForeignKey('Subject', null=True, related_name='children')
+    central_synonym = ShareForeignKey('Subject', null=True, related_name='custom_synonyms')
 
     objects = SubjectManager()
+
+    @classmethod
+    def normalize(cls, node, graph):
+        synonym = node.attrs.get('central_synonym')
+        if synonym and synonym['@id'] == node['@id']:
+            node.attrs.pop('central_synonym')
 
     def __str__(self):
         return self.name
@@ -67,11 +84,12 @@ class Subject(models.Model):
     def natural_key(self):
         return self.name
 
-    def save(self):
-        raise IntegrityError('Subjects are an immutable set! Do it in bulk, if you must.')
+    class Meta:
+        unique_together = ('name', 'taxonomy')
 
     class Disambiguation:
-        all = ('name',)
+        # Special disambiguation case, handled in GraphDisambiguator._instance_for_subject
+        all = ('uri',)
 
 
 # Through Tables for all the things
@@ -89,8 +107,9 @@ class ThroughTags(ShareObject):
 
 
 class ThroughSubjects(ShareObject):
-    subject = models.ForeignKey('Subject', related_name='work_relations', on_delete=models.CASCADE)
+    subject = ShareForeignKey('Subject', related_name='work_relations')
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='subject_relations')
+    is_deleted = models.BooleanField(default=False)
 
     class Meta(ShareObject.Meta):
         unique_together = ('subject', 'creative_work')

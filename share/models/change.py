@@ -44,7 +44,7 @@ class ChangeManager(FuzzyCountManager):
             logger.debug('No changes detected in {!r}, skipping.'.format(node))
             return None
         if not hasattr(node.model, 'VersionModel'):
-            # Non-ShareObjects (e.g. Subject) cannot be changed.
+            # Non-ShareObjects (e.g. Taxonomy) cannot be changed.
             # Shouldn't reach this point...
             logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(node, node.model))
             return None
@@ -274,4 +274,9 @@ class Change(models.Model):
                 change[k] = [self.change_set._resolve_ref(r) for r in v]
             else:
                 change[k] = v
+
+        if self.target_type.model == 'subject' and change.get('central_synonym') is not None and 'taxonomy' not in change:  # TODO something better
+            from share.models import Taxonomy
+            change['taxonomy'] = Taxonomy.objects.get_or_create(name=self.change_set.normalized_data.source.source.long_title)
+
         return change

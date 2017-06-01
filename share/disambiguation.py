@@ -1,3 +1,4 @@
+import json
 import logging
 import pendulum
 
@@ -12,6 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 class GraphDisambiguator:
+
+    with open('./share/models/synonyms.json') as fobj:
+        SUBJECT_MAPPING = json.load(fobj)
 
     def __init__(self):
         self._index = self.NodeIndex()
@@ -130,6 +134,8 @@ class GraphDisambiguator:
             found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT 2;', sum(params, ())))
 
             if not found:
+                if concrete_model.__name__ == 'Subject':
+                    return self._instance_for_subject(node)
                 logger.debug('No %ss found for %s %s', concrete_model, all_query & q, queries)
                 return None
             if len(found) == 1:
@@ -175,6 +181,31 @@ class GraphDisambiguator:
             Person.normalize(replacement, replacement.graph)
 
         source.graph.replace(source, replacement)
+
+    def _instance_for_subject(self, node):
+        # Subject disambiguation is a bit weird: Match (uri) OR (name AND taxonomy)
+        # Matching uri is handled by the normal mechanism above.
+        if 'central_synonym' in node.attrs:
+            # Custom taxonomy
+            name = node.attrs.get('name')
+            source = node.graph.source
+            if source and name:
+                try:
+                    return node.model.objects.get(name=name, taxonomy__name=source.long_title)
+                except node.model.DoesNotExist:
+                    logger.debug('No %s found with name "%s" in taxonomy "%s"', node.model, name, source.long_title)
+            return None
+        else:
+            # Central taxonomy
+            name = self.SUBJECT_MAPPING.get(node.attrs.get('name'))
+            if not name:
+                logger.debug('Could not map %s "%s" to the central taxonomy', node.model, node.attrs.get('name'))
+                return None
+            try:
+                return node.model.objects.get(name=name, central_synonym__isnull=True)
+            except node.model.DoesNotExist:
+                logger.debug('No %s found with name "%s" in the central taxonomy', node.model, name)
+                return None
 
     class NodeIndex:
         def __init__(self):
