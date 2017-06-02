@@ -66,8 +66,7 @@ class ElasticSearchBot(Bot):
 
     EXACT_FIELD = {
         'exact': {
-            'type': 'string',
-            'index': 'not_analyzed',
+            'type': 'keyword',
             # From Elasticsearch documentation:
             # The value for ignore_above is the character count, but Lucene counts bytes.
             # If you use UTF-8 text with many non-ASCII characters, you may want to set the limit to 32766 / 3 = 10922 since UTF-8 characters may occupy at most 3 bytes
@@ -79,67 +78,67 @@ class ElasticSearchBot(Bot):
         'creativeworks': {
             'dynamic': False,
             'properties': {
-                'affiliations': {'type': 'string', 'fields': EXACT_FIELD},
-                'contributors': {'type': 'string', 'fields': EXACT_FIELD},
+                'affiliations': {'type': 'text', 'fields': EXACT_FIELD},
+                'contributors': {'type': 'text', 'fields': EXACT_FIELD},
                 'date': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
                 'date_created': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
                 'date_modified': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
                 'date_published': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
                 'date_updated': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
-                'description': {'type': 'string'},
-                'funders': {'type': 'string', 'fields': EXACT_FIELD},
-                'hosts': {'type': 'string', 'fields': EXACT_FIELD},
-                'id': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'identifiers': {'type': 'string', 'fields': EXACT_FIELD},
-                'justification': {'type': 'string', 'include_in_all': False},
-                'language': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'publishers': {'type': 'string', 'fields': EXACT_FIELD},
-                'registration_type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'description': {'type': 'text'},
+                'funders': {'type': 'text', 'fields': EXACT_FIELD},
+                'hosts': {'type': 'text', 'fields': EXACT_FIELD},
+                'id': {'type': 'keyword', 'include_in_all': False},
+                'identifiers': {'type': 'text', 'fields': EXACT_FIELD},
+                'justification': {'type': 'text', 'include_in_all': False},
+                'language': {'type': 'keyword', 'include_in_all': False},
+                'publishers': {'type': 'text', 'fields': EXACT_FIELD},
+                'registration_type': {'type': 'keyword', 'include_in_all': False},
                 'retracted': {'type': 'boolean', 'include_in_all': False},
-                'sources': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'subjects': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'tags': {'type': 'string', 'fields': EXACT_FIELD},
-                'title': {'type': 'string', 'fields': EXACT_FIELD},
-                'type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'types': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'sources': {'type': 'keyword', 'include_in_all': False},
+                'subjects': {'type': 'keyword', 'include_in_all': False},
+                'tags': {'type': 'text', 'fields': EXACT_FIELD},
+                'title': {'type': 'text', 'fields': EXACT_FIELD},
+                'type': {'type': 'keyword', 'include_in_all': False},
+                'types': {'type': 'keyword', 'include_in_all': False},
                 'withdrawn': {'type': 'boolean', 'include_in_all': False},
                 'lists': {'type': 'object', 'dynamic': True, 'include_in_all': False},
             },
             'dynamic_templates': [
-                {'exact_field_on_lists_strings': {'path_match': 'lists.*', 'match_mapping_type': 'string', 'mapping': {'type': 'string', 'fields': EXACT_FIELD}}},
+                {'exact_field_on_lists_strings': {'path_match': 'lists.*', 'match_mapping_type': 'string', 'mapping': {'type': 'text', 'fields': EXACT_FIELD}}},
             ]
         },
         'agents': {
             'dynamic': False,
             'properties': {
-                'id': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'identifiers': {'type': 'string', 'fields': EXACT_FIELD},
-                'name': {'type': 'string', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
-                'family_name': {'type': 'string', 'include_in_all': False},
-                'given_name': {'type': 'string', 'include_in_all': False},
-                'additional_name': {'type': 'string', 'include_in_all': False},
-                'suffix': {'type': 'string', 'include_in_all': False},
-                'location': {'type': 'string', 'include_in_all': False},
-                'sources': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'types': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'id': {'type': 'keyword', 'include_in_all': False},
+                'identifiers': {'type': 'text', 'fields': EXACT_FIELD},
+                'name': {'type': 'text', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
+                'family_name': {'type': 'text', 'include_in_all': False},
+                'given_name': {'type': 'text', 'include_in_all': False},
+                'additional_name': {'type': 'text', 'include_in_all': False},
+                'suffix': {'type': 'text', 'include_in_all': False},
+                'location': {'type': 'text', 'include_in_all': False},
+                'sources': {'type': 'keyword', 'include_in_all': False},
+                'type': {'type': 'keyword', 'include_in_all': False},
+                'types': {'type': 'keyword', 'include_in_all': False},
             }
         },
         'sources': {
             'dynamic': False,
             'properties': {
-                'id': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'name': {'type': 'string', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
-                'short_name': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'id': {'type': 'keyword', 'include_in_all': False},
+                'name': {'type': 'text', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
+                'short_name': {'type': 'keyword', 'include_in_all': False},
+                'type': {'type': 'keyword', 'include_in_all': False},
             }
         },
         'tags': {
             'dynamic': False,
             'properties': {
-                'id': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'name': {'type': 'string', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
-                'type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'id': {'type': 'keyword', 'include_in_all': False},
+                'name': {'type': 'text', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
+                'type': {'type': 'keyword', 'include_in_all': False},
             }
         },
     }
