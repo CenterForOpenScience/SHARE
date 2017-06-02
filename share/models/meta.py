@@ -10,7 +10,7 @@ from share.models.fuzzycount import FuzzyCountManager
 from share.util import strip_whitespace
 
 
-__all__ = ('Tag', 'Subject', 'ThroughTags', 'ThroughSubjects')
+__all__ = ('Tag', 'Subject', 'ThroughTags', 'ThroughSubjects', 'Taxonomy')
 logger = logging.getLogger('share.normalize')
 
 # TODO Rename this file
@@ -57,11 +57,6 @@ class Taxonomy(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
 
-class SubjectManager(FuzzyCountManager):
-    def get_by_natural_key(self, subject):
-        return self.get(name=subject)
-
-
 class Subject(ShareObject):
     name = models.TextField()
     is_deleted = models.BooleanField(default=False)
@@ -69,8 +64,6 @@ class Subject(ShareObject):
     taxonomy = models.ForeignKey(Taxonomy, on_delete=models.CASCADE)
     parent = ShareForeignKey('Subject', null=True, related_name='children')
     central_synonym = ShareForeignKey('Subject', null=True, related_name='custom_synonyms')
-
-    objects = SubjectManager()
 
     @classmethod
     def normalize(cls, node, graph):
@@ -81,15 +74,11 @@ class Subject(ShareObject):
     def __str__(self):
         return self.name
 
-    def natural_key(self):
-        return self.name
-
     class Meta:
         unique_together = ('name', 'taxonomy')
 
-    class Disambiguation:
-        # Special disambiguation case, handled in GraphDisambiguator._instance_for_subject
-        all = ('uri',)
+    # Special disambiguation case, handled in GraphDisambiguator._instance_for_subject
+    #class Disambiguation:
 
 
 # Through Tables for all the things

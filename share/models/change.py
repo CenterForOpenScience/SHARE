@@ -3,6 +3,7 @@ import logging
 from model_utils import Choices
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
@@ -65,7 +66,7 @@ class ChangeManager(FuzzyCountManager):
         else:
             attrs['type'] = Change.TYPE.update
             attrs['target_id'] = node.instance.pk
-            attrs['target_version_id'] = node.instance.version.pk
+            attrs['target_version_id'] = node.instance.version_id
 
         change = Change(**attrs)
 
@@ -197,7 +198,8 @@ class Change(models.Model):
         if new_type:
             self.target.recast('share.{}'.format(new_type))
 
-        self.target.__dict__.update(self._resolve_change())
+        for k, v in self._resolve_change().items():
+            setattr(self.target, k, v)
         if save:
             self.target.save()
         return self.target
@@ -275,8 +277,12 @@ class Change(models.Model):
             else:
                 change[k] = v
 
-        if self.target_type.model == 'subject' and change.get('central_synonym') is not None and 'taxonomy' not in change:  # TODO something better
+        if self.target_type.model == 'subject':  # TODO something better
             from share.models import Taxonomy
-            change['taxonomy'] = Taxonomy.objects.get_or_create(name=self.change_set.normalized_data.source.source.long_title)
+            if change.get('central_synonym', self.target.central_synonym if self.target else None) is None:
+                # TODO or should this raise an error? the central taxonomy shouldn't be modified by incoming data
+                change['taxonomy'] = Taxonomy.objects.get(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
+            else:
+                change['taxonomy'] = Taxonomy.objects.get_or_create(name=self.change_set.normalized_data.source.source.long_title)
 
         return change

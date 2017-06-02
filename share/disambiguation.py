@@ -83,8 +83,6 @@ class GraphDisambiguator:
                         changed = True
                         n.instance = instance
                         logger.debug('Disambiguated %s to %s', n, instance)
-                    elif n.type == 'subject':
-                        raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
 
                 self._index.add(n)
 
@@ -98,9 +96,12 @@ class GraphDisambiguator:
         return fk_count if fk_count == 1 else -fk_count
 
     def _instance_for_node(self, node):
-        info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
 
+        if concrete_model.__name__ == 'Subject':
+            return self._instance_for_subject(node)
+
+        info = self._index.get_info(node)
         if not info.all and not info.any:
             return None
 
@@ -134,8 +135,6 @@ class GraphDisambiguator:
             found = list(concrete_model.objects.raw(' UNION '.join('({})'.format(s) for s in sql) + ' LIMIT 2;', sum(params, ())))
 
             if not found:
-                if concrete_model.__name__ == 'Subject':
-                    return self._instance_for_subject(node)
                 logger.debug('No %ss found for %s %s', concrete_model, all_query & q, queries)
                 return None
             if len(found) == 1:
@@ -149,6 +148,36 @@ class GraphDisambiguator:
 
         logger.error('Could not disambiguate %s. Too many results found from %s %s', node.model, all_query, queries)
         raise NotImplementedError('Multiple {0}s found'.format(node.model))
+
+    def _instance_for_subject(self, node):
+        # Subject disambiguation is a bit weird: Match (uri) OR (name AND taxonomy)
+        if 'uri' in node.attrs:
+            try:
+                return node.model.objects.get(uri=node.attrs['uri'])
+            except node.model.DoesNotExist:
+                pass
+
+        if 'central_synonym' in node.attrs:
+            # Custom taxonomy
+            name = node.attrs.get('name')
+            source = node.graph.source
+            if source and name:
+                try:
+                    return node.model.objects.get(name=name, taxonomy__name=source.long_title)
+                except node.model.DoesNotExist:
+                    logger.debug('No %s found with name "%s" in taxonomy "%s"', node.model, name, source.long_title)
+            return None
+        else:
+            # Central taxonomy
+            name = node.attrs.get('name') # self.SUBJECT_MAPPING.get(node.attrs.get('name'))
+            if not name:
+                logger.debug('Could not map %s "%s" to the central taxonomy', node.model, node.attrs.get('name'))
+                return None
+            try:
+                return node.model.objects.get(name=name, central_synonym__isnull=True)
+            except node.model.DoesNotExist:
+                logger.debug('No %s found with name "%s" in the central taxonomy', node.model, name)
+                return None
 
     def _query_pair(self, key, value):
         try:
@@ -181,31 +210,6 @@ class GraphDisambiguator:
             Person.normalize(replacement, replacement.graph)
 
         source.graph.replace(source, replacement)
-
-    def _instance_for_subject(self, node):
-        # Subject disambiguation is a bit weird: Match (uri) OR (name AND taxonomy)
-        # Matching uri is handled by the normal mechanism above.
-        if 'central_synonym' in node.attrs:
-            # Custom taxonomy
-            name = node.attrs.get('name')
-            source = node.graph.source
-            if source and name:
-                try:
-                    return node.model.objects.get(name=name, taxonomy__name=source.long_title)
-                except node.model.DoesNotExist:
-                    logger.debug('No %s found with name "%s" in taxonomy "%s"', node.model, name, source.long_title)
-            return None
-        else:
-            # Central taxonomy
-            name = self.SUBJECT_MAPPING.get(node.attrs.get('name'))
-            if not name:
-                logger.debug('Could not map %s "%s" to the central taxonomy', node.model, node.attrs.get('name'))
-                return None
-            try:
-                return node.model.objects.get(name=name, central_synonym__isnull=True)
-            except node.model.DoesNotExist:
-                logger.debug('No %s found with name "%s" in the central taxonomy', node.model, name)
-                return None
 
     class NodeIndex:
         def __init__(self):

@@ -446,6 +446,8 @@ DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 
 ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 'ul']
 
+SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
+
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
 PLOS_API_KEY = os.environ.get('PLOS_API_KEY')
