@@ -17,6 +17,7 @@ from django.db import transaction
 from django.db.models.expressions import RawSQL
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+# from django.db.models import Exists, OuterRef
 
 from share.util import chunked
 from share.harvest.exceptions import HarvesterConcurrencyError
@@ -308,19 +309,25 @@ class AbstractBaseLog(models.Model):
                 raise error
 
 
+class PGLock(models.Model):
+    """A wrapper around Postgres' pg_locks system table.
+    manged = False stops this model from doing anything strange to the table
+    but allows us to safely query this table.
+    """
+
+    pid = models.IntegerField(primary_key=True)
+    locktype = models.TextField()
+    objid = models.IntegerField()
+    classid = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'pg_locks'
+
+
 class LockableQuerySet(models.QuerySet):
     LOCK_ACQUIRED = re.sub('\s\s+', ' ', '''
         pg_try_advisory_lock(%s::REGCLASS::INTEGER, "{0.model._meta.db_table}"."{0.column}")
-    ''').strip()
-
-    IS_LOCKED = re.sub('\s\s+', ' ', '''
-        EXISTS(
-            SELECT * FROM pg_locks
-            WHERE locktype = 'advisory'
-            AND objid = {0._meta.db_table}.{0._meta.pk.column}
-            AND classid = %s::REGCLASS::INTEGER
-            AND locktype = 'advisory'
-        )
     ''').strip()
 
     def unlocked(self, relation):
@@ -336,7 +343,11 @@ class LockableQuerySet(models.QuerySet):
             raise ValueError('Field "{}" of "{}" is not a relation'.format(relation, self.model))
 
         return self.select_related(relation).annotate(
-            is_locked=RawSQL(self.IS_LOCKED.format(field.related_model), [field.related_model._meta.db_table])
+            is_locked=models.Exists(PGLock.objects.filter(
+                locktype='advisory',
+                objid=models.OuterRef(field.column),
+                classid=RawSQL('%s::REGCLASS::INTEGER', [field.related_model._meta.db_table])
+            ))
         ).exclude(is_locked=True)
 
     @contextmanager

@@ -22,6 +22,18 @@ class DictSerializer(RawDatumSerializer):
         return json.dumps(value, sort_keys=True, indent=4 if self.pretty else None)
 
 
+class StringLikeSerializer(RawDatumSerializer):
+
+    def serialize(self, value):
+        if isinstance(value, bytes):
+            return value.decode('utf-8')
+
+        if isinstance(value, str):
+            return value
+
+        raise TypeError('Expected str or bytes, got {!r}'.format(type(value)))
+
+
 class DeprecatedDefaultSerializer(RawDatumSerializer):
     def __init__(self, pretty=False):
         super().__init__(pretty=pretty)

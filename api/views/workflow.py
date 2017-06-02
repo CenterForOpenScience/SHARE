@@ -1,6 +1,7 @@
 import jsonschema
 
 from django.db import transaction
+from django.utils import timezone
 
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
@@ -17,6 +18,7 @@ from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSer
 from share.models import RawDatum, NormalizedData, Source, SourceConfig, Transformer
 from share.tasks import disambiguate
 from share.harvest.serialization import DictSerializer
+from share.harvest.base import FetchResult
 
 
 __all__ = ('NormalizedDataViewSet', 'RawDatumViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
@@ -216,7 +218,7 @@ class V1DataView(views.APIView):
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
             config = self._get_source_config(request.user)
-            raw = RawDatum.objects.store_data(doc_id, DictSerializer(pretty=False).serialize(prelim_data), config)
+            raw = RawDatum.objects.store_data(config, FetchResult(doc_id, DictSerializer(pretty=False).serialize(prelim_data), timezone.now()))
 
         transformed_data = config.get_transformer().transform(raw.datum)
         data = {}

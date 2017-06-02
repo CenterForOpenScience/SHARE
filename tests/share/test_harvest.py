@@ -7,9 +7,12 @@ from faker import Factory
 
 import pytest
 
+import pendulum
+
 from django.conf import settings
 from django.db import DatabaseError
 
+from share.harvest.base import FetchResult
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.harvest.exceptions import HarvesterDisabledError
 from share.models import Source
@@ -222,7 +225,10 @@ class TestHarvestTask:
 
         monkeypatch.setattr('share.tasks.transform', mock_ingest_task)
         source_config.harvester.get_class()._do_fetch.extend([(fake.sentence(), str(i * 50)) for i in range(count)])
-        list(RawDatum.objects.store_chunk(source_config, random.sample(source_config.harvester.get_class()._do_fetch, rediscovered)))
+        list(RawDatum.objects.store_chunk(source_config, (
+            FetchResult(*tup) for tup in
+            random.sample(source_config.harvester.get_class()._do_fetch, rediscovered))
+        ))
 
         log = factories.HarvestLogFactory(source_config=source_config)
 
@@ -269,11 +275,16 @@ class TestHarvestTask:
         fake = Factory.create()
         log = factories.HarvestLogFactory(source_config=source_config)
 
-        padding = [(fake.sentence(), str(i * 50)) for i in range(20)]
         source_config.harvester.get_class()._do_fetch.clear()
 
+        padding = []
+        for _ in range(20):
+            s = fake.sentence()
+            padding.append((s, s * 5))
+
         for i in range(10):
-            source_config.harvester.get_class()._do_fetch.extend([(fake.sentence(), str(i * 50)) for i in range(5)])
+            s = fake.sentence()
+            source_config.harvester.get_class()._do_fetch.extend([(s, s * 5)] * 5)
             source_config.harvester.get_class()._do_fetch.extend(padding)
 
         tasks.harvest(log_id=log.id, limit=60, ingest=False)
@@ -282,4 +293,43 @@ class TestHarvestTask:
 
         assert log.completions == 1
         assert log.status == HarvestLog.STATUS.succeeded
-        assert log.raw_data.count() == 60
+        assert log.raw_data.count() == 30
+
+    def test_duplicate_data_different_identifiers(self, monkeypatch, source_config):
+        source_config.harvester.get_class()._do_fetch.clear()
+        source_config.harvester.get_class()._do_fetch.extend([
+            ('identifier1', 'samedata'),
+            ('identifier2', 'samedata'),
+        ])
+
+        with pytest.raises(ValueError) as e:
+            list(source_config.get_harvester().harvest())
+
+        assert e.value.args == ('<FetchResult(identifier2, None, b8bf83469c...)> has already been seen or stored with identifier "identifier1". Perhaps your identifier extraction is incorrect?', )
+
+    def test_datestamps(self, source_config):
+        source_config.harvester.get_class()._do_fetch.clear()
+        source_config.harvester.get_class()._do_fetch.extend([
+            ('identifier{}'.format(i), 'data{}'.format(i), pendulum.parse('2017-01-{}'.format(i)))
+            for i in range(1, 10)
+        ])
+
+        for i, raw in enumerate(source_config.get_harvester().harvest_date_range(
+            pendulum.parse('2017-01-01'),
+            pendulum.parse('2017-02-01'),
+        )):
+            assert raw.datestamp is not None
+            assert raw.datestamp.day == (i + 1)
+            assert raw.datestamp.year == 2017
+
+    def test_datestamps_out_of_range(self, source_config):
+        source_config.harvester.get_class()._do_fetch.clear()
+        source_config.harvester.get_class()._do_fetch.extend([
+            ('identifier{}'.format(i), 'data{}'.format(i), pendulum.parse('2016-01-{}'.format(i)))
+            for i in range(1, 10)
+        ])
+
+        with pytest.raises(ValueError) as e:
+            list(source_config.get_harvester().harvest_date(pendulum.parse('2016-01-01')))
+
+        assert e.value.args == ('result.datestamp is outside of the requested date range. 2016-01-02T00:00:00+00:00 from identifier2 is not within [2015-12-31T00:00:00+00:00 - 2016-01-01T00:00:00+00:00]', )

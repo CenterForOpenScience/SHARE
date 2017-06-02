@@ -228,3 +228,7 @@ def chunked(iterable, size=25, fail_fast=False):
         if not fail_fast and l:
             yield l
         raise e
+
+
+def placeholders(length):
+    return ', '.join('%s' for _ in range(length))

@@ -1,5 +1,5 @@
+from hashlib import sha256
 import abc
-import collections
 import datetime
 import logging
 import types
@@ -18,7 +18,25 @@ from share.models import RawDatum
 
 
 logger = logging.getLogger(__name__)
-FetchResult = collections.namedtuple('FetchResult', ('identifier', 'datum'))
+
+
+class FetchResult:
+    __slots__ = ('identifier', 'datum', 'datestamp', '_sha256')
+
+    @property
+    def sha256(self):
+        if not self._sha256:
+            self._sha256 = sha256(self.datum.encode('utf-8')).hexdigest()
+        return self._sha256
+
+    def __init__(self, identifier, datum, datestamp=None):
+        self._sha256 = None
+        self.datestamp = datestamp
+        self.datum = datum
+        self.identifier = identifier
+
+    def __repr__(self):
+        return '<{}({}, {}, {}...)>'.format(self.__class__.__name__, self.identifier, self.datestamp, self.sha256[:10])
 
 
 class BaseHarvester(metaclass=abc.ABCMeta):
@@ -134,8 +152,16 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         if not isinstance(data_gen, types.GeneratorType) and len(data_gen) != 0:
             raise TypeError('{!r}._do_fetch must return a GeneratorType for optimal performance and memory usage'.format(self))
 
-        for i, (identifier, datum) in enumerate(data_gen):
-            yield FetchResult(identifier, self.serializer.serialize(datum))
+        for i, blob in enumerate(data_gen):
+            result = FetchResult(blob[0], self.serializer.serialize(blob[1]), *blob[2:])
+
+            if result.datestamp and (result.datestamp.date() < start.date() or result.datestamp.date() > end.date()):
+                raise ValueError(
+                    'result.datestamp is outside of the requested date range. '
+                    '{} from {} is not within [{} - {}]'.format(result.datestamp, result.identifier, start, end)
+                )
+
+            yield result
 
             if limit is not None and i >= limit:
                 break
@@ -153,8 +179,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             RawDatum
 
         """
-        res = self.fetch_by_id(identifier)
-        return RawDatum.objects.store_data(res.identifier, res.datum, self.config)
+        return RawDatum.objects.store_data(self.config, self.fetch_by_id(identifier))
 
     def harvest(self, **kwargs):
         """Fetch data from yesterday.
@@ -181,6 +206,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             start (date):
             end (date):
             limit (int, optional): The maximum number of unique data to harvest. Defaults to None.
+                Uniqueness is determined by the SHA-256 of the raw data
             force (bool, optional): Disable all safety checks, unexpected exceptions will still be raised. Defaults to False.
             ignore_disabled (bool, optional): Don't check if this Harvester or Source is disabled or deleted. Defaults to False.
             **kwargs: Forwared to _do_fetch.

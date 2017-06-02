@@ -16,6 +16,7 @@ from project import celery_app
 
 from share import models
 from share.harvest import BaseHarvester
+from share.harvest.serialization import StringLikeSerializer
 from share.transform import BaseTransformer
 
 # TODO move these over
@@ -65,6 +66,7 @@ class HarvesterFactory(DjangoModelFactory):
         class MockHarvester(BaseHarvester):
             KEY = self.key
             VERSION = 1
+            SERIALIZER_CLASS = StringLikeSerializer
 
             _do_fetch = ListGenerator()
 
