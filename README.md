@@ -44,16 +44,19 @@ Run Celery
     python manage.py celery worker -l DEBUG
 
 ## Populate with data
-This is particularly applicable to running [ember-share](https://github.com/CenterForOpenScience/ember-share), an interface for SHARE.
+This is particularly applicable to running [ember-share](https://github.com/CenterForOpenScience/ember-share), an interface for SHARE. 
+
+In a separate terminal, navigate to SHARE directory and activate the same virtual environment. 
 
 Harvest data from providers, for example
 
     ./manage.py harvest com.nature --async
     ./manage.py harvest com.peerj.preprints --async
+    
+Insure all requirements.txt needed for this project are properly installed, this may take some time.
 
-Pass data to elasticsearch with `runbot`. Rerunning this command will get the most recently harvested data. This can take a minute or two to finish.
-
-    ./manage.py runbot elasticsearch
+    pip install -r dev-requirements.txt 
+    ./manage.py elasticsearch
 
 ## Building docs
 
@@ -70,4 +73,7 @@ Pass data to elasticsearch with `runbot`. Rerunning this command will get the mo
 ### BDD Suite
 
   behave
+  
+## Problems with Postgress
 
+If you run into problems with Postgress, restart Docker. If that doesn't work proceed to reset Docker by going to Docker -> preferences -> reset (bomb icon)
