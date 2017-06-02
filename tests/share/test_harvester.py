@@ -6,6 +6,7 @@ import pendulum
 
 from share.harvest.base import BaseHarvester
 from share.harvest.exceptions import HarvesterDisabledError
+from share.harvest.serialization import DeprecatedDefaultSerializer
 
 from tests import factories
 
@@ -115,7 +116,9 @@ class TestHarvesterBackwardsCompat:
 
     @pytest.fixture
     def harvester(self, source_config):
-        return source_config.get_harvester()
+        harvester = source_config.get_harvester()
+        harvester.serializer = DeprecatedDefaultSerializer()
+        return harvester
 
     def test_fetch_date_range_calls_do_harvest(self, harvester):
         harvester.do_harvest = mock.Mock()

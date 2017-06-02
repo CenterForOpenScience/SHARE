@@ -5,6 +5,7 @@ from django.apps import apps
 from share import models
 from share.change import ChangeGraph
 from share.models import ChangeSet
+from share.harvest.base import FetchResult
 
 from tests.share.models import factories
 from tests.share.normalize.factories import *
@@ -201,7 +202,7 @@ class TestDeleteCascadeNonShareObjects:
         assert models.AbstractCreativeWork.objects.count() == 0
 
     def test_rawdata(self, source_config):
-        work = factories.AbstractCreativeWorkFactory(change__change_set__normalized_data__raw=models.RawDatum.objects.store_data('unique', 'data', source_config))
+        work = factories.AbstractCreativeWorkFactory(change__change_set__normalized_data__raw=models.RawDatum.objects.store_data(source_config, FetchResult('unique', 'data')))
         work.change.change_set.normalized_data.delete()
 
         assert models.Change.objects.count() == 0

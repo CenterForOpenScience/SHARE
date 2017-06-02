@@ -81,6 +81,7 @@ def harvest(args, argv):
         -l, --limit=NUMBER      Limit the harvester to NUMBER of documents
         -s, --start=YYYY-MM-DD  The date at which to start fetching data.
         -e, --end=YYYY-MM-DD    The date at which to stop fetching data.
+        -q, --quiet             Do not print out the harvested records
         --set-spec=SET          The OAI setSpec to limit harvesting to.
     """
     config = get_sourceconfig(args['<sourceconfig>'])
@@ -100,8 +101,10 @@ def harvest(args, argv):
         gen = config.get_harvester().harvest_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), **kwargs)
 
     # "Spin" the generator but don't keep the documents in memory
-    for _ in gen:
-        pass
+    for datum in gen:
+        if args['--quiet']:
+            continue
+        print(datum)
 
 
 @command('Create harvestlogs for the specified SourceConfig')

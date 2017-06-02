@@ -36,7 +36,7 @@ class OAIHarvester(BaseHarvester):
 
         super().__init__(*args, **kwargs)
 
-    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, set_spec=None) -> list:
+    def _do_fetch(self, start_date, end_date, set_spec=None):
         url = furl(self.config.base_url)
         set_spec = set_spec or self.set_spec
 
@@ -65,9 +65,16 @@ class OAIHarvester(BaseHarvester):
             used_tokens.add(token)
 
             for record in records:
+                datestamp = record.xpath('ns0:header/ns0:datestamp', namespaces=self.namespaces)[0].text
+                if datestamp:
+                    datestamp = pendulum.parse(datestamp)
+                else:
+                    datestamp = None
+
                 yield (
                     record.xpath('ns0:header/ns0:identifier', namespaces=self.namespaces)[0].text,
                     etree.tostring(record, encoding=str),
+                    datestamp,
                 )
 
             if not token or not records:
