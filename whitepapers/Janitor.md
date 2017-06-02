@@ -1,4 +1,4 @@
-# Janitor
+# Janitor (NOT IMPLEMENTED)
 
 # Responsibilities
 * Detect data that was processed out of order and rebuild it
