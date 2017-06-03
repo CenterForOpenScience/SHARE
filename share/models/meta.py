@@ -2,11 +2,9 @@ import re
 import logging
 
 from django.db import models
-from django.db import IntegrityError
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
-from share.models.fuzzycount import FuzzyCountManager
 from share.util import strip_whitespace
 
 
@@ -76,9 +74,6 @@ class Subject(ShareObject):
 
     class Meta:
         unique_together = ('name', 'taxonomy')
-
-    # Special disambiguation case, handled in GraphDisambiguator._instance_for_subject
-    #class Disambiguation:
 
 
 # Through Tables for all the things

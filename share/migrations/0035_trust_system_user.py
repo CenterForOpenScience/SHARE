@@ -14,17 +14,26 @@ def trust_system_user(apps, schema_editor):
     system_user.is_trusted = True
     system_user.save()
 
-    Source.objects.create(
-        name=settings.APPLICATION_USERNAME,
-        long_title='SHARE System',
-        canonical=True,
+    Source.objects.update_or_create(
         user=system_user,
+        defaults={
+            'name': settings.APPLICATION_USERNAME,
+            'long_title': 'SHARE System',
+            'canonical': True,
+        }
     )
 
 
 def distrust_system_user(apps, schema_editor):
     ShareUser = apps.get_model('share', 'ShareUser')
-    ShareUser.objects.filter(username=settings.APPLICATION_USERNAME).update(is_trusted=False)
+
+    system_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+    system_user.is_trusted = False
+    system_user.save()
+
+    system_user.source.canonical = False
+    system_user.source.save()
+
 
 
 class Migration(migrations.Migration):

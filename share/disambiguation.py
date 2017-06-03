@@ -1,9 +1,7 @@
-import json
 import logging
 import pendulum
 
 from django.db.models import Q, DateTimeField
-from django.core.exceptions import ValidationError
 
 from share.util import DictHashingDict
 
@@ -13,9 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 class GraphDisambiguator:
-
-    with open('./share/models/synonyms.json') as fobj:
-        SUBJECT_MAPPING = json.load(fobj)
 
     def __init__(self):
         self._index = self.NodeIndex()
@@ -169,15 +164,13 @@ class GraphDisambiguator:
             return None
         else:
             # Central taxonomy
-            name = node.attrs.get('name') # self.SUBJECT_MAPPING.get(node.attrs.get('name'))
-            if not name:
-                logger.debug('Could not map %s "%s" to the central taxonomy', node.model, node.attrs.get('name'))
-                return None
-            try:
-                return node.model.objects.get(name=name, central_synonym__isnull=True)
-            except node.model.DoesNotExist:
-                logger.debug('No %s found with name "%s" in the central taxonomy', node.model, name)
-                return None
+            name = node.attrs.get('name')
+            if name:
+                try:
+                    return node.model.objects.get(name=name, central_synonym__isnull=True)
+                except node.model.DoesNotExist:
+                    logger.debug('No %s found with name "%s" in the central taxonomy', node.model, name)
+            return None
 
     def _query_pair(self, key, value):
         try:
