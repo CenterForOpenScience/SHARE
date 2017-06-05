@@ -1,7 +1,10 @@
 import jsonschema
+from io import BytesIO
+import requests
 
 from django.db import transaction
 from django.utils import timezone
+from django.core.files.base import ContentFile
 
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
@@ -10,6 +13,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework.serializers import ValidationError
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 
 from api import schemas
 from api.pagination import CursorPagination
@@ -41,20 +45,34 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('id', )
     ordering_fields = ('long_title', )
     serializer_class = SourceSerializer
-    permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
+    permission_classes = [DjangoModelPermissionsOrAnonReadOnly, ]
+
+    queryset = Source.objects.none()  # Required for DjangoModelPermissions
 
     def get_queryset(self):
         return Source.objects.exclude(icon='').exclude(is_deleted=True)
 
     def create(self, request, *args, **kwargs):
+        VALID_IMAGE_TYPES = ('image/png', 'image/jpeg')
+
         try:
-            home_page = request.data['home_page']
             long_title = request.data['long_title']
-            # icon = request.data['icon']
+            icon = request.data['icon']
         except KeyError as e:
             raise ValidationError('{} is a required attribute.'.format(e))
 
-        label = '.'.join(reversed(home_page.split('//')[1].split('.')))
+        try:
+            r = requests.get(icon)
+            header_type = r.headers['content-type'].split(';')[0].lower()
+            if header_type not in VALID_IMAGE_TYPES:
+                raise ValidationError('Invalid type. Expected one of {}. Received {}'.format(VALID_IMAGE_TYPES, header_type))
+
+            icon_io = BytesIO(r.content)
+            icon_file = ContentFile(icon_io.getvalue())
+        except Exception as e:
+            raise ValidationError('Could not download/process image. {}'.format(e))
+
+        label = long_title.replace(' ', '_').lower()
 
         user_serializer = ShareUserSerializer(
             data={'username': label, 'is_trusted': True},
@@ -62,16 +80,19 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
         if user_serializer.is_valid(raise_exception=True):
-
             user_instance = user_serializer.save()
 
             source_instance = Source(
                 user_id=user_instance.id,
                 long_title=long_title,
-                home_page=home_page,
-                name=label
-            )  # icon=icon
-            source_instance.save()
+                home_page=request.data['home_page'] if 'home_page' in request.data else None,
+                name=label,
+            )
+            source_instance.icon.save(
+                '{}.tmp'.format(label),
+                content=icon_file,
+                save=True
+            )
 
             source_config_instance = SourceConfig(source_id=source_instance.id, label=label)
             source_config_instance.save()
@@ -92,7 +113,7 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
                                 'type': 'ShareUser',
                                 'attributes': {
                                     'username': user_instance.username,
-                                    'authorization_token': user_instance.authorization()
+                                    'authorization_token': user_instance.accesstoken_set.first().token
                                 }
                             }
                         },
