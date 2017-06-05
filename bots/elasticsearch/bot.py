@@ -3,6 +3,7 @@ import pendulum
 
 from django.apps import apps
 from django.conf import settings
+from django.db.models import Q
 from elasticsearch import Elasticsearch
 
 logger = logging.getLogger(__name__)
@@ -193,7 +194,10 @@ class ElasticSearchBot:
             else:
                 most_recent_result = pendulum.parse(self.get_most_recently_modified())
                 logger.info('Looking for %ss that have been modified after %s', model, most_recent_result)
-                qs = model.objects.filter(date_modified__gt=most_recent_result).values_list('id', flat=True)
+                q = Q(date_modified__gt=most_recent_result)
+                if hasattr(model, 'subjects') and hasattr(model, 'subject_relations'):
+                    q = q | Q(subjects__date_modified__gt=most_recent_result) | Q(subject_relations__date_modified__gt=most_recent_result)
+                qs = model.objects.filter(q).values_list('id', flat=True)
 
             count = qs.count()
 

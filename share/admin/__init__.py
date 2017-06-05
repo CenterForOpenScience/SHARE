@@ -25,6 +25,7 @@ from share.models.core import NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
 from share.models.logs import HarvestLog
+from share.models.meta import Subject, Taxonomy
 from share.models.registration import ProviderRegistration
 
 
@@ -330,4 +331,6 @@ admin.site.register(Harvester)
 admin.site.register(ShareUser, ShareUserAdmin)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
+admin.site.register(Subject)
+admin.site.register(Taxonomy)
 admin.site.register(Transformer)

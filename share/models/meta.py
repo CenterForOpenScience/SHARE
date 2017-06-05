@@ -59,7 +59,7 @@ class Subject(ShareObject):
     name = models.TextField()
     is_deleted = models.BooleanField(default=False)
     uri = ShareURLField(unique=True, null=True)
-    taxonomy = models.ForeignKey(Taxonomy, on_delete=models.CASCADE)
+    taxonomy = models.ForeignKey(Taxonomy, editable=False, on_delete=models.CASCADE)
     parent = ShareForeignKey('Subject', null=True, related_name='children')
     central_synonym = ShareForeignKey('Subject', null=True, related_name='custom_synonyms')
 
