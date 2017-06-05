@@ -6,6 +6,7 @@ from furl import furl
 from lxml import etree
 
 from share.harvest import BaseHarvester
+from share.harvest.serialization import StringLikeSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class OAIHarvester(BaseHarvester):
     from_param = 'from'
     until_param = 'until'
     set_spec = None
+    SERIALIZER_CLASS = StringLikeSerializer
 
     def __init__(self, *args, **kwargs):
         self.metadata_prefix = kwargs.pop('metadata_prefix')

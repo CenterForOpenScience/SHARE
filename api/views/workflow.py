@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
+from rest_framework import filters
 from rest_framework.exceptions import ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
@@ -35,14 +36,13 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SourceViewSet(viewsets.ReadOnlyModelViewSet):
+    filter_backends = (filters.OrderingFilter, )
+    ordering = ('id', )
+    ordering_fields = ('long_title', )
     serializer_class = SourceSerializer
 
     def get_queryset(self):
-        queryset = Source.objects.exclude(icon='').exclude(is_deleted=True)
-        sort = self.request.query_params.get('sort')
-        if sort:
-            return queryset.order_by(sort)
-        return queryset
+        return Source.objects.exclude(icon='').exclude(is_deleted=True)
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
