@@ -15,7 +15,7 @@ from share.util import IDObfuscator
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0035_trust_system_user'),
+        ('share', '0038_trust_system_user'),
     ]
 
     operations = [

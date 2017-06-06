@@ -54,7 +54,7 @@ def deprovenance_subjects(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0036_subject_taxonomy_a'),
+        ('share', '0039_subject_taxonomy_a'),
     ]
 
     operations = [

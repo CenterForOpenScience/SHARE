@@ -39,7 +39,7 @@ def distrust_system_user(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0034_auto_20170512_2052'),
+        ('share', '0037_pglock'),
     ]
 
     operations = [

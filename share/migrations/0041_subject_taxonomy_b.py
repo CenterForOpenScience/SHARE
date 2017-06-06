@@ -10,7 +10,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0037_subject_provenance'),
+        ('share', '0040_subject_provenance'),
     ]
 
     operations = [
