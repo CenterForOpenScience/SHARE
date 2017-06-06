@@ -1,288 +1,253 @@
-from hashlib import sha256
-import abc
-import datetime
-import logging
-import types
-import warnings
-
-import pendulum
-import requests
+import re
+import sys
+import copy
 
 from django.conf import settings
-from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
+from django.db import DatabaseError
+from django.db import models
+from django.db import transaction
+from django.db.models.base import ModelBase
+from django.db.models.fields import AutoField
+from django.utils.translation import ugettext_lazy as _
 
-from share.harvest.exceptions import HarvesterDisabledError
-from share.harvest.ratelimit import RateLimittedProxy
-from share.harvest.serialization import DeprecatedDefaultSerializer
-from share.models import RawDatum
+from typedmodels import models as typedmodels
+
+from db.deletion import DATABASE_CASCADE
+
+from share import util
+from share.models import fields
+from share.models.change import Change
+from share.models.fuzzycount import FuzzyCountManager
+from share.models.indexes import ConcurrentIndex
+from share.models.sql import ShareObjectManager
 
 
-logger = logging.getLogger(__name__)
+class ShareObjectVersion(models.Model):
+    action = models.TextField(max_length=10)
+    objects = FuzzyCountManager()
 
-
-class FetchResult:
-    __slots__ = ('identifier', 'datum', 'datestamp', '_sha256')
-
-    @property
-    def sha256(self):
-        if not self._sha256:
-            self._sha256 = sha256(self.datum.encode('utf-8')).hexdigest()
-        return self._sha256
-
-    def __init__(self, identifier, datum, datestamp=None):
-        self._sha256 = None
-        self.datestamp = datestamp
-        self.datum = datum
-        self.identifier = identifier
+    class Meta:
+        abstract = True
+        ordering = ('-date_modified', )
+        base_manager_name = 'objects'
 
     def __repr__(self):
-        return '<{}({}, {}, {}...)>'.format(self.__class__.__name__, self.identifier, self.datestamp, self.sha256[:10])
+        return '<{type}({id}, of {persistent_id} at {date_modified})>'.format(
+            type=type(self).__name__,
+            id=self.id,
+            persistent_id=self.persistent_id_id,
+            date_modified=self.date_modified,
+        )
 
 
-class BaseHarvester(metaclass=abc.ABCMeta):
-    """
+# Generates 2 class from the original definition of the model
+# A concrete class, <classname>
+# And a version class, <classname>Version
+class ShareObjectMeta(ModelBase):
+    concrete_bases = ()
+    version_bases = (ShareObjectVersion, )
 
-    Fetch:
-        Aquire and serialize data from a remote source, respecting rate limits.
-        fetch* methods return a generator that yield FetchResult objects
+    # This if effectively the "ShareBaseClass"
+    # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
+    share_attrs = {
+        'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False, on_delete=DATABASE_CASCADE),
+        'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True, help_text=_('The date this record was modified by SHARE.')),
+        'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False, help_text=_('The date of ingress to SHARE.')),
+    }
 
-    Harvest:
-        Fetch and store data, respecting global rate limits.
-        harvest* methods return a generator that yield RawDatum objects
+    def __new__(cls, name, bases, attrs):
+        if (models.Model in bases and attrs['Meta'].abstract) or len(bases) > 1:
+            return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 
-    """
+        version_attrs = {}
+        for key, val in attrs.items():
+            if isinstance(val, models.Field) and (val.unique or val.db_index):
+                val = copy.deepcopy(val)
+                val._unique = False
+                val.db_index = False
+            if isinstance(val, models.Field) and val.is_relation:
+                val = copy.deepcopy(val)
+                if isinstance(val, models.ForeignKey) and not isinstance(val, fields.ShareForeignKey):
+                    val.remote_field.related_name = '+'
+                if isinstance(val, (fields.ShareForeignKey, fields.ShareManyToManyField, fields.ShareOneToOneField)):
+                    val._kwargs = {**val._kwargs, 'related_name': '+', 'db_index': False}
+            if key == 'Meta':
+                val = type('VersionMeta', (val, ShareObjectVersion.Meta), {'unique_together': None, 'db_table': val.db_table + 'version' if hasattr(val, 'db_table') else None})
+            version_attrs[key] = val
 
-    SERIALIZER_CLASS = DeprecatedDefaultSerializer
+        # TODO Fix this in some non-horrid fashion
+        if name != 'ExtraData':
+            version_attrs['extra'] = fields.ShareForeignKey('ExtraData', null=True)
 
-    network_read_timeout = 30
-    network_connect_timeout = 31
+        version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
+            **version_attrs,
+            **cls.share_attrs,
+            **{k: v() for k, v in cls.share_attrs.items()},  # Excluded sources from versions. They never get filled out
+            'persistent_id': models.ForeignKey(name, db_column='persistent_id', related_name='versions', on_delete=DATABASE_CASCADE),
+            '__qualname__': attrs['__qualname__'] + 'Version',
+            'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
+        })
 
-    @property
-    def request_timeout(self):
-        """The timeout tuple for requests (connect, read)
-        """
-        return (self.network_connect_timeout, self.network_read_timeout)
+        if name != 'ExtraData':
+            attrs['extra'] = fields.ShareOneToOneField('ExtraData', null=True)
 
-    def __init__(self, source_config, pretty=False, **kwargs):
-        """
+        concrete = super(ShareObjectMeta, cls).__new__(cls, name, (bases[0], ) + cls.concrete_bases, {
+            **attrs,
+            **{k: v() for k, v in cls.share_attrs.items()},
+            'VersionModel': version,
+            'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
+            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version', on_delete=DATABASE_CASCADE),
+            # TypedManyToManyField works just like a normal field but has some special code to handle proxy models (if the exist)
+            # and makes the database use ON DELETE CASCADE as opposed to Djangos software cascade
+            'sources': fields.TypedManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s', editable=False),
+        })
 
-        Args:
-            source_config (SourceConfig):
-            pretty (bool, optional): Defaults to False.
-            **kwargs: Custom kwargs, generally from the source_config. Stored in self.kwargs
+        # Inject <classname>Version into the module of the original class definition
+        __import__(concrete.__module__)
+        setattr(sys.modules[concrete.__module__], concrete.VersionModel.__name__, concrete.VersionModel)
 
-        """
-        self.kwargs = kwargs
-        self.config = source_config
-        self.serializer = self.SERIALIZER_CLASS(pretty)
+        return concrete
 
-        self.session = requests.Session()
-        self.session.headers.update({'User-Agent': settings.SHARE_USER_AGENT})
-        # TODO Make rate limit apply across threads
-        self.requests = RateLimittedProxy(self.session, self.config.rate_limit_allowance, self.config.rate_limit_period)
 
-        self.network_read_timeout = kwargs.get('network_read_timeout', self.network_read_timeout)
-        self.network_connect_timeout = kwargs.get('network_connect_timeout', self.network_connect_timeout)
+class TypedShareObjectMeta(ShareObjectMeta, typedmodels.TypedModelMetaclass):
+    concrete_bases = (typedmodels.TypedModel,)
+    version_bases = (ShareObjectVersion, typedmodels.TypedModel)
 
-    def fetch_id(self, identifier):
-        """Fetch a document by provider ID.
+    def __new__(cls, name, bases, attrs):
+        # Any subclasses of a class that already uses this metaclass will be
+        # turned into a proxy to the original table via TypedModelMetaclass
+        if ShareObject not in bases:
+            version = typedmodels.TypedModelMetaclass.__new__(cls, name + 'Version', (bases[0].VersionModel, ), {
+                **attrs,
+                '__qualname__': attrs['__qualname__'] + 'Version'
+            })
 
-        Optional to implement, intended for dev and manual testing.
+            # Our triggers don't update django typed's type field.
+            # Makes the concrete type option resolve properly when loading versions from the db
+            # And forces queries to use the concrete models key
+            version._typedmodels_type = 'share.' + name.lower()
+            version._typedmodels_registry['share.' + name.lower()] = version
 
-        Args:
-            identifier (str): Unique ID the provider uses to identify works.
+            return typedmodels.TypedModelMetaclass.__new__(cls, name, bases, {**attrs, 'VersionModel': version})
+        return super(TypedShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 
-        Returns:
-            FetchResult
 
-        """
-        raise NotImplementedError('{!r} does not support fetching by ID'.format(self))
+class ExtraData(models.Model, metaclass=ShareObjectMeta):
+    data = fields.DateTimeAwareJSONField(default=dict)
 
-    def fetch(self, today=False, **kwargs):
-        """Fetch data from today.
+    objects = FuzzyCountManager()
 
-        Yields:
-            FetchResult
+    class Meta:
+        abstract = False
 
-        """
-        return self.fetch_date_range(datetime.date.today() - datetime.timedelta(days=1), datetime.date.today(), **kwargs)
 
-    def fetch_date(self, date: datetime.date, **kwargs):
-        """Fetch data from the specified date.
+class ShareObject(models.Model, metaclass=ShareObjectMeta):
+    id = models.AutoField(primary_key=True)
+    objects = ShareObjectManager()
+    changes = fields.GenericRelationNoCascade('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=True)
 
-        Yields:
-            FetchResult
-        """
-        return self.fetch_date_range(date - datetime.timedelta(days=1), date, **kwargs)
+    class Meta:
+        abstract = True
+        base_manager_name = 'objects'
+        indexes = [
+            ConcurrentIndex(fields=['date_created'])
+        ]
 
-    def fetch_date_range(self, start, end, limit=None, **kwargs):
-        """Fetch data from the specified date range.
+    def get_absolute_url(self):
+        return '{}{}/{}'.format(settings.SHARE_WEB_URL, self._meta.model_name, util.IDObfuscator.encode(self))
 
-        Yields:
-            FetchResult
+    def administrative_change(self, allow_empty=False, **kwargs):
+        from share.models import Change
+        from share.models import ChangeSet
+        from share.models import NormalizedData
+        from share.models import ShareUser
 
-        """
-        if not isinstance(start, datetime.date):
-            raise TypeError('start must be a datetime.date. Got {!r}'.format(start))
+        with transaction.atomic():
+            if not kwargs and not allow_empty:
+                # Empty changes can be made to force modified_date to update
+                raise ValueError('Pass allow_empty=True to allow empty changes')
 
-        if not isinstance(end, datetime.date):
-            raise TypeError('end must be a datetime.date. Got {!r}'.format(end))
+            serialized = {}
+            for key, value in tuple(kwargs.items()):
+                if isinstance(value, ShareObject):
+                    serialized[key] = {'@id': util.IDObfuscator.encode(value), '@type': value._meta.model_name}
+                else:
+                    serialized[key] = value
 
-        if start >= end:
-            raise ValueError('start must be before end. {!r} > {!r}'.format(start, end))
-
-        if limit == 0:
-            return  # No need to do anything
-
-        # Cast to datetimes for compat reasons
-        start = pendulum.Pendulum.instance(datetime.datetime.combine(start, datetime.time(0, 0, 0, 0, timezone.utc)))
-        end = pendulum.Pendulum.instance(datetime.datetime.combine(end, datetime.time(0, 0, 0, 0, timezone.utc)))
-
-        if hasattr(self, 'shift_range'):
-            warnings.warn(
-                '{!r} implements a deprecated interface. '
-                'Handle date transforms in _do_fetch. '
-                'shift_range will no longer be called in SHARE 2.9.0'.format(self),
-                DeprecationWarning
+            nd = NormalizedData.objects.create(
+                source=ShareUser.objects.get(username='system'),
+                data={
+                    '@graph': [{'@id': self.pk, '@type': self._meta.model_name, **serialized}]
+                }
             )
-            start, end = self.shift_range(start, end)
 
-        data_gen = self._do_fetch(start, end, **kwargs)
+            cs = ChangeSet.objects.create(normalized_data=nd, status=ChangeSet.STATUS.accepted)
+            change = Change.objects.create(change={}, node_id=str(self.pk), type=Change.TYPE.update, target=self, target_version=self.version, change_set=cs, model_type=ContentType.objects.get_for_model(type(self)))
 
-        if not isinstance(data_gen, types.GeneratorType) and len(data_gen) != 0:
-            raise TypeError('{!r}._do_fetch must return a GeneratorType for optimal performance and memory usage'.format(self))
+            acceptable_fields = set(f.name for f in self._meta.get_fields())
+            for key, value in kwargs.items():
+                if key not in acceptable_fields:
+                    raise AttributeError(key)
+                setattr(self, key, value)
+            self.change = change
 
-        for i, blob in enumerate(data_gen):
-            result = FetchResult(blob[0], self.serializer.serialize(blob[1]), *blob[2:])
+            self.save()
 
-            if result.datestamp and (result.datestamp.date() < start.date() or result.datestamp.date() > end.date()):
-                raise ValueError(
-                    'result.datestamp is outside of the requested date range. '
-                    '{} from {} is not within [{} - {}]'.format(result.datestamp, result.identifier, start, end)
-                )
-
-            yield result
-
-            if limit is not None and i >= limit:
-                break
-
-    def harvest_id(self, identifier):
-        """Harvest a document by ID.
-
-        Note:
-            Dependant on whether or not fetch_id is implemented.
-
-        Args:
-            identifier (str): Unique ID the provider uses to identify works.
-
-        Returns:
-            RawDatum
-
+    # NOTE/TODO Version will be popluated when a share object is first created
+    # Updating a share object WILL NOT update the version
+    def _save_table(self, raw=False, cls=None, force_insert=False, force_update=False, using=None, update_fields=None):
         """
-        return RawDatum.objects.store_data(self.config, self.fetch_by_id(identifier))
-
-    def harvest(self, **kwargs):
-        """Fetch data from yesterday.
-
-        Yields:
-            RawDatum
-
+        Does the heavy-lifting involved in saving. Updates or inserts the data
+        for a single table.
         """
-        return self.harvest_date(datetime.date.today(), **kwargs)
+        meta = cls._meta
+        non_pks = [f for f in meta.local_concrete_fields if not f.primary_key]
 
-    def harvest_date(self, date, **kwargs):
-        """Harvest data from the specified date.
+        if update_fields:
+            non_pks = [f for f in non_pks
+                       if f.name in update_fields or f.attname in update_fields]
 
-        Yields:
-            RawDatum
+        pk_val = self._get_pk_val(meta)
+        if pk_val is None:
+            pk_val = meta.pk.get_pk_value_on_save(self)
+            setattr(self, meta.pk.attname, pk_val)
+        pk_set = pk_val is not None
+        if not pk_set and (force_update or update_fields):
+            raise ValueError("Cannot force an update in save() with no primary key.")
+        updated = False
+        # If possible, try an UPDATE. If that doesn't update anything, do an INSERT.
+        if pk_set and not force_insert:
+            base_qs = cls._base_manager.using(using)
+            values = [(f, None, (getattr(self, f.attname) if raw else f.pre_save(self, False)))
+                      for f in non_pks]
+            forced_update = update_fields or force_update
+            updated = self._do_update(base_qs, using, pk_val, values, update_fields,
+                                      forced_update)
+            if force_update and not updated:
+                raise DatabaseError("Forced update did not affect any rows.")
+            if update_fields and not updated:
+                raise DatabaseError("Save with update_fields did not affect any rows.")
+        if not updated:
+            if meta.order_with_respect_to:
+                # If this is a model with an order_with_respect_to
+                # autopopulate the _order field
+                field = meta.order_with_respect_to
+                filter_args = field.get_filter_kwargs_for_object(self)
+                order_value = cls._base_manager.using(using).filter(**filter_args).count()
+                self._order = order_value
 
-        """
-        return self.harvest_date_range(date - datetime.timedelta(days=1), date, **kwargs)
+            fields = meta.local_concrete_fields
+            if not pk_set:
+                fields = [f for f in fields if not isinstance(f, AutoField)]
 
-    def harvest_date_range(self, start, end, limit=None, force=False, ignore_disabled=False, **kwargs):
-        """Fetch data from the specified date range.
-
-        Args:
-            start (date):
-            end (date):
-            limit (int, optional): The maximum number of unique data to harvest. Defaults to None.
-                Uniqueness is determined by the SHA-256 of the raw data
-            force (bool, optional): Disable all safety checks, unexpected exceptions will still be raised. Defaults to False.
-            ignore_disabled (bool, optional): Don't check if this Harvester or Source is disabled or deleted. Defaults to False.
-            **kwargs: Forwared to _do_fetch.
-
-        Yields:
-            RawDatum
-
-        """
-        if self.serializer.pretty:
-            raise ValueError('To ensure that data is optimally deduplicated, harvests may not occur while using a pretty serializer.')
-
-        if (self.config.disabled or self.config.source.is_deleted) and not (force or ignore_disabled):
-            raise HarvesterDisabledError('Harvester {!r} is disabled. Either enable it, run with force=True, or ignore_disabled=True.'.format(self.config))
-
-        with self.config.acquire_lock(required=not force):
-            logger.info('Harvesting %s - %s from %r', start, end, self.config)
-            yield from RawDatum.objects.store_chunk(self.config, self.fetch_date_range(start, end, **kwargs), limit=limit)
-
-    def harvest_from_log(self, harvest_log, **kwargs):
-        """Harvest data as specified by the given harvest_log.
-
-        Args:
-            harvest_log (HarvestLog): The HarvestLog that describes the parameters of this harvest
-            limit (int, optional): The maximum number of unique data to harvest. Defaults to None.
-            **kwargs: Forwared to harvest_date_range.
-
-        Yields:
-            RawDatum
-
-        """
-        error = None
-        datum_ids = []
-        logger.info('Harvesting %r', harvest_log)
-
-        with harvest_log.handle(self.VERSION):
-            try:
-                for datum in self.harvest_date_range(harvest_log.start_date, harvest_log.end_date, **kwargs):
-                    datum_ids.append(datum.id)
-                    yield datum
-            except Exception as e:
-                error = e
-                raise error
-            finally:
-                try:
-                    harvest_log.raw_data.add(*datum_ids)
-                except Exception as e:
-                    logger.exception('Failed to connection %r to raw data', harvest_log)
-                    # Avoid shadowing the original error
-                    if not error:
-                        raise e
-
-    def _do_fetch(self, start, end, **kwargs):
-        """Fetch date from this source inside of the given date range.
-
-        The given date range should be treated as [start, end)
-
-        Any HTTP[S] requests MUST be sent using the self.requests client.
-        It will automatically enforce rate limits
-
-        Args:
-            start_date (datetime): Date to start fetching data from, inclusively.
-            end_date (datetime): Date to fetch data up to, exclusively.
-            **kwargs: Arbitrary kwargs passed to subclasses, used to customize harvesting.
-
-        Returns:
-            Iterator<FetchResult>: The fetched data.
-
-        """
-        if hasattr(self, 'do_harvest'):
-            warnings.warn(
-                '{!r} implements a deprecated interface. '
-                'do_harvest has been replaced by _do_fetch for clarity. '
-                'do_harvest will no longer be called in SHARE 2.11.0'.format(self),
-                DeprecationWarning
-            )
-            logger.warning('%r implements a deprecated interface. ', self)
-            return self.do_harvest(start, end, **kwargs)
-
-        raise NotImplementedError()
+            update_pk = bool(meta.auto_field is not None and not pk_set)
+            result = self._do_insert(cls._base_manager, using, fields, update_pk, raw)
+            if update_pk:
+                ### ACTUAL CHANGE HERE ###
+                # Use regex as it will, hopefully, fail if something get messed up
+                pk, version_id = re.match(r'\((\d+),(\d+)\)', result).groups()
+                setattr(self, meta.pk.attname, int(pk))
+                setattr(self, meta.get_field('version').attname, int(version_id))
+                ### /ACTUAL CHANGE HERE ###
+        return updated
