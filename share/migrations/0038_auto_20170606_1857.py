@@ -8,6 +8,8 @@ import share.models.indexes
 
 class Migration(migrations.Migration):
 
+    atomic = False
+
     dependencies = [
         ('share', '0037_pglock'),
     ]
