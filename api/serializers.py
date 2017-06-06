@@ -142,6 +142,10 @@ class HarvestLogSerializer(ShareModelSerializer):
         model = models.HarvestLog
         fields = '__all__'
 
+class SourceConfigSerializer(ShareModelSerializer):
+    class Meta:
+        model = models.SourceConfig
+        fields = '__all__'
 
 class SiteBannerSerializer(ShareModelSerializer):
     color = serializers.SerializerMethodField()
