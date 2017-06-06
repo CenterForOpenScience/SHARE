@@ -1,253 +1,196 @@
-import re
-import sys
-import copy
+import abc
+import json
+import time
+import types
+import logging
+import datetime
+from typing import Tuple
+from typing import Union
+from typing import Iterator
+
+import pendulum
+import requests
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.db import DatabaseError
-from django.db import models
-from django.db import transaction
-from django.db.models.base import ModelBase
-from django.db.models.fields import AutoField
-from django.utils.translation import ugettext_lazy as _
-
-from typedmodels import models as typedmodels
-
-from db.deletion import DATABASE_CASCADE
-
-from share import util
-from share.models import fields
-from share.models.change import Change
-from share.models.fuzzycount import FuzzyCountManager
-from share.models.indexes import ConcurrentIndex
-from share.models.sql import ShareObjectManager
 
 
-class ShareObjectVersion(models.Model):
-    action = models.TextField(max_length=10)
-    objects = FuzzyCountManager()
-
-    class Meta:
-        abstract = True
-        ordering = ('-date_modified', )
-        base_manager_name = 'objects'
-
-    def __repr__(self):
-        return '<{type}({id}, of {persistent_id} at {date_modified})>'.format(
-            type=type(self).__name__,
-            id=self.id,
-            persistent_id=self.persistent_id_id,
-            date_modified=self.date_modified,
-        )
+logger = logging.getLogger(__name__)
 
 
-# Generates 2 class from the original definition of the model
-# A concrete class, <classname>
-# And a version class, <classname>Version
-class ShareObjectMeta(ModelBase):
-    concrete_bases = ()
-    version_bases = (ShareObjectVersion, )
+class RateLimittedProxy:
 
-    # This if effectively the "ShareBaseClass"
-    # Due to limitations in Django and TypedModels we cannot have an actual inheritance chain
-    share_attrs = {
-        'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False, on_delete=DATABASE_CASCADE),
-        'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True, help_text=_('The date this record was modified by SHARE.')),
-        'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False, help_text=_('The date of ingress to SHARE.')),
-    }
+    def __init__(self, proxy_to, calls, per_second):
+        self._proxy_to = proxy_to
+        self._allowance = calls
+        self._calls = calls
+        self._last_call = 0
+        self._per_second = per_second
+        self._cache = {}
 
-    def __new__(cls, name, bases, attrs):
-        if (models.Model in bases and attrs['Meta'].abstract) or len(bases) > 1:
-            return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
+    def _check_limit(self):
+        if self._allowance > 1:
+            return
+        wait = self._per_second - (time.time() - self._last_call)
+        if wait > 0:
+            logger.debug('Rate limitting %s. Sleeping for %s', self._proxy_to, wait)
+            time.sleep(wait)
+        self._allowance = self._calls
+        logger.debug('Access granted for %s', self._proxy_to)
 
-        version_attrs = {}
-        for key, val in attrs.items():
-            if isinstance(val, models.Field) and (val.unique or val.db_index):
-                val = copy.deepcopy(val)
-                val._unique = False
-                val.db_index = False
-            if isinstance(val, models.Field) and val.is_relation:
-                val = copy.deepcopy(val)
-                if isinstance(val, models.ForeignKey) and not isinstance(val, fields.ShareForeignKey):
-                    val.remote_field.related_name = '+'
-                if isinstance(val, (fields.ShareForeignKey, fields.ShareManyToManyField, fields.ShareOneToOneField)):
-                    val._kwargs = {**val._kwargs, 'related_name': '+', 'db_index': False}
-            if key == 'Meta':
-                val = type('VersionMeta', (val, ShareObjectVersion.Meta), {'unique_together': None, 'db_table': val.db_table + 'version' if hasattr(val, 'db_table') else None})
-            version_attrs[key] = val
+    def _called(self):
+        self._allowance -= 1
+        self._last_call = time.time()
 
-        # TODO Fix this in some non-horrid fashion
-        if name != 'ExtraData':
-            version_attrs['extra'] = fields.ShareForeignKey('ExtraData', null=True)
+    def __call__(self, *args, **kwargs):
+        self._check_limit()
+        ret = self._proxy_to(*args, **kwargs)
+        self._called()
+        return ret
 
-        version = super(ShareObjectMeta, cls).__new__(cls, name + 'Version', cls.version_bases, {
-            **version_attrs,
-            **cls.share_attrs,
-            **{k: v() for k, v in cls.share_attrs.items()},  # Excluded sources from versions. They never get filled out
-            'persistent_id': models.ForeignKey(name, db_column='persistent_id', related_name='versions', on_delete=DATABASE_CASCADE),
-            '__qualname__': attrs['__qualname__'] + 'Version',
-            'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
-        })
-
-        if name != 'ExtraData':
-            attrs['extra'] = fields.ShareOneToOneField('ExtraData', null=True)
-
-        concrete = super(ShareObjectMeta, cls).__new__(cls, name, (bases[0], ) + cls.concrete_bases, {
-            **attrs,
-            **{k: v() for k, v in cls.share_attrs.items()},
-            'VersionModel': version,
-            'same_as': fields.ShareForeignKey(name, null=True, related_name='+'),
-            'version': models.OneToOneField(version, editable=False, related_name='%(app_label)s_%(class)s_version', on_delete=DATABASE_CASCADE),
-            # TypedManyToManyField works just like a normal field but has some special code to handle proxy models (if the exist)
-            # and makes the database use ON DELETE CASCADE as opposed to Djangos software cascade
-            'sources': fields.TypedManyToManyField(settings.AUTH_USER_MODEL, related_name='source_%(class)s', editable=False),
-        })
-
-        # Inject <classname>Version into the module of the original class definition
-        __import__(concrete.__module__)
-        setattr(sys.modules[concrete.__module__], concrete.VersionModel.__name__, concrete.VersionModel)
-
-        return concrete
+    def __getattr__(self, name):
+        return self._cache.setdefault(name, self.__class__(getattr(self._proxy_to, name), self._calls, self._per_second))
 
 
-class TypedShareObjectMeta(ShareObjectMeta, typedmodels.TypedModelMetaclass):
-    concrete_bases = (typedmodels.TypedModel,)
-    version_bases = (ShareObjectVersion, typedmodels.TypedModel)
+class BaseHarvester(metaclass=abc.ABCMeta):
 
-    def __new__(cls, name, bases, attrs):
-        # Any subclasses of a class that already uses this metaclass will be
-        # turned into a proxy to the original table via TypedModelMetaclass
-        if ShareObject not in bases:
-            version = typedmodels.TypedModelMetaclass.__new__(cls, name + 'Version', (bases[0].VersionModel, ), {
-                **attrs,
-                '__qualname__': attrs['__qualname__'] + 'Version'
-            })
+    def __init__(self, source_config, **kwargs):
+        self.last_call = 0
+        self.new_raw_ids = []
+        self.old_raw_ids = []
+        self.config = source_config
+        self.kwargs = kwargs
 
-            # Our triggers don't update django typed's type field.
-            # Makes the concrete type option resolve properly when loading versions from the db
-            # And forces queries to use the concrete models key
-            version._typedmodels_type = 'share.' + name.lower()
-            version._typedmodels_registry['share.' + name.lower()] = version
+        session = requests.Session()
+        session.headers.update({'User-Agent': settings.SHARE_USER_AGENT})
+        # TODO Make rate limit apply across threads
+        self.requests = RateLimittedProxy(session, self.config.rate_limit_allowance, self.config.rate_limit_period)
 
-            return typedmodels.TypedModelMetaclass.__new__(cls, name, bases, {**attrs, 'VersionModel': version})
-        return super(TypedShareObjectMeta, cls).__new__(cls, name, bases, attrs)
+    @abc.abstractmethod
+    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, **kwargs) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
+        """Fetch date from this provider inside of the given date range.
 
+        Any HTTP[S] requests MUST be sent using the self.requests client.
+        It will automatically in force rate limits
 
-class ExtraData(models.Model, metaclass=ShareObjectMeta):
-    data = fields.DateTimeAwareJSONField(default=dict)
+        Args:
+            start_date (datetime):
+            end_date (datetime):
 
-    objects = FuzzyCountManager()
+        Returns:
+            Iterator<Tuple<str, str|dict|bytes>>: The fetched data paired with
+            the unique ID that this provider uses.
 
-    class Meta:
-        abstract = False
+            [
+                ('1', {'my': 'doc'}),
+                ('2', {'your': 'doc'}),
+            ]
+        """
+        raise NotImplementedError()
 
+    def fetch_by_id(self, provider_id):
+        """
+        Fetch a document by provider ID.
 
-class ShareObject(models.Model, metaclass=ShareObjectMeta):
-    id = models.AutoField(primary_key=True)
-    objects = ShareObjectManager()
-    changes = fields.GenericRelationNoCascade('Change', related_query_name='share_objects', content_type_field='target_type', object_id_field='target_id', for_concrete_model=True)
+        Optional to implement, intended for dev and manual testing.
 
-    class Meta:
-        abstract = True
-        base_manager_name = 'objects'
-        indexes = [
-            ConcurrentIndex(fields=['date_created'])
-        ]
+        Args:
+            provider_id (str): Unique ID the provider uses to identify works.
 
-    def get_absolute_url(self):
-        return '{}{}/{}'.format(settings.SHARE_WEB_URL, self._meta.model_name, util.IDObfuscator.encode(self))
+        Returns:
+            str|dict|bytes: Fetched data.
 
-    def administrative_change(self, allow_empty=False, **kwargs):
-        from share.models import Change
-        from share.models import ChangeSet
-        from share.models import NormalizedData
-        from share.models import ShareUser
+        """
+        raise NotImplementedError()
 
-        with transaction.atomic():
-            if not kwargs and not allow_empty:
-                # Empty changes can be made to force modified_date to update
-                raise ValueError('Pass allow_empty=True to allow empty changes')
+    def shift_range(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> pendulum.Pendulum:
+        """Most providers will not need this method.
 
-            serialized = {}
-            for key, value in tuple(kwargs.items()):
-                if isinstance(value, ShareObject):
-                    serialized[key] = {'@id': util.IDObfuscator.encode(value), '@type': value._meta.model_name}
-                else:
-                    serialized[key] = value
+        For providers that should be collecting data at an offset, see figshare.
 
-            nd = NormalizedData.objects.create(
-                source=ShareUser.objects.get(username='system'),
-                data={
-                    '@graph': [{'@id': self.pk, '@type': self._meta.model_name, **serialized}]
-                }
+        Args:
+            start_date (datetime):
+            end_date (datetime):
+
+        Returns:
+            (datetime, datetime): The shifted date range
+        """
+        return start_date, end_date
+
+    def harvest(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
+        from share.models import RawDatum
+        start_date, end_date = self._validate_dates(start_date, end_date)
+
+        rawdata = ((identifier, self.encode_data(datum)) for identifier, datum in self.do_harvest(start_date, end_date, **kwargs))
+        assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
+
+        yield from RawDatum.objects.store_chunk(self.config, rawdata, limit=limit)
+
+    def raw(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
+        start_date, end_date = self._validate_dates(start_date, end_date)
+        count, harvest = 0, self.do_harvest(start_date, end_date, **kwargs)
+        assert isinstance(harvest, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(harvest))
+
+        for doc_id, datum in harvest:
+            yield doc_id, self.encode_data(datum, pretty=True)
+            count += 1
+            if limit and count >= limit:
+                break
+
+    def harvest_by_id(self, doc_id):
+        from share.models import RawDatum
+        datum = self.fetch_by_id(doc_id)
+        return RawDatum.objects.store_data(doc_id, self.encode_data(datum), self.config)
+
+    def encode_data(self, data, pretty=False) -> str:
+        if isinstance(data, str):
+            return data
+        if isinstance(data, bytes):
+            logger.warning(
+                '%r.encode_data got a bytes instance. '
+                'do_harvest should be returning str types as only the harvester will know how to properly encode the bytes'
+                'defaulting to decoding as utf-8',
+                self,
             )
+            return data.decode('utf-8')
+        if isinstance(data, dict):
+            return self.encode_json(data, pretty=pretty)
+        raise Exception('Unable to properly encode data blob {!r}. Data should be a dict, bytes, or str objects.'.format(data))
 
-            cs = ChangeSet.objects.create(normalized_data=nd, status=ChangeSet.STATUS.accepted)
-            change = Change.objects.create(change={}, node_id=str(self.pk), type=Change.TYPE.update, target=self, target_version=self.version, change_set=cs, model_type=ContentType.objects.get_for_model(type(self)))
+    def encode_json(self, data: dict, pretty: bool=False) -> str:
+        """Orders a python dict recursively so it will always hash to the
+        same value. Used for Dedupping harvest results
+        Args:
+            data (dict):
 
-            acceptable_fields = set(f.name for f in self._meta.get_fields())
-            for key, value in kwargs.items():
-                if key not in acceptable_fields:
-                    raise AttributeError(key)
-                setattr(self, key, value)
-            self.change = change
-
-            self.save()
-
-    # NOTE/TODO Version will be popluated when a share object is first created
-    # Updating a share object WILL NOT update the version
-    def _save_table(self, raw=False, cls=None, force_insert=False, force_update=False, using=None, update_fields=None):
+        Returns:
+            str: json.dumpsed ordered dictionary
         """
-        Does the heavy-lifting involved in saving. Updates or inserts the data
-        for a single table.
-        """
-        meta = cls._meta
-        non_pks = [f for f in meta.local_concrete_fields if not f.primary_key]
+        return json.dumps(data, sort_keys=True, indent=4 if pretty else None)
 
-        if update_fields:
-            non_pks = [f for f in non_pks
-                       if f.name in update_fields or f.attname in update_fields]
+    def _validate_dates(self, start_date, end_date):
+        assert not (bool(start_date) ^ bool(end_date)), 'Must specify both a start and end date or neither'
+        assert isinstance(start_date, (datetime.timedelta, datetime.datetime, pendulum.Pendulum)) and isinstance(end_date, (datetime.timedelta, datetime.datetime, pendulum.Pendulum)), 'start_date and end_date must be either datetimes or timedeltas'
+        assert not (isinstance(start_date, datetime.timedelta) and isinstance(end_date, datetime.timedelta)), 'Only one of start_date and end_date may be a timedelta'
 
-        pk_val = self._get_pk_val(meta)
-        if pk_val is None:
-            pk_val = meta.pk.get_pk_value_on_save(self)
-            setattr(self, meta.pk.attname, pk_val)
-        pk_set = pk_val is not None
-        if not pk_set and (force_update or update_fields):
-            raise ValueError("Cannot force an update in save() with no primary key.")
-        updated = False
-        # If possible, try an UPDATE. If that doesn't update anything, do an INSERT.
-        if pk_set and not force_insert:
-            base_qs = cls._base_manager.using(using)
-            values = [(f, None, (getattr(self, f.attname) if raw else f.pre_save(self, False)))
-                      for f in non_pks]
-            forced_update = update_fields or force_update
-            updated = self._do_update(base_qs, using, pk_val, values, update_fields,
-                                      forced_update)
-            if force_update and not updated:
-                raise DatabaseError("Forced update did not affect any rows.")
-            if update_fields and not updated:
-                raise DatabaseError("Save with update_fields did not affect any rows.")
-        if not updated:
-            if meta.order_with_respect_to:
-                # If this is a model with an order_with_respect_to
-                # autopopulate the _order field
-                field = meta.order_with_respect_to
-                filter_args = field.get_filter_kwargs_for_object(self)
-                order_value = cls._base_manager.using(using).filter(**filter_args).count()
-                self._order = order_value
+        if isinstance(start_date, datetime.datetime):
+            start_date = pendulum.instance(start_date)
 
-            fields = meta.local_concrete_fields
-            if not pk_set:
-                fields = [f for f in fields if not isinstance(f, AutoField)]
+        if isinstance(end_date, datetime.datetime):
+            end_date = pendulum.instance(end_date)
 
-            update_pk = bool(meta.auto_field is not None and not pk_set)
-            result = self._do_insert(cls._base_manager, using, fields, update_pk, raw)
-            if update_pk:
-                ### ACTUAL CHANGE HERE ###
-                # Use regex as it will, hopefully, fail if something get messed up
-                pk, version_id = re.match(r'\((\d+),(\d+)\)', result).groups()
-                setattr(self, meta.pk.attname, int(pk))
-                setattr(self, meta.get_field('version').attname, int(version_id))
-                ### /ACTUAL CHANGE HERE ###
-        return updated
+        if isinstance(start_date, datetime.timedelta):
+            start_date = pendulum.instance(end_date + start_date)
+
+        if isinstance(end_date, datetime.timedelta):
+            end_date = pendulum.instance(start_date + end_date)
+
+        og_start, og_end = start_date, end_date
+        start_date, end_date = self.shift_range(start_date, end_date)
+        assert isinstance(start_date, pendulum.Pendulum) and isinstance(end_date, pendulum.Pendulum), 'transpose_time_window must return a tuple of 2 datetimes'
+
+        if (og_start, og_end) != (start_date, end_date):
+            logger.warning('Date shifted from {} - {} to {} - {}. Disable shifting by passing shift_range=False'.format(og_start, og_end, start_date, end_date))
+
+        assert start_date < end_date, 'start_date must be before end_date {} < {}'.format(start_date, end_date)
+
+        return start_date, end_date
