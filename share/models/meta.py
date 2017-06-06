@@ -8,7 +8,7 @@ from share.models.fields import ShareForeignKey, ShareURLField
 from share.util import strip_whitespace
 
 
-__all__ = ('Tag', 'Subject', 'ThroughTags', 'ThroughSubjects', 'Taxonomy')
+__all__ = ('Tag', 'Subject', 'ThroughTags', 'ThroughSubjects', 'SubjectTaxonomy')
 logger = logging.getLogger('share.normalize')
 
 # TODO Rename this file
@@ -48,7 +48,7 @@ class Tag(ShareObject):
         all = ('name',)
 
 
-class Taxonomy(models.Model):
+class SubjectTaxonomy(models.Model):
     name = models.TextField(unique=True)
     is_deleted = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
@@ -61,16 +61,16 @@ class Taxonomy(models.Model):
         return '<{}: {}>'.format(self.__class__.__name__, self.name)
 
     class Meta:
-        verbose_name_plural = 'Taxonomies'
+        verbose_name_plural = 'Subject Taxonomies'
 
 
 class Subject(ShareObject):
     name = models.TextField()
     is_deleted = models.BooleanField(default=False)
-    uri = ShareURLField(unique=True, null=True)
-    taxonomy = models.ForeignKey(Taxonomy, editable=False, on_delete=models.CASCADE)
-    parent = ShareForeignKey('Subject', null=True, related_name='children')
-    central_synonym = ShareForeignKey('Subject', null=True, related_name='custom_synonyms')
+    uri = ShareURLField(unique=True, null=True, blank=True)
+    taxonomy = models.ForeignKey(SubjectTaxonomy, editable=False, on_delete=models.CASCADE)
+    parent = ShareForeignKey('Subject', blank=True, null=True, related_name='children')
+    central_synonym = ShareForeignKey('Subject', blank=True, null=True, related_name='custom_synonyms')
 
     @classmethod
     def normalize(cls, node, graph):
@@ -82,6 +82,8 @@ class Subject(ShareObject):
         lineage = []
         subject = self
         while subject:
+            if subject in lineage:
+                break  # TODO errors?
             lineage.append(subject)
             subject = subject.parent
         lineage.reverse()

@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.db import transaction
 
-from share.models import ShareUser, Taxonomy, NormalizedData
+from share.models import ShareUser, SubjectTaxonomy, NormalizedData
 from share.tasks import disambiguate
 
 
@@ -23,7 +23,7 @@ class Command(BaseCommand):
     @transaction.atomic
     def save_subjects(self, subjects):
         # Ensure central taxonomy exists
-        Taxonomy.objects.get_or_create(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
+        SubjectTaxonomy.objects.get_or_create(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
 
         normalized_data = NormalizedData.objects.create(
             source=ShareUser.objects.get(username=settings.APPLICATION_USERNAME),

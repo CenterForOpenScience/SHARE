@@ -538,6 +538,8 @@ class ShareURLField(models.TextField):
         defaults = {
             'form_class': forms.URLField,
         }
+        if self.null and self.unique:
+            defaults['empty_value'] = None
         defaults.update(kwargs)
         return super(ShareURLField, self).formfield(**defaults)
 

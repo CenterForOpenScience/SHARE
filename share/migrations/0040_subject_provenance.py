@@ -11,11 +11,11 @@ import db.deletion
 
 def improvenance_subjects(apps, schema_editor):
     Subject = apps.get_model('share', 'Subject')
-    Taxonomy = apps.get_model('share', 'Taxonomy')
+    SubjectTaxonomy = apps.get_model('share', 'SubjectTaxonomy')
     ShareUser = apps.get_model('share', 'ShareUser')
     NormalizedData = apps.get_model('share', 'NormalizedData')
 
-    central_taxonomy = Taxonomy.objects.get_or_create(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
+    central_taxonomy = SubjectTaxonomy.objects.get_or_create(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
 
     if not Subject.objects.exists():
         return

@@ -6,19 +6,18 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.widgets import AdminDateWidget
-from django.forms import ModelChoiceField
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join, mark_safe
 
 from oauth2_provider.models import AccessToken
 
 from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.readonly import ReadOnlyAdmin
-from share.admin.share_objects import CreativeWorkAdmin
+from share.admin.share_objects import CreativeWorkAdmin, SubjectAdmin
 from share.harvest.scheduler import HarvestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
@@ -27,11 +26,12 @@ from share.models.core import NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
 from share.models.logs import HarvestLog
-from share.models.meta import Subject, Taxonomy
+from share.models.meta import Subject, SubjectTaxonomy
 from share.models.registration import ProviderRegistration
 
 
 admin.site.register(AbstractCreativeWork, CreativeWorkAdmin)
+admin.site.register(Subject, SubjectAdmin)
 admin.site.register(CeleryTaskResult, CeleryTaskResultAdmin)
 
 
@@ -319,43 +319,34 @@ class SourceAdmin(admin.ModelAdmin):
         return None
 
 
-class SubjectChoiceField(ModelChoiceField):
-    def label_from_instance(self, obj):
-        return '{}: {}'.format(obj.taxonomy.name, obj.name)
+class SubjectTaxonomyAdmin(admin.ModelAdmin):
+    readonly_fields = ('subject_links',)
+    fields = ('name', 'is_deleted', 'subject_links')
+
+    def subject_links(self, obj):
+        def recursive_link_list(subjects):
+            if not subjects:
+                return ''
+            items = format_html_join(
+                '', '<li style="list-style: square;"><a href="{}">{}</a>{}</li>',
+                (
+                    (
+                        reverse('admin:share_subject_change', args=(s.id,)),
+                        s.name,
+                        mark_safe(recursive_link_list(list(s.children.all())))
+                    ) for s in sorted(subjects, key=lambda s: s.name)
+                )
+            )
+            return format_html('<ul style="margin-left: 10px;">{}</ul>', mark_safe(items))
+        roots = obj.subject_set.filter(parent__isnull=True).prefetch_related('children', 'children__children', 'children__children__children')
+        return recursive_link_list(list(roots))
+    subject_links.short_description = 'Subjects'
 
 
-class SubjectAdmin(admin.ModelAdmin):
-    search_fields = ('name',)
-    readonly_fields = ('taxonomy_link', 'lineage')
-    fields = ('lineage', 'name', 'parent', 'taxonomy_link', 'central_synonym', 'is_deleted', 'uri', )
-    list_display = ('lineage', 'taxonomy', 'central_synonym', 'is_deleted')
-    list_filter = ('taxonomy',)
 
-    def lineage(self, obj):
-        return ' > '.join([s.name for s in obj.lineage()])
+    #def get_queryset(self, request):
+    #    return super().get_queryset(request).prefetch_related('subject')
 
-    def taxonomy_link(self, obj):
-        taxonomy_url = reverse('admin:share_taxonomy_change', args=(obj.taxonomy_id,))
-        return format_html('<a href="{}">{}</a>', taxonomy_url, obj.taxonomy.name)
-    taxonomy_link.short_description = 'Taxonomy'
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('taxonomy', 'parent', 'parent__parent',)
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        subject_queryset = None
-        subject_id = request.resolver_match.args[0]
-        if db_field.name == 'parent':
-            # Limit to subjects from the same taxonomy
-            subject_queryset = Subject.objects.filter(taxonomy__subject__id=subject_id)
-        elif db_field.name == 'central_synonym':
-            # Limit to subjects from the central taxonomy, or none if this subject is in the central taxonomy
-            subject_queryset = Subject.objects.filter(taxonomy__name=settings.SUBJECTS_CENTRAL_TAXONOMY).exclude(taxonomy__subject__id=subject_id)
-
-        if subject_queryset is not None:
-            kwargs['queryset'] = subject_queryset.order_by('name').select_related('taxonomy')
-            return SubjectChoiceField(**kwargs)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
@@ -371,6 +362,5 @@ admin.site.register(Harvester)
 admin.site.register(ShareUser, ShareUserAdmin)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
-admin.site.register(Subject, SubjectAdmin)
-admin.site.register(Taxonomy)
+admin.site.register(SubjectTaxonomy, SubjectTaxonomyAdmin)
 admin.site.register(Transformer)

@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('action', models.TextField(max_length=10)),
                 ('name', models.TextField()),
                 ('is_deleted', models.BooleanField(default=False)),
-                ('uri', share.models.fields.ShareURLField(null=True)),
+                ('uri', share.models.fields.ShareURLField(blank=True, null=True)),
                 ('date_created', models.DateTimeField(auto_now_add=True, help_text='The date of ingress to SHARE.')),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True, help_text='The date this record was modified by SHARE.')),
             ],
@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='Taxonomy',
+            name='SubjectTaxonomy',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField(unique=True)),
@@ -46,11 +46,12 @@ class Migration(migrations.Migration):
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True)),
             ],
+            options={'verbose_name_plural': 'Subject Taxonomies'},
         ),
         migrations.AddField(
             model_name='subject',
             name='central_synonym',
-            field=models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='custom_synonyms', to='share.Subject'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='custom_synonyms', to='share.Subject'),
         ),
         migrations.AddField(
             model_name='subject',
@@ -91,7 +92,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subject',
             name='uri',
-            field=share.models.fields.ShareURLField(null=True, unique=True),
+            field=share.models.fields.ShareURLField(blank=True, null=True, unique=True),
         ),
         migrations.AddField(
             model_name='throughsubjects',
@@ -116,7 +117,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='subject',
             name='parent',
-            field=models.ForeignKey(null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='children', to='share.Subject'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='children', to='share.Subject'),
         ),
         migrations.AlterField(
             model_name='throughsubjects',
@@ -131,12 +132,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subjectversion',
             name='central_synonym',
-            field=models.ForeignKey(db_index=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.Subject'),
+            field=models.ForeignKey(blank=True, db_index=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.Subject'),
         ),
         migrations.AddField(
             model_name='subjectversion',
             name='central_synonym_version',
-            field=models.ForeignKey(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.SubjectVersion'),
+            field=models.ForeignKey(blank=True, db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.SubjectVersion'),
         ),
         migrations.AddField(
             model_name='subjectversion',
@@ -156,12 +157,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subjectversion',
             name='parent',
-            field=models.ForeignKey(db_index=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.Subject'),
+            field=models.ForeignKey(blank=True, db_index=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.Subject'),
         ),
         migrations.AddField(
             model_name='subjectversion',
             name='parent_version',
-            field=models.ForeignKey(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.SubjectVersion'),
+            field=models.ForeignKey(blank=True, db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.SubjectVersion'),
         ),
         migrations.AddField(
             model_name='subjectversion',
@@ -181,7 +182,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subjectversion',
             name='taxonomy',
-            field=models.ForeignKey(db_index=False, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='share.Taxonomy'),
+            field=models.ForeignKey(db_index=False, editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='share.SubjectTaxonomy'),
         ),
         migrations.AddField(
             model_name='abstractcreativework',
@@ -196,12 +197,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subject',
             name='central_synonym_version',
-            field=models.ForeignKey(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.SubjectVersion'),
+            field=models.ForeignKey(blank=True, db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.SubjectVersion'),
         ),
         migrations.AddField(
             model_name='subject',
             name='parent_version',
-            field=models.ForeignKey(db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.SubjectVersion'),
+            field=models.ForeignKey(blank=True, db_index=False, editable=False, null=True, on_delete=db.deletion.DatabaseOnDelete(clause='CASCADE'), related_name='+', to='share.SubjectVersion'),
         ),
         migrations.AddField(
             model_name='subject',
@@ -218,7 +219,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subject',
             name='taxonomy',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='share.Taxonomy'),
+            field=models.ForeignKey(null=True, editable=False, on_delete=django.db.models.deletion.CASCADE, to='share.SubjectTaxonomy'),
         ),
         migrations.AddField(
             model_name='subject',

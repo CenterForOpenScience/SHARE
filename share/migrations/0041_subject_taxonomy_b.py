@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='subject',
             name='taxonomy',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='share.Taxonomy'),
+            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, to='share.SubjectTaxonomy'),
         ),
         migrations.AlterField(
             model_name='subject',

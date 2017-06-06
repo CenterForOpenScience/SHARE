@@ -45,7 +45,7 @@ class ChangeManager(FuzzyCountManager):
             logger.debug('No changes detected in {!r}, skipping.'.format(node))
             return None
         if not hasattr(node.model, 'VersionModel'):
-            # Non-ShareObjects (e.g. Taxonomy) cannot be changed.
+            # Non-ShareObjects (e.g. SubjectTaxonomy) cannot be changed.
             # Shouldn't reach this point...
             logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(node, node.model))
             return None
@@ -278,11 +278,11 @@ class Change(models.Model):
                 change[k] = v
 
         if self.target_type.model == 'subject':  # TODO something better
-            from share.models import Taxonomy
+            from share.models import SubjectTaxonomy
             if change.get('central_synonym', self.target.central_synonym if self.target else None) is None:
                 # TODO or should this raise an error? the central taxonomy shouldn't be modified by incoming data
-                change['taxonomy'] = Taxonomy.objects.get(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
+                change['taxonomy'] = SubjectTaxonomy.objects.get(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
             else:
-                change['taxonomy'] = Taxonomy.objects.get_or_create(name=self.change_set.normalized_data.source.source.long_title)
+                change['taxonomy'] = SubjectTaxonomy.objects.get_or_create(name=self.change_set.normalized_data.source.source.long_title)
 
         return change
