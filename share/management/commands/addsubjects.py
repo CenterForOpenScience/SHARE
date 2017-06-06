@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import transaction
 
 from share.models import ShareUser, Taxonomy, NormalizedData
-from share.tasks import DisambiguatorTask
+from share.tasks import disambiguate
 
 
 class Command(BaseCommand):
@@ -25,9 +25,8 @@ class Command(BaseCommand):
         # Ensure central taxonomy exists
         Taxonomy.objects.get_or_create(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
 
-        user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
         normalized_data = NormalizedData.objects.create(
-            source=user,
+            source=ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
             data={
                 '@graph': [
                     {
@@ -39,4 +38,4 @@ class Command(BaseCommand):
                 ]
             }
         )
-        DisambiguatorTask().apply((user.id, normalized_data.id), throw=True)
+        disambiguate.apply((normalized_data.id,), throw=True)

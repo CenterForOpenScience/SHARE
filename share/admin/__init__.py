@@ -1,10 +1,12 @@
 from furl import furl
 
 from django import forms
+from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.widgets import AdminDateWidget
+from django.forms import ModelChoiceField
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -317,6 +319,44 @@ class SourceAdmin(admin.ModelAdmin):
         return None
 
 
+class SubjectChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return '{}: {}'.format(obj.taxonomy.name, obj.name)
+
+
+class SubjectAdmin(admin.ModelAdmin):
+    search_fields = ('name',)
+    readonly_fields = ('taxonomy_link', 'lineage')
+    fields = ('lineage', 'name', 'parent', 'taxonomy_link', 'central_synonym', 'is_deleted', 'uri', )
+    list_display = ('lineage', 'taxonomy', 'central_synonym', 'is_deleted')
+    list_filter = ('taxonomy',)
+
+    def lineage(self, obj):
+        return ' > '.join([s.name for s in obj.lineage()])
+
+    def taxonomy_link(self, obj):
+        taxonomy_url = reverse('admin:share_taxonomy_change', args=(obj.taxonomy_id,))
+        return format_html('<a href="{}">{}</a>', taxonomy_url, obj.taxonomy.name)
+    taxonomy_link.short_description = 'Taxonomy'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('taxonomy', 'parent', 'parent__parent',)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        subject_queryset = None
+        subject_id = request.resolver_match.args[0]
+        if db_field.name == 'parent':
+            # Limit to subjects from the same taxonomy
+            subject_queryset = Subject.objects.filter(taxonomy__subject__id=subject_id)
+        elif db_field.name == 'central_synonym':
+            # Limit to subjects from the central taxonomy, or none if this subject is in the central taxonomy
+            subject_queryset = Subject.objects.filter(taxonomy__name=settings.SUBJECTS_CENTRAL_TAXONOMY).exclude(taxonomy__subject__id=subject_id)
+
+        if subject_queryset is not None:
+            kwargs['queryset'] = subject_queryset.order_by('name').select_related('taxonomy')
+            return SubjectChoiceField(**kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -331,6 +371,6 @@ admin.site.register(Harvester)
 admin.site.register(ShareUser, ShareUserAdmin)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
-admin.site.register(Subject)
+admin.site.register(Subject, SubjectAdmin)
 admin.site.register(Taxonomy)
 admin.site.register(Transformer)

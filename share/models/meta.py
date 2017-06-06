@@ -54,6 +54,15 @@ class Taxonomy(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return '<{}: {}>'.format(self.__class__.__name__, self.name)
+
+    class Meta:
+        verbose_name_plural = 'Taxonomies'
+
 
 class Subject(ShareObject):
     name = models.TextField()
@@ -68,6 +77,15 @@ class Subject(ShareObject):
         synonym = node.attrs.get('central_synonym')
         if synonym and synonym['@id'] == node['@id']:
             node.attrs.pop('central_synonym')
+
+    def lineage(self):
+        lineage = []
+        subject = self
+        while subject:
+            lineage.append(subject)
+            subject = subject.parent
+        lineage.reverse()
+        return lineage
 
     def __str__(self):
         return self.name
