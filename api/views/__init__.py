@@ -6,3 +6,4 @@ from .registration import *  # noqa
 from .schema import *  # noqa
 from .banner import *  # noqa
 from .harvestlogs import *  # noqa
+from .sourceConfig import * # noqa
