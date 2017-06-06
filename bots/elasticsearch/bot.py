@@ -148,11 +148,11 @@ class ElasticSearchBot:
     }
 
     def __init__(self, **kwargs):
-        self.es_filter = kwargs.pop('es_filter', None)
-        self.es_index = kwargs.pop('es_index', settings.ELASTICSEARCH_INDEX)
-        self.es_models = kwargs.pop('es_models', None)
-        self.es_setup = bool(kwargs.pop('es_setup', False))
-        self.es_url = kwargs.pop('es_url', settings.ELASTICSEARCH_URL)
+        self.es_filter = kwargs.pop('es_filter') or None
+        self.es_index = kwargs.pop('es_index') or settings.ELASTICSEARCH_INDEX
+        self.es_models = kwargs.pop('es_models') or None
+        self.es_setup = bool(kwargs.pop('es_setup') or False)
+        self.es_url = kwargs.pop('es_url') or settings.ELASTICSEARCH_URL
 
         if self.es_models:
             self.es_models = [x.lower() for x in self.es_models]
