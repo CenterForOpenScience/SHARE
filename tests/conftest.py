@@ -30,7 +30,6 @@ def pytest_configure(config):
     # If we create a queryset here, all of typedmodels cached properties
     # will be filled in while recursion detection isn't active
     Article.objects.all()
-
     if config.option.usepdb:
         try:
             import IPython.core.debugger  # noqa
@@ -224,7 +223,7 @@ def elastic(settings):
     settings.ELASTICSEARCH_TIMEOUT = 5
     settings.ELASTICSEARCH_INDEX = 'test_' + settings.ELASTICSEARCH_INDEX
 
-    bot = ElasticSearchBot(apps.get_app_config('elasticsearch'), 1, es_setup=False)
+    bot = ElasticSearchBot(es_setup=False)
 
     try:
         bot.es_client.indices.delete(index=settings.ELASTICSEARCH_INDEX, ignore=[400, 404])

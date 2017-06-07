@@ -1,7 +1,10 @@
 import behave
 
+import pendulum
+
 from share import models
 from share import tasks
+from share.harvest.scheduler import HarvestScheduler
 
 from tests import factories
 
@@ -15,23 +18,29 @@ def make_source(context, name):
 
 
 @behave.given('{name} has a source config, {label}')
-def make_source_config(context, name, label):
-    factories.SourceConfigFactory(label=label, source=models.Source.objects.get(name=name))
+@behave.given('a source config, {label}, that harvests {interval}')
+@behave.given('a source config, {label}, that harvests {interval} after {time}')
+def make_source_config(context, label, name=None, interval=None, time=None):
+    kwargs = {'label': label}
 
+    if name is None:
+        kwargs['source'] = factories.SourceFactory()
+    else:
+        kwargs['source'] = models.Source.objects.get(name=name)
 
-@behave.given('a {status} harvest of {label}')
-@behave.given('a {status} harvest of {label} for {start} to {end}')
-def make_harvest_log(context, status, label, start=None, end=None):
-    start, end = tasks.HarvesterTask.resolve_date_range(start, end)
-    models.HarvestLog.objects.create(
-        completions=1,
-        end_date=end,
-        start_date=start,
-        status=getattr(models.HarvestLog.STATUS, status),
-        source_config=models.SourceConfig.objects.get(label=label),
-        source_config_version=models.SourceConfig.objects.get(label=label).version,
-        harvester_version=models.Harvester.objects.get(sourceconfig__label=label).version,
-    )
+    if interval is not None:
+        kwargs['harvest_interval'] = {
+            'daily': '1 day',
+            'weekly': '1 week',
+            'fortnightly': '2 weeks',
+            'yearly': '1 year',
+            'monthly': '1 month',
+        }[interval]
+
+    if time is not None:
+        kwargs['harvest_after'] = time
+
+    factories.SourceConfigFactory(**kwargs)
 
 
 @behave.given('{label} is updated to version {version}')
@@ -42,36 +51,12 @@ def update_harvester(context, label, version):
 @behave.when('{label} is harvested')
 @behave.when('{label} is harvested for {start} to {end}')
 def start_harvest(context, label, start=None, end=None):
-    start, end = tasks.HarvesterTask.resolve_date_range(start, end)
-    tasks.HarvesterTask().apply((1, label), {'start': start, 'end': end}, retries=99999999999)
+    log = HarvestScheduler(models.SourceConfig.objects.get(label=label)).range(
+        pendulum.parse(start),
+        pendulum.parse(end),
+    )[0]
 
-
-@behave.then('{label} will have {number} harvest log')
-@behave.then('{label} will have {number} harvest logs')
-@behave.then('{label} will have {number} harvest log for {start} to {end}')
-@behave.then('{label} will have {number} harvest logs for {start} to {end}')
-def assert_num_harvest_logs(context, label, number, start=None, end=None):
-    qs = models.HarvestLog.objects.filter(source_config__label=label)
-
-    if start:
-        qs = qs.filter(start_date=start)
-
-    if end:
-        qs = qs.filter(end_date=end)
-
-    assert qs.count() == int(number), '{!r} has {} logs not {}'.format(models.SourceConfig.objects.get(label=label), qs.count(), number)
-
-
-@behave.then('{label}\'s latest harvest log\'s {field} will be {value}')
-def assert_latest_harvestlog_value(context, label, field, value):
-    context.subject = log = models.HarvestLog.objects.filter(
-        source_config__label=label
-    ).first()
-
-    if field == 'status':
-        value = getattr(models.HarvestLog.STATUS, value)
-
-    assert getattr(log, field) == value, '{!r}.{} ({!r}) != {!r}'.format(log, field, getattr(log, field), value)
+    tasks.harvest(log_id=log.id)
 
 
 @behave.then('it\'s {field} will be {value}')

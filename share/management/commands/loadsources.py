@@ -1,11 +1,6 @@
-import json
 import os
 import yaml
 from stevedore import extension
-
-from celery.schedules import crontab
-from djcelery.models import PeriodicTask
-from djcelery.models import CrontabSchedule
 
 from django.apps import apps
 from django.core.files import File
@@ -101,8 +96,6 @@ class Command(BaseCommand):
             source_config, created = SourceConfig.objects.update_or_create(label=label, defaults=config_defaults)
         else:
             source_config, created = SourceConfig.objects.get_or_create(label=label, defaults=config_defaults)
-        if overwrite or created:
-            self.schedule_harvest_task(source_config.label, source_config.disabled)
 
     def get_or_create_user(self, username):
         ShareUser = self.apps.get_model('share.ShareUser')
@@ -114,21 +107,6 @@ class Command(BaseCommand):
                 username=username,
                 robot=username,
             )
-
-    def schedule_harvest_task(self, label, disabled):
-        task_name = '{} harvester task'.format(label)
-        tab = CrontabSchedule.from_schedule(crontab(minute=0, hour=0))
-        tab.save()
-        PeriodicTask.objects.update_or_create(
-            name=task_name,
-            defaults={
-                'enabled': not disabled,
-                'task': 'share.tasks.HarvesterTask',
-                'description': 'Harvesting',
-                'args': json.dumps([1, label]),  # Note 1 should always be the system user
-                'crontab': tab,
-            }
-        )
 
     def process_defaults(self, model, defaults):
         ret = {}

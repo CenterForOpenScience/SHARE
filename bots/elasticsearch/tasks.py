@@ -1,25 +1,23 @@
 import logging
-import re
+
+import celery
 
 import pendulum
-import celery
 
 from django.apps import apps
 from django.conf import settings
 from django.db.models import Min
-
-from elasticsearch import helpers
 from elasticsearch import Elasticsearch
+from elasticsearch import helpers
 
 from share.models import Agent
 from share.models import CreativeWork
 from share.models import Subject
 from share.models import Tag
-from share.models import ShareUser
-from share.tasks import AppTask
 from share.util import IDObfuscator
 
 from bots.elasticsearch import util
+from bots.elasticsearch.bot import ElasticSearchBot
 
 
 logger = logging.getLogger(__name__)
@@ -31,52 +29,66 @@ def safe_substr(value, length=32000):
     return None
 
 
-def score_text(text):
-    return int(
-        (len(re.findall('(?!\d)\w', text)) / (1 + len(re.findall('[\W\d]', text))))
-        / (len(text) / 100)
-    )
+@celery.shared_task(bind=True)
+def update_elasticsearch(self, filter=None, index=None, models=None, setup=False, url=None):
+    """
+    """
+    # TODO Refactor Elasitcsearch logic
+    ElasticSearchBot(
+        es_filter=filter,
+        es_index=index,
+        es_models=models,
+        es_setup=setup,
+        es_url=url,
+    ).run()
 
 
-class IndexModelTask(AppTask):
+@celery.shared_task(bind=True)
+def index_model(self, model_name, ids, es_url=None, es_index=None):
+    errors = []
+    model = apps.get_model('share', model_name)
+    es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
 
-    def do_run(self, model_name, ids, es_url=None, es_index=None):
-        errors = []
-        model = apps.get_model('share', model_name)
-        es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
+    for ok, resp in helpers.streaming_bulk(es_client, BulkStreamHelper(model, ids, es_index or settings.ELASTICSEARCH_INDEX), max_chunk_bytes=32 * 1024 ** 2, raise_on_error=False):
+        if not ok:
+            logger.warning(resp)
+        else:
+            logger.debug(resp)
 
-        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(model, ids, es_index or settings.ELASTICSEARCH_INDEX), max_chunk_bytes=32 * 1024 ** 2, raise_on_error=False):
-            if not ok:
-                logger.warning(resp)
-            else:
-                logger.debug(resp)
+        if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
+            errors.append(resp)
 
-            if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
-                errors.append(resp)
+    if errors:
+        raise Exception('Failed to index documents {}'.format(errors))
 
-        if errors:
-            raise Exception('Failed to index documents {}'.format(errors))
 
-    def bulk_stream(self, model, ids, es_index):
-        if not ids:
+class BulkStreamHelper:
+
+    def __init__(self, model, ids, es_index):
+        self.es_index = es_index
+        self.ids = ids
+        self.model = model
+
+    def __iter__(self):
+        if not self.ids:
             return
 
-        opts = {'_index': es_index, '_type': model._meta.verbose_name_plural.replace(' ', '')}
+        opts = {'_index': self.es_index, '_type': self.model._meta.verbose_name_plural.replace(' ', '')}
 
-        if model is CreativeWork:
-            for blob in util.fetch_creativework(ids):
+        if self.model is CreativeWork:
+            for blob in util.fetch_creativework(self.ids):
                 if blob.pop('is_deleted'):
                     yield {'_id': blob['id'], '_op_type': 'delete', **opts}
                 else:
                     yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
-        if model is Agent:
-            for blob in util.fetch_agent(ids):
+        if self.model is Agent:
+            for blob in util.fetch_agent(self.ids):
                 yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
             return
 
-        for inst in model.objects.filter(id__in=ids):
+        for inst in self.model.objects.filter(id__in=self.ids):
             # if inst.is_delete:  # TODO
             #     yield {'_id': inst.pk, '_op_type': 'delete', **opts}
             yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
@@ -102,26 +114,32 @@ class IndexModelTask(AppTask):
         }
 
 
-class IndexSourceTask(AppTask):
+@celery.shared_task(bind=True)
+def index_sources(self, es_index=None, es_url=None, timeout=None):
+    errors = []
+    es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
 
-    def do_run(self, es_url=None, es_index=None):
-        es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
-        errors = []
-        for ok, resp in helpers.streaming_bulk(es_client, self.bulk_stream(es_index or settings.ELASTICSEARCH_INDEX), raise_on_error=False):
-            if not ok:
-                logger.warning(resp)
-            else:
-                logger.debug(resp)
+    for ok, resp in helpers.streaming_bulk(es_client, SourceBulkStreamHelper(es_index or settings.ELASTICSEARCH_INDEX), raise_on_error=False):
+        if not ok:
+            logger.warning(resp)
+        else:
+            logger.debug(resp)
 
-            if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
-                errors.append(resp)
+        if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
+            errors.append(resp)
 
-        if errors:
-            raise Exception('Failed to index documents {}'.format(errors))
+    if errors:
+        raise Exception('Failed to index documents {}'.format(errors))
 
-    def bulk_stream(self, es_index):
+
+class SourceBulkStreamHelper:
+
+    def __init__(self, es_index):
+        self.es_index = es_index
+
+    def __iter__(self):
         Source = apps.get_model('share.Source')
-        opts = {'_index': es_index, '_type': 'sources'}
+        opts = {'_index': self.es_index, '_type': 'sources'}
 
         for source in Source.objects.all():
             # remove sources from search that don't appear on the sources page
@@ -171,11 +189,12 @@ def get_date_range_parts(min_date, max_date):
 
 @celery.task(bind=True)
 def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
-    '''
-    Checks if the database count matches the ES count
+    """Checks if the database count matches the ES count
+
     If counts differ, split the date range in half and check counts in smaller ranges
     Pseudo binary because it can't throw away half the results based on the middle value
-    '''
+
+    """
     MAX_DB_COUNT = 500
     MIN_MISSING_RATIO = 0.7
 
@@ -219,11 +238,12 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
             return
 
         logger.debug('dry=False, reindexing missing works')
-        bot = apps.get_app_config('elasticsearch').get_bot(
-            ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
-            es_filter={'date_created__range': [min_date, max_date]},
-        )
-        bot.run()
+
+        task = update_elasticsearch(filter={
+            'date_created__range': [min_date, max_date]
+        })
+
+        logger.info('Spawned %r', task)
         return
 
     logger.debug('Did NOT meet the threshold of %d total works to index or %d%% missing works.', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
@@ -245,21 +265,22 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
         return
 
 
-class JanitorTask(AppTask):
-    '''
+@celery.shared_task(bind=True)
+def elasticsearch_janitor(self, es_url=None, es_index=None, dry=False):
+    """
     Looks for discrepancies between postgres and elastic search numbers
     Re-indexes time periods that differ in count
-    '''
-    def do_run(self, es_url=None, es_index=None, dry=False):
-        # get range of date_created in database; assumes current time is the max
-        logger.debug('Starting Elasticsearch JanitorTask')
 
-        min_date = CreativeWork.objects.all().aggregate(Min('date_created'))['date_created__min']
-        if not min_date:
-            logger.warning('No CreativeWorks are present in Postgres. Exiting')
-            return
+    """
+    # get range of date_created in database; assumes current time is the max
+    logger.debug('Starting Elasticsearch JanitorTask')
 
-        max_date = pendulum.utcnow()
-        min_date = pendulum.instance(min_date)
+    min_date = CreativeWork.objects.all().aggregate(Min('date_created'))['date_created__min']
+    if not min_date:
+        logger.warning('No CreativeWorks are present in Postgres. Exiting')
+        return
 
-        pseudo_bisection.apply((es_url, es_index, min_date.isoformat(), max_date.isoformat()), {'dry': dry})
+    max_date = pendulum.utcnow()
+    min_date = pendulum.instance(min_date)
+
+    pseudo_bisection.apply((es_url, es_index, min_date.isoformat(), max_date.isoformat()), {'dry': dry}, throw=True)

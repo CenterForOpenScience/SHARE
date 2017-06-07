@@ -1,20 +1,32 @@
+import subprocess
+
 from setuptools import setup, find_packages
+
+
+try:
+    __version__ = subprocess.check_output(['git', 'describe']).decode().strip().split('-')[0]
+except subprocess.CalledProcessError:
+    __version__ = '0.0.0'
 
 setup(
     name='share',
-    scripts=['bin/share'],
+    version=__version__,
     packages=find_packages(exclude=('tests*')),
     provides=[
         'share.transformers',
         'share.harvesters'
     ],
     entry_points={
+        'console_scripts': [
+            'sharectl = share.bin.__main__:main',
+        ],
         'share.transformers': [
             'ca.lwbin = share.transformers.ca_lwbin:LWBINTransformer',
             'com.biomedcentral = share.transformers.com_biomedcentral:BioMedCentralTransformer',
             'com.dailyssrn = share.transformers.com_dailyssrn:DailySSRNTransformer',
             'com.figshare = share.transformers.com_figshare:FigshareTransformer',
             'com.figshare.v2 = share.transformers.com_figshare_v2:FigshareV2Transformer',
+            'com.mendeley.data = share.transformers.com_mendeley_data:MendeleyTransformer',
             'com.peerj = share.transformers.com_peerj:PeerJTransformer',
             'com.peerj.xml = share.transformers.com_peerj_xml:PeerJXMLTransformer',
             'com.researchregistry = share.transformers.com_researchregistry:RRTransformer',
@@ -54,6 +66,7 @@ setup(
             'com.biomedcentral = share.harvesters.com_biomedcentral:BiomedCentralHarvester',
             'com.figshare = share.harvesters.com_figshare:FigshareHarvester',
             'com.figshare.v2 = share.harvesters.com_figshare_v2:FigshareHarvester',
+            'com.mendeley.data = share.harvesters.com_mendeley_data:MendeleyHarvester',
             'com.peerj = share.harvesters.com_peerj:PeerJHarvester',
             'com.researchregistry = share.harvesters.com_researchregistry:ResearchRegistryHarvester',
             'com.springer = share.harvesters.com_springer:SpringerHarvester',

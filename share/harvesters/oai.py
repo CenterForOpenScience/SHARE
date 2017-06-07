@@ -6,6 +6,7 @@ from furl import furl
 from lxml import etree
 
 from share.harvest import BaseHarvester
+from share.harvest.serialization import StringLikeSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -26,17 +27,18 @@ class OAIHarvester(BaseHarvester):
     from_param = 'from'
     until_param = 'until'
     set_spec = None
+    SERIALIZER_CLASS = StringLikeSerializer
 
     def __init__(self, *args, **kwargs):
+        self.metadata_prefix = kwargs.pop('metadata_prefix')
+        self.time_granularity = kwargs.pop('time_granularity', self.time_granularity)
+        self.from_param = kwargs.pop('from_param', self.from_param)
+        self.until_param = kwargs.pop('until_param', self.until_param)
+        self.set_spec = kwargs.pop('set_spec', self.set_spec)
+
         super().__init__(*args, **kwargs)
 
-        self.metadata_prefix = kwargs.get('metadata_prefix')
-        self.time_granularity = kwargs.get('time_granularity', self.time_granularity)
-        self.from_param = kwargs.get('from_param', self.from_param)
-        self.until_param = kwargs.get('until_param', self.until_param)
-        self.set_spec = kwargs.get('set_spec', self.set_spec)
-
-    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, set_spec=None) -> list:
+    def _do_fetch(self, start_date, end_date, set_spec=None):
         url = furl(self.config.base_url)
         set_spec = set_spec or self.set_spec
 
@@ -65,9 +67,16 @@ class OAIHarvester(BaseHarvester):
             used_tokens.add(token)
 
             for record in records:
+                datestamp = record.xpath('ns0:header/ns0:datestamp', namespaces=self.namespaces)[0].text
+                if datestamp:
+                    datestamp = pendulum.parse(datestamp)
+                else:
+                    datestamp = None
+
                 yield (
                     record.xpath('ns0:header/ns0:identifier', namespaces=self.namespaces)[0].text,
                     etree.tostring(record, encoding=str),
+                    datestamp,
                 )
 
             if not token or not records:
@@ -79,7 +88,7 @@ class OAIHarvester(BaseHarvester):
 
         while True:
             logger.info('Making request to {}'.format(url.url))
-            resp = self.requests.get(url.url)
+            resp = self.requests.get(url.url, timeout=self.request_timeout)
             if resp.ok:
                 break
             if resp.status_code == 503:
@@ -112,7 +121,7 @@ class OAIHarvester(BaseHarvester):
     def metadata_formats(self):
         url = furl(self.config.base_url)
         url.args['verb'] = 'ListMetadataFormats'
-        resp = self.requests.get(url.url)
+        resp = self.requests.get(url.url, timeout=self.request_timeout)
         resp.raise_for_status()
         parsed = etree.fromstring(resp.content)
         formats = parsed.xpath('//ns0:metadataPrefix', namespaces=self.namespaces)

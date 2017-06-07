@@ -26,7 +26,7 @@ class HarvardDataverseHarvester(BaseHarvester):
         }).url)
 
     def fetch_records(self, url):
-        response = self.requests.get(url)
+        response = self.requests.get(url, timeout=self.request_timeout)
         total_num = response.json()['data']['total_count']
         num_processed = 0
 
@@ -39,4 +39,4 @@ class HarvardDataverseHarvester(BaseHarvester):
 
             response = self.requests.get(furl(url).add(query_params={
                 'start': str(num_processed)
-            }).url)
+            }).url, timeout=self.request_timeout)

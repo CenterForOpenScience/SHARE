@@ -1,6 +1,9 @@
-from oauth2_provider.ext.rest_framework import TokenHasScope
-from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 import logging
+
+from oauth2_provider.ext.rest_framework import TokenHasScope
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
+
 
 log = logging.getLogger(__name__)
 
@@ -27,3 +30,13 @@ class ReadOnlyOrTokenHasScopeOrIsAuthenticated(TokenHasScope, IsAuthenticated, B
         assert False, ('TokenHasScope requires either the'
                        '`oauth2_provider.rest_framework.OAuth2Authentication` authentication '
                        'class to be used.')
+
+
+class IsDeletedPremissions(BasePermission):
+    """
+    Permission check for deleted objects.
+    """
+    def has_object_permission(self, request, view, obj):
+        if hasattr(obj, 'is_deleted') and obj.is_deleted:
+            raise PermissionDenied('This {} has been removed.'.format(obj._meta.verbose_name))
+        return True
