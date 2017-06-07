@@ -48,9 +48,7 @@ def format_address(address1='', address2='', city='', state_or_province='', post
 
 def force_text(data):
     if isinstance(data, dict):
-        if '#text' in data:
-            return data['#text']
-        raise Exception('#text is not in {}'.format(data))
+        return data.get('#text', '')
 
     if isinstance(data, str):
         return data

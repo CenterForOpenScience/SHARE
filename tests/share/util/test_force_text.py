@@ -10,6 +10,8 @@ from share.transform.chain.utils import force_text
     ({'#text': 'art'}, 'art'),
     ('mechanical', 'mechanical'),
     (None, ''),
+    ({}, ''),
+    ({'test': 'value'}, '')
 ])
 def test_force_text(input_text, output_text):
     assert force_text(input_text) == output_text
