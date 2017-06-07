@@ -19,6 +19,7 @@ from share.models import Source
 from share.models import HarvestLog
 from share.models import RawDatum
 from share import tasks
+from share.harvest.scheduler import HarvestScheduler
 
 from tests import factories
 
@@ -333,3 +334,61 @@ class TestHarvestTask:
             list(source_config.get_harvester().harvest_date(pendulum.parse('2016-01-01')))
 
         assert e.value.args == ('result.datestamp is outside of the requested date range. 2016-01-02T00:00:00+00:00 from identifier2 is not within [2015-12-31T00:00:00+00:00 - 2016-01-01T00:00:00+00:00]', )
+
+    @pytest.mark.parametrize('now, end_date, harvest_after, should_run', [
+        (
+            # Too early
+            pendulum.parse('2017-01-01T00:00'),
+            pendulum.parse('2017-01-01').date(),
+            pendulum.parse('01:00').time(),
+            False
+        ),
+        (
+            # Just right
+            pendulum.parse('2017-01-01T02:00'),
+            pendulum.parse('2017-01-01').date(),
+            pendulum.parse('01:00').time(),
+            True
+        ),
+        (
+            # Equal
+            pendulum.parse('2017-01-01T01:00'),
+            pendulum.parse('2017-01-01').date(),
+            pendulum.parse('01:00').time(),
+            True
+        ),
+        (
+            # Way in the past
+            pendulum.parse('2017-01-01T01:00'),
+            pendulum.parse('2016-01-01').date(),
+            pendulum.parse('01:00').time(),
+            True
+        ),
+        (
+            # In the future... ?
+            pendulum.parse('2017-01-01T01:00'),
+            pendulum.parse('2018-01-01').date(),
+            pendulum.parse('01:00').time(),
+            False
+        ),
+        (
+            # Late harvester
+            pendulum.parse('2017-01-01T01:00'),
+            pendulum.parse('2017-01-01').date(),
+            pendulum.parse('20:00').time(),
+            False
+        ),
+    ])
+    def test_harvest_after(self, monkeypatch, now, end_date, harvest_after, should_run, source_config):
+        monkeypatch.setattr('share.tasks.harvest.apply_async', mock.Mock())
+
+        source_config.harvest_after = harvest_after
+        source_config.save()
+        monkeypatch.setattr('django.utils.timezone.now', lambda: now)
+        source_config.harvester.get_class()._do_fetch = mock.Mock(return_value=[])
+
+        HarvestScheduler(source_config).date(end_date.add(days=-1))
+
+        tasks.harvest()
+
+        assert source_config.harvester.get_class()._do_fetch.called == should_run

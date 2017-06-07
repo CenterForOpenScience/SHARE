@@ -1,4 +1,5 @@
 import contextlib
+import datetime
 import logging
 
 from stevedore import driver
@@ -108,7 +109,7 @@ class SourceConfig(models.Model):
     # Allow null for push sources
     harvester = models.ForeignKey('Harvester', null=True, on_delete=models.CASCADE)
     harvester_kwargs = JSONField(null=True, blank=True)
-    harvest_interval = models.DurationField(default='1 day')
+    harvest_interval = models.DurationField(default=datetime.timedelta(days=1))
     harvest_after = models.TimeField(default='02:00')
     full_harvest = models.BooleanField(default=False, help_text=(
         'Whether or not this SourceConfig should be fully harvested. '
