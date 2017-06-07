@@ -317,13 +317,20 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'bots.elasticsearch.tasks.elasticsearch_janitor',
         'schedule': crontab(hour=23, minute=30),
     },
-
-    # Once an hour
-    'Schedule Harvests': {
-        'task': 'share.tasks.schedule_harvests',
-        'schedule': crontab(minute=0)
-    }
 }
+
+if not DEBUG:
+    CELERY_BEAT_SCHEDULE = {
+        **CELERY_BEAT_SCHEDULE,
+        'Schedule Harvests': {
+            'task': 'share.tasks.schedule_harvests',
+            'schedule': crontab(minute=0)  # hourly
+        },
+        'RawData Janitor': {
+            'task': 'share.janitor.tasks.rawdata_janitor',
+            'schedule': crontab(minute=0)  # hourly
+        }
+    }
 
 CELERY_RESULT_EXPIRES = 60 * 60 * 24 * 3  # 4 days
 CELERY_RESULT_BACKEND = 'share.celery:CeleryDatabaseBackend'
