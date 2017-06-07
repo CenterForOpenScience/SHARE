@@ -195,7 +195,7 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
         logs = []
 
         # TODO take harvest/sourceconfig version into account here
-        for source_config in qs.select_related('harvester').annotate(latest=models.Max('harvest_logs__end_date')):
+        for source_config in qs.exclude(harvester__isnull=True).select_related('harvester').annotate(latest=models.Max('harvest_logs__end_date')):
             logs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
 
         HarvestLog.objects.bulk_get_or_create(logs)
