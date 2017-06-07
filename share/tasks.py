@@ -10,6 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db import transaction
 from django.urls import reverse
+from django.utils import timezone
 
 from share.change import ChangeGraph
 from share.harvest.exceptions import HarvesterConcurrencyError
@@ -117,7 +118,9 @@ def harvest(self, log_id=None, ignore_disabled=False, ingest=True, exhaust=True,
             )
 
         qs = qs.filter(
-            status__in=HarvestLog.READY_STATUSES
+            status__in=HarvestLog.READY_STATUSES,
+            end_date__lte=timezone.now().date(),
+            source_config__harvest_after__lte=timezone.now().time(),
         ).unlocked('source_config')
 
     with qs.lock_first('source_config') as log:
@@ -199,3 +202,11 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
             logs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
 
         HarvestLog.objects.bulk_get_or_create(logs)
+
+
+@celery.shared_task(bind=True)
+def normalized_data_janitor(self, limit=500):
+    for rd in RawDatum.objects.select_related('suid__source_config').filter(normalizeddata__isnull=True)[:limit]:
+        logger.info('Found unprocessed %r from %r', rd, rd.suid.source_config)
+        t = transform.apply_async((rd.id, ))
+        logger.debug('Started task %r', t)
