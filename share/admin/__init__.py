@@ -1,4 +1,3 @@
-import datetime
 from furl import furl
 
 from django import forms
@@ -71,7 +70,15 @@ class ChangeSetAdmin(admin.ModelAdmin):
 
 
 class RawDatumAdmin(admin.ModelAdmin):
-    raw_id_fields = ()
+    show_full_result_count = False
+    list_select_related = ('suid__source_config', )
+    list_display = ('id', 'identifier', 'source_config_label', 'datestamp', 'date_created', 'date_modified', )
+
+    def identifier(self, obj):
+        return obj.suid.identifier
+
+    def source_config_label(self, obj):
+        return obj.suid.source_config.label
 
 
 class AccessTokenAdmin(admin.ModelAdmin):
