@@ -155,9 +155,8 @@ class HarvestLogAdmin(admin.ModelAdmin):
         )
 
     def restart_tasks(self, request, queryset):
-        for log in queryset.select_related('source_config'):
-            tasks.harvest.apply_async({'log_id': log.id}, task_id=log.task_id)
-    restart_tasks.short_description = 'Restart selected tasks'
+        queryset.update(status=HarvestLog.STATUS.created)
+    restart_tasks.short_description = 'Re-enqueue'
 
     def harvest_log_actions(self, obj):
         url = furl(reverse('admin:source-config-harvest', args=[obj.source_config_id]))
