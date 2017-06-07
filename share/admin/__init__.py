@@ -146,8 +146,6 @@ class HarvestLogAdmin(admin.ModelAdmin):
         return obj.end_date.isoformat()
 
     def status_(self, obj):
-        if obj.status == HarvestLog.STATUS.created and (timezone.now() - obj.date_modified) > datetime.timedelta(days=1, hours=6):
-            return format_html('<span style="font-weight: bold;">Lost</span>')
         return format_html(
             '<span style="font-weight: bold; color: {}">{}</span>',
             self.STATUS_COLORS[obj.status],

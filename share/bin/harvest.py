@@ -123,7 +123,7 @@ def schedule(args, argv):
         -e, --end=YYYY-MM-DD    The date at which to stop fetching data.
         -j, --no-ingest         Do not process harvested data.
     """
-    if not args['<sourceconfig>']:
+    if not args['--all']:
         configs = [get_sourceconfig(args['<sourceconfig>'])]
         if not configs[0]:
             return -1
