@@ -202,11 +202,3 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
             logs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
 
         HarvestLog.objects.bulk_get_or_create(logs)
-
-
-@celery.shared_task(bind=True)
-def normalized_data_janitor(self, limit=500):
-    for rd in RawDatum.objects.select_related('suid__source_config').filter(normalizeddata__isnull=True)[:limit]:
-        logger.info('Found unprocessed %r from %r', rd, rd.suid.source_config)
-        t = transform.apply_async((rd.id, ))
-        logger.debug('Started task %r', t)
