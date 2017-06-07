@@ -1,0 +1,16 @@
+configs:
+- base_url: https://www.socialscienceregistry.org
+  disabled: false
+  earliest_date: null
+  harvester: org.socialscienceregistry
+  harvester_kwargs:
+      csv_url: https://www.socialscienceregistry.org/trials/search.csv?query=
+  label: org.socialscienceregistry
+  rate_limit_allowance: 1
+  rate_limit_period: 2
+  transformer: org.socialscienceregistry
+  transformer_kwargs: {}
+home_page: https://www.socialscienceregistry.org
+long_title: AEA RCT Registry
+name: org.socialscienceregistry
+user: providers.org.socialscienceregistry
