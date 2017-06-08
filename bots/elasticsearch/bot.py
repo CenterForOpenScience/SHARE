@@ -56,6 +56,25 @@ class ElasticSearchBot:
                         'autocomplete_filter'
                     ]
                 },
+                'subject_analyzer': {
+                    'type': 'custom',
+                    'tokenizer': 'subject_tokenizer',
+                    'filter': [
+                        'lowercase',
+                    ]
+                },
+                'subject_search_analyzer': {
+                    'type': 'custom',
+                    'tokenizer': 'keyword',
+                    'filter': [
+                        'lowercase',
+                    ]
+                },
+            },
+            'tokenizer': {
+                'subject_tokenizer': {
+                    'type': 'path_hierarchy',
+                }
             }
         }
     }
@@ -101,7 +120,7 @@ class ElasticSearchBot:
                 'registration_type': {'type': 'keyword', 'include_in_all': False},
                 'retracted': {'type': 'boolean', 'include_in_all': False},
                 'sources': {'type': 'keyword', 'include_in_all': False},
-                'subjects': {'type': 'keyword', 'include_in_all': False},
+                'subjects': {'type': 'text', 'include_in_all': False, 'analyzer': 'subject_analyzer', 'search_analyzer': 'subject_search_analyzer'},
                 'tags': {'type': 'text', 'fields': EXACT_FIELD},
                 'title': {'type': 'text', 'fields': EXACT_FIELD},
                 'type': {'type': 'keyword', 'include_in_all': False},
