@@ -12,7 +12,7 @@ INVALID_URL = 'invalidURL'
 def get_test_data(icon=PROPER_ICON_URL, home_page=None):
     test_data = {
         'data': {
-            'type': 'Source',
+            'type': 'Sources',
             'attributes': {
                 'long_title': 'Test User',
                 'icon': icon,
@@ -93,7 +93,7 @@ class TestSourcesPost:
         created_label = resp_attributes['long_title'].replace(' ', '_').lower()
         created_user = ShareUser.objects.get(pk=resp_related_share_user['id'])
 
-        assert resp.status_code == 202
+        assert resp.status_code == 201
         assert resp_attributes['long_title'] == test_data['data']['attributes']['long_title']
         assert resp_attributes['name'] == created_label
         assert resp_attributes['home_page'] is None
@@ -112,7 +112,7 @@ class TestSourcesPost:
         )
         resp_attributes = resp.data['attributes']
 
-        assert resp.status_code == 202
+        assert resp.status_code == 201
         assert resp_attributes['long_title'] == test_data['data']['attributes']['long_title']
         assert resp_attributes['home_page'] == test_data['data']['attributes']['home_page']
 

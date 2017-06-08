@@ -1,5 +1,4 @@
 import jsonschema
-from io import BytesIO
 import requests
 
 from django.db import transaction
@@ -49,12 +48,12 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Source.objects.none()  # Required for DjangoModelPermissions
 
+    VALID_IMAGE_TYPES = ('image/png', 'image/jpeg')
+
     def get_queryset(self):
         return Source.objects.exclude(icon='').exclude(is_deleted=True)
 
     def create(self, request, *args, **kwargs):
-        VALID_IMAGE_TYPES = ('image/png', 'image/jpeg')
-
         try:
             long_title = request.data['long_title']
             icon = request.data['icon']
@@ -62,13 +61,12 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
             raise ValidationError('{} is a required attribute.'.format(e))
 
         try:
-            r = requests.get(icon)
+            r = requests.get(icon, timeout=5)
             header_type = r.headers['content-type'].split(';')[0].lower()
-            if header_type not in VALID_IMAGE_TYPES:
-                raise ValidationError('Invalid type. Expected one of {}. Received {}'.format(VALID_IMAGE_TYPES, header_type))
+            if header_type not in self.VALID_IMAGE_TYPES:
+                raise ValidationError('Invalid type. Expected one of {}. Received {}'.format(self.VALID_IMAGE_TYPES, header_type))
 
-            icon_io = BytesIO(r.content)
-            icon_file = ContentFile(icon_io.getvalue())
+            icon_file = ContentFile(r.content)
         except Exception as e:
             raise ValidationError('Could not download/process image. {}'.format(e))
 
@@ -79,57 +77,51 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
             context={'request': request}
         )
 
-        if user_serializer.is_valid(raise_exception=True):
-            user_instance = user_serializer.save()
+        user_serializer.is_valid(raise_exception=True)
 
-            source_instance = Source(
-                user_id=user_instance.id,
-                long_title=long_title,
-                home_page=request.data['home_page'] if 'home_page' in request.data else None,
-                name=label,
-            )
-            source_instance.icon.save(
-                '{}.tmp'.format(label),
-                content=icon_file,
-                save=True
-            )
+        user_instance = user_serializer.save()
+        source_instance = Source(
+            user_id=user_instance.id,
+            long_title=long_title,
+            home_page=request.data['home_page'] if 'home_page' in request.data else None,
+            name=label,
+        )
+        source_instance.icon.save(label, content=icon_file)
+        source_config_instance = SourceConfig.objects.create(source_id=source_instance.id, label=label)
 
-            source_config_instance = SourceConfig(source_id=source_instance.id, label=label)
-            source_config_instance.save()
-
-            return Response(
-                {
-                    'id': source_instance.id,
-                    'type': 'Source',
-                    'attributes': {
-                        'long_title': source_instance.long_title,
-                        'name': source_instance.name,
-                        'home_page': source_instance.home_page
-                    },
-                    'relationships': {
-                        'share_user': {
-                            'data': {
-                                'id': user_instance.id,
-                                'type': 'ShareUser',
-                                'attributes': {
-                                    'username': user_instance.username,
-                                    'authorization_token': user_instance.accesstoken_set.first().token
-                                }
+        return Response(
+            {
+                'id': source_instance.id,
+                'type': 'Sources',
+                'attributes': {
+                    'long_title': source_instance.long_title,
+                    'name': source_instance.name,
+                    'home_page': source_instance.home_page
+                },
+                'relationships': {
+                    'share_user': {
+                        'data': {
+                            'id': user_instance.id,
+                            'type': 'ShareUser',
+                            'attributes': {
+                                'username': user_instance.username,
+                                'authorization_token': user_instance.accesstoken_set.first().token
                             }
-                        },
-                        'source_config': {
-                            'data': {
-                                'id': source_config_instance.id,
-                                'type': 'SourceConfig',
-                                'attributes': {
-                                    'label': source_config_instance.label
-                                }
+                        }
+                    },
+                    'source_config': {
+                        'data': {
+                            'id': source_config_instance.id,
+                            'type': 'SourceConfig',
+                            'attributes': {
+                                'label': source_config_instance.label
                             }
                         }
                     }
-                },
-                status=status.HTTP_202_ACCEPTED
-            )
+                }
+            },
+            status=status.HTTP_201_CREATED
+        )
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
