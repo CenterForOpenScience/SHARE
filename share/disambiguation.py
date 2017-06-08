@@ -312,7 +312,8 @@ class GraphDisambiguator:
                         for edge in self._node.related(name=field_name, forward=False):
                             yield edge.subject
                     elif field.many_to_one:
-                        yield self._node.related(name=field_name, backward=False).related
+                        edge = self._node.related(name=field_name, backward=False)
+                        yield None if edge is None else edge.related
                     elif field.many_to_many:
                         # TODO?
                         raise NotImplementedError()

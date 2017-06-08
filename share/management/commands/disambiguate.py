@@ -2,29 +2,23 @@ from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from share.models import ShareUser, NormalizedData
-from share.tasks import DisambiguatorTask
+from share.models import NormalizedData
+from share.tasks import disambiguate
 
 
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument('source', type=str, help='The name of the provider to run')
         parser.add_argument('normalized', nargs='*', type=int, help='The id(*) of the normalized data to make changes for')
-        parser.add_argument('--all', action='store_true', help='Make changes for all normalized data for the source specified')
+        parser.add_argument('--source', type=str, help='Name of a Source, to disambiguate ALL its normalized data')
         parser.add_argument('--async', action='store_true', help='Whether or not to use Celery')
 
     def handle(self, *args, **options):
-        user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
-        config = apps.get_app_config(options['source'])
-
-        if not options['normalized'] and options['all']:
-            options['normalized'] = NormalizedData.objects.filter(raw__app_label=config.label).values_list('id', flat=True)
-
-        for id in options['normalized']:
-            task_args = (user.id, id)
-
+        ids = options['normalized']
+        if options['source']:
+            ids.extend(NormalizedData.objects.filter(source__source__name=options['source']).values_list('id', flat=True))
+        for id in ids:
             if options['async']:
-                DisambiguatorTask().apply_async(task_args)
+                disambiguate.apply_async((id,))
             else:
-                DisambiguatorTask().apply(task_args, throw=True)
+                disambiguate(id)

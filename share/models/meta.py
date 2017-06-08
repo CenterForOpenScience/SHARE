@@ -95,6 +95,9 @@ class Subject(ShareObject):
     class Meta:
         unique_together = ('name', 'taxonomy')
 
+    class Disambiguation:
+        all = ('name', 'central_synonym')
+
 
 # Through Tables for all the things
 
