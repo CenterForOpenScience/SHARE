@@ -46,7 +46,7 @@ def format_address(address1='', address2='', city='', state_or_province='', post
     return address1
 
 
-def force_text(data, list_sep=None):
+def force_text(data, list_sep=None, first_str=False):
     if isinstance(data, dict):
         return data.get('#text', '')
 
@@ -67,6 +67,9 @@ def force_text(data, list_sep=None):
                 text_list.append(datum)
             else:
                 raise Exception(datum)
+
+            if first_str and text_list:
+                return text_list[0]
         if list_sep is not None:
             return list_sep.join(text_list)
         return text_list
