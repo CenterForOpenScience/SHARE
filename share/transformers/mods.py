@@ -204,7 +204,7 @@ class MODSCreativeWork(Parser):
 
     # Abstracts have the optional attribute "shareable". Don't bother checking for it, because
     # abstracts that are not shareable should not have been shared with SHARE.
-    description = tools.Join(tools.RunPython(force_text, tools.Try(ctx['mods:abstract'])))
+    description = tools.Join(tools.RunPython(force_text, tools.Try(ctx['mods:abstract']), '\n'))
 
     identifiers = tools.Map(
         tools.Delegate(MODSWorkIdentifier),
@@ -258,7 +258,7 @@ class MODSCreativeWork(Parser):
         ),
     )
 
-    rights = tools.RunPython(force_text, tools.Try(ctx['mods:accessCondition']))
+    rights = tools.RunPython(force_text, tools.Try(ctx['mods:accessCondition']), '\n')
 
     language = tools.ParseLanguage(
         tools.Try(ctx['mods:language']['mods:languageTerm']),
@@ -394,7 +394,7 @@ class MODSCreativeWork(Parser):
     # Map titleInfos to a string: https://www.loc.gov/standards/mods/userguide/titleinfo.html#mappings
     def join_title_info(self, obj):
         def get_part(title_info, part_name, delimiter=''):
-            part = force_text(title_info.get(part_name, '')).strip()
+            part = force_text(title_info.get(part_name, ''), ' ').strip()
             return delimiter + part if part else ''
 
         title_infos = get_list(obj, 'mods:titleInfo')
