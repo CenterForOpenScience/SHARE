@@ -11,8 +11,6 @@ from django.db import connections
 from django.db import transaction
 from django.conf import settings
 from django.db.models.signals import post_save
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 
 from oauth2_provider.models import AccessToken, Application
 from urllib3.connection import ConnectionError
@@ -67,17 +65,6 @@ def apply_test_settings(settings):
 def trusted_user():
     user = ShareUser(username='trusted_tester', is_trusted=True)
     user.save()
-    return user
-
-
-@pytest.fixture
-def source_add_user():
-    content_type = ContentType.objects.get_for_model(Source)
-    permission = Permission.objects.get(content_type=content_type, codename='add_source')
-
-    user = ShareUser(username='trusted_tester', is_trusted=True)
-    user.save()
-    user.user_permissions.add(permission)
     return user
 
 
