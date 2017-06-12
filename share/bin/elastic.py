@@ -10,8 +10,8 @@ from bots.elasticsearch.bot import ElasticSearchBot
 def search(args, argv):
     """
     Usage:
-        {0} search [--help] <command> [<args>...]
-        {0} search [--filter=FILTER | --all] [options]
+        {0} search <command> [<args>...]
+        {0} search [--help | --filter=FILTER | --all] [options]
 
     Options:
         -h, --help           Show this screen.
