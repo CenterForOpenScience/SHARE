@@ -1,7 +1,7 @@
 import pytest
 
+from share.harvest.base import FetchResult
 from share.models import SourceConfig, RawDatum
-
 
 data = '''
 <div id="innertext">
@@ -47,7 +47,8 @@ Sample description
 def test_swbiodiversity_transformer():
     config = SourceConfig.objects.get(label=('org.swbiodiversity'))
     transformer = config.get_transformer()
-    raw_datum = RawDatum.objects.store_data('http://swbiodiversity.org/seinet/collections/misc/collprofiles.php?collid=187', data, config)
+    fetch_result = FetchResult('http://swbiodiversity.org/seinet/collections/misc/collprofiles.php?collid=187', data)
+    raw_datum = RawDatum.objects.store_data(config, fetch_result)
     result = transformer.transform(raw_datum)
     assert result['@graph'][3]['@type'] == 'dataset'
     assert result['@graph'][3]['description'] == 'Sample description'

@@ -20,7 +20,7 @@ class LWBINHarvester(BaseHarvester):
             response = self.requests.get(furl(self.config.base_url).set(query_params={
                 'limit': self.limit,
                 'page': page,
-            }).url)
+            }).url, timeout=self.request_timeout)
 
             for record in response.json()['result']:
                 date = pendulum.parse(record['metadata_modified'])

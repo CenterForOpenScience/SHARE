@@ -1,4 +1,4 @@
-from hashlib import sha256
+import contextlib
 import logging
 
 from stevedore import driver
@@ -15,9 +15,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
-from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models.fuzzycount import FuzzyCountManager
-from share.util import chunked
+from share.util import chunked, placeholders
 
 
 logger = logging.getLogger(__name__)
@@ -109,6 +108,14 @@ class SourceConfig(models.Model):
     # Allow null for push sources
     harvester = models.ForeignKey('Harvester', null=True, on_delete=models.CASCADE)
     harvester_kwargs = JSONField(null=True, blank=True)
+    harvest_interval = models.DurationField(default='1 day')
+    harvest_after = models.TimeField(default='02:00')
+    full_harvest = models.BooleanField(default=False, help_text=(
+        'Whether or not this SourceConfig should be fully harvested. '
+        'Requires earliest_date to be set. '
+        'The schedule harvests task will create all logs necessary if this flag is set. '
+        'This should never be set to True by default. '
+    ))
 
     # Allow null for push sources
     # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
@@ -122,64 +129,34 @@ class SourceConfig(models.Model):
     def natural_key(self):
         return (self.label,)
 
-    def get_harvester(self):
-        return self.harvester.get_class()(self, **(self.harvester_kwargs or {}))
+    def get_harvester(self, **kwargs):
+        return self.harvester.get_class()(self, **{**kwargs, **(self.harvester_kwargs or {})})
 
     def get_transformer(self):
         return self.transformer.get_class()(self, **(self.transformer_kwargs or {}))
 
-    def acquire_lock(self, using='locking'):
+    @contextlib.contextmanager
+    def acquire_lock(self, required=True, using='default'):
+        from share.harvest.exceptions import HarvesterConcurrencyError
+
         # NOTE: Must be in transaction
         logger.debug('Attempting to lock %r', self)
         with connections[using].cursor() as cursor:
-            cursor.execute("SELECT pg_try_advisory_xact_lock(%s::regclass::integer, %s);", (self._meta.db_table, self.id))
-            if not cursor.fetchone()[0]:
+            cursor.execute("SELECT pg_try_advisory_lock(%s::regclass::integer, %s);", (self._meta.db_table, self.id))
+            locked = cursor.fetchone()[0]
+            if not locked and required:
                 logger.warning('Lock failed; another task is already harvesting %r.', self)
                 raise HarvesterConcurrencyError('Unable to lock {!r}'.format(self))
-            logger.debug('Lock acquired on %r', self)
-
-    def find_missing_dates(self):
-        from share.models import HarvestLog
-        # Thank god for stack overflow
-        # http://stackoverflow.com/questions/9604400/sql-query-to-show-gaps-between-multiple-date-ranges
-        with connection.cursor() as cursor:
-            cursor.execute('''
-                SELECT "{end_date}", "{start_date}"
-                FROM (
-                    SELECT DISTINCT "{start_date}", ROW_NUMBER() OVER (ORDER BY "{start_date}") RN
-                    FROM "{harvestlog}" T1
-                    WHERE T1."{source_config}" = %(source_config_id)s
-                    AND T1."{harvester_version}" = %(harvester_version)s
-                    AND NOT EXISTS (
-                        SELECT * FROM "{harvestlog}" T2
-                        WHERE T2."{source_config}" = %(source_config_id)s
-                        AND T2."{harvester_version}" = %(harvester_version)s
-                        AND T1."{start_date}" > T2."{start_date}"
-                        AND T1."{start_date}" < T2."{end_date}")
-                ) T1 JOIN (
-                    SELECT DISTINCT "{end_date}", ROW_NUMBER() OVER (ORDER BY "{end_date}") RN
-                    FROM "{harvestlog}" T1
-                    WHERE T1."{source_config}" = %(source_config_id)s
-                    AND T1."{harvester_version}" = %(harvester_version)s
-                    AND NOT EXISTS (
-                        SELECT * FROM "{harvestlog}" T2
-                        WHERE T2."{source_config}" = %(source_config_id)s
-                        AND T2."{harvester_version}" = %(harvester_version)s
-                        AND T1."{end_date}" > T2."{start_date}"
-                        AND T1."{end_date}" < T2."{end_date}")
-                ) T2 ON T1.RN - 1 = T2.RN
-                WHERE "{end_date}" < "{start_date}"
-            '''.format(
-                harvestlog=HarvestLog._meta.db_table,
-                end_date=HarvestLog._meta.get_field('end_date').column,
-                start_date=HarvestLog._meta.get_field('start_date').column,
-                source_config=HarvestLog._meta.get_field('source_config').column,
-                harvester_version=HarvestLog._meta.get_field('harvester_version').column,
-            ), {
-                'source_config_id': self.id,
-                'harvester_version': self.get_harvester().VERSION,
-            })
-            return cursor.fetchall()
+            elif locked:
+                logger.debug('Lock acquired on %r', self)
+            else:
+                logger.warning('Lock not acquired on %r', self)
+            try:
+                yield
+            finally:
+                if locked:
+                    cursor.execute("SELECT pg_advisory_unlock(%s::regclass::integer, %s);", (self._meta.db_table, self.id))
+                    logger.debug('Lock released on %r', self)
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.label)
@@ -273,78 +250,94 @@ class RawDatumManager(FuzzyCountManager):
         Returns:
             Generator[RawDatum]
         """
-        unique_data = set()
+        hashes = {}
+        identifiers = {}
         now = timezone.now()
 
-        for chunk in chunked(data, 500):
-            chunk_data = []
-            for identifier, datum in chunk:
-                if limit is not None and len(unique_data) >= limit:
-                    break
-                hash_ = sha256(datum.encode('utf-8')).hexdigest()
-                chunk_data.append((identifier, hash_, datum))
-                unique_data.add((identifier, hash_))
+        if limit == 0:
+            return []
 
-            if not chunk_data:
+        for chunk in chunked(data, 500):
+            if not chunk:
                 break
 
-            identifiers = list({(identifier, source_config.id) for identifier, _, _ in chunk_data})
+            new = []
+            new_identifiers = set()
+            for fr in chunk:
+                if limit and len(hashes) >= limit:
+                    break
 
-            suids = SourceUniqueIdentifier.objects.raw('''
-                INSERT INTO "{table}"
-                    ("{identifier}", "{source_config}")
-                VALUES
-                    {values}
-                ON CONFLICT
-                    ("{identifier}", "{source_config}")
-                DO UPDATE SET
-                    id = "{table}".id
-                RETURNING {fields}
-            '''.format(
-                table=SourceUniqueIdentifier._meta.db_table,
-                identifier=SourceUniqueIdentifier._meta.get_field('identifier').column,
-                source_config=SourceUniqueIdentifier._meta.get_field('source_config').column,
-                values=', '.join('%s' for _ in range(len(identifiers))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
-                fields=', '.join('"{}"'.format(field.column) for field in SourceUniqueIdentifier._meta.concrete_fields),
-            ), identifiers)
+                if fr.sha256 in hashes:
+                    if hashes[fr.sha256] != fr.identifier:
+                        raise ValueError(
+                            '{!r} has already been seen or stored with identifier "{}". '
+                            'Perhaps your identifier extraction is incorrect?'.format(fr, hashes[fr.sha256])
+                        )
+                    logger.warning('Recieved duplicate datum %s from %s', fr, source_config)
+                    continue
 
-            suid_map = {suid.identifier: suid for suid in suids}
+                new.append(fr)
+                hashes[fr.sha256] = fr.identifier
+                new_identifiers.add(fr.identifier)
 
-            raw_data = {}
-            for identifier, hash_, datum in chunk_data:
-                raw_data[identifier, hash_] = (suid_map[identifier].pk, hash_, datum, now, now)
-
-            # Defer 'datum' by omitting it from the returned fields
-            yield from RawDatum.objects.raw(
-                '''
+            if new_identifiers:
+                suids = SourceUniqueIdentifier.objects.raw('''
                     INSERT INTO "{table}"
-                        ("{suid}", "{hash}", "{datum}", "{date_modified}", "{date_created}")
+                        ("{identifier}", "{source_config}")
                     VALUES
                         {values}
                     ON CONFLICT
-                        ("{suid}", "{hash}")
+                        ("{identifier}", "{source_config}")
                     DO UPDATE SET
-                        "{date_modified}" = %s
-                    RETURNING id, "{suid}", "{hash}", "{date_modified}", "{date_created}"
+                        id = "{table}".id
+                    RETURNING {fields}
                 '''.format(
-                    table=RawDatum._meta.db_table,
-                    suid=RawDatum._meta.get_field('suid').column,
-                    hash=RawDatum._meta.get_field('sha256').column,
-                    datum=RawDatum._meta.get_field('datum').column,
-                    date_modified=RawDatum._meta.get_field('date_modified').column,
-                    date_created=RawDatum._meta.get_field('date_created').column,
-                    values=', '.join('%s' for _ in range(len(raw_data))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
-                ),
-                list(raw_data.values()) + [now]
-            )
+                    table=SourceUniqueIdentifier._meta.db_table,
+                    identifier=SourceUniqueIdentifier._meta.get_field('identifier').column,
+                    source_config=SourceUniqueIdentifier._meta.get_field('source_config').column,
+                    values=placeholders(len(new_identifiers)),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
+                    fields=', '.join('"{}"'.format(field.column) for field in SourceUniqueIdentifier._meta.concrete_fields),
+                ), [(identifier, source_config.id) for identifier in new_identifiers])
 
-            if limit is not None and len(unique_data) >= limit:
+                for suid in suids:
+                    identifiers[suid.identifier] = suid.pk
+
+            if new:
+                # Defer 'datum' by omitting it from the returned fields
+                yield from RawDatum.objects.raw(
+                    '''
+                        INSERT INTO "{table}"
+                            ("{suid}", "{hash}", "{datum}", "{datestamp}", "{date_modified}", "{date_created}")
+                        VALUES
+                            {values}
+                        ON CONFLICT
+                            ("{suid}", "{hash}")
+                        DO UPDATE SET
+                            "{datestamp}" = EXCLUDED."{datestamp}",
+                            "{date_modified}" = EXCLUDED."{date_modified}"
+                        RETURNING id, "{suid}", "{hash}", "{datestamp}", "{date_modified}", "{date_created}"
+                    '''.format(
+                        table=RawDatum._meta.db_table,
+                        suid=RawDatum._meta.get_field('suid').column,
+                        hash=RawDatum._meta.get_field('sha256').column,
+                        datum=RawDatum._meta.get_field('datum').column,
+                        datestamp=RawDatum._meta.get_field('datestamp').column,
+                        date_modified=RawDatum._meta.get_field('date_modified').column,
+                        date_created=RawDatum._meta.get_field('date_created').column,
+                        values=', '.join('%s' for _ in range(len(new))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
+                    ), [
+                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.datestamp, now, now)
+                        for fr in new
+                    ]
+                )
+
+            if limit and len(hashes) >= limit:
                 break
 
-    def store_data(self, identifier, datum, config):
+    def store_data(self, config, fetch_result):
         """
         """
-        (rd, ) = self.store_chunk(config, [(identifier, datum)])
+        (rd, ) = self.store_chunk(config, [fetch_result])
 
         if rd.created:
             logger.debug('New %r', rd)
@@ -377,8 +370,11 @@ class RawDatum(models.Model):
     # The sha256 of the datum
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
 
-    # Does this datum contain a full record or just a sparse update
-    # partial = models.NullBooleanField(null=True, default=False)
+    datestamp = models.DateTimeField(null=True, help_text=(
+        'The most relevant datetime that can be extracted from this RawDatum. '
+        'This may be, but is not limitted to, a deletion, modification, publication, or creation datestamp. '
+        'Ideally, this datetime should be appropriate for determining the chronological order it\'s data will be applied.'
+    ))
 
     date_modified = models.DateTimeField(auto_now=True, editable=False)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
@@ -399,6 +395,6 @@ class RawDatum(models.Model):
         resource_name = 'RawData'
 
     def __repr__(self):
-        return '<{}({}, {}...)>'.format(self.__class__.__name__, self.suid_id, self.sha256[:10])
+        return '<{}({}, {}, {}...)>'.format(self.__class__.__name__, self.suid_id, self.datestamp, self.sha256[:10])
 
     __str__ = __repr__

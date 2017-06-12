@@ -1,9 +1,11 @@
 import jsonschema
 
 from django.db import transaction
+from django.utils import timezone
 
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
+from rest_framework import filters
 from rest_framework.exceptions import ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
@@ -15,8 +17,9 @@ from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
     RawDatumSerializer, ShareUserSerializer, SourceSerializer
 from share.models import RawDatum, NormalizedData, Source, SourceConfig, Transformer
-from share.tasks import DisambiguatorTask
-from share.harvest.base import BaseHarvester
+from share.tasks import disambiguate
+from share.harvest.serialization import DictSerializer
+from share.harvest.base import FetchResult
 
 
 __all__ = ('NormalizedDataViewSet', 'RawDatumViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
@@ -33,14 +36,13 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SourceViewSet(viewsets.ReadOnlyModelViewSet):
+    filter_backends = (filters.OrderingFilter, )
+    ordering = ('id', )
+    ordering_fields = ('long_title', )
     serializer_class = SourceSerializer
 
     def get_queryset(self):
-        queryset = Source.objects.exclude(icon='').exclude(is_deleted=True)
-        sort = self.request.query_params.get('sort')
-        if sort:
-            return queryset.order_by(sort)
-        return queryset
+        return Source.objects.exclude(icon='').exclude(is_deleted=True)
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
@@ -91,7 +93,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             nm_instance = serializer.save()
-            async_result = DisambiguatorTask().delay(request.user.id, nm_instance.id)
+            async_result = disambiguate.delay(nm_instance.id)
             # TODO Fix Me
             return Response({
                 'id': nm_instance.id,
@@ -216,7 +218,7 @@ class V1DataView(views.APIView):
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
             config = self._get_source_config(request.user)
-            raw = RawDatum.objects.store_data(doc_id, BaseHarvester.encode_json(self, prelim_data), config)
+            raw = RawDatum.objects.store_data(config, FetchResult(doc_id, DictSerializer(pretty=False).serialize(prelim_data), timezone.now()))
 
         transformed_data = config.get_transformer().transform(raw.datum)
         data = {}
@@ -225,10 +227,9 @@ class V1DataView(views.APIView):
 
         if serializer.is_valid():
             nm_instance = serializer.save()
-            async_result = DisambiguatorTask().delay(request.user.id, nm_instance.id)
+            async_result = disambiguate.delay(nm_instance.id)
             return Response({'task_id': async_result.id}, status=status.HTTP_202_ACCEPTED)
-        else:
-            return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'errors': serializer.errors, 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
     def _get_source_config(self, user):
         config_label = '{}.v1_push'.format(user.username)

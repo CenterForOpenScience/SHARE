@@ -1,5 +1,6 @@
 import json
 import pytest
+from unittest import mock
 
 from django.test import override_settings
 
@@ -8,6 +9,12 @@ from share.models import ChangeSet
 
 @pytest.mark.django_db
 class TestV1PushProxy:
+
+    @pytest.fixture(autouse=True)
+    def mock_disambiguate(self):
+        with mock.patch('api.views.workflow.disambiguate') as mock_disambiguate:
+            mock_disambiguate.delay().id = '123'
+            yield mock_disambiguate
 
     valid_data = {
         "jsonData": {

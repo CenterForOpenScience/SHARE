@@ -1,4 +1,5 @@
 from share.transform.chain import *
+from share.transform.chain.utils import force_text
 
 
 class Tag(Parser):
@@ -69,8 +70,8 @@ class Registration(Parser):
     )
     description = Maybe(ctx.clinical_study, 'brief_summary')['textblock']
 
-    date_published = Try(ParseDate(RunPython('force_text', ctx.clinical_study.firstreceived_date)))
-    date_updated = Try(ParseDate(RunPython('force_text', ctx.clinical_study.lastchanged_date)))
+    date_published = Try(ParseDate(RunPython(force_text, ctx.clinical_study.firstreceived_date)))
+    date_updated = Try(ParseDate(RunPython(force_text, ctx.clinical_study.lastchanged_date)))
 
     related_agents = Concat(
         Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_official')),
@@ -93,8 +94,8 @@ class Registration(Parser):
         share_harvest_date = ctx.clinical_study.required_header.download_date
         org_study_id = ctx.clinical_study.id_info.org_study_id
         status = ctx.clinical_study.overall_status
-        start_date = Try(ParseDate(RunPython('force_text', ctx.clinical_study.start_date)))
-        completion_date = Try(ParseDate(RunPython('force_text', ctx.clinical_study.completion_date)))
+        start_date = Try(ParseDate(RunPython(force_text, ctx.clinical_study.start_date)))
+        completion_date = Try(ParseDate(RunPython(force_text, ctx.clinical_study.completion_date)))
         completion_date_type = Try(ctx.clinical_study.completion_date['@type'])
         study_type = ctx.clinical_study.study_type
         conditions = Try(ctx.clinical_study.condition)
@@ -108,13 +109,6 @@ class Registration(Parser):
             if 'name' in location['facility']:
                 results.append(location)
         return results
-
-    def force_text(self, data):
-        if isinstance(data, dict):
-            return data['#text']
-        if isinstance(data, str):
-            return data
-        raise TypeError(data)
 
     def format_url(self, id, base):
         return base + id

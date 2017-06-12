@@ -1,12 +1,15 @@
-bcrypt==2.0.0  # Apache 2.0
+bcrypt==3.1.3  # Apache 2.0
 beautifulsoup4==4.4.1  # MIT
 bleach==1.4.3  # Apache 2.0
 boto3==1.4.4  # Apache 2.0
-celery==3.1.25  # BSD 3 Clause
+#celery==4.0.2  # BSD 3 Clause
+git+git://github.com/celery/celery.git@069ed5434ed86b9af7485c8632673a2bfbc2d771
+git+git://github.com/celery/kombu.git@be79b3d4cdbfe80cc5400396d7d81abeb73d0136
 colorlog==2.7.0  # MIT
 dateparser==0.4.0  # BSD
 django-allauth==0.31.0  # MIT
-django-celery==3.2.1  # BSD
+django-celery-beat==1.0.1  # BSD 3 Clause
+django-celery-results==1.0.1  # BSD 3 Clause
 django-cors-headers==2.0.2  # MIT
 django-extensions==1.7.8  # MIT
 django-filter==1.0.2  # BSD
@@ -19,15 +22,16 @@ django[bcrypt]==1.11  # BSD 3 Clause
 djangorestframework-jsonapi==2.1.1  # MIT
 djangorestframework==3.6.2  # BSD
 docopt==0.6.2  # MIT
-elasticsearch==2.3.0  # Apache 2.0
+elasticsearch==5.4.0  # Apache 2.0
 furl==0.4.95  # None
 gevent==1.1.1  # MIT
 graphene==1.4  # MIT
 jsonschema==2.5.1  # MIT
 lxml==3.6.0  # BSD
+markdown==2.6.8  # BSD
 nameparser==0.4.0  # LGPL
 newrelic==2.68.0.50  # newrelic APM agent, Custom License
-pendulum==0.6.2  # MIT
+pendulum==1.2.0  # MIT
 pillow==4.0.0  # PIL Software License:
 psycogreen==1.0  # BSD
 psycopg2==2.6.1  # LGPL with exceptions or ZPL
@@ -40,11 +44,6 @@ stevedore==1.21.0  # Apache 2.0
 ujson==1.35  # BSD
 werkzeug==0.11.10  # BSD
 xmltodict==0.10.2  # MIT
-
-# Kombu with the ability to specify queue priority
-# TODO: When upgrading to Celery 4
-#kombu==4.0.2  # BSD
-git+git://github.com/mfraezz/kombu.git@v3.0.36
 
 # TODO: When graphene-django doesn't break on inherited fields with choices (https://github.com/graphql-python/graphene-django/pull/156)
 #graphene-django==1.3  # MIT

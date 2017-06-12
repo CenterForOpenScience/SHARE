@@ -291,6 +291,7 @@ class DateParserLink(AbstractLink):
     def execute(self, obj):
         if obj:
             date = dateutil.parser.parse(obj, default=self.DEFAULT)
+            repr(date)  # Forces tzoffset validation to run
             if date < self.LOWER_BOUND:
                 raise ValueError('{} is before the lower bound {}.'.format(obj, self.LOWER_BOUND.isoformat()))
             if date > self.UPPER_BOUND:

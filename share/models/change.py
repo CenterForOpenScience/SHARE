@@ -12,8 +12,9 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
-from share.models.fuzzycount import FuzzyCountManager
 from share.models import NormalizedData
+from share.models.fuzzycount import FuzzyCountManager
+from share.models.indexes import ConcurrentIndex
 from share.util import IDObfuscator
 
 
@@ -140,6 +141,9 @@ class Change(models.Model):
 
     class Meta:
         ordering = ('pk', )
+        indexes = (
+            ConcurrentIndex(fields=['target_id', 'target_type']),
+        )
 
     def accept(self, save=True):
         # Little bit of blind faith here that all requirements have been accepted

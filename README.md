@@ -26,8 +26,9 @@ It is useful to set up a [virtual environment](http://virtualenvwrapper.readthed
 
 Once in the `share` virtual environment, install the necessary requirements, then setup SHARE.
 
-    pip install -r requirements.txt
+    pip install -Ur requirements.txt
     python setup.py develop
+    pyenv rehash  # Only necessary when using pyenv to manage virtual environments
 
 `docker-compose` assumes [Docker](https://www.docker.com/) is installed and running. Running `./bootstrap.sh` will create and provision the database. If there are any SHARE containers running, make sure to stop them before bootstrapping using `docker-compose stop`.
 
@@ -37,23 +38,46 @@ Once in the `share` virtual environment, install the necessary requirements, the
 ## Run
 Run the API server
 
+    # In docker
     docker-compose up -d web
+
+    # Locally
+    sharectl server
+
+Setup Elasticsearch
+
+    sharectl search setup
 
 Run Celery
 
-    python manage.py celery worker -l DEBUG
+    # In docker
+    docker-compose up -d worker
+
+    # Locally
+    sharectl worker -B
 
 ## Populate with data
 This is particularly applicable to running [ember-share](https://github.com/CenterForOpenScience/ember-share), an interface for SHARE.
 
 Harvest data from providers, for example
 
-    ./manage.py harvest com.nature --async
-    ./manage.py harvest com.peerj.preprints --async
+    sharectl harvest com.nature
+    sharectl harvest com.peerj.preprints
 
-Pass data to elasticsearch with `runbot`. Rerunning this command will get the most recently harvested data. This can take a minute or two to finish.
+    # Harvests may be scheduled to run asynchronously using the schedule command
+    sharectl schedule org.biorxiv.html
 
-    ./manage.py runbot elasticsearch
+    # Some sources provide thousands of records per day
+    # --limit can be used to set a maximum number of records to gather
+    sharectl harvest org.crossref --limit 250
+
+If the Celery worker is running, new data will automatically be indexed every couple minutes.
+
+Alternatively, data may be explicitly indexed using `sharectl`
+
+    sharectl search
+    # Forcefully re-index all data
+    sharectl search --all
 
 ## Building docs
 
