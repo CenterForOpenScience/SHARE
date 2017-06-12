@@ -46,14 +46,12 @@ class Command:
                 self.docstring.format(self.bin, self),
                 argv=argv,
                 version=settings.VERSION,
-                options_first=bool(self.subcommands),
+                options_first=self is execute_cmd or (self.name in argv and argv[-1] == self.name)
             )
         else:
             args = {}
 
         if args.get('<command>') and self.subcommands:
-            if args['<command>'] == '--help':
-                docopt(self.docstring.format(self.bin, self), argv=['--help'], version=settings.VERSION, options_first=bool(self.subcommands))
             if not args['<command>'] in self.subcommands:
                 print('Invalid command "{<command>}"'.format(**args))
                 return sys.exit(1)
@@ -63,7 +61,9 @@ class Command:
 
 def _execute_cmd(args, argv):
     """
-    Usage: {0} [--version] [--help] <command> [<args>...]
+    Usage:
+        {0} <command> [<args>...]
+        {0} (--version | --help)
 
     Options:
         -h, --help     Show this screen.
