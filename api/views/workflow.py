@@ -79,20 +79,21 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
 
         user_serializer.is_valid(raise_exception=True)
 
-        user_instance = user_serializer.save()
-        source_instance = Source(
-            user_id=user_instance.id,
-            long_title=long_title,
-            home_page=request.data['home_page'] if 'home_page' in request.data else None,
-            name=label,
-        )
-        source_instance.icon.save(label, content=icon_file)
-        source_config_instance = SourceConfig.objects.create(source_id=source_instance.id, label=label)
+        with transaction.atomic():
+            user_instance = user_serializer.save()
+            source_instance = Source(
+                user_id=user_instance.id,
+                long_title=long_title,
+                home_page=request.data['home_page'] if 'home_page' in request.data else None,
+                name=label,
+            )
+            source_instance.icon.save(label, content=icon_file)
+            source_config_instance = SourceConfig.objects.create(source_id=source_instance.id, label=label)
 
         return Response(
             {
                 'id': source_instance.id,
-                'type': 'Sources',
+                'type': 'Source',
                 'attributes': {
                     'long_title': source_instance.long_title,
                     'name': source_instance.name,

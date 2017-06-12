@@ -30,7 +30,7 @@ def source_add_user():
 def get_post_body(icon=PROPER_ICON_URL, home_page=None):
     return {
         'data': {
-            'type': 'Sources',
+            'type': 'Source',
             'attributes': {
                 'long_title': 'Test User',
                 'icon': icon,
