@@ -21,8 +21,8 @@ A piece of raw data, exactly as it was given to SHARE.
 | `suid_id`      | int  |    ✓    |          |  ✓  |         | SUID for this datum                                                |
 | `datum`        | text |         |          |     |         | The raw datum itself (typically JSON or XML string)                |
 | `sha256`       | text |         |          |     |         | SHA-256 hash of `data`                                             |
-| `harvest_logs` | m2m  |         |          |     |         | List of HarvestLogs for harvester runs that found this exact datum |
-| `ingest_logs`  | m2m  |         |          |     |         | List of IngestLogs that ingested this datum                        |
+| `harvest_jobs` | m2m  |         |          |     |         | List of HarvestJobs for harvester runs that found this exact datum |
+| `ingest_jobs`  | m2m  |         |          |     |         | List of IngestJobs that ingested this datum                        |
 
 #### Other indices
 * `suid_id`, `sha256` (unique)
@@ -75,10 +75,10 @@ Each row corresponds to a Transformer implementation in python.
 | `date_created`  | datetime |         |          |     |       now       |                                                                    |
 | `date_modified` | datetime |         |          |     | now (on update) |                                                                    |
 
-## Logs
+## Jobs
 
-### HarvestLog
-Log entries to track the status of a specific harvester run.
+### HarvestJob
+Job entries to track the status of a specific harvester run.
 
 | Column                  |   Type    | Indexed | Nullable | FK  |     Default     | Description                                                                                                   |
 | :---------------------- | :-------: | :-----: | :------: | :-: | :-------------: | :------------------------------------------------------------------------------------------------------------ |
@@ -100,8 +100,8 @@ Log entries to track the status of a specific harvester run.
 * `source_config_id`, `start_date`, `end_date`, `harvester_version`, `source_config_version` (unique)
 
 
-### IngestLog (NOT IMPLEMENTED)
-Log entries to track the status of an ingest task
+### IngestJob (NOT IMPLEMENTED)
+Job entries to track the status of an ingest task
 
 | Column                  |   Type    | Indexed | Nullable | FK  |     Default     | Description                                                                                                   |
 | :---------------------- | :-------: | :-----: | :------: | :-: | :-------------: | :------------------------------------------------------------------------------------------------------------ |

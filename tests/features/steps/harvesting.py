@@ -19,7 +19,7 @@ def set_earliest_record(context, label, date):
 @behave.given('a {status} harvest of {label}')
 @behave.given('the last harvest of {label} was {end}')
 @behave.given('a {status} harvest of {label} for {start} to {end}')
-def make_harvest_log(context, label, status='succeeded', start=None, end=None):
+def make_harvest_job(context, label, status='succeeded', start=None, end=None):
     source_config = models.SourceConfig.objects.get(label=label)
 
     if end:
@@ -31,11 +31,11 @@ def make_harvest_log(context, label, status='succeeded', start=None, end=None):
     if end and not start:
         start = end - source_config.harvest_interval
 
-    models.HarvestLog.objects.create(
+    models.HarvestJob.objects.create(
         completions=1,
         end_date=end,
         start_date=start,
-        status=getattr(models.HarvestLog.STATUS, status),
+        status=getattr(models.HarvestJob.STATUS, status),
         source_config=source_config,
         source_config_version=source_config.version,
         harvester_version=models.Harvester.objects.get(sourceconfig__label=label).version,
@@ -48,12 +48,12 @@ def schedule_harvests(context, date, time='00:00'):
     tasks.schedule_harvests(cutoff=pendulum.parse('{}T{}+00:00'.format(date, time)))
 
 
-@behave.then('{label} will have {number} harvest log')
-@behave.then('{label} will have {number} harvest logs')
-@behave.then('{label} will have {number} harvest log for {start} to {end}')
-@behave.then('{label} will have {number} harvest logs for {start} to {end}')
-def assert_num_harvest_logs(context, label, number, start=None, end=None):
-    qs = models.HarvestLog.objects.filter(source_config__label=label)
+@behave.then('{label} will have {number} harvest job')
+@behave.then('{label} will have {number} harvest jobs')
+@behave.then('{label} will have {number} harvest job for {start} to {end}')
+@behave.then('{label} will have {number} harvest jobs for {start} to {end}')
+def assert_num_harvest_jobs(context, label, number, start=None, end=None):
+    qs = models.HarvestJob.objects.filter(source_config__label=label)
 
     if start:
         qs = qs.filter(start_date=start)
@@ -61,16 +61,16 @@ def assert_num_harvest_logs(context, label, number, start=None, end=None):
     if end:
         qs = qs.filter(end_date=end)
 
-    assert qs.count() == int(number), '{!r} has {} logs not {}'.format(models.SourceConfig.objects.get(label=label), qs.count(), number)
+    assert qs.count() == int(number), '{!r} has {} jobs not {}'.format(models.SourceConfig.objects.get(label=label), qs.count(), number)
 
 
-@behave.then('{label}\'s latest harvest log\'s {field} will be {value}')
-def assert_latest_harvestlog_value(context, label, field, value):
-    context.subject = log = models.HarvestLog.objects.filter(
+@behave.then('{label}\'s latest harvest job\'s {field} will be {value}')
+def assert_latest_harvestjob_value(context, label, field, value):
+    context.subject = job = models.HarvestJob.objects.filter(
         source_config__label=label
     ).first()
 
     if field == 'status':
-        value = getattr(models.HarvestLog.STATUS, value)
+        value = getattr(models.HarvestJob.STATUS, value)
 
-    assert getattr(log, field) == value, '{!r}.{} ({!r}) != {!r}'.format(log, field, getattr(log, field), value)
+    assert getattr(job, field) == value, '{!r}.{} ({!r}) != {!r}'.format(job, field, getattr(job, field), value)

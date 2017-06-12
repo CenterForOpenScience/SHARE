@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import share.models.fields
-import share.models.logs
+import share.models.jobs
 
 
 class Migration(migrations.Migration):
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
                 ('traceback', models.TextField(blank=True, editable=False, null=True)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True)),
-                ('share_version', models.TextField(default=share.models.logs.get_share_version, editable=False)),
+                ('share_version', models.TextField(default=share.models.jobs.get_share_version, editable=False)),
             ],
             options={
                 'verbose_name': 'Celery Task Result',

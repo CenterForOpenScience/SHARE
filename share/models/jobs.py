@@ -21,9 +21,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from share.util import chunked
 from share.harvest.exceptions import HarvesterConcurrencyError
+from share.models.fields import DateTimeAwareJSONField
+from share.regulate import Regulator
 
 
-__all__ = ('HarvestLog', )
+__all__ = ('HarvestJob', 'IngestJob')
 logger = logging.getLogger(__name__)
 
 
@@ -31,7 +33,7 @@ def get_share_version():
     return settings.VERSION
 
 
-class AbstractLogManager(models.Manager):
+class AbstractJobManager(models.Manager):
     _bulk_tmpl = '''
         INSERT INTO "{table}"
             ({insert})
@@ -160,7 +162,7 @@ class AbstractLogManager(models.Manager):
         return default_fields, default_values
 
 
-class AbstractBaseLog(models.Model):
+class AbstractBaseJob(models.Model):
     STATUS = Choices(
         (0, 'created', _('Enqueued')),
         (1, 'started', _('In Progress')),
@@ -198,12 +200,12 @@ class AbstractBaseLog(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True, editable=False, db_index=True)
 
-    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='harvest_logs', on_delete=models.CASCADE)
+    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='%(class)ss', on_delete=models.CASCADE)
 
     share_version = models.TextField(default=get_share_version, editable=False)
     source_config_version = models.PositiveIntegerField()
 
-    objects = AbstractLogManager()
+    objects = AbstractJobManager()
 
     class Meta:
         abstract = True
@@ -294,6 +296,7 @@ class AbstractBaseLog(models.Model):
         try:
             yield
         except HarvesterConcurrencyError as e:
+            # TODO more generic concurrency error
             error = e
             self.reschedule()
         except Exception as e:
@@ -394,18 +397,18 @@ class LockableQuerySet(models.QuerySet):
         )
 
 
-class HarvestLogManager(AbstractLogManager):
+class LockableJobManager(AbstractJobManager):
     def get_queryset(self):
         return LockableQuerySet(self.model, using=self._db)
 
 
-class HarvestLog(AbstractBaseLog):
+class HarvestJob(AbstractBaseJob):
     # May want to look into using DateRange in the future
     end_date = models.DateField(db_index=True)
     start_date = models.DateField(db_index=True)
     harvester_version = models.PositiveIntegerField()
 
-    objects = HarvestLogManager()
+    objects = LockableJobManager()
 
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
@@ -423,3 +426,47 @@ class HarvestLog(AbstractBaseLog):
             end_date=self.end_date.isoformat(),
             start_date=self.start_date.isoformat(),
         )
+
+
+class IngestJob(AbstractBaseJob):
+    suid = models.ForeignKey('SourceUniqueIdentifier')
+    latest_raw = models.ForeignKey('RawDatum', null=True)
+
+    transformer_version = models.PositiveIntegerField()
+    regulator_version = models.PositiveIntegerField()
+
+    transformed_data = DateTimeAwareJSONField(null=True)
+    regulated_data = DateTimeAwareJSONField(null=True)
+
+    objects = LockableJobManager()
+
+    @classmethod
+    def schedule(cls, suid):
+        # TODO check whether something similar/equivalent already exists
+        cls.objects.create(
+            suid=suid,
+            source_config=suid.source_config,
+            source_config_version=suid.source_config.version,
+            transformer_version=suid.source_config.transformer.version,
+            regulator_version=Regulator.VERSION,
+        )
+
+    class Meta:
+        unique_together = ('suid', 'latest_raw', 'source_config_version', 'transformer_version', 'regulator_version')
+
+    def handle(self, transformer_version, regulator_version):
+        self.transformer_version = transformer_version
+        self.regulator_version = regulator_version
+        return super().handle()
+
+    def log_graph(self, field_name, graph):
+        setattr(self, field_name, graph.to_jsonld())
+        self.save(update_fields=(field_name, 'date_modified'))
+
+
+class RegulatorLog(models.Model):
+    description = models.TextField()
+    node_id = models.TextField(null=True)
+    rejected = models.BooleanField()
+
+    ingest_job = models.ForeignKey(IngestJob, related_name='regulator_logs')

@@ -31,27 +31,25 @@ def fetch(args, argv):
         -o, --out=DIR           The directory to store the fetched data in. Defaults to ./fetched/<sourceconfig>
         -s, --start=YYYY-MM-DD  The date at which to start fetching data.
         -e, --end=YYYY-MM-DD    The date at which to stop fetching data.
-        -i, --ignore-disabled   Allow disabled SourceConfigs to run.
         --set-spec=SET          The OAI setSpec to limit harvesting to.
     """
     config = get_sourceconfig(args['<sourceconfig>'])
     if not config:
         return -1
 
-    harvester = config.get_harvester(pretty=True)
-
+    limit = int(args['--limit']) if args.get('--limit') else None
     kwargs = {k: v for k, v in {
-        'limit': int(args['--limit']) if args.get('--limit') else None,
         'set_spec': args.get('--set-spec'),
-        'ignore_disabled': args.get('ignore_disabled'),
     }.items() if v is not None}
 
+    harvester = config.get_harvester(pretty=True, **kwargs)
+
     if not args['<date>'] and not (args['--start'] and args['--end']):
-        gen = harvester.fetch(**kwargs)
+        gen = harvester.fetch(limit=limit)
     elif args['<date>']:
-        gen = harvester.fetch_date(pendulum.parse(args['<date>']), **kwargs)
+        gen = harvester.fetch_date(pendulum.parse(args['<date>']), limit=limit)
     else:
-        gen = harvester.fetch_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), **kwargs)
+        gen = harvester.fetch_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), limit=limit)
 
     if not args['--print']:
         args['--out'] = args['--out'] or os.path.join(os.curdir, 'fetched', config.label)
@@ -88,17 +86,19 @@ def harvest(args, argv):
     if not config:
         return -1
 
+    limit = int(args['--limit']) if args.get('--limit') else None
     kwargs = {k: v for k, v in {
-        'limit': int(args['--limit']) if args.get('--limit') else None,
         'set_spec': args.get('--set-spec'),
     }.items() if v is not None}
 
+    harvester = config.get_harvester(**kwargs)
+
     if not args['<date>'] and not (args['--start'] and args['--end']):
-        gen = config.get_harvester().harvest(**kwargs)
+        gen = harvester.harvest(limit=limit)
     elif args['<date>']:
-        gen = config.get_harvester().harvest_date(pendulum.parse(args['<date>']), **kwargs)
+        gen = harvester.harvest_date(pendulum.parse(args['<date>']), limit=limit)
     else:
-        gen = config.get_harvester().harvest_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), **kwargs)
+        gen = harvester.harvest_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), limit=limit)
 
     # "Spin" the generator but don't keep the documents in memory
     for datum in gen:
@@ -107,7 +107,7 @@ def harvest(args, argv):
         print(datum)
 
 
-@command('Create harvestlogs for the specified SourceConfig')
+@command('Create harvestjobs for the specified SourceConfig')
 def schedule(args, argv):
     """
     Usage:
@@ -115,10 +115,10 @@ def schedule(args, argv):
         {0} schedule [<date> | (--start=YYYY-MM-DD --end=YYYY-MM-DD) | --complete] [--tasks | --run] --all
 
     Options:
-        -t, --tasks             Spawn harvest tasks for each created log.
-        -r, --run               Run the harvest task for each created log.
-        -a, --all               Schedule logs for all enabled SourceConfigs.
-        -c, --complete          Schedule all logs between today and the SourceConfig's earliest date.
+        -t, --tasks             Spawn harvest tasks for each created job.
+        -r, --run               Run the harvest task for each created job.
+        -a, --all               Schedule jobs for all enabled SourceConfigs.
+        -c, --complete          Schedule all jobs between today and the SourceConfig's earliest date.
         -s, --start=YYYY-MM-DD  The date at which to start fetching data.
         -e, --end=YYYY-MM-DD    The date at which to stop fetching data.
         -j, --no-ingest         Do not process harvested data.
@@ -134,19 +134,19 @@ def schedule(args, argv):
         'ingest': not args.get('--no-ingest'),
     }.items() if v is not None}
 
-    logs = []
+    jobs = []
     for config in configs:
         scheduler = HarvestScheduler(config)
 
         if not (args['<date>'] or args['--start'] or args['--end']):
-            logs.append(scheduler.today())
+            jobs.append(scheduler.today())
         elif args['<date>']:
-            logs.append(scheduler.date(pendulum.parse(args['<date>'])))
+            jobs.append(scheduler.date(pendulum.parse(args['<date>'])))
         else:
-            logs.extend(scheduler.range(pendulum.parse(args['--start']), pendulum.parse(args['--end'])))
+            jobs.extend(scheduler.range(pendulum.parse(args['--start']), pendulum.parse(args['--end'])))
 
-    for log in logs:
+    for job in jobs:
         if args['--run']:
-            tasks.harvest.apply((), {'log_id': log.id, **kwargs}, retry=False, throw=True)
+            tasks.harvest.apply((), {'job_id': job.id, **kwargs}, retry=False, throw=True)
         elif args['--tasks']:
-            tasks.harvest.apply_async((), {'log_id': log.id, **kwargs})
+            tasks.harvest.apply_async((), {'job_id': job.id, **kwargs})

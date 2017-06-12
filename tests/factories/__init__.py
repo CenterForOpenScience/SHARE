@@ -106,12 +106,12 @@ class SourceConfigFactory(DjangoModelFactory):
         model = models.SourceConfig
 
 
-class HarvestLogFactory(DjangoModelFactory):
+class HarvestJobFactory(DjangoModelFactory):
     source_config = factory.SubFactory(SourceConfigFactory)
     start_date = factory.Faker('date_time')
 
     class Meta:
-        model = models.HarvestLog
+        model = models.HarvestJob
 
     @classmethod
     def _generate(cls, create, attrs):

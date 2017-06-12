@@ -1,6 +1,8 @@
 import abc
 import uuid
 
+from share.regulate.graph import MutableGraph
+
 
 class BaseTransformer(metaclass=abc.ABCMeta):
 
@@ -24,7 +26,8 @@ class BaseTransformer(metaclass=abc.ABCMeta):
         if source_id and jsonld and root_ref:
             self.add_source_identifier(source_id, jsonld, root_ref)
 
-        return jsonld
+        # TODO return a MutableGraph from do_transform, maybe build it directly in Parser?
+        return MutableGraph.from_jsonld(jsonld)
 
     def add_source_identifier(self, source_id, jsonld, root_ref):
         from share.transform.chain.links import IRILink

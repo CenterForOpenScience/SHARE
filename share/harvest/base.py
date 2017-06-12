@@ -11,7 +11,6 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 
-from share.harvest.exceptions import HarvesterDisabledError
 from share.harvest.ratelimit import RateLimittedProxy
 from share.harvest.serialization import DeprecatedDefaultSerializer
 from share.models import RawDatum
@@ -115,7 +114,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         """
         return self.fetch_date_range(date - datetime.timedelta(days=1), date, **kwargs)
 
-    def fetch_date_range(self, start, end, limit=None, **kwargs):
+    def fetch_date_range(self, start, end, limit=None):
         """Fetch data from the specified date range.
 
         Yields:
@@ -147,7 +146,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             )
             start, end = self.shift_range(start, end)
 
-        data_gen = self._do_fetch(start, end, **kwargs)
+        data_gen = self._do_fetch(start, end)
 
         if not isinstance(data_gen, types.GeneratorType) and len(data_gen) != 0:
             raise TypeError('{!r}._do_fetch must return a GeneratorType for optimal performance and memory usage'.format(self))
@@ -205,7 +204,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         """
         return self.harvest_date_range(date - datetime.timedelta(days=1), date, **kwargs)
 
-    def harvest_date_range(self, start, end, limit=None, force=False, ignore_disabled=False, **kwargs):
+    def harvest_date_range(self, start, end, limit=None, force=False):
         """Fetch data from the specified date range.
 
         Args:
@@ -213,9 +212,6 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             end (date):
             limit (int, optional): The maximum number of unique data to harvest. Defaults to None.
                 Uniqueness is determined by the SHA-256 of the raw data
-            force (bool, optional): Disable all safety checks, unexpected exceptions will still be raised. Defaults to False.
-            ignore_disabled (bool, optional): Don't check if this Harvester or Source is disabled or deleted. Defaults to False.
-            **kwargs: Forwared to _do_fetch.
 
         Yields:
             RawDatum
@@ -224,47 +220,11 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         if self.serializer.pretty:
             raise ValueError('To ensure that data is optimally deduplicated, harvests may not occur while using a pretty serializer.')
 
-        if (self.config.disabled or self.config.source.is_deleted) and not (force or ignore_disabled):
-            raise HarvesterDisabledError('Harvester {!r} is disabled. Either enable it, run with force=True, or ignore_disabled=True.'.format(self.config))
-
         with self.config.acquire_lock(required=not force):
             logger.info('Harvesting %s - %s from %r', start, end, self.config)
-            yield from RawDatum.objects.store_chunk(self.config, self.fetch_date_range(start, end, **kwargs), limit=limit)
+            yield from RawDatum.objects.store_chunk(self.config, self.fetch_date_range(start, end), limit=limit)
 
-    def harvest_from_log(self, harvest_log, **kwargs):
-        """Harvest data as specified by the given harvest_log.
-
-        Args:
-            harvest_log (HarvestLog): The HarvestLog that describes the parameters of this harvest
-            limit (int, optional): The maximum number of unique data to harvest. Defaults to None.
-            **kwargs: Forwared to harvest_date_range.
-
-        Yields:
-            RawDatum
-
-        """
-        error = None
-        datum_ids = []
-        logger.info('Harvesting %r', harvest_log)
-
-        with harvest_log.handle(self.VERSION):
-            try:
-                for datum in self.harvest_date_range(harvest_log.start_date, harvest_log.end_date, **kwargs):
-                    datum_ids.append(datum.id)
-                    yield datum
-            except Exception as e:
-                error = e
-                raise error
-            finally:
-                try:
-                    harvest_log.raw_data.add(*datum_ids)
-                except Exception as e:
-                    logger.exception('Failed to connection %r to raw data', harvest_log)
-                    # Avoid shadowing the original error
-                    if not error:
-                        raise e
-
-    def _do_fetch(self, start, end, **kwargs):
+    def _do_fetch(self, start, end):
         """Fetch date from this source inside of the given date range.
 
         The given date range should be treated as [start, end)
@@ -275,7 +235,6 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         Args:
             start_date (datetime): Date to start fetching data from, inclusively.
             end_date (datetime): Date to fetch data up to, exclusively.
-            **kwargs: Arbitrary kwargs passed to subclasses, used to customize harvesting.
 
         Returns:
             Iterator<FetchResult>: The fetched data.
@@ -289,6 +248,6 @@ class BaseHarvester(metaclass=abc.ABCMeta):
                 DeprecationWarning
             )
             logger.warning('%r implements a deprecated interface. ', self)
-            return self.do_harvest(start, end, **kwargs)
+            return self.do_harvest(start, end)
 
         raise NotImplementedError()

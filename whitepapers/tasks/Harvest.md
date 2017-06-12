@@ -32,41 +32,41 @@
 ### Setup
 * Load the source config and its required harvester
 * NOT IMPLEMENTED: [Optimizations](#optimizations)
-* Get or create `HarvestLog(start, end, source_config, harvester_version, source_config_version)`
-  * If `HarvestLog` already exists, `HarvestLog.completions` is non-zero, and `superfluous` is not set, set `HarvestLog.status` to `skipped` and exit
+* Get or create `HarvestJob(start, end, source_config, harvester_version, source_config_version)`
+  * If `HarvestJob` already exists, `HarvestJob.completions` is non-zero, and `superfluous` is not set, set `HarvestJob.status` to `skipped` and exit
 * Obtain a Harvest lock on `source_config_id`
   * On failure:
     * if `force` is True, ignore and continue
-    * if `force` is False, set `HarvestLog.status` to `rescheduled` and raise a `Retry`
+    * if `force` is False, set `HarvestJob.status` to `rescheduled` and raise a `Retry`
 * NOT IMPLEMENTED: [Check for consistent failures](#consistent-failures)
 * Check `SourceConfig.disabled`
   * Unless `force` or `ignore_disabled` is `True`, crash
-* Set `HarvestLog.status` to `started` and update `HarvestLog.date_started`.
+* Set `HarvestJob.status` to `started` and update `HarvestJob.date_started`.
 
 ### Actual work
 * Harvest data between [`start`, `end`]
   * `RawDatum` should be populated regardless of exceptions
-* For any data collected, link them to the `HarvestLog`
-* If `ingest`, for any data collected, create an `IngestLog` and spawn an `IngestTask`
+* For any data collected, link them to the `HarvestJob`
+* If `ingest`, for any data collected, create an `IngestJob` and spawn an `IngestTask`
   * If `superfluous` is false, do not ingest any `RawDatum` that is an exact duplicate of previously harvested data.
 
 ### Clean up
-* Set `HarvestLog.status` to `succeeded` and increment `HarvestLog.completions`
+* Set `HarvestJob.status` to `succeeded` and increment `HarvestJob.completions`
 
 ## Errors
 If any errors arise while harvesting:
-* Set `HarvestLog.status` to `failed` and `HarvestLog.context` to the traceback of the caught exception, or any other error information.
+* Set `HarvestJob.status` to `failed` and `HarvestJob.context` to the traceback of the caught exception, or any other error information.
 * Raise a `Retry`
 
 
 ## Future Improvements
 
 ### Consistent Failures
-* Check the last `x` `HarvestLog`s of `SourceConfig`
+* Check the last `x` `HarvestJob`s of `SourceConfig`
   * If they are all `failed`, fail preemptively
 
 ### Optimizations
-* Find `HarvestLog`s that cover the the span of `start` and `end`
+* Find `HarvestJob`s that cover the the span of `start` and `end`
   * Skip this task if they exist and are `succeeded`
 * If the specified date range is >= [SOME LENGTH OF TIME] and `no_split` is False
   * Chunk the date range and spawn a harvest task for each chunk

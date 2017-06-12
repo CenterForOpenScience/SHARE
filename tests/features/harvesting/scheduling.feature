@@ -4,7 +4,7 @@ Feature: Harvester Scheduling
     Given a source config, neat.o, that harvests <INTERVAL>
     And the last harvest of neat.o was <PREVIOUS END DATE>
     When harvests are scheduled on <DATE>
-    Then neat.o will have <NUM> harvest logs
+    Then neat.o will have <NUM> harvest jobs
 
     Examples:
       | INTERVAL    | PREVIOUS END DATE | DATE       | NUM |
@@ -29,7 +29,7 @@ Feature: Harvester Scheduling
     And neat.o is allowed to be backharvested
     And neat.o's earliest record is <EARLIEST RECORD>
     When harvests are scheduled on 2017-01-01
-    Then neat.o will have <NUM> harvest logs
+    Then neat.o will have <NUM> harvest jobs
 
     Examples:
       | INTERVAL | EARLIEST RECORD | NUM  |
@@ -41,7 +41,7 @@ Feature: Harvester Scheduling
   Scenario Outline: Scheduling first time harvests
     Given a source config, neat.o, that harvests <INTERVAL>
     When harvests are scheduled on 2017-01-01
-    Then neat.o will have 1 harvest logs
+    Then neat.o will have 1 harvest jobs
 
     Examples:
       | INTERVAL    |
@@ -56,7 +56,7 @@ Feature: Harvester Scheduling
     And harvests are scheduled on 2017-01-02
     And harvests are scheduled on 2017-01-01
     And harvests are scheduled on 2017-01-01
-    Then neat.o will have 1 harvest logs
+    Then neat.o will have 1 harvest jobs
 
     Examples:
       | INTERVAL    |

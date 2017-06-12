@@ -38,12 +38,11 @@ class OAIHarvester(BaseHarvester):
 
         super().__init__(*args, **kwargs)
 
-    def _do_fetch(self, start_date, end_date, set_spec=None):
+    def _do_fetch(self, start_date, end_date):
         url = furl(self.config.base_url)
-        set_spec = set_spec or self.set_spec
 
-        if set_spec:
-            url.args['set'] = set_spec
+        if self.set_spec:
+            url.args['set'] = self.set_spec
         url.args['verb'] = 'ListRecords'
         url.args['metadataPrefix'] = self.metadata_prefix
 

@@ -25,7 +25,7 @@ from share.models.change import ChangeSet
 from share.models.core import NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
-from share.models.logs import HarvestLog
+from share.models.jobs import HarvestJob, IngestJob
 from share.models.meta import Subject, SubjectTaxonomy
 from share.models.registration import ProviderRegistration
 from share.models.sources import SourceStat
@@ -125,25 +125,25 @@ class SourceConfigFilter(admin.SimpleListFilter):
             return queryset.filter(source_config=self.value())
 
 
-class HarvestLogAdmin(admin.ModelAdmin):
-    list_display = ('id', 'source', 'label', 'share_version', 'status_', 'start_date_', 'end_date_', 'harvest_log_actions', )
+class HarvestJobAdmin(admin.ModelAdmin):
+    list_display = ('id', 'source', 'label', 'share_version', 'status_', 'start_date_', 'end_date_', 'harvest_job_actions', )
     list_filter = ('status', SourceConfigFilter, )
     list_select_related = ('source_config__source', )
-    readonly_fields = ('harvest_log_actions',)
+    readonly_fields = ('harvest_job_actions',)
     actions = ('restart_tasks', )
     show_full_result_count = False
     paginator = FuzzyPaginator
 
     STATUS_COLORS = {
-        HarvestLog.STATUS.created: 'blue',
-        HarvestLog.STATUS.started: 'cyan',
-        HarvestLog.STATUS.failed: 'red',
-        HarvestLog.STATUS.succeeded: 'green',
-        HarvestLog.STATUS.rescheduled: 'goldenrod',
-        HarvestLog.STATUS.forced: 'maroon',
-        HarvestLog.STATUS.skipped: 'orange',
-        HarvestLog.STATUS.retried: 'darkseagreen',
-        HarvestLog.STATUS.cancelled: 'grey',
+        HarvestJob.STATUS.created: 'blue',
+        HarvestJob.STATUS.started: 'cyan',
+        HarvestJob.STATUS.failed: 'red',
+        HarvestJob.STATUS.succeeded: 'green',
+        HarvestJob.STATUS.rescheduled: 'goldenrod',
+        HarvestJob.STATUS.forced: 'maroon',
+        HarvestJob.STATUS.skipped: 'orange',
+        HarvestJob.STATUS.retried: 'darkseagreen',
+        HarvestJob.STATUS.cancelled: 'grey',
     }
 
     def source(self, obj):
@@ -162,20 +162,20 @@ class HarvestLogAdmin(admin.ModelAdmin):
         return format_html(
             '<span style="font-weight: bold; color: {}">{}</span>',
             self.STATUS_COLORS[obj.status],
-            HarvestLog.STATUS[obj.status].title(),
+            HarvestJob.STATUS[obj.status].title(),
         )
 
     def restart_tasks(self, request, queryset):
-        queryset.update(status=HarvestLog.STATUS.created)
+        queryset.update(status=HarvestJob.STATUS.created)
     restart_tasks.short_description = 'Re-enqueue'
 
-    def harvest_log_actions(self, obj):
+    def harvest_job_actions(self, obj):
         url = furl(reverse('admin:source-config-harvest', args=[obj.source_config_id]))
         url.args['start'] = self.start_date_(obj)
         url.args['end'] = self.end_date_(obj)
         url.args['superfluous'] = True
         return format_html('<a class="button" href="{}">Restart</a>', url.url)
-    harvest_log_actions.short_description = 'Actions'
+    harvest_job_actions.short_description = 'Actions'
 
 
 class HarvestForm(forms.Form):
@@ -228,11 +228,11 @@ class SourceConfigAdmin(admin.ModelAdmin):
         if request.method == 'POST':
             form = HarvestForm(request.POST)
             if form.is_valid():
-                for log in HarvestScheduler(config).range(form.cleaned_data['start'], form.cleaned_data['end']):
-                    tasks.harvest.apply_async((), {'log_id': log.id, 'superfluous': form.cleaned_data['superfluous']})
+                for job in HarvestScheduler(config).range(form.cleaned_data['start'], form.cleaned_data['end']):
+                    tasks.harvest.apply_async((), {'job_id': job.id, 'superfluous': form.cleaned_data['superfluous']})
 
                 self.message_user(request, 'Started harvesting {}!'.format(config.label))
-                url = reverse('admin:share_harvestlog_changelist', current_app=self.admin_site.name)
+                url = reverse('admin:share_harvestjob_changelist', current_app=self.admin_site.name)
                 return HttpResponseRedirect(url)
         else:
             initial = {'start': config.earliest_date, 'end': timezone.now().date()}
@@ -385,7 +385,8 @@ admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
-admin.site.register(HarvestLog, HarvestLogAdmin)
+admin.site.register(HarvestJob, HarvestJobAdmin)
+admin.site.register(IngestJob)  # TODO like HarvestJobAdmin
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)
 admin.site.register(RawDatum, RawDatumAdmin)

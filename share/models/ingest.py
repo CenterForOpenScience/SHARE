@@ -2,8 +2,6 @@ import contextlib
 import datetime
 import logging
 
-from stevedore import driver
-
 from django.contrib.postgres.fields import JSONField
 from django.core import validators
 from django.core.files.base import ContentFile
@@ -16,6 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
+from share.util.extensions import Extensions
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.indexes import ConcurrentIndex
 from share.util import chunked, placeholders
@@ -115,7 +114,7 @@ class SourceConfig(models.Model):
     full_harvest = models.BooleanField(default=False, help_text=(
         'Whether or not this SourceConfig should be fully harvested. '
         'Requires earliest_date to be set. '
-        'The schedule harvests task will create all logs necessary if this flag is set. '
+        'The schedule harvests task will create all jobs necessary if this flag is set. '
         'This should never be set to True by default. '
     ))
 
@@ -132,10 +131,10 @@ class SourceConfig(models.Model):
         return (self.label,)
 
     def get_harvester(self, **kwargs):
-        return self.harvester.get_class()(self, **{**kwargs, **(self.harvester_kwargs or {})})
+        return self.harvester.get_class()(self, **{**(self.harvester_kwargs or {}), **kwargs})
 
-    def get_transformer(self):
-        return self.transformer.get_class()(self, **(self.transformer_kwargs or {}))
+    def get_transformer(self, **kwargs):
+        return self.transformer.get_class()(self, **{**(self.transformer_kwargs or {}), **kwargs})
 
     @contextlib.contextmanager
     def acquire_lock(self, required=True, using='default'):
@@ -182,7 +181,7 @@ class Harvester(models.Model):
         return (self.key,)
 
     def get_class(self):
-        return driver.DriverManager('share.harvesters', self.key).driver
+        return Extensions.get('share.harvesters', self.key)
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.key)
@@ -206,7 +205,7 @@ class Transformer(models.Model):
         return (self.key,)
 
     def get_class(self):
-        return driver.DriverManager('share.transformers', self.key).driver
+        return Extensions.get('share.transformers', self.key)
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.key)
@@ -217,26 +216,26 @@ class Transformer(models.Model):
 
 class RawDatumManager(FuzzyCountManager):
 
-    def link_to_log(self, log, datum_ids):
+    def link_to_job(self, job, datum_ids):
         if not datum_ids:
             return True
-        logger.debug('Linking RawData to %r', log)
+        logger.debug('Linking RawData to %r', job)
         with connection.cursor() as cursor:
             for chunk in chunked(datum_ids, size=500):
                 if not chunk:
                     break
                 cursor.execute('''
                     INSERT INTO "{table}"
-                        ("{rawdatum}", "{harvestlog}")
+                        ("{rawdatum}", "{harvestjob}")
                     VALUES
                         {values}
-                    ON CONFLICT ("{rawdatum}", "{harvestlog}") DO NOTHING;
+                    ON CONFLICT ("{rawdatum}", "{harvestjob}") DO NOTHING;
                 '''.format(
                     values=', '.join('%s' for _ in range(len(chunk))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
-                    table=RawDatum.logs.through._meta.db_table,
-                    rawdatum=RawDatum.logs.through._meta.get_field('rawdatum').column,
-                    harvestlog=RawDatum.logs.through._meta.get_field('harvestlog').column,
-                ), [(raw_id, log.id) for raw_id in chunk])
+                    table=RawDatum.jobs.through._meta.db_table,
+                    rawdatum=RawDatum.jobs.through._meta.get_field('rawdatum').column,
+                    harvestjob=RawDatum.jobs.through._meta.get_field('harvestjob').column,
+                ), [(raw_id, job.id) for raw_id in chunk])
         return True
 
     def store_chunk(self, source_config, data, limit=None, db=DEFAULT_DB_ALIAS):
@@ -388,7 +387,7 @@ class RawDatum(models.Model):
         'which would otherwise look like data that has not yet been processed.'
     ))
 
-    logs = models.ManyToManyField('HarvestLog', related_name='raw_data')
+    jobs = models.ManyToManyField('HarvestJob', related_name='raw_data')
 
     objects = RawDatumManager()
 
