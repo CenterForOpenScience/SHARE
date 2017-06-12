@@ -38,19 +38,6 @@ def improvenance_subjects(apps, schema_editor):
     DisambiguatorTask().apply((user.id, normalized_data.id), throw=True)
 
 
-def deprovenance_subjects(apps, schema_editor):
-    NormalizedData = apps.get_model('share', 'NormalizedData')
-    ChangeSet = apps.get_model('share', 'ChangeSet')
-    Change = apps.get_model('share', 'Change')
-    Subject = apps.get_model('share', 'Subject')
-    ThroughSubjects = apps.get_model('share', 'ThroughSubjects')
-
-    # TODO disable triggers
-    Subject.objects.update(change_id=None, taxonomy_id=None)
-    ThroughSubjects.objects.update(subject_version=None)
-    ThroughSubjects.VersionModel.objects.update(subject_version=None)
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -58,5 +45,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(improvenance_subjects), #, deprovenance_subjects),
+        migrations.RunPython(improvenance_subjects),
     ]

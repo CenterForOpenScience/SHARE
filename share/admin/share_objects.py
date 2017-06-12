@@ -156,7 +156,7 @@ class SubjectAdmin(ShareObjectAdmin):
     search_fields = ('name',)
     readonly_fields = ('taxonomy_link', 'children_links', 'lineage')
     fields = ('lineage', 'children_links', 'name', 'parent', 'taxonomy_link', 'central_synonym', 'is_deleted', 'uri',)
-    list_display = ('lineage', 'taxonomy', 'central_synonym', 'is_deleted')
+    list_display = ('name', 'taxonomy', 'central_synonym', 'is_deleted')
     list_filter = ('taxonomy',)
 
     def lineage(self, obj):

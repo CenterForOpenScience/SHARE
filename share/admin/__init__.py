@@ -1,7 +1,6 @@
 from furl import furl
 
 from django import forms
-from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
@@ -341,11 +340,6 @@ class SubjectTaxonomyAdmin(admin.ModelAdmin):
         roots = obj.subject_set.filter(parent__isnull=True).prefetch_related('children', 'children__children', 'children__children__children')
         return recursive_link_list(list(roots))
     subject_links.short_description = 'Subjects'
-
-
-
-    #def get_queryset(self, request):
-    #    return super().get_queryset(request).prefetch_related('subject')
 
 
 admin.site.unregister(AccessToken)

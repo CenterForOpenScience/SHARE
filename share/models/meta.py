@@ -14,6 +14,10 @@ logger = logging.getLogger('share.normalize')
 # TODO Rename this file
 
 
+class CyclicalTaxonomyError(Exception):
+    pass
+
+
 class Tag(ShareObject):
     name = models.TextField(unique=True)
 
@@ -74,19 +78,31 @@ class Subject(ShareObject):
 
     @classmethod
     def normalize(cls, node, graph):
-        synonym = node.attrs.get('central_synonym')
-        if synonym and synonym['@id'] == node['@id']:
-            node.attrs.pop('central_synonym')
+        edge = node.related('central_synonym')
+        if edge and edge.related and edge.related.id == node.id:
+            graph.remove_edge(edge)
+
+    def save(self, *args, **kwargs):
+        if self.id is not None and self.parent is not None:
+            new_lineage = self.parent.lineage()
+            if self in new_lineage:
+                raise CyclicalTaxonomyError('Making {} a child of {} would cause a cycle!'.format(self, self.parent))
+        super().save(*args, **kwargs)
 
     def lineage(self):
-        lineage = []
-        subject = self
-        while subject:
-            if subject in lineage:
-                break  # TODO errors?
-            lineage.append(subject)
-            subject = subject.parent
-        lineage.reverse()
+        query = '''
+            WITH RECURSIVE lineage_chain(id, parent, depth, path, cycle) AS (
+                    SELECT id, parent_id, 1, ARRAY[id], false FROM {table} WHERE id = %(id)s
+                  UNION
+                    SELECT {table}.id, {table}.parent_id, lineage_chain.depth + 1, path || {table}.id, {table}.id = ANY(path)
+                    FROM lineage_chain JOIN {table} ON lineage_chain.parent = {table}.id
+                    WHERE NOT cycle
+            )
+            SELECT {table}.* FROM {table} INNER JOIN lineage_chain ON {table}.id = lineage_chain.id ORDER BY lineage_chain.depth DESC
+        '''.format(table=self._meta.db_table)
+        lineage = list(self._meta.model.objects.raw(query, params={'id': self.id}))
+        if lineage[0].parent is not None:
+            raise CyclicalTaxonomyError('Subject taxonomy cycle! {}'.format(lineage))
         return lineage
 
     def __str__(self):

@@ -124,7 +124,7 @@ class TopographicalSorter:
 
         self.__visiting.add(key)
         for k in self.__dependencies(node):
-            if k is not None:
+            if k is not None and k is not key:
                 self.__visit(self.__get_node(k))
 
         self.__visited.add(key)

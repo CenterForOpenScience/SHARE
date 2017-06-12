@@ -152,25 +152,23 @@ class GraphDisambiguator:
             except node.model.DoesNotExist:
                 pass
 
-        if 'central_synonym' in node.attrs:
+        name = node.attrs.get('name')
+        if node.related('central_synonym') is None:
+            # Central taxonomy
+            if name:
+                try:
+                    return node.model.objects.get(name=name, central_synonym__isnull=True)
+                except node.model.DoesNotExist:
+                    logger.debug('No %s found with name "%s" in the central taxonomy', node.model, name)
+        else:
             # Custom taxonomy
-            name = node.attrs.get('name')
             source = node.graph.source
             if source and name:
                 try:
                     return node.model.objects.get(name=name, taxonomy__name=source.long_title)
                 except node.model.DoesNotExist:
                     logger.debug('No %s found with name "%s" in taxonomy "%s"', node.model, name, source.long_title)
-            return None
-        else:
-            # Central taxonomy
-            name = node.attrs.get('name')
-            if name:
-                try:
-                    return node.model.objects.get(name=name, central_synonym__isnull=True)
-                except node.model.DoesNotExist:
-                    logger.debug('No %s found with name "%s" in the central taxonomy', node.model, name)
-            return None
+        return None
 
     def _query_pair(self, key, value):
         try:

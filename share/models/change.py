@@ -277,12 +277,14 @@ class Change(models.Model):
             else:
                 change[k] = v
 
-        if self.target_type.model == 'subject':  # TODO something better
+        if change and self.target_type.model == 'subject':
             from share.models import SubjectTaxonomy
             if change.get('central_synonym', self.target.central_synonym if self.target else None) is None:
-                # TODO or should this raise an error? the central taxonomy shouldn't be modified by incoming data
+                user = self.change_set.normalized_data.source
+                if user.username != settings.APPLICATION_USERNAME:
+                    raise PermissionError('Only the system user can modify the central subject taxonomy, not {}'.format(user))
                 change['taxonomy'] = SubjectTaxonomy.objects.get(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
             else:
-                change['taxonomy'] = SubjectTaxonomy.objects.get_or_create(name=self.change_set.normalized_data.source.source.long_title)
+                change['taxonomy'], _ = SubjectTaxonomy.objects.get_or_create(name=self.change_set.normalized_data.source.source.long_title)
 
         return change
