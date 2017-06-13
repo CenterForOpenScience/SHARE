@@ -1,11 +1,10 @@
+from collections import OrderedDict
+
+import json
+
 from share.transform.chain import ctx, ChainTransformer
 from share.transform.chain import links as tools
 from share.transform.chain.parsers import Parser
-
-from collections import OrderedDict
-import re
-
-import json
 
 
 class AgentIdentifier(Parser):
@@ -33,7 +32,8 @@ class IsAffiliatedWith(Parser):
 
 
 class Person(Parser):
-    name = tools.Try(ctx.name)
+    given_name = tools.ParseName(ctx.name).first
+    family_name = tools.ParseName(ctx.name).last
     identifiers = tools.Map(tools.Delegate(AgentIdentifier), tools.Try(ctx.email))
 
 
@@ -58,8 +58,8 @@ class ThroughSubjects(Parser):
 
 
 def process_keywords(text):
-    text = re.sub('["]', '', text).strip("[]")[:-2].split(",")
-    text = [item.strip() for item in text]
+    text = json.loads(text)
+    text = [item for item in text if item]
     return text
 
 

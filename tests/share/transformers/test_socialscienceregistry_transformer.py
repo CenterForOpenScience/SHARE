@@ -52,8 +52,8 @@ data = r'''
 
 
 @pytest.mark.django_db
-def test_func():
-    config = SourceConfig.objects.get(label=('org.socialscienceregistry'))
+def test_AEA_transformer():
+    config = SourceConfig.objects.get(label='org.socialscienceregistry')
     transformer = config.get_transformer()
     result = transformer.transform(data)
     assert result['@graph'][10]['@type'] == 'registration'

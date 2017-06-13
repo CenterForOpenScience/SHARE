@@ -12,8 +12,8 @@ sample2,url2,"June 05, 2017",2017-05-02 16:17:17 -0400,2013-05-21,AEARCTR-000000
 
 
 @pytest.mark.django_db
-def test_func():
-    config = SourceConfig.objects.get(label=('org.socialscienceregistry'))
+def test_AEA_harvester():
+    config = SourceConfig.objects.get(label='org.socialscienceregistry')
     url = config.harvester_kwargs['csv_url']
     harvester = config.get_harvester()
 

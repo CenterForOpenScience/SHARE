@@ -468,7 +468,8 @@ class CreativeWork(Parser):
 
     title = tools.RunPython(
         force_text,
-        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.titles.title)
+        tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.titles.title),
+        first_str=True
     )
 
     description = tools.Try(

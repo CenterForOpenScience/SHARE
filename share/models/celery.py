@@ -1,14 +1,59 @@
-from model_utils import Choices
+from celery import states
 
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
+
+from model_utils import Choices
+
 from typedmodels.models import TypedModel
 
+from share.models.fields import DateTimeAwareJSONField
 from share.models.fuzzycount import FuzzyCountManager
+from share.models.logs import get_share_version
 
 
-class CeleryTask(TypedModel):
+ALL_STATES = sorted(states.ALL_STATES)
+TASK_STATE_CHOICES = sorted(zip(ALL_STATES, ALL_STATES))
+
+
+class CeleryTaskResult(models.Model):
+
+    correlation_id = models.TextField(blank=True)
+    status = models.CharField(db_index=True, max_length=50, default=states.PENDING, choices=TASK_STATE_CHOICES)
+    task_id = models.UUIDField(db_index=True, unique=True)
+
+    meta = DateTimeAwareJSONField(null=True, editable=False)
+    result = DateTimeAwareJSONField(null=True, editable=False)
+    task_name = models.TextField(null=True, blank=True, editable=False, db_index=True)
+    traceback = models.TextField(null=True, blank=True, editable=False)
+
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    date_modified = models.DateTimeField(auto_now=True, editable=False, db_index=True)
+
+    share_version = models.TextField(default=get_share_version, editable=False)
+
+    class Meta:
+        verbose_name = 'Celery Task Result'
+        verbose_name_plural = 'Celery Task Results'
+        indexes = (
+            models.Index(fields=['-date_modified', '-id']),
+        )
+
+    def as_dict(self):
+        return {
+            'task_id': self.task_id,
+            'status': self.status,
+            'result': self.result,
+            'date_done': self.date_modified,
+            'traceback': self.traceback,
+            'meta': self.meta,
+        }
+
+
+class UnusedCeleryTask(TypedModel):
+    """Keeping this model around so we have the data to refer back to, if need be.
+    """
     STATUS = Choices(
         (0, 'started', _('started')),
         (1, 'retried', _('retried')),
@@ -33,7 +78,6 @@ class CeleryTask(TypedModel):
         index_together = ('type', 'name', 'app_label', 'timestamp')
 
 
-# TODO rename to get rid of 'Provider'
-class CeleryProviderTask(CeleryTask):
+class UnusedCeleryProviderTask(UnusedCeleryTask):
     app_label = models.TextField(db_index=True, blank=True)
     app_version = models.TextField(db_index=True, blank=True)

@@ -16,6 +16,9 @@ def format_address(address1='', address2='', city='', state_or_province='', post
     if address1 and city and state_or_province and postal_code:
         return '{}\n{}, {} {}'.format(address1, city, state_or_province, postal_code)
 
+    if address1 and city and state_or_province and country:
+        return '{}\n{}, {}\n{}'.format(address1, city, state_or_province, country)
+
     if address1 and address2 and city and state_or_province:
         return '{}\n{}\n{}, {}'.format(address1, address2, city, state_or_province)
 
@@ -43,11 +46,9 @@ def format_address(address1='', address2='', city='', state_or_province='', post
     return address1
 
 
-def force_text(data):
+def force_text(data, list_sep=None, first_str=False):
     if isinstance(data, dict):
-        if '#text' in data:
-            return data['#text']
-        raise Exception('#text is not in {}'.format(data))
+        return data.get('#text', '')
 
     if isinstance(data, str):
         return data
@@ -66,6 +67,11 @@ def force_text(data):
                 text_list.append(datum)
             else:
                 raise Exception(datum)
+
+            if first_str and text_list:
+                return text_list[0]
+        if list_sep is not None:
+            return list_sep.join(text_list)
         return text_list
 
     if data is None:

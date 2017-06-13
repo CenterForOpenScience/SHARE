@@ -5,10 +5,6 @@ from django.apps import apps
 from django.conf import settings
 from elasticsearch import Elasticsearch
 
-from bots.elasticsearch.tasks import IndexModelTask
-from bots.elasticsearch.tasks import IndexSourceTask
-from share.bot import Bot
-
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +20,15 @@ def chunk(iterable, size):
         yield l
 
 
-class ElasticSearchBot(Bot):
+class ElasticSearchBot:
+
+    # Sources are also indexed as a special case
+    INDEX_MODELS = [
+        'CreativeWork',
+        'Agent',
+        'Tag',
+        # 'Subject',
+    ]
 
     SETTINGS = {
         'analysis': {
@@ -143,14 +147,12 @@ class ElasticSearchBot(Bot):
         },
     }
 
-    def __init__(self, config, started_by, last_run=None, **kwargs):
-        super().__init__(config, started_by, last_run=last_run)
-
+    def __init__(self, **kwargs):
         self.es_filter = kwargs.pop('es_filter', None)
-        self.es_setup = bool(kwargs.pop('es_setup', False))
-        self.es_url = kwargs.pop('es_url', settings.ELASTICSEARCH_URL)
-        self.es_index = kwargs.pop('es_index', settings.ELASTICSEARCH_INDEX)
+        self.es_index = kwargs.pop('es_index', None) or settings.ELASTICSEARCH_INDEX
         self.es_models = kwargs.pop('es_models', None)
+        self.es_setup = bool(kwargs.pop('es_setup', False))
+        self.es_url = kwargs.pop('es_url', None) or settings.ELASTICSEARCH_URL
 
         if self.es_models:
             self.es_models = [x.lower() for x in self.es_models]
@@ -171,13 +173,15 @@ class ElasticSearchBot(Bot):
         return '2000-01-01T00:00:00-00:00'
 
     def run(self, chunk_size=500):
+        from bots.elasticsearch import tasks  # TODO fix me
+
         if self.es_setup:
             self.setup()
         else:
             logger.debug('Skipping ES setup')
 
         logger.info('Loading up indexed models')
-        for model_name in self.config.INDEX_MODELS:
+        for model_name in self.INDEX_MODELS:
             if self.es_models and model_name.lower() not in self.es_models:
                 continue
 
@@ -188,9 +192,8 @@ class ElasticSearchBot(Bot):
                 qs = model.objects.filter(**self.es_filter).values_list('id', flat=True)
             else:
                 most_recent_result = pendulum.parse(self.get_most_recently_modified())
-                adjusted_most_recent_result = most_recent_result.subtract(minutes=5)
-                logger.info('Looking for %ss that have been modified after %s', model, adjusted_most_recent_result)
-                qs = model.objects.filter(date_modified__gt=adjusted_most_recent_result).values_list('id', flat=True)
+                logger.info('Looking for %ss that have been modified after %s', model, most_recent_result)
+                qs = model.objects.filter(date_modified__gt=most_recent_result).values_list('id', flat=True)
 
             count = qs.count()
 
@@ -202,10 +205,10 @@ class ElasticSearchBot(Bot):
 
             for i, batch in enumerate(chunk(qs.all(), chunk_size)):
                 if batch:
-                    IndexModelTask().apply_async((self.started_by.id, self.config.label, model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
+                    tasks.index_model.apply_async((model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
 
         logger.info('Starting task to index sources')
-        IndexSourceTask().apply_async((self.started_by.id, self.config.label), {'es_url': self.es_url, 'es_index': self.es_index})
+        tasks.index_sources.apply_async((), {'es_url': self.es_url, 'es_index': self.es_index})
 
     def setup(self):
         logger.debug('Ensuring Elasticsearch index %s', self.es_index)
