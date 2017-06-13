@@ -204,7 +204,7 @@ def fetch_creativework(pks):
                             FROM (
                                 SELECT concat_ws('/', taxonomy.name, great_grand_parent.name, grand_parent.name, parent.name, child.name)
                                 FROM share_subject AS child
-                                    JOIN share_subjecttaxonomy as taxonomy ON child.taxonomy_id = child.id
+                                    JOIN share_subjecttaxonomy AS taxonomy ON child.taxonomy_id = child.id
                                     LEFT JOIN share_subject AS parent ON child.parent_id = parent.id
                                     LEFT JOIN share_subject AS grand_parent ON parent.parent_id = grand_parent.id
                                     LEFT JOIN share_subject AS great_grand_parent ON grand_parent.parent_id = great_grand_parent.id

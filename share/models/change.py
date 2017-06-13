@@ -200,6 +200,7 @@ class Change(models.Model):
 
         for k, v in self._resolve_change().items():
             setattr(self.target, k, v)
+
         if save:
             self.target.save()
         return self.target
@@ -278,7 +279,7 @@ class Change(models.Model):
                 change[k] = v
 
         if change and self.target_type.model == 'subject':
-            from share.models import SubjectTaxonomy
+            SubjectTaxonomy = apps.get_model('share', 'subjecttaxonomy')
             if change.get('central_synonym', self.target.central_synonym if self.target else None) is None:
                 user = self.change_set.normalized_data.source
                 if user.username != settings.APPLICATION_USERNAME:

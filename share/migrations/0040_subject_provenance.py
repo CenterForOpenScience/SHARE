@@ -34,8 +34,8 @@ def improvenance_subjects(apps, schema_editor):
             ]
         }
     )
-    from share.tasks import DisambiguatorTask
-    DisambiguatorTask().apply((user.id, normalized_data.id), throw=True)
+    from share.tasks import disambiguate
+    disambiguate.apply((normalized_data.id,), throw=True)
 
 
 class Migration(migrations.Migration):

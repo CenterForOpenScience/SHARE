@@ -87,7 +87,7 @@ class Subject(ShareObject):
             new_lineage = self.parent.lineage()
             if self in new_lineage:
                 raise CyclicalTaxonomyError('Making {} a child of {} would cause a cycle!'.format(self, self.parent))
-        super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def lineage(self):
         query = '''

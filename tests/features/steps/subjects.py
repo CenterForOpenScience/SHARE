@@ -5,7 +5,7 @@ from share import models
 from share.change import ChangeGraph
 from share.models import ChangeSet
 
-from tests.share.models.factories import NormalizedDataFactory, ShareUserFactory
+from tests.factories import NormalizedDataFactory, ShareUserFactory
 
 
 def accept_changes(context, nodes, user=None):

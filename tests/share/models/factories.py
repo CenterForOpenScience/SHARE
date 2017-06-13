@@ -10,26 +10,9 @@ from django.contrib.contenttypes.models import ContentType
 from share import models
 
 
-class SourceFactory(DjangoModelFactory):
-    name = factory.Sequence(lambda x: str(x))
-    long_title = factory.Faker('sentence')
-    user = factory.SubFactory('tests.share.models.factories.ShareUserFactory', factory_related_name='source')
-
-    class Meta:
-        model = models.Source
-
-
-class ShareUserFactory(DjangoModelFactory):
-    username = factory.Sequence(lambda x: str(x))
-    source = factory.RelatedFactory(SourceFactory, factory_related_name='user')
-
-    class Meta:
-        model = models.ShareUser
-
-
 class NormalizedDataFactory(DjangoModelFactory):
     data = {}
-    source = factory.SubFactory(ShareUserFactory)
+    source = factory.SubFactory('tests.factories.ShareUserFactory')
 
     class Meta:
         model = models.NormalizedData
