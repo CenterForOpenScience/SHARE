@@ -31,7 +31,8 @@ class IsAffiliatedWith(Parser):
 
 
 class Person(Parser):
-    name = tools.Try(ctx.name)
+    given_name = tools.ParseName(tools.Try(ctx.name)).first
+    family_name = tools.ParseName(tools.Try(ctx.name)).last
     identifiers = tools.Map(tools.Delegate(AgentIdentifier), tools.Try(ctx.email))
 
 
