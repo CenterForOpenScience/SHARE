@@ -168,10 +168,7 @@ def check_counts_in_range(es_url, es_index, min_date, max_date):
         body={
             'query': {
                 'range': {
-                    'date_modified': {
-                        'gte': min_date,
-                        'lte': max_date
-                    }
+                    'date_created': {'gte': min_date, 'lte': max_date}
                 }
             }
         }
@@ -238,25 +235,22 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
             return
 
         logger.debug('dry=False, reindexing missing works')
-
-        task = update_elasticsearch(filter={
-            'date_created__range': [min_date, max_date]
-        })
-
+        task = update_elasticsearch.apply_async((), {'filter': {'date_created__range': [min_date, max_date]}})
         logger.info('Spawned %r', task)
         return
 
     logger.debug('Did NOT meet the threshold of %d total works to index or %d%% missing works.', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
 
     for key, value in get_date_range_parts(min_date, max_date).items():
-        logger.info('Starting bisection of %s to %s', value['min_date'], value['max_date'])
-
-        if self.request.delivery_info is None:
-            logger.warning('request.delivery_info is None. Assuming a non-eager context.')
+        logger.info(
+            'Starting bisection of %s to %s',
+            pendulum.parse(value['min_date']).format('%B %-d, %Y %I:%M:%S %p'),
+            pendulum.parse(value['max_date']).format('%B %-d, %Y %I:%M:%S %p')
+        )
 
         targs, tkwargs = (es_url, es_index, value['min_date'], value['max_date']), {'dry': dry}
 
-        if self.request.delivery_info and self.request.delivery_info.get('is_eager'):
+        if getattr(self.request, 'is_eager', False):
             logger.debug('Running in an eager context. Running child tasks synchronously.')
             pseudo_bisection.apply(targs, tkwargs)
             return
