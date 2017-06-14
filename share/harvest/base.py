@@ -1,196 +1,288 @@
+from hashlib import sha256
 import abc
-import json
-import time
-import types
-import logging
 import datetime
-from typing import Tuple
-from typing import Union
-from typing import Iterator
+import logging
+import types
+import warnings
 
 import pendulum
 import requests
 
 from django.conf import settings
+from django.utils import timezone
+
+from share.harvest.exceptions import HarvesterDisabledError
+from share.harvest.ratelimit import RateLimittedProxy
+from share.harvest.serialization import DeprecatedDefaultSerializer
+from share.models import RawDatum
 
 
 logger = logging.getLogger(__name__)
 
 
-class RateLimittedProxy:
+class FetchResult:
+    __slots__ = ('identifier', 'datum', 'datestamp', '_sha256')
 
-    def __init__(self, proxy_to, calls, per_second):
-        self._proxy_to = proxy_to
-        self._allowance = calls
-        self._calls = calls
-        self._last_call = 0
-        self._per_second = per_second
-        self._cache = {}
+    @property
+    def sha256(self):
+        if not self._sha256:
+            self._sha256 = sha256(self.datum.encode('utf-8')).hexdigest()
+        return self._sha256
 
-    def _check_limit(self):
-        if self._allowance > 1:
-            return
-        wait = self._per_second - (time.time() - self._last_call)
-        if wait > 0:
-            logger.debug('Rate limitting %s. Sleeping for %s', self._proxy_to, wait)
-            time.sleep(wait)
-        self._allowance = self._calls
-        logger.debug('Access granted for %s', self._proxy_to)
+    def __init__(self, identifier, datum, datestamp=None):
+        self._sha256 = None
+        self.datestamp = datestamp
+        self.datum = datum
+        self.identifier = identifier
 
-    def _called(self):
-        self._allowance -= 1
-        self._last_call = time.time()
-
-    def __call__(self, *args, **kwargs):
-        self._check_limit()
-        ret = self._proxy_to(*args, **kwargs)
-        self._called()
-        return ret
-
-    def __getattr__(self, name):
-        return self._cache.setdefault(name, self.__class__(getattr(self._proxy_to, name), self._calls, self._per_second))
+    def __repr__(self):
+        return '<{}({}, {}, {}...)>'.format(self.__class__.__name__, self.identifier, self.datestamp, self.sha256[:10])
 
 
 class BaseHarvester(metaclass=abc.ABCMeta):
+    """
 
-    def __init__(self, source_config, **kwargs):
-        self.last_call = 0
-        self.new_raw_ids = []
-        self.old_raw_ids = []
-        self.config = source_config
-        self.kwargs = kwargs
+    Fetch:
+        Aquire and serialize data from a remote source, respecting rate limits.
+        fetch* methods return a generator that yield FetchResult objects
 
-        session = requests.Session()
-        session.headers.update({'User-Agent': settings.SHARE_USER_AGENT})
-        # TODO Make rate limit apply across threads
-        self.requests = RateLimittedProxy(session, self.config.rate_limit_allowance, self.config.rate_limit_period)
+    Harvest:
+        Fetch and store data, respecting global rate limits.
+        harvest* methods return a generator that yield RawDatum objects
 
-    @abc.abstractmethod
-    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, **kwargs) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
-        """Fetch date from this provider inside of the given date range.
+    """
 
-        Any HTTP[S] requests MUST be sent using the self.requests client.
-        It will automatically in force rate limits
+    SERIALIZER_CLASS = DeprecatedDefaultSerializer
+
+    network_read_timeout = 30
+    network_connect_timeout = 31
+
+    @property
+    def request_timeout(self):
+        """The timeout tuple for requests (connect, read)
+        """
+        return (self.network_connect_timeout, self.network_read_timeout)
+
+    def __init__(self, source_config, pretty=False, **kwargs):
+        """
 
         Args:
-            start_date (datetime):
-            end_date (datetime):
+            source_config (SourceConfig):
+            pretty (bool, optional): Defaults to False.
+            **kwargs: Custom kwargs, generally from the source_config. Stored in self.kwargs
 
-        Returns:
-            Iterator<Tuple<str, str|dict|bytes>>: The fetched data paired with
-            the unique ID that this provider uses.
-
-            [
-                ('1', {'my': 'doc'}),
-                ('2', {'your': 'doc'}),
-            ]
         """
-        raise NotImplementedError()
+        self.kwargs = kwargs
+        self.config = source_config
+        self.serializer = self.SERIALIZER_CLASS(pretty)
 
-    def fetch_by_id(self, provider_id):
-        """
-        Fetch a document by provider ID.
+        self.session = requests.Session()
+        self.session.headers.update({'User-Agent': settings.SHARE_USER_AGENT})
+        # TODO Make rate limit apply across threads
+        self.requests = RateLimittedProxy(self.session, self.config.rate_limit_allowance, self.config.rate_limit_period)
+
+        self.network_read_timeout = kwargs.get('network_read_timeout', self.network_read_timeout)
+        self.network_connect_timeout = kwargs.get('network_connect_timeout', self.network_connect_timeout)
+
+    def fetch_id(self, identifier):
+        """Fetch a document by provider ID.
 
         Optional to implement, intended for dev and manual testing.
 
         Args:
-            provider_id (str): Unique ID the provider uses to identify works.
+            identifier (str): Unique ID the provider uses to identify works.
 
         Returns:
-            str|dict|bytes: Fetched data.
+            FetchResult
 
         """
-        raise NotImplementedError()
+        raise NotImplementedError('{!r} does not support fetching by ID'.format(self))
 
-    def shift_range(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> pendulum.Pendulum:
-        """Most providers will not need this method.
+    def fetch(self, today=False, **kwargs):
+        """Fetch data from today.
 
-        For providers that should be collecting data at an offset, see figshare.
+        Yields:
+            FetchResult
 
-        Args:
-            start_date (datetime):
-            end_date (datetime):
-
-        Returns:
-            (datetime, datetime): The shifted date range
         """
-        return start_date, end_date
+        return self.fetch_date_range(datetime.date.today() - datetime.timedelta(days=1), datetime.date.today(), **kwargs)
 
-    def harvest(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
-        from share.models import RawDatum
-        start_date, end_date = self._validate_dates(start_date, end_date)
+    def fetch_date(self, date: datetime.date, **kwargs):
+        """Fetch data from the specified date.
 
-        rawdata = ((identifier, self.encode_data(datum)) for identifier, datum in self.do_harvest(start_date, end_date, **kwargs))
-        assert isinstance(rawdata, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(rawdata))
+        Yields:
+            FetchResult
+        """
+        return self.fetch_date_range(date - datetime.timedelta(days=1), date, **kwargs)
 
-        yield from RawDatum.objects.store_chunk(self.config, rawdata, limit=limit)
+    def fetch_date_range(self, start, end, limit=None, **kwargs):
+        """Fetch data from the specified date range.
 
-    def raw(self, start_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], end_date: [datetime.datetime, datetime.timedelta, pendulum.Pendulum], shift_range: bool=True, limit: int=None, **kwargs) -> list:
-        start_date, end_date = self._validate_dates(start_date, end_date)
-        count, harvest = 0, self.do_harvest(start_date, end_date, **kwargs)
-        assert isinstance(harvest, types.GeneratorType), 'do_harvest did not return a generator type, found {!r}. Make sure to use the yield keyword'.format(type(harvest))
+        Yields:
+            FetchResult
 
-        for doc_id, datum in harvest:
-            yield doc_id, self.encode_data(datum, pretty=True)
-            count += 1
-            if limit and count >= limit:
+        """
+        if not isinstance(start, datetime.date):
+            raise TypeError('start must be a datetime.date. Got {!r}'.format(start))
+
+        if not isinstance(end, datetime.date):
+            raise TypeError('end must be a datetime.date. Got {!r}'.format(end))
+
+        if start >= end:
+            raise ValueError('start must be before end. {!r} > {!r}'.format(start, end))
+
+        if limit == 0:
+            return  # No need to do anything
+
+        # Cast to datetimes for compat reasons
+        start = pendulum.Pendulum.instance(datetime.datetime.combine(start, datetime.time(0, 0, 0, 0, timezone.utc)))
+        end = pendulum.Pendulum.instance(datetime.datetime.combine(end, datetime.time(0, 0, 0, 0, timezone.utc)))
+
+        if hasattr(self, 'shift_range'):
+            warnings.warn(
+                '{!r} implements a deprecated interface. '
+                'Handle date transforms in _do_fetch. '
+                'shift_range will no longer be called in SHARE 2.9.0'.format(self),
+                DeprecationWarning
+            )
+            start, end = self.shift_range(start, end)
+
+        data_gen = self._do_fetch(start, end, **kwargs)
+
+        if not isinstance(data_gen, types.GeneratorType) and len(data_gen) != 0:
+            raise TypeError('{!r}._do_fetch must return a GeneratorType for optimal performance and memory usage'.format(self))
+
+        for i, blob in enumerate(data_gen):
+            result = FetchResult(blob[0], self.serializer.serialize(blob[1]), *blob[2:])
+
+            if result.datestamp and (result.datestamp.date() < start.date() or result.datestamp.date() > end.date()):
+                raise ValueError(
+                    'result.datestamp is outside of the requested date range. '
+                    '{} from {} is not within [{} - {}]'.format(result.datestamp, result.identifier, start, end)
+                )
+
+            yield result
+
+            if limit is not None and i >= limit:
                 break
 
-    def harvest_by_id(self, doc_id):
-        from share.models import RawDatum
-        datum = self.fetch_by_id(doc_id)
-        return RawDatum.objects.store_data(doc_id, self.encode_data(datum), self.config)
+    def harvest_id(self, identifier):
+        """Harvest a document by ID.
 
-    def encode_data(self, data, pretty=False) -> str:
-        if isinstance(data, str):
-            return data
-        if isinstance(data, bytes):
-            logger.warning(
-                '%r.encode_data got a bytes instance. '
-                'do_harvest should be returning str types as only the harvester will know how to properly encode the bytes'
-                'defaulting to decoding as utf-8',
-                self,
-            )
-            return data.decode('utf-8')
-        if isinstance(data, dict):
-            return self.encode_json(data, pretty=pretty)
-        raise Exception('Unable to properly encode data blob {!r}. Data should be a dict, bytes, or str objects.'.format(data))
+        Note:
+            Dependant on whether or not fetch_id is implemented.
 
-    def encode_json(self, data: dict, pretty: bool=False) -> str:
-        """Orders a python dict recursively so it will always hash to the
-        same value. Used for Dedupping harvest results
         Args:
-            data (dict):
+            identifier (str): Unique ID the provider uses to identify works.
 
         Returns:
-            str: json.dumpsed ordered dictionary
+            RawDatum
+
         """
-        return json.dumps(data, sort_keys=True, indent=4 if pretty else None)
+        return RawDatum.objects.store_data(self.config, self.fetch_by_id(identifier))
 
-    def _validate_dates(self, start_date, end_date):
-        assert not (bool(start_date) ^ bool(end_date)), 'Must specify both a start and end date or neither'
-        assert isinstance(start_date, (datetime.timedelta, datetime.datetime, pendulum.Pendulum)) and isinstance(end_date, (datetime.timedelta, datetime.datetime, pendulum.Pendulum)), 'start_date and end_date must be either datetimes or timedeltas'
-        assert not (isinstance(start_date, datetime.timedelta) and isinstance(end_date, datetime.timedelta)), 'Only one of start_date and end_date may be a timedelta'
+    def harvest(self, **kwargs):
+        """Fetch data from yesterday.
 
-        if isinstance(start_date, datetime.datetime):
-            start_date = pendulum.instance(start_date)
+        Yields:
+            RawDatum
 
-        if isinstance(end_date, datetime.datetime):
-            end_date = pendulum.instance(end_date)
+        """
+        return self.harvest_date(datetime.date.today(), **kwargs)
 
-        if isinstance(start_date, datetime.timedelta):
-            start_date = pendulum.instance(end_date + start_date)
+    def harvest_date(self, date, **kwargs):
+        """Harvest data from the specified date.
 
-        if isinstance(end_date, datetime.timedelta):
-            end_date = pendulum.instance(start_date + end_date)
+        Yields:
+            RawDatum
 
-        og_start, og_end = start_date, end_date
-        start_date, end_date = self.shift_range(start_date, end_date)
-        assert isinstance(start_date, pendulum.Pendulum) and isinstance(end_date, pendulum.Pendulum), 'transpose_time_window must return a tuple of 2 datetimes'
+        """
+        return self.harvest_date_range(date - datetime.timedelta(days=1), date, **kwargs)
 
-        if (og_start, og_end) != (start_date, end_date):
-            logger.warning('Date shifted from {} - {} to {} - {}. Disable shifting by passing shift_range=False'.format(og_start, og_end, start_date, end_date))
+    def harvest_date_range(self, start, end, limit=None, force=False, ignore_disabled=False, **kwargs):
+        """Fetch data from the specified date range.
 
-        assert start_date < end_date, 'start_date must be before end_date {} < {}'.format(start_date, end_date)
+        Args:
+            start (date):
+            end (date):
+            limit (int, optional): The maximum number of unique data to harvest. Defaults to None.
+                Uniqueness is determined by the SHA-256 of the raw data
+            force (bool, optional): Disable all safety checks, unexpected exceptions will still be raised. Defaults to False.
+            ignore_disabled (bool, optional): Don't check if this Harvester or Source is disabled or deleted. Defaults to False.
+            **kwargs: Forwared to _do_fetch.
 
-        return start_date, end_date
+        Yields:
+            RawDatum
+
+        """
+        if self.serializer.pretty:
+            raise ValueError('To ensure that data is optimally deduplicated, harvests may not occur while using a pretty serializer.')
+
+        if (self.config.disabled or self.config.source.is_deleted) and not (force or ignore_disabled):
+            raise HarvesterDisabledError('Harvester {!r} is disabled. Either enable it, run with force=True, or ignore_disabled=True.'.format(self.config))
+
+        with self.config.acquire_lock(required=not force):
+            logger.info('Harvesting %s - %s from %r', start, end, self.config)
+            yield from RawDatum.objects.store_chunk(self.config, self.fetch_date_range(start, end, **kwargs), limit=limit)
+
+    def harvest_from_log(self, harvest_log, **kwargs):
+        """Harvest data as specified by the given harvest_log.
+
+        Args:
+            harvest_log (HarvestLog): The HarvestLog that describes the parameters of this harvest
+            limit (int, optional): The maximum number of unique data to harvest. Defaults to None.
+            **kwargs: Forwared to harvest_date_range.
+
+        Yields:
+            RawDatum
+
+        """
+        error = None
+        datum_ids = []
+        logger.info('Harvesting %r', harvest_log)
+
+        with harvest_log.handle(self.VERSION):
+            try:
+                for datum in self.harvest_date_range(harvest_log.start_date, harvest_log.end_date, **kwargs):
+                    datum_ids.append(datum.id)
+                    yield datum
+            except Exception as e:
+                error = e
+                raise error
+            finally:
+                try:
+                    harvest_log.raw_data.add(*datum_ids)
+                except Exception as e:
+                    logger.exception('Failed to connection %r to raw data', harvest_log)
+                    # Avoid shadowing the original error
+                    if not error:
+                        raise e
+
+    def _do_fetch(self, start, end, **kwargs):
+        """Fetch date from this source inside of the given date range.
+
+        The given date range should be treated as [start, end)
+
+        Any HTTP[S] requests MUST be sent using the self.requests client.
+        It will automatically enforce rate limits
+
+        Args:
+            start_date (datetime): Date to start fetching data from, inclusively.
+            end_date (datetime): Date to fetch data up to, exclusively.
+            **kwargs: Arbitrary kwargs passed to subclasses, used to customize harvesting.
+
+        Returns:
+            Iterator<FetchResult>: The fetched data.
+
+        """
+        if hasattr(self, 'do_harvest'):
+            warnings.warn(
+                '{!r} implements a deprecated interface. '
+                'do_harvest has been replaced by _do_fetch for clarity. '
+                'do_harvest will no longer be called in SHARE 2.11.0'.format(self),
+                DeprecationWarning
+            )
+            logger.warning('%r implements a deprecated interface. ', self)
+            return self.do_harvest(start, end, **kwargs)
+
+        raise NotImplementedError()
