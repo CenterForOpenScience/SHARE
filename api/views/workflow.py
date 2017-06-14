@@ -1,3 +1,5 @@
+import logging
+
 import jsonschema
 import requests
 
@@ -24,8 +26,9 @@ from share.models import RawDatum, NormalizedData, Source, SourceConfig, Transfo
 from share.tasks import disambiguate
 from share.harvest.serialization import DictSerializer
 from share.harvest.base import FetchResult
+from share.util import IDObfuscator
 
-
+logger = logging.getLogger(__name__)
 __all__ = ('NormalizedDataViewSet', 'RawDatumViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
 
 
@@ -64,11 +67,12 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
             r = requests.get(icon, timeout=5)
             header_type = r.headers['content-type'].split(';')[0].lower()
             if header_type not in self.VALID_IMAGE_TYPES:
-                raise ValidationError('Invalid type. Expected one of {}. Received {}'.format(self.VALID_IMAGE_TYPES, header_type))
+                raise ValidationError('Invalid image type.')
 
             icon_file = ContentFile(r.content)
         except Exception as e:
-            raise ValidationError('Could not download/process image. {}'.format(e))
+            logger.warning('Exception occured while downloading icon %s', e)
+            raise ValidationError('Could not download/process image.')
 
         label = long_title.replace(' ', '_').lower()
 
@@ -84,7 +88,7 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
             source_instance = Source(
                 user_id=user_instance.id,
                 long_title=long_title,
-                home_page=request.data['home_page'] if 'home_page' in request.data else None,
+                home_page=request.data.get('home_page', None),
                 name=label,
             )
             source_instance.icon.save(label, content=icon_file)
@@ -92,7 +96,7 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(
             {
-                'id': source_instance.id,
+                'id': IDObfuscator.encode(source_instance),
                 'type': 'Source',
                 'attributes': {
                     'long_title': source_instance.long_title,
@@ -102,7 +106,7 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
                 'relationships': {
                     'share_user': {
                         'data': {
-                            'id': user_instance.id,
+                            'id': IDObfuscator.encode(user_instance),
                             'type': 'ShareUser',
                             'attributes': {
                                 'username': user_instance.username,
@@ -112,7 +116,7 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
                     },
                     'source_config': {
                         'data': {
-                            'id': source_config_instance.id,
+                            'id': IDObfuscator.encode(source_config_instance),
                             'type': 'SourceConfig',
                             'attributes': {
                                 'label': source_config_instance.label
