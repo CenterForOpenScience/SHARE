@@ -32,10 +32,11 @@ def transform(self, raw_id):
     raw = RawDatum.objects.select_related('suid__source_config__source__user').get(pk=raw_id)
     transformer = raw.suid.source_config.get_transformer()
 
-    self.update_state(meta={
-        'source': raw.suid.source_config.source.long_title,
-        'source_config': raw.suid.source_config.label
-    })
+    if self.request.id:
+        self.update_state(meta={
+            'source': raw.suid.source_config.source.long_title,
+            'source_config': raw.suid.source_config.label
+        })
 
     try:
         graph = transformer.transform(raw)
@@ -73,7 +74,13 @@ def transform(self, raw_id):
 
 @celery.shared_task(bind=True, max_retries=5)
 def disambiguate(self, normalized_id):
-    normalized = NormalizedData.objects.get(pk=normalized_id)
+    normalized = NormalizedData.objects.select_related('source__source').get(pk=normalized_id)
+
+    if self.request.id:
+        self.update_state(meta={
+            'source': normalized.source.source.long_title
+        })
+
     # Load all relevant ContentTypes in a single query
     ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
