@@ -43,7 +43,7 @@ def die_on_unhandled(func):
                 logger.exception('Celery internal method %s failed', func)
                 try:
                     if client:
-                        client.capture_exception()
+                        client.captureException()
                 except Exception as ee:
                     logger.exception('Could not log exception to Sentry')
             finally:
