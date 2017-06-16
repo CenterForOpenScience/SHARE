@@ -24,7 +24,7 @@ class TestRawDataJanitor:
         rds = factories.RawDatumFactory.create_batch(55)
         assert rawdata_janitor() == 55
         assert mock_transform.call_args_list == [
-            mock.call((rd.id,))
+            mock.call((rd.id,), throw=True, retries=4)
             for rd in sorted(rds, key=lambda r: r.id)
         ]
 
@@ -47,6 +47,6 @@ class TestRawDataJanitor:
         assert rawdata_janitor() == 30
 
         assert mock_transform.call_args_list == [
-            mock.call((rd.id,))
+            mock.call((rd.id,), throw=True, retries=4)
             for rd in sorted(rds[25:], key=lambda r: r.id)
         ]

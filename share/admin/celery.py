@@ -17,6 +17,11 @@ class TaskNameFilter(admin.SimpleListFilter):
     parameter_name = 'task_name'
 
     def lookups(self, request, model_admin):
+        celery_app.autodiscover_tasks([
+            'share',
+            'share.janitor',
+            'bots.elasticsearch',
+        ], force=True)
         return sorted((x, x) for x in celery_app.tasks.keys())
 
     def queryset(self, request, queryset):
@@ -39,7 +44,7 @@ class StatusFilter(admin.SimpleListFilter):
 
 
 class CeleryTaskResultAdmin(admin.ModelAdmin):
-    list_display = ('task_id', 'task_name', 'status_', 'source_config', 'date_modified', 'date_created', 'share_version')
+    list_display = ('task_id', 'task_name', 'status_', 'source_', 'date_modified', 'date_created', 'share_version')
     exclude = ('correlation_id', )
     actions = ('retry', )
     ordering = ('-date_modified', )
@@ -96,11 +101,11 @@ class CeleryTaskResultAdmin(admin.ModelAdmin):
 
     def meta_(self, obj):
         return pprint.pformat(obj.meta)
-    status_.short_description = 'Meta'
+    meta_.short_description = 'Meta'
 
-    def source_config(self, obj):
-        return obj.meta.get('source_config')
-    source_config.short_description = 'Source Config'
+    def source_(self, obj):
+        return obj.meta.get('source_config') or obj.meta.get('source')
+    source_.short_description = 'Source'
 
     def retry(self, request, queryset):
         for task in queryset:
