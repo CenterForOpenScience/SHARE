@@ -1,7 +1,10 @@
 SHARE API
 =========
 
-Checkout the `browsable SHARE API docs`_.
+The SHARE API generally complies with the `JSON-API`_ v1.0 spec, as should anyone using the SHARE API.
+
+Check out the `browsable SHARE API docs`_!
+
 
 Getting Started
 ---------------
@@ -14,7 +17,7 @@ Before pushing data to production it is highly recommended to use our staging en
 4. Send an email to share-support@osf.io and wait for us to approve your account.
 5. Once approved, the API token from your `staging SHARE profile page`_ can be used to push data.
 
-To become a Source for production repeat the above steps at `https://share.osf.io` with a `production OSF account`_.
+To become a Source for production repeat the above steps at https://share.osf.io with a `production OSF account`_.
 
     .. note:: Our Staging enviroment is constantly being updated with new code. If something doesn't work, try again in a day or two before contacting us at share-support@osf.io
 
@@ -29,7 +32,7 @@ To become a Source for production repeat the above steps at `https://share.osf.i
 Paging in the API
 -----------------
 
-The SHARE API implements diffent paging strategies depending on the endpoint. All of them, however, conform to the `JSON API paging spec`_.
+The SHARE API implements diffent paging strategies depending on the endpoint. All of them, however, conform to the `JSON-API paging spec`_.
 
   .. code-block:: python
 
@@ -129,7 +132,7 @@ A change is represented as a JSON object with a single key, ``@graph``, containi
             // Omitted...
         }
 
-- Each node MUST match the `JSON schema`_ for it's specified type (``@type``).
+- Each node MUST match the `JSON schema`_ for its specified type (``@type``).
 
     .. note:: The JSON schemas for every type can be found `here <https://share.osf.io/api/v2/schema>`_.
 
@@ -208,7 +211,7 @@ A change is represented as a JSON object with a single key, ``@graph``, containi
             }]
         }
 
-- Finally changes must be submitted in `JSON API`_ format using `OAuth2`_ to authenticate
+- Finally, changes must be submitted in `JSON-API`_ format using `OAuth2`_ to authenticate
 
     .. note:: Yes, there are two ``data`` keys. Sorry.
 
@@ -612,7 +615,7 @@ Code Examples
 
 .. _OAuth2: http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html
 
-.. _JSON API: http://jsonapi.org/
+.. _JSON-API: http://jsonapi.org/
 
 .. _JSON schema: http://json-schema.org/
 
@@ -622,4 +625,4 @@ Code Examples
 
 .. _blank node identifier: https://www.w3.org/TR/rdf11-concepts/#dfn-blank-node-identifier
 
-.. _JSON API paging spec: http://jsonapi.org/format/#fetching-pagination
+.. _JSON-API paging spec: http://jsonapi.org/format/#fetching-pagination

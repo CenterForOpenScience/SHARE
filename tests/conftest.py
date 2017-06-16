@@ -30,7 +30,6 @@ def pytest_configure(config):
     # If we create a queryset here, all of typedmodels cached properties
     # will be filled in while recursion detection isn't active
     Article.objects.all()
-
     if config.option.usepdb:
         try:
             import IPython.core.debugger  # noqa
@@ -224,7 +223,7 @@ def elastic(settings):
     settings.ELASTICSEARCH_TIMEOUT = 5
     settings.ELASTICSEARCH_INDEX = 'test_' + settings.ELASTICSEARCH_INDEX
 
-    bot = ElasticSearchBot(apps.get_app_config('elasticsearch'), 1, es_setup=False)
+    bot = ElasticSearchBot(es_setup=False)
 
     try:
         bot.es_client.indices.delete(index=settings.ELASTICSEARCH_INDEX, ignore=[400, 404])
@@ -280,3 +279,25 @@ def transactional_db(django_db_blocker, request):
         apps.set_available_apps(test_case.available_apps)
 
     post_save.receivers = receivers
+
+
+@pytest.fixture
+def celery_app(celery_app):
+    """Probably won't want to use this.
+    The worker that is spawned will not have access to the test transaction.
+    Leaving this here, just in case. Making it work properly takes some effort.
+    """
+    from celery import signals
+    from project.celery import app
+    # There's a Django fix up closes the django connection on most events.
+    # The actual celery app causes it to be registered so we have to manually disable it here
+    signals.worker_init.disconnect(app._fixups[0].on_worker_init)
+    # Finally, when the test celery app runs the fixup we allow it have 1 resuable connection.
+    celery_app.conf.CELERY_DB_REUSE_MAX = 1
+    return celery_app
+
+
+@pytest.fixture
+def no_celery():
+    from project.celery import app
+    app.conf.task_always_eager = True

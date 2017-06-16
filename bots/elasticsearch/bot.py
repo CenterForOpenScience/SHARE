@@ -5,10 +5,6 @@ from django.apps import apps
 from django.conf import settings
 from elasticsearch import Elasticsearch
 
-from bots.elasticsearch.tasks import IndexModelTask
-from bots.elasticsearch.tasks import IndexSourceTask
-from share.bot import Bot
-
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +20,15 @@ def chunk(iterable, size):
         yield l
 
 
-class ElasticSearchBot(Bot):
+class ElasticSearchBot:
+
+    # Sources are also indexed as a special case
+    INDEX_MODELS = [
+        'CreativeWork',
+        'Agent',
+        'Tag',
+        # 'Subject',
+    ]
 
     SETTINGS = {
         'analysis': {
@@ -66,8 +70,7 @@ class ElasticSearchBot(Bot):
 
     EXACT_FIELD = {
         'exact': {
-            'type': 'string',
-            'index': 'not_analyzed',
+            'type': 'keyword',
             # From Elasticsearch documentation:
             # The value for ignore_above is the character count, but Lucene counts bytes.
             # If you use UTF-8 text with many non-ASCII characters, you may want to set the limit to 32766 / 3 = 10922 since UTF-8 characters may occupy at most 3 bytes
@@ -79,79 +82,77 @@ class ElasticSearchBot(Bot):
         'creativeworks': {
             'dynamic': False,
             'properties': {
-                'affiliations': {'type': 'string', 'fields': EXACT_FIELD},
-                'contributors': {'type': 'string', 'fields': EXACT_FIELD},
+                'affiliations': {'type': 'text', 'fields': EXACT_FIELD},
+                'contributors': {'type': 'text', 'fields': EXACT_FIELD},
                 'date': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
                 'date_created': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
                 'date_modified': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
                 'date_published': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
                 'date_updated': {'type': 'date', 'format': 'strict_date_optional_time', 'include_in_all': False},
-                'description': {'type': 'string'},
-                'funders': {'type': 'string', 'fields': EXACT_FIELD},
-                'hosts': {'type': 'string', 'fields': EXACT_FIELD},
-                'id': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'identifiers': {'type': 'string', 'fields': EXACT_FIELD},
-                'justification': {'type': 'string', 'include_in_all': False},
-                'language': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'publishers': {'type': 'string', 'fields': EXACT_FIELD},
-                'registration_type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'description': {'type': 'text'},
+                'funders': {'type': 'text', 'fields': EXACT_FIELD},
+                'hosts': {'type': 'text', 'fields': EXACT_FIELD},
+                'id': {'type': 'keyword', 'include_in_all': False},
+                'identifiers': {'type': 'text', 'fields': EXACT_FIELD},
+                'justification': {'type': 'text', 'include_in_all': False},
+                'language': {'type': 'keyword', 'include_in_all': False},
+                'publishers': {'type': 'text', 'fields': EXACT_FIELD},
+                'registration_type': {'type': 'keyword', 'include_in_all': False},
                 'retracted': {'type': 'boolean', 'include_in_all': False},
-                'sources': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'subjects': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'tags': {'type': 'string', 'fields': EXACT_FIELD},
-                'title': {'type': 'string', 'fields': EXACT_FIELD},
-                'type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'types': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'sources': {'type': 'keyword', 'include_in_all': False},
+                'subjects': {'type': 'keyword', 'include_in_all': False},
+                'tags': {'type': 'text', 'fields': EXACT_FIELD},
+                'title': {'type': 'text', 'fields': EXACT_FIELD},
+                'type': {'type': 'keyword', 'include_in_all': False},
+                'types': {'type': 'keyword', 'include_in_all': False},
                 'withdrawn': {'type': 'boolean', 'include_in_all': False},
                 'lists': {'type': 'object', 'dynamic': True, 'include_in_all': False},
             },
             'dynamic_templates': [
-                {'exact_field_on_lists_strings': {'path_match': 'lists.*', 'match_mapping_type': 'string', 'mapping': {'type': 'string', 'fields': EXACT_FIELD}}},
+                {'exact_field_on_lists_strings': {'path_match': 'lists.*', 'match_mapping_type': 'string', 'mapping': {'type': 'text', 'fields': EXACT_FIELD}}},
             ]
         },
         'agents': {
             'dynamic': False,
             'properties': {
-                'id': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'identifiers': {'type': 'string', 'fields': EXACT_FIELD},
-                'name': {'type': 'string', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
-                'family_name': {'type': 'string', 'include_in_all': False},
-                'given_name': {'type': 'string', 'include_in_all': False},
-                'additional_name': {'type': 'string', 'include_in_all': False},
-                'suffix': {'type': 'string', 'include_in_all': False},
-                'location': {'type': 'string', 'include_in_all': False},
-                'sources': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'types': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'id': {'type': 'keyword', 'include_in_all': False},
+                'identifiers': {'type': 'text', 'fields': EXACT_FIELD},
+                'name': {'type': 'text', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
+                'family_name': {'type': 'text', 'include_in_all': False},
+                'given_name': {'type': 'text', 'include_in_all': False},
+                'additional_name': {'type': 'text', 'include_in_all': False},
+                'suffix': {'type': 'text', 'include_in_all': False},
+                'location': {'type': 'text', 'include_in_all': False},
+                'sources': {'type': 'keyword', 'include_in_all': False},
+                'type': {'type': 'keyword', 'include_in_all': False},
+                'types': {'type': 'keyword', 'include_in_all': False},
             }
         },
         'sources': {
             'dynamic': False,
             'properties': {
-                'id': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'name': {'type': 'string', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
-                'short_name': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'id': {'type': 'keyword', 'include_in_all': False},
+                'name': {'type': 'text', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
+                'short_name': {'type': 'keyword', 'include_in_all': False},
+                'type': {'type': 'keyword', 'include_in_all': False},
             }
         },
         'tags': {
             'dynamic': False,
             'properties': {
-                'id': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
-                'name': {'type': 'string', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
-                'type': {'type': 'string', 'index': 'not_analyzed', 'include_in_all': False},
+                'id': {'type': 'keyword', 'include_in_all': False},
+                'name': {'type': 'text', 'fields': {**AUTOCOMPLETE_FIELD, **EXACT_FIELD}},
+                'type': {'type': 'keyword', 'include_in_all': False},
             }
         },
     }
 
-    def __init__(self, config, started_by, last_run=None, **kwargs):
-        super().__init__(config, started_by, last_run=last_run)
-
+    def __init__(self, **kwargs):
         self.es_filter = kwargs.pop('es_filter', None)
-        self.es_setup = bool(kwargs.pop('es_setup', False))
-        self.es_url = kwargs.pop('es_url', settings.ELASTICSEARCH_URL)
-        self.es_index = kwargs.pop('es_index', settings.ELASTICSEARCH_INDEX)
+        self.es_index = kwargs.pop('es_index', None) or settings.ELASTICSEARCH_INDEX
         self.es_models = kwargs.pop('es_models', None)
+        self.es_setup = bool(kwargs.pop('es_setup', False))
+        self.es_url = kwargs.pop('es_url', None) or settings.ELASTICSEARCH_URL
 
         if self.es_models:
             self.es_models = [x.lower() for x in self.es_models]
@@ -172,13 +173,15 @@ class ElasticSearchBot(Bot):
         return '2000-01-01T00:00:00-00:00'
 
     def run(self, chunk_size=500):
+        from bots.elasticsearch import tasks  # TODO fix me
+
         if self.es_setup:
             self.setup()
         else:
             logger.debug('Skipping ES setup')
 
         logger.info('Loading up indexed models')
-        for model_name in self.config.INDEX_MODELS:
+        for model_name in self.INDEX_MODELS:
             if self.es_models and model_name.lower() not in self.es_models:
                 continue
 
@@ -189,9 +192,8 @@ class ElasticSearchBot(Bot):
                 qs = model.objects.filter(**self.es_filter).values_list('id', flat=True)
             else:
                 most_recent_result = pendulum.parse(self.get_most_recently_modified())
-                adjusted_most_recent_result = most_recent_result.subtract(minutes=5)
-                logger.info('Looking for %ss that have been modified after %s', model, adjusted_most_recent_result)
-                qs = model.objects.filter(date_modified__gt=adjusted_most_recent_result).values_list('id', flat=True)
+                logger.info('Looking for %ss that have been modified after %s', model, most_recent_result)
+                qs = model.objects.filter(date_modified__gt=most_recent_result).values_list('id', flat=True)
 
             count = qs.count()
 
@@ -203,10 +205,10 @@ class ElasticSearchBot(Bot):
 
             for i, batch in enumerate(chunk(qs.all(), chunk_size)):
                 if batch:
-                    IndexModelTask().apply_async((self.started_by.id, self.config.label, model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
+                    tasks.index_model.apply_async((model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
 
         logger.info('Starting task to index sources')
-        IndexSourceTask().apply_async((self.started_by.id, self.config.label), {'es_url': self.es_url, 'es_index': self.es_index})
+        tasks.index_sources.apply_async((), {'es_url': self.es_url, 'es_index': self.es_index})
 
     def setup(self):
         logger.debug('Ensuring Elasticsearch index %s', self.es_index)

@@ -5,6 +5,7 @@ from django.core import exceptions
 from django.db.utils import IntegrityError
 
 from share.models import RawDatum
+from share.harvest.base import FetchResult
 
 
 @pytest.mark.django_db
@@ -34,7 +35,7 @@ class TestRawDatum:
         assert 'null value in column "suid_id" violates not-null constraint' in e.value.args[0]
 
     def test_store_data(self, source_config):
-        rd = RawDatum.objects.store_data('unique', 'mydatums', source_config)
+        rd = RawDatum.objects.store_data(source_config, FetchResult('unique', 'mydatums'))
 
         assert rd.date_modified is not None
         assert rd.date_created is not None
@@ -45,8 +46,8 @@ class TestRawDatum:
         assert rd.sha256 == hashlib.sha256(b'mydatums').hexdigest()
 
     def test_store_data_dedups_simple(self, source_config):
-        rd1 = RawDatum.objects.store_data('unique', 'mydatums', source_config)
-        rd2 = RawDatum.objects.store_data('unique', 'mydatums', source_config)
+        rd1 = RawDatum.objects.store_data(source_config, FetchResult('unique', 'mydatums'))
+        rd2 = RawDatum.objects.store_data(source_config, FetchResult('unique', 'mydatums'))
 
         assert rd1.pk == rd2.pk
         assert rd1.created is True
@@ -56,8 +57,8 @@ class TestRawDatum:
 
     def test_store_data_dedups_complex(self, source_config):
         data = '{"providerUpdatedDateTime":"2016-08-25T11:37:40Z","uris":{"canonicalUri":"https://provider.domain/files/7d2792031","providerUris":["https://provider.domain/files/7d2792031"]},"contributors":[{"name":"Person1","email":"one@provider.domain"},{"name":"Person2","email":"two@provider.domain"},{"name":"Person3","email":"three@provider.domain"},{"name":"Person4","email":"dxm6@psu.edu"}],"title":"ReducingMorbiditiesinNeonatesUndergoingMRIScannig"}'
-        rd1 = RawDatum.objects.store_data('unique', data, source_config)
-        rd2 = RawDatum.objects.store_data('unique', data, source_config)
+        rd1 = RawDatum.objects.store_data(source_config, FetchResult('unique', data))
+        rd2 = RawDatum.objects.store_data(source_config, FetchResult('unique', data))
 
         assert rd1.pk == rd2.pk
         assert rd1.created is True

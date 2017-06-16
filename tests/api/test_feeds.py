@@ -30,7 +30,7 @@ class TestFeed:
                 date_published=None if i % 3 == 0 else fake.date_time_this_decade(),
             ).id)
 
-        tasks.IndexModelTask().apply((1, elastic.config.label, 'creativework', ids))
+        tasks.index_model('creativework', ids)
         elastic.es_client.indices.refresh()
 
     def test_get_feed(self, client):

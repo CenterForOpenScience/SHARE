@@ -7,32 +7,10 @@ import xmltodict
 from share.transform.chain import ChainTransformer, ctx, links as tools
 from share.transform.chain.links import GuessAgentTypeLink
 from share.transform.chain.parsers import Parser
+from share.transform.chain.utils import force_text
 
 
 logger = logging.getLogger(__name__)
-
-
-def force_text(data):
-    if isinstance(data, dict):
-        return data.get('#text', '')
-
-    if isinstance(data, str):
-        return data
-
-    fixed = []
-    for datum in (data or []):
-        if datum is None:
-            continue
-        if isinstance(datum, dict):
-            if '#text' not in datum:
-                logger.warn('Skipping %s, no #text key exists', datum)
-                continue
-            fixed.append(datum['#text'])
-        elif isinstance(datum, str):
-            fixed.append(datum)
-        else:
-            raise Exception(datum)
-    return '\n'.join(fixed)
 
 
 def get_list(dct, key):
@@ -196,8 +174,6 @@ class MODSCreator(MODSContributor):
 class MODSPublisher(MODSAgentWorkRelation):
     schema = 'Publisher'
 
-    agent = tools.Delegate(MODSAgent.using(schema=tools.GuessAgentType(ctx, default='organization')), ctx)
-
 
 class MODSSimpleAgent(Parser):
     schema = tools.GuessAgentType(ctx, default='organization')
@@ -228,7 +204,7 @@ class MODSCreativeWork(Parser):
 
     # Abstracts have the optional attribute "shareable". Don't bother checking for it, because
     # abstracts that are not shareable should not have been shared with SHARE.
-    description = tools.Join(tools.RunPython(force_text, tools.Try(ctx['mods:abstract'])))
+    description = tools.Join(tools.RunPython(force_text, tools.Try(ctx['mods:abstract']), '\n'))
 
     identifiers = tools.Map(
         tools.Delegate(MODSWorkIdentifier),
@@ -240,7 +216,8 @@ class MODSCreativeWork(Parser):
                     lambda obj: 'invalid' not in obj,
                     tools.Concat(
                         tools.Try(ctx['mods:identifier']),
-                        tools.Try(ctx.header['identifier'])
+                        tools.Try(ctx.header['identifier']),
+                        tools.Try(ctx['mods:location']['mods:url']),
                     )
                 )
             )
@@ -281,7 +258,7 @@ class MODSCreativeWork(Parser):
         ),
     )
 
-    rights = tools.RunPython(force_text, tools.Try(ctx['mods:accessCondition']))
+    rights = tools.RunPython(force_text, tools.Try(ctx['mods:accessCondition']), '\n')
 
     language = tools.ParseLanguage(
         tools.Try(ctx['mods:language']['mods:languageTerm']),
@@ -417,7 +394,7 @@ class MODSCreativeWork(Parser):
     # Map titleInfos to a string: https://www.loc.gov/standards/mods/userguide/titleinfo.html#mappings
     def join_title_info(self, obj):
         def get_part(title_info, part_name, delimiter=''):
-            part = force_text(title_info.get(part_name, '')).strip()
+            part = force_text(title_info.get(part_name, ''), ' ').strip()
             return delimiter + part if part else ''
 
         title_infos = get_list(obj, 'mods:titleInfo')

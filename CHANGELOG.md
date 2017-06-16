@@ -1,5 +1,33 @@
 # Change Log
 
+# [2.9.0] - 2017-06-15
+## Added
+* sharectl command line tool
+* Profiling middleware for local development
+* Janitor tasks to find and process unprocessed data
+* Timestamp field to RawData
+* Mendeley Harvester!
+* Started to use deprecation warning
+* Timeouts for harvests
+
+## Removed
+* The concept of "Bots"
+* A lot of dead code
+* A GPL licenced library
+
+## Changed
+* Upgraded to Celery 4.0
+* Deleted works now return 403s from the API
+* Deleted works are now excluded from the API
+* Corrected to date fields used to audit the Elasticsearch index
+* Strongly defined the Harvester interface
+* Harvests are now scheduled in a more friendly manner
+* Updated the configurations for many OAI sources
+
+# Fixed
+* HarvestLogs no longer get stuck in progress
+* Text parsing transformer utilties
+
 # [2.8.0] - 2017-05-12
 ## Added
 * Elasticsearch Janitor task to keep Postgres and ES in sync

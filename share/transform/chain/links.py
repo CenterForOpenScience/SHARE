@@ -8,8 +8,6 @@ import dateutil
 import urllib
 import types
 
-import rfc3987
-
 import xmltodict
 
 import pendulum
@@ -20,7 +18,7 @@ from pycountry import languages
 
 from nameparser import HumanName
 
-from share.util import DictHashingDict
+from share.util import iris, DictHashingDict
 
 logger = logging.getLogger(__name__)
 
@@ -293,6 +291,7 @@ class DateParserLink(AbstractLink):
     def execute(self, obj):
         if obj:
             date = dateutil.parser.parse(obj, default=self.DEFAULT)
+            repr(date)  # Forces tzoffset validation to run
             if date < self.LOWER_BOUND:
                 raise ValueError('{} is before the lower bound {}.'.format(obj, self.LOWER_BOUND.isoformat()))
             if date > self.UPPER_BOUND:
@@ -559,9 +558,7 @@ class OneOfLink(AbstractLink):
 
 class AbstractIRILink(AbstractLink):
     """Normalize IRIs
-
     """
-    RULES = 'IRI'
     SAFE_SEGMENT_CHARS = ":@-._~!$&'()*+,;="  # https://github.com/gruns/furl/blob/master/furl/furl.py#L385
 
     @classmethod
@@ -576,10 +573,10 @@ class AbstractIRILink(AbstractLink):
 
         parsed = self._parse(obj)
         parsed = self._process(**parsed)
-        return rfc3987.parse(rfc3987.compose(**parsed))
+        return iris.parse(iris.compose(**parsed))
 
     def _parse(self, obj):
-        return rfc3987.parse(obj, self.RULES)
+        return iris.parse(obj)
 
     def _process(self, **attrs):
         processed = {}
@@ -591,8 +588,8 @@ class AbstractIRILink(AbstractLink):
     def _process_scheme(self, scheme):
         return scheme.lower()
 
-    def _process_authority(self, host):
-        return host.lower()
+    def _process_authority(self, authority):
+        return authority.lower()
 
     def _process_path(self, path):
         return path

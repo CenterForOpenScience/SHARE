@@ -5,11 +5,12 @@ from rest_framework_json_api import serializers
 
 from django import http
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from django.views.generic.base import RedirectView
-from django.shortcuts import get_object_or_404
 
 from api.pagination import CursorPagination
+from api.permissions import IsDeletedPremissions
 from api import serializers as api_serializers
 
 from share.util import IDObfuscator, InvalidID
@@ -19,13 +20,22 @@ from share.models import Source
 class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('-id', )
     pagination_class = CursorPagination
+    permission_classes = (IsDeletedPremissions, )
+
     # Can't expose these until we have indexes added, both ascending and descending
     # filter_backends = (filters.OrderingFilter,)
     # ordering_fields = ('id', 'date_updated')
 
-    # override to convert encoded pk to an actual pk
+    # Override get_queryset to handle items marked as deleted.
+    def get_queryset(self, list=True):
+        queryset = super().get_queryset()
+        if list and hasattr(queryset.model, 'is_deleted'):
+            return queryset.exclude(is_deleted=True)
+        return queryset
+
+    # Override to convert encoded pk to an actual pk
     def get_object(self):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.filter_queryset(self.get_queryset(False))
 
         # Perform the lookup filtering.
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
@@ -55,7 +65,6 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 # Other
-
 class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
         ser = api_serializers.ShareUserSerializer(request.user, token=True)

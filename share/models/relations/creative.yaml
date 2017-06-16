@@ -131,9 +131,9 @@ WorkRelation:
 #        UsesConclusionsFrom:
 #            description: The subject work describes work that uses conclusions presented in the related work.
 #            uris: ['http://purl.org/spar/cito/usesConclusionsFrom']
-#        UsesDataFrom:
-#            description: The subject work describes work that uses data presented in the related work.
-#            uris: ['http://purl.org/spar/cito/usesDataFrom']
+        UsesDataFrom:
+            description: The subject work describes work that uses data presented in the related work.
+            uris: ['http://purl.org/spar/cito/usesDataFrom']
 #        UsesMethodIn:
 #            description: The subject work describes work that uses a method detailed in the related work.
 #            uris: ['http://purl.org/spar/cito/usesMethodIn']
