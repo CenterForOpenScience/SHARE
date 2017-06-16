@@ -1,0 +1,19 @@
+configs:
+- base_url: http://openknowledge.nau.edu/cgi/oai2
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.nau.openknowledge
+  rate_limit_allowance: 1
+  rate_limit_period: 2
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://openknowledge.nau.edu
+long_title: OpenKnowledge@NAU - Search the scholarly, creative and instructional output of NAU
+name: edu.nau.openknowledge
+user: providers.edu.nau.openknowledge
