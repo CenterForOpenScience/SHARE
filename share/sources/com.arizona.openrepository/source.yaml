@@ -1,0 +1,19 @@
+configs:
+- base_url: http://arizona.openrepository.com/arizona/oai/request
+  disabled: false
+  earliest_date: null
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: com.arizona.openrepository
+  rate_limit_allowance: 1
+  rate_limit_period: 2
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+home_page: http://arizona.openrepository.com/arizona/
+long_title: The UA Campus Repository - explore unique digital collections from the University of Arizona
+name: com.arizona.openrepository
+user: providers.com.arizona.openrepository
