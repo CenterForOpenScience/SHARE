@@ -156,9 +156,15 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             result = FetchResult(blob[0], self.serializer.serialize(blob[1]), *blob[2:])
 
             if result.datestamp and (result.datestamp.date() < start.date() or result.datestamp.date() > end.date()):
-                raise ValueError(
-                    'result.datestamp is outside of the requested date range. '
-                    '{} from {} is not within [{} - {}]'.format(result.datestamp, result.identifier, start, end)
+                if (start - result.datestamp) > pendulum.Interval(hours=24) or (result.datestamp - end) > pendulum.Interval(hours=24):
+                    raise ValueError(
+                        'result.datestamp is outside of the requested date range. '
+                        '{} from {} is not within [{} - {}]'.format(result.datestamp, result.identifier, start, end)
+                    )
+                logger.warning(
+                    'result.datestamp is within 24 hours of the requested date range. '
+                    'This is probably a timezone conversion error and will be accepted. '
+                    '{} from {} is within 24 hours of [{} - {}]'.format(result.datestamp, result.identifier, start, end)
                 )
 
             yield result

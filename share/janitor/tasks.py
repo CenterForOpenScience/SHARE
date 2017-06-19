@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 
 
 @celery.shared_task(bind=True)
-def rawdata_janitor(self, limit=500):
+def rawdata_janitor(self, limit=100):
     """Find RawDatum that do not have a NormalizedData process them
     """
     count = 0
-    for rd in RawDatum.objects.select_related('suid__source_config').filter(normalizeddata__isnull=True).order_by('id')[:limit]:
+    for rd in RawDatum.objects.select_related('suid__source_config').filter(normalizeddata__isnull=True).order_by('id')[:limit].iterator():
         count += 1
         logger.debug('Found unprocessed %r from %r', rd, rd.suid.source_config)
         try:
