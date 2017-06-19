@@ -93,7 +93,7 @@ class TestElasticSearchBot:
             }
         })
 
-        assert sorted(resp['aggregations']['sources']['buckets'], key=lambda x: x['key']) == sorted([{'key': source.long_title, 'doc_count': 1} for source in sources], key=lambda x: x['key'])
+        assert sorted(resp['aggregations']['sources']['buckets'], key=lambda x: x['key']) == sorted([{'key': source.long_title.lower(), 'doc_count': 1} for source in sources], key=lambda x: x['key'])
 
 
 @pytest.mark.django_db
