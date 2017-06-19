@@ -14,9 +14,8 @@ from django.db import DatabaseError
 
 from share.harvest.base import FetchResult
 from share.harvest.exceptions import HarvesterConcurrencyError
-from share.harvest.exceptions import HarvesterDisabledError
 from share.models import Source
-from share.models import HarvestJob
+from share.models import HarvestJob, IngestJob
 from share.models import RawDatum
 from share import tasks
 from share.harvest.scheduler import HarvestScheduler
@@ -27,13 +26,6 @@ from tests import factories
 @pytest.fixture
 def source_config():
     return factories.SourceConfigFactory()
-
-
-@pytest.fixture
-def mock_ingest(monkeypatch):
-    mock_ingest = mock.Mock()
-    monkeypatch.setattr('share.tasks.ingest', mock_ingest)
-    return mock_ingest
 
 
 class SyncedThread(threading.Thread):
@@ -81,15 +73,9 @@ class TestHarvestTask:
 
     @pytest.mark.parametrize('source_config_kwargs, task_kwargs, lock_config, exception', [
         ({}, {}, True, HarvesterConcurrencyError),
-        ({'disabled': True}, {}, True, HarvesterDisabledError),
-        ({'source__is_deleted': True}, {}, True, HarvesterDisabledError),
-        ({'disabled': True, 'source__is_deleted': True}, {}, True, HarvesterDisabledError),
         ({'disabled': True}, {'ignore_disabled': True}, True, HarvesterConcurrencyError),
         ({'source__is_deleted': True}, {'ignore_disabled': True}, True, HarvesterConcurrencyError),
         ({'disabled': True, 'source__is_deleted': True}, {'ignore_disabled': True}, True, HarvesterConcurrencyError),
-        ({'disabled': True}, {}, False, HarvesterDisabledError),
-        ({'source__is_deleted': True}, {}, False, HarvesterDisabledError),
-        ({'disabled': True, 'source__is_deleted': True}, {}, False, HarvesterDisabledError),
     ])
     def test_failure_cases(self, source_config_kwargs, task_kwargs, lock_config, exception):
         source_config = factories.SourceConfigFactory(**source_config_kwargs)
@@ -143,7 +129,7 @@ class TestHarvestTask:
         assert job.completions == 0
         assert 'ValueError: In a test' in job.context
 
-    def test_harvest_database_error(self, source_config, mock_ingest):
+    def test_harvest_database_error(self, source_config):
         job = factories.HarvestJobFactory(source_config=source_config)
 
         def _do_fetch(*args, **kwargs):
@@ -163,9 +149,9 @@ class TestHarvestTask:
         assert job.status == HarvestJob.STATUS.failed
         assert job.completions == 0
         assert 'DatabaseError: In a test' in job.context
-        assert mock_ingest.apply_async.call_count == 3
+        assert IngestJob.objects.filter(status=IngestJob.STATUS.created).count() == 3
 
-    def test_partial_harvest_fails(self, source_config, mock_ingest):
+    def test_partial_harvest_fails(self, source_config):
         job = factories.HarvestJobFactory(source_config=source_config)
 
         def _do_fetch(*args, **kwargs):
@@ -185,7 +171,7 @@ class TestHarvestTask:
         assert job.status == HarvestJob.STATUS.failed
         assert job.completions == 0
         assert 'ValueError: In a test' in job.context
-        assert mock_ingest.apply_async.call_count == 3
+        assert IngestJob.objects.filter(status=IngestJob.STATUS.created).count() == 3
 
     def test_job_values(self, source_config):
         task_id = uuid.uuid4()
@@ -222,9 +208,7 @@ class TestHarvestTask:
         assert rediscovered <= count, 'Y tho'
 
         fake = Factory.create()
-        mock_ingest_task = mock.Mock()
 
-        monkeypatch.setattr('share.tasks.ingest', mock_ingest_task)
         source_config.harvester.get_class()._do_fetch.extend([(fake.sentence(), str(i * 50)) for i in range(count)])
         list(RawDatum.objects.store_chunk(source_config, (
             FetchResult(*tup) for tup in
@@ -247,16 +231,17 @@ class TestHarvestTask:
         else:
             assert RawDatum.objects.filter().count() == (count if limit is None or count < limit else limit)
 
+        ingest_count = IngestJob.objects.filter(status=IngestJob.STATUS.created).count()
         if ingest:
             if superfluous:
-                assert mock_ingest_task.apply_async.call_count == min(count, limit or 99999)
+                assert ingest_count == min(count, limit or 99999)
             elif limit is not None:
-                assert mock_ingest_task.apply_async.call_count <= min(limit, count)
-                assert mock_ingest_task.apply_async.call_count >= min(limit, count) - rediscovered
+                assert ingest_count <= min(limit, count)
+                assert ingest_count >= min(limit, count) - rediscovered
             else:
-                assert mock_ingest_task.apply_async.call_count == count - rediscovered
+                assert ingest_count == count - rediscovered
         else:
-            assert mock_ingest_task.apply_async.call_count == 0
+            assert ingest_count == 0
 
     def test_handles_duplicate_values(self, monkeypatch, source_config):
         fake = Factory.create()

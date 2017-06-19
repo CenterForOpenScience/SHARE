@@ -19,6 +19,7 @@ from share import models
 from share.harvest import BaseHarvester
 from share.harvest.serialization import StringLikeSerializer
 from share.transform import BaseTransformer
+from share.util.extensions import Extensions
 
 from tests.factories.core import *  # noqa
 from tests.factories.changes import *  # noqa
@@ -66,7 +67,8 @@ class HarvesterFactory(DjangoModelFactory):
         mock_entry.name = self.key
         mock_entry.resolve.return_value = MockHarvester
 
-        stevedore.DriverManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)
+        stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)
+        Extensions._load_namespace('share.harvesters')
 
 
 class TransformerFactory(DjangoModelFactory):
@@ -91,7 +93,8 @@ class TransformerFactory(DjangoModelFactory):
         mock_entry.module_name = self.key
         mock_entry.resolve.return_value = MockTransformer
 
-        stevedore.DriverManager.ENTRY_POINT_CACHE['share.transformers'].append(mock_entry)
+        stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.transformers'].append(mock_entry)
+        Extensions._load_namespace('share.transformers')
 
 
 class SourceConfigFactory(DjangoModelFactory):
