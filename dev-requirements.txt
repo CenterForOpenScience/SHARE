@@ -3,11 +3,11 @@
 behave==1.2.5
 factory-boy==2.8.1
 fake-factory==0.7.2
+httpretty==0.8.14
 ipdb
 ipython
 pytest-benchmark==3.0.0
 pytest==3.0.6
-requests-mock==1.3.0
 
 # pulling from github because master has django_assert_num_queries context mgr
 git+https://github.com/pytest-dev/pytest-django.git@master
