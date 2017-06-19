@@ -1,10 +1,9 @@
 from rest_framework import viewsets
+from api.views import ShareObjectViewSet
 
 from api.serializers import HarvestLogSerializer
 from share.models import HarvestLog
 
-class HarvestLogViewSet(viewsets.ReadOnlyModelViewSet):
+class HarvestLogViewSet(ShareObjectViewSet):
     serializer_class = HarvestLogSerializer
-
-    def get_queryset(self):
-        return HarvestLog.objects.all()
+    queryset = HarvestLog.objects.all()

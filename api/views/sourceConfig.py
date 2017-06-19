@@ -1,10 +1,10 @@
 from rest_framework import viewsets
+from api.views import ShareObjectViewSet
+
 # trying to fix shit
 from api.serializers import SourceConfigSerializer
 from share.models import SourceConfig
 
-class SourceConfigViewSet(viewsets.ReadOnlyModelViewSet):
+class SourceConfigViewSet(ShareObjectViewSet):
     serializer_class = SourceConfigSerializer
-
-    def get_queryset(self):
-        return SourceConfig.objects.all()
+    queryset= SourceConfig.objects.all()
