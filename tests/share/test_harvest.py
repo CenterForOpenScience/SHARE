@@ -333,7 +333,16 @@ class TestHarvestTask:
         with pytest.raises(ValueError) as e:
             list(source_config.get_harvester().harvest_date(pendulum.parse('2016-01-01')))
 
-        assert e.value.args == ('result.datestamp is outside of the requested date range. 2016-01-02T00:00:00+00:00 from identifier2 is not within [2015-12-31T00:00:00+00:00 - 2016-01-01T00:00:00+00:00]', )
+        assert e.value.args == ('result.datestamp is outside of the requested date range. 2016-01-03T00:00:00+00:00 from identifier3 is not within [2015-12-31T00:00:00+00:00 - 2016-01-01T00:00:00+00:00]', )
+
+    def test_datestamps_within_24_hours(self, source_config):
+        source_config.harvester.get_class()._do_fetch.clear()
+        source_config.harvester.get_class()._do_fetch.extend([
+            ('identifier{}'.format(timestamp), 'data{}'.format(timestamp), timestamp)
+            for timestamp in (pendulum.parse('2016-01-01') - pendulum.parse('2016-01-03')).range('hours')
+        ])
+
+        list(source_config.get_harvester().harvest_date(pendulum.parse('2016-01-02')))
 
     @pytest.mark.parametrize('now, end_date, harvest_after, should_run', [
         (

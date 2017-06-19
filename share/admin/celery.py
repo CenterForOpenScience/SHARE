@@ -11,6 +11,8 @@ from django.utils.html import format_html
 
 from project import celery_app
 
+from share.admin.util import FuzzyPaginator
+
 
 class TaskNameFilter(admin.SimpleListFilter):
     title = 'Task'
@@ -59,6 +61,7 @@ class CeleryTaskResultAdmin(admin.ModelAdmin):
         'share_version'
     )
     show_full_result_count = False
+    paginator = FuzzyPaginator
     search_fields = ('task_name', )
 
     STATUS_COLORS = {

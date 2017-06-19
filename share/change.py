@@ -302,7 +302,7 @@ class ChangeNode:
                     ignore_attrs.update(self.instance.change.change.keys())
 
                     # Go back until we find a change that is older than us
-                    for version in self.instance.versions.select_related('change').all():
+                    for version in self.instance.versions.select_related('change').iterator():
                         if not version.date_updated or date_updated > version.date_updated:
                             break
                         ignore_attrs.update(version.change.change.keys())
@@ -313,7 +313,8 @@ class ChangeNode:
             # IE CrossRef sometimes turns preprints into articles/publications
             # TODO Write a test case for subjects
             if self.graph.source and not self.graph.source.canonical and hasattr(self.instance, 'sources'):
-                prev_changes = list(self.instance.changes.filter(change_set__normalized_data__source__source__canonical=True).values_list('change', flat=True))
+                # Only fetch 15. If there are more than 15, it's probably a bug. Even if it is not, the past 15 changes should be enough...
+                prev_changes = list(self.instance.changes.filter(change_set__normalized_data__source__source__canonical=True).values_list('change', flat=True)[:15])
                 canonical_keys = set(key for change in prev_changes for key in change.keys())
                 if prev_changes and set(self.attrs.keys()) & canonical_keys:
                     canonical_sources = list(self.instance.sources.filter(source__canonical=True).values_list('username', flat=True))
