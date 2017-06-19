@@ -73,12 +73,13 @@ class TestV1PushProxy:
     @override_settings(CELERY_ALWAYS_EAGER=True)
     def test_valid_data(self, client, trusted_user):
 
-        assert client.post(
+        resp = client.post(
             '/api/v1/share/data/',
             json.dumps(self.valid_data),
             content_type='application/json',
             HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token
-        ).status_code == 202
+        )
+        assert resp.status_code == 202
 
         qs = ChangeSet.objects.filter(
             normalized_data__source=trusted_user.id

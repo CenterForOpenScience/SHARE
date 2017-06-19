@@ -64,7 +64,7 @@ class ShareModelSerializer(serializers.ModelSerializer):
 class RawDatumSerializer(ShareModelSerializer):
     class Meta:
         model = models.RawDatum
-        fields = ('id', 'suid', 'datum', 'sha256', 'date_modified', 'date_created', 'logs')
+        fields = ('id', 'suid', 'datum', 'sha256', 'date_modified', 'date_created', 'jobs')
 
 
 class ProviderRegistrationSerializer(ShareModelSerializer):

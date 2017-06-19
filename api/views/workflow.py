@@ -177,6 +177,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             nm_instance = serializer.save()
+            # TODO use IngestJob/ingest
             async_result = disambiguate.delay(nm_instance.id)
             # TODO Fix Me
             return Response({
@@ -304,9 +305,9 @@ class V1DataView(views.APIView):
             config = self._get_source_config(request.user)
             raw = RawDatum.objects.store_data(config, FetchResult(doc_id, DictSerializer(pretty=False).serialize(prelim_data), timezone.now()))
 
-        transformed_data = config.get_transformer().transform(raw.datum)
-        data = {}
-        data['data'] = transformed_data
+        # TODO use IngestJob/ingest
+        transformed_graph = config.get_transformer().transform(raw.datum)
+        data = {'data': {'@graph': transformed_graph.to_jsonld(in_edges=False)}}
         serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():

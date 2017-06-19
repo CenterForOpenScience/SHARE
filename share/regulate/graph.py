@@ -51,7 +51,8 @@ class MutableGraph(nx.DiGraph):
                     id = v
                 elif k == '@type':
                     type = v
-                elif isinstance(v, dict):
+                    type = v
+                elif isinstance(v, dict) and k != 'extra':
                     graph.add_node(v['@id'], v['@type'])
                     attrs[k] = v['@id']
                 elif isinstance(v, list):
@@ -62,9 +63,9 @@ class MutableGraph(nx.DiGraph):
             graph.add_node(id, type, **attrs)
         return graph
 
-    def to_jsonld(self):
+    def to_jsonld(self, in_edges=True):
         """Return a list of JSON-LD-style dicts."""
-        return [MutableNode(self, id).to_jsonld() for id in self]
+        return [MutableNode(self, id).to_jsonld(in_edges=in_edges) for id in self]
 
     def add_node(self, id, type, **attr):
         super().add_node(id)
@@ -182,7 +183,7 @@ class MutableNode:
         """
         # TODO exclude fields not in the SHARE schema
         field = self.model._meta.get_field(key)
-        if field.is_relation:
+        if field.is_relation and key != 'extra':
             assert field.many_to_one or field.one_to_many
             if field.many_to_one:
                 return self._graph.resolve_named_out_edge(self.id, field.name)
@@ -193,7 +194,7 @@ class MutableNode:
     def __setitem__(self, key, value):
         # TODO exclude fields not in the SHARE schema
         field = self.model._meta.get_field(key)
-        if field.is_relation:
+        if field.is_relation and key != 'extra':
             assert field.many_to_one
             to_id = value.id if hasattr(value, 'id') else value
             self._graph.remove_named_edge(self.id, field.name)
@@ -203,7 +204,7 @@ class MutableNode:
 
     def __delitem__(self, key):
         field = self.model._meta.get_field(key)
-        if field.is_relation:
+        if field.is_relation and key != 'extra':
             assert field.many_to_one
             self._graph.remove_named_edge(self.id, field.name)
         else:
@@ -213,7 +214,7 @@ class MutableNode:
         for k, v in dict.items():
             self[k] = v
 
-    def to_jsonld(self, ref=False):
+    def to_jsonld(self, ref=False, in_edges=True):
         ld_node = {
             '@id': self.id,
             '@type': self.type,
@@ -222,8 +223,9 @@ class MutableNode:
             ld_node.update(self.attrs)
             for from_name, node in self._graph.named_out_edges(self.id).items():
                 ld_node[from_name] = node.to_jsonld(ref=True)
-            for to_name, nodes in self._graph.named_in_edges(self.id).items():
-                ld_node[to_name] = [n.to_jsonld(ref=True) for n in sorted(nodes, key=lambda n: n.id)]
+            if in_edges:
+                for to_name, nodes in self._graph.named_in_edges(self.id).items():
+                    ld_node[to_name] = [n.to_jsonld(ref=True) for n in sorted(nodes, key=lambda n: n.id)]
         return ld_node
 
     def __eq__(self, other):
