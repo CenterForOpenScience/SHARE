@@ -6,7 +6,7 @@ from rest_framework_json_api import serializers
 
 from share import models
 
-from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult, HarvestLog
+from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult, HarvestLog, SourceConfig
 
 
 from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult, logs
