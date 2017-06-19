@@ -3,29 +3,12 @@ from functools import reduce
 
 from django.db import models
 from django.contrib import admin
-from django.core.paginator import Paginator
-from django.db import connections
-from django.db.models.sql.datastructures import EmptyResultSet
-from django.utils.functional import cached_property
 
+from share.admin.util import FuzzyPaginator
 from share.models import AbstractCreativeWork
 from share.models import Source
 from share.util import IDObfuscator
 from share.util import InvalidID
-
-
-class FuzzyPaginator(Paginator):
-
-    @cached_property
-    def count(self):
-        cursor = connections[self.object_list.db].cursor()
-
-        try:
-            cursor.execute('SELECT count_estimate(%s);', (cursor.mogrify(*self.object_list.query.sql_with_params()).decode(), ))
-        except EmptyResultSet:
-            return 0
-
-        return int(cursor.fetchone()[0])
 
 
 class SourcesInline(admin.TabularInline):
