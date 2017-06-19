@@ -44,8 +44,14 @@ def transform(self, raw_id):
         if not graph or not graph['@graph']:
             logger.warning('Graph was empty for %s, skipping...', raw)
             return
+    except Exception as e:
+        logger.exception('Failed to transform %r', raw)
+        raise
 
-        normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
+    resp = None
+    normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
+
+    try:
         resp = requests.post(normalized_data_url, json={
             'data': {
                 'type': 'NormalizedData',
@@ -56,16 +62,12 @@ def transform(self, raw_id):
                 }
             }
         }, headers={'Authorization': raw.suid.source_config.source.user.authorization(), 'Content-Type': 'application/vnd.api+json'})
+        resp.raise_for_status()
     except Exception as e:
-        logger.exception('Failed to transform %r', raw)
+        if (resp.status_code // 100) == 4:
+            raise  # If this is a 400 series response, chances are a retry isn't going to fix it.
         raise self.retry(
-            exc=e,
-            countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
-        )
-
-    if (resp.status_code // 100) != 2:
-        raise self.retry(
-            exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content)),
+            exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content if resp else e)),
             countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15),
         )
 
