@@ -1,9 +1,11 @@
+import re
+
+from bs4 import BeautifulSoup
+
 from share.transform.chain import ctx
 from share.transform.chain import links as tools
 from share.transform.chain.parsers import Parser
 from share.transform.chain.soup import SoupXMLTransformer
-from bs4 import BeautifulSoup
-import re
 
 
 class AgentIdentifier(Parser):

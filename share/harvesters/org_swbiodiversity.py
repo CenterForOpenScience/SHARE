@@ -1,9 +1,9 @@
-import re
+import itertools
 import logging
+import re
 
 from bs4 import BeautifulSoup, Comment
 from furl import furl
-import itertools
 
 from share.harvest import BaseHarvester
 
@@ -17,9 +17,9 @@ class SWHarvester(BaseHarvester):
     """
     VERSION = 1
 
-    def do_harvest(self, start_date, end_date):
-        end_date = end_date.date()
-        start_date = start_date.date()
+    def _do_fetch(self, start, end, **kwargs):
+        end_date = end.date()
+        start_date = start.date()
         logger.info('Harvesting swbiodiversity %s - %s', start_date, end_date)
         return self.fetch_records()
 
@@ -28,6 +28,7 @@ class SWHarvester(BaseHarvester):
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'lxml')
         records = soup.find_all('a')
+
         record_list = []
         for record in records:
             record_content = re.findall('collid=(\d+)', record.get('href'))
