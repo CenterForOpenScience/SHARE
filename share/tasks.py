@@ -242,8 +242,6 @@ class HarvestJobConsumer(JobConsumer):
             for datum in self._harvest(job):
                 if self.ingest and (datum.created or self.superfluous):
                     IngestJob.schedule(datum.suid)
-            if self.ingest:
-                ingest.apply_async()
 
         except HarvesterConcurrencyError as e:
             # If job_id was specified there's a chance that the advisory lock was not, in fact, acquired.
