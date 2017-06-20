@@ -57,18 +57,18 @@ def make_subjects(table, work_id=None):
     return [*subjects.values(), *throughs]
 
 
-def taxonomy_name(context, taxonomy_type):
+def taxonomy_source(context, taxonomy_type):
     if taxonomy_type == 'custom':
-        return models.Source.objects.get(user=context.user).long_title
+        return context.user.source
     if taxonomy_type == 'central':
-        return settings.SUBJECTS_CENTRAL_TAXONOMY
+        return models.Source.objects.get(user__username=settings.APPLICATION_USERNAME)
     raise ValueError('Invalid taxonomy: {}'.format(taxonomy_type))
 
 
 @behave.given('a central taxonomy')
 def add_central_taxonomy(context):
-    models.SubjectTaxonomy.objects.get_or_create(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
-    accept_changes(context, make_subjects(context.table), user=models.ShareUser.objects.get(username=settings.APPLICATION_USERNAME))
+    system_user = models.ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+    accept_changes(context, make_subjects(context.table), user=system_user)
 
 
 @behave.given('a custom taxonomy')
@@ -94,7 +94,7 @@ def add_work_with_subjects(context):
 
 @behave.then('{taxonomy} taxonomy exists')
 def taxonomy_exists(context, taxonomy):
-    assert models.SubjectTaxonomy.objects.filter(name=taxonomy_name(context, taxonomy)).exists()
+    assert models.SubjectTaxonomy.objects.filter(source=taxonomy_source(context, taxonomy)).exists()
 
 
 @behave.then('{count:d}{root}subjects exist')
@@ -102,7 +102,7 @@ def taxonomy_exists(context, taxonomy):
 def count_subjects(context, count, root, taxonomy=None):
     qs = models.Subject.objects.all()
     if taxonomy is not None:
-        qs = qs.filter(taxonomy__name=taxonomy_name(context, taxonomy))
+        qs = qs.filter(taxonomy__source=taxonomy_source(context, taxonomy))
 
     if root == ' root ':
         qs = qs.filter(parent__isnull=True)

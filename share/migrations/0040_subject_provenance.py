@@ -15,12 +15,12 @@ def improvenance_subjects(apps, schema_editor):
     ShareUser = apps.get_model('share', 'ShareUser')
     NormalizedData = apps.get_model('share', 'NormalizedData')
 
-    central_taxonomy = SubjectTaxonomy.objects.get_or_create(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
+    user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+    central_taxonomy = SubjectTaxonomy.objects.get_or_create(source=user.source)
 
     if not Subject.objects.exists():
         return
 
-    user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
     normalized_data = NormalizedData.objects.create(
         source=user,
         data={

@@ -165,7 +165,7 @@ class GraphDisambiguator:
             source = node.graph.source
             if source and name:
                 try:
-                    return node.model.objects.get(name=name, taxonomy__name=source.long_title)
+                    return node.model.objects.get(name=name, taxonomy__source=source)
                 except node.model.DoesNotExist:
                     logger.debug('No %s found with name "%s" in taxonomy "%s"', node.model, name, source.long_title)
         return None

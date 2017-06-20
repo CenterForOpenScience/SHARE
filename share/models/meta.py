@@ -53,7 +53,8 @@ class Tag(ShareObject):
 
 
 class SubjectTaxonomy(models.Model):
-    name = models.TextField(unique=True)
+    source = models.OneToOneField('Source')
+
     is_deleted = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)

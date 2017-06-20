@@ -23,10 +23,11 @@ class Command(BaseCommand):
     @transaction.atomic
     def save_subjects(self, subjects):
         # Ensure central taxonomy exists
-        SubjectTaxonomy.objects.get_or_create(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
+        user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+        SubjectTaxonomy.objects.get_or_create(source=user.source)
 
         normalized_data = NormalizedData.objects.create(
-            source=ShareUser.objects.get(username=settings.APPLICATION_USERNAME),
+            source=user,
             data={
                 '@graph': [
                     {

@@ -145,7 +145,7 @@ class CreativeWorkAdmin(ShareObjectAdmin):
 
 class SubjectChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
-        return '{}: {}'.format(obj.taxonomy.name, obj.name)
+        return '{}: {}'.format(obj.taxonomy.source.long_title, obj.name)
 
 
 class SubjectAdmin(ShareObjectAdmin):
@@ -175,7 +175,7 @@ class SubjectAdmin(ShareObjectAdmin):
     children_links.short_description = 'Children'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('taxonomy', 'parent', 'parent__parent',).prefetch_related('children')
+        return super().get_queryset(request).select_related('taxonomy', 'taxonomy__source', 'parent', 'parent__parent',).prefetch_related('children')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         subject_queryset = None
@@ -185,9 +185,9 @@ class SubjectAdmin(ShareObjectAdmin):
             subject_queryset = Subject.objects.filter(taxonomy__subject__id=subject_id)
         elif db_field.name == 'central_synonym':
             # Limit to subjects from the central taxonomy, or none if this subject is in the central taxonomy
-            subject_queryset = Subject.objects.filter(taxonomy__name=settings.SUBJECTS_CENTRAL_TAXONOMY).exclude(taxonomy__subject__id=subject_id)
+            subject_queryset = Subject.objects.filter(taxonomy__source__user__username=settings.APPLICATION_USERNAME).exclude(taxonomy__subject__id=subject_id)
 
         if subject_queryset is not None:
-            kwargs['queryset'] = subject_queryset.order_by('name').select_related('taxonomy')
+            kwargs['queryset'] = subject_queryset.order_by('name').select_related('taxonomy', 'taxonomy__source')
             return SubjectChoiceField(required=not db_field.blank, **kwargs)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)

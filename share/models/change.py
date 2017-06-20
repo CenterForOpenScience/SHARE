@@ -280,12 +280,10 @@ class Change(models.Model):
 
         if change and self.target_type.model == 'subject':
             SubjectTaxonomy = apps.get_model('share', 'subjecttaxonomy')
-            if change.get('central_synonym', self.target.central_synonym if self.target else None) is None:
-                user = self.change_set.normalized_data.source
-                if user.username != settings.APPLICATION_USERNAME:
-                    raise PermissionError('Only the system user can modify the central subject taxonomy, not {}'.format(user))
-                change['taxonomy'] = SubjectTaxonomy.objects.get(name=settings.SUBJECTS_CENTRAL_TAXONOMY)
-            else:
-                change['taxonomy'], _ = SubjectTaxonomy.objects.get_or_create(name=self.change_set.normalized_data.source.source.long_title)
+            user = self.change_set.normalized_data.source
+            central_synonym = change.get('central_synonym', self.target.central_synonym if self.target else None)
+            if central_synonym is None and user.username != settings.APPLICATION_USERNAME:
+                raise PermissionError('Only the system user can modify the central subject taxonomy, not {}'.format(user))
+            change['taxonomy'], _ = SubjectTaxonomy.objects.get_or_create(source=user.source)
 
         return change

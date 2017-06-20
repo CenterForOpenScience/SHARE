@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             name='SubjectTaxonomy',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.TextField(unique=True)),
+                ('source', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='share.Source')),
                 ('is_deleted', models.BooleanField(default=False)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True)),
