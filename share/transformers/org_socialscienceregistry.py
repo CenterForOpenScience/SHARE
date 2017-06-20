@@ -12,7 +12,7 @@ class AgentIdentifier(Parser):
 
 
 class WorkIdentifier(Parser):
-    uri = tools.IRI(ctx)
+    uri = ctx
 
 
 class Organization(Parser):
@@ -71,9 +71,7 @@ class Registration(Parser):
     related_agents = tools.Map(tools.Delegate(Creator), tools.Try(ctx.pi))
     identifiers = tools.Map(
         tools.Delegate(WorkIdentifier),
-        tools.Concat(
-            tools.Try(ctx['general-information']['url'])
-        )
+        tools.Try(tools.IRI(ctx['general-information']['url'])),
     )
     subjects = tools.Map(
         tools.Delegate(ThroughSubjects),
