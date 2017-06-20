@@ -1,8 +1,8 @@
 from datetime import timedelta
 
+from httpretty import httpretty
 import pendulum
 import pytest
-import requests_mock
 
 from share.models import SourceConfig
 
@@ -14,16 +14,17 @@ sample2,url2,"{last_update_date}",2017-05-02 16:17:17 -0400,2013-05-21,AEARCTR-0
 
 @pytest.mark.django_db
 def test_AEA_harvester():
+    httpretty.enable()
+    httpretty.allow_net_connect = False
     config = SourceConfig.objects.get(label='org.socialscienceregistry')
-    url = config.harvester_kwargs['csv_url']
+    url = config.base_url + '/trials/search.csv'
     harvester = config.get_harvester()
 
-    with requests_mock.mock() as m:
-        m.get(url, text=csv_repsonse)
-
-        start = pendulum.utcnow() - timedelta(days=3)
-        end = pendulum.utcnow()
-        result = harvester._do_fetch(start, end)
-        for data in result:
-            assert data[0] == 'AEARCTR-0000005'
-            assert len(data[1]['record']) == 41
+    httpretty.register_uri(httpretty.GET, url,
+                           body=csv_repsonse, content_type='text/html')
+    start = pendulum.utcnow() - timedelta(days=3)
+    end = pendulum.utcnow()
+    result = harvester._do_fetch(start, end)
+    for data in result:
+        assert data[0] == 'AEARCTR-0000005'
+        assert len(data[1]['record']) == 41
