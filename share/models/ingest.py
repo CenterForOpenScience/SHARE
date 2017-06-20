@@ -131,9 +131,17 @@ class SourceConfig(models.Model):
         return (self.label,)
 
     def get_harvester(self, **kwargs):
+        """Return a harvester instance configured for this SourceConfig.
+
+        Passed kwargs override or add to harvester_kwargs.
+        """
         return self.harvester.get_class()(self, **{**(self.harvester_kwargs or {}), **kwargs})
 
     def get_transformer(self, **kwargs):
+        """Return a transformer instance configured for this SourceConfig.
+
+        Passed kwargs override or add to transformer_kwargs.
+        """
         return self.transformer.get_class()(self, **{**(self.transformer_kwargs or {}), **kwargs})
 
     @contextlib.contextmanager
