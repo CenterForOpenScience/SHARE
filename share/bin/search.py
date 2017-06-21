@@ -1,6 +1,10 @@
 import json
+import logging
+
+from project import celery_app
 
 from share.bin.util import command
+from share.search.daemon import SearchIndexerDaemon
 
 from bots.elasticsearch import tasks
 from bots.elasticsearch.bot import ElasticSearchBot
@@ -83,3 +87,24 @@ def setup(args, argv):
     Usage: {0} search setup
     """
     ElasticSearchBot().setup()
+
+
+@search.subcommand('Start the search indexing daemon')
+def daemon(args, argv):
+    """
+    Usage: {0} search daemon [options]
+
+    Options:
+        -t, --timeout=TIMEOUT     The queue timeout in seconds [default: 5]
+        -s, --size=SIZE           The maximum number of works to index at once [default: 500]
+        -i, --interval=SIZE       The interval at which to flush the queue in seconds [default: 10]
+        -l, --log-level=LOGLEVEL  Set the log level [default: INFO]
+    """
+    logging.getLogger('share.search.daemon').setLevel(args['--log-level'])
+
+    SearchIndexerDaemon(
+        celery_app,
+        max_size=int(args['--size']),
+        timeout=int(args['--timeout']),
+        flush_interval=int(args['--interval']),
+    ).run()

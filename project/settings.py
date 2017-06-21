@@ -358,6 +358,13 @@ CELERY_TASK_ROUTES = {
 CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}
 CELERY_TASK_QUEUES[CELERY_TASK_DEFAULT_QUEUE] = {}
 
+ELASTIC_QUEUE = 'es-index'
+ELASTIC_QUEUE_SETTINGS = {
+    'serializer': 'json',
+    'compression': 'zlib',
+    'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
+}
+
 # Logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
 
@@ -401,6 +408,11 @@ LOGGING = {
         'share': {
             'handlers': ['console'],
             'level': LOG_LEVEL,
+            'propagate': False
+        },
+        'share.search.daemon': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': False
         },
         'django.db.backends': {
