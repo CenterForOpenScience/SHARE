@@ -42,12 +42,12 @@ def disambiguate(self, normalized_id):
             'source': normalized.source.source.long_title
         })
 
-    # Load all relevant ContentTypes in a single query
-    ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
-
     updated = None
 
     try:
+        # Load all relevant ContentTypes in a single query
+        ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
+
         with transaction.atomic():
             cg = ChangeGraph(normalized.data['@graph'], namespace=normalized.source.username)
             cg.process()
@@ -100,7 +100,7 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
         HarvestJob.objects.bulk_get_or_create(jobs)
 
 
-@celery.shared_task(bind=True, max_retries=5, autoretry_for=(Exception,))
+@celery.shared_task(bind=True, max_retries=5)
 def harvest(self, **kwargs):
     """Complete the harvest of the given HarvestJob or next the next available HarvestJob.
 
@@ -122,7 +122,7 @@ def harvest(self, **kwargs):
     HarvestJobConsumer(self, **kwargs).consume()
 
 
-@celery.shared_task(bind=True, max_retries=5, autoretry_for=(Exception,))
+@celery.shared_task(bind=True, max_retries=5)
 def ingest(self, **kwargs):
     IngestJobConsumer(self, **kwargs).consume()
 
@@ -241,7 +241,7 @@ class HarvestJobConsumer(JobConsumer):
         try:
             for datum in self._harvest(job):
                 if self.ingest and (datum.created or self.superfluous):
-                    IngestJob.schedule(datum.suid)
+                    IngestJob.schedule(datum)
 
         except HarvesterConcurrencyError as e:
             # If job_id was specified there's a chance that the advisory lock was not, in fact, acquired.
@@ -284,26 +284,18 @@ class IngestJobConsumer(JobConsumer):
     task_function = ingest
 
     def consume_job(self, job):
-        # TODO when partial updates are supported, get all the most recent raws back to the most recent complete update
-        if job.latest_raw is None:
-            job.latest_raw = RawDatum.objects.filter(suid=job.suid).order_by('-datestamp', '-date_created').first()
-            if job.latest_raw is None:
-                job.skip('No raw data available to ingest.')
-                return
+        # TODO get rid of these triangles
+        assert job.suid_id == job.raw.suid_id
+        assert job.source_config_id == job.suid.source_config_id
 
-        try:
-            job.save(update_fields=('latest_raw', 'date_modified'))
-        except IntegrityError:
-            job.latest_raw = None
-            job.skip('Duplicate job exists.')
-            # TODO if force or superfluous, maybe restart the other job?
-            return
+        if self.job_class.objects.filter(status__in=job.READY_STATUSES, suid=job.suid, raw__datestamp__gt=job.raw.datestamp).exists():
+            job.skip(job.SkipReasons.pointless)
 
         transformer = job.suid.source_config.get_transformer()
         regulator = Regulator(job)
 
         with job.handle(transformer.VERSION, regulator.VERSION):
-            graph = transformer.transform(job.latest_raw)
+            graph = transformer.transform(job.raw)
             job.log_graph('transformed_data', graph)
 
             if not graph:
@@ -322,8 +314,8 @@ class IngestJobConsumer(JobConsumer):
             if settings.SHARE_LEGACY_PIPELINE:
                 nd = NormalizedData.objects.create(
                     data={'@graph': job.regulated_data},
-                    source=job.suid.source.user,
-                    raw=job.latest_raw,
+                    source=job.suid.source_config.source.user,
+                    raw=job.raw,
                 )
                 nd.tasks.add(CeleryTaskResult.objects.get(task_id=self.task.request.id))
                 disambiguate.apply_async((nd.id,))

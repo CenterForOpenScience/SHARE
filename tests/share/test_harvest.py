@@ -291,7 +291,7 @@ class TestHarvestTask:
         with pytest.raises(ValueError) as e:
             list(source_config.get_harvester().harvest())
 
-        assert e.value.args == ('<FetchResult(identifier2, None, b8bf83469c...)> has already been seen or stored with identifier "identifier1". Perhaps your identifier extraction is incorrect?', )
+        assert e.value.args == ('<FetchResult(identifier2, b8bf83469c...)> has already been seen or stored with identifier "identifier1". Perhaps your identifier extraction is incorrect?', )
 
     def test_datestamps(self, source_config):
         source_config.harvester.get_class()._do_fetch.clear()

@@ -1,6 +1,7 @@
 import contextlib
 import datetime
 import logging
+import pendulum
 
 from django.contrib.postgres.fields import JSONField
 from django.core import validators
@@ -335,7 +336,7 @@ class RawDatumManager(FuzzyCountManager):
                         date_created=RawDatum._meta.get_field('date_created').column,
                         values=', '.join('%s' for _ in range(len(new))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                     ), [
-                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.datestamp, now, now)
+                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.datestamp or now, now, now)
                         for fr in new
                     ]
                 )
@@ -379,10 +380,10 @@ class RawDatum(models.Model):
     # The sha256 of the datum
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
 
-    datestamp = models.DateTimeField(null=True, help_text=(
+    datestamp = models.DateTimeField(default=pendulum.now, help_text=(
         'The most relevant datetime that can be extracted from this RawDatum. '
-        'This may be, but is not limitted to, a deletion, modification, publication, or creation datestamp. '
-        'Ideally, this datetime should be appropriate for determining the chronological order it\'s data will be applied.'
+        'This may be, but is not limited to, a deletion, modification, publication, or creation datestamp. '
+        'Ideally, this datetime should be appropriate for determining the chronological order its data will be applied. '
     ))
 
     date_modified = models.DateTimeField(auto_now=True, editable=False)

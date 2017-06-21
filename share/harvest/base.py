@@ -35,7 +35,7 @@ class FetchResult:
         self.identifier = identifier
 
     def __repr__(self):
-        return '<{}({}, {}, {}...)>'.format(self.__class__.__name__, self.identifier, self.datestamp, self.sha256[:10])
+        return '<{}({}, {}...)>'.format(self.__class__.__name__, self.identifier, self.sha256[:10])
 
 
 class BaseHarvester(metaclass=abc.ABCMeta):
@@ -154,7 +154,9 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         for i, blob in enumerate(data_gen):
             result = FetchResult(blob[0], self.serializer.serialize(blob[1]), *blob[2:])
 
-            if result.datestamp and (result.datestamp.date() < start.date() or result.datestamp.date() > end.date()):
+            if result.datestamp is None:
+                result.datestamp = end
+            elif (result.datestamp.date() < start.date() or result.datestamp.date() > end.date()):
                 if (start - result.datestamp) > pendulum.Interval(hours=24) or (result.datestamp - end) > pendulum.Interval(hours=24):
                     raise ValueError(
                         'result.datestamp is outside of the requested date range. '

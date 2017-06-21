@@ -188,6 +188,7 @@ class AbstractBaseJob(models.Model):
         duplicated = 'Previously Succeeded'
         encompassed = 'Encompassing task succeeded'
         comprised = 'Comprised of succeeded tasks'
+        pointless = 'Any effects will be overwritten by another queued job'
         obsolete = 'Obsolete'
 
     task_id = models.UUIDField(null=True)
@@ -429,8 +430,8 @@ class HarvestJob(AbstractBaseJob):
 
 
 class IngestJob(AbstractBaseJob):
+    raw = models.ForeignKey('RawDatum')
     suid = models.ForeignKey('SourceUniqueIdentifier')
-    latest_raw = models.ForeignKey('RawDatum', null=True)
 
     transformer_version = models.PositiveIntegerField()
     regulator_version = models.PositiveIntegerField()
@@ -441,18 +442,24 @@ class IngestJob(AbstractBaseJob):
     objects = LockableJobManager()
 
     @classmethod
-    def schedule(cls, suid):
-        # TODO check whether something similar/equivalent already exists
-        cls.objects.create(
-            suid=suid,
-            source_config=suid.source_config,
-            source_config_version=suid.source_config.version,
-            transformer_version=suid.source_config.transformer.version,
+    def schedule(cls, raw):
+        job, created = cls.objects.get_or_create(
+            raw=raw,
+            source_config_version=raw.suid.source_config.version,
+            transformer_version=raw.suid.source_config.transformer.version,
             regulator_version=Regulator.VERSION,
+            defaults={
+                'source_config': raw.suid.source_config,
+                'suid': raw.suid,
+            }
         )
+        if created and job.status not in job.READY_STATUSES:
+            job.status = IngestJob.status.created
+            job.save(update_fields=('status',))
+        return job
 
     class Meta:
-        unique_together = ('suid', 'latest_raw', 'source_config_version', 'transformer_version', 'regulator_version')
+        unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
 
     def handle(self, transformer_version, regulator_version):
         self.transformer_version = transformer_version
