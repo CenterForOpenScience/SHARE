@@ -3,9 +3,14 @@ from rest_framework import filters
 from api.views import ShareObjectViewSet
 from share.util import IDObfuscator
 
+from rest_framework import viewsets, views
+# from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 from api.serializers import HarvestLogSerializer
 from share.models import HarvestLog
+from api.views import ShareObjectViewSet
 
+<<<<<<< HEAD
 
 class SourceConfigFilterBackend(filters.BaseFilterBackend):
     """
@@ -19,6 +24,7 @@ class SourceConfigFilterBackend(filters.BaseFilterBackend):
             return queryset
 
 class HarvestLogViewSet(ShareObjectViewSet):
+    queryset= HarvestLog.objects.all()
     serializer_class = HarvestLogSerializer
-    queryset = HarvestLog.objects.all()
     filter_backends = (SourceConfigFilterBackend, )
+    filter_fields = ['source_config__id', 'status',]

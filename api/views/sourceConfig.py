@@ -14,3 +14,5 @@ class SourceConfigViewSet(ShareObjectViewSet):
     serializer_class = SourceConfigSerializer
     pagination_class = FuzzyPageNumberPagination
     queryset = SourceConfig.objects.all()
+
+    
