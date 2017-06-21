@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<xs:schema 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:share="http://share.osf.io/schema/v2/internal/schema.xsd"
+  xmlns:django="https://docs.djangoproject.com/en/1.11/ref/models/fields/"
+  targetNamespace="http://share.osf.io/schema/v2/internal/schema.xsd"
+  elementFormDefault="qualified">
+
+  <!-- Work Identifier --> 
+  <xs:complexType name="WorkIdentifierType">
+    <xs:sequence>
+      <xs:element name="uri" type="xs:string" django:db_index="true"/>
+      <xs:element name="host" type="xs:string"/>
+      <xs:element name="scheme" type="xs:string"/>
+      <xs:element name="creative-work">
+        <xs:complexType>
+          <xs:attribute name="id" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="ID" type="xs:string" use="required"/>
+  </xs:complexType>
+  <!-- /Work Identifier --> 
+
+
+  <!-- Agent Identifier -->
+  <xs:complexType name="AgentIdentifierType">
+    <xs:sequence>
+      <xs:element name="uri" type="xs:string"/>
+      <xs:element name="host" type="xs:string"/>
+      <xs:element name="scheme" type="xs:string"/>
+      <xs:element name="agent">
+        <xs:complexType>
+          <xs:attribute name="id" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="ID" type="xs:string" use="required"/>
+  </xs:complexType>
+  <!-- /Agent Identifier -->
+
+
+  <!-- Creative Work -->
+  <xs:complexType name="CreativeWorkType">
+    <xs:sequence>
+      <xs:element name="type">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="CreativeWork"/>
+            <xs:enumeration value="DataSet"/>
+            <xs:enumeration value="Patent"/>
+            <xs:enumeration value="Poster"/>
+            <xs:enumeration value="Publication"/>
+            <xs:enumeration value="Article"/>
+            <xs:enumeration value="Book"/>
+            <xs:enumeration value="ConferencePaper"/>
+            <xs:enumeration value="Dissertation"/>
+            <xs:enumeration value="Preprint"/>
+            <xs:enumeration value="Project"/>
+            <xs:enumeration value="Registration"/>
+            <xs:enumeration value="Report"/>
+            <xs:enumeration value="Thesis"/>
+            <xs:enumeration value="WorkingPaper"/>
+            <xs:enumeration value="Presentation"/>
+            <xs:enumeration value="Repository"/>
+            <xs:enumeration value="Retraction"/>
+            <xs:enumeration value="Software"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="title" type="xs:string"/>
+      <xs:element name="description" type="xs:string"/>
+      <xs:element name="is_deleted" type="xs:boolean"/>
+      <xs:element name="date_published" type="xs:date"/>
+      <xs:element name="date_updated" type="xs:dateTime"/>
+      <xs:element name="free_to_read_date" type="xs:date"/>
+      <xs:element name="free_to_read_type" type="xs:anyURI"/>
+      <xs:element name="rights" type="xs:string"/>
+      <xs:element name="language" type="xs:string"/>
+      <!-- Registration Specific -->
+      <xs:element name="justification" type="xs:string"/>
+      <xs:element name="registration-type" type="xs:string"/>
+      <xs:element name="withdrawn" type="xs:boolean"/>
+      <!-- /Registration Specific -->
+    </xs:sequence>
+    <xs:attribute name="ID" type="xs:string" use="required"/>
+  </xs:complexType>
+  <!-- /Creative Work -->
+
+  <!-- Agent -->
+  <xs:complexType name="AgentType">
+    <xs:sequence>
+      <xs:element name="type">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="Agent"/>
+            <xs:enumeration value="Person" django:plural="People"/>
+            <xs:enumeration value="Organization"/>
+            <xs:enumeration value="Consortium"/>
+            <xs:enumeration value="Department"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="name" type="xs:string" django:db_index="true"/>
+      <xs:element name="location" type="xs:string"/>
+      <xs:element name="family-name" type="xs:string"/>
+      <xs:element name="given-name" type="xs:string"/>
+      <xs:element name="additional-name" type="xs:string"/>
+      <xs:element name="suffix" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="ID" type="xs:string" use="required"/>
+  </xs:complexType>
+  <!-- /Agent -->
+
+
+  <xs:element name="Graph">
+    <!-- Root Element -->
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="CreativeWork" type="share:CreativeWorkType" minOccurs="0"/>
+        <xs:element name="WorkIdentifier" type="share:WorkIdentifierType" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+    <!-- /Root Element -->
+
+
+    <!-- Primary Key Definitions -->
+    <xs:key name="WorkIdentifierID">
+      <xs:selector xpath="share:WorkIdentifier"/>
+      <xs:field xpath="@ID"/>
+    </xs:key>
+
+    <xs:key name="CreativeWorkID">
+      <xs:selector xpath="share:CreativeWork"/>
+      <xs:field xpath="@ID"/>
+    </xs:key>
+
+    <xs:key name="AgentID">
+      <xs:selector xpath="share:Agent"/>
+      <xs:field xpath="@ID"/>
+    </xs:key>
+    <!-- /Primary Key Definitions -->
+
+
+    <!-- Foreign Key Definitions -->
+    <xs:keyref name="creative-work" refer="share:CreativeWorkID">
+      <xs:selector xpath="share:WorkIdentifier/share:creative-work"/>
+      <xs:field xpath="@id"/>
+    </xs:keyref>
+
+    <xs:keyref name="agent" refer="share:AgentID">
+      <xs:selector xpath="share:AgentIdentifier/share:agent"/>
+      <xs:field xpath="@id"/>
+    </xs:keyref>
+    <!-- /Foreign Key Definitions -->
+
+
+  </xs:element>
+</xs:schema>

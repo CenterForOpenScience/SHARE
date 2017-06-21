@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:simpleType name="agentType" id="agentType">
+    <xs:annotation>
+      <!-- <xs:documentation>The type of contributor of the resource.</xs:documentation> -->
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Agent"/>
+      <xs:enumeration value="Person"/>
+      <xs:enumeration value="Organization"/>
+      <xs:enumeration value="Consortium"/>
+      <xs:enumeration value="Department"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+
+<xs:element name="Agent">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+
+      <xs:element name="family_name" type="xs:string"/>
+      <xs:element name="given_name" type="xs:string"/>
+      <xs:element name="additional_name" type="xs:string"/>
+      <xs:element name="suffix" type="xs:string"/>
+
+      <xs:element name="location" type="xs:string"/>
+      <xs:element name="heading" type="xs:string"/>
+      <xs:element name="body" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+</xs:schema>

@@ -1,0 +1,79 @@
+schema = etree.XMLSchema(etree.parse(io.StringIO('''
+<xs:schema 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="SHARE"
+  xmlns:share="SHARE"
+  elementFormDefault="qualified">
+
+  <xs:complexType name="WorkIdentifier">
+    <xs:sequence>
+      <xs:element name="uri" type="xs:string"/>
+      <xs:element name="host" type="xs:string"/>
+      <xs:element name="scheme" type="xs:string"/>
+      <xs:element name="creative-work">
+        <xs:complexType>
+          <xs:attribute name="id" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+
+    </xs:sequence>
+
+    <xs:attribute name="ID" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="CreativeWork">
+    <xs:sequence>
+      <xs:element name="title" type="xs:string"/>
+    </xs:sequence>
+
+    <xs:attribute name="ID" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:element name="Graph">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="CreativeWork" type="share:CreativeWork" minOccurs="0"/>
+        <xs:element name="WorkIdentifier" type="share:WorkIdentifier" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:key name="WorkIdentifierID">
+      <xs:selector xpath="share:WorkIdentifier"/>
+      <xs:field xpath="@ID"/>
+    </xs:key>
+
+    <xs:key name="CreativeWorkID">
+      <xs:selector xpath="share:CreativeWork"/>
+      <xs:field xpath="@ID"/>
+    </xs:key>
+
+    <xs:keyref name="creative-work" refer="share:CreativeWorkID">
+      <!-- <xs:selector xpath="share:WorkIdentifier/share:creative-work"/> -->
+      <!-- <xs:field xpath="@id"/> -->
+      <xs:selector xpath="share:WorkIdentifier/share:creative-work"/>
+      <xs:field xpath="@id"/>
+    </xs:keyref>
+
+  </xs:element>
+
+</xs:schema>
+''')))
+
+data = etree.parse(io.StringIO('''
+<share:Graph xmlns:share="SHARE">
+  <share:CreativeWork ID="foobar">
+    <share:title>Foo Bar</share:title>
+  </share:CreativeWork>
+
+  <share:WorkIdentifier ID="foo-bar">
+    <share:uri>http://osf.io/test</share:uri>
+    <share:host>osf.io</share:host>
+    <share:scheme>http</share:scheme>
+    <share:creative-work id="foobrar"/>
+    <!-- <share:creative-work id="foobar"/> -->
+  </share:WorkIdentifier>
+
+</share:Graph>
+'''))
+
+schema.assert_(data)

@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<session>
+  <use_getter_setter>none</use_getter_setter>
+  <input_schema>work-identifier.xsd</input_schema>
+    <output_superclass>work_identifier_sup.py</output_superclass>
+    <output_subclass>work_identifier_sub.py</output_subclass>
+    <force>true</force>
+    <prefix></prefix>
+    <namespace_prefix></namespace_prefix>
+    <properties>true</properties>
+
+    <empty_namespace_prefix>false</empty_namespace_prefix>
+    <behavior_filename></behavior_filename>
+    <subclass_suffix></subclass_suffix>
+    <root_element></root_element>
+
+    <superclass_module>work_identifier_sup</superclass_module>
+    <auto_super>true</auto_super>
+
+    <external_encoding>utf-8</external_encoding>
+    <member_specs>dict</member_specs>
+</session>
