@@ -15,9 +15,9 @@ from oauth2_provider.models import AccessToken
 
 from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
+from share.admin.jobs import HarvestJobAdmin, IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.share_objects import CreativeWorkAdmin, SubjectAdmin
-from share.admin.util import FuzzyPaginator
 from share.harvest.scheduler import HarvestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
@@ -109,73 +109,6 @@ class SiteBannerAdmin(admin.ModelAdmin):
             obj.created_by = request.user
         obj.last_modified_by = request.user
         super().save_model(request, obj, form, change)
-
-
-class SourceConfigFilter(admin.SimpleListFilter):
-    title = 'Source Config'
-    parameter_name = 'source_config'
-
-    def lookups(self, request, model_admin):
-        # TODO make this into a cool hierarchy deal
-        # return SourceConfig.objects.select_related('source').values_list('
-        return SourceConfig.objects.order_by('label').values_list('id', 'label')
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(source_config=self.value())
-
-
-class HarvestJobAdmin(admin.ModelAdmin):
-    list_display = ('id', 'source', 'label', 'share_version', 'status_', 'start_date_', 'end_date_', 'harvest_job_actions', )
-    list_filter = ('status', SourceConfigFilter, )
-    list_select_related = ('source_config__source', )
-    readonly_fields = ('harvest_job_actions',)
-    actions = ('restart_tasks', )
-    show_full_result_count = False
-    paginator = FuzzyPaginator
-
-    STATUS_COLORS = {
-        HarvestJob.STATUS.created: 'blue',
-        HarvestJob.STATUS.started: 'cyan',
-        HarvestJob.STATUS.failed: 'red',
-        HarvestJob.STATUS.succeeded: 'green',
-        HarvestJob.STATUS.rescheduled: 'goldenrod',
-        HarvestJob.STATUS.forced: 'maroon',
-        HarvestJob.STATUS.skipped: 'orange',
-        HarvestJob.STATUS.retried: 'darkseagreen',
-        HarvestJob.STATUS.cancelled: 'grey',
-    }
-
-    def source(self, obj):
-        return obj.source_config.source.long_title
-
-    def label(self, obj):
-        return obj.source_config.label
-
-    def start_date_(self, obj):
-        return obj.start_date.isoformat()
-
-    def end_date_(self, obj):
-        return obj.end_date.isoformat()
-
-    def status_(self, obj):
-        return format_html(
-            '<span style="font-weight: bold; color: {}">{}</span>',
-            self.STATUS_COLORS[obj.status],
-            HarvestJob.STATUS[obj.status].title(),
-        )
-
-    def restart_tasks(self, request, queryset):
-        queryset.update(status=HarvestJob.STATUS.created)
-    restart_tasks.short_description = 'Re-enqueue'
-
-    def harvest_job_actions(self, obj):
-        url = furl(reverse('admin:source-config-harvest', args=[obj.source_config_id]))
-        url.args['start'] = self.start_date_(obj)
-        url.args['end'] = self.end_date_(obj)
-        url.args['superfluous'] = True
-        return format_html('<a class="button" href="{}">Restart</a>', url.url)
-    harvest_job_actions.short_description = 'Actions'
 
 
 class HarvestForm(forms.Form):
@@ -386,7 +319,7 @@ admin.site.register(AccessToken, AccessTokenAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(HarvestJob, HarvestJobAdmin)
-admin.site.register(IngestJob)  # TODO like HarvestJobAdmin
+admin.site.register(IngestJob, IngestJobAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)
 admin.site.register(RawDatum, RawDatumAdmin)
