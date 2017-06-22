@@ -439,8 +439,8 @@ class HarvestJob(AbstractBaseJob):
 
 
 class IngestJob(AbstractBaseJob):
-    raw = models.ForeignKey('RawDatum')
-    suid = models.ForeignKey('SourceUniqueIdentifier')
+    raw = models.ForeignKey('RawDatum', related_name='ingest_jobs')
+    suid = models.ForeignKey('SourceUniqueIdentifier', related_name='ingest_jobs')
 
     transformer_version = models.PositiveIntegerField()
     regulator_version = models.PositiveIntegerField()
@@ -449,6 +449,21 @@ class IngestJob(AbstractBaseJob):
     regulated_data = DateTimeAwareJSONField(null=True)
 
     objects = LockableJobManager()
+
+    @classmethod
+    def schedule(cls, raw, superfluous=False):
+        job, _ = cls.objects.get_or_create(
+            raw=raw,
+            suid=raw.suid,
+            source_config=raw.suid.source_config,
+            source_config_version=raw.suid.source_config.version,
+            transformer_version=raw.suid.source_config.transformer.version,
+            regulator_version=Regulator.VERSION,
+        )
+        if superfluous and job.status not in cls.READY_STATUSES:
+            job.status = cls.STATUS.created
+            job.save()
+        return job
 
     class Meta:
         unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
@@ -461,6 +476,15 @@ class IngestJob(AbstractBaseJob):
     def log_graph(self, field_name, graph):
         setattr(self, field_name, graph.to_jsonld())
         self.save(update_fields=(field_name, 'date_modified'))
+
+    def __repr__(self):
+        return '<{type}({id}, {status}, {source}, {suid})>'.format(
+            type=type(self).__name__,
+            id=self.id,
+            status=self.STATUS[self.status],
+            source=self.source_config.label,
+            suid=self.suid.identifier,
+        )
 
 
 class RegulatorLog(models.Model):
