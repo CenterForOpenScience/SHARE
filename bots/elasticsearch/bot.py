@@ -55,6 +55,14 @@ class ElasticSearchBot:
                         'autocomplete_filter'
                     ]
                 },
+            },
+            # Normalizers are not officially supported
+            # https://www.elastic.co/guide/en/elasticsearch/reference/5.4/analysis-normalizers.html
+            'normalizer': {
+                'lowercasenormalizer': {
+                    'type': 'custom',
+                    'filter': ['lowercase']
+                }
             }
         }
     }
@@ -99,7 +107,7 @@ class ElasticSearchBot:
                 'publishers': {'type': 'text', 'fields': EXACT_FIELD},
                 'registration_type': {'type': 'keyword', 'include_in_all': False},
                 'retracted': {'type': 'boolean', 'include_in_all': False},
-                'sources': {'type': 'keyword', 'include_in_all': False},
+                'sources': {'type': 'keyword', 'normalizer': 'lowercasenormalizer', 'include_in_all': False},
                 'subjects': {'type': 'keyword', 'include_in_all': False},
                 'tags': {'type': 'text', 'fields': EXACT_FIELD},
                 'title': {'type': 'text', 'fields': EXACT_FIELD},
@@ -123,7 +131,7 @@ class ElasticSearchBot:
                 'additional_name': {'type': 'text', 'include_in_all': False},
                 'suffix': {'type': 'text', 'include_in_all': False},
                 'location': {'type': 'text', 'include_in_all': False},
-                'sources': {'type': 'keyword', 'include_in_all': False},
+                'sources': {'type': 'keyword', 'normalizer': 'lowercasenormalizer', 'include_in_all': False},
                 'type': {'type': 'keyword', 'include_in_all': False},
                 'types': {'type': 'keyword', 'include_in_all': False},
             }
