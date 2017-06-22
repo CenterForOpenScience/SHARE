@@ -13,3 +13,4 @@ from share.models.banner import * # noqa
 from share.models.ingest import * # noqa
 from share.models.logs import * # noqa
 from share.models.celery import *  # noqa
+from share.models.states import *  # noqa
