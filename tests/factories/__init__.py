@@ -28,7 +28,7 @@ from tests.share.models.factories import AbstractCreativeWorkFactory  # noqa
 
 class ShareUserFactory(DjangoModelFactory):
     username = factory.Faker('name')
-    # long_title = factory.Faker('sentence')
+    source = factory.RelatedFactory('tests.factories.SourceFactory', 'user')
 
     class Meta:
         model = models.ShareUser
@@ -39,7 +39,7 @@ class SourceFactory(DjangoModelFactory):
     long_title = factory.Faker('sentence')
     icon = factory.SelfAttribute('name')
 
-    user = factory.SubFactory(ShareUserFactory)
+    user = factory.SubFactory(ShareUserFactory, source=None)
 
     class Meta:
         model = models.Source

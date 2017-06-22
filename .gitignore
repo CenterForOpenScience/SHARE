@@ -123,6 +123,7 @@ ENV/
 .ropeproject
 
 # Generated harvester data
+/fetched/
 /au.*/
 /be.*/
 /br.*/

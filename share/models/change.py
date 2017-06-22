@@ -3,6 +3,7 @@ import logging
 from model_utils import Choices
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
@@ -44,7 +45,7 @@ class ChangeManager(FuzzyCountManager):
             logger.debug('No changes detected in {!r}, skipping.'.format(node))
             return None
         if not hasattr(node.model, 'VersionModel'):
-            # Non-ShareObjects (e.g. Subject) cannot be changed.
+            # Non-ShareObjects (e.g. SubjectTaxonomy) cannot be changed.
             # Shouldn't reach this point...
             logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(node, node.model))
             return None
@@ -65,7 +66,7 @@ class ChangeManager(FuzzyCountManager):
         else:
             attrs['type'] = Change.TYPE.update
             attrs['target_id'] = node.instance.pk
-            attrs['target_version_id'] = node.instance.version.pk
+            attrs['target_version_id'] = node.instance.version_id
 
         change = Change(**attrs)
 
@@ -197,7 +198,9 @@ class Change(models.Model):
         if new_type:
             self.target.recast('share.{}'.format(new_type))
 
-        self.target.__dict__.update(self._resolve_change())
+        for k, v in self._resolve_change().items():
+            setattr(self.target, k, v)
+
         if save:
             self.target.save()
         return self.target
@@ -274,4 +277,13 @@ class Change(models.Model):
                 change[k] = [self.change_set._resolve_ref(r) for r in v]
             else:
                 change[k] = v
+
+        if change and self.target_type.model == 'subject':
+            SubjectTaxonomy = apps.get_model('share', 'subjecttaxonomy')
+            user = self.change_set.normalized_data.source
+            central_synonym = change.get('central_synonym', self.target.central_synonym if self.target else None)
+            if central_synonym is None and user.username != settings.APPLICATION_USERNAME:
+                raise PermissionError('Only the system user can modify the central subject taxonomy, not {}'.format(user))
+            change['taxonomy'], _ = SubjectTaxonomy.objects.get_or_create(source=user.source)
+
         return change
