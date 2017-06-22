@@ -14,6 +14,7 @@ from django.db import connection
 from django.db import connections
 from django.db import models
 from django.db import transaction
+from django.db import IntegrityError
 from django.db.models.expressions import RawSQL
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -189,7 +190,7 @@ class AbstractBaseJob(models.Model):
         encompassed = 'Encompassing task succeeded'
         comprised = 'Comprised of succeeded tasks'
         pointless = 'Any effects will be overwritten by another queued job'
-        obsolete = 'Obsolete'
+        obsolete = 'Uses an old version of a dependency',
 
     task_id = models.UUIDField(null=True)
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)
@@ -288,10 +289,10 @@ class AbstractBaseJob(models.Model):
         # beyond here will be field specific
         self.save()
 
-        # Protect ourselves from SIGKILL
-        def on_sigkill(sig, frame):
+        # Protect ourselves from SIGTERM
+        def on_sigterm(sig, frame):
             self.cancel()
-        prev_handler = signal.signal(signal.SIGTERM, on_sigkill)
+        prev_handler = signal.signal(signal.SIGTERM, on_sigterm)
 
         self.start()
         try:
@@ -306,12 +307,20 @@ class AbstractBaseJob(models.Model):
         else:
             self.succeed()
         finally:
-            # Detach from SIGKILL, resetting the previous handle
+            # Detach from SIGTERM, resetting the previous handle
             signal.signal(signal.SIGTERM, prev_handler)
 
             # Reraise the error if we caught one
             if error:
                 raise error
+
+    def update_versions(self):
+        self.source_config_version = self.source_config.version
+        try:
+            self.save()
+            return True
+        except IntegrityError:
+            return False
 
 
 class PGLock(models.Model):
@@ -414,9 +423,9 @@ class HarvestJob(AbstractBaseJob):
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
 
-    def handle(self, harvester_version):
-        self.harvester_version = harvester_version
-        return super().handle()
+    def update_versions(self):
+        self.harvester_version = self.source_config.harvester.version
+        return super().update_versions()
 
     def __repr__(self):
         return '<{type}({id}, {status}, {source}, {start_date}, {end_date})>'.format(
@@ -441,30 +450,13 @@ class IngestJob(AbstractBaseJob):
 
     objects = LockableJobManager()
 
-    @classmethod
-    def schedule(cls, raw):
-        job, created = cls.objects.get_or_create(
-            raw=raw,
-            source_config_version=raw.suid.source_config.version,
-            transformer_version=raw.suid.source_config.transformer.version,
-            regulator_version=Regulator.VERSION,
-            defaults={
-                'source_config': raw.suid.source_config,
-                'suid': raw.suid,
-            }
-        )
-        if created and job.status not in job.READY_STATUSES:
-            job.status = IngestJob.status.created
-            job.save(update_fields=('status',))
-        return job
-
     class Meta:
         unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
 
-    def handle(self, transformer_version, regulator_version):
-        self.transformer_version = transformer_version
-        self.regulator_version = regulator_version
-        return super().handle()
+    def update_versions(self):
+        self.transformer_version = self.source_config.transformer.version
+        self.regulator_version = Regulator.VERSION
+        return super().update_versions()
 
     def log_graph(self, field_name, graph):
         setattr(self, field_name, graph.to_jsonld())

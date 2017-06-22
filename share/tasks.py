@@ -9,7 +9,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db import transaction
 from django.utils import timezone
-from django.db import IntegrityError
 
 from share.change import ChangeGraph
 from share.harvest.exceptions import HarvesterConcurrencyError
@@ -19,7 +18,6 @@ from share.models import CeleryTaskResult
 from share.models import ChangeSet
 from share.models import HarvestJob, IngestJob
 from share.models import NormalizedData
-from share.models import RawDatum
 from share.models import Source
 from share.models import SourceConfig
 from share.models import CeleryTaskResult
@@ -28,6 +26,7 @@ from share.util.source_stat import SourceStatus
 from share.util.source_stat import OAISourceStatus
 from share.harvest.scheduler import HarvestScheduler
 from share.regulate import Regulator
+from share.util import chunked
 
 
 logger = logging.getLogger(__name__)
@@ -148,13 +147,13 @@ class JobConsumer:
     def task_function(self):
         raise NotImplementedError()
 
-    def consume_job(self, job):
+    def _consume_job(self, job):
         raise NotImplementedError()
 
     def consume(self):
         with self._locked_job() as job:
             if job is None and self.job_id is None:
-                logger.warning('No %ss are currently available', self.job_class.__name__)
+                logger.info('No %ss are currently available', self.job_class.__name__)
                 return None
 
             if job is None and self.job_id is not None:
@@ -189,12 +188,13 @@ class JobConsumer:
                 res = self.task_function.apply_async(self.task.request.args, self.task.request.kwargs)
                 logger.info('Spawned %r', res)
 
+            if not job.update_versions():
+                job.skip(self.job_class.SkipReasons.obsolete)
+                return
+
             logger.info('Consuming %r', job)
-            try:
-                self.consume_job(job)
-            except Exception as e:
-                job.fail(e)
-                raise e
+            with job.handle():
+                self._consume_job(job)
 
     def _filter_ready(self, qs):
         return qs.filter(
@@ -237,12 +237,15 @@ class HarvestJobConsumer(JobConsumer):
             source_config__harvest_after__lte=timezone.now().time(),
         )
 
-    def consume_job(self, job):
+    def _consume_job(self, job):
         try:
-            for datum in self._harvest(job):
-                if self.ingest and (datum.created or self.superfluous):
-                    IngestJob.schedule(datum)
-
+            if self.ingest:
+                datum_gen = (datum for datum in self._harvest(job) if datum.created or self.superfluous)
+                for chunk in chunked(datum_gen, 500):
+                    self._bulk_schedule_ingest(job, chunk)
+            else:
+                for _ in self._harvest(job):
+                    pass
         except HarvesterConcurrencyError as e:
             # If job_id was specified there's a chance that the advisory lock was not, in fact, acquired.
             # If so, retry indefinitely to preserve existing functionality.
@@ -260,22 +263,34 @@ class HarvestJobConsumer(JobConsumer):
         logger.info('Harvesting %r', job)
         harvester = job.source_config.get_harvester()
 
-        with job.handle(harvester.VERSION):
+        try:
+            for datum in harvester.harvest_date_range(job.start_date, job.end_date, limit=self.limit, force=self.force):
+                datum_ids.append(datum.id)
+                yield datum
+        except Exception as e:
+            error = e
+            raise error
+        finally:
             try:
-                for datum in harvester.harvest_date_range(job.start_date, job.end_date, limit=self.limit, force=self.force):
-                    datum_ids.append(datum.id)
-                    yield datum
+                job.raw_data.add(*datum_ids)
+                logger.critical('woo 1')
             except Exception as e:
-                error = e
-                raise error
-            finally:
-                try:
-                    job.raw_data.add(*datum_ids)
-                except Exception as e:
-                    logger.exception('Failed to connect %r to raw data', job)
-                    # Avoid shadowing the original error
-                    if not error:
-                        raise e
+                logger.exception('Failed to connect %r to raw data', job)
+                # Avoid shadowing the original error
+                if not error:
+                    raise e
+            logger.critical('woo 2')
+
+    def _bulk_schedule_ingest(self, job, datums):
+        job_kwargs = {
+            'source_config': job.source_config,
+            'source_config_version': job.source_config.version,
+            'transformer_version': job.source_config.transformer.version,
+            'regulator_version': Regulator.VERSION,
+        }
+        IngestJob.objects.bulk_get_or_create(
+            [IngestJob(raw_id=datum.id, suid_id=datum.suid_id, **job_kwargs) for datum in datums]
+        )
 
 
 class IngestJobConsumer(JobConsumer):
@@ -283,8 +298,8 @@ class IngestJobConsumer(JobConsumer):
     lock_field = 'suid'
     task_function = ingest
 
-    def consume_job(self, job):
-        # TODO get rid of these triangles
+    def _consume_job(self, job):
+        # TODO think about getting rid of these triangles
         assert job.suid_id == job.raw.suid_id
         assert job.source_config_id == job.suid.source_config_id
 
@@ -292,33 +307,31 @@ class IngestJobConsumer(JobConsumer):
             job.skip(job.SkipReasons.pointless)
 
         transformer = job.suid.source_config.get_transformer()
-        regulator = Regulator(job)
+        graph = transformer.transform(job.raw)
+        job.log_graph('transformed_data', graph)
 
-        with job.handle(transformer.VERSION, regulator.VERSION):
-            graph = transformer.transform(job.raw)
-            job.log_graph('transformed_data', graph)
+        if not graph:
+            if not raw.normalizeddata_set.exists():
+                logger.warning('Graph was empty for %s, setting no_output to True', raw)
+                RawDatum.objects.filter(id=raw_id).update(no_output=True)
+            else:
+                logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
+            return
 
-            if not graph:
-                if not raw.normalizeddata_set.exists():
-                    logger.warning('Graph was empty for %s, setting no_output to True', raw)
-                    RawDatum.objects.filter(id=raw_id).update(no_output=True)
-                else:
-                    logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
-                return
+        Regulator(job).regulate(graph)
+        job.log_graph('regulated_data', graph)
 
-            regulator.regulate(graph)
-            job.log_graph('regulated_data', graph)
+        # TODO save as unmerged single-source graph
 
-            # TODO save as unmerged single-source graph
+        if settings.SHARE_LEGACY_PIPELINE:
+            nd = NormalizedData.objects.create(
+                data={'@graph': job.regulated_data},
+                source=job.suid.source_config.source.user,
+                raw=job.raw,
+            )
+            nd.tasks.add(CeleryTaskResult.objects.get(task_id=self.task.request.id))
 
-            if settings.SHARE_LEGACY_PIPELINE:
-                nd = NormalizedData.objects.create(
-                    data={'@graph': job.regulated_data},
-                    source=job.suid.source_config.source.user,
-                    raw=job.raw,
-                )
-                nd.tasks.add(CeleryTaskResult.objects.get(task_id=self.task.request.id))
-                disambiguate.apply_async((nd.id,))
+            disambiguate.apply_async((nd.id,))
 
 
 @celery.shared_task(bind=True)

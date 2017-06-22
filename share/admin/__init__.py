@@ -1,5 +1,3 @@
-from furl import furl
-
 from django import forms
 from django.conf.urls import url
 from django.contrib import admin
