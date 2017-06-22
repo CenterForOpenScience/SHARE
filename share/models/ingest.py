@@ -18,7 +18,7 @@ from django.utils.deconstruct import deconstructible
 
 from share.models.fuzzycount import FuzzyCountManager
 from share.util import chunked, placeholders
-
+from share.util.fields import EncryptedJSONField
 
 logger = logging.getLogger(__name__)
 __all__ = ('Source', 'RawDatum', 'SourceConfig', 'Harvester', 'Transformer', 'SourceUniqueIdentifier')
@@ -124,6 +124,8 @@ class SourceConfig(models.Model):
     transformer_kwargs = JSONField(null=True, blank=True)
 
     disabled = models.BooleanField(default=False)
+
+    json_encrypt = EncryptedJSONField(blank=True, null=True)
 
     objects = NaturalKeyManager('label')
 
