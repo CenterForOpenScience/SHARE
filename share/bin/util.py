@@ -42,11 +42,16 @@ class Command:
 
     def __call__(self, argv):
         if self.parsed:
+            try:
+                options_first = self is execute_cmd or (argv[argv.index(self.name) + 1] in self.subcommands)
+            except IndexError:
+                options_first = False
+
             args = docopt(
                 self.docstring.format(self.bin, self),
                 argv=argv,
                 version=settings.VERSION,
-                options_first=self is execute_cmd or (self.name in argv and argv[-1] == self.name)
+                options_first=options_first,
             )
         else:
             args = {}
