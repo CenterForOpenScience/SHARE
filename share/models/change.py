@@ -278,7 +278,7 @@ class Change(models.Model):
             else:
                 change[k] = v
 
-        if change and self.target_type.model == 'subject':
+        if self.target_type.model == 'subject':
             SubjectTaxonomy = apps.get_model('share', 'subjecttaxonomy')
             user = self.change_set.normalized_data.source
             central_synonym = change.get('central_synonym', self.target.central_synonym if self.target else None)
