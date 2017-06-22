@@ -14,14 +14,16 @@ from django.utils import timezone
 
 from share.change import ChangeGraph
 from share.harvest.exceptions import HarvesterConcurrencyError
+from share.harvest.scheduler import HarvestScheduler
+from share.models import AbstractCreativeWork
+from share.models import CeleryTaskResult
 from share.models import ChangeSet
 from share.models import HarvestLog
 from share.models import NormalizedData
 from share.models import RawDatum
 from share.models import Source
 from share.models import SourceConfig
-from share.models import CeleryTaskResult
-from share.harvest.scheduler import HarvestScheduler
+from share.search import SearchIndexer
 
 
 logger = logging.getLogger(__name__)
@@ -64,8 +66,9 @@ def transform(self, raw_id):
         }, headers={'Authorization': raw.suid.source_config.source.user.authorization(), 'Content-Type': 'application/vnd.api+json'})
         resp.raise_for_status()
     except Exception as e:
-        if (resp.status_code // 100) == 4:
-            raise  # If this is a 400 series response, chances are a retry isn't going to fix it.
+        if (resp is not None) and (resp.status_code // 100 == 4):
+            # If this is a 400 series response, chances are a retry isn't going to fix it.
+            raise Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content))
         raise self.retry(
             exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content if resp else e)),
             countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15),
@@ -86,6 +89,8 @@ def disambiguate(self, normalized_id):
     # Load all relevant ContentTypes in a single query
     ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
+    updated = None
+
     try:
         with transaction.atomic():
             cg = ChangeGraph(normalized.data['@graph'], namespace=normalized.source.username)
@@ -93,12 +98,21 @@ def disambiguate(self, normalized_id):
             cs = ChangeSet.objects.from_graph(cg, normalized.id)
             if cs and (normalized.source.is_robot or normalized.source.is_trusted or Source.objects.filter(user=normalized.source).exists()):
                 # TODO: verify change set is not overwriting user created object
-                cs.accept()
+                updated = cs.accept()
     except Exception as e:
         raise self.retry(
             exc=e,
             countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
         )
+
+    # Only index creativeworks on the fly, for the moment.
+    data = [x.id for x in updated or [] if isinstance(x, AbstractCreativeWork)]
+
+    try:
+        SearchIndexer(self.app).index('creativework', *data)
+    except Exception as e:
+        logger.exception('Could not add results from %r to elasticqueue', normalized)
+        raise
 
 
 @celery.shared_task(bind=True, retries=5)
