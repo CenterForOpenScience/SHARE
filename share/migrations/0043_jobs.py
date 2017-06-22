@@ -12,7 +12,7 @@ import share.models.jobs
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0039_auto_20170614_1825'),
+        ('share', '0042_merge_20170620_1330'),
     ]
 
     operations = [
