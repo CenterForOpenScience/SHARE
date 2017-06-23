@@ -18,6 +18,7 @@ from django.utils import timezone
 
 from share.util import chunked
 from share.models import CeleryTaskResult
+from share.models.sql import GroupBy
 
 
 logger = logging.getLogger(__name__)
@@ -161,7 +162,13 @@ class TaskResultCleaner:
         return timezone.now() - maybe_timedelta(self.TASK_TTLS.get(task_name, self.expires))
 
     def get_task_names(self):
-        return self.TaskModel.objects.distinct('task_name').values_list('task_name', flat=True)
+        qs = self.TaskModel.objects.values('task_name').annotate(name=GroupBy('task_name'))
+        task_names = []
+        for val in qs:
+            if not val.get('task_name'):
+                continue
+            task_names.append(val.get('task_name'))
+        return task_names
 
     def archive(self):
         for name in self.get_task_names():
