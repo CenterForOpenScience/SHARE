@@ -2,7 +2,7 @@ import pytest
 
 from share.models import SiteBanner
 from share.util import IDObfuscator
-from tests.share.models.factories import ShareUserFactory
+from tests.factories import ShareUserFactory
 
 
 @pytest.mark.django_db

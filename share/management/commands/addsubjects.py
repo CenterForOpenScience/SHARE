@@ -2,10 +2,11 @@ import argparse
 import json
 
 from django.core.management.base import BaseCommand
-from django.db import connection
+from django.conf import settings
 from django.db import transaction
 
-from share.models import Subject
+from share.models import ShareUser, SubjectTaxonomy, NormalizedData
+from share.tasks import disambiguate
 
 
 class Command(BaseCommand):
@@ -21,13 +22,21 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def save_subjects(self, subjects):
-        name_pk = {s['name']: i for i, s in enumerate(subjects)}
-        name_pk[None] = None
+        # Ensure central taxonomy exists
+        user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+        SubjectTaxonomy.objects.get_or_create(source=user.source)
 
-        with transaction.atomic(), connection.cursor() as c:
-            c.execute('INSERT INTO {table} (id, {name}, {parent}) VALUES {values} ON CONFLICT ({name}) DO NOTHING;'.format(
-                table=Subject._meta.db_table,
-                name=Subject._meta.get_field('name').column,
-                parent=Subject._meta.get_field('parent').column,
-                values=', '.join(['%s'] * len(subjects)),
-            ), [(i, s['name'], name_pk[s['parent']]) for i, s in enumerate(subjects)])
+        normalized_data = NormalizedData.objects.create(
+            source=user,
+            data={
+                '@graph': [
+                    {
+                        '@id': '_:{}'.format(s['name']),
+                        '@type': 'subject',
+                        'name': s['name'],
+                        'parent': None if s['parent'] is None else {'@id': '_:{}'.format(s['parent']), '@type': 'subject'}
+                    } for s in subjects
+                ]
+            }
+        )
+        disambiguate.apply((normalized_data.id,), throw=True)

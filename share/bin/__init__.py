@@ -11,8 +11,8 @@ MODULES = (
     'harvest',
     'info',
     'ingest',
+    'search',
     'services',
-    'elastic',
 )
 
 

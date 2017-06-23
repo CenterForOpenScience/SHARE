@@ -360,6 +360,13 @@ CELERY_TASK_ROUTES = {
 CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}
 CELERY_TASK_QUEUES[CELERY_TASK_DEFAULT_QUEUE] = {}
 
+ELASTIC_QUEUE = 'es-index'
+ELASTIC_QUEUE_SETTINGS = {
+    'serializer': 'json',
+    'compression': 'zlib',
+    'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
+}
+
 # Logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
 
@@ -405,6 +412,11 @@ LOGGING = {
             'level': LOG_LEVEL,
             'propagate': False
         },
+        'share.search.daemon': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],
@@ -447,6 +459,8 @@ OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 
 ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 'ul']
+
+SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')

@@ -2,7 +2,6 @@ import logging
 import pendulum
 
 from django.db.models import Q, DateTimeField
-from django.core.exceptions import ValidationError
 
 from share.util import DictHashingDict
 
@@ -79,8 +78,6 @@ class GraphDisambiguator:
                         changed = True
                         n.instance = instance
                         logger.debug('Disambiguated %s to %s', n, instance)
-                    elif n.type == 'subject':
-                        raise ValidationError('Invalid subject: "{}"'.format(n.attrs.get('name')))
 
                 self._index.add(n)
 
@@ -94,9 +91,12 @@ class GraphDisambiguator:
         return fk_count if fk_count == 1 else -fk_count
 
     def _instance_for_node(self, node):
-        info = self._index.get_info(node)
         concrete_model = node.model._meta.concrete_model
 
+        if concrete_model.__name__ == 'Subject':
+            return self._instance_for_subject(node)
+
+        info = self._index.get_info(node)
         if not info.all and not info.any:
             return None
 
@@ -143,6 +143,32 @@ class GraphDisambiguator:
 
         logger.error('Could not disambiguate %s. Too many results found from %s %s', node.model, all_query, queries)
         raise NotImplementedError('Multiple {0}s found'.format(node.model))
+
+    def _instance_for_subject(self, node):
+        # Subject disambiguation is a bit weird: Match (uri) OR (name AND taxonomy)
+        if 'uri' in node.attrs:
+            try:
+                return node.model.objects.get(uri=node.attrs['uri'])
+            except node.model.DoesNotExist:
+                pass
+
+        name = node.attrs.get('name')
+        if node.related('central_synonym') is None:
+            # Central taxonomy
+            if name:
+                try:
+                    return node.model.objects.get(name=name, central_synonym__isnull=True)
+                except node.model.DoesNotExist:
+                    logger.debug('No %s found with name "%s" in the central taxonomy', node.model, name)
+        else:
+            # Custom taxonomy
+            source = node.graph.source
+            if source and name:
+                try:
+                    return node.model.objects.get(name=name, taxonomy__source=source)
+                except node.model.DoesNotExist:
+                    logger.debug('No %s found with name "%s" in taxonomy "%s"', node.model, name, source.long_title)
+        return None
 
     def _query_pair(self, key, value):
         try:
@@ -284,7 +310,8 @@ class GraphDisambiguator:
                         for edge in self._node.related(name=field_name, forward=False):
                             yield edge.subject
                     elif field.many_to_one:
-                        yield self._node.related(name=field_name, backward=False).related
+                        edge = self._node.related(name=field_name, backward=False)
+                        yield None if edge is None else edge.related
                     elif field.many_to_many:
                         # TODO?
                         raise NotImplementedError()

@@ -3,6 +3,7 @@ import pendulum
 
 from django.apps import apps
 from django.conf import settings
+from django.db.models import Q
 from elasticsearch import Elasticsearch
 
 logger = logging.getLogger(__name__)
@@ -55,6 +56,25 @@ class ElasticSearchBot:
                         'autocomplete_filter'
                     ]
                 },
+                'subject_analyzer': {
+                    'type': 'custom',
+                    'tokenizer': 'subject_tokenizer',
+                    'filter': [
+                        'lowercase',
+                    ]
+                },
+                'subject_search_analyzer': {
+                    'type': 'custom',
+                    'tokenizer': 'keyword',
+                    'filter': [
+                        'lowercase',
+                    ]
+                },
+            },
+            'tokenizer': {
+                'subject_tokenizer': {
+                    'type': 'path_hierarchy',
+                }
             }
         }
     }
@@ -100,7 +120,7 @@ class ElasticSearchBot:
                 'registration_type': {'type': 'keyword', 'include_in_all': False},
                 'retracted': {'type': 'boolean', 'include_in_all': False},
                 'sources': {'type': 'keyword', 'include_in_all': False},
-                'subjects': {'type': 'keyword', 'include_in_all': False},
+                'subjects': {'type': 'text', 'include_in_all': False, 'analyzer': 'subject_analyzer', 'search_analyzer': 'subject_search_analyzer'},
                 'tags': {'type': 'text', 'fields': EXACT_FIELD},
                 'title': {'type': 'text', 'fields': EXACT_FIELD},
                 'type': {'type': 'keyword', 'include_in_all': False},
@@ -193,7 +213,10 @@ class ElasticSearchBot:
             else:
                 most_recent_result = pendulum.parse(self.get_most_recently_modified())
                 logger.info('Looking for %ss that have been modified after %s', model, most_recent_result)
-                qs = model.objects.filter(date_modified__gt=most_recent_result).values_list('id', flat=True)
+                q = Q(date_modified__gt=most_recent_result)
+                if hasattr(model, 'subjects') and hasattr(model, 'subject_relations'):
+                    q = q | Q(subjects__date_modified__gt=most_recent_result) | Q(subject_relations__date_modified__gt=most_recent_result)
+                qs = model.objects.filter(q).values_list('id', flat=True)
 
             count = qs.count()
 
