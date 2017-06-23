@@ -19,11 +19,13 @@ class TestDisambiguate:
             }]
         }, source__is_trusted=True)
 
-        celery_app.tasks['share.tasks.disambiguate'](nd.id)
-
         with celery_app.pool.acquire(block=True) as connection:
             with connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS) as queue:
-                message = queue.get(timeout=1)
+                queue.clear()
+
+                celery_app.tasks['share.tasks.disambiguate'](nd.id)
+
+                message = queue.get(timeout=5)
                 for model, ids in message.payload.items():
                     assert len(apps.get_model('share', model).objects.filter(id__in=ids)) == len(ids)
 
@@ -37,9 +39,11 @@ class TestDisambiguate:
             }]
         }, source__is_trusted=True)
 
-        celery_app.tasks['share.tasks.disambiguate'](nd.id)
-
         with celery_app.pool.acquire(block=True) as connection:
             with connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS) as queue:
+                queue.clear()
+
+                celery_app.tasks['share.tasks.disambiguate'](nd.id)
+
                 with pytest.raises(Empty):
-                    queue.get(timeout=1)
+                    queue.get(timeout=5)
