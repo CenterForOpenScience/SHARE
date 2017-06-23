@@ -16,16 +16,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameModel('HarvestLog', 'HarvestJob'),
         migrations.RenameField(
             model_name='rawdatum',
             old_name='logs',
             new_name='jobs',
         ),
-        migrations.RunSQL(
-            'ALTER TABLE share_rawdatum_jobs RENAME COLUMN harvestlog_id TO harvestjob_id',
-            reverse_sql='ALTER TABLE share_rawdatum_jobs RENAME COLUMN harvestjob_id TO harvestlog_id',
-        ),
+        migrations.RenameModel('HarvestLog', 'HarvestJob'),
         migrations.AlterField(
             model_name='harvestjob',
             name='source_config',

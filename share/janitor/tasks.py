@@ -5,9 +5,6 @@ import celery
 from django.db.models import Exists
 from django.db.models import OuterRef
 
-from raven.contrib.django.raven_compat.models import client
-
-from share import tasks
 from share.models import NormalizedData
 from share.models import RawDatum, IngestJob
 

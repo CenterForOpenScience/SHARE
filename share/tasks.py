@@ -16,17 +16,16 @@ from share.harvest.scheduler import HarvestScheduler
 from share.models import AbstractCreativeWork
 from share.models import CeleryTaskResult
 from share.models import ChangeSet
-from share.models import HarvestJob, IngestJob
+from share.models import HarvestJob
+from share.models import IngestJob
 from share.models import NormalizedData
 from share.models import Source
 from share.models import SourceConfig
-from share.models import CeleryTaskResult
+from share.regulate import Regulator
 from share.search import SearchIndexer
+from share.util import chunked
 from share.util.source_stat import SourceStatus
 from share.util.source_stat import OAISourceStatus
-from share.harvest.scheduler import HarvestScheduler
-from share.regulate import Regulator
-from share.util import chunked
 
 
 logger = logging.getLogger(__name__)
@@ -273,13 +272,11 @@ class HarvestJobConsumer(JobConsumer):
         finally:
             try:
                 job.raw_data.add(*datum_ids)
-                logger.critical('woo 1')
             except Exception as e:
                 logger.exception('Failed to connect %r to raw data', job)
                 # Avoid shadowing the original error
                 if not error:
                     raise e
-            logger.critical('woo 2')
 
     def _bulk_schedule_ingest(self, job, datums):
         job_kwargs = {
