@@ -7,6 +7,9 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
+
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -14,6 +17,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Populate null subject versions
+        migrations.RunSQL('''
+            SET session_replication_role = replica;
+            UPDATE share_throughsubjects AS ts SET subject_version_id = s.version_id FROM share_subject AS s WHERE ts.subject_version_id IS NULL AND ts.subject_id = s.id;
+            UPDATE share_throughsubjectsversion AS tsv SET subject_version_id = ts.subject_version_id FROM share_throughsubjects AS ts WHERE tsv.subject_version_id IS NULL AND tsv.persistent_id = ts.id;
+            SET session_replication_role = DEFAULT;
+        '''),
+
         # Null the fields left from the last migration
         migrations.AlterField(
             model_name='subject',
