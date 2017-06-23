@@ -290,7 +290,11 @@ class MODSCreativeWork(Parser):
         )
     )
 
-    date_updated = tools.ParseDate(tools.Try(ctx.header.datestamp))
+    date_updated = tools.OneOf(
+        tools.ParseDate(ctx.header.datestamp),
+        tools.ParseDate(ctx['mods:recordInfo']['mods:recordChangeDate']),
+        tools.Static(None)
+    )
 
     # TODO (in regulator) handle date ranges, uncertain dates ('1904-1941', '1890?', '1980-', '19uu', etc.)
     date_published = tools.OneOf(
@@ -469,7 +473,11 @@ class MODSTransformer(ChainTransformer):
 
     def unwrap_data(self, data):
         unwrapped_data = xmltodict.parse(data, process_namespaces=True, namespaces=self.kwargs.get('namespaces', self.NAMESPACES))
-        return {
-            **unwrapped_data['record'].get('metadata', {}).get('mods:mods', {}),
-            'header': unwrapped_data['record']['header'],
-        }
+        if 'record' in unwrapped_data:
+            return {
+                **unwrapped_data['record'].get('metadata', {}).get('mods:mods', {}),
+                'header': unwrapped_data['record']['header'],
+            }
+        elif 'mods:mods' in unwrapped_data:
+            return unwrapped_data['mods:mods']
+        raise ValueError('Unrecognized MODS wrapper!\n{}'.format(data))
