@@ -1,6 +1,8 @@
-import logging
-import time
 from queue import Empty
+import logging
+import signal
+import threading
+import time
 
 from django.conf import settings
 
@@ -22,7 +24,11 @@ class SearchIndexerDaemon:
         self.flush_interval = flush_interval
         self.max_size = max_size
         self.timeout = timeout
-        self._running = False
+        self._running = threading.Event()
+
+        if threading.current_thread() == threading.main_thread():
+            logger.debug('Running in the main thread, SIGTERM is active')
+            signal.signal(signal.SIGTERM, self.stop)
 
         self.sentry = None
         if hasattr(settings, 'RAVEN_CONFIG') and settings.RAVEN_CONFIG['dsn']:
@@ -40,6 +46,10 @@ class SearchIndexerDaemon:
 
         logger.info('Connected to broker')
         logger.info('Using queue "%s"', settings.ELASTIC_QUEUE)
+
+        # Set an upper bound to avoid fetching everything in the queue
+        logger.info('Setting prefetch_count to %d', self.max_size * 1.1)
+        queue.consumer.qos(prefetch_count=int(self.max_size * 1.1), apply_global=True)
 
         try:
             self._run(queue)
@@ -67,17 +77,21 @@ class SearchIndexerDaemon:
             except Exception as e:
                 logger.exception('Failed to clean up broker connection')
 
+    def stop(self):
+        logger.info('Stopping indexer...')
+        self._running.clear()
+
     def flush(self):
         logger.info('Flushing %d messages', len(self.messages))
 
-        try:
-            # TODO Move search logic into this module
-            # TODO Support more than just creativeworks?
-            buf = []
-            for message in self.messages:
-                buf.extend(message.payload['CreativeWork'])
+        # TODO Move search logic into this module
+        # TODO Support more than just creativeworks?
+        buf = []
+        for message in self.messages:
+            buf.extend(message.payload['CreativeWork'])
 
-            logger.debug('Sending %d works to Elasticsearch', len(buf))
+        logger.debug('Sending %d works to Elasticsearch', len(buf))
+        try:
             for chunk in util.chunked(buf, size=500):
                 index_model('CreativeWork', buf)
         except Exception as e:
@@ -89,26 +103,29 @@ class SearchIndexerDaemon:
         errors = []
         logger.debug('ACKing received messages')
         for message in self.messages:
+            if len(errors) > 9:
+                break
+
             try:
                 message.ack()
             except Exception as e:
                 logger.exception('Could not ACK %r', message)
                 errors.append(e)
-        logger.debug('Messages successfully ACKed')
-
-        self.messages.clear()
-        self.last_flush = time.time()
 
         if errors:
             logger.error('Encounted %d errors while attempting to ACK messages', len(errors))
             raise errors[0]
+
+        self.messages.clear()
+        self.last_flush = time.time()
+
         logger.debug('Successfully flushed messages')
 
     def _run(self, queue):
-        self._running = True
+        self._running.set()
         self.last_flush = time.time()
 
-        while self._running:
+        while self._running.is_set():
             try:
                 message = queue.get(timeout=self.timeout)
                 self.messages.append(message)
@@ -124,4 +141,5 @@ class SearchIndexerDaemon:
             elif len(self.messages) >= self.max_size:
                 logger.debug('Buffer has exceeded max_size. Flushing...')
                 self.flush()
+
         logger.info('Exiting...')
