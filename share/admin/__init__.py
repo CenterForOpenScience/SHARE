@@ -17,6 +17,7 @@ from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.share_objects import CreativeWorkAdmin
+from share.admin.util import FuzzyPaginator
 from share.harvest.scheduler import HarvestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
@@ -127,6 +128,8 @@ class HarvestLogAdmin(admin.ModelAdmin):
     list_select_related = ('source_config__source', )
     readonly_fields = ('harvest_log_actions',)
     actions = ('restart_tasks', )
+    show_full_result_count = False
+    paginator = FuzzyPaginator
 
     STATUS_COLORS = {
         HarvestLog.STATUS.created: 'blue',
