@@ -23,10 +23,9 @@ class TestRawDataJanitor:
     def test_unprocessed_data(self, mock_transform):
         rds = factories.RawDatumFactory.create_batch(55)
         assert rawdata_janitor() == 55
-        assert mock_transform.call_args_list == [
-            mock.call((rd.id,), throw=True, retries=4)
-            for rd in sorted(rds, key=lambda r: r.id)
-        ]
+        assert sorted(mock_transform.call_args_list) == sorted([
+            mock.call((rd.id,), throw=True, retries=4) for rd in rds
+        ])
 
     def test_idempotent(self, mock_transform):
         rds = factories.RawDatumFactory.create_batch(55)
@@ -46,7 +45,13 @@ class TestRawDataJanitor:
 
         assert rawdata_janitor() == 30
 
-        assert mock_transform.call_args_list == [
-            mock.call((rd.id,), throw=True, retries=4)
-            for rd in sorted(rds[25:], key=lambda r: r.id)
-        ]
+        assert sorted(mock_transform.call_args_list) == sorted([
+            mock.call((rd.id,), throw=True, retries=4) for rd in rds[25:]
+        ])
+
+    def test_ignores_no_change(self, mock_transform):
+        factories.RawDatumFactory.create_batch(55, no_change=True)
+
+        assert rawdata_janitor() == 0
+
+        assert mock_transform.call_args_list == []

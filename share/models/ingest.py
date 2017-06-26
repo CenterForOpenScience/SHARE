@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
 from share.models.fuzzycount import FuzzyCountManager
+from share.models.indexes import ConcurrentIndex
 from share.util import chunked, placeholders
 
 
@@ -380,6 +381,13 @@ class RawDatum(models.Model):
     date_modified = models.DateTimeField(auto_now=True, editable=False)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
 
+    no_change = models.NullBooleanField(null=True, help_text=(
+        'Indicates that this RawDatum does not contain any new information. '
+        'This allows the RawDataJanitor to find records that have not been processed.'
+        'Records that do not contain changes will not have a NormalizedData associated with them, '
+        'which would otherwise look like data that has not yet been processed.'
+    ))
+
     logs = models.ManyToManyField('HarvestLog', related_name='raw_data')
 
     objects = RawDatumManager()
@@ -391,6 +399,9 @@ class RawDatum(models.Model):
     class Meta:
         unique_together = ('suid', 'sha256')
         verbose_name_plural = 'Raw Data'
+        indexes = [
+            ConcurrentIndex(fields=['no_change'])
+        ]
 
     class JSONAPIMeta:
         resource_name = 'RawData'
