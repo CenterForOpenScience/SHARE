@@ -1,6 +1,7 @@
 from unittest import mock
 import datetime
 import hashlib
+import json
 import pkg_resources
 import uuid
 
@@ -9,8 +10,6 @@ import stevedore
 import factory
 from factory import fuzzy
 from factory.django import DjangoModelFactory
-
-from django.utils import timezone
 
 from project import celery_app
 
@@ -92,7 +91,7 @@ class TransformerFactory(DjangoModelFactory):
             VERSION = 1
 
             def do_transform(self, data):
-                raise NotImplementedError('Transformers must implement do_transform')
+                return json.loads(data), None
 
         mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
         mock_entry.name = self.key

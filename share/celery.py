@@ -234,7 +234,7 @@ class TaskResultCleaner:
         try:
             with transaction.atomic():
                 # .delete loads the entire queryset and can't be sliced... Hooray
-                for ids in chunked(queryset.values_list('id', flat=True), size=self.chunk_size):
+                for ids in chunked(queryset.values_list('id', flat=True).iterator(), size=self.chunk_size):
                     num_deleted, _ = queryset.model.objects.filter(id__in=ids).delete()
                     total_deleted += num_deleted
         except Exception as e:
