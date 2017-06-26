@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://repositorioacademico.upc.edu.pe/upc/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2013-03-01T15:51:34Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: pe.upc.mods

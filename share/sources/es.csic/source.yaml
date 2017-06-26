@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://digital.csic.es/dspace-oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2007-05-07T22:00:00Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: es.csic.mods

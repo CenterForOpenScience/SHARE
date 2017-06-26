@@ -24,6 +24,8 @@ from share.models import RawDatum
 from share.models import Source
 from share.models import SourceConfig
 from share.search import SearchIndexer
+from share.util.source_stat import SourceStatus
+from share.util.source_stat import OAISourceStatus
 
 
 logger = logging.getLogger(__name__)
@@ -230,3 +232,32 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
             logs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
 
         HarvestLog.objects.bulk_get_or_create(logs)
+
+
+@celery.shared_task(bind=True)
+def source_stats(self):
+    oai_sourceconfigs = SourceConfig.objects.filter(
+        disabled=False,
+        base_url__isnull=False,
+        harvester__key='oai'
+    )
+    for config in oai_sourceconfigs.values():
+        get_source_stats.apply_async((config['id'],))
+
+    non_oai_sourceconfigs = SourceConfig.objects.filter(
+        disabled=False,
+        base_url__isnull=False
+    ).exclude(
+        harvester__key='oai'
+    )
+    for config in non_oai_sourceconfigs.values():
+        get_source_stats.apply_async((config['id'],))
+
+
+@celery.shared_task(bind=True)
+def get_source_stats(self, config_id):
+    source_config = SourceConfig.objects.get(pk=config_id)
+    if source_config.harvester.key == 'oai':
+        OAISourceStatus(config_id).get_source_stats()
+    else:
+        SourceStatus(config_id).get_source_stats()

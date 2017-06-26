@@ -15,7 +15,7 @@ configs:
     type_map: {}
 - base_url: https://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi
   disabled: false
-  earliest_date: null
+  earliest_date: 1999-01-01
   harvester: oai
   harvester_kwargs: {metadata_prefix: pmc_fm, time_granularity: false}
   label: gov.pubmedcentral.pmc

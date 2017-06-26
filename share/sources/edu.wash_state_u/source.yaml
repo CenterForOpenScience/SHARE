@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://research.wsulibs.wsu.edu:8080/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2003-01-01T08:00:00Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.wash_state_u.mods

@@ -27,7 +27,7 @@ configs:
   rate_limit_period: 2
   transformer: io.osf.preprints
   transformer_kwargs: {}
-- base_url: http://api.osf.io/registrations/
+- base_url: https://api.osf.io/v2/registrations/
   disabled: false
   earliest_date: null
   harvester: io.osf
