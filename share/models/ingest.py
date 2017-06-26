@@ -69,6 +69,7 @@ class Source(models.Model):
     name = models.TextField(unique=True)
     long_title = models.TextField(unique=True)
     home_page = models.URLField(null=True)
+    # Sources without an icon are excluded from the API
     icon = models.ImageField(upload_to=icon_name, storage=SourceIconStorage(), blank=True)
     is_deleted = models.BooleanField(default=False)
 

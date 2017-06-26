@@ -6,6 +6,7 @@ import requests
 from django.db import transaction
 from django.utils import timezone
 from django.core.files.base import ContentFile
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import viewsets, views, status
 from rest_framework.response import Response
@@ -48,13 +49,12 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ('long_title', )
     serializer_class = SourceSerializer
     permission_classes = [DjangoModelPermissionsOrAnonReadOnly, ]
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('long_title',)
 
-    queryset = Source.objects.none()  # Required for DjangoModelPermissions
+    queryset = Source.objects.exclude(icon='').exclude(is_deleted=True)  # Required for DjangoModelPermissions
 
     VALID_IMAGE_TYPES = ('image/png', 'image/jpeg')
-
-    def get_queryset(self):
-        return Source.objects.exclude(icon='').exclude(is_deleted=True)
 
     def create(self, request, *args, **kwargs):
         try:

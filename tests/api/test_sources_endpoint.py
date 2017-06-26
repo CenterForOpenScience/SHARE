@@ -3,6 +3,7 @@ import pytest
 import time
 
 import httpretty
+from furl import furl
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -109,6 +110,16 @@ class TestSourcesGet:
         resp = client.get(self.endpoint)
         assert resp.status_code == 200
         assert resp.json()['meta']['pagination']['count'] == total - 1
+
+    def test_long_titles_param(self, client):
+        source_long_title = Source.objects.first().long_title
+
+        url = furl(self.endpoint).set({'long_title': source_long_title})
+        resp = client.get(url.url)
+
+        assert resp.status_code == 200
+        assert resp.json()['meta']['pagination']['count'] == 1
+        assert resp.json()['data'][0]['attributes']['longTitle'] == source_long_title
 
 
 @pytest.mark.django_db
