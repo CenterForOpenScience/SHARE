@@ -200,7 +200,7 @@ class TaskResultCleaner:
         logger.info('Archiving in chunks of %d', self.chunk_size)
 
         i = 0
-        for chunk in chunked(queryset, size=self.chunk_size):
+        for chunk in chunked(queryset.iterator(), size=self.chunk_size):
             compressed = self.compress_and_serialize(chunk)
             self.put_s3(task_name, compressed)
             i += len(chunk)
@@ -229,12 +229,17 @@ class TaskResultCleaner:
             logger.warning('%r.delete is False. Results will NOT be deleted', self)
             return 0
 
+        total_deleted = 0
+
         try:
             with transaction.atomic():
-                num_deleted, deleted_metadata = queryset.delete()
+                # .delete loads the entire queryset and can't be sliced... Hooray
+                for ids in chunked(queryset.values_list('id', flat=True), size=self.chunk_size):
+                    num_deleted, _ = queryset.model.objects.filter(id__in=ids).delete()
+                    total_deleted += num_deleted
         except Exception as e:
             logger.exception('Failed to delete queryset with exception %s', e)
             raise
 
         logger.info('Deleted %s CeleryTasks', num_deleted)
-        return num_deleted
+        return total_deleted
