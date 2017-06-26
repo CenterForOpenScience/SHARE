@@ -2,7 +2,7 @@
 configs:
 - base_url: https://deepblue.lib.umich.edu/dspace-oai/request
   disabled: false
-  earliest_date: null  # earliestDatestamp is earliest published
+  earliest_date: 2005-08-29 23:41:11
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.umich.mods
