@@ -9,7 +9,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.utils.functional import cached_property
 
 from share.disambiguation import GraphDisambiguator
-from share.util import TopographicalSorter
+from share.util import TopologicalSorter
 from share.util import IDObfuscator
 
 
@@ -112,17 +112,17 @@ class ChangeGraph:
             self.relations[self._lookup[subject]].add(edge)
             self.relations[self._lookup[related]].add(edge)
 
-        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
+        self.nodes = TopologicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def prune(self):
         gd = GraphDisambiguator()
         gd.prune(self)
-        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
+        self.nodes = TopologicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def disambiguate(self):
         gd = GraphDisambiguator()
         gd.find_instances(self)
-        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
+        self.nodes = TopologicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def normalize(self):
         # Freeze nodes to avoid oddities with inserting and removing nodes
@@ -148,7 +148,7 @@ class ChangeGraph:
         if disambiguate:
             gd.find_instances(self)
 
-        self.nodes = TopographicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
+        self.nodes = TopologicalSorter(self.nodes, dependencies=lambda n: tuple(e.related for e in n.related(backward=False))).sorted()
 
     def get(self, id, type):
         return self._lookup[(id, type)]

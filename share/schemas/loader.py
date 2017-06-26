@@ -1,5 +1,6 @@
+import re
 import logging
-import datetime
+import collections
 
 from lxml import etree
 
@@ -25,7 +26,7 @@ class Schema:
 
     def __init__(self, tree):
         self._tree = tree
-        self.types = []
+        self.types = collections.OrderedDict()
 
         logger.debug('Checking that %r is a valid XML Schema', self._tree)
         self._schema = etree.XMLSchema(self._tree)
@@ -33,11 +34,9 @@ class Schema:
         types = self._tree.xpath('/xs:schema/xs:complexType', namespaces=NS)
         logger.debug('Found %d complex types to be loaded as SchemaTypes', len(types))
         for typ in types:
-            self.types.append(SchemaType(self, typ))
-            logger.debug('Found %r', self.types[-1])
-
-    def to_django_models(self, name_tpl='{}', base=None):
-        return [typ.to_django_model(name_tpl, base) for typ in self.types]
+            st = SchemaType(self, typ)
+            self.types[st.name] = st
+            logger.debug('Found %r', st)
 
 
 class SchemaType:
@@ -57,20 +56,21 @@ class SchemaType:
             else:
                 raise ValueError('Could not determine field type of {!r}'.format(field))
 
-    def to_django_model(self, name_tpl='{}', base=None, **meta):
-        attrs = {field.name: field.to_django_field() for field in self.fields}
+    def to_django_model(self, constructor):
+        attrs = {field.name.replace('-', '_'): field.to_django_field(constructor) for field in self.fields}
 
-        if meta:
-            attrs['Meta'] = type('Meta', (), meta)
+        attrs['__module__'] = constructor.module
+        attrs['Meta'] = type('Meta', (), constructor.meta_for(self))
 
-        attrs['__module__'] = __name__
-        return type(name_tpl.format(self.name), (base or models.Model, ), attrs)
+        return type(constructor.name_for(self), (constructor.base, ), attrs)
 
     def __repr__(self):
         return '<{}({})>'.format(type(self).__name__, self.name)
 
 
 class SchemaField:
+
+    is_relation = False
 
     @classmethod
     def match(self, tree):
@@ -82,13 +82,10 @@ class SchemaField:
         self.name = tree.get('name')
         self.required = tree.get('use') == 'required'
 
-    def to_django_field(self):
+    def to_django_field(self, constructor):
         raise NotImplementedError()
 
     def _django_field_kwargs(self):
-        # if self._tree.xpath('@django:index', namespaces=NS):
-        #     import ipdb; ipdb.set_trace()
-
         return {
             'null': not self.required,
             **{
@@ -96,7 +93,6 @@ class SchemaField:
                 else {'true': True, 'false': False}.get(str(attr), str(attr))
                 for attr in self._tree.xpath('@django:*', namespaces=NS)
             }
-            # 'db_index': self._tree.xpath('@django:index', namespaces=NS) == 'true',
         }
 
     def __repr__(self):
@@ -107,7 +103,7 @@ class PrimativeField(SchemaField):
 
     TYPES = {
         'xs:string': models.TextField,
-        'xs:boolean': models.BooleanField,
+        'xs:boolean': models.NullBooleanField,
         'xs:date': models.DateField,
         'xs:time': models.TimeField,
         'xs:dateTime': models.DateTimeField,
@@ -120,7 +116,7 @@ class PrimativeField(SchemaField):
             return False
         return True
 
-    def to_django_field(self):
+    def to_django_field(self, constructor):
         return self.TYPES[self._tree.get('type')](**self._django_field_kwargs())
 
 
@@ -132,7 +128,7 @@ class EnumField(SchemaField):
             return False
         return True
 
-    def to_django_field(self):
+    def to_django_field(self, constructor):
         return models.TextField(
             choices=[
                 (c.upper(), c)
@@ -142,6 +138,8 @@ class EnumField(SchemaField):
 
 
 class ForeignField(SchemaField):
+
+    is_relation = True
 
     @classmethod
     def match(self, tree):
@@ -154,7 +152,9 @@ class ForeignField(SchemaField):
 
     def __init__(self, _type, tree):
         super().__init__(_type, tree)
-        self._keyref = tree.xpath('//xs:keyref[@name = $name]', namespaces=NS, name=tree.get('name'))
+        self._keyref = tree.xpath('//xs:keyref[@name = $name]', namespaces=NS, name=tree.get('name'))[0]
+        # This is pretty fragile...
+        self.related = self._keyref.attrib['refer'].split(':')[1].rstrip('ID')
 
-    def to_django_field(self):
-        return models.ForeignKey('Foo')
+    def to_django_field(self, constructor):
+        return models.ForeignKey(constructor[self.related])

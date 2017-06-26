@@ -70,11 +70,11 @@
       </xs:element>
       <xs:element name="title" type="xs:string"/>
       <xs:element name="description" type="xs:string"/>
-      <xs:element name="is_deleted" type="xs:boolean"/>
-      <xs:element name="date_published" type="xs:date"/>
-      <xs:element name="date_updated" type="xs:dateTime"/>
-      <xs:element name="free_to_read_date" type="xs:date"/>
-      <xs:element name="free_to_read_type" type="xs:anyURI"/>
+      <xs:element name="is-deleted" type="xs:boolean"/>
+      <xs:element name="date-published" type="xs:date"/>
+      <xs:element name="date-updated" type="xs:dateTime"/>
+      <xs:element name="free-to-read-date" type="xs:date"/>
+      <xs:element name="free-to-read-type" type="xs:anyURI"/>
       <xs:element name="rights" type="xs:string"/>
       <xs:element name="language" type="xs:string"/>
       <!-- Registration Specific -->
