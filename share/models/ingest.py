@@ -18,7 +18,7 @@ from django.utils.deconstruct import deconstructible
 
 from share.models.fuzzycount import FuzzyCountManager
 from share.util import chunked, placeholders
-from share.util.fields import EncryptedJSONField
+from share.models.fields import EncryptedJSONField
 
 logger = logging.getLogger(__name__)
 __all__ = ('Source', 'RawDatum', 'SourceConfig', 'Harvester', 'Transformer', 'SourceUniqueIdentifier')
