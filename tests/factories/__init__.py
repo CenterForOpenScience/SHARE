@@ -126,8 +126,10 @@ class HarvestLogFactory(DjangoModelFactory):
     def _generate(cls, create, attrs):
         attrs['source_config_version'] = attrs['source_config'].version
         attrs['harvester_version'] = attrs['source_config'].harvester.version
-        attrs['start_date'] = datetime.datetime.combine(attrs['start_date'].date(), datetime.time(0, 0, 0, 0, timezone.utc))
-        attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
+        if isinstance(attrs['start_date'], datetime.datetime):
+            attrs['start_date'] = attrs['start_date'].date()
+        if not attrs.get('end_date'):
+            attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
         return super()._generate(create, attrs)
 
 
