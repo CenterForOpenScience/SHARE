@@ -2,7 +2,6 @@ import csv
 import datetime
 import logging
 
-import re
 
 from share.harvest import BaseHarvester
 
@@ -25,13 +24,8 @@ class SCHarvester(BaseHarvester):
         csv_response = self.requests.get(self.config.base_url + '/trials/search.csv')
         csv_response.raise_for_status()
 
-        decoded_content = csv_response.content.decode('utf-8')
-        newline_remover = re.compile('(?:"[^"]*"|.)+')
-        data = newline_remover.findall(decoded_content)
-
-        cr = csv.reader(data, delimiter=',', quoting=csv.QUOTE_MINIMAL, quotechar='"')
-        record_list = list(cr)
-        record_list = record_list[1:]
+        record_list = list(csv.reader(csv_response.text.split('\n')))
+        record_list = record_list[1:len(record_list) - 1]
         total_records = len(record_list)
 
         logging.info('Found total %d results from the social science registry', total_records)
