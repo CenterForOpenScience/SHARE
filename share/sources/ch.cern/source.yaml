@@ -1,7 +1,7 @@
 configs:
-- base_url: http://cdsweb.cern.ch/oai2d/
+- base_url: http://cds.cern.ch/oai2d
   disabled: false
-  earliest_date: null
+  earliest_date: 2003-06-02T08:06:23Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: ch.cern

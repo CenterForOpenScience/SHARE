@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://etd.aau.edu.et/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2007-08-29T19:14:01Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: et.edu.addis_ababa.mods

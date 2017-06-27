@@ -1,7 +1,7 @@
 configs:
-- base_url: https://commons.mla.org/deposits/oai/
+- base_url: https://mla.hcommons.org/deposits/oai/
   disabled: false
-  earliest_date: null
+  earliest_date: 2015-05-04T16:57:02Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: org.mla

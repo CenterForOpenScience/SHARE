@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: https://shareok.org/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2013-08-16T12:17:44Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: org.shareok.mods

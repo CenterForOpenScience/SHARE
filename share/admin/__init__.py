@@ -17,6 +17,7 @@ from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.share_objects import CreativeWorkAdmin, SubjectAdmin
+from share.admin.util import FuzzyPaginator
 from share.harvest.scheduler import HarvestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
@@ -27,6 +28,7 @@ from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Trans
 from share.models.logs import HarvestLog
 from share.models.meta import Subject, SubjectTaxonomy
 from share.models.registration import ProviderRegistration
+from share.models.sources import SourceStat
 
 
 admin.site.register(AbstractCreativeWork, CreativeWorkAdmin)
@@ -129,6 +131,8 @@ class HarvestLogAdmin(admin.ModelAdmin):
     list_select_related = ('source_config__source', )
     readonly_fields = ('harvest_log_actions',)
     actions = ('restart_tasks', )
+    show_full_result_count = False
+    paginator = FuzzyPaginator
 
     STATUS_COLORS = {
         HarvestLog.STATUS.created: 'blue',
@@ -344,6 +348,36 @@ class SubjectTaxonomyAdmin(admin.ModelAdmin):
     subject_links.short_description = 'Subjects'
 
 
+class SourceStatAdmin(admin.ModelAdmin):
+    search_fields = ('config__label', 'config__source__long_title')
+    list_display = ('label', 'date_created', 'base_urls_match', 'earliest_datestamps_match', 'response_elapsed_time', 'response_status_code', 'grade_')
+    list_filter = ('grade', 'response_status_code', 'config__label')
+
+    GRADE_COLORS = {
+        0: 'red',
+        5: 'orange',
+        10: 'green',
+    }
+    GRADE_LETTERS = {
+        0: 'F',
+        5: 'C',
+        10: 'A',
+    }
+
+    def source(self, obj):
+        return obj.config.source.long_title
+
+    def label(self, obj):
+        return obj.config.label
+
+    def grade_(self, obj):
+        return format_html(
+            '<span style="font-weight: bold; color: {}">{}</span>',
+            self.GRADE_COLORS[obj.grade],
+            self.GRADE_LETTERS[obj.grade],
+        )
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -359,4 +393,5 @@ admin.site.register(ShareUser, ShareUserAdmin)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
 admin.site.register(SubjectTaxonomy, SubjectTaxonomyAdmin)
+admin.site.register(SourceStat, SourceStatAdmin)
 admin.site.register(Transformer)

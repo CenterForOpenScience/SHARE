@@ -1,9 +1,10 @@
 import pytest
 
-from share.util.fields import EncryptedJSONField
+from share.models.fields import EncryptedJSONField
 
 
 class TestEncryptedJsonField:
+
     @pytest.fixture
     def field(self):
         return EncryptedJSONField(null=True, blank=True)

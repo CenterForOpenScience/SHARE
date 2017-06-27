@@ -1,7 +1,7 @@
 configs:
 - base_url: http://cyberleninka.ru/oai
   disabled: false
-  earliest_date: null
+  earliest_date: 2014-05-20T09:19:31Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: ru.cyberleninka

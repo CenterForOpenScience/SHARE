@@ -1,7 +1,7 @@
 configs:
 - base_url: http://citeseerx.ist.psu.edu/oai2
   disabled: false
-  earliest_date: null
+  earliest_date: null  # earliestDatestamp is earliest published
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: edu.citeseerx

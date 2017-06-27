@@ -1,6 +1,8 @@
+# DSpace
 configs:
 - base_url: http://digital.lib.washington.edu/dspace-oai/request
   disabled: false
+  # 2083-03-01T08:00:00Z is obviously not correct
   earliest_date: null
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}

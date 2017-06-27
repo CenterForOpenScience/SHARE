@@ -3,11 +3,14 @@ import json
 from decimal import Decimal
 from functools import partial
 
-import six
+from cryptography.exceptions import InvalidTag
 from dateutil import parser
+import jwe
 from psycopg2.extras import Json
+import six
 
 from django import forms
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres import lookups
 from django.contrib.postgres.fields.jsonb import JSONField
@@ -23,6 +26,8 @@ from django.utils.functional import curry
 from django.utils.translation import ugettext_lazy as _
 
 from db.deletion import DATABASE_CASCADE
+
+SENSITIVE_DATA_KEY = jwe.kdf(settings.SECRET_KEY.encode('utf-8'), settings.SALT.encode('utf-8'))
 
 
 class DateTimeAwareJSONEncoder(DjangoJSONEncoder):
@@ -550,3 +555,37 @@ class GenericRelationNoCascade(GenericRelation):
         # https://github.com/django/django/blob/master/django/db/models/deletion.py#L151
         # Disable django cascading deletes for this field
         raise AttributeError('This is a dirty hack')
+
+
+class EncryptedJSONField(models.BinaryField):
+    """
+    This field transparently encrypts data in the database. It should probably only be used with PG unless
+    the user takes into account the db specific trade-offs with TextFields.
+    """
+    prefix = b'jwe:::'
+
+    def get_db_prep_value(self, input_json, **kwargs):
+        if input_json:
+            input_json = json.dumps(input_json).encode('utf-8')
+            try:
+                input_json = self.prefix + jwe.encrypt(input_json, SENSITIVE_DATA_KEY)
+
+            except InvalidTag:
+                raise
+        return input_json
+
+    def to_python(self, output_json):
+        if output_json:
+            try:
+                output_json = jwe.decrypt(bytes(output_json[len(self.prefix):]), SENSITIVE_DATA_KEY)
+            except InvalidTag:
+                # Allow use of an encrypted DB locally without decrypting fields
+                if settings.DEBUG_MODE:
+                    pass
+                else:
+                    raise
+            output_json = json.loads(output_json.decode("utf-8"))
+        return output_json
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)

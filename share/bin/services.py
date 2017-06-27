@@ -37,7 +37,7 @@ def worker(args, argv):
 
         @worker_shutdown.connect
         def stop_sid(*args, **kwargs):
-            sid._running = False
+            sid.stop()
 
     worker = app.Worker(loglevel=getattr(logging, args['--loglevel'].upper()), beat=args['--beat'])
     worker.start()

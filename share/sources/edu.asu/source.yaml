@@ -1,7 +1,8 @@
+# Link in <location><url>
 configs:
-- base_url: http://repository.asu.edu/oai-pmh
+- base_url: https://repository.asu.edu/oai-pmh
   disabled: false
-  earliest_date: null
+  earliest_date: 2011-05-06T20:05:41Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.asu.mods
