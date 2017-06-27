@@ -401,3 +401,45 @@ class TestHarvestTask:
         tasks.harvest()
 
         assert source_config.harvester.get_class()._do_fetch.called == should_run
+
+    def test_latest_date(self):
+        source_config = factories.SourceConfigFactory(
+            full_harvest=True,
+            earliest_date=pendulum.parse('2017-01-01').date()
+        )
+
+        # We have a harvest log with start_date equal to earliest_date
+        # but a different source_config
+        factories.HarvestLogFactory(
+            start_date=pendulum.parse('2017-01-01').date(),
+            end_date=pendulum.parse('2017-01-02').date(),
+        )
+
+        assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 365
+
+    def test_caught_up(self):
+        source_config = factories.SourceConfigFactory(
+            full_harvest=True,
+            earliest_date=pendulum.parse('2017-01-01').date()
+        )
+
+        factories.HarvestLogFactory(
+            source_config=source_config,
+            start_date=pendulum.parse('2017-01-01').date(),
+            end_date=pendulum.parse('2017-01-02').date(),
+        )
+
+        factories.HarvestLogFactory(
+            source_config=source_config,
+            start_date=pendulum.parse('2018-01-01').date(),
+            end_date=pendulum.parse('2018-01-02').date(),
+        )
+
+        assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 0
+
+    def test_latest_date_null(self):
+        source_config = factories.SourceConfigFactory(
+            full_harvest=True,
+            earliest_date=pendulum.parse('2017-01-01').date()
+        )
+        assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 365
