@@ -25,7 +25,7 @@ class SCHarvester(BaseHarvester):
         csv_response.raise_for_status()
 
         record_list = list(csv.reader(csv_response.text.split('\n')))
-        record_list = record_list[1:len(record_list) - 1]
+        record_list = record_list[1:]
         total_records = len(record_list)
 
         logging.info('Found total %d results from the social science registry', total_records)
@@ -36,7 +36,7 @@ class SCHarvester(BaseHarvester):
         for i, record in enumerate(record_list):
             logger.info('On trial %d of %d (%d%%)', i, total_records, (i / total_records) * 100)
 
-            if len(record) != standard_size:
+            if len(record) != standard_size or len(record) == 0:
                 records_ignored += 1
                 continue
 
