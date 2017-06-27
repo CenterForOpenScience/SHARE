@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='rawdatum',
-            name='no_change',
-            field=models.NullBooleanField(help_text='Indicates that this RawDatum does not contain any new information. This allows the RawDataJanitor to find records that have not been processed.Records that do not contain changes will not have a NormalizedData associated with them, which would otherwise look like data that has not yet been processed.'),
+            name='no_output',
+            field=models.NullBooleanField(help_text='Indicates that this RawDatum resulted in an empty graph when transformed. This allows the RawDataJanitor to find records that have not been processed. Records that result in an empty graph will not have a NormalizedData associated with them, which would otherwise look like data that has not yet been processed.'),
         ),
     ]

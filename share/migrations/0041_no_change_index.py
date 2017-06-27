@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name='rawdatum',
-            index=share.models.indexes.ConcurrentIndex(fields=['no_change'], name='share_rawda_no_chan_15308a_idx'),
+            index=share.models.indexes.ConcurrentIndex(fields=['no_output'], name='share_rawda_no_outp_f0330f_idx'),
         ),
     ]

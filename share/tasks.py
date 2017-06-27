@@ -45,8 +45,8 @@ def transform(self, raw_id):
 
         if not graph or not graph['@graph']:
             if not raw.normalizeddata_set.exists():
-                logger.warning('Graph was empty for %s, setting no_change to True', raw)
-                RawDatum.objects.filter(id=raw_id).update(no_change=True)
+                logger.warning('Graph was empty for %s, setting no_output to True', raw)
+                RawDatum.objects.filter(id=raw_id).update(no_output=True)
             else:
                 logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
 

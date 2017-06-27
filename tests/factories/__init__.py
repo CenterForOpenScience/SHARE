@@ -11,8 +11,6 @@ import factory
 from factory import fuzzy
 from factory.django import DjangoModelFactory
 
-from django.utils import timezone
-
 from project import celery_app
 
 from share import models

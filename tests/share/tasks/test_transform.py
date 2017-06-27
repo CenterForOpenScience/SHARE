@@ -16,7 +16,7 @@ class TestTransform:
         monkeypatch.setattr('share.tasks.requests', mrequests)
         return mrequests
 
-    def test_set_no_change(self):
+    def test_set_no_output(self):
         raw = factories.RawDatumFactory(datum=json.dumps({
             '@graph': []
         }))
@@ -25,9 +25,9 @@ class TestTransform:
 
         raw.refresh_from_db()
 
-        assert raw.no_change is True
+        assert raw.no_output is True
 
-    def test_does_not_set_no_change(self):
+    def test_does_not_set_no_output(self):
         raw = factories.RawDatumFactory(datum=json.dumps({
             '@graph': []
         }))
@@ -38,4 +38,4 @@ class TestTransform:
 
         raw.refresh_from_db()
 
-        assert raw.no_change is None
+        assert raw.no_output is None

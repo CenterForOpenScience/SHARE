@@ -49,8 +49,8 @@ class TestRawDataJanitor:
             mock.call((rd.id,), throw=True, retries=4) for rd in rds[25:]
         ])
 
-    def test_ignores_no_change(self, mock_transform):
-        factories.RawDatumFactory.create_batch(55, no_change=True)
+    def test_ignores_no_output(self, mock_transform):
+        factories.RawDatumFactory.create_batch(55, no_output=True)
 
         assert rawdata_janitor() == 0
 

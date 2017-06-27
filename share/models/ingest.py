@@ -381,10 +381,10 @@ class RawDatum(models.Model):
     date_modified = models.DateTimeField(auto_now=True, editable=False)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
 
-    no_change = models.NullBooleanField(null=True, help_text=(
-        'Indicates that this RawDatum does not contain any new information. '
-        'This allows the RawDataJanitor to find records that have not been processed.'
-        'Records that do not contain changes will not have a NormalizedData associated with them, '
+    no_output = models.NullBooleanField(null=True, help_text=(
+        'Indicates that this RawDatum resulted in an empty graph when transformed. '
+        'This allows the RawDataJanitor to find records that have not been processed. '
+        'Records that result in an empty graph will not have a NormalizedData associated with them, '
         'which would otherwise look like data that has not yet been processed.'
     ))
 
@@ -399,9 +399,9 @@ class RawDatum(models.Model):
     class Meta:
         unique_together = ('suid', 'sha256')
         verbose_name_plural = 'Raw Data'
-        indexes = [
-            ConcurrentIndex(fields=['no_change'])
-        ]
+        indexes = (
+            ConcurrentIndex(fields=['no_output']),
+        )
 
     class JSONAPIMeta:
         resource_name = 'RawData'
