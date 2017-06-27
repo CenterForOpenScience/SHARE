@@ -7,8 +7,10 @@ from share.regulate.errors import RegulatorError
 class Regulator:
     VERSION = 1
 
-    def __init__(self, ingest_job):
+    def __init__(self, ingest_job=None):
         self.job = ingest_job
+        self.logs = []
+
         self._graph_steps = self._steps('share.regulate.graph_steps', settings.SHARE_REGULATOR_GRAPH_STEPS)
         self._node_steps = self._steps('share.regulate.node_steps', settings.SHARE_REGULATOR_NODE_STEPS)
         self._validation_steps = self._steps('share.regulate.validation_steps', settings.SHARE_REGULATOR_VALIDATION_STEPS)
@@ -28,9 +30,9 @@ class Regulator:
             for step in self._validation_steps:
                 step.validate_graph(graph)
 
-        except RegulatorError as e:
-            # TODO
-            raise e
+        finally:
+            if self.job and self.logs:
+                self.job.regulator_logs.set(self.logs)
 
     def _steps(self, namespace, names):
-        return [Extensions.get(namespace, name)(self.job) for name in names]
+        return [Extensions.get(namespace, name)(self) for name in names]
