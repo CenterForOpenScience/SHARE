@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('share', '0040_rawdatum_no_change'),
+        ('share', '0040_rawdatum_no_output'),
     ]
 
     operations = [
