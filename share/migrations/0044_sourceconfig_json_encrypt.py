@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import share.util.fields
+import share.models.fields
 
 
 class Migration(migrations.Migration):
@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sourceconfig',
             name='json_encrypt',
-            field=share.util.fields.EncryptedJSONField(blank=True, null=True),
+            field=share.models.fields.EncryptedJSONField(blank=True, null=True),
         ),
     ]
