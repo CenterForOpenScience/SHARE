@@ -33,7 +33,7 @@ class IDObfuscator:
     MOD = 10000000000
     MOD_INV = 0x17A991C0F
     # Match HHHHH-HHH-HHH Where H is any hexidecimal digit
-    ID_RE = re.compile(r'([0-9A-Fa-f]{2})([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})')
+    ID_RE = re.compile(r'([0-9A-Fa-f]{2,})([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})')
 
     @classmethod
     def encode(cls, instance):
