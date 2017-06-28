@@ -26,7 +26,7 @@ from share.models.fields import DateTimeAwareJSONField
 from share.regulate import Regulator
 
 
-__all__ = ('HarvestJob', 'IngestJob')
+__all__ = ('HarvestJob', 'IngestJob', 'RegulatorLog')
 logger = logging.getLogger(__name__)
 
 

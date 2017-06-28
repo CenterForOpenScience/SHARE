@@ -1,7 +1,6 @@
 from django.conf import settings
 
 from share.util.extensions import Extensions
-from share.regulate.errors import RegulatorError
 
 
 class Regulator:
@@ -17,22 +16,37 @@ class Regulator:
 
     def regulate(self, graph):
         try:
-            # TODO get source-specific steps from self.job.suid.source_config, run them first
+            # TODO get source-specific steps (and options) from self.job.suid.source_config, run them first
 
+            # Node phase
+            for node in self._iter_nodes(graph):
+                for step in self._node_steps:
+                    if step.should_regulate(node):
+                        step.regulate_node(node)
+
+            # Graph phase
             for step in self._graph_steps:
                 step.regulate_graph(graph)
 
-            for node in graph:
-                # TODO also run node steps for newly created nodes
-                for step in self._node_steps:
-                    step.regulate_node(node)
-
+            # Validation phase
             for step in self._validation_steps:
                 step.validate_graph(graph)
 
         finally:
             if self.job and self.logs:
                 self.job.regulator_logs.set(self.logs)
+
+    def _iter_nodes(self, graph):
+        """Iterate through the graph's nodes in no particular order, allowing nodes to be added/deleted while iterating
+        """
+        visited = set()
+        nodes = list(graph)
+        while nodes:
+            for n in nodes:
+                if n in graph:
+                    yield n
+                    visited.add(n)
+            nodes = set(graph) - visited
 
     def _steps(self, namespace, names):
         return [Extensions.get(namespace, name)(self) for name in names]
