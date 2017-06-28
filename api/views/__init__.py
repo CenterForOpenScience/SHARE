@@ -5,4 +5,4 @@ from .feeds import *  # noqa
 from .registration import *  # noqa
 from .schema import *  # noqa
 from .banner import *  # noqa
-from .sourceConfig import * # noqa
+from .source_config import * # noqa

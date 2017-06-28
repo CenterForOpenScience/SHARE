@@ -5,6 +5,4 @@ from share.models import SourceConfig
 
 class SourceConfigViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SourceConfigSerializer
-
-    def get_queryset(self):
-        return SourceConfig.objects.all()
+    queryset = SourceConfig.objects.all()
