@@ -14,6 +14,6 @@ configs:
     property_list: []
     type_map: {}
 home_page: http://openknowledge.nau.edu
-long_title: OpenKnowledge@NAU - Search the scholarly, creative and instructional output of NAU
+long_title: OpenKnowledge@NAU
 name: edu.nau.openknowledge
 user: providers.edu.nau.openknowledge

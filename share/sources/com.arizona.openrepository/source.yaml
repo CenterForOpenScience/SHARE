@@ -14,6 +14,6 @@ configs:
     property_list: []
     type_map: {}
 home_page: http://arizona.openrepository.com/arizona/
-long_title: The UA Campus Repository - explore unique digital collections from the University of Arizona
+long_title: The UA Campus Repository
 name: com.arizona.openrepository
 user: providers.com.arizona.openrepository
