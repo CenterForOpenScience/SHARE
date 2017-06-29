@@ -241,5 +241,5 @@ class TaskResultCleaner:
             logger.exception('Failed to delete queryset with exception %s', e)
             raise
 
-        logger.info('Deleted %s CeleryTasks', num_deleted)
+        logger.info('Deleted %s CeleryTasks', total_deleted)
         return total_deleted
