@@ -3,7 +3,6 @@ import json
 from decimal import Decimal
 from functools import partial
 
-from cryptography.exceptions import InvalidTag
 from dateutil import parser
 import jwe
 from psycopg2.extras import Json
@@ -565,26 +564,19 @@ class EncryptedJSONField(models.BinaryField):
     prefix = b'jwe:::'
 
     def get_db_prep_value(self, input_json, **kwargs):
-        if input_json:
-            input_json = json.dumps(input_json).encode('utf-8')
-            try:
-                input_json = self.prefix + jwe.encrypt(input_json, SENSITIVE_DATA_KEY)
+        if not input_json:
+            return None
 
-            except InvalidTag:
-                raise
+        input_json = self.prefix + jwe.encrypt(json.dumps(input_json).encode('utf-8'), SENSITIVE_DATA_KEY)
+
         return input_json
 
     def to_python(self, output_json):
-        if output_json:
-            try:
-                output_json = jwe.decrypt(bytes(output_json[len(self.prefix):]), SENSITIVE_DATA_KEY)
-            except InvalidTag:
-                # Allow use of an encrypted DB locally without decrypting fields
-                if settings.DEBUG_MODE:
-                    pass
-                else:
-                    raise
-            output_json = json.loads(output_json.decode("utf-8"))
+        if not output_json:
+            return None
+
+        output_json = json.loads(jwe.decrypt(output_json[len(self.prefix):], SENSITIVE_DATA_KEY).decode("utf-8"))
+
         return output_json
 
     def from_db_value(self, value, expression, connection, context):
