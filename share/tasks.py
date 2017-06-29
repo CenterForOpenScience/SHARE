@@ -11,6 +11,7 @@ from django.db import models
 from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
+from django.db import IntegrityError
 
 from share.change import ChangeGraph
 from share.harvest.exceptions import HarvesterConcurrencyError
@@ -184,6 +185,28 @@ def harvest(self, log_id=None, ignore_disabled=False, ingest=True, exhaust=True,
             return None
         elif log.completions > 0 and log.status == HarvestLog.STATUS.succeeded:
             logger.info('%r has already been harvested. Re-running superfluously', log)
+
+        if log.harvester_version < log.source_config.harvester.version:
+            # If a harvest log has an outdated harvester_version but has not been run before, we can go ahead and upgrade it.
+            # Otherwise, mark it obsolete and skip it.
+            if log.completions > 0:
+                log.skip(HarvestLog.SkipReasons.obsolete)
+                logger.warning('%r is outdated but has previously completed, skipping...', log)
+                return None
+
+            try:
+                # Attempt to upgrade the log
+                with transaction.atomic():
+                    log.harvester_version = log.source_config.harvester.version
+                    log.save()
+            except IntegrityError:
+                # Sometimes a new harvest log will already be generated for one reason or another.
+                # We can safely mark this log obsolete
+                log.skip(HarvestLog.SkipReasons.obsolete)
+                logger.warning('A newer version of %r already exists, skipping...', log)
+                return None
+
+            logger.warning('%r has been updated to the latest harvester version, %s', log, log.harvester_version)
 
         if exhaust and log_id is None:
             if force:
