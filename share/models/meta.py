@@ -59,11 +59,8 @@ class SubjectTaxonomy(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return self.name
-
     def __repr__(self):
-        return '<{}: {}>'.format(self.__class__.__name__, self.name)
+        return '<{} {}: {}>'.format(self.__class__.__name__, self.id, self.source.long_title)
 
     class Meta:
         verbose_name_plural = 'Subject Taxonomies'
