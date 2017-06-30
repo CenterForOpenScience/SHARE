@@ -325,8 +325,11 @@ class SourceAdmin(admin.ModelAdmin):
 class SubjectTaxonomyAdmin(admin.ModelAdmin):
     readonly_fields = ('source', 'subject_links',)
     fields = ('source', 'is_deleted', 'subject_links')
-    list_fields = ('source__name',)
-    list_select_related = ('source', )
+    list_display = ('id', 'source_',)
+    list_select_related = ('source',)
+
+    def source_(self, obj):
+        return obj.source.long_title
 
     def subject_links(self, obj):
         def recursive_link_list(subjects):
