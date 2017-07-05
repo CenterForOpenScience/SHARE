@@ -16,20 +16,13 @@ from django.core import serializers
 from django.db import transaction
 from django.utils import timezone
 
+from share.sentry import sentry_client
 from share.util import chunked
 from share.models import CeleryTaskResult
 from share.models.sql import GroupBy
 
 
 logger = logging.getLogger(__name__)
-
-
-if hasattr(settings, 'RAVEN_CONFIG') and settings.RAVEN_CONFIG['dsn']:
-    import raven
-
-    client = raven.Client(settings.RAVEN_CONFIG['dsn'])
-else:
-    client = None
 
 
 def die_on_unhandled(func):
@@ -41,12 +34,8 @@ def die_on_unhandled(func):
         except Exception as e:
             err = e
             try:
+                sentry_client.captureException()
                 logger.exception('Celery internal method %s failed', func)
-                try:
-                    if client:
-                        client.captureException()
-                except Exception as ee:
-                    logger.exception('Could not log exception to Sentry')
             finally:
                 if err:
                     raise SystemExit(57)  # Something a bit less generic than 1 or -1
