@@ -2,14 +2,9 @@ bcrypt==3.1.3  # Apache 2.0
 beautifulsoup4==4.4.1  # MIT
 bleach==1.4.3  # Apache 2.0
 boto3==1.4.4  # Apache 2.0
-#celery==4.0.2  # BSD 3 Clause
-git+git://github.com/celery/celery.git@069ed5434ed86b9af7485c8632673a2bfbc2d771
-git+git://github.com/celery/kombu.git@be79b3d4cdbfe80cc5400396d7d81abeb73d0136
 colorlog==2.7.0  # MIT
 dateparser==0.4.0  # BSD
 django-allauth==0.31.0  # MIT
-django-celery-beat==1.0.1  # BSD 3 Clause
-django-celery-results==1.0.1  # BSD 3 Clause
 django-cors-headers==2.0.2  # MIT
 django-extensions==1.7.8  # MIT
 django-filter==1.0.2  # BSD
@@ -31,14 +26,14 @@ lxml==3.6.0  # BSD
 markdown==2.6.8  # BSD
 nameparser==0.4.0  # LGPL
 networkx==1.11  # BSD
-newrelic==2.68.0.50  # newrelic APM agent, Custom License
+newrelic==2.86.3.70  # newrelic APM agent, Custom License
 pendulum==1.2.0  # MIT
 pillow==4.0.0  # PIL Software License:
 psycogreen==1.0  # BSD
 psycopg2==2.6.1  # LGPL with exceptions or ZPL
 pycountry==1.20  # LGPL 2.1
 pyyaml==3.11  # MIT
-raven==5.23.0  # BSD
+raven==6.1.0  # BSD
 requests==2.10.0  # Apache 2.0
 shortuuid==0.4.3  # BSD
 stevedore==1.21.0  # Apache 2.0
@@ -47,5 +42,14 @@ werkzeug==0.11.10  # BSD
 xmltodict==0.10.2  # MIT
 
 # TODO: When graphene-django doesn't break on inherited fields with choices (https://github.com/graphql-python/graphene-django/pull/156)
-#graphene-django==1.3  # MIT
+# graphene-django==1.3  # MIT
 git+git://github.com/aaxelb/graphene-django.git@db305b3d68ce71820cecb829266279a140afe39b
+
+# celery==4.0.2  # BSD 3 Clause
+# Contains many fixes that still haven't been release
+git+git://github.com/celery/celery.git@069ed5434ed86b9af7485c8632673a2bfbc2d771
+git+git://github.com/celery/kombu.git@be79b3d4cdbfe80cc5400396d7d81abeb73d0136
+
+# django-celery-beat==1.0.1  # BSD 3 Clause
+# Contains a fix for handling disabled tasks that still has not been release
+git+git://github.com/celery/django-celery-beat@f014edcb954c707cb7628f4416257b6a58689523

@@ -9,14 +9,15 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join, mark_safe
 
 from oauth2_provider.models import AccessToken
 
 from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.readonly import ReadOnlyAdmin
-from share.admin.share_objects import CreativeWorkAdmin
+from share.admin.share_objects import CreativeWorkAdmin, SubjectAdmin
+from share.admin.util import FuzzyPaginator
 from share.harvest.scheduler import HarvestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
@@ -25,10 +26,13 @@ from share.models.core import NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
 from share.models.logs import HarvestLog
+from share.models.meta import Subject, SubjectTaxonomy
 from share.models.registration import ProviderRegistration
+from share.models.sources import SourceStat
 
 
 admin.site.register(AbstractCreativeWork, CreativeWorkAdmin)
+admin.site.register(Subject, SubjectAdmin)
 admin.site.register(CeleryTaskResult, CeleryTaskResultAdmin)
 
 
@@ -127,6 +131,8 @@ class HarvestLogAdmin(admin.ModelAdmin):
     list_select_related = ('source_config__source', )
     readonly_fields = ('harvest_log_actions',)
     actions = ('restart_tasks', )
+    show_full_result_count = False
+    paginator = FuzzyPaginator
 
     STATUS_COLORS = {
         HarvestLog.STATUS.created: 'blue',
@@ -316,6 +322,62 @@ class SourceAdmin(admin.ModelAdmin):
         return None
 
 
+class SubjectTaxonomyAdmin(admin.ModelAdmin):
+    readonly_fields = ('source', 'subject_links',)
+    fields = ('source', 'is_deleted', 'subject_links')
+    list_fields = ('source__name',)
+    list_select_related = ('source', )
+
+    def subject_links(self, obj):
+        def recursive_link_list(subjects):
+            if not subjects:
+                return ''
+            items = format_html_join(
+                '', '<li style="list-style: square;"><a href="{}">{}</a>{}</li>',
+                (
+                    (
+                        reverse('admin:share_subject_change', args=(s.id,)),
+                        s.name,
+                        mark_safe(recursive_link_list(list(s.children.all())))
+                    ) for s in sorted(subjects, key=lambda s: s.name)
+                )
+            )
+            return format_html('<ul style="margin-left: 10px;">{}</ul>', mark_safe(items))
+        roots = obj.subject_set.filter(parent__isnull=True).prefetch_related('children', 'children__children', 'children__children__children')
+        return recursive_link_list(list(roots))
+    subject_links.short_description = 'Subjects'
+
+
+class SourceStatAdmin(admin.ModelAdmin):
+    search_fields = ('config__label', 'config__source__long_title')
+    list_display = ('label', 'date_created', 'base_urls_match', 'earliest_datestamps_match', 'response_elapsed_time', 'response_status_code', 'grade_')
+    list_filter = ('grade', 'response_status_code', 'config__label')
+
+    GRADE_COLORS = {
+        0: 'red',
+        5: 'orange',
+        10: 'green',
+    }
+    GRADE_LETTERS = {
+        0: 'F',
+        5: 'C',
+        10: 'A',
+    }
+
+    def source(self, obj):
+        return obj.config.source.long_title
+
+    def label(self, obj):
+        return obj.config.label
+
+    def grade_(self, obj):
+        return format_html(
+            '<span style="font-weight: bold; color: {}">{}</span>',
+            self.GRADE_COLORS[obj.grade],
+            self.GRADE_LETTERS[obj.grade],
+        )
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -330,4 +392,6 @@ admin.site.register(Harvester)
 admin.site.register(ShareUser, ShareUserAdmin)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
+admin.site.register(SubjectTaxonomy, SubjectTaxonomyAdmin)
+admin.site.register(SourceStat, SourceStatAdmin)
 admin.site.register(Transformer)

@@ -2,6 +2,7 @@ import uuid
 import bleach
 
 from django.apps import apps
+from django.conf import settings
 from django.db import connection
 from django.db import transaction
 
@@ -202,14 +203,18 @@ def fetch_creativework(pks):
                 LEFT JOIN LATERAL (
                             SELECT array_agg(DISTINCT name) AS subjects
                             FROM (
-                                SELECT unnest(ARRAY [child.name, parent.name, grand_parent.name, great_grand_parent.name])
+                                SELECT concat_ws('/', CASE WHEN source.name = %s THEN %s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
                                 FROM share_subject AS child
+                                    LEFT JOIN share_subjecttaxonomy AS taxonomy ON child.taxonomy_id = taxonomy.id
+                                    LEFT JOIN share_source AS source ON taxonomy.source_id = source.id
                                     LEFT JOIN share_subject AS parent ON child.parent_id = parent.id
                                     LEFT JOIN share_subject AS grand_parent ON parent.parent_id = grand_parent.id
                                     LEFT JOIN share_subject AS great_grand_parent ON grand_parent.parent_id = great_grand_parent.id
                                 WHERE child.id IN (SELECT share_throughsubjects.subject_id
                                                     FROM share_throughsubjects
-                                                    WHERE share_throughsubjects.creative_work_id = creativework.id)
+                                                    WHERE share_throughsubjects.creative_work_id = creativework.id
+                                                    AND NOT share_throughsubjects.is_deleted)
+                                      AND NOT child.is_deleted
                                 ) AS x(name)
                             WHERE name IS NOT NULL
                             ) AS subjects ON TRUE
@@ -239,7 +244,7 @@ def fetch_creativework(pks):
                 WHERE creativework.id IN %s
                 AND creativework.title != ''
                 AND COALESCE(array_length(identifiers, 1), 0) < 51
-            ''', (tuple(pks), ))
+            ''', (settings.APPLICATION_USERNAME, settings.SUBJECTS_CENTRAL_TAXONOMY, tuple(pks), ))
 
             while True:
                 data = c.fetchone()

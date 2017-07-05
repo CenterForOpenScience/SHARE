@@ -1,7 +1,10 @@
 import pytest
 
+import pendulum
+
 from elasticsearch.exceptions import NotFoundError
 
+from share import models
 from share.util import IDObfuscator
 from bots.elasticsearch import tasks
 
@@ -130,10 +133,8 @@ class TestIndexSource:
 
 @pytest.mark.django_db
 class TestJanitorTask:
-    def test_missing_records_get_indexed(self, elastic, monkeypatch):
-        monkeypatch.setattr('bots.elasticsearch.tasks.index_model.apply_async', tasks.index_model.apply)
-        monkeypatch.setattr('bots.elasticsearch.tasks.index_sources.apply_async', tasks.index_sources.apply)
 
+    def test_missing_records_get_indexed(self, elastic, monkeypatch, no_celery):
         x = factories.AbstractCreativeWorkFactory()
         source = factories.SourceFactory()
         x.sources.add(source.user)
@@ -146,3 +147,34 @@ class TestJanitorTask:
 
         assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(x))['found'] is True
         assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(y))['found'] is True
+
+    def test_date_created(self, elastic, no_celery):
+        fake, real = [], []
+        models.AbstractCreativeWork._meta.get_field('date_created').auto_now_add = False
+
+        for i in range(1, 6):
+            fake.append(factories.AbstractCreativeWorkFactory(
+                date_created=pendulum.now(),
+                date_modified=pendulum.now(),
+            ))
+            real.append(factories.AbstractCreativeWorkFactory(
+                date_created=pendulum.now().add(days=-i),
+                date_modified=pendulum.now().add(days=-i),
+            ))
+        real.append(factories.AbstractCreativeWorkFactory(
+            date_created=pendulum.now().add(days=-i),
+            date_modified=pendulum.now().add(days=-i),
+        ))
+
+        models.AbstractCreativeWork._meta.get_field('date_created').auto_now_add = True
+
+        tasks.index_model('creativework', [c.id for c in fake])
+
+        for c in fake:
+            assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(c))['found'] is True
+            c.administrative_change(is_deleted=True)
+
+        tasks.elasticsearch_janitor()
+
+        for c in real:
+            assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(c))['found'] is True

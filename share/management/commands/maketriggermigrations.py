@@ -76,7 +76,7 @@ class Command(BaseCommand):
     def write_migration(self, migration):
         writer = MigrationWriter(migration)
         os.makedirs(os.path.dirname(writer.path), exist_ok=True)
-        with open(writer.path, 'wb') as fp:
+        with open(writer.path, 'w') as fp:
             fp.write(writer.as_string())
 
     def handle(self, *args, **options):

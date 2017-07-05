@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://darchive.mblwhoilibrary.org/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2005-07-15T16:10:02Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: org.mblwhoilibrary.mods

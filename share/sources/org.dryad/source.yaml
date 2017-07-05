@@ -1,7 +1,8 @@
+# DSpace
 configs:
-- base_url: http://www.datadryad.org/oai/request
+- base_url: http://api.datadryad.org/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2001-01-01T00:00:00Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: org.dryad

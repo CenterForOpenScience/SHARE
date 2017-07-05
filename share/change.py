@@ -5,6 +5,7 @@ import pendulum
 import datetime
 
 from django.apps import apps
+from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 from django.utils.functional import cached_property
 
@@ -204,6 +205,10 @@ class ChangeGraph:
             logger.warning('Could not find lookup entry for %s. Falling back to %s', node, key)
             del self._lookup[key]
 
+    def remove_edge(self, edge):
+        self.relations[edge.subject].discard(edge)
+        self.relations[edge.related].discard(edge)
+
     def serialize(self):
         return [
             n.serialize()
@@ -250,11 +255,12 @@ class ChangeNode:
 
     @property
     def is_skippable(self):
-        if self.instance and self.graph.source and hasattr(self.instance, 'sources'):
-            new_source = not self.instance.sources.filter(source=self.graph.source).exists()
-        else:
-            new_source = False
-
+        new_source = False
+        if self.instance:
+            if self.type == 'subject' and self.instance.central_synonym is None and self.graph.source.user.username != settings.APPLICATION_USERNAME:
+                return True
+            if self.graph.source and hasattr(self.instance, 'sources'):
+                new_source = not self.instance.sources.filter(source=self.graph.source).exists()
         return not new_source and (self.is_merge or (self.instance and not self.change))
 
     @property
@@ -291,7 +297,6 @@ class ChangeNode:
 
         ignore_attrs = set()
         if issubclass(self.model, apps.get_model('share', 'creativework')):
-
             # Hacky fix for SHARE-604
             # If the given date_updated is older than the current one, don't accept any changes that would overwrite newer changes
             if 'date_updated' in self.attrs and self.instance.date_updated:
@@ -302,7 +307,7 @@ class ChangeNode:
                     ignore_attrs.update(self.instance.change.change.keys())
 
                     # Go back until we find a change that is older than us
-                    for version in self.instance.versions.select_related('change').all():
+                    for version in self.instance.versions.select_related('change').iterator():
                         if not version.date_updated or date_updated > version.date_updated:
                             break
                         ignore_attrs.update(version.change.change.keys())
@@ -313,7 +318,8 @@ class ChangeNode:
             # IE CrossRef sometimes turns preprints into articles/publications
             # TODO Write a test case for subjects
             if self.graph.source and not self.graph.source.canonical and hasattr(self.instance, 'sources'):
-                prev_changes = list(self.instance.changes.filter(change_set__normalized_data__source__source__canonical=True).values_list('change', flat=True))
+                # Only fetch 15. If there are more than 15, it's probably a bug. Even if it is not, the past 15 changes should be enough...
+                prev_changes = list(self.instance.changes.filter(change_set__normalized_data__source__source__canonical=True).values_list('change', flat=True)[:15])
                 canonical_keys = set(key for change in prev_changes for key in change.keys())
                 if prev_changes and set(self.attrs.keys()) & canonical_keys:
                     canonical_sources = list(self.instance.sources.filter(source__canonical=True).values_list('username', flat=True))
@@ -336,8 +342,15 @@ class ChangeNode:
             if v != old_value:
                 attrs[k] = v.isoformat() if isinstance(v, datetime.datetime) else v
 
-        # TODO Add relationships in. Somehow got ommitted first time around
-        return {**changes, **attrs}
+        # TODO Add relationships in for non-subjects. Somehow got omitted first time around
+        changed_relations = {}
+        if self.model is apps.get_model('share', 'subject'):
+            for k, v in relations.items():
+                old_value = getattr(self.instance, k)
+                if IDObfuscator.encode(old_value) != v['@id']:
+                    changed_relations[k] = v
+
+        return {**changes, **attrs, **changed_relations}
 
     def __init__(self, graph, id, type, attrs, namespace=None):
         self.graph = graph

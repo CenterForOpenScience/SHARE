@@ -1,7 +1,7 @@
 configs:
 - base_url: http://eprints.rclis.org/cgi/oai2
   disabled: false
-  earliest_date: null
+  earliest_date: 2014-10-02T11:56:21Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: org.elis

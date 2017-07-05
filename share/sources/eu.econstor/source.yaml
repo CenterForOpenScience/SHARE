@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://www.econstor.eu/dspace-oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2008-12-09T00:00:00Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: eu.econstor

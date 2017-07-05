@@ -1,7 +1,8 @@
+# very slow
 configs:
 - base_url: http://sldr.org/oai-pmh.php
   disabled: false
-  earliest_date: null
+  earliest_date: 2006-10-12
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: org.sldr

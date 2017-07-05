@@ -18,6 +18,7 @@ from django.utils import timezone
 
 from share.util import chunked
 from share.models import CeleryTaskResult
+from share.models.sql import GroupBy
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ def die_on_unhandled(func):
                 logger.exception('Celery internal method %s failed', func)
                 try:
                     if client:
-                        client.capture_exception()
+                        client.captureException()
                 except Exception as ee:
                     logger.exception('Could not log exception to Sentry')
             finally:
@@ -161,7 +162,13 @@ class TaskResultCleaner:
         return timezone.now() - maybe_timedelta(self.TASK_TTLS.get(task_name, self.expires))
 
     def get_task_names(self):
-        return self.TaskModel.objects.distinct('task_name').values_list('task_name', flat=True)
+        qs = self.TaskModel.objects.values('task_name').annotate(name=GroupBy('task_name'))
+        task_names = []
+        for val in qs:
+            if not val.get('task_name'):
+                continue
+            task_names.append(val.get('task_name'))
+        return task_names
 
     def archive(self):
         for name in self.get_task_names():
@@ -193,7 +200,7 @@ class TaskResultCleaner:
         logger.info('Archiving in chunks of %d', self.chunk_size)
 
         i = 0
-        for chunk in chunked(queryset, size=self.chunk_size):
+        for chunk in chunked(queryset.iterator(), size=self.chunk_size):
             compressed = self.compress_and_serialize(chunk)
             self.put_s3(task_name, compressed)
             i += len(chunk)
@@ -222,12 +229,17 @@ class TaskResultCleaner:
             logger.warning('%r.delete is False. Results will NOT be deleted', self)
             return 0
 
+        total_deleted = 0
+
         try:
             with transaction.atomic():
-                num_deleted, deleted_metadata = queryset.delete()
+                # .delete loads the entire queryset and can't be sliced... Hooray
+                for ids in chunked(queryset.values_list('id', flat=True).iterator(), size=self.chunk_size):
+                    num_deleted, _ = queryset.model.objects.filter(id__in=ids).delete()
+                    total_deleted += num_deleted
         except Exception as e:
             logger.exception('Failed to delete queryset with exception %s', e)
             raise
 
-        logger.info('Deleted %s CeleryTasks', num_deleted)
-        return num_deleted
+        logger.info('Deleted %s CeleryTasks', total_deleted)
+        return total_deleted

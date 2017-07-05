@@ -1,6 +1,10 @@
 import json
+import logging
+
+from project import celery_app
 
 from share.bin.util import command
+from share.search.daemon import SearchIndexerDaemon
 
 from bots.elasticsearch import tasks
 from bots.elasticsearch.bot import ElasticSearchBot
@@ -10,8 +14,8 @@ from bots.elasticsearch.bot import ElasticSearchBot
 def search(args, argv):
     """
     Usage:
-        {0} search [--help] <command> [<args>...]
-        {0} search [--filter=FILTER | --all] [options]
+        {0} search <command> [<args>...]
+        {0} search [--help | --filter=FILTER | --all] [options]
 
     Options:
         -h, --help           Show this screen.
@@ -64,10 +68,11 @@ def janitor(args, argv):
     Options:
         -u, --url=URL        The URL of Elasticsearch.
         -i, --index=INDEX    The name of the Elasticsearch index to use.
+        -d, --dry            Dry run the janitor task.
     """
     kwargs = {
-        'es_url': args['--url'],
-        'es_index': args['--index'],
+        'es_url': args.get('--url'),
+        'es_index': args.get('--index'),
         'dry': bool(args['--dry']),
     }
 
@@ -80,6 +85,31 @@ def janitor(args, argv):
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
     """
-    Usage: {0} search setup
+    Usage: {0} search setup [options]
+
+    Options:
+        -u, --url=URL        The URL of Elasticsearch.
+        -i, --index=INDEX    The name of the Elasticsearch index to use.
     """
-    ElasticSearchBot().setup()
+    ElasticSearchBot(es_url=args.get('--url'), es_index=args.get('--index')).setup()
+
+
+@search.subcommand('Start the search indexing daemon')
+def daemon(args, argv):
+    """
+    Usage: {0} search daemon [options]
+
+    Options:
+        -t, --timeout=TIMEOUT     The queue timeout in seconds [default: 5]
+        -s, --size=SIZE           The maximum number of works to index at once [default: 500]
+        -i, --interval=SIZE       The interval at which to flush the queue in seconds [default: 10]
+        -l, --log-level=LOGLEVEL  Set the log level [default: INFO]
+    """
+    logging.getLogger('share.search.daemon').setLevel(args['--log-level'])
+
+    SearchIndexerDaemon(
+        celery_app,
+        max_size=int(args['--size']),
+        timeout=int(args['--timeout']),
+        flush_interval=int(args['--interval']),
+    ).run()

@@ -200,7 +200,7 @@ DATABASES = {
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
-        'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE')) if os.environ.get('CONN_MAX_AGE') else None,
+        'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', 60)),
         'TEST': {'SERIALIZE': False},
     },
 }
@@ -317,13 +317,25 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'bots.elasticsearch.tasks.elasticsearch_janitor',
         'schedule': crontab(hour=23, minute=30),
     },
-
-    # Once an hour
-    'Schedule Harvests': {
-        'task': 'share.tasks.schedule_harvests',
-        'schedule': crontab(minute=0)
-    }
 }
+
+if not DEBUG:
+    CELERY_BEAT_SCHEDULE = {
+        **CELERY_BEAT_SCHEDULE,
+        'Schedule Harvests': {
+            'task': 'share.tasks.schedule_harvests',
+            'schedule': crontab(minute=0)  # hourly
+        },
+        'RawData Janitor': {
+            'task': 'share.janitor.tasks.rawdata_janitor',
+            'schedule': crontab(minute=0)  # hourly
+        },
+        'Source Stats': {
+            'task': 'share.tasks.source_stats',
+            'schedule': crontab(minute=0, hour='3,9,15,21'),  # every 6 hours
+            'args': (),
+        },
+    }
 
 CELERY_RESULT_EXPIRES = 60 * 60 * 24 * 3  # 4 days
 CELERY_RESULT_BACKEND = 'share.celery:CeleryDatabaseBackend'
@@ -345,11 +357,18 @@ CELERY_TASK_ROUTES = {
     'bots.elasticsearch.*': {'priority': 50, 'queue': 'elasticsearch'},
     'share.tasks.harvest': {'priority': 0, 'queue': 'harvest'},
     'share.tasks.transform': {'priority': 20, 'queue': 'transform'},
-    'share.tasks.disambiguate': {'priority': 20, 'queue': 'disambiguate'},
+    'share.tasks.disambiguate': {'priority': 35, 'queue': 'disambiguate'},
 }
 
 CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}
 CELERY_TASK_QUEUES[CELERY_TASK_DEFAULT_QUEUE] = {}
+
+ELASTIC_QUEUE = 'es-index'
+ELASTIC_QUEUE_SETTINGS = {
+    'serializer': 'json',
+    'compression': 'zlib',
+    'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
+}
 
 # Logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
@@ -396,6 +415,11 @@ LOGGING = {
             'level': LOG_LEVEL,
             'propagate': False
         },
+        'share.search.daemon': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],
@@ -438,6 +462,8 @@ OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 
 ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 'ul']
+
+SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')

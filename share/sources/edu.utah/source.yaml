@@ -1,7 +1,7 @@
 configs:
 - base_url: https://collections.lib.utah.edu/oai
   disabled: false
-  earliest_date: null
+  earliest_date: 2002-01-08
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: edu.utah

@@ -1,7 +1,6 @@
 import pytest
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 
 from share import models
 from share.change import ChangeGraph
@@ -271,57 +270,6 @@ class TestChangeSet:
     #     # The affected contributor should have been updated
     #     assert Contributor.objects.get(person=jane_doe).versions.count() == 2
     #     assert Contributor.objects.get(person=jane_doe).change.change_set == change_set
-
-    @pytest.mark.django_db
-    def test_accept_subject(self, normalized_data_id):
-        models.Subject.objects.bulk_create([
-            models.Subject(name='Felines')
-        ])
-
-        assert models.Subject.objects.filter(name='Felines').count() == 1
-
-        graph = ChangeGraph([{
-            '@id': '_:987',
-            '@type': 'subject',
-            'name': 'Felines'
-        }, {
-            '@id': '_:678',
-            '@type': 'throughsubjects',
-            'subject': {'@id': '_:987', '@type': 'subject'},
-            'creative_work': {'@id': '_:789', '@type': 'preprint'},
-        }, {
-            '@id': '_:789',
-            '@type': 'preprint',
-            'title': 'All About Cats',
-        }])
-
-        graph.process()
-        change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
-
-        change_set.accept()
-
-        assert models.Preprint.objects.filter(subjects__name='Felines').count() == 1
-        assert models.Preprint.objects.filter(subjects__name='Felines').first().title == 'All About Cats'
-
-    @pytest.mark.django_db
-    def test_invalid_subject(self):
-        with pytest.raises(ValidationError) as e:
-            ChangeGraph([{
-                '@id': '_:987',
-                '@type': 'subject',
-                'name': 'Felines'
-            }, {
-                '@id': '_:678',
-                '@type': 'throughsubjects',
-                'subject': {'@id': '_:987', '@type': 'subject'},
-                'creative_work': {'@id': '_:789', '@type': 'preprint'},
-            }, {
-                '@id': '_:789',
-                '@type': 'preprint',
-                'title': 'All About Cats',
-            }]).process()
-
-        assert e.value.message == 'Invalid subject: "Felines"'
 
     @pytest.mark.django_db
     def test_change_work_type(self, normalized_data_id):

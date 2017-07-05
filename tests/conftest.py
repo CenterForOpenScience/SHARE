@@ -11,6 +11,7 @@ from django.db import connections
 from django.db import transaction
 from django.conf import settings
 from django.db.models.signals import post_save
+
 from oauth2_provider.models import AccessToken, Application
 from urllib3.connection import ConnectionError
 from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
@@ -279,3 +280,26 @@ def transactional_db(django_db_blocker, request):
         apps.set_available_apps(test_case.available_apps)
 
     post_save.receivers = receivers
+
+
+@pytest.fixture
+def celery_app(celery_app):
+    """Probably won't want to use this.
+    The worker that is spawned will not have access to the test transaction.
+    Leaving this here, just in case. Making it work properly takes some effort.
+    """
+    from celery import signals
+    from project.celery import app
+    # There's a Django fix up closes the django connection on most events.
+    # The actual celery app causes it to be registered so we have to manually disable it here
+    signals.worker_init.disconnect(app._fixups[0].on_worker_init)
+    # Finally, when the test celery app runs the fixup we allow it have 1 resuable connection.
+    celery_app.conf.CELERY_DB_REUSE_MAX = 1
+    celery_app.autodiscover_tasks(['share'])
+    return celery_app
+
+
+@pytest.fixture
+def no_celery():
+    from project.celery import app
+    app.conf.task_always_eager = True

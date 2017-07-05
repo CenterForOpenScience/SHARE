@@ -10,7 +10,6 @@ from share.models import Person
 from share.models import Tag
 from share.models.change import Change
 from share.models.change import ChangeSet
-from share import tasks
 from share.util import IDObfuscator
 
 from tests import factories
@@ -165,7 +164,7 @@ class TestChangeGraph:
 
         assert change_set is None
 
-    def test_add_multiple_sources(self):
+    def test_add_multiple_sources(self, celery_app):
         source1 = factories.SourceFactory()
         source2 = factories.SourceFactory()
 
@@ -177,13 +176,13 @@ class TestChangeGraph:
 
         assert work.sources.count() == 0
 
-        tasks.disambiguate(nd1.id)
+        celery_app.tasks['share.tasks.disambiguate'](nd1.id)
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'
         assert work.sources.count() == 1
 
-        tasks.disambiguate(nd2.id)
+        celery_app.tasks['share.tasks.disambiguate'](nd2.id)
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'

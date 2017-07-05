@@ -1,7 +1,7 @@
 configs:
 - base_url: https://zenodo.org/oai2d
   disabled: false
-  earliest_date: null
+  earliest_date: 2013-05-06T23:27:15Z
   harvester: oai
   harvester_kwargs:
       metadata_prefix: oai_datacite3
