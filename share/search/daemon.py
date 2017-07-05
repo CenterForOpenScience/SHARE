@@ -6,8 +6,9 @@ import time
 
 from django.conf import settings
 
+from raven.contrib.django.raven_compat.models import client
+
 from share import util
-from share.sentry import sentry_client
 
 from bots.elasticsearch.tasks import index_model
 
@@ -52,14 +53,14 @@ class SearchIndexerDaemon:
             logger.warning('Recieved Interrupt. Exiting...')
             return
         except Exception as e:
-            sentry_client.captureException()
+            client.captureException()
             logger.exception('Encountered an unexpected error. Attempting to flush before exiting.')
 
             if self.messages:
                 try:
                     self.flush()
                 except Exception:
-                    sentry_client.captureException()
+                    client.captureException()
                     logger.exception('%d messages could not be flushed', len(self.messages))
 
             raise e

@@ -64,6 +64,6 @@ class TestRawDataJanitor:
         se[20] = TypeError
         mock_transform.side_effect = se
 
-        with mock.patch('share.janitor.tasks.sentry_client') as mock_sentry:
+        with mock.patch('share.janitor.tasks.client') as mock_sentry:
             assert rawdata_janitor() == 25
         assert mock_sentry.captureException.called
