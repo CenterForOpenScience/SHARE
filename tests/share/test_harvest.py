@@ -443,3 +443,70 @@ class TestHarvestTask:
             earliest_date=pendulum.parse('2017-01-01').date()
         )
         assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 365
+
+    def test_obsolete(self):
+        source_config = factories.SourceConfigFactory()
+
+        hlv1 = factories.HarvestLogFactory(
+            harvester_version=source_config.harvester.version,
+            source_config=source_config,
+            start_date=pendulum.parse('2017-01-01').date(),
+        )
+
+        old_version = source_config.harvester.get_class().VERSION
+        source_config.harvester.get_class().VERSION += 1
+        new_version = source_config.harvester.get_class().VERSION
+
+        hlv2 = factories.HarvestLogFactory(
+            harvester_version=source_config.harvester.version,
+            source_config=source_config,
+            start_date=pendulum.parse('2017-01-01').date(),
+        )
+
+        tasks.harvest(log_id=hlv2.id)
+        tasks.harvest(log_id=hlv1.id)
+
+        hlv1.refresh_from_db()
+        hlv2.refresh_from_db()
+
+        assert hlv2.status == HarvestLog.STATUS.succeeded
+        assert hlv2.harvester_version == new_version
+
+        assert hlv1.status == HarvestLog.STATUS.skipped
+        assert hlv1.harvester_version == old_version
+        assert hlv1.context == HarvestLog.SkipReasons.obsolete.value
+
+    @pytest.mark.parametrize('completions, status, new_version, updated', [
+        (0, HarvestLog.STATUS.created, 2, True),
+        (1, HarvestLog.STATUS.created, 2, False),
+        (88, HarvestLog.STATUS.created, 2, False),
+        (88, HarvestLog.STATUS.failed, 2, False),
+        (0, HarvestLog.STATUS.failed, 2, True),
+        (0, HarvestLog.STATUS.succeeded, 2, True),
+    ])
+    def test_autoupdate(self, completions, status, new_version, updated):
+        source_config = factories.SourceConfigFactory()
+
+        source_config.harvester.get_class().VERSION = 1
+
+        hl = factories.HarvestLogFactory(
+            status=status,
+            completions=completions,
+            harvester_version=source_config.harvester.version,
+            source_config=source_config,
+            start_date=pendulum.parse('2017-01-01').date(),
+        )
+
+        source_config.harvester.get_class().VERSION = new_version
+
+        tasks.harvest(log_id=hl.id)
+
+        hl.refresh_from_db()
+
+        if updated:
+            assert hl.status == HarvestLog.STATUS.succeeded
+        elif new_version > 1:
+            assert hl.status == HarvestLog.STATUS.skipped
+            assert hl.context == HarvestLog.SkipReasons.obsolete.value
+
+        assert (hl.harvester_version == new_version) == updated
