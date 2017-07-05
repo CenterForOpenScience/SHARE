@@ -23,7 +23,7 @@ def main(argv):
     for name in MODULES:
         __import__('share.bin.{}'.format(name))
 
-    execute_cmd(sys.argv[1:])
+    execute_cmd(argv[1:])
 
 if __name__ == '__main__':
     main(sys.argv)

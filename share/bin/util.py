@@ -41,7 +41,9 @@ class Command:
         return cmd
 
     def __call__(self, argv):
-        if self.parsed:
+        if not self.parsed:
+            args = {}
+        else:
             try:
                 options_first = self is execute_cmd or (argv[argv.index(self.name) + 1] in self.subcommands)
             except IndexError:
@@ -53,8 +55,6 @@ class Command:
                 version=settings.VERSION,
                 options_first=options_first,
             )
-        else:
-            args = {}
 
         if args.get('<command>') and self.subcommands:
             if not args['<command>'] in self.subcommands:
