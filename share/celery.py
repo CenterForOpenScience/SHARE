@@ -16,7 +16,8 @@ from django.core import serializers
 from django.db import transaction
 from django.utils import timezone
 
-from share.sentry import sentry_client
+from raven.contrib.django.raven_compat.models import client
+
 from share.util import chunked
 from share.models import CeleryTaskResult
 from share.models.sql import GroupBy
@@ -34,7 +35,7 @@ def die_on_unhandled(func):
         except Exception as e:
             err = e
             try:
-                sentry_client.captureException()
+                client.captureException()
                 logger.exception('Celery internal method %s failed', func)
             finally:
                 if err:
