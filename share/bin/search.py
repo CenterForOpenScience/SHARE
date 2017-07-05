@@ -68,10 +68,11 @@ def janitor(args, argv):
     Options:
         -u, --url=URL        The URL of Elasticsearch.
         -i, --index=INDEX    The name of the Elasticsearch index to use.
+        -d, --dry            Dry run the janitor task.
     """
     kwargs = {
-        'es_url': args['--url'],
-        'es_index': args['--index'],
+        'es_url': args.get('--url'),
+        'es_index': args.get('--index'),
         'dry': bool(args['--dry']),
     }
 
@@ -84,9 +85,13 @@ def janitor(args, argv):
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
     """
-    Usage: {0} search setup
+    Usage: {0} search setup [options]
+
+    Options:
+        -u, --url=URL        The URL of Elasticsearch.
+        -i, --index=INDEX    The name of the Elasticsearch index to use.
     """
-    ElasticSearchBot().setup()
+    ElasticSearchBot(es_url=args.get('--url'), es_index=args.get('--index')).setup()
 
 
 @search.subcommand('Start the search indexing daemon')
