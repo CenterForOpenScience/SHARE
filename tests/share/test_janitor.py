@@ -50,8 +50,20 @@ class TestRawDataJanitor:
         ])
 
     def test_ignores_no_output(self, mock_transform):
-        factories.RawDatumFactory.create_batch(55, no_output=True)
+        factories.RawDatumFactory.create_batch(25, no_output=True)
 
         assert rawdata_janitor() == 0
 
         assert mock_transform.call_args_list == []
+
+    def test_ignores_exceptions(self, mock_transform):
+        factories.RawDatumFactory.create_batch(25)
+
+        se = ['test'] * 25
+        se[10] = ValueError
+        se[20] = TypeError
+        mock_transform.side_effect = se
+
+        with mock.patch('share.janitor.tasks.sentry_client') as mock_sentry:
+            assert rawdata_janitor() == 25
+        assert mock_sentry.captureException.called

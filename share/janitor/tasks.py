@@ -6,8 +6,9 @@ from django.db.models import Exists
 from django.db.models import OuterRef
 
 from share import tasks
-from share.models import RawDatum
 from share.models import NormalizedData
+from share.models import RawDatum
+from share.sentry import sentry_client
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,8 @@ def rawdata_janitor(self, limit=500):
         try:
             t = tasks.transform.apply((rd.id, ), throw=True, retries=tasks.transform.max_retries + 1)
         except Exception as e:
-            logger.exception('Failed to processed %r via %r', rd, t)
+            sentry_client.captureException()
+            logger.exception('Failed to processed %r', rd)
         else:
             logger.info('Processed %r via %r', rd, t)
     if count:
