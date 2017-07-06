@@ -5,10 +5,10 @@ from django.contrib.auth.models import AnonymousUser
 from rest_framework_json_api import serializers
 
 from share import models
-from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult, HarvestLog, SourceConfig
+
+from share.models import ProviderRegistration, SiteBanner, CeleryTaskResult, logs
 
 from api import fields
-
 
 class BaseShareSerializer(serializers.ModelSerializer):
 
