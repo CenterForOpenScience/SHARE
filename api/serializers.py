@@ -139,6 +139,12 @@ class SourceSerializer(ShareModelSerializer):
         fields = ('name', 'home_page', 'long_title', 'icon')
 
 
+class SourceConfigSerializer(ShareModelSerializer):
+    class Meta:
+        model = models.SourceConfig
+        fields = '__all__'
+
+        
 class SiteBannerSerializer(ShareModelSerializer):
     color = serializers.SerializerMethodField()
 
