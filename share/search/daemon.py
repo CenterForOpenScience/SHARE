@@ -6,6 +6,8 @@ import time
 
 from django.conf import settings
 
+from raven.contrib.django.raven_compat.models import client
+
 from share import util
 
 from bots.elasticsearch.tasks import index_model
@@ -30,12 +32,6 @@ class SearchIndexerDaemon:
             logger.debug('Running in the main thread, SIGTERM is active')
             signal.signal(signal.SIGTERM, self.stop)
 
-        self.sentry = None
-        if hasattr(settings, 'RAVEN_CONFIG') and settings.RAVEN_CONFIG['dsn']:
-            logger.info('Sentry is active')
-            import raven
-            self.sentry = raven.Client(settings.RAVEN_CONFIG['dsn'])
-
     def run(self):
         try:
             connection = self.app.pool.acquire(block=True)
@@ -57,18 +53,16 @@ class SearchIndexerDaemon:
             logger.warning('Recieved Interrupt. Exiting...')
             return
         except Exception as e:
+            client.captureException()
             logger.exception('Encountered an unexpected error. Attempting to flush before exiting.')
-
-            if self.sentry:
-                self.sentry.captureException()
 
             if self.messages:
                 try:
                     self.flush()
                 except Exception:
+                    client.captureException()
                     logger.exception('%d messages could not be flushed', len(self.messages))
-                    if self.sentry:
-                        self.sentry.captureException()
+
             raise e
         finally:
             try:
