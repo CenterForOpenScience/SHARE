@@ -5,9 +5,11 @@ import celery
 from django.db.models import Exists
 from django.db.models import OuterRef
 
+from raven.contrib.django.raven_compat.models import client
+
 from share import tasks
-from share.models import RawDatum
 from share.models import NormalizedData
+from share.models import RawDatum
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +43,8 @@ def rawdata_janitor(self, limit=500):
         try:
             t = tasks.transform.apply((rd.id, ), throw=True, retries=tasks.transform.max_retries + 1)
         except Exception as e:
-            logger.exception('Failed to processed %r via %r', rd, t)
+            client.captureException()
+            logger.exception('Failed to processed %r', rd)
         else:
             logger.info('Processed %r via %r', rd, t)
     if count:
