@@ -1,0 +1,16 @@
+configs:
+- base_url: http://swbiodiversity.org/seinet/
+  disabled: false
+  earliest_date: null
+  harvester: org.swbiodiversity
+  harvester_kwargs:
+      list_url: http://swbiodiversity.org/seinet/collections/misc/collprofiles.php
+  label: org.swbiodiversity
+  rate_limit_allowance: 1
+  rate_limit_period: 2
+  transformer: org.swbiodiversity
+  transformer_kwargs: {}
+home_page: http://swbiodiversity.org/seinet/
+long_title: SEINet - Arizona Chapter Collections
+name: org.swbiodiversity
+user: providers.org.swbiodiversity
