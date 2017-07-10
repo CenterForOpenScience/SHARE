@@ -12,20 +12,6 @@ from share import models
 from share.util import IDObfuscator
 
 
-def sql_to_dict(keys, values):
-    ret = []
-    for i in range(len(values[0])):
-        ret.append({key: values[j][i] for j, key in enumerate(keys)})
-    return ret
-
-
-def unique_by(key, values):
-    ret = {}
-    for val in values:
-        ret[val[key]] = val
-    return list(ret.values())
-
-
 def populate_types(data):
     model = apps.get_model(data['type'])
     data['id'] = IDObfuscator.encode_id(data['id'], model)
