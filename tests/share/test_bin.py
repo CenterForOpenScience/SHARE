@@ -38,7 +38,7 @@ class TestSearchCTL:
         ('sharectl search janitor --index Echo --url Kilo', {'es_url': 'Kilo', 'es_index': 'Echo'}),
     ])
     def test_janitor(self, argv, result, monkeypatch):
-        defaults = {'es_index': None, 'es_url': None, 'dry': False}
+        defaults = {'es_index': None, 'es_url': None, 'dry': False, 'to_daemon': False}
 
         with mock.patch('share.bin.search.tasks.elasticsearch_janitor') as mock_task:
             main(argv.split(' '))
