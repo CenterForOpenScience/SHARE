@@ -125,6 +125,7 @@ def fetch_creativework(pks):
                     , 'identifiers', COALESCE(identifiers, '{}')
                     , 'sources', COALESCE(sources, '{}')
                     , 'subjects', COALESCE(subjects, '{}')
+                    , 'subject_aliases', COALESCE(subject_aliases, '{}')
                     , 'related_agents', COALESCE(related_agents, '{}')
                     , 'retractions', COALESCE(retractions, '{}')
                 )
@@ -203,7 +204,7 @@ def fetch_creativework(pks):
                 LEFT JOIN LATERAL (
                             SELECT array_agg(DISTINCT name) AS subjects
                             FROM (
-                                SELECT concat_ws('/', CASE WHEN source.name = %s THEN %s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
+                                SELECT concat_ws('/', CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
                                 FROM share_subject AS child
                                     LEFT JOIN share_subjecttaxonomy AS taxonomy ON child.taxonomy_id = taxonomy.id
                                     LEFT JOIN share_source AS source ON taxonomy.source_id = source.id
@@ -218,6 +219,26 @@ def fetch_creativework(pks):
                                 ) AS x(name)
                             WHERE name IS NOT NULL
                             ) AS subjects ON TRUE
+                LEFT JOIN LATERAL (
+                            SELECT array_agg(DISTINCT name) AS subject_aliases
+                            FROM (
+                                SELECT concat_ws('/', CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
+                                FROM share_subject AS child
+                                    LEFT JOIN share_subjecttaxonomy AS taxonomy ON child.taxonomy_id = taxonomy.id
+                                    LEFT JOIN share_source AS source ON taxonomy.source_id = source.id
+                                    LEFT JOIN share_subject AS parent ON child.parent_id = parent.id
+                                    LEFT JOIN share_subject AS grand_parent ON parent.parent_id = grand_parent.id
+                                    LEFT JOIN share_subject AS great_grand_parent ON grand_parent.parent_id = great_grand_parent.id
+                                WHERE child.id IN (SELECT share_subject.central_synonym_id
+                                                    FROM share_throughsubjects
+                                                    JOIN share_subject ON share_throughsubjects.subject_id = share_subject.id
+                                                    WHERE share_throughsubjects.creative_work_id = creativework.id
+                                                    AND NOT share_throughsubjects.is_deleted
+                                                    AND NOT share_subject.is_deleted)
+                                      AND NOT child.is_deleted
+                                ) AS x(name)
+                            WHERE name IS NOT NULL
+                            ) AS subject_aliases ON TRUE
                 LEFT JOIN LATERAL (
                             SELECT json_agg(json_strip_nulls(json_build_object(
                                                                 'id', retraction.id
@@ -241,10 +262,14 @@ def fetch_creativework(pks):
                             AND work_relation.type = 'share.retracts'
                             AND NOT retraction.is_deleted
                             ) AS retractions ON TRUE
-                WHERE creativework.id IN %s
+                WHERE creativework.id IN %(work_ids)s
                 AND creativework.title != ''
                 AND COALESCE(array_length(identifiers, 1), 0) < 51
-            ''', (settings.APPLICATION_USERNAME, settings.SUBJECTS_CENTRAL_TAXONOMY, tuple(pks), ))
+            ''', {
+                'system_user': settings.APPLICATION_USERNAME,
+                'central_taxonomy': settings.SUBJECTS_CENTRAL_TAXONOMY,
+                'work_ids': tuple(pks),
+            })
 
             while True:
                 data = c.fetchone()
