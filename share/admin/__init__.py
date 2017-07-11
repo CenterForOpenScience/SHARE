@@ -13,7 +13,8 @@ from oauth2_provider.models import AccessToken
 
 from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
-from share.admin.jobs import HarvestJobAdmin, IngestJobAdmin
+from share.admin.jobs import HarvestJobAdmin
+from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.share_objects import CreativeWorkAdmin, SubjectAdmin
 from share.harvest.scheduler import HarvestScheduler
@@ -23,7 +24,8 @@ from share.models.change import ChangeSet
 from share.models.core import NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
-from share.models.jobs import HarvestJob, IngestJob
+from share.models.jobs import HarvestJob
+from share.models.jobs import IngestJob
 from share.models.meta import Subject, SubjectTaxonomy
 from share.models.registration import ProviderRegistration
 from share.models.sources import SourceStat

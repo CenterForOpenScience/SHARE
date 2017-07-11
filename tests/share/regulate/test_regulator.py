@@ -3,7 +3,7 @@ from unittest import mock
 
 from share.regulate import Regulator
 from share.regulate.graph import MutableGraph
-from share.util.extensions import Extensions
+
 
 @pytest.mark.parametrize('num_node_steps', [0, 1, 5])
 @pytest.mark.parametrize('num_graph_steps', [0, 1, 5])
@@ -16,6 +16,7 @@ class TestRegulator:
         node_steps = [mock.Mock() for _ in range(num_node_steps)]
         graph_steps = [mock.Mock() for _ in range(num_graph_steps)]
         validation_steps = [mock.Mock() for _ in range(num_validation_steps)]
+
         def patched_steps(cls, namespace, name):
             if namespace == 'share.regulate.node_steps':
                 return node_steps
@@ -24,6 +25,7 @@ class TestRegulator:
             elif namespace == 'share.regulate.validation_steps':
                 return validation_steps
             raise NotImplementedError()
+
         monkeypatch.setattr(Regulator, '_steps', patched_steps)
         return {'node': node_steps, 'graph': graph_steps, 'validation': validation_steps}
 

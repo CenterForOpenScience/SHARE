@@ -314,12 +314,34 @@ class AbstractBaseJob(models.Model):
             if error:
                 raise error
 
+    def current_versions(self):
+        return {
+            'source_config_version': self.source_config.version,
+        }
+
     def update_versions(self):
-        self.source_config_version = self.source_config.version
+        """Update version fields to the values from self.current_versions
+
+        Return True if successful, else False.
+        """
+        current_versions = self.current_versions()
+        if all(getattr(self, f) == v for f, v in current_versions.items()):
+            # No updates required
+            return True
+
+        if self.completions > 0:
+            logger.warning('%r is outdated but has previously completed, skipping...', self)
+            return False
+
         try:
-            self.save()
+            with transaction.atomic():
+                for f, v in current_versions.items():
+                    setattr(self, f, v)
+                self.save()
+            logger.warning('%r has been updated to the versions: %s', self, current_versions)
             return True
         except IntegrityError:
+            logger.warning('A newer version of %r already exists, skipping...', self)
             return False
 
 
@@ -423,9 +445,10 @@ class HarvestJob(AbstractBaseJob):
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
 
-    def update_versions(self):
-        self.harvester_version = self.source_config.harvester.version
-        return super().update_versions()
+    def current_versions(self):
+        versions = super().current_versions()
+        versions['harvester_version'] = self.source_config.harvester.version
+        return versions
 
     def __repr__(self):
         return '<{type}({id}, {status}, {source}, {start_date}, {end_date})>'.format(
@@ -468,10 +491,11 @@ class IngestJob(AbstractBaseJob):
     class Meta:
         unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
 
-    def update_versions(self):
-        self.transformer_version = self.source_config.transformer.version
-        self.regulator_version = Regulator.VERSION
-        return super().update_versions()
+    def current_versions(self):
+        versions = super().current_versions()
+        versions['transformer_version'] = self.source_config.transformer.version
+        versions['regulator_version'] = Regulator.VERSION
+        return versions
 
     def log_graph(self, field_name, graph):
         setattr(self, field_name, graph.to_jsonld())

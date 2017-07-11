@@ -19,6 +19,7 @@ from share.models import ChangeSet
 from share.models import HarvestJob
 from share.models import IngestJob
 from share.models import NormalizedData
+from share.models import RawDatum
 from share.models import Source
 from share.models import SourceConfig
 from share.regulate import Regulator
@@ -174,7 +175,7 @@ class JobConsumer:
 
             if job.completions > 0 and job.status == self.job_class.STATUS.succeeded:
                 if not self.superfluous:
-                    job.skip(self.job_class.SkipReasons.duplicated)
+                    job.skip(job.SkipReasons.duplicated)
                     logger.warning('%r has already been harvested. Force a re-run with superfluous=True', job)
                     return None
                 logger.info('%r has already been harvested. Re-running superfluously', job)
@@ -188,7 +189,7 @@ class JobConsumer:
                 logger.info('Spawned %r', res)
 
             if not job.update_versions():
-                job.skip(self.job_class.SkipReasons.obsolete)
+                job.skip(job.SkipReasons.obsolete)
                 return
 
             logger.info('Consuming %r', job)
@@ -308,11 +309,11 @@ class IngestJobConsumer(JobConsumer):
         job.log_graph('transformed_data', graph)
 
         if not graph:
-            if not raw.normalizeddata_set.exists():
-                logger.warning('Graph was empty for %s, setting no_output to True', raw)
-                RawDatum.objects.filter(id=raw_id).update(no_output=True)
+            if not job.raw.normalizeddata_set.exists():
+                logger.warning('Graph was empty for %s, setting no_output to True', job.raw)
+                RawDatum.objects.filter(id=job.raw_id).update(no_output=True)
             else:
-                logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
+                logger.warning('Graph was empty for %s, but a normalized data already exists for it', job.raw)
             return
 
         Regulator(job).regulate(graph)

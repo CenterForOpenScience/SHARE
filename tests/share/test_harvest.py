@@ -393,9 +393,9 @@ class TestHarvestTask:
             earliest_date=pendulum.parse('2017-01-01').date()
         )
 
-        # We have a harvest log with start_date equal to earliest_date
+        # We have a harvest job with start_date equal to earliest_date
         # but a different source_config
-        factories.HarvestLogFactory(
+        factories.HarvestJobFactory(
             start_date=pendulum.parse('2017-01-01').date(),
             end_date=pendulum.parse('2017-01-02').date(),
         )
@@ -408,13 +408,13 @@ class TestHarvestTask:
             earliest_date=pendulum.parse('2017-01-01').date()
         )
 
-        factories.HarvestLogFactory(
+        factories.HarvestJobFactory(
             source_config=source_config,
             start_date=pendulum.parse('2017-01-01').date(),
             end_date=pendulum.parse('2017-01-02').date(),
         )
 
-        factories.HarvestLogFactory(
+        factories.HarvestJobFactory(
             source_config=source_config,
             start_date=pendulum.parse('2018-01-01').date(),
             end_date=pendulum.parse('2018-01-02').date(),
@@ -432,7 +432,7 @@ class TestHarvestTask:
     def test_obsolete(self):
         source_config = factories.SourceConfigFactory()
 
-        hlv1 = factories.HarvestLogFactory(
+        hlv1 = factories.HarvestJobFactory(
             harvester_version=source_config.harvester.version,
             source_config=source_config,
             start_date=pendulum.parse('2017-01-01').date(),
@@ -442,39 +442,39 @@ class TestHarvestTask:
         source_config.harvester.get_class().VERSION += 1
         new_version = source_config.harvester.get_class().VERSION
 
-        hlv2 = factories.HarvestLogFactory(
+        hlv2 = factories.HarvestJobFactory(
             harvester_version=source_config.harvester.version,
             source_config=source_config,
             start_date=pendulum.parse('2017-01-01').date(),
         )
 
-        tasks.harvest(log_id=hlv2.id)
-        tasks.harvest(log_id=hlv1.id)
+        tasks.harvest(job_id=hlv2.id)
+        tasks.harvest(job_id=hlv1.id)
 
         hlv1.refresh_from_db()
         hlv2.refresh_from_db()
 
-        assert hlv2.status == HarvestLog.STATUS.succeeded
+        assert hlv2.status == HarvestJob.STATUS.succeeded
         assert hlv2.harvester_version == new_version
 
-        assert hlv1.status == HarvestLog.STATUS.skipped
+        assert hlv1.status == HarvestJob.STATUS.skipped
         assert hlv1.harvester_version == old_version
-        assert hlv1.context == HarvestLog.SkipReasons.obsolete.value
+        assert hlv1.context == HarvestJob.SkipReasons.obsolete.value
 
     @pytest.mark.parametrize('completions, status, new_version, updated', [
-        (0, HarvestLog.STATUS.created, 2, True),
-        (1, HarvestLog.STATUS.created, 2, False),
-        (88, HarvestLog.STATUS.created, 2, False),
-        (88, HarvestLog.STATUS.failed, 2, False),
-        (0, HarvestLog.STATUS.failed, 2, True),
-        (0, HarvestLog.STATUS.succeeded, 2, True),
+        (0, HarvestJob.STATUS.created, 2, True),
+        (1, HarvestJob.STATUS.created, 2, False),
+        (88, HarvestJob.STATUS.created, 2, False),
+        (88, HarvestJob.STATUS.failed, 2, False),
+        (0, HarvestJob.STATUS.failed, 2, True),
+        (0, HarvestJob.STATUS.succeeded, 2, True),
     ])
     def test_autoupdate(self, completions, status, new_version, updated):
         source_config = factories.SourceConfigFactory()
 
         source_config.harvester.get_class().VERSION = 1
 
-        hl = factories.HarvestLogFactory(
+        hl = factories.HarvestJobFactory(
             status=status,
             completions=completions,
             harvester_version=source_config.harvester.version,
@@ -484,14 +484,14 @@ class TestHarvestTask:
 
         source_config.harvester.get_class().VERSION = new_version
 
-        tasks.harvest(log_id=hl.id)
+        tasks.harvest(job_id=hl.id)
 
         hl.refresh_from_db()
 
         if updated:
-            assert hl.status == HarvestLog.STATUS.succeeded
+            assert hl.status == HarvestJob.STATUS.succeeded
         elif new_version > 1:
-            assert hl.status == HarvestLog.STATUS.skipped
-            assert hl.context == HarvestLog.SkipReasons.obsolete.value
+            assert hl.status == HarvestJob.STATUS.skipped
+            assert hl.context == HarvestJob.SkipReasons.obsolete.value
 
         assert (hl.harvester_version == new_version) == updated
