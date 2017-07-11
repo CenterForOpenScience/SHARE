@@ -49,13 +49,17 @@ def test_swbiodiversity_transformer():
     transformer = config.get_transformer()
     fetch_result = FetchResult('http://swbiodiversity.org/seinet/collections/misc/collprofiles.php?collid=187', data)
     raw_datum = RawDatum.objects.store_data(config, fetch_result)
-    result = transformer.transform(raw_datum)
-    assert result['@graph'][3]['@type'] == 'dataset'
-    assert result['@graph'][3]['description'] == 'Sample description'
-    assert result['@graph'][3]['title'] == 'A. Michael Powell Herbarium (SRSC)'
-    assert result['@graph'][3]['extra']['usage_rights'] == 'CC BY-NC (Attribution-Non-Commercial)'
-    assert result['@graph'][3]['extra']['access_rights'] == 'Sul Ross University'
-    assert result['@graph'][3]['extra']['collection_statistics'] == {
+
+    graph = transformer.transform(raw_datum)
+
+    dataset = graph.filter_nodes(lambda n: n.type == 'dataset')[0]
+
+    assert dataset.type == 'dataset'
+    assert dataset['description'] == 'Sample description'
+    assert dataset['title'] == 'A. Michael Powell Herbarium (SRSC)'
+    assert dataset['extra']['usage_rights'] == 'CC BY-NC (Attribution-Non-Commercial)'
+    assert dataset['extra']['access_rights'] == 'Sul Ross University'
+    assert dataset['extra']['collection_statistics'] == {
         "(25%) georeferenced": "1,195",
         "(59%) identified to species": "2,849",
         "(61%) with images": "2,954",
@@ -65,4 +69,13 @@ def test_swbiodiversity_transformer():
         "specimen records": "4,868",
         "total taxa (including subsp. and var.)": "762"
     }
-    assert result['@graph'][4]['uri'] == 'http://swbiodiversity.org/seinet/collections/misc/collprofiles.php?collid=187'
+
+    agent_relations = dataset['agent_relations']
+    assert len(agent_relations) == 1
+    agent = agent_relations[0]['agent']
+    assert agent['given_name'] == 'Test'
+    assert agent['identifiers'][0]['uri'] == 'mailto:author@email.com'
+
+    identifiers = dataset['identifiers']
+    assert len(identifiers) == 1
+    assert identifiers[0]['uri'] == 'http://swbiodiversity.org/seinet/collections/misc/collprofiles.php?collid=187'

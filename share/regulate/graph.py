@@ -71,7 +71,7 @@ class MutableGraph(nx.DiGraph):
 
         in_edges (boolean): Include lists of incoming edges. Default True.
         """
-        return [MutableNode(self, id).to_jsonld(in_edges=in_edges) for id in self]
+        return [node.to_jsonld(in_edges=in_edges) for node in self]
 
     def add_node(self, id, type, **attr):
         """Create a node in the graph.
@@ -133,7 +133,7 @@ class MutableGraph(nx.DiGraph):
             data.get(self.FROM_NAME_ATTR) != from_name for _, _, data
             in self.out_edges_iter(from_id, data=True)
         ), 'Out-edge names must be unique on the node'
-        self.add_edge(from_id, to_id, from_name=from_name, to_name=to_name)
+        self.add_edge(from_id, to_id, {self.FROM_NAME_ATTR: from_name, self.TO_NAME_ATTR: to_name})
 
     def remove_named_edge(self, from_id, from_name):
         """Remove a named edge.
@@ -339,7 +339,7 @@ class MutableNode:
         return ld_node
 
     def __eq__(self, other):
-        return other is not None and other.graph is self.graph and other.id == self.id
+        return isinstance(other, self.__class__) and other.graph is self.graph and other.id == self.id
 
     def __hash__(self):
         return hash(self.id)

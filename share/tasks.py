@@ -101,33 +101,39 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
 
 @celery.shared_task(bind=True, max_retries=5)
 def harvest(self, **kwargs):
-    """Complete the harvest of the given HarvestJob or next the next available HarvestJob.
+    """Complete the harvest of the given HarvestJob or the next available HarvestJob.
 
-    Args:
-        job_id (int, optional): Harvest the given job. Defaults to None.
-            If the given job cannot be locked, the task will retry indefinitely.
-            If the given job belongs to a disabled or deleted Source or SourceConfig, the task will fail.
-        exhaust (bool, optional): Whether or not to start another harvest task if one is found. Defaults to True.
-            Used to prevent a backlog of harvests. If we have a valid job, spin off another task to eat through
-            the rest of the queue.
-        ignore_disabled (bool, optional):
-        superfluous (bool, optional): Re-ingest Rawdata that we've already collected. Defaults to False.
-        force (bool, optional)
-
-
+    Keyword arguments from JobConsumer.__init__, plus:
         ingest (bool, optional): Whether or not to start the full ingest process for harvested data. Defaults to True.
-        limit (int, optional)
+        limit (int, optional): Maximum number of data to harvest. Defaults to no limit.
     """
     HarvestJobConsumer(self, **kwargs).consume()
 
 
 @celery.shared_task(bind=True, max_retries=5)
 def ingest(self, **kwargs):
+    """Ingest the data of the given IngestJob or the next available IngestJob.
+
+    Keyword arguments from JobConsumer.__init__
+    """
     IngestJobConsumer(self, **kwargs).consume()
 
 
 class JobConsumer:
     def __init__(self, task, job_id=None, exhaust=True, ignore_disabled=False, superfluous=False, force=False):
+        """Base class for consuming jobs based on AbstractBaseJob
+
+        Keyword arguments:
+            job_id (int, optional): Consume the given job. Defaults to None.
+                If the given job cannot be locked, the task will retry indefinitely.
+                If the given job belongs to a disabled or deleted Source or SourceConfig, the task will fail.
+            exhaust (bool, optional): If True and there are queued jobs, start another task. Defaults to True.
+                Used to prevent a backlog. If we have a valid job, spin off another task to eat through
+                the rest of the queue.
+            ignore_disabled (bool, optional): If False, 
+            superfluous (bool, optional): Re-ingest Rawdata that we've already collected. Defaults to False.
+            force (bool, optional):
+        """
         self.task = task
         self.job_id = job_id
         self.exhaust = exhaust
@@ -176,9 +182,9 @@ class JobConsumer:
             if job.completions > 0 and job.status == self.job_class.STATUS.succeeded:
                 if not self.superfluous:
                     job.skip(job.SkipReasons.duplicated)
-                    logger.warning('%r has already been harvested. Force a re-run with superfluous=True', job)
+                    logger.warning('%r has already been consumed. Force a re-run with superfluous=True', job)
                     return None
-                logger.info('%r has already been harvested. Re-running superfluously', job)
+                logger.info('%r has already been consumed. Re-running superfluously', job)
 
             if self.exhaust and self.job_id is None:
                 if self.force:
