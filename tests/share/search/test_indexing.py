@@ -226,8 +226,9 @@ class TestFetchers:
             factories.AbstractCreativeWorkFactory(),
         ]
 
-        source = factories.SourceFactory()
         factories.WorkIdentifierFactory.create_batch(5, creative_work=works[0])
+
+        source = factories.SourceFactory()
         works[1].sources.add(source.user)
 
         # Trim trailing zeros
@@ -261,14 +262,77 @@ class TestFetchers:
             'identifiers': list(work.identifiers.values_list('uri', flat=True)),
             'sources': [user.source.long_title for user in work.sources.all()],
             'subjects': [],
+            'subject_synonyms': [],
             'tags': [],
 
             'lists': {},
         } for work in works]
 
     @pytest.mark.django_db
+    @pytest.mark.parametrize('bepresses, customs, expected', [
+        ([], [-1], {
+            'subjects': ['mergik/Magic/Cool Magic/SUPER COOL MAGIC'],
+            'subject_synonyms': ['bepress/Engineering/Computer Engineering/Data Storage Systems'],
+        }),
+        ([-1], [], {
+            'subjects': ['bepress/Engineering/Computer Engineering/Data Storage Systems'],
+            'subject_synonyms': [],
+        }),
+        ([-1], [-1], {
+            'subjects': ['bepress/Engineering/Computer Engineering/Data Storage Systems', 'mergik/Magic/Cool Magic/SUPER COOL MAGIC'],
+            'subject_synonyms': ['bepress/Engineering/Computer Engineering/Data Storage Systems'],
+        }),
+        ([0, 1], [], {
+            'subjects': ['bepress/Engineering', 'bepress/Engineering/Computer Engineering'],
+            'subject_synonyms': [],
+        }),
+        ([], [0, 1], {
+            'subjects': ['mergik/Magic', 'mergik/Magic/Cool Magic'],
+            'subject_synonyms': ['bepress/Engineering', 'bepress/Engineering/Computer Engineering'],
+        }),
+    ])
+    def test_subject_indexing(self, bepresses, customs, expected):
+        custom_tax = factories.SubjectTaxonomyFactory(source__long_title='mergik')
+        system_tax = models.SubjectTaxonomy.objects.get(source__user__username=settings.APPLICATION_USERNAME)
+
+        custom = ['Magic', 'Cool Magic', 'SUPER COOL MAGIC']
+        bepress = ['Engineering', 'Computer Engineering', 'Data Storage Systems']
+
+        for i, name in enumerate(tuple(bepress)):
+            bepress[i] = factories.SubjectFactory(
+                name=name,
+                taxonomy=system_tax,
+                parent=bepress[i - 1] if i > 0 else None,
+            )
+
+        for i, name in enumerate(tuple(custom)):
+            custom[i] = factories.SubjectFactory(
+                name=name,
+                taxonomy=custom_tax,
+                central_synonym=bepress[i],
+                parent=custom[i - 1] if i > 0 else None,
+            )
+
+        work = factories.AbstractCreativeWorkFactory()
+
+        for i in bepresses:
+            factories.ThroughSubjectsFactory(subject=bepress[i], creative_work=work)
+        for i in customs:
+            factories.ThroughSubjectsFactory(subject=custom[i], creative_work=work)
+
+        fetched = next(fetchers.CreativeWorkFetcher()([work.id]))
+        assert {k: v for k, v in fetched.items() if k.startswith('subject')} == expected
+
+    @pytest.mark.django_db
     def test_agent_fetcher(self):
-        pass  # TODO
+        agents = [
+            factories.AbstractAgentFactory(),
+            factories.AbstractAgentFactory(),
+            factories.AbstractAgentFactory(),
+            factories.AbstractAgentFactory(),
+        ]
+
+        list(fetchers.AgentFetcher()(agent.id for agent in agents))
 
 
 @pytest.mark.django_db
