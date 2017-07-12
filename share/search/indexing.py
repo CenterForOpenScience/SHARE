@@ -274,7 +274,7 @@ class ESIndexer:
                 self.client,
                 self.bulk_stream(model, flattener, self.es_index, gentle=gentle),
                 max_chunk_bytes=self.MAX_CHUNK_BYTES,
-                raise_on_error=True
+                raise_on_error=False,
             )
 
             for ok, resp in streamer:
