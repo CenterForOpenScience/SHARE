@@ -45,7 +45,7 @@ class ListGenerator(list):
 
 
 class HarvesterFactory(DjangoModelFactory):
-    key = factory.Faker('bs')
+    key = factory.Faker('sentence')
 
     class Meta:
         model = models.Harvester
@@ -69,7 +69,7 @@ class HarvesterFactory(DjangoModelFactory):
 
 
 class TransformerFactory(DjangoModelFactory):
-    key = factory.Faker('bs')
+    key = factory.Faker('sentence')
 
     class Meta:
         model = models.Transformer
