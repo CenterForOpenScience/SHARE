@@ -1,4 +1,4 @@
-# Regulator (NOT IMPLEMENTED)
+# Regulator
 
 ## Responsibilities
 * Run a series of cleaning steps on a graph, modifying it in place.
@@ -7,8 +7,8 @@
 * If the graph has problems the Regulator cannot fix, or if the graph fails validation, halt with an error.
 
 ## Parameters
+* `ingest_job` (optional) -- [IngestJob](../Tables.md#IngestJob)
 * `graph` -- [MutableGraph](./Graph.md) object, output from a [Transformer](./Transformer.md)
-* `suid` -- Source Unique Identifier
 
 ## Phases of Regulation
 * Source-specific Phase
@@ -26,7 +26,6 @@
   * Decisions based on information across multiple nodes
   * Can modify any part of the graph in any way
     * Added nodes will be run through a Node Phase separately
-    * If the graph is modified, repeat the Graph Phase until no changes
 * Validation Phase
   * Static list of regulator steps that run on the entire graph
   * Cannot modify the graph

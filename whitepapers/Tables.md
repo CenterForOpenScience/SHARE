@@ -100,7 +100,7 @@ Job entries to track the status of a specific harvester run.
 * `source_config_id`, `start_date`, `end_date`, `harvester_version`, `source_config_version` (unique)
 
 
-### IngestJob (NOT IMPLEMENTED)
+### IngestJob
 Job entries to track the status of an ingest task
 
 | Column                  |   Type    | Indexed | Nullable | FK  |     Default     | Description                                                                                                   |
@@ -114,21 +114,26 @@ Job entries to track the status of an ingest task
 | `date_modified`         | datetime  |    ✓    |          |     | now (on update) | Datetime this row was last modified                                                                           |
 | `share_version`         |   text    |         |          |     |     UNKNOWN     | The commitish at the time this job was last run                                                               |
 | `suid_id`               |    int    |    ✓    |          |  ✓  |                 | SUID of the document to ingest                                                                                |
-| `latest_raw_id`         |    int    |    ✓    |          |  ✓  |                 | The latest (or only) RawDatum this job will (or did) ingest                                                   |
+| `raw_id`                |    int    |    ✓    |          |  ✓  |                 | The RawDatum this job will (or did) ingest                                                                    |
 | `source_config_version` |    int    |         |          |     |                 | Version of the SUID's `SourceConfig` on the last attempted run                                                |
 | `transformer_version`   |    int    |         |          |     |                 | Version of the Transformer    |
 | `regulator_version`     |    int    |         |          |     |                 | Version of the Regulator      |
-| `consolidator_version`  |    int    |         |          |     |                 | Version of the Consolidator   |
 | `transformed_data`      |   text    |         |    ✓     |     |                 | Serialized output from the Transformer                                                                        |
-| `regulator_log`         |   text    |         |    ✓     |     |                 | Human-readable summary of modifications made by the Regulator, with a reason for each                         |
+| `regulator_logs`        |    o2m    |         |          |     |                 | List of RegulatorLogs for this ingestion run                                                                  |
 | `regulated_data`        |   text    |         |    ✓     |     |                 | Serialized output from the Regulator                                                                          |
 
 #### Other indices
-* `suid_id`, `latest_raw_id`, `source_config_version`, `transformer_version`, `regulator_version`, `consolidator_version` (unique)
+* `suid_id`, `latest_raw_id`, `source_config_version`, `transformer_version`, `regulator_version` (unique)
 
-#### Notes
-* `regulator_version` and `consolidator_version` will be mutable. Whenever the regulator or consolidator version gets bumped existing jobs should be updated.
+#### RegulatorLog
+Log of a single operation that happened during regulation
 
+| Column                  |   Type    | Indexed | Nullable | FK  |     Default     | Description                                                                                                   |
+| :---------------------- | :-------: | :-----: | :------: | :-: | :-------------: | :------------------------------------------------------------------------------------------------------------ |
+| `description`           |   text    |         |          |     |                 | Human-readable description of what happened                                                                   |
+| `node_id`               |   text    |         |     ✓    |     |                 | ID of the node in the graph which was affected by this operation (if only one)                                |
+| `rejected`              |   bool    |         |          |     |                 | Whether a problem was encountered which caused ingestion to fail                                              |
+| `ingest_job_id`         |    int    |    ✓    |          |  ✓  |                 | IngestJob this log belongs to                                                                                 |
 
 ## Template
 

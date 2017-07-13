@@ -109,24 +109,6 @@ class SourceConfigFactory(DjangoModelFactory):
         model = models.SourceConfig
 
 
-class HarvestJobFactory(DjangoModelFactory):
-    source_config = factory.SubFactory(SourceConfigFactory)
-    start_date = factory.Faker('date_time')
-
-    class Meta:
-        model = models.HarvestJob
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        attrs['source_config_version'] = attrs['source_config'].version
-        attrs['harvester_version'] = attrs['source_config'].harvester.version
-        if isinstance(attrs['start_date'], datetime.datetime):
-            attrs['start_date'] = attrs['start_date'].date()
-        if not attrs.get('end_date'):
-            attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
-        return super()._generate(create, attrs)
-
-
 class SourceUniqueIdentifierFactory(DjangoModelFactory):
     identifier = factory.Faker('sentence')
     source_config = factory.SubFactory(SourceConfigFactory)
@@ -148,6 +130,37 @@ class RawDatumFactory(DjangoModelFactory):
             attrs['sha256'] = hashlib.sha256(attrs.get('datum', '').encode()).hexdigest()
 
         return super()._generate(create, attrs)
+
+
+class HarvestJobFactory(DjangoModelFactory):
+    source_config = factory.SubFactory(SourceConfigFactory)
+    start_date = factory.Faker('date_time')
+
+    source_config_version = factory.SelfAttribute('source_config.version')
+    harvester_version = factory.SelfAttribute('source_config.harvester.version')
+
+    class Meta:
+        model = models.HarvestJob
+
+    @classmethod
+    def _generate(cls, create, attrs):
+        if isinstance(attrs['start_date'], datetime.datetime):
+            attrs['start_date'] = attrs['start_date'].date()
+        if not attrs.get('end_date'):
+            attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
+        return super()._generate(create, attrs)
+
+
+class IngestJobFactory(DjangoModelFactory):
+    source_config = factory.SelfAttribute('suid.source_config')
+    suid = factory.SelfAttribute('raw.suid')
+    raw = factory.SubFactory(RawDatumFactory)
+    source_config_version = factory.SelfAttribute('source_config.version')
+    transformer_version = factory.SelfAttribute('source_config.transformer.version')
+    regulator_version = 1
+
+    class Meta:
+        model = models.IngestJob
 
 
 class CeleryTaskResultFactory(DjangoModelFactory):

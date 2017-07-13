@@ -57,6 +57,9 @@ class AbstractJobManager(models.Manager):
         RETURNING {fields}
     '''
 
+    def get_queryset(self):
+        return LockableQuerySet(self.model, using=self._db)
+
     def bulk_create_or_nothing(self, fields, data, db_alias='default'):
         default_fields, default_values = self._build_defaults(fields)
 
@@ -402,7 +405,6 @@ class LockableQuerySet(models.QuerySet):
             ).first()
 
             yield item
-
         finally:
             if item and item.lock_acquired:
                 with connections[self.db].cursor() as cursor:
@@ -429,18 +431,11 @@ class LockableQuerySet(models.QuerySet):
         )
 
 
-class LockableJobManager(AbstractJobManager):
-    def get_queryset(self):
-        return LockableQuerySet(self.model, using=self._db)
-
-
 class HarvestJob(AbstractBaseJob):
     # May want to look into using DateRange in the future
     end_date = models.DateField(db_index=True)
     start_date = models.DateField(db_index=True)
     harvester_version = models.PositiveIntegerField()
-
-    objects = LockableJobManager()
 
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
@@ -470,8 +465,6 @@ class IngestJob(AbstractBaseJob):
 
     transformed_data = DateTimeAwareJSONField(null=True)
     regulated_data = DateTimeAwareJSONField(null=True)
-
-    objects = LockableJobManager()
 
     @classmethod
     def schedule(cls, raw, superfluous=False):

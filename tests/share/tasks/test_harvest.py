@@ -1,6 +1,5 @@
 from unittest import mock
 import random
-import threading
 import uuid
 
 from faker import Factory
@@ -21,33 +20,7 @@ from share import tasks
 from share.harvest.scheduler import HarvestScheduler
 
 from tests import factories
-
-
-@pytest.fixture
-def source_config():
-    return factories.SourceConfigFactory()
-
-
-class SyncedThread(threading.Thread):
-
-    def __init__(self, target, args=(), kwargs={}):
-        self._end = threading.Event()
-        self._start = threading.Event()
-
-        def _target(*args, **kwargs):
-            with target(*args, **kwargs):
-                self._start.set()
-                self._end.wait(10)
-
-        super().__init__(target=_target, args=args, kwargs=kwargs)
-
-    def start(self):
-        super().start()
-        self._start.wait(10)
-
-    def join(self, timeout=1):
-        self._end.set()
-        return super().join(timeout)
+from tests.share.tasks import SyncedThread
 
 
 @pytest.mark.django_db

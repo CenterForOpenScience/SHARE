@@ -98,20 +98,20 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
 def harvest(self, **kwargs):
     """Complete the harvest of the given HarvestJob or the next available HarvestJob.
 
-    Keyword arguments from JobConsumer.__init__, plus:
+    Keyword arguments from JobConsumer.consume, plus:
         ingest (bool, optional): Whether or not to start the full ingest process for harvested data. Defaults to True.
         limit (int, optional): Maximum number of data to harvest. Defaults to no limit.
     """
-    HarvestJobConsumer(self, **kwargs).consume()
+    HarvestJobConsumer(self).consume(**kwargs)
 
 
 @celery.shared_task(bind=True, max_retries=5)
 def ingest(self, **kwargs):
     """Ingest the data of the given IngestJob or the next available IngestJob.
 
-    Keyword arguments from JobConsumer.__init__
+    Keyword arguments from JobConsumer.consume
     """
-    IngestJobConsumer(self, **kwargs).consume()
+    IngestJobConsumer(self).consume(**kwargs)
 
 
 @celery.shared_task(bind=True)
