@@ -130,7 +130,6 @@ class SourceConfig(models.Model):
     private_harvester_kwargs = EncryptedJSONField(blank=True, null=True)
     private_transformer_kwargs = EncryptedJSONField(blank=True, null=True)
 
-
     objects = NaturalKeyManager('label')
 
     def natural_key(self):

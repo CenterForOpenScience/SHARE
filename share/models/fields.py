@@ -26,8 +26,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from db.deletion import DATABASE_CASCADE
 
-SENSITIVE_DATA_KEY = jwe.kdf(settings.SECRET_KEY.encode('utf-8'), settings.SALT.encode('utf-8'))
-
 
 class DateTimeAwareJSONEncoder(DjangoJSONEncoder):
     def default(self, o):
@@ -567,7 +565,7 @@ class EncryptedJSONField(models.BinaryField):
         if not input_json:
             return None
 
-        input_json = self.prefix + jwe.encrypt(json.dumps(input_json).encode('utf-8'), SENSITIVE_DATA_KEY)
+        input_json = self.prefix + jwe.encrypt(json.dumps(input_json).encode('utf-8'), settings.SENSITIVE_DATA_KEY)
 
         return input_json
 
@@ -575,7 +573,7 @@ class EncryptedJSONField(models.BinaryField):
         if not output_json:
             return None
 
-        output_json = json.loads(jwe.decrypt(output_json[len(self.prefix):], SENSITIVE_DATA_KEY).decode('utf-8'))
+        output_json = json.loads(jwe.decrypt(output_json[len(self.prefix):], settings.SENSITIVE_DATA_KEY).decode('utf-8'))
 
         return output_json
 
