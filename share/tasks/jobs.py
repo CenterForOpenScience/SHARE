@@ -1,122 +1,20 @@
 import logging
 import random
 
-import celery
-
-from django.apps import apps
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.db import models
-from django.db import transaction
 from django.utils import timezone
 
-from share.change import ChangeGraph
 from share.harvest.exceptions import HarvesterConcurrencyError
-from share.harvest.scheduler import HarvestScheduler
-from share.models import AbstractCreativeWork
 from share.models import CeleryTaskResult
-from share.models import ChangeSet
 from share.models import HarvestJob
 from share.models import IngestJob
 from share.models import NormalizedData
 from share.models import RawDatum
-from share.models import Source
-from share.models import SourceConfig
 from share.regulate import Regulator
-from share.search import SearchIndexer
 from share.util import chunked
-from share.util.source_stat import SourceStatus
-from share.util.source_stat import OAISourceStatus
 
 
 logger = logging.getLogger(__name__)
-
-
-@celery.shared_task(bind=True, max_retries=5)
-def disambiguate(self, normalized_id):
-    normalized = NormalizedData.objects.select_related('source__source').get(pk=normalized_id)
-
-    if self.request.id:
-        self.update_state(meta={
-            'source': normalized.source.source.long_title
-        })
-
-    updated = None
-
-    try:
-        # Load all relevant ContentTypes in a single query
-        ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
-
-        with transaction.atomic():
-            cg = ChangeGraph(normalized.data['@graph'], namespace=normalized.source.username)
-            cg.process()
-            cs = ChangeSet.objects.from_graph(cg, normalized.id)
-            if cs and (normalized.source.is_robot or normalized.source.is_trusted or Source.objects.filter(user=normalized.source).exists()):
-                # TODO: verify change set is not overwriting user created object
-                updated = cs.accept()
-    except Exception as e:
-        raise self.retry(
-            exc=e,
-            countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
-        )
-
-    if not updated:
-        return
-    # Only index creativeworks on the fly, for the moment.
-    updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
-    existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
-    ids = list(updated_works | existing_works)
-
-    try:
-        SearchIndexer(self.app).index('creativework', *ids)
-    except Exception as e:
-        logger.exception('Could not add results from %r to elasticqueue', normalized)
-        raise
-
-
-@celery.shared_task(bind=True)
-def schedule_harvests(self, *source_config_ids, cutoff=None):
-    """
-
-    Args:
-        *source_config_ids (int): PKs of the source configs to schedule harvests for.
-            If omitted, all non-disabled and non-deleted source configs will be scheduled
-        cutoff (optional, datetime): The time to schedule harvests up to. Defaults to today.
-
-    """
-    if source_config_ids:
-        qs = SourceConfig.objects.filter(id__in=source_config_ids)
-    else:
-        qs = SourceConfig.objects.exclude(disabled=True).exclude(source__is_deleted=True)
-
-    with transaction.atomic():
-        jobs = []
-
-        # TODO take harvest/sourceconfig version into account here
-        for source_config in qs.exclude(harvester__isnull=True).select_related('harvester').annotate(latest=models.Max('harvestjobs__end_date')):
-            jobs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
-
-        HarvestJob.objects.bulk_get_or_create(jobs)
-
-
-@celery.shared_task(bind=True, max_retries=5)
-def harvest(self, **kwargs):
-    """Complete the harvest of the given HarvestJob or the next available HarvestJob.
-
-    Keyword arguments from JobConsumer.__init__, plus:
-        ingest (bool, optional): Whether or not to start the full ingest process for harvested data. Defaults to True.
-        limit (int, optional): Maximum number of data to harvest. Defaults to no limit.
-    """
-    HarvestJobConsumer(self, **kwargs).consume()
-
-
-@celery.shared_task(bind=True, max_retries=5)
-def ingest(self, **kwargs):
-    """Ingest the data of the given IngestJob or the next available IngestJob.
-
-    Keyword arguments from JobConsumer.__init__
-    """
-    IngestJobConsumer(self, **kwargs).consume()
 
 
 class JobConsumer:
@@ -130,7 +28,7 @@ class JobConsumer:
             exhaust (bool, optional): If True and there are queued jobs, start another task. Defaults to True.
                 Used to prevent a backlog. If we have a valid job, spin off another task to eat through
                 the rest of the queue.
-            ignore_disabled (bool, optional): If False, 
+            ignore_disabled (bool, optional):
             superfluous (bool, optional): Re-ingest Rawdata that we've already collected. Defaults to False.
             force (bool, optional):
         """
@@ -147,10 +45,6 @@ class JobConsumer:
 
     @property
     def lock_field(self):
-        raise NotImplementedError()
-
-    @property
-    def task_function(self):
         raise NotImplementedError()
 
     def _consume_job(self, job):
@@ -191,7 +85,7 @@ class JobConsumer:
                     logger.warning('propagating force=True until queue exhaustion')
 
                 logger.debug('Spawning another task to consume %s', self.job_class.__name__)
-                res = self.task_function.apply_async(self.task.request.args, self.task.request.kwargs)
+                res = self.task.apply_async(self.task.request.args, self.task.request.kwargs)
                 logger.info('Spawned %r', res)
 
             if not job.update_versions():
@@ -229,7 +123,6 @@ class JobConsumer:
 class HarvestJobConsumer(JobConsumer):
     job_class = HarvestJob
     lock_field = 'source_config'
-    task_function = harvest
 
     def __init__(self, *args, limit=None, ingest=True, **kwargs):
         super().__init__(*args, **kwargs)
@@ -300,7 +193,6 @@ class HarvestJobConsumer(JobConsumer):
 class IngestJobConsumer(JobConsumer):
     job_class = IngestJob
     lock_field = 'suid'
-    task_function = ingest
 
     def _consume_job(self, job):
         # TODO think about getting rid of these triangles
@@ -328,40 +220,12 @@ class IngestJobConsumer(JobConsumer):
         # TODO save as unmerged single-source graph
 
         if settings.SHARE_LEGACY_PIPELINE:
+            from share.tasks import disambiguate
+
             nd = NormalizedData.objects.create(
                 data={'@graph': job.regulated_data},
                 source=job.suid.source_config.source.user,
                 raw=job.raw,
             )
             nd.tasks.add(CeleryTaskResult.objects.get(task_id=self.task.request.id))
-
             disambiguate.apply_async((nd.id,))
-
-
-@celery.shared_task(bind=True)
-def source_stats(self):
-    oai_sourceconfigs = SourceConfig.objects.filter(
-        disabled=False,
-        base_url__isnull=False,
-        harvester__key='oai'
-    )
-    for config in oai_sourceconfigs.values():
-        get_source_stats.apply_async((config['id'],))
-
-    non_oai_sourceconfigs = SourceConfig.objects.filter(
-        disabled=False,
-        base_url__isnull=False
-    ).exclude(
-        harvester__key='oai'
-    )
-    for config in non_oai_sourceconfigs.values():
-        get_source_stats.apply_async((config['id'],))
-
-
-@celery.shared_task(bind=True)
-def get_source_stats(self, config_id):
-    source_config = SourceConfig.objects.get(pk=config_id)
-    if source_config.harvester.key == 'oai':
-        OAISourceStatus(config_id).get_source_stats()
-    else:
-        SourceStatus(config_id).get_source_stats()
