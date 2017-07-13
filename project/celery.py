@@ -2,6 +2,8 @@ import os
 
 import celery
 
+from raven.contrib.celery import register_signal, register_logger_signal
+
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 
@@ -11,13 +13,14 @@ from django.conf import settings  # noqa
 class Celery(celery.Celery):
 
     def on_configure(self):
-        if hasattr(settings, 'RAVEN_CONFIG') and settings.RAVEN_CONFIG['dsn']:
-            import raven
-            from raven.contrib.celery import register_signal, register_logger_signal
+        # Import has to be relative. "client" is not actually lazily initialized
+        from raven.contrib.django.raven_compat.models import client
 
-            client = raven.Client(settings.RAVEN_CONFIG['dsn'])
-            register_logger_signal(client)
-            register_signal(client)
+        if not client.is_enabled():
+            return
+
+        register_signal(client)
+        register_logger_signal(client)
 
 app = Celery('project')
 

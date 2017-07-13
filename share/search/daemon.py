@@ -6,9 +6,11 @@ import time
 
 from django.conf import settings
 
-from share import util
+from elasticsearch import Elasticsearch
 
-from bots.elasticsearch.tasks import index_model
+from raven.contrib.django.raven_compat.models import client
+
+from share.search.indexing import ESIndexer
 
 
 logger = logging.getLogger(__name__)
@@ -16,10 +18,13 @@ logger = logging.getLogger(__name__)
 
 class SearchIndexerDaemon:
 
-    def __init__(self, celery_app, max_size=500, timeout=5, flush_interval=10):
+    def __init__(self, celery_app, url=None, index=None, max_size=500, timeout=5, flush_interval=10):
         self.app = celery_app
         self.messages = []
         self.last_flush = 0
+
+        self.index = index or settings.ELASTICSEARCH_INDEX
+        self.client = Elasticsearch(url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
 
         self.flush_interval = flush_interval
         self.max_size = max_size
@@ -29,12 +34,6 @@ class SearchIndexerDaemon:
         if threading.current_thread() == threading.main_thread():
             logger.debug('Running in the main thread, SIGTERM is active')
             signal.signal(signal.SIGTERM, self.stop)
-
-        self.sentry = None
-        if hasattr(settings, 'RAVEN_CONFIG') and settings.RAVEN_CONFIG['dsn']:
-            logger.info('Sentry is active')
-            import raven
-            self.sentry = raven.Client(settings.RAVEN_CONFIG['dsn'])
 
     def run(self):
         try:
@@ -57,18 +56,16 @@ class SearchIndexerDaemon:
             logger.warning('Recieved Interrupt. Exiting...')
             return
         except Exception as e:
+            client.captureException()
             logger.exception('Encountered an unexpected error. Attempting to flush before exiting.')
-
-            if self.sentry:
-                self.sentry.captureException()
 
             if self.messages:
                 try:
                     self.flush()
                 except Exception:
+                    client.captureException()
                     logger.exception('%d messages could not be flushed', len(self.messages))
-                    if self.sentry:
-                        self.sentry.captureException()
+
             raise e
         finally:
             try:
@@ -84,37 +81,7 @@ class SearchIndexerDaemon:
     def flush(self):
         logger.info('Flushing %d messages', len(self.messages))
 
-        # TODO Move search logic into this module
-        # TODO Support more than just creativeworks?
-        buf = []
-        for message in self.messages:
-            buf.extend(message.payload['CreativeWork'])
-
-        logger.debug('Sending %d works to Elasticsearch', len(buf))
-        try:
-            for chunk in util.chunked(buf, size=500):
-                index_model('CreativeWork', buf)
-        except Exception as e:
-            logger.exception('Failed to index works')
-            raise
-        else:
-            logger.debug('Works successfully indexed')
-
-        errors = []
-        logger.debug('ACKing received messages')
-        for message in self.messages:
-            if len(errors) > 9:
-                break
-
-            try:
-                message.ack()
-            except Exception as e:
-                logger.exception('Could not ACK %r', message)
-                errors.append(e)
-
-        if errors:
-            logger.error('Encounted %d errors while attempting to ACK messages', len(errors))
-            raise errors[0]
+        ESIndexer(self.client, self.index, *self.messages).index()
 
         self.messages.clear()
         self.last_flush = time.time()

@@ -14,10 +14,6 @@ from tests import factories
 @pytest.mark.django_db
 class TestElasticSearchBot:
 
-    @pytest.fixture(autouse=True)
-    def elastic(self, elastic):
-        return elastic
-
     def test_index(self, elastic):
         x = factories.AbstractCreativeWorkFactory()
         source = factories.SourceFactory()

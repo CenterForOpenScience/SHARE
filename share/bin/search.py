@@ -15,7 +15,7 @@ def search(args, argv):
     """
     Usage:
         {0} search <command> [<args>...]
-        {0} search [--help | --filter=FILTER | --all] [options]
+        {0} search [--help | --filter=FILTER | --all] [--async | --to-daemon] [options]
 
     Options:
         -h, --help           Show this screen.
@@ -24,6 +24,7 @@ def search(args, argv):
         -u, --url=URL        The URL of Elasticsearch.
         -i, --index=INDEX    The name of the Elasticsearch index to use.
         -a, --async          Send an update_elasticsearch task to Celery.
+        -t, --to-daemon      Index records by adding them to the indexer daemon's queue.
 
     Commands:
     {1.subcommand_list}
@@ -41,6 +42,7 @@ def search(args, argv):
         'filter': args.get('--filter'),
         'index': args.get('--index'),
         'url': args.get('--url'),
+        'to_daemon': bool(args.get('--to-daemon')),
         # 'models': args.get('--models'),
     }
 
@@ -68,11 +70,14 @@ def janitor(args, argv):
     Options:
         -u, --url=URL        The URL of Elasticsearch.
         -i, --index=INDEX    The name of the Elasticsearch index to use.
+        -d, --dry            Dry run the janitor task.
+        -t, --to-daemon      Index records by adding them to the indexer daemon's queue.
     """
     kwargs = {
-        'es_url': args['--url'],
-        'es_index': args['--index'],
+        'es_url': args.get('--url'),
+        'es_index': args.get('--index'),
         'dry': bool(args['--dry']),
+        'to_daemon': bool(args['--to-daemon']),
     }
 
     if args['--async']:
@@ -84,9 +89,13 @@ def janitor(args, argv):
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
     """
-    Usage: {0} search setup
+    Usage: {0} search setup [options]
+
+    Options:
+        -u, --url=URL        The URL of Elasticsearch.
+        -i, --index=INDEX    The name of the Elasticsearch index to use.
     """
-    ElasticSearchBot().setup()
+    ElasticSearchBot(es_url=args.get('--url'), es_index=args.get('--index')).setup()
 
 
 @search.subcommand('Start the search indexing daemon')
@@ -101,6 +110,7 @@ def daemon(args, argv):
         -l, --log-level=LOGLEVEL  Set the log level [default: INFO]
     """
     logging.getLogger('share.search.daemon').setLevel(args['--log-level'])
+    logging.getLogger('share.search.indexing').setLevel(args['--log-level'])
 
     SearchIndexerDaemon(
         celery_app,

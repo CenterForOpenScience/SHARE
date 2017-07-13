@@ -10,15 +10,11 @@ class SearchIndexer:
         'max_retries': 30,    # give up after 30 tries.
     }
 
-    models = {
-        'creativework': 'CreativeWork'
-    }
-
     def __init__(self, celery_app):
         self.app = celery_app
 
     def index(self, model, *pks):
-        name = self.models.get(model.lower())
+        name = settings.INDEXABLE_MODELS.get(model.lower())
 
         if not name:
             raise ValueError('{} is not an indexable model'.format(model))
@@ -28,4 +24,4 @@ class SearchIndexer:
 
         with self.app.pool.acquire(block=True) as connection:
             with connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS) as queue:
-                queue.put({name: pks}, retry=True, retry_policy=self.retry_policy)
+                queue.put({'version': 1, 'model': name, 'ids': pks}, retry=True, retry_policy=self.retry_policy)

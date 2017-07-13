@@ -1,10 +1,16 @@
 import logging
 import pendulum
 
+import celery
+
 from django.apps import apps
 from django.conf import settings
 from django.db.models import Q
+
 from elasticsearch import Elasticsearch
+
+from share.search import SearchIndexer
+
 
 logger = logging.getLogger(__name__)
 
@@ -121,6 +127,7 @@ class ElasticSearchBot:
                 'retracted': {'type': 'boolean', 'include_in_all': False},
                 'sources': {'type': 'keyword', 'include_in_all': False},
                 'subjects': {'type': 'text', 'include_in_all': False, 'analyzer': 'subject_analyzer', 'search_analyzer': 'subject_search_analyzer'},
+                'subject_aliases': {'type': 'text', 'include_in_all': False, 'analyzer': 'subject_analyzer', 'search_analyzer': 'subject_search_analyzer', 'copy_to': 'subjects'},
                 'tags': {'type': 'text', 'fields': EXACT_FIELD},
                 'title': {'type': 'text', 'fields': EXACT_FIELD},
                 'type': {'type': 'keyword', 'include_in_all': False},
@@ -173,6 +180,7 @@ class ElasticSearchBot:
         self.es_models = kwargs.pop('es_models', None)
         self.es_setup = bool(kwargs.pop('es_setup', False))
         self.es_url = kwargs.pop('es_url', None) or settings.ELASTICSEARCH_URL
+        self.to_daemon = kwargs.pop('to_daemon', False)
 
         if self.es_models:
             self.es_models = [x.lower() for x in self.es_models]
@@ -228,7 +236,13 @@ class ElasticSearchBot:
 
             for i, batch in enumerate(chunk(qs.all(), chunk_size)):
                 if batch:
-                    tasks.index_model.apply_async((model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
+                    if not self.to_daemon:
+                        tasks.index_model.apply_async((model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
+                    else:
+                        try:
+                            SearchIndexer(celery.current_app).index(model.__name__, *batch)
+                        except ValueError:
+                            logger.warning('Not sending model type %r to the SearchIndexer', model)
 
         logger.info('Starting task to index sources')
         tasks.index_sources.apply_async((), {'es_url': self.es_url, 'es_index': self.es_index})

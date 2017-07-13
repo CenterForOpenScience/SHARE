@@ -26,8 +26,7 @@ class TestDisambiguate:
                 celery_app.tasks['share.tasks.disambiguate'](nd.id)
 
                 message = queue.get(timeout=5)
-                for model, ids in message.payload.items():
-                    assert len(apps.get_model('share', model).objects.filter(id__in=ids)) == len(ids)
+                assert len(apps.get_model('share', message.payload['model']).objects.filter(id__in=message.payload['ids'])) == len(message.payload['ids'])
 
     def test_elastic_queue_only_works(self, celery_app):
         nd = factories.NormalizedDataFactory(data={

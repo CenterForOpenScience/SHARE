@@ -127,6 +127,9 @@ class SourceConfig(models.Model):
     disabled = models.BooleanField(default=False)
 
     json_encrypt = EncryptedJSONField(blank=True, null=True)
+    private_harvester_kwargs = EncryptedJSONField(blank=True, null=True)
+    private_transformer_kwargs = EncryptedJSONField(blank=True, null=True)
+
 
     objects = NaturalKeyManager('label')
 

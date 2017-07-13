@@ -22,7 +22,7 @@ from api.authentication import APIV1TokenBackPortAuthentication
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
     RawDatumSerializer, ShareUserSerializer, SourceSerializer
-from share.models import RawDatum, NormalizedData, Source, SourceConfig, Transformer
+from share.models import RawDatum, NormalizedData, Source, SourceConfig, Transformer, ShareUser
 from share.tasks import disambiguate
 from share.harvest.serialization import DictSerializer
 from share.harvest.base import FetchResult
@@ -39,7 +39,7 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ShareUserSerializer
 
     def get_queryset(self):
-        return [self.request.user, ]
+        return ShareUser.objects.filter(pk=self.request.user.pk)
 
 
 class SourceViewSet(viewsets.ReadOnlyModelViewSet):
