@@ -16,6 +16,8 @@ from api import serializers as api_serializers
 from share.util import IDObfuscator, InvalidID
 from share.models import Source
 
+from api import util
+
 
 class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('-id', )
@@ -35,33 +37,34 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     # Override to convert encoded pk to an actual pk
     def get_object(self):
-        queryset = self.filter_queryset(self.get_queryset(False))
+        import ipdb; ipdb.set_trace()
+        # queryset = self.filter_queryset(self.get_queryset(False))
 
-        # Perform the lookup filtering.
-        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+    #     # Perform the lookup filtering.
+    #     lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
-        assert lookup_url_kwarg in self.kwargs, (
-            'Expected view %s to be called with a URL keyword argument '
-            'named "%s". Fix your URL conf, or set the `.lookup_field` '
-            'attribute on the view correctly.' %
-            (self.__class__.__name__, lookup_url_kwarg)
-        )
+    #     assert lookup_url_kwarg in self.kwargs, (
+    #         'Expected view %s to be called with a URL keyword argument '
+    #         'named "%s". Fix your URL conf, or set the `.lookup_field` '
+    #         'attribute on the view correctly.' %
+    #         (self.__class__.__name__, lookup_url_kwarg)
+    #     )
 
-        try:
-            (model, decoded_pk) = IDObfuscator.decode(self.kwargs[lookup_url_kwarg])
-            concrete_model = self.serializer_class.Meta.model._meta.concrete_model
-            if model is not concrete_model:
-                raise serializers.ValidationError('The specified ID refers to an {}. Expected {}'.format(model._meta.model_name, concrete_model._meta.model_name))
-        except InvalidID:
-            raise serializers.ValidationError('Invalid ID')
+    #     try:
+    #         (model, decoded_pk) = IDObfuscator.decode(self.kwargs[lookup_url_kwarg])
+    #         concrete_model = self.serializer_class.Meta.model._meta.concrete_model
+    #         if model is not concrete_model:
+    #             raise serializers.ValidationError('The specified ID refers to an {}. Expected {}'.format(model._meta.model_name, concrete_model._meta.model_name))
+    #     except InvalidID:
+    #         raise serializers.ValidationError('Invalid ID')
 
-        filter_kwargs = {self.lookup_field: decoded_pk}
-        obj = get_object_or_404(queryset, **filter_kwargs)
+    #     filter_kwargs = {self.lookup_field: decoded_pk}
+    #     obj = get_object_or_404(queryset, **filter_kwargs)
 
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
+    #     # May raise a permission denied
+    #     self.check_object_permissions(self.request, obj)
 
-        return obj
+    #     return obj
 
 
 # Other
@@ -81,14 +84,6 @@ def source_icon_view(request, source_name):
     return response
 
 
-class HttpSmartResponseRedirect(http.HttpResponseRedirect):
-    status_code = 307
-
-
-class HttpSmartResponsePermanentRedirect(http.HttpResponsePermanentRedirect):
-    status_code = 308
-
-
 class APIVersionRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
@@ -98,8 +93,8 @@ class APIVersionRedirectView(RedirectView):
         url = self.get_redirect_url(*args, **kwargs)
         if url:
             if self.permanent:
-                return HttpSmartResponsePermanentRedirect(url)
-            return HttpSmartResponseRedirect(url)
+                return util.HttpSmartResponsePermanentRedirect(url)
+            return util.HttpSmartResponseRedirect(url)
         return http.HttpResponseGone()
 
 

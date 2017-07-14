@@ -46,8 +46,8 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.OrderingFilter, )
     ordering = ('id', )
     ordering_fields = ('long_title', )
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
     serializer_class = SourceSerializer
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly, ]
 
     queryset = Source.objects.none()  # Required for DjangoModelPermissions
 
@@ -180,7 +180,7 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
             async_result = disambiguate.delay(nm_instance.id)
             # TODO Fix Me
             return Response({
-                'id': nm_instance.id,
+                'id': IDObfuscator.encode(nm_instance),
                 'type': 'NormalizedData',
                 'attributes': {'task': async_result.id}
             }, status=status.HTTP_202_ACCEPTED)
@@ -274,7 +274,7 @@ class V1DataView(views.APIView):
         Success:       200 OK
     """
     authentication_classes = (APIV1TokenBackPortAuthentication, )
-    permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
+    permission_classes = (ReadOnlyOrTokenHasScopeOrIsAuthenticated, )
     serializer_class = BasicNormalizedDataSerializer
     renderer_classes = (JSONRenderer, )
     parser_classes = (JSONParser,)
