@@ -127,7 +127,7 @@ class ElasticSearchBot:
                 'retracted': {'type': 'boolean', 'include_in_all': False},
                 'sources': {'type': 'keyword', 'include_in_all': False},
                 'subjects': {'type': 'text', 'include_in_all': False, 'analyzer': 'subject_analyzer', 'search_analyzer': 'subject_search_analyzer'},
-                'subject_aliases': {'type': 'text', 'include_in_all': False, 'analyzer': 'subject_analyzer', 'search_analyzer': 'subject_search_analyzer', 'copy_to': 'subjects'},
+                'subject_synonyms': {'type': 'text', 'include_in_all': False, 'analyzer': 'subject_analyzer', 'search_analyzer': 'subject_search_analyzer', 'copy_to': 'subjects'},
                 'tags': {'type': 'text', 'fields': EXACT_FIELD},
                 'title': {'type': 'text', 'fields': EXACT_FIELD},
                 'type': {'type': 'keyword', 'include_in_all': False},
