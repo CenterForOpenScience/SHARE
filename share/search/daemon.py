@@ -108,7 +108,7 @@ class SearchIndexerDaemon:
 
             if time.time() - self.last_flush >= self.flush_interval:
                 logger.debug('Time since last flush (%.2f sec) has exceeded flush_interval (%.2f sec) . Flushing...', time.time() - self.last_flush, self.flush_interval)
-                self.flush(queue.connection)
+                self.flush()
             elif len(self.messages) >= self.max_size:
                 logger.debug('Buffer has exceeded max_size. Flushing...')
                 self.flush()
