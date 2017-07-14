@@ -8,8 +8,8 @@ from share.models import ChangeSet
 from tests.factories import NormalizedDataFactory, ShareUserFactory
 
 
-def accept_changes(context, nodes, user=None):
-    user = (user or context.user)
+def accept_changes(context, nodes, username):
+    user = models.ShareUser.objects.get(username=username)
     cg = ChangeGraph(nodes, namespace=user.username)
     cg.process()
     nd = NormalizedDataFactory(source=user)
@@ -43,6 +43,7 @@ def make_subjects(table, work_id=None):
             '@id': '_:{}'.format(row['NAME']),
             '@type': 'subject',
             'name': row['NAME'],
+            'uri': row.get('URI'),
             'parent': ref(parent),
             'central_synonym': ref(synonym),
         }
@@ -57,52 +58,51 @@ def make_subjects(table, work_id=None):
     return [*subjects.values(), *throughs]
 
 
-def taxonomy_source(context, taxonomy_type):
-    if taxonomy_type == 'custom':
-        return context.user.source
-    if taxonomy_type == 'central':
-        return models.Source.objects.get(user__username=settings.APPLICATION_USERNAME)
-    raise ValueError('Invalid taxonomy: {}'.format(taxonomy_type))
-
-
 @behave.given('a central taxonomy')
 def add_central_taxonomy(context):
-    system_user = models.ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
-    accept_changes(context, make_subjects(context.table), user=system_user)
+    accept_changes(context, make_subjects(context.table), settings.APPLICATION_USERNAME)
 
 
-@behave.given('a custom taxonomy')
-def add_custom_taxonomy(context):
-    accept_changes(context, make_subjects(context.table))
+@behave.given('{username}\'s custom taxonomy')
+def add_custom_taxonomy(context, username):
+    accept_changes(context, make_subjects(context.table), username)
 
 
-@behave.given('a user with a source')
-def add_user(context):
-    context.user = ShareUserFactory()
+@behave.given('a user {username} with a source')
+def add_user(context, username):
+    ShareUserFactory(username=username)
 
 
-@behave.when('a work is added with subjects')
-def add_work_with_subjects(context):
+@behave.when('{username} adds a work with subjects')
+def add_work_with_subjects(context, username):
     work = {
         '@id': '_:worky',
         '@type': 'creativework',
         'title': 'title title',
     }
-    nodes = accept_changes(context, [work, *make_subjects(context.table, work['@id'])])
+    nodes = accept_changes(context, [work, *make_subjects(context.table, work['@id'])], username)
     context.work = next(n for n in nodes if isinstance(n, models.AbstractCreativeWork))
 
 
-@behave.then('{taxonomy} taxonomy exists')
-def taxonomy_exists(context, taxonomy):
-    assert models.SubjectTaxonomy.objects.filter(source=taxonomy_source(context, taxonomy)).exists()
+@behave.then('central taxonomy exists')
+@behave.then('{username}\'s custom taxonomy exists')
+def taxonomy_exists(context, username=None):
+    if not username:
+        username = settings.APPLICATION_USERNAME
+    assert models.SubjectTaxonomy.objects.filter(source__user__username=username).exists()
+
+
+@behave.then('{count:d}{root}subjects exist in central taxonomy')
+def count_central_subjects(context, count, root):
+    count_subjects(context, count, root, settings.APPLICATION_USERNAME)
 
 
 @behave.then('{count:d}{root}subjects exist')
-@behave.then('{count:d}{root}subjects exist in {taxonomy} taxonomy')
-def count_subjects(context, count, root, taxonomy=None):
+@behave.then('{count:d}{root}subjects exist in {username}\'s custom taxonomy')
+def count_subjects(context, count, root, username=None):
     qs = models.Subject.objects.all()
-    if taxonomy is not None:
-        qs = qs.filter(taxonomy__source=taxonomy_source(context, taxonomy))
+    if username is not None:
+        qs = qs.filter(taxonomy__source__user__username=username)
 
     if root == ' root ':
         qs = qs.filter(parent__isnull=True)
