@@ -36,7 +36,6 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     # Override to convert encoded pk to an actual pk
     def get_object(self):
-        import ipdb; ipdb.set_trace()
         queryset = self.filter_queryset(self.get_queryset(False))
 
         # Perform the lookup filtering.
