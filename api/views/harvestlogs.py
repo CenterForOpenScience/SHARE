@@ -15,6 +15,8 @@ class SourceConfigFilterBackend(filters.BaseFilterBackend):
         if 'source_config_id' in request.GET:
             decoded = IDObfuscator.decode_id(request.GET['source_config_id'])
             return queryset.filter(source_config_id=decoded)
+        if 'status' in request.GET:
+            return queryset.filter(status=request.GET['status'])
         else:
             return queryset
 
