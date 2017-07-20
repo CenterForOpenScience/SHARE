@@ -18,11 +18,11 @@ class TestRegulator:
         validation_steps = [mock.Mock() for _ in range(num_validation_steps)]
 
         def patched_steps(cls, namespace, name):
-            if namespace == 'share.regulate.node_steps':
+            if namespace == 'share.regulate.steps.node':
                 return node_steps
-            elif namespace == 'share.regulate.graph_steps':
+            elif namespace == 'share.regulate.steps.graph':
                 return graph_steps
-            elif namespace == 'share.regulate.validation_steps':
+            elif namespace == 'share.regulate.steps.validate':
                 return validation_steps
             raise NotImplementedError()
 

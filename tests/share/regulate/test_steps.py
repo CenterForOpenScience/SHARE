@@ -5,9 +5,9 @@ from share.util.extensions import Extensions
 
 
 @pytest.mark.parametrize('namespace, base_class', [
-    ('share.regulate.node_steps', NodeStep),
-    ('share.regulate.graph_steps', GraphStep),
-    ('share.regulate.validation_steps', ValidationStep),
+    ('share.regulate.steps.node', NodeStep),
+    ('share.regulate.steps.graph', GraphStep),
+    ('share.regulate.steps.validate', ValidationStep),
 ])
 def test_step_bases(namespace, base_class):
     assert all(issubclass(e.plugin, base_class) for e in Extensions._load_namespace(namespace))

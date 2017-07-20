@@ -96,11 +96,11 @@ setup(
             'org.socialscienceregistry = share.harvesters.org_socialscienceregistry:SCHarvester',
             'org.swbiodiversity = share.harvesters.org_swbiodiversity:SWHarvester',
         ],
-        'share.regulate.node_steps': [
+        'share.regulate.steps.node': [
         ],
-        'share.regulate.graph_steps': [
+        'share.regulate.steps.graph': [
         ],
-        'share.regulate.validation_steps': [
+        'share.regulate.steps.validate': [
             'jsonld_validator = share.regulate.steps.validate:JSONLDValidatorStep',
         ],
     }

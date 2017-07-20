@@ -36,7 +36,7 @@ def transform(args, argv):
             print('\n')
 
 
-@command('Create IngestJobs for the specified raw data/um')
+@command('Create IngestJobs for the specified RawDatum(s)')
 def ingest(args, argv):
     """
     Usage: {0} ingest (<source_configs>... | --all) [--superfluous] [--task | --run]
@@ -44,7 +44,7 @@ def ingest(args, argv):
 
     Options:
         -i, --ids           Provide RawDatum IDs to ingest specifically
-        -s, --superfluous   Reingest datums that already have an IngestJob
+        -s, --superfluous   Reingest RawDatums that already have an IngestJob
         -t, --task          Spawn an ingest task after creating IngestJobs
         -r, --run           Run ingest tasks synchronously for each IngestJob
     """

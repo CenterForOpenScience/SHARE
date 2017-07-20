@@ -107,7 +107,7 @@ def harvest(args, argv):
         print(datum)
 
 
-@command('Create harvestjobs for the specified SourceConfig')
+@command('Create HarvestJobs for the specified SourceConfig')
 def schedule(args, argv):
     """
     Usage:

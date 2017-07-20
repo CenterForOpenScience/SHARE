@@ -383,7 +383,7 @@ class RawDatum(models.Model):
     datestamp = models.DateTimeField(default=pendulum.now, help_text=(
         'The most relevant datetime that can be extracted from this RawDatum. '
         'This may be, but is not limited to, a deletion, modification, publication, or creation datestamp. '
-        'Ideally, this datetime should be appropriate for determining the chronological order its data will be applied. '
+        'Ideally, this datetime should be appropriate for determining the chronological order its data will be applied.'
     ))
 
     date_modified = models.DateTimeField(auto_now=True, editable=False)

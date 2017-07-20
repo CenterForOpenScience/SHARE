@@ -10,9 +10,9 @@ class Regulator:
         self.job = ingest_job
         self.logs = []
 
-        self._node_steps = self._steps('share.regulate.node_steps', settings.SHARE_REGULATOR_NODE_STEPS)
-        self._graph_steps = self._steps('share.regulate.graph_steps', settings.SHARE_REGULATOR_GRAPH_STEPS)
-        self._validation_steps = self._steps('share.regulate.validation_steps', settings.SHARE_REGULATOR_VALIDATION_STEPS)
+        self._node_steps = self._steps('share.regulate.steps.node', settings.SHARE_REGULATOR_NODE_STEPS)
+        self._graph_steps = self._steps('share.regulate.steps.graph', settings.SHARE_REGULATOR_GRAPH_STEPS)
+        self._validation_steps = self._steps('share.regulate.steps.validate', settings.SHARE_REGULATOR_VALIDATION_STEPS)
 
     def regulate(self, graph):
         try:
