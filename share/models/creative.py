@@ -15,9 +15,8 @@ from share.util import strip_whitespace, ModelGenerator
 
 logger = logging.getLogger(__name__)
 
+
 # Base Creative Work class
-
-
 class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
     title = models.TextField(blank=True, help_text='')
     description = models.TextField(blank=True, help_text='')

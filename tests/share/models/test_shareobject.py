@@ -189,7 +189,7 @@ class TestDefrankenize:
         work.defrankenize(im_really_sure_about_this=True)
 
     def test_resets_name(self):
-        work = factories.AbstractCreativeWorkFactory(title='Not a franken', is_deleted=False)
+        work = factories.AbstractCreativeWorkFactory(title='This is a franken', is_deleted=False)
 
         work.defrankenize(im_really_sure_about_this=True)
 
@@ -202,7 +202,7 @@ class TestDefrankenize:
     @pytest.mark.parametrize('oworks', [0, 5])
     @pytest.mark.parametrize('tags', [0, 5])
     def test_removes_relations(self, idents, agents, oworks, iworks, tags):
-        work = factories.AbstractCreativeWorkFactory(title='Not a franken', is_deleted=False)
+        work = factories.AbstractCreativeWorkFactory(title='This is a franken', is_deleted=False)
 
         factories.WorkIdentifierFactory.create_batch(idents, creative_work=work)
         factories.AgentWorkRelationFactory.create_batch(agents, creative_work=work)
