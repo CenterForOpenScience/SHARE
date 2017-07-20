@@ -110,7 +110,7 @@ class TestMessageFlattener:
         ]
 
         flattener = indexing.MessageFlattener(messages)
-        assert flattener.pending == []
+        assert list(flattener.pending) == []
 
         lengths = [3, 3, 4, 4, 4, 5, 5, 5, 5, 6]
 
@@ -120,7 +120,7 @@ class TestMessageFlattener:
 
         for i in range(10):
             assert i == next(flattener)
-            assert flattener.pending == messages[:lengths[i]]
+            assert list(flattener.pending) == messages[:lengths[i]]
 
     def test_ack(self):
         messages = [
@@ -133,7 +133,7 @@ class TestMessageFlattener:
         ]
 
         flattener = indexing.MessageFlattener(messages)
-        assert flattener.pending == []
+        assert list(flattener.pending) == []
 
         lengths = [3, 3, 4, 4, 4, 5, 5, 5, 5, 6]
 
@@ -144,8 +144,8 @@ class TestMessageFlattener:
         for i in range(10):
             assert i == next(flattener)
             flattener.ack_pending()
-            assert flattener.pending == []
-            assert flattener.requeued == []
+            assert list(flattener.pending) == []
+            assert list(flattener.requeued) == []
             assert flattener.acked == messages[:lengths[i]]
 
         for message in messages:
@@ -162,7 +162,7 @@ class TestMessageFlattener:
         ]
 
         flattener = indexing.MessageFlattener(messages)
-        assert flattener.pending == []
+        assert list(flattener.pending) == []
 
         lengths = [3, 3, 4, 4, 4, 5, 5, 5, 5, 6]
 
@@ -173,8 +173,8 @@ class TestMessageFlattener:
         for i in range(10):
             assert i == next(flattener)
             flattener.requeue_pending()
-            assert flattener.acked == []
-            assert flattener.pending == []
+            assert list(flattener.acked) == []
+            assert list(flattener.pending) == []
             assert flattener.requeued == messages[:lengths[i]]
 
         for message in messages:

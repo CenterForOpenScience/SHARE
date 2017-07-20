@@ -105,7 +105,7 @@ def daemon(args, argv):
 
     Options:
         -t, --timeout=TIMEOUT     The queue timeout in seconds [default: 5]
-        -s, --size=SIZE           The maximum number of works to index at once [default: 500]
+        -s, --size=SIZE           The maximum number of works to index at once [default: 100]
         -i, --interval=SIZE       The interval at which to flush the queue in seconds [default: 10]
         -l, --log-level=LOGLEVEL  Set the log level [default: INFO]
     """

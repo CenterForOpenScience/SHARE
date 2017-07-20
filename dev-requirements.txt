@@ -1,13 +1,11 @@
 -r requirements.txt
 
 behave==1.2.5
-cryptography==1.9
 factory-boy==2.8.1
 fake-factory==0.7.2
 httpretty==0.8.14
 ipdb
 ipython
-PyJWE==1.0.0
 pytest-benchmark==3.0.0
 pytest==3.0.6
 httpretty==0.8.14

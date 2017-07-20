@@ -132,7 +132,7 @@ class MessageFlattener:
 
     def __init__(self, messages):
         self.acked = []
-        self.pending = []
+        self.pending = collections.deque()
         self.requeued = []
 
         self.current = None
@@ -143,31 +143,29 @@ class MessageFlattener:
         if not self.pending:
             return
 
-        for message in self.pending:
+        logger.debug('ACKing %d messages', len(self.pending))
+        while self.pending:
+            message = self.pending.popleft()
             message.message.ack()
             self.acked.append(message)
-
-        self.pending.clear()
 
     def requeue_pending(self):
         if not self.pending:
             return
 
-        for message in self.pending:
+        while self.pending:
+            message = self.pending.popleft()
             message.message.requeue()
             self.requeued.append(message)
-
-        self.pending.clear()
 
     def reset_pending(self):
         if not self.pending:
             return
 
-        for message in self.pending:
-            self.messages.append(message)
-
         self.current = None
-        self.pending.clear()
+        while self.pending:
+            message = self.pending.popleft()
+            self.messages.append(message)
 
     def __len__(self):
         return sum([len(msg) for msg in self.messages], 0)
@@ -222,7 +220,7 @@ class ESIndexer:
                 self.indexables[message.model] = MessageFlattener([])
             self.indexables[message.model].messages.append(message)
 
-    def index(self):
+    def index(self, critical=()):
         self.retries = 0
 
         logger.debug('Starting indexing')
@@ -230,6 +228,10 @@ class ESIndexer:
         while True:
             try:
                 return self._index()
+            except critical as e:
+                logger.exception('Indexing Failed')
+                logger.critical('Unrecoverable error encountered, exiting...')
+                raise SystemExit(2)
             except Exception as e:
                 logger.exception('Indexing Failed')
 
@@ -286,6 +288,11 @@ class ESIndexer:
                 # By the time we actually get here, we know that ES has ingested this/these docs
                 # so it's safe to ACK them
                 flattener.ack_pending()
+
+            # One final check, if nothing get indexed for one reason or another
+            # then ack_pending may not have been called
+            # but we still have to ACK all the messages
+            flattener.ack_pending()
 
     def bulk_stream(self, model, flattener, index, gentle=False):
         fetcher = fetcher_for(model)

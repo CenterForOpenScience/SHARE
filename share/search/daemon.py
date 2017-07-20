@@ -30,6 +30,7 @@ class SearchIndexerDaemon:
         self.max_size = max_size
         self.timeout = timeout
         self._running = threading.Event()
+        self.connection_errors = ()
 
         if threading.current_thread() == threading.main_thread():
             logger.debug('Running in the main thread, SIGTERM is active')
@@ -45,6 +46,9 @@ class SearchIndexerDaemon:
 
         logger.info('Connected to broker')
         logger.info('Using queue "%s"', settings.ELASTIC_QUEUE)
+
+        self.connection_errors = connection.connection_errors
+        logger.debug('connection_errors set to %r', self.connection_errors)
 
         # Set an upper bound to avoid fetching everything in the queue
         logger.info('Setting prefetch_count to %d', self.max_size * 1.1)
@@ -81,7 +85,7 @@ class SearchIndexerDaemon:
     def flush(self):
         logger.info('Flushing %d messages', len(self.messages))
 
-        ESIndexer(self.client, self.index, *self.messages).index()
+        ESIndexer(self.client, self.index, *self.messages).index(critical=self.connection_errors)
 
         self.messages.clear()
         self.last_flush = time.time()
