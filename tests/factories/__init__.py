@@ -23,6 +23,7 @@ from share.transform import BaseTransformer
 from tests.factories.core import *  # noqa
 from tests.factories.changes import *  # noqa
 from tests.factories.share_objects import *  # noqa
+from tests.factories.share_objects import ShareObjectFactory
 
 
 class SourceFactory(DjangoModelFactory):
