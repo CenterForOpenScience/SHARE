@@ -271,24 +271,24 @@ class TestFetchers:
     @pytest.mark.django_db
     @pytest.mark.parametrize('bepresses, customs, expected', [
         ([], [-1], {
-            'subjects': ['mergik/Magic/Cool Magic/SUPER COOL MAGIC'],
-            'subject_synonyms': ['bepress/Engineering/Computer Engineering/Data Storage Systems'],
+            'subjects': ['mergik|Magic|Cool Magic|SUPER COOL MAGIC'],
+            'subject_synonyms': ['bepress|Engineering|Computer Engineering|Data Storage Systems'],
         }),
         ([-1], [], {
-            'subjects': ['bepress/Engineering/Computer Engineering/Data Storage Systems'],
+            'subjects': ['bepress|Engineering|Computer Engineering|Data Storage Systems'],
             'subject_synonyms': [],
         }),
         ([-1], [-1], {
-            'subjects': ['bepress/Engineering/Computer Engineering/Data Storage Systems', 'mergik/Magic/Cool Magic/SUPER COOL MAGIC'],
-            'subject_synonyms': ['bepress/Engineering/Computer Engineering/Data Storage Systems'],
+            'subjects': ['bepress|Engineering|Computer Engineering|Data Storage Systems', 'mergik|Magic|Cool Magic|SUPER COOL MAGIC'],
+            'subject_synonyms': ['bepress|Engineering|Computer Engineering|Data Storage Systems'],
         }),
         ([0, 1], [], {
-            'subjects': ['bepress/Engineering', 'bepress/Engineering/Computer Engineering'],
+            'subjects': ['bepress|Engineering', 'bepress|Engineering|Computer Engineering'],
             'subject_synonyms': [],
         }),
         ([], [0, 1], {
-            'subjects': ['mergik/Magic', 'mergik/Magic/Cool Magic'],
-            'subject_synonyms': ['bepress/Engineering', 'bepress/Engineering/Computer Engineering'],
+            'subjects': ['mergik|Magic', 'mergik|Magic|Cool Magic'],
+            'subject_synonyms': ['bepress|Engineering', 'bepress|Engineering|Computer Engineering'],
         }),
     ])
     def test_subject_indexing(self, bepresses, customs, expected):

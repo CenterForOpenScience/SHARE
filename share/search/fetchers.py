@@ -71,6 +71,7 @@ fetcher_for = Fetcher.fetcher_for
 
 
 class CreativeWorkFetcher(Fetcher):
+    SUBJECT_DELIMITER = '|'
 
     MODEL = models.AbstractCreativeWork
     QUERY = '''
@@ -171,7 +172,7 @@ class CreativeWorkFetcher(Fetcher):
         LEFT JOIN LATERAL (
                     SELECT array_agg(DISTINCT name) AS subjects
                     FROM (
-                        SELECT concat_ws('/', CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
+                        SELECT concat_ws(%(subject_delimiter)s, CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
                         FROM share_subject AS child
                             LEFT JOIN share_subjecttaxonomy AS taxonomy ON child.taxonomy_id = taxonomy.id
                             LEFT JOIN share_source AS source ON taxonomy.source_id = source.id
@@ -189,7 +190,7 @@ class CreativeWorkFetcher(Fetcher):
          LEFT JOIN LATERAL (
                    SELECT array_agg(DISTINCT name) AS subject_synonyms
                    FROM (
-                       SELECT concat_ws('/', CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
+                       SELECT concat_ws(%(subject_delimiter)s, CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
                        FROM share_subject AS child
                            LEFT JOIN share_subjecttaxonomy AS taxonomy ON child.taxonomy_id = taxonomy.id
                            LEFT JOIN share_source AS source ON taxonomy.source_id = source.id
@@ -237,8 +238,9 @@ class CreativeWorkFetcher(Fetcher):
     def query_parameters(self, pks):
         return {
             'ids': pks,
-            'system_user': settings.APPLICATION_USERNAME,
             'central_taxonomy': settings.SUBJECTS_CENTRAL_TAXONOMY,
+            'subject_delimiter': self.SUBJECT_DELIMITER,
+            'system_user': settings.APPLICATION_USERNAME,
         }
 
     def post_process(self, data):

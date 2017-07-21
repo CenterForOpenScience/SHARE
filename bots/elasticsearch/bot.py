@@ -10,6 +10,7 @@ from django.db.models import Q
 from elasticsearch import Elasticsearch
 
 from share.search import SearchIndexer
+from share.search.fetchers import CreativeWorkFetcher
 
 
 logger = logging.getLogger(__name__)
@@ -80,6 +81,7 @@ class ElasticSearchBot:
             'tokenizer': {
                 'subject_tokenizer': {
                     'type': 'path_hierarchy',
+                    'delimiter': CreativeWorkFetcher.SUBJECT_DELIMITER,
                 }
             }
         }
