@@ -20,7 +20,7 @@ class ModelConstructor:
         self._models = None
         self._sorted_types = TopologicalSorter(
             self.schema.types.values(),
-            dependencies=lambda x: [f.related for f in x.fields if f.is_relation],
+            dependencies=lambda x: [f.related for f in x.fields.values() if f.is_relation],
             key=lambda x: x.name,
         ).sorted()
 

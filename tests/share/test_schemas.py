@@ -7,12 +7,12 @@ from share.schemas.contructor import ModelConstructor
 class TestSchemas:
 
     def test_load(self):
-        schema = Schema.load('./schemas/SHARE/v2/internal/schema.xsd')
+        schema = Schema.load('./schemas/SHARE/v2/internal/schema.yaml')
 
         assert schema.types
 
     def test_constructor(self):
-        schema = Schema.load('./schemas/SHARE/v2/internal/schema.xsd')
+        schema = Schema.load('./schemas/SHARE/v2/internal/schema.yaml')
         constructor = ModelConstructor(schema, name_tpl='{}Test')
 
         constructor.construct()

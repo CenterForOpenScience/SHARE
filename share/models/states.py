@@ -11,7 +11,7 @@ class AbstractSchemaState(models.Model):
         abstract = True
 
 
-schema = Schema.load('./schemas/SHARE/v2/internal/schema.xsd')
+schema = Schema.load('./schemas/SHARE/v2/internal/schema.yaml')
 state_models = ModelConstructor(schema, name_tpl='{}State', base=AbstractSchemaState, module=__name__)
 
 state_models.construct()

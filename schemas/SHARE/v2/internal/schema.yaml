@@ -1,0 +1,324 @@
+!python/share.schema.Schema
+name: SHARE v2 Interal
+types:
+- !python/share.schema.SchemaType
+  - name: AgentWorkRelation
+  - description: null
+  - fields: !!omap
+    - type: !python/share.schema.SchemaField
+        choices:
+        - unknown
+        - contributor
+        - creator
+        - principal investigator
+        - principal investigator contact
+        - funder
+        - host
+        - publisher
+        db_index: true
+        max_length: 255
+        type: django.db.models.CharField
+    - cited_as: !python/share.schema.SchemaField
+        blank: true
+        type: django.db.models.TextField
+    - agent: !python/share.schema.SchemaField
+        related_name: work_relations
+        to: Agent
+        type: django.db.models.ForeignKey
+    - creative_work: !python/share.schema.SchemaField
+        related_name: agent_relations
+        to: CreativeWork
+        type: django.db.models.ForeignKey
+    - order_cited: !python/share.schema.SchemaField
+        'null': true
+        type: django.db.models.PositiveIntegerField
+- !python/share.schema.SchemaType
+  - name: CreativeWork
+  - description: null
+  - meta:
+      verbose_name_plural: Creative Works
+  - fields: !!omap
+    - type: !python/share.schema.SchemaField
+        choices:
+        - creative work
+        - data set
+        - patent
+        - poster
+        - presentation
+        - publication
+        - article
+        - book
+        - conference paper
+        - dissertation
+        - preprint
+        - project
+        - registration
+        - report
+        - thesis
+        - working paper
+        - repository
+        - retraction
+        - software
+        db_index: true
+        max_length: 255
+        type: django.db.models.CharField
+    - title: !python/share.schema.SchemaField
+        blank: true
+        type: django.db.models.TextField
+    - description: !python/share.schema.SchemaField
+        blank: true
+        type: django.db.models.TextField
+    - is_deleted: !python/share.schema.SchemaField
+        default: false
+        help_text: Determines whether or not this record will be discoverable via
+          search.
+        type: django.db.models.BooleanField
+    - date_published: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.DateTimeField
+    - date_updated: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.DateTimeField
+    - free_to_read_type: !python/share.schema.SchemaField
+        blank: true
+        type: share.models.fields.ShareURLField
+    - free_to_read_date: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.DateTimeField
+    - rights: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.TextField
+    - language: !python/share.schema.SchemaField
+        blank: true
+        help_text: The ISO 3166-1 alpha-2 country code indicating the language of
+          this record.
+        'null': true
+        type: django.db.models.TextField
+    - justification: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.TextField
+    - registration_type: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.TextField
+    - withdrawn: !python/share.schema.SchemaField
+        type: django.db.models.NullBooleanField
+- !python/share.schema.SchemaType
+  - name: WorkRelation
+  - description: null
+  - fields: !!omap
+    - type: !python/share.schema.SchemaField
+        choices:
+        - work relation
+        - cites
+        - compiles
+        - corrects
+        - discusses
+        - disputes
+        - documents
+        - extends
+        - is derived from
+        - is part of
+        - is supplement to
+        - references
+        - replies to
+        - retracts
+        - reviews
+        - uses data from
+        db_index: true
+        max_length: 255
+        type: django.db.models.CharField
+    - related: !python/share.schema.SchemaField
+        related_name: incoming_creative_work_relations
+        to: CreativeWork
+        type: django.db.models.ForeignKey
+    - subject: !python/share.schema.SchemaField
+        related_name: outgoing_creative_work_relations
+        to: CreativeWork
+        type: django.db.models.ForeignKey
+- !python/share.schema.SchemaType
+  - name: Agent
+  - description: "An Agent is an entity that has the power to act, e.g. an individual\
+      \ person or a group of people.\n\n    Agents make decisions and produce or contribute\
+      \ to the production of creative works."
+  - meta:
+      index_together: [type, name]
+  - fields: !!omap
+    - type: !python/share.schema.SchemaField
+        choices:
+        - Agent
+        - Organization
+        - Consortium
+        - Department
+        - Institution
+        - Person
+        db_index: true
+        max_length: 255
+        type: django.db.models.CharField
+    - name: !python/share.schema.SchemaField
+        blank: true
+        db_index: true
+        type: django.db.models.TextField
+    - location: !python/share.schema.SchemaField
+        blank: true
+        type: django.db.models.TextField
+    - suffix: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.TextField
+    - additional_name: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.TextField
+    - family_name: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.TextField
+    - given_name: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.TextField
+- !python/share.schema.SchemaType
+  - name: Tag
+  - description: null
+  - fields: !!omap
+    - name: !python/share.schema.SchemaField
+        type: django.db.models.TextField
+        unique: true
+- !python/share.schema.SchemaType
+  - name: Subject
+  - description: null
+  - fields: !!omap
+    - name: !python/share.schema.SchemaField
+        type: django.db.models.TextField
+        unique: true
+- !python/share.schema.SchemaType
+  - name: WorkIdentifier
+  - description: Unique identifier (in IRI form) for a creative work.
+  - fields: !!omap
+    - uri: !python/share.schema.SchemaField
+        type: share.models.fields.ShareURLField
+        unique: true
+    - host: !python/share.schema.SchemaField
+        editable: false
+        type: django.db.models.TextField
+    - scheme: !python/share.schema.SchemaField
+        editable: false
+        help_text: A prefix to URI indicating how the following data should be interpreted.
+        type: django.db.models.TextField
+    - creative_work: !python/share.schema.SchemaField
+        related_name: identifiers
+        to: CreativeWork
+        type: django.db.models.ForeignKey
+- !python/share.schema.SchemaType
+  - name: ThroughContributor
+  - description: null
+  - fields: !!omap
+    - subject: !python/share.schema.SchemaField
+        related_name: +
+        to: AgentWorkRelation
+        type: django.db.models.ForeignKey
+    - related: !python/share.schema.SchemaField
+        related_name: +
+        to: AgentWorkRelation
+        type: django.db.models.ForeignKey
+- !python/share.schema.SchemaType
+  - name: ThroughAwards
+  - description: null
+  - fields: !!omap
+    - funder: !python/share.schema.SchemaField
+        to: AgentWorkRelation
+        type: django.db.models.ForeignKey
+    - award: !python/share.schema.SchemaField
+        to: Award
+        type: django.db.models.ForeignKey
+- !python/share.schema.SchemaType
+  - name: ThroughTags
+  - description: null
+  - fields: !!omap
+    - tag: !python/share.schema.SchemaField
+        related_name: work_relations
+        to: Tag
+        type: django.db.models.ForeignKey
+    - creative_work: !python/share.schema.SchemaField
+        related_name: tag_relations
+        to: CreativeWork
+        type: django.db.models.ForeignKey
+- !python/share.schema.SchemaType
+  - name: AgentRelation
+  - description: null
+  - fields: !!omap
+    - type: !python/share.schema.SchemaField
+        choices:
+        - agent relation
+        - is affiliated with
+        - is employed by
+        - is member of
+        db_index: true
+        max_length: 255
+        type: django.db.models.CharField
+    - related: !python/share.schema.SchemaField
+        related_name: incoming_agent_relations
+        to: Agent
+        type: django.db.models.ForeignKey
+    - subject: !python/share.schema.SchemaField
+        related_name: outgoing_agent_relations
+        to: Agent
+        type: django.db.models.ForeignKey
+- !python/share.schema.SchemaType
+  - name: ThroughSubjects
+  - description: null
+  - fields: !!omap
+    - subject: !python/share.schema.SchemaField
+        related_name: work_relations
+        to: Subject
+        type: django.db.models.ForeignKey
+    - creative_work: !python/share.schema.SchemaField
+        related_name: subject_relations
+        to: CreativeWork
+        type: django.db.models.ForeignKey
+- !python/share.schema.SchemaType
+  - name: Award
+  - description: null
+  - fields: !!omap
+    - name: !python/share.schema.SchemaField
+        blank: true
+        type: django.db.models.TextField
+    - description: !python/share.schema.SchemaField
+        blank: true
+        type: django.db.models.TextField
+    - date: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.DateTimeField
+    - award_amount: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: django.db.models.PositiveIntegerField
+    - uri: !python/share.schema.SchemaField
+        blank: true
+        'null': true
+        type: share.models.fields.ShareURLField
+        unique: true
+- !python/share.schema.SchemaType
+  - name: AgentIdentifier
+  - description: Unique identifier (in IRI form) for an agent.
+  - fields: !!omap
+    - uri: !python/share.schema.SchemaField
+        type: share.models.fields.ShareURLField
+        unique: true
+    - host: !python/share.schema.SchemaField
+        editable: false
+        type: django.db.models.TextField
+    - scheme: !python/share.schema.SchemaField
+        editable: false
+        type: django.db.models.TextField
+    - agent: !python/share.schema.SchemaField
+        related_name: identifiers
+        to: Agent
+        type: django.db.models.ForeignKey
