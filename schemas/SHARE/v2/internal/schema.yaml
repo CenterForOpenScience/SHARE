@@ -40,7 +40,7 @@ types:
   - fields: !!omap
     - type: !python/share.schema.SchemaField
         choices:
-        - creative work
+        - unknown
         - data set
         - patent
         - poster
@@ -114,7 +114,7 @@ types:
   - fields: !!omap
     - type: !python/share.schema.SchemaField
         choices:
-        - work relation
+        - unknown
         - cites
         - compiles
         - corrects
@@ -143,15 +143,16 @@ types:
         type: django.db.models.ForeignKey
 - !python/share.schema.SchemaType
   - name: Agent
-  - description: "An Agent is an entity that has the power to act, e.g. an individual\
-      \ person or a group of people.\n\n    Agents make decisions and produce or contribute\
-      \ to the production of creative works."
+  - description: |
+      An Agent is an entity that has the power to act, e.g. an individual person or a group of people.
+
+      Agents make decisions and produce or contribute to the production of creative works.
   - meta:
       index_together: [type, name]
   - fields: !!omap
     - type: !python/share.schema.SchemaField
         choices:
-        - Agent
+        - unknown
         - Organization
         - Consortium
         - Department
@@ -255,7 +256,7 @@ types:
   - fields: !!omap
     - type: !python/share.schema.SchemaField
         choices:
-        - agent relation
+        - unknown
         - is affiliated with
         - is employed by
         - is member of

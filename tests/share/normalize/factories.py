@@ -31,7 +31,7 @@ _Faker = faker.Faker()
 _remove = ChangeGraph.remove  # Intercepted method, save the original
 
 
-class GraphContructor:
+class GraphConstructor:
 
     def __init__(self):
         self._seed = random.random()
@@ -188,7 +188,7 @@ class GraphContructor:
 
 @pytest.fixture
 def Graph(monkeypatch):
-    c = GraphContructor()
+    c = GraphConstructor()
     ShareObjectFactory._meta.declarations['id'].function = lambda: '_:' + c.get_id()
     monkeypatch.setattr('share.change.uuid.uuid4', c.get_id)
     monkeypatch.setattr('share.change.ChangeGraph.remove', c.patched_remove_id())

@@ -1,7 +1,7 @@
 from django.db import models
 
 from share.schemas.loader import Schema
-from share.schemas.contructor import ModelConstructor
+from share.schemas.constructor import ModelConstructor
 
 
 class AbstractSchemaState(models.Model):

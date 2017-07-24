@@ -1,3 +1,4 @@
+import re
 import logging
 import collections
 
@@ -101,7 +102,7 @@ class SchemaField:
             options['to'] = constructor.name_for(constructor.schema.types[options['to']])
 
         if 'choices' in self.options:
-            options['choices'] = [(choice.lower().title(), choice.lower()) for choice in options['choices']]
+            options['choices'] = [(choice.lower().title(), re.sub(r'\s+', '', choice.lower())) for choice in options['choices']]
 
         return getattr(mod, name)(**options)
 
