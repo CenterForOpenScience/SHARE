@@ -2,18 +2,20 @@ import re
 import logging
 
 from django.db import models
-from django.db import IntegrityError
 
 from share.models.base import ShareObject
-from share.models.fields import ShareForeignKey
-from share.models.fuzzycount import FuzzyCountManager
+from share.models.fields import ShareForeignKey, ShareURLField
 from share.util import strip_whitespace
 
 
-__all__ = ('Tag', 'Subject', 'ThroughTags', 'ThroughSubjects')
+__all__ = ('Tag', 'Subject', 'ThroughTags', 'ThroughSubjects', 'SubjectTaxonomy')
 logger = logging.getLogger('share.normalize')
 
 # TODO Rename this file
+
+
+class CyclicalTaxonomyError(Exception):
+    pass
 
 
 class Tag(ShareObject):
@@ -50,28 +52,65 @@ class Tag(ShareObject):
         all = ('name',)
 
 
-class SubjectManager(FuzzyCountManager):
-    def get_by_natural_key(self, subject):
-        return self.get(name=subject)
+class SubjectTaxonomy(models.Model):
+    source = models.OneToOneField('Source')
+
+    is_deleted = models.BooleanField(default=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+    def __repr__(self):
+        return '<{} {}: {}>'.format(self.__class__.__name__, self.id, self.source.long_title)
+
+    class Meta:
+        verbose_name_plural = 'Subject Taxonomies'
 
 
-class Subject(models.Model):
-    parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
-    name = models.TextField(unique=True, db_index=True)
+class Subject(ShareObject):
+    name = models.TextField()
+    is_deleted = models.BooleanField(default=False)
+    uri = ShareURLField(null=True, blank=True)
+    taxonomy = models.ForeignKey(SubjectTaxonomy, editable=False, on_delete=models.CASCADE)
+    parent = ShareForeignKey('Subject', blank=True, null=True, related_name='children')
+    central_synonym = ShareForeignKey('Subject', blank=True, null=True, related_name='custom_synonyms')
 
-    objects = SubjectManager()
+    @classmethod
+    def normalize(cls, node, graph):
+        edge = node.related('central_synonym')
+        if edge and edge.related and edge.related.id == node.id:
+            graph.remove_edge(edge)
+
+    def save(self, *args, **kwargs):
+        if self.id is not None and self.parent is not None:
+            new_lineage = self.parent.lineage()
+            if self in new_lineage:
+                raise CyclicalTaxonomyError('Making {} a child of {} would cause a cycle!'.format(self, self.parent))
+        return super().save(*args, **kwargs)
+
+    def lineage(self):
+        query = '''
+            WITH RECURSIVE lineage_chain(id, parent, depth, path, cycle) AS (
+                    SELECT id, parent_id, 1, ARRAY[id], false FROM {table} WHERE id = %(id)s
+                  UNION
+                    SELECT {table}.id, {table}.parent_id, lineage_chain.depth + 1, path || {table}.id, {table}.id = ANY(path)
+                    FROM lineage_chain JOIN {table} ON lineage_chain.parent = {table}.id
+                    WHERE NOT cycle
+            )
+            SELECT {table}.* FROM {table} INNER JOIN lineage_chain ON {table}.id = lineage_chain.id ORDER BY lineage_chain.depth DESC
+        '''.format(table=self._meta.db_table)
+        lineage = list(self._meta.model.objects.raw(query, params={'id': self.id}))
+        if lineage[0].parent is not None:
+            raise CyclicalTaxonomyError('Subject taxonomy cycle! {}'.format(lineage))
+        return lineage
 
     def __str__(self):
         return self.name
 
-    def natural_key(self):
-        return self.name
-
-    def save(self):
-        raise IntegrityError('Subjects are an immutable set! Do it in bulk, if you must.')
+    class Meta:
+        unique_together = (('name', 'taxonomy'), ('uri', 'taxonomy'))
 
     class Disambiguation:
-        all = ('name',)
+        all = ('name', 'central_synonym')
 
 
 # Through Tables for all the things
@@ -89,8 +128,9 @@ class ThroughTags(ShareObject):
 
 
 class ThroughSubjects(ShareObject):
-    subject = models.ForeignKey('Subject', related_name='work_relations', on_delete=models.CASCADE)
+    subject = ShareForeignKey('Subject', related_name='work_relations')
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='subject_relations')
+    is_deleted = models.BooleanField(default=False)
 
     class Meta(ShareObject.Meta):
         unique_together = ('subject', 'creative_work')

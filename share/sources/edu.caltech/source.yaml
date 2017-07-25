@@ -1,7 +1,8 @@
+# links in <relation>
 configs:
 - base_url: http://authors.library.caltech.edu/cgi/oai2
   disabled: false
-  earliest_date: null
+  earliest_date: 2011-01-12T00:11:25Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.caltech

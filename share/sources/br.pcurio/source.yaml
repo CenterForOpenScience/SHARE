@@ -1,7 +1,7 @@
 configs:
-- base_url: http://www.maxwell.vrac.puc-rio.br/DC_Todos.php
+- base_url: https://www.maxwell.vrac.puc-rio.br/DC_Todos.php
   disabled: false
-  earliest_date: null
+  earliest_date: null  # earliestDatestamp is earliest published
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: br.pcurio

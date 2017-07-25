@@ -1,7 +1,7 @@
 configs:
-- base_url: http://dash.harvard.edu/oai/request
+- base_url: https://dash.harvard.edu/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2001-01-01T00:00:00Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.dash

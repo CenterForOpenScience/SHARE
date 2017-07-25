@@ -1,9 +1,24 @@
 from django.db import connections
 from django.db.models.sql import InsertQuery
 from django.db.models.sql.compiler import SQLInsertCompiler
+from django.db import models
 
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.fuzzycount import FuzzyCountQuerySet
+
+
+class GroupBy(models.Aggregate):
+    template = '%(expressions)s'
+
+    def __init__(self, expression, **extra):
+        super(GroupBy, self).__init__(
+            expression,
+            output_field=models.TextField(),
+            **extra
+        )
+
+    def get_group_by_cols(self):
+        return self.source_expressions
 
 
 class SQLInsertReturnVersionCompiler(SQLInsertCompiler):

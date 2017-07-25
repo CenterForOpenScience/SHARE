@@ -1,7 +1,8 @@
+# Digital Commons/Bepress
 configs:
 - base_url: http://digitalcommons.chapman.edu/do/oai/
   disabled: false
-  earliest_date: null
+  earliest_date: 2000-01-19T00:00:00Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.chapman

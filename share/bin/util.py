@@ -41,19 +41,22 @@ class Command:
         return cmd
 
     def __call__(self, argv):
-        if self.parsed:
+        if not self.parsed:
+            args = {}
+        else:
+            try:
+                options_first = self is execute_cmd or (argv[argv.index(self.name) + 1] in self.subcommands)
+            except IndexError:
+                options_first = False
+
             args = docopt(
                 self.docstring.format(self.bin, self),
                 argv=argv,
                 version=settings.VERSION,
-                options_first=bool(self.subcommands),
+                options_first=options_first,
             )
-        else:
-            args = {}
 
         if args.get('<command>') and self.subcommands:
-            if args['<command>'] == '--help':
-                docopt(self.docstring.format(self.bin, self), argv=['--help'], version=settings.VERSION, options_first=bool(self.subcommands))
             if not args['<command>'] in self.subcommands:
                 print('Invalid command "{<command>}"'.format(**args))
                 return sys.exit(1)
@@ -63,7 +66,9 @@ class Command:
 
 def _execute_cmd(args, argv):
     """
-    Usage: {0} [--version] [--help] <command> [<args>...]
+    Usage:
+        {0} <command> [<args>...]
+        {0} (--version | --help)
 
     Options:
         -h, --help     Show this screen.

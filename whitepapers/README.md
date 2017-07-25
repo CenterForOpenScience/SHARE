@@ -1,4 +1,4 @@
-# The SHARE System Spec (Code name: Tamandua)
+# The SHARE System Spec
 
 This set of documents exist to both formalize and restructure how information is processed by SHARE.
 Over time the "pipline" has changed significantly from its original inception. The vocabulary to describe the process has not, leading to a decent amount of confusion.

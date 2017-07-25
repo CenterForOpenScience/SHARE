@@ -1,7 +1,7 @@
 configs:
-- base_url: http://www.rcaap.pt/oai
+- base_url: https://www.rcaap.pt/oai
   disabled: false
-  earliest_date: null
+  earliest_date: null  # earliestDatestamp is earliest published
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: pt.rcaap

@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://digital.library.txstate.edu/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2009-04-09T05:00:00Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.texasstate.mods
