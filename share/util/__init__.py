@@ -230,5 +230,15 @@ def chunked(iterable, size=25, fail_fast=False):
         raise e
 
 
+def interweave(*iterables):
+    iters = [iter(i) for i in iterables]
+    while iters:
+        for i in tuple(iters):
+            try:
+                yield next(i)
+            except StopIteration:
+                iters.remove(i)
+
+
 def placeholders(length):
     return ', '.join('%s' for _ in range(length))

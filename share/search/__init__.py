@@ -1,4 +1,5 @@
 from django.conf import settings
+from share import util
 
 
 class SearchIndexer:
@@ -13,7 +14,7 @@ class SearchIndexer:
     def __init__(self, celery_app):
         self.app = celery_app
 
-    def index(self, model, *pks):
+    def index(self, model, *pks, queue=settings.ELASTICSEARCH['DEFAULT_QUEUE']):
         name = settings.INDEXABLE_MODELS.get(model.lower())
 
         if not name:
@@ -23,5 +24,8 @@ class SearchIndexer:
             return
 
         with self.app.pool.acquire(block=True) as connection:
-            with connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS) as queue:
-                queue.put({'version': 1, 'model': name, 'ids': pks}, retry=True, retry_policy=self.retry_policy)
+            with connection.SimpleQueue(queue, **settings.ELASTICSEARCH['QUEUE_SETTINGS']) as queue:
+                for chunk in util.chunked(pks, 500):
+                    if not chunk:
+                        continue
+                    queue.put({'version': 1, 'model': name, 'ids': pks}, retry=True, retry_policy=self.retry_policy)

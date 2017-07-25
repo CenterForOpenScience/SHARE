@@ -1,10 +1,13 @@
-import uuid
+import sys
 import bleach
+import logging
+import time
+
+# from stevedore.extension import ExtensionManager
 
 from django.apps import apps
 from django.conf import settings
 from django.db import connection
-from django.db import transaction
 
 from project.settings import ALLOWED_TAGS
 
@@ -12,17 +15,32 @@ from share import models
 from share.util import IDObfuscator
 
 
-class Fetcher:
+logger = logging.getLogger(__name__)
 
-    MODEL = None
+
+class Fetcher:
+    """
+    All Queries must return 2 columns, the pk of the result and the _source that will be sent to elasticsearch,
+    formatted/named as (id, _source). To filter your selections by the ids given to the fetcher use:
+        `WHERE table_name.id IN (SELECT id FROM pks)`
+    """
+
     QUERY = None
+    QUERY_TEMPLATE = '''
+    WITH pks AS (SELECT * FROM UNNEST(%(ids)s::int[]) WITH ORDINALITY t(id, ord)),
+         results AS ({0})
+    SELECT _source FROM results
+    RIGHT OUTER JOIN pks ON pks.id = results.id
+    ORDER BY pks.ord;
+    '''
 
     @classmethod
-    def fetcher_for(cls, model):
-        for fetcher in cls.__subclasses__():
-            if issubclass(model, fetcher.MODEL):
-                return fetcher()
-        raise ValueError('No fetcher exists for {!r}'.format(model))
+    def fetcher_for(cls, model, overrides=None):
+        model_name = model._meta.model_name.lower()
+        fetcher_path = (overrides or {}).get(model_name) or settings.ELASTICSEARCH['DEFAULT_FETCHERS'][model_name]
+        module, _, name = fetcher_path.rpartition('.')
+        __import__(module)
+        return getattr(sys.modules[module], name)()
 
     def __call__(self, pks):
         if self.QUERY is None:
@@ -35,16 +53,22 @@ class Fetcher:
         if connection.connection is None:
             connection.cursor()
 
-        with transaction.atomic():
-            with connection.connection.cursor(str(uuid.uuid4())) as c:
-                c.execute(self.QUERY, self.query_parameters(pks))
+        with connection.connection.cursor() as c:
+            start = time.time() * 1000
+            logger.debug('Fetching %d rows using %r', len(pks), self)
+            c.execute(self.QUERY_TEMPLATE.format(self.QUERY), self.query_parameters(pks))
+            logger.debug('Main query execution of %r took %dms', self, time.time() * 1000 - start)
 
-                while True:
-                    data = c.fetchone()
+            while True:
+                data = c.fetchone()
 
-                    if not data:
-                        return
+                if not data:
+                    logger.debug('Entire fetching processes of %r took %dms', self, time.time() * 1000 - start)
+                    return
 
+                if data[0] is None:
+                    yield None
+                else:
                     yield self.post_process(data[0])
 
     def post_process(self, data):
@@ -63,7 +87,7 @@ class Fetcher:
         return data
 
     def query_parameters(self, pks):
-        return {'ids': pks}
+        return {'ids': '{' + ','.join(str(pk) for pk in pks) + '}'}
 
 
 # For ease of use
@@ -73,9 +97,8 @@ fetcher_for = Fetcher.fetcher_for
 class CreativeWorkFetcher(Fetcher):
     SUBJECT_DELIMITER = '|'
 
-    MODEL = models.AbstractCreativeWork
     QUERY = '''
-        SELECT json_build_object(
+        SELECT creativework.id, json_build_object(
             'id', creativework.id
             , 'type', creativework.type
             , 'title', creativework.title
@@ -92,11 +115,11 @@ class CreativeWorkFetcher(Fetcher):
             , 'tags', COALESCE(tags, '{}')
             , 'identifiers', COALESCE(identifiers, '{}')
             , 'sources', COALESCE(sources, '{}')
-            , 'subjects', COALESCE(subjects, '{}')
-            , 'subject_synonyms', COALESCE(subject_synonyms, '{}')
+            , 'subjects', COALESCE(subjects.original, '{}')
+            , 'subject_synonyms', COALESCE(subjects.synonyms, '{}')
             , 'related_agents', COALESCE(related_agents, '{}')
             , 'retractions', COALESCE(retractions, '{}')
-        )
+        ) AS _source
         FROM share_creativework AS creativework
         LEFT JOIN LATERAL (
                     SELECT json_agg(json_strip_nulls(json_build_object(
@@ -170,43 +193,27 @@ class CreativeWorkFetcher(Fetcher):
                     WHERE throughtag.creative_work_id = creativework.id
                     ) AS tags ON TRUE
         LEFT JOIN LATERAL (
-                    SELECT array_agg(DISTINCT name) AS subjects
-                    FROM (
-                        SELECT concat_ws(%(subject_delimiter)s, CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
-                        FROM share_subject AS child
-                            LEFT JOIN share_subjecttaxonomy AS taxonomy ON child.taxonomy_id = taxonomy.id
-                            LEFT JOIN share_source AS source ON taxonomy.source_id = source.id
-                            LEFT JOIN share_subject AS parent ON child.parent_id = parent.id
-                            LEFT JOIN share_subject AS grand_parent ON parent.parent_id = grand_parent.id
-                            LEFT JOIN share_subject AS great_grand_parent ON grand_parent.parent_id = great_grand_parent.id
-                        WHERE child.id IN (SELECT share_throughsubjects.subject_id
-                                            FROM share_throughsubjects
-                                            WHERE share_throughsubjects.creative_work_id = creativework.id
-                                            AND NOT share_throughsubjects.is_deleted)
-                              AND NOT child.is_deleted
-                        ) AS x(name)
-                    WHERE name IS NOT NULL
-                    ) AS subjects ON TRUE
-         LEFT JOIN LATERAL (
-                   SELECT array_agg(DISTINCT name) AS subject_synonyms
-                   FROM (
-                       SELECT concat_ws(%(subject_delimiter)s, CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, great_grand_parent.name, grand_parent.name, parent.name, child.name)
-                       FROM share_subject AS child
-                           LEFT JOIN share_subjecttaxonomy AS taxonomy ON child.taxonomy_id = taxonomy.id
-                           LEFT JOIN share_source AS source ON taxonomy.source_id = source.id
-                           LEFT JOIN share_subject AS parent ON child.parent_id = parent.id
-                           LEFT JOIN share_subject AS grand_parent ON parent.parent_id = grand_parent.id
-                           LEFT JOIN share_subject AS great_grand_parent ON grand_parent.parent_id = great_grand_parent.id
-                       WHERE child.id IN (SELECT share_subject.central_synonym_id
-                                           FROM share_throughsubjects
-                                           JOIN share_subject ON share_throughsubjects.subject_id = share_subject.id
-                                           WHERE share_throughsubjects.creative_work_id = creativework.id
-                                           AND NOT share_throughsubjects.is_deleted
-                                           AND NOT share_subject.is_deleted)
-                             AND NOT child.is_deleted
-                       ) AS x(name)
-                   WHERE name IS NOT NULL
-                   ) AS subject_aliases ON TRUE
+          WITH RECURSIVE subject_names(synonym, taxonomy, parent_id, path) AS (
+              SELECT
+                FALSE, CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, parent_id, share_subject.name
+              FROM share_throughsubjects
+                JOIN share_subject ON share_subject.id = share_throughsubjects.subject_id
+                JOIN share_subjecttaxonomy AS taxonomy ON share_subject.taxonomy_id = taxonomy.id
+                JOIN share_source AS source ON taxonomy.source_id = source.id
+              WHERE share_throughsubjects.creative_work_id = creativework.id AND NOT share_throughsubjects.is_deleted
+            UNION ALL
+                SELECT
+                TRUE, %(central_taxonomy)s, central.parent_id, central.name
+              FROM share_throughsubjects
+                JOIN share_subject ON share_subject.id = share_throughsubjects.subject_id
+                JOIN share_subject AS central ON central.id = share_subject.central_synonym_id
+              WHERE share_throughsubjects.creative_work_id = creativework.id AND NOT share_throughsubjects.is_deleted
+            UNION ALL
+              SELECT synonym, child.taxonomy, parent.parent_id, concat_ws(%(subject_delimiter)s, parent.name, path) FROM subject_names AS child INNER JOIN share_subject AS parent ON child.parent_id = parent.id
+          ) SELECT
+            (SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path)) from subject_names WHERE NOT synonym) AS original,
+            (SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path)) from subject_names WHERE synonym) AS synonyms
+        ) AS subjects ON TRUE
         LEFT JOIN LATERAL (
                     SELECT json_agg(json_strip_nulls(json_build_object(
                                                         'id', retraction.id
@@ -230,14 +237,14 @@ class CreativeWorkFetcher(Fetcher):
                     AND work_relation.type = 'share.retracts'
                     AND NOT retraction.is_deleted
                     ) AS retractions ON TRUE
-        WHERE creativework.id IN %(ids)s
+        WHERE creativework.id IN (SELECT id FROM pks)
         AND creativework.title != ''
-        AND COALESCE(array_length(identifiers, 1), 0) < 51
+        AND (SELECT COUNT(*) FROM share_workidentifier WHERE share_workidentifier.creative_work_id = creativework.id LIMIT 52) < 51
     '''
 
     def query_parameters(self, pks):
         return {
-            'ids': pks,
+            **super().query_parameters(pks),
             'central_taxonomy': settings.SUBJECTS_CENTRAL_TAXONOMY,
             'subject_delimiter': self.SUBJECT_DELIMITER,
             'system_user': settings.APPLICATION_USERNAME,
@@ -287,11 +294,24 @@ class CreativeWorkFetcher(Fetcher):
         return super().post_process(data)
 
 
+class CreativeWorkShortSubjectsFetcher(CreativeWorkFetcher):
+    def post_process(self, data):
+        subjects = set()
+        for subject in data['subjects']:
+            taxonomy, *lineage = subject.split(self.SUBJECT_DELIMITER)
+            if taxonomy == settings.SUBJECTS_CENTRAL_TAXONOMY:
+                subjects.update(lineage)
+        data['subjects'] = list(subjects)
+
+        del data['subject_synonyms']
+
+        return super().post_process(data)
+
+
 class AgentFetcher(Fetcher):
 
-    MODEL = models.AbstractAgent
     QUERY = '''
-        SELECT json_strip_nulls(json_build_object(
+        SELECT agent.id, json_strip_nulls(json_build_object(
                                     'id', agent.id
                                     , 'type', agent.type
                                     , 'name', agent.name
@@ -302,7 +322,7 @@ class AgentFetcher(Fetcher):
                                     , 'location', agent.location
                                     , 'sources', COALESCE(sources, '{}')
                                     , 'identifiers', COALESCE(identifiers, '{}')
-                                    , 'related_types', COALESCE(related_types, '{}')))
+                                    , 'related_types', COALESCE(related_types, '{}'))) AS _source
         FROM share_agent AS agent
         LEFT JOIN LATERAL (
                     SELECT array_agg(DISTINCT source.long_title) AS sources
@@ -323,7 +343,7 @@ class AgentFetcher(Fetcher):
                     FROM share_agentworkrelation AS creative_work_relation
                     WHERE creative_work_relation.agent_id = agent.id
                     ) AS related_types ON TRUE
-        WHERE agent.id in %(ids)s
+        WHERE agent.id IN (SELECT id FROM pks)
     '''
 
     def post_process(self, data):
@@ -341,8 +361,6 @@ class AgentFetcher(Fetcher):
 
 class SubjectFetcher(Fetcher):
 
-    MODEL = models.Subject
-
     def __call__(self, pks):
         for tag in models.Subject.objects.filter(id__in=pks):
             if not tag.name:
@@ -351,8 +369,6 @@ class SubjectFetcher(Fetcher):
 
 
 class TagFetcher(Fetcher):
-
-    MODEL = models.Tag
 
     def __call__(self, pks):
         for tag in models.Tag.objects.filter(id__in=pks):

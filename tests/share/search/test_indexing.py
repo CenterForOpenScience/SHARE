@@ -16,6 +16,7 @@ from share.search import indexing
 from tests import factories
 
 
+@pytest.mark.skip
 class TestIndexableMessage:
 
     VERSION_MAP = {
@@ -63,6 +64,7 @@ class TestIndexableMessage:
         assert e.value.args == ('Invalid version "{}"'.format(version), )
 
 
+@pytest.mark.skip
 class TestMessageFlattener:
 
     def message_factory(self, model='CreativeWork', ids=None):
@@ -181,6 +183,7 @@ class TestMessageFlattener:
             assert message.message.requeue.called
 
 
+@pytest.mark.skip
 class TestFetchers:
 
     @pytest.mark.parametrize('model, fetcher', [
@@ -335,6 +338,7 @@ class TestFetchers:
         list(fetchers.AgentFetcher()(agent.id for agent in agents))
 
 
+@pytest.mark.skip
 @pytest.mark.django_db
 class TestESIndexer:
 

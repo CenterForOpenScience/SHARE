@@ -183,6 +183,7 @@ class ElasticSearchBot:
         self.es_setup = bool(kwargs.pop('es_setup', False))
         self.es_url = kwargs.pop('es_url', None) or settings.ELASTICSEARCH_URL
         self.to_daemon = kwargs.pop('to_daemon', False)
+        self.queue = kwargs.pop('queue', None)
 
         if self.es_models:
             self.es_models = [x.lower() for x in self.es_models]
@@ -242,7 +243,7 @@ class ElasticSearchBot:
                         tasks.index_model.apply_async((model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
                     else:
                         try:
-                            SearchIndexer(celery.current_app).index(model.__name__, *batch)
+                            SearchIndexer(celery.current_app).index(model.__name__, *batch, queue=self.queue)
                         except ValueError:
                             logger.warning('Not sending model type %r to the SearchIndexer', model)
 

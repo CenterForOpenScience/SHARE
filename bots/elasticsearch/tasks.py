@@ -26,7 +26,7 @@ def safe_substr(value, length=32000):
 
 
 @celery.shared_task(bind=True)
-def update_elasticsearch(self, filter=None, index=None, models=None, setup=False, url=None, to_daemon=False):
+def update_elasticsearch(self, filter=None, index=None, models=None, setup=False, url=None, to_daemon=False, queue=None):
     """
     """
     # TODO Refactor Elasitcsearch logic
@@ -37,13 +37,20 @@ def update_elasticsearch(self, filter=None, index=None, models=None, setup=False
         es_setup=setup,
         es_url=url,
         to_daemon=to_daemon,
+        queue=queue,
     ).run()
 
 
 @celery.shared_task(bind=True)
 def index_model(self, model_name, ids, es_url=None, es_index=None):
+    # TODO This method should not have to exist anymore
     es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
-    indexing.ESIndexer(es_client, es_index or settings.ELASTICSEARCH_INDEX, indexing.FakeMessage(model_name, ids)).index()
+    action_gen = indexing.ElasticsearchActionGenerator([settings.ELASTICSEARCH_INDEX], [indexing.FakeMessage(model_name, ids)])
+    stream = helpers.streaming_bulk(es_client, action_gen, max_chunk_bytes=10 * 1024 ** 2, raise_on_error=False)
+
+    for ok, resp in stream:
+        if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
+            raise ValueError(resp)
 
 
 @celery.shared_task(bind=True)
