@@ -3,13 +3,13 @@ configs:
   disabled: false
   earliest_date: null
   harvester: org.swbiodiversity
-  harvester_kwargs:
+  harvester_kwargs: &h_kw
       list_url: http://swbiodiversity.org/seinet/collections/misc/collprofiles.php
   label: org.swbiodiversity
   rate_limit_allowance: 1
   rate_limit_period: 2
   transformer: org.swbiodiversity
-  transformer_kwargs: {}
+  transformer_kwargs: *h_kw
 home_page: http://swbiodiversity.org/seinet/
 long_title: SEINet - Arizona Chapter Collections
 name: org.swbiodiversity
