@@ -113,11 +113,15 @@ def disambiguate(self, normalized_id):
             countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
         )
 
+    if not updated:
+        return
     # Only index creativeworks on the fly, for the moment.
-    data = [x.id for x in updated or [] if isinstance(x, AbstractCreativeWork)]
+    updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
+    existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
+    ids = list(updated_works | existing_works)
 
     try:
-        SearchIndexer(self.app).index('creativework', *data)
+        SearchIndexer(self.app).index('creativework', *ids)
     except Exception as e:
         logger.exception('Could not add results from %r to elasticqueue', normalized)
         raise
