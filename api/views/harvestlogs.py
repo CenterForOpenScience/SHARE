@@ -15,6 +15,7 @@ class SourceConfigFilterBackend(MultipleChoiceFilter):
         if 'status' in request.GET:
             queryset = queryset.filter(status__in=request.GET.getlist('status'))
         return queryset
+        #return queryset.order_by('endDate')
 
 class HarvestLogViewSet(ShareObjectViewSet):
     serializer_class = HarvestLogSerializer

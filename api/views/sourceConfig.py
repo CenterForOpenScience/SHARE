@@ -7,6 +7,8 @@ from api.pagination import FuzzyPageNumberPagination
 
 class SourceConfigViewSet(ShareObjectViewSet):
     serializer_class = SourceConfigSerializer
-    queryset= SourceConfig.objects.all()
+    queryset= SourceConfig.objects.all().order_by('harvest_logs__status')
     pagination_class = FuzzyPageNumberPagination
-    
+    for i in queryset:
+        print(i)
+        print("harvest logs:", i.harvest_logs)
