@@ -21,6 +21,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL('''
             -- Disable our neato trigger(s)
             ALTER TABLE share_subject DISABLE TRIGGER USER;
+            ALTER TABLE share_throughsubjects DISABLE TRIGGER USER;
 
             -- Fix the messed up key (Yay ON UDATE CASCADE)
             UPDATE share_subject SET id = nextval('share_subject_id_seq') WHERE id = 0;
@@ -39,6 +40,7 @@ class Migration(migrations.Migration):
             COMMIT;
             BEGIN;
             ALTER TABLE share_subject ENABLE TRIGGER USER;
+            ALTER TABLE share_throughsubjects ENABLE TRIGGER USER;
 
             -- No extra commit so django can commit
         '''),
