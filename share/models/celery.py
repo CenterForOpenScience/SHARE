@@ -18,6 +18,8 @@ TASK_STATE_CHOICES = sorted(zip(ALL_STATES, ALL_STATES))
 
 
 class CeleryTaskResult(models.Model):
+    # Explicitly define auto-added field so it can be used in a model index
+    id = models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
 
     correlation_id = models.TextField(blank=True)
     status = models.CharField(db_index=True, max_length=50, default=states.PENDING, choices=TASK_STATE_CHOICES)
