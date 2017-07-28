@@ -37,13 +37,12 @@ def fetch(args, argv):
     if not config:
         return -1
 
-    limit = int(args['--limit']) if args.get('--limit') else None
+    harvester = config.get_harvester(pretty=True)
+
     kwargs = {k: v for k, v in {
-        'limit': limit,
+        'limit': int(args['--limit']) if args.get('--limit') else None,
         'set_spec': args.get('--set-spec'),
     }.items() if v is not None}
-
-    harvester = config.get_harvester(pretty=True)
 
     if not args['<date>'] and not (args['--start'] and args['--end']):
         gen = harvester.fetch(**kwargs)
@@ -87,20 +86,17 @@ def harvest(args, argv):
     if not config:
         return -1
 
-    limit = int(args['--limit']) if args.get('--limit') else None
     kwargs = {k: v for k, v in {
-        'limit': limit,
+        'limit': int(args['--limit']) if args.get('--limit') else None,
         'set_spec': args.get('--set-spec'),
     }.items() if v is not None}
 
-    harvester = config.get_harvester()
-
     if not args['<date>'] and not (args['--start'] and args['--end']):
-        gen = harvester.harvest(**kwargs)
+        gen = config.get_harvester().harvest(**kwargs)
     elif args['<date>']:
-        gen = harvester.harvest_date(pendulum.parse(args['<date>']), **kwargs)
+        gen = config.get_harvester().harvest_date(pendulum.parse(args['<date>']), **kwargs)
     else:
-        gen = harvester.harvest_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), **kwargs)
+        gen = config.get_harvester().harvest_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), **kwargs)
 
     # "Spin" the generator but don't keep the documents in memory
     for datum in gen:

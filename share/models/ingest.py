@@ -141,9 +141,9 @@ class SourceConfig(models.Model):
     def get_transformer(self, **kwargs):
         """Return a transformer instance configured for this SourceConfig.
 
-        Passed kwargs override or add to transformer_kwargs.
+        **kwargs: passed to the transformer's initializer
         """
-        return self.transformer.get_class()(self, **{**(self.transformer_kwargs or {}), **kwargs})
+        return self.transformer.get_class()(self, **kwargs)
 
     @contextlib.contextmanager
     def acquire_lock(self, required=True, using='default'):

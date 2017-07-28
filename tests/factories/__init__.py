@@ -85,7 +85,7 @@ class TransformerFactory(DjangoModelFactory):
             KEY = self.key
             VERSION = 1
 
-            def do_transform(self, data):
+            def do_transform(self, data, **kwargs):
                 return json.loads(data), None
 
         mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)

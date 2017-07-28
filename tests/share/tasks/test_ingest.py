@@ -49,7 +49,7 @@ class TestIngestJobConsumer:
             '@graph': g.to_jsonld(in_edges=False)
         }))
 
-        ingest.apply(kwargs={'job_id': job.id})
+        ingest.apply(kwargs={'job_id': job.id}, throw=True)
 
         if legacy:
             assert NormalizedData.objects.count() == 1

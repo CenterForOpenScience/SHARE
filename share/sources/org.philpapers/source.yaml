@@ -3,7 +3,7 @@ configs:
   disabled: false
   earliest_date: null  # earliestDatestamp is earliest published
   harvester: oai
-  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false, until_param: to}
+  harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: org.philpapers
   rate_limit_allowance: 1
   rate_limit_period: 5

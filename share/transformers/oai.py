@@ -298,15 +298,14 @@ class OAITransformer(ChainTransformer):
 
     VERSION = 1
 
-    def get_root_parser(self, _):
+    def get_root_parser(self, unwrapped, emitted_type='creativework', type_map=None, property_list=None, **kwargs):
         class RootParser(OAICreativeWork):
-            default_type = self.kwargs.get('emitted_type', 'creativework').lower()
+            default_type = emitted_type.lower()
             type_map = {
                 **{r.lower(): r for r in self.allowed_roots},
-                **{t.lower(): v for t, v in self.kwargs.get('type_map', {}).items()}
+                **{t.lower(): v for t, v in (type_map or {}).items()}
             }
 
-        property_list = self.kwargs.get('property_list')
         if property_list:
             logger.debug('Attaching addition properties %s to transformer for %s'.format(property_list, self.config.label))
             for prop in property_list:
@@ -317,8 +316,7 @@ class OAITransformer(ChainTransformer):
 
         return RootParser
 
-    def do_transform(self, data):
-        approved_sets = self.kwargs.get('approved_sets')
+    def do_transform(self, data, approved_sets=None, **kwargs):
         if approved_sets is not None:
             specs = set(x.replace('publication:', '') for x in etree.fromstring(data).xpath(
                 'ns0:header/ns0:setSpec/node()',
@@ -328,4 +326,4 @@ class OAITransformer(ChainTransformer):
                 logger.warning('Series %s not found in approved_sets for %s', specs, self.config.label)
                 return (None, None)
 
-        return super().do_transform(data)
+        return super().do_transform(data, **kwargs)
