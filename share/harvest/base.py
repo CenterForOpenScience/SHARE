@@ -62,16 +62,14 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         """
         return (self.network_connect_timeout, self.network_read_timeout)
 
-    def __init__(self, source_config, pretty=False, **kwargs):
+    def __init__(self, source_config, pretty=False, network_read_timeout=None, network_connect_timeout=None):
         """
 
         Args:
             source_config (SourceConfig):
             pretty (bool, optional): Defaults to False.
-            **kwargs: Custom kwargs, generally from the source_config. Stored in self.kwargs
 
         """
-        self.kwargs = kwargs
         self.config = source_config
         self.serializer = self.SERIALIZER_CLASS(pretty)
 
@@ -80,8 +78,8 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         # TODO Make rate limit apply across threads
         self.requests = RateLimittedProxy(self.session, self.config.rate_limit_allowance, self.config.rate_limit_period)
 
-        self.network_read_timeout = kwargs.get('network_read_timeout', self.network_read_timeout)
-        self.network_connect_timeout = kwargs.get('network_connect_timeout', self.network_connect_timeout)
+        self.network_read_timeout = (network_read_timeout or self.network_read_timeout)
+        self.network_connect_timeout = (network_connect_timeout or self.network_connect_timeout)
 
     def fetch_id(self, identifier):
         """Fetch a document by provider ID.
@@ -114,7 +112,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         """
         return self.fetch_date_range(date - datetime.timedelta(days=1), date, **kwargs)
 
-    def fetch_date_range(self, start, end, limit=None):
+    def fetch_date_range(self, start, end, limit=None, **kwargs):
         """Fetch data from the specified date range.
 
         Yields:
@@ -146,7 +144,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             )
             start, end = self.shift_range(start, end)
 
-        data_gen = self._do_fetch(start, end)
+        data_gen = self._do_fetch(start, end, **self._get_kwargs(**kwargs))
 
         if not isinstance(data_gen, types.GeneratorType) and len(data_gen) != 0:
             raise TypeError('{!r}._do_fetch must return a GeneratorType for optimal performance and memory usage'.format(self))
@@ -206,7 +204,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         """
         return self.harvest_date_range(date - datetime.timedelta(days=1), date, **kwargs)
 
-    def harvest_date_range(self, start, end, limit=None, force=False):
+    def harvest_date_range(self, start, end, limit=None, force=False, **kwargs):
         """Fetch data from the specified date range.
 
         Args:
@@ -214,6 +212,8 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             end (date):
             limit (int, optional): The maximum number of unique data to harvest. Defaults to None.
                 Uniqueness is determined by the SHA-256 of the raw data
+            force (bool, optional): Disable all safety checks, unexpected exceptions will still be raised. Defaults to False.
+            **kwargs: Forwared to _do_fetch. Overrides values in the source config's harvester_kwargs
 
         Yields:
             RawDatum
@@ -224,9 +224,9 @@ class BaseHarvester(metaclass=abc.ABCMeta):
 
         with self.config.acquire_lock(required=not force):
             logger.info('Harvesting %s - %s from %r', start, end, self.config)
-            yield from RawDatum.objects.store_chunk(self.config, self.fetch_date_range(start, end), limit=limit)
+            yield from RawDatum.objects.store_chunk(self.config, self.fetch_date_range(start, end, **kwargs), limit=limit)
 
-    def _do_fetch(self, start, end):
+    def _do_fetch(self, start, end, **kwargs):
         """Fetch date from this source inside of the given date range.
 
         The given date range should be treated as [start, end)
@@ -237,6 +237,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         Args:
             start_date (datetime): Date to start fetching data from, inclusively.
             end_date (datetime): Date to fetch data up to, exclusively.
+            **kwargs: Arbitrary kwargs passed to subclasses, used to customize harvesting. Overrides values in the source config's harvester_kwargs.
 
         Returns:
             Iterator<FetchResult>: The fetched data.
@@ -250,6 +251,9 @@ class BaseHarvester(metaclass=abc.ABCMeta):
                 DeprecationWarning
             )
             logger.warning('%r implements a deprecated interface. ', self)
-            return self.do_harvest(start, end)
+            return self.do_harvest(start, end, **kwargs)
 
         raise NotImplementedError()
+
+    def _get_kwargs(self, **kwargs):
+        return {**(self.config.harvester_kwargs or {}), **kwargs}

@@ -39,17 +39,18 @@ def fetch(args, argv):
 
     limit = int(args['--limit']) if args.get('--limit') else None
     kwargs = {k: v for k, v in {
+        'limit': limit,
         'set_spec': args.get('--set-spec'),
     }.items() if v is not None}
 
-    harvester = config.get_harvester(pretty=True, **kwargs)
+    harvester = config.get_harvester(pretty=True)
 
     if not args['<date>'] and not (args['--start'] and args['--end']):
-        gen = harvester.fetch(limit=limit)
+        gen = harvester.fetch(**kwargs)
     elif args['<date>']:
-        gen = harvester.fetch_date(pendulum.parse(args['<date>']), limit=limit)
+        gen = harvester.fetch_date(pendulum.parse(args['<date>']), **kwargs)
     else:
-        gen = harvester.fetch_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), limit=limit)
+        gen = harvester.fetch_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), **kwargs)
 
     if not args['--print']:
         args['--out'] = args['--out'] or os.path.join(os.curdir, 'fetched', config.label)
@@ -88,17 +89,18 @@ def harvest(args, argv):
 
     limit = int(args['--limit']) if args.get('--limit') else None
     kwargs = {k: v for k, v in {
+        'limit': limit,
         'set_spec': args.get('--set-spec'),
     }.items() if v is not None}
 
-    harvester = config.get_harvester(**kwargs)
+    harvester = config.get_harvester()
 
     if not args['<date>'] and not (args['--start'] and args['--end']):
-        gen = harvester.harvest(limit=limit)
+        gen = harvester.harvest(**kwargs)
     elif args['<date>']:
-        gen = harvester.harvest_date(pendulum.parse(args['<date>']), limit=limit)
+        gen = harvester.harvest_date(pendulum.parse(args['<date>']), **kwargs)
     else:
-        gen = harvester.harvest_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), limit=limit)
+        gen = harvester.harvest_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), **kwargs)
 
     # "Spin" the generator but don't keep the documents in memory
     for datum in gen:

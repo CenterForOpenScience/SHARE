@@ -23,10 +23,23 @@ class TestHarvesterInterface:
         return source_config.get_harvester()
 
     def test_passes_kwargs(self, source_config):
-        kwargs = {'test': 'value'}
-        harvester = source_config.get_harvester(**kwargs)
+        config_kwargs = {
+            'one': 'kwarg',
+            'another': 'kwarg',
+        }
+        custom_kwargs = {
+            'test': 'value',
+            'one': 'overridden',
+        }
+        start = pendulum.parse('2017-07-01')
+        end = pendulum.parse('2017-07-05')
+        source_config.harvester_kwargs = config_kwargs
+        harvester = source_config.get_harvester()
+        harvester._do_fetch = mock.MagicMock()
 
-        assert harvester.kwargs == kwargs
+        [x for x in harvester.fetch_date_range(start, end, **custom_kwargs)]
+
+        harvester._do_fetch.assert_called_once_with(start, end, **{**config_kwargs, **custom_kwargs})
 
     def test_no_do_harvest(self, harvester):
         assert not hasattr(harvester, 'do_harvest')

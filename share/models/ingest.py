@@ -134,9 +134,9 @@ class SourceConfig(models.Model):
     def get_harvester(self, **kwargs):
         """Return a harvester instance configured for this SourceConfig.
 
-        Passed kwargs override or add to harvester_kwargs.
+        **kwargs: passed to the harvester's initializer
         """
-        return self.harvester.get_class()(self, **{**(self.harvester_kwargs or {}), **kwargs})
+        return self.harvester.get_class()(self, **kwargs)
 
     def get_transformer(self, **kwargs):
         """Return a transformer instance configured for this SourceConfig.
