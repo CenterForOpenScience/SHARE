@@ -57,8 +57,6 @@ class Dataset(Parser):
 
     related_agents = tools.Map(tools.Delegate(Creator), tools.Try(ctx.contact))
 
-    identifiers = tools.Try(tools.Map(tools.Delegate(WorkIdentifier), ctx['identifier']))
-
     class Extra:
         access_rights = tools.Try(ctx['access-rights'])
         usage_rights = tools.Try(ctx['usage-rights'])
@@ -93,7 +91,7 @@ class SWTransformer(SoupXMLTransformer):
                     contact_dict = {}
                     contact = entry.replace('Contact:', '').strip()
                     contact_email = contact[contact.find("(") + 1:contact.find(")")]
-                    if re.match(r"[^@]+@[^@]+\.[^@]+", contact_email):
+                    if re.match(r"[^@\s]+@[^@\s]+\.[^@\s]+", contact_email):
                         if '/' in contact_email:
                             contact_email = contact_email.split('/')[0]
                         if ',' in contact_email:
@@ -102,12 +100,13 @@ class SWTransformer(SoupXMLTransformer):
                         contact_email = None
 
                     contact_name = contact.split('(', 1)[0].strip()
-                    remove_list = ['Curator', 'Science Division Chair', 'Curator', 'Collections Manager',
-                                   'Collections Manager', 'Administrative Director', 'Director', 'Director and Curator',
+                    remove_list = ['Curator', 'Science Division Chair',
+                                   'Collections Manager', 'Administrative Director',
+                                   'Director', 'Director and Curator',
                                    'Mycologist and Director', ',']
                     for item in remove_list:
-                        if item.lower() in contact_name.lower():
-                            contact_name = contact_name.lower().replace(item.lower(), '').strip()
+                        insensitive_item = re.compile(re.escape(item), re.IGNORECASE)
+                        contact_name = insensitive_item.sub('', contact_name)
                     if '/' in contact_name:
                         contact_name = contact_name.split('/')[0]
 
@@ -143,14 +142,6 @@ class SWTransformer(SoupXMLTransformer):
             collection_statistics = start.find_all_next('li')
             collection_statistics = list(map(self.extract_text, collection_statistics))
             data['collection-statistics'] = self.process_collection_stat(collection_statistics)
-
-            link = record.find_next('div', style="margin:3px;")
-            r = re.compile('collid=(.*?)&amp;')
-            result = r.search(str(link))
-            if result:
-                identifier = result.group(1)
-                listurl = self.kwargs['list_url']
-                data['identifier'] = listurl + '?collid=' + identifier
 
         return data
 
