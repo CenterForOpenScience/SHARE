@@ -129,22 +129,29 @@ class SearchIndexerDaemon(threading.Thread):
 
         manager = FutureManager()
 
-        with ThreadPoolExecutor(max_workers=num_nodes) as pool:
-            while self.keep_running.is_set():
+        with client.capture_exceptions():
+            with ThreadPoolExecutor(max_workers=num_nodes) as pool:
+                while self.keep_running.is_set():
 
-                manager.report()
-                messages = self._get_messages()
-                if not messages:
-                    continue
+                    manager.report()
 
-                logger.debug('Recieved %d messages from RabbitMQ', len(messages))
+                    try:
+                        messages = self._get_messages()
+                    except Exception as e:
+                        logger.exception('Unable to fetch messages from RabbitMQ')
+                        continue
 
-                for chunk in util.chunked(messages, 2):
-                    manager.add(pool.submit(self._index, chunk))
+                    if not messages:
+                        continue
 
-            manager.cancel_all()
-            logger.warning('Shutting down workers for %r...', self)
-        logger.warning('%r stopped.', self)
+                    logger.debug('Recieved %d messages from RabbitMQ', len(messages))
+
+                    for chunk in util.chunked(messages, 2):
+                        manager.add(pool.submit(self._index, chunk))
+
+                manager.cancel_all()
+                logger.warning('Shutting down workers for %r...', self)
+            logger.warning('%r stopped.', self)
 
     def _get_messages(self, max_size=25, timeout=5):
         messages = []
