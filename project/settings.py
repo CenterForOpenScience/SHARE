@@ -320,9 +320,9 @@ ELASTICSEARCH = {
             },
             'QUEUES': ['es-index']
         },
-        'share_customtax_1': {
-            'QUEUES': ['es-index', 'es-index-firehose']
-        }
+       # 'share_customtax_1': {
+       #     'QUEUES': ['es-index', 'es-index-firehose']
+       # }
     }
 }
 
