@@ -1,139 +1,199 @@
-from queue import Empty
+from concurrent import futures
+from concurrent.futures import ThreadPoolExecutor
 import logging
-import signal
+import queue
 import threading
 import time
 
 from django.conf import settings
 
+from elasticsearch import Elasticsearch
+from elasticsearch import helpers
+
 from raven.contrib.django.raven_compat.models import client
 
 from share import util
-
-from bots.elasticsearch.tasks import index_model
+from share.search.indexing import ElasticsearchActionGenerator
 
 
 logger = logging.getLogger(__name__)
 
 
-class SearchIndexerDaemon:
+class FutureManager:
 
-    def __init__(self, celery_app, max_size=500, timeout=5, flush_interval=10):
-        self.app = celery_app
-        self.messages = []
-        self.last_flush = 0
+    def __init__(self):
+        self._not_done = []
 
-        self.flush_interval = flush_interval
-        self.max_size = max_size
-        self.timeout = timeout
-        self._running = threading.Event()
+    def add(self, future):
+        self._not_done.append(future)
 
-        if threading.current_thread() == threading.main_thread():
-            logger.debug('Running in the main thread, SIGTERM is active')
-            signal.signal(signal.SIGTERM, self.stop)
+    def cancel_all(self):
+        self.report()
+        for fut in self._not_done:
+            fut.cancel()
 
-    def run(self):
-        try:
-            connection = self.app.pool.acquire(block=True)
-            queue = connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS)
-        except Exception as e:
-            logger.exception('Could not connect to broker')
-            raise
-
-        logger.info('Connected to broker')
-        logger.info('Using queue "%s"', settings.ELASTIC_QUEUE)
-
-        # Set an upper bound to avoid fetching everything in the queue
-        logger.info('Setting prefetch_count to %d', self.max_size * 1.1)
-        queue.consumer.qos(prefetch_count=int(self.max_size * 1.1), apply_global=True)
-
-        try:
-            self._run(queue)
-        except KeyboardInterrupt:
-            logger.warning('Recieved Interrupt. Exiting...')
+    def report(self):
+        if not self._not_done:
             return
+
+        # NOTE: This will block until at least one task terminates
+        # If ES starts lagging behind, at least this will slow the indexer down
+        done, self._not_done = futures.wait(self._not_done, return_when=futures.FIRST_COMPLETED)
+        self._not_done = list(self._not_done)
+
+        errored, completed = [], []
+        for fut in done:
+            if not fut.exception():
+                completed.append(fut)
+            else:
+                errored.append(fut)
+                logger.exception('Indexing attempt failed', exc_info=fut.exception())
+
+        logger.info('Completed Tasks: %d, Errored Tasks: %d, Pending Tasks: %d', len(completed), len(errored), len(self._not_done))
+
+
+class SearchIndexerDaemon(threading.Thread):
+
+    MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
+
+    def __init__(self, celery_app, queue_name, indexes, url=None):
+        super().__init__(daemon=True, name=queue_name)  # It's fine to kill this thread whenever if need be
+
+        self.celery_app = celery_app
+
+        self.rabbit_connection = None
+        self.rabbit_queue = None
+        self.rabbit_queue_name = queue_name
+
+        self.es_client = None
+        self.es_indexes = indexes
+        self.es_url = url or settings.ELASTICSEARCH_URL
+
+        self.connection_errors = ()
+        self.keep_running = threading.Event()
+
+    def initialize(self):
+        logger.info('Initializing %r', self)
+
+        logger.debug('Connecting to Elasticsearch cluster at "%s"', self.es_url)
+        try:
+            if settings.ELASTICSEARCH['SNIFF']:
+                logger.info('Elasticsearch sniffing is enabled')
+
+            self.es_client = Elasticsearch(
+                self.es_url,
+                retry_on_timeout=True,
+                timeout=settings.ELASTICSEARCH_TIMEOUT,
+                # sniff before doing anything
+                sniff_on_start=settings.ELASTICSEARCH['SNIFF'],
+                # refresh nodes after a node fails to respond
+                sniff_on_connection_fail=settings.ELASTICSEARCH['SNIFF'],
+                # and also every 60 seconds
+                sniffer_timeout=60 if settings.ELASTICSEARCH['SNIFF'] else None,
+            )
         except Exception as e:
             client.captureException()
-            logger.exception('Encountered an unexpected error. Attempting to flush before exiting.')
+            raise RuntimeError('Unable to connect to Elasticsearch cluster at "{}"'.format(self.es_url)) from e
 
-            if self.messages:
-                try:
-                    self.flush()
-                except Exception:
-                    client.captureException()
-                    logger.exception('%d messages could not be flushed', len(self.messages))
+        logger.debug('Creating queue "%s" in RabbitMQ', self.rabbit_queue_name)
+        try:
+            self.rabbit_connection = self.celery_app.pool.acquire(block=True)
+            self.rabbit_queue = self.rabbit_connection.SimpleQueue(self.rabbit_queue_name, **settings.ELASTICSEARCH['QUEUE_SETTINGS'])
+        except Exception as e:
+            client.captureException()
+            raise RuntimeError('Unable to create queue "{}"'.format(self.rabbit_queue_name)) from e
 
-            raise e
-        finally:
-            try:
-                queue.close()
-                connection.close()
-            except Exception as e:
-                logger.exception('Failed to clean up broker connection')
+        self.connection_errors = self.rabbit_connection.connection_errors
+        logger.debug('connection_errors set to %r', self.connection_errors)
+
+        # TODO switch to an actual consumer based model
+        # Set an upper bound to avoid fetching everything in the queue
+        logger.info('Setting prefetch_count to %d', 25)
+        self.rabbit_queue.consumer.qos(prefetch_count=25, apply_global=True)
+
+        self.keep_running.set()
+        logger.debug('%r successfully initialized', self)
+
+    def start(self):
+        self.initialize()
+        return super().start()
 
     def stop(self):
-        logger.info('Stopping indexer...')
-        self._running.clear()
+        logger.info('Stopping %r...', self)
+        self.keep_running.clear()
+        return self.join()
 
-    def flush(self):
-        logger.info('Flushing %d messages', len(self.messages))
+    def run(self):
+        num_nodes = len(self.es_client.transport.connection_pool.connections)
+        logger.debug('Using %d, 1 for each ES nodes available', num_nodes)
 
-        # TODO Move search logic into this module
-        # TODO Support more than just creativeworks?
-        buf = []
-        for message in self.messages:
-            buf.extend(message.payload['CreativeWork'])
+        manager = FutureManager()
 
-        logger.debug('Sending %d works to Elasticsearch', len(buf))
-        try:
-            for chunk in util.chunked(buf, size=500):
-                index_model('CreativeWork', buf)
-        except Exception as e:
-            logger.exception('Failed to index works')
-            raise
-        else:
-            logger.debug('Works successfully indexed')
+        with client.capture_exceptions():
+            with ThreadPoolExecutor(max_workers=num_nodes) as pool:
+                while self.keep_running.is_set():
 
-        errors = []
-        logger.debug('ACKing received messages')
-        for message in self.messages:
-            if len(errors) > 9:
-                break
+                    manager.report()
 
+                    try:
+                        messages = self._get_messages()
+                    except Exception as e:
+                        logger.exception('Unable to fetch messages from RabbitMQ')
+                        continue
+
+                    if not messages:
+                        continue
+
+                    logger.debug('Recieved %d messages from RabbitMQ', len(messages))
+
+                    for chunk in util.chunked(messages, 2):
+                        manager.add(pool.submit(self._index, chunk))
+
+                manager.cancel_all()
+                logger.warning('Shutting down workers for %r...', self)
+            logger.warning('%r stopped.', self)
+
+    def _get_messages(self, max_size=25, timeout=5):
+        messages = []
+        start = time.time()
+
+        while self.keep_running.is_set():
             try:
-                message.ack()
-            except Exception as e:
-                logger.exception('Could not ACK %r', message)
-                errors.append(e)
-
-        if errors:
-            logger.error('Encounted %d errors while attempting to ACK messages', len(errors))
-            raise errors[0]
-
-        self.messages.clear()
-        self.last_flush = time.time()
-
-        logger.debug('Successfully flushed messages')
-
-    def _run(self, queue):
-        self._running.set()
-        self.last_flush = time.time()
-
-        while self._running.is_set():
-            try:
-                message = queue.get(timeout=self.timeout)
-                self.messages.append(message)
-            except Empty:
+                messages.append(self.rabbit_queue.get(timeout=timeout))
+            except queue.Empty:
                 pass
 
-            if not self.messages:
-                continue
+            if (time.time() - start) >= timeout or len(messages) > max_size:
+                break
 
-            if time.time() - self.last_flush >= self.flush_interval:
-                logger.debug('Time since last flush (%.2f sec) has exceeded flush_interval (%.2f sec) . Flushing...', time.time() - self.last_flush, self.flush_interval)
-                self.flush()
-            elif len(self.messages) >= self.max_size:
-                logger.debug('Buffer has exceeded max_size. Flushing...')
-                self.flush()
+        return messages
 
-        logger.info('Exiting...')
+    def _index(self, messages):
+        with client.capture_exceptions():
+            start = time.time()
+
+            action_gen = ElasticsearchActionGenerator(self.es_indexes, messages)
+            logger.debug('Indexing %d documents', len(action_gen))
+
+            try:
+                stream = helpers.streaming_bulk(
+                    self.es_client,
+                    action_gen,
+                    max_chunk_bytes=self.MAX_CHUNK_BYTES,
+                    raise_on_error=False,
+                )
+
+                for ok, resp in stream:
+                    if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
+                        raise ValueError(resp)
+                    action_gen.ack_pending()
+                action_gen.ack_pending()
+
+                assert not action_gen.pending
+                assert len(action_gen.messages) == len(action_gen.acked)
+            finally:
+                num = action_gen.requeue()
+                if num:
+                    logger.warning('Requeued %d messages', num)
+
+            logger.info('Indexed %d documents in %.02f seconds', len(action_gen), time.time() - start)

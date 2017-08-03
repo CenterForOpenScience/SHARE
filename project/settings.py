@@ -17,6 +17,11 @@ from django.utils.log import DEFAULT_LOGGING
 
 from celery.schedules import crontab
 
+
+def split(string, delim):
+    return tuple(filter(None, string.split(delim)))
+
+
 # Suppress select django deprecation messages
 LOGGING = DEFAULT_LOGGING
 
@@ -287,10 +292,55 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')
-ELASTICSEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
-ELASTICSEARCH_TIMEOUT = int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45'))
-ELASTICSEARCH_INDEX_VERSIONS = tuple(v for v in os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', '').split(',') if v)
+ELASTICSEARCH = {
+    'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
+    'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
+    'INDEX': os.environ.get('ELASTIC_SEARCH_INDEX', 'share'),
+    'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
+    'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
+    'DEFAULT_QUEUE': 'es-index',
+    'DEFAULT_FETCHERS': {
+        'agent': 'share.search.fetchers.AgentFetcher',
+        'creativework': 'share.search.fetchers.CreativeWorkFetcher',
+        'subject': 'share.search.fetchers.SubjectFetcher',
+        'tag': 'share.search.fetchers.TagFetcher',
+    },
+    'QUEUE_SETTINGS': {
+        'serializer': 'json',
+        'compression': 'zlib',
+        'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
+    },
+    # TODO Make this configurable
+    # Due to time constraints this is being hard coded
+    # NOTE: mappings will have to be created BEFORE the daemon starts
+    'INDEXES': {
+        'share_v3': {
+            'FETCHERS': {
+                'creativework': 'share.search.fetchers.CreativeWorkShortSubjectsFetcher',
+            },
+            'QUEUES': ['es-index']
+        },
+        'share_customtax_1': {
+            'QUEUES': ['es-index', 'es-index-firehose']
+        }
+    }
+}
+
+# Backwards compat stuff.
+# TODO Delete me soon
+ELASTICSEARCH_URL = ELASTICSEARCH['URL']
+ELASTICSEARCH_INDEX = ELASTICSEARCH['INDEX']
+ELASTICSEARCH_TIMEOUT = ELASTICSEARCH['TIMEOUT']
+ELASTICSEARCH_INDEX_VERSIONS = ELASTICSEARCH['INDEX_VERSIONS']
+ELASTIC_QUEUE = ELASTICSEARCH['DEFAULT_QUEUE']
+ELASTIC_QUEUE_SETTINGS = ELASTICSEARCH['QUEUE_SETTINGS']
+
+INDEXABLE_MODELS = {
+    'agent': 'Agent',
+    'creativework': 'CreativeWork',
+    'subject': 'Subject',
+    'tag': 'Tag',
+}
 
 # Seconds, not an actual celery settings
 CELERY_RETRY_BACKOFF_BASE = int(os.environ.get('CELERY_RETRY_BACKOFF_BASE', 2 if DEBUG else 10))
@@ -329,7 +379,12 @@ if not DEBUG:
         'RawData Janitor': {
             'task': 'share.janitor.tasks.rawdata_janitor',
             'schedule': crontab(minute=0)  # hourly
-        }
+        },
+        'Source Stats': {
+            'task': 'share.tasks.source_stats',
+            'schedule': crontab(minute=0, hour='3,9,15,21'),  # every 6 hours
+            'args': (),
+        },
     }
 
 CELERY_RESULT_EXPIRES = 60 * 60 * 24 * 3  # 4 days
@@ -358,12 +413,6 @@ CELERY_TASK_ROUTES = {
 CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}
 CELERY_TASK_QUEUES[CELERY_TASK_DEFAULT_QUEUE] = {}
 
-ELASTIC_QUEUE = 'es-index'
-ELASTIC_QUEUE_SETTINGS = {
-    'serializer': 'json',
-    'compression': 'zlib',
-    'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
-}
 
 # Logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
@@ -374,7 +423,7 @@ LOGGING = {
     'formatters': {
         'console': {
             '()': 'colorlog.ColoredFormatter',
-            'format': '%(cyan)s[%(asctime)s]%(log_color)s[%(levelname)s][%(name)s]: %(reset)s%(message)s'
+            'format': '%(cyan)s[%(asctime)s]%(log_color)s[%(levelname)s][%(name)s][%(purple)s%(threadName)s]: %(reset)s%(message)s'
         }
     },
     'handlers': {
@@ -400,7 +449,7 @@ LOGGING = {
             'level': LOG_LEVEL,
             'propagate': False
         },
-        'providers': {
+        'elasticsearch': {
             'handlers': ['console'],
             'level': LOG_LEVEL,
             'propagate': False
@@ -457,6 +506,8 @@ OSF_API_URL = os.environ.get('OSF_API_URL', 'https://staging-api.osf.io').rstrip
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 
 ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 'ul']
+
+SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')

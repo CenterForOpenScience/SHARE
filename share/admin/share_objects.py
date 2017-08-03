@@ -1,12 +1,17 @@
 import operator
 from functools import reduce
 
+from django.conf import settings
 from django.db import models
 from django.contrib import admin
+from django.forms import ModelChoiceField
+from django.urls import reverse
+from django.utils.html import format_html, format_html_join, mark_safe
 
 from share.admin.util import FuzzyPaginator
 from share.models import AbstractCreativeWork
 from share.models import Source
+from share.models import Subject
 from share.util import IDObfuscator
 from share.util import InvalidID
 
@@ -69,12 +74,10 @@ class ShareObjectAdmin(admin.ModelAdmin):
     actions = None
     exclude = ('extra', 'same_as', 'change', )
     inlines = (SourcesInline, )
-    list_filter = (TypedModelFilter, SourcesFilter, )
     # Django forces order by pk desc which results in a seqscan if we add anything else
     # ordering = ('-date_modified', )
     readonly_fields = ('encoded_id', 'date_created', 'date_modified', )
     show_full_result_count = False
-    paginator = FuzzyPaginator
 
     def get_search_results(self, request, queryset, search_term):
         ret = super().get_search_results(request, queryset, search_term)
@@ -116,9 +119,11 @@ class ShareObjectAdmin(admin.ModelAdmin):
 
 
 class CreativeWorkAdmin(ShareObjectAdmin):
+    list_filter = (TypedModelFilter, SourcesFilter, )
     list_display = ('encoded_id', 'id', 'get_type', 'title', 'date_modified', 'date_created', )
     search_fields = ('identifiers__uri', )
     show_change_link = False
+    paginator = FuzzyPaginator
 
     def get_search_results(self, request, queryset, search_term):
         try:
@@ -136,3 +141,54 @@ class CreativeWorkAdmin(ShareObjectAdmin):
                 queryset = queryset.filter(reduce(operator.or_, or_queries))
 
         return queryset, use_distinct
+
+
+class SubjectChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return '{}: {}'.format(obj.taxonomy.source.long_title, obj.name)
+
+
+class SubjectAdmin(ShareObjectAdmin):
+    search_fields = ('name',)
+    readonly_fields = ('taxonomy_link', 'children_links', 'lineage')
+    fields = ('lineage', 'children_links', 'name', 'parent', 'taxonomy_link', 'central_synonym', 'is_deleted', 'uri',)
+    list_display = ('name', 'taxonomy_link', 'central_synonym', 'is_deleted')
+    list_filter = ('taxonomy',)
+    list_select_related = ('taxonomy', 'taxonomy__source',)
+
+    def lineage(self, obj):
+        return format_html_join(
+            ' > ', '<a href="{}">{}</a>',
+            ((reverse('admin:share_subject_change', args=(s.id,)), s.name) for s in obj.lineage())
+        )
+
+    def taxonomy_link(self, obj):
+        taxonomy_url = reverse('admin:share_subjecttaxonomy_change', args=(obj.taxonomy_id,))
+        return format_html('<a href="{}">{}</a>', taxonomy_url, obj.taxonomy.source.long_title)
+    taxonomy_link.short_description = 'Taxonomy'
+
+    def children_links(self, obj):
+        items = format_html_join(
+            '', '<li style="list-style: square;"><a href="{}">{}</a></li>',
+            ((reverse('admin:share_subject_change', args=(child.id,)), child.name) for child in obj.children.order_by('name'))
+        )
+        return format_html('<ul style="margin-left: 0;">{}</ul>', mark_safe(items))
+    children_links.short_description = 'Children'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('taxonomy', 'taxonomy__source', 'parent', 'parent__parent',).prefetch_related('children')
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        subject_queryset = None
+        subject_id = request.resolver_match.args[0]
+        if db_field.name == 'parent':
+            # Limit to subjects from the same taxonomy
+            subject_queryset = Subject.objects.filter(taxonomy__subject__id=subject_id)
+        elif db_field.name == 'central_synonym':
+            # Limit to subjects from the central taxonomy, or none if this subject is in the central taxonomy
+            subject_queryset = Subject.objects.filter(taxonomy__source__user__username=settings.APPLICATION_USERNAME).exclude(taxonomy__subject__id=subject_id)
+
+        if subject_queryset is not None:
+            kwargs['queryset'] = subject_queryset.order_by('name').select_related('taxonomy', 'taxonomy__source')
+            return SubjectChoiceField(required=not db_field.blank, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)

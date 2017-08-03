@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://scholarsbank.uoregon.edu/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2003-05-08T13:18:19Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.scholarsbank.mods

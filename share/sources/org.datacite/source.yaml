@@ -15,7 +15,7 @@ configs:
     type_map: {}
 - base_url: http://oai.datacite.org/oai
   disabled: false
-  earliest_date: null
+  earliest_date: 2011-01-01T00:00:00Z
   harvester: oai
   harvester_kwargs:
       metadata_prefix: oai_datacite

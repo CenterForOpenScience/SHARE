@@ -25,6 +25,8 @@ from share.models import RawDatum
 from share.models import Source
 from share.models import SourceConfig
 from share.search import SearchIndexer
+from share.util.source_stat import SourceStatus
+from share.util.source_stat import OAISourceStatus
 
 
 logger = logging.getLogger(__name__)
@@ -111,11 +113,15 @@ def disambiguate(self, normalized_id):
             countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
         )
 
+    if not updated:
+        return
     # Only index creativeworks on the fly, for the moment.
-    data = [x.id for x in updated or [] if isinstance(x, AbstractCreativeWork)]
+    updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
+    existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
+    ids = list(updated_works | existing_works)
 
     try:
-        SearchIndexer(self.app).index('creativework', *data)
+        SearchIndexer(self.app).index('creativework', *ids)
     except Exception as e:
         logger.exception('Could not add results from %r to elasticqueue', normalized)
         raise
@@ -258,3 +264,32 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
             logs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
 
         HarvestLog.objects.bulk_get_or_create(logs)
+
+
+@celery.shared_task(bind=True)
+def source_stats(self):
+    oai_sourceconfigs = SourceConfig.objects.filter(
+        disabled=False,
+        base_url__isnull=False,
+        harvester__key='oai'
+    )
+    for config in oai_sourceconfigs.values():
+        get_source_stats.apply_async((config['id'],))
+
+    non_oai_sourceconfigs = SourceConfig.objects.filter(
+        disabled=False,
+        base_url__isnull=False
+    ).exclude(
+        harvester__key='oai'
+    )
+    for config in non_oai_sourceconfigs.values():
+        get_source_stats.apply_async((config['id'],))
+
+
+@celery.shared_task(bind=True)
+def get_source_stats(self, config_id):
+    source_config = SourceConfig.objects.get(pk=config_id)
+    if source_config.harvester.key == 'oai':
+        OAISourceStatus(config_id).get_source_stats()
+    else:
+        SourceStatus(config_id).get_source_stats()

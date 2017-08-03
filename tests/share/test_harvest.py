@@ -60,7 +60,7 @@ class SyncedThread(threading.Thread):
 
 @pytest.mark.django_db
 def test_sources_have_access_tokens():
-    for source in Source.objects.all()[:10]:
+    for source in Source.objects.exclude(user__username=settings.APPLICATION_USERNAME)[:10]:
         assert source.user.authorization()
 
 

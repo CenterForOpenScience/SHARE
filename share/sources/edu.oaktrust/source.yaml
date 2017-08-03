@@ -1,7 +1,8 @@
+# DSpace
 configs:
 - base_url: http://oaktrust.library.tamu.edu/dspace-oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2004-11-10 20:56:05  # their earliestDatestamp is most recent
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.oaktrust.mods

@@ -1,7 +1,7 @@
 configs:
 - base_url: https://api.archives-ouvertes.fr/oai/hal/
   disabled: false
-  earliest_date: null
+  earliest_date: 2002-09-23
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: fr.archives-ouvertes.hal

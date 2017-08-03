@@ -1,7 +1,7 @@
 configs:
 - base_url: http://purr.purdue.edu/oaipmh
   disabled: false
-  earliest_date: null
+  earliest_date: 2012-02-22T11:51:19Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
   label: edu.purdue

@@ -3,6 +3,8 @@ import logging
 
 from project import celery_app
 
+from django.conf import settings
+
 from share.bin.util import command
 from share.search.daemon import SearchIndexerDaemon
 
@@ -15,7 +17,7 @@ def search(args, argv):
     """
     Usage:
         {0} search <command> [<args>...]
-        {0} search [--help | --filter=FILTER | --all] [options]
+        {0} search [--help | --filter=FILTER | --all] [--async | --to-daemon] [options]
 
     Options:
         -h, --help           Show this screen.
@@ -24,6 +26,8 @@ def search(args, argv):
         -u, --url=URL        The URL of Elasticsearch.
         -i, --index=INDEX    The name of the Elasticsearch index to use.
         -a, --async          Send an update_elasticsearch task to Celery.
+        -t, --to-daemon      Index records by adding them to the indexer daemon's queue.
+        -q, --queue=QUEUE    Queue name to send to indexing tasks to.
 
     Commands:
     {1.subcommand_list}
@@ -41,6 +45,8 @@ def search(args, argv):
         'filter': args.get('--filter'),
         'index': args.get('--index'),
         'url': args.get('--url'),
+        'to_daemon': bool(args.get('--to-daemon')),
+        'queue': args.get('--queue'),
         # 'models': args.get('--models'),
     }
 
@@ -68,11 +74,14 @@ def janitor(args, argv):
     Options:
         -u, --url=URL        The URL of Elasticsearch.
         -i, --index=INDEX    The name of the Elasticsearch index to use.
+        -d, --dry            Dry run the janitor task.
+        -t, --to-daemon      Index records by adding them to the indexer daemon's queue.
     """
     kwargs = {
-        'es_url': args['--url'],
-        'es_index': args['--index'],
+        'es_url': args.get('--url'),
+        'es_index': args.get('--index'),
         'dry': bool(args['--dry']),
+        'to_daemon': bool(args['--to-daemon']),
     }
 
     if args['--async']:
@@ -84,9 +93,13 @@ def janitor(args, argv):
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
     """
-    Usage: {0} search setup
+    Usage: {0} search setup [options]
+
+    Options:
+        -u, --url=URL        The URL of Elasticsearch.
+        -i, --index=INDEX    The name of the Elasticsearch index to use.
     """
-    ElasticSearchBot().setup()
+    ElasticSearchBot(es_url=args.get('--url'), es_index=args.get('--index')).setup()
 
 
 @search.subcommand('Start the search indexing daemon')
@@ -95,16 +108,28 @@ def daemon(args, argv):
     Usage: {0} search daemon [options]
 
     Options:
-        -t, --timeout=TIMEOUT     The queue timeout in seconds [default: 5]
-        -s, --size=SIZE           The maximum number of works to index at once [default: 500]
-        -i, --interval=SIZE       The interval at which to flush the queue in seconds [default: 10]
         -l, --log-level=LOGLEVEL  Set the log level [default: INFO]
     """
     logging.getLogger('share.search.daemon').setLevel(args['--log-level'])
+    logging.getLogger('share.search.indexing').setLevel(args['--log-level'])
 
-    SearchIndexerDaemon(
-        celery_app,
-        max_size=int(args['--size']),
-        timeout=int(args['--timeout']),
-        flush_interval=int(args['--interval']),
-    ).run()
+    queues = {}
+    for index, config in settings.ELASTICSEARCH['INDEXES'].items():
+        for queue in config['QUEUES']:
+            queues.setdefault(queue, []).append(index)
+
+    daemons = []
+    for queue, indexes in queues.items():
+        daemon = SearchIndexerDaemon(celery_app, queue, indexes)
+        daemon.start()
+        daemons.append(daemon)
+
+    try:
+        for daemon in daemons:
+            daemon.join()
+    except KeyboardInterrupt:
+        for daemon in daemons:
+            daemon.stop()
+
+        for daemon in daemons:
+            daemon.join()

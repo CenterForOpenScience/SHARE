@@ -288,6 +288,10 @@ class TagFactory(ShareObjectFactory):
     name = factory.Faker('word')
 
 
+class SubjectFactory(ShareObjectFactory):
+    name = factory.Faker('word')
+
+
 class AbstractCreativeWorkFactory(TypedShareObjectFactory):
     title = factory.Faker('sentence')
     description = factory.Faker('paragraph')
@@ -336,6 +340,12 @@ class AbstractWorkRelationFactory(TypedShareObjectFactory):
 class ThroughTagsFactory(ShareObjectFactory):
     pass
     # tag = factory.SubFactory(TagFactory)
+    # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
+
+
+class ThroughSubjectsFactory(ShareObjectFactory):
+    pass
+    # subject = factory.SubFactory(SubjectFactory)
     # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
 

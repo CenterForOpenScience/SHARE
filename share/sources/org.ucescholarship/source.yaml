@@ -1,7 +1,7 @@
 configs:
-- base_url: http://www.escholarship.org/uc/oai
+- base_url: http://escholarship.org/uc/oai
   disabled: false
-  earliest_date: null
+  earliest_date: 2002-02-06
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc, time_granularity: false}
   label: org.ucescholarship

@@ -11,6 +11,7 @@ from django.db import connections
 from django.db import transaction
 from django.conf import settings
 from django.db.models.signals import post_save
+
 from oauth2_provider.models import AccessToken, Application
 from urllib3.connection import ConnectionError
 from elasticsearch.exceptions import ConnectionError as ElasticConnectionError

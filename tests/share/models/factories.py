@@ -10,16 +10,9 @@ from django.contrib.contenttypes.models import ContentType
 from share import models
 
 
-class ShareUserFactory(DjangoModelFactory):
-    username = factory.Sequence(lambda x: x)
-
-    class Meta:
-        model = models.ShareUser
-
-
 class NormalizedDataFactory(DjangoModelFactory):
     data = {}
-    source = factory.SubFactory(ShareUserFactory)
+    source = factory.SubFactory('tests.factories.ShareUserFactory')
 
     class Meta:
         model = models.NormalizedData

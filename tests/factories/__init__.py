@@ -7,6 +7,8 @@ import uuid
 
 import stevedore
 
+import faker
+
 import factory
 from factory import fuzzy
 from factory.django import DjangoModelFactory
@@ -23,11 +25,15 @@ from tests.share.models.factories import NormalizedDataFactory  # noqa
 from tests.share.models.factories import AgentFactory as AbstractAgentFactory # noqa
 from tests.share.models.factories import WorkIdentifierFactory  # noqa
 from tests.share.models.factories import AbstractCreativeWorkFactory  # noqa
+from tests.share.models.factories import ShareObjectFactory
+
+
+faker = faker.Faker()
 
 
 class ShareUserFactory(DjangoModelFactory):
     username = factory.Faker('name')
-    # long_title = factory.Faker('sentence')
+    source = factory.RelatedFactory('tests.factories.SourceFactory', 'user')
 
     class Meta:
         model = models.ShareUser
@@ -38,7 +44,7 @@ class SourceFactory(DjangoModelFactory):
     long_title = factory.Faker('sentence')
     icon = factory.SelfAttribute('name')
 
-    user = factory.SubFactory(ShareUserFactory)
+    user = factory.SubFactory(ShareUserFactory, source=None)
 
     class Meta:
         model = models.Source
@@ -161,3 +167,25 @@ class CeleryTaskResultFactory(DjangoModelFactory):
 
     class Meta:
         model = models.CeleryTaskResult
+
+
+class SubjectTaxonomyFactory(DjangoModelFactory):
+    source = factory.SubFactory(SourceFactory)
+
+    class Meta:
+        model = models.SubjectTaxonomy
+
+
+class SubjectFactory(ShareObjectFactory):
+    name = factory.Sequence(lambda x: '{}?{}'.format(faker.bs(), x))
+    uri = factory.Sequence(lambda x: str(x))
+    taxonomy = factory.SubFactory(SubjectTaxonomyFactory)
+
+    class Meta:
+        model = models.Subject
+
+
+class ThroughSubjectsFactory(ShareObjectFactory):
+
+    class Meta:
+        model = models.ThroughSubjects
