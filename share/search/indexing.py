@@ -172,10 +172,9 @@ class ChunkedFlattener:
 
     def _flatten(self):
         for message in self._messages:
-            self._counter[message] += 1
             for _id in message:
                 yield _id
-            self._counter[message] -= 1
+            self._counter[message] += 1
 
 
 class ElasticsearchActionGenerator:
@@ -218,13 +217,13 @@ class ElasticsearchActionGenerator:
 
             for result in util.interweave(*streams):
                 for message, count in tuple(counter.items()):
-                    if count < 1:
+                    if count >= len(self.indexes):
                         self.pending.append(message)
                         del counter[message]
 
                 yield result
 
             for message, count in tuple(counter.items()):
-                if count < 1:
+                if count >= len(self.indexes):
                     self.pending.append(message)
                     del counter[message]

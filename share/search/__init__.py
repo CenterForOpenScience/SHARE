@@ -14,8 +14,9 @@ class SearchIndexer:
     def __init__(self, celery_app):
         self.app = celery_app
 
-    def index(self, model, *pks, queue=settings.ELASTICSEARCH['DEFAULT_QUEUE']):
+    def index(self, model, *pks, queue=None):
         name = settings.INDEXABLE_MODELS.get(model.lower())
+        queue = queue or settings.ELASTICSEARCH['DEFAULT_QUEUE']
 
         if not name:
             raise ValueError('{} is not an indexable model'.format(model))
