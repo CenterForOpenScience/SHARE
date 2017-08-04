@@ -164,8 +164,8 @@ class ChunkedFlattener:
         for chunk in util.chunked(self._flatten(), size=250):
             for result in self._fetcher(chunk):
                 if result is None:
-                    continue
-                if result.pop('is_deleted', False):
+                    yield None
+                elif result.pop('is_deleted', False):
                     yield {'_id': result['id'], '_op_type': 'delete', **opts}
                 else:
                     yield {'_id': result['id'], '_op_type': 'index', **opts, **result}
@@ -181,27 +181,11 @@ class ElasticsearchActionGenerator:
 
     def __init__(self, indexes, messages):
         self.indexes = indexes
-        self.acked = collections.deque()
-        self.pending = collections.deque()
 
         self.messages = tuple(sorted((
             IndexableMessage.wrap(message)
             for message in messages
         ), key=lambda msg: msg.model._meta.model_name))
-
-    def ack_pending(self):
-        while self.pending:
-            msg = self.pending.pop()
-            msg.ack()
-            self.acked.append(msg)
-
-    def requeue(self):
-        count = 0
-        for message in self.messages:
-            if not message.message.acknowledged:
-                message.requeue()
-                count += 1
-        return count
 
     def __len__(self):
         return sum(len(x) for x in self.messages)
@@ -218,12 +202,10 @@ class ElasticsearchActionGenerator:
             for result in util.interweave(*streams):
                 for message, count in tuple(counter.items()):
                     if count >= len(self.indexes):
-                        self.pending.append(message)
                         del counter[message]
 
                 yield result
 
             for message, count in tuple(counter.items()):
                 if count >= len(self.indexes):
-                    self.pending.append(message)
                     del counter[message]

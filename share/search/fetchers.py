@@ -360,18 +360,24 @@ class AgentFetcher(Fetcher):
 
 
 class SubjectFetcher(Fetcher):
+    QUERY = '''
+        SELECT subject.id, json_strip_nulls(json_build_object('id', subject.id , 'name', subject.name)) AS _source
+        FROM share_subject AS subject
+        WHERE subject.id IN (SELECT id FROM pks)
+        AND length(subject.name) < 2001
+    '''
 
-    def __call__(self, pks):
-        for tag in models.Subject.objects.filter(id__in=pks):
-            if not tag.name:
-                continue
-            yield {'id': IDObfuscator.encode(tag), 'type': 'subject', 'name': tag.name[:32000]}
+    def post_process(self, data):
+        return {'id': IDObfuscator.encode_id(data['id'], models.Subject), 'type': 'subject', 'name': data['name']}
 
 
 class TagFetcher(Fetcher):
+    QUERY = '''
+        SELECT tag.id, json_strip_nulls(json_build_object('id', tag.id , 'name', tag.name)) AS _source
+        FROM share_tag AS tag
+        WHERE tag.id IN (SELECT id FROM pks)
+        AND length(tag.name) < 2001
+    '''
 
-    def __call__(self, pks):
-        for tag in models.Tag.objects.filter(id__in=pks):
-            if not tag.name:
-                continue
-            yield {'id': IDObfuscator.encode(tag), 'type': 'tag', 'name': tag.name[:32000]}
+    def post_process(self, data):
+        return {'id': IDObfuscator.encode_id(data['id'], models.Tag), 'type': 'tag', 'name': data['name']}

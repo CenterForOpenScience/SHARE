@@ -26,7 +26,7 @@ def safe_substr(value, length=32000):
 
 
 @celery.shared_task(bind=True)
-def update_elasticsearch(self, filter=None, index=None, models=None, setup=False, url=None, to_daemon=False, queue=None):
+def update_elasticsearch(self, filter=None, index=None, models=None, setup=False, url=None, to_daemon=False):
     """
     """
     # TODO Refactor Elasitcsearch logic
@@ -37,7 +37,6 @@ def update_elasticsearch(self, filter=None, index=None, models=None, setup=False
         es_setup=setup,
         es_url=url,
         to_daemon=to_daemon,
-        queue=queue,
     ).run()
 
 
