@@ -1,12 +1,13 @@
 import json
 import logging
+import threading
 
-from project import celery_app
+from project.celery import app
 
 from django.conf import settings
 
 from share.bin.util import command
-from share.search.daemon import SearchIndexerDaemon
+from share.search.daemon import SearchIndexer
 
 from bots.elasticsearch import tasks
 from bots.elasticsearch.bot import ElasticSearchBot
@@ -27,7 +28,6 @@ def search(args, argv):
         -i, --index=INDEX    The name of the Elasticsearch index to use.
         -a, --async          Send an update_elasticsearch task to Celery.
         -t, --to-daemon      Index records by adding them to the indexer daemon's queue.
-        -q, --queue=QUEUE    Queue name to send to indexing tasks to.
 
     Commands:
     {1.subcommand_list}
@@ -46,7 +46,6 @@ def search(args, argv):
         'index': args.get('--index'),
         'url': args.get('--url'),
         'to_daemon': bool(args.get('--to-daemon')),
-        'queue': args.get('--queue'),
         # 'models': args.get('--models'),
     }
 
@@ -92,8 +91,7 @@ def janitor(args, argv):
 
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
-    """
-    Usage: {0} search setup [options]
+    """ Usage: {0} search setup [options]
 
     Options:
         -u, --url=URL        The URL of Elasticsearch.
@@ -113,23 +111,18 @@ def daemon(args, argv):
     logging.getLogger('share.search.daemon').setLevel(args['--log-level'])
     logging.getLogger('share.search.indexing').setLevel(args['--log-level'])
 
-    queues = {}
-    for index, config in settings.ELASTICSEARCH['INDEXES'].items():
-        for queue in config['QUEUES']:
-            queues.setdefault(queue, []).append(index)
+    indexers = []
+    for index in settings.ELASTICSEARCH['INDEXES'].keys():
+        indexers.append(SearchIndexer(app.pool.acquire(block=True), index))
 
-    daemons = []
-    for queue, indexes in queues.items():
-        daemon = SearchIndexerDaemon(celery_app, queue, indexes)
-        daemon.start()
-        daemons.append(daemon)
+    threads = []
+    for indexer in indexers:
+        threads.append(threading.Thread(target=indexer.run))
+        threads[-1].start()
 
     try:
-        for daemon in daemons:
-            daemon.join()
+        for thread in threads:
+            thread.join()
     except KeyboardInterrupt:
-        for daemon in daemons:
-            daemon.stop()
-
-        for daemon in daemons:
-            daemon.join()
+        for indexer in indexers:
+            indexer.stop()

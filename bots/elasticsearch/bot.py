@@ -183,7 +183,6 @@ class ElasticSearchBot:
         self.es_setup = bool(kwargs.pop('es_setup', False))
         self.es_url = kwargs.pop('es_url', None) or settings.ELASTICSEARCH_URL
         self.to_daemon = kwargs.pop('to_daemon', False)
-        self.queue = kwargs.pop('queue', None)
 
         if self.es_models:
             self.es_models = [x.lower() for x in self.es_models]
@@ -237,13 +236,13 @@ class ElasticSearchBot:
             else:
                 logger.info('Found %s %s that must be updated in ES', count, model)
 
-            for i, batch in enumerate(chunk(qs.all(), chunk_size)):
+            for batch in chunk(qs.iterator(), chunk_size):
                 if batch:
                     if not self.to_daemon:
                         tasks.index_model.apply_async((model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
                     else:
                         try:
-                            SearchIndexer(celery.current_app).index(model.__name__, *batch, queue=self.queue)
+                            SearchIndexer(celery.current_app).index(model.__name__, *batch, index=self.es_index if self.es_index != settings.ELASTICSEARCH_INDEX else None)
                         except ValueError:
                             logger.warning('Not sending model type %r to the SearchIndexer', model)
 

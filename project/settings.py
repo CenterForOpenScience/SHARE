@@ -19,7 +19,7 @@ from celery.schedules import crontab
 
 
 def split(string, delim):
-    return tuple(filter(None, string.split(delim)))
+    return tuple(map(str.strip, filter(None, string.split(delim))))
 
 
 # Suppress select django deprecation messages
@@ -310,21 +310,37 @@ ELASTICSEARCH = {
         'compression': 'zlib',
         'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
     },
+    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_v3, share_customtax_1'), ','),
     # TODO Make this configurable
     # Due to time constraints this is being hard coded
     # NOTE: mappings will have to be created BEFORE the daemon starts
     'INDEXES': {
         'share_v3': {
-            # 'FETCHERS': {
-            #     'creativework': 'share.search.fetchers.CreativeWorkShortSubjectsFetcher',
-            # },
-            'QUEUES': ['es-index']
+            'QUEUE': {
+                'name': 'es-index',
+                'serializer': 'json',
+                'compression': 'zlib',
+                'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
+                'consumer_arguments': {
+                    'x-priority': 100
+                }
+            }
         },
-       # 'share_customtax_1': {
-       #     'QUEUES': ['es-index', 'es-index-firehose']
-        # 'creativework': 'share.search.fetchers.CreativeWorkFetcher',
-       # }
-    }
+        'share_customtax_1': {
+            'FETCHERS': {
+                'creativework': 'share.search.fetchers.CreativeWorkFetcher',
+            },
+            'QUEUE': {
+                'name': 'es-index-firehose',
+                'serializer': 'json',
+                'compression': 'zlib',
+                'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
+                'consumer_arguments': {
+                    'x-priority': 100
+                }
+            }
+        }
+    },
 }
 
 # Backwards compat stuff.

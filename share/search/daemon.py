@@ -1,11 +1,12 @@
-from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import queue
-import threading
 import time
 
 from django.conf import settings
+
+from kombu import Queue
+from kombu.mixins import ConsumerMixin
 
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
@@ -14,186 +15,137 @@ from raven.contrib.django.raven_compat.models import client
 
 from share import util
 from share.search.indexing import ElasticsearchActionGenerator
+from share.search.indexing import IndexableMessage
 
 
 logger = logging.getLogger(__name__)
 
 
-class FutureManager:
-
-    def __init__(self):
-        self._not_done = []
-
-    def add(self, future):
-        self._not_done.append(future)
-
-    def cancel_all(self):
-        self.report()
-        for fut in self._not_done:
-            fut.cancel()
-
-    def report(self):
-        if not self._not_done:
-            return
-
-        # NOTE: This will block until at least one task terminates
-        # If ES starts lagging behind, at least this will slow the indexer down
-        done, self._not_done = futures.wait(self._not_done, return_when=futures.FIRST_COMPLETED)
-        self._not_done = list(self._not_done)
-
-        errored, completed = [], []
-        for fut in done:
-            if not fut.exception():
-                completed.append(fut)
-            else:
-                errored.append(fut)
-                logger.exception('Indexing attempt failed', exc_info=fut.exception())
-
-        logger.info('Completed Tasks: %d, Errored Tasks: %d, Pending Tasks: %d', len(completed), len(errored), len(self._not_done))
-
-
-class SearchIndexerDaemon(threading.Thread):
+class SearchIndexer(ConsumerMixin):
 
     MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
 
-    def __init__(self, celery_app, queue_name, indexes, url=None):
-        super().__init__(daemon=True, name=queue_name)  # It's fine to kill this thread whenever if need be
-
-        self.celery_app = celery_app
-
-        self.rabbit_connection = None
-        self.rabbit_queue = None
-        self.rabbit_queue_name = queue_name
-
-        self.es_client = None
-        self.es_indexes = indexes
+    def __init__(self, connection, index, url=None, max_size=5000, prefetch_count=7500):
+        self._model_queues = {}
+        self._pool = ThreadPoolExecutor(max_workers=len(settings.INDEXABLE_MODELS) + 1)
+        self._queue = queue.Queue(maxsize=max_size)
+        self.connection = connection
         self.es_url = url or settings.ELASTICSEARCH_URL
+        self.index = index
+        self.prefetch_count = prefetch_count
 
-        self.connection_errors = ()
-        self.keep_running = threading.Event()
-
-    def initialize(self):
-        logger.info('Initializing %r', self)
-
-        logger.debug('Connecting to Elasticsearch cluster at "%s"', self.es_url)
-        try:
-            if settings.ELASTICSEARCH['SNIFF']:
-                logger.info('Elasticsearch sniffing is enabled')
-
-            self.es_client = Elasticsearch(
-                self.es_url,
-                retry_on_timeout=True,
-                timeout=settings.ELASTICSEARCH_TIMEOUT,
-                # sniff before doing anything
-                sniff_on_start=settings.ELASTICSEARCH['SNIFF'],
-                # refresh nodes after a node fails to respond
-                sniff_on_connection_fail=settings.ELASTICSEARCH['SNIFF'],
-                # and also every 60 seconds
-                sniffer_timeout=60 if settings.ELASTICSEARCH['SNIFF'] else None,
-            )
-        except Exception as e:
-            client.captureException()
-            raise RuntimeError('Unable to connect to Elasticsearch cluster at "{}"'.format(self.es_url)) from e
-
-        logger.debug('Creating queue "%s" in RabbitMQ', self.rabbit_queue_name)
-        try:
-            self.rabbit_connection = self.celery_app.pool.acquire(block=True)
-            self.rabbit_queue = self.rabbit_connection.SimpleQueue(self.rabbit_queue_name, **settings.ELASTICSEARCH['QUEUE_SETTINGS'])
-        except Exception as e:
-            client.captureException()
-            raise RuntimeError('Unable to create queue "{}"'.format(self.rabbit_queue_name)) from e
-
-        self.connection_errors = self.rabbit_connection.connection_errors
-        logger.debug('connection_errors set to %r', self.connection_errors)
-
-        # TODO switch to an actual consumer based model
-        # Set an upper bound to avoid fetching everything in the queue
-        logger.info('Setting prefetch_count to %d', 25)
-        self.rabbit_queue.consumer.qos(prefetch_count=25, apply_global=True)
-
-        self.keep_running.set()
-        logger.debug('%r successfully initialized', self)
-
-    def start(self):
-        self.initialize()
-        return super().start()
-
-    def stop(self):
-        logger.info('Stopping %r...', self)
-        self.keep_running.clear()
-        return self.join()
+        self.es_client = Elasticsearch(
+            self.es_url,
+            retry_on_timeout=True,
+            timeout=settings.ELASTICSEARCH_TIMEOUT,
+            # sniff before doing anything
+            sniff_on_start=settings.ELASTICSEARCH['SNIFF'],
+            # refresh nodes after a node fails to respond
+            sniff_on_connection_fail=settings.ELASTICSEARCH['SNIFF'],
+            # and also every 60 seconds
+            sniffer_timeout=60 if settings.ELASTICSEARCH['SNIFF'] else None,
+        )
 
     def run(self):
-        num_nodes = len(self.es_client.transport.connection_pool.connections)
-        logger.debug('Using %d, 1 for each ES nodes available', num_nodes)
+        logger.info('%r: Starting', self)
 
-        manager = FutureManager()
+        logger.debug('%r: Starting main indexing loop', self)
+        self._pool.submit(self._index_loop)
 
-        with client.capture_exceptions():
-            with ThreadPoolExecutor(max_workers=num_nodes) as pool:
-                while self.keep_running.is_set():
+        try:
+            logger.debug('%r: Delegating to Kombu.run', self)
+            return super().run()
+        finally:
+            logger.warning('%r: Shutting down', self)
+            self.should_stop = True
+            self._pool.shutdown()
 
-                    manager.report()
+    def stop(self):
+        self.should_stop = True
+        self._pool.shutdown()
 
+    def get_consumers(self, Consumer, channel):
+        # TODO Combine multiple queues into one
+        queue_settings = settings.ELASTICSEARCH['INDEXES'][self.index]['QUEUE']
+        return [
+            Consumer([Queue(queue_settings.pop('name'), **queue_settings)], callbacks=[self.on_message], accept=['json'], prefetch_count=self.prefetch_count)
+        ]
+
+    def on_message(self, body, message):
+        msg = IndexableMessage.wrap(message)
+
+        if msg.model not in self._model_queues:
+            self._model_queues[msg.model] = queue.Queue()
+            self._pool.submit(self._action_loop, msg.model, self._model_queues[msg.model])
+
+        self._model_queues[msg.model].put(message)
+
+    def _action_loop(self, model, q, timeout=5):
+        try:
+            while not self.should_stop:
+                msgs = []
+                while len(msgs) < 1000:
                     try:
-                        messages = self._get_messages()
-                    except Exception as e:
-                        logger.exception('Unable to fetch messages from RabbitMQ')
-                        continue
+                        # If we have any messages queued up, push them through ASAP
+                        msgs.append(q.get(timeout=.1 if msgs else timeout))
+                    except queue.Empty:
+                        break
 
-                    if not messages:
-                        continue
+                if not msgs:
+                    logger.debug('%r: Recieved no messages to queue up', self)
+                    continue
 
-                    logger.debug('Recieved %d messages from RabbitMQ', len(messages))
+                start = time.time()
+                logger.debug('%r: Preparing %d %ss to be indexed', self, len(msgs), model)
+                for msg, action in zip(msgs, ElasticsearchActionGenerator([self.index], msgs)):
+                    self._queue.put((msg, action))
+                logger.info('%r: Prepared %d %ss to be indexed in %.02fs', self, len(msgs), model, time.time() - start)
+        except Exception as e:
+            client.captureException()
+            logger.exception('%r: _action_loop encountered an unexpected error', self)
+            self.should_stop = True
+            raise SystemExit(1)
 
-                    for chunk in util.chunked(messages, 2):
-                        manager.add(pool.submit(self._index, chunk))
-
-                manager.cancel_all()
-                logger.warning('Shutting down workers for %r...', self)
-            logger.warning('%r stopped.', self)
-
-    def _get_messages(self, max_size=25, timeout=5):
-        messages = []
-        start = time.time()
-
-        while self.keep_running.is_set():
+    def _actions(self, size, msgs, timeout=5):
+        for _ in range(size):
             try:
-                messages.append(self.rabbit_queue.get(timeout=timeout))
+                msg, action = self._queue.get(timeout=timeout)
+                if action is None:
+                    msg.ack()
+                    continue
+                msgs.append(msg)
+                yield action
             except queue.Empty:
-                pass
+                raise StopIteration
 
-            if (time.time() - start) >= timeout or len(messages) > max_size:
-                break
-
-        return messages
-
-    def _index(self, messages):
-        with client.capture_exceptions():
-            start = time.time()
-
-            action_gen = ElasticsearchActionGenerator(self.es_indexes, messages)
-            logger.debug('Indexing %d documents', len(action_gen))
-
-            try:
+    def _index_loop(self):
+        try:
+            while not self.should_stop:
+                msgs = []
                 stream = helpers.streaming_bulk(
                     self.es_client,
-                    action_gen,
+                    self._actions(250, msgs),
                     max_chunk_bytes=self.MAX_CHUNK_BYTES,
                     raise_on_error=False,
                 )
 
-                for ok, resp in stream:
+                start = time.time()
+                for (ok, resp), msg in zip(stream, msgs):
                     if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
-                        raise ValueError(resp)
-                    action_gen.ack_pending()
-                action_gen.ack_pending()
+                        raise ValueError(ok, resp, msg)
+                        continue
+                    assert msg.payload['ids'] == [util.IDObfuscator.decode_id(resp['index']['_id'])], '{} {}'.format(msg.payload, util.IDObfuscator.decode_id(resp['index']['_id']))
+                    msg.ack()
+                if len(msgs):
+                    logger.info('%r: Indexed %d documents in %.02fs', self, len(msgs), time.time() - start)
+                else:
+                    logger.debug('%r: Recieved no messages for %.02fs', self, time.time() - start)
+                msgs.clear()
+        except Exception as e:
+            client.captureException()
+            logger.exception('%r: _index_loop encountered an unexpected error', self)
+            self.should_stop = True
+            raise SystemExit(1)
 
-                assert not action_gen.pending
-                assert len(action_gen.messages) == len(action_gen.acked)
-            finally:
-                num = action_gen.requeue()
-                if num:
-                    logger.warning('Requeued %d messages', num)
-
-            logger.info('Indexed %d documents in %.02f seconds', len(action_gen), time.time() - start)
+    def __repr__(self):
+        return '<{}({})>'.format(self.__class__.__name__, self.index)
