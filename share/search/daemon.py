@@ -80,11 +80,11 @@ class SearchIndexer(ConsumerMixin):
 
         self._model_queues[msg.model].put(message)
 
-    def _action_loop(self, model, q, timeout=5):
+    def _action_loop(self, model, q, chunk_size=250, timeout=5):
         try:
             while not self.should_stop:
                 msgs = []
-                while len(msgs) < 1000:
+                while len(msgs) < chunk_size:
                     try:
                         # If we have any messages queued up, push them through ASAP
                         msgs.append(q.get(timeout=.1 if msgs else timeout))
