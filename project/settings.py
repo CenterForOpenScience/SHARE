@@ -301,7 +301,7 @@ ELASTICSEARCH = {
     'DEFAULT_QUEUE': 'es-index',
     'DEFAULT_FETCHERS': {
         'agent': 'share.search.fetchers.AgentFetcher',
-        'creativework': 'share.search.fetchers.CreativeWorkFetcher',
+        'creativework': 'share.search.fetchers.CreativeWorkShortSubjectsFetcher',
         'subject': 'share.search.fetchers.SubjectFetcher',
         'tag': 'share.search.fetchers.TagFetcher',
     },
@@ -315,13 +315,14 @@ ELASTICSEARCH = {
     # NOTE: mappings will have to be created BEFORE the daemon starts
     'INDEXES': {
         'share_v3': {
-            'FETCHERS': {
-                'creativework': 'share.search.fetchers.CreativeWorkShortSubjectsFetcher',
-            },
+            # 'FETCHERS': {
+            #     'creativework': 'share.search.fetchers.CreativeWorkShortSubjectsFetcher',
+            # },
             'QUEUES': ['es-index']
         },
        # 'share_customtax_1': {
        #     'QUEUES': ['es-index', 'es-index-firehose']
+        # 'creativework': 'share.search.fetchers.CreativeWorkFetcher',
        # }
     }
 }
