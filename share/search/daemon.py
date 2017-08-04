@@ -133,8 +133,9 @@ class SearchIndexer(ConsumerMixin):
                 for (ok, resp), msg in zip(stream, msgs):
                     if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
                         raise ValueError(ok, resp, msg)
-                        continue
-                    assert msg.payload['ids'] == [util.IDObfuscator.decode_id(resp['index']['_id'])], '{} {}'.format(msg.payload, util.IDObfuscator.decode_id(resp['index']['_id']))
+                    assert len(resp.values()) == 1
+                    _id = list(resp.values())[0]['_id']
+                    assert msg.payload['ids'] == [util.IDObfuscator.decode_id(_id)], '{} {}'.format(msg.payload, util.IDObfuscator.decode_id(_id))
                     msg.ack()
                 if len(msgs):
                     logger.info('%r: Indexed %d documents in %.02fs', self, len(msgs), time.time() - start)
