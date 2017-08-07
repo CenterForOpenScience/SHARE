@@ -91,7 +91,8 @@ def janitor(args, argv):
 
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
-    """ Usage: {0} search setup [options]
+    """
+    Usage: {0} search setup [options]
 
     Options:
         -u, --url=URL        The URL of Elasticsearch.

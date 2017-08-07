@@ -260,16 +260,32 @@ class CreativeWorkFetcher(Fetcher):
             data['description'] = bleach.clean(data['description'], strip=True, tags=ALLOWED_TAGS)
 
         for agent in data.pop('related_agents'):
-            self.populate_types(agent)
+            try:
+                # We have to try except this. Out of desperation to fix a problem
+                # some types got changed to random strings to dodge unique contraints
+                self.populate_types(agent)
+            except ValueError:
+                continue
 
             for award in agent.get('awards', []):
                 self.populate_types(award)
 
             for affiliation in agent.get('affiliations', []):
-                self.populate_types(affiliation)
-                affiliation['affiliation'] = apps.get_model(affiliation.pop('affiliation_type'))._meta.verbose_name
+                try:
+                    # We have to try except this. Out of desperation to fix a problem
+                    # some types got changed to random strings to dodge unique contraints
+                    self.populate_types(affiliation)
+                    affiliation['affiliation'] = apps.get_model(affiliation.pop('affiliation_type'))._meta.verbose_name
+                except ValueError:
+                    continue
 
-            relation_model = apps.get_model(agent.pop('relation_type'))
+            try:
+                # We have to try except this. Out of desperation to fix a problem
+                # some types got changed to random strings to dodge unique contraints
+                relation_model = apps.get_model(agent.pop('relation_type'))
+            except ValueError:
+                pass
+
             parent_model = next(parent for parent in relation_model.__mro__ if not parent.__mro__[2]._meta.proxy)
             parent_name = str(parent_model._meta.verbose_name_plural)
             agent['relation'] = relation_model._meta.verbose_name
@@ -350,7 +366,14 @@ class AgentFetcher(Fetcher):
         data = super().post_process(data)
 
         for rtype in data.pop('related_types'):
-            for relation_model in apps.get_model(rtype).__mro__:
+            try:
+                # We have to try except this. Out of desperation to fix a problem
+                # some types got changed to random strings to dodge unique contraints
+                klass = apps.get_model(rtype)
+            except ValueError:
+                continue
+
+            for relation_model in klass.__mro__:
                 if not relation_model.__mro__[1]._meta.proxy:
                     break
                 data['types'].append(relation_model._meta.verbose_name)
