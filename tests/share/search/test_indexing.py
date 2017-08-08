@@ -183,7 +183,6 @@ class TestMessageFlattener:
             assert message.message.requeue.called
 
 
-@pytest.mark.skip
 class TestFetchers:
 
     @pytest.mark.parametrize('model, fetcher', [

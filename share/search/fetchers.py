@@ -36,8 +36,14 @@ class Fetcher:
 
     @classmethod
     def fetcher_for(cls, model, overrides=None):
-        model_name = model._meta.model_name.lower()
-        fetcher_path = (overrides or {}).get(model_name) or settings.ELASTICSEARCH['DEFAULT_FETCHERS'][model_name]
+        if not model._meta.concrete_model.__subclasses__():
+            model_name = model._meta.model_name.lower()
+        else:
+            model_name = model._meta.concrete_model.__subclasses__()[0]._meta.model_name.lower()
+        try:
+            fetcher_path = (overrides or {}).get(model_name) or settings.ELASTICSEARCH['DEFAULT_FETCHERS'][model_name]
+        except KeyError:
+            raise ValueError('No fetcher exists for {!r}'.format(model))
         module, _, name = fetcher_path.rpartition('.')
         __import__(module)
         return getattr(sys.modules[module], name)()
@@ -97,7 +103,92 @@ fetcher_for = Fetcher.fetcher_for
 class CreativeWorkFetcher(Fetcher):
     SUBJECT_DELIMITER = '|'
 
+    QUERY_TEMPLATE = '''
+    WITH pks AS (SELECT * FROM UNNEST(%(ids)s::int[]) WITH ORDINALITY t(id, ord)),
+         {0}
+    SELECT _source FROM results
+    RIGHT OUTER JOIN pks ON pks.id = results.id
+    ORDER BY pks.ord;
+    '''
+
     QUERY = '''
+    all_tags AS (
+        SELECT
+            creative_work_id AS creativework_id,
+            array_agg(share_tag.name) AS tags
+        FROM share_tag
+            JOIN share_throughtags ON share_tag.id = share_throughtags.tag_id
+        WHERE share_throughtags.creative_work_id IN (SELECT id FROM pks)
+        GROUP BY creative_work_id
+    ),
+    all_sources AS (
+        SELECT
+             abstractcreativework_id AS creativework_id,
+             array_agg(DISTINCT share_source.long_title) AS sources
+        FROM share_creativework_sources
+            JOIN share_shareuser ON share_creativework_sources.shareuser_id = share_shareuser.id
+            JOIN share_source ON share_shareuser.id = share_source.user_id
+        WHERE share_creativework_sources.abstractcreativework_id IN (SELECT id FROM pks)
+        AND NOT share_source.is_deleted
+        GROUP BY abstractcreativework_id
+    ),
+    all_related_agents AS (
+        SELECT
+            agent_relation.creative_work_id AS creativework_id,
+            json_agg(json_strip_nulls(json_build_object(
+                'id', agent.id
+                , 'type', agent.type
+                , 'name', agent.name
+                , 'given_name', agent.given_name
+                , 'family_name', agent.family_name
+                , 'additional_name', agent.additional_name
+                , 'suffix', agent.suffix
+                , 'identifiers', COALESCE(identifiers, '{}')
+                , 'relation_type', agent_relation.type
+                , 'order_cited', agent_relation.order_cited
+                , 'cited_as', agent_relation.cited_as
+                , 'affiliations', COALESCE(affiliations, '[]'::json)
+                , 'awards', COALESCE(awards, '[]'::json)
+            ))) AS related_agents
+        FROM share_agentworkrelation AS agent_relation
+            JOIN share_agent AS agent ON agent_relation.agent_id = agent.id
+        LEFT JOIN LATERAL (
+            SELECT
+                array_agg(identifier.uri) AS identifiers
+            FROM share_agentidentifier AS identifier
+            WHERE identifier.agent_id = agent.id
+            AND identifier.scheme != 'mailto'
+            LIMIT 51
+        ) AS identifiers ON TRUE
+        LEFT JOIN LATERAL (
+            SELECT json_agg(json_strip_nulls(json_build_object(
+                'id', affiliated_agent.id
+                , 'type', affiliated_agent.type
+                , 'name', affiliated_agent.name
+                , 'affiliation_type', affiliation.type
+            ))) AS affiliations
+            FROM share_agentrelation AS affiliation
+                JOIN share_agent AS affiliated_agent ON affiliation.related_id = affiliated_agent.id
+            WHERE affiliation.subject_id = agent.id AND affiliated_agent.type != 'share.person'
+        ) AS affiliations ON (agent.type = 'share.person')
+        LEFT JOIN LATERAL (
+            SELECT json_agg(json_strip_nulls(json_build_object(
+                'id', award.id
+                , 'type', 'share.award'
+                , 'date', award.date
+                , 'name', award.name
+                , 'description', award.description
+                , 'uri', award.uri
+                , 'amount', award.award_amount
+            ))) AS awards
+            FROM share_throughawards AS throughaward
+                JOIN share_award AS award ON throughaward.award_id = award.id
+            WHERE throughaward.funder_id = agent_relation.id
+        ) AS awards ON agent_relation.type = 'share.funder'
+        WHERE agent_relation.creative_work_id IN (SELECT id FROM pks)
+        GROUP BY agent_relation.creative_work_id
+    ),
+    results AS (
         SELECT creativework.id, json_build_object(
             'id', creativework.id
             , 'type', creativework.type
@@ -121,77 +212,14 @@ class CreativeWorkFetcher(Fetcher):
             , 'retractions', COALESCE(retractions, '{}')
         ) AS _source
         FROM share_creativework AS creativework
-        LEFT JOIN LATERAL (
-                    SELECT json_agg(json_strip_nulls(json_build_object(
-                                                        'id', agent.id
-                                                        , 'type', agent.type
-                                                        , 'name', agent.name
-                                                        , 'given_name', agent.given_name
-                                                        , 'family_name', agent.family_name
-                                                        , 'additional_name', agent.additional_name
-                                                        , 'suffix', agent.suffix
-                                                        , 'identifiers', COALESCE(identifiers, '{}')
-                                                        , 'relation_type', agent_relation.type
-                                                        , 'order_cited', agent_relation.order_cited
-                                                        , 'cited_as', agent_relation.cited_as
-                                                        , 'affiliations', COALESCE(affiliations, '[]'::json)
-                                                        , 'awards', COALESCE(awards, '[]'::json)
-                                                    ))) AS related_agents
-                    FROM share_agentworkrelation AS agent_relation
-                    JOIN share_agent AS agent ON agent_relation.agent_id = agent.id
-                    LEFT JOIN LATERAL (
-                                SELECT array_agg(identifier.uri) AS identifiers
-                                FROM share_agentidentifier AS identifier
-                                WHERE identifier.agent_id = agent.id
-                                AND identifier.scheme != 'mailto'
-                                LIMIT 51
-                                ) AS identifiers ON TRUE
-                    LEFT JOIN LATERAL (
-                                SELECT json_agg(json_strip_nulls(json_build_object(
-                                                                    'id', affiliated_agent.id
-                                                                    , 'type', affiliated_agent.type
-                                                                    , 'name', affiliated_agent.name
-                                                                    , 'affiliation_type', affiliation.type
-                                                                ))) AS affiliations
-                                FROM share_agentrelation AS affiliation
-                                JOIN share_agent AS affiliated_agent ON affiliation.related_id = affiliated_agent.id
-                                WHERE affiliation.subject_id = agent.id AND affiliated_agent.type != 'share.person'
-                                ) AS affiliations ON (agent.type = 'share.person')
-                    LEFT JOIN LATERAL (
-                                SELECT json_agg(json_strip_nulls(json_build_object(
-                                                                    'id', award.id
-                                                                    , 'type', 'share.award'
-                                                                    , 'date', award.date
-                                                                    , 'name', award.name
-                                                                    , 'description', award.description
-                                                                    , 'uri', award.uri
-                                                                    , 'amount', award.award_amount
-                                                                ))) AS awards
-                                FROM share_throughawards AS throughaward
-                                JOIN share_award AS award ON throughaward.award_id = award.id
-                                WHERE throughaward.funder_id = agent_relation.id
-                                ) AS awards ON agent_relation.type = 'share.funder'
-                    WHERE agent_relation.creative_work_id = creativework.id
-                    ) AS related_agents ON TRUE
+             LEFT JOIN LATERAL (SELECT sources FROM all_sources WHERE creativework_id = creativework.id) AS sources ON TRUE
+             LEFT JOIN LATERAL (SELECT tags FROM all_tags WHERE creativework_id = creativework.id) AS tags ON TRUE
+        LEFT JOIN LATERAL (SELECT related_agents FROM all_related_agents WHERE creativework_id = creativework.id) AS related_agents ON TRUE
         LEFT JOIN LATERAL (
                     SELECT array_agg(identifier.uri) AS identifiers
                     FROM share_workidentifier AS identifier
                     WHERE identifier.creative_work_id = creativework.id
                     ) AS links ON TRUE
-        LEFT JOIN LATERAL (
-                    SELECT array_agg(DISTINCT source.long_title) AS sources
-                    FROM share_creativework_sources AS throughsources
-                    JOIN share_shareuser AS shareuser ON throughsources.shareuser_id = shareuser.id
-                    JOIN share_source AS source ON shareuser.id = source.user_id
-                    WHERE throughsources.abstractcreativework_id = creativework.id
-                    AND NOT source.is_deleted
-                    ) AS sources ON TRUE
-        LEFT JOIN LATERAL (
-                    SELECT array_agg(tag.name) AS tags
-                    FROM share_throughtags AS throughtag
-                    JOIN share_tag AS tag ON throughtag.tag_id = tag.id
-                    WHERE throughtag.creative_work_id = creativework.id
-                    ) AS tags ON TRUE
         LEFT JOIN LATERAL (
           WITH RECURSIVE subject_names(synonym, taxonomy, parent_id, path) AS (
               SELECT
@@ -211,8 +239,8 @@ class CreativeWorkFetcher(Fetcher):
             UNION ALL
               SELECT synonym, child.taxonomy, parent.parent_id, concat_ws(%(subject_delimiter)s, parent.name, path) FROM subject_names AS child INNER JOIN share_subject AS parent ON child.parent_id = parent.id
           ) SELECT
-            (SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path)) from subject_names WHERE NOT synonym) AS original,
-            (SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path)) from subject_names WHERE synonym) AS synonyms
+            (SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path)) from subject_names WHERE NOT synonym AND parent_id IS NULL) AS original,
+            (SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path)) from subject_names WHERE synonym AND parent_id IS NULL) AS synonyms
         ) AS subjects ON TRUE
         LEFT JOIN LATERAL (
                     SELECT json_agg(json_strip_nulls(json_build_object(
@@ -240,6 +268,7 @@ class CreativeWorkFetcher(Fetcher):
         WHERE creativework.id IN (SELECT id FROM pks)
         AND creativework.title != ''
         AND (SELECT COUNT(*) FROM share_workidentifier WHERE share_workidentifier.creative_work_id = creativework.id LIMIT 52) < 51
+    )
     '''
 
     def query_parameters(self, pks):
