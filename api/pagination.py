@@ -24,6 +24,7 @@ class FuzzyPaginator(Paginator):
 class FuzzyPageNumberPagination(PageNumberPagination):
 
     django_paginator_class = FuzzyPaginator
+    max_page_size = 300
 
 
 class CursorPagination(CursorPagination):

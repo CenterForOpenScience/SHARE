@@ -34,7 +34,7 @@ class HarvestScheduler:
         if hasattr(self.source_config, 'latest'):
             latest_date = self.source_config.latest
         else:
-            latest_date = self.source_config.harvest_logs.aggregate(models.Max('end_date'))['end_date__max']
+            latest_date = HarvestLog.objects.filter(source_config=self.source_config).aggregate(models.Max('end_date'))['end_date__max']
 
         # If we can build full harvests and the earliest log that would be generated does NOT exist
         # Go ahead and reset the latest_date to the earliest_date

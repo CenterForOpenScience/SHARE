@@ -188,7 +188,8 @@ class AbstractBaseLog(models.Model):
         comprised = 'Comprised of succeeded tasks'
         obsolete = 'Obsolete'
 
-    task_id = models.UUIDField(null=True)
+    # task_id = models.UUIDField(null=True)
+    task_id = models.UUIDField(null=True, blank=True)
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)
 
     context = models.TextField(blank=True, default='')

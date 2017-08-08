@@ -28,6 +28,7 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     # Override get_queryset to handle items marked as deleted.
     def get_queryset(self, list=True):
+        # import ipdb; ipdb.set_trace()
         queryset = super().get_queryset()
         if list and hasattr(queryset.model, 'is_deleted'):
             return queryset.exclude(is_deleted=True)
