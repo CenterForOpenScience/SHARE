@@ -45,7 +45,7 @@ def index_model(self, model_name, ids, es_url=None, es_index=None):
     # TODO This method should not have to exist anymore
     es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
     action_gen = indexing.ElasticsearchActionGenerator([settings.ELASTICSEARCH_INDEX], [indexing.FakeMessage(model_name, ids)])
-    stream = helpers.streaming_bulk(es_client, action_gen, max_chunk_bytes=10 * 1024 ** 2, raise_on_error=False)
+    stream = helpers.streaming_bulk(es_client, (x for x in action_gen if x), max_chunk_bytes=10 * 1024 ** 2, raise_on_error=False)
 
     for ok, resp in stream:
         if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
