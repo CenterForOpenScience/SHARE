@@ -145,29 +145,34 @@ class GraphDisambiguator:
         raise NotImplementedError('Multiple {0}s found'.format(node.model))
 
     def _instance_for_subject(self, node):
-        # Subject disambiguation is a bit weird: Match (uri) OR (name AND taxonomy)
-        if 'uri' in node.attrs:
+        # Subject disambiguation is a bit weird: Match taxonomy AND (uri OR name)
+        qs = None
+        if node.related('central_synonym') is None:
+            # Central taxonomy
+            qs = node.model.objects.filter(central_synonym__isnull=True)
+        else:
+            # Custom taxonomy
+            source = node.graph.source
+            if source:
+                qs = node.model.objects.filter(taxonomy__source=source)
+
+        if not qs:
+            return None
+
+        uri = node.attrs.get('uri')
+        if uri:
             try:
-                return node.model.objects.get(uri=node.attrs['uri'])
+                return qs.get(uri=uri)
             except node.model.DoesNotExist:
                 pass
 
         name = node.attrs.get('name')
-        if node.related('central_synonym') is None:
-            # Central taxonomy
-            if name:
-                try:
-                    return node.model.objects.get(name=name, central_synonym__isnull=True)
-                except node.model.DoesNotExist:
-                    logger.debug('No %s found with name "%s" in the central taxonomy', node.model, name)
-        else:
-            # Custom taxonomy
-            source = node.graph.source
-            if source and name:
-                try:
-                    return node.model.objects.get(name=name, taxonomy__source=source)
-                except node.model.DoesNotExist:
-                    logger.debug('No %s found with name "%s" in taxonomy "%s"', node.model, name, source.long_title)
+        if name:
+            try:
+                return qs.get(name=name)
+            except node.model.DoesNotExist:
+                pass
+        logger.debug('Could not disambiguate subject %s', node)
         return None
 
     def _query_pair(self, key, value):

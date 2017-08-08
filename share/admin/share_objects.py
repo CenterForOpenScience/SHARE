@@ -78,7 +78,6 @@ class ShareObjectAdmin(admin.ModelAdmin):
     # ordering = ('-date_modified', )
     readonly_fields = ('encoded_id', 'date_created', 'date_modified', )
     show_full_result_count = False
-    paginator = FuzzyPaginator
 
     def get_search_results(self, request, queryset, search_term):
         ret = super().get_search_results(request, queryset, search_term)
@@ -124,6 +123,7 @@ class CreativeWorkAdmin(ShareObjectAdmin):
     list_display = ('encoded_id', 'id', 'get_type', 'title', 'date_modified', 'date_created', )
     search_fields = ('identifiers__uri', )
     show_change_link = False
+    paginator = FuzzyPaginator
 
     def get_search_results(self, request, queryset, search_term):
         try:
@@ -152,8 +152,9 @@ class SubjectAdmin(ShareObjectAdmin):
     search_fields = ('name',)
     readonly_fields = ('taxonomy_link', 'children_links', 'lineage')
     fields = ('lineage', 'children_links', 'name', 'parent', 'taxonomy_link', 'central_synonym', 'is_deleted', 'uri',)
-    list_display = ('name', 'taxonomy', 'central_synonym', 'is_deleted')
+    list_display = ('name', 'taxonomy_link', 'central_synonym', 'is_deleted')
     list_filter = ('taxonomy',)
+    list_select_related = ('taxonomy', 'taxonomy__source',)
 
     def lineage(self, obj):
         return format_html_join(
@@ -163,7 +164,7 @@ class SubjectAdmin(ShareObjectAdmin):
 
     def taxonomy_link(self, obj):
         taxonomy_url = reverse('admin:share_subjecttaxonomy_change', args=(obj.taxonomy_id,))
-        return format_html('<a href="{}">{}</a>', taxonomy_url, obj.taxonomy.name)
+        return format_html('<a href="{}">{}</a>', taxonomy_url, obj.taxonomy.source.long_title)
     taxonomy_link.short_description = 'Taxonomy'
 
     def children_links(self, obj):

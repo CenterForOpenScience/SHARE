@@ -10,13 +10,9 @@ from django.db.models import Min
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 
-from share.models import Agent
 from share.models import CreativeWork
-from share.models import Subject
-from share.models import Tag
-from share.util import IDObfuscator
+from share.search import indexing
 
-from bots.elasticsearch import util
 from bots.elasticsearch.bot import ElasticSearchBot
 
 
@@ -30,7 +26,7 @@ def safe_substr(value, length=32000):
 
 
 @celery.shared_task(bind=True)
-def update_elasticsearch(self, filter=None, index=None, models=None, setup=False, url=None):
+def update_elasticsearch(self, filter=None, index=None, models=None, setup=False, url=None, to_daemon=False):
     """
     """
     # TODO Refactor Elasitcsearch logic
@@ -40,78 +36,20 @@ def update_elasticsearch(self, filter=None, index=None, models=None, setup=False
         es_models=models,
         es_setup=setup,
         es_url=url,
+        to_daemon=to_daemon,
     ).run()
 
 
 @celery.shared_task(bind=True)
 def index_model(self, model_name, ids, es_url=None, es_index=None):
-    errors = []
-    model = apps.get_model('share', model_name)
+    # TODO This method should not have to exist anymore
     es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
+    action_gen = indexing.ElasticsearchActionGenerator([settings.ELASTICSEARCH_INDEX], [indexing.FakeMessage(model_name, ids)])
+    stream = helpers.streaming_bulk(es_client, action_gen, max_chunk_bytes=10 * 1024 ** 2, raise_on_error=False)
 
-    for ok, resp in helpers.streaming_bulk(es_client, BulkStreamHelper(model, ids, es_index or settings.ELASTICSEARCH_INDEX), max_chunk_bytes=32 * 1024 ** 2, raise_on_error=False):
-        if not ok:
-            logger.warning(resp)
-        else:
-            logger.debug(resp)
-
+    for ok, resp in stream:
         if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
-            errors.append(resp)
-
-    if errors:
-        raise Exception('Failed to index documents {}'.format(errors))
-
-
-class BulkStreamHelper:
-
-    def __init__(self, model, ids, es_index):
-        self.es_index = es_index
-        self.ids = ids
-        self.model = model
-
-    def __iter__(self):
-        if not self.ids:
-            return
-
-        opts = {'_index': self.es_index, '_type': self.model._meta.verbose_name_plural.replace(' ', '')}
-
-        if self.model is CreativeWork:
-            for blob in util.fetch_creativework(self.ids):
-                if blob.pop('is_deleted'):
-                    yield {'_id': blob['id'], '_op_type': 'delete', **opts}
-                else:
-                    yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
-            return
-
-        if self.model is Agent:
-            for blob in util.fetch_agent(self.ids):
-                yield {'_id': blob['id'], '_op_type': 'index', **blob, **opts}
-            return
-
-        for inst in self.model.objects.filter(id__in=self.ids):
-            # if inst.is_delete:  # TODO
-            #     yield {'_id': inst.pk, '_op_type': 'delete', **opts}
-            yield {'_id': inst.pk, '_op_type': 'index', **self.serialize(inst), **opts}
-
-    def serialize(self, inst):
-        return {
-            Tag: self.serialize_tag,
-            Subject: self.serialize_subject,
-        }[type(inst)._meta.concrete_model](inst)
-
-    def serialize_tag(self, tag):
-        return {
-            'id': IDObfuscator.encode(tag),
-            'type': 'tag',
-            'name': safe_substr(tag.name),
-        }
-
-    def serialize_subject(self, subject):
-        return {
-            'id': IDObfuscator.encode(subject),
-            'type': 'subject',
-            'name': safe_substr(subject.name),
-        }
+            raise ValueError(resp)
 
 
 @celery.shared_task(bind=True)
@@ -185,7 +123,7 @@ def get_date_range_parts(min_date, max_date):
 
 
 @celery.task(bind=True)
-def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
+def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_daemon=False):
     """Checks if the database count matches the ES count
 
     If counts differ, split the date range in half and check counts in smaller ranges
@@ -235,7 +173,7 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
             return
 
         logger.debug('dry=False, reindexing missing works')
-        task = update_elasticsearch.apply_async((), {'filter': {'date_created__range': [min_date, max_date]}})
+        task = update_elasticsearch.apply_async((), {'to_daemon': to_daemon, 'filter': {'date_created__range': [min_date, max_date]}})
         logger.info('Spawned %r', task)
         return
 
@@ -260,7 +198,7 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False):
 
 
 @celery.shared_task(bind=True)
-def elasticsearch_janitor(self, es_url=None, es_index=None, dry=False):
+def elasticsearch_janitor(self, es_url=None, es_index=None, dry=False, to_daemon=False):
     """
     Looks for discrepancies between postgres and elastic search numbers
     Re-indexes time periods that differ in count
@@ -277,4 +215,4 @@ def elasticsearch_janitor(self, es_url=None, es_index=None, dry=False):
     max_date = pendulum.utcnow()
     min_date = pendulum.instance(min_date)
 
-    pseudo_bisection.apply((es_url, es_index, min_date.isoformat(), max_date.isoformat()), {'dry': dry}, throw=True)
+    pseudo_bisection.apply((es_url, es_index, min_date.isoformat(), max_date.isoformat()), {'dry': dry, 'to_daemon': to_daemon}, throw=True)

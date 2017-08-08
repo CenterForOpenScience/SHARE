@@ -59,11 +59,8 @@ class SubjectTaxonomy(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return self.name
-
     def __repr__(self):
-        return '<{}: {}>'.format(self.__class__.__name__, self.name)
+        return '<{} {}: {}>'.format(self.__class__.__name__, self.id, self.source.long_title)
 
     class Meta:
         verbose_name_plural = 'Subject Taxonomies'
@@ -72,7 +69,7 @@ class SubjectTaxonomy(models.Model):
 class Subject(ShareObject):
     name = models.TextField()
     is_deleted = models.BooleanField(default=False)
-    uri = ShareURLField(unique=True, null=True, blank=True)
+    uri = ShareURLField(null=True, blank=True)
     taxonomy = models.ForeignKey(SubjectTaxonomy, editable=False, on_delete=models.CASCADE)
     parent = ShareForeignKey('Subject', blank=True, null=True, related_name='children')
     central_synonym = ShareForeignKey('Subject', blank=True, null=True, related_name='custom_synonyms')
@@ -110,7 +107,7 @@ class Subject(ShareObject):
         return self.name
 
     class Meta:
-        unique_together = ('name', 'taxonomy')
+        unique_together = (('name', 'taxonomy'), ('uri', 'taxonomy'))
 
     class Disambiguation:
         all = ('name', 'central_synonym')
