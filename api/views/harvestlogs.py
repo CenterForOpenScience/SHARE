@@ -10,7 +10,6 @@ from api.serializers import HarvestLogSerializer
 from share.models import HarvestLog
 from api.views import ShareObjectViewSet
 
-<<<<<<< HEAD
 
 class SourceConfigFilterBackend(filters.BaseFilterBackend):
     """
@@ -22,6 +21,7 @@ class SourceConfigFilterBackend(filters.BaseFilterBackend):
             return queryset.filter(source_config_id=decoded)
         if 'status' in request.GET:
             return queryset.filter(status=request.GET['status'])
+
         else:
             return queryset
 
