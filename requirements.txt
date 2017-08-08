@@ -14,7 +14,7 @@ django-model-utils==2.6.1  # BSD
 django-oauth-toolkit==0.12.0  # BSD
 django-revproxy==0.9.13  # MPL 2.0
 django-typed-models==0.6.0  # BSD 3 Clause
-django==1.11.3  # BSD 3 Clause
+django==1.11.4  # BSD 3 Clause
 django[bcrypt]==1.11  # BSD 3 Clause
 djangorestframework-jsonapi==2.1.1  # MIT
 djangorestframework==3.6.2  # BSD
