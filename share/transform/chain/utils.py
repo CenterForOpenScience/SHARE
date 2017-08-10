@@ -85,12 +85,6 @@ def force_text(data, list_sep=None, first_str=False):
 def contact_extract(input_string):
     contact_dict = {}
     contact = input_string.replace('Contact:', '').strip()
-    # contact_email = contact[contact.find("(") + 1:contact.find(")")]
-    # if re.match(r"[^@\s]+@[^@\s]+\.[^@\s]+", contact_email):
-    #     if '/' in contact_email:
-    #         contact_email = contact_email.split('/')[0]
-    #     if ',' in contact_email:
-    #         contact_email = contact_email.split(',')[0]
     contact_email = get_emails(contact)
     contact_name = contact.split('(', 1)[0].strip()
     remove_list = ['Science', 'Division', 'Chair',
