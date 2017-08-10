@@ -288,6 +288,12 @@ class CreativeWorkFetcher(Fetcher):
         if data['description']:
             data['description'] = bleach.clean(data['description'], strip=True, tags=ALLOWED_TAGS)
 
+        # Related works will end up with 0 identifiers and end up clogging search with
+        # many broken-looking works. Rather than filtering them out, we're setting them to
+        # deleted to clean out any stragglers.
+        if not data['identifiers']:
+            data['is_deleted'] = True
+
         for agent in data.pop('related_agents'):
             try:
                 # We have to try except this. Out of desperation to fix a problem
