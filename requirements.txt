@@ -9,6 +9,7 @@ django-allauth==0.31.0  # MIT
 django-cors-headers==2.0.2  # MIT
 django-extensions==1.7.8  # MIT
 django-filter==1.0.2  # BSD
+django-include==0.2.1  # MIT
 django-model-utils==2.6.1  # BSD
 django-oauth-toolkit==0.12.0  # BSD
 django-revproxy==0.9.13  # MPL 2.0
