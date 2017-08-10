@@ -10,17 +10,23 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db import transaction
 from django.urls import reverse
+from django.utils import timezone
+from django.db import IntegrityError
 
 from share.change import ChangeGraph
 from share.harvest.exceptions import HarvesterConcurrencyError
+from share.harvest.scheduler import HarvestScheduler
+from share.models import AbstractCreativeWork
+from share.models import CeleryTaskResult
 from share.models import ChangeSet
 from share.models import HarvestLog
 from share.models import NormalizedData
 from share.models import RawDatum
 from share.models import Source
 from share.models import SourceConfig
-from share.models import CeleryTaskResult
-from share.harvest.scheduler import HarvestScheduler
+from share.search import SearchIndexer
+from share.util.source_stat import SourceStatus
+from share.util.source_stat import OAISourceStatus
 
 
 logger = logging.getLogger(__name__)
@@ -31,14 +37,31 @@ def transform(self, raw_id):
     raw = RawDatum.objects.select_related('suid__source_config__source__user').get(pk=raw_id)
     transformer = raw.suid.source_config.get_transformer()
 
+    if self.request.id:
+        self.update_state(meta={
+            'source': raw.suid.source_config.source.long_title,
+            'source_config': raw.suid.source_config.label
+        })
+
     try:
         graph = transformer.transform(raw)
 
         if not graph or not graph['@graph']:
-            logger.warning('Graph was empty for %s, skipping...', raw)
-            return
+            if not raw.normalizeddata_set.exists():
+                logger.warning('Graph was empty for %s, setting no_output to True', raw)
+                RawDatum.objects.filter(id=raw_id).update(no_output=True)
+            else:
+                logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
 
-        normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
+            return
+    except Exception as e:
+        logger.exception('Failed to transform %r', raw)
+        raise
+
+    resp = None
+    normalized_data_url = settings.SHARE_API_URL[0:-1] + reverse('api:normalizeddata-list')
+
+    try:
         resp = requests.post(normalized_data_url, json={
             'data': {
                 'type': 'NormalizedData',
@@ -49,16 +72,13 @@ def transform(self, raw_id):
                 }
             }
         }, headers={'Authorization': raw.suid.source_config.source.user.authorization(), 'Content-Type': 'application/vnd.api+json'})
+        resp.raise_for_status()
     except Exception as e:
-        logger.exception('Failed to transform %r', raw)
+        if (resp is not None) and (resp.status_code // 100 == 4):
+            # If this is a 400 series response, chances are a retry isn't going to fix it.
+            raise Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content))
         raise self.retry(
-            exc=e,
-            countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
-        )
-
-    if (resp.status_code // 100) != 2:
-        raise self.retry(
-            exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content)),
+            exc=Exception('Unable to submit change graph. Received {!r}, {}'.format(resp, resp.content if resp else e)),
             countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15),
         )
 
@@ -67,9 +87,17 @@ def transform(self, raw_id):
 
 @celery.shared_task(bind=True, max_retries=5)
 def disambiguate(self, normalized_id):
-    normalized = NormalizedData.objects.get(pk=normalized_id)
+    normalized = NormalizedData.objects.select_related('source__source').get(pk=normalized_id)
+
+    if self.request.id:
+        self.update_state(meta={
+            'source': normalized.source.source.long_title
+        })
+
     # Load all relevant ContentTypes in a single query
     ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
+
+    updated = None
 
     try:
         with transaction.atomic():
@@ -78,12 +106,25 @@ def disambiguate(self, normalized_id):
             cs = ChangeSet.objects.from_graph(cg, normalized.id)
             if cs and (normalized.source.is_robot or normalized.source.is_trusted or Source.objects.filter(user=normalized.source).exists()):
                 # TODO: verify change set is not overwriting user created object
-                cs.accept()
+                updated = cs.accept()
     except Exception as e:
         raise self.retry(
             exc=e,
             countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
         )
+
+    if not updated:
+        return
+    # Only index creativeworks on the fly, for the moment.
+    updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
+    existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
+    ids = list(updated_works | existing_works)
+
+    try:
+        SearchIndexer(self.app).index('creativework', *ids)
+    except Exception as e:
+        logger.exception('Could not add results from %r to elasticqueue', normalized)
+        raise
 
 
 @celery.shared_task(bind=True, retries=5)
@@ -117,7 +158,9 @@ def harvest(self, log_id=None, ignore_disabled=False, ingest=True, exhaust=True,
             )
 
         qs = qs.filter(
-            status__in=HarvestLog.READY_STATUSES
+            status__in=HarvestLog.READY_STATUSES,
+            end_date__lte=timezone.now().date(),
+            source_config__harvest_after__lte=timezone.now().time(),
         ).unlocked('source_config')
 
     with qs.lock_first('source_config') as log:
@@ -148,6 +191,28 @@ def harvest(self, log_id=None, ignore_disabled=False, ingest=True, exhaust=True,
             return None
         elif log.completions > 0 and log.status == HarvestLog.STATUS.succeeded:
             logger.info('%r has already been harvested. Re-running superfluously', log)
+
+        if log.harvester_version < log.source_config.harvester.version:
+            # If a harvest log has an outdated harvester_version but has not been run before, we can go ahead and upgrade it.
+            # Otherwise, mark it obsolete and skip it.
+            if log.completions > 0:
+                log.skip(HarvestLog.SkipReasons.obsolete)
+                logger.warning('%r is outdated but has previously completed, skipping...', log)
+                return None
+
+            try:
+                # Attempt to upgrade the log
+                with transaction.atomic():
+                    log.harvester_version = log.source_config.harvester.version
+                    log.save()
+            except IntegrityError:
+                # Sometimes a new harvest log will already be generated for one reason or another.
+                # We can safely mark this log obsolete
+                log.skip(HarvestLog.SkipReasons.obsolete)
+                logger.warning('A newer version of %r already exists, skipping...', log)
+                return None
+
+            logger.warning('%r has been updated to the latest harvester version, %s', log, log.harvester_version)
 
         if exhaust and log_id is None:
             if force:
@@ -199,3 +264,32 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
             logs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
 
         HarvestLog.objects.bulk_get_or_create(logs)
+
+
+@celery.shared_task(bind=True)
+def source_stats(self):
+    oai_sourceconfigs = SourceConfig.objects.filter(
+        disabled=False,
+        base_url__isnull=False,
+        harvester__key='oai'
+    )
+    for config in oai_sourceconfigs.values():
+        get_source_stats.apply_async((config['id'],))
+
+    non_oai_sourceconfigs = SourceConfig.objects.filter(
+        disabled=False,
+        base_url__isnull=False
+    ).exclude(
+        harvester__key='oai'
+    )
+    for config in non_oai_sourceconfigs.values():
+        get_source_stats.apply_async((config['id'],))
+
+
+@celery.shared_task(bind=True)
+def get_source_stats(self, config_id):
+    source_config = SourceConfig.objects.get(pk=config_id)
+    if source_config.harvester.key == 'oai':
+        OAISourceStatus(config_id).get_source_stats()
+    else:
+        SourceStatus(config_id).get_source_stats()

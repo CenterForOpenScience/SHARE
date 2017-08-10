@@ -9,7 +9,8 @@ from share.models.base import ExtraData  # noqa
 from share.models.registration import *  # noqa
 from share.models.identifiers import *  # noqa
 from share.models.relations import *  # noqa
-from share.models.banner import * # noqa
-from share.models.ingest import * # noqa
-from share.models.logs import * # noqa
+from share.models.banner import *  # noqa
+from share.models.ingest import *  # noqa
+from share.models.logs import *  # noqa
+from share.models.sources import *  # noqa
 from share.models.celery import *  # noqa

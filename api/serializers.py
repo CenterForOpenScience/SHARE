@@ -129,7 +129,7 @@ class ShareUserSerializer(ShareModelSerializer):
         model = models.ShareUser
         fields = (
             'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login',
-            'is_active', 'gravatar', 'locale', 'time_zone'
+            'is_active', 'gravatar', 'locale', 'time_zone', 'is_trusted'
         )
 
 

@@ -19,6 +19,7 @@ from share.models import Source
 from share.models import HarvestLog
 from share.models import RawDatum
 from share import tasks
+from share.harvest.scheduler import HarvestScheduler
 
 from tests import factories
 
@@ -59,7 +60,7 @@ class SyncedThread(threading.Thread):
 
 @pytest.mark.django_db
 def test_sources_have_access_tokens():
-    for source in Source.objects.all()[:10]:
+    for source in Source.objects.exclude(user__username=settings.APPLICATION_USERNAME)[:10]:
         assert source.user.authorization()
 
 
@@ -332,4 +333,180 @@ class TestHarvestTask:
         with pytest.raises(ValueError) as e:
             list(source_config.get_harvester().harvest_date(pendulum.parse('2016-01-01')))
 
-        assert e.value.args == ('result.datestamp is outside of the requested date range. 2016-01-02T00:00:00+00:00 from identifier2 is not within [2015-12-31T00:00:00+00:00 - 2016-01-01T00:00:00+00:00]', )
+        assert e.value.args == ('result.datestamp is outside of the requested date range. 2016-01-03T00:00:00+00:00 from identifier3 is not within [2015-12-31T00:00:00+00:00 - 2016-01-01T00:00:00+00:00]', )
+
+    def test_datestamps_within_24_hours(self, source_config):
+        source_config.harvester.get_class()._do_fetch.clear()
+        source_config.harvester.get_class()._do_fetch.extend([
+            ('identifier{}'.format(timestamp), 'data{}'.format(timestamp), timestamp)
+            for timestamp in (pendulum.parse('2016-01-01') - pendulum.parse('2016-01-03')).range('hours')
+        ])
+
+        list(source_config.get_harvester().harvest_date(pendulum.parse('2016-01-02')))
+
+    @pytest.mark.parametrize('now, end_date, harvest_after, should_run', [
+        (
+            # Too early
+            pendulum.parse('2017-01-01T00:00'),
+            pendulum.parse('2017-01-01').date(),
+            pendulum.parse('01:00').time(),
+            False
+        ),
+        (
+            # Just right
+            pendulum.parse('2017-01-01T02:00'),
+            pendulum.parse('2017-01-01').date(),
+            pendulum.parse('01:00').time(),
+            True
+        ),
+        (
+            # Equal
+            pendulum.parse('2017-01-01T01:00'),
+            pendulum.parse('2017-01-01').date(),
+            pendulum.parse('01:00').time(),
+            True
+        ),
+        (
+            # Way in the past
+            pendulum.parse('2017-01-01T01:00'),
+            pendulum.parse('2016-01-01').date(),
+            pendulum.parse('01:00').time(),
+            True
+        ),
+        (
+            # In the future... ?
+            pendulum.parse('2017-01-01T01:00'),
+            pendulum.parse('2018-01-01').date(),
+            pendulum.parse('01:00').time(),
+            False
+        ),
+        (
+            # Late harvester
+            pendulum.parse('2017-01-01T01:00'),
+            pendulum.parse('2017-01-01').date(),
+            pendulum.parse('20:00').time(),
+            False
+        ),
+    ])
+    def test_harvest_after(self, monkeypatch, now, end_date, harvest_after, should_run, source_config):
+        monkeypatch.setattr('share.tasks.harvest.apply_async', mock.Mock())
+
+        source_config.harvest_after = harvest_after
+        source_config.save()
+        monkeypatch.setattr('django.utils.timezone.now', lambda: now)
+        source_config.harvester.get_class()._do_fetch = mock.Mock(return_value=[])
+
+        HarvestScheduler(source_config).date(end_date.add(days=-1))
+
+        tasks.harvest()
+
+        assert source_config.harvester.get_class()._do_fetch.called == should_run
+
+    def test_latest_date(self):
+        source_config = factories.SourceConfigFactory(
+            full_harvest=True,
+            earliest_date=pendulum.parse('2017-01-01').date()
+        )
+
+        # We have a harvest log with start_date equal to earliest_date
+        # but a different source_config
+        factories.HarvestLogFactory(
+            start_date=pendulum.parse('2017-01-01').date(),
+            end_date=pendulum.parse('2017-01-02').date(),
+        )
+
+        assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 365
+
+    def test_caught_up(self):
+        source_config = factories.SourceConfigFactory(
+            full_harvest=True,
+            earliest_date=pendulum.parse('2017-01-01').date()
+        )
+
+        factories.HarvestLogFactory(
+            source_config=source_config,
+            start_date=pendulum.parse('2017-01-01').date(),
+            end_date=pendulum.parse('2017-01-02').date(),
+        )
+
+        factories.HarvestLogFactory(
+            source_config=source_config,
+            start_date=pendulum.parse('2018-01-01').date(),
+            end_date=pendulum.parse('2018-01-02').date(),
+        )
+
+        assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 0
+
+    def test_latest_date_null(self):
+        source_config = factories.SourceConfigFactory(
+            full_harvest=True,
+            earliest_date=pendulum.parse('2017-01-01').date()
+        )
+        assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 365
+
+    def test_obsolete(self):
+        source_config = factories.SourceConfigFactory()
+
+        hlv1 = factories.HarvestLogFactory(
+            harvester_version=source_config.harvester.version,
+            source_config=source_config,
+            start_date=pendulum.parse('2017-01-01').date(),
+        )
+
+        old_version = source_config.harvester.get_class().VERSION
+        source_config.harvester.get_class().VERSION += 1
+        new_version = source_config.harvester.get_class().VERSION
+
+        hlv2 = factories.HarvestLogFactory(
+            harvester_version=source_config.harvester.version,
+            source_config=source_config,
+            start_date=pendulum.parse('2017-01-01').date(),
+        )
+
+        tasks.harvest(log_id=hlv2.id)
+        tasks.harvest(log_id=hlv1.id)
+
+        hlv1.refresh_from_db()
+        hlv2.refresh_from_db()
+
+        assert hlv2.status == HarvestLog.STATUS.succeeded
+        assert hlv2.harvester_version == new_version
+
+        assert hlv1.status == HarvestLog.STATUS.skipped
+        assert hlv1.harvester_version == old_version
+        assert hlv1.context == HarvestLog.SkipReasons.obsolete.value
+
+    @pytest.mark.parametrize('completions, status, new_version, updated', [
+        (0, HarvestLog.STATUS.created, 2, True),
+        (1, HarvestLog.STATUS.created, 2, False),
+        (88, HarvestLog.STATUS.created, 2, False),
+        (88, HarvestLog.STATUS.failed, 2, False),
+        (0, HarvestLog.STATUS.failed, 2, True),
+        (0, HarvestLog.STATUS.succeeded, 2, True),
+    ])
+    def test_autoupdate(self, completions, status, new_version, updated):
+        source_config = factories.SourceConfigFactory()
+
+        source_config.harvester.get_class().VERSION = 1
+
+        hl = factories.HarvestLogFactory(
+            status=status,
+            completions=completions,
+            harvester_version=source_config.harvester.version,
+            source_config=source_config,
+            start_date=pendulum.parse('2017-01-01').date(),
+        )
+
+        source_config.harvester.get_class().VERSION = new_version
+
+        tasks.harvest(log_id=hl.id)
+
+        hl.refresh_from_db()
+
+        if updated:
+            assert hl.status == HarvestLog.STATUS.succeeded
+        elif new_version > 1:
+            assert hl.status == HarvestLog.STATUS.skipped
+            assert hl.context == HarvestLog.SkipReasons.obsolete.value
+
+        assert (hl.harvester_version == new_version) == updated

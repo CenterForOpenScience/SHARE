@@ -104,7 +104,9 @@ class OAIRepository:
         if not queryset.exists():
             self.errors.append(oai_errors.NoResults())
             return [], None, None
-        # TODO use django-include to prefetch relations/agents/identifiers/etc. in one query
+
+        queryset = queryset.include('identifiers', 'subjects', 'sources__source', 'incoming_creative_work_relations', 'agent_relations__agent')
+
         works = list(queryset[:self.PAGE_SIZE + 1])
         if len(works) <= self.PAGE_SIZE:
             # Last page

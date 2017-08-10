@@ -1,7 +1,8 @@
+# DSpace
 configs:
-- base_url: http://ttu-ir.tdl.org/ttu-oai/request
+- base_url: https://ttu-ir.tdl.org/ttu-oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: null  # earliestDatestamp is earliest published
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods, time_granularity: false}
   label: org.ttu.mods

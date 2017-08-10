@@ -95,7 +95,8 @@ class CreativeWork(Parser):
     identifiers = Map(
         Delegate(WorkIdentifier),
         ctx.DOI,
-        Map(OneOf(ctx.URL, ctx), Try(ctx.link)),
+        # Links do not appear to be unique
+        # Map(OneOf(ctx.URL, ctx), Try(ctx.link)),
         Try(IRI(ctx['alternative-id']))
     )
 

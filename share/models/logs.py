@@ -184,8 +184,9 @@ class AbstractBaseLog(models.Model):
 
     class SkipReasons(enum.Enum):
         duplicated = 'Previously Succeeded'
-        encompassed = 'Encompassing task succeeded',
-        comprised = 'Comprised of succeeded tasks',
+        encompassed = 'Encompassing task succeeded'
+        comprised = 'Comprised of succeeded tasks'
+        obsolete = 'Obsolete'
 
     task_id = models.UUIDField(null=True)
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)

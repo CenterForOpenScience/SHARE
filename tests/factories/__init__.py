@@ -1,16 +1,17 @@
 from unittest import mock
 import datetime
 import hashlib
+import json
 import pkg_resources
 import uuid
 
 import stevedore
 
+import faker
+
 import factory
 from factory import fuzzy
 from factory.django import DjangoModelFactory
-
-from django.utils import timezone
 
 from project import celery_app
 
@@ -19,19 +20,10 @@ from share.harvest import BaseHarvester
 from share.harvest.serialization import StringLikeSerializer
 from share.transform import BaseTransformer
 
-# TODO move these over
-from tests.share.models.factories import NormalizedDataFactory  # noqa
-from tests.share.models.factories import AgentFactory as AbstractAgentFactory # noqa
-from tests.share.models.factories import WorkIdentifierFactory  # noqa
-from tests.share.models.factories import AbstractCreativeWorkFactory  # noqa
-
-
-class ShareUserFactory(DjangoModelFactory):
-    username = factory.Faker('name')
-    # long_title = factory.Faker('sentence')
-
-    class Meta:
-        model = models.ShareUser
+from tests.factories.core import *  # noqa
+from tests.factories.changes import *  # noqa
+from tests.factories.share_objects import *  # noqa
+from tests.factories.share_objects import ShareObjectFactory
 
 
 class SourceFactory(DjangoModelFactory):
@@ -39,7 +31,7 @@ class SourceFactory(DjangoModelFactory):
     long_title = factory.Faker('sentence')
     icon = factory.SelfAttribute('name')
 
-    user = factory.SubFactory(ShareUserFactory)
+    user = factory.SubFactory(ShareUserFactory, source=None)
 
     class Meta:
         model = models.Source
@@ -54,7 +46,7 @@ class ListGenerator(list):
 
 
 class HarvesterFactory(DjangoModelFactory):
-    key = factory.Faker('bs')
+    key = factory.Faker('sentence')
 
     class Meta:
         model = models.Harvester
@@ -78,7 +70,7 @@ class HarvesterFactory(DjangoModelFactory):
 
 
 class TransformerFactory(DjangoModelFactory):
-    key = factory.Faker('bs')
+    key = factory.Faker('sentence')
 
     class Meta:
         model = models.Transformer
@@ -92,7 +84,7 @@ class TransformerFactory(DjangoModelFactory):
             VERSION = 1
 
             def do_transform(self, data):
-                raise NotImplementedError('Transformers must implement do_transform')
+                return json.loads(data), None
 
         mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
         mock_entry.name = self.key
@@ -125,8 +117,10 @@ class HarvestLogFactory(DjangoModelFactory):
     def _generate(cls, create, attrs):
         attrs['source_config_version'] = attrs['source_config'].version
         attrs['harvester_version'] = attrs['source_config'].harvester.version
-        attrs['start_date'] = datetime.datetime.combine(attrs['start_date'].date(), datetime.time(0, 0, 0, 0, timezone.utc))
-        attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
+        if isinstance(attrs['start_date'], datetime.datetime):
+            attrs['start_date'] = attrs['start_date'].date()
+        if not attrs.get('end_date'):
+            attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
         return super()._generate(create, attrs)
 
 
@@ -160,3 +154,25 @@ class CeleryTaskResultFactory(DjangoModelFactory):
 
     class Meta:
         model = models.CeleryTaskResult
+
+
+class SubjectTaxonomyFactory(DjangoModelFactory):
+    source = factory.SubFactory(SourceFactory)
+
+    class Meta:
+        model = models.SubjectTaxonomy
+
+
+class SubjectFactory(ShareObjectFactory):
+    name = factory.Sequence(lambda x: '{}?{}'.format(faker.bs(), x))
+    uri = factory.Sequence(lambda x: str(x))
+    taxonomy = factory.SubFactory(SubjectTaxonomyFactory)
+
+    class Meta:
+        model = models.Subject
+
+
+class ThroughSubjectsFactory(ShareObjectFactory):
+
+    class Meta:
+        model = models.ThroughSubjects

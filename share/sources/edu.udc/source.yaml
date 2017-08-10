@@ -1,7 +1,7 @@
 configs:
 - base_url: http://conservancy.umn.edu/oai/request
   disabled: false
-  earliest_date: null
+  earliest_date: 2007-02-19T20:04:59Z
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
   label: edu.udc.mods
