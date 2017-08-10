@@ -56,6 +56,12 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return Source.objects.exclude(icon='').exclude(is_deleted=True)
 
+    def get_object(self, id):
+        try:
+            return Source.objects.select_related('user').get(long_title=id)
+        except Source.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+
     def create(self, request, *args, **kwargs):
         try:
             long_title = request.data['long_title']
@@ -81,52 +87,86 @@ class SourceViewSet(viewsets.ReadOnlyModelViewSet):
             context={'request': request}
         )
 
-        user_serializer.is_valid(raise_exception=True)
+        try:
+            user_serializer.is_valid(raise_exception=True)
+        except ValidationError:
+            status_code = status.HTTP_409_CONFLICT
+            source_instance = Source.objects.select_related('user').get(long_title=long_title)
+            user_instance = source_instance.user
+            source_config_instance = SourceConfig.objects.filter(source_id=source_instance.id).first()
+        else:
+            with transaction.atomic():
+                status_code = status.HTTP_201_CREATED
+                user_instance = user_serializer.save()
+                source_instance = Source(
+                    user_id=user_instance.id,
+                    long_title=long_title,
+                    home_page=request.data.get('home_page', None),
+                    name=label,
+                )
+                source_instance.icon.save(label, content=icon_file)
+                source_config_instance = SourceConfig.objects.create(source_id=source_instance.id, label=label)
+
+        return Response(self.serialize_response_data(source_instance, user_instance, source_config_instance), status=status_code)
+
+    def put(self, request, *args, **kwargs):
+        try:
+            icon = request.data['icon']
+            source_id = request.data['id']
+        except KeyError as e:
+            raise ValidationError('{} is a required attribute.'.format(e))
+
+        try:
+            r = requests.get(icon, timeout=5)
+            header_type = r.headers['content-type'].split(';')[0].lower()
+            if header_type not in self.VALID_IMAGE_TYPES:
+                raise ValidationError('Invalid image type.')
+
+            icon_file = ContentFile(r.content)
+        except Exception as e:
+            logger.warning('Exception occured while downloading icon %s', e)
+            raise ValidationError('Could not download/process image.')
+
+        source_instance = self.get_object(source_id)
+        source_config_instance = SourceConfig.objects.filter(source_id=source_instance.id).first()
 
         with transaction.atomic():
-            user_instance = user_serializer.save()
-            source_instance = Source(
-                user_id=user_instance.id,
-                long_title=long_title,
-                home_page=request.data.get('home_page', None),
-                name=label,
-            )
+            source_instance.home_page = request.data.get('home_page', source_instance.home_page)
+            label = source_instance.long_title.replace(' ', '_').lower()
             source_instance.icon.save(label, content=icon_file)
-            source_config_instance = SourceConfig.objects.create(source_id=source_instance.id, label=label)
+        return Response(self.serialize_response_data(source_instance, source_instance.user, source_config_instance), status=status.HTTP_200_OK)
 
-        return Response(
-            {
-                'id': IDObfuscator.encode(source_instance),
-                'type': 'Source',
-                'attributes': {
-                    'long_title': source_instance.long_title,
-                    'name': source_instance.name,
-                    'home_page': source_instance.home_page
-                },
-                'relationships': {
-                    'share_user': {
-                        'data': {
-                            'id': IDObfuscator.encode(user_instance),
-                            'type': 'ShareUser',
-                            'attributes': {
-                                'username': user_instance.username,
-                                'authorization_token': user_instance.accesstoken_set.first().token
-                            }
+    def serialize_response_data(self, source_instance, user_instance, source_config_instance):
+        return {
+            'id': IDObfuscator.encode(source_instance),
+            'type': 'Source',
+            'attributes': {
+                'long_title': source_instance.long_title,
+                'name': source_instance.name,
+                'home_page': source_instance.home_page
+            },
+            'relationships': {
+                'share_user': {
+                    'data': {
+                        'id': IDObfuscator.encode(user_instance),
+                        'type': 'ShareUser',
+                        'attributes': {
+                            'username': user_instance.username,
+                            'authorization_token': user_instance.accesstoken_set.first().token
                         }
-                    },
-                    'source_config': {
-                        'data': {
-                            'id': IDObfuscator.encode(source_config_instance),
-                            'type': 'SourceConfig',
-                            'attributes': {
-                                'label': source_config_instance.label
-                            }
+                    }
+                },
+                'source_config': {
+                    'data': {
+                        'id': IDObfuscator.encode(source_config_instance),
+                        'type': 'SourceConfig',
+                        'attributes': {
+                            'label': source_config_instance.label
                         }
                     }
                 }
-            },
-            status=status.HTTP_201_CREATED
-        )
+            }
+        }
 
 
 class NormalizedDataViewSet(viewsets.ModelViewSet):
