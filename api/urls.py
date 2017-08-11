@@ -87,7 +87,7 @@ register_route(r'rawdata', views.RawDatumViewSet)
 register_route(r'user', views.ShareUserViewSet)
 register_route(r'sources', views.SourceViewSet)
 register_route(r'harvest_logs', views.HarvestLogViewSet)
-register_route(r'source_config', views.SourceConfigViewSet)
+register_route(r'source_configs', views.SourceConfigViewSet)
 
 router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='normalizeddata')
 

@@ -4,7 +4,7 @@ from share.models import HarvestLog
 from share.util import IDObfuscator
 
 from api.serializers import HarvestLogSerializer
-from api.views import ShareObjectViewSet
+# from api.views import ShareObjectViewSet
 
 
 class SourceConfigFilterBackend(MultipleChoiceFilter):
