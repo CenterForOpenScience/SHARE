@@ -9,12 +9,12 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from django.views.generic.base import RedirectView
 
+from share.util import IDObfuscator, InvalidID
+from share.models import Source
+
 from api.pagination import CursorPagination
 from api.permissions import IsDeletedPremissions
 from api import serializers as api_serializers
-
-from share.util import IDObfuscator, InvalidID
-from share.models import Source
 
 
 class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
@@ -28,7 +28,6 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     # Override get_queryset to handle items marked as deleted.
     def get_queryset(self, list=True):
-        # import ipdb; ipdb.set_trace()
         queryset = super().get_queryset()
         if list and hasattr(queryset.model, 'is_deleted'):
             return queryset.exclude(is_deleted=True)
@@ -36,7 +35,6 @@ class ShareObjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     # Override to convert encoded pk to an actual pk
     def get_object(self):
-        import ipdb; ipdb.set_trace()
         queryset = self.filter_queryset(self.get_queryset(False))
 
         # Perform the lookup filtering.

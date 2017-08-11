@@ -14,8 +14,6 @@ from api import views
 from api.serializers import BaseShareSerializer
 from api.views.share import ShareObjectViewSet
 
-
-
 app_name = 'api'
 
 router = DefaultRouter()
@@ -88,8 +86,8 @@ register_route(r'site_banners', views.SiteBannerViewSet)
 register_route(r'rawdata', views.RawDatumViewSet)
 register_route(r'user', views.ShareUserViewSet)
 register_route(r'sources', views.SourceViewSet)
-register_route(r'HarvestLog', views.HarvestLogViewSet)
-register_route(r'SourceConfig', views.SourceConfigViewSet)
+register_route(r'harvest_logs', views.HarvestLogViewSet)
+register_route(r'source_config', views.SourceConfigViewSet)
 
 router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='normalizeddata')
 
