@@ -110,6 +110,20 @@ class TestSourcesGet:
         assert resp.status_code == 200
         assert resp.json()['meta']['pagination']['count'] == total - 1
 
+    def test_by_id(self, client):
+        source = Source.objects.first()
+        resp = client.get('{}{}/'.format(self.endpoint, IDObfuscator.encode(source)))
+
+        assert resp.status_code == 200
+        assert IDObfuscator.load(resp.json()['data']['id']) == source
+        assert resp.json()['data']['type'] == 'Source'
+        assert resp.json()['data']['attributes'] == {
+            'name': source.name,
+            'icon': 'http://testserver{}'.format(source.icon.url),
+            'homePage': source.home_page,
+            'longTitle': source.long_title,
+        }
+
 
 @pytest.mark.django_db
 class TestSourcesPost:

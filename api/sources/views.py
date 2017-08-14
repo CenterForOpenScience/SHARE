@@ -15,6 +15,7 @@ from rest_framework.serializers import ValidationError
 from share import models
 from share.util import IDObfuscator
 
+from api.base import ShareViewSet
 from api.sources.serializers import SourceSerializer
 from api.users.serializers import ShareUserSerializer
 
@@ -22,7 +23,7 @@ from api.users.serializers import ShareUserSerializer
 logger = logging.getLogger(__name__)
 
 
-class SourceViewSet(viewsets.ReadOnlyModelViewSet):
+class SourceViewSet(ShareViewSet, viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.OrderingFilter, )
     ordering = ('id', )
     ordering_fields = ('long_title', )

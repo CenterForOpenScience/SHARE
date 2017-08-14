@@ -2,11 +2,12 @@ from rest_framework import viewsets
 
 from share import models
 
+from api.base.views import ShareViewSet
 from api.pagination import CursorPagination
 from api.rawdata.serializers import RawDatumSerializer
 
 
-class RawDataViewSet(viewsets.ReadOnlyModelViewSet):
+class RawDataViewSet(ShareViewSet, viewsets.ReadOnlyModelViewSet):
     """
     Raw data, exactly as harvested from the data source.
 

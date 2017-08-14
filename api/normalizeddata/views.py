@@ -1,18 +1,19 @@
 from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import generics
 from rest_framework.response import Response
 
 from share import models
 from share.tasks import disambiguate
 from share.util import IDObfuscator
 
+from api.base.views import ShareViewSet
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
 from api.normalizeddata.serializers import FullNormalizedDataSerializer
 from api.pagination import CursorPagination
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 
 
-class NormalizedDataViewSet(viewsets.ModelViewSet):
+class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.RetrieveAPIView):
     """View showing all normalized data in the SHARE Dataset.
 
     ## Submitting changes to the SHARE dataset
@@ -42,8 +43,8 @@ class NormalizedDataViewSet(viewsets.ModelViewSet):
     """
     ordering = ('-id', )
     pagination_class = CursorPagination
-    permission_classes = [ReadOnlyOrTokenHasScopeOrIsAuthenticated, ]
-    required_scopes = ['upload_normalized_manuscript', ]
+    permission_classes = (ReadOnlyOrTokenHasScopeOrIsAuthenticated, )
+    required_scopes = ('upload_normalized_manuscript', )
     resource_name = 'NormalizedData'
 
     def get_serializer_class(self):

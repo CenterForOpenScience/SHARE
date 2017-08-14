@@ -23,7 +23,7 @@ class ShareViewSet(viewsets.ViewSet):
         except InvalidID:
             raise serializers.ValidationError('Invalid ID')
 
-        if not issubclass(self.serializer_class.Meta.model, model):
+        if not issubclass(self.get_serializer_class().Meta.model, model):
             raise serializers.ValidationError('Invalid ID')
 
         self.kwargs[lookup_key] = str(id)

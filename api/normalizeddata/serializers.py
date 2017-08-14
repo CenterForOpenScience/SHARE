@@ -2,8 +2,6 @@ from rest_framework_json_api import serializers
 
 from share import models
 
-# from api.base import ShareSerializer
-
 
 class FullNormalizedDataSerializer(serializers.ModelSerializer):
 
