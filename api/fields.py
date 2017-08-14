@@ -24,8 +24,6 @@ class ObfuscatedIDField(serializers.ReadOnlyField):
         return IDObfuscator.encode(instance)
 
     def to_internal_value(self, value):
-        import ipdb; ipdb.set_trace()
-
         try:
             return IDObfuscator.decode_id(value)[1]
         except InvalidID:

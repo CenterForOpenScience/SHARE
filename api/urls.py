@@ -11,8 +11,8 @@ from graphene_django.views import GraphQLView
 from share import models
 
 from api import views
-from api.base import ShareObjectSerializer
-from api.views.share import ShareObjectViewSet
+from api.base import ShareObjectViewSet
+from api.base import ShareSerializer
 
 app_name = 'api'
 
@@ -42,8 +42,8 @@ class EndpointGenerator:
 
     def generate_serializer(self, subclass):
         class_name = subclass.__name__ + 'Serializer'
-        meta_class = type('Meta', (ShareObjectSerializer.Meta,), {'model': subclass, 'fields': '__all__'})
-        generated_serializer = type(class_name, (ShareObjectSerializer,), {
+        meta_class = type('Meta', tuple(), {'model': subclass, 'fields': '__all__'})
+        generated_serializer = type(class_name, (ShareSerializer,), {
             'Meta': meta_class
         })
         globals().update({class_name: generated_serializer})
