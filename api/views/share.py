@@ -7,18 +7,9 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from django.views.generic.base import RedirectView
 
-from api import serializers as api_serializers
-
 from share.models import Source
 
 from api import util
-
-
-# Other
-class ShareUserView(views.APIView):
-    def get(self, request, *args, **kwargs):
-        ser = api_serializers.ShareUserSerializer(request.user, token=True)
-        return Response(ser.data)
 
 
 @require_GET

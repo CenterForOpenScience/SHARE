@@ -150,6 +150,6 @@ class TestPostNormalizedData:
         if authorized:
             kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
 
-        with mock.patch('api.views.workflow.disambiguate') as mock_disambiguate:
+        with mock.patch('api.normalizeddata.views.disambiguate') as mock_disambiguate:
             mock_disambiguate.delay().id = '123'
             assert response == client.post('/api/v2/normalizeddata/', *args, **kwargs)

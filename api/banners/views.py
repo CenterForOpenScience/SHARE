@@ -1,8 +1,9 @@
 from rest_framework import viewsets
 
-from api.serializers import SiteBannerSerializer
-from share.models import SiteBanner
+from api.banners.serializers import SiteBannerSerializer
 from api.base import ShareViewSet
+
+from share.models import SiteBanner
 
 
 class SiteBannerViewSet(ShareViewSet, viewsets.ReadOnlyModelViewSet):
