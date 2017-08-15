@@ -440,7 +440,7 @@ LOGGING = {
     'formatters': {
         'console': {
             '()': 'colorlog.ColoredFormatter',
-            'format': '%(cyan)s[%(asctime)s]%(log_color)s[%(levelname)s][%(name)s][%(purple)s%(threadName)s]: %(reset)s%(message)s'
+            'format': '%(cyan)s[%(asctime)s]%(purple)s[%(threadName)s]%(log_color)s[%(levelname)s][%(name)s]: %(reset)s%(message)s'
         }
     },
     'handlers': {
