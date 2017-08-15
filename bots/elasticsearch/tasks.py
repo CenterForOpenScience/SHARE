@@ -152,17 +152,18 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_d
         return
 
     logger.warning(
-        'Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.',
+        'Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database. Difference of %d',
         pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
         pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
         es_count,
-        db_count
+        db_count,
+        db_count - es_count,
     )
 
     if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
         logger.debug('Met the threshold of %d total works to index or %d%% missing works.', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
 
-        logger.info(
+        logger.error(
             'Reindexing records created from %s to %s.',
             pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
             pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p')
@@ -191,10 +192,8 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_d
         if getattr(self.request, 'is_eager', False):
             logger.debug('Running in an eager context. Running child tasks synchronously.')
             pseudo_bisection.apply(targs, tkwargs)
-            return
-
-        pseudo_bisection.apply_async(targs, tkwargs)
-        return
+        else:
+            pseudo_bisection.apply_async(targs, tkwargs)
 
 
 @celery.shared_task(bind=True)
