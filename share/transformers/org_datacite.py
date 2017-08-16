@@ -196,7 +196,8 @@ class ContributorAgent(Parser):
     identifiers = tools.Map(
         tools.Delegate(AgentIdentifier),
         tools.Try(
-            tools.IRI(
+            tools.Map(
+                tools.IRI(ctx),
                 tools.RunPython(
                     force_text,
                     ctx.nameIdentifier
@@ -352,10 +353,7 @@ class ThroughTags(Parser):
 
 
 class WorkIdentifier(Parser):
-    uri = tools.DOI(tools.RunPython(
-        force_text,
-        ctx
-    ))
+    uri = tools.IRI(tools.RunPython(force_text, ctx))
 
     class Extra:
         identifier_type = tools.Try(ctx['@identifierType'])
@@ -564,11 +562,9 @@ class CreativeWork(Parser):
             )
         ),
         tools.Map(
-            tools.Delegate(WorkIdentifier),
-            tools.Concat(
-                tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.alternateIdentifiers.alternateidentifier)
-            )
-        )
+            tools.Delegate(WorkIdentifier, tools.RunPython(force_text, ctx.alternateIdentifier)),
+            ctx.record.metadata['oai_datacite'].payload.resource.alternateIdentifiers
+        ),
     )
 
     related_works = tools.Concat(
