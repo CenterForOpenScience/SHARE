@@ -301,7 +301,7 @@ ELASTICSEARCH = {
     'DEFAULT_QUEUE': 'es-index',
     'DEFAULT_FETCHERS': {
         'agent': 'share.search.fetchers.AgentFetcher',
-        'creativework': 'share.search.fetchers.CreativeWorkShortSubjectsFetcher',
+        'creativework': 'share.search.fetchers.CreativeWorkFetcher',
         'subject': 'share.search.fetchers.SubjectFetcher',
         'tag': 'share.search.fetchers.TagFetcher',
     },
