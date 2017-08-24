@@ -228,6 +228,9 @@ class TestFetchers:
             factories.AbstractCreativeWorkFactory(),
         ]
 
+        for work in works[:-1]:
+            factories.WorkIdentifierFactory(creative_work=work)
+
         factories.WorkIdentifierFactory.create_batch(5, creative_work=works[0])
 
         source = factories.SourceFactory()
@@ -254,7 +257,7 @@ class TestFetchers:
             'date_published': iso(work.date_published),
             'date_updated': iso(work.date_updated),
 
-            'is_deleted': work.is_deleted,
+            'is_deleted': work.is_deleted or not work.identifiers.exists(),
             'justification': getattr(work, 'justification', None),
             'language': work.language,
             'registration_type': getattr(work, 'registration_type', None),
