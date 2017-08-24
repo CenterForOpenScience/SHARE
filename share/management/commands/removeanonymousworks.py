@@ -21,6 +21,5 @@ class Command(BaseCommand):
 
         indexer = SearchIndexer(celery_app)
 
-        print(qs.query)
         for id in qs.values_list('id', flat=True).iterator():
             indexer.index('creativework', id)
