@@ -58,6 +58,7 @@ setup(
             'org.neurovault = share.transformers.org_neurovault:NeurovaultTransformer',
             'org.plos = share.transformers.org_plos:PLoSTransformer',
             'org.psyarxiv = share.transformers.org_psyarxiv:PsyarxivTransformer',
+            'org.socialscienceregistry = share.transformers.org_socialscienceregistry:SCTransformer',
             'org.socarxiv = share.transformers.org_socarxiv:SocarxivTransformer',
             'org.swbiodiversity = share.transformers.org_swbiodiversity:SWTransformer',
             'v1_push = share.transformers.v1_push:V1Transformer',
@@ -92,6 +93,7 @@ setup(
             'org.ncar = share.harvesters.org_ncar:NCARHarvester',
             'org.neurovault = share.harvesters.org_neurovault:NeuroVaultHarvester',
             'org.plos = share.harvesters.org_plos:PLOSHarvester',
+            'org.socialscienceregistry = share.harvesters.org_socialscienceregistry:SCHarvester',
             'org.swbiodiversity = share.harvesters.org_swbiodiversity:SWHarvester',
         ]
     }

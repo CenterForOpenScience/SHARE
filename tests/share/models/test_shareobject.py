@@ -1,11 +1,12 @@
 import pytest
 
+from share import models
+from share.management.commands.maketriggermigrations import Command
+from share.models import AgentIdentifier
+from share.models import Article
 from share.models import Person
 from share.models import Preprint
-from share.models import Article
-from share.models import AgentIdentifier
 from share.models.base import ShareObject
-from share.management.commands.maketriggermigrations import Command
 
 from tests import factories
 
@@ -169,3 +170,62 @@ class TestAdministrativeChange:
         identifier.refresh_from_db()
 
         assert identifier.creative_work == work
+
+
+@pytest.mark.django_db
+class TestDefrankenize:
+
+    def test_must_be_really_sure_about_it(self):
+        work = factories.AbstractCreativeWorkFactory()
+
+        with pytest.raises(ValueError) as e:
+            work.defrankenize()
+        assert e.value.args == ('You have to be really sure about this', )
+
+        with pytest.raises(ValueError) as e:
+            work.defrankenize(True)
+        assert e.value.args == ('You have to be really sure about this', )
+
+        work.defrankenize(im_really_sure_about_this=True)
+
+    def test_resets_name(self):
+        work = factories.AbstractCreativeWorkFactory(title='This is a franken', is_deleted=False)
+
+        work.defrankenize(im_really_sure_about_this=True)
+
+        assert work.title == 'Defrankenized work'
+        assert work.is_deleted is True
+
+    @pytest.mark.parametrize('agents', [0, 5])
+    @pytest.mark.parametrize('idents', [0, 5])
+    @pytest.mark.parametrize('iworks', [0, 5])
+    @pytest.mark.parametrize('oworks', [0, 5])
+    @pytest.mark.parametrize('tags', [0, 5])
+    def test_removes_relations(self, idents, agents, oworks, iworks, tags):
+        work = factories.AbstractCreativeWorkFactory(title='This is a franken', is_deleted=False)
+
+        factories.WorkIdentifierFactory.create_batch(idents, creative_work=work)
+        factories.AgentWorkRelationFactory.create_batch(agents, creative_work=work)
+        factories.AbstractWorkRelationFactory.create_batch(iworks, subject=work)
+        factories.AbstractWorkRelationFactory.create_batch(oworks, related=work)
+        factories.ThroughTagsFactory.create_batch(tags, creative_work=work)
+
+        work.defrankenize(im_really_sure_about_this=True)
+
+        assert work.is_deleted is True
+        assert work.title == 'Defrankenized work'
+
+        # We want to keep these around for now
+        assert work.changes.exists() is True
+        assert work.versions.exists() is True
+
+        # Didn't delete any agents
+        assert models.AbstractAgent.objects.count() == agents
+        assert models.Tag.objects.count() == tags
+        assert models.AbstractCreativeWork.objects.count() == 1 + oworks + iworks
+
+        for field in models.AbstractCreativeWork._meta.get_fields():
+            if not field.one_to_many or field.name in ('changes', 'versions'):
+                continue
+
+            assert getattr(work, field.get_accessor_name()).count() == 0

@@ -1,11 +1,10 @@
-import re
-
 from bs4 import BeautifulSoup
 
 from share.transform.chain import ctx
 from share.transform.chain import links as tools
 from share.transform.chain.parsers import Parser
 from share.transform.chain.soup import SoupXMLTransformer
+from share.transform.chain.utils import contact_extract
 
 
 class AgentIdentifier(Parser):
@@ -88,34 +87,7 @@ class SWTransformer(SoupXMLTransformer):
             for entry in body:
 
                 if 'Contact:' in entry:
-                    contact_dict = {}
-                    contact = entry.replace('Contact:', '').strip()
-                    contact_email = contact[contact.find("(") + 1:contact.find(")")]
-                    if re.match(r"[^@\s]+@[^@\s]+\.[^@\s]+", contact_email):
-                        if '/' in contact_email:
-                            contact_email = contact_email.split('/')[0]
-                        if ',' in contact_email:
-                            contact_email = contact_email.split(',')[0]
-                    else:
-                        contact_email = None
-
-                    contact_name = contact.split('(', 1)[0].strip()
-                    remove_list = ['Curator', 'Science Division Chair',
-                                   'Collections Manager', 'Administrative Director',
-                                   'Director', 'Director and Curator',
-                                   'Mycologist and Director', ',']
-                    for item in remove_list:
-                        insensitive_item = re.compile(re.escape(item), re.IGNORECASE)
-                        contact_name = insensitive_item.sub('', contact_name)
-                    if '/' in contact_name:
-                        contact_name = contact_name.split('/')[0]
-
-                    if contact and contact_email:
-                        contact_dict['email'] = contact_email
-                    if contact_name:
-                        contact_dict['name'] = contact_name
-                    if contact_dict:
-                        data['contact'] = contact_dict
+                    data['contact'] = contact_extract(entry)
 
                 if 'Collection Type:' in entry:
                     collection_type = entry.replace('Collection Type: ', '')

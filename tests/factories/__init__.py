@@ -20,23 +20,10 @@ from share.harvest import BaseHarvester
 from share.harvest.serialization import StringLikeSerializer
 from share.transform import BaseTransformer
 
-# TODO move these over
-from tests.share.models.factories import NormalizedDataFactory  # noqa
-from tests.share.models.factories import AgentFactory as AbstractAgentFactory # noqa
-from tests.share.models.factories import WorkIdentifierFactory  # noqa
-from tests.share.models.factories import AbstractCreativeWorkFactory  # noqa
-from tests.share.models.factories import ShareObjectFactory
-
-
-faker = faker.Faker()
-
-
-class ShareUserFactory(DjangoModelFactory):
-    username = factory.Faker('name')
-    source = factory.RelatedFactory('tests.factories.SourceFactory', 'user')
-
-    class Meta:
-        model = models.ShareUser
+from tests.factories.core import *  # noqa
+from tests.factories.changes import *  # noqa
+from tests.factories.share_objects import *  # noqa
+from tests.factories.share_objects import ShareObjectFactory
 
 
 class SourceFactory(DjangoModelFactory):
@@ -59,7 +46,7 @@ class ListGenerator(list):
 
 
 class HarvesterFactory(DjangoModelFactory):
-    key = factory.Faker('bs')
+    key = factory.Faker('sentence')
 
     class Meta:
         model = models.Harvester
@@ -83,7 +70,7 @@ class HarvesterFactory(DjangoModelFactory):
 
 
 class TransformerFactory(DjangoModelFactory):
-    key = factory.Faker('bs')
+    key = factory.Faker('sentence')
 
     class Meta:
         model = models.Transformer

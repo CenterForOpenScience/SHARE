@@ -3,6 +3,8 @@ from django.db.models.sql import InsertQuery
 from django.db.models.sql.compiler import SQLInsertCompiler
 from django.db import models
 
+from include import IncludeQuerySet
+
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.fuzzycount import FuzzyCountQuerySet
 
@@ -82,7 +84,7 @@ class InsertReturnVersionQuery(InsertQuery):
         return SQLInsertReturnVersionCompiler(self, connection, using)
 
 
-class InsertReturnVersionQuerySet(FuzzyCountQuerySet):
+class InsertReturnVersionQuerySet(FuzzyCountQuerySet, IncludeQuerySet):
 
     def _insert(self, objs, fields, return_id=False, raw=False, using=None):
         """

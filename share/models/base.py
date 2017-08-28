@@ -58,6 +58,10 @@ class ShareObjectMeta(ModelBase):
 
     def __new__(cls, name, bases, attrs):
         if (models.Model in bases and attrs['Meta'].abstract) or len(bases) > 1:
+            attrs = {
+                **{k: v() for k, v in cls.share_attrs.items()},
+                **attrs
+            }
             return super(ShareObjectMeta, cls).__new__(cls, name, bases, attrs)
 
         version_attrs = {}
