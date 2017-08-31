@@ -68,7 +68,7 @@ class Command(BaseCommand):
                     for conflict, evidence in conflicts:
                         for inst in evidence:
                             self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, related_field.remote_field.name), winner))
-                            if not self.options.get('dry'):
+                            if not options.get('dry'):
                                 inst.administrative_change(**{related_field.remote_field.name: winner})
                     self.stdout.write('Corrected merge error from {!r}'.format(task.meta['args'][0]), style_func=self.style.SUCCESS)
                     self.stdout.write('\n\n')
