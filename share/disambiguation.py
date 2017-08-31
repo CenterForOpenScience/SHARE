@@ -10,6 +10,10 @@ __all__ = ('GraphDisambiguator', )
 logger = logging.getLogger(__name__)
 
 
+class MergeError(RuntimeError):
+    pass
+
+
 class GraphDisambiguator:
 
     def __init__(self):
@@ -142,7 +146,7 @@ class GraphDisambiguator:
                 break
 
         logger.error('Could not disambiguate %s. Too many results found from %s %s', node.model, all_query, queries)
-        raise NotImplementedError('Multiple {0}s found'.format(node.model))
+        raise MergeError('Multiple {0}s found'.format(node.model), node.model, queries)
 
     def _instance_for_subject(self, node):
         # Subject disambiguation is a bit weird: Match taxonomy AND (uri OR name)
