@@ -542,6 +542,25 @@ CELERY_TASK_BUCKET_NAME = os.environ.get('CELERY_TASK_BUCKET_NAME')
 CELERY_TASK_FOLDER_NAME = os.environ.get('CELERY_TASK_FOLDER_NAME')  # top level folder (e.g. prod, staging)
 
 
+# TODO replace me with a field on Source
+OSF_PREPRINT_PROVIDERS = [
+    'AgriXiv',
+    'BITSS',
+    'INA-Rxiv',
+    'LIS Scholarship Archive',
+    'LawArXiv',
+    'MindRxiv',
+    'NutriXiv',
+    'Open Science Framework',
+    'PaleorXiv',
+    'PsyArXiv',
+    'SocArXiv',
+    'SportRxiv',
+    'Thesis Commons',
+    'engrXiv',
+]
+
+
 if DEBUG and os.environ.get('TOOLBAR', False):
     INSTALLED_APPS += ('debug_toolbar', )
     MIDDLEWARE += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
