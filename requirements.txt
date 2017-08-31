@@ -45,7 +45,7 @@ xmltodict==0.10.2  # MIT
 
 # TODO: When graphene-django doesn't break on inherited fields with choices (https://github.com/graphql-python/graphene-django/pull/156)
 # graphene-django==1.3  # MIT
-git+git://github.com/aaxelb/graphene-django.git@db305b3d68ce71820cecb829266279a140afe39b
+git+git://github.com/aaxelb/graphene-django.git@be20450a663073add7c7ace437cccaf2832cf4f3
 
 # django-celery-beat==1.0.1  # BSD 3 Clause
 # Contains a fix for handling disabled tasks that still has not been release
