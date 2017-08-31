@@ -1,9 +1,9 @@
 import random
 import string
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
-
 
 from share.models import WorkIdentifier, Preprint, ShareUser
 
@@ -11,7 +11,7 @@ from share.models import WorkIdentifier, Preprint, ShareUser
 class Command(BaseCommand):
 
     LIMIT = 250
-    OSF_PP = ['OSF', 'engrXiv', 'PsyArXiv', 'BITSS', 'LIS Scholarship Archive', 'SocArXiv', 'LawArXiv', 'AgriXiv', 'MindRxiv', 'Open Science Framework', 'arXiv']
+    OTHER_PROVIDERS = ['arXiv']
     AGGREGATORS = ['DataCite MDS', 'CrossRef']
 
     def add_arguments(self, parser):
@@ -25,7 +25,7 @@ class Command(BaseCommand):
             graveyard = WorkIdentifier.objects.get(uri='http://osf.io/8bg7d/').creative_work
             self.stdout.write(self.style.SUCCESS('Found the Graveyard @ "{}"'.format(graveyard.id)))
 
-            OSF_PP_USER_IDS = list(ShareUser.objects.filter(source__long_title__in=self.OSF_PP).values_list('id', flat=True))
+            OSF_PP_USER_IDS = list(ShareUser.objects.filter(source__long_title__in=settings.OSF_PREPRINT_PROVIDERS + self.OTHER_PROVIDERS).values_list('id', flat=True))
             AGGREGATOR_USER_IDS = ShareUser.objects.filter(source__long_title__in=self.AGGREGATORS).values_list('id', flat=True)
 
             pps = Preprint.objects.filter(
