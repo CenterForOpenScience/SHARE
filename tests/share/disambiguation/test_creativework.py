@@ -2,6 +2,7 @@ import pytest
 
 from share import models
 from share.change import ChangeGraph
+from share.disambiguation import MergeError
 from share.models import ChangeSet
 
 from tests import factories
@@ -139,7 +140,7 @@ class TestWorkDisambiguation:
 
         # Multiple matches found for a thing should break
         cg = ChangeGraph(Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)])))
-        with pytest.raises(NotImplementedError) as e:
+        with pytest.raises(MergeError) as e:
             cg.process()
         assert e.value.args[0] == "Multiple <class 'share.models.creative.Preprint'>s found"
 
