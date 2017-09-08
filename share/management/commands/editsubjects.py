@@ -1,17 +1,12 @@
 import argparse
 import uuid
 import yaml
-import json
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from django.db import transaction
-
-from share.models import ShareUser, SubjectTaxonomy, NormalizedData
-from share.tasks import disambiguate
 
 
-# input file syntax:
+# input file syntax: (TODO: if this command gets more complex, use JSON or YAML)
 # - new subjects: each on their own line with full lineage separated by |
 #   e.g. Subject One|Subject Two|Subject Three
 # - rename subjects:
@@ -40,7 +35,7 @@ class Command(BaseCommand):
         subjects_list = sorted(subjects.values(), key=lambda s: s['name'])
         with open(settings.SUBJECTS_YAML, 'w') as f:
             yaml.dump(subjects_list, f, default_flow_style=False)
-        
+
     def load_subjects(self, fobj):
         subject_list = yaml.load(fobj)
         subject_map = {}
