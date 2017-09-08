@@ -25,7 +25,9 @@ class Command(BaseCommand):
             graveyard = WorkIdentifier.objects.get(uri='http://osf.io/8bg7d/').creative_work
             self.stdout.write(self.style.SUCCESS('Found the Graveyard @ "{}"'.format(graveyard.id)))
 
-            OSF_PP_USER_IDS = list(ShareUser.objects.filter(source__long_title__in=settings.OSF_PREPRINT_PROVIDERS + self.OTHER_PROVIDERS).values_list('id', flat=True))
+            provider_names = settings.OSF_PREPRINT_PROVIDERS + self.OTHER_PROVIDERS
+
+            OSF_PP_USER_IDS = list(ShareUser.objects.filter(source__long_title__in=provider_names).values_list('id', flat=True))
             AGGREGATOR_USER_IDS = ShareUser.objects.filter(source__long_title__in=self.AGGREGATORS).values_list('id', flat=True)
 
             pps = Preprint.objects.filter(
@@ -62,7 +64,7 @@ class Command(BaseCommand):
                 for agents in dupes.values():
                     # Order by # of identifiers and a preference towards OSF sources
                     core_agent = list(sorted(agents, key=lambda x: (
-                        set(self.OSF_PP).intersection({user.source.long_title for user in agent.sources.all()}),
+                        set(settings.OSF_PREPRINT_PROVIDERS).intersection({user.source.long_title for user in agent.sources.all()}),
                         len(x.identifiers.all()),
                         len(x.work_relations.all()),
                     ), reverse=True))[0]
