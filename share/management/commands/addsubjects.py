@@ -1,5 +1,5 @@
 import argparse
-import json
+import yaml
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -10,14 +10,11 @@ from share.tasks import disambiguate
 
 
 class Command(BaseCommand):
-    def add_arguments(self, parser):
-        parser.add_argument('subject-file', type=argparse.FileType('r'), help='JSON file of subjects')
 
     def handle(self, *args, **options):
-        self.stdout.write('Loading subjects...')
-        subjects = json.load(options['subject-file'])
+        with open(settings.SUBJECTS_YAML) as fobj:
+            subjects = yaml.load(fobj)
 
-        self.stdout.write('Saving {} unique subjects...'.format(len(subjects)))
         self.save_subjects(subjects)
 
     @transaction.atomic
@@ -31,12 +28,14 @@ class Command(BaseCommand):
             data={
                 '@graph': [
                     {
-                        '@id': '_:{}'.format(s['name']),
+                        '@id': '_:{}'.format(s['uri']),
                         '@type': 'subject',
                         'name': s['name'],
+                        'uri': s['uri'],
                         'parent': None if s['parent'] is None else {'@id': '_:{}'.format(s['parent']), '@type': 'subject'}
                     } for s in subjects
                 ]
             }
         )
+        self.stdout.write('Created normalized data {}...'.format(normalized_data.id))
         disambiguate.apply((normalized_data.id,), throw=True)

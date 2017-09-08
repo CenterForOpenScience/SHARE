@@ -37,11 +37,12 @@ class Command(BaseCommand):
             else:
                 raise ValueError('What is this: {}'.format(change))
 
+        subjects_list = sorted(subjects.values(), key=lambda s: s['name'])
         with open(settings.SUBJECTS_YAML, 'w') as f:
-            yaml.dump(self.subjects_list(subjects), f, default_flow_style=False)
+            yaml.dump(subjects_list, f, default_flow_style=False)
         
-    def load_subjects(self, file):
-        subject_list = yaml.load(file)
+    def load_subjects(self, fobj):
+        subject_list = yaml.load(fobj)
         subject_map = {}
         for s in subject_list:
             if s['name'] in subject_map:
@@ -51,15 +52,6 @@ class Command(BaseCommand):
             s['name'] = s['name'].strip()
             subject_map[s['name']] = s
         return subject_map
-
-    def subjects_list(self, subjects):
-        subjects_list = []
-        for s in subjects.values():
-            if s.get('parent'):
-                # catch renamed parents
-                s['parent'] = subjects[s['parent']]['name']
-            subjects_list.append(s)
-        return sorted(subjects_list, key=lambda s: s['name'])
 
     def add_subject(self, subjects, lineage):
         if isinstance(lineage, str):
@@ -74,7 +66,7 @@ class Command(BaseCommand):
             raise ValueError('Duplicate subject: {}'.format(new_subject))
         subjects[new_subject] = {
             'name': new_subject,
-            'parent': parent,
+            'parent': subjects[parent]['uri'],
             'uri': uuid.uuid4().urn,
         }
         self.stdout.write('Added subject: {}'.format(new_subject))
@@ -86,6 +78,5 @@ class Command(BaseCommand):
             raise ValueError('Unknown subject: {}'.format(old_name))
         if new_name in subjects:
             raise ValueError('Duplicate subject: {}'.format(new_name))
-        # catch parent renames in subjects_list
         subjects[old_name]['name'] = new_name
         self.stdout.write('Renamed subject: {} => {}'.format(old_name, new_name))
