@@ -19,6 +19,9 @@
 - name: Admiralty
   parent: Law
   uri: urn:uuid:86a2849a-c9ce-4649-b67a-522070b5b2d9
+- name: Adult and Continuing Education
+  parent: Education
+  uri: urn:uuid:02af408d-649d-4e6a-af35-3aeb5f10f4e9
 - name: Adult and Continuing Education Administration
   parent: Educational Administration and Supervision
   uri: urn:uuid:df15a344-cb97-4921-9da8-615e9182e3b1
@@ -148,6 +151,9 @@
 - name: Animal Diseases
   parent: Diseases
   uri: urn:uuid:e303b7be-7d84-4685-9e4d-69d81f102f67
+- name: Animal Experimentation and Research
+  parent: Research Methods in Life Sciences
+  uri: urn:uuid:eec6e4ec-751f-4f69-a6ea-0f36289a67f3
 - name: Animal Law
   parent: Law
   uri: urn:uuid:8bc541fa-f418-4659-8514-8758846317cc
@@ -286,6 +292,9 @@
 - name: Aviation Safety and Security
   parent: Aviation
   uri: urn:uuid:6ea07f9a-3dd0-48a2-b598-87b3feedb032
+- name: Aviation and Space Education
+  parent: Aviation
+  uri: urn:uuid:93eded43-02fa-4bea-8ae0-53fc438e9629
 - name: Bacteria
   parent: Organisms
   uri: urn:uuid:7b97b8aa-5118-441b-978a-6c6827eddc81
@@ -436,6 +445,9 @@
 - name: Broadcast and Video Studies
   parent: Communication
   uri: urn:uuid:e234219d-0a9d-452d-b8d0-000e3372c010
+- name: Bryology
+  parent: Plant Sciences
+  uri: urn:uuid:30bd5770-a56d-45d4-b131-9763ecf70698
 - name: Buddhist Studies
   parent: Religion
   uri: urn:uuid:e92900a3-dcfd-4e64-afc9-c953c797d4bd
@@ -667,6 +679,9 @@
 - name: Comparative Politics
   parent: Political Science
   uri: urn:uuid:24196438-a190-4eb0-8f7d-eba1f359174e
+- name: Comparative Psychology
+  parent: Psychology
+  uri: urn:uuid:b6fa7dda-ea91-444e-8cad-d492b7e280d1
 - name: Comparative and Evolutionary Physiology
   parent: Physiology
   uri: urn:uuid:59f3c869-d619-4961-8071-04a638150de3
@@ -709,9 +724,6 @@
 - name: Computer Sciences
   parent: Physical Sciences and Mathematics
   uri: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
-- name: Computer Security
-  parent: Computer Sciences
-  uri: urn:uuid:4d634b59-c648-45a8-bc4c-edb6b8282c4b
 - name: Computer and Systems Architecture
   parent: Computer Engineering
   uri: urn:uuid:aa7d7247-8f9d-4437-be96-f7bf3ca6e96e
@@ -802,6 +814,9 @@
 - name: Critical and Cultural Studies
   parent: Communication
   uri: urn:uuid:82589830-34ad-4a7f-aa54-61c19a1b24cb
+- name: Cultural Heritage Law
+  parent: Law
+  uri: urn:uuid:d76d0fb7-8075-4855-9402-8731c1b4f19e
 - name: Cultural History
   parent: History
   uri: urn:uuid:e4c0e92f-9b38-474b-9c02-54f998311673
@@ -940,6 +955,9 @@
 - name: E-Commerce
   parent: Business
   uri: urn:uuid:659c997f-7f76-4d7e-b474-6c6b2a83b9db
+- name: Early Childhood Education
+  parent: Education
+  uri: urn:uuid:dd314bf5-a006-4d91-a36e-48fbf1760326
 - name: Earth Sciences
   parent: Physical Sciences and Mathematics
   uri: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
@@ -1018,6 +1036,9 @@
 - name: Electronic Devices and Semiconductor Manufacturing
   parent: Electrical and Computer Engineering
   uri: urn:uuid:bb2b9a84-5447-45bd-9210-035064212367
+- name: Elementary Education
+  parent: Education
+  uri: urn:uuid:643c76b5-1790-4e71-98e0-a43b69394a73
 - name: Elementary Education and Teaching
   parent: Teacher Education and Professional Development
   uri: urn:uuid:d2bbf9b9-7f62-4d03-9d2a-face43977123
@@ -1276,6 +1297,9 @@
 - name: Food Security
   parent: Agricultural and Resource Economics
   uri: urn:uuid:2e876c07-79db-4937-9166-c060f056a0ed
+- name: Food Studies
+  parent: Social and Behavioral Sciences
+  uri: urn:uuid:2af9e1b2-b133-4d84-a584-00ddbcf22ed2
 - name: Food and Beverage Management
   parent: Hospitality Administration and Management
   uri: urn:uuid:8e83fced-466a-443d-b2cd-6f320bcf6a87
@@ -1330,6 +1354,9 @@
 - name: Gastroenterology
   parent: Medical Specialties
   uri: urn:uuid:a9930f22-137a-4ada-ba92-2e6931445b24
+- name: Gender Equity in Education
+  parent: Disability and Equity in Education
+  uri: urn:uuid:1442ac0a-29d5-4c0c-ae09-a3d8cd2e70fd
 - name: Gender and Sexuality
   parent: Sociology
   uri: urn:uuid:a4d0feab-a6fd-48d6-b8b5-c9640ffc8243
@@ -1594,6 +1621,12 @@
 - name: Indian and Aboriginal Law
   parent: Law
   uri: urn:uuid:ed7d8e9c-6a4b-4c64-9ef5-acca90b7c4b0
+- name: Indigenous Education
+  parent: Education
+  uri: urn:uuid:4b443f22-58fe-433f-bd97-6ce514815eb0
+- name: Indigenous Studies
+  parent: Race, Ethnicity and Post-Colonial Studies
+  uri: urn:uuid:0c6c8ede-ce95-46d5-9488-21a5cfc7572f
 - name: Indo-European Linguistics and Philology
   parent: Classics
   uri: urn:uuid:092d1089-2695-4e5c-b23f-5d55ed60201e
@@ -1627,6 +1660,9 @@
 - name: Information Literacy
   parent: Library and Information Science
   uri: urn:uuid:7705ec48-e197-4d2b-a83e-2ea23b955bca
+- name: Information Security
+  parent: Computer Sciences
+  uri: urn:uuid:4d634b59-c648-45a8-bc4c-edb6b8282c4b
 - name: Infrastructure
   parent: Public Affairs, Public Policy and Public Administration
   uri: urn:uuid:f54409ad-5103-487f-b0a8-53c6a0593432
@@ -1720,6 +1756,9 @@
 - name: Interpersonal and Small Group Communication
   parent: Communication
   uri: urn:uuid:28e82c16-c7dc-476a-92d7-28ad9095c394
+- name: Interprofessional Education
+  parent: Medical Education
+  uri: urn:uuid:ba7b0497-786b-4f1c-b6e7-e22edddd0853
 - name: Investigative Techniques
   parent: Analytical, Diagnostic and Therapeutic Techniques and Equipment
   uri: urn:uuid:05d89aa7-f148-439a-b789-472820f28c94
@@ -1795,6 +1834,9 @@
 - name: Language Description and Documentation
   parent: Linguistics
   uri: urn:uuid:167f124f-51d2-46b5-badc-150915593fd6
+- name: Language and Literacy Education
+  parent: Education
+  uri: urn:uuid:8e32c8fb-153f-437c-ab60-a26e945e7e25
 - name: Large or Food Animal and Equine Medicine
   parent: Veterinary Medicine
   uri: urn:uuid:27d88781-32e1-4e2d-8b49-b9b11a5c1baa
@@ -2119,7 +2161,7 @@
 - name: Military History
   parent: History
   uri: urn:uuid:42be084a-92de-4826-97d0-bafe070e724a
-- name: Military Studies
+- name: Military and Veterans Studies
   parent: Public Affairs, Public Policy and Public Administration
   uri: urn:uuid:a1ad44c4-6e7a-44ac-9349-810c51200d16
 - name: Military, War, and Peace
@@ -2233,9 +2275,6 @@
 - name: National Security Law
   parent: Law
   uri: urn:uuid:5f2dd5ee-8a1e-4520-afbe-b69e82d00b8f
-- name: Native American Studies
-  parent: Race, Ethnicity and Post-Colonial Studies
-  uri: urn:uuid:0c6c8ede-ce95-46d5-9488-21a5cfc7572f
 - name: Natural Law
   parent: Law
   uri: urn:uuid:39566a13-5c8d-4ddc-9ebb-9363126da457
@@ -2710,6 +2749,9 @@
 - name: Otorhinolaryngologic Diseases
   parent: Diseases
   uri: urn:uuid:251da0bc-8fda-4999-9a35-d26c58468e39
+- name: Outdoor Education
+  parent: Education
+  uri: urn:uuid:c19e6548-f98d-4824-8bf7-ca465c842696
 - name: Pacific Islands Languages and Societies
   parent: Arts and Humanities
   uri: urn:uuid:c9e1119c-4049-4c58-a9c6-bf31d084ce78
@@ -3094,6 +3136,9 @@
 - name: Reproductive and Urinary Physiology
   parent: Medical Sciences
   uri: urn:uuid:91004528-15f1-4ef1-b313-b00969a74481
+- name: Research Methods in Life Sciences
+  parent: Life Sciences
+  uri: urn:uuid:1f79fa45-0b9c-4649-b64a-2d78682ef25f
 - name: Respiratory System
   parent: Anatomy
   uri: urn:uuid:def110eb-01e8-4aab-9ae0-221c0db75e03
@@ -3172,6 +3217,9 @@
 - name: Second Amendment
   parent: Law
   uri: urn:uuid:8baed44f-9080-4796-8116-493a2f3c8a94
+- name: Secondary Education
+  parent: Education
+  uri: urn:uuid:2db90996-71bb-4d2d-bf43-0063cea738c1
 - name: Secondary Education and Teaching
   parent: Teacher Education and Professional Development
   uri: urn:uuid:5e21af2f-5b4e-41b6-9a23-1533283ea7ef
@@ -3214,6 +3262,9 @@
 - name: Slavic Languages and Societies
   parent: Arts and Humanities
   uri: urn:uuid:0f98cb9c-e643-4249-9cf5-64d4719ba860
+- name: Sleep Medicine
+  parent: Medical Specialties
+  uri: urn:uuid:f651396f-59fa-47ed-8bc1-83cf22458d80
 - name: Small or Companion Animal Medicine
   parent: Veterinary Medicine
   uri: urn:uuid:511d4adb-0995-4b4f-910d-28b6b85dadf2
@@ -3316,6 +3367,9 @@
 - name: Speech and Rhetorical Studies
   parent: Communication
   uri: urn:uuid:1e2355f1-66fe-448c-8072-a1bcaefaf002
+- name: Speleology
+  parent: Earth Sciences
+  uri: urn:uuid:2c8d1c77-cbf6-44f9-8924-c62d146cda39
 - name: Sports Management
   parent: Business
   uri: urn:uuid:b2ffd5c8-f108-46e8-806a-4dc9fad7ed5a
@@ -3460,6 +3514,9 @@
 - name: Terrestrial and Aquatic Ecology
   parent: Ecology and Evolutionary Biology
   uri: urn:uuid:564a038f-ef27-456e-9251-592bdcc9bac9
+- name: Terrorism Studies
+  parent: Public Affairs, Public Policy and Public Administration
+  uri: urn:uuid:ca56b748-8ce5-4e31-b8d9-39630a2933eb
 - name: The Sun and the Solar System
   parent: Astrophysics and Astronomy
   uri: urn:uuid:2c1e501a-f75a-419c-a74f-9ae806ee7795
@@ -3514,6 +3571,9 @@
 - name: Transnational Law
   parent: Law
   uri: urn:uuid:56e52c20-432f-4bd3-84a3-24f788a75c69
+- name: Transpersonal Psychology
+  parent: Psychology
+  uri: urn:uuid:11f9fd65-7c31-4fb5-91e9-e4c715ab04d6
 - name: Transport Phenomena
   parent: Chemical Engineering
   uri: urn:uuid:bbe5766e-9f93-4135-a0a8-5c6fd75b8daf
@@ -3532,6 +3592,9 @@
 - name: Tribology
   parent: Mechanical Engineering
   uri: urn:uuid:965f11e3-7aa5-4003-8f87-7193d4bc56b1
+- name: Tropical Medicine
+  parent: Medical Specialties
+  uri: urn:uuid:c47d6e2c-59b7-47d5-8d1d-2b6f119edc30
 - name: Typological Linguistics and Linguistic Diversity
   parent: Linguistics
   uri: urn:uuid:77f6731f-52e5-41ee-92a6-b8d1d567a69a
@@ -3610,6 +3673,9 @@
 - name: Viticulture and Oenology
   parent: Agriculture
   uri: urn:uuid:64aff95f-dbbd-4480-8994-bd80c2398cbd
+- name: Vocational Education
+  parent: Education
+  uri: urn:uuid:b8a5fbc4-5323-4ae8-a597-3c1b22f0d3db
 - name: Vocational Rehabilitation Counseling
   parent: Rehabilitation and Therapy
   uri: urn:uuid:6a9bba76-3d0b-44e5-a948-8c384eadd3ff
