@@ -1,0 +1,3717 @@
+- name: Accessibility
+  parent: urn:uuid:b0f98d44-3203-469e-9239-29afdc69ca01
+  uri: urn:uuid:b42a4fb4-5122-4034-9a43-208ad2f35461
+- name: Accounting
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:f552ecfe-91c2-4199-9bbd-9aa7aac88fd6
+- name: Accounting Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:cdee79af-848c-40a2-8615-0686f4b3c488
+- name: Acoustics, Dynamics, and Controls
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:6cdbd9cb-0f92-4466-b6d6-5b6d6b3f6343
+- name: Acting
+  parent: urn:uuid:e80d958a-7075-4edb-9853-0df61d274916
+  uri: urn:uuid:be0dbb52-7301-4732-b468-b5c625ec0fc0
+- name: Administrative Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:b9f2800e-3b2a-46ae-971e-751faaa20a9d
+- name: Admiralty
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:86a2849a-c9ce-4649-b67a-522070b5b2d9
+- name: Adult and Continuing Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:02af408d-649d-4e6a-af35-3aeb5f10f4e9
+- name: Adult and Continuing Education Administration
+  parent: urn:uuid:945ca0d1-7c99-4b6e-a549-a8e6d015a889
+  uri: urn:uuid:df15a344-cb97-4921-9da8-615e9182e3b1
+- name: Adult and Continuing Education and Teaching
+  parent: urn:uuid:fae321a4-1ea9-4ddc-a15f-660131b7d26f
+  uri: urn:uuid:ccd58142-85b9-4b68-9ffe-a892cca77b84
+- name: Advertising and Promotion Management
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:56bb8287-a88c-4a1f-8127-a56dc2597339
+- name: Aerodynamics and Fluid Mechanics
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:6223b8ac-7904-41e6-92cd-47c6194b2f6b
+- name: Aeronautical Vehicles
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:a5d30ee1-f0c7-4f35-b238-cf2a924a56c3
+- name: Aerospace Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+- name: African American Studies
+  parent: urn:uuid:1ac7a388-258e-43da-a5d5-ea33b63a2a0a
+  uri: urn:uuid:78f5e04b-79a2-47a3-8c88-ffc4005e80b4
+- name: African History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:324f53e2-d6be-42ba-a8d0-4efc674c2d00
+- name: African Languages and Societies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:b9bb6d80-2b45-44d3-8ac7-ef00af9ca984
+- name: African Studies
+  parent: urn:uuid:34d4edbc-6c0f-4e49-87d1-b1246559636e
+  uri: urn:uuid:53173469-bcd7-42cb-918f-92c9d21f14ab
+- name: Agency
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:3f948635-c79a-4554-978e-53725684010c
+- name: Agribusiness
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:769af7ab-4a8a-49d5-a4ab-761f1500fa35
+- name: Agricultural Economics
+  parent: urn:uuid:fbea54d6-bb7c-4d31-ba4e-817fc6f28d7f
+  uri: urn:uuid:20b390de-e649-419c-8570-bd401d589254
+- name: Agricultural Education
+  parent: urn:uuid:fbea54d6-bb7c-4d31-ba4e-817fc6f28d7f
+  uri: urn:uuid:2cf25b03-924c-4481-99b3-7b4647a9c798
+- name: Agricultural Science
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:a6b34f4d-2298-4a43-abad-5961e61f12d2
+- name: Agricultural and Resource Economics
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:59a6733d-edfb-4a54-9ed6-00edb4bae64b
+- name: Agriculture
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:fbea54d6-bb7c-4d31-ba4e-817fc6f28d7f
+- name: Agriculture Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:946c6c07-10fb-406d-b6dd-1aa0dae04762
+- name: Agronomy and Crop Sciences Life Sciences
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:77ef8394-bd3a-4e3c-8fb3-c694f5f2f107
+- name: Air and Space Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:5d2d3306-5c50-49a1-b609-69ad4a1914f5
+- name: Algae
+  parent: urn:uuid:ae147158-13ce-4d56-847a-5b73c7f9d59a
+  uri: urn:uuid:a81ea911-11da-4174-8492-abc1ace314ee
+- name: Algebra
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:44ce1571-714a-4dfc-bb6a-0ff32e9939bb
+- name: Algebraic Geometry
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:b739c28b-fdc5-4eee-b553-538225ab0131
+- name: Allergy and Immunology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:a838f23c-d461-4a4c-adbc-3d5e304777e8
+- name: Alternative and Complementary Medicine
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:41484dbc-2e29-4e9e-afe2-05cb48053239
+- name: American Art and Architecture
+  parent: urn:uuid:66840b09-72bd-4f79-84fa-49d679473b2f
+  uri: urn:uuid:261cad0d-5e34-4f60-8a88-884983c6d58d
+- name: American Film Studies
+  parent: urn:uuid:35a39a1e-934d-4bbb-9a5b-77566e45ed06
+  uri: urn:uuid:78252922-a363-44b1-9dd3-4fdbe95200bb
+- name: American Literature
+  parent: urn:uuid:35a39a1e-934d-4bbb-9a5b-77566e45ed06
+  uri: urn:uuid:47b41440-5358-42b2-87ec-9eaf57ab0c21
+- name: American Material Culture
+  parent: urn:uuid:35a39a1e-934d-4bbb-9a5b-77566e45ed06
+  uri: urn:uuid:4e90eaf4-3657-4a91-91ac-d5914e476039
+- name: American Politics
+  parent: urn:uuid:231ca525-7996-42a4-8505-2da8904b4fcd
+  uri: urn:uuid:2b5d4096-9ab7-4da0-bd36-7d0795ddc660
+- name: American Popular Culture
+  parent: urn:uuid:35a39a1e-934d-4bbb-9a5b-77566e45ed06
+  uri: urn:uuid:1e52020c-0f2e-4b4c-a42c-4db5a6ea802d
+- name: American Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:35a39a1e-934d-4bbb-9a5b-77566e45ed06
+- name: Amino Acids, Peptides, and Proteins
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:6da13781-c50a-4b16-b551-213e20927e24
+- name: Analysis
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:bd629e33-9852-4e8b-aaee-3e469409e1dc
+- name: Analytical Chemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:4d6ca9e8-3129-4867-9eb2-3de1d8af2d45
+- name: Analytical, Diagnostic and Therapeutic Techniques and Equipment
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:913f9a6f-9758-472f-b23a-3d511cf40265
+- name: Anatomy
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+- name: Ancient History, Greek and Roman through Late Antiquity
+  parent: urn:uuid:83934380-bc43-4cca-bcee-1f75a2a804ae
+  uri: urn:uuid:7a3979bc-d193-44cc-b294-53ed5d257baa
+- name: Ancient Philosophy
+  parent: urn:uuid:83934380-bc43-4cca-bcee-1f75a2a804ae
+  uri: urn:uuid:55e6e697-5f23-4fa5-8229-df38ed3d6da2
+- name: Ancient, Medieval, Renaissance and Baroque Art and Architecture
+  parent: urn:uuid:66840b09-72bd-4f79-84fa-49d679473b2f
+  uri: urn:uuid:0a897aaa-ef1d-4476-8815-1df4323edc79
+- name: Anesthesia and Analgesia
+  parent: urn:uuid:913f9a6f-9758-472f-b23a-3d511cf40265
+  uri: urn:uuid:ae3ade6d-cc70-46c3-919d-d6fce3fce7c8
+- name: Anesthesiology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:8275a49b-f775-4322-b9f8-ca237a68cf44
+- name: Animal Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:e303b7be-7d84-4685-9e4d-69d81f102f67
+- name: Animal Experimentation and Research
+  parent: urn:uuid:1f79fa45-0b9c-4649-b64a-2d78682ef25f
+  uri: urn:uuid:eec6e4ec-751f-4f69-a6ea-0f36289a67f3
+- name: Animal Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:8bc541fa-f418-4659-8514-8758846317cc
+- name: Animal Sciences
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:9ce6a076-3991-4024-85a4-c1c54b17b127
+- name: Animal Structures
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:66cc6d93-d67d-4e48-80ca-5f87d8516c69
+- name: Animal Studies
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:5dec8d71-2a68-44c1-a73a-9635b0ec7ae6
+- name: Animal-Assisted Therapy
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:fa2b5fda-4292-4a76-b68f-a68be65a83b7
+- name: Animals
+  parent: urn:uuid:ae147158-13ce-4d56-847a-5b73c7f9d59a
+  uri: urn:uuid:1052f925-3e89-42ca-97d4-5ef9dc84cdf6
+- name: Anthropological Linguistics and Sociolinguistics
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:1f8f3b5b-7688-472c-ab2b-8b35d1242c58
+- name: Anthropology
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:72009f3f-108d-4d8a-bc79-99090e937e14
+- name: Antitrust and Trade Regulation
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:373912f0-2ac8-43a5-af30-e08c4a4800c0
+- name: Apiculture
+  parent: urn:uuid:fbea54d6-bb7c-4d31-ba4e-817fc6f28d7f
+  uri: urn:uuid:e14cb3b8-30cd-49d3-a139-4b20888e777a
+- name: Appalachian Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:6887d8a9-90a3-4114-a7f0-c365461ce994
+- name: Applied Behavior Analysis
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:5b4cf7ca-ad97-41b8-8d40-c448eb175f55
+- name: Applied Linguistics
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:4f565ed5-11cc-4bc9-9c75-da7636a469de
+- name: Applied Mathematics
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:7e085c37-9923-4279-842f-ad4628ff6c54
+- name: Applied Mechanics
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:4ee0191b-3944-46a8-9a48-4d7064959bfb
+- name: Applied Statistics
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:3a7e4ac6-3ee5-4e4b-b283-fd4b5fff0c24
+- name: Aquaculture and Fisheries Life Sciences
+  parent: urn:uuid:9ce6a076-3991-4024-85a4-c1c54b17b127
+  uri: urn:uuid:5c03404f-4c33-40a4-8006-fdbea43298ed
+- name: Archaea
+  parent: urn:uuid:ae147158-13ce-4d56-847a-5b73c7f9d59a
+  uri: urn:uuid:7ce0bb69-70dd-48e3-8dce-3c2acd6d552a
+- name: Archaeological Anthropology
+  parent: urn:uuid:72009f3f-108d-4d8a-bc79-99090e937e14
+  uri: urn:uuid:6aa2b967-1a37-4e80-9ea0-37dfe89c6f29
+- name: Architectural Engineering
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:c827c9d8-82ee-4324-be98-821046508bd5
+- name: Architectural History and Criticism
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:153406d3-5db4-457f-845f-853bfe5371c4
+- name: Architectural Technology
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:7b19cf11-e9ca-47f0-a2ed-2ff159818f72
+- name: Architecture
+  parent: null
+  uri: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+- name: Archival Science
+  parent: urn:uuid:bbeee7b0-f209-4bf8-b4f9-934c1f8b011d
+  uri: urn:uuid:0e22ca61-76be-4ebd-9f10-c170ddfad75c
+- name: Art Direction
+  parent: urn:uuid:6030f033-57f8-4fc3-a350-0e9a320a0adb
+  uri: urn:uuid:4ed1869c-a829-4472-b082-8603cc84b36d
+- name: Art Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:7a66175c-d829-482a-9b28-d560627b0139
+- name: Art Practice
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:1bdd7253-7023-4484-a5d6-f5c77cb7a94e
+- name: Art Therapy
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:1aa4464e-1409-453e-a95d-a798c2f134e7
+- name: Art and Design
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+- name: Art and Materials Conservation
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:9552e8ef-1f71-4c1e-aee6-de1a3f38442f
+- name: Artificial Intelligence and Robotics
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:0824d2f6-28d5-4521-8608-04a15e6ebdd4
+- name: Arts Management
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:fc3096ec-8de1-4d8c-9bf9-a0b43afacbb7
+- name: Arts and Humanities
+  parent: null
+  uri: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+- name: Asian American Studies
+  parent: urn:uuid:1ac7a388-258e-43da-a5d5-ea33b63a2a0a
+  uri: urn:uuid:6dc018bb-4ef1-47e5-a390-95a5873e15a5
+- name: Asian Art and Architecture
+  parent: urn:uuid:66840b09-72bd-4f79-84fa-49d679473b2f
+  uri: urn:uuid:208d9ee1-2c49-4d9e-a525-1952dbaa69f2
+- name: Asian History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:d3c7392e-5108-4b72-ac99-588da2c30b75
+- name: Asian Studies
+  parent: urn:uuid:34d4edbc-6c0f-4e49-87d1-b1246559636e
+  uri: urn:uuid:f45d6384-f308-4b3f-bda6-9071d8cda840
+- name: Astrodynamics
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:783b5db5-63ec-49e3-98b0-f8220730372b
+- name: Astrophysics and Astronomy
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:9004bc06-583e-4304-9fca-00261247d1d9
+- name: Atmospheric Sciences
+  parent: urn:uuid:81c615ea-af63-4f5f-b08b-0dee20487663
+  uri: urn:uuid:e7fdf507-08f6-4330-9c7b-8f0e98238a61
+- name: Atomic, Molecular and Optical Physics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:332afc94-03d5-4cf2-9505-6073a0ed4d56
+- name: Audio Arts and Acoustics
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:7f81a6f5-8afb-4051-bca9-ded71ceee3b2
+- name: Australian Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:3a45fe97-24be-4684-84bf-1f7f75dc1bc4
+- name: Automotive Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:3b2f932d-e669-4e12-8caf-6f92dec34c75
+- name: Aviation
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:8d82940d-7abd-4d0e-ae79-38455c3e62cc
+- name: Aviation Safety and Security
+  parent: urn:uuid:8d82940d-7abd-4d0e-ae79-38455c3e62cc
+  uri: urn:uuid:6ea07f9a-3dd0-48a2-b598-87b3feedb032
+- name: Aviation and Space Education
+  parent: urn:uuid:8d82940d-7abd-4d0e-ae79-38455c3e62cc
+  uri: urn:uuid:93eded43-02fa-4bea-8ae0-53fc438e9629
+- name: Bacteria
+  parent: urn:uuid:ae147158-13ce-4d56-847a-5b73c7f9d59a
+  uri: urn:uuid:7b97b8aa-5118-441b-978a-6c6827eddc81
+- name: Bacterial Infections and Mycoses
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:b233e56e-f2c0-4bc5-9e09-7aabec7cc848
+- name: Bacteriology
+  parent: urn:uuid:546cac76-40c8-42eb-8492-0e6d82c73e91
+  uri: urn:uuid:7c27ddf3-2017-4f6a-9f00-60ab4ffb0f0b
+- name: Banking and Finance Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:7fa6f399-de5d-4f6d-b906-50a863da1684
+- name: Bankruptcy Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:9de44376-5871-40e1-b290-a4a2749e40a0
+- name: Basque Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:b3857be7-549c-4a50-8839-5197ff6b98cf
+- name: Behavior and Behavior Mechanisms
+  parent: urn:uuid:2fd64900-c22e-4f8b-adf7-b53b06c5527b
+  uri: urn:uuid:2fec12f0-a044-40cc-a937-db5232e0a070
+- name: Behavior and Ethology
+  parent: urn:uuid:1f7b9364-59d4-437a-b98e-7037421850ec
+  uri: urn:uuid:a669d293-7152-459b-a8a5-84c5cd3f4997
+- name: Behavioral Disciplines and Activities
+  parent: urn:uuid:2fd64900-c22e-4f8b-adf7-b53b06c5527b
+  uri: urn:uuid:dfe79b96-79e9-49dc-8328-095c666c2958
+- name: Behavioral Economics
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:6a86c620-2e6d-4e55-a1b3-a49f6cee3260
+- name: Behavioral Neurobiology
+  parent: urn:uuid:3d2bf0ec-9d44-44ba-abcd-420d325792fc
+  uri: urn:uuid:0f4f0186-9ae0-46a2-bc5d-381bb5b11d09
+- name: Benefits and Compensation
+  parent: urn:uuid:bb242dfa-276f-4f0e-af8a-24c2a1d693a9
+  uri: urn:uuid:966d5428-73ce-47e0-8f44-08df82b9a5cf
+- name: Biblical Studies
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:6fde8a74-7a58-4579-b0b0-ef86d697b739
+- name: Bilingual, Multilingual, and Multicultural Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:de0ea405-6b4b-4b0c-8b21-e33d24dc927e
+- name: Biochemical Phenomena, Metabolism, and Nutrition
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:2dd7fe51-b5ba-4940-9714-29441610cd8d
+- name: Biochemical and Biomolecular Engineering
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:4a7ffd79-e2ba-412a-bd53-691f2e8a5a33
+- name: Biochemistry
+  parent: urn:uuid:55043e06-60e4-4cb2-826b-e516bbdd56da
+  uri: urn:uuid:b9e89088-f5e0-4b29-9c3e-3812bb50b352
+- name: Biochemistry, Biophysics, and Structural Biology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:55043e06-60e4-4cb2-826b-e516bbdd56da
+- name: Biodiversity
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:73842194-91f6-4883-833f-4a5c62f4e3de
+- name: Bioelectrical and Neuroengineering
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:a9682bff-f66a-441c-bc2b-89a4ac7713d4
+- name: Bioethics and Medical Ethics
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:5c22279c-390e-43b5-a3d0-c10f1455f46b
+- name: Biogeochemistry
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:44cc8390-657b-4c43-af33-ff42e488963d
+- name: Bioimaging and Biomedical Optics
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:aeb162b8-c3cf-4530-853b-b6d8ee7d8209
+- name: Bioinformatics
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:00ae6e73-bfad-442b-a24f-452b12973fea
+- name: Biological Engineering
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:4b8885af-a0c4-4217-b4ba-d5ff71c5347a
+- name: Biological Factors
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:2456b18b-c714-4011-9b69-588904dc3cee
+- name: Biological Phenomena, Cell Phenomena, and Immunity
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:2b9664ae-4893-485f-b0a8-b0e49852cc5f
+- name: Biological Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:6ae41f83-1278-48ce-b3d3-ad0780da97dc
+- name: Biological and Chemical Physics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:d259fa5a-7407-4cc3-80b4-284048d4bfc8
+- name: Biological and Physical Anthropology
+  parent: urn:uuid:72009f3f-108d-4d8a-bc79-99090e937e14
+  uri: urn:uuid:7e61ccab-f92e-4cd3-a065-c154a3a51d40
+- name: Biology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:e25c0769-faf8-407e-b2fa-b2980c62dc57
+- name: Biology and Biomimetic Materials
+  parent: urn:uuid:0c11fccd-6999-4e9f-9e53-653952fa7546
+  uri: urn:uuid:8fa3fe3b-127c-4a78-85dc-a86d2c4e04ff
+- name: Biomaterials
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:5b8bcb34-a627-4212-bf05-4d28253f00d9
+- name: Biomechanical Engineering
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:f35668d0-57bf-443b-98f0-6814ea6eb608
+- name: Biomechanics
+  parent: urn:uuid:e4984540-dfdb-4a67-a365-d2ac6101cb2b
+  uri: urn:uuid:25edff7e-3860-4c14-b5d3-42aaa852fe52
+- name: Biomechanics and Biotransport
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:226b7cb6-f5f1-4db0-b642-480a70d241cd
+- name: Biomedical
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:423a46a7-62e4-4d53-b573-3e8b1b6679e9
+- name: Biomedical Devices and Instrumentation
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:7ce9b1b0-1447-4e85-8a5b-158d393520dd
+- name: Biomedical Engineering and Bioengineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+- name: Biomedical and Dental Materials
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:d0d1ff8f-5850-451c-b5e6-7eb738c9c726
+- name: Biometry
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:12212882-aef5-4205-9870-6c8362740f79
+- name: Biophysics
+  parent: urn:uuid:55043e06-60e4-4cb2-826b-e516bbdd56da
+  uri: urn:uuid:aec86614-b587-4f76-9b47-6fc7a078618a
+- name: Bioresource and Agricultural Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:35d7022b-81d6-4634-971d-72e4d1c32074
+- name: Biosecurity
+  parent: urn:uuid:fbea54d6-bb7c-4d31-ba4e-817fc6f28d7f
+  uri: urn:uuid:493a6de6-97a5-47a7-889a-0f74aaa016eb
+- name: Biostatistics
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:c4c1ec42-ce9a-4c29-beeb-0184b7a6c9e8
+- name: Biotechnology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:88312dde-8428-4783-b752-4d7771507a5c
+- name: Body Regions
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:5a10f9d2-1cb4-4890-878d-dc901afaa275
+- name: Book and Paper
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:1cc0705b-3991-4973-8ced-913e3afd7b1f
+- name: Botany
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:0254adaa-5bea-4ec8-93f7-49a0a500aaed
+- name: Broadcast and Video Studies
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:e234219d-0a9d-452d-b8d0-000e3372c010
+- name: Bryology
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:30bd5770-a56d-45d4-b131-9763ecf70698
+- name: Buddhist Studies
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:e92900a3-dcfd-4e64-afc9-c953c797d4bd
+- name: Business
+  parent: null
+  uri: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+- name: Business Administration, Management, and Operations
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:aae0b014-34fc-4eae-90ad-822be8321329
+- name: Business Intelligence
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:03a52670-a1a2-4e45-a0c9-e7743ba94870
+- name: Business Law, Public Responsibility, and Ethics Business
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:3b71f626-ad4a-43cb-8c8f-9cb51c8b33d4
+- name: Business Organizations Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:26665a46-539b-44a7-91dd-61c11fe7796b
+- name: Business and Corporate Communications
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:e2723101-8156-4ce4-99b3-7e42cccf3fb0
+- name: Byzantine and Modern Greek
+  parent: urn:uuid:83934380-bc43-4cca-bcee-1f75a2a804ae
+  uri: urn:uuid:d073d336-394e-4ee3-bbad-295fa7d52e42
+- name: Canadian History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:cdf4d25e-05f8-4911-baee-dbabf477069c
+- name: Cancer Biology
+  parent: urn:uuid:e2a22971-4f63-4f1c-b1f6-339f8da23e66
+  uri: urn:uuid:7cfc5563-c90b-447a-9f22-eeb0290c52b0
+- name: Carbohydrates
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:2b5b5a0a-ea1c-4550-b8f5-489ebb74d2f0
+- name: Cardiology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:f1fc240b-e760-40c6-a8d2-9bdde96cf9c2
+- name: Cardiovascular Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:295dfe76-e5a9-4a22-b40a-d4511f0624a6
+- name: Cardiovascular System
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:2aaab9b7-2011-431e-af55-5f8906290f9a
+- name: Caribbean Languages and Societies
+  parent: urn:uuid:ac8bb02b-cc98-4f24-94fe-02e303db53db
+  uri: urn:uuid:8c3d911a-cc6b-4c11-90c9-5c09d0e273f7
+- name: Cataloging and Metadata
+  parent: urn:uuid:bbeee7b0-f209-4bf8-b4f9-934c1f8b011d
+  uri: urn:uuid:df1f1309-a210-4fd3-8c97-18c65d63a145
+- name: Catalysis and Reaction Engineering
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:86af4f5a-a507-4c58-a218-ee9e5fa3ba44
+- name: Categorical Data Analysis
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:f85d933d-d9f0-448c-9c2e-18d7378be4c4
+- name: Catholic Studies
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:5a2fa0bf-1b8a-40da-b092-d7930bbc1d96
+- name: Cell Anatomy
+  parent: urn:uuid:e2a22971-4f63-4f1c-b1f6-339f8da23e66
+  uri: urn:uuid:295cb3a4-a598-451e-b633-640d6c63a251
+- name: Cell Biology
+  parent: urn:uuid:e2a22971-4f63-4f1c-b1f6-339f8da23e66
+  uri: urn:uuid:ce7a58e2-80f3-4a29-ab62-92cacc81dcd3
+- name: Cell and Developmental Biology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:e2a22971-4f63-4f1c-b1f6-339f8da23e66
+- name: Cells
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:2a7b68ef-2fa6-416f-b5fd-b48d26f918ad
+- name: Cellular and Molecular Physiology
+  parent: urn:uuid:e38b5d90-d470-430b-b36f-395e9600e34c
+  uri: urn:uuid:2b2c10e3-0ad8-4a64-badb-7f21ac15a95d
+- name: Celtic Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:77c7b979-68ff-447b-ab64-96c33dcd5c76
+- name: Ceramic Arts
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:f639dcbd-c0f5-4e12-bc61-359ce3bd4f0a
+- name: Ceramic Materials
+  parent: urn:uuid:0c11fccd-6999-4e9f-9e53-653952fa7546
+  uri: urn:uuid:799548fa-c66c-469e-8c15-9b116f468dd3
+- name: Chemical Actions and Uses
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:dbf8e397-6639-42bc-86bd-e1c0cc0c1fc8
+- name: Chemical Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+- name: Chemical and Pharmacologic Phenomena
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:986063fa-3b44-4b0d-ba8e-ea5cfb6137d0
+- name: Chemicals and Drugs
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+- name: Chemistry
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+- name: Chicana/o Studies
+  parent: urn:uuid:1ac7a388-258e-43da-a5d5-ea33b63a2a0a
+  uri: urn:uuid:c1283d09-22fa-4aad-b5c0-f9a0c9fbbbde
+- name: Child Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:e51361f9-7f03-454f-96ef-dfd31fc44df0
+- name: Children's and Young Adult Literature
+  parent: urn:uuid:cf47b4c8-d59b-45cd-8d2b-6058e91b9b72
+  uri: urn:uuid:84f01ee1-222d-4625-993e-8d027848f859
+- name: Chinese Studies
+  parent: urn:uuid:bb4d2509-7f66-44ad-8fec-439a232714cc
+  uri: urn:uuid:2a06da39-9479-4e5b-bdf9-22f584623ea9
+- name: Christian Denominations and Sects
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:2b06a293-5085-4944-a982-9341e49f506b
+- name: Christianity
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:bad470d6-4d6a-4d2b-b9a1-ea4e63df3dcd
+- name: Circulatory and Respiratory Physiology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:ec2b5f82-869c-4898-964f-46b67f167e62
+- name: Civic and Community Engagement
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:14e68e23-c6dd-48b7-ad44-073ce658763a
+- name: Civil Engineering
+  parent: urn:uuid:71b22a95-4b0d-43e5-961f-cc5b9d4b079b
+  uri: urn:uuid:31cb2b97-f403-4ac6-ac9e-b9b7489e8c2a
+- name: Civil Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:dff17af1-43ee-4272-8f03-23fdef8679d8
+- name: Civil Procedure
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:b5d7e133-d929-4cd3-a507-0c6390b3d6ee
+- name: Civil Rights and Discrimination
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:61919875-6237-41ba-85f8-4519c8cb77b0
+- name: Civil and Environmental Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:71b22a95-4b0d-43e5-961f-cc5b9d4b079b
+- name: Classical Archaeology and Art History
+  parent: urn:uuid:83934380-bc43-4cca-bcee-1f75a2a804ae
+  uri: urn:uuid:67ca17c4-4476-40e8-805d-f996d8e9e6e3
+- name: Classical Literature and Philology
+  parent: urn:uuid:83934380-bc43-4cca-bcee-1f75a2a804ae
+  uri: urn:uuid:c143f75c-f2b8-41d3-a8f4-5614096474e7
+- name: Classics
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:83934380-bc43-4cca-bcee-1f75a2a804ae
+- name: Climate
+  parent: urn:uuid:81c615ea-af63-4f5f-b08b-0dee20487663
+  uri: urn:uuid:59b5f35d-c8a5-4210-be0b-1be31a8e512f
+- name: Clinical Epidemiology
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:4ae324ac-008e-4f9a-8487-40b9e23f5462
+- name: Clinical Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:3f4d442d-5048-4398-8183-f9b43f89a702
+- name: Clinical Trials
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:c3d057d4-c958-4d8f-9836-432708a3833b
+- name: Clinical and Medical Social Work
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:8f419eb2-eae4-4f8e-9bee-e9b1337d4818
+- name: Cognition and Perception
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:ec8791c0-72c9-4b14-85ea-c04f8978ac10
+- name: Cognitive Behavioral Therapy
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:2f2e9028-a4d5-4cdc-9eb9-8e67c371e80e
+- name: Cognitive Neuroscience
+  parent: urn:uuid:3d2bf0ec-9d44-44ba-abcd-420d325792fc
+  uri: urn:uuid:c08d1d48-8d4f-40bd-a7fb-7dc762c0a3b0
+- name: Cognitive Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:d1cb8b07-9ef3-4e09-ad15-4013f2e7527d
+- name: Collection Development and Management
+  parent: urn:uuid:bbeee7b0-f209-4bf8-b4f9-934c1f8b011d
+  uri: urn:uuid:e22122fe-0bd9-46c6-900a-237e1a06e7b6
+- name: Collective Bargaining
+  parent: urn:uuid:42c5dbc0-fd0e-469b-a81d-146d935c62ce
+  uri: urn:uuid:ddfc6435-f5be-4f6b-8fc6-47a49f827c4f
+- name: Commercial Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:0ab02eaf-22a3-45f1-ad78-8ed7628216e7
+- name: Common Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:055567f9-0aa9-4b2c-a515-625963760ed6
+- name: Communication
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+- name: Communication Sciences and Disorders
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:0779a274-526d-4c58-871d-bf56bd664ea7
+- name: Communication Technology and New Media
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:8fafda11-fb58-48ad-be55-a04d5df03ab5
+- name: Communications Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:d90f506b-1326-4d88-a9c1-401a85f8ec1a
+- name: Community College Education Administration
+  parent: urn:uuid:945ca0d1-7c99-4b6e-a549-a8e6d015a889
+  uri: urn:uuid:cb74ad36-2793-4ee1-b38c-e082fd425c5e
+- name: Community College Leadership
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:7f532128-bb0e-44a1-8111-6f92bf784a0c
+- name: Community Health
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:087d2474-dee7-4215-8259-d903a79575b0
+- name: Community Health and Preventive Medicine
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:5dae22c7-d9f9-4008-9e9d-dacfea116260
+- name: Community Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:2187f1c8-9f88-4982-a240-397463481257
+- name: Community-based Learning
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:19ae2591-a687-4832-b696-425cf0e990b2
+- name: Community-based Research
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:b12115e8-a7ec-4c09-accc-c9a20fdeeec1
+- name: Comparative Literature
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:39617bf0-a0bd-47d8-a4c3-0928d8c65d60
+- name: Comparative Methodologies and Theories
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:58406440-8439-4678-b5a5-a5073f48b8f3
+- name: Comparative Nutrition
+  parent: urn:uuid:2aca1076-b575-4b80-9f9b-3b34411112f6
+  uri: urn:uuid:5d543d5c-43c3-413a-920a-3f5ef9b89c82
+- name: Comparative Philosophy
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:59864207-d955-4c32-933b-79b1c5989891
+- name: Comparative Politics
+  parent: urn:uuid:231ca525-7996-42a4-8505-2da8904b4fcd
+  uri: urn:uuid:24196438-a190-4eb0-8f7d-eba1f359174e
+- name: Comparative Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:b6fa7dda-ea91-444e-8cad-d492b7e280d1
+- name: Comparative and Evolutionary Physiology
+  parent: urn:uuid:e38b5d90-d470-430b-b36f-395e9600e34c
+  uri: urn:uuid:59f3c869-d619-4961-8071-04a638150de3
+- name: Comparative and Foreign Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:05c82ac0-5f9e-4833-a9ce-9ce49a71c62f
+- name: Comparative and Historical Linguistics
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:4c33b0b3-1460-4ec9-93e8-a22fc6819f62
+- name: Comparative and Laboratory Animal Medicine
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:68f78637-7750-40af-8d68-314af648a2da
+- name: Complex Fluids
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:2ee42f93-f53f-4551-aef7-5f1dc409bfaf
+- name: Complex Mixtures
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:845b260e-e70a-45da-9341-0256f4953e89
+- name: Composition
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:da05ee89-1371-4fac-8a7b-b2cb8b714fa0
+- name: Computational Biology
+  parent: urn:uuid:25339085-76d5-48bd-9c0f-dbfc130ce513
+  uri: urn:uuid:9d0289db-41b9-477b-b187-cf178b37369d
+- name: Computational Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:9c4995aa-8941-4c18-8860-2ea92de371f5
+- name: Computational Linguistics
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:747a99b0-2f40-40e4-a5fa-7c37f12232ee
+- name: Computational Neuroscience
+  parent: urn:uuid:3d2bf0ec-9d44-44ba-abcd-420d325792fc
+  uri: urn:uuid:6e26d9f2-3a6d-43cd-ad20-4ca68313f416
+- name: Computer Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:44a3aaa6-ad60-428f-b8e8-cf80720f3042
+- name: Computer Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:c7c5db27-229d-4a71-b113-738e095ba962
+- name: Computer Sciences
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+- name: Computer and Systems Architecture
+  parent: urn:uuid:44a3aaa6-ad60-428f-b8e8-cf80720f3042
+  uri: urn:uuid:aa7d7247-8f9d-4437-be96-f7bf3ca6e96e
+- name: Computer-Aided Engineering and Design
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:6eeed7c5-36e0-4edd-87c6-e818eabe03b8
+- name: Condensed Matter Physics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:647f79a9-eb72-41bd-aafd-41d4664c98fe
+- name: Conflict of Laws
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:70b09e44-7eee-4541-afeb-7c92874ac44e
+- name: Congenital, Hereditary, and Neonatal Diseases and Abnormalities
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:cfefe442-f3da-4915-9b08-6373e75c2dc8
+- name: Constitutional Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:f979bbd5-46e6-49ee-a7b2-d882891ecb1f
+- name: Construction Engineering
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:8b2c0890-ff77-4938-ad1e-bae06eba1a52
+- name: Construction Engineering and Management
+  parent: urn:uuid:71b22a95-4b0d-43e5-961f-cc5b9d4b079b
+  uri: urn:uuid:492406c8-fe3a-40ae-9806-12ada9dbe8a9
+- name: Construction Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:76b603c8-54f9-48d9-91f3-b26141daac38
+- name: Consumer Protection Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:c576dabe-bddc-4f05-bf53-cb28f50a6949
+- name: Contemporary Art
+  parent: urn:uuid:66840b09-72bd-4f79-84fa-49d679473b2f
+  uri: urn:uuid:aebd6e11-73f7-4df2-9530-88143714461a
+- name: Continental Philosophy
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:cf4fdcbf-38a3-4783-9c73-1bc2211a2fdd
+- name: Contracts
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:5c2db1b8-32f8-4ce7-b980-95dd12188c05
+- name: Control Theory
+  parent: urn:uuid:7e085c37-9923-4279-842f-ad4628ff6c54
+  uri: urn:uuid:1ab7480a-bcca-48aa-af11-8f98f43baf3c
+- name: Controls and Control Theory
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:39627d5d-a86d-47c8-ace3-2bd2ad6c88ae
+- name: Corporate Finance
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:55227fd0-f9e9-405a-99cf-64d05c8fc3bd
+- name: Cosmochemistry
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:98fa5539-5349-4e0e-995d-1f4c65e12806
+- name: Cosmology, Relativity, and Gravity
+  parent: urn:uuid:9004bc06-583e-4304-9fca-00261247d1d9
+  uri: urn:uuid:ec96cade-ff71-4b37-a1e6-e0a52b06381d
+- name: Counseling
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:6a1f15d6-802e-4802-b621-439f0344980b
+- name: Counseling Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:397aec1e-5d60-4b8d-9e08-fe76c6e75577
+- name: Counselor Education
+  parent: urn:uuid:6a1f15d6-802e-4802-b621-439f0344980b
+  uri: urn:uuid:cf527c67-d979-4a7c-872d-048859472c00
+- name: Courts
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:f41a86ad-8e97-4809-b193-938627a9f7d2
+- name: Creative Writing
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:8c592181-6f45-4f55-9794-5fae47afd20f
+- name: Criminal Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:cbccf62f-dc16-4c65-b08c-1a89c91120f7
+- name: Criminal Procedure
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:0635ae8e-d84a-4ac7-a4f2-02c420b0a82f
+- name: Criminology
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:07f250f0-9112-468a-9015-486d4ef1881d
+- name: Criminology and Criminal Justice
+  parent: urn:uuid:ec40757c-d850-41a9-9231-d69e8af2dbd4
+  uri: urn:uuid:ae73b3d1-7ea8-4751-b062-544828ecf12b
+- name: Critical Care
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:92541add-ec89-4b36-b422-888aa5b8471a
+- name: Critical Care Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:d0f8dc79-f433-4077-bb88-ddcbaa339864
+- name: Critical and Cultural Studies
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:82589830-34ad-4a7f-aa54-61c19a1b24cb
+- name: Cultural Heritage Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:d76d0fb7-8075-4855-9402-8731c1b4f19e
+- name: Cultural History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:e4c0e92f-9b38-474b-9c02-54f998311673
+- name: Cultural Resource Management and Policy Analysis
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:afb69c0d-a369-423b-b5ee-7cefef1190bb
+- name: Curriculum and Instruction
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:7ca1e3cb-6513-4bc5-ad1b-0d099602e71a
+- name: Curriculum and Social Inquiry
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:907c259f-dd8c-4589-bff4-d5b18f73fe5c
+- name: Dairy Science
+  parent: urn:uuid:9ce6a076-3991-4024-85a4-c1c54b17b127
+  uri: urn:uuid:f459037b-99fe-4e06-b096-5b8ec92dfe14
+- name: Dance
+  parent: urn:uuid:e80d958a-7075-4edb-9853-0df61d274916
+  uri: urn:uuid:048ae419-b716-4b2e-a77f-0d454217d928
+- name: Dance Movement Therapy
+  parent: urn:uuid:2fd64900-c22e-4f8b-adf7-b53b06c5527b
+  uri: urn:uuid:a256c3a6-b996-4fe0-adbf-31ee154a3077
+- name: Data Storage Systems
+  parent: urn:uuid:44a3aaa6-ad60-428f-b8e8-cf80720f3042
+  uri: urn:uuid:e2ccc686-9088-428a-9c06-c01e38b25019
+- name: Databases and Information Systems
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:afe458ab-3c5f-48cd-ba9b-20677a1d349d
+- name: Defense and Security Studies
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:f8f42241-11f6-461f-863a-0cb2c1555320
+- name: Demography, Population, and Ecology
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:9864d08f-69d3-44c3-9cc8-4dd45fc1d238
+- name: Dental Hygiene
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:08ae8ab6-c6d9-4608-8c1a-cad57626e481
+- name: Dental Materials
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:5f8590d5-1a94-4363-889d-aa5446113eba
+- name: Dental Public Health and Education
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:6f691521-d64b-45e0-b164-7e68153e1799
+- name: Dentistry
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+- name: Dermatology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:2d3606e3-ad8d-440a-93c9-51a886c0f9e0
+- name: Desert Ecology
+  parent: urn:uuid:1f7b9364-59d4-437a-b98e-7037421850ec
+  uri: urn:uuid:06026741-7bdb-4a30-a98a-08fe75932e32
+- name: Design of Experiments and Sample Surveys
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:85ed439c-5066-418c-8362-d6bfe26f317f
+- name: Developmental Biology
+  parent: urn:uuid:e2a22971-4f63-4f1c-b1f6-339f8da23e66
+  uri: urn:uuid:2a561c42-d096-40c8-ab86-5348482104c1
+- name: Developmental Neuroscience
+  parent: urn:uuid:3d2bf0ec-9d44-44ba-abcd-420d325792fc
+  uri: urn:uuid:7e770a7b-c180-411a-9b7a-7f7164854ff8
+- name: Developmental Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:cec4f0c4-c223-443f-8e2b-f061dc84ecc2
+- name: Diagnosis
+  parent: urn:uuid:913f9a6f-9758-472f-b23a-3d511cf40265
+  uri: urn:uuid:625186b0-bb31-4488-9ec2-f2cfd97e25ab
+- name: Dietetics and Clinical Nutrition
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:5c641445-3810-4f25-aaf7-4b96434774e7
+- name: Digestive System
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:df93289a-104b-4f39-adf7-29334d19833e
+- name: Digestive System Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:6fdf5bc7-324b-41ee-a8cc-ce1c8b7f3dca
+- name: Digestive, Oral, and Skin Physiology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:71d342ef-0907-47b2-a19b-9844fcf62ab9
+- name: Digital Circuits
+  parent: urn:uuid:44a3aaa6-ad60-428f-b8e8-cf80720f3042
+  uri: urn:uuid:0ee8f74c-7f19-4810-8a8a-056050f85fb0
+- name: Digital Communications and Networking
+  parent: urn:uuid:44a3aaa6-ad60-428f-b8e8-cf80720f3042
+  uri: urn:uuid:9e779703-fd54-49fb-ad96-e9f2c94dc205
+- name: Digital Humanities
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:f6504c0c-a135-4018-9678-885ce37f187b
+- name: Diplomatic History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:3ef03e3c-19e2-4f41-b656-3fa68d4b13d1
+- name: Disability Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:62deb56e-a762-4643-90a5-138ee3c859be
+- name: Disability and Equity in Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:b0f98d44-3203-469e-9239-29afdc69ca01
+- name: Disaster Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:6ff2e47c-ef4a-4e09-83e2-dee72b8d8331
+- name: Discourse and Text Linguistics
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:ca541e1d-7732-492f-b1f1-dc940f87d333
+- name: Discrete Mathematics and Combinatorics
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:ef2095cd-8436-48a6-9fff-1fa8fbaa2478
+- name: Disease Modeling
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:fe20a350-b375-4ddc-ba99-ff3379e1882e
+- name: Diseases
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+- name: Disorders of Environmental Origin
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:cbc3a0b3-8f98-4dbc-9de7-9e93a18e9191
+- name: Dispute Resolution and Arbitration
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:2b9f3c40-4282-4f70-b94e-d5033173a1f6
+- name: Domestic and Intimate Partner Violence
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:2fe2a3c8-761a-404a-a994-c59ee98e85fe
+- name: Dramatic Literature, Criticism and Theory
+  parent: urn:uuid:e80d958a-7075-4edb-9853-0df61d274916
+  uri: urn:uuid:3bd96141-e205-480d-a12b-0cbd7a5fffcc
+- name: Dutch Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:02881f13-2fde-49eb-af8a-1346128f9ba6
+- name: Dynamic Systems
+  parent: urn:uuid:7e085c37-9923-4279-842f-ad4628ff6c54
+  uri: urn:uuid:e3eeecd8-a7b8-44e5-939a-bac0f97ee205
+- name: Dynamical Systems
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:3728211a-ac34-48ea-a269-e19b666ef54a
+- name: Dynamics and Dynamical Systems
+  parent: urn:uuid:13d0c84c-afd5-49b6-8336-184e62d25750
+  uri: urn:uuid:5175c153-002a-4321-8103-6ebf9d8b598e
+- name: E-Commerce
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:659c997f-7f76-4d7e-b474-6c6b2a83b9db
+- name: Early Childhood Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:dd314bf5-a006-4d91-a36e-48fbf1760326
+- name: Earth Sciences
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+- name: East Asian Languages and Societies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:bb4d2509-7f66-44ad-8fec-439a232714cc
+- name: Eastern European Studies
+  parent: urn:uuid:34d4edbc-6c0f-4e49-87d1-b1246559636e
+  uri: urn:uuid:3a2e98aa-8e4f-49b6-9474-44fdec27fece
+- name: Ecology and Evolutionary Biology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:1f7b9364-59d4-437a-b98e-7037421850ec
+- name: Econometrics
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:2638661e-444d-4d7a-8e6e-cbb010401e3d
+- name: Economic History
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:b02c1518-f486-4d00-9725-4e3931780819
+- name: Economic Policy
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:6d3c3262-803e-48a6-9941-a8eaeed4c0bb
+- name: Economic Theory
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:54de4f6e-9e63-4d1f-866d-c373d537ce88
+- name: Economics
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+- name: Education
+  parent: null
+  uri: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+- name: Education Economics
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:c99f88b6-62d3-493c-b29c-2b0fec6feaf9
+- name: Education Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:a83a329f-aedb-4683-8f9e-12cb065c36e8
+- name: Education Policy
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:8c9f134e-19b6-4bb0-bb15-c5306905ce3c
+- name: Educational Administration and Supervision
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:945ca0d1-7c99-4b6e-a549-a8e6d015a889
+- name: Educational Assessment, Evaluation, and Research
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:e52e35bb-07ed-432b-bbd7-cf6289e71450
+- name: Educational Leadership
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:d1496dec-0db7-46c1-b26a-51013f542c80
+- name: Educational Methods
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:b29e86a2-ba40-4f3f-ae97-11a801b5a90f
+- name: Educational Psychology
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:4928d7ae-5f28-4658-bb86-0c9059cf4b25
+- name: Educational Sociology
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:284bce6b-4e4f-4ce2-a452-403cac8b0891
+- name: Elder Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:91bd7d91-467c-4432-bb79-3ce11596638c
+- name: Election Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:4ddc0059-f225-4dd3-bc54-b16c4feac0e7
+- name: Electrical and Computer Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+- name: Electrical and Electronics
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:15e5a606-f81b-418b-8045-354b6e6c8b66
+- name: Electro-Mechanical Systems
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:7868ae2e-f9b2-44d3-b020-330c77893eba
+- name: Electromagnetics and Photonics
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:d4ebbd89-76ce-48ca-8135-0d0d80af825b
+- name: Electronic Devices and Semiconductor Manufacturing
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:bb2b9a84-5447-45bd-9210-035064212367
+- name: Elementary Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:643c76b5-1790-4e71-98e0-a43b69394a73
+- name: Elementary Education and Teaching
+  parent: urn:uuid:fae321a4-1ea9-4ddc-a15f-660131b7d26f
+  uri: urn:uuid:d2bbf9b9-7f62-4d03-9d2a-face43977123
+- name: Elementary Particles and Fields and String Theory
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:c770863d-bace-4e0d-8f51-3e25335dfc50
+- name: Elementary and Middle and Secondary Education Administration
+  parent: urn:uuid:945ca0d1-7c99-4b6e-a549-a8e6d015a889
+  uri: urn:uuid:6619c6e5-197a-4f1a-a333-d5c8bc13f55b
+- name: Embryonic Structures
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:3bf0ec1b-1b0b-4020-aa56-f29866521b4e
+- name: Emergency Medicine
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:0e703a0d-a1f7-4596-81e6-408c9fdb603c
+- name: Emergency and Disaster Management
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:f3f3e697-2e2e-44d9-8939-3c592f8f34cc
+- name: Endocrine System
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:93a94251-2907-4a2a-81d0-f100fa4b41c3
+- name: Endocrine System Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:8786d36d-04e0-4529-8374-8e986abbcc2f
+- name: Endocrinology
+  parent: urn:uuid:e38b5d90-d470-430b-b36f-395e9600e34c
+  uri: urn:uuid:65643eb7-0da0-402e-b901-3ae6da0ceb4a
+- name: Endocrinology, Diabetes, and Metabolism
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:6dde7f71-67ab-491d-8dc6-e14c45721187
+- name: Endodontics and Endodontology
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:78aa3ef3-8825-4dc8-be6f-7d997ab49b8e
+- name: Energy Policy
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:2e889855-e803-4526-b616-a18567707c4f
+- name: Energy Systems
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:e5d16b75-4361-4625-b216-7c1fa080e478
+- name: Energy and Utilities Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:53596858-2512-43bc-b13c-47238ae8c738
+- name: Engineering
+  parent: null
+  uri: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+- name: Engineering Education
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:64e1c7b4-413c-4394-ac46-6f37fb596ad4
+- name: Engineering Mechanics
+  parent: urn:uuid:13d0c84c-afd5-49b6-8336-184e62d25750
+  uri: urn:uuid:ff316850-9121-4177-8f9b-41feab05c86f
+- name: Engineering Physics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:9422b549-486b-44a8-bc45-a5c503c1523a
+- name: Engineering Science and Materials
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:13d0c84c-afd5-49b6-8336-184e62d25750
+- name: English Language and Literature
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:cf47b4c8-d59b-45cd-8d2b-6058e91b9b72
+- name: Entertainment, Arts, and Sports Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:f988fd92-e6f9-46d7-8102-ba87540fb169
+- name: Entomology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:9dbddcc3-95aa-431e-97fd-1f4b1185f75e
+- name: Entrepreneurial and Small Business Operations
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:a8a13c5b-029a-4e91-a699-689c89924c9b
+- name: Environmental Chemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:de86dd17-90e2-434a-ae13-a19ce13ffa80
+- name: Environmental Design
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:e9cc4052-0556-4251-95d2-c25c1060b140
+- name: Environmental Education
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:8169f646-bdd0-40d8-a49a-b960d3132ad0
+- name: Environmental Engineering
+  parent: urn:uuid:71b22a95-4b0d-43e5-961f-cc5b9d4b079b
+  uri: urn:uuid:d52af6b2-a5a9-4737-a6d1-85e32c517d28
+- name: Environmental Health Life Sciences
+  parent: urn:uuid:3012a0ab-c24b-4639-9534-b0acfbc8a87c
+  uri: urn:uuid:9882a485-be7e-4cda-857a-36594754c772
+- name: Environmental Health and Protection
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:3f210767-9e14-4d5e-bbc0-57e4383a2c63
+- name: Environmental Indicators and Impact Assessment
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:618013cf-50fe-4d91-ab20-8f4a2e615811
+- name: Environmental Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:f3d32271-440a-406c-91fd-95f437b7077c
+- name: Environmental Microbiology and Microbial Ecology Life Sciences
+  parent: urn:uuid:546cac76-40c8-42eb-8492-0e6d82c73e91
+  uri: urn:uuid:ff3a0f54-4ced-4165-a427-84cecc13e930
+- name: Environmental Monitoring
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:1c38e5a1-ffeb-4e23-b262-6db59683f269
+- name: Environmental Policy
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:302e4601-66a5-44c0-948d-d7371da01750
+- name: Environmental Public Health
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:a6974c9d-5069-44ec-b59a-3baff98f86b9
+- name: Environmental Sciences
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+- name: Environmental Studies
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:8ba242c2-c84a-43af-ba87-4c78dafa1677
+- name: Enzymes and Coenzymes
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:d153c2f1-45a0-4121-b67e-377fde0cf848
+- name: Epidemiology
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:89bb6534-a7ac-43f9-9fa5-f3cca0727a5f
+- name: Epistemology
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:aed6cf1b-8bee-465f-bd9c-e12aec6d7755
+- name: Equipment and Supplies
+  parent: urn:uuid:913f9a6f-9758-472f-b23a-3d511cf40265
+  uri: urn:uuid:405a0312-23ad-4743-bce4-18d8162d9a6e
+- name: Ergonomics
+  parent: urn:uuid:2b7ed2f7-2050-4b0e-b726-1b78bad201ef
+  uri: urn:uuid:d2ed7690-d1e5-4759-83fb-830824e78f03
+- name: Estates and Trusts
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:8cf497bd-c0fe-4f78-a2e7-a6c883971fa0
+- name: Esthetics
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:1989bb36-2283-4fd1-abc7-5afcdfac8775
+- name: Ethics and Political Philosophy
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:7f420094-c7de-42d4-92c0-71a2ef0e6420
+- name: Ethics in Religion
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:b139c9fb-ebdd-48d1-ad71-a88f4934bef1
+- name: Ethnic Studies
+  parent: urn:uuid:1ac7a388-258e-43da-a5d5-ea33b63a2a0a
+  uri: urn:uuid:5a059883-1ec4-4700-9f37-e1604f39970c
+- name: Ethnomusicology
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:b9f67128-f9ec-4a27-8114-0468b4685c93
+- name: European History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:f48adeca-014b-4f71-840e-a525b0440c71
+- name: European Languages and Societies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:41b02b49-f1f5-4288-8c44-1207d41dd774
+- name: European Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:78366289-80c0-4325-880f-c708351bc23d
+- name: Evidence
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:87e55d34-93ee-4694-b4e3-cdfb796cab94
+- name: Evolution
+  parent: urn:uuid:1f7b9364-59d4-437a-b98e-7037421850ec
+  uri: urn:uuid:675961d1-992c-421d-b28a-1da07ea2e751
+- name: Exercise Physiology
+  parent: urn:uuid:e38b5d90-d470-430b-b36f-395e9600e34c
+  uri: urn:uuid:eec2bffb-143f-4fa8-bc90-00e1294492d8
+- name: Exercise Science
+  parent: urn:uuid:e4984540-dfdb-4a67-a365-d2ac6101cb2b
+  uri: urn:uuid:e839410e-d1e1-4d18-b7aa-3991b11df30b
+- name: Expeditionary Education
+  parent: urn:uuid:e4984540-dfdb-4a67-a365-d2ac6101cb2b
+  uri: urn:uuid:33201103-bc25-45a6-a71f-99cebd37e084
+- name: Experimental Analysis of Behavior
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:1b8c81b9-79f0-493c-9158-9af92d9495fa
+- name: External Galaxies
+  parent: urn:uuid:9004bc06-583e-4304-9fca-00261247d1d9
+  uri: urn:uuid:b857dba9-4bb8-400d-9625-af5a2a896f0d
+- name: Eye Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:fb469041-0bd8-4f28-92c9-2e3d970af080
+- name: Family Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:1532686c-d61b-47e5-9fb2-1285c3e19214
+- name: Family Medicine
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:03eec740-5761-4bda-943f-9899da67b416
+- name: Family Practice Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:743082ea-cab6-472d-b267-ce9fcf47c7c0
+- name: Family, Life Course, and Society
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:f48ca8f1-6f94-4928-be2c-0494a1052487
+- name: Fashion Business
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:ac640827-f051-459f-ad4f-f7ca6065c8f3
+- name: Fashion Design
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:e7e93492-f177-47f2-9150-dceb0e2979af
+- name: Female Urogenital Diseases and Pregnancy Complications
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:31176b69-202a-4c84-9ca0-16f1ebeb15ed
+- name: Feminist Philosophy
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:ac0715cd-7a11-4895-9c1e-8f71e24f803a
+- name: Feminist, Gender, and Sexuality Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:773bb11a-da7a-4491-9016-cbe20f2530bf
+- name: Fiber, Textile, and Weaving Arts
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:392516a1-58da-4408-9500-6fe631995106
+- name: Fiction
+  parent: urn:uuid:8c592181-6f45-4f55-9794-5fae47afd20f
+  uri: urn:uuid:a70a30ed-78e6-4844-82e3-bd9bc0cf4091
+- name: Film Production
+  parent: urn:uuid:3f41d200-6e45-4452-ad8e-00836360e37c
+  uri: urn:uuid:91dbd221-5f15-4d6a-92c0-30a3e7b38b98
+- name: Film and Media Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:3f41d200-6e45-4452-ad8e-00836360e37c
+- name: Finance
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:17a91604-ed36-445c-a4ee-85c1b482c67c
+- name: Finance and Financial Management
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:c5410539-d89b-401e-b95a-d594c553a981
+- name: Fine Arts
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:7d20220f-71cf-496f-b4de-96e6b0a65f5f
+- name: First Amendment
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:9faa6b78-6da6-44ee-9631-cf89e8097ec7
+- name: First and Second Language Acquisition
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:c01fc769-841f-4675-9ba2-630a869c0d56
+- name: Fluid Dynamics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:0e9c5b5b-a1a3-417d-aa07-49dd5c9baa56
+- name: Fluids and Secretions
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:a9359b35-5d70-4115-a9c0-c9388f68dd38
+- name: Folklore
+  parent: urn:uuid:72009f3f-108d-4d8a-bc79-99090e937e14
+  uri: urn:uuid:fd7b7bb1-7ed0-421d-af0f-989cf7649d08
+- name: Food Biotechnology
+  parent: urn:uuid:d300c479-cbff-4416-acb7-eb3d25757e3d
+  uri: urn:uuid:b249ee4e-b483-49c0-b104-2d454e4e45d6
+- name: Food Chemistry
+  parent: urn:uuid:d300c479-cbff-4416-acb7-eb3d25757e3d
+  uri: urn:uuid:ae2254cb-f74b-497c-9663-e9565d55b462
+- name: Food Microbiology
+  parent: urn:uuid:d300c479-cbff-4416-acb7-eb3d25757e3d
+  uri: urn:uuid:4157ddc1-2e4f-4f47-bb2f-9bfee86caafd
+- name: Food Processing
+  parent: urn:uuid:d300c479-cbff-4416-acb7-eb3d25757e3d
+  uri: urn:uuid:e70ffbae-81be-44cf-a3c8-fde069631ae4
+- name: Food Science
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:d300c479-cbff-4416-acb7-eb3d25757e3d
+- name: Food Security
+  parent: urn:uuid:59a6733d-edfb-4a54-9ed6-00edb4bae64b
+  uri: urn:uuid:2e876c07-79db-4937-9166-c060f056a0ed
+- name: Food Studies
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:2af9e1b2-b133-4d84-a584-00ddbcf22ed2
+- name: Food and Beverage Management
+  parent: urn:uuid:9a6595a3-bb98-42ec-8937-c630586deef9
+  uri: urn:uuid:8e83fced-466a-443d-b2cd-6f320bcf6a87
+- name: Food and Drug Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:fd6fe910-14df-43cb-9619-1783faa03d5e
+- name: Forensic Science and Technology
+  parent: urn:uuid:ec40757c-d850-41a9-9231-d69e8af2dbd4
+  uri: urn:uuid:c9045dd0-35dd-41c7-8acc-8979cd3d0f34
+- name: Forest Biology
+  parent: urn:uuid:22c4c975-37b3-4194-8aa2-1707b6fc2d1e
+  uri: urn:uuid:2b5fc2be-5ef9-4264-bd86-cdc567bc1a93
+- name: Forest Management
+  parent: urn:uuid:22c4c975-37b3-4194-8aa2-1707b6fc2d1e
+  uri: urn:uuid:d2f2dc1f-69ad-47b9-b908-df1125ef0070
+- name: Forest Sciences
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:22c4c975-37b3-4194-8aa2-1707b6fc2d1e
+- name: Fourteenth Amendment
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:b5abdc63-b4d4-4562-9d80-38575cde7b34
+- name: Fourth Amendment
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:dd3a8aa4-f5e6-44dd-bf21-c25921f06b7e
+- name: French Linguistics
+  parent: urn:uuid:cef9f7f7-df34-4f73-85f5-eef0c4dbc921
+  uri: urn:uuid:81745598-8f77-4bd5-a219-68d37e7a0b21
+- name: French and Francophone Language and Literature
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:cef9f7f7-df34-4f73-85f5-eef0c4dbc921
+- name: French and Francophone Literature
+  parent: urn:uuid:cef9f7f7-df34-4f73-85f5-eef0c4dbc921
+  uri: urn:uuid:95aa584f-73b9-40d0-ac5e-a9a9b1fa6f15
+- name: Fresh Water Studies
+  parent: urn:uuid:81c615ea-af63-4f5f-b08b-0dee20487663
+  uri: urn:uuid:4d3ef1df-804f-4263-b774-891dda02118b
+- name: Fruit Science
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:0f8aed9a-1ccc-45df-8cf9-2670a72d0ed0
+- name: Fungi
+  parent: urn:uuid:ae147158-13ce-4d56-847a-5b73c7f9d59a
+  uri: urn:uuid:17942360-a513-4f6a-b753-973bea4fb6f9
+- name: Game Design
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:f0ccf1f0-02d9-4dd8-ac3c-772ed88404d9
+- name: Gaming Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:3176747f-eb4f-4887-9eec-84b592aec403
+- name: Gaming and Casino Operations Management
+  parent: urn:uuid:9a6595a3-bb98-42ec-8937-c630586deef9
+  uri: urn:uuid:6ad1f02c-9b66-4e0b-b6e1-3939839dcb04
+- name: Gastroenterology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:a9930f22-137a-4ada-ba92-2e6931445b24
+- name: Gender Equity in Education
+  parent: urn:uuid:b0f98d44-3203-469e-9239-29afdc69ca01
+  uri: urn:uuid:1442ac0a-29d5-4c0c-ae09-a3d8cd2e70fd
+- name: Gender and Sexuality
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:a4d0feab-a6fd-48d6-b8b5-c9640ffc8243
+- name: Gender, Race, Sexuality, and Ethnicity in Communication
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:7e4c74c3-9f1a-451e-b9c2-3d21b50cdb08
+- name: Genealogy
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:3d1aadf4-8d7f-406e-bee4-a8476d5a9b07
+- name: Genetic Phenomena
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:5ae48d5a-c1c5-407c-85bc-4ddb920421a7
+- name: Genetic Processes
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:278622cc-90fc-461e-9a69-3858951a2dd3
+- name: Genetic Structures
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:abfe9f9f-d719-436c-bf5f-f6fa9f68ceff
+- name: Genetics
+  parent: urn:uuid:25339085-76d5-48bd-9c0f-dbfc130ce513
+  uri: urn:uuid:b093b4da-c965-4ffa-84ce-9a2cc22baa12
+- name: Genetics and Genomics
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:25339085-76d5-48bd-9c0f-dbfc130ce513
+- name: Genomics
+  parent: urn:uuid:25339085-76d5-48bd-9c0f-dbfc130ce513
+  uri: urn:uuid:7541d670-62d5-43e2-944a-05f3b5438c8a
+- name: Geochemistry
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:d9842686-3637-4654-a97e-c9f7d6d99e75
+- name: Geographic Information Sciences
+  parent: urn:uuid:bb9c3287-5f5b-477e-8d23-53721840b9ef
+  uri: urn:uuid:e749a7dc-ba9b-455b-8326-38392ff6d4e9
+- name: Geography
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:bb9c3287-5f5b-477e-8d23-53721840b9ef
+- name: Geology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:97f84a9f-9b7a-4451-b2da-8b7470ffd94c
+- name: Geometry and Topology
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:e5efa1f8-1d3a-4686-8827-323322c0cad7
+- name: Geomorphology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:394ee3ca-07b7-4f64-872e-787966242180
+- name: Geophysics and Seismology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:4d6cde69-4898-46e3-a37f-65d961f76610
+- name: Geotechnical Engineering
+  parent: urn:uuid:71b22a95-4b0d-43e5-961f-cc5b9d4b079b
+  uri: urn:uuid:f55e7b35-8f0c-496a-96cf-8b2799e0aa16
+- name: Geriatric Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:de57613f-db56-40e1-bc8d-9917c633d38a
+- name: Geriatrics
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:c77fe8b1-68f3-4ee1-9fb3-8ebe410321a8
+- name: German Language and Literature
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:8e40cc6a-c18f-423d-a4c6-85eb3b5c7fbf
+- name: German Linguistics
+  parent: urn:uuid:8e40cc6a-c18f-423d-a4c6-85eb3b5c7fbf
+  uri: urn:uuid:bc11eb18-9c71-4f2c-a58d-46d9a4e9b6a7
+- name: German Literature
+  parent: urn:uuid:8e40cc6a-c18f-423d-a4c6-85eb3b5c7fbf
+  uri: urn:uuid:d285b24e-5041-43e2-b827-745787ef5ae6
+- name: Gerontology
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:9a35ae3e-c400-48d4-943e-910841fa0d05
+- name: Gifted Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:7048bcc9-4f0f-43ac-9f7b-8470e4dda72e
+- name: Glaciology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:3cf926c7-f3d3-4da5-8e61-6d11a7f839fe
+- name: Government Contracts
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:39d99359-f7f8-4efa-b498-0b15de30f24b
+- name: Graphic Communications
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:c566f31f-ecce-4335-b8c8-ae1659c20eff
+- name: Graphic Design
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:7e007cc2-d7bf-4115-bb53-2ecf739283fc
+- name: Graphics and Human Computer Interfaces
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:0d4de9d9-8d71-41d6-8087-d7d47eb4a830
+- name: Growth and Development
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:36da4ed7-90ac-4635-ba0f-15eecd519e99
+- name: Hardware Systems
+  parent: urn:uuid:44a3aaa6-ad60-428f-b8e8-cf80720f3042
+  uri: urn:uuid:fe64624f-2b9b-4002-9c7c-3338712c99ea
+- name: Harmonic Analysis and Representation
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:2bf748c5-b645-42fc-ba60-ceb9732886da
+- name: Hawaiian Studies
+  parent: urn:uuid:c9e1119c-4049-4c58-a9c6-bf31d084ce78
+  uri: urn:uuid:c96bf690-98e5-49b2-ba09-9dc7f71730b8
+- name: Health Communication
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:96c4f97c-8cd0-4349-bb18-2e3a63c7e9f2
+- name: Health Economics
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:e0da1410-a871-4606-91d5-388211ed8a4c
+- name: Health Information Technology
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:ea4a39a0-6fc2-4b20-8193-faa887a7da16
+- name: Health Law and Policy
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:da0c2409-5678-40b0-b222-bd9e7dfa7899
+- name: Health Policy
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:5c463bdf-0419-49f5-a2b7-b7619450be1d
+- name: Health Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:2212d808-c3ec-47e5-a20d-7b46cef1a421
+- name: Health Services Administration
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:85cc722c-98a0-40fd-881e-81ab3ab7063b
+- name: Health Services Research
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:a5ea85ca-4650-4a72-81cb-0535eb857f3f
+- name: Health and Medical Administration
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:84e1605b-f60c-45ce-82d0-12399c735bcc
+- name: Health and Medical Physics
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:2fdcd1bd-236a-455f-9bb6-3eb00a55c3de
+- name: Health and Physical Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:1a695ebf-2223-4709-acd7-40bdee9cc2cd
+- name: Heat Transfer, Combustion
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:5d0da375-6ff4-4556-817c-a6d3eeb513a8
+- name: Hematology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:ae81ddfc-3fe4-40c5-905a-33eb509d25eb
+- name: Hemic and Immune Systems
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:a44ee4dd-15ff-43da-996d-f9dfd70a84bf
+- name: Hemic and Lymphatic Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:b83899fd-1645-4897-8d70-040ee43ad7bc
+- name: Hepatology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:3aca5e50-8796-4508-a7d7-23d51116fab0
+- name: Heterocyclic Compounds
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:f13c8f1d-4955-4d20-aef3-d6568cecd146
+- name: Higher Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:a723c39b-0d55-4f56-977b-799577c5d08e
+- name: Higher Education Administration
+  parent: urn:uuid:945ca0d1-7c99-4b6e-a549-a8e6d015a889
+  uri: urn:uuid:dac85056-b26c-4088-8e5b-a5a41208a2d1
+- name: Higher Education and Teaching
+  parent: urn:uuid:fae321a4-1ea9-4ddc-a15f-660131b7d26f
+  uri: urn:uuid:2eb7256a-c6f5-4945-9814-c9cdec4ca255
+- name: Hindu Studies
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:d000a53e-2be1-4962-9f18-596be6cf4f94
+- name: Historic Preservation and Conservation
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:57811374-1428-4ef6-97db-a999b541e2b1
+- name: History
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+- name: History of Art, Architecture, and Archaeology
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:66840b09-72bd-4f79-84fa-49d679473b2f
+- name: History of Christianity
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:f5c9fe6d-99b4-433d-8adf-1f8c11722f4e
+- name: History of Gender
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:bb1e0be9-133f-43c2-b1de-6c5e66cd348e
+- name: History of Philosophy
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:a9ba6623-1a38-40c9-beb2-725148c7296e
+- name: History of Religion
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:800b4478-32d0-4fbb-92cd-3c815783f33f
+- name: History of Religions of Eastern Origins
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:f497cfdd-568e-4e45-a2ed-a1a203981bfa
+- name: History of Religions of Western Origin
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:9c85a173-3a1c-45d9-9ec5-b530c6c25beb
+- name: History of Science, Technology, and Medicine
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:2844c512-c578-4e56-9657-ece4bc7d77a1
+- name: History of the Pacific Islands
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:ad3c1792-45cc-44b7-a377-59f28a9db5c6
+- name: Home Economics
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:01cd8083-f8c0-44f6-88dd-24fe9db19814
+- name: Hormones, Hormone Substitutes, and Hormone Antagonists
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:3e29033c-3ac9-488d-96ec-39d691b97727
+- name: Horticulture
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:72c6e236-aa32-4590-b39c-4e6b2d342059
+- name: Hospitality Administration and Management
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:9a6595a3-bb98-42ec-8937-c630586deef9
+- name: Housing Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:449aa33c-a297-4eaa-aa23-d01e6021a8d0
+- name: Human Ecology
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:13bb8bfa-ed19-4272-8afb-3a3706c4157e
+- name: Human Geography
+  parent: urn:uuid:bb9c3287-5f5b-477e-8d23-53721840b9ef
+  uri: urn:uuid:7705871e-e3ff-4a0d-9624-f2db248cf009
+- name: Human Resources Management
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:bb242dfa-276f-4f0e-af8a-24c2a1d693a9
+- name: Human Rights Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:e2b90e3e-cd2c-4168-80dc-332963918081
+- name: Human and Clinical Nutrition
+  parent: urn:uuid:2aca1076-b575-4b80-9f9b-3b34411112f6
+  uri: urn:uuid:22561c7e-000e-4786-ba9c-7f1a052939ca
+- name: Humane Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:a65fb64c-9c36-4134-b066-8d4f3f22684b
+- name: Hydraulic Engineering
+  parent: urn:uuid:71b22a95-4b0d-43e5-961f-cc5b9d4b079b
+  uri: urn:uuid:9ee2fa5c-cbfa-4aa7-8746-4b697eddb928
+- name: Hydrology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:c00c3e63-6de0-4e22-8a67-2aec8c153ca7
+- name: Illustration
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:10e34465-cedb-4af7-9eb4-cd00cfaf497a
+- name: Immigration Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:6b91b5f7-b940-4f04-9f53-9ff3050f2811
+- name: Immune System Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:d8bc0866-0bfd-42a6-9747-3770af78d94e
+- name: Immunity
+  parent: urn:uuid:cca5e519-753e-4d70-bbd1-d33bf6fa6249
+  uri: urn:uuid:f1a14b9b-2c8f-408b-800a-087bbc637db6
+- name: Immunology and Infectious Disease
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:cca5e519-753e-4d70-bbd1-d33bf6fa6249
+- name: Immunology of Infectious Disease
+  parent: urn:uuid:cca5e519-753e-4d70-bbd1-d33bf6fa6249
+  uri: urn:uuid:75af5d6b-838b-410c-b45f-0afca7f880f8
+- name: Immunopathology
+  parent: urn:uuid:cca5e519-753e-4d70-bbd1-d33bf6fa6249
+  uri: urn:uuid:860fcf3f-3212-4fb9-8d84-54b78ccbf006
+- name: Immunoprophylaxis and Therapy
+  parent: urn:uuid:cca5e519-753e-4d70-bbd1-d33bf6fa6249
+  uri: urn:uuid:51d78f1b-24f2-4511-8797-825682b197c9
+- name: Income Distribution
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:1761c16e-fb53-47a3-867d-27b3ac953d51
+- name: Indian and Aboriginal Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:ed7d8e9c-6a4b-4c64-9ef5-acca90b7c4b0
+- name: Indigenous Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:4b443f22-58fe-433f-bd97-6ce514815eb0
+- name: Indigenous Studies
+  parent: urn:uuid:1ac7a388-258e-43da-a5d5-ea33b63a2a0a
+  uri: urn:uuid:0c6c8ede-ce95-46d5-9488-21a5cfc7572f
+- name: Indo-European Linguistics and Philology
+  parent: urn:uuid:83934380-bc43-4cca-bcee-1f75a2a804ae
+  uri: urn:uuid:092d1089-2695-4e5c-b23f-5d55ed60201e
+- name: Industrial Engineering
+  parent: urn:uuid:2b7ed2f7-2050-4b0e-b726-1b78bad201ef
+  uri: urn:uuid:abe20c28-206f-4a98-9b7e-c0e92f8f0001
+- name: Industrial Organization
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:b4229c72-6a2e-4627-b0dd-97ecabc8e4c4
+- name: Industrial Technology
+  parent: urn:uuid:2b7ed2f7-2050-4b0e-b726-1b78bad201ef
+  uri: urn:uuid:62eb9dba-ddd5-4542-8aff-4aa733299796
+- name: Industrial and Organizational Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:328bb70e-a932-4877-9214-03cd85f59251
+- name: Industrial and Product Design
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:0811b592-b32e-4e76-8000-ecfcae89e9bf
+- name: Inequality and Stratification
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:cf4cdd79-d1ed-4ac3-b08a-4d6d1c08655c
+- name: Infectious Disease
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:3c9ebe86-58af-4f7b-adb4-1d1921bfc51c
+- name: Influenza Humans
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:b463c531-292a-41e7-a18e-c6ff1b315026
+- name: Influenza Virus Vaccines
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:5e4d87b7-dddc-4ae1-a3d7-642773dbc854
+- name: Information Literacy
+  parent: urn:uuid:bbeee7b0-f209-4bf8-b4f9-934c1f8b011d
+  uri: urn:uuid:7705ec48-e197-4d2b-a83e-2ea23b955bca
+- name: Information Security
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:4d634b59-c648-45a8-bc4c-edb6b8282c4b
+- name: Infrastructure
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:f54409ad-5103-487f-b0a8-53c6a0593432
+- name: Inorganic Chemicals
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:9f82df45-7f3e-4730-b01a-fdf16fe8fa88
+- name: Inorganic Chemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:605eff52-e395-45e9-adff-d8bcc740751f
+- name: Institutional and Historical
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:4ea13a52-d106-43c6-ae47-198615498d03
+- name: Instructional Media Design
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:4c78cc4c-63ca-4cbb-b63c-ac2bbaef0fa0
+- name: Instrumentation
+  parent: urn:uuid:9004bc06-583e-4304-9fca-00261247d1d9
+  uri: urn:uuid:28312f65-4aee-46fc-8b59-55b688b54a35
+- name: Insurance
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:63badd95-5daa-4707-b70f-3c72b28a3e43
+- name: Insurance Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:9cd8be53-2078-4e26-b361-2190de2603ca
+- name: Integrative Biology
+  parent: urn:uuid:e25c0769-faf8-407e-b2fa-b2980c62dc57
+  uri: urn:uuid:de84fc9e-d243-4f6d-9002-2734e0f86130
+- name: Integrative Medicine
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:77889e5f-7707-4ac1-ae60-907d8486941c
+- name: Integumentary System
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:419d46b3-b384-482f-9569-3151064ec17f
+- name: Intellectual History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:a04147be-64e0-401f-84ee-fb2381e40f20
+- name: Intellectual Property Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:d041e63f-2e71-4190-908a-62bfb7e0369d
+- name: Interactive Arts
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:7497067b-3b04-4475-a600-0554145aaf25
+- name: Interdisciplinary Arts and Media
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:7021f79c-b2ed-4835-ad7b-19b9c742f363
+- name: Interior Architecture
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:dca51ec6-6135-4220-b44d-d0fd0916d34d
+- name: Internal Medicine
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:3c93592c-475e-407e-b629-c61947d3d551
+- name: International Business
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:09cdbd49-a6d7-465c-8bbe-3909b78cb8f3
+- name: International Economics
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:7be0e244-795a-492a-8a89-28a4a6414c5b
+- name: International Humanitarian Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:fbcb76fa-b2fb-40b5-8bc6-6616f9c060e3
+- name: International Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:7cde087c-6b21-457a-aad8-aa7dca5ca318
+- name: International Public Health
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:202c465b-9990-44b2-874c-2fd41eceeb56
+- name: International Relations
+  parent: urn:uuid:231ca525-7996-42a4-8505-2da8904b4fcd
+  uri: urn:uuid:1c679bb8-8c04-4be4-9d0b-12d3186db462
+- name: International Trade Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:9e52e9f0-a33d-4b5b-ac3e-c060ddcc52cb
+- name: International and Area Studies
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:34d4edbc-6c0f-4e49-87d1-b1246559636e
+- name: International and Community Nutrition
+  parent: urn:uuid:2aca1076-b575-4b80-9f9b-3b34411112f6
+  uri: urn:uuid:f088ac7e-c764-4095-bfbb-daf2681c4f39
+- name: International and Comparative Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:ef102521-2c85-487d-8c0b-647e507b293e
+- name: International and Comparative Labor Relations
+  parent: urn:uuid:42c5dbc0-fd0e-469b-a81d-146d935c62ce
+  uri: urn:uuid:9d4ce169-b46f-4b28-80f8-21bbfe4380ae
+- name: International and Intercultural Communication
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:65665a85-5e24-453a-93ff-a2dad77c0801
+- name: Internet Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:cb3f465d-b81b-4ee2-b73b-6a163dafb481
+- name: Interpersonal and Small Group Communication
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:28e82c16-c7dc-476a-92d7-28ad9095c394
+- name: Interprofessional Education
+  parent: urn:uuid:858b1aab-8f9a-43be-b10c-c12d2fed3023
+  uri: urn:uuid:ba7b0497-786b-4f1c-b6e7-e22edddd0853
+- name: Investigative Techniques
+  parent: urn:uuid:913f9a6f-9758-472f-b23a-3d511cf40265
+  uri: urn:uuid:05d89aa7-f148-439a-b789-472820f28c94
+- name: Islamic Studies
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:2b479f10-e898-482f-a506-c82989eb88db
+- name: Islamic World and Near East History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:f42052b9-dc17-4d95-8e4b-c6c1d0fb462d
+- name: Italian Language and Literature
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:e0022605-7782-40ba-aaae-5a1304251c18
+- name: Italian Linguistics
+  parent: urn:uuid:e0022605-7782-40ba-aaae-5a1304251c18
+  uri: urn:uuid:50f98afc-1fea-4413-b646-29d12e42e677
+- name: Italian Literature
+  parent: urn:uuid:e0022605-7782-40ba-aaae-5a1304251c18
+  uri: urn:uuid:7afa693b-6b99-4d67-8cf4-65f3573e3465
+- name: Japanese Studies
+  parent: urn:uuid:bb4d2509-7f66-44ad-8fec-439a232714cc
+  uri: urn:uuid:d7176bec-d095-4be8-8e5d-4f446ddfdda9
+- name: Jewish Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:8e902db5-56d2-4188-b329-4558abd75d34
+- name: Journalism Studies
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:dba0e2dc-f9e1-4d19-b693-9d82ad2ea861
+- name: Judges
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:2755f6a9-f6d7-43da-a0bd-d9371b3f4afa
+- name: Junior High, Intermediate, Middle School Education and Teaching
+  parent: urn:uuid:fae321a4-1ea9-4ddc-a15f-660131b7d26f
+  uri: urn:uuid:a9396cba-1086-43a9-a48d-b28b35e28a61
+- name: Jurisdiction
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:419d1d4a-5f8f-49cc-b0f7-f7f345c0ee69
+- name: Jurisprudence
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:eed77036-2b4c-478f-8a84-580bbdc3de40
+- name: Juvenile Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:cd230bba-96c7-42e6-9848-0d586fda63fd
+- name: Kinesiology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:e4984540-dfdb-4a67-a365-d2ac6101cb2b
+- name: Kinesiotherapy
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:6a3864aa-878e-4769-b250-06ab7f22b273
+- name: Korean Studies
+  parent: urn:uuid:bb4d2509-7f66-44ad-8fec-439a232714cc
+  uri: urn:uuid:a0901c35-18fe-4ba3-beff-d76c992229c0
+- name: Labor Economics
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:ec220ac7-1239-429b-8a26-de8d71059ffa
+- name: Labor History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:ba1a8883-4e8f-4aeb-aca7-59ceede27897
+- name: Labor Relations
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:42c5dbc0-fd0e-469b-a81d-146d935c62ce
+- name: Labor and Employment Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:e4d3270a-7cf5-4f5c-b8a1-06659ae70044
+- name: Laboratory and Basic Science Research Life Sciences
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:79d51b4d-4021-4d40-9dd2-dcd49b677205
+- name: Land Use Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:05e952db-8ccd-4a28-a64c-4f3c631e4355
+- name: Landscape Architecture
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:f0fe5a5f-217c-42fd-94ee-2d1734eb79bc
+- name: Language Description and Documentation
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:167f124f-51d2-46b5-badc-150915593fd6
+- name: Language and Literacy Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:8e32c8fb-153f-437c-ab60-a26e945e7e25
+- name: Large or Food Animal and Equine Medicine
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:27d88781-32e1-4e2d-8b49-b9b11a5c1baa
+- name: Latin American History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:7e11c6ee-0d64-4025-9dbb-9f60ffb1f1c4
+- name: Latin American Languages and Societies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:ac8bb02b-cc98-4f24-94fe-02e303db53db
+- name: Latin American Literature
+  parent: urn:uuid:eca8220b-080c-4caa-a958-f589e1060a60
+  uri: urn:uuid:2395da03-020b-4a4b-bee0-fce4ece05e08
+- name: Latin American Studies
+  parent: urn:uuid:34d4edbc-6c0f-4e49-87d1-b1246559636e
+  uri: urn:uuid:e0a066a9-ba8e-44d2-be62-3923ed55172e
+- name: Latina/o Studies
+  parent: urn:uuid:1ac7a388-258e-43da-a5d5-ea33b63a2a0a
+  uri: urn:uuid:86192e58-713d-4c23-bd2a-31ee49845baf
+- name: Law
+  parent: null
+  uri: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+- name: Law Enforcement and Corrections
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:b78c27a9-a0b3-4aa9-988c-cf479844a255
+- name: Law and Economics
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:93711d29-8d42-4478-9f0e-c27b92256a25
+- name: Law and Gender
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:ad0047e2-a133-45cb-b87c-8e85355c9062
+- name: Law and Philosophy
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:9873c4c1-15be-4a0c-ae7a-7d711019dc2f
+- name: Law and Politics
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:82128ab0-f6d2-4a2d-bcff-b3bca515a894
+- name: Law and Psychology
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:63fa5f05-d289-42b5-877e-55f8a08f7827
+- name: Law and Race
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:41379853-b072-460b-8cbf-794ab14ac255
+- name: Law and Society
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:a73c6b9d-79f6-42d1-8ef2-0163d4023c53
+- name: Law of the Sea
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:21c69a12-3f79-4989-8d07-0cd392d6039e
+- name: Leadership Studies
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:72fff015-71ec-4dbd-8d45-6c4b6dcdf9b3
+- name: Legal
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:70c4e907-d7fd-456f-9432-5bd5b3b370c9
+- name: Legal Biography
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:0735c869-099a-4b28-8116-27fc006e3ccf
+- name: Legal Education
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:79519a25-abf7-4b15-8b1d-0a89a6c9f262
+- name: Legal Ethics and Professional Responsibility
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:007725ca-d6c0-4fa3-a06a-7557ce855c2d
+- name: Legal History
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:2417d1b3-b731-4630-8220-32bd1cc16d68
+- name: Legal Profession
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:3e8e4679-7859-45fa-8b7f-faa7bac87780
+- name: Legal Remedies
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:de1ad409-dab8-48de-84c9-cb6939428fae
+- name: Legal Studies
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:ec40757c-d850-41a9-9231-d69e8af2dbd4
+- name: Legal Theory
+  parent: urn:uuid:ec40757c-d850-41a9-9231-d69e8af2dbd4
+  uri: urn:uuid:0f502aa2-58de-4e2e-9b43-f080f3dca900
+- name: Legal Writing and Research
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:49920e34-2138-4f71-a131-7ecc6d9903cc
+- name: Legislation
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:617338cb-6e94-4c37-a384-785b279c7b94
+- name: Leisure Studies
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:2fdf198f-153c-4cd5-868f-3ca39c7877e6
+- name: Lesbian, Gay, Bisexual, and Transgender Studies
+  parent: urn:uuid:773bb11a-da7a-4491-9016-cbe20f2530bf
+  uri: urn:uuid:9686412d-840b-4b05-b5be-64755ae091c8
+- name: Liberal Studies
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:a902691f-2884-49c1-aeb4-8ea7592350e2
+- name: Library and Information Science
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:bbeee7b0-f209-4bf8-b4f9-934c1f8b011d
+- name: Life Sciences
+  parent: null
+  uri: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+- name: Linguistic Anthropology
+  parent: urn:uuid:72009f3f-108d-4d8a-bc79-99090e937e14
+  uri: urn:uuid:e2213cd5-b8b3-4983-b269-73a0ceb0c961
+- name: Linguistics
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+- name: Lipids
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:5d967fac-ab28-4af6-b053-bb4ea52779d6
+- name: Literature in English, Anglophone outside British Isles and North America
+  parent: urn:uuid:cf47b4c8-d59b-45cd-8d2b-6058e91b9b72
+  uri: urn:uuid:5082bfd1-9f8d-4424-9d5c-02dd25df385d
+- name: Literature in English, British Isles
+  parent: urn:uuid:cf47b4c8-d59b-45cd-8d2b-6058e91b9b72
+  uri: urn:uuid:1bb508e7-a241-4f1b-bc8a-a63dd48b44b2
+- name: Literature in English, North America
+  parent: urn:uuid:cf47b4c8-d59b-45cd-8d2b-6058e91b9b72
+  uri: urn:uuid:77c8ebfb-2c3c-480d-8d7f-713cf7f29d8f
+- name: Literature in English, North America, Ethnic and Cultural Minority
+  parent: urn:uuid:cf47b4c8-d59b-45cd-8d2b-6058e91b9b72
+  uri: urn:uuid:8d6aba20-2630-4bdb-a316-0456a6441c0c
+- name: Litigation
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:2ebecfc3-43a8-4ebe-bc68-8669c304097f
+- name: Liturgy and Worship
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:95d3ab76-aa0f-4318-bbc7-3258d0d91584
+- name: Logic and Foundations
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:c9bcfba6-0355-4782-9091-7078ff329751
+- name: Logic and Foundations of Mathematics
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:7e4a9804-34ad-4acd-ab91-f99c5a65c540
+- name: Longitudinal Data Analysis and Time Series
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:f2b13872-0508-4029-9091-675a7835d0d8
+- name: Macroeconomics
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:afa30b00-170c-468f-b74c-cec09d9cad10
+- name: Macromolecular Substances
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:0ce7ee92-5f1d-4325-8be7-4ba94ade052e
+- name: Maintenance Technology
+  parent: urn:uuid:8d82940d-7abd-4d0e-ae79-38455c3e62cc
+  uri: urn:uuid:04917c2a-5a43-47b8-88a7-244ee8a4c42e
+- name: Male Urogenital Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:f211bf38-5630-4815-abc5-90b95a5d9fa3
+- name: Management Information Systems
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:a8d85b0f-6e7f-4b37-9f56-18653ef7bcc8
+- name: Management Sciences and Quantitative Methods
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:5d2a05fa-2bbe-4207-b8d7-cdb7f98c5384
+- name: Management and Operations
+  parent: urn:uuid:8d82940d-7abd-4d0e-ae79-38455c3e62cc
+  uri: urn:uuid:8a2a0143-ecb0-490f-9122-24e623ab07ad
+- name: Manufacturing
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:9ba4f7fc-5f64-43e2-bfb1-4f477edf8e27
+- name: Marine Biology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:7cb63b51-1017-43ef-a0dd-a0ff60744313
+- name: Marketing
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:6030f033-57f8-4fc3-a350-0e9a320a0adb
+- name: Marketing Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:11e595f6-e011-4fc9-851a-45724f446a5e
+- name: Marriage and Family Therapy and Counseling
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:e4fa893f-ad18-4de8-973d-c5045da5b28b
+- name: Mass Communication
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:de626a94-1742-4f47-b5ed-7dd04c6986b8
+- name: Materials Chemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:6df8df58-1626-4d39-9860-c81a2173095c
+- name: Materials Science and Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:0c11fccd-6999-4e9f-9e53-653952fa7546
+- name: Maternal and Child Health
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:4866e16b-6fe0-498f-bfb9-374d3df6eb9d
+- name: Maternal, Child Health and Neonatal Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:bab98bb3-04e4-4fda-89c5-3259846174e4
+- name: Mathematics
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+- name: Meat Science
+  parent: urn:uuid:9ce6a076-3991-4024-85a4-c1c54b17b127
+  uri: urn:uuid:19f503a7-7411-4f8b-8273-25fb31fd3b64
+- name: Mechanical Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+- name: Mechanics of Materials
+  parent: urn:uuid:13d0c84c-afd5-49b6-8336-184e62d25750
+  uri: urn:uuid:e7b98f0a-2194-478f-9c8e-90a00bd57e5c
+- name: Medical Anatomy
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:bd1f42aa-41e3-4bbf-a0bd-8b25e3b4698b
+- name: Medical Biochemistry
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:6aea9bdc-bd82-43d4-8d01-a3163fd00a36
+- name: Medical Biomathematics and Biometrics
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:16f11861-1ca6-451f-8feb-c034884f67c8
+- name: Medical Biophysics
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:96795aed-10bf-4ce0-91a4-ca3d652d52a0
+- name: Medical Biotechnology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:b524758e-a98e-4416-9441-140d388d2cde
+- name: Medical Cell Biology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:0967c5b0-df03-4bf7-84da-814cc840ab03
+- name: Medical Education
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:858b1aab-8f9a-43be-b10c-c12d2fed3023
+- name: Medical Genetics
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:5347aa3f-d852-4030-b967-7f7aecfa29b3
+- name: Medical Humanities
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:06903e3a-79d4-4073-bf33-bb4afd83f5ad
+- name: Medical Immunology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:2f0d5a2a-13ba-430d-8b78-76df1a4287c4
+- name: Medical Jurisprudence
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:7d6a6ba7-3ef3-47c2-bb43-da0c421757f0
+- name: Medical Microbiology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:3caefdb5-11a1-4b56-ba2c-d19545d712e8
+- name: Medical Molecular Biology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:ac3cb02e-5378-4fc7-8255-d65ae20da66c
+- name: Medical Neurobiology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:abad3dec-e1e6-46d6-8ef3-ebd6550d8846
+- name: Medical Nutrition
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:4b38cf66-b36a-45d1-83c6-c41867881438
+- name: Medical Pathology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:449be1a1-05b4-4b5d-b633-100bd6dc3a7e
+- name: Medical Pharmacology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:72a15af7-6177-4758-a72f-65ad7f5296f5
+- name: Medical Physiology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:c1330c97-ba41-4899-ac4e-88bfdca23bad
+- name: Medical Sciences
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+- name: Medical Specialties
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+- name: Medical Toxicology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:3f1b3417-c126-45ba-9aee-8747a2097887
+- name: Medicinal Chemistry and Pharmaceutics
+  parent: urn:uuid:3012a0ab-c24b-4639-9534-b0acfbc8a87c
+  uri: urn:uuid:65fc9541-65d2-43d6-bc18-9d549269e2d9
+- name: Medicinal and Pharmaceutical Chemistry
+  parent: urn:uuid:ca4b9c39-0c6c-4c8e-aa30-26e9f86a0e99
+  uri: urn:uuid:9891c26e-71c8-407c-8bc1-f6c740cee558
+- name: Medicinal-Pharmaceutical Chemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:4bf6de41-dc4d-481f-99b9-602de4206518
+- name: Medicine and Health
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:324fc642-10f6-4764-9cba-0e18e9885290
+- name: Medicine and Health Sciences
+  parent: null
+  uri: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+- name: Medieval History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:066f26bd-b49f-4975-98fb-41c7ddfca2f9
+- name: Medieval Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:de48d108-5bbb-47ae-aafb-af95cc6b5712
+- name: Melanesian Studies
+  parent: urn:uuid:c9e1119c-4049-4c58-a9c6-bf31d084ce78
+  uri: urn:uuid:daebd0af-7db5-412f-8905-55212b5bf1e6
+- name: Membrane Science
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:02a4e64e-658b-44a6-aadd-a5e9245661aa
+- name: Mental Disorders
+  parent: urn:uuid:2fd64900-c22e-4f8b-adf7-b53b06c5527b
+  uri: urn:uuid:b08b7a03-7018-4088-a593-c4d5820fc6a6
+- name: Mental and Social Health
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+- name: Mesomycetozoea
+  parent: urn:uuid:ae147158-13ce-4d56-847a-5b73c7f9d59a
+  uri: urn:uuid:9b8b2675-e357-4b95-9a4c-7987a29ff0af
+- name: Metal and Jewelry Arts
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:8d8985a6-ae62-4c6d-8d2c-381efd21763f
+- name: Metallurgy
+  parent: urn:uuid:0c11fccd-6999-4e9f-9e53-653952fa7546
+  uri: urn:uuid:25dd2e78-32a4-4f5a-8dcc-754e004f82f1
+- name: Metaphysics
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:4ad1710b-b401-4a64-94e0-ca927ee34de5
+- name: Meteorology
+  parent: urn:uuid:81c615ea-af63-4f5f-b08b-0dee20487663
+  uri: urn:uuid:aef5bdb7-c1f3-4de9-b18d-05b8a31582d6
+- name: Microarrays
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:bd3755cb-fa9c-4cf1-9c83-d4b61f98c3b5
+- name: Microbial Physiology
+  parent: urn:uuid:546cac76-40c8-42eb-8492-0e6d82c73e91
+  uri: urn:uuid:4e39f10b-5b76-4721-904d-e06b021b1837
+- name: Microbiology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:546cac76-40c8-42eb-8492-0e6d82c73e91
+- name: Micronesian Studies
+  parent: urn:uuid:c9e1119c-4049-4c58-a9c6-bf31d084ce78
+  uri: urn:uuid:4801b651-4772-409b-b22f-fd2b171bf5df
+- name: Military History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:42be084a-92de-4826-97d0-bafe070e724a
+- name: Military and Veterans Studies
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:a1ad44c4-6e7a-44ac-9349-810c51200d16
+- name: Military, War, and Peace
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:36c476a5-05f2-4b3b-b4a1-93cc67980314
+- name: Mineral Physics
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:a7e5ad38-ccd2-4626-b3f8-49d4569b6974
+- name: Mining Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:02cab7e3-a15c-49ab-beba-c305ed3d09b2
+- name: Missions and World Christianity
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:b0072928-18c6-4ea6-8104-d96871df30b9
+- name: Models and Methods
+  parent: urn:uuid:231ca525-7996-42a4-8505-2da8904b4fcd
+  uri: urn:uuid:1891080e-960b-4492-8855-bfdd7330c523
+- name: Modern Art and Architecture
+  parent: urn:uuid:66840b09-72bd-4f79-84fa-49d679473b2f
+  uri: urn:uuid:9d4595d3-83cf-49ea-b739-c433de423b50
+- name: Modern Languages
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:7a2c0075-dccd-4ae1-a088-4c88a55d63e1
+- name: Modern Literature
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:9732eb75-707f-4df1-b1c9-71aca22f0775
+- name: Molecular Biology
+  parent: urn:uuid:55043e06-60e4-4cb2-826b-e516bbdd56da
+  uri: urn:uuid:60603ed7-71f6-41c0-aea9-a8e321e769ad
+- name: Molecular Genetics
+  parent: urn:uuid:25339085-76d5-48bd-9c0f-dbfc130ce513
+  uri: urn:uuid:099bbce8-3778-4f38-a187-dbf81794987a
+- name: Molecular and Cellular Neuroscience
+  parent: urn:uuid:3d2bf0ec-9d44-44ba-abcd-420d325792fc
+  uri: urn:uuid:c2e3d86e-dedf-44a6-a5b5-6d1afae9643d
+- name: Molecular, Cellular, and Tissue Engineering
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:af1657d5-814a-4d25-b7c2-b6d519617a4e
+- name: Molecular, Genetic, and Biochemical Nutrition
+  parent: urn:uuid:2aca1076-b575-4b80-9f9b-3b34411112f6
+  uri: urn:uuid:21390ca0-aae1-4f79-a1a0-fd18413e9937
+- name: Mormon Studies
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:798a2221-312a-4591-ab14-43c0fb5b456a
+- name: Morphology
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:892d6209-e330-45b9-8786-f8bed6811e0d
+- name: Motor Control
+  parent: urn:uuid:e4984540-dfdb-4a67-a365-d2ac6101cb2b
+  uri: urn:uuid:826de1b0-f261-468d-b17d-f0740dc69f62
+- name: Movement and Mind-Body Therapies
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:85ece384-ae5f-4aca-8442-e865e0f6d587
+- name: Multi-Vehicle Systems and Air Traffic Control
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:a654f1fe-7726-4c6d-9c00-e0b5509f3c42
+- name: Multicultural Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:f1849315-5e52-4abc-965f-5e9c4bba199f
+- name: Multivariate Analysis
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:92844bec-a732-4e28-a5e8-d63e98084891
+- name: Musculoskeletal Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:cea26312-5c81-4163-80f1-6034a52bd218
+- name: Musculoskeletal System
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:12c6e49f-77bb-473b-ba5a-f2b2e3233fe8
+- name: Musculoskeletal, Neural, and Ocular Physiology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:81306974-dd7b-4a78-9907-eb6a89151384
+- name: Museum Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:6caab73c-3043-42a1-a4e3-2709616bacb0
+- name: Music
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+- name: Music Education
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:52e718e4-6774-446c-98bb-9acc8ec3c108
+- name: Music Pedagogy
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:b738f649-a10a-4c0e-a87a-0bf3bb2be9f6
+- name: Music Performance
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:74a2805f-b5bc-4f95-b4f6-cd1e9be460ec
+- name: Music Practice
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:20b39245-5efe-47e9-9f37-b72171a82e04
+- name: Music Theory
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:14f3a485-b53d-403a-8c3d-b0a5781b81f3
+- name: Music Therapy
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:4f8ca303-a387-4ca2-b797-339595ce3ec8
+- name: Musicology
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:5a246414-59bf-47d9-9d79-d1150e2c9bd4
+- name: Nanomedicine
+  parent: urn:uuid:9bc07cb6-68ea-4065-ae2b-4e9cee340fe3
+  uri: urn:uuid:d4104424-47b1-4101-93c3-11003e2d33fe
+- name: Nanoscience and Nanotechnology
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:5722f18e-9a95-48ec-9120-8662f8dde81a
+- name: Nanotechnology
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:9bc07cb6-68ea-4065-ae2b-4e9cee340fe3
+- name: Nanotechnology Fabrication
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:2d943d05-e6c5-4bcf-84cf-42caedf66859
+- name: National Security Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:5f2dd5ee-8a1e-4520-afbe-b69e82d00b8f
+- name: Natural Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:39566a13-5c8d-4ddc-9ebb-9363126da457
+- name: Natural Products Chemistry and Pharmacognosy
+  parent: urn:uuid:ca4b9c39-0c6c-4c8e-aa30-26e9f86a0e99
+  uri: urn:uuid:00f1e14e-bc44-4bcf-a31c-17e8deda64a2
+- name: Natural Resource Economics
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:e2eb6652-a5d2-4563-8dfc-5c35d2a90c38
+- name: Natural Resources Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:70d4f919-1585-489e-9a98-cd33fd3538b6
+- name: Natural Resources Management and Policy
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:2fab1b61-f47f-43fe-9209-d46e757c213e
+- name: Natural Resources and Conservation
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:1176d6f8-2f3c-45d8-907a-52748194b0a2
+- name: Nature and Society Relations
+  parent: urn:uuid:bb9c3287-5f5b-477e-8d23-53721840b9ef
+  uri: urn:uuid:9e0c5ea1-50a8-47af-a388-0b16fe24e492
+- name: Navigation, Guidance, Control and Dynamics
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:7b9c473d-26ec-4b27-87ed-78b346b353f9
+- name: Near Eastern Languages and Societies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:4b785c7c-11c5-4955-8027-7a36920f0524
+- name: Near and Middle Eastern Studies
+  parent: urn:uuid:34d4edbc-6c0f-4e49-87d1-b1246559636e
+  uri: urn:uuid:66495640-a931-4d7c-98d4-dd3e50747eb7
+- name: Neoplasms
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:025bd5e6-158c-406c-8ae3-630ce7490aac
+- name: Nephrology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:74b668cc-5d89-4075-89e3-146a00027ef8
+- name: Nervous System
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:d9462f89-0e88-4d3d-bbe3-414fef2a9658
+- name: Nervous System Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:315bef69-9dfa-4878-b9d7-7186cb7d1833
+- name: Neurology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:9d2faa55-f6da-4817-8d10-0d215b6d6ad3
+- name: Neuroscience and Neurobiology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:3d2bf0ec-9d44-44ba-abcd-420d325792fc
+- name: Neurosciences
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:cc4658b1-f06a-4c93-b7e1-b8020b1daa25
+- name: New Religious Movements
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:2de16ca6-d4d3-4e2a-8457-8068dcf6c123
+- name: Non-linear Dynamics
+  parent: urn:uuid:7e085c37-9923-4279-842f-ad4628ff6c54
+  uri: urn:uuid:455eba70-f3d9-406f-becf-ceede20499c3
+- name: Nonfiction
+  parent: urn:uuid:8c592181-6f45-4f55-9794-5fae47afd20f
+  uri: urn:uuid:beff69c8-487c-4045-a063-5659679c2fd3
+- name: Nonprofit Administration and Management
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:de12487b-a311-4850-8f22-8d2668dabe88
+- name: Nonprofit Organizations Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:061de061-b24c-4af0-a152-bf6648bd6de4
+- name: Nuclear
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:945d96a8-03c5-4d93-a508-766195a32271
+- name: Nuclear Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:f22ea79f-8159-4af8-a921-88878b287190
+- name: Nucleic Acids, Nucleotides, and Nucleosides
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:a88825fb-a9f4-4739-a587-07ff46ca284f
+- name: Number Theory
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:1111eed5-8ec4-4af1-99ec-67a95692e778
+- name: Numerical Analysis and Computation
+  parent: urn:uuid:7e085c37-9923-4279-842f-ad4628ff6c54
+  uri: urn:uuid:05728e3f-dae9-4a14-aac2-e51cf1ccba11
+- name: Numerical Analysis and Scientific Computing
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:21a35afd-2c8a-4523-b3a7-5607989345ab
+- name: Nursing
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+- name: Nursing Administration
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:76afa97e-b71c-469c-99c1-481d485b200c
+- name: Nursing Midwifery
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:bebbd125-8bd8-4a5c-8950-43baccb00488
+- name: Nutrition
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:2aca1076-b575-4b80-9f9b-3b34411112f6
+- name: Nutritional Epidemiology
+  parent: urn:uuid:2aca1076-b575-4b80-9f9b-3b34411112f6
+  uri: urn:uuid:8b397977-a5e9-493f-b066-c9fcad7e2252
+- name: Nutritional and Metabolic Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:a7e9496b-5c6a-4758-a2b7-6159370ac1bd
+- name: OS and Networks
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:ca6b49f7-fcfd-4a05-aa76-b65c4f39ddd2
+- name: Obstetrics and Gynecology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:10d3f23d-c76d-4937-92ba-1a94806805f4
+- name: Occupational Health and Industrial Hygiene
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:5e885042-9671-44a4-8b7c-d7635ef46bb2
+- name: Occupational Therapy
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:da71edbe-6904-4d1f-879c-d0421db8ad03
+- name: Occupational and Environmental Health Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:661d79b8-2542-470a-a724-3acc7c0d3bc2
+- name: Ocean Engineering
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:3ea65028-8da4-40e1-a5af-23a35c45f921
+- name: Oceanography
+  parent: urn:uuid:81c615ea-af63-4f5f-b08b-0dee20487663
+  uri: urn:uuid:dc932117-95af-4367-bfa3-4e74599178eb
+- name: Oceanography and Atmospheric Sciences and Meteorology
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:81c615ea-af63-4f5f-b08b-0dee20487663
+- name: Oil, Gas, and Energy
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:a055a582-4421-494a-87e1-4acac45c1094
+- name: Oil, Gas, and Mineral Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:1dd68e66-5325-4ea6-9f96-92b897bda2ec
+- name: Oncology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:d5f31e9e-6546-49f3-a549-eab62cb2b6ff
+- name: Online and Distance Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:59f26ed3-d27e-40cd-b9e9-7ed34ed5f943
+- name: Operational Research
+  parent: urn:uuid:2b7ed2f7-2050-4b0e-b726-1b78bad201ef
+  uri: urn:uuid:0db42ad5-965e-43d9-966b-0b13f2c9d5f4
+- name: Operations Research, Systems Engineering and Industrial Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:2b7ed2f7-2050-4b0e-b726-1b78bad201ef
+- name: Operations and Supply Chain Management
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:5af91e0a-8019-4eed-ba73-f275b768044f
+- name: Ophthalmology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:8ad824d4-d627-47af-8a9a-e4b4a381a06f
+- name: Optics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:5ec57818-9fa8-4be7-878b-dd55016b3958
+- name: Optometry
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:1c07a5f9-8dd7-4e8d-b6b9-84e3e0347495
+- name: Oral Biology and Oral Pathology
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:766706e2-ef22-4d2c-9bf5-d735df344699
+- name: Oral History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:755bc12d-6b10-4072-9112-0b518ebd4d1b
+- name: Oral and Maxillofacial Surgery
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:6efc3f40-9bf6-4d21-b540-2ac24bbfe7f3
+- name: Ordinary Differential Equations and Applied Dynamics
+  parent: urn:uuid:7e085c37-9923-4279-842f-ad4628ff6c54
+  uri: urn:uuid:3085bb07-72ad-405c-9db7-ee14f635df17
+- name: Organic Chemicals
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:36a1ff76-fd8f-4873-89a4-da68fda9af54
+- name: Organic Chemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:f236030b-06b6-4d3c-ab67-65bc95f52d32
+- name: Organismal Biological Physiology
+  parent: urn:uuid:546cac76-40c8-42eb-8492-0e6d82c73e91
+  uri: urn:uuid:50fd53cd-1aee-41ee-a7f6-b54692002486
+- name: Organisms
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:ae147158-13ce-4d56-847a-5b73c7f9d59a
+- name: Organization Development
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:234b97b4-f52c-4859-9d76-894abb2394d8
+- name: Organizational Behavior and Theory
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:62ca8538-6d2e-4bcf-baf0-883f923ed278
+- name: Organizational Communication
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:9ba87813-aeab-44de-9dc2-d145a71c76a3
+- name: Organizations Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:eabe79c7-5eb6-40ed-85e6-f21d68d19d82
+- name: Ornithology
+  parent: urn:uuid:9ce6a076-3991-4024-85a4-c1c54b17b127
+  uri: urn:uuid:6749bf91-56cd-41c3-b69c-da20b318a4c5
+- name: Orthodontics and Orthodontology
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:10f4156b-2b38-49ca-87e1-84ed595944f7
+- name: Orthopedics
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:c378ebec-9d7d-4b4c-bb2c-f7d83226c9c4
+- name: Orthotics and Prosthetics
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:5466b6e7-2ab8-4f26-bf89-793aa8a3ecf8
+- name: Osteopathic Medicine and Osteopathy
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:24814d4f-f5b7-4a98-926b-0be6f3bbe0ff
+- name: Other Aerospace Engineering
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:6ccf3c2e-2cea-443c-8c4e-ad61f49eda9f
+- name: Other American Studies
+  parent: urn:uuid:35a39a1e-934d-4bbb-9a5b-77566e45ed06
+  uri: urn:uuid:c213a1fe-c830-4874-a458-a94d86bdfb38
+- name: Other Analytical, Diagnostic and Therapeutic Techniques and Equipment
+  parent: urn:uuid:913f9a6f-9758-472f-b23a-3d511cf40265
+  uri: urn:uuid:4b8b3c80-eaa4-4d45-8e56-bb07253c48ec
+- name: Other Animal Sciences
+  parent: urn:uuid:9ce6a076-3991-4024-85a4-c1c54b17b127
+  uri: urn:uuid:6189e085-0b03-41bb-96b8-628bd8366249
+- name: Other Anthropology
+  parent: urn:uuid:72009f3f-108d-4d8a-bc79-99090e937e14
+  uri: urn:uuid:2b7767a5-67ee-42f6-8b44-5c760b38b164
+- name: Other Applied Mathematics
+  parent: urn:uuid:7e085c37-9923-4279-842f-ad4628ff6c54
+  uri: urn:uuid:04c8b53f-dd22-4c06-aabc-e5830e97c182
+- name: Other Architecture
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:04882a3c-ddbc-4765-95c2-5ea1d0f5f42b
+- name: Other Arts and Humanities
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:158054b2-2ddb-42f6-8979-e6ca95d5af6c
+- name: Other Astrophysics and Astronomy
+  parent: urn:uuid:9004bc06-583e-4304-9fca-00261247d1d9
+  uri: urn:uuid:300ffd7f-78e9-4fa1-8a87-7ee1eb9ac058
+- name: Other Biochemistry, Biophysics, and Structural Biology
+  parent: urn:uuid:55043e06-60e4-4cb2-826b-e516bbdd56da
+  uri: urn:uuid:0a4a7474-b1e5-4aba-8450-6937a23a9eaa
+- name: Other Biomedical Engineering and Bioengineering
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:329a2af4-b888-4820-b680-5d3090339298
+- name: Other Business
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:4b34769c-0aeb-48f7-86b7-bc3431fdcef6
+- name: Other Cell and Developmental Biology
+  parent: urn:uuid:e2a22971-4f63-4f1c-b1f6-339f8da23e66
+  uri: urn:uuid:8b2d1968-8ef5-4af6-a74d-26cd548a3f6f
+- name: Other Chemical Engineering
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:fc07d2ec-556a-4027-993f-89ca0609503a
+- name: Other Chemicals and Drugs
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:5af753ca-a3fd-46e6-8ac4-097862db8c0e
+- name: Other Chemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:518ba597-1dce-4c2c-b55b-8fd468fb0627
+- name: Other Civil and Environmental Engineering
+  parent: urn:uuid:71b22a95-4b0d-43e5-961f-cc5b9d4b079b
+  uri: urn:uuid:6f7729c6-85c8-436d-9c91-82fb937dd087
+- name: Other Classics
+  parent: urn:uuid:83934380-bc43-4cca-bcee-1f75a2a804ae
+  uri: urn:uuid:3d3b6299-a243-418c-86bb-a3141c6367c2
+- name: Other Communication
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:c296fbac-8cca-48bb-8c96-2acef158bc0a
+- name: Other Computer Engineering
+  parent: urn:uuid:44a3aaa6-ad60-428f-b8e8-cf80720f3042
+  uri: urn:uuid:d9c967ef-da78-4d7f-8aca-72bcdeb3e394
+- name: Other Computer Sciences
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:0cfe4ed9-9ecc-4634-8fa5-69235b6d27ac
+- name: Other Dentistry
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:f303d080-ce1b-44b8-90c1-feac9d54c92c
+- name: Other Earth Sciences
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:c0b290fe-ed9c-4b98-b0b7-fca7bbfa11f2
+- name: Other Ecology and Evolutionary Biology
+  parent: urn:uuid:1f7b9364-59d4-437a-b98e-7037421850ec
+  uri: urn:uuid:cfe83fd2-5b57-4fd3-9f96-8f49ebc6fa9b
+- name: Other Economics
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:7134d791-ff4f-4a01-8b8e-8162547ffeb4
+- name: Other Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:2eb64b72-d986-4a04-8880-e39c378c131e
+- name: Other Educational Administration and Supervision
+  parent: urn:uuid:945ca0d1-7c99-4b6e-a549-a8e6d015a889
+  uri: urn:uuid:6bb466e6-dff7-40b3-a06b-c95ec5f18e99
+- name: Other Electrical and Computer Engineering
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:f0d80887-6f71-4110-85f5-d2c285b1288e
+- name: Other Engineering
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:d8738fe2-ff70-427b-bfc1-a93e19e87d4f
+- name: Other Engineering Science and Materials
+  parent: urn:uuid:13d0c84c-afd5-49b6-8336-184e62d25750
+  uri: urn:uuid:d178e1cf-62f3-44bb-ad7c-8f2ee07976e6
+- name: Other English Language and Literature
+  parent: urn:uuid:cf47b4c8-d59b-45cd-8d2b-6058e91b9b72
+  uri: urn:uuid:f3e848be-131b-4e5b-958f-8c736fc5d328
+- name: Other Environmental Sciences
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:ef0e025d-f374-453c-a601-e2dad2f74556
+- name: Other Feminist, Gender, and Sexuality Studies
+  parent: urn:uuid:773bb11a-da7a-4491-9016-cbe20f2530bf
+  uri: urn:uuid:80d3508a-743d-45a2-af12-21d292a8b806
+- name: Other Film and Media Studies
+  parent: urn:uuid:3f41d200-6e45-4452-ad8e-00836360e37c
+  uri: urn:uuid:9d89bd8b-500b-45c0-930d-70943317471b
+- name: Other Food Science
+  parent: urn:uuid:d300c479-cbff-4416-acb7-eb3d25757e3d
+  uri: urn:uuid:6e002f79-d187-4a83-a757-5a840388fcc2
+- name: Other Forestry and Forest Sciences
+  parent: urn:uuid:22c4c975-37b3-4194-8aa2-1707b6fc2d1e
+  uri: urn:uuid:5c5669ea-67cb-481d-8c5b-5f559a06d671
+- name: Other French and Francophone Language and Literature
+  parent: urn:uuid:cef9f7f7-df34-4f73-85f5-eef0c4dbc921
+  uri: urn:uuid:e65cb5ae-92b1-4707-93cc-b77dc43b0e5b
+- name: Other Genetics and Genomics
+  parent: urn:uuid:25339085-76d5-48bd-9c0f-dbfc130ce513
+  uri: urn:uuid:82440db0-1d77-4977-8e38-94d6e32d937e
+- name: Other Geography
+  parent: urn:uuid:bb9c3287-5f5b-477e-8d23-53721840b9ef
+  uri: urn:uuid:c1ef3db5-7ca1-49ac-96ed-b54f8b16bc9d
+- name: Other German Language and Literature
+  parent: urn:uuid:8e40cc6a-c18f-423d-a4c6-85eb3b5c7fbf
+  uri: urn:uuid:788e5c51-8b8a-4145-b31e-5da92aee25f7
+- name: Other History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:3f492cd3-152c-433a-afb1-e356b3555c28
+- name: Other History of Art, Architecture, and Archaeology
+  parent: urn:uuid:66840b09-72bd-4f79-84fa-49d679473b2f
+  uri: urn:uuid:2baf492f-d78c-4df2-80f4-690d5a91a266
+- name: Other Immunology and Infectious Disease
+  parent: urn:uuid:cca5e519-753e-4d70-bbd1-d33bf6fa6249
+  uri: urn:uuid:c9e86505-50ed-4430-8ef6-ae462e171f4d
+- name: Other International and Area Studies
+  parent: urn:uuid:34d4edbc-6c0f-4e49-87d1-b1246559636e
+  uri: urn:uuid:3c9a329f-e6c0-4937-878b-f4752f431ad0
+- name: Other Italian Language and Literature
+  parent: urn:uuid:e0022605-7782-40ba-aaae-5a1304251c18
+  uri: urn:uuid:d60ea110-bfab-4ca7-b7a3-ec892892e086
+- name: Other Kinesiology
+  parent: urn:uuid:e4984540-dfdb-4a67-a365-d2ac6101cb2b
+  uri: urn:uuid:708a4b03-18b4-4db1-82c4-077ead1c1eaa
+- name: Other Languages, Societies, and Cultures
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:9e5f53fa-685e-4380-9bfb-4c76a0a411bc
+- name: Other Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:501d6609-3917-40f9-a8bb-c15068dd05cd
+- name: Other Legal Studies
+  parent: urn:uuid:ec40757c-d850-41a9-9231-d69e8af2dbd4
+  uri: urn:uuid:599ca3f9-340d-4c1e-9bdc-90d8c44d0422
+- name: Other Life Sciences
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:6b9e2d68-9005-4d3b-a115-da8768795e20
+- name: Other Linguistics
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:4e78469d-e8ee-4114-8972-6bea69bdb86f
+- name: Other Materials Science and Engineering
+  parent: urn:uuid:0c11fccd-6999-4e9f-9e53-653952fa7546
+  uri: urn:uuid:5e45807b-8b8c-4505-8e42-99b88b00840e
+- name: Other Mathematics
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:f8b88b9f-5eab-4e5e-9798-1c9efc326e12
+- name: Other Mechanical Engineering
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:ec166918-e1a7-4237-b3fe-c3761e852a68
+- name: Other Medical Sciences
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:5fd76b8d-f494-491a-a1ff-e6c75b8325a3
+- name: Other Medical Specialties
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:75474eb8-8e3a-4faf-82ed-1bc08fe71340
+- name: Other Medicine and Health Sciences
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:f78937ad-f402-4d05-9301-320d5e4a6078
+- name: Other Mental and Social Health
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:b99dddf6-114d-480b-9f44-b8bc45c53204
+- name: Other Microbiology
+  parent: urn:uuid:546cac76-40c8-42eb-8492-0e6d82c73e91
+  uri: urn:uuid:ff1ee8e6-c843-43af-b7cc-0be24a0093b7
+- name: Other Music
+  parent: urn:uuid:210af632-8c63-4ed8-8153-3d038092e2fe
+  uri: urn:uuid:85c4c797-3848-4113-8f77-6b60e40a8472
+- name: Other Neuroscience and Neurobiology
+  parent: urn:uuid:3d2bf0ec-9d44-44ba-abcd-420d325792fc
+  uri: urn:uuid:7e16d88f-e6ea-4f7f-b658-2770f81ec8fb
+- name: Other Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:44c30d8f-424f-4d2b-bce1-cbc23d938e2b
+- name: Other Nutrition
+  parent: urn:uuid:2aca1076-b575-4b80-9f9b-3b34411112f6
+  uri: urn:uuid:7254f064-24c0-4221-9175-f6b940c10d3b
+- name: Other Oceanography and Atmospheric Sciences and Meteorology
+  parent: urn:uuid:81c615ea-af63-4f5f-b08b-0dee20487663
+  uri: urn:uuid:a92beb6c-1d43-40f9-93ab-679f0dc4a48a
+- name: Other Operations Research, Systems Engineering and Industrial Engineering
+  parent: urn:uuid:2b7ed2f7-2050-4b0e-b726-1b78bad201ef
+  uri: urn:uuid:64c5fff4-70fa-4801-8c4f-525cf4f79c55
+- name: Other Pharmacology, Toxicology and Environmental Health
+  parent: urn:uuid:3012a0ab-c24b-4639-9534-b0acfbc8a87c
+  uri: urn:uuid:09c3aaf8-e06f-435e-a476-04bdf26da5c3
+- name: Other Pharmacy and Pharmaceutical Sciences
+  parent: urn:uuid:ca4b9c39-0c6c-4c8e-aa30-26e9f86a0e99
+  uri: urn:uuid:80513d1e-8fc2-45c0-a914-74be7ca6e495
+- name: Other Philosophy
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:f20db0b8-ffac-424d-8480-32f675abf9d3
+- name: Other Physical Sciences and Mathematics
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:952828c7-fd64-4c64-ad50-7b60e3313ba1
+- name: Other Physics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:a85d3b6c-b6eb-40d6-a75d-25b2e950c3d5
+- name: Other Physiology
+  parent: urn:uuid:e38b5d90-d470-430b-b36f-395e9600e34c
+  uri: urn:uuid:9512354d-b933-4cea-8a2f-46e4d6bbcb39
+- name: Other Plant Sciences
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:3356b80f-d42d-4b22-b194-3e88bf07f3b7
+- name: Other Political Science
+  parent: urn:uuid:231ca525-7996-42a4-8505-2da8904b4fcd
+  uri: urn:uuid:22fc2fac-f7e2-465c-b9e6-8f6740626c77
+- name: Other Psychiatry and Psychology
+  parent: urn:uuid:2fd64900-c22e-4f8b-adf7-b53b06c5527b
+  uri: urn:uuid:a5de2893-2a7f-4c5d-b175-6a44e73f4894
+- name: Other Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:8d74f3b9-317f-462f-b4fe-5e51d2571b79
+- name: Other Public Affairs, Public Policy and Public Administration
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:ce0545b7-506e-4a0e-901c-0809fc62401f
+- name: Other Public Health
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:186072f4-698c-40aa-a1fe-ec83086f5b1b
+- name: Other Rehabilitation and Therapy
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:f09c4b3a-c761-4b33-975f-fe42e6a07f60
+- name: Other Religion
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:fb149ad7-d9ee-4d3f-b3aa-f2042921fb0b
+- name: Other Rhetoric and Composition
+  parent: urn:uuid:0112dafe-af5d-4dd3-86d4-b0a0365336dc
+  uri: urn:uuid:da08bd1a-f394-4f21-8fb6-c08b26d66dae
+- name: Other Social and Behavioral Sciences
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:136f18f7-3c29-4c09-9d84-9e5b6f4ce358
+- name: Other Sociology
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:4419f84a-4b51-48dc-8afa-3a370b5eb02a
+- name: Other Spanish and Portuguese Language and Literature
+  parent: urn:uuid:eca8220b-080c-4caa-a958-f589e1060a60
+  uri: urn:uuid:8bb57ae3-1236-4594-a80e-0c2dafad985c
+- name: Other Statistics and Probability
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:b5e28238-7036-46d4-8bdc-267f45d91c8f
+- name: Other Teacher Education and Professional Development
+  parent: urn:uuid:fae321a4-1ea9-4ddc-a15f-660131b7d26f
+  uri: urn:uuid:1ed8f206-1990-499f-8c1a-4295ed36e9d9
+- name: Other Theatre and Performance Studies
+  parent: urn:uuid:e80d958a-7075-4edb-9853-0df61d274916
+  uri: urn:uuid:4230a537-957a-4ce8-9d97-3167aed97c71
+- name: Other Veterinary Medicine
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:833ade33-b678-41e2-a45d-9ed7f1076691
+- name: Otolaryngology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:e2c86433-0dd7-4f5c-a64c-2ea990eff18d
+- name: Otorhinolaryngologic Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:251da0bc-8fda-4999-9a35-d26c58468e39
+- name: Outdoor Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:c19e6548-f98d-4824-8bf7-ca465c842696
+- name: Pacific Islands Languages and Societies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:c9e1119c-4049-4c58-a9c6-bf31d084ce78
+- name: Pain Management
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:0d1f29e9-10af-48a1-8de8-8cf070caa3d5
+- name: Painting
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:4195708e-eff7-47dd-9316-fbd7775630aa
+- name: Paleobiology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:6b7086ba-d5c0-4e16-bcbe-21f72354a0c5
+- name: Paleontology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:8f44d0aa-3abf-4da0-ab03-4f7369d024f0
+- name: Palliative Care
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:a4e5939b-d9d5-4875-af4d-efb5a19d0261
+- name: Parasitic Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:d1604e1f-ac05-4805-9d97-b4d1f3e11b7b
+- name: Parasitology
+  parent: urn:uuid:cca5e519-753e-4d70-bbd1-d33bf6fa6249
+  uri: urn:uuid:1f69cef4-6f78-460b-8215-f83ded9a5da9
+- name: Partial Differential Equations
+  parent: urn:uuid:7e085c37-9923-4279-842f-ad4628ff6c54
+  uri: urn:uuid:f3100781-2000-429c-9867-bde755ca0696
+- name: Pathogenic Microbiology
+  parent: urn:uuid:546cac76-40c8-42eb-8492-0e6d82c73e91
+  uri: urn:uuid:268035b1-4340-4ecc-9769-eeb96569a42c
+- name: Pathological Conditions, Signs and Symptoms
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:98a5b148-67c2-4de2-a651-c8a7a5596074
+- name: Pathology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:dcde9e86-5282-41f9-876d-96fc917856dc
+- name: Peace and Conflict
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:dd8e6165-e880-4efb-a022-b4035e1a79f6
+- name: Pediatric Dentistry and Pedodontics
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:9724c411-c56c-47ec-b664-1d216652f318
+- name: Pediatric Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:db0bab78-87b5-4e54-87fc-bb66e0eec20c
+- name: Pediatrics
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:d51e4708-d906-4565-9e3a-b91a3057b5c3
+- name: Performance Management
+  parent: urn:uuid:bb242dfa-276f-4f0e-af8a-24c2a1d693a9
+  uri: urn:uuid:e0f09b3f-e035-4cc6-a610-961593cada9a
+- name: Performance Studies
+  parent: urn:uuid:e80d958a-7075-4edb-9853-0df61d274916
+  uri: urn:uuid:cce5d7a8-c1ee-4aca-8ccc-315806debd09
+- name: Periodontics and Periodontology
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:185a52bf-b545-463f-b9d0-78a51235f794
+- name: Perioperative, Operating Room and Surgical Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:f2b95ca4-cd86-47bf-9be0-9e0790f5cf4b
+- name: Personality and Social Contexts
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:c545f258-c91f-445c-8fae-95172c299d74
+- name: Petroleum Engineering
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:22cae0b0-99a3-47f4-be90-6c05782cbb8a
+- name: Pharmaceutical Preparations
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:c7b71cbd-df7c-497c-accb-2128c9d0afa8
+- name: Pharmaceutics and Drug Design
+  parent: urn:uuid:ca4b9c39-0c6c-4c8e-aa30-26e9f86a0e99
+  uri: urn:uuid:b84886b0-05bf-4d24-a83a-071120bcf045
+- name: Pharmacoeconomics and Pharmaceutical Economics
+  parent: urn:uuid:ca4b9c39-0c6c-4c8e-aa30-26e9f86a0e99
+  uri: urn:uuid:952bbd72-391a-40c1-9438-04fe55f0e1e8
+- name: Pharmacology
+  parent: urn:uuid:3012a0ab-c24b-4639-9534-b0acfbc8a87c
+  uri: urn:uuid:153099b7-01af-4599-a43b-f30c19f8a75f
+- name: Pharmacology, Toxicology and Environmental Health
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:3012a0ab-c24b-4639-9534-b0acfbc8a87c
+- name: Pharmacy Administration, Policy and Regulation
+  parent: urn:uuid:ca4b9c39-0c6c-4c8e-aa30-26e9f86a0e99
+  uri: urn:uuid:449ed79a-935f-44f5-ae62-ef7c2ca0dc44
+- name: Pharmacy and Pharmaceutical Sciences
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:ca4b9c39-0c6c-4c8e-aa30-26e9f86a0e99
+- name: Philosophy
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+- name: Philosophy of Language
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:8b10c5f4-51dd-4b80-9d4c-72f8816aca22
+- name: Philosophy of Mind
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:52a38aa0-cb5f-4a6b-be32-57b655b12636
+- name: Philosophy of Science
+  parent: urn:uuid:9d50fc2f-fece-410e-abd7-256a6a29c9ef
+  uri: urn:uuid:093f9a23-a963-4b2b-93fc-1f2b7be79239
+- name: Phonetics and Phonology
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:74737812-80e5-4f38-876f-5807ad05d65d
+- name: Photography
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:be84d67a-6d52-40b4-85e5-1c5699420ddc
+- name: Physical Chemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:262ef973-7be5-48f5-a40a-31e717c156ab
+- name: Physical Processes
+  parent: urn:uuid:9004bc06-583e-4304-9fca-00261247d1d9
+  uri: urn:uuid:9042741c-3bcd-4114-8258-462010f67b78
+- name: Physical Sciences and Mathematics
+  parent: null
+  uri: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+- name: Physical Therapy
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:19914bb3-ebec-4c3e-b866-e5a10516921b
+- name: Physical and Environmental Geography
+  parent: urn:uuid:bb9c3287-5f5b-477e-8d23-53721840b9ef
+  uri: urn:uuid:3025b159-e19b-472d-842a-53f84f2c0ae6
+- name: Physics
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+- name: Physiological Processes
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:0b1c25df-34b0-4a2f-b561-0755fe0a2ebf
+- name: Physiology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:e38b5d90-d470-430b-b36f-395e9600e34c
+- name: Physiotherapy
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:41c705fb-a8b6-40e3-b1a9-a4277e4069e4
+- name: Place and Environment
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:39ca3fd4-c967-4425-be42-c7b5e9c4eeb7
+- name: Plant Biology
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:cf7c255b-4fad-488d-9e02-c14bedadb326
+- name: Plant Breeding and Genetics Life Sciences
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:3243711a-b112-474c-b0cf-7ba4d8f3e968
+- name: Plant Pathology
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:dabbe2eb-6c80-47b4-a1fb-cb915ab323b2
+- name: Plant Sciences
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+- name: Plants
+  parent: urn:uuid:ae147158-13ce-4d56-847a-5b73c7f9d59a
+  uri: urn:uuid:f94b7a42-fbad-4f7b-ab0c-3f8c029d8b6b
+- name: Plasma and Beam Physics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:e2bc8337-0273-41a2-a9fe-ec8d3c754a04
+- name: Plastic Surgery
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:32cde2ae-4b37-4ea7-9baa-b17f18666517
+- name: Playwriting
+  parent: urn:uuid:e80d958a-7075-4edb-9853-0df61d274916
+  uri: urn:uuid:3b9219ff-2fda-455e-8d03-f494fcc8330b
+- name: Podiatry
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:4e3f88c2-7a1c-461e-a25e-8855e4fc555a
+- name: Poetry
+  parent: urn:uuid:8c592181-6f45-4f55-9794-5fae47afd20f
+  uri: urn:uuid:6fcbe1c3-321e-4f47-8e5a-13516c4c6f7e
+- name: Policy Design, Analysis, and Evaluation
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:3bd270a2-8627-4dfc-a794-e99f8ef064d6
+- name: Policy History, Theory, and Methosd
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:dad487cc-ebb3-45f1-abbd-29d44062aca4
+- name: Political Economy
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:f904c83d-9366-4a5c-967c-71ea56380102
+- name: Political History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:42aa686c-90e2-43cd-9781-18e08a3845b4
+- name: Political Science
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:231ca525-7996-42a4-8505-2da8904b4fcd
+- name: Political Theory
+  parent: urn:uuid:231ca525-7996-42a4-8505-2da8904b4fcd
+  uri: urn:uuid:ded189e9-eb2a-4139-8af9-cacf96fea69c
+- name: Politics and Social Change
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:6c2724b7-9984-4c68-8410-e36a4d877dc9
+- name: Polycyclic Compounds
+  parent: urn:uuid:a83730f4-287b-4de1-be8c-f8e0e67f5716
+  uri: urn:uuid:c9c22689-c492-42af-96e3-418b0940b0f7
+- name: Polymer Chemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:81df222a-8909-4180-9e40-3d85d6bc4c4e
+- name: Polymer Science
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:1df9fec9-7094-4a75-a9f3-759b4c090529
+- name: Polymer and Organic Materials
+  parent: urn:uuid:0c11fccd-6999-4e9f-9e53-653952fa7546
+  uri: urn:uuid:063f21e7-281a-4f85-98ed-451e58f1a9d7
+- name: Polynesian Studies
+  parent: urn:uuid:c9e1119c-4049-4c58-a9c6-bf31d084ce78
+  uri: urn:uuid:78f8316b-a3ad-418b-bcb9-88ab4d73703c
+- name: Population Biology
+  parent: urn:uuid:1f7b9364-59d4-437a-b98e-7037421850ec
+  uri: urn:uuid:b6184b54-7add-49ce-b9ac-800e8ea4c5ae
+- name: Portfolio and Security Analysis
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:b5e03000-7c42-4783-bd42-eb26a0520f91
+- name: Portuguese Literature
+  parent: urn:uuid:eca8220b-080c-4caa-a958-f589e1060a60
+  uri: urn:uuid:1b68fba0-92dd-44d4-8352-89533cccd479
+- name: Poultry or Avian Science
+  parent: urn:uuid:9ce6a076-3991-4024-85a4-c1c54b17b127
+  uri: urn:uuid:e1e0b829-eab5-43fe-b018-7d8a0775f452
+- name: Power and Energy
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:3902114a-6536-4e4b-9f5e-1533155a61ae
+- name: Practical Theology
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:9919def7-db38-4ae1-95d1-ac938d93f3d1
+- name: Pre-Elementary, Early Childhood, Kindergarten Teacher Education
+  parent: urn:uuid:fae321a4-1ea9-4ddc-a15f-660131b7d26f
+  uri: urn:uuid:691292d5-a4cb-4d97-af46-3691fd6a6ef6
+- name: President/Executive Department
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:84e4c6c0-0398-4c1a-8fd8-87d44004c91d
+- name: Preventive Medicine
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:cc2b3311-0cb4-49e6-b344-a3fc89168a84
+- name: Primary Care
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:7a1cdc17-7561-4c18-958a-385fb7feda2a
+- name: Printmaking
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:8d2d038f-fc4d-41f1-a0cb-ce7c3427eca5
+- name: Privacy Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:f781e14b-ad87-4615-ade5-04243fc7886e
+- name: Probability
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:2e9f2bdb-c8bf-464b-9cd1-157807384c2b
+- name: Process Control and Systems
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:2a8812b0-4ae8-4954-baeb-e1406bb45094
+- name: Programming Languages and Compilers
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:19fa74a1-89c2-4e03-b5dc-0dcd7d5659c1
+- name: Property Law and Real Estate
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:eba5d88c-fd29-41e6-8d6f-b25ab3b6b041
+- name: Propulsion and Power
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:8b2ae22a-a942-4bc2-9597-81bb3370d930
+- name: Prosthodontics and Prosthodontology
+  parent: urn:uuid:b7e3f2b0-7fbe-43eb-95b1-770c04a9bd61
+  uri: urn:uuid:35a241cd-0aa2-42b5-b2d2-259f4e78b2c9
+- name: Psychiatric and Mental Health
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:e1c39f46-a7c4-4b70-8156-0b3653853206
+- name: Psychiatric and Mental Health Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:316adafc-168e-4ebb-a55e-6914f01e7c48
+- name: Psychiatry
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:c172d2c9-7cba-414a-ab70-24bb36e566b9
+- name: Psychiatry and Psychology
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:2fd64900-c22e-4f8b-adf7-b53b06c5527b
+- name: Psychoanalysis and Psychotherapy
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:ccb551b8-5b38-415b-9886-0f6e4e4fc90d
+- name: Psycholinguistics and Neurolinguistics
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:13601f88-7092-45fd-b90e-372a909e5cc3
+- name: Psychological Phenomena and Processes
+  parent: urn:uuid:2fd64900-c22e-4f8b-adf7-b53b06c5527b
+  uri: urn:uuid:b1e60bfa-922b-42e4-9a8d-926f36e07262
+- name: Psychology
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+- name: Psychology of Movement
+  parent: urn:uuid:e4984540-dfdb-4a67-a365-d2ac6101cb2b
+  uri: urn:uuid:b481b9d8-c56d-4e8e-87ff-8ee3e52747ac
+- name: Public Administration
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:4c174776-b494-4b92-bbe9-fef7735e1fc6
+- name: Public Affairs
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:a44fd443-06ad-4b41-bbaa-02a450141de1
+- name: Public Affairs, Public Policy and Public Administration
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+- name: Public Economics
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:555a3e53-4912-4835-9e92-b40caf95278d
+- name: Public Health
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+- name: Public Health Education and Promotion
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:e1f38c8b-fa62-4347-b6e2-dff4668cc85c
+- name: Public Health and Community Nursing
+  parent: urn:uuid:a3c7cd71-8a25-4af4-b833-7a7bf41e8e3c
+  uri: urn:uuid:b3b7d9c4-4dda-4985-9bae-48cfde974ec7
+- name: Public History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:36218968-1641-4435-87ce-32aefba90873
+- name: Public Law and Legal Theory
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:f86675e2-715e-4e2e-a633-fdb4c2b52b03
+- name: Public Policy
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:ed916736-1bb4-4b7a-b6ab-4176f2485217
+- name: Public Relations and Advertising
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:0d9efb64-e1f3-4fe3-8dd4-277dea90ea29
+- name: Publishing
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:02d4577b-1c0b-49d7-8d08-995abad9b22f
+- name: Pulmonology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:d7bc6acf-8d08-4ce4-a83e-09fe80548039
+- name: Quantitative Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:693189ce-4682-45f1-a423-7caeea2db334
+- name: Quantitative, Qualitative, Comparative, and Historical Methodologies
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:ca7f2791-d030-47cf-8b0e-0fa39ee4b2aa
+- name: Quantum Physics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:96fd2e05-8a6a-4723-979b-cffe1a85c093
+- name: Race and Ethnicity
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:4842d900-556d-46da-829f-1ef6bba672aa
+- name: Race, Ethnicity and Post-Colonial Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:1ac7a388-258e-43da-a5d5-ea33b63a2a0a
+- name: Radio
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:c1a02e1c-69e2-4389-87bd-46510ebf2d47
+- name: Radiochemistry
+  parent: urn:uuid:97adb7cf-6282-419d-a8bc-25d7115b9096
+  uri: urn:uuid:f3d8c6bf-4eeb-4eae-a9ef-132ff9f1134f
+- name: Radiology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:3f06452a-39f9-4798-996a-d51efc5d4d15
+- name: Reading and Language
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:b47d3107-c179-46ea-aa9c-be54e5b64d09
+- name: Real Estate
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:9e1a9f1d-bf71-4817-9f1c-9aec02113673
+- name: Recreation Business
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:b77f7914-6c6d-4ce2-953a-71ec2358b7d9
+- name: Recreation, Parks and Tourism Administration
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:21453045-48b2-4fe5-b809-0e909af9a5e2
+- name: Recreational Therapy
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:6dfc361b-6d4b-4453-8c37-5b7365eb77fb
+- name: Regional Economics
+  parent: urn:uuid:c218650e-1443-461f-b23e-2ec74f3efb41
+  uri: urn:uuid:ef01f3aa-7b26-47d0-b197-037bcf7ab367
+- name: Regional Sociology
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:474ce749-0294-4dc3-8093-4c628b57b1b6
+- name: Rehabilitation and Therapy
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+- name: Religion
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+- name: Religion Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:23d307c1-6a6c-4412-8db6-43fdb97a9ac2
+- name: Religious Thought, Theology and Philosophy of Religion
+  parent: urn:uuid:b75ddf65-2047-40ec-91c3-a9bfdc81bbc0
+  uri: urn:uuid:8282a96a-6b14-4e26-9b8f-3e8ae7b8a0e6
+- name: Remote Sensing
+  parent: urn:uuid:bb9c3287-5f5b-477e-8d23-53721840b9ef
+  uri: urn:uuid:1e49f874-6ed8-4f5e-a40d-c829a7244cb1
+- name: Reproductive and Urinary Physiology
+  parent: urn:uuid:7d4d9707-0b4a-4458-8f6d-671d2e76fbcb
+  uri: urn:uuid:91004528-15f1-4ef1-b313-b00969a74481
+- name: Research Methods in Life Sciences
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:1f79fa45-0b9c-4649-b64a-2d78682ef25f
+- name: Respiratory System
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:def110eb-01e8-4aab-9ae0-221c0db75e03
+- name: Respiratory Therapy
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:bd598e9b-4b5c-4094-b353-779884c61510
+- name: Respiratory Tract Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:26cd0227-e882-42c7-8824-1f2ef209f66f
+- name: Retirement Security Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:ad7692b6-2fc9-4f9c-a99e-dddb91064c4d
+- name: Rhetoric
+  parent: urn:uuid:0112dafe-af5d-4dd3-86d4-b0a0365336dc
+  uri: urn:uuid:a0855660-fec6-4315-b92b-85ecdf13f38f
+- name: Rhetoric and Composition
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:0112dafe-af5d-4dd3-86d4-b0a0365336dc
+- name: Rheumatology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:801a8b44-73cf-400d-8e9a-dd98852d705e
+- name: Risk Analysis
+  parent: urn:uuid:1792fdd2-c82a-4047-a75c-4c352895a67a
+  uri: urn:uuid:ad730573-8fc6-4151-9560-52415cebf76b
+- name: Robotics
+  parent: urn:uuid:44a3aaa6-ad60-428f-b8e8-cf80720f3042
+  uri: urn:uuid:031807a1-3c0c-4f07-9654-d45785c7512f
+- name: Rule of Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:26946f2e-a8f5-4153-97a9-8b8d7a2b0e2e
+- name: Rural Sociology
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:a6ecd970-2ef7-4908-a5f0-03065be098a6
+- name: Russian Linguistics
+  parent: urn:uuid:0f98cb9c-e643-4249-9cf5-64d4719ba860
+  uri: urn:uuid:82f7ce18-187a-4914-8957-48dd43ba3749
+- name: Russian Literature
+  parent: urn:uuid:0f98cb9c-e643-4249-9cf5-64d4719ba860
+  uri: urn:uuid:21c3cbde-d533-4c1f-b366-0132e77b4283
+- name: Sales and Merchandising
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:2cdb98fe-8770-43ba-9eff-b7c2ce60b75f
+- name: Scandinavian Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:7bf7e2c5-2dff-4da9-830c-088b63d24dd8
+- name: Scholarly Communication
+  parent: urn:uuid:bbeee7b0-f209-4bf8-b4f9-934c1f8b011d
+  uri: urn:uuid:28363f62-d8cc-4c7f-9188-752a99aa6fa8
+- name: Scholarly Publishing
+  parent: urn:uuid:bbeee7b0-f209-4bf8-b4f9-934c1f8b011d
+  uri: urn:uuid:17b3cca1-87e8-4f8e-9567-8b782dd4ed48
+- name: Scholarship of Teaching and Learning
+  parent: urn:uuid:a723c39b-0d55-4f56-977b-799577c5d08e
+  uri: urn:uuid:23da14db-f00b-4862-8150-fb102825f0cb
+- name: School Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:91d8f966-2e26-42ec-a811-527ea9240c85
+- name: Science and Mathematics Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:1b763ea2-619b-4ae7-b2f8-441544504bb3
+- name: Science and Technology Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:8bc6ac28-ee72-4952-aa91-4b5cbb76e7a7
+- name: Science and Technology Policy
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:05bbf861-2858-42e0-adc1-8a9fc7d8d4d4
+- name: Science and Technology Studies
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:559c000d-973f-4b5e-b456-7bc91a7163ab
+- name: Screenwriting
+  parent: urn:uuid:3f41d200-6e45-4452-ad8e-00836360e37c
+  uri: urn:uuid:43877c1a-0fe9-4ca8-805f-568ea097e8b5
+- name: Sculpture
+  parent: urn:uuid:bdbd834d-24e6-4c1f-a812-cfb3a68ecd7e
+  uri: urn:uuid:60ae321b-0802-4016-b97f-af9aa2ceb88d
+- name: Second Amendment
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:8baed44f-9080-4796-8116-493a2f3c8a94
+- name: Secondary Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:2db90996-71bb-4d2d-bf43-0063cea738c1
+- name: Secondary Education and Teaching
+  parent: urn:uuid:fae321a4-1ea9-4ddc-a15f-660131b7d26f
+  uri: urn:uuid:5e21af2f-5b4e-41b6-9a23-1533283ea7ef
+- name: Secured Transactions
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:22109b03-1967-4daa-a7d8-ce89e8606601
+- name: Securities Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:c732cf21-924d-4eb5-967a-61771f86b9a9
+- name: Sedimentology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:5040fce4-4136-4b69-b656-002bd698bbfe
+- name: Semantics and Pragmatics
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:04496ec7-d77b-468e-9f62-7c5de8c0e3ee
+- name: Semiconductor and Optical Materials
+  parent: urn:uuid:0c11fccd-6999-4e9f-9e53-653952fa7546
+  uri: urn:uuid:63fdb373-7b1b-48a5-adf1-38468472b0fa
+- name: Sense Organs
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:bc5752e4-5daf-45e1-89d3-c5f343e616f9
+- name: Service Learning
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:b57f60f0-24a4-49fd-b16f-16844da340b9
+- name: Set Theory
+  parent: urn:uuid:77f14121-5623-4669-b4e2-e0b7d5a59817
+  uri: urn:uuid:30f9098e-262b-434a-81e2-93c00b401916
+- name: Sexuality and the Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:309d44ee-c86d-40f7-b0c2-9b95fc3e701d
+- name: Sheep and Goat Science
+  parent: urn:uuid:9ce6a076-3991-4024-85a4-c1c54b17b127
+  uri: urn:uuid:01bf033f-b070-493c-ad7b-8cbe603597c9
+- name: Signal Processing
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:9f6ccfa2-6495-4dc4-b320-1897231092a4
+- name: Skin and Connective Tissue Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:de7b826f-a972-48a9-91e5-e1c1f407e4fa
+- name: Slavic Languages and Societies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:0f98cb9c-e643-4249-9cf5-64d4719ba860
+- name: Sleep Medicine
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:f651396f-59fa-47ed-8bc1-83cf22458d80
+- name: Small or Companion Animal Medicine
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:511d4adb-0995-4b4f-910d-28b6b85dadf2
+- name: Social Control, Law, Crime, and Deviance
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:fa45bb02-404e-4a5f-8f3e-715032259883
+- name: Social History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:02d0114b-913c-4084-af96-53a937e660e3
+- name: Social Influence and Political Communication
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:6ec608d2-9282-40b5-8f14-e81e2dd4dce6
+- name: Social Media
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:feb138a3-b8c6-4202-8101-4444e603c8e8
+- name: Social Policy
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:5342dc4f-1037-42f9-a0f4-83f357a293f2
+- name: Social Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:b107bef6-decd-4686-9234-96903ec67adf
+- name: Social Psychology and Interaction
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:aa664185-05e4-47c3-8b0b-d31a81c97ecd
+- name: Social Statistics
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:710eadc3-cd54-449e-9786-88aa0d06b575
+- name: Social Welfare
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:13ad26e8-4787-4ea4-8efc-aa0e0526db35
+- name: Social Welfare Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:37bc25ab-aa11-42a1-9646-54b2f595a084
+- name: Social Work
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:24af635d-b49f-4b74-bf9d-964e249be524
+- name: Social and Behavioral Sciences
+  parent: null
+  uri: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+- name: Social and Cultural Anthropology
+  parent: urn:uuid:72009f3f-108d-4d8a-bc79-99090e937e14
+  uri: urn:uuid:61e3b9f7-3498-4d33-b3e3-1cfc7efe1100
+- name: Social and Philosophical Foundations of Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:ec43ede3-0067-4c94-916f-e6d2defd1234
+- name: Sociology
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+- name: Sociology of Culture
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:673aa1a3-2c75-434d-b621-ce15132fa129
+- name: Sociology of Religion
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:863db5a5-71a6-48b3-bc55-239ae3c6194e
+- name: Software Engineering
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:af296923-41bf-4344-b955-592d5a8a1df0
+- name: Soil Science
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:c9d0cff0-4543-4ed3-bcda-1ab57c7aa120
+- name: Somatic Bodywork and Related Therapeutic Practices
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:9b209611-15e6-4760-b9b0-658028041cd3
+- name: South and Southeast Asian Languages and Societies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:76e3b47f-45e9-4352-9ec6-230fed1bed70
+- name: Soviet and Post-Soviet Studies
+  parent: urn:uuid:34d4edbc-6c0f-4e49-87d1-b1246559636e
+  uri: urn:uuid:66fae93d-3c15-44d6-bec6-851b2038243d
+- name: Space Vehicles
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:8e7ecd1a-f6a6-45ad-bd65-3ae3e0301a01
+- name: Spanish Linguistics
+  parent: urn:uuid:eca8220b-080c-4caa-a958-f589e1060a60
+  uri: urn:uuid:de31e03a-2674-4bb7-9b09-df58c69c0631
+- name: Spanish Literature
+  parent: urn:uuid:eca8220b-080c-4caa-a958-f589e1060a60
+  uri: urn:uuid:2f1cd8ac-58f2-485e-88b5-3697864f8e31
+- name: Spanish and Portuguese Language and Literature
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:eca8220b-080c-4caa-a958-f589e1060a60
+- name: Spatial Science
+  parent: urn:uuid:bb9c3287-5f5b-477e-8d23-53721840b9ef
+  uri: urn:uuid:f0bb5066-b190-4951-bc31-a76f95332af9
+- name: Special Education Administration
+  parent: urn:uuid:945ca0d1-7c99-4b6e-a549-a8e6d015a889
+  uri: urn:uuid:982e5d50-d5b3-444f-b17d-e7d0857de834
+- name: Special Education and Teaching
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:ef15ed9d-ae79-4d47-8e65-0ae0b0f6bd03
+- name: Special Functions
+  parent: urn:uuid:7e085c37-9923-4279-842f-ad4628ff6c54
+  uri: urn:uuid:38180293-2fd5-404d-a894-19719b15c543
+- name: Speech Pathology and Audiology
+  parent: urn:uuid:0779a274-526d-4c58-871d-bf56bd664ea7
+  uri: urn:uuid:80e9a652-1b8d-4368-9892-000751610fc5
+- name: Speech and Hearing Science
+  parent: urn:uuid:0779a274-526d-4c58-871d-bf56bd664ea7
+  uri: urn:uuid:f8068f7b-2c45-4a1b-966c-f035b77db8ca
+- name: Speech and Rhetorical Studies
+  parent: urn:uuid:787aa948-d02c-4bf3-9685-de4310fd76d5
+  uri: urn:uuid:1e2355f1-66fe-448c-8072-a1bcaefaf002
+- name: Speleology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:2c8d1c77-cbf6-44f9-8924-c62d146cda39
+- name: Sports Management
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:b2ffd5c8-f108-46e8-806a-4dc9fad7ed5a
+- name: Sports Medicine
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:04a0e63b-bb8c-4113-b93f-576ebb4cc401
+- name: Sports Sciences
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:e2bfc522-f520-4b17-b6cd-5f1ae71f55f8
+- name: Sports Studies
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:c5949e01-dd23-4f9f-92b2-d2dd987a3f52
+- name: Stars, Interstellar Medium and the Galaxy
+  parent: urn:uuid:9004bc06-583e-4304-9fca-00261247d1d9
+  uri: urn:uuid:ab0c6fa9-e45f-49fc-a232-eca4845fe410
+- name: State and Local Government Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:07b5fddf-d1b4-404a-bda8-6b46c25e646a
+- name: Statistical Methodology
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:acbc03da-a4e7-405f-b46f-4accd7117289
+- name: Statistical Models
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:9f57628c-e6c7-4fd6-bb09-8359d60d2564
+- name: Statistical Theory
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:f84853dc-05ed-4b0a-8633-50ffb59df058
+- name: Statistical, Nonlinear, and Soft Matter Physics
+  parent: urn:uuid:73f1d5b3-7ff2-434d-b22c-c45a16bb1cd2
+  uri: urn:uuid:81aa902a-82d5-40a9-bed7-214a6354568a
+- name: Statistics and Probability
+  parent: urn:uuid:9b3a2a19-7ecf-455e-9c48-feeb2b8ff932
+  uri: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+- name: Stomatognathic Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:ba2d3816-9b53-426b-a581-1f01d666560f
+- name: Stomatognathic System
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:4709b75e-be92-4926-9102-30fad6e8ec6f
+- name: Strategic Management Policy
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:469cecb5-0bb7-4d2d-8127-737f33bd76ef
+- name: Stratigraphy
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:b7b8a347-853d-49a5-8f74-7b8686342ba4
+- name: Structural Biology
+  parent: urn:uuid:55043e06-60e4-4cb2-826b-e516bbdd56da
+  uri: urn:uuid:1ee4b9b2-c591-47f1-83e8-2ddcab7b8bab
+- name: Structural Engineering
+  parent: urn:uuid:71b22a95-4b0d-43e5-961f-cc5b9d4b079b
+  uri: urn:uuid:e64951e8-7abd-45e3-b30b-26c8fa3b8a57
+- name: Structural Materials
+  parent: urn:uuid:0c11fccd-6999-4e9f-9e53-653952fa7546
+  uri: urn:uuid:a0c4ee04-7a53-4504-8205-8764810d5a12
+- name: Structures and Materials
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:bff04e58-5f2c-4a6c-82a5-9205b9f2324f
+- name: Student Counseling and Personnel Services
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:a987a504-cec5-4224-8a64-eb998938cc6a
+- name: Substance Abuse and Addiction
+  parent: urn:uuid:6bdbaf25-beca-4a75-ab7a-3708b4453d59
+  uri: urn:uuid:fe3f7b36-1a95-49d0-b407-ec31a58bd9a7
+- name: Supreme Court of the United States
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:3423ff6a-2bdf-4680-986e-04b191a287d8
+- name: Surgery
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:da373a33-d7ed-4416-8f49-c0012d3f06a1
+- name: Surgical Procedures, Operative
+  parent: urn:uuid:913f9a6f-9758-472f-b23a-3d511cf40265
+  uri: urn:uuid:c242f8c6-f5a5-46da-afcb-49677f53b23d
+- name: Survival Analysis
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:db24e873-f845-41ea-904e-593484527c08
+- name: Sustainability
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:ea1021e7-c3b3-4780-a4f8-0b2bfadcc01c
+- name: Syntax
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:2d04f11b-a5a9-465c-9c3f-80fb22643766
+- name: Systems Architecture
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:4aabc583-6434-47c4-b64f-43944bc362db
+- name: Systems Biology
+  parent: urn:uuid:08884039-3530-40c7-a233-f7b683511e21
+  uri: urn:uuid:2820ac17-d918-4680-91a4-4900508bea96
+- name: Systems Engineering
+  parent: urn:uuid:2b7ed2f7-2050-4b0e-b726-1b78bad201ef
+  uri: urn:uuid:cf7da7dc-9a0f-4b42-b85c-fb51bb94689d
+- name: Systems Engineering and Multidisciplinary Design Optimization
+  parent: urn:uuid:431e03b3-94f9-419d-8875-672658be2882
+  uri: urn:uuid:edc8c065-ce40-4c86-a108-fb60631e9ba0
+- name: Systems Neuroscience
+  parent: urn:uuid:3d2bf0ec-9d44-44ba-abcd-420d325792fc
+  uri: urn:uuid:55288622-0907-4295-a2aa-3d9742bb7bd3
+- name: Systems and Communications
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:f78df340-7945-49ae-985c-ea91b246775a
+- name: Systems and Integrative Engineering
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:8587926e-31db-4381-bfb1-b804ca12c8cf
+- name: Systems and Integrative Physiology Life Sciences
+  parent: urn:uuid:e38b5d90-d470-430b-b36f-395e9600e34c
+  uri: urn:uuid:fdf6fda5-2cdc-483f-b16b-216866d299b8
+- name: Tax Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:76540e57-58f5-4262-93fc-6a3815df520b
+- name: Taxation
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:1244225d-9827-411a-b335-42546a09502e
+- name: Taxation-Federal
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:bef610f8-738d-45fd-81f8-7ce8f54eeee8
+- name: Taxation-Federal Estate and Gift
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:708feb0b-713c-4db6-926d-aefd18f33cde
+- name: Taxation-State and Local
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:7cf889f8-9d78-47b7-a196-550c7fac70a0
+- name: Taxation-Transnational
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:595957d7-6b5b-4085-8a8b-837f49298749
+- name: Teacher Education and Professional Development
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:fae321a4-1ea9-4ddc-a15f-660131b7d26f
+- name: Technical and Professional Writing
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:d054406a-7a46-431e-9562-1f0ad5da9f8a
+- name: Technology and Innovation
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:60e6affd-f300-4890-a1da-22c4bbeabce4
+- name: Tectonics and Structure
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:073af999-1218-4be2-9c2b-dcb5449e78af
+- name: Telemedicine
+  parent: urn:uuid:ea4a39a0-6fc2-4b20-8193-faa887a7da16
+  uri: urn:uuid:84fbe2df-27ed-4d49-a1f2-f771954a769d
+- name: Television
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:adacf481-4840-4034-86ab-b6cad4c5b731
+- name: Terrestrial and Aquatic Ecology
+  parent: urn:uuid:1f7b9364-59d4-437a-b98e-7037421850ec
+  uri: urn:uuid:564a038f-ef27-456e-9251-592bdcc9bac9
+- name: Terrorism Studies
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:ca56b748-8ce5-4e31-b8d9-39630a2933eb
+- name: The Sun and the Solar System
+  parent: urn:uuid:9004bc06-583e-4304-9fca-00261247d1d9
+  uri: urn:uuid:2c1e501a-f75a-419c-a74f-9ae806ee7795
+- name: Theatre History
+  parent: urn:uuid:e80d958a-7075-4edb-9853-0df61d274916
+  uri: urn:uuid:51e56dd9-f446-4249-a565-7279cc2d4a1c
+- name: Theatre and Performance Studies
+  parent: urn:uuid:caeda702-af50-44d7-932e-23369bc505eb
+  uri: urn:uuid:e80d958a-7075-4edb-9853-0df61d274916
+- name: Theory and Algorithms
+  parent: urn:uuid:ead30f16-9a33-4873-a152-e9772876aadd
+  uri: urn:uuid:9b86aee4-a876-4e13-ac85-793456a3aa97
+- name: Theory and Criticism
+  parent: urn:uuid:66840b09-72bd-4f79-84fa-49d679473b2f
+  uri: urn:uuid:0b8ddab7-286e-44a3-b8e0-458f6cab471e
+- name: Theory and Philosophy
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:2e68bca5-fabf-4052-9cac-12dc968317de
+- name: Theory, Knowledge and Science
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:53df41ae-ad2f-4425-bb83-e2a4bd4507f7
+- name: Therapeutics
+  parent: urn:uuid:913f9a6f-9758-472f-b23a-3d511cf40265
+  uri: urn:uuid:8ec9716d-9427-4da8-9bb0-e06207097966
+- name: Thermodynamics
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:fff0a6b2-7984-4ddb-ad05-c94546e5064f
+- name: Tissues
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:b837b703-e0fb-4d41-8761-c1730af23dc5
+- name: Torts
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:a1afa345-618e-473d-9649-7db01388f8ed
+- name: Tourism
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:f4012982-eb58-4fad-8af3-e4527f7a3d83
+- name: Tourism and Travel
+  parent: urn:uuid:6b1efcdb-54c8-4b3b-9e0d-870c1523053e
+  uri: urn:uuid:50cb1c6d-bb68-41fd-a6cf-94297d40c908
+- name: Toxicology
+  parent: urn:uuid:3012a0ab-c24b-4639-9534-b0acfbc8a87c
+  uri: urn:uuid:c120ecfe-1fd2-4a4c-9ce7-323ae7242c50
+- name: Training and Development
+  parent: urn:uuid:bb242dfa-276f-4f0e-af8a-24c2a1d693a9
+  uri: urn:uuid:8f97d3c8-b39d-4906-8310-8a232b7723fc
+- name: Translation Studies
+  parent: urn:uuid:39617bf0-a0bd-47d8-a4c3-0928d8c65d60
+  uri: urn:uuid:7fc2a925-67d8-477a-89de-a21ef292a372
+- name: Translational Medical Research
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:999cfb24-ddef-4a6a-b5e7-d334f151e177
+- name: Transnational Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:56e52c20-432f-4bd3-84a3-24f788a75c69
+- name: Transpersonal Psychology
+  parent: urn:uuid:658846e5-5038-409d-9f76-440752b0cba3
+  uri: urn:uuid:11f9fd65-7c31-4fb5-91e9-e4c715ab04d6
+- name: Transport Phenomena
+  parent: urn:uuid:991d047c-6c59-4222-974f-fc4e4bd88ccd
+  uri: urn:uuid:bbe5766e-9f93-4135-a0a8-5c6fd75b8daf
+- name: Transportation
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:45f5f2c4-13c0-44a0-a56e-6adf869ee7aa
+- name: Transportation Engineering
+  parent: urn:uuid:71b22a95-4b0d-43e5-961f-cc5b9d4b079b
+  uri: urn:uuid:802f7f63-1751-4a21-b015-0b678ad25364
+- name: Transportation Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:237558d0-0408-456c-b0da-432b990bb09e
+- name: Trauma
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:d33aca54-9403-405f-ace0-6f9707c0f038
+- name: Tribology
+  parent: urn:uuid:37b47f84-2de8-4bcf-a49a-94703206f9d9
+  uri: urn:uuid:965f11e3-7aa5-4003-8f87-7193d4bc56b1
+- name: Tropical Medicine
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:c47d6e2c-59b7-47d5-8d1d-2b6f119edc30
+- name: Typological Linguistics and Linguistic Diversity
+  parent: urn:uuid:45ee5b97-11b8-4550-bb84-3aaef1fbd42d
+  uri: urn:uuid:77f6731f-52e5-41ee-92a6-b8d1d567a69a
+- name: Unions
+  parent: urn:uuid:42c5dbc0-fd0e-469b-a81d-146d935c62ce
+  uri: urn:uuid:7d4ee02b-418b-45a0-9d01-fae224619fb9
+- name: United States History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:3d1075a6-5db4-4c1c-bb64-624664c69ed2
+- name: University Extension
+  parent: urn:uuid:a723c39b-0d55-4f56-977b-799577c5d08e
+  uri: urn:uuid:9b3b60c9-757a-4b99-ae92-e589b2664016
+- name: Urban Education
+  parent: urn:uuid:945ca0d1-7c99-4b6e-a549-a8e6d015a889
+  uri: urn:uuid:7d199437-7eb8-4109-9cb6-4fc2554ae0b0
+- name: Urban Studies
+  parent: urn:uuid:56b37184-e306-4d98-8794-df4e6c5e1766
+  uri: urn:uuid:cb820690-78c8-4628-8323-92b771574b98
+- name: Urban Studies and Planning
+  parent: urn:uuid:dc66131a-74d2-428e-920c-305eda89f6ad
+  uri: urn:uuid:e20f4113-9f31-4efc-bd7a-c34901e1ffc8
+- name: Urban, Community and Regional Planning
+  parent: urn:uuid:6e8a8b13-0830-434b-a02c-e1534f1bb747
+  uri: urn:uuid:7e105bd2-119d-4f1c-9dcf-1dfd30c6e418
+- name: Urogenital System
+  parent: urn:uuid:3ceb6df2-0d66-450a-9246-b534bd433ec3
+  uri: urn:uuid:faee0227-8d54-46dc-a761-2caef4bd0bf0
+- name: Urology
+  parent: urn:uuid:bd74988a-a003-4763-a53e-15ec85bbcadc
+  uri: urn:uuid:53aa3470-17a9-436f-8303-c0ffef7ceca9
+- name: VLSI and Circuits, Embedded and Hardware Systems
+  parent: urn:uuid:3d8be298-7873-4af8-8ddd-86cb8decdd35
+  uri: urn:uuid:3482e00d-4b27-481f-a750-169689e406df
+- name: Veterinary Anatomy
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:6c9e04da-f3a9-41f0-b6fe-fcaf287ecec6
+- name: Veterinary Infectious Diseases
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:d82487e4-cd78-4f24-8d66-1e19fe36dfe9
+- name: Veterinary Medicine
+  parent: urn:uuid:e1e5f708-49e7-4a03-806a-0f354e091bd6
+  uri: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+- name: Veterinary Microbiology and Immunobiology
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:8082ea23-e91c-45a6-9ffd-63655b5a2349
+- name: Veterinary Pathology and Pathobiology
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:31285c0a-9031-41a3-832b-bb56653ff4bd
+- name: Veterinary Physiology
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:ad0120f0-0df6-4238-9a1d-cee6e7e8bde1
+- name: Veterinary Preventive Medicine, Epidemiology, and Public Health
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:a183c7f7-d6a2-4eb6-8b8d-ff7c38037299
+- name: Veterinary Toxicology and Pharmacology
+  parent: urn:uuid:ac9302e2-270c-4953-8d44-e3581e053504
+  uri: urn:uuid:d851926d-3a6d-46b8-a166-40e08d30dc52
+- name: Virology
+  parent: urn:uuid:546cac76-40c8-42eb-8492-0e6d82c73e91
+  uri: urn:uuid:7a9bc988-3c85-43f8-8ef6-bdf6343efcb2
+- name: Virus Diseases
+  parent: urn:uuid:95c30050-cf62-4cc8-a30d-1fde6ae736a4
+  uri: urn:uuid:c8f28273-72da-45f6-8d12-72ca4a979599
+- name: Viruses
+  parent: urn:uuid:ae147158-13ce-4d56-847a-5b73c7f9d59a
+  uri: urn:uuid:9582b512-0d8e-4e77-8e27-d9326baf66be
+- name: Vision Science
+  parent: urn:uuid:df00e794-8f92-41bc-8e9a-9fb9c729ca2b
+  uri: urn:uuid:2901b068-92c6-4439-a2fb-14ae1d9b2ef5
+- name: Visual Studies
+  parent: urn:uuid:3f41d200-6e45-4452-ad8e-00836360e37c
+  uri: urn:uuid:16013a5e-617b-4f93-b1fd-f85a18a1dbd5
+- name: Vital and Health Statistics
+  parent: urn:uuid:658efd62-feee-45b1-bf18-f3a3184e1b55
+  uri: urn:uuid:934a5747-9900-46a6-aaf1-cebd6095f282
+- name: Viticulture and Oenology
+  parent: urn:uuid:fbea54d6-bb7c-4d31-ba4e-817fc6f28d7f
+  uri: urn:uuid:64aff95f-dbbd-4480-8994-bd80c2398cbd
+- name: Vocational Education
+  parent: urn:uuid:69fe8e75-4880-41f2-9264-e00a8a3b9af0
+  uri: urn:uuid:b8a5fbc4-5323-4ae8-a597-3c1b22f0d3db
+- name: Vocational Rehabilitation Counseling
+  parent: urn:uuid:bab70c86-b9b0-40bf-a096-5428075cbcc3
+  uri: urn:uuid:6a9bba76-3d0b-44e5-a948-8c384eadd3ff
+- name: Volcanology
+  parent: urn:uuid:fe369032-6329-40dc-971e-37f8442bf010
+  uri: urn:uuid:ed0ef178-c2d6-4aca-b816-e73f3582841b
+- name: Water Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:649a2355-d21e-4862-ae41-4d28ce0d184e
+- name: Water Resource Management
+  parent: urn:uuid:e23148b8-1f99-40b7-b45e-b00a96dcf19b
+  uri: urn:uuid:63503031-7f4f-43eb-ac37-b8ab4c698b7f
+- name: Weed Science
+  parent: urn:uuid:08ba9e5b-5dc2-4d7c-ada7-384c25f83e95
+  uri: urn:uuid:5508adb8-926a-4385-b98c-b6b8f6100888
+- name: Women's Health
+  parent: urn:uuid:c3cd2e80-24fc-43fd-bd07-e8d3669c18bc
+  uri: urn:uuid:804007e3-5c7f-45c5-8345-fc2808682c05
+- name: Women's History
+  parent: urn:uuid:0d696792-76fa-445a-8178-6f67ce49f6aa
+  uri: urn:uuid:111a2c76-d9b1-4a39-8b2a-43228765e16a
+- name: Women's Studies
+  parent: urn:uuid:773bb11a-da7a-4491-9016-cbe20f2530bf
+  uri: urn:uuid:a8c79e93-037a-4d2e-9a6d-769f0d4ac47f
+- name: Wood Science and Pulp, Paper Technology
+  parent: urn:uuid:22c4c975-37b3-4194-8aa2-1707b6fc2d1e
+  uri: urn:uuid:1801c8fe-ab4c-472a-9e92-dd7509aac8de
+- name: Work, Economy and Organizations
+  parent: urn:uuid:767eb7ac-8fb4-45f5-b29a-d217ad93c1a7
+  uri: urn:uuid:0648f90e-dd02-4df5-8385-8c0ed84e8753
+- name: Workers' Compensation Law
+  parent: urn:uuid:5c71e7cb-00ba-4c76-8a90-c9ff07f54333
+  uri: urn:uuid:5d825eb2-d029-4bf4-9ac6-0406075202ed
+- name: Yiddish Language and Literature
+  parent: urn:uuid:8e902db5-56d2-4188-b329-4558abd75d34
+  uri: urn:uuid:e49b1a5a-cf05-4294-9d75-9ad4d917dc3e
+- name: Zoology
+  parent: urn:uuid:9ce6a076-3991-4024-85a4-c1c54b17b127
+  uri: urn:uuid:fbceb3b3-fcd9-4d9e-83f1-032ad1badd35
