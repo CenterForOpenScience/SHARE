@@ -1,5 +1,13 @@
 # Change Log
 
+# [2.12.0] - 2017-09-14
+## Added
+* `editsubjects` management command to modify `share/subjects.yaml`
+
+## Changed
+* Replace `share/models/subjects.json` with `share/subjects.yaml`
+* Update central subjects taxonomy to match Bepress' 2017-07 update
+
 # [2.9.0] - 2017-06-15
 ## Added
 * sharectl command line tool
