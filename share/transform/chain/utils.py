@@ -1,4 +1,5 @@
 import re
+from lxml import etree
 
 import logging
 
@@ -128,3 +129,18 @@ def get_emails(s):
     if result:
         if not result[0][0].startswith('//'):
             return result[0][0]
+
+
+def oai_allowed_by_sets(data, blocked_sets=None, approved_sets=None):
+    # TODO do this in the Regulator, in a ValidationStep
+    blocked_sets = set(blocked_sets or [])
+    approved_sets = set(approved_sets or [])
+    if blocked_sets or approved_sets:
+        set_specs = set(x.replace('publication:', '') for x in etree.fromstring(data).xpath(
+            'ns0:header/ns0:setSpec/node()',
+            namespaces={'ns0': 'http://www.openarchives.org/OAI/2.0/'}
+        ))
+        if (blocked_sets and (set_specs & blocked_sets)) or (approved_sets and not (set_specs & approved_sets)):
+            logger.warning('Discarding datum based on set specs: %s', ', '.join(set_specs))
+            return False
+    return True

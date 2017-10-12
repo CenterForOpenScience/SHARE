@@ -1,6 +1,5 @@
 import re
 import logging
-from lxml import etree
 
 import xmltodict
 
@@ -8,6 +7,7 @@ from share.transform.chain import ChainTransformer, ctx, links as tools
 from share.transform.chain.links import GuessAgentTypeLink
 from share.transform.chain.parsers import Parser
 from share.transform.chain.utils import force_text
+from share.transform.chain.utils import oai_allowed_by_sets
 
 
 logger = logging.getLogger(__name__)
@@ -428,6 +428,16 @@ class MODSCreativeWork(Parser):
 
 
 class MODSTransformer(ChainTransformer):
+    """Transformer for oai_dc metadata format.
+
+    transformer_kwargs (TODO explain):
+        emitted_type
+        approved_sets
+        blocked_sets
+        type_map
+        role_map
+    """
+
     VERSION = 1
 
     marc_roles = {
@@ -454,18 +464,10 @@ class MODSTransformer(ChainTransformer):
 
         return RootParser
 
-    def do_transform(self, data):
-        approved_sets = self.kwargs.get('approved_sets')
-        if approved_sets is not None:
-            specs = set(x.replace('publication:', '') for x in etree.fromstring(data).xpath(
-                'ns0:header/ns0:setSpec/node()',
-                namespaces={'ns0': 'http://www.openarchives.org/OAI/2.0/'}
-            ))
-            if not (specs & set(approved_sets)):
-                logger.warning('Series %s not found in approved_sets for %s', specs, self.config.label)
-                return (None, None)
-
-        return super().do_transform(data)
+    def do_transform(self, datum):
+        if not oai_allowed_by_sets(datum, self.kwargs.get('blocked_sets'), self.kwargs.get('approved_sets')):
+            return (None, None)
+        return super().do_transform(datum)
 
     def unwrap_data(self, data):
         unwrapped_data = xmltodict.parse(data, process_namespaces=True, namespaces=self.kwargs.get('namespaces', self.NAMESPACES))

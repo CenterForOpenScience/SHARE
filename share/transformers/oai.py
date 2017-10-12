@@ -1,10 +1,9 @@
 import re
 import logging
-from lxml import etree
 
 from share.transform.chain import ctx, ChainTransformer, links as tools
 from share.transform.chain.parsers import Parser
-from share.transform.chain.utils import force_text
+from share.transform.chain.utils import force_text, oai_allowed_by_sets
 
 
 logger = logging.getLogger(__name__)
@@ -293,6 +292,7 @@ class OAITransformer(ChainTransformer):
         emitted_type
         property_list
         approved_sets
+        blocked_sets
         type_map
     """
 
@@ -317,15 +317,7 @@ class OAITransformer(ChainTransformer):
 
         return RootParser
 
-    def do_transform(self, data):
-        approved_sets = self.kwargs.get('approved_sets')
-        if approved_sets is not None:
-            specs = set(x.replace('publication:', '') for x in etree.fromstring(data).xpath(
-                'ns0:header/ns0:setSpec/node()',
-                namespaces={'ns0': 'http://www.openarchives.org/OAI/2.0/'}
-            ))
-            if not (specs & set(approved_sets)):
-                logger.warning('Series %s not found in approved_sets for %s', specs, self.config.label)
-                return (None, None)
-
-        return super().do_transform(data)
+    def do_transform(self, datum):
+        if not oai_allowed_by_sets(datum, self.kwargs.get('blocked_sets'), self.kwargs.get('approved_sets')):
+            return (None, None)
+        return super().do_transform(datum)
