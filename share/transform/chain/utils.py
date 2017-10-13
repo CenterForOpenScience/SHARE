@@ -140,7 +140,9 @@ def oai_allowed_by_sets(data, blocked_sets=None, approved_sets=None):
             'ns0:header/ns0:setSpec/node()',
             namespaces={'ns0': 'http://www.openarchives.org/OAI/2.0/'}
         ))
-        if (blocked_sets and (set_specs & blocked_sets)) or (approved_sets and not (set_specs & approved_sets)):
+        approved = not approved_sets or (set_specs & approved_sets)
+        blocked = blocked_sets and (set_specs & blocked_sets)
+        if blocked or not approved:
             logger.warning('Discarding datum based on set specs: %s', ', '.join(set_specs))
             return False
     return True
