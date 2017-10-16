@@ -301,7 +301,7 @@ ELASTICSEARCH = {
     'DEFAULT_QUEUE': 'es-index',
     'DEFAULT_FETCHERS': {
         'agent': 'share.search.fetchers.AgentFetcher',
-        'creativework': 'share.search.fetchers.CreativeWorkShortSubjectsFetcher',
+        'creativework': 'share.search.fetchers.CreativeWorkFetcher',
         'subject': 'share.search.fetchers.SubjectFetcher',
         'tag': 'share.search.fetchers.TagFetcher',
     },
@@ -440,7 +440,7 @@ LOGGING = {
     'formatters': {
         'console': {
             '()': 'colorlog.ColoredFormatter',
-            'format': '%(cyan)s[%(asctime)s]%(log_color)s[%(levelname)s][%(name)s][%(purple)s%(threadName)s]: %(reset)s%(message)s'
+            'format': '%(cyan)s[%(asctime)s]%(purple)s[%(threadName)s]%(log_color)s[%(levelname)s][%(name)s]: %(reset)s%(message)s'
         }
     },
     'handlers': {
@@ -525,6 +525,7 @@ DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 'ul']
 
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
+SUBJECTS_YAML = 'share/subjects.yaml'
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
@@ -540,6 +541,25 @@ AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 CELERY_TASK_BUCKET_NAME = os.environ.get('CELERY_TASK_BUCKET_NAME')
 CELERY_TASK_FOLDER_NAME = os.environ.get('CELERY_TASK_FOLDER_NAME')  # top level folder (e.g. prod, staging)
+
+
+# TODO replace me with a field on Source
+OSF_PREPRINT_PROVIDERS = [
+    'AgriXiv',
+    'BITSS',
+    'INA-Rxiv',
+    'LIS Scholarship Archive',
+    'LawArXiv',
+    'MindRxiv',
+    'NutriXiv',
+    'Open Science Framework',
+    'PaleorXiv',
+    'PsyArXiv',
+    'SocArXiv',
+    'SportRxiv',
+    'Thesis Commons',
+    'engrXiv',
+]
 
 
 if DEBUG and os.environ.get('TOOLBAR', False):

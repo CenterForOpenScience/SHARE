@@ -6,11 +6,13 @@ import pendulum
 
 from django.apps import apps
 from django.conf import settings
-from django.db.models import Min
+from django.db import models
+
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 
-from share.models import CreativeWork
+from share.models import AbstractCreativeWork
+from share.models import WorkIdentifier
 from share.search import indexing
 
 from bots.elasticsearch.bot import ElasticSearchBot
@@ -95,31 +97,38 @@ class SourceBulkStreamHelper:
         }
 
 
-def check_counts_in_range(es_url, es_index, min_date, max_date):
+def count_es(es_url, es_index, min_date, max_date):
     es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
-    partial_database_count = CreativeWork.objects.exclude(title='').exclude(is_deleted=True).filter(
-        date_created__range=[min_date, max_date]
-    ).count()
-    partial_es_count = es_client.count(
+
+    return es_client.count(
         index=(es_index or settings.ELASTICSEARCH_INDEX),
         doc_type='creativeworks',
         body={
             'query': {
                 'range': {
-                    'date_created': {'gte': min_date, 'lte': max_date}
+                    'date_created': {'gte': min_date.isoformat(), 'lte': max_date.isoformat()}
                 }
             }
         }
     )['count']
-    return (partial_database_count == partial_es_count, partial_database_count, partial_es_count)
 
 
-def get_date_range_parts(min_date, max_date):
-    middle_date = pendulum.parse(min_date).average(pendulum.parse(max_date))
-    return {
-        'first_half': {'min_date': min_date, 'max_date': middle_date.isoformat()},
-        'second_half': {'min_date': middle_date.isoformat(), 'max_date': max_date}
-    }
+def count_db(min_date, max_date):
+    sqs = WorkIdentifier.objects.filter(creative_work=models.OuterRef('pk')).annotate(cnt=models.Count('*')).values('cnt')
+    sqs.query.group_by = []  # Because Django is soooo "smart"
+
+    qs = AbstractCreativeWork.objects.annotate(
+        identifiers_count=models.Subquery(sqs)
+    ).exclude(title='').exclude(is_deleted=True).filter(
+        # Range test (inclusive).
+        # Filtering a DateTimeField with dates won’t include items on the last day, because the bounds are interpreted as “0am on the given date”
+        # - Django Docs
+        date_created__range=[min_date, max_date],
+        # NOTE: lt 51 is taken from share/search/fetchers.py
+        identifiers_count__lt=51,
+    )
+
+    return qs.count()
 
 
 @celery.task(bind=True)
@@ -133,40 +142,31 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_d
     MAX_DB_COUNT = 500
     MIN_MISSING_RATIO = 0.7
 
-    logger.debug(
-        'Checking counts for %s to %s',
-        pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
-        pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
-    )
+    min_date = pendulum.instance(min_date)
+    max_date = pendulum.instance(max_date)
 
-    counts_match, db_count, es_count = check_counts_in_range(es_url, es_index, min_date, max_date)
+    logger.debug('Checking counts for %s to %s', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'))
 
-    if counts_match:
-        logger.info(
-            'Counts for %s to %s match. %s creativeworks in ES, %s creativeworks in database.',
-            pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
-            pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
-            es_count,
-            db_count
-        )
+    db_count = count_db(min_date, max_date)
+    es_count = count_es(es_url, es_index, min_date, max_date)
+
+    if db_count == es_count:
+        logger.info('Counts for %s to %s match at %d', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'), es_count)
         return
 
     logger.warning(
-        'Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database.',
-        pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
-        pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p'),
+        'Counts for %s to %s do not match. %s creativeworks in ES, %s creativeworks in database. Difference of %d',
+        min_date.format('%B %-d, %Y %I:%M:%S %p'),
+        max_date.format('%B %-d, %Y %I:%M:%S %p'),
         es_count,
-        db_count
+        db_count,
+        db_count - es_count,
     )
 
     if db_count <= MAX_DB_COUNT or 1 - abs(es_count / db_count) >= MIN_MISSING_RATIO:
         logger.debug('Met the threshold of %d total works to index or %d%% missing works.', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
 
-        logger.info(
-            'Reindexing records created from %s to %s.',
-            pendulum.parse(min_date).format('%B %-d, %Y %I:%M:%S %p'),
-            pendulum.parse(max_date).format('%B %-d, %Y %I:%M:%S %p')
-        )
+        logger.error('Reindexing records created from %s to %s.', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'))
 
         if dry:
             logger.debug('dry=True, not reindexing missing works')
@@ -179,22 +179,18 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_d
 
     logger.debug('Did NOT meet the threshold of %d total works to index or %d%% missing works.', MAX_DB_COUNT, MIN_MISSING_RATIO * 100)
 
-    for key, value in get_date_range_parts(min_date, max_date).items():
-        logger.info(
-            'Starting bisection of %s to %s',
-            pendulum.parse(value['min_date']).format('%B %-d, %Y %I:%M:%S %p'),
-            pendulum.parse(value['max_date']).format('%B %-d, %Y %I:%M:%S %p')
-        )
+    median_date = min_date.copy().average(max_date)
 
-        targs, tkwargs = (es_url, es_index, value['min_date'], value['max_date']), {'dry': dry}
+    for (_min, _max) in [(min_date, median_date), (median_date, max_date)]:
+        logger.info('Starting bisection of %s to %s', _min.format('%B %-d, %Y %I:%M:%S %p'), _max.format('%B %-d, %Y %I:%M:%S %p'))
+
+        targs, tkwargs = (es_url, es_index, _min, _max), {'dry': dry}
 
         if getattr(self.request, 'is_eager', False):
             logger.debug('Running in an eager context. Running child tasks synchronously.')
             pseudo_bisection.apply(targs, tkwargs)
-            return
-
-        pseudo_bisection.apply_async(targs, tkwargs)
-        return
+        else:
+            pseudo_bisection.apply_async(targs, tkwargs)
 
 
 @celery.shared_task(bind=True)
@@ -207,7 +203,7 @@ def elasticsearch_janitor(self, es_url=None, es_index=None, dry=False, to_daemon
     # get range of date_created in database; assumes current time is the max
     logger.debug('Starting Elasticsearch JanitorTask')
 
-    min_date = CreativeWork.objects.all().aggregate(Min('date_created'))['date_created__min']
+    min_date = AbstractCreativeWork.objects.all().aggregate(models.Min('date_created'))['date_created__min']
     if not min_date:
         logger.warning('No CreativeWorks are present in Postgres. Exiting')
         return
@@ -215,4 +211,4 @@ def elasticsearch_janitor(self, es_url=None, es_index=None, dry=False, to_daemon
     max_date = pendulum.utcnow()
     min_date = pendulum.instance(min_date)
 
-    pseudo_bisection.apply((es_url, es_index, min_date.isoformat(), max_date.isoformat()), {'dry': dry, 'to_daemon': to_daemon}, throw=True)
+    pseudo_bisection.apply((es_url, es_index, min_date, max_date), {'dry': dry, 'to_daemon': to_daemon}, throw=True)

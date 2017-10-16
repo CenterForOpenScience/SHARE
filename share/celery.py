@@ -88,7 +88,7 @@ class CeleryDatabaseBackend(BaseDictBackend):
 
         if not created:
             for key, value in fields.items():
-                if isinstance(value, dict) and getattr(obj, key, None):
+                if getattr(obj, key, None) and isinstance(value, dict) and isinstance(getattr(obj, key), dict):
                     getattr(obj, key).update(value)
                 else:
                     setattr(obj, key, value)

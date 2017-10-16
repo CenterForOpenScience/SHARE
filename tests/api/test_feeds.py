@@ -26,9 +26,13 @@ class TestFeed:
     def fake_items(self, settings, elastic):
         ids = []
         for i in range(11):
-            ids.append(factories.AbstractCreativeWorkFactory(
+            work = factories.AbstractCreativeWorkFactory(
                 date_published=None if i % 3 == 0 else fake.date_time_this_decade(),
-            ).id)
+            )
+            # Works without identifiers won't be surfaced in search
+            factories.WorkIdentifierFactory(creative_work=work)
+
+            ids.append(work.id)
 
         tasks.index_model('creativework', ids)
         elastic.es_client.indices.refresh()
