@@ -1,9 +1,9 @@
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 
 from api.shareobjects.generator import EndpointGenerator
 
 
 # generate share object routes
-router = DefaultRouter()
+router = SimpleRouter()
 EndpointGenerator(router)
 urlpatterns = router.urls

@@ -1,8 +1,8 @@
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 
 from api.sources import views
 
 
-router = DefaultRouter()
+router = SimpleRouter()
 router.register(r'sources', views.SourceViewSet, base_name='source')
 urlpatterns = router.urls
