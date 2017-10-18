@@ -26,6 +26,7 @@ Elasticsearch can be used to search the following fields in the normalized data:
     'contributors'
     'funders'
     'publishers'
+    'id'
 
 
 Accessing the Search API

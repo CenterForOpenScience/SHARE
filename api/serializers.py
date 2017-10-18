@@ -1,5 +1,4 @@
 from collections import OrderedDict
-
 from django.contrib.auth.models import AnonymousUser
 
 from rest_framework_json_api import serializers
@@ -137,6 +136,18 @@ class SourceSerializer(ShareModelSerializer):
     class Meta:
         model = models.Source
         fields = ('name', 'home_page', 'long_title', 'icon')
+
+
+class HarvestLogSerializer(ShareModelSerializer):
+    class Meta:
+        model = models.HarvestLog
+        fields = '__all__'
+
+
+class SourceConfigSerializer(ShareModelSerializer):
+    class Meta:
+        model = models.SourceConfig
+        fields = '__all__'
 
 
 class SiteBannerSerializer(ShareModelSerializer):

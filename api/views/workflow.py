@@ -16,17 +16,18 @@ from rest_framework.parsers import JSONParser
 from rest_framework.serializers import ValidationError
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 
-from api import schemas
-from api.pagination import CursorPagination
-from api.authentication import APIV1TokenBackPortAuthentication
-from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
-from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, \
-    RawDatumSerializer, ShareUserSerializer, SourceSerializer
 from share.models import RawDatum, NormalizedData, Source, SourceConfig, Transformer, ShareUser
 from share.tasks import disambiguate
 from share.harvest.serialization import DictSerializer
 from share.harvest.base import FetchResult
 from share.util import IDObfuscator
+
+from api import schemas
+from api.pagination import CursorPagination
+from api.authentication import APIV1TokenBackPortAuthentication
+from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
+from api.serializers import FullNormalizedDataSerializer, BasicNormalizedDataSerializer, RawDatumSerializer, ShareUserSerializer, SourceSerializer
+
 
 logger = logging.getLogger(__name__)
 __all__ = ('NormalizedDataViewSet', 'RawDatumViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
