@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from api.users.serializers import ShareUserSerializer
+from api.users.serializers import ShareUserWithTokenSerializer
 
 from share import models
 
@@ -20,5 +21,5 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
 # TODO Remove me
 class ShareUserView(views.APIView):
     def get(self, request, *args, **kwargs):
-        ser = ShareUserSerializer(request.user, token=True)
+        ser = ShareUserWithTokenSerializer(request.user)
         return Response(ser.data)

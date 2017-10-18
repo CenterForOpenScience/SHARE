@@ -101,7 +101,7 @@ class SourceConfig(models.Model):
     label = models.TextField(unique=True)
     version = models.PositiveIntegerField(default=1)
 
-    source = models.ForeignKey('Source', on_delete=models.CASCADE)
+    source = models.ForeignKey('Source', on_delete=models.CASCADE, related_name='source_configs')
     base_url = models.URLField(null=True)
     earliest_date = models.DateField(null=True, blank=True)
     rate_limit_allowance = models.PositiveIntegerField(default=5)

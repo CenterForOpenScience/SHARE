@@ -10,10 +10,6 @@ from api.base import ShareSerializer
 class ShareUserSerializer(ShareSerializer):
     def __init__(self, *args, token=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if token:
-            self.fields.update({
-                'token': serializers.SerializerMethodField()
-            })
         self.fields.update({
             '🦄': serializers.SerializerMethodField(method_name='is_superuser'),
             '🤖': serializers.SerializerMethodField(method_name='is_robot'),
@@ -24,12 +20,6 @@ class ShareUserSerializer(ShareSerializer):
             return obj.is_robot
         return False
 
-    def get_token(self, obj):
-        try:
-            return obj.accesstoken_set.first().token
-        except AttributeError:
-            return None
-
     def is_superuser(self, obj):
         return obj.is_superuser
 
@@ -39,3 +29,16 @@ class ShareUserSerializer(ShareSerializer):
             'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login',
             'is_active', 'gravatar', 'locale', 'time_zone', 'is_trusted'
         )
+
+
+class ShareUserWithTokenSerializer(ShareUserSerializer):
+    token = serializers.SerializerMethodField()
+
+    def get_token(self, obj):
+        try:
+            return obj.accesstoken_set.first().token
+        except AttributeError:
+            return None
+
+    class Meta(ShareUserSerializer.Meta):
+        fields = ShareUserSerializer.Meta.fields + ('token',)
