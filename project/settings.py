@@ -516,6 +516,7 @@ PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share' if DEBUG else '')
 EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
+SHARE_API_URL_PRODUCTION = os.environ.get('SHARE_API_URL_PRODUCTION', 'https://share.osf.io/api/v2').rstrip('/') + '/'
 SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', SHARE_API_URL + EMBER_SHARE_PREFIX).rstrip('/') + '/'
 SHARE_USER_AGENT = os.environ.get('SHARE_USER_AGENT', 'SHAREbot/{} (+{})'.format(VERSION, SHARE_WEB_URL))
 

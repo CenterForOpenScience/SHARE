@@ -27,6 +27,8 @@ from share.tasks import disambiguate
 from share.harvest.serialization import DictSerializer
 from share.harvest.base import FetchResult
 from share.util import IDObfuscator
+from api.views.share import ShareObjectViewSet
+from api.pagination import FuzzyPageNumberPagination
 
 logger = logging.getLogger(__name__)
 __all__ = ('NormalizedDataViewSet', 'RawDatumViewSet', 'ShareUserViewSet', 'SourceViewSet', 'V1DataView')
@@ -42,18 +44,19 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
         return ShareUser.objects.filter(pk=self.request.user.pk)
 
 
-class SourceViewSet(viewsets.ReadOnlyModelViewSet):
+class SourceViewSet(ShareObjectViewSet):
     filter_backends = (filters.OrderingFilter, )
     ordering = ('id', )
     ordering_fields = ('long_title', )
     serializer_class = SourceSerializer
     permission_classes = [DjangoModelPermissionsOrAnonReadOnly, ]
+    pagination_class = FuzzyPageNumberPagination
 
     queryset = Source.objects.none()  # Required for DjangoModelPermissions
 
     VALID_IMAGE_TYPES = ('image/png', 'image/jpeg')
 
-    def get_queryset(self):
+    def get_queryset(self, *args):
         return Source.objects.exclude(icon='').exclude(is_deleted=True)
 
     def create(self, request, *args, **kwargs):

@@ -136,7 +136,25 @@ class ShareUserSerializer(ShareModelSerializer):
 class SourceSerializer(ShareModelSerializer):
     class Meta:
         model = models.Source
-        fields = ('name', 'home_page', 'long_title', 'icon')
+        fields = '__all__'
+
+
+class SourceConfigSerializer(ShareModelSerializer):
+    class Meta:
+        model = models.SourceConfig
+        fields = '__all__'
+
+
+class HarvesterSerializer(ShareModelSerializer):
+    class Meta:
+        model = models.Harvester
+        fields = '__all__'
+
+
+class TransformerSerializer(ShareModelSerializer):
+    class Meta:
+        model = models.Transformer
+        fields = '__all__'
 
 
 class SiteBannerSerializer(ShareModelSerializer):

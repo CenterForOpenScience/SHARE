@@ -3,6 +3,7 @@ import pytest
 import time
 
 import httpretty
+from furl import furl
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -18,8 +19,8 @@ TIMEOUT_URL = 'http://www.timeouturl.com'
 
 
 def exceptionCallback(request, uri, headers):
-        time.sleep(6)
-        return (400, headers, uri)
+    time.sleep(6)
+    return (400, headers, uri)
 
 
 @pytest.fixture
@@ -109,6 +110,12 @@ class TestSourcesGet:
         resp = client.get(self.endpoint)
         assert resp.status_code == 200
         assert resp.json()['meta']['pagination']['count'] == total - 1
+
+    def test_get_object(self, client):
+        s = Source.objects.first()
+        resp = client.get(furl(self.endpoint).join(IDObfuscator.encode_id(s.pk, Source) + '/').url)
+        assert resp.status_code == 200
+        assert IDObfuscator.decode_id(resp.json()['data']['id']) == s.pk
 
 
 @pytest.mark.django_db
