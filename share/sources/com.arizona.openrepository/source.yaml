@@ -1,6 +1,40 @@
 configs:
 - base_url: http://arizona.openrepository.com/arizona/oai/request
   disabled: false
+  earliest_date: 2010-06-10T16:58:45Z
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: mods}
+  label: com.arizona.openrepository.mods
+  rate_limit_allowance: 1
+  rate_limit_period: 2
+  transformer: mods
+  transformer_kwargs:
+    approved_sets: [
+      col_10150_595893,
+      col_10150_139113,
+      col_10150_618937,
+      col_10150_128489,
+      com_10150_599293,
+      com_10150_127305,
+      com_10150_577011,
+      col_10150_129652,
+      col_10150_129651,
+      com_10150_139229,
+      col_10150_610433,
+      com_10150_145770,
+      col_10150_322404,
+      col_10150_621598,
+      col_10150_622540,
+      col_10150_296926,
+      col_10150_624348,
+      col_10150_135390,
+      col_10150_135403
+    ]
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+- base_url: http://arizona.openrepository.com/arizona/oai/request
+  disabled: true
   earliest_date: null
   harvester: oai
   harvester_kwargs: {metadata_prefix: oai_dc}
