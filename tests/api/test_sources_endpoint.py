@@ -34,6 +34,20 @@ def source_add_user():
 
 
 @pytest.fixture
+def source_add_change_user():
+    content_type = ContentType.objects.get_for_model(Source)
+    permission_add = Permission.objects.get(content_type=content_type, codename='add_source')
+    permission_change = Permission.objects.get(content_type=content_type, codename='change_source')
+
+    user = ShareUser(username='truly_trusted_tester', is_trusted=True)
+    user.save()
+    user.user_permissions.add(permission_add)
+    user.user_permissions.add(permission_change)
+
+    return user
+
+
+@pytest.fixture
 def mock_icon_urls():
     httpretty.enable()
     httpretty.HTTPretty.allow_net_connect = False
@@ -167,6 +181,58 @@ class TestSourcesPost:
         assert resp.status_code == 201
         assert resp_attributes['long_title'] == test_data['data']['attributes']['long_title']
         assert resp_attributes['home_page'] == test_data['data']['attributes']['home_page']
+
+    def test_successful_repost_home_page(self, client, source_add_user, mock_icon_urls):
+        test_data = get_post_body(home_page='http://test.homepage.net')
+        resp_one = client.post(
+            self.endpoint,
+            json.dumps(test_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_user.authorization(),
+        )
+        resp_one_attributes = resp_one.data['attributes']
+
+        assert resp_one.status_code == 201
+
+        # Second Request CONFLICT returns data
+        resp_two = client.post(
+            self.endpoint,
+            json.dumps(test_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_user.authorization(),
+        )
+        resp_two_attributes = resp_two.data['attributes']
+
+        assert resp_two.status_code == 409
+        assert resp_one_attributes == resp_two_attributes
+
+    def test_successful_post_put_home_page(self, client, source_add_change_user, mock_icon_urls):
+        test_data = get_post_body(home_page='http://test.homepage.net')
+        resp_one = client.post(
+            self.endpoint,
+            json.dumps(test_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+        resp_one_attributes = resp_one.data['attributes']
+
+        assert resp_one.status_code == 201
+
+        test_two_data = get_post_body(home_page='http://test2.homepage.net')
+
+        test_two_data['data']['id'] = test_two_data['data']['attributes']['long_title']
+
+        resp_two = client.put(
+            self.endpoint,
+            json.dumps(test_two_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+        print(resp_two.status_code)
+        resp_two_attributes = resp_two.data['attributes']
+
+        assert resp_two.status_code == 200
+        assert resp_one_attributes != resp_two_attributes
 
     def test_bad_image_url(self, client, source_add_user, mock_icon_urls):
         resp = client.post(
