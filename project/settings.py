@@ -135,7 +135,7 @@ APPLICATION_USERNAME = 'system'
 REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'ORDERING_PARAM': 'sort',
-    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
+    'EXCEPTION_HANDLER': 'api.base.exceptions.exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.FuzzyPageNumberPagination',
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework_json_api.parsers.JSONParser',

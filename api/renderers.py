@@ -21,8 +21,8 @@ from share.util import IDObfuscator
 class HideNullJSONAPIRenderer(JSONAPIRenderer):
 
     # override null behavior from JSONAPIRenderer
-    @staticmethod
-    def extract_attributes(fields, resource):
+    @classmethod
+    def extract_attributes(cls, fields, resource):
         data = OrderedDict()
         for field_name, field in six.iteritems(fields):
             # ID is always provided in the root of JSON API so remove it from attributes
@@ -105,7 +105,8 @@ class HideNullJSONAPIRenderer(JSONAPIRenderer):
 
                 data.update({field_name: {
                     'links': {
-                        'related': resource.get(field_name)},
+                        'related': resource.get(field_name)
+                    },
                     'data': cls.encode_ids(relation_data),
                     'meta': {
                         'count': len(relation_data)

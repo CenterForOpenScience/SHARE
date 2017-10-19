@@ -7,7 +7,7 @@ from share import models
 from django.core.files.base import ContentFile
 from django.db import transaction
 
-from rest_framework.serializers import ValidationError
+from rest_framework_json_api import serializers
 
 from api.base import ShareSerializer
 from api.users.serializers import ShareUserSerializer
@@ -33,10 +33,16 @@ class WritableSourceSerializer(ShareSerializer):
         'user': ShareUserWithTokenSerializer,
     }
 
+    icon_url = serializers.URLField(write_only=True)
+
     class Meta:
         model = models.Source
-        fields = ('name', 'home_page', 'long_title', 'icon', 'user', 'source_configs')
-        read_only_fields = ('user', 'source_configs')
+        fields = ('name', 'home_page', 'long_title', 'icon', 'icon_url', 'user', 'source_configs')
+        read_only_fields = ('icon', 'user', 'source_configs')
+        extra_kwargs = {
+            'name': {'required': False},
+        }
+
 
     class JSONAPIMeta:
         included_resources = ['user', 'source_configs']
@@ -45,7 +51,7 @@ class WritableSourceSerializer(ShareSerializer):
         return obj.source_configs.first()
 
     def create(self, validated_data):
-        icon_url = validated_data.pop('icon')
+        icon_url = validated_data.pop('icon_url')
         icon_file = self._fetch_icon_file(icon_url)
         long_title = validated_data['long_title']
 
@@ -73,11 +79,11 @@ class WritableSourceSerializer(ShareSerializer):
             r = requests.get(icon_url, timeout=5)
             header_type = r.headers['content-type'].split(';')[0].lower()
             if header_type not in self.VALID_ICON_TYPES:
-                raise ValidationError('Invalid image type.')
+                raise serializers.ValidationError('Invalid image type.')
             return ContentFile(r.content)
         except Exception as e:
             logger.warning('Exception occured while downloading icon %s', e)
-            raise ValidationError('Could not download/process image.')
+            raise serializers.ValidationError('Could not download/process image.')
 
     def _create_trusted_user(self, username):
         user_serializer = ShareUserSerializer(

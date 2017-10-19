@@ -24,8 +24,8 @@ class SourceViewSet(ShareViewSet, viewsets.ModelViewSet):
     queryset = Source.objects.none()  # Required for DjangoModelPermissions
 
     def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
-            return SourceSerializer
+        #if self.request.method in SAFE_METHODS:
+        #    return SourceSerializer
         return WritableSourceSerializer
 
     def get_queryset(self):
