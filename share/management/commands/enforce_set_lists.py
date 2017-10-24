@@ -16,9 +16,9 @@ class Command(BaseShareCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument('source_configs', nargs='+', type=str, help='Labels of the source configs to look at')
+        parser.add_argument('source_configs', nargs='+', type=str, help='Labels of the source configs to enforce')
         parser.add_argument('--dry', action='store_true', help='Print changes that would be made, but make no changes')
-        parser.add_argument('--commit', action='store_true', help='If omitted, abort the transaction after making changes')
+        parser.add_argument('--commit', action='store_true', help='If omitted, roll back the transaction after making changes')
         parser.add_argument('--whitelist', action='store_true', help='Enforce whitelist too -- will be slow')
 
     def handle(self, *args, **options):
