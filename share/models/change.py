@@ -16,7 +16,7 @@ from django.utils.translation import ugettext as _
 from share.models import NormalizedData
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.indexes import ConcurrentIndex
-from share.util import IDObfuscator
+from share.util import IDObfuscator, BaseJSONAPIMeta
 
 
 __all__ = ('Change', 'ChangeSet', )
@@ -87,6 +87,8 @@ class ChangeSet(models.Model):
 
     _changes_cache = []
 
+    JSONAPIMeta = BaseJSONAPIMeta
+
     def accept(self, save=True):
         ret = []
         with transaction.atomic():
@@ -139,6 +141,8 @@ class Change(models.Model):
     target_version = GenericForeignKey('target_version_type', 'target_version_id')
 
     change_set = models.ForeignKey(ChangeSet, related_name='changes', on_delete=models.CASCADE)
+
+    JSONAPIMeta = BaseJSONAPIMeta
 
     class Meta:
         ordering = ('pk', )

@@ -1,20 +1,16 @@
 from rest_framework import status
-from rest_framework_json_api import serializers
-from rest_framework_json_api.exceptions import exception_handler as parent_exception_handler
+from rest_framework.exceptions import APIException
 
 
-def exception_handler(exc, context):
-    # Return 409 Conflict on any unique constraint violations
-    if isinstance(exc, serializers.ValidationError):
-        codes = exc.get_codes()
-        conflict = False
-        if isinstance(codes, list):
-            conflict = 'unique' in codes
-        elif isinstance(codes, dict):
-            conflict = any('unique' in c for c in codes.values())
+class ConflictError(APIException):
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = 'Conflict with the current state of the resource.'
+    default_code = 'conflict'
 
-        if conflict:
-            exc.status_code = status.HTTP_409_CONFLICT
 
-    return parent_exception_handler(exc, context)
+class AlreadyExistsError(ConflictError):
+    default_detail = 'That resource already exists.'
 
+    def __init__(self, existing_instance, **kwargs):
+        super().__init__(**kwargs)
+        self.existing_instance = existing_instance

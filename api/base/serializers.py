@@ -9,7 +9,6 @@ __all__ = ('ShareSerializer', )
 
 
 class ShareSerializer(serializers.ModelSerializer):
-    id = fields.ObfuscatedIDField()
 
     # http://stackoverflow.com/questions/27015931/remove-null-fields-from-django-rest-framework-response
     def to_representation(self, instance):

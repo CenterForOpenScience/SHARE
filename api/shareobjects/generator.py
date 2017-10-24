@@ -1,9 +1,11 @@
 from typedmodels.models import TypedModel
 
+from rest_framework.utils.field_mapping import get_detail_view_name
+
 from share import models
 
 from api import fields
-from api.base.serializers import ShareSerializer
+from api.shareobjects.serializers import ShareObjectSerializer
 from api.shareobjects.views import ShareObjectViewSet
 
 
@@ -28,9 +30,10 @@ class EndpointGenerator:
     def generate_serializer(self, subclass):
         class_name = subclass.__name__ + 'Serializer'
         meta_class = type('Meta', tuple(), {'model': subclass, 'fields': '__all__'})
-        generated_serializer = type(class_name, (ShareSerializer,), {
+        generated_serializer = type(class_name, (ShareObjectSerializer,), {
             'Meta': meta_class,
             'type': fields.TypeField(),
+            'url': fields.ShareIdentityField(view_name='api:{}'.format(get_detail_view_name(subclass)))
         })
         globals().update({class_name: generated_serializer})
         self.generate_viewset(subclass, generated_serializer)

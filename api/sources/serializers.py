@@ -10,6 +10,8 @@ from django.db import transaction
 from rest_framework_json_api import serializers
 
 from api.base import ShareSerializer
+from api.base import exceptions
+from api.fields import ShareIdentityField
 from api.users.serializers import ShareUserSerializer
 from api.users.serializers import ShareUserWithTokenSerializer
 from api.source_configs.serializers import SourceConfigSerializer
@@ -19,9 +21,12 @@ logger = logging.getLogger(__name__)
 
 
 class SourceSerializer(ShareSerializer):
+    # link to self
+    url = ShareIdentityField(view_name='api:source-detail')
+
     class Meta:
         model = models.Source
-        fields = ('name', 'home_page', 'long_title', 'icon')
+        fields = ('name', 'home_page', 'long_title', 'icon', 'url')
 
 
 class WritableSourceSerializer(ShareSerializer):
@@ -40,15 +45,13 @@ class WritableSourceSerializer(ShareSerializer):
         fields = ('name', 'home_page', 'long_title', 'icon', 'icon_url', 'user', 'source_configs')
         read_only_fields = ('icon', 'user', 'source_configs')
         extra_kwargs = {
-            'name': {'required': False},
+            'name': {'required': False, 'validators': []},
+            'long_title': {'validators': []},
         }
-
+        view_name = 'api:source-detail'
 
     class JSONAPIMeta:
         included_resources = ['user', 'source_configs']
-
-    def get_source_config(self, obj):
-        return obj.source_configs.first()
 
     def create(self, validated_data):
         icon_url = validated_data.pop('icon_url')
@@ -60,16 +63,19 @@ class WritableSourceSerializer(ShareSerializer):
         name = validated_data.get('name', label)
 
         with transaction.atomic():
-            user = self._create_trusted_user(username=label)
-            source = models.Source(
-                user_id=user.id,
+            source, created = models.Source.objects.get_or_create(
                 long_title=long_title,
-                home_page=validated_data.get('home_page', None),
-                name=name,
+                defaults={
+                    'home_page': validated_data.get('home_page', None),
+                    'name': name,
+                }
             )
-            source.save()
-            source.icon.save(name, content=icon_file)
+            if not created:
+                raise exceptions.AlreadyExistsError(source)
 
+            user = self._create_trusted_user(username=label)
+            source.user_id = user.id
+            source.icon.save(name, content=icon_file)
             models.SourceConfig.objects.create(source_id=source.id, label=label)
 
             return source

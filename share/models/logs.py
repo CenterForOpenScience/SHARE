@@ -19,7 +19,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 # from django.db.models import Exists, OuterRef
 
-from share.util import chunked
+from share.util import chunked, BaseJSONAPIMeta
 from share.harvest.exceptions import HarvesterConcurrencyError
 
 
@@ -204,6 +204,8 @@ class AbstractBaseLog(models.Model):
     source_config_version = models.PositiveIntegerField()
 
     objects = AbstractLogManager()
+
+    JSONAPIMeta = BaseJSONAPIMeta
 
     class Meta:
         abstract = True

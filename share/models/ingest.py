@@ -18,7 +18,7 @@ from django.utils.deconstruct import deconstructible
 
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.indexes import ConcurrentIndex
-from share.util import chunked, placeholders
+from share.util import chunked, placeholders, BaseJSONAPIMeta
 
 
 logger = logging.getLogger(__name__)
@@ -82,9 +82,11 @@ class Source(models.Model):
     canonical = models.BooleanField(default=False, db_index=True)
 
     # TODO replace with Django permissions something something, allow multiple sources per user
-    user = models.OneToOneField('ShareUser', on_delete=models.CASCADE)
+    user = models.OneToOneField('ShareUser', null=True, on_delete=models.CASCADE)
 
     objects = NaturalKeyManager('name')
+
+    JSONAPIMeta = BaseJSONAPIMeta
 
     def natural_key(self):
         return (self.name,)
@@ -127,6 +129,8 @@ class SourceConfig(models.Model):
     disabled = models.BooleanField(default=False)
 
     objects = NaturalKeyManager('label')
+
+    JSONAPIMeta = BaseJSONAPIMeta
 
     def natural_key(self):
         return (self.label,)
@@ -403,7 +407,7 @@ class RawDatum(models.Model):
             ConcurrentIndex(fields=['no_output']),
         )
 
-    class JSONAPIMeta:
+    class JSONAPIMeta(BaseJSONAPIMeta):
         resource_name = 'RawData'
 
     def __repr__(self):

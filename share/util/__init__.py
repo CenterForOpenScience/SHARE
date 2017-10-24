@@ -85,6 +85,21 @@ class IDObfuscator:
             raise
 
 
+class BaseJSONAPIMeta:
+    skip_null_values = True
+
+    @classmethod
+    def get_id_from_instance(cls, instance):
+        return IDObfuscator.encode(instance)
+
+    @classmethod
+    def get_instance_from_id(cls, model_class, id):
+        try:
+            return IDObfuscator.resolve(id)
+        except InvalidID:
+            return model_class.objects.get(id=id)
+
+
 class CyclicalDependency(Exception):
     pass
 

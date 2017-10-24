@@ -1,5 +1,4 @@
 from rest_framework.routers import SimpleRouter
-
 from api.shareobjects.generator import EndpointGenerator
 
 

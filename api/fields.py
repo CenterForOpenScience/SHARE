@@ -1,4 +1,5 @@
-from rest_framework import serializers
+from rest_framework_json_api import serializers
+from rest_framework.utils.field_mapping import get_detail_view_name
 
 from share.util import IDObfuscator
 from share.util import InvalidID
@@ -15,16 +16,13 @@ class TypeField(serializers.ReadOnlyField):
         return obj._meta.model_name
 
 
-class ObfuscatedIDField(serializers.ReadOnlyField):
+class ShareIdentityField(serializers.HyperlinkedIdentityField):
 
-    def get_attribute(self, instance):
-        return instance
+    def get_object(self, view_name, view_args, view_kwargs):
+        obfuscated_id = view_kwargs[self.lookup_url_kwarg]
+        return IDObfuscator.resolve(obfuscated_id)
 
-    def to_representation(self, instance):
-        return IDObfuscator.encode(instance)
-
-    def to_internal_value(self, value):
-        try:
-            return IDObfuscator.decode_id(value)[1]
-        except InvalidID:
-            raise serializers.ValidationError('Invalid ID')
+    def get_url(self, obj, view_name, request, format):
+        obfuscated_id = IDObfuscator.encode(obj)
+        kwargs = {self.lookup_url_kwarg: obfuscated_id}
+        return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
