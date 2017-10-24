@@ -2,8 +2,6 @@ from collections import OrderedDict
 
 from rest_framework_json_api import serializers
 
-from api import fields
-
 
 __all__ = ('ShareSerializer', )
 

@@ -1,8 +1,6 @@
 from rest_framework_json_api import serializers
-from rest_framework.utils.field_mapping import get_detail_view_name
 
 from share.util import IDObfuscator
-from share.util import InvalidID
 
 
 class TypeField(serializers.ReadOnlyField):

@@ -2,7 +2,6 @@ import logging
 
 from rest_framework import filters
 from rest_framework import viewsets
-from rest_framework import serializers
 from rest_framework import status
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.permissions import SAFE_METHODS
@@ -10,7 +9,6 @@ from rest_framework.response import Response
 
 from share.models import Source
 
-from api import util
 from api.base import exceptions
 from api.base import ShareViewSet
 from api.sources.serializers import SourceSerializer
@@ -47,7 +45,7 @@ class SourceViewSet(ShareViewSet, viewsets.ModelViewSet):
             serializer = self.get_serializer(e.existing_instance)
             self.__conflicting_data = serializer.data
             raise
-            
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

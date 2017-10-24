@@ -1,21 +1,11 @@
 import ujson
 import six
-from collections import OrderedDict
 
-from django.utils import encoding
-from django.apps import apps
-
-# from rest_framework.compat import SHORT_SEPARATORS, LONG_SEPARATORS, INDENT_SEPARATORS
 from rest_framework.renderers import JSONRenderer
 from rest_framework.settings import api_settings
 from rest_framework.utils import encoders
-from rest_framework import relations
-from rest_framework.serializers import BaseSerializer, Serializer, ListSerializer
 
 from rest_framework_json_api.renderers import JSONRenderer as JSONAPIRenderer
-from rest_framework_json_api import utils
-
-from share.util import IDObfuscator
 
 
 class HideNullJSONAPIRenderer(JSONAPIRenderer):
