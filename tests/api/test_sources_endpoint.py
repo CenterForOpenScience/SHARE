@@ -196,7 +196,7 @@ class TestSourcesPost:
         assert data['source']['name'] == created_label
         assert data['source']['homePage'] is None
         assert data['user']['username'] == created_label
-        assert data['user']['authorizationToken'] == created_user.accesstoken_set.first().token
+        assert data['user']['token'] == created_user.accesstoken_set.first().token
         assert created_user.is_trusted is True
         assert data['sourceConfig']['label'] == created_label
 

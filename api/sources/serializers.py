@@ -20,13 +20,14 @@ from api.source_configs.serializers import SourceConfigSerializer
 logger = logging.getLogger(__name__)
 
 
-class SourceSerializer(ShareSerializer):
+class ReadonlySourceSerializer(ShareSerializer):
     # link to self
     url = ShareIdentityField(view_name='api:source-detail')
 
     class Meta:
         model = models.Source
         fields = ('name', 'home_page', 'long_title', 'icon', 'url')
+        read_only_fields = fields
 
 
 class WritableSourceSerializer(ShareSerializer):
@@ -38,12 +39,16 @@ class WritableSourceSerializer(ShareSerializer):
         'user': ShareUserWithTokenSerializer,
     }
 
+    # link to self
+    url = ShareIdentityField(view_name='api:source-detail')
+
+    # URL to fetch the source's icon
     icon_url = serializers.URLField(write_only=True)
 
     class Meta:
         model = models.Source
-        fields = ('name', 'home_page', 'long_title', 'icon', 'icon_url', 'user', 'source_configs')
-        read_only_fields = ('icon', 'user', 'source_configs')
+        fields = ('name', 'home_page', 'long_title', 'icon', 'icon_url', 'user', 'source_configs', 'url')
+        read_only_fields = ('icon', 'user', 'source_configs', 'url')
         extra_kwargs = {
             'name': {'required': False, 'validators': []},
             'long_title': {'validators': []},

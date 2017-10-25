@@ -86,8 +86,6 @@ class IDObfuscator:
 
 
 class BaseJSONAPIMeta:
-    skip_null_values = True
-
     @classmethod
     def get_id_from_instance(cls, instance):
         return IDObfuscator.encode(instance)

@@ -4,6 +4,8 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
 
+from share import util
+
 
 class SiteBanner(models.Model):
     COLOR = Choices(
@@ -12,6 +14,8 @@ class SiteBanner(models.Model):
         (2, 'warning', _('warning')),
         (3, 'danger', _('danger'))
     )
+
+    JSONAPIMeta = util.BaseJSONAPIMeta
 
     active = models.BooleanField(default=True, db_index=True)
 

@@ -4,6 +4,8 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
 
+from share import util
+
 
 class ProviderRegistration(models.Model):
 
@@ -36,3 +38,5 @@ class ProviderRegistration(models.Model):
 
     class Meta:
         ordering = ['-submitted_at']
+
+    JSONAPIMeta = util.BaseJSONAPIMeta

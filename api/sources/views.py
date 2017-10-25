@@ -11,7 +11,7 @@ from share.models import Source
 
 from api.base import exceptions
 from api.base import ShareViewSet
-from api.sources.serializers import SourceSerializer
+from api.sources.serializers import ReadonlySourceSerializer
 from api.sources.serializers import WritableSourceSerializer
 
 
@@ -28,7 +28,7 @@ class SourceViewSet(ShareViewSet, viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
-            return SourceSerializer
+            return ReadonlySourceSerializer
         return WritableSourceSerializer
 
     def get_queryset(self):
