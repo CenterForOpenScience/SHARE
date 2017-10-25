@@ -5,29 +5,6 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.settings import api_settings
 from rest_framework.utils import encoders
 
-from rest_framework_json_api.renderers import JSONRenderer as JSONAPIRenderer
-
-
-class HideNullJSONAPIRenderer(JSONAPIRenderer):
-
-    # override from JSONAPIRenderer to include conflicted data in 409 responses
-    def render_errors(self, data, accepted_media_type=None, renderer_context=None):
-        conflicting_data = renderer_context.pop('conflicting_data', None)
-        if True: #conflicting_data is None:
-            return super().render_errors(data, accepted_media_type, renderer_context)
-
-        # render the conflicting data as if there was no error, then add the errors
-        response = renderer_context['view'].response
-        renderer_context['view'].response = None
-        import ipdb; ipdb.set_trace()
-        rendered_data = super().render(conflicting_data, accepted_media_type, renderer_context)
-
-        # use the grandparent render()
-        return super(JSONAPIRenderer, self).render({
-            'data': rendered_data,
-            'errors': data
-        }, accepted_media_type, renderer_context)
-
 
 class JSONLDRenderer(JSONRenderer):
     """

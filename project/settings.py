@@ -141,8 +141,7 @@ REST_FRAMEWORK = {
         'rest_framework_json_api.parsers.JSONParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'api.renderers.HideNullJSONAPIRenderer',
-        # 'rest_framework_json_api.renderers.JSONRenderer',
+        'rest_framework_json_api.renderers.JSONRenderer',
         # 'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),

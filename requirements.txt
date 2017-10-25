@@ -44,7 +44,7 @@ xmltodict==0.10.2  # MIT
 
 # djangorestframework-jsonapi==2.2.0  # MIT
 # Allows custom-rendered IDs in the API, and hiding null values in nullable fields
-git+git://github.com/aaxelb/django-rest-framework-json-api.git@638d6df8931a67029335f08484d03130422be2b6
+git+git://github.com/aaxelb/django-rest-framework-json-api.git@464bb9ae6dc70e5798538bdc2a9efe1f86657eda
 
 # TODO: When graphene-django doesn't break on inherited fields with choices (https://github.com/graphql-python/graphene-django/pull/156)
 # graphene-django==1.3  # MIT
