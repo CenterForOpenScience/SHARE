@@ -34,6 +34,11 @@ class UpdateSourceSerializer(ShareSerializer):
 
     VALID_ICON_TYPES = ('image/png', 'image/jpeg')
 
+    included_serializers = {
+        'source_configs': SourceConfigSerializer,
+        'user': ShareUserWithTokenSerializer,
+    }
+
     # link to self
     url = ShareIdentityField(view_name='api:source-detail')
 
@@ -45,6 +50,9 @@ class UpdateSourceSerializer(ShareSerializer):
         fields = ('name', 'home_page', 'long_title', 'icon', 'icon_url', 'user', 'source_configs', 'url')
         read_only_fields = ('icon', 'user', 'source_configs', 'url')
         view_name = 'api:source-detail'
+
+    class JSONAPIMeta:
+        included_resources = ['user', 'source_configs']
 
     def update(self, instance, validated_data):
         icon_url = validated_data.pop('icon_url', None)
@@ -69,20 +77,12 @@ class UpdateSourceSerializer(ShareSerializer):
 
 class CreateSourceSerializer(UpdateSourceSerializer):
 
-    included_serializers = {
-        'source_configs': SourceConfigSerializer,
-        'user': ShareUserWithTokenSerializer,
-    }
-
     # Don't use validators to enforce uniqueness, so we can return the conflicting object
     class Meta(UpdateSourceSerializer.Meta):
         extra_kwargs = {
             'name': {'required': False, 'validators': []},
             'long_title': {'validators': []},
         }
-
-    class JSONAPIMeta:
-        included_resources = ['user', 'source_configs']
 
     def create(self, validated_data):
         icon_url = validated_data.pop('icon_url')
