@@ -109,6 +109,13 @@ class TestPostProviderRegistration:
             'detail': 'Received document does not contain primary data',
             'source': {'pointer': '/data'}, 'status': '400'}
         ]}),
+        'in': requests.Request('POST', json={})
+    }, {
+        'out': Response(409, json={'errors': [{
+            'detail': 'The resource object\'s type (None) is not the type that constitute the collection represented by the endpoint (ProviderRegistration).',
+            'source': {'pointer': '/data'},
+            'status': '409'
+        }]}),
         'in': requests.Request('POST', json={'data': {}})
     }, {
         'out': Response(409, json={'errors': [{
