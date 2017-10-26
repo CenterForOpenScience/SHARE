@@ -11,8 +11,11 @@ from share.models import Source
 
 from api.base import exceptions
 from api.base import ShareViewSet
-from api.sources.serializers import ReadonlySourceSerializer
-from api.sources.serializers import WritableSourceSerializer
+from api.sources.serializers import (
+    ReadonlySourceSerializer,
+    CreateSourceSerializer,
+    UpdateSourceSerializer,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -29,26 +32,25 @@ class SourceViewSet(ShareViewSet, viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return ReadonlySourceSerializer
-        return WritableSourceSerializer
+        if self.request.method == 'POST':
+            return CreateSourceSerializer
+        return UpdateSourceSerializer
 
     def get_queryset(self):
         return Source.objects.exclude(icon='').exclude(is_deleted=True)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
         try:
-            self.perform_create(serializer)
-        except exceptions.AlreadyExistsError as e:
-            serializer = self.get_serializer(e.existing_instance)
-            return Response({
-                'errors': [{
-                    'detail': e.detail,
-                    'status': status.HTTP_409_CONFLICT,
-                }],
-                'data': serializer.data
-            }, status=status.HTTP_409_CONFLICT)
+            return super().create(request, *args, **kwargs)
+        except exceptions.AlreadyExistsError as exc:
+            return self._conflict_response(exc)
 
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    def _conflict_response(self, exc):
+        serializer = self.get_serializer(exc.existing_instance)
+        return Response({
+            'errors': [{
+                'detail': exc.detail,
+                'status': status.HTTP_409_CONFLICT,
+            }],
+            'data': serializer.data
+        }, status=status.HTTP_409_CONFLICT)

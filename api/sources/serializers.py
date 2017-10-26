@@ -30,14 +30,9 @@ class ReadonlySourceSerializer(ShareSerializer):
         read_only_fields = fields
 
 
-class WritableSourceSerializer(ShareSerializer):
+class UpdateSourceSerializer(ShareSerializer):
 
     VALID_ICON_TYPES = ('image/png', 'image/jpeg')
-
-    included_serializers = {
-        'source_configs': SourceConfigSerializer,
-        'user': ShareUserWithTokenSerializer,
-    }
 
     # link to self
     url = ShareIdentityField(view_name='api:source-detail')
@@ -49,11 +44,42 @@ class WritableSourceSerializer(ShareSerializer):
         model = models.Source
         fields = ('name', 'home_page', 'long_title', 'icon', 'icon_url', 'user', 'source_configs', 'url')
         read_only_fields = ('icon', 'user', 'source_configs', 'url')
+        view_name = 'api:source-detail'
+
+    def update(self, instance, validated_data):
+        icon_url = validated_data.pop('icon_url', None)
+        with transaction.atomic():
+            instance = super().update(instance, validated_data)
+            if icon_url:
+                icon_file = self._fetch_icon_file(icon_url)
+                instance.icon.save(instance.name, content=icon_file)
+            return instance
+
+    def _fetch_icon_file(self, icon_url):
+        try:
+            r = requests.get(icon_url, timeout=5)
+            header_type = r.headers['content-type'].split(';')[0].lower()
+            if header_type not in self.VALID_ICON_TYPES:
+                raise serializers.ValidationError('Invalid image type.')
+            return ContentFile(r.content)
+        except Exception as e:
+            logger.warning('Exception occured while downloading icon %s', e)
+            raise serializers.ValidationError('Could not download/process image.')
+
+
+class CreateSourceSerializer(UpdateSourceSerializer):
+
+    included_serializers = {
+        'source_configs': SourceConfigSerializer,
+        'user': ShareUserWithTokenSerializer,
+    }
+
+    # Don't use validators to enforce uniqueness, so we can return the conflicting object
+    class Meta(UpdateSourceSerializer.Meta):
         extra_kwargs = {
             'name': {'required': False, 'validators': []},
             'long_title': {'validators': []},
         }
-        view_name = 'api:source-detail'
 
     class JSONAPIMeta:
         included_resources = ['user', 'source_configs']
@@ -84,17 +110,6 @@ class WritableSourceSerializer(ShareSerializer):
             models.SourceConfig.objects.create(source_id=source.id, label=label)
 
             return source
-
-    def _fetch_icon_file(self, icon_url):
-        try:
-            r = requests.get(icon_url, timeout=5)
-            header_type = r.headers['content-type'].split(';')[0].lower()
-            if header_type not in self.VALID_ICON_TYPES:
-                raise serializers.ValidationError('Invalid image type.')
-            return ContentFile(r.content)
-        except Exception as e:
-            logger.warning('Exception occured while downloading icon %s', e)
-            raise serializers.ValidationError('Could not download/process image.')
 
     def _create_trusted_user(self, username):
         user_serializer = ShareUserSerializer(

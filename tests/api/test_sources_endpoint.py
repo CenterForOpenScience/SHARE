@@ -76,8 +76,8 @@ def mock_icon_urls():
     )
 
 
-def get_post_body(icon=PROPER_ICON_URL, home_page=None):
-    return {
+def get_post_body(icon=PROPER_ICON_URL, home_page=None, id=None):
+    body = {
         'data': {
             'type': 'Source',
             'attributes': {
@@ -87,26 +87,32 @@ def get_post_body(icon=PROPER_ICON_URL, home_page=None):
             }
         }
     }
+    if id is not None:
+        body['data']['id'] = id
+    return body
 
 
 def flatten_write_response(resp):
     json = resp.json()
-    source_config = next(d for d in json['included'] if d['type'] == 'SourceConfig')
-    user = next(d for d in json['included'] if d['type'] == 'ShareUser')
-    return {
+    flattened = {
         'source': {
             'id': json['data']['id'],
             **json['data']['attributes']
-        },
-        'sourceConfig': {
+        }
+    }
+    included = json.get('included')
+    if included:
+        source_config = next(d for d in included if d['type'] == 'SourceConfig')
+        flattened['sourceConfig'] = {
             'id': source_config['id'],
             **source_config['attributes']
-        },
-        'user': {
+        }
+        user = next(d for d in included if d['type'] == 'ShareUser')
+        flattened['user'] = {
             'id': user['id'],
             **user['attributes']
-        },
-    }
+        }
+    return flattened
 
 
 @pytest.mark.django_db
@@ -251,12 +257,14 @@ class TestSourcesPost:
         assert resp_one.status_code == 201
         data_one = flatten_write_response(resp_one)
 
-        test_two_data = get_post_body(home_page='http://test2.homepage.net')
+        source_url = '{}{}/'.format(self.endpoint, data_one['source']['id'])
 
-        test_two_data['data']['attributes']['id'] = test_two_data['data']['attributes']['long_title']
+        new_home_page = 'http://test2.homepage.net'
+        test_two_data = get_post_body(home_page=new_home_page, id=data_one['source']['id'])
+        test_two_data['data']['attributes']['name'] = data_one['source']['name']
 
         resp_two = client.put(
-            self.endpoint,
+            source_url,
             json.dumps(test_two_data),
             content_type='application/vnd.api+json',
             HTTP_AUTHORIZATION=source_add_change_user.authorization(),
@@ -265,6 +273,37 @@ class TestSourcesPost:
 
         data_two = flatten_write_response(resp_two)
 
+        assert data_two['source']['homePage'] == new_home_page
+        assert data_one != data_two
+
+    def test_successful_post_patch_home_page(self, client, source_add_change_user, mock_icon_urls):
+        test_data = get_post_body(home_page='http://test.homepage.net')
+        resp_one = client.post(
+            self.endpoint,
+            json.dumps(test_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+
+        assert resp_one.status_code == 201
+        data_one = flatten_write_response(resp_one)
+
+        source_url = '{}{}/'.format(self.endpoint, data_one['source']['id'])
+
+        new_home_page = 'http://test2.homepage.net'
+        test_two_data = get_post_body(id=data_one['source']['id'], home_page=new_home_page)
+
+        resp_two = client.patch(
+            source_url,
+            json.dumps(test_two_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+        assert resp_two.status_code == 200
+
+        data_two = flatten_write_response(resp_two)
+
+        assert data_two['source']['homePage'] == new_home_page
         assert data_one != data_two
 
     def test_bad_image_url(self, client, source_add_user, mock_icon_urls):
