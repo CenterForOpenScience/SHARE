@@ -55,6 +55,7 @@ class UpdateSourceSerializer(ShareSerializer):
         included_resources = ['user', 'source_configs']
 
     def update(self, instance, validated_data):
+        # TODO: when long_title is changed, reindex works accordingly
         icon_url = validated_data.pop('icon_url', None)
         with transaction.atomic():
             instance = super().update(instance, validated_data)

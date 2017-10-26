@@ -9,6 +9,7 @@ from api.shareobjects.serializers import ShareObjectSerializer
 from api.shareobjects.views import ShareObjectViewSet
 
 
+# TODO: Get rid of these generated endpoints, require using GraphQL endpoint for ShareObjects
 class EndpointGenerator:
 
     def __init__(self, router):
