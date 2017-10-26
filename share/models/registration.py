@@ -39,4 +39,5 @@ class ProviderRegistration(models.Model):
     class Meta:
         ordering = ['-submitted_at']
 
-    JSONAPIMeta = util.BaseJSONAPIMeta
+    class JSONAPIMeta(util.BaseJSONAPIMeta):
+        pass

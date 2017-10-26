@@ -205,7 +205,8 @@ class AbstractBaseLog(models.Model):
 
     objects = AbstractLogManager()
 
-    JSONAPIMeta = BaseJSONAPIMeta
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     class Meta:
         abstract = True

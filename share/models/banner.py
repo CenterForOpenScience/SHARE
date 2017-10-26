@@ -15,7 +15,8 @@ class SiteBanner(models.Model):
         (3, 'danger', _('danger'))
     )
 
-    JSONAPIMeta = util.BaseJSONAPIMeta
+    class JSONAPIMeta(util.BaseJSONAPIMeta):
+        pass
 
     active = models.BooleanField(default=True, db_index=True)
 

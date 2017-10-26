@@ -87,7 +87,8 @@ class ChangeSet(models.Model):
 
     _changes_cache = []
 
-    JSONAPIMeta = BaseJSONAPIMeta
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     def accept(self, save=True):
         ret = []
@@ -142,7 +143,8 @@ class Change(models.Model):
 
     change_set = models.ForeignKey(ChangeSet, related_name='changes', on_delete=models.CASCADE)
 
-    JSONAPIMeta = BaseJSONAPIMeta
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     class Meta:
         ordering = ('pk', )

@@ -86,7 +86,8 @@ class Source(models.Model):
 
     objects = NaturalKeyManager('name')
 
-    JSONAPIMeta = BaseJSONAPIMeta
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     def natural_key(self):
         return (self.name,)
@@ -130,7 +131,8 @@ class SourceConfig(models.Model):
 
     objects = NaturalKeyManager('label')
 
-    JSONAPIMeta = BaseJSONAPIMeta
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     def natural_key(self):
         return (self.label,)

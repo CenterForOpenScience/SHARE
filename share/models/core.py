@@ -124,7 +124,8 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'username'
 
-    JSONAPIMeta = BaseJSONAPIMeta
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     class Meta:
         verbose_name = _('Share user')
@@ -191,7 +192,8 @@ class NormalizedData(models.Model):
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryTaskResult')
 
-    JSONAPIMeta = BaseJSONAPIMeta
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     def __str__(self):
         return '{} created at {}'.format(self.source.get_short_name(), self.created_at)
