@@ -28,7 +28,8 @@ class ShareViewSet(viewsets.ViewSet):
             model, id = IDObfuscator().decode(lookup)
         except InvalidID:
             if re.fullmatch(r'\d+', lookup):
-                # I guess primary keys are okay
+                # Allow primary keys for debugging convenience.
+                # Mabye remove if people start abusing this to harvest by sequential PK.
                 return ret
             raise serializers.ValidationError('Invalid ID')
 

@@ -8,7 +8,7 @@ from api.base import ShareSerializer
 
 
 class ShareUserSerializer(ShareSerializer):
-    def __init__(self, *args, token=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields.update({
             '🦄': serializers.SerializerMethodField(method_name='is_superuser'),

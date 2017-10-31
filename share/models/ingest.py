@@ -81,7 +81,7 @@ class Source(models.Model):
     # where one provider unreliable metadata but the other does not.
     canonical = models.BooleanField(default=False, db_index=True)
 
-    # TODO replace with Django permissions something something, allow multiple sources per user
+    # TODO replace with object permissions, allow multiple sources per user (SHARE-996)
     user = models.OneToOneField('ShareUser', null=True, on_delete=models.CASCADE)
 
     objects = NaturalKeyManager('name')
