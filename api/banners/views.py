@@ -1,10 +1,12 @@
 from rest_framework import viewsets
 
-from api.serializers import SiteBannerSerializer
+from api.banners.serializers import SiteBannerSerializer
+from api.base import ShareViewSet
+
 from share.models import SiteBanner
 
 
-class SiteBannerViewSet(viewsets.ReadOnlyModelViewSet):
+class SiteBannerViewSet(ShareViewSet, viewsets.ReadOnlyModelViewSet):
     """View showing all active site-wide announcements."""
     serializer_class = SiteBannerSerializer
 

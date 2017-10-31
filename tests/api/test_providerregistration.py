@@ -2,6 +2,9 @@ import json
 import pytest
 import requests
 
+from share import models
+from share.util import IDObfuscator
+
 
 class Response:
     def __init__(self, status_code=200, json=None, keys=None):
@@ -106,6 +109,13 @@ class TestPostProviderRegistration:
             'detail': 'Received document does not contain primary data',
             'source': {'pointer': '/data'}, 'status': '400'}
         ]}),
+        'in': requests.Request('POST', json={})
+    }, {
+        'out': Response(409, json={'errors': [{
+            'detail': 'The resource object\'s type (None) is not the type that constitute the collection represented by the endpoint (ProviderRegistration).',
+            'source': {'pointer': '/data'},
+            'status': '409'
+        }]}),
         'in': requests.Request('POST', json={'data': {}})
     }, {
         'out': Response(409, json={'errors': [{
@@ -328,4 +338,41 @@ class TestPostProviderRegistration:
                 'first': 'http://testserver/api/v2/sourceregistrations/?page=1',
             },
             'meta': {'pagination': {'count': 0, 'page': 1, 'pages': 1}}
+        }
+
+    @pytest.mark.django_db
+    def test_get_by_id(self, trusted_user, client):
+        reg = models.ProviderRegistration.objects.create(
+            contact_name='Tester Testington',
+            contact_email='Some@thi.ng',
+            contact_affiliation='Just some person',
+            source_name='PlsWerk',
+            submitted_by=trusted_user,
+        )
+
+        resp = client.get(
+            '/api/v2/sourceregistrations/{}/'.format(IDObfuscator.encode(reg)),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION='Bearer {}'.format(trusted_user.accesstoken_set.first()),
+        )
+
+        assert resp.status_code == 200
+        assert resp.json()['data']['id'] == IDObfuscator.encode(reg)
+        assert resp.json()['data']['type'] == 'ProviderRegistration'
+        assert resp.json()['data']['attributes'] == {
+            'contactAffiliation': 'Just some person',
+            'contactEmail': 'Some@thi.ng',
+            'contactName': 'Tester Testington',
+            'directSource': False,
+            'sourceAdditionalInfo': '',
+            'sourceBaseUrl': '',
+            'sourceDescription': '',
+            'sourceDisallowedSets': '',
+            'sourceDocumentation': '',
+            'sourceName': 'PlsWerk',
+            'sourceOai': False,
+            'sourcePreferredMetadataPrefix': '',
+            'sourceRateLimit': '',
+            'status': 'pending',
+            'submittedAt': resp.json()['data']['attributes']['submittedAt']
         }

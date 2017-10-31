@@ -1,12 +1,13 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from api.serializers import ProviderRegistrationSerializer
 from share.models import ProviderRegistration
 
+from api.base.views import ShareViewSet
+from api.sourceregistrations.serializers import ProviderRegistrationSerializer
 
-class ProviderRegistrationViewSet(viewsets.ModelViewSet):
+
+class ProviderRegistrationViewSet(ShareViewSet, generics.ListCreateAPIView, generics.RetrieveAPIView):
     """View showing all registration data in the SHARE Dataset.
 
     ## Submit Registration.
@@ -42,12 +43,3 @@ class ProviderRegistrationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return ProviderRegistration.objects.filter(submitted_by_id=self.request.user.pk)
-
-    def create(self, request, *args, **kwargs):
-        serializer = ProviderRegistrationSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=True):
-            nm_instance = serializer.save()
-            return Response({
-                'id': nm_instance.id,
-                'type': 'ProviderRegistration'
-            }, status=status.HTTP_201_CREATED)
