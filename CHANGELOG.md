@@ -28,9 +28,6 @@
 * Used django-include for a faster OAI-PMH endpoint
 * Updated regex for compatibility with Python 3.6
 
-## Fixed
-* MODS transformer looks at the location field in addition to other fields for a work identifier
-
 # [2.10.0] - 2017-08-03
 ## Added
 * University of Arizona as a source
@@ -65,6 +62,7 @@
 # Fixed
 * HarvestLogs no longer get stuck in progress
 * Text parsing transformer utilties
+* MODS transformer looks at the location field in addition to other fields for a work identifier
 
 # [2.8.0] - 2017-05-12
 ## Added
