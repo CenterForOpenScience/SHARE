@@ -1,5 +1,16 @@
 # Change Log
 
+# Unreleased
+## Added
+* Support for set blacklists for sources that follow OAI-PMH protocol
+* Set whitelist for UA Campus Repository
+
+## Changed
+* Collect metadata in MODS format from UA Campus Repository
+
+## Fixed
+* Backfill CHANGELOG.md to include `2.10.0` and `2.11.0`
+
 # [2.12.0] - 2017-09-14
 ## Added
 * `editsubjects` management command to modify `share/subjects.yaml`
@@ -7,6 +18,25 @@
 ## Changed
 * Replace `share/models/subjects.json` with `share/subjects.yaml`
 * Update central subjects taxonomy to match Bepress' 2017-07 update
+
+# [2.11.0] - 2017-08-27
+## Added
+* Symbiota as a source
+* AEA as a source
+
+## Changed
+* Used django-include for a faster OAI-PMH endpoint
+* Updated regex for compatibility with Python 3.6
+
+## Fixed
+* MODS transformer looks at the location field in addition to other fields for a work identifier
+
+# [2.10.0] - 2017-08-03
+## Added
+* University of Arizona as a source
+* NAU Open Knowledge as a source
+* Started collecting analytics on source APIs (response time, etc.)
+* Support for custom taxonomies
 
 # [2.9.0] - 2017-06-15
 ## Added
