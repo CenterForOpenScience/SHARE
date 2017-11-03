@@ -20,6 +20,8 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
 
 # TODO Remove this when refactoring users endpoints (SHARE-586)
 class ShareUserView(views.APIView):
+    resource_name = 'ShareUser'
+
     def get(self, request, *args, **kwargs):
         ser = ShareUserWithTokenSerializer(request.user)
         return Response(ser.data)
