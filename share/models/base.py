@@ -41,6 +41,10 @@ class ShareObjectVersion(models.Model):
         )
 
 
+class ShareObjectJSONAPIMeta(util.BaseJSONAPIMeta):
+    skip_null_values = True
+
+
 # Generates 2 class from the original definition of the model
 # A concrete class, <classname>
 # And a version class, <classname>Version
@@ -54,6 +58,7 @@ class ShareObjectMeta(ModelBase):
         'change': lambda: models.OneToOneField(Change, related_name='affected_%(class)s', editable=False, on_delete=DATABASE_CASCADE),
         'date_modified': lambda: models.DateTimeField(auto_now=True, editable=False, db_index=True, help_text=_('The date this record was modified by SHARE.')),
         'date_created': lambda: models.DateTimeField(auto_now_add=True, editable=False, help_text=_('The date of ingress to SHARE.')),
+        'JSONAPIMeta': ShareObjectJSONAPIMeta,
     }
 
     def __new__(cls, name, bases, attrs):

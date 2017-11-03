@@ -20,7 +20,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 # from django.db.models import Exists, OuterRef
 
-from share.util import chunked
+from share.util import chunked, BaseJSONAPIMeta
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models.fields import DateTimeAwareJSONField
 from share.regulate import Regulator
@@ -211,6 +211,9 @@ class AbstractBaseJob(models.Model):
     source_config_version = models.PositiveIntegerField()
 
     objects = AbstractJobManager()
+
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     class Meta:
         abstract = True

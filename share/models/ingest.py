@@ -18,7 +18,7 @@ from django.utils.deconstruct import deconstructible
 from share.util.extensions import Extensions
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.indexes import ConcurrentIndex
-from share.util import chunked, placeholders
+from share.util import chunked, placeholders, BaseJSONAPIMeta
 
 
 logger = logging.getLogger(__name__)
@@ -81,10 +81,13 @@ class Source(models.Model):
     # where one provider unreliable metadata but the other does not.
     canonical = models.BooleanField(default=False, db_index=True)
 
-    # TODO replace with Django permissions something something, allow multiple sources per user
-    user = models.OneToOneField('ShareUser', on_delete=models.CASCADE)
+    # TODO replace with object permissions, allow multiple sources per user (SHARE-996)
+    user = models.OneToOneField('ShareUser', null=True, on_delete=models.CASCADE)
 
     objects = NaturalKeyManager('name')
+
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     def natural_key(self):
         return (self.name,)
@@ -101,7 +104,7 @@ class SourceConfig(models.Model):
     label = models.TextField(unique=True)
     version = models.PositiveIntegerField(default=1)
 
-    source = models.ForeignKey('Source', on_delete=models.CASCADE)
+    source = models.ForeignKey('Source', on_delete=models.CASCADE, related_name='source_configs')
     base_url = models.URLField(null=True)
     earliest_date = models.DateField(null=True, blank=True)
     rate_limit_allowance = models.PositiveIntegerField(default=5)
@@ -127,6 +130,9 @@ class SourceConfig(models.Model):
     disabled = models.BooleanField(default=False)
 
     objects = NaturalKeyManager('label')
+
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     def natural_key(self):
         return (self.label,)
@@ -411,7 +417,7 @@ class RawDatum(models.Model):
             ConcurrentIndex(fields=['no_output']),
         )
 
-    class JSONAPIMeta:
+    class JSONAPIMeta(BaseJSONAPIMeta):
         resource_name = 'RawData'
 
     def __repr__(self):
