@@ -33,7 +33,7 @@ class Command(BaseShareCommand):
     def enforce_blacklist(self, source_config, dry_run):
         self.stdout.write('\nEnforcing blacklist for {}'.format(source_config.label), style_func=self.style.SUCCESS)
 
-        blacklist = source_config.transformer_kwargs.get('blocked_sets')
+        blacklist = source_config.transformer_kwargs.get('blocked_sets') if source_config.transformer_kwargs else None
         if not blacklist:
             self.stdout.write('{} has no blocked sets, skipping...'.format(source_config.label), style_func=self.style.WARNING)
             return
@@ -52,9 +52,9 @@ class Command(BaseShareCommand):
         self.delete_works(to_delete, source_config, dry_run)
 
     def enforce_whitelist(self, source_config, dry_run):
-        self.stdout.write(self.style.SUCCESS('\nEnforcing whitelist for {}'.format(source_config.label)))
+        self.stdout.write('\nEnforcing whitelist for {}'.format(source_config.label), style_func=self.style.SUCCESS)
 
-        whitelist = source_config.transformer_kwargs.get('approved_sets')
+        whitelist = source_config.transformer_kwargs.get('approved_sets') if source_config.transformer_kwargs else None
         if not whitelist:
             self.stdout.write('{} has no approved sets, skipping...'.format(source_config.label), style_func=self.style.WARNING)
             return
