@@ -202,7 +202,7 @@ DATABASES = {
         'NAME': os.environ.get('DATABASE_NAME', 'share'),
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
-        'PORT': os.environ.get('DATABASE_PORT', '5432'),
+        'PORT': os.environ.get('DATABASE_PORT', '35432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', 0 if DEBUG else 60)),
         'TEST': {'SERIALIZE': False},
