@@ -451,16 +451,19 @@ class MODSTransformer(ChainTransformer):
     }
 
     def get_root_parser(self, unwrapped, emitted_type='creativework', type_map=None, role_map=None, **kwargs):
+        root_type_map = {
+            **{r.lower(): r for r in self.allowed_roots},
+            **{t.lower(): v for t, v in (type_map or {}).items()}
+        }
+        root_role_map = {
+            **{k: v for k, v in self.marc_roles.items()},
+            **{k.lower(): v.lower() for k, v in (role_map or {}).items()}
+        }
+
         class RootParser(MODSCreativeWork):
             default_type = emitted_type.lower()
-            type_map = {
-                **{r.lower(): r for r in self.allowed_roots},
-                **{t.lower(): v for t, v in (type_map or {}).items()}
-            }
-            role_map = {
-                **{k: v for k, v in self.marc_roles.items()},
-                **{k.lower(): v.lower() for k, v in (role_map or {}).items()}
-            }
+            type_map = root_type_map
+            role_map = root_role_map
 
         return RootParser
 

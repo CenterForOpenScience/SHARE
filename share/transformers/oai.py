@@ -299,12 +299,14 @@ class OAITransformer(ChainTransformer):
     VERSION = 1
 
     def get_root_parser(self, unwrapped, emitted_type='creativework', type_map=None, property_list=None, **kwargs):
+        root_type_map = {
+            **{r.lower(): r for r in self.allowed_roots},
+            **{t.lower(): v for t, v in (type_map or {}).items()}
+        }
+
         class RootParser(OAICreativeWork):
             default_type = emitted_type.lower()
-            type_map = {
-                **{r.lower(): r for r in self.allowed_roots},
-                **{t.lower(): v for t, v in (type_map or {}).items()}
-            }
+            type_map = root_type_map
 
         if property_list:
             logger.debug('Attaching addition properties %s to transformer for %s'.format(property_list, self.config.label))

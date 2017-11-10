@@ -31,6 +31,9 @@ class BaseTransformer(metaclass=abc.ABCMeta):
             datum = datum.decode()
         jsonld, root_ref = self.do_transform(datum, **self._get_kwargs(**kwargs))
 
+        if not jsonld:
+            return None
+
         if source_id and jsonld and root_ref:
             self.add_source_identifier(source_id, jsonld, root_ref)
 
