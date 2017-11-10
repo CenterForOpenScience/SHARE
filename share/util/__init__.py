@@ -37,7 +37,7 @@ class IDObfuscator:
 
     @classmethod
     def encode(cls, instance):
-        return cls.encode_id(instance.id, type(instance))
+        return cls.encode_id(instance.id, instance._meta.model)
 
     @classmethod
     def encode_id(cls, pk, model):
