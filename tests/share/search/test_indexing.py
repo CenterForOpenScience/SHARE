@@ -329,6 +329,34 @@ class TestFetchers:
         assert {k: v for k, v in fetched.items() if k.startswith('subject')} == expected
 
     @pytest.mark.django_db
+    def test_lineage_indexing(self):
+        child = factories.AbstractCreativeWorkFactory()
+
+        fetched = next(fetchers.CreativeWorkFetcher()([child.id]))
+        assert fetched['lists'].get('lineage') is None
+
+        actual_lineage = [child]
+        for _ in range(5):
+            new_parent = factories.AbstractCreativeWorkFactory()
+            factories.AbstractWorkRelationFactory(
+                type='share.ispartof',
+                subject=actual_lineage[0],
+                related=new_parent
+            )
+            actual_lineage.insert(0, new_parent)
+
+            for i, work in enumerate(actual_lineage):
+                expected_lineage = actual_lineage[:i][-3:]
+                fetched = next(fetchers.CreativeWorkFetcher()([work.id]))
+                fetched_lineage = fetched['lists'].get('lineage', [])
+
+                assert len(fetched_lineage) == len(expected_lineage)
+                for indexed, ancestor in zip(fetched_lineage, expected_lineage):
+                    assert indexed['id'] == util.IDObfuscator.encode(ancestor)
+                    assert indexed['title'] == ancestor.title
+                    assert set(indexed['identifiers']) == set(ancestor.identifiers.values_list('uri'))
+
+    @pytest.mark.django_db
     def test_agent_fetcher(self):
         agents = [
             factories.AbstractAgentFactory(),
