@@ -1,5 +1,5 @@
 
-from xml.sax.saxutils import escape
+from xml.sax.saxutils import unescape
 import datetime
 import json
 import logging
@@ -27,10 +27,12 @@ RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
 RE_XML_ILLEGAL_COMPILED = re.compile(RE_XML_ILLEGAL)
 
 
-def sanitize_for_xml(s):
+def prepare_string(s):
     if s:
         s = RE_XML_ILLEGAL_COMPILED.sub('', s)
-        return escape(s)
+        # Strings will be autoescaped during XML generation, and data from elasticsearch
+        # is already bleached. Unescape to escape extra escapes.
+        return unescape(s)
     return s
 
 
@@ -57,7 +59,7 @@ class CreativeWorksRSS(Feed):
 
     def title(self, obj):
         query = json.dumps(obj.get('query', 'All'))
-        return sanitize_for_xml('SHARE: Atom feed for query: {}'.format(query))
+        return prepare_string('SHARE: Atom feed for query: {}'.format(query))
 
     def get_object(self, request):
         self._order = request.GET.get('order')
@@ -97,10 +99,10 @@ class CreativeWorksRSS(Feed):
         return [get_item(hit) for hit in json_response['hits']['hits']]
 
     def item_title(self, item):
-        return sanitize_for_xml(item.get('title', 'No title provided.'))
+        return prepare_string(item.get('title', 'No title provided.'))
 
     def item_description(self, item):
-        return sanitize_for_xml(item.get('description', 'No description provided.'))
+        return prepare_string(item.get('description', 'No description provided.'))
 
     def item_link(self, item):
         # Link to SHARE curate page
@@ -115,7 +117,7 @@ class CreativeWorksRSS(Feed):
     def item_categories(self, item):
         categories = item.get('subjects', [])
         categories.extend(item.get('tags', []))
-        return [sanitize_for_xml(c) for c in categories if c]
+        return [prepare_string(c) for c in categories if c]
 
 
 class CreativeWorksAtom(CreativeWorksRSS):
