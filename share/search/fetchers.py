@@ -102,6 +102,10 @@ fetcher_for = Fetcher.fetcher_for
 
 class CreativeWorkFetcher(Fetcher):
     SUBJECT_DELIMITER = '|'
+    RETRACTION_RELATION = 'share.retracts'
+    PARENT_RELATION = 'share.ispartof'
+    WORK_ANCESTORS_DEPTH = 3
+    MAX_IDENTIFIERS = 50
 
     QUERY_TEMPLATE = '''
     WITH pks AS (SELECT * FROM UNNEST(%(ids)s::int[]) WITH ORDINALITY t(id, ord)),
@@ -111,165 +115,265 @@ class CreativeWorkFetcher(Fetcher):
     ORDER BY pks.ord;
     '''
 
-    QUERY = '''
-    all_tags AS (
-        SELECT
-            creative_work_id AS creativework_id,
-            array_agg(share_tag.name) AS tags
-        FROM share_tag
-            JOIN share_throughtags ON share_tag.id = share_throughtags.tag_id
-        WHERE share_throughtags.creative_work_id IN (SELECT id FROM pks)
-        GROUP BY creative_work_id
-    ),
-    all_sources AS (
-        SELECT
-             abstractcreativework_id AS creativework_id,
-             array_agg(DISTINCT share_source.long_title) AS sources
-        FROM share_creativework_sources
-            JOIN share_shareuser ON share_creativework_sources.shareuser_id = share_shareuser.id
-            JOIN share_source ON share_shareuser.id = share_source.user_id
-        WHERE share_creativework_sources.abstractcreativework_id IN (SELECT id FROM pks)
-        AND NOT share_source.is_deleted
-        GROUP BY abstractcreativework_id
-    ),
-    all_related_agents AS (
-        SELECT
-            agent_relation.creative_work_id AS creativework_id,
-            json_agg(json_strip_nulls(json_build_object(
-                'id', agent.id
-                , 'type', agent.type
-                , 'name', agent.name
-                , 'given_name', agent.given_name
-                , 'family_name', agent.family_name
-                , 'additional_name', agent.additional_name
-                , 'suffix', agent.suffix
-                , 'identifiers', COALESCE(identifiers, '{}')
-                , 'relation_type', agent_relation.type
-                , 'order_cited', agent_relation.order_cited
-                , 'cited_as', agent_relation.cited_as
-                , 'affiliations', COALESCE(affiliations, '[]'::json)
-                , 'awards', COALESCE(awards, '[]'::json)
-            ))) AS related_agents
-        FROM share_agentworkrelation AS agent_relation
-            JOIN share_agent AS agent ON agent_relation.agent_id = agent.id
-        LEFT JOIN LATERAL (
+    QUERY = (
+        # Gather all the tags in one query, for use below
+        '''
+        all_tags AS (
             SELECT
-                array_agg(identifier.uri) AS identifiers
-            FROM share_agentidentifier AS identifier
-            WHERE identifier.agent_id = agent.id
-            AND identifier.scheme != 'mailto'
-            LIMIT 51
-        ) AS identifiers ON TRUE
-        LEFT JOIN LATERAL (
-            SELECT json_agg(json_strip_nulls(json_build_object(
-                'id', affiliated_agent.id
-                , 'type', affiliated_agent.type
-                , 'name', affiliated_agent.name
-                , 'affiliation_type', affiliation.type
-            ))) AS affiliations
-            FROM share_agentrelation AS affiliation
-                JOIN share_agent AS affiliated_agent ON affiliation.related_id = affiliated_agent.id
-            WHERE affiliation.subject_id = agent.id AND affiliated_agent.type != 'share.person'
-        ) AS affiliations ON (agent.type = 'share.person')
-        LEFT JOIN LATERAL (
-            SELECT json_agg(json_strip_nulls(json_build_object(
-                'id', award.id
-                , 'type', 'share.award'
-                , 'date', award.date
-                , 'name', award.name
-                , 'description', award.description
-                , 'uri', award.uri
-                , 'amount', award.award_amount
-            ))) AS awards
-            FROM share_throughawards AS throughaward
-                JOIN share_award AS award ON throughaward.award_id = award.id
-            WHERE throughaward.funder_id = agent_relation.id
-        ) AS awards ON agent_relation.type = 'share.funder'
-        WHERE agent_relation.creative_work_id IN (SELECT id FROM pks)
-        GROUP BY agent_relation.creative_work_id
-    ),
-    results AS (
-        SELECT creativework.id, json_build_object(
-            'id', creativework.id
-            , 'type', creativework.type
-            , 'title', creativework.title
-            , 'description', creativework.description
-            , 'is_deleted', creativework.is_deleted
-            , 'language', creativework.language
-            , 'date_created', creativework.date_created
-            , 'date_modified', creativework.date_modified
-            , 'date_updated', creativework.date_updated
-            , 'date_published', creativework.date_published
-            , 'registration_type', creativework.registration_type
-            , 'withdrawn', creativework.withdrawn
-            , 'justification', creativework.justification
-            , 'tags', COALESCE(tags, '{}')
-            , 'identifiers', COALESCE(identifiers, '{}')
-            , 'sources', COALESCE(sources, '{}')
-            , 'subjects', COALESCE(subjects.original, '{}')
-            , 'subject_synonyms', COALESCE(subjects.synonyms, '{}')
-            , 'related_agents', COALESCE(related_agents, '{}')
-            , 'retractions', COALESCE(retractions, '{}')
-        ) AS _source
-        FROM share_creativework AS creativework
-             LEFT JOIN LATERAL (SELECT sources FROM all_sources WHERE creativework_id = creativework.id) AS sources ON TRUE
-             LEFT JOIN LATERAL (SELECT tags FROM all_tags WHERE creativework_id = creativework.id) AS tags ON TRUE
-        LEFT JOIN LATERAL (SELECT related_agents FROM all_related_agents WHERE creativework_id = creativework.id) AS related_agents ON TRUE
-        LEFT JOIN LATERAL (
-                    SELECT array_agg(identifier.uri) AS identifiers
-                    FROM share_workidentifier AS identifier
-                    WHERE identifier.creative_work_id = creativework.id
-                    ) AS links ON TRUE
-        LEFT JOIN LATERAL (
-          WITH RECURSIVE subject_names(synonym, taxonomy, parent_id, path) AS (
-              SELECT
-                FALSE, CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END, parent_id, share_subject.name
-              FROM share_throughsubjects
-                JOIN share_subject ON share_subject.id = share_throughsubjects.subject_id
-                JOIN share_subjecttaxonomy AS taxonomy ON share_subject.taxonomy_id = taxonomy.id
-                JOIN share_source AS source ON taxonomy.source_id = source.id
-              WHERE share_throughsubjects.creative_work_id = creativework.id AND NOT share_throughsubjects.is_deleted
-            UNION ALL
+                creative_work_id AS creativework_id,
+                array_agg(share_tag.name) AS tags
+            FROM share_tag
+                JOIN share_throughtags ON share_tag.id = share_throughtags.tag_id
+            WHERE share_throughtags.creative_work_id IN (SELECT id FROM pks)
+            GROUP BY creative_work_id
+        ),
+        '''
+
+        # Gather all the sources in one query, for use below
+        '''
+        all_sources AS (
+            SELECT
+                 abstractcreativework_id AS creativework_id,
+                 array_agg(DISTINCT share_source.long_title) AS sources
+            FROM share_creativework_sources
+                JOIN share_shareuser ON share_creativework_sources.shareuser_id = share_shareuser.id
+                JOIN share_source ON share_shareuser.id = share_source.user_id
+            WHERE share_creativework_sources.abstractcreativework_id IN (SELECT id FROM pks)
+            AND NOT share_source.is_deleted
+            GROUP BY abstractcreativework_id
+        ),
+        '''
+
+        # Gather all the agents in one query, for use below
+        '''
+        all_related_agents AS (
+            SELECT
+                agent_relation.creative_work_id AS creativework_id,
+                json_agg(json_strip_nulls(json_build_object(
+                    'id', agent.id
+                    , 'type', agent.type
+                    , 'name', agent.name
+                    , 'given_name', agent.given_name
+                    , 'family_name', agent.family_name
+                    , 'additional_name', agent.additional_name
+                    , 'suffix', agent.suffix
+                    , 'identifiers', COALESCE(identifiers, '{}')
+                    , 'relation_type', agent_relation.type
+                    , 'order_cited', agent_relation.order_cited
+                    , 'cited_as', agent_relation.cited_as
+                    , 'affiliations', COALESCE(affiliations, '[]'::json)
+                    , 'awards', COALESCE(awards, '[]'::json)
+                ))) AS related_agents
+            FROM share_agentworkrelation AS agent_relation
+                JOIN share_agent AS agent ON agent_relation.agent_id = agent.id
+
+            LEFT JOIN LATERAL (
                 SELECT
-                TRUE, %(central_taxonomy)s, central.parent_id, central.name
-              FROM share_throughsubjects
-                JOIN share_subject ON share_subject.id = share_throughsubjects.subject_id
-                JOIN share_subject AS central ON central.id = share_subject.central_synonym_id
-              WHERE share_throughsubjects.creative_work_id = creativework.id AND NOT share_throughsubjects.is_deleted
-            UNION ALL
-              SELECT synonym, child.taxonomy, parent.parent_id, concat_ws(%(subject_delimiter)s, parent.name, path) FROM subject_names AS child INNER JOIN share_subject AS parent ON child.parent_id = parent.id
-          ) SELECT
-            (SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path)) from subject_names WHERE NOT synonym AND parent_id IS NULL) AS original,
-            (SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path)) from subject_names WHERE synonym AND parent_id IS NULL) AS synonyms
-        ) AS subjects ON TRUE
-        LEFT JOIN LATERAL (
-                    SELECT json_agg(json_strip_nulls(json_build_object(
-                                                        'id', retraction.id
-                                                        , 'type', retraction.type
-                                                        , 'title', retraction.title
-                                                        , 'description', retraction.description
-                                                        , 'date_created', retraction.date_created
-                                                        , 'date_modified', retraction.date_modified
-                                                        , 'date_updated', retraction.date_updated
-                                                        , 'date_published', retraction.date_published
-                                                        , 'identifiers', COALESCE(identifiers, '{}')
-                                                    ))) AS retractions
-                    FROM share_workrelation AS work_relation
-                    JOIN share_creativework AS retraction ON work_relation.subject_id = retraction.id
-                    LEFT JOIN LATERAL (
+                    array_agg(identifier.uri) AS identifiers
+                FROM share_agentidentifier AS identifier
+                WHERE identifier.agent_id = agent.id
+                AND identifier.scheme != 'mailto'
+                LIMIT 51
+            ) AS identifiers ON TRUE
+
+            LEFT JOIN LATERAL (
+                SELECT json_agg(json_strip_nulls(json_build_object(
+                    'id', affiliated_agent.id
+                    , 'type', affiliated_agent.type
+                    , 'name', affiliated_agent.name
+                    , 'affiliation_type', affiliation.type
+                ))) AS affiliations
+                FROM share_agentrelation AS affiliation
+                    JOIN share_agent AS affiliated_agent ON affiliation.related_id = affiliated_agent.id
+                WHERE affiliation.subject_id = agent.id AND affiliated_agent.type != 'share.person'
+            ) AS affiliations ON (agent.type = 'share.person')
+
+            LEFT JOIN LATERAL (
+                SELECT json_agg(json_strip_nulls(json_build_object(
+                    'id', award.id
+                    , 'type', 'share.award'
+                    , 'date', award.date
+                    , 'name', award.name
+                    , 'description', award.description
+                    , 'uri', award.uri
+                    , 'amount', award.award_amount
+                ))) AS awards
+                FROM share_throughawards AS throughaward
+                    JOIN share_award AS award ON throughaward.award_id = award.id
+                WHERE throughaward.funder_id = agent_relation.id
+            ) AS awards ON agent_relation.type = 'share.funder'
+
+            WHERE agent_relation.creative_work_id IN (SELECT id FROM pks)
+            GROUP BY agent_relation.creative_work_id
+        ),
+        '''
+
+        # For each work, construct the JSON that (after post-processing) will be sent to elasticsearch
+        '''
+        results AS (
+            SELECT creativework.id, json_build_object(
+                'id', creativework.id
+                , 'type', creativework.type
+                , 'title', creativework.title
+                , 'description', creativework.description
+                , 'is_deleted', creativework.is_deleted
+                , 'language', creativework.language
+                , 'date_created', creativework.date_created
+                , 'date_modified', creativework.date_modified
+                , 'date_updated', creativework.date_updated
+                , 'date_published', creativework.date_published
+                , 'registration_type', creativework.registration_type
+                , 'withdrawn', creativework.withdrawn
+                , 'justification', creativework.justification
+                , 'tags', COALESCE(tags, '{}')
+                , 'identifiers', COALESCE(identifiers, '{}')
+                , 'sources', COALESCE(sources, '{}')
+                , 'subjects', COALESCE(subjects.original, '{}')
+                , 'subject_synonyms', COALESCE(subjects.synonyms, '{}')
+                , 'related_agents', COALESCE(related_agents, '{}')
+                , 'retractions', COALESCE(retractions, '{}')
+                , 'lineage', COALESCE(lineage, '{}')
+            ) AS _source
+            FROM share_creativework AS creativework
+
+            LEFT JOIN LATERAL (
+                SELECT sources FROM all_sources WHERE creativework_id = creativework.id
+            ) AS sources ON TRUE
+
+            LEFT JOIN LATERAL (
+                SELECT tags FROM all_tags WHERE creativework_id = creativework.id
+            ) AS tags ON TRUE
+
+            LEFT JOIN LATERAL (
+                SELECT related_agents FROM all_related_agents WHERE creativework_id = creativework.id
+            ) AS related_agents ON TRUE
+
+            LEFT JOIN LATERAL (
+                SELECT array_agg(identifier.uri) AS identifiers
+                FROM share_workidentifier AS identifier
+                WHERE identifier.creative_work_id = creativework.id
+            ) AS identifiers ON TRUE
+        '''
+
+        # Get the full subject lineage for each subject on the work (subjects.original),
+        # as well as their synonyms in the central taxonomy (subjects.synonyms)
+        '''
+            LEFT JOIN LATERAL (
+                WITH RECURSIVE subject_names(synonym, taxonomy, parent_id, path) AS (
+                    SELECT
+                        FALSE,
+                        CASE WHEN source.name = %(system_user)s THEN %(central_taxonomy)s ELSE source.long_title END,
+                        parent_id,
+                        share_subject.name
+                    FROM share_throughsubjects
+                        JOIN share_subject ON share_subject.id = share_throughsubjects.subject_id
+                        JOIN share_subjecttaxonomy AS taxonomy ON share_subject.taxonomy_id = taxonomy.id
+                        JOIN share_source AS source ON taxonomy.source_id = source.id
+                    WHERE share_throughsubjects.creative_work_id = creativework.id
+                        AND NOT share_throughsubjects.is_deleted
+                    UNION ALL
+                        SELECT
+                            TRUE, %(central_taxonomy)s, central.parent_id, central.name
+                        FROM share_throughsubjects
+                            JOIN share_subject ON share_subject.id = share_throughsubjects.subject_id
+                            JOIN share_subject AS central ON central.id = share_subject.central_synonym_id
+                        WHERE share_throughsubjects.creative_work_id = creativework.id
+                            AND NOT share_throughsubjects.is_deleted
+
+                    UNION ALL
+                        SELECT
+                            synonym,
+                            child.taxonomy,
+                            parent.parent_id,
+                            concat_ws(%(subject_delimiter)s, parent.name, path)
+                        FROM subject_names AS child
+                            INNER JOIN share_subject AS parent ON child.parent_id = parent.id
+                ) SELECT
+                    (
+                        SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path))
+                        FROM subject_names
+                        WHERE NOT synonym AND parent_id IS NULL
+                    ) AS original,
+                    (
+                        SELECT array_agg(DISTINCT concat_ws(%(subject_delimiter)s, taxonomy, path))
+                        FROM subject_names
+                        WHERE synonym AND parent_id IS NULL
+                    ) AS synonyms
+            ) AS subjects ON TRUE
+        '''
+
+        # Find the work's parent/grandparent/great-grandparent
+        '''
+            LEFT JOIN LATERAL (
+                WITH RECURSIVE ancestors(depth, id, type, title, identifiers) AS (
+                    VALUES (0, creativework.id, NULL, NULL, NULL::text[])
+                    UNION (
+                        SELECT
+                            child.depth + 1, parent.id, parent.type, parent.title, COALESCE(parent_identifiers.identifiers, '{}')
+                        FROM ancestors AS child
+                            JOIN share_workrelation AS work_relation ON child.id = work_relation.subject_id
+                            JOIN share_creativework AS parent ON work_relation.related_id = parent.id
+                            LEFT JOIN LATERAL (
                                 SELECT array_agg(identifier.uri) AS identifiers
                                 FROM share_workidentifier AS identifier
-                                WHERE identifier.creative_work_id = retraction.id
-                                ) AS identifiers ON TRUE
-                    WHERE work_relation.related_id = creativework.id
-                    AND work_relation.type = 'share.retracts'
+                                WHERE identifier.creative_work_id = parent.id
+                            ) AS parent_identifiers ON TRUE
+                        WHERE work_relation.type = %(parent_relation)s
+                            AND child.depth < %(work_ancestors_depth)s
+                            AND NOT parent.is_deleted
+                        LIMIT 1
+                    )
+                )
+                SELECT json_agg(json_strip_nulls(json_build_object(
+                        'id', id
+                        , 'type', type
+                        , 'title', title
+                        , 'identifiers', identifiers
+                    ))) AS lineage
+                FROM ancestors
+                WHERE depth > 0
+            ) AS lineage ON TRUE
+        '''
+
+        # Find works that retract this work
+        '''
+            LEFT JOIN LATERAL (
+                SELECT json_agg(json_strip_nulls(json_build_object(
+                        'id', retraction.id
+                        , 'type', retraction.type
+                        , 'title', retraction.title
+                        , 'description', retraction.description
+                        , 'date_created', retraction.date_created
+                        , 'date_modified', retraction.date_modified
+                        , 'date_updated', retraction.date_updated
+                        , 'date_published', retraction.date_published
+                        , 'identifiers', COALESCE(identifiers, '{}')
+                    ))) AS retractions
+                FROM share_workrelation AS work_relation
+                    JOIN share_creativework AS retraction ON work_relation.subject_id = retraction.id
+                    LEFT JOIN LATERAL (
+                        SELECT array_agg(identifier.uri) AS identifiers
+                        FROM share_workidentifier AS identifier
+                        WHERE identifier.creative_work_id = retraction.id
+                    ) AS identifiers ON TRUE
+                WHERE work_relation.related_id = creativework.id
+                    AND work_relation.type = %(retraction_relation)s
                     AND NOT retraction.is_deleted
-                    ) AS retractions ON TRUE
-        WHERE creativework.id IN (SELECT id FROM pks)
-        AND creativework.title != ''
-        AND (SELECT COUNT(*) FROM share_workidentifier WHERE share_workidentifier.creative_work_id = creativework.id LIMIT 52) < 51
+            ) AS retractions ON TRUE
+        '''
+
+        # Exclude works with empty titles or too many identifiers
+        '''
+            WHERE creativework.id IN (SELECT id FROM pks)
+            AND creativework.title != ''
+            AND (
+                SELECT COUNT(*) FROM share_workidentifier
+                WHERE share_workidentifier.creative_work_id = creativework.id
+                LIMIT %(max_identifiers)s + 1
+            ) <= %(max_identifiers)s
+        )
+        '''
     )
-    '''
 
     def query_parameters(self, pks):
         return {
@@ -277,6 +381,10 @@ class CreativeWorkFetcher(Fetcher):
             'central_taxonomy': settings.SUBJECTS_CENTRAL_TAXONOMY,
             'subject_delimiter': self.SUBJECT_DELIMITER,
             'system_user': settings.APPLICATION_USERNAME,
+            'retraction_relation': self.RETRACTION_RELATION,
+            'parent_relation': self.PARENT_RELATION,
+            'work_ancestors_depth': self.WORK_ANCESTORS_DEPTH,
+            'max_identifiers': self.MAX_IDENTIFIERS,
         }
 
     def post_process(self, data):
@@ -339,6 +447,13 @@ class CreativeWorkFetcher(Fetcher):
         for retraction in data.pop('retractions'):
             self.populate_types(retraction)
             data['lists'].setdefault('retractions', []).append(retraction)
+
+        lineage = []
+        for ancestor in data.pop('lineage'):
+            self.populate_types(ancestor)
+            lineage.insert(0, ancestor)
+        if lineage:
+            data['lists']['lineage'] = lineage
 
         data['date'] = (data['date_published'] or data['date_updated'] or data['date_created'])
 
