@@ -88,7 +88,7 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
         jobs = []
 
         # TODO take harvest/sourceconfig version into account here
-        for source_config in qs.exclude(harvester__isnull=True).select_related('harvester').annotate(latest=models.Max('harvestjobs__end_date')):
+        for source_config in qs.exclude(harvester__isnull=True).select_related('harvester').annotate(latest=models.Max('harvest_jobs__end_date')):
             jobs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
 
         HarvestJob.objects.bulk_get_or_create(jobs)

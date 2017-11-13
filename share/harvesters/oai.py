@@ -97,11 +97,11 @@ class OAIHarvester(BaseHarvester):
 
         return records, token
 
-    def fetch_by_id(self, provider_id):
+    def fetch_by_id(self, identifier, metadata_prefix, **kwargs):
         url = furl(self.config.base_url)
         url.args['verb'] = 'GetRecord'
-        url.args['metadataPrefix'] = self.config.harvester_kwargs['metadata_prefix']
-        url.args['identifier'] = provider_id
+        url.args['metadataPrefix'] = metadata_prefix
+        url.args['identifier'] = identifier
         return etree.tostring(self.fetch_page(url)[0][0], encoding=str)
 
     def metadata_formats(self):

@@ -205,10 +205,7 @@ class AbstractBaseJob(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True, editable=False, db_index=True)
 
-    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='%(class)ss', on_delete=models.CASCADE)
-
     share_version = models.TextField(default=get_share_version, editable=False)
-    source_config_version = models.PositiveIntegerField()
 
     objects = AbstractJobManager()
 
@@ -438,6 +435,9 @@ class HarvestJob(AbstractBaseJob):
     # May want to look into using DateRange in the future
     end_date = models.DateField(db_index=True)
     start_date = models.DateField(db_index=True)
+
+    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='harvest_jobs', on_delete=models.CASCADE)
+    source_config_version = models.PositiveIntegerField()
     harvester_version = models.PositiveIntegerField()
 
     class Meta:
@@ -460,9 +460,11 @@ class HarvestJob(AbstractBaseJob):
 
 
 class IngestJob(AbstractBaseJob):
-    raw = models.ForeignKey('RawDatum', related_name='ingest_jobs')
-    suid = models.ForeignKey('SourceUniqueIdentifier', related_name='ingest_jobs')
+    raw = models.ForeignKey('RawDatum', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
+    suid = models.ForeignKey('SourceUniqueIdentifier', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
+    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
 
+    source_config_version = models.PositiveIntegerField()
     transformer_version = models.PositiveIntegerField()
     regulator_version = models.PositiveIntegerField()
 
@@ -512,4 +514,4 @@ class RegulatorLog(models.Model):
     node_id = models.TextField(null=True)
     rejected = models.BooleanField()
 
-    ingest_job = models.ForeignKey(IngestJob, related_name='regulator_logs')
+    ingest_job = models.ForeignKey(IngestJob, related_name='regulator_logs', editable=False, on_delete=models.CASCADE)

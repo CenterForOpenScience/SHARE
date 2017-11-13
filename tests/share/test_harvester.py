@@ -48,9 +48,9 @@ class TestHarvesterInterface:
         with pytest.raises(NotImplementedError):
             BaseHarvester._do_fetch(harvester, None, None)
 
-    def test_fetch_id_not_implemented(self, harvester):
+    def test_fetch_by_id_not_implemented(self, harvester):
         with pytest.raises(NotImplementedError):
-            harvester.fetch_id('myid')
+            harvester.fetch_by_id('myid')
 
     def test_fetch_date(self, harvester):
         harvester.fetch_date_range = mock.Mock()

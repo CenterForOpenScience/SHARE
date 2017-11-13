@@ -81,7 +81,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         self.network_read_timeout = (network_read_timeout or self.network_read_timeout)
         self.network_connect_timeout = (network_connect_timeout or self.network_connect_timeout)
 
-    def fetch_id(self, identifier):
+    def fetch_by_id(self, identifier, **kwargs):
         """Fetch a document by provider ID.
 
         Optional to implement, intended for dev and manual testing.
@@ -153,7 +153,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             result = FetchResult(blob[0], self.serializer.serialize(blob[1]), *blob[2:])
 
             if result.datestamp is None:
-                result.datestamp = end
+                result.datestamp = start
             elif (result.datestamp.date() < start.date() or result.datestamp.date() > end.date()):
                 if (start - result.datestamp) > pendulum.Interval(hours=24) or (result.datestamp - end) > pendulum.Interval(hours=24):
                     raise ValueError(
@@ -171,11 +171,11 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             if limit is not None and i >= limit:
                 break
 
-    def harvest_id(self, identifier):
+    def harvest_id(self, identifier, **kwargs):
         """Harvest a document by ID.
 
         Note:
-            Dependant on whether or not fetch_id is implemented.
+            Dependent on whether fetch_by_id is implemented.
 
         Args:
             identifier (str): Unique ID the provider uses to identify works.
@@ -184,7 +184,8 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             RawDatum
 
         """
-        return RawDatum.objects.store_data(self.config, self.fetch_by_id(identifier))
+        datum = self.fetch_by_id(identifier, **self._get_kwargs(**kwargs))
+        return RawDatum.objects.store_data(self.config, datum)
 
     def harvest(self, **kwargs):
         """Fetch data from yesterday.

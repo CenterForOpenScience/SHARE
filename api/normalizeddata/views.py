@@ -61,7 +61,7 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
             nm_instance = serializer.save()
-            # TODO create an IngestJob, respond with a link to a job detail endpoint
+            # TODO create an IngestJob, respond with a link to a job detail endpoint (SHARE-1003)
             async_result = disambiguate.delay(nm_instance.id)
             # TODO Fix Me
             return Response({

@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='harvestjob',
             name='source_config',
-            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='harvestjobs', to='share.SourceConfig'),
+            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='harvest_jobs', to='share.SourceConfig'),
         ),
         migrations.AlterField(
             model_name='sourceconfig',
@@ -58,23 +58,23 @@ class Migration(migrations.Migration):
                 ('description', models.TextField()),
                 ('node_id', models.TextField(null=True)),
                 ('rejected', models.BooleanField()),
-                ('ingest_job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='regulator_logs', to='share.IngestJob')),
+                ('ingest_job', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='regulator_logs', to='share.IngestJob')),
             ],
         ),
         migrations.AddField(
             model_name='ingestjob',
             name='raw',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='share.RawDatum'),
+            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='ingest_jobs', to='share.RawDatum'),
         ),
         migrations.AddField(
             model_name='ingestjob',
             name='suid',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='share.SourceUniqueIdentifier'),
+            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='ingest_jobs', to='share.SourceUniqueIdentifier'),
         ),
         migrations.AddField(
             model_name='ingestjob',
             name='source_config',
-            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='ingestjobs', to='share.SourceConfig'),
+            field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='ingest_jobs', to='share.SourceConfig'),
         ),
         migrations.AlterUniqueTogether(
             name='ingestjob',
@@ -89,6 +89,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='rawdatum',
             name='datestamp',
-            field=models.DateTimeField(default=pendulum.now, help_text='The most relevant datetime that can be extracted from this RawDatum. This may be, but is not limited to, a deletion, modification, publication, or creation datestamp. Ideally, this datetime should be appropriate for determining the chronological order its data will be applied. '),
+            field=models.DateTimeField(default=pendulum.pendulum.Pendulum.now, help_text='The most relevant datetime that can be extracted from this RawDatum. This may be, but is not limited to, a deletion, modification, publication, or creation datestamp. Ideally, this datetime should be appropriate for determining the chronological order its data will be applied.'),
         ),
     ]
