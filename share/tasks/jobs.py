@@ -4,6 +4,7 @@ import random
 from django.conf import settings
 from django.utils import timezone
 
+from share.exceptions import TransformError
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models import CeleryTaskResult
 from share.models import HarvestJob
@@ -199,7 +200,12 @@ class IngestJobConsumer(JobConsumer):
 
     def _consume_job(self, job, **kwargs):
         transformer = job.suid.source_config.get_transformer()
-        graph = transformer.transform(job.raw)
+        try:
+            graph = transformer.transform(job.raw)
+        except TransformError as e:
+            job.fail(e)
+            return
+
         job.log_graph('transformed_data', graph)
 
         if not graph:

@@ -1,43 +1,45 @@
 import pytest
-import calendar
 import pendulum
 
-from share.transform.chain.links import ARKLink
-from share.transform.chain.links import ArXivLink
-from share.transform.chain.links import DOILink
-from share.transform.chain.links import DateParserLink
-from share.transform.chain.links import GuessAgentTypeLink
-from share.transform.chain.links import IRILink
-from share.transform.chain.links import ISNILink
-from share.transform.chain.links import ISSNLink
-from share.transform.chain.links import InfoURILink
-from share.transform.chain.links import OrcidLink
-from share.transform.chain.links import URNLink
+from share.transform.chain import exceptions
+from share.transform.chain.links import (
+    ARKLink,
+    ArXivLink,
+    DOILink,
+    DateParserLink,
+    GuessAgentTypeLink,
+    IRILink,
+    ISNILink,
+    ISSNLink,
+    InfoURILink,
+    OrcidLink,
+    URNLink,
+)
 
 UPPER_BOUND = pendulum.today().add(years=100).isoformat()
 
 
 @pytest.mark.parametrize('date, result', [
-    (None, ValueError('None is not a valid date.')),
-    ('0059-11-01T00:00:00Z', ValueError('0059-11-01T00:00:00Z is before the lower bound 1200-01-01T00:00:00+00:00.')),
+    (None, exceptions.InvalidDate('None is not a valid date.')),
+    ('0059-11-01T00:00:00Z', exceptions.InvalidDate('0059-11-01T00:00:00Z is before the lower bound 1200-01-01T00:00:00+00:00.')),
     ('20010101', '2001-01-01T00:00:00+00:00'),
     ('2013', '2013-01-01T00:00:00+00:00'),
     ('03:04, 19 Nov, 2014', '2014-11-19T03:04:00+00:00'),
-    ('invalid date', ValueError('Unknown string format')),
+    ('invalid date', exceptions.InvalidDate('Unknown string format')),
     ('2001-1-01', '2001-01-01T00:00:00+00:00'),
-    ('2001-2-30', ValueError('day is out of range for month')),
-    ('14/2001', calendar.IllegalMonthError(14)),
+    ('2001-2-30', exceptions.InvalidDate('day is out of range for month')),
+    ('14/2001', exceptions.InvalidDate(14)),
     ('11/20/1990', '1990-11-20T00:00:00+00:00'),
     ('1990-11-20T00:00:00Z', '1990-11-20T00:00:00+00:00'),
     ('19 Nov, 2014', '2014-11-19T00:00:00+00:00'),
     ('Nov 2012', '2012-11-01T00:00:00+00:00'),
     ('January 1 2014', '2014-01-01T00:00:00+00:00'),
-    ('3009-11-01T00:00:00Z', ValueError('3009-11-01T00:00:00Z is after the upper bound ' + UPPER_BOUND + '.')),
+    ('3009-11-01T00:00:00Z', exceptions.InvalidDate('3009-11-01T00:00:00Z is after the upper bound ' + UPPER_BOUND + '.')),
     ('2016-01-01T15:03:04-05:00', '2016-01-01T20:03:04+00:00'),
     ('2016-01-01T15:03:04+5:00', '2016-01-01T10:03:04+00:00'),
     ('2016-01-01T15:03:04-3', '2016-01-01T18:03:04+00:00'),
     ('2016-01-01T15:03:04-3:30', '2016-01-01T18:33:04+00:00'),
-    ('2016-01-01T15:03:04+99', ValueError('offset must be a timedelta strictly between -timedelta(hours=24) and timedelta(hours=24).')),
+    ('2016-01-01T15:03:04+99', exceptions.InvalidDate('offset must be a timedelta strictly between -timedelta(hours=24) and timedelta(hours=24).')),
     # rolls over extra minutes
     ('2016-01-01T15:03:04-3:70', '2016-01-01T19:13:04+00:00'),
 ])
@@ -57,8 +59,8 @@ def test_dateparser_link(date, result):
     ('0028-0836', 'urn://issn/0028-0836'),
     ('1144-875x', 'urn://issn/1144-875X'),
     ('1144-875X', 'urn://issn/1144-875X'),
-    ('0378-5950', ValueError('\'03785950\' is not a valid ISSN; failed checksum.')),
-    ('0000-0002-4869-2419', ValueError('\'0000-0002-4869-2419\' cannot be expressed as an ISSN.')),
+    ('0378-5950', exceptions.InvalidIRI('\'03785950\' is not a valid ISSN; failed checksum.')),
+    ('0000-0002-4869-2419', exceptions.InvalidIRI('\'0000-0002-4869-2419\' cannot be expressed as an ISSN.')),
 ])
 def test_issn_link(issn, result):
     if isinstance(result, Exception):
@@ -70,10 +72,10 @@ def test_issn_link(issn, result):
 
 
 @pytest.mark.parametrize('isni, result', [
-    (None, TypeError('\'None\' is not of type str.')),
-    ('', ValueError('\'\' cannot be expressed as an ISNI.')),
+    (None, exceptions.InvalidIRI('\'None\' is not of type str.')),
+    ('', exceptions.InvalidIRI('\'\' cannot be expressed as an ISNI.')),
     ('0000000121032683', 'http://isni.org/0000000121032683'),
-    ('0000000346249680', ValueError('\'0000000346249680\' is outside reserved ISNI range.')),
+    ('0000000346249680', exceptions.InvalidIRI('\'0000000346249680\' is outside reserved ISNI range.')),
     ('0000-0001-2103-2683', 'http://isni.org/0000000121032683'),
     ('http://isni.org/0000000121032683', 'http://isni.org/0000000121032683'),
     ('000000012150090X', 'http://isni.org/000000012150090X'),
@@ -91,19 +93,19 @@ def test_isni_link(isni, result):
 
 
 @pytest.mark.parametrize('orcid, result', [
-    (None, TypeError('\'None\' is not of type str.')),
-    ('', ValueError('\'\' cannot be expressed as an ORCID.')),
-    ('000000000248692419', ValueError('\'000000000248692419\' cannot be expressed as an ORCID.')),
+    (None, exceptions.InvalidIRI('\'None\' is not of type str.')),
+    ('', exceptions.InvalidIRI('\'\' cannot be expressed as an ORCID.')),
+    ('000000000248692419', exceptions.InvalidIRI('\'000000000248692419\' cannot be expressed as an ORCID.')),
     ('0000000346249680', 'http://orcid.org/0000-0003-4624-9680'),
     ('0000000317011251', 'http://orcid.org/0000-0003-1701-1251'),
     ('0000000229129030', 'http://orcid.org/0000-0002-2912-9030'),
-    ('0000000248692412', ValueError('\'0000000248692412\' is not a valid ORCID; failed checksum.')),
+    ('0000000248692412', exceptions.InvalidIRI('\'0000000248692412\' is not a valid ORCID; failed checksum.')),
     ('0000000248692419', 'http://orcid.org/0000-0002-4869-2419'),
     ('0000-0002-4869-2419', 'http://orcid.org/0000-0002-4869-2419'),
     ('0000-0002-4869-2419', 'http://orcid.org/0000-0002-4869-2419'),
     ('https://orcid.org/0000-0002-1694-233X', 'http://orcid.org/0000-0002-1694-233X'),
     ('https://orcid.org/0000-0002-4869-2419', 'http://orcid.org/0000-0002-4869-2419'),
-    ('0000-0001-2150-090X', ValueError('\'000000012150090X\' is outside reserved ORCID range.')),
+    ('0000-0001-2150-090X', exceptions.InvalidIRI('\'000000012150090X\' is outside reserved ORCID range.')),
 ])
 def test_orcid_link(orcid, result):
     if isinstance(result, Exception):
@@ -115,15 +117,15 @@ def test_orcid_link(orcid, result):
 
 
 @pytest.mark.parametrize('doi, result', [
-    (None, TypeError('\'None\' is not of type str.')),
-    ('', ValueError('\'\' is not a valid DOI.')),
-    ('105517/ccdc.csd.cc1lj81f', ValueError('\'105517/ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-    ('0.5517/ccdc.csd.cc1lj81f', ValueError('\'0.5517/ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-    ('10.5517ccdc.csd.cc1lj81f', ValueError('\'10.5517ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-    ('10.517ccdc.csd.cc1lj81f', ValueError('\'10.517ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-    ('10.517/ccdc.csd.cc1lj81f', ValueError('\'10.517/ccdc.csd.cc1lj81f\' is not a valid DOI.')),
-    ('10.517ccdc.csd.c>c1lj81f', ValueError('\'10.517ccdc.csd.c>c1lj81f\' is not a valid DOI.')),
-    ('http://www.scirp.org/journal/PaperDownload.aspx?DOI=10.4236/wjcd.2016.69035', ValueError('\'http://www.scirp.org/journal/PaperDownload.aspx?DOI=10.4236/wjcd.2016.69035\' is not a valid DOI.')),
+    (None, exceptions.InvalidIRI('\'None\' is not of type str.')),
+    ('', exceptions.InvalidIRI('\'\' is not a valid DOI.')),
+    ('105517/ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'105517/ccdc.csd.cc1lj81f\' is not a valid DOI.')),
+    ('0.5517/ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'0.5517/ccdc.csd.cc1lj81f\' is not a valid DOI.')),
+    ('10.5517ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'10.5517ccdc.csd.cc1lj81f\' is not a valid DOI.')),
+    ('10.517ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'10.517ccdc.csd.cc1lj81f\' is not a valid DOI.')),
+    ('10.517/ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'10.517/ccdc.csd.cc1lj81f\' is not a valid DOI.')),
+    ('10.517ccdc.csd.c>c1lj81f', exceptions.InvalidIRI('\'10.517ccdc.csd.c>c1lj81f\' is not a valid DOI.')),
+    ('http://www.scirp.org/journal/PaperDownload.aspx?DOI=10.4236/wjcd.2016.69035', exceptions.InvalidIRI('\'http://www.scirp.org/journal/PaperDownload.aspx?DOI=10.4236/wjcd.2016.69035\' is not a valid DOI.')),
     ('10.5517/ccdc.csd.cc1lj81f', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
     ('   10.5517/ccdc.csd.cc1lj81f', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
     ('   10.5517/ccdc.csd.cc1lj81f   ', 'http://dx.doi.org/10.5517/CCDC.CSD.CC1LJ81F'),
@@ -146,14 +148,14 @@ def test_doi_link(doi, result):
 
 
 @pytest.mark.parametrize('arxiv_id, result', [
-    (None, TypeError('\'None\' is not of type str.')),
-    ('', ValueError('\'\' is not a valid ArXiv Identifier.')),
-    ('arXiv:1023..20382', ValueError('\'arXiv:1023..20382\' is not a valid ArXiv Identifier.')),
-    ('something else', ValueError('\'something else\' is not a valid ArXiv Identifier.')),
-    ('arXiv//1234.34543', ValueError('\'arXiv//1234.34543\' is not a valid ArXiv Identifier.')),
-    ('arXiv:101022232', ValueError('\'arXiv:101022232\' is not a valid ArXiv Identifier.')),
-    ('arXiv:10102.22322', ValueError('\'arXiv:10102.22322\' is not a valid ArXiv Identifier.')),
-    ('arXiv:2.2', ValueError('\'arXiv:2.2\' is not a valid ArXiv Identifier.')),
+    (None, exceptions.InvalidIRI('\'None\' is not of type str.')),
+    ('', exceptions.InvalidIRI('\'\' is not a valid ArXiv Identifier.')),
+    ('arXiv:1023..20382', exceptions.InvalidIRI('\'arXiv:1023..20382\' is not a valid ArXiv Identifier.')),
+    ('something else', exceptions.InvalidIRI('\'something else\' is not a valid ArXiv Identifier.')),
+    ('arXiv//1234.34543', exceptions.InvalidIRI('\'arXiv//1234.34543\' is not a valid ArXiv Identifier.')),
+    ('arXiv:101022232', exceptions.InvalidIRI('\'arXiv:101022232\' is not a valid ArXiv Identifier.')),
+    ('arXiv:10102.22322', exceptions.InvalidIRI('\'arXiv:10102.22322\' is not a valid ArXiv Identifier.')),
+    ('arXiv:2.2', exceptions.InvalidIRI('\'arXiv:2.2\' is not a valid ArXiv Identifier.')),
     ('arxiv:1212.20282', 'http://arxiv.org/abs/1212.20282'),
     ('   arxiv:1212.20282', 'http://arxiv.org/abs/1212.20282'),
     ('   arxiv:1212.20282    ', 'http://arxiv.org/abs/1212.20282'),
@@ -169,14 +171,14 @@ def test_arxiv_link(arxiv_id, result):
 
 
 @pytest.mark.parametrize('ark_id, result', [
-    (None, TypeError('\'None\' is not of type str.')),
-    ('', ValueError('\'\' is not a valid ARK Identifier.')),
-    ('ark:/blah-blah-blah', ValueError('\'ark:/blah-blah-blah\' is not a valid ARK Identifier.')),
-    ('something else', ValueError('\'something else\' is not a valid ARK Identifier.')),
-    ('ark//1234/blah-blah-blah', ValueError('\'ark//1234/blah-blah-blah\' is not a valid ARK Identifier.')),
-    ('ark:/1234', ValueError('\'ark:/1234\' is not a valid ARK Identifier.')),
-    ('bark:/1234/blah-blah', ValueError('\'bark:/1234/blah-blah\' is not a valid ARK Identifier.')),
-    ('ark:/1234a/blah-blah', ValueError('\'ark:/1234a/blah-blah\' is not a valid ARK Identifier.')),
+    (None, exceptions.InvalidIRI('\'None\' is not of type str.')),
+    ('', exceptions.InvalidIRI('\'\' is not a valid ARK Identifier.')),
+    ('ark:/blah-blah-blah', exceptions.InvalidIRI('\'ark:/blah-blah-blah\' is not a valid ARK Identifier.')),
+    ('something else', exceptions.InvalidIRI('\'something else\' is not a valid ARK Identifier.')),
+    ('ark//1234/blah-blah-blah', exceptions.InvalidIRI('\'ark//1234/blah-blah-blah\' is not a valid ARK Identifier.')),
+    ('ark:/1234', exceptions.InvalidIRI('\'ark:/1234\' is not a valid ARK Identifier.')),
+    ('bark:/1234/blah-blah', exceptions.InvalidIRI('\'bark:/1234/blah-blah\' is not a valid ARK Identifier.')),
+    ('ark:/1234a/blah-blah', exceptions.InvalidIRI('\'ark:/1234a/blah-blah\' is not a valid ARK Identifier.')),
     ('ark:/1234/blah-blah-blah', 'ark://1234/blah-blah-blah'),
     ('   ark:/1234/blah-blah-blah', 'ark://1234/blah-blah-blah'),
     ('ark:/1234/blah-blah-blah    ', 'ark://1234/blah-blah-blah'),
@@ -193,23 +195,23 @@ def test_ark_link(ark_id, result):
 
 
 @pytest.mark.parametrize('urn, result', [
-    (None, TypeError('\'None\' is not of type str.')),
-    ('', ValueError('\'\' is not a valid URN.')),
-    ('something else', ValueError('\'something else\' is not a valid URN.')),
-    ('oai:missing.path', ValueError('\'oai:missing.path\' is not a valid URN.')),
-    ('oai::blank', ValueError('\'oai::blank\' is not a valid URN.')),
+    (None, exceptions.InvalidIRI('\'None\' is not of type str.')),
+    ('', exceptions.InvalidIRI('\'\' is not a valid URN.')),
+    ('something else', exceptions.InvalidIRI('\'something else\' is not a valid URN.')),
+    ('oai:missing.path', exceptions.InvalidIRI('\'oai:missing.path\' is not a valid URN.')),
+    ('oai::blank', exceptions.InvalidIRI('\'oai::blank\' is not a valid URN.')),
     ('oai://cos.io/fun', 'oai://cos.io/fun'),
     ('oai://cos.io/fun/times', 'oai://cos.io/fun/times'),
     ('oai://cos.io/fun/times/with/slashes', 'oai://cos.io/fun/times/with/slashes'),
-    ('oai://cos.io/fun/ti mes', ValueError('\'oai://cos.io/fun/ti mes\' is not a valid URN.')),
-    ('zenodo.com', ValueError('\'zenodo.com\' is not a valid URN.')),
-    ('oai:invalid domain:this.is.stuff', ValueError('\'oai:invalid domain:this.is.stuff\' is not a valid URN.')),
-    ('oai:domain.com:', ValueError('\'oai:domain.com:\' is not a valid URN.')),
-    ('urn:missing.path', ValueError('\'urn:missing.path\' is not a valid URN.')),
-    ('urn::blank', ValueError('\'urn::blank\' is not a valid URN.')),
+    ('oai://cos.io/fun/ti mes', exceptions.InvalidIRI('\'oai://cos.io/fun/ti mes\' is not a valid URN.')),
+    ('zenodo.com', exceptions.InvalidIRI('\'zenodo.com\' is not a valid URN.')),
+    ('oai:invalid domain:this.is.stuff', exceptions.InvalidIRI('\'oai:invalid domain:this.is.stuff\' is not a valid URN.')),
+    ('oai:domain.com:', exceptions.InvalidIRI('\'oai:domain.com:\' is not a valid URN.')),
+    ('urn:missing.path', exceptions.InvalidIRI('\'urn:missing.path\' is not a valid URN.')),
+    ('urn::blank', exceptions.InvalidIRI('\'urn::blank\' is not a valid URN.')),
     ('urn://cos.io/fun', 'urn://cos.io/fun'),
-    ('urn:invalid domain:this.is.stuff', ValueError('\'urn:invalid domain:this.is.stuff\' is not a valid URN.')),
-    ('urn:domain.com:', ValueError('\'urn:domain.com:\' is not a valid URN.')),
+    ('urn:invalid domain:this.is.stuff', exceptions.InvalidIRI('\'urn:invalid domain:this.is.stuff\' is not a valid URN.')),
+    ('urn:domain.com:', exceptions.InvalidIRI('\'urn:domain.com:\' is not a valid URN.')),
     ('oai:cos.io:this.is.stuff', 'oai://cos.io/this.is.stuff'),
     ('oai:subdomain.cos.io:this.is.stuff', 'oai://subdomain.cos.io/this.is.stuff'),
     ('    oai:cos.io:stuff', 'oai://cos.io/stuff'),
@@ -237,7 +239,7 @@ def test_urn_link(urn, result):
     ('info:ddc/22/eng//004.678', 'info://ddc/22/eng//004.678'),
     ('info:lccn/2002022641', 'info://lccn/2002022641'),
     ('info:sici/0363-0277(19950315)120:5%3C%3E1.0.TX;2-V', 'info://sici/0363-0277(19950315)120:5%3C%3E1.0.TX;2-V'),
-    ('fo:eu-repo/dai/nl/12345\n', ValueError("'fo:eu-repo/dai/nl/12345\n' is not a valid Info URI.")),
+    ('fo:eu-repo/dai/nl/12345\n', exceptions.InvalidIRI("'fo:eu-repo/dai/nl/12345\n' is not a valid Info URI.")),
 ])
 def test_info_link(uri, result):
     if isinstance(result, Exception):
@@ -706,7 +708,7 @@ class TestIRILink:
             'authority': 'isbn',
             'IRI': 'urn://isbn/978-91-8967-331-1',
         }),
-        ('urn://isbn/978-91-89673-31-5', ValueError("'urn://isbn/978-91-89673-31-5' is not a valid ISBN; failed checksum.")),
+        ('urn://isbn/978-91-89673-31-5', exceptions.InvalidIRI("'urn://isbn/978-91-89673-31-5' is not a valid ISBN; failed checksum.")),
         ('ISBN: 978-91-89673-31-1', {
             'scheme': 'urn',
             'authority': 'isbn',
@@ -747,27 +749,27 @@ class TestIRILink:
             'authority': 'arxiv.org',
             'IRI': 'http://arxiv.org/index.php?view&id=12',
         }),
-        ('ISSN 978-0-306-40615-7', ValueError("'ISSN 978-0-306-40615-7' could not be identified as an Identifier.")),
-        ('ISBN 978-0-306-40615-0', ValueError("'ISBN 978-0-306-40615-0' is not a valid ISBN; failed checksum.")),
+        ('ISSN 978-0-306-40615-7', exceptions.InvalidIRI("'ISSN 978-0-306-40615-7' could not be identified as an Identifier.")),
+        ('ISBN 978-0-306-40615-0', exceptions.InvalidIRI("'ISBN 978-0-306-40615-0' is not a valid ISBN; failed checksum.")),
     ])
     def test_isbn(self, input, output):
         return self._do_test(input, output)
 
     @pytest.mark.parametrize('input, output', [
-        (None, TypeError('\'None\' is not of type str.')),
-        ('', ValueError('\'\' could not be identified as an Identifier.')),
-        ('105517/ccdc.csd.cc1lj81f', ValueError('\'105517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
-        ('0.5517/ccdc.csd.cc1lj81f', ValueError('\'0.5517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
-        ('10.5517ccdc.csd.cc1lj81f', ValueError('\'10.5517ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
-        ('10.517ccdc.csd.cc1lj81f', ValueError('\'10.517ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
-        ('10.517/ccdc.csd.cc1lj81f', ValueError('\'10.517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
-        ('10.517ccdc.csd.c>c1lj81f', ValueError('\'10.517ccdc.csd.c>c1lj81f\' could not be identified as an Identifier.')),
-        ('0000000248692412', ValueError('\'0000000248692412\' could not be identified as an Identifier.')),
-        ('0000000000000000', ValueError('\'0000000000000000\' could not be identified as an Identifier.')),
-        ('arXiv:1023..20382', ValueError('\'arXiv:1023..20382\' could not be identified as an Identifier.')),
-        ('arXiv:10102.22322', ValueError('\'arXiv:10102.22322\' could not be identified as an Identifier.')),
-        ('arXiv:2.2', ValueError('\'arXiv:2.2\' could not be identified as an Identifier.')),
-        ('fo:eu-repo/dai/nl/12345\n', ValueError("'fo:eu-repo/dai/nl/12345\n' could not be identified as an Identifier.")),
+        (None, exceptions.InvalidIRI('\'None\' is not of type str.')),
+        ('', exceptions.InvalidIRI('\'\' could not be identified as an Identifier.')),
+        ('105517/ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'105517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('0.5517/ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'0.5517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.5517ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'10.5517ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.517ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'10.517ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.517/ccdc.csd.cc1lj81f', exceptions.InvalidIRI('\'10.517/ccdc.csd.cc1lj81f\' could not be identified as an Identifier.')),
+        ('10.517ccdc.csd.c>c1lj81f', exceptions.InvalidIRI('\'10.517ccdc.csd.c>c1lj81f\' could not be identified as an Identifier.')),
+        ('0000000248692412', exceptions.InvalidIRI('\'0000000248692412\' could not be identified as an Identifier.')),
+        ('0000000000000000', exceptions.InvalidIRI('\'0000000000000000\' could not be identified as an Identifier.')),
+        ('arXiv:1023..20382', exceptions.InvalidIRI('\'arXiv:1023..20382\' could not be identified as an Identifier.')),
+        ('arXiv:10102.22322', exceptions.InvalidIRI('\'arXiv:10102.22322\' could not be identified as an Identifier.')),
+        ('arXiv:2.2', exceptions.InvalidIRI('\'arXiv:2.2\' could not be identified as an Identifier.')),
+        ('fo:eu-repo/dai/nl/12345\n', exceptions.InvalidIRI("'fo:eu-repo/dai/nl/12345\n' could not be identified as an Identifier.")),
     ])
     def test_malformed(self, input, output):
         return self._do_test(input, output)

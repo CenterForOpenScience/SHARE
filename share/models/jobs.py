@@ -287,7 +287,6 @@ class AbstractBaseJob(models.Model):
 
     @contextmanager
     def handle(self):
-        error = None
         # Flush any pending changes. Any updates
         # beyond here will be field specific
         self.save()
@@ -300,22 +299,16 @@ class AbstractBaseJob(models.Model):
         self.start()
         try:
             yield
-        except HarvesterConcurrencyError as e:
-            # TODO more generic concurrency error
-            error = e
-            self.reschedule()
         except Exception as e:
-            error = e
-            self.fail(error)
+            self.fail(e)
+            raise
         else:
-            self.succeed()
+            # If the handler didn't handle setting a status, assume success
+            if self.status == self.STATUS.started:
+                self.succeed()
         finally:
             # Detach from SIGTERM, resetting the previous handle
             signal.signal(signal.SIGTERM, prev_handler)
-
-            # Reraise the error if we caught one
-            if error:
-                raise error
 
     def current_versions(self):
         raise NotImplementedError

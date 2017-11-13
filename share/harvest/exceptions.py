@@ -1,5 +1,4 @@
-class HarvestError(Exception):
-    pass
+from share.exceptions import HarvestError
 
 
 # TODO replace with a more generic ConcurrencyError
