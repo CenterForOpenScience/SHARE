@@ -573,7 +573,7 @@ class EncryptedJSONField(models.BinaryField):
         if not output_json:
             return None
 
-        output_json = json.loads(jwe.decrypt(output_json[len(self.prefix):], settings.SENSITIVE_DATA_KEY).decode('utf-8'))
+        output_json = json.loads(jwe.decrypt(bytes(output_json[len(self.prefix):]), settings.SENSITIVE_DATA_KEY).decode('utf-8'))
 
         return output_json
 
