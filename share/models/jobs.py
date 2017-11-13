@@ -318,9 +318,7 @@ class AbstractBaseJob(models.Model):
                 raise error
 
     def current_versions(self):
-        return {
-            'source_config_version': self.source_config.version,
-        }
+        raise NotImplementedError
 
     def update_versions(self):
         """Update version fields to the values from self.current_versions
@@ -444,9 +442,10 @@ class HarvestJob(AbstractBaseJob):
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
 
     def current_versions(self):
-        versions = super().current_versions()
-        versions['harvester_version'] = self.source_config.harvester.version
-        return versions
+        return {
+            'source_config_version': self.source_config.version,
+            'harvester_version': self.source_config.harvester.version,
+        }
 
     def __repr__(self):
         return '<{type}({id}, {status}, {source}, {start_date}, {end_date})>'.format(
@@ -490,10 +489,11 @@ class IngestJob(AbstractBaseJob):
         unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
 
     def current_versions(self):
-        versions = super().current_versions()
-        versions['transformer_version'] = self.source_config.transformer.version
-        versions['regulator_version'] = Regulator.VERSION
-        return versions
+        return {
+            'source_config_version': self.source_config.version,
+            'transformer_version': self.source_config.transformer.version,
+            'regulator_version': Regulator.VERSION,
+        }
 
     def log_graph(self, field_name, graph):
         setattr(self, field_name, graph.to_jsonld())
