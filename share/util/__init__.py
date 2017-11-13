@@ -37,7 +37,7 @@ class IDObfuscator:
 
     @classmethod
     def encode(cls, instance):
-        return cls.encode_id(instance.id, type(instance))
+        return cls.encode_id(instance.id, instance._meta.model)
 
     @classmethod
     def encode_id(cls, pk, model):
@@ -83,6 +83,19 @@ class IDObfuscator:
             if args:
                 return args[0]
             raise
+
+
+class BaseJSONAPIMeta:
+    @classmethod
+    def get_id_from_instance(cls, instance):
+        return IDObfuscator.encode(instance)
+
+    @classmethod
+    def get_instance_from_id(cls, model_class, id):
+        try:
+            return IDObfuscator.resolve(id)
+        except InvalidID:
+            return model_class.objects.get(id=id)
 
 
 class CyclicalDependency(Exception):
@@ -228,6 +241,16 @@ def chunked(iterable, size=25, fail_fast=False):
         if not fail_fast and l:
             yield l
         raise e
+
+
+def interweave(*iterables):
+    iters = [iter(i) for i in iterables]
+    while iters:
+        for i in tuple(iters):
+            try:
+                yield next(i)
+            except StopIteration:
+                iters.remove(i)
 
 
 def placeholders(length):

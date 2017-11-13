@@ -61,4 +61,4 @@ class SWHarvester(BaseHarvester):
 
             record = raw_data.find(id='innertext')
 
-            yield identifier, str(record)
+            yield collection_page.url, str(record)

@@ -1,11 +1,10 @@
-import re
-
 from bs4 import BeautifulSoup
 
 from share.transform.chain import ctx
 from share.transform.chain import links as tools
 from share.transform.chain.parsers import Parser
 from share.transform.chain.soup import SoupXMLTransformer
+from share.transform.chain.utils import contact_extract
 
 
 class AgentIdentifier(Parser):
@@ -80,6 +79,7 @@ class SWTransformer(SoupXMLTransformer):
         description = self.extract_text(start.find_next())
         if description:
             data['description'] = description
+
         if start:
             body = start.find_all_next(style='margin-top:5px;')
             body = list(map(self.extract_text, body))
@@ -87,18 +87,7 @@ class SWTransformer(SoupXMLTransformer):
             for entry in body:
 
                 if 'Contact:' in entry:
-                    contact_dict = {}
-                    contact = entry.replace('Contact:', '').strip()
-                    contact_email = contact[contact.find("(") + 1:contact.find(")")]
-                    contact_name = contact.split('(', 1)[0].strip()
-                    if ', Curator' in contact_name:
-                        contact_name = contact_name.replace(', Curator', '').strip()
-                    if contact and contact_email and re.match(r"[^@]+@[^@]+\.[^@]+", contact_email):
-                        contact_dict['email'] = contact_email
-                    if contact_name:
-                        contact_dict['name'] = contact_name
-                    if contact_dict:
-                        data['contact'] = contact_dict
+                    data['contact'] = contact_extract(entry)
 
                 if 'Collection Type:' in entry:
                     collection_type = entry.replace('Collection Type: ', '')
@@ -125,6 +114,7 @@ class SWTransformer(SoupXMLTransformer):
             collection_statistics = start.find_all_next('li')
             collection_statistics = list(map(self.extract_text, collection_statistics))
             data['collection-statistics'] = self.process_collection_stat(collection_statistics)
+
         return data
 
     def extract_text(self, text):

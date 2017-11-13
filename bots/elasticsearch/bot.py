@@ -10,6 +10,7 @@ from django.db.models import Q
 from elasticsearch import Elasticsearch
 
 from share.search import SearchIndexer
+from share.search.fetchers import CreativeWorkFetcher
 
 
 logger = logging.getLogger(__name__)
@@ -80,6 +81,7 @@ class ElasticSearchBot:
             'tokenizer': {
                 'subject_tokenizer': {
                     'type': 'path_hierarchy',
+                    'delimiter': CreativeWorkFetcher.SUBJECT_DELIMITER,
                 }
             }
         }
@@ -106,7 +108,7 @@ class ElasticSearchBot:
 
     MAPPINGS = {
         'creativeworks': {
-            'dynamic': False,
+            'dynamic': 'strict',
             'properties': {
                 'affiliations': {'type': 'text', 'fields': EXACT_FIELD},
                 'contributors': {'type': 'text', 'fields': EXACT_FIELD},
@@ -234,13 +236,13 @@ class ElasticSearchBot:
             else:
                 logger.info('Found %s %s that must be updated in ES', count, model)
 
-            for i, batch in enumerate(chunk(qs.all(), chunk_size)):
+            for batch in chunk(qs.iterator(), chunk_size):
                 if batch:
                     if not self.to_daemon:
                         tasks.index_model.apply_async((model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
                     else:
                         try:
-                            SearchIndexer(celery.current_app).index(model.__name__, *batch)
+                            SearchIndexer(celery.current_app).index(model.__name__, *batch, index=self.es_index if self.es_index != settings.ELASTICSEARCH_INDEX else None)
                         except ValueError:
                             logger.warning('Not sending model type %r to the SearchIndexer', model)
 

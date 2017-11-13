@@ -1,10 +1,13 @@
 import json
 import logging
+import threading
 
-from project import celery_app
+from project.celery import app
+
+from django.conf import settings
 
 from share.bin.util import command
-from share.search.daemon import SearchIndexerDaemon
+from share.search.daemon import SearchIndexer
 
 from bots.elasticsearch import tasks
 from bots.elasticsearch.bot import ElasticSearchBot
@@ -104,17 +107,23 @@ def daemon(args, argv):
     Usage: {0} search daemon [options]
 
     Options:
-        -t, --timeout=TIMEOUT     The queue timeout in seconds [default: 5]
-        -s, --size=SIZE           The maximum number of works to index at once [default: 100]
-        -i, --interval=SIZE       The interval at which to flush the queue in seconds [default: 10]
         -l, --log-level=LOGLEVEL  Set the log level [default: INFO]
     """
     logging.getLogger('share.search.daemon').setLevel(args['--log-level'])
     logging.getLogger('share.search.indexing').setLevel(args['--log-level'])
 
-    SearchIndexerDaemon(
-        celery_app,
-        max_size=int(args['--size']),
-        timeout=int(args['--timeout']),
-        flush_interval=int(args['--interval']),
-    ).run()
+    indexers = []
+    for index in settings.ELASTICSEARCH['INDEXES'].keys():
+        indexers.append(SearchIndexer(app.pool.acquire(block=True), index))
+
+    threads = []
+    for indexer in indexers:
+        threads.append(threading.Thread(target=indexer.run))
+        threads[-1].start()
+
+    try:
+        for thread in threads:
+            thread.join()
+    except KeyboardInterrupt:
+        for indexer in indexers:
+            indexer.stop()

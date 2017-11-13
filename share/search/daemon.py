@@ -1,116 +1,152 @@
-from queue import Empty
+from concurrent.futures import ThreadPoolExecutor
 import logging
-import signal
-import threading
+import queue
 import time
 
 from django.conf import settings
 
+from kombu import Queue
+from kombu.mixins import ConsumerMixin
+
 from elasticsearch import Elasticsearch
+from elasticsearch import helpers
 
 from raven.contrib.django.raven_compat.models import client
 
-from share.search.indexing import ESIndexer
+from share import util
+from share.search.indexing import ElasticsearchActionGenerator
+from share.search.indexing import IndexableMessage
 
 
 logger = logging.getLogger(__name__)
 
 
-class SearchIndexerDaemon:
+class SearchIndexer(ConsumerMixin):
 
-    def __init__(self, celery_app, url=None, index=None, max_size=500, timeout=5, flush_interval=10):
-        self.app = celery_app
-        self.messages = []
-        self.last_flush = 0
+    MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
 
-        self.index = index or settings.ELASTICSEARCH_INDEX
-        self.client = Elasticsearch(url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
+    def __init__(self, connection, index, url=None, max_size=5000, prefetch_count=7500):
+        self._model_queues = {}
+        self._pool = ThreadPoolExecutor(max_workers=len(settings.INDEXABLE_MODELS) + 1)
+        self._queue = queue.Queue(maxsize=max_size)
+        self.connection = connection
+        self.es_url = url or settings.ELASTICSEARCH_URL
+        self.index = index
+        self.prefetch_count = prefetch_count
 
-        self.flush_interval = flush_interval
-        self.max_size = max_size
-        self.timeout = timeout
-        self._running = threading.Event()
-        self.connection_errors = ()
-
-        if threading.current_thread() == threading.main_thread():
-            logger.debug('Running in the main thread, SIGTERM is active')
-            signal.signal(signal.SIGTERM, self.stop)
+        self.es_client = Elasticsearch(
+            self.es_url,
+            retry_on_timeout=True,
+            timeout=settings.ELASTICSEARCH_TIMEOUT,
+            # sniff before doing anything
+            sniff_on_start=settings.ELASTICSEARCH['SNIFF'],
+            # refresh nodes after a node fails to respond
+            sniff_on_connection_fail=settings.ELASTICSEARCH['SNIFF'],
+            # and also every 60 seconds
+            sniffer_timeout=60 if settings.ELASTICSEARCH['SNIFF'] else None,
+        )
 
     def run(self):
-        try:
-            connection = self.app.pool.acquire(block=True)
-            queue = connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS)
-        except Exception as e:
-            logger.exception('Could not connect to broker')
-            raise
+        logger.info('%r: Starting', self)
 
-        logger.info('Connected to broker')
-        logger.info('Using queue "%s"', settings.ELASTIC_QUEUE)
-
-        self.connection_errors = connection.connection_errors
-        logger.debug('connection_errors set to %r', self.connection_errors)
-
-        # Set an upper bound to avoid fetching everything in the queue
-        logger.info('Setting prefetch_count to %d', self.max_size * 1.1)
-        queue.consumer.qos(prefetch_count=int(self.max_size * 1.1), apply_global=True)
+        logger.debug('%r: Starting main indexing loop', self)
+        self._pool.submit(self._index_loop)
 
         try:
-            self._run(queue)
-        except KeyboardInterrupt:
-            logger.warning('Recieved Interrupt. Exiting...')
-            return
-        except Exception as e:
-            client.captureException()
-            logger.exception('Encountered an unexpected error. Attempting to flush before exiting.')
-
-            if self.messages:
-                try:
-                    self.flush()
-                except Exception:
-                    client.captureException()
-                    logger.exception('%d messages could not be flushed', len(self.messages))
-
-            raise e
+            logger.debug('%r: Delegating to Kombu.run', self)
+            return super().run()
         finally:
-            try:
-                queue.close()
-                connection.close()
-            except Exception as e:
-                logger.exception('Failed to clean up broker connection')
+            logger.warning('%r: Shutting down', self)
+            self.should_stop = True
+            self._pool.shutdown()
 
     def stop(self):
-        logger.info('Stopping indexer...')
-        self._running.clear()
+        self.should_stop = True
+        self._pool.shutdown()
 
-    def flush(self):
-        logger.info('Flushing %d messages', len(self.messages))
+    def get_consumers(self, Consumer, channel):
+        # TODO Combine multiple queues into one
+        queue_settings = settings.ELASTICSEARCH['INDEXES'][self.index]['QUEUE']
+        return [
+            Consumer([Queue(queue_settings.pop('name'), **queue_settings)], callbacks=[self.on_message], accept=['json'], prefetch_count=self.prefetch_count)
+        ]
 
-        ESIndexer(self.client, self.index, *self.messages).index(critical=self.connection_errors)
+    def on_message(self, body, message):
+        msg = IndexableMessage.wrap(message)
 
-        self.messages.clear()
-        self.last_flush = time.time()
+        if msg.model not in self._model_queues:
+            self._model_queues[msg.model] = queue.Queue()
+            self._pool.submit(self._action_loop, msg.model, self._model_queues[msg.model])
 
-        logger.debug('Successfully flushed messages')
+        self._model_queues[msg.model].put(message)
 
-    def _run(self, queue):
-        self._running.set()
-        self.last_flush = time.time()
+    def _action_loop(self, model, q, chunk_size=250, timeout=5):
+        try:
+            while not self.should_stop:
+                msgs = []
+                while len(msgs) < chunk_size:
+                    try:
+                        # If we have any messages queued up, push them through ASAP
+                        msgs.append(q.get(timeout=.1 if msgs else timeout))
+                    except queue.Empty:
+                        break
 
-        while self._running.is_set():
+                if not msgs:
+                    logger.debug('%r: Recieved no messages to queue up', self)
+                    continue
+
+                start = time.time()
+                logger.debug('%r: Preparing %d %ss to be indexed', self, len(msgs), model)
+                for msg, action in zip(msgs, ElasticsearchActionGenerator([self.index], msgs)):
+                    self._queue.put((msg, action))
+                logger.info('%r: Prepared %d %ss to be indexed in %.02fs', self, len(msgs), model, time.time() - start)
+        except Exception as e:
+            client.captureException()
+            logger.exception('%r: _action_loop encountered an unexpected error', self)
+            self.should_stop = True
+            raise SystemExit(1)
+
+    def _actions(self, size, msgs, timeout=5):
+        for _ in range(size):
             try:
-                message = queue.get(timeout=self.timeout)
-                self.messages.append(message)
-            except Empty:
-                pass
+                msg, action = self._queue.get(timeout=timeout)
+                if action is None:
+                    msg.ack()
+                    continue
+                msgs.append(msg)
+                yield action
+            except queue.Empty:
+                raise StopIteration
 
-            if not self.messages:
-                continue
+    def _index_loop(self):
+        try:
+            while not self.should_stop:
+                msgs = []
+                stream = helpers.streaming_bulk(
+                    self.es_client,
+                    self._actions(250, msgs),
+                    max_chunk_bytes=self.MAX_CHUNK_BYTES,
+                    raise_on_error=False,
+                )
 
-            if time.time() - self.last_flush >= self.flush_interval:
-                logger.debug('Time since last flush (%.2f sec) has exceeded flush_interval (%.2f sec) . Flushing...', time.time() - self.last_flush, self.flush_interval)
-                self.flush()
-            elif len(self.messages) >= self.max_size:
-                logger.debug('Buffer has exceeded max_size. Flushing...')
-                self.flush()
+                start = time.time()
+                for (ok, resp), msg in zip(stream, msgs):
+                    if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
+                        raise ValueError(ok, resp, msg)
+                    assert len(resp.values()) == 1
+                    _id = list(resp.values())[0]['_id']
+                    assert msg.payload['ids'] == [util.IDObfuscator.decode_id(_id)], '{} {}'.format(msg.payload, util.IDObfuscator.decode_id(_id))
+                    msg.ack()
+                if len(msgs):
+                    logger.info('%r: Indexed %d documents in %.02fs', self, len(msgs), time.time() - start)
+                else:
+                    logger.debug('%r: Recieved no messages for %.02fs', self, time.time() - start)
+                msgs.clear()
+        except Exception as e:
+            client.captureException()
+            logger.exception('%r: _index_loop encountered an unexpected error', self)
+            self.should_stop = True
+            raise SystemExit(1)
 
-        logger.info('Exiting...')
+    def __repr__(self):
+        return '<{}({})>'.format(self.__class__.__name__, self.index)

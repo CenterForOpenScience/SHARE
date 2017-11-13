@@ -1,11 +1,11 @@
 import logging
-import threading
+# import threading
 
-from celery.signals import worker_ready
-from celery.signals import worker_shutdown
+# from celery.signals import worker_ready
+# from celery.signals import worker_shutdown
 
 from share.bin.util import command
-from share.search.daemon import SearchIndexerDaemon
+# from share.search.daemon import SearchIndexerDaemon
 
 
 @command('Launch the SHARE API server', parsed=False)
@@ -22,22 +22,22 @@ def worker(args, argv):
     Options:
         -B, --beat                Also run the celery beat periodic task scheduler.
         -l, --loglevel=LOGLEVEL   Logging level. [Default: INFO]
-        -I, --indexer             Also run the search indexer daemon.
 
     For local development only. Deployments should use the celery binary.
     """
+    # -I, --indexer             Also run the search indexer daemon.
     from project.celery import app
 
-    if args['--indexer']:
-        sid = SearchIndexerDaemon(app)
+    # if args['--indexer']:
+    #     sid = SearchIndexerDaemon(app)
 
-        @worker_ready.connect
-        def start_sid(*args, **kwargs):
-            threading.Thread(target=sid.run, daemon=True).start()
+    #     @worker_ready.connect
+    #     def start_sid(*args, **kwargs):
+    #         threading.Thread(target=sid.run, daemon=True).start()
 
-        @worker_shutdown.connect
-        def stop_sid(*args, **kwargs):
-            sid.stop()
+    #     @worker_shutdown.connect
+    #     def stop_sid(*args, **kwargs):
+    #         sid.stop()
 
     worker = app.Worker(loglevel=getattr(logging, args['--loglevel'].upper()), beat=args['--beat'])
     worker.start()

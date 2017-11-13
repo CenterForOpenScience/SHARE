@@ -113,7 +113,7 @@ def test_swbiodiversity_harvester():
     end = pendulum.utcnow()
     result = harvester._do_fetch(start, end)
     for data in result:
-        assert data[0] == '223'
+        assert data[0] == collection.url
         assert "".join(data[1].split()) == "".join('''
             <div id="innertext">
             <h1>SEINet - Arizona Chapter Collections </h1>

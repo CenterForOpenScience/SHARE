@@ -2,6 +2,7 @@ bcrypt==3.1.3  # Apache 2.0
 beautifulsoup4==4.4.1  # MIT
 bleach==1.4.3  # Apache 2.0
 boto3==1.4.4  # Apache 2.0
+celery==4.1.0  # BSD 3 Clause
 colorlog==2.7.0  # MIT
 cryptography==1.9 # BSD or Apache 2.0
 dateparser==0.4.0  # BSD
@@ -9,19 +10,20 @@ django-allauth==0.31.0  # MIT
 django-cors-headers==2.0.2  # MIT
 django-extensions==1.7.8  # MIT
 django-filter==1.0.2  # BSD
+django-include==0.2.1  # MIT
 django-model-utils==2.6.1  # BSD
 django-oauth-toolkit==0.12.0  # BSD
 django-revproxy==0.9.13  # MPL 2.0
 django-typed-models==0.6.0  # BSD 3 Clause
-django==1.11.1  # BSD 3 Clause
+django==1.11.4  # BSD 3 Clause
 django[bcrypt]==1.11  # BSD 3 Clause
-djangorestframework-jsonapi==2.1.1  # MIT
 djangorestframework==3.6.2  # BSD
 docopt==0.6.2  # MIT
 elasticsearch==5.4.0  # Apache 2.0
 furl==0.4.95  # None
 gevent==1.1.1  # MIT
 graphene==1.4  # MIT
+graphql-core==1.1  # MIT
 jsonschema==2.5.1  # MIT
 lxml==3.6.0  # BSD
 markdown==2.6.8  # BSD
@@ -37,20 +39,19 @@ PyJWE==1.0.0 # Apache 2.0
 pyyaml==3.11  # MIT
 raven==6.1.0  # BSD
 requests==2.10.0  # Apache 2.0
-shortuuid==0.4.3  # BSD
 stevedore==1.21.0  # Apache 2.0
 ujson==1.35  # BSD
 werkzeug==0.11.10  # BSD
 xmltodict==0.10.2  # MIT
 
+
+# djangorestframework-jsonapi==2.2.0  # MIT
+# Allows custom-rendered IDs, hiding null values, and including data in error responses
+git+git://github.com/cos-forks/django-rest-framework-json-api.git@v2.2.0+cos1
+
 # TODO: When graphene-django doesn't break on inherited fields with choices (https://github.com/graphql-python/graphene-django/pull/156)
 # graphene-django==1.3  # MIT
-git+git://github.com/aaxelb/graphene-django.git@db305b3d68ce71820cecb829266279a140afe39b
-
-# celery==4.0.2  # BSD 3 Clause
-# Contains many fixes that still haven't been release
-git+git://github.com/celery/celery.git@069ed5434ed86b9af7485c8632673a2bfbc2d771
-git+git://github.com/celery/kombu.git@be79b3d4cdbfe80cc5400396d7d81abeb73d0136
+git+git://github.com/aaxelb/graphene-django.git@be20450a663073add7c7ace437cccaf2832cf4f3
 
 # django-celery-beat==1.0.1  # BSD 3 Clause
 # Contains a fix for handling disabled tasks that still has not been release

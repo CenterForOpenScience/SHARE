@@ -114,8 +114,8 @@ class OAIRenderer:
         header = Element('header')
         SubEl(header, 'identifier', self.repository.oai_identifier(work))
         SubEl(header, 'datestamp', format_datetime(work.date_modified)),
-        for spec in work.sources.values_list('source__name', flat=True):
-            SubEl(header, 'setSpec', spec)
+        for spec in work.sources.all():
+            SubEl(header, 'setSpec', spec.source.name)
         return header
 
     def _record(self, work, metadataRenderer):
@@ -166,14 +166,16 @@ class DublinCoreRenderer(MetadataRenderer):
         agent_relation_types = ['share.creator', 'share.publisher'] + list(self.contributor_types)
         agent_relations = {k: [] for k in agent_relation_types}
 
-        for relation in work.agent_relations.filter(type__in=agent_relation_types).order_by('order_cited').select_related('agent'):
+        for relation in work.agent_relations.all():
+            if relation.type not in agent_relations:
+                continue
             agent_relations[relation.type].append(relation)
 
-        for relation in agent_relations['share.creator']:
+        for relation in sorted(agent_relations['share.creator'], key=lambda x: x.order_cited or -1):
             SubEl(dc, 'dc:creator', relation.cited_as or relation.agent.name)
 
-        for subject in work.subjects.values_list('name', flat=True).order_by('id'):
-            SubEl(dc, 'dc:subject', subject)
+        for subject in work.subjects.all():
+            SubEl(dc, 'dc:subject', subject.name)
 
         if work.description:
             SubEl(dc, 'dc:description', work.description)
@@ -190,19 +192,20 @@ class DublinCoreRenderer(MetadataRenderer):
 
         SubEl(dc, 'dc:type', work._meta.model_name)
 
-        for uri in work.identifiers.values_list('uri', flat=True):
-            SubEl(dc, 'dc:identifier', uri)
+        for identifier in work.identifiers.all():
+            SubEl(dc, 'dc:identifier', identifier.uri)
 
         if work.language:
             SubEl(dc, 'dc:language', work.language)
 
-        for (subject_id, related_id) in work.incoming_creative_work_relations.values_list('subject_id', 'related_id').order_by('id'):
-            if work.id == subject_id:
-                SubEl(dc, 'dc:relation', self.repository.oai_identifier(related_id))
+        for relation in work.incoming_creative_work_relations.all():
+            if work.id == relation.subject_id:
+                SubEl(dc, 'dc:relation', self.repository.oai_identifier(relation.related_id))
             else:
-                SubEl(dc, 'dc:relation', self.repository.oai_identifier(subject_id))
+                SubEl(dc, 'dc:relation', self.repository.oai_identifier(relation.subject_id))
 
         if work.rights:
             SubEl(dc, 'dc:rights', work.rights)
+
         if work.free_to_read_type:
             SubEl(dc, 'dc:rights', work.free_to_read_type)

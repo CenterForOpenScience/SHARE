@@ -57,7 +57,7 @@ class TestElasticSearchProxy:
         '/api/v2/search/_ssuggest',
     ])
     def test_limitted_post(self, url, client):
-        with mock.patch('api.views.elasticsearch.requests.post') as post:
+        with mock.patch('api.search.views.requests.post') as post:
             post.return_value = mock.Mock(status_code=500, json=lambda: {})
             assert client.post(url, '{}', content_type='application/json').status_code in (403, 405)
 
@@ -83,7 +83,7 @@ class TestElasticSearchProxy:
         '/api/v2/search/_mappingss',
     ])
     def test_limitted_get(self, url, client):
-        with mock.patch('api.views.elasticsearch.requests.get') as get:
+        with mock.patch('api.search.views.requests.get') as get:
             get.return_value = mock.Mock(status_code=500, json=lambda: {})
             assert client.post(url).status_code == 403
 
@@ -100,7 +100,7 @@ class TestElasticSearchProxy:
             '/api/v2/search/type/_suggest',
             '/api/v2/search/type/_suggest/',
         )
-        with mock.patch('api.views.elasticsearch.requests.post') as post:
+        with mock.patch('api.search.views.requests.post') as post:
             post.return_value = mock.Mock(status_code=200, json=lambda: {})
             for url in urls:
                 assert client.post(url, '{}', content_type='application/json').status_code == 200
@@ -112,7 +112,7 @@ class TestElasticSearchProxy:
             '/api/v2/search/_mappings/creativeworks',
             '/api/v2/search/_mappings/creativeworks/',
         )
-        with mock.patch('api.views.elasticsearch.requests.post') as post:
+        with mock.patch('api.search.views.requests.post') as post:
             post.return_value = mock.Mock(status_code=500, json=lambda: {})
             for url in urls:
                 assert client.post(url, '{}', content_type='application/json').status_code == 405
@@ -134,7 +134,7 @@ class TestElasticSearchProxy:
         '/api/v2/search/agent/some_id/',
     ])
     def test_get_search(self, url, client):
-        with mock.patch('api.views.elasticsearch.requests.get') as get:
+        with mock.patch('api.search.views.requests.get') as get:
             get.return_value = mock.Mock(status_code=200, json=lambda: {})
             assert client.get(url).status_code == 200
 
@@ -145,13 +145,13 @@ class TestElasticSearchProxy:
             '/api/v2/search/type/_suggest',
             '/api/v2/search/type/_suggest/',
         )
-        with mock.patch('api.views.elasticsearch.requests.get') as get:
+        with mock.patch('api.search.views.requests.get') as get:
             get.return_value = mock.Mock(status_code=500, json=lambda: {})
             for url in urls:
                 assert client.get(url).status_code == 405
 
     def test_elastic_proxy(self, client, elastic):
-        with mock.patch('api.views.elasticsearch.requests.get') as get:
+        with mock.patch('api.search.views.requests.get') as get:
             get.return_value = mock.Mock(status_code=200, json=lambda: {})
             client.get('/api/v2/search/_search')
             elastic_url = furl('{}{}/{}'.format(elastic.es_url, elastic.es_index, '_search'))

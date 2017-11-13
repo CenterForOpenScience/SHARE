@@ -18,6 +18,11 @@ from django.utils.log import DEFAULT_LOGGING
 from celery.schedules import crontab
 import jwe
 
+
+def split(string, delim):
+    return tuple(map(str.strip, filter(None, string.split(delim))))
+
+
 # Suppress select django deprecation messages
 LOGGING = DEFAULT_LOGGING
 
@@ -142,8 +147,7 @@ REST_FRAMEWORK = {
         'rest_framework_json_api.parsers.JSONParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'api.renderers.HideNullJSONAPIRenderer',
-        # 'rest_framework_json_api.renderers.JSONRenderer',
+        'rest_framework_json_api.renderers.JSONRenderer',
         # 'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
@@ -206,7 +210,7 @@ DATABASES = {
         'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
-        'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', 60)),
+        'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', 0 if DEBUG else 60)),
         'TEST': {'SERIALIZE': False},
     },
 }
@@ -293,10 +297,65 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/')
-ELASTICSEARCH_INDEX = os.environ.get('ELASTIC_SEARCH_INDEX', 'share')
-ELASTICSEARCH_TIMEOUT = int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45'))
-ELASTICSEARCH_INDEX_VERSIONS = tuple(v for v in os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', '').split(',') if v)
+ELASTICSEARCH = {
+    'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
+    'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
+    'INDEX': os.environ.get('ELASTIC_SEARCH_INDEX', 'share'),
+    'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
+    'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
+    'DEFAULT_QUEUE': 'es-index',
+    'DEFAULT_FETCHERS': {
+        'agent': 'share.search.fetchers.AgentFetcher',
+        'creativework': 'share.search.fetchers.CreativeWorkFetcher',
+        'subject': 'share.search.fetchers.SubjectFetcher',
+        'tag': 'share.search.fetchers.TagFetcher',
+    },
+    'QUEUE_SETTINGS': {
+        'serializer': 'json',
+        'compression': 'zlib',
+        'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
+    },
+    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_v3, share_customtax_1'), ','),
+    # TODO Make this configurable
+    # Due to time constraints this is being hard coded
+    # NOTE: mappings will have to be created BEFORE the daemon starts
+    'INDEXES': {
+        'share_v3': {
+            'QUEUE': {
+                'name': 'es-index',
+                'serializer': 'json',
+                'compression': 'zlib',
+                'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
+                'consumer_arguments': {
+                    'x-priority': 100
+                }
+            }
+        },
+        'share_customtax_1': {
+            'FETCHERS': {
+                'creativework': 'share.search.fetchers.CreativeWorkFetcher',
+            },
+            'QUEUE': {
+                'name': 'es-index-firehose',
+                'serializer': 'json',
+                'compression': 'zlib',
+                'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
+                'consumer_arguments': {
+                    'x-priority': 100
+                }
+            }
+        }
+    },
+}
+
+# Backwards compat stuff.
+# TODO Delete me soon
+ELASTICSEARCH_URL = ELASTICSEARCH['URL']
+ELASTICSEARCH_INDEX = ELASTICSEARCH['INDEX']
+ELASTICSEARCH_TIMEOUT = ELASTICSEARCH['TIMEOUT']
+ELASTICSEARCH_INDEX_VERSIONS = ELASTICSEARCH['INDEX_VERSIONS']
+ELASTIC_QUEUE = ELASTICSEARCH['DEFAULT_QUEUE']
+ELASTIC_QUEUE_SETTINGS = ELASTICSEARCH['QUEUE_SETTINGS']
 
 INDEXABLE_MODELS = {
     'agent': 'Agent',
@@ -376,12 +435,6 @@ CELERY_TASK_ROUTES = {
 CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}
 CELERY_TASK_QUEUES[CELERY_TASK_DEFAULT_QUEUE] = {}
 
-ELASTIC_QUEUE = 'es-index'
-ELASTIC_QUEUE_SETTINGS = {
-    'serializer': 'json',
-    'compression': 'zlib',
-    'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
-}
 
 # Logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
@@ -392,7 +445,7 @@ LOGGING = {
     'formatters': {
         'console': {
             '()': 'colorlog.ColoredFormatter',
-            'format': '%(cyan)s[%(asctime)s]%(log_color)s[%(levelname)s][%(name)s]: %(reset)s%(message)s'
+            'format': '%(cyan)s[%(asctime)s]%(purple)s[%(threadName)s]%(log_color)s[%(levelname)s][%(name)s]: %(reset)s%(message)s'
         }
     },
     'handlers': {
@@ -418,7 +471,7 @@ LOGGING = {
             'level': LOG_LEVEL,
             'propagate': False
         },
-        'providers': {
+        'elasticsearch': {
             'handlers': ['console'],
             'level': LOG_LEVEL,
             'propagate': False
@@ -477,6 +530,7 @@ DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 'ul']
 
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
+SUBJECTS_YAML = 'share/subjects.yaml'
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
@@ -492,6 +546,25 @@ AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 CELERY_TASK_BUCKET_NAME = os.environ.get('CELERY_TASK_BUCKET_NAME')
 CELERY_TASK_FOLDER_NAME = os.environ.get('CELERY_TASK_FOLDER_NAME')  # top level folder (e.g. prod, staging)
+
+
+# TODO replace me with a field on Source
+OSF_PREPRINT_PROVIDERS = [
+    'AgriXiv',
+    'BITSS',
+    'INA-Rxiv',
+    'LIS Scholarship Archive',
+    'LawArXiv',
+    'MindRxiv',
+    'NutriXiv',
+    'Open Science Framework',
+    'PaleorXiv',
+    'PsyArXiv',
+    'SocArXiv',
+    'SportRxiv',
+    'Thesis Commons',
+    'engrXiv',
+]
 
 
 if DEBUG and os.environ.get('TOOLBAR', False):

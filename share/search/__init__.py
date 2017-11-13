@@ -13,8 +13,13 @@ class SearchIndexer:
     def __init__(self, celery_app):
         self.app = celery_app
 
-    def index(self, model, *pks):
+    def index(self, model, *pks, index=None):
         name = settings.INDEXABLE_MODELS.get(model.lower())
+
+        if index is None:
+            indexes = settings.ELASTICSEARCH['ACTIVE_INDEXES']
+        else:
+            indexes = [index]
 
         if not name:
             raise ValueError('{} is not an indexable model'.format(model))
@@ -23,5 +28,9 @@ class SearchIndexer:
             return
 
         with self.app.pool.acquire(block=True) as connection:
-            with connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS) as queue:
-                queue.put({'version': 1, 'model': name, 'ids': pks}, retry=True, retry_policy=self.retry_policy)
+            for index in indexes:
+                q = dict(settings.ELASTICSEARCH['INDEXES'][index]['QUEUE'])
+                q.pop('consumer_arguments', None)
+                with connection.SimpleQueue(q.pop('name'), **q) as queue:
+                    for pk in pks:
+                        queue.put({'version': 1, 'model': name, 'ids': [pk]}, retry=True, retry_policy=self.retry_policy)

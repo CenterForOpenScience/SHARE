@@ -65,8 +65,9 @@ class TestOAIVerbs:
         assert len(identifiers) == 1
         assert identifiers[0].text == 'oai:share.osf.io:{}'.format(IDObfuscator.encode(all_about_anteaters))
 
-    def test_list_records(self, post, all_about_anteaters):
-        parsed = oai_request({'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}, post)
+    def test_list_records(self, post, all_about_anteaters, django_assert_num_queries):
+        with django_assert_num_queries(2):
+            parsed = oai_request({'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}, post)
         records = parsed.xpath('//ns0:ListRecords/ns0:record', namespaces=NAMESPACES)
         assert len(records) == 1
         assert all_about_anteaters.title == records[0].xpath('ns0:metadata/oai_dc:dc/dc:title', namespaces=NAMESPACES)[0].text
