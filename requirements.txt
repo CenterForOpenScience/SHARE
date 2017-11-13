@@ -4,6 +4,7 @@ bleach==1.4.3  # Apache 2.0
 boto3==1.4.4  # Apache 2.0
 celery==4.1.0  # BSD 3 Clause
 colorlog==2.7.0  # MIT
+cryptography==1.9 # BSD or Apache 2.0
 dateparser==0.4.0  # BSD
 django-allauth==0.31.0  # MIT
 django-cors-headers==2.0.2  # MIT
@@ -34,6 +35,7 @@ pillow==4.0.0  # PIL Software License:
 psycogreen==1.0  # BSD
 psycopg2==2.6.1  # LGPL with exceptions or ZPL
 pycountry==1.20  # LGPL 2.1
+PyJWE==1.0.0 # Apache 2.0
 pyyaml==3.11  # MIT
 raven==6.1.0  # BSD
 requests==2.10.0  # Apache 2.0

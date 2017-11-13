@@ -4,6 +4,7 @@
 ## Added
 * Support for set blacklists for sources that follow OAI-PMH protocol
 * Set whitelist for UA Campus Repository
+* Support for encrypted json field and start using it in SourceConfig model 
 
 ## Changed
 * Collect metadata in MODS format from UA Campus Repository

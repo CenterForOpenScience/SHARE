@@ -64,6 +64,7 @@ class HarvesterFactory(DjangoModelFactory):
 
         mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
         mock_entry.name = self.key
+        mock_entry.module_name = self.key
         mock_entry.resolve.return_value = MockHarvester
 
         stevedore.DriverManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)

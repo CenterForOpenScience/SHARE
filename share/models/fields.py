@@ -3,11 +3,13 @@ import json
 from decimal import Decimal
 from functools import partial
 
-import six
 from dateutil import parser
+import jwe
 from psycopg2.extras import Json
+import six
 
 from django import forms
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres import lookups
 from django.contrib.postgres.fields.jsonb import JSONField
@@ -550,3 +552,30 @@ class GenericRelationNoCascade(GenericRelation):
         # https://github.com/django/django/blob/master/django/db/models/deletion.py#L151
         # Disable django cascading deletes for this field
         raise AttributeError('This is a dirty hack')
+
+
+class EncryptedJSONField(models.BinaryField):
+    """
+    This field transparently encrypts data in the database. It should probably only be used with PG unless
+    the user takes into account the db specific trade-offs with TextFields.
+    """
+    prefix = b'jwe:::'
+
+    def get_db_prep_value(self, input_json, **kwargs):
+        if not input_json:
+            return None
+
+        input_json = self.prefix + jwe.encrypt(json.dumps(input_json).encode('utf-8'), settings.SENSITIVE_DATA_KEY)
+
+        return input_json
+
+    def to_python(self, output_json):
+        if not output_json:
+            return None
+
+        output_json = json.loads(jwe.decrypt(bytes(output_json[len(self.prefix):]), settings.SENSITIVE_DATA_KEY).decode('utf-8'))
+
+        return output_json
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
