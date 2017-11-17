@@ -208,6 +208,24 @@ class CreativeWorkFetcher(Fetcher):
         ),
         '''
 
+        # Gather all the works we want, so postgres doesn't get confused by the huge query below
+        # Exclude works with empty titles or too many identifiers
+        '''
+        all_creative_works AS (
+            SELECT *
+            FROM share_creativework AS all_creative_works
+            WHERE id IN (SELECT id FROM pks)
+            AND title != ''
+            AND (
+                SELECT COUNT(*) FROM (
+                    SELECT * FROM share_workidentifier
+                    WHERE share_workidentifier.creative_work_id = all_creative_works.id
+                    LIMIT %(max_identifiers)s + 1
+                ) AS identifiers
+            ) <= %(max_identifiers)s
+        ),
+        '''
+
         # For each work, construct the JSON that (after post-processing) will be sent to elasticsearch
         '''
         results AS (
@@ -234,19 +252,13 @@ class CreativeWorkFetcher(Fetcher):
                 , 'retractions', COALESCE(retractions, '{}')
                 , 'lineage', COALESCE(lineage, '{}')
             ) AS _source
-            FROM share_creativework AS creativework
+            FROM all_creative_works AS creativework
 
-            LEFT JOIN LATERAL (
-                SELECT sources FROM all_sources WHERE creativework_id = creativework.id
-            ) AS sources ON TRUE
+            LEFT JOIN all_sources ON all_sources.creativework_id = creativework.id
 
-            LEFT JOIN LATERAL (
-                SELECT tags FROM all_tags WHERE creativework_id = creativework.id
-            ) AS tags ON TRUE
+            LEFT JOIN all_tags ON all_tags.creativework_id = creativework.id
 
-            LEFT JOIN LATERAL (
-                SELECT related_agents FROM all_related_agents WHERE creativework_id = creativework.id
-            ) AS related_agents ON TRUE
+            LEFT JOIN all_related_agents ON all_related_agents.creativework_id = creativework.id
 
             LEFT JOIN LATERAL (
                 SELECT array_agg(identifier.uri) AS identifiers
@@ -360,17 +372,6 @@ class CreativeWorkFetcher(Fetcher):
                     AND work_relation.type = %(retraction_relation)s
                     AND NOT retraction.is_deleted
             ) AS retractions ON TRUE
-        '''
-
-        # Exclude works with empty titles or too many identifiers
-        '''
-            WHERE creativework.id IN (SELECT id FROM pks)
-            AND creativework.title != ''
-            AND (
-                SELECT COUNT(*) FROM share_workidentifier
-                WHERE share_workidentifier.creative_work_id = creativework.id
-                LIMIT %(max_identifiers)s + 1
-            ) <= %(max_identifiers)s
         )
         '''
     )
