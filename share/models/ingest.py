@@ -425,6 +425,6 @@ class RawDatum(models.Model):
         resource_name = 'RawData'
 
     def __repr__(self):
-        return '<{}({}, {}, {}...)>'.format(self.__class__.__name__, self.suid_id, self.datestamp, self.sha256[:10])
+        return '<{}({}, {}, {}...)>'.format(self.__class__.__name__, self.id, self.datestamp, self.sha256[:10])
 
     __str__ = __repr__

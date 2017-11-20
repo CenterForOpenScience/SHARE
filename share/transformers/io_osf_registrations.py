@@ -6,7 +6,7 @@ from . import io_osf as osf
 
 class Registration(osf.Project):
     date_published = ParseDate(ctx.attributes.date_created)
-    free_to_read_date = Try(ParseDate(ctx.attributes.embargo_end_date), exceptions=(ValueError, ))
+    free_to_read_date = Try(ParseDate(ctx.attributes.embargo_end_date), exceptions=(InvalidDate, ))
     identifiers = Map(Delegate(osf.WorkIdentifier), ctx.links.html, ctx.links.self)
 
     class Extra:

@@ -32,7 +32,7 @@ class Creator(Parser):
 
 class Organization(Parser):
     name = ctx.publisher
-    identifiers = Map(Delegate(AgentIdentifier), Try(IRI(ctx.issn), exceptions=(ValueError, )))
+    identifiers = Map(Delegate(AgentIdentifier), Try(IRI(ctx.issn), exceptions=(InvalidIRI, )))
 
     class Extra:
         issn = Try(ctx.issn)

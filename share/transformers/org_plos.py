@@ -23,7 +23,7 @@ class Organization(Parser):
     name = XPath(ctx, "str[@name='journal']").str['#text']
     identifiers = Map(
         Delegate(AgentIdentifier),
-        Map(Try(IRI(), exceptions=(ValueError, )), XPath(ctx, "str[@name='eissn']").str['#text'])
+        Map(Try(IRI(), exceptions=(InvalidIRI, )), XPath(ctx, "str[@name='eissn']").str['#text'])
     )
 
 

@@ -203,7 +203,7 @@ class ContributorAgent(Parser):
                     ctx.nameIdentifier
                 )
             ),
-            exceptions=(ValueError,)
+            exceptions=(InvalidIRI,)
         )
     )
     related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Concat(tools.Try(
@@ -251,7 +251,7 @@ class FunderAgent(Parser):
                     tools.Static(None)
                 )
             ),
-            exceptions=(ValueError,)
+            exceptions=(InvalidIRI,)
         )
     )
 
@@ -280,7 +280,7 @@ class HostAgent(Parser):
                     ctx.nameIdentifier
                 )
             ),
-            exceptions=(ValueError,)
+            exceptions=(InvalidIRI,)
         )
     )
 
@@ -594,7 +594,7 @@ class CreativeWork(Parser):
     date_published = tools.ParseDate(tools.Try(tools.RunPython('get_date_type', tools.Concat(ctx.record.metadata['oai_datacite'].payload.resource.dates.date), 'Issued')))
     free_to_read_type = tools.Try(
         tools.IRI(ctx.record.metadata['oai_datacite'].payload.resource.rightsList.rights['@rightsURI']),
-        exceptions=(ValueError,)
+        exceptions=(InvalidIRI,)
     )
     free_to_read_date = tools.ParseDate(tools.Try(tools.RunPython('get_date_type', tools.Concat(ctx.record.metadata['oai_datacite'].payload.resource.dates.date), 'Available')))
 

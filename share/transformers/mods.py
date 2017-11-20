@@ -49,7 +49,7 @@ class MODSAgent(Parser):
     identifiers = tools.Map(
         tools.Delegate(MODSAgentIdentifier),
         tools.Unique(tools.Map(
-            tools.Try(tools.IRI(), exceptions=(ValueError, )),
+            tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
             tools.Map(
                 tools.RunPython(force_text),
                 tools.Filter(
@@ -209,7 +209,7 @@ class MODSCreativeWork(Parser):
     identifiers = tools.Map(
         tools.Delegate(MODSWorkIdentifier),
         tools.Unique(tools.Map(
-            tools.Try(tools.IRI(), exceptions=(ValueError, )),
+            tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
             tools.Map(
                 tools.RunPython(force_text),
                 tools.Filter(

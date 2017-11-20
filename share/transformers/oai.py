@@ -111,7 +111,7 @@ class OAICreativeWork(Parser):
     identifiers = tools.Map(
         tools.Delegate(OAIWorkIdentifier),
         tools.Unique(tools.Map(
-            tools.Try(tools.IRI(), exceptions=(ValueError, )),
+            tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
             tools.Filter(
                 not_citation,
                 tools.RunPython(
@@ -129,7 +129,7 @@ class OAICreativeWork(Parser):
         tools.Map(
             tools.Delegate(OAIWorkRelation),
             tools.Unique(tools.Map(
-                tools.Try(tools.IRI(), exceptions=(ValueError, )),
+                tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
                 tools.RunPython('get_relation', ctx)
             ))
         )

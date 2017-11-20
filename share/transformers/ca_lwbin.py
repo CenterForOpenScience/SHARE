@@ -79,7 +79,7 @@ class CreativeWork(Parser):
         Delegate(WorkIdentifier),
         RunPython('get_url', ctx),
         RunPython('get_dois', ctx.extras),
-        Try(IRI(ctx.url), exceptions=(ValueError, )),
+        Try(IRI(ctx.url), exceptions=(InvalidIRI, )),
     )
 
     related_agents = Concat(
