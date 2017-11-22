@@ -4,6 +4,7 @@ import logging
 import xmltodict
 
 from share.transform.chain import ChainTransformer, ctx, links as tools
+from share.transform.chain.exceptions import InvalidIRI
 from share.transform.chain.links import GuessAgentTypeLink
 from share.transform.chain.parsers import Parser
 from share.transform.chain.utils import force_text

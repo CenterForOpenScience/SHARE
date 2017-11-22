@@ -21,7 +21,6 @@ from django.utils.translation import ugettext_lazy as _
 # from django.db.models import Exists, OuterRef
 
 from share.util import chunked, BaseJSONAPIMeta
-from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models.fields import DateTimeAwareJSONField
 from share.regulate import Regulator
 
@@ -462,6 +461,8 @@ class IngestJob(AbstractBaseJob):
 
     transformed_data = DateTimeAwareJSONField(null=True)
     regulated_data = DateTimeAwareJSONField(null=True)
+
+    apply_changes_retries = models.IntegerField(null=True)
 
     @classmethod
     def schedule(cls, raw, superfluous=False):

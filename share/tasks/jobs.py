@@ -1,17 +1,27 @@
 import logging
 import random
 
+from django.apps import apps
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
+from django.db.utils import OperationalError
 from django.utils import timezone
 
-from share.exceptions import TransformError
+from share import exceptions
+from share.change import ChangeGraph
 from share.harvest.exceptions import HarvesterConcurrencyError
-from share.models import CeleryTaskResult
-from share.models import HarvestJob
-from share.models import IngestJob
-from share.models import NormalizedData
-from share.models import RawDatum
+from share.models import (
+    AbstractCreativeWork,
+    ChangeSet,
+    HarvestJob,
+    IngestJob,
+    NormalizedData,
+    RawDatum,
+    Source,
+)
 from share.regulate import Regulator
+from share.search import SearchIndexer
 from share.util import chunked
 
 
@@ -46,14 +56,18 @@ class JobConsumer:
         Additional keyword arguments passed to _consume_job, along with superfluous and force
         """
         with self._locked_job(job_id, ignore_disabled) as job:
-            if job is None and job_id is None:
-                logger.info('No %ss are currently available', self.Job.__name__)
-                return False
+            if job is None:
+                if job_id is None:
+                    logger.info('No %ss are currently available', self.Job.__name__)
+                    return
+                else:
+                    # If an id was given to us, we should have gotten a job
+                    job = self.Job.objects.get(id=job_id)  # Force the failure
+                    raise Exception('Failed to load {} but then found {!r}.'.format(job_id, job))  # Should never be reached
 
-            if job is None and job_id is not None:
-                # If an id was given to us, we should have gotten a job
-                job = self.Job.objects.get(id=job_id)  # Force the failure
-                raise Exception('Failed to load {} but then found {!r}.'.format(job_id, job))  # Should never be reached
+            if not superfluous and job.status not in self.Job.READY_STATUSES:
+                logger.info('Skipping job {}'.format(job))
+                return
 
             if exhaust and job_id is None:
                 if force:
@@ -187,8 +201,10 @@ class IngestJobConsumer(JobConsumer):
     Job = IngestJob
     lock_field = 'suid'
 
+    MAX_APPLY_CHANGES_RETRIES = 5
+
     def _prepare_job(self, job, *args, **kwargs):
-        # TODO think about getting rid of these triangles
+        # TODO think about getting rid of these triangles -- infer source config from suid?
         assert job.suid_id == job.raw.suid_id
         assert job.source_config_id == job.suid.source_config_id
 
@@ -198,15 +214,36 @@ class IngestJobConsumer(JobConsumer):
 
         return super()._prepare_job(job, *args, **kwargs)
 
-    def _consume_job(self, job, **kwargs):
+    def _consume_job(self, job, superfluous, **kwargs):
+        datum = None
+
+        # Check whether we've already done transform/regulate
+        if not superfluous:
+            datum = job.ingested_normalized_data.order_by('-created_at').first()
+
+        if not datum:
+            graph = self._transform(job)
+            if not graph:
+                return
+            graph = self._regulate(job, graph)
+            if not graph:
+                return
+            datum = NormalizedData.objects.create(
+                data={'@graph': graph.to_jsonld()},
+                source=job.suid.source_config.source.user,
+                raw=job.raw,
+                ingest_job=job,
+            )
+
+        self._apply_changes(job, datum)
+
+    def _transform(self, job):
         transformer = job.suid.source_config.get_transformer()
         try:
             graph = transformer.transform(job.raw)
-        except TransformError as e:
+        except exceptions.TransformError as e:
             job.fail(e)
-            return
-
-        job.log_graph('transformed_data', graph)
+            return None
 
         if not graph:
             if not job.raw.normalizeddata_set.exists():
@@ -214,20 +251,59 @@ class IngestJobConsumer(JobConsumer):
                 RawDatum.objects.filter(id=job.raw_id).update(no_output=True)
             else:
                 logger.warning('Graph was empty for %s, but a normalized data already exists for it', job.raw)
-            return
+            return None
 
+        job.log_graph('transformed_data', graph)
+        return graph
+
+    def _regulate(self, job, graph):
         Regulator(job).regulate(graph)
         job.log_graph('regulated_data', graph)
+        return graph
 
-        # TODO save as unmerged single-source graph
+    def _apply_changes(self, job, normalized_data):
+        updated = None
 
-        if settings.SHARE_LEGACY_PIPELINE:
-            from share.tasks import disambiguate
+        try:
+            # Load all relevant ContentTypes in a single query
+            ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
-            nd = NormalizedData.objects.create(
-                data={'@graph': job.regulated_data},
-                source=job.suid.source_config.source.user,
-                raw=job.raw,
-            )
-            nd.tasks.add(CeleryTaskResult.objects.get(task_id=self.task.request.id))
-            disambiguate.apply_async((nd.id,))
+            with transaction.atomic():
+                cg = ChangeGraph(normalized_data.data['@graph'], namespace=normalized_data.source.username)
+                cg.process()
+                cs = ChangeSet.objects.from_graph(cg, normalized_data.id)
+                if cs and (normalized_data.source.is_robot or normalized_data.source.is_trusted or Source.objects.filter(user=normalized_data.source).exists()):
+                    # TODO: verify change set is not overwriting user created object
+                    updated = cs.accept()
+
+        # Retry if it was just the wrong place at the wrong time
+        except (exceptions.IngestConflict, OperationalError) as e:
+            self._retry_apply_changes(job, e)
+
+        if not updated:
+            return  # Nothing to index
+
+        # TODO: Think about indexing non-work objects that were updated
+
+        # Index works that were added or directly updated
+        updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
+        # and works that matched, even if they didn't change, in case any related objects did
+        existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
+
+        ids = list(updated_works | existing_works)
+        try:
+            SearchIndexer(self.task.app).index('creativework', *ids)
+        except Exception as e:
+            logger.exception('Could not add results from %r to elasticqueue', normalized_data)
+            raise
+
+    def _retry_apply_changes(self, job, exc):
+        if not job.apply_changes_retries:
+            job.apply_changes_retries = 1
+        else:
+            job.apply_changes_retries += 1
+
+        if job.apply_changes_retries > self.MAX_APPLY_CHANGES_RETRIES:
+            raise exc
+
+        job.reschedule()

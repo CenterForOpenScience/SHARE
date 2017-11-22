@@ -1,6 +1,7 @@
 import logging
 
 from share.transform.chain import ctx, links as tools, ChainTransformer
+from share.transform.chain.exceptions import InvalidIRI
 from share.transform.chain.parsers import Parser
 from share.transform.chain.utils import force_text
 
