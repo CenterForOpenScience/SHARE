@@ -4,9 +4,11 @@
 ## Added
 * Support for set blacklists for sources that follow OAI-PMH protocol
 * Set whitelist for UA Campus Repository
+* Support for encrypted json field and start using it in SourceConfig model 
 
 ## Changed
 * Collect metadata in MODS format from UA Campus Repository
+* Update columbia.edu harvester source config (disabled set to false)
 
 ## Fixed
 * Backfill CHANGELOG.md to include `2.10.0` and `2.11.0`

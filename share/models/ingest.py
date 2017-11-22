@@ -15,10 +15,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
-from share.util.extensions import Extensions
+from share.models.fields import EncryptedJSONField
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.indexes import ConcurrentIndex
 from share.util import chunked, placeholders, BaseJSONAPIMeta
+from share.util.extensions import Extensions
 
 
 logger = logging.getLogger(__name__)
@@ -128,6 +129,9 @@ class SourceConfig(models.Model):
     transformer_kwargs = JSONField(null=True, blank=True)
 
     disabled = models.BooleanField(default=False)
+
+    private_harvester_kwargs = EncryptedJSONField(blank=True, null=True)
+    private_transformer_kwargs = EncryptedJSONField(blank=True, null=True)
 
     objects = NaturalKeyManager('label')
 

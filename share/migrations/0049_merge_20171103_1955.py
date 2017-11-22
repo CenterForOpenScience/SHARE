@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('share', '0047_jobs'),
-        ('share', '0047_auto_20171019_2018'),
+        ('share', '0048_auto_20171113_1852'),
     ]
 
     operations = [
