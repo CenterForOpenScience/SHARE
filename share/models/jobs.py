@@ -337,6 +337,9 @@ class AbstractBaseJob(models.Model):
             logger.warning('A newer version of %r already exists, skipping...', self)
             return False
 
+    def __repr__(self):
+        return '<{} {} ({})>'.format(self.__class__.__name__, self.id, self.STATUS[self.status])
+
 
 class PGLock(models.Model):
     """A wrapper around Postgres' pg_locks system table.

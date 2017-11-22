@@ -1,3 +1,5 @@
+from prettyjson import PrettyJSONWidget
+
 from django import forms
 from django.conf.urls import url
 from django.contrib import admin
@@ -23,6 +25,7 @@ from share.models.celery import CeleryTaskResult
 from share.models.change import ChangeSet
 from share.models.core import NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
+from share.models.fields import DateTimeAwareJSONField
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
 from share.models.jobs import HarvestJob
 from share.models.jobs import IngestJob
@@ -40,6 +43,15 @@ class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
     raw_id_fields = ('raw', 'tasks',)
+    formfield_overrides = {
+        DateTimeAwareJSONField: {
+            'widget': PrettyJSONWidget(attrs={
+                'initial': 'parsed',
+                'cols': 120,
+                'rows': 20
+            })
+        }
+    }
 
 
 class ChangeSetSubmittedByFilter(SimpleListFilter):

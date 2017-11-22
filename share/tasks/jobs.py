@@ -278,17 +278,25 @@ class IngestJobConsumer(JobConsumer):
 
         # Retry if it was just the wrong place at the wrong time
         except (exceptions.IngestConflict, OperationalError) as e:
-            self._retry_apply_changes(job, e)
+            if not job.apply_changes_retries:
+                job.apply_changes_retries = 1
+            else:
+                job.apply_changes_retries += 1
+
+            if job.apply_changes_retries > self.MAX_APPLY_CHANGES_RETRIES:
+                raise exc
+            job.reschedule()
+            return
 
         if not updated:
             return  # Nothing to index
-
-        # TODO: Think about indexing non-work objects that were updated
 
         # Index works that were added or directly updated
         updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
         # and works that matched, even if they didn't change, in case any related objects did
         existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
+
+        # TODO: Think about indexing non-work objects that were updated
 
         ids = list(updated_works | existing_works)
         try:
@@ -296,14 +304,3 @@ class IngestJobConsumer(JobConsumer):
         except Exception as e:
             logger.exception('Could not add results from %r to elasticqueue', normalized_data)
             raise
-
-    def _retry_apply_changes(self, job, exc):
-        if not job.apply_changes_retries:
-            job.apply_changes_retries = 1
-        else:
-            job.apply_changes_retries += 1
-
-        if job.apply_changes_retries > self.MAX_APPLY_CHANGES_RETRIES:
-            raise exc
-
-        job.reschedule()

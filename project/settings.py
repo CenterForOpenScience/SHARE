@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'revproxy',
     'graphene_django',
+    'prettyjson',
 
     'allauth',
     'allauth.account',
