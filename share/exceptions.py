@@ -15,6 +15,10 @@ class TransformError(IngestError):
     pass
 
 
+class RegulateError(IngestError):
+    pass
+
+
 class MergeRequired(IngestError):
     """A node disambiguated to multiple objects in the database.
     """

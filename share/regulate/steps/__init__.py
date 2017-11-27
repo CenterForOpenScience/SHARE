@@ -1,5 +1,5 @@
+from share.exceptions import RegulateError
 from share.models import RegulatorLog
-from share.regulate.errors import RegulatorError
 
 
 class BaseStep:
@@ -12,19 +12,11 @@ class BaseStep:
         """
         self.regulator.logs.append(RegulatorLog(description=description, node_id=node_id))
 
-    def reject(self, description, node_id=None, exception=None):
-        """Indicate a regulated graph can be saved, but will not be merged into the SHARE dataset.
-        """
-        self.regulator.logs.append(RegulatorLog(description=description, rejected=True, node_id=node_id))
-
-        # TODO let ingestion continue, but don't merge suid with anything else
-        raise RegulatorError('Graph rejected: {}'.format(description)) from exception
-
-    def fail(self, description, node_id=None, exception=None):
+    def error(self, description, node_id=None, exception=None):
         """Indicate a severe problem with the data, halt regulation.
         """
         self.regulator.logs.append(RegulatorLog(description=description, rejected=True, node_id=node_id))
-        raise RegulatorError('Regulation failed: {}'.format(description)) from exception
+        raise RegulateError('Regulation failed: {}'.format(description)) from exception
 
 
 class NodeStep(BaseStep):
@@ -52,3 +44,9 @@ class ValidationStep(BaseStep):
         Must not modify the graph in any way.
         """
         raise NotImplementedError()
+
+    def reject(self, description, node_id=None, exception=None):
+        """Indicate a regulated graph failed validation and will not be merged into the SHARE dataset.
+        """
+        self.regulator.logs.append(RegulatorLog(description=description, rejected=True, node_id=node_id))
+        raise RegulateError('Graph failed validation: {}'.format(description)) from exception

@@ -38,8 +38,8 @@ class TestIngestJobConsumer:
 
     @pytest.mark.parametrize('legacy', [True, False])
     def test_legacy_pipeline(self, legacy, monkeypatch):
-        mock_disambiguate = mock.Mock()
-        monkeypatch.setattr('share.tasks.disambiguate', mock_disambiguate)
+        mock_apply_changes = mock.Mock()
+        monkeypatch.setattr('share.tasks.jobs.IngestJobConsumer._apply_changes', mock_apply_changes)
         monkeypatch.setattr('django.conf.settings.SHARE_LEGACY_PIPELINE', legacy)
 
         g = MutableGraph()
@@ -53,7 +53,7 @@ class TestIngestJobConsumer:
 
         if legacy:
             assert NormalizedData.objects.count() == 1
-            assert mock_disambiguate.apply_async.call_count == 1
+            assert mock_apply_changes.call_count == 1
         else:
             assert NormalizedData.objects.count() == 0
-            assert not mock_disambiguate.apply_async.called
+            assert not mock_apply_changes.called

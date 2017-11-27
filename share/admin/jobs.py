@@ -51,7 +51,6 @@ class BaseJobAdmin(admin.ModelAdmin):
     show_full_result_count = False
     paginator = FuzzyPaginator
 
-
     def source_config_(self, obj):
         return readonly_link(obj.source_config, obj.source_config.label)
 

@@ -201,7 +201,7 @@ class IngestJobConsumer(JobConsumer):
     Job = IngestJob
     lock_field = 'suid'
 
-    MAX_APPLY_CHANGES_RETRIES = 5
+    MAX_RETRIES = 5
 
     def _prepare_job(self, job, *args, **kwargs):
         # TODO think about getting rid of these triangles -- infer source config from suid?
@@ -221,21 +221,24 @@ class IngestJobConsumer(JobConsumer):
         if not superfluous:
             datum = job.ingested_normalized_data.order_by('-created_at').first()
 
-        if not datum:
+        if superfluous or job.regulated_data is None:
             graph = self._transform(job)
             if not graph:
                 return
             graph = self._regulate(job, graph)
             if not graph:
                 return
-            datum = NormalizedData.objects.create(
-                data={'@graph': graph.to_jsonld()},
-                source=job.suid.source_config.source.user,
-                raw=job.raw,
-                ingest_job=job,
-            )
+            if settings.SHARE_LEGACY_PIPELINE:
+                datum = NormalizedData.objects.create(
+                    data={'@graph': graph.to_jsonld()},
+                    source=job.suid.source_config.source.user,
+                    raw=job.raw,
+                    ingest_job=job,
+                )
 
-        self._apply_changes(job, datum)
+        if settings.SHARE_LEGACY_PIPELINE:
+            # TODO make this pipeline actually legacy by implementing a new one
+            self._apply_changes(job, datum)
 
     def _transform(self, job):
         transformer = job.suid.source_config.get_transformer()
@@ -257,11 +260,15 @@ class IngestJobConsumer(JobConsumer):
         return graph
 
     def _regulate(self, job, graph):
-        Regulator(job).regulate(graph)
+        try:
+            Regulator(job).regulate(graph)
+        except exceptions.RegulateError as e:
+            job.fail(e)
+            return None
         job.log_graph('regulated_data', graph)
         return graph
 
-    def _apply_changes(self, job, normalized_data):
+    def _apply_changes(self, job, normalized_datum):
         updated = None
 
         try:
@@ -269,22 +276,18 @@ class IngestJobConsumer(JobConsumer):
             ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
             with transaction.atomic():
-                cg = ChangeGraph(normalized_data.data['@graph'], namespace=normalized_data.source.username)
+                cg = ChangeGraph(normalized_datum.data['@graph'], namespace=normalized_datum.source.username)
                 cg.process()
-                cs = ChangeSet.objects.from_graph(cg, normalized_data.id)
-                if cs and (normalized_data.source.is_robot or normalized_data.source.is_trusted or Source.objects.filter(user=normalized_data.source).exists()):
+                cs = ChangeSet.objects.from_graph(cg, normalized_datum.id)
+                if cs and (normalized_datum.source.is_robot or normalized_datum.source.is_trusted or Source.objects.filter(user=normalized_datum.source).exists()):
                     # TODO: verify change set is not overwriting user created object
                     updated = cs.accept()
 
         # Retry if it was just the wrong place at the wrong time
         except (exceptions.IngestConflict, OperationalError) as e:
-            if not job.apply_changes_retries:
-                job.apply_changes_retries = 1
-            else:
-                job.apply_changes_retries += 1
-
-            if job.apply_changes_retries > self.MAX_APPLY_CHANGES_RETRIES:
-                raise exc
+            job.retries = (job.retries or 0) + 1
+            if job.retries > self.MAX_RETRIES:
+                raise
             job.reschedule()
             return
 
@@ -302,5 +305,5 @@ class IngestJobConsumer(JobConsumer):
         try:
             SearchIndexer(self.task.app).index('creativework', *ids)
         except Exception as e:
-            logger.exception('Could not add results from %r to elasticqueue', normalized_data)
+            logger.exception('Could not add results from %r to elasticqueue', normalized_datum)
             raise

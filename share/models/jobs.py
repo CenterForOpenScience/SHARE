@@ -465,7 +465,7 @@ class IngestJob(AbstractBaseJob):
     transformed_data = DateTimeAwareJSONField(null=True)
     regulated_data = DateTimeAwareJSONField(null=True)
 
-    apply_changes_retries = models.IntegerField(null=True)
+    retries = models.IntegerField(null=True)
 
     @classmethod
     def schedule(cls, raw, superfluous=False):
