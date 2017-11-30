@@ -9,7 +9,6 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db import transaction
-from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.db import IntegrityError
@@ -120,39 +119,6 @@ def disambiguate(self, normalized_id):
     updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
     existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
     ids = list(updated_works | existing_works)
-
-    # Reindex children of any affected works
-    parent_relation = 'share.ispartof'
-    children = AbstractCreativeWork.objects.filter((
-        Q(
-            outgoing_creative_work_relations__type=parent_relation,
-            outgoing_creative_work_relations__related_id__in=ids
-        ) |
-        Q(
-            outgoing_creative_work_relations__type=parent_relation,
-            outgoing_creative_work_relations__related__outgoing_creative_work_relations__type=parent_relation,
-            outgoing_creative_work_relations__related__outgoing_creative_work_relations__related_id__in=ids
-        ) |
-        Q(
-            outgoing_creative_work_relations__type=parent_relation,
-            outgoing_creative_work_relations__related__outgoing_creative_work_relations__type=parent_relation,
-            outgoing_creative_work_relations__related__outgoing_creative_work_relations__related__outgoing_creative_work_relations__type=parent_relation,
-            outgoing_creative_work_relations__related__outgoing_creative_work_relations__related__outgoing_creative_work_relations__related_id__in=ids
-        )),
-        is_deleted=False
-    ).values_list('id', flat=True)
-
-    # Reindex works retracted by any affected works
-    retraction_relation = 'share.retracts'
-    retracted = AbstractCreativeWork.objects.filter(
-        incoming_creative_work_relations__type=retraction_relation,
-        incoming_creative_work_relations__subject_id__in=ids,
-        is_deleted=False
-    ).values_list('id', flat=True)
-
-    ids.extend(children)
-    ids.extend(retracted)
-    ids = set(ids)
 
     try:
         SearchIndexer(self.app).index('creativework', *ids)
