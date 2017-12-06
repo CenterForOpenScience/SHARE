@@ -1,7 +1,21 @@
 # DSpace
 configs:
-- base_url: http://ir.library.oregonstate.edu/oai/request
+- base_url: https://ir.library.oregonstate.edu/catalog/oai
   disabled: false
+  earliest_date: 2017-07-03T17:46:34Z
+  harvester: oai
+  harvester_kwargs: {metadata_prefix: oai_dc}
+  label: edu.scholarsarchiveosu.hyrax
+  rate_limit_allowance: 1
+  rate_limit_period: 2
+  transformer: oai_dc
+  transformer_kwargs:
+    approved_sets: null
+    emitted_type: CreativeWork
+    property_list: []
+    type_map: {}
+- base_url: http://ir.library.oregonstate.edu/oai/request
+  disabled: true
   earliest_date: null  # 0011-01-01T00:00:00Z is incorrect
   harvester: oai
   harvester_kwargs: {metadata_prefix: mods}
