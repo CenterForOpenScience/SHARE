@@ -1,7 +1,9 @@
 import contextlib
 import datetime
+import json
 import logging
 import pendulum
+import uuid
 
 from django.contrib.postgres.fields import JSONField
 from django.core import validators
@@ -100,6 +102,28 @@ class Source(models.Model):
         return repr(self)
 
 
+class SourceConfigManager(NaturalKeyManager):
+    def get_or_create_push_config(self, user, transformer_key):
+        config_label = '{}.{}'.format(user.username, transformer_key)
+        try:
+            return SourceConfig.objects.get(label=config_label)
+        except SourceConfig.DoesNotExist:
+            source, _ = Source.objects.get_or_create(
+                user=user,
+                defaults={
+                    'name': user.username,
+                    'long_title': user.username,
+                }
+            )
+            config = SourceConfig(
+                label=config_label,
+                source=source,
+                transformer=Transformer.objects.get(key=transformer_key),
+            )
+            config.save()
+            return config
+
+
 class SourceConfig(models.Model):
     # Previously known as the provider's app_label
     label = models.TextField(unique=True)
@@ -133,7 +157,7 @@ class SourceConfig(models.Model):
     private_harvester_kwargs = EncryptedJSONField(blank=True, null=True)
     private_transformer_kwargs = EncryptedJSONField(blank=True, null=True)
 
-    objects = NaturalKeyManager('label')
+    objects = SourceConfigManager('label')
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass
@@ -231,6 +255,20 @@ class Transformer(models.Model):
 
     def __str__(self):
         return repr(self)
+
+
+class SourceUniqueIdentifier(models.Model):
+    identifier = models.TextField()
+    source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('identifier', 'source_config')
+
+    def __str__(self):
+        return '{} {}'.format(self.source_config_id, self.identifier)
+
+    def __repr__(self):
+        return '<{}({}, {!r})>'.format(self.__class__.__name__, self.source_config_id, self.identifier)
 
 
 class RawDatumManager(FuzzyCountManager):
@@ -366,19 +404,13 @@ class RawDatumManager(FuzzyCountManager):
 
         return rd
 
-
-class SourceUniqueIdentifier(models.Model):
-    identifier = models.TextField()
-    source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('identifier', 'source_config')
-
-    def __str__(self):
-        return '{} {}'.format(self.source_config_id, self.identifier)
-
-    def __repr__(self):
-        return '<{}({}, {!r})>'.format(self.__class__.__name__, self.source_config_id, self.identifier)
+    def store_json(self, config, json_data, suid_value=None):
+        from share.harvest.base import FetchResult
+        if not suid_value:
+            suid_value = str(uuid.uuid4())
+        serialized = json.dumps(json_data, sort_keys=True)
+        fetch_result = FetchResult(suid_value, serialized, timezone.now())
+        return self.store_data(config, fetch_result)
 
 
 class RawDatum(models.Model):

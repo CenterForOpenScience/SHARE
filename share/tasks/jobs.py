@@ -221,7 +221,7 @@ class IngestJobConsumer(JobConsumer):
         if not superfluous:
             datum = job.ingested_normalized_data.order_by('-created_at').first()
 
-        if superfluous or job.regulated_data is None:
+        if superfluous or datum is None:
             graph = self._transform(job)
             if not graph:
                 return

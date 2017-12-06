@@ -197,6 +197,7 @@ class AbstractBaseJob(models.Model):
     task_id = models.UUIDField(null=True)
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)
 
+    message = models.TextField(blank=True, null=True)
     context = models.TextField(blank=True, default='')
     completions = models.IntegerField(default=0)
 
@@ -230,20 +231,21 @@ class AbstractBaseJob(models.Model):
 
         if not isinstance(exception, str):
             tb = traceback.TracebackException.from_exception(exception)
-            exception = '\n'.join(tb.format(chain=True))
+            self.context = '\n'.join(tb.format(chain=True))
 
         self.status = self.STATUS.failed
-        self.context = exception
-        self.save(update_fields=('status', 'context', 'date_modified'))
+        self.message = exception
+        self.save(update_fields=('status', 'context', 'message', 'date_modified'))
 
         return True
 
     def succeed(self):
+        self.message = ''
         self.context = ''
         self.completions += 1
         self.status = self.STATUS.succeeded
         logger.debug('Setting %r to succeeded with %d completions', self, self.completions)
-        self.save(update_fields=('context', 'completions', 'status', 'date_modified'))
+        self.save(update_fields=('context', 'message', 'completions', 'status', 'date_modified'))
 
         return True
 
@@ -258,11 +260,11 @@ class AbstractBaseJob(models.Model):
 
         if not isinstance(exception, str):
             tb = traceback.TracebackException.from_exception(exception)
-            exception = '\n'.join(tb.format(chain=True))
+            self.context = '\n'.join(tb.format(chain=True))
 
         self.status = self.STATUS.forced
-        self.context = exception
-        self.save(update_fields=('status', 'context', 'date_modified'))
+        self.message = exception
+        self.save(update_fields=('status', 'context', 'message', 'date_modified'))
 
         return True
 

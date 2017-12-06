@@ -1,9 +1,11 @@
+from django.db import transaction
+
 from rest_framework import status
 from rest_framework import generics
 from rest_framework.response import Response
 
 from share import models
-from share.tasks import disambiguate
+from share.tasks import ingest
 from share.util import IDObfuscator
 
 from api.base.views import ShareViewSet
@@ -11,6 +13,7 @@ from api.normalizeddata.serializers import BasicNormalizedDataSerializer
 from api.normalizeddata.serializers import FullNormalizedDataSerializer
 from api.pagination import CursorPagination
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
+from api.util import absolute_reverse
 
 
 class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.RetrieveAPIView):
@@ -59,13 +62,22 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=True):
+        serializer.is_valid(raise_exception=True)
+        with transaction.atomic():
+            source_config = models.SourceConfig.objects.get_or_create_push_config(request.user, 'v2_push')
             nm_instance = serializer.save()
-            # TODO create an IngestJob, respond with a link to a job detail endpoint (SHARE-1003)
-            async_result = disambiguate.delay(nm_instance.id)
-            # TODO Fix Me
+            nm_instance.raw = models.RawDatum.objects.store_json(source_config, nm_instance.data)
+            nm_instance.save()
+
+            job = models.IngestJob.schedule(nm_instance.raw)
+            async_result = ingest.delay(job_id=job.id, exhaust=False)
+
+            # TODO Use an actual serializer
             return Response({
                 'id': IDObfuscator.encode(nm_instance),
                 'type': 'NormalizedData',
-                'attributes': {'task': async_result.id}
+                'attributes': {
+                    'task': async_result.id,
+                    'ingest_job': absolute_reverse('api:ingestjob-detail', args=[IDObfuscator.encode(job)]),
+                }
             }, status=status.HTTP_202_ACCEPTED)
