@@ -19,6 +19,7 @@ __all__ = (
     'ThroughTagsFactory',
     'WorkIdentifierFactory',
     'AbstractWorkRelationFactory',
+    'CreatorWorkRelationFactory',
 )
 
 
@@ -116,6 +117,14 @@ class AgentWorkRelationFactory(TypedShareObjectFactory):
 
     class Meta:
         model = models.AgentWorkRelation
+
+
+class CreatorWorkRelationFactory(AgentWorkRelationFactory):
+    # order_cited isn't working?
+    type = 'share.creator'
+
+    class Meta:
+        model = models.Creator
 
 
 class TagFactory(ShareObjectFactory):
