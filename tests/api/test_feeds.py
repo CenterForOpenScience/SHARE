@@ -4,7 +4,7 @@ import faker
 
 from lxml import etree
 
-from share.models import AbstractCreativeWork, AgentWorkRelation
+from share.models import AbstractCreativeWork, AbstractAgentWorkRelation
 from share.util import IDObfuscator
 
 from bots.elasticsearch import tasks
@@ -33,8 +33,8 @@ class TestFeed:
                 date_published=None if i % 3 == 0 else fake.date_time_this_decade(),
             )
             if i % 3 == 1:
-                factories.CreatorWorkRelationFactory(creative_work=work, agent=person_0)
-                factories.CreatorWorkRelationFactory(creative_work=work, agent=person_1)
+                factories.CreatorWorkRelationFactory(creative_work=work, agent=person_0, order_cited=0)
+                factories.CreatorWorkRelationFactory(creative_work=work, agent=person_1, order_cited=1)
             if i % 3 == 2:
                 factories.CreatorWorkRelationFactory(creative_work=work, agent=person_0)
 
@@ -71,7 +71,8 @@ class TestFeed:
 
         for creative_work, entry in zip(works, feed.xpath('//atom:entry', namespaces={'atom': 'http://www.w3.org/2005/Atom'})):
             try:
-                contributors = AgentWorkRelation.objects.filter(creative_work_id=creative_work.id)
+                contributors = list(AbstractAgentWorkRelation.objects.filter(creative_work_id=creative_work.id))
+                first_contributor = AbstractAgentWorkRelation.objects.get(creative_work_id=creative_work.id, order_cited=0)
             except:
                 contributors = None
 
@@ -82,10 +83,9 @@ class TestFeed:
             if not contributors:
                 assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == 'No authors provided.'
             elif len(contributors) > 1:
-                # can't guarentee the order that the contributors will be in
-                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text.endswith('et al.')
+                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == '{} et al.'.format(first_contributor.cited_as)
             else:
-                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == contributors[0].cited_as
+                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == first_contributor.cited_as
 
             if getattr(creative_work, order):
                 assert entry.find('atom:updated', namespaces=NAMESPACES).text == getattr(creative_work, order).replace(microsecond=0).isoformat()

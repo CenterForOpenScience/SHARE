@@ -120,11 +120,11 @@ class AgentWorkRelationFactory(TypedShareObjectFactory):
 
 
 class CreatorWorkRelationFactory(AgentWorkRelationFactory):
-    # order_cited isn't working?
+    order_cited = 0
     type = 'share.creator'
 
     class Meta:
-        model = models.Creator
+        model = models.AbstractAgentWorkRelation
 
 
 class TagFactory(ShareObjectFactory):
