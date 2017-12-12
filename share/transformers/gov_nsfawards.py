@@ -30,10 +30,23 @@ class Award(Parser):
     class Extra:
         funds_obligated_amt = ctx.fundsObligatedAmt
         award_id = ctx.id
-        awardee_name = tools.Try(ctx.awardeeName)
-        awardee_city = ctx.awardeeCity
-        awardee_state_code = tools.Try(ctx.awardeeStateCode)
+        transaction_type = ctx.transType
+        estimated_total_amt = tools.Try(ctx.estimatedTotalAmt)
+        catalog_of_federal_domestic_assistance_number = tools.Try(ctx.cfdaNumber)
+
         date = ctx.date
+        date_start = tools.Try(ctx.startDate)
+        date_expiration = tools.Try(ctx.expDate)
+
+        awardee = tools.Try(ctx.awardee)
+        awardee_address = tools.Try(ctx.awardeeAddress)
+        awardee_name = ctx.awardeeName
+        awardee_city = tools.Try(ctx.awardeeCity)
+        awardee_county = tools.Try(ctx.awardeeCounty)
+        awardee_state_code = tools.Try(ctx.awardeeStateCode)
+        awardee_country_code = tools.Try(ctx.awardeeCountryCode)
+        awardee_district_code = tools.Try(ctx.awardeeDistrictCode)
+        awardee_zip_code = tools.Try(ctx.awardeeZipCode)
 
 
 class ThroughAwards(Parser):
@@ -54,31 +67,96 @@ class AffiliatedAgent(Parser):
     )
 
     name = ctx.awardeeName
-    location = tools.Join(tools.Concat(ctx.awardeeCity, tools.Try(ctx.awardeeStateCode)), joiner=', ')
+    location = tools.Join(
+        tools.Concat(ctx.awardeeCity, tools.Try(ctx.awardeeStateCode)),
+        joiner=', '
+    )
 
     class Extra:
-        awardee_city = ctx.awardeeCity
+        awardee = tools.Try(ctx.awardee)
+        awardee_address = tools.Try(ctx.awardeeAddress)
+        awardee_name = ctx.awardeeName
+        awardee_city = tools.Try(ctx.awardeeCity)
+        awardee_county = tools.Try(ctx.awardeeCounty)
         awardee_state_code = tools.Try(ctx.awardeeStateCode)
+        awardee_country_code = tools.Try(ctx.awardeeCountryCode)
+        awardee_district_code = tools.Try(ctx.awardeeDistrictCode)
+        awardee_zip_code = tools.Try(ctx.awardeeZipCode)
 
 
 class IsAffiliatedWith(Parser):
     related = tools.Delegate(AffiliatedAgent, ctx)
 
 
-class ContributorAgent(Parser):
+class AgentIdentifier(Parser):
+    uri = ctx
+
+
+class POContributorAgent(Parser):
+    schema = 'Person'
+
+    name = ctx.poName
+
+    identifiers = tools.Map(
+        tools.Delegate(AgentIdentifier),
+        tools.Try(
+            tools.IRI(ctx.poEmail),
+            exceptions=(ValueError,)
+        )
+    )
+
+    related_agents = tools.Map(
+        tools.Delegate(IsAffiliatedWith),
+        tools.Filter(lambda x: 'awardeeName' in x, ctx)
+    )
+
+    class Extra:
+        po_name = tools.Try(ctx.poName)
+        po_email = tools.Try(ctx.poEmail)
+
+
+class POContributorRelation(Parser):
+    schema = 'Contributor'
+
+    agent = tools.Delegate(POContributorAgent, ctx)
+    cited_as = ctx.poName
+
+
+class PIContributorAgent(Parser):
     schema = 'Person'
 
     family_name = ctx.piLastName
     given_name = ctx.piFirstName
+    additional_name = tools.Try(ctx.piMiddeInitial)
 
-    related_agents = tools.Map(tools.Delegate(IsAffiliatedWith), tools.Filter(lambda x: 'awardeeName' in x, ctx))
+    related_agents = tools.Map(
+        tools.Delegate(IsAffiliatedWith),
+        tools.Filter(lambda x: 'awardeeName' in x, ctx)
+    )
+
+    identifiers = tools.Map(
+        tools.Delegate(AgentIdentifier),
+        tools.Try(
+            tools.IRI(ctx.piEmail),
+            exceptions=(ValueError,)
+        )
+    )
+
+    class Extra:
+        pi_last_name = ctx.piLastName
+        pi_first_name = ctx.piFirstName
+        pi_middle_initial = tools.Try(ctx.piMiddeInitial)
+        pi_email = tools.Try(ctx.piEmail)
 
 
-class ContributorRelation(Parser):
-    schema = 'Contributor'
+class PIContributorRelation(Parser):
+    schema = 'PrincipalInvestigatorContact'
 
-    agent = tools.Delegate(ContributorAgent, ctx)
-    cited_as = tools.Join(tools.Concat(ctx.piFirstName, ctx.piLastName), joiner=' ')
+    agent = tools.Delegate(PIContributorAgent, ctx)
+    cited_as = tools.Join(
+        tools.Concat(ctx.piFirstName, ctx.piLastName),
+        joiner=' '
+    )
 
 
 class AgentWorkRelation(Parser):
@@ -86,22 +164,81 @@ class AgentWorkRelation(Parser):
 
 
 class CreativeWork(Parser):
+    # https://www.research.gov/common/webapi/awardapisearch-v1.htm#request-parameters
+
     title = ctx.title
+    description = ctx.abstractText
 
     identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx)
 
     related_agents = tools.Concat(
         tools.Map(tools.Delegate(FunderRelation), ctx),
-        tools.Map(tools.Delegate(ContributorRelation), ctx),
-        tools.Map(tools.Delegate(AgentWorkRelation), tools.Filter(lambda x: 'awardeeName' in x, ctx))
+        tools.Map(tools.Delegate(PIContributorRelation), ctx),
+        tools.Map(
+            tools.Delegate(POContributorRelation),
+            tools.Filter(lambda x: 'poName' in x, ctx)
+        ),
+        tools.Map(
+            tools.Delegate(AgentWorkRelation),
+            tools.Filter(lambda x: 'awardeeName' in x, ctx)
+        )
     )
 
     date_updated = tools.ParseDate(ctx.date)
 
     class Extra:
-        public_access_mandate = ctx.publicAccessMandate
+        catalog_of_federal_domestic_assistance_number = tools.Try(ctx.cfdaNumber)
+        estimated_total_amt = tools.Try(ctx.estimatedTotalAmt)
+        fund_program_name = tools.Try(ctx.fundProgramName)
+        has_project_outcomes_report = tools.Try(ctx.projectOutComesReport)
+        primary_program = tools.Try(ctx.primaryProgram)
+        public_access_mandate = tools.Try(ctx.publicAccessMandate)
+        transaction_type = tools.Try(ctx.transType)
+
+        co_pi_name = tools.Try(ctx.coPDPI)  # irregular field (ex. [First Last ~<numbers>, ...])
+        proj_dir_pi_name = tools.Try(ctx.pdPIName)
+
+        duns_number = tools.Try(ctx.dunsNumber)
+        parent_duns_number = tools.Try(ctx.parentDunsNumber)
+
+        fund_agency_code = tools.Try(ctx.fundAgencyCode)
+        award_agency_code = tools.Try(ctx.awardAgencyCode)
+
+        publication_research = tools.Try(ctx.publicationResearch)
+        publication_conference = tools.Try(ctx.publicationConference)
+
+        po_name = tools.Try(ctx.poName)
+        po_email = tools.Try(ctx.poEmail)
+
+        date = ctx.date
+        date_start = tools.Try(ctx.startDate)
+        date_expiration = tools.Try(ctx.expDate)
+
+        pi_last_name = ctx.piLastName
+        pi_first_name = ctx.piFirstName
+        pi_middle_initial = tools.Try(ctx.piMiddeInitial)
+        pi_email = tools.Try(ctx.piEmail)
+
+        awardee = tools.Try(ctx.awardee)
+        awardee_address = tools.Try(ctx.awardeeAddress)
+        awardee_city = tools.Try(ctx.awardeeCity)
+        awardee_country_code = tools.Try(ctx.awardeeCountryCode)
+        awardee_county = tools.Try(ctx.awardeeCounty)
+        awardee_district_code = tools.Try(ctx.awardeeDistrictCode)
+        awardee_name = tools.Try(ctx.awardeeName)
+        awardee_state_code = tools.Try(ctx.awardeeStateCode)
+        awardee_zip_code = tools.Try(ctx.awardeeZipCode)
+
+        performance_address = tools.Try(ctx.perfAddress)
+        performance_city = tools.Try(ctx.perfCity)
+        performance_country_code = tools.Try(ctx.perfCountryCode)
+        performance_county = tools.Try(ctx.perfCounty)
+        performance_district_code = tools.Try(ctx.perfDistrictCode)
+        performance_location = tools.Try(ctx.perfLocation)
+        performance_state_code = tools.Try(ctx.perfStateCode)
+        performance_zip_code = tools.Try(ctx.perfZipCode)
 
 
 class NSFTransformer(ChainTransformer):
-    VERSION = 1
+    VERSION = 2
     root_parser = CreativeWork
