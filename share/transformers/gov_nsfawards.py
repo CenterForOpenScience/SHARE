@@ -1,10 +1,30 @@
 from share.transform.chain import ctx, ChainTransformer
 from share.transform.chain import links as tools
 from share.transform.chain.parsers import Parser
+from share.transform.chain.utils import format_address
 
 
 def format_url(award_id):
     return 'https://www.nsf.gov/awardsearch/showAward?AWD_ID={}'.format(award_id)
+
+
+def format_org_address(ctx):
+    awardee_address = ctx.get('awardeeAddress', '')
+    awardee_city = ctx.get('awardeeCity', '')
+    awardee_state_code = ctx.get('awardeeStateCode', '')
+    awardee_country_code = ctx.get('awardeeCountryCode', '')
+    awardee_zip_code = ctx.get('awardeeZipCode', '')
+
+    if not any((awardee_address, awardee_city, awardee_state_code, awardee_zip_code, awardee_country_code)):
+        return None
+
+    return format_address(
+        address1=awardee_address,
+        city=awardee_city,
+        state_or_province=awardee_state_code,
+        postal_code=awardee_zip_code,
+        country=awardee_country_code
+    )
 
 
 class WorkIdentifier(Parser):
@@ -67,10 +87,7 @@ class AffiliatedAgent(Parser):
     )
 
     name = ctx.awardeeName
-    location = tools.Join(
-        tools.Concat(ctx.awardeeCity, tools.Try(ctx.awardeeStateCode)),
-        joiner=', '
-    )
+    location = tools.RunPython(format_org_address, ctx)
 
     class Extra:
         awardee = tools.Try(ctx.awardee)
