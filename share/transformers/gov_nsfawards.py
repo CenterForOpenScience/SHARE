@@ -193,11 +193,11 @@ class CreativeWork(Parser):
         tools.Map(tools.Delegate(PIContributorRelation), ctx),
         tools.Map(
             tools.Delegate(POContributorRelation),
-            tools.Filter(lambda x: 'poName' in x, ctx)
+            tools.Filter(lambda x: x.get('poName') is not None, ctx)
         ),
         tools.Map(
             tools.Delegate(AgentWorkRelation),
-            tools.Filter(lambda x: 'awardeeName' in x, ctx)
+            tools.Filter(lambda x: x.get('awardeeName') is not None, ctx)
         )
     )
 
