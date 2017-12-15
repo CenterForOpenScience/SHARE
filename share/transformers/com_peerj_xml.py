@@ -155,7 +155,7 @@ class Preprint(Article):
 class PeerJXMLTransformer(SoupXMLTransformer):
     VERSION = 1
 
-    def get_root_parser(self, _):
-        if self.kwargs.get('emitted_type', None) == 'preprint':
+    def get_root_parser(self, unwrapped, emitted_type=None, **kwargs):
+        if emitted_type == 'preprint':
             return Preprint
         return Article

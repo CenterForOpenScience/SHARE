@@ -50,7 +50,7 @@ class TestSetsFilter:
             'approved_sets': approved_sets,
             'blocked_sets': blocked_sets
         })
-        transformer = self.TRANSFORMER_CLASS(source_config, **source_config.transformer_kwargs)
+        transformer = self.TRANSFORMER_CLASS(source_config)
         res = transformer.transform(datum)
         if expect_allowed:
             assert res is not None

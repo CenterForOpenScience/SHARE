@@ -128,4 +128,4 @@ class TestMutableGraph:
                 {k: v for k, v in n.items() if not isinstance(v, list)}
                 for n in sorted(nodes, key=lambda n: n['@id'])
             ]
-        assert clean_jsonld(mutable_graph_nodes) == clean_jsonld(mutable_graph.to_jsonld())
+        assert clean_jsonld(mutable_graph_nodes) == clean_jsonld(mutable_graph.to_jsonld(in_edges=False))

@@ -17,14 +17,14 @@ class SWHarvester(BaseHarvester):
     """
     VERSION = 1
 
-    def _do_fetch(self, start, end, **kwargs):
+    def _do_fetch(self, start, end, list_url):
         end_date = end.date()
         start_date = start.date()
         logger.info('Harvesting swbiodiversity %s - %s', start_date, end_date)
-        return self.fetch_records()
+        return self.fetch_records(list_url)
 
-    def fetch_records(self):
-        response = self.requests.get(self.kwargs['list_url'])
+    def fetch_records(self, list_url):
+        response = self.requests.get(list_url)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'lxml')
         records = soup.find_all('a')
@@ -42,7 +42,7 @@ class SWHarvester(BaseHarvester):
 
             logger.info('On collection %d of %d (%d%%)', count, total, (count / total) * 100)
 
-            collection_page = furl(self.kwargs['list_url'])
+            collection_page = furl(list_url)
             collection_page.args['collid'] = identifier
             response = self.requests.get(collection_page.url)
             response.raise_for_status()

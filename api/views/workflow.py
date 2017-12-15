@@ -116,9 +116,9 @@ class V1DataView(views.APIView):
             config = self._get_source_config(request.user)
             raw = models.RawDatum.objects.store_data(config, FetchResult(doc_id, DictSerializer(pretty=False).serialize(prelim_data), timezone.now()))
 
-        transformed_data = config.get_transformer().transform(raw.datum)
-        data = {}
-        data['data'] = transformed_data
+        # TODO create an IngestJob, respond with a link to a job detail endpoint
+        transformed_graph = config.get_transformer().transform(raw.datum)
+        data = {'data': {'@graph': transformed_graph.to_jsonld(in_edges=False)}}
         serializer = BasicNormalizedDataSerializer(data=data, context={'request': request})
 
         if serializer.is_valid():

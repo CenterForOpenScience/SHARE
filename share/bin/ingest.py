@@ -2,8 +2,9 @@ import os
 
 from pprint import pprint
 
+from share import tasks
 from share.bin.util import command
-from share.models import SourceConfig
+from share.models import SourceConfig, RawDatum, IngestJob
 
 
 @command('Run a SourceConfig\'s transformer')
@@ -33,3 +34,49 @@ def transform(args, argv):
             print('Parsed raw data "{}" into'.format(name))
             pprint(transformer.transform(data))
             print('\n')
+
+
+@command('Create IngestJobs for the specified RawDatum(s)')
+def ingest(args, argv):
+    """
+    Usage: {0} ingest (<source_configs>... | --all) [--superfluous] [--task | --run]
+           {0} ingest --ids <raw_data_ids>... [--task | --run]
+
+    Options:
+        -i, --ids           Provide RawDatum IDs to ingest specifically
+        -s, --superfluous   Reingest RawDatums that already have an IngestJob
+        -t, --task          Spawn an ingest task after creating IngestJobs
+        -r, --run           Run ingest tasks synchronously for each IngestJob
+    """
+    ids = args['<raw_data_ids>']
+    source_configs = args['<source_configs>']
+    superfluous = args.get('<superfluous>')
+
+    qs = RawDatum.objects.all()
+    if ids:
+        qs = qs.filter(id__in=ids)
+    else:
+        if source_configs:
+            qs = qs.filter(suid__source_config__label__in=source_configs)
+        if not superfluous:
+            qs = qs.filter(ingest_jobs=None)
+
+    count = 0
+    jobs = []
+    for raw in qs.iterator():
+        count += 1
+        jobs.append(IngestJob.schedule(raw, superfluous=superfluous))
+    print('Scheduled {} IngestJobs'.format(count))
+
+    if not args['--run'] and not args['--task']:
+        return
+
+    kwargs = {
+        'exhaust': False,
+        'ignore_disabled': False,
+    }
+    for job in jobs:
+        if args['--run']:
+            tasks.ingest.apply((), {'job_id': job.id, **kwargs}, throw=True)
+        elif args['--task']:
+            tasks.ingest.apply_async((), {'job_id': job.id, **kwargs})

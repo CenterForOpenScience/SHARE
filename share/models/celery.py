@@ -10,7 +10,7 @@ from typedmodels.models import TypedModel
 
 from share.models.fields import DateTimeAwareJSONField
 from share.models.fuzzycount import FuzzyCountManager
-from share.models.logs import get_share_version
+from share.models.jobs import get_share_version
 
 
 ALL_STATES = sorted(states.ALL_STATES)
