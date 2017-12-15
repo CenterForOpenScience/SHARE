@@ -23,36 +23,22 @@ class OAIHarvester(BaseHarvester):
         'ns0': 'http://www.openarchives.org/OAI/2.0/',
         'oai_dc': 'http://www.openarchives.org/OAI/2.0/',
     }
-    time_granularity = True
-    from_param = 'from'
-    until_param = 'until'
-    set_spec = None
     SERIALIZER_CLASS = StringLikeSerializer
 
-    def __init__(self, *args, **kwargs):
-        self.metadata_prefix = kwargs.pop('metadata_prefix')
-        self.time_granularity = kwargs.pop('time_granularity', self.time_granularity)
-        self.from_param = kwargs.pop('from_param', self.from_param)
-        self.until_param = kwargs.pop('until_param', self.until_param)
-        self.set_spec = kwargs.pop('set_spec', self.set_spec)
-
-        super().__init__(*args, **kwargs)
-
-    def _do_fetch(self, start_date, end_date, set_spec=None):
+    def _do_fetch(self, start_date, end_date, metadata_prefix, time_granularity=True, set_spec=None):
         url = furl(self.config.base_url)
-        set_spec = set_spec or self.set_spec
 
         if set_spec:
             url.args['set'] = set_spec
         url.args['verb'] = 'ListRecords'
-        url.args['metadataPrefix'] = self.metadata_prefix
+        url.args['metadataPrefix'] = metadata_prefix
 
-        if self.time_granularity:
-            url.args[self.from_param] = start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
-            url.args[self.until_param] = end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+        if time_granularity:
+            url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+            url.args['until'] = end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
         else:
-            url.args[self.from_param] = start_date.date().isoformat()
-            url.args[self.until_param] = end_date.date().isoformat()
+            url.args['from'] = start_date.date().isoformat()
+            url.args['until'] = end_date.date().isoformat()
 
         return self.fetch_records(url)
 
@@ -111,11 +97,11 @@ class OAIHarvester(BaseHarvester):
 
         return records, token
 
-    def fetch_by_id(self, provider_id):
+    def fetch_by_id(self, identifier, metadata_prefix, **kwargs):
         url = furl(self.config.base_url)
         url.args['verb'] = 'GetRecord'
-        url.args['metadataPrefix'] = self.metadata_prefix
-        url.args['identifier'] = provider_id
+        url.args['metadataPrefix'] = metadata_prefix
+        url.args['identifier'] = identifier
         return etree.tostring(self.fetch_page(url)[0][0], encoding=str)
 
     def metadata_formats(self):

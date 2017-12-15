@@ -14,6 +14,7 @@ from django.db import connection
 from django.db import connections
 from django.db import models
 from django.db import transaction
+from django.db import IntegrityError
 from django.db.models.expressions import RawSQL
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -21,9 +22,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from share.util import chunked, BaseJSONAPIMeta
 from share.harvest.exceptions import HarvesterConcurrencyError
+from share.models.fields import DateTimeAwareJSONField
+from share.regulate import Regulator
 
 
-__all__ = ('HarvestLog', )
+__all__ = ('HarvestJob', 'IngestJob', 'RegulatorLog')
 logger = logging.getLogger(__name__)
 
 
@@ -31,7 +34,7 @@ def get_share_version():
     return settings.VERSION
 
 
-class AbstractLogManager(models.Manager):
+class AbstractJobManager(models.Manager):
     _bulk_tmpl = '''
         INSERT INTO "{table}"
             ({insert})
@@ -53,6 +56,9 @@ class AbstractLogManager(models.Manager):
         DO NOTHING
         RETURNING {fields}
     '''
+
+    def get_queryset(self):
+        return LockableQuerySet(self.model, using=self._db)
 
     def bulk_create_or_nothing(self, fields, data, db_alias='default'):
         default_fields, default_values = self._build_defaults(fields)
@@ -160,7 +166,7 @@ class AbstractLogManager(models.Manager):
         return default_fields, default_values
 
 
-class AbstractBaseLog(models.Model):
+class AbstractBaseJob(models.Model):
     STATUS = Choices(
         (0, 'created', _('Enqueued')),
         (1, 'started', _('In Progress')),
@@ -186,7 +192,8 @@ class AbstractBaseLog(models.Model):
         duplicated = 'Previously Succeeded'
         encompassed = 'Encompassing task succeeded'
         comprised = 'Comprised of succeeded tasks'
-        obsolete = 'Obsolete'
+        pointless = 'Any effects will be overwritten by another queued job'
+        obsolete = 'Uses an old version of a dependency'
 
     task_id = models.UUIDField(null=True)
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)
@@ -198,12 +205,9 @@ class AbstractBaseLog(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True, editable=False, db_index=True)
 
-    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='harvest_logs', on_delete=models.CASCADE)
-
     share_version = models.TextField(default=get_share_version, editable=False)
-    source_config_version = models.PositiveIntegerField()
 
-    objects = AbstractLogManager()
+    objects = AbstractJobManager()
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass
@@ -288,15 +292,16 @@ class AbstractBaseLog(models.Model):
         # beyond here will be field specific
         self.save()
 
-        # Protect ourselves from SIGKILL
-        def on_sigkill(sig, frame):
+        # Protect ourselves from SIGTERM
+        def on_sigterm(sig, frame):
             self.cancel()
-        prev_handler = signal.signal(signal.SIGTERM, on_sigkill)
+        prev_handler = signal.signal(signal.SIGTERM, on_sigterm)
 
         self.start()
         try:
             yield
         except HarvesterConcurrencyError as e:
+            # TODO more generic concurrency error
             error = e
             self.reschedule()
         except Exception as e:
@@ -305,12 +310,40 @@ class AbstractBaseLog(models.Model):
         else:
             self.succeed()
         finally:
-            # Detach from SIGKILL, resetting the previous handle
+            # Detach from SIGTERM, resetting the previous handle
             signal.signal(signal.SIGTERM, prev_handler)
 
             # Reraise the error if we caught one
             if error:
                 raise error
+
+    def current_versions(self):
+        raise NotImplementedError
+
+    def update_versions(self):
+        """Update version fields to the values from self.current_versions
+
+        Return True if successful, else False.
+        """
+        current_versions = self.current_versions()
+        if all(getattr(self, f) == v for f, v in current_versions.items()):
+            # No updates required
+            return True
+
+        if self.completions > 0:
+            logger.warning('%r is outdated but has previously completed, skipping...', self)
+            return False
+
+        try:
+            with transaction.atomic():
+                for f, v in current_versions.items():
+                    setattr(self, f, v)
+                self.save()
+            logger.warning('%r has been updated to the versions: %s', self, current_versions)
+            return True
+        except IntegrityError:
+            logger.warning('A newer version of %r already exists, skipping...', self)
+            return False
 
 
 class PGLock(models.Model):
@@ -370,7 +403,6 @@ class LockableQuerySet(models.QuerySet):
             ).first()
 
             yield item
-
         finally:
             if item and item.lock_acquired:
                 with connections[self.db].cursor() as cursor:
@@ -397,25 +429,23 @@ class LockableQuerySet(models.QuerySet):
         )
 
 
-class HarvestLogManager(AbstractLogManager):
-    def get_queryset(self):
-        return LockableQuerySet(self.model, using=self._db)
-
-
-class HarvestLog(AbstractBaseLog):
+class HarvestJob(AbstractBaseJob):
     # May want to look into using DateRange in the future
     end_date = models.DateField(db_index=True)
     start_date = models.DateField(db_index=True)
-    harvester_version = models.PositiveIntegerField()
 
-    objects = HarvestLogManager()
+    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='harvest_jobs', on_delete=models.CASCADE)
+    source_config_version = models.PositiveIntegerField()
+    harvester_version = models.PositiveIntegerField()
 
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
 
-    def handle(self, harvester_version):
-        self.harvester_version = harvester_version
-        return super().handle()
+    def current_versions(self):
+        return {
+            'source_config_version': self.source_config.version,
+            'harvester_version': self.source_config.harvester.version,
+        }
 
     def __repr__(self):
         return '<{type}({id}, {status}, {source}, {start_date}, {end_date})>'.format(
@@ -426,3 +456,62 @@ class HarvestLog(AbstractBaseLog):
             end_date=self.end_date.isoformat(),
             start_date=self.start_date.isoformat(),
         )
+
+
+class IngestJob(AbstractBaseJob):
+    raw = models.ForeignKey('RawDatum', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
+    suid = models.ForeignKey('SourceUniqueIdentifier', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
+    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
+
+    source_config_version = models.PositiveIntegerField()
+    transformer_version = models.PositiveIntegerField()
+    regulator_version = models.PositiveIntegerField()
+
+    transformed_data = DateTimeAwareJSONField(null=True)
+    regulated_data = DateTimeAwareJSONField(null=True)
+
+    @classmethod
+    def schedule(cls, raw, superfluous=False):
+        job, _ = cls.objects.get_or_create(
+            raw=raw,
+            suid=raw.suid,
+            source_config=raw.suid.source_config,
+            source_config_version=raw.suid.source_config.version,
+            transformer_version=raw.suid.source_config.transformer.version,
+            regulator_version=Regulator.VERSION,
+        )
+        if superfluous and job.status not in cls.READY_STATUSES:
+            job.status = cls.STATUS.created
+            job.save()
+        return job
+
+    class Meta:
+        unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
+
+    def current_versions(self):
+        return {
+            'source_config_version': self.source_config.version,
+            'transformer_version': self.source_config.transformer.version,
+            'regulator_version': Regulator.VERSION,
+        }
+
+    def log_graph(self, field_name, graph):
+        setattr(self, field_name, graph.to_jsonld())
+        self.save(update_fields=(field_name, 'date_modified'))
+
+    def __repr__(self):
+        return '<{type}({id}, {status}, {source}, {suid})>'.format(
+            type=type(self).__name__,
+            id=self.id,
+            status=self.STATUS[self.status],
+            source=self.source_config.label,
+            suid=self.suid.identifier,
+        )
+
+
+class RegulatorLog(models.Model):
+    description = models.TextField()
+    node_id = models.TextField(null=True)
+    rejected = models.BooleanField()
+
+    ingest_job = models.ForeignKey(IngestJob, related_name='regulator_logs', editable=False, on_delete=models.CASCADE)

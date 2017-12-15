@@ -5,7 +5,6 @@ import pytest
 import pendulum
 
 from share.harvest.base import BaseHarvester
-from share.harvest.exceptions import HarvesterDisabledError
 from share.harvest.serialization import DeprecatedDefaultSerializer
 
 from tests import factories
@@ -14,29 +13,33 @@ from tests import factories
 @pytest.mark.django_db
 class TestHarvesterInterface:
 
-    @pytest.fixture(autouse=True)
-    def source_config(self):
-        return factories.SourceConfigFactory()
+    @pytest.fixture(params=[(True, True), (True, False), (False, True), (False, False)])
+    def source_config(self, request):
+        config_disabled, source_deleted = request.param
+        return factories.SourceConfigFactory(disabled=config_disabled, source__is_deleted=source_deleted)
 
     @pytest.fixture
     def harvester(self, source_config):
         return source_config.get_harvester()
 
-    def test_passes_kwargs(self, harvester):
-        harvester._do_fetch = mock.Mock(return_value=[])
+    def test_passes_kwargs(self, source_config):
+        config_kwargs = {
+            'one': 'kwarg',
+            'another': 'kwarg',
+        }
+        custom_kwargs = {
+            'test': 'value',
+            'one': 'overridden',
+        }
+        start = pendulum.parse('2017-07-01')
+        end = pendulum.parse('2017-07-05')
+        source_config.harvester_kwargs = config_kwargs
+        harvester = source_config.get_harvester()
+        harvester._do_fetch = mock.MagicMock()
 
-        list(harvester.fetch_date_range(
-            pendulum.parse('2017-01-01').date(),
-            pendulum.parse('2017-01-02').date(),
-            limit=10,
-            test='value'
-        ))
+        [x for x in harvester.fetch_date_range(start, end, **custom_kwargs)]
 
-        assert harvester._do_fetch.assert_called_once_with(
-            pendulum.parse('2017-01-01').in_timezone('UTC'),
-            pendulum.parse('2017-01-02').in_timezone('UTC'),
-            test='value'
-        ) is None
+        harvester._do_fetch.assert_called_once_with(start, end, **{**config_kwargs, **custom_kwargs})
 
     def test_no_do_harvest(self, harvester):
         assert not hasattr(harvester, 'do_harvest')
@@ -45,9 +48,9 @@ class TestHarvesterInterface:
         with pytest.raises(NotImplementedError):
             BaseHarvester._do_fetch(harvester, None, None)
 
-    def test_fetch_id_not_implemented(self, harvester):
+    def test_fetch_by_id_not_implemented(self, harvester):
         with pytest.raises(NotImplementedError):
-            harvester.fetch_id('myid')
+            harvester.fetch_by_id('myid')
 
     def test_fetch_date(self, harvester):
         harvester.fetch_date_range = mock.Mock()
@@ -127,15 +130,11 @@ class TestHarvesterBackwardsCompat:
             harvester,
             pendulum.parse('2017-01-01').date(),
             pendulum.parse('2017-01-02').date(),
-            limit=10,
-            test='value'
         )
 
         assert harvester.do_harvest.assert_called_once_with(
             pendulum.parse('2017-01-01').date(),
             pendulum.parse('2017-01-02').date(),
-            limit=10,
-            test='value'
         ) is None
 
     def test_default_serializer(self, harvester):
@@ -147,25 +146,3 @@ class TestHarvesterBackwardsCompat:
         harvester.shift_range = mock.Mock(return_value=(1, 2))
         list(harvester.fetch())
         assert harvester.shift_range.called is True
-
-
-@pytest.mark.django_db
-class TestHarvesterDisabledSourceConfig:
-
-    def test_disabled_source_config(self):
-        sc = factories.SourceConfigFactory(disabled=True)
-        with pytest.raises(HarvesterDisabledError):
-            list(sc.get_harvester().harvest())
-
-    def test_deleted_source(self):
-        sc = factories.SourceConfigFactory(source__is_deleted=True)
-        with pytest.raises(HarvesterDisabledError):
-            list(sc.get_harvester().harvest())
-
-    def test_ignores_disabled(self):
-        sc = factories.SourceConfigFactory(disabled=True)
-        assert list(sc.get_harvester().harvest(ignore_disabled=True)) == []
-
-    def test_ignores_deleted(self):
-        sc = factories.SourceConfigFactory(source__is_deleted=True)
-        assert list(sc.get_harvester().harvest(ignore_disabled=True)) == []

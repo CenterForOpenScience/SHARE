@@ -45,7 +45,7 @@ class TestOAIHarvester:
     ''')
 
     def test_duplicate_resumption_tokens(self, monkeypatch):
-        harvester = OAIHarvester(factories.SourceConfigFactory(), metadata_prefix='oaidc')
+        harvester = OAIHarvester(factories.SourceConfigFactory(harvester_kwargs={'metadata_prefix': 'oai_dc'}))
         monkeypatch.setattr(harvester, 'fetch_page', mock.Mock(return_value=([self.OAI_DC_RECORD], 'token')))
 
         records = []
@@ -57,7 +57,7 @@ class TestOAIHarvester:
         assert e.value.args == ('Found duplicate resumption token "token" from {!r}'.format(harvester), )
 
     def test_resumption_tokens(self, monkeypatch):
-        harvester = OAIHarvester(factories.SourceConfigFactory(), metadata_prefix='oaidc')
+        harvester = OAIHarvester(factories.SourceConfigFactory(harvester_kwargs={'metadata_prefix': 'oai_dc'}))
         monkeypatch.setattr(harvester, 'fetch_page', mock.Mock(side_effect=(
             ([self.OAI_DC_RECORD], 'token'),
             ([self.OAI_DC_RECORD], None),

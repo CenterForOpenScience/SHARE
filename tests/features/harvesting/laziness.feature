@@ -11,7 +11,7 @@ Feature: Harvester Laziness
 
   Scenario Outline: Skippable harvest tasks
     When io.neat is harvested for <START_DATE> to <END_DATE>
-    Then io.neat's latest harvest log's status will be skipped
+    Then io.neat's latest harvest job's status will be skipped
     And it will be completed 2 times
     And it's context will be <REASON>
 
@@ -27,14 +27,14 @@ Feature: Harvester Laziness
   Scenario: Version's must match
     Given io.neat is updated to version 2
     When io.neat is harvested for 2012-11-10 to 2012-11-11
-    Then io.neat will have 2 harvest logs for 2012-11-10 to 2012-11-11
-    And io.neat's latest harvest log's status will be succeeded
+    Then io.neat will have 2 harvest jobs for 2012-11-10 to 2012-11-11
+    And io.neat's latest harvest job's status will be succeeded
 
   Scenario Outline: Past harvests must have been successful
     Given a <STATUS> harvest of io.neat for 2012-11-01 to 2012-11-02
     When io.neat is harvested for 2012-11-01 to 2012-11-02
-    Then io.neat will have 1 harvest log for 2012-11-01 to 2012-11-02
-    And io.neat's latest harvest log's status will be succeeded
+    Then io.neat will have 1 harvest job for 2012-11-01 to 2012-11-02
+    And io.neat's latest harvest job's status will be succeeded
 
     Examples:
       | STATUS  |

@@ -384,6 +384,11 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'share.tasks.harvest',
         'schedule': 120,
     },
+    # Every 2 minutes
+    'Ingest Task': {
+        'task': 'share.tasks.ingest',
+        'schedule': 120,
+    },
     # Executes daily at 11:30 P.M
     'Elasticsearch Janitor': {
         'task': 'bots.elasticsearch.tasks.elasticsearch_janitor',
@@ -428,7 +433,7 @@ CELERY_TASK_DEFAULT_ROUTING_KEY = 'share_default'
 CELERY_TASK_ROUTES = {
     'bots.elasticsearch.*': {'priority': 50, 'queue': 'elasticsearch'},
     'share.tasks.harvest': {'priority': 0, 'queue': 'harvest'},
-    'share.tasks.transform': {'priority': 20, 'queue': 'transform'},
+    'share.tasks.ingest': {'priority': 20, 'queue': 'ingest'},
     'share.tasks.disambiguate': {'priority': 35, 'queue': 'disambiguate'},
 }
 
@@ -531,6 +536,17 @@ ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', '
 
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
 SUBJECTS_YAML = 'share/subjects.yaml'
+
+SHARE_LEGACY_PIPELINE = os.environ.get('SHARE_LEGACY_PIPELINE', True)
+
+# Regulator pipeline, names of setuptools entry points
+SHARE_REGULATOR_NODE_STEPS = [
+]
+SHARE_REGULATOR_GRAPH_STEPS = [
+]
+SHARE_REGULATOR_VALIDATION_STEPS = [
+    'jsonld_validator',
+]
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')
