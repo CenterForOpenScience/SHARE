@@ -1,9 +1,7 @@
 import contextlib
 import datetime
-import json
 import logging
 import pendulum
-import uuid
 
 from django.contrib.postgres.fields import JSONField
 from django.core import validators
@@ -403,14 +401,6 @@ class RawDatumManager(FuzzyCountManager):
             logger.debug('Found existing %r', rd)
 
         return rd
-
-    def store_json(self, config, json_data, suid_value=None):
-        from share.harvest.base import FetchResult
-        if not suid_value:
-            suid_value = str(uuid.uuid4())
-        serialized = json.dumps(json_data, sort_keys=True)
-        fetch_result = FetchResult(suid_value, serialized, timezone.now())
-        return self.store_data(config, fetch_result)
 
 
 class RawDatum(models.Model):

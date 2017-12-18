@@ -435,7 +435,6 @@ CELERY_TASK_ROUTES = {
     'bots.elasticsearch.*': {'priority': 50, 'queue': 'elasticsearch'},
     'share.tasks.harvest': {'priority': 0, 'queue': 'harvest'},
     'share.tasks.ingest': {'priority': 20, 'queue': 'ingest'},
-    'share.tasks.disambiguate': {'priority': 35, 'queue': 'disambiguate'},
 }
 
 CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}

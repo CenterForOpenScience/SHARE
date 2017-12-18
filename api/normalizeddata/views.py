@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from share import models
 from share.tasks import ingest
 from share.util import IDObfuscator
+from share.util.ingester import Ingester
 
 from api.base.views import ShareViewSet
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
@@ -64,13 +65,16 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         with transaction.atomic():
-            source_config = models.SourceConfig.objects.get_or_create_push_config(request.user, 'v2_push')
-            nm_instance = serializer.save()
-            nm_instance.raw = models.RawDatum.objects.store_json(source_config, nm_instance.data)
-            nm_instance.save()
+            # Hack for back-compat: Ingest halfway synchronously, then apply changes asynchronously
+            ingester = Ingester(serializer.validated_data['data']).as_user(request.user).ingest(apply_changes=False)
 
-            job = models.IngestJob.schedule(nm_instance.raw)
-            async_result = ingest.delay(job_id=job.id, exhaust=False)
+            nm_instance = models.NormalizedData.objects.filter(
+                raw=ingester.raw,
+                ingest_job=ingester.job
+            ).order_by('-created_at').first()
+
+            ingester.job.reschedule()
+            async_result = ingest.delay(job_id=ingester.job.id, exhaust=False)
 
             # TODO Use an actual serializer
             return Response({
@@ -78,6 +82,6 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
                 'type': 'NormalizedData',
                 'attributes': {
                     'task': async_result.id,
-                    'ingest_job': absolute_reverse('api:ingestjob-detail', args=[IDObfuscator.encode(job)]),
+                    'ingest_job': absolute_reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)]),
                 }
             }, status=status.HTTP_202_ACCEPTED)

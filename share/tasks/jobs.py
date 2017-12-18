@@ -143,7 +143,7 @@ class HarvestJobConsumer(JobConsumer):
             source_config__harvest_after__lte=timezone.now().time(),
         )
 
-    def _consume_job(self, job, force, superfluous, limit=None, ingest=True, **kwargs):
+    def _consume_job(self, job, force, superfluous, limit=None, ingest=True):
         try:
             if ingest:
                 datum_gen = (datum for datum in self._harvest(job, force, limit) if datum.created or superfluous)
@@ -214,7 +214,7 @@ class IngestJobConsumer(JobConsumer):
 
         return super()._prepare_job(job, *args, **kwargs)
 
-    def _consume_job(self, job, superfluous, **kwargs):
+    def _consume_job(self, job, superfluous, force, apply_changes=True):
         datum = None
 
         # Check whether we've already done transform/regulate
@@ -236,7 +236,7 @@ class IngestJobConsumer(JobConsumer):
                     ingest_job=job,
                 )
 
-        if settings.SHARE_LEGACY_PIPELINE:
+        if apply_changes and settings.SHARE_LEGACY_PIPELINE:
             # TODO make this pipeline actually legacy by implementing a new one
             self._apply_changes(job, datum)
 

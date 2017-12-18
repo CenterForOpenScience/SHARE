@@ -5,12 +5,12 @@ from django.db import IntegrityError
 
 from share.models import AbstractCreativeWork
 from share.models import AgentWorkRelation
-from share.models import NormalizedData
 from share.models import Person
 from share.models import Tag
 from share.models.change import Change
 from share.models.change import ChangeSet
 from share.util import IDObfuscator
+from share.util.ingester import Ingester
 
 from tests import factories
 
@@ -169,20 +169,17 @@ class TestChangeGraph:
         source2 = factories.SourceFactory()
 
         work = factories.AbstractCreativeWorkFactory(title='All about Canada')
-        data = {'@id': IDObfuscator.encode(work), '@type': 'creativework', 'title': 'All aboot Canada'}
-
-        nd1 = NormalizedData.objects.create(source=source1.user, data={'@graph': [data]})
-        nd2 = NormalizedData.objects.create(source=source2.user, data={'@graph': [data]})
+        data = [{'@id': IDObfuscator.encode(work), '@type': 'creativework', 'title': 'All aboot Canada'}]
 
         assert work.sources.count() == 0
 
-        celery_app.tasks['share.tasks.disambiguate'](nd1.id)
+        Ingester(data).as_user(source1.user).ingest()
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'
         assert work.sources.count() == 1
 
-        celery_app.tasks['share.tasks.disambiguate'](nd2.id)
+        Ingester(data).as_user(source2.user).ingest()
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'

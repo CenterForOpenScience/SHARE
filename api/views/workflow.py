@@ -8,9 +8,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from share import models
-from share.tasks import ingest
 from share.util import IDObfuscator
+from share.util.ingester import Ingester
 
 from api import v1_schemas
 from api.authentication import APIV1TokenBackPortAuthentication
@@ -112,12 +111,9 @@ class V1DataView(views.APIView):
             except KeyError:
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
-            config = models.SourceConfig.objects.get_or_create_push_config(request.user, 'v1_push')
-            raw = models.RawDatum.objects.store_json(config, prelim_data, doc_id)
-            job = models.IngestJob.schedule(raw)
-            async_result = ingest.delay(job_id=job.id, exhaust=False)
+            ingester = Ingester(prelim_data, doc_id).as_user(request.user, 'v1_push').ingest_async()
 
             return Response({
-                'task_id': async_result.id,
-                'ingest_job': absolute_reverse('api:ingestjob-detail', args=[IDObfuscator.encode(job)]),
+                'task_id': ingester.async_task.id,
+                'ingest_job': absolute_reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)]),
             }, status=status.HTTP_202_ACCEPTED)

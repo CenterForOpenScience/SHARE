@@ -345,8 +345,8 @@ class TestValidator:
 
         kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
 
-        with mock.patch('api.normalizeddata.views.disambiguate') as mock_disambiguate:
-            mock_disambiguate.delay().id = '123'
+        with mock.patch('api.normalizeddata.views.ingest') as mock_ingest:
+            mock_ingest.delay().id = '123'
             assert response == client.post('/api/v2/normalizeddata/', *args, **kwargs)
 
     @pytest.mark.django_db
@@ -373,8 +373,8 @@ class TestValidator:
 
         kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(robot_user.accesstoken_set.first())
 
-        with mock.patch('api.normalizeddata.views.disambiguate') as mock_disambiguate:
-            mock_disambiguate.delay().id = '123'
+        with mock.patch('api.normalizeddata.views.ingest') as mock_ingest:
+            mock_ingest.delay().id = '123'
             response = client.post('/api/v2/normalizeddata/', *args, **kwargs)
 
         assert response.status_code == 202

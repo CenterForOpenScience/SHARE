@@ -161,8 +161,9 @@ class Change(models.Model):
         try:
             ret = self._accept(save)
         except IntegrityError as e:
-            # TODO verify error is a unique key violation
-            raise IngestConflict
+            if e.args[0].startswith('duplicate key value violates unique constraint'):
+                raise IngestConflict
+            raise
 
         if save:
             # Psuedo hack, sources.add(...) tries to do some safety checks.
