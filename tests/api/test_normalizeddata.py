@@ -3,6 +3,10 @@ import json
 import pytest
 import requests
 
+from share.util import IDObfuscator
+
+from tests import factories
+
 
 class Response:
     def __init__(self, status_code=200, json=None, keys=None):
@@ -150,6 +154,18 @@ class TestPostNormalizedData:
         if authorized:
             kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
 
-        with mock.patch('api.views.workflow.disambiguate') as mock_disambiguate:
+        with mock.patch('api.normalizeddata.views.disambiguate') as mock_disambiguate:
             mock_disambiguate.delay().id = '123'
             assert response == client.post('/api/v2/normalizeddata/', *args, **kwargs)
+
+
+@pytest.mark.django_db
+class TestGetNormalizedData:
+
+    def test_by_id(self, client):
+        nd = factories.NormalizedDataFactory(data={'@graph': []})
+        resp = client.get('/api/v2/normalizeddata/{}/'.format(IDObfuscator.encode(nd)))
+        assert resp.status_code == 200
+        assert resp.json()['data']['id'] == IDObfuscator.encode(nd)
+        assert resp.json()['data']['type'] == 'NormalizedData'
+        assert resp.json()['data']['attributes']['data'] == {'@graph': []}

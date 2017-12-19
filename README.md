@@ -2,6 +2,7 @@
 
 SHARE is creating a free, open dataset of research (meta)data.
 
+[![Coverage Status](https://coveralls.io/repos/github/CenterForOpenScience/SHARE/badge.svg?branch=develop)](https://coveralls.io/github/CenterForOpenScience/SHARE?branch=develop)
 [![Gitter](https://badges.gitter.im/CenterForOpenScience/SHARE.svg)](https://gitter.im/CenterForOpenScience/SHARE)
 
 ## Technical Documentation

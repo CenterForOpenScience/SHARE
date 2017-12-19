@@ -108,7 +108,7 @@ class ElasticSearchBot:
 
     MAPPINGS = {
         'creativeworks': {
-            'dynamic': False,
+            'dynamic': 'strict',
             'properties': {
                 'affiliations': {'type': 'text', 'fields': EXACT_FIELD},
                 'contributors': {'type': 'text', 'fields': EXACT_FIELD},

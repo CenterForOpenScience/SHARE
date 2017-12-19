@@ -19,6 +19,7 @@ from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
 from share.models.validators import JSONLDValidator
+from share.util import BaseJSONAPIMeta
 
 logger = logging.getLogger(__name__)
 __all__ = ('ShareUser', 'NormalizedData',)
@@ -123,6 +124,9 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'username'
 
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
+
     class Meta:
         verbose_name = _('Share user')
         verbose_name_plural = _('Share users')
@@ -187,6 +191,9 @@ class NormalizedData(models.Model):
     data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryTaskResult')
+
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
 
     def __str__(self):
         return '{} created at {}'.format(self.source.get_short_name(), self.created_at)

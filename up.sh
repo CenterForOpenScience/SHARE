@@ -30,7 +30,7 @@ fi
 celery -A project purge -f 2>/dev/null || true;
 python manage.py reset_db --noinput
 python manage.py migrate
-python manage.py addsubjects ./share/models/subjects.json
+python manage.py addsubjects
 
 if [ -n "$BACKUP" ]; then
     python manage.py loaddata share_rawdata.json.gz

@@ -11,6 +11,7 @@ configs:
   transformer: mods
   transformer_kwargs:
     approved_sets: null
+    blocked_sets: [col_10088_539]
     emitted_type: CreativeWork
     property_list: []
     type_map: {}

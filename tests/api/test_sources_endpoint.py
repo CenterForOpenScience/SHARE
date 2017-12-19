@@ -34,6 +34,20 @@ def source_add_user():
 
 
 @pytest.fixture
+def source_add_change_user():
+    content_type = ContentType.objects.get_for_model(Source)
+    permission_add = Permission.objects.get(content_type=content_type, codename='add_source')
+    permission_change = Permission.objects.get(content_type=content_type, codename='change_source')
+
+    user = ShareUser(username='truly_trusted_tester', is_trusted=True)
+    user.save()
+    user.user_permissions.add(permission_add)
+    user.user_permissions.add(permission_change)
+
+    return user
+
+
+@pytest.fixture
 def mock_icon_urls():
     httpretty.enable()
     httpretty.HTTPretty.allow_net_connect = False
@@ -62,17 +76,43 @@ def mock_icon_urls():
     )
 
 
-def get_post_body(icon=PROPER_ICON_URL, home_page=None):
-    return {
+def get_post_body(icon=PROPER_ICON_URL, home_page=None, id=None):
+    body = {
         'data': {
             'type': 'Source',
             'attributes': {
                 'long_title': 'Test User',
-                'icon': icon,
+                'icon_url': icon,
                 'home_page': home_page
             }
         }
     }
+    if id is not None:
+        body['data']['id'] = id
+    return body
+
+
+def flatten_write_response(resp):
+    json = resp.json()
+    flattened = {
+        'source': {
+            'id': json['data']['id'],
+            **json['data']['attributes']
+        }
+    }
+    included = json.get('included')
+    if included:
+        source_config = next(d for d in included if d['type'] == 'SourceConfig')
+        flattened['sourceConfig'] = {
+            'id': source_config['id'],
+            **source_config['attributes']
+        }
+        user = next(d for d in included if d['type'] == 'ShareUser')
+        flattened['user'] = {
+            'id': user['id'],
+            **user['attributes']
+        }
+    return flattened
 
 
 @pytest.mark.django_db
@@ -110,6 +150,20 @@ class TestSourcesGet:
         assert resp.status_code == 200
         assert resp.json()['meta']['pagination']['count'] == total - 1
 
+    def test_by_id(self, client):
+        source = Source.objects.first()
+        resp = client.get('{}{}/'.format(self.endpoint, IDObfuscator.encode(source)))
+
+        assert resp.status_code == 200
+        assert IDObfuscator.load(resp.json()['data']['id']) == source
+        assert resp.json()['data']['type'] == 'Source'
+        assert resp.json()['data']['attributes'] == {
+            'name': source.name,
+            'icon': 'http://testserver{}'.format(source.icon.url),
+            'homePage': source.home_page,
+            'longTitle': source.long_title,
+        }
+
 
 @pytest.mark.django_db
 class TestSourcesPost:
@@ -138,21 +192,19 @@ class TestSourcesPost:
             content_type='application/vnd.api+json',
             HTTP_AUTHORIZATION=source_add_user.authorization(),
         )
-        resp_attributes = resp.data['attributes']
-        resp_related_share_user = resp.data['relationships']['share_user']['data']
-        resp_related_source_config = resp.data['relationships']['source_config']['data']['attributes']
-
-        created_label = resp_attributes['long_title'].replace(' ', '_').lower()
-        created_user = ShareUser.objects.get(pk=IDObfuscator.decode_id(resp_related_share_user['id']))
-
         assert resp.status_code == 201
-        assert resp_attributes['long_title'] == test_data['data']['attributes']['long_title']
-        assert resp_attributes['name'] == created_label
-        assert resp_attributes['home_page'] is None
-        assert resp_related_share_user['attributes']['username'] == created_label
-        assert resp_related_share_user['attributes']['authorization_token'] == created_user.accesstoken_set.first().token
+        data = flatten_write_response(resp)
+
+        created_label = data['source']['longTitle'].replace(' ', '_').lower()
+        created_user = ShareUser.objects.get(pk=IDObfuscator.decode_id(data['user']['id']))
+
+        assert data['source']['longTitle'] == test_data['data']['attributes']['long_title']
+        assert data['source']['name'] == created_label
+        assert data['source']['homePage'] is None
+        assert data['user']['username'] == created_label
+        assert data['user']['token'] == created_user.accesstoken_set.first().token
         assert created_user.is_trusted is True
-        assert resp_related_source_config['label'] == created_label
+        assert data['sourceConfig']['label'] == created_label
 
     def test_successful_post_home_page(self, client, source_add_user, mock_icon_urls):
         test_data = get_post_body(home_page='http://test.homepage.net')
@@ -162,11 +214,97 @@ class TestSourcesPost:
             content_type='application/vnd.api+json',
             HTTP_AUTHORIZATION=source_add_user.authorization(),
         )
-        resp_attributes = resp.data['attributes']
-
         assert resp.status_code == 201
-        assert resp_attributes['long_title'] == test_data['data']['attributes']['long_title']
-        assert resp_attributes['home_page'] == test_data['data']['attributes']['home_page']
+        data = flatten_write_response(resp)
+
+        assert data['source']['longTitle'] == test_data['data']['attributes']['long_title']
+        assert data['source']['homePage'] == test_data['data']['attributes']['home_page']
+
+    def test_successful_repost_home_page(self, client, source_add_user, mock_icon_urls):
+        test_data = get_post_body(home_page='http://test.homepage.net')
+        resp_one = client.post(
+            self.endpoint,
+            json.dumps(test_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_user.authorization(),
+        )
+
+        assert resp_one.status_code == 201
+        data_one = flatten_write_response(resp_one)
+
+        # Second Request CONFLICT returns data
+        resp_two = client.post(
+            self.endpoint,
+            json.dumps(test_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_user.authorization(),
+        )
+        assert resp_two.status_code == 409
+
+        data_two = flatten_write_response(resp_two)
+
+        assert data_one == data_two
+
+    def test_successful_post_put_home_page(self, client, source_add_change_user, mock_icon_urls):
+        test_data = get_post_body(home_page='http://test.homepage.net')
+        resp_one = client.post(
+            self.endpoint,
+            json.dumps(test_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+
+        assert resp_one.status_code == 201
+        data_one = flatten_write_response(resp_one)
+
+        source_url = '{}{}/'.format(self.endpoint, data_one['source']['id'])
+
+        new_home_page = 'http://test2.homepage.net'
+        test_two_data = get_post_body(home_page=new_home_page, id=data_one['source']['id'])
+        test_two_data['data']['attributes']['name'] = data_one['source']['name']
+
+        resp_two = client.put(
+            source_url,
+            json.dumps(test_two_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+        assert resp_two.status_code == 200
+
+        data_two = flatten_write_response(resp_two)
+
+        assert data_two['source']['homePage'] == new_home_page
+        assert data_one != data_two
+
+    def test_successful_post_patch_home_page(self, client, source_add_change_user, mock_icon_urls):
+        test_data = get_post_body(home_page='http://test.homepage.net')
+        resp_one = client.post(
+            self.endpoint,
+            json.dumps(test_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+
+        assert resp_one.status_code == 201
+        data_one = flatten_write_response(resp_one)
+
+        source_url = '{}{}/'.format(self.endpoint, data_one['source']['id'])
+
+        new_home_page = 'http://test2.homepage.net'
+        test_two_data = get_post_body(id=data_one['source']['id'], home_page=new_home_page)
+
+        resp_two = client.patch(
+            source_url,
+            json.dumps(test_two_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+        assert resp_two.status_code == 200
+
+        data_two = flatten_write_response(resp_two)
+
+        assert data_two['source']['homePage'] == new_home_page
+        assert data_one != data_two
 
     def test_bad_image_url(self, client, source_add_user, mock_icon_urls):
         resp = client.post(
@@ -188,7 +326,7 @@ class TestSourcesPost:
         )
 
         assert resp.status_code == 400
-        assert resp.data[0]['detail'] == 'Could not download/process image.'
+        assert resp.data[0]['detail'] == 'Enter a valid URL.'
 
     def test_timeout_url(self, client, source_add_user, mock_icon_urls):
         resp = client.post(
