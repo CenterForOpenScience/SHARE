@@ -1,17 +1,26 @@
 # Change Log
 
-# Unreleased
+# [2.13.0] - 2017-12-18
 ## Added
 * Support for set blacklists for sources that follow OAI-PMH protocol
+    * `enforce_set_lists` command to enforce set blacklist and whitelist
 * Set whitelist for UA Campus Repository
 * Support for encrypted json field and start using it in SourceConfig model 
+* Enable Coveralls
+* Include work lineage (based on IsPartOf relations) in the search index payload
+* Add `self` links to objects returned by the API
 
 ## Changed
 * Collect metadata in MODS format from UA Campus Repository
 * Update columbia.edu harvester source config (disabled set to false)
+* Improve creating Sources at `/api/v2/sources/`
+    * Use POST to create, PATCH to update
+    * Respond with sensical status codes (409 on name conflict, etc.)
 
 ## Fixed
 * Backfill CHANGELOG.md to include `2.10.0` and `2.11.0`
+* Correctly encode &, <, > characters in the Atom feed
+* Avoid DB connection leak by disabling persistent connections
 
 # [2.12.0] - 2017-09-14
 ## Added
