@@ -199,8 +199,8 @@ class AbstractBaseJob(models.Model):
     claimed = models.NullBooleanField()
 
     error_type = models.TextField(blank=True, null=True, db_index=True)
-    error_message = models.TextField(blank=True, null=True)
-    error_context = models.TextField(blank=True, default='')
+    error_message = models.TextField(blank=True, null=True, db_column='message')
+    error_context = models.TextField(blank=True, default='', db_column='context')
     completions = models.IntegerField(default=0)
 
     date_started = models.DateTimeField(null=True, blank=True)
