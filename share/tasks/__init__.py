@@ -27,48 +27,6 @@ from share.util.source_stat import OAISourceStatus
 logger = logging.getLogger(__name__)
 
 
-@celery.shared_task(bind=True, max_retries=5)
-def disambiguate(self, normalized_id):
-    normalized = NormalizedData.objects.select_related('source__source').get(pk=normalized_id)
-
-    if self.request.id:
-        self.update_state(meta={
-            'source': normalized.source.source.long_title
-        })
-
-    updated = None
-
-    try:
-        # Load all relevant ContentTypes in a single query
-        ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
-
-        with transaction.atomic():
-            cg = ChangeGraph(normalized.data['@graph'], namespace=normalized.source.username)
-            cg.process()
-            cs = ChangeSet.objects.from_graph(cg, normalized.id)
-            if cs and (normalized.source.is_robot or normalized.source.is_trusted or Source.objects.filter(user=normalized.source).exists()):
-                # TODO: verify change set is not overwriting user created object
-                updated = cs.accept()
-    except Exception as e:
-        raise self.retry(
-            exc=e,
-            countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
-        )
-
-    if not updated:
-        return
-    # Only index creativeworks on the fly, for the moment.
-    updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
-    existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
-    ids = list(updated_works | existing_works)
-
-    try:
-        SearchIndexer(self.app).index('creativework', *ids)
-    except Exception as e:
-        logger.exception('Could not add results from %r to elasticqueue', normalized)
-        raise
-
-
 @celery.shared_task(bind=True)
 def schedule_harvests(self, *source_config_ids, cutoff=None):
     """

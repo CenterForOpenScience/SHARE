@@ -47,7 +47,7 @@ class BaseJobAdmin(admin.ModelAdmin):
     list_filter = ('status', SourceConfigFilter, )
     list_select_related = ('source_config', )
     actions = ('restart_tasks', )
-    readonly_fields = ('task_id', 'context', 'completions', 'date_started', 'source_config_version', )
+    readonly_fields = ('task_id', 'error_type', 'error_message', 'error_context', 'completions', 'date_started', 'source_config_version', )
     show_full_result_count = False
     paginator = FuzzyPaginator
 

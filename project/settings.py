@@ -395,6 +395,11 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'bots.elasticsearch.tasks.elasticsearch_janitor',
         'schedule': crontab(hour=23, minute=30),
     },
+    # Executes daily at 10:30 P.M
+    'IngestJob Janitor': {
+        'task': 'share.janitor.tasks.ingestjob_janitor',
+        'schedule': crontab(hour=22, minute=30),
+    },
 }
 
 if not DEBUG:

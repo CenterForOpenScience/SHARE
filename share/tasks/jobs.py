@@ -93,7 +93,7 @@ class JobConsumer:
             })
 
             job.task_id = self.task.request.id
-            self.Job.objects.filter(id=job.id).update(task_id=self.task.request.id)
+            job.save(update_fields=('task_id'))
 
         if job.completions > 0 and job.status == self.Job.STATUS.succeeded:
             if not superfluous:
@@ -110,7 +110,9 @@ class JobConsumer:
 
     def _filter_ready(self, qs):
         return qs.filter(
-            status__in=self.Job.READY_STATUSES
+            status__in=self.Job.READY_STATUSES,
+        ).exclude(
+            claimed=True
         )
 
     def _locked_job(self, job_id, ignore_disabled=False):

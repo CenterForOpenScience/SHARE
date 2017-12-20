@@ -18,7 +18,6 @@ from django.db import IntegrityError
 from django.db.models.expressions import RawSQL
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-# from django.db.models import Exists, OuterRef
 
 from share.util import chunked, BaseJSONAPIMeta
 from share.models.fields import DateTimeAwareJSONField
@@ -197,8 +196,11 @@ class AbstractBaseJob(models.Model):
     task_id = models.UUIDField(null=True)
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)
 
-    message = models.TextField(blank=True, null=True)
-    context = models.TextField(blank=True, default='')
+    claimed = models.NullBooleanField()
+
+    error_type = models.TextField(blank=True, null=True, db_index=True)
+    error_message = models.TextField(blank=True, null=True)
+    error_context = models.TextField(blank=True, default='')
     completions = models.IntegerField(default=0)
 
     date_started = models.DateTimeField(null=True, blank=True)
@@ -229,42 +231,55 @@ class AbstractBaseJob(models.Model):
     def fail(self, exception):
         logger.debug('Setting %r to failed due to %r', self, exception)
 
-        if not isinstance(exception, str):
+        self.error_message = exception
+        if isinstance(exception, Exception):
+            self.error_type = type(exception).__name__
             tb = traceback.TracebackException.from_exception(exception)
-            self.context = '\n'.join(tb.format(chain=True))
+            self.error_context = '\n'.join(tb.format(chain=True))
+        else:
+            self.error_type = ''
+            self.error_context = ''
 
         self.status = self.STATUS.failed
-        self.message = exception
-        self.save(update_fields=('status', 'context', 'message', 'date_modified'))
+        self.claimed = False
+        self.save(update_fields=('status', 'error_type', 'error_message', 'error_context', 'claimed', 'date_modified'))
 
         return True
 
     def succeed(self):
-        self.message = ''
-        self.context = ''
+        self.error_type = ''
+        self.error_message = ''
+        self.error_context = ''
+        self.claimed = False
         self.completions += 1
         self.status = self.STATUS.succeeded
         logger.debug('Setting %r to succeeded with %d completions', self, self.completions)
-        self.save(update_fields=('context', 'message', 'completions', 'status', 'date_modified'))
+        self.save(update_fields=('status', 'error_type', 'error_message', 'error_context', 'completions', 'claimed', 'date_modified'))
 
         return True
 
-    def reschedule(self):
+    def reschedule(self, claim=False):
         self.status = self.STATUS.rescheduled
-        self.save(update_fields=('status', 'date_modified'))
+        self.claimed = claim
+        self.save(update_fields=('status', 'claimed', 'date_modified'))
 
         return True
 
     def forced(self, exception):
-        logger.debug('Setting %r to forced with context %r', self, exception)
+        logger.debug('Setting %r to forced with error_context %r', self, exception)
 
-        if not isinstance(exception, str):
+        self.error_message = exception
+        if isinstance(exception, Exception):
+            self.error_type = type(exception).__name__
             tb = traceback.TracebackException.from_exception(exception)
-            self.context = '\n'.join(tb.format(chain=True))
+            self.error_context = '\n'.join(tb.format(chain=True))
+        else:
+            self.error_type = ''
+            self.error_context = ''
 
         self.status = self.STATUS.forced
-        self.message = exception
-        self.save(update_fields=('status', 'context', 'message', 'date_modified'))
+        self.claimed = False
+        self.save(update_fields=('status', 'error_type', 'error_message', 'error_context', 'claimed', 'date_modified'))
 
         return True
 
@@ -272,9 +287,10 @@ class AbstractBaseJob(models.Model):
         logger.debug('Setting %r to skipped with context %r', self, reason)
 
         self.completions += 1
-        self.context = reason.value
+        self.error_context = reason.value
         self.status = self.STATUS.skipped
-        self.save(update_fields=('status', 'context', 'completions', 'date_modified'))
+        self.claimed = False
+        self.save(update_fields=('status', 'error_context', 'completions', 'claimed', 'date_modified'))
 
         return True
 
@@ -282,7 +298,8 @@ class AbstractBaseJob(models.Model):
         logger.debug('Setting %r to cancelled', self)
 
         self.status = self.STATUS.cancelled
-        self.save(update_fields=('status', 'date_modified'))
+        self.claimed = False
+        self.save(update_fields=('status', 'claimed', 'date_modified'))
 
         return True
 
@@ -308,6 +325,9 @@ class AbstractBaseJob(models.Model):
             if self.status == self.STATUS.started:
                 self.succeed()
         finally:
+            if self.claimed:
+                self.claimed = False
+                self.save(update_fields=('claimed',))
             # Detach from SIGTERM, resetting the previous handle
             signal.signal(signal.SIGTERM, prev_handler)
 
@@ -470,7 +490,7 @@ class IngestJob(AbstractBaseJob):
     retries = models.IntegerField(null=True)
 
     @classmethod
-    def schedule(cls, raw, superfluous=False):
+    def schedule(cls, raw, superfluous=False, claim=False):
         job, _ = cls.objects.get_or_create(
             raw=raw,
             suid=raw.suid,
@@ -478,6 +498,7 @@ class IngestJob(AbstractBaseJob):
             source_config_version=raw.suid.source_config.version,
             transformer_version=raw.suid.source_config.transformer.version,
             regulator_version=Regulator.VERSION,
+            claimed=claim,
         )
         if superfluous and job.status not in cls.READY_STATUSES:
             job.status = cls.STATUS.created

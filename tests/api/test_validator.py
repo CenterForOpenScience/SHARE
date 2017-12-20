@@ -380,4 +380,4 @@ class TestValidator:
         assert response.status_code == 202
         assert response.json()['data']['id'] is not None
         assert response.json()['data']['type'] == 'NormalizedData'
-        assert response.json()['data']['attributes'].keys() == {'task'}
+        assert response.json()['data']['attributes'].keys() == {'task', 'ingest_job'}

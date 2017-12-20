@@ -1,8 +1,7 @@
 import pytest
 import pendulum
 
-from django.db import IntegrityError
-
+from share.exceptions import IngestConflict
 from share.models import AbstractCreativeWork
 from share.models import AgentWorkRelation
 from share.models import Person
@@ -143,7 +142,7 @@ class TestChangeGraph:
             }]
         }, disambiguate=False)
 
-        with pytest.raises(IntegrityError):
+        with pytest.raises(IngestConflict):
             change_set.accept()
 
     def test_date_updated_update(self, change_ids, change_factory, all_about_anteaters):

@@ -12,8 +12,9 @@ class HarvestScheduler:
 
     """
 
-    def __init__(self, source_config):
+    def __init__(self, source_config, claim_jobs):
         self.source_config = source_config
+        self.claim_jobs = claim_jobs
 
     def all(self, cutoff=None, allow_full_harvest=True, **kwargs):
         """
@@ -106,6 +107,8 @@ class HarvestScheduler:
             'source_config_version': self.source_config.version,
             'harvester_version': self.source_config.get_harvester().VERSION,
         }
+        if self.claim_jobs:
+            job_kwargs['claimed'] = True
 
         sd, ed = start, start
 

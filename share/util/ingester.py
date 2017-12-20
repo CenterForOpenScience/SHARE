@@ -49,24 +49,25 @@ class Ingester:
         return self
 
     def ingest(self, **kwargs):
-        assert 'job_id' not in kwargs
-        self._setup_ingest()
         # Here comes the airplane!
+        assert 'job_id' not in kwargs
+        self._setup_ingest(claim_job=True)
         ingest(job_id=self.job.id, exhaust=False, **kwargs)
         return self
 
-    def ingest_async(self, **kwargs):
-        assert 'job_id' not in kwargs
-        self._setup_ingest()
+    def ingest_async(self, start_task=True, **kwargs):
         # There's pizza in the fridge.
-        self.async_task = ingest.delay(job_id=self.job.id, exhaust=False, **kwargs)
+        assert 'job_id' not in kwargs
+        self._setup_ingest(claim_job=start_task)
+        if start_task:
+            self.async_task = ingest.delay(job_id=self.job.id, exhaust=False, **kwargs)
         return self
 
-    def _setup_ingest(self):
+    def _setup_ingest(self, claim_job):
         assert self.datum and self._config and not (self.raw or self.job or self.async_task)
 
         # TODO get rid of FetchResult, or make it more sensical
         from share.harvest.base import FetchResult
         fetch_result = FetchResult(self.datum_id, self.datum, self.datestamp)
         self.raw = RawDatum.objects.store_data(self._config, fetch_result)
-        self.job = IngestJob.schedule(self.raw)
+        self.job = IngestJob.schedule(self.raw, claimed=claim_job)

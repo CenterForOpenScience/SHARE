@@ -75,18 +75,19 @@ def ingest(args, argv):
         if not superfluous:
             qs = qs.filter(ingest_jobs=None)
 
+    claim_jobs = args['--run'] or args['--task']
+
     count = 0
     jobs = []
     for raw in qs.iterator():
         count += 1
-        jobs.append(IngestJob.schedule(raw, superfluous=superfluous))
+        jobs.append(IngestJob.schedule(raw, superfluous=superfluous, claim=claim_jobs))
     print('Scheduled {} IngestJobs'.format(count))
 
-    if not args['--run'] and not args['--task']:
+    if not claim_jobs:
         return
 
     kwargs = {
-        'exhaust': False,
         'ignore_disabled': False,
     }
     for job in jobs:

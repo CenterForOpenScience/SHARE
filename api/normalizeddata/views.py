@@ -73,7 +73,7 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
                 ingest_job=ingester.job
             ).order_by('-created_at').first()
 
-            ingester.job.reschedule()
+            ingester.job.reschedule(claim=True)
             async_result = ingest.delay(job_id=ingester.job.id, exhaust=False)
 
             # TODO Use an actual serializer
