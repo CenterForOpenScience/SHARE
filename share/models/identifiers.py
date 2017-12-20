@@ -3,6 +3,7 @@ import logging
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from share.transform.chain.exceptions import InvalidIRI
 from share.transform.chain.links import IRILink
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
@@ -54,7 +55,7 @@ class WorkIdentifier(ShareObject):
     def normalize(self, node, graph):
         try:
             ret = IRILink().execute(node.attrs['uri'])
-        except ValueError as e:
+        except InvalidIRI as e:
             logger.warning('Discarding invalid identifier %s with error %s', node.attrs['uri'], e)
             graph.remove(node)
             return
@@ -94,7 +95,7 @@ class AgentIdentifier(ShareObject):
     def normalize(self, node, graph):
         try:
             ret = IRILink().execute(node.attrs['uri'])
-        except ValueError as e:
+        except InvalidIRI as e:
             logger.warning('Discarding invalid identifier %s with error %s', node.attrs['uri'], e)
             graph.remove(node)
             return

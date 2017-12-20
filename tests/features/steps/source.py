@@ -51,7 +51,7 @@ def update_harvester(context, label, version):
 @behave.when('{label} is harvested')
 @behave.when('{label} is harvested for {start} to {end}')
 def start_harvest(context, label, start=None, end=None):
-    job = HarvestScheduler(models.SourceConfig.objects.get(label=label)).range(
+    job = HarvestScheduler(models.SourceConfig.objects.get(label=label), claim_jobs=True).range(
         pendulum.parse(start),
         pendulum.parse(end),
     )[0]

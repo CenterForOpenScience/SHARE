@@ -173,7 +173,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
         if request.method == 'POST':
             form = HarvestForm(request.POST)
             if form.is_valid():
-                for job in HarvestScheduler(config).range(form.cleaned_data['start'], form.cleaned_data['end']):
+                for job in HarvestScheduler(config, claim_jobs=True).range(form.cleaned_data['start'], form.cleaned_data['end']):
                     tasks.harvest.apply_async((), {'job_id': job.id, 'superfluous': form.cleaned_data['superfluous']})
 
                 self.message_user(request, 'Started harvesting {}!'.format(config.label))

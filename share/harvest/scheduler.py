@@ -12,7 +12,7 @@ class HarvestScheduler:
 
     """
 
-    def __init__(self, source_config, claim_jobs):
+    def __init__(self, source_config, claim_jobs=False):
         self.source_config = source_config
         self.claim_jobs = claim_jobs
 

@@ -100,7 +100,7 @@ class TestHarvestTask:
         assert e.value.args == ('In a test', )
         assert job.status == HarvestJob.STATUS.failed
         assert job.completions == 0
-        assert 'ValueError: In a test' in job.context
+        assert 'ValueError: In a test' in job.error_context
 
     def test_harvest_database_error(self, source_config):
         job = factories.HarvestJobFactory(source_config=source_config)
@@ -121,7 +121,7 @@ class TestHarvestTask:
         assert e.value.args == ('In a test', )
         assert job.status == HarvestJob.STATUS.failed
         assert job.completions == 0
-        assert 'DatabaseError: In a test' in job.context
+        assert 'DatabaseError: In a test' in job.error_context
         assert IngestJob.objects.filter(status=IngestJob.STATUS.created).count() == 3
 
     def test_partial_harvest_fails(self, source_config):
@@ -143,7 +143,7 @@ class TestHarvestTask:
         assert e.value.args == ('In a test', )
         assert job.status == HarvestJob.STATUS.failed
         assert job.completions == 0
-        assert 'ValueError: In a test' in job.context
+        assert 'ValueError: In a test' in job.error_context
         assert IngestJob.objects.filter(status=IngestJob.STATUS.created).count() == 3
 
     def test_job_values(self, source_config):
@@ -156,7 +156,7 @@ class TestHarvestTask:
 
         assert job.task_id == task_id
         assert job.status == HarvestJob.STATUS.succeeded
-        assert job.context == ''
+        assert job.error_context == ''
         assert job.completions == 1
         assert job.source_config == source_config
         assert job.share_version == settings.VERSION
@@ -432,7 +432,7 @@ class TestHarvestTask:
 
         assert hlv1.status == HarvestJob.STATUS.skipped
         assert hlv1.harvester_version == old_version
-        assert hlv1.context == HarvestJob.SkipReasons.obsolete.value
+        assert hlv1.error_context == HarvestJob.SkipReasons.obsolete.value
 
     @pytest.mark.parametrize('completions, status, new_version, updated', [
         (0, HarvestJob.STATUS.created, 2, True),
@@ -465,6 +465,6 @@ class TestHarvestTask:
             assert hl.status == HarvestJob.STATUS.succeeded
         elif new_version > 1:
             assert hl.status == HarvestJob.STATUS.skipped
-            assert hl.context == HarvestJob.SkipReasons.obsolete.value
+            assert hl.error_context == HarvestJob.SkipReasons.obsolete.value
 
         assert (hl.harvester_version == new_version) == updated

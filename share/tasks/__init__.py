@@ -2,7 +2,6 @@ import logging
 
 import celery
 
-from django.apps import apps
 from django.db import models
 from django.db import transaction
 

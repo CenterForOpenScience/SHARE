@@ -432,8 +432,6 @@ class PathLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        if not isinstance(obj, dict):
-            raise InvalidPath('Tried to follow path "{}", got type {} instead of dict'.format(self._segment, type(obj)))
         try:
             return obj[self._segment]
         except KeyError as e:

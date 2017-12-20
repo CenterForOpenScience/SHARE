@@ -70,4 +70,4 @@ class Ingester:
         from share.harvest.base import FetchResult
         fetch_result = FetchResult(self.datum_id, self.datum, self.datestamp)
         self.raw = RawDatum.objects.store_data(self._config, fetch_result)
-        self.job = IngestJob.schedule(self.raw, claimed=claim_job)
+        self.job = IngestJob.schedule(self.raw, claim=claim_job)
