@@ -93,7 +93,7 @@ class JobConsumer:
             })
 
             job.task_id = self.task.request.id
-            job.save(update_fields=('task_id'))
+            job.save(update_fields=('task_id',))
 
         if job.completions > 0 and job.status == self.Job.STATUS.succeeded:
             if not superfluous:

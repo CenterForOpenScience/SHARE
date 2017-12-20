@@ -1,23 +1,14 @@
 import logging
-import random
 
 import celery
 
 from django.apps import apps
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db import transaction
 
-from share.change import ChangeGraph
 from share.harvest.scheduler import HarvestScheduler
-from share.models import AbstractCreativeWork
-from share.models import ChangeSet
 from share.models import HarvestJob
-from share.models import NormalizedData
-from share.models import Source
 from share.models import SourceConfig
-from share.search import SearchIndexer
 from share.tasks.jobs import HarvestJobConsumer
 from share.tasks.jobs import IngestJobConsumer
 from share.util.source_stat import SourceStatus
