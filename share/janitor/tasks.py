@@ -54,7 +54,7 @@ def ingestjob_janitor(self):
     day_ago = pendulum.now().subtract(days=1)
     qs = IngestJob.objects.filter(
         claimed=True,
-        date_modified__lt=day_ago
+        date_modified__lt=day_ago  # Last modified earlier than one day ago
     ).exclude(
         status=IngestJob.STATUS.started
     )

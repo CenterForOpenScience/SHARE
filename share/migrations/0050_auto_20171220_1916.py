@@ -20,23 +20,32 @@ class Migration(migrations.Migration):
                 ('objects', share.models.ingest.SourceConfigManager('label')),
             ],
         ),
-        migrations.RemoveField(
+
+        migrations.AlterField(
             model_name='harvestjob',
             name='context',
+            field=models.TextField(blank=True, db_column='context', default=''),
         ),
-        migrations.RemoveField(
+        migrations.AlterField(
             model_name='ingestjob',
             name='context',
+            field=models.TextField(blank=True, db_column='context', default=''),
         ),
+        migrations.RenameField(
+            model_name='harvestjob',
+            old_name='context',
+            new_name='error_context',
+        ),
+        migrations.RenameField(
+            model_name='ingestjob',
+            old_name='context',
+            new_name='error_context',
+        ),
+
         migrations.AddField(
             model_name='harvestjob',
             name='claimed',
             field=models.NullBooleanField(),
-        ),
-        migrations.AddField(
-            model_name='harvestjob',
-            name='error_context',
-            field=models.TextField(blank=True, db_column='context', default=''),
         ),
         migrations.AddField(
             model_name='harvestjob',
@@ -52,11 +61,6 @@ class Migration(migrations.Migration):
             model_name='ingestjob',
             name='claimed',
             field=models.NullBooleanField(),
-        ),
-        migrations.AddField(
-            model_name='ingestjob',
-            name='error_context',
-            field=models.TextField(blank=True, db_column='context', default=''),
         ),
         migrations.AddField(
             model_name='ingestjob',

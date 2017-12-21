@@ -65,10 +65,6 @@ class JobConsumer:
                     job = self.Job.objects.get(id=job_id)  # Force the failure
                     raise Exception('Failed to load {} but then found {!r}.'.format(job_id, job))  # Should never be reached
 
-            if not superfluous and job.status not in self.Job.READY_STATUSES:
-                logger.info('Skipping job {}'.format(job))
-                return
-
             if exhaust and job_id is None:
                 if force:
                     logger.warning('propagating force=True until queue exhaustion')
@@ -282,7 +278,6 @@ class IngestJobConsumer(JobConsumer):
                 cg.process()
                 cs = ChangeSet.objects.from_graph(cg, normalized_datum.id)
                 if cs and (normalized_datum.source.is_robot or normalized_datum.source.is_trusted or Source.objects.filter(user=normalized_datum.source).exists()):
-                    # TODO: verify change set is not overwriting user created object
                     updated = cs.accept()
 
         # Retry if it was just the wrong place at the wrong time
@@ -300,8 +295,6 @@ class IngestJobConsumer(JobConsumer):
         updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
         # and works that matched, even if they didn't change, in case any related objects did
         existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
-
-        # TODO: Think about indexing non-work objects that were updated
 
         ids = list(updated_works | existing_works)
         try:

@@ -325,9 +325,6 @@ class AbstractBaseJob(models.Model):
             if self.status == self.STATUS.started:
                 self.succeed()
         finally:
-            if self.claimed:
-                self.claimed = False
-                self.save(update_fields=('claimed',))
             # Detach from SIGTERM, resetting the previous handle
             signal.signal(signal.SIGTERM, prev_handler)
 
