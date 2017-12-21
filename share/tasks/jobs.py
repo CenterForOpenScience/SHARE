@@ -212,7 +212,7 @@ class IngestJobConsumer(JobConsumer):
 
         return super()._prepare_job(job, *args, **kwargs)
 
-    def _consume_job(self, job, superfluous, force, apply_changes=True):
+    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True):
         datum = None
 
         # Check whether we've already done transform/regulate
@@ -236,7 +236,9 @@ class IngestJobConsumer(JobConsumer):
 
         if apply_changes and settings.SHARE_LEGACY_PIPELINE:
             # TODO make this pipeline actually legacy by implementing a new one
-            self._apply_changes(job, datum)
+            updated_work_ids = self._apply_changes(job, datum)
+            if index and updated_work_ids:
+                self._update_index(updated_work_ids)
 
     def _transform(self, job):
         transformer = job.suid.source_config.get_transformer()
@@ -296,9 +298,7 @@ class IngestJobConsumer(JobConsumer):
         # and works that matched, even if they didn't change, in case any related objects did
         existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
 
-        ids = list(updated_works | existing_works)
-        try:
-            SearchIndexer(self.task.app).index('creativework', *ids)
-        except Exception as e:
-            logger.exception('Could not add results from %r to elasticqueue', normalized_datum)
-            raise
+        return list(updated_works | existing_works)
+
+    def _update_index(self, work_ids):
+        SearchIndexer(self.task.app).index('creativework', *work_ids)

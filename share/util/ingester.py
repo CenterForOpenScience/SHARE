@@ -49,21 +49,21 @@ class Ingester:
         return self
 
     def ingest(self, **kwargs):
-        # Here comes the airplane!
+        # "Here comes the airplane!"
         assert 'job_id' not in kwargs
-        self._setup_ingest(claim_job=True)
+        self.setup_ingest(claim_job=True)
         ingest(job_id=self.job.id, exhaust=False, **kwargs)
         return self
 
     def ingest_async(self, start_task=True, **kwargs):
-        # There's pizza in the fridge.
+        # "There's pizza in the fridge."
         assert 'job_id' not in kwargs
-        self._setup_ingest(claim_job=start_task)
+        self.setup_ingest(claim_job=start_task)
         if start_task:
             self.async_task = ingest.delay(job_id=self.job.id, exhaust=False, **kwargs)
         return self
 
-    def _setup_ingest(self, claim_job):
+    def setup_ingest(self, claim_job):
         assert self.datum and self._config and not (self.raw or self.job or self.async_task)
 
         # TODO get rid of FetchResult, or make it more sensical
@@ -71,3 +71,4 @@ class Ingester:
         fetch_result = FetchResult(self.datum_id, self.datum, self.datestamp)
         self.raw = RawDatum.objects.store_data(self._config, fetch_result)
         self.job = IngestJob.schedule(self.raw, claim=claim_job)
+        return self

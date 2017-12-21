@@ -15,6 +15,7 @@ from django.utils.deconstruct import deconstructible
 
 from share.models.fields import ShareURLField
 from share.transform.chain.links import IRILink
+from share.transform.chain.exceptions import InvalidIRI
 
 
 def is_valid_jsonld(value):
@@ -172,9 +173,10 @@ class JSONLDValidator:
 
 
 def is_valid_iri(iri):
-    if not isinstance(iri, str):
+    try:
+        IRILink().execute(iri)
+    except InvalidIRI:
         return False
-    IRILink().execute(iri)
     return True
 
 

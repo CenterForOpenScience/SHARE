@@ -434,7 +434,7 @@ class PathLink(AbstractLink):
     def execute(self, obj):
         try:
             return obj[self._segment]
-        except KeyError as e:
+        except (KeyError, TypeError) as e:
             raise InvalidPath from e
 
     def __repr__(self):

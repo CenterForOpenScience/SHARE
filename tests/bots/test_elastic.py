@@ -11,72 +11,92 @@ from bots.elasticsearch import tasks
 from tests import factories
 
 
+def index_helpers(*helpers):
+    tasks.index_model('creativework', [h.work.id for h in helpers])
+
+
+class IndexableWorkTestHelper:
+    def __init__(self, elastic, index=False, num_identifiers=1, num_sources=1, date=None):
+        self.elastic = elastic
+
+        if date is None:
+            self.work = factories.AbstractCreativeWorkFactory()
+        else:
+            models.AbstractCreativeWork._meta.get_field('date_created').auto_now_add = False
+            self.work = factories.AbstractCreativeWorkFactory(
+                date_created=date,
+                date_modified=date,
+            )
+            models.AbstractCreativeWork._meta.get_field('date_created').auto_now_add = True
+
+        self.sources = [factories.SourceFactory() for _ in range(num_sources)]
+        self.work.sources.add(*[s.user for s in self.sources])
+
+        for i in range(num_identifiers):
+            factories.WorkIdentifierFactory(
+                uri='http://example.com/{}/{}'.format(self.work.id, i),
+                creative_work=self.work
+            )
+
+        if index:
+            index_helpers(self)
+
+    def assert_indexed(self):
+        encoded_id = IDObfuscator.encode(self.work)
+        doc = self.elastic.es_client.get(
+            index=self.elastic.es_index,
+            doc_type='creativeworks',
+            id=encoded_id
+        )
+        assert doc['found'] is True
+        assert doc['_id'] == encoded_id
+        return doc
+
+    def assert_not_indexed(self):
+        with pytest.raises(NotFoundError):
+            self.assert_indexed()
+
+
 @pytest.mark.django_db
 class TestElasticSearchBot:
 
     def test_index(self, elastic):
-        x = factories.AbstractCreativeWorkFactory()
-        source = factories.SourceFactory()
-        x.sources.add(source.user)
-
-        tasks.index_model('creativework', [x.id])
-
-        doc = elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(x))
-
-        assert doc['_id'] == IDObfuscator.encode(x)
-        assert doc['_source']['title'] == x.title
-        assert doc['_source']['sources'] == [source.long_title]
+        helper = IndexableWorkTestHelper(elastic, index=True)
+        doc = helper.assert_indexed()
+        assert doc['_source']['title'] == helper.work.title
+        assert doc['_source']['sources'] == [helper.sources[0].long_title]
 
     def test_is_deleted_gets_removed(self, elastic):
-        x = factories.AbstractCreativeWorkFactory()
-        source = factories.SourceFactory()
-        x.sources.add(source.user)
+        helper = IndexableWorkTestHelper(elastic, index=True)
+        helper.assert_indexed()
 
-        tasks.index_model('creativework', [x.id])
-        elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(x))
-
-        x.administrative_change(is_deleted=True)
-
-        tasks.index_model('creativework', [x.id])
-
-        with pytest.raises(NotFoundError):
-            elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(x))
+        helper.work.administrative_change(is_deleted=True)
+        index_helpers(helper)
+        helper.assert_not_indexed()
 
     def test_source_soft_deleted(self, elastic):
-        x = factories.AbstractCreativeWorkFactory()
-        source = factories.SourceFactory(is_deleted=True)
-        x.sources.add(source.user)
+        helper = IndexableWorkTestHelper(elastic, index=True)
+        helper.assert_indexed()
 
-        tasks.index_model('creativework', [x.id])
+        helper.sources[0].is_deleted = True
+        helper.sources[0].save()
+        index_helpers(helper)
 
-        doc = elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(x))
-
-        assert doc['_id'] == IDObfuscator.encode(x)
-        assert doc['_source']['title'] == x.title
+        doc = helper.assert_indexed()
+        assert doc['_source']['title'] == helper.work.title
         assert doc['_source']['sources'] == []
 
     def test_51_identifiers_rejected(self, elastic):
-        work1 = factories.AbstractCreativeWorkFactory()
-        work2 = factories.AbstractCreativeWorkFactory()
-        for i in range(50):
-            factories.WorkIdentifierFactory(uri='http://example.com/{}'.format(i), creative_work=work1)
-            factories.WorkIdentifierFactory(uri='http://example.com/{}/{}'.format(i, i), creative_work=work2)
-        factories.WorkIdentifierFactory(creative_work=work2)
+        helper1 = IndexableWorkTestHelper(elastic, index=False, num_identifiers=50)
+        helper2 = IndexableWorkTestHelper(elastic, index=False, num_identifiers=51)
 
-        tasks.index_model('creativework', [work1.id, work2.id])
+        index_helpers(helper1, helper2)
 
-        elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(work1))
-
-        with pytest.raises(NotFoundError):
-            elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(work2))
+        helper1.assert_indexed()
+        helper2.assert_not_indexed()
 
     def test_aggregation(self, elastic):
-        work = factories.AbstractCreativeWorkFactory()
-
-        sources = [factories.SourceFactory() for _ in range(4)]
-        work.sources.add(*[s.user for s in sources])
-
-        tasks.index_model('creativework', [work.id])
+        helper = IndexableWorkTestHelper(elastic, index=True, num_sources=4)
 
         elastic.es_client.indices.refresh(index=elastic.es_index)
 
@@ -89,7 +109,9 @@ class TestElasticSearchBot:
             }
         })
 
-        assert sorted(resp['aggregations']['sources']['buckets'], key=lambda x: x['key']) == sorted([{'key': source.long_title, 'doc_count': 1} for source in sources], key=lambda x: x['key'])
+        expected = sorted([{'key': source.long_title, 'doc_count': 1} for source in helper.sources], key=lambda x: x['key'])
+        actual = sorted(resp['aggregations']['sources']['buckets'], key=lambda x: x['key'])
+        assert expected == actual
 
 
 @pytest.mark.django_db
@@ -131,46 +153,35 @@ class TestIndexSource:
 class TestJanitorTask:
 
     def test_missing_records_get_indexed(self, elastic, monkeypatch, no_celery):
-        x = factories.AbstractCreativeWorkFactory()
-        source = factories.SourceFactory()
-        x.sources.add(source.user)
+        helper1 = IndexableWorkTestHelper(elastic, index=False)
+        helper2 = IndexableWorkTestHelper(elastic, index=False)
 
-        y = factories.AbstractCreativeWorkFactory()
-        source = factories.SourceFactory()
-        y.sources.add(source.user)
+        helper1.assert_not_indexed()
+        helper2.assert_not_indexed()
 
         tasks.elasticsearch_janitor()
 
-        assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(x))['found'] is True
-        assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(y))['found'] is True
+        helper1.assert_indexed()
+        helper2.assert_indexed()
 
     def test_date_created(self, elastic, no_celery):
         fake, real = [], []
-        models.AbstractCreativeWork._meta.get_field('date_created').auto_now_add = False
 
         for i in range(1, 6):
-            fake.append(factories.AbstractCreativeWorkFactory(
-                date_created=pendulum.now(),
-                date_modified=pendulum.now(),
-            ))
-            real.append(factories.AbstractCreativeWorkFactory(
-                date_created=pendulum.now().add(days=-i),
-                date_modified=pendulum.now().add(days=-i),
-            ))
-        real.append(factories.AbstractCreativeWorkFactory(
-            date_created=pendulum.now().add(days=-i),
-            date_modified=pendulum.now().add(days=-i),
-        ))
+            fake.append(IndexableWorkTestHelper(elastic, index=False, date=pendulum.now()))
+            real.append(IndexableWorkTestHelper(elastic, index=False, date=pendulum.now().add(days=-i)))
+        real.append(IndexableWorkTestHelper(elastic, index=False, date=pendulum.now().add(days=-i)))
 
-        models.AbstractCreativeWork._meta.get_field('date_created').auto_now_add = True
+        index_helpers(*fake)
 
-        tasks.index_model('creativework', [c.id for c in fake])
+        for helper in fake:
+            helper.assert_indexed()
+            helper.work.administrative_change(is_deleted=True)
 
-        for c in fake:
-            assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(c))['found'] is True
-            c.administrative_change(is_deleted=True)
+        for helper in real:
+            helper.assert_not_indexed()
 
         tasks.elasticsearch_janitor()
 
-        for c in real:
-            assert elastic.es_client.get(index=elastic.es_index, doc_type='creativeworks', id=IDObfuscator.encode(c))['found'] is True
+        for helper in real:
+            helper.assert_indexed()

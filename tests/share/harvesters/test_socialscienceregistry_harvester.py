@@ -27,3 +27,4 @@ def test_AEA_harvester():
     for data in result:
         assert data[0] == 'AEARCTR-0000005'
         assert len(data[1]['record']) == 41
+    httpretty.disable()

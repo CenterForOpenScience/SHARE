@@ -3,10 +3,15 @@ from unittest import mock
 
 import pendulum
 import pytest
+from queue import Empty
+
+from django.apps import apps
+from django.conf import settings
 
 from share.models import NormalizedData
 from share.regulate.graph import MutableGraph
 from share.tasks import ingest
+from share.util.ingester import Ingester
 from tests import factories
 
 
@@ -20,7 +25,7 @@ class TestIngestJobConsumer:
 
         job.refresh_from_db()
         assert job.status == job.STATUS.skipped
-        assert job.context == job.SkipReasons.pointless.value
+        assert job.error_context == job.SkipReasons.pointless.value
 
     def test_no_output(self):
         raw = factories.RawDatumFactory(datum=json.dumps({
@@ -38,7 +43,7 @@ class TestIngestJobConsumer:
 
     @pytest.mark.parametrize('legacy', [True, False])
     def test_legacy_pipeline(self, legacy, monkeypatch):
-        mock_apply_changes = mock.Mock()
+        mock_apply_changes = mock.Mock(return_value=[])
         monkeypatch.setattr('share.tasks.jobs.IngestJobConsumer._apply_changes', mock_apply_changes)
         monkeypatch.setattr('django.conf.settings.SHARE_LEGACY_PIPELINE', legacy)
 
@@ -57,3 +62,42 @@ class TestIngestJobConsumer:
         else:
             assert NormalizedData.objects.count() == 0
             assert not mock_apply_changes.called
+
+    def test_elastic_queue(self, celery_app):
+        user = factories.ShareUserFactory(is_trusted=True)
+        ingester = Ingester({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'creativework',
+                'title': 'All About Tamanduas',
+            }]
+        }).as_user(user).setup_ingest(claim_job=True)
+
+        with celery_app.pool.acquire(block=True) as connection:
+            with connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS) as queue:
+                queue.clear()
+
+                celery_app.tasks['share.tasks.ingest'](job_id=ingester.job.id)
+
+                message = queue.get(timeout=5)
+                assert len(apps.get_model('share', message.payload['model']).objects.filter(id__in=message.payload['ids'])) == len(message.payload['ids'])
+
+    def test_elastic_queue_only_works(self, celery_app):
+        user = factories.ShareUserFactory(is_trusted=True)
+        ingester = Ingester({
+            '@graph': [{
+                '@id': '_:1234',
+                '@type': 'person',
+                'given_name': 'Jane',
+                'family_name': 'Doe',
+            }]
+        }).as_user(user).setup_ingest(claim_job=True)
+
+        with celery_app.pool.acquire(block=True) as connection:
+            with connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS) as queue:
+                queue.clear()
+
+                celery_app.tasks['share.tasks.ingest'](job_id=ingester.job.id)
+
+                with pytest.raises(Empty):
+                    queue.get(timeout=5)

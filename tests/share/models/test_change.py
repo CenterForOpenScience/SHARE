@@ -163,7 +163,7 @@ class TestChangeGraph:
 
         assert change_set is None
 
-    def test_add_multiple_sources(self, celery_app):
+    def test_add_multiple_sources(self):
         source1 = factories.SourceFactory()
         source2 = factories.SourceFactory()
 
@@ -172,13 +172,13 @@ class TestChangeGraph:
 
         assert work.sources.count() == 0
 
-        Ingester(data).as_user(source1.user).ingest()
+        Ingester(data).as_user(source1.user).ingest(index=False)
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'
         assert work.sources.count() == 1
 
-        Ingester(data).as_user(source2.user).ingest()
+        Ingester(data).as_user(source2.user).ingest(index=False)
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'
