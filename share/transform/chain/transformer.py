@@ -28,40 +28,44 @@ class ChainTransformer(BaseTransformer):
 
     root_parser = None
 
+    def __init__(self, *args, clean_up=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.clean_up = clean_up
+
     @property
     def allowed_roots(self):
         from share.models import AbstractCreativeWork
         return set(t.__name__ for t in AbstractCreativeWork.get_type_classes())
 
-    def do_transform(self, data, **kwargs):
+    def do_transform(self, data):
         # Parsed data will be loaded into ctx
         ctx.clear()  # Just in case
         ctx._config = self.config
 
-        unwrapped = self.unwrap_data(data, **kwargs)
+        unwrapped = self.unwrap_data(data)
         if self.REMOVE_EMPTY:
             self.remove_empty_values(unwrapped)
-        parser = self.get_root_parser(unwrapped, **kwargs)
+        parser = self.get_root_parser(unwrapped)
 
         root_ref = parser(unwrapped).parse()
         jsonld = ctx.jsonld
         return jsonld, root_ref
 
-    def transform(self, datum, clean_up=True):
+    def transform(self, datum):
         ret = super().transform(datum)
 
-        if clean_up:
+        if self.clean_up:
             ctx.clear()
 
         return ret
 
-    def unwrap_data(self, data, namespaces=None, **kwargs):
+    def unwrap_data(self, data):
         if data.startswith('<'):
-            return xmltodict.parse(data, process_namespaces=True, namespaces=(namespaces or self.NAMESPACES))
+            return xmltodict.parse(data, process_namespaces=True, namespaces=self.kwargs.get('namespaces', self.NAMESPACES))
         else:
             return json.loads(data, object_pairs_hook=OrderedDict)
 
-    def get_root_parser(self, unwrapped, **kwargs):
+    def get_root_parser(self, unwrapped):
         if self.root_parser:
             return self.root_parser
         raise NotImplementedError('ChainTransformers must implement root_parser or get_root_parser')

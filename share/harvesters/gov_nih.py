@@ -22,13 +22,13 @@ class NIHHarvester(BaseHarvester):
 
     namespaces = {'xsi': "http://www.w3.org/2001/XMLSchema-instance"}
 
-    def do_harvest(self, start_date, end_date, table_url):
+    def do_harvest(self, start_date, end_date):
         end_date = end_date.date()
         start_date = start_date.date()
         logger.info('Harvesting NIH %s - %s', start_date, end_date)
 
         # get ExPORTER page html and rows storing records
-        html = self.requests.get(table_url).content
+        html = self.requests.get(self.kwargs['table_url']).content
         soup = BeautifulSoup(html, 'lxml')
         table = soup.find('table', id="ContentPlaceHolder1_ProjectData_dgProjectData")
         rows = table.find_all('tr', class_="row_bg")

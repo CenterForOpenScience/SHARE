@@ -450,30 +450,27 @@ class MODSTransformer(ChainTransformer):
         'author': 'creator',
     }
 
-    def get_root_parser(self, unwrapped, emitted_type='creativework', type_map=None, role_map=None, **kwargs):
-        root_type_map = {
-            **{r.lower(): r for r in self.allowed_roots},
-            **{t.lower(): v for t, v in (type_map or {}).items()}
-        }
-        root_role_map = {
-            **{k: v for k, v in self.marc_roles.items()},
-            **{k.lower(): v.lower() for k, v in (role_map or {}).items()}
-        }
-
+    def get_root_parser(self, _):
         class RootParser(MODSCreativeWork):
-            default_type = emitted_type.lower()
-            type_map = root_type_map
-            role_map = root_role_map
+            default_type = self.kwargs.get('emitted_type', 'creativework').lower()
+            type_map = {
+                **{r.lower(): r for r in self.allowed_roots},
+                **{t.lower(): v for t, v in self.kwargs.get('type_map', {}).items()}
+            }
+            role_map = {
+                **{k: v for k, v in self.marc_roles.items()},
+                **{k.lower(): v.lower() for k, v in self.kwargs.get('role_map', {}).items()}
+            }
 
         return RootParser
 
-    def do_transform(self, datum, approved_sets=None, blocked_sets=None, **kwargs):
-        if not oai_allowed_by_sets(datum, blocked_sets, approved_sets):
+    def do_transform(self, datum):
+        if not oai_allowed_by_sets(datum, self.kwargs.get('blocked_sets'), self.kwargs.get('approved_sets')):
             return (None, None)
-        return super().do_transform(datum, **kwargs)
+        return super().do_transform(datum)
 
-    def unwrap_data(self, data, namespaces=None, **kwargs):
-        unwrapped_data = xmltodict.parse(data, process_namespaces=True, namespaces=(namespaces or self.NAMESPACES))
+    def unwrap_data(self, data):
+        unwrapped_data = xmltodict.parse(data, process_namespaces=True, namespaces=self.kwargs.get('namespaces', self.NAMESPACES))
         return {
             **unwrapped_data['record'].get('metadata', {}).get('mods:mods', {}),
             'header': unwrapped_data['record']['header'],

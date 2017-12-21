@@ -1,7 +1,8 @@
 import contextlib
 import datetime
 import logging
-import pendulum
+
+from stevedore import driver
 
 from django.contrib.postgres.fields import JSONField
 from django.core import validators
@@ -19,7 +20,6 @@ from share.models.fields import EncryptedJSONField
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.indexes import ConcurrentIndex
 from share.util import chunked, placeholders, BaseJSONAPIMeta
-from share.util.extensions import Extensions
 
 
 logger = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ class SourceConfig(models.Model):
     full_harvest = models.BooleanField(default=False, help_text=(
         'Whether or not this SourceConfig should be fully harvested. '
         'Requires earliest_date to be set. '
-        'The schedule harvests task will create all jobs necessary if this flag is set. '
+        'The schedule harvests task will create all logs necessary if this flag is set. '
         'This should never be set to True by default. '
     ))
 
@@ -142,18 +142,10 @@ class SourceConfig(models.Model):
         return (self.label,)
 
     def get_harvester(self, **kwargs):
-        """Return a harvester instance configured for this SourceConfig.
+        return self.harvester.get_class()(self, **{**kwargs, **(self.harvester_kwargs or {})})
 
-        **kwargs: passed to the harvester's initializer
-        """
-        return self.harvester.get_class()(self, **kwargs)
-
-    def get_transformer(self, **kwargs):
-        """Return a transformer instance configured for this SourceConfig.
-
-        **kwargs: passed to the transformer's initializer
-        """
-        return self.transformer.get_class()(self, **kwargs)
+    def get_transformer(self):
+        return self.transformer.get_class()(self, **(self.transformer_kwargs or {}))
 
     @contextlib.contextmanager
     def acquire_lock(self, required=True, using='default'):
@@ -200,7 +192,7 @@ class Harvester(models.Model):
         return (self.key,)
 
     def get_class(self):
-        return Extensions.get('share.harvesters', self.key)
+        return driver.DriverManager('share.harvesters', self.key).driver
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.key)
@@ -224,7 +216,7 @@ class Transformer(models.Model):
         return (self.key,)
 
     def get_class(self):
-        return Extensions.get('share.transformers', self.key)
+        return driver.DriverManager('share.transformers', self.key).driver
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.key)
@@ -235,26 +227,26 @@ class Transformer(models.Model):
 
 class RawDatumManager(FuzzyCountManager):
 
-    def link_to_job(self, job, datum_ids):
+    def link_to_log(self, log, datum_ids):
         if not datum_ids:
             return True
-        logger.debug('Linking RawData to %r', job)
+        logger.debug('Linking RawData to %r', log)
         with connection.cursor() as cursor:
             for chunk in chunked(datum_ids, size=500):
                 if not chunk:
                     break
                 cursor.execute('''
                     INSERT INTO "{table}"
-                        ("{rawdatum}", "{harvestjob}")
+                        ("{rawdatum}", "{harvestlog}")
                     VALUES
                         {values}
-                    ON CONFLICT ("{rawdatum}", "{harvestjob}") DO NOTHING;
+                    ON CONFLICT ("{rawdatum}", "{harvestlog}") DO NOTHING;
                 '''.format(
                     values=', '.join('%s' for _ in range(len(chunk))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
-                    table=RawDatum.jobs.through._meta.db_table,
-                    rawdatum=RawDatum.jobs.through._meta.get_field('rawdatum').column,
-                    harvestjob=RawDatum.jobs.through._meta.get_field('harvestjob').column,
-                ), [(raw_id, job.id) for raw_id in chunk])
+                    table=RawDatum.logs.through._meta.db_table,
+                    rawdatum=RawDatum.logs.through._meta.get_field('rawdatum').column,
+                    harvestlog=RawDatum.logs.through._meta.get_field('harvestlog').column,
+                ), [(raw_id, log.id) for raw_id in chunk])
         return True
 
     def store_chunk(self, source_config, data, limit=None, db=DEFAULT_DB_ALIAS):
@@ -346,7 +338,7 @@ class RawDatumManager(FuzzyCountManager):
                         date_created=RawDatum._meta.get_field('date_created').column,
                         values=', '.join('%s' for _ in range(len(new))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                     ), [
-                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.datestamp or now, now, now)
+                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.datestamp, now, now)
                         for fr in new
                     ]
                 )
@@ -390,10 +382,10 @@ class RawDatum(models.Model):
     # The sha256 of the datum
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
 
-    datestamp = models.DateTimeField(default=pendulum.now, help_text=(
+    datestamp = models.DateTimeField(null=True, help_text=(
         'The most relevant datetime that can be extracted from this RawDatum. '
-        'This may be, but is not limited to, a deletion, modification, publication, or creation datestamp. '
-        'Ideally, this datetime should be appropriate for determining the chronological order its data will be applied.'
+        'This may be, but is not limitted to, a deletion, modification, publication, or creation datestamp. '
+        'Ideally, this datetime should be appropriate for determining the chronological order it\'s data will be applied.'
     ))
 
     date_modified = models.DateTimeField(auto_now=True, editable=False)
@@ -406,7 +398,7 @@ class RawDatum(models.Model):
         'which would otherwise look like data that has not yet been processed.'
     ))
 
-    jobs = models.ManyToManyField('HarvestJob', related_name='raw_data')
+    logs = models.ManyToManyField('HarvestLog', related_name='raw_data')
 
     objects = RawDatumManager()
 

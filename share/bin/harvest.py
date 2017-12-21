@@ -31,6 +31,7 @@ def fetch(args, argv):
         -o, --out=DIR           The directory to store the fetched data in. Defaults to ./fetched/<sourceconfig>
         -s, --start=YYYY-MM-DD  The date at which to start fetching data.
         -e, --end=YYYY-MM-DD    The date at which to stop fetching data.
+        -i, --ignore-disabled   Allow disabled SourceConfigs to run.
         --set-spec=SET          The OAI setSpec to limit harvesting to.
     """
     config = get_sourceconfig(args['<sourceconfig>'])
@@ -42,6 +43,7 @@ def fetch(args, argv):
     kwargs = {k: v for k, v in {
         'limit': int(args['--limit']) if args.get('--limit') else None,
         'set_spec': args.get('--set-spec'),
+        'ignore_disabled': args.get('ignore_disabled'),
     }.items() if v is not None}
 
     if not args['<date>'] and not (args['--start'] and args['--end']):
@@ -105,7 +107,7 @@ def harvest(args, argv):
         print(datum)
 
 
-@command('Create HarvestJobs for the specified SourceConfig')
+@command('Create harvestlogs for the specified SourceConfig')
 def schedule(args, argv):
     """
     Usage:
@@ -113,10 +115,10 @@ def schedule(args, argv):
         {0} schedule [<date> | (--start=YYYY-MM-DD --end=YYYY-MM-DD) | --complete] [--tasks | --run] --all
 
     Options:
-        -t, --tasks             Spawn harvest tasks for each created job.
-        -r, --run               Run the harvest task for each created job.
-        -a, --all               Schedule jobs for all enabled SourceConfigs.
-        -c, --complete          Schedule all jobs between today and the SourceConfig's earliest date.
+        -t, --tasks             Spawn harvest tasks for each created log.
+        -r, --run               Run the harvest task for each created log.
+        -a, --all               Schedule logs for all enabled SourceConfigs.
+        -c, --complete          Schedule all logs between today and the SourceConfig's earliest date.
         -s, --start=YYYY-MM-DD  The date at which to start fetching data.
         -e, --end=YYYY-MM-DD    The date at which to stop fetching data.
         -j, --no-ingest         Do not process harvested data.
@@ -132,19 +134,19 @@ def schedule(args, argv):
         'ingest': not args.get('--no-ingest'),
     }.items() if v is not None}
 
-    jobs = []
+    logs = []
     for config in configs:
         scheduler = HarvestScheduler(config)
 
         if not (args['<date>'] or args['--start'] or args['--end']):
-            jobs.append(scheduler.today())
+            logs.append(scheduler.today())
         elif args['<date>']:
-            jobs.append(scheduler.date(pendulum.parse(args['<date>'])))
+            logs.append(scheduler.date(pendulum.parse(args['<date>'])))
         else:
-            jobs.extend(scheduler.range(pendulum.parse(args['--start']), pendulum.parse(args['--end'])))
+            logs.extend(scheduler.range(pendulum.parse(args['--start']), pendulum.parse(args['--end'])))
 
-    for job in jobs:
+    for log in logs:
         if args['--run']:
-            tasks.harvest.apply((), {'job_id': job.id, **kwargs}, retry=False, throw=True)
+            tasks.harvest.apply((), {'log_id': log.id, **kwargs}, retry=False, throw=True)
         elif args['--tasks']:
-            tasks.harvest.apply_async((), {'job_id': job.id, **kwargs})
+            tasks.harvest.apply_async((), {'log_id': log.id, **kwargs})

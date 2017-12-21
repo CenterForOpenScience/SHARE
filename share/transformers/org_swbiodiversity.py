@@ -69,7 +69,7 @@ class SWTransformer(SoupXMLTransformer):
     VERSION = 1
     root_parser = Dataset
 
-    def unwrap_data(self, input_data, **kwargs):
+    def unwrap_data(self, input_data):
         record = BeautifulSoup(input_data, 'lxml').html
         data = {}
         title = self.extract_text(record.h1)

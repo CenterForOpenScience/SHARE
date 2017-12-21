@@ -1,5 +1,6 @@
 from unittest import mock
 import random
+import threading
 import uuid
 
 from faker import Factory
@@ -13,14 +14,48 @@ from django.db import DatabaseError
 
 from share.harvest.base import FetchResult
 from share.harvest.exceptions import HarvesterConcurrencyError
+from share.harvest.exceptions import HarvesterDisabledError
 from share.models import Source
-from share.models import HarvestJob, IngestJob
+from share.models import HarvestLog
 from share.models import RawDatum
 from share import tasks
 from share.harvest.scheduler import HarvestScheduler
 
 from tests import factories
-from tests.share.tasks import SyncedThread
+
+
+@pytest.fixture
+def source_config():
+    return factories.SourceConfigFactory()
+
+
+@pytest.fixture
+def mock_transform(monkeypatch):
+    mock_transform = mock.Mock()
+    monkeypatch.setattr('share.tasks.transform', mock_transform)
+    return mock_transform
+
+
+class SyncedThread(threading.Thread):
+
+    def __init__(self, target, args=(), kwargs={}):
+        self._end = threading.Event()
+        self._start = threading.Event()
+
+        def _target(*args, **kwargs):
+            with target(*args, **kwargs):
+                self._start.set()
+                self._end.wait(10)
+
+        super().__init__(target=_target, args=args, kwargs=kwargs)
+
+    def start(self):
+        super().start()
+        self._start.wait(10)
+
+    def join(self, timeout=1):
+        self._end.set()
+        return super().join(timeout)
 
 
 @pytest.mark.django_db
@@ -30,15 +65,15 @@ def test_sources_have_access_tokens():
 
 
 @pytest.mark.django_db
-class TestHarvestTaskWithJob:
+class TestHarvestTaskWithLog:
 
     def test_not_found(self):
-        with pytest.raises(HarvestJob.DoesNotExist):
-            tasks.harvest(job_id=12)
+        with pytest.raises(HarvestLog.DoesNotExist):
+            tasks.harvest(log_id=12)
 
     # def test_disabled_source_config(self):
     #     with pytest.raises(HarvesterConcurrencyError):
-    #         tasks.harvest(job_id=12)
+    #         tasks.harvest(log_id=12)
 
 
 @pytest.mark.django_db
@@ -46,13 +81,19 @@ class TestHarvestTask:
 
     @pytest.mark.parametrize('source_config_kwargs, task_kwargs, lock_config, exception', [
         ({}, {}, True, HarvesterConcurrencyError),
+        ({'disabled': True}, {}, True, HarvesterDisabledError),
+        ({'source__is_deleted': True}, {}, True, HarvesterDisabledError),
+        ({'disabled': True, 'source__is_deleted': True}, {}, True, HarvesterDisabledError),
         ({'disabled': True}, {'ignore_disabled': True}, True, HarvesterConcurrencyError),
         ({'source__is_deleted': True}, {'ignore_disabled': True}, True, HarvesterConcurrencyError),
         ({'disabled': True, 'source__is_deleted': True}, {'ignore_disabled': True}, True, HarvesterConcurrencyError),
+        ({'disabled': True}, {}, False, HarvesterDisabledError),
+        ({'source__is_deleted': True}, {}, False, HarvesterDisabledError),
+        ({'disabled': True, 'source__is_deleted': True}, {}, False, HarvesterDisabledError),
     ])
     def test_failure_cases(self, source_config_kwargs, task_kwargs, lock_config, exception):
         source_config = factories.SourceConfigFactory(**source_config_kwargs)
-        job = factories.HarvestJobFactory(source_config=source_config)
+        log = factories.HarvestLogFactory(source_config=source_config)
 
         if lock_config:
             t = SyncedThread(source_config.acquire_lock)
@@ -60,7 +101,7 @@ class TestHarvestTask:
 
         try:
             with pytest.raises(exception):
-                tasks.harvest(job_id=job.id, **task_kwargs)
+                tasks.harvest(log_id=log.id, **task_kwargs)
         finally:
             if lock_config:
                 t.join()
@@ -76,34 +117,34 @@ class TestHarvestTask:
     ])
     def test_overrides(self, source_config_kwargs, task_kwargs, lock_config):
         source_config = factories.SourceConfigFactory(**source_config_kwargs)
-        job = factories.HarvestJobFactory(source_config=source_config)
+        log = factories.HarvestLogFactory(source_config=source_config)
 
         if lock_config:
             t = SyncedThread(source_config.acquire_lock)
             t.start()
 
         try:
-            tasks.harvest(job_id=job.id, **task_kwargs)
+            tasks.harvest(log_id=log.id, **task_kwargs)
         finally:
             if lock_config:
                 t.join()
 
     def test_harvest_fails(self, source_config):
         source_config.harvester.get_class()._do_fetch.side_effect = ValueError('In a test')
-        job = factories.HarvestJobFactory(source_config=source_config)
+        log = factories.HarvestLogFactory(source_config=source_config)
 
         with pytest.raises(ValueError) as e:
-            tasks.harvest(job_id=job.id)
+            tasks.harvest(log_id=log.id)
 
-        job.refresh_from_db()
+        log.refresh_from_db()
 
         assert e.value.args == ('In a test', )
-        assert job.status == HarvestJob.STATUS.failed
-        assert job.completions == 0
-        assert 'ValueError: In a test' in job.context
+        assert log.status == HarvestLog.STATUS.failed
+        assert log.completions == 0
+        assert 'ValueError: In a test' in log.context
 
-    def test_harvest_database_error(self, source_config):
-        job = factories.HarvestJobFactory(source_config=source_config)
+    def test_harvest_database_error(self, source_config, mock_transform):
+        log = factories.HarvestLogFactory(source_config=source_config)
 
         def _do_fetch(*args, **kwargs):
             yield ('doc1', b'doc1data')
@@ -113,19 +154,19 @@ class TestHarvestTask:
         source_config.harvester.get_class()._do_fetch = _do_fetch
 
         with pytest.raises(DatabaseError) as e:
-            tasks.harvest(job_id=job.id)
+            tasks.harvest(log_id=log.id)
 
-        job.refresh_from_db()
+        log.refresh_from_db()
 
-        assert job.raw_data.count() == 3
+        assert log.raw_data.count() == 3
         assert e.value.args == ('In a test', )
-        assert job.status == HarvestJob.STATUS.failed
-        assert job.completions == 0
-        assert 'DatabaseError: In a test' in job.context
-        assert IngestJob.objects.filter(status=IngestJob.STATUS.created).count() == 3
+        assert log.status == HarvestLog.STATUS.failed
+        assert log.completions == 0
+        assert 'DatabaseError: In a test' in log.context
+        assert mock_transform.apply_async.call_count == 3
 
-    def test_partial_harvest_fails(self, source_config):
-        job = factories.HarvestJobFactory(source_config=source_config)
+    def test_partial_harvest_fails(self, source_config, mock_transform):
+        log = factories.HarvestLogFactory(source_config=source_config)
 
         def _do_fetch(*args, **kwargs):
             yield ('doc1', b'doc1data')
@@ -135,33 +176,33 @@ class TestHarvestTask:
         source_config.harvester.get_class()._do_fetch = _do_fetch
 
         with pytest.raises(ValueError) as e:
-            tasks.harvest(job_id=job.id)
+            tasks.harvest(log_id=log.id)
 
-        job.refresh_from_db()
+        log.refresh_from_db()
 
-        assert job.raw_data.count() == 3
+        assert log.raw_data.count() == 3
         assert e.value.args == ('In a test', )
-        assert job.status == HarvestJob.STATUS.failed
-        assert job.completions == 0
-        assert 'ValueError: In a test' in job.context
-        assert IngestJob.objects.filter(status=IngestJob.STATUS.created).count() == 3
+        assert log.status == HarvestLog.STATUS.failed
+        assert log.completions == 0
+        assert 'ValueError: In a test' in log.context
+        assert mock_transform.apply_async.call_count == 3
 
-    def test_job_values(self, source_config):
+    def test_log_values(self, source_config):
         task_id = uuid.uuid4()
-        job = factories.HarvestJobFactory(source_config=source_config)
+        log = factories.HarvestLogFactory(source_config=source_config)
 
-        tasks.harvest.apply((), {'job_id': job.id}, task_id=str(task_id), throw=True)
+        tasks.harvest.apply((), {'log_id': log.id}, task_id=str(task_id), throw=True)
 
-        job.refresh_from_db()
+        log.refresh_from_db()
 
-        assert job.task_id == task_id
-        assert job.status == HarvestJob.STATUS.succeeded
-        assert job.context == ''
-        assert job.completions == 1
-        assert job.source_config == source_config
-        assert job.share_version == settings.VERSION
-        assert job.harvester_version == source_config.get_harvester().VERSION
-        assert job.source_config_version == source_config.version
+        assert log.task_id == task_id
+        assert log.status == HarvestLog.STATUS.succeeded
+        assert log.context == ''
+        assert log.completions == 1
+        assert log.source_config == source_config
+        assert log.share_version == settings.VERSION
+        assert log.harvester_version == source_config.get_harvester().VERSION
+        assert log.source_config_version == source_config.version
 
     @pytest.mark.parametrize('count, rediscovered, superfluous, limit, ingest', {
         (count, int(rediscovered), False, int(limit) if limit is not None else None, True)
@@ -181,22 +222,24 @@ class TestHarvestTask:
         assert rediscovered <= count, 'Y tho'
 
         fake = Factory.create()
+        mock_ingest_task = mock.Mock()
 
+        monkeypatch.setattr('share.tasks.transform', mock_ingest_task)
         source_config.harvester.get_class()._do_fetch.extend([(fake.sentence(), str(i * 50)) for i in range(count)])
         list(RawDatum.objects.store_chunk(source_config, (
             FetchResult(*tup) for tup in
             random.sample(source_config.harvester.get_class()._do_fetch, rediscovered))
         ))
 
-        job = factories.HarvestJobFactory(source_config=source_config)
+        log = factories.HarvestLogFactory(source_config=source_config)
 
-        tasks.harvest(job_id=job.id, superfluous=superfluous, limit=limit, ingest=ingest)
+        tasks.harvest(log_id=log.id, superfluous=superfluous, limit=limit, ingest=ingest)
 
-        job.refresh_from_db()
+        log.refresh_from_db()
 
-        assert job.completions == 1
-        assert job.status == HarvestJob.STATUS.succeeded
-        assert job.raw_data.count() == (count if limit is None or count < limit else limit)
+        assert log.completions == 1
+        assert log.status == HarvestLog.STATUS.succeeded
+        assert log.raw_data.count() == (count if limit is None or count < limit else limit)
 
         if limit is not None and rediscovered:
             assert RawDatum.objects.filter().count() >= rediscovered
@@ -204,35 +247,34 @@ class TestHarvestTask:
         else:
             assert RawDatum.objects.filter().count() == (count if limit is None or count < limit else limit)
 
-        ingest_count = IngestJob.objects.filter(status=IngestJob.STATUS.created).count()
         if ingest:
             if superfluous:
-                assert ingest_count == min(count, limit or 99999)
+                assert mock_ingest_task.apply_async.call_count == min(count, limit or 99999)
             elif limit is not None:
-                assert ingest_count <= min(limit, count)
-                assert ingest_count >= min(limit, count) - rediscovered
+                assert mock_ingest_task.apply_async.call_count <= min(limit, count)
+                assert mock_ingest_task.apply_async.call_count >= min(limit, count) - rediscovered
             else:
-                assert ingest_count == count - rediscovered
+                assert mock_ingest_task.apply_async.call_count == count - rediscovered
         else:
-            assert ingest_count == 0
+            assert mock_ingest_task.apply_async.call_count == 0
 
     def test_handles_duplicate_values(self, monkeypatch, source_config):
         fake = Factory.create()
-        job = factories.HarvestJobFactory(source_config=source_config)
+        log = factories.HarvestLogFactory(source_config=source_config)
 
         source_config.harvester.get_class()._do_fetch.extend([(fake.sentence(), str(i * 50)) for i in range(100)] * 3)
 
-        tasks.harvest(job_id=job.id, ingest=False)
+        tasks.harvest(log_id=log.id, ingest=False)
 
-        job.refresh_from_db()
+        log.refresh_from_db()
 
-        assert job.completions == 1
-        assert job.status == HarvestJob.STATUS.succeeded
-        assert job.raw_data.count() == 100
+        assert log.completions == 1
+        assert log.status == HarvestLog.STATUS.succeeded
+        assert log.raw_data.count() == 100
 
     def test_handles_duplicate_values_limit(self, monkeypatch, source_config):
         fake = Factory.create()
-        job = factories.HarvestJobFactory(source_config=source_config)
+        log = factories.HarvestLogFactory(source_config=source_config)
 
         source_config.harvester.get_class()._do_fetch.clear()
 
@@ -246,13 +288,13 @@ class TestHarvestTask:
             source_config.harvester.get_class()._do_fetch.extend([(s, s * 5)] * 5)
             source_config.harvester.get_class()._do_fetch.extend(padding)
 
-        tasks.harvest(job_id=job.id, limit=60, ingest=False)
+        tasks.harvest(log_id=log.id, limit=60, ingest=False)
 
-        job.refresh_from_db()
+        log.refresh_from_db()
 
-        assert job.completions == 1
-        assert job.status == HarvestJob.STATUS.succeeded
-        assert job.raw_data.count() == 30
+        assert log.completions == 1
+        assert log.status == HarvestLog.STATUS.succeeded
+        assert log.raw_data.count() == 30
 
     def test_duplicate_data_different_identifiers(self, monkeypatch, source_config):
         source_config.harvester.get_class()._do_fetch.clear()
@@ -264,7 +306,7 @@ class TestHarvestTask:
         with pytest.raises(ValueError) as e:
             list(source_config.get_harvester().harvest())
 
-        assert e.value.args == ('<FetchResult(identifier2, b8bf83469c...)> has already been seen or stored with identifier "identifier1". Perhaps your identifier extraction is incorrect?', )
+        assert e.value.args == ('<FetchResult(identifier2, None, b8bf83469c...)> has already been seen or stored with identifier "identifier1". Perhaps your identifier extraction is incorrect?', )
 
     def test_datestamps(self, source_config):
         source_config.harvester.get_class()._do_fetch.clear()
@@ -366,9 +408,9 @@ class TestHarvestTask:
             earliest_date=pendulum.parse('2017-01-01').date()
         )
 
-        # We have a harvest job with start_date equal to earliest_date
+        # We have a harvest log with start_date equal to earliest_date
         # but a different source_config
-        factories.HarvestJobFactory(
+        factories.HarvestLogFactory(
             start_date=pendulum.parse('2017-01-01').date(),
             end_date=pendulum.parse('2017-01-02').date(),
         )
@@ -381,13 +423,13 @@ class TestHarvestTask:
             earliest_date=pendulum.parse('2017-01-01').date()
         )
 
-        factories.HarvestJobFactory(
+        factories.HarvestLogFactory(
             source_config=source_config,
             start_date=pendulum.parse('2017-01-01').date(),
             end_date=pendulum.parse('2017-01-02').date(),
         )
 
-        factories.HarvestJobFactory(
+        factories.HarvestLogFactory(
             source_config=source_config,
             start_date=pendulum.parse('2018-01-01').date(),
             end_date=pendulum.parse('2018-01-02').date(),
@@ -405,7 +447,7 @@ class TestHarvestTask:
     def test_obsolete(self):
         source_config = factories.SourceConfigFactory()
 
-        hlv1 = factories.HarvestJobFactory(
+        hlv1 = factories.HarvestLogFactory(
             harvester_version=source_config.harvester.version,
             source_config=source_config,
             start_date=pendulum.parse('2017-01-01').date(),
@@ -415,39 +457,39 @@ class TestHarvestTask:
         source_config.harvester.get_class().VERSION += 1
         new_version = source_config.harvester.get_class().VERSION
 
-        hlv2 = factories.HarvestJobFactory(
+        hlv2 = factories.HarvestLogFactory(
             harvester_version=source_config.harvester.version,
             source_config=source_config,
             start_date=pendulum.parse('2017-01-01').date(),
         )
 
-        tasks.harvest(job_id=hlv2.id)
-        tasks.harvest(job_id=hlv1.id)
+        tasks.harvest(log_id=hlv2.id)
+        tasks.harvest(log_id=hlv1.id)
 
         hlv1.refresh_from_db()
         hlv2.refresh_from_db()
 
-        assert hlv2.status == HarvestJob.STATUS.succeeded
+        assert hlv2.status == HarvestLog.STATUS.succeeded
         assert hlv2.harvester_version == new_version
 
-        assert hlv1.status == HarvestJob.STATUS.skipped
+        assert hlv1.status == HarvestLog.STATUS.skipped
         assert hlv1.harvester_version == old_version
-        assert hlv1.context == HarvestJob.SkipReasons.obsolete.value
+        assert hlv1.context == HarvestLog.SkipReasons.obsolete.value
 
     @pytest.mark.parametrize('completions, status, new_version, updated', [
-        (0, HarvestJob.STATUS.created, 2, True),
-        (1, HarvestJob.STATUS.created, 2, False),
-        (88, HarvestJob.STATUS.created, 2, False),
-        (88, HarvestJob.STATUS.failed, 2, False),
-        (0, HarvestJob.STATUS.failed, 2, True),
-        (0, HarvestJob.STATUS.succeeded, 2, True),
+        (0, HarvestLog.STATUS.created, 2, True),
+        (1, HarvestLog.STATUS.created, 2, False),
+        (88, HarvestLog.STATUS.created, 2, False),
+        (88, HarvestLog.STATUS.failed, 2, False),
+        (0, HarvestLog.STATUS.failed, 2, True),
+        (0, HarvestLog.STATUS.succeeded, 2, True),
     ])
     def test_autoupdate(self, completions, status, new_version, updated):
         source_config = factories.SourceConfigFactory()
 
         source_config.harvester.get_class().VERSION = 1
 
-        hl = factories.HarvestJobFactory(
+        hl = factories.HarvestLogFactory(
             status=status,
             completions=completions,
             harvester_version=source_config.harvester.version,
@@ -457,14 +499,14 @@ class TestHarvestTask:
 
         source_config.harvester.get_class().VERSION = new_version
 
-        tasks.harvest(job_id=hl.id)
+        tasks.harvest(log_id=hl.id)
 
         hl.refresh_from_db()
 
         if updated:
-            assert hl.status == HarvestJob.STATUS.succeeded
+            assert hl.status == HarvestLog.STATUS.succeeded
         elif new_version > 1:
-            assert hl.status == HarvestJob.STATUS.skipped
-            assert hl.context == HarvestJob.SkipReasons.obsolete.value
+            assert hl.status == HarvestLog.STATUS.skipped
+            assert hl.context == HarvestLog.SkipReasons.obsolete.value
 
         assert (hl.harvester_version == new_version) == updated

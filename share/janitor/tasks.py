@@ -5,8 +5,11 @@ import celery
 from django.db.models import Exists
 from django.db.models import OuterRef
 
+from raven.contrib.django.raven_compat.models import client
+
+from share import tasks
 from share.models import NormalizedData
-from share.models import RawDatum, IngestJob
+from share.models import RawDatum
 
 
 logger = logging.getLogger(__name__)
@@ -14,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @celery.shared_task(bind=True)
 def rawdata_janitor(self, limit=500):
-    """Find RawDatum that have neither NormalizedData nor IngestJob and schedule them for ingestion
+    """Find RawDatum that do not have a NormalizedData process them
     """
     count = 0
 
@@ -32,14 +35,18 @@ def rawdata_janitor(self, limit=500):
 
     qs = RawDatum.objects.select_related('suid__source_config').annotate(
         has_normalizedata=Exists(NormalizedData.objects.values('id').filter(raw=OuterRef('id'))),
-        has_ingestjob=Exists(IngestJob.objects.values('id').filter(raw=OuterRef('id'))),
-    ).exclude(no_output=True).exclude(has_normalizedata=True).exclude(has_ingestjob=True)
+    ).exclude(no_output=True).exclude(has_normalizedata=True)
 
     for rd in qs[:limit]:
         count += 1
         logger.debug('Found unprocessed %r from %r', rd, rd.suid.source_config)
-        job = IngestJob.schedule(rd)
-        logger.info('Created job %s for %s', job, rd)
+        try:
+            t = tasks.transform.apply((rd.id, ), throw=True, retries=tasks.transform.max_retries + 1)
+        except Exception as e:
+            client.captureException()
+            logger.exception('Failed to processed %r', rd)
+        else:
+            logger.info('Processed %r via %r', rd, t)
     if count:
         logger.warning('Found %d total unprocessed RawData', count)
     return count

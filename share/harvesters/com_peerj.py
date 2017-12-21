@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class PeerJHarvester(BaseHarvester):
     VERSION = 1
 
-    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, identifier_prefix='', fetch_xml=False):
+    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum):
         url = self.config.base_url
         while True:
             logger.debug('Fetching page %s', url)
@@ -26,9 +26,9 @@ class PeerJHarvester(BaseHarvester):
                     logger.debug('%s is after %s, skipping', record['date'], end_date)
                     continue
 
-                doc_id = identifier_prefix + record['identifiers']['peerj']
+                doc_id = self.kwargs.get('identifier_prefix', '') + record['identifiers']['peerj']
 
-                if fetch_xml:
+                if self.kwargs.get('fetch_xml', False):
                     logger.debug('Fetching article %s', record['_links']['alternate']['xml']['href'])
                     details = self.requests.get(record['_links']['alternate']['xml']['href'])
                     details.raise_for_status()

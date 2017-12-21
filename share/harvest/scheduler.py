@@ -2,11 +2,11 @@ import pendulum
 
 from django.db import models
 
-from share.models import HarvestJob
+from share.models import HarvestLog
 
 
 class HarvestScheduler:
-    """Utility class for creating HarvestJobs
+    """Utility class for creating HarvestLogs
 
     All date ranges are treated as [start, end)
 
@@ -24,7 +24,7 @@ class HarvestScheduler:
             **kwargs: Forwarded to .range
 
         Returns:
-            A list of harvest jobs
+            A list of harvest logs
 
         """
         if cutoff is None:
@@ -34,12 +34,12 @@ class HarvestScheduler:
         if hasattr(self.source_config, 'latest'):
             latest_date = self.source_config.latest
         else:
-            latest_date = self.source_config.harvest_jobs.aggregate(models.Max('end_date'))['end_date__max']
+            latest_date = self.source_config.harvest_logs.aggregate(models.Max('end_date'))['end_date__max']
 
-        # If we can build full harvests and the earliest job that would be generated does NOT exist
+        # If we can build full harvests and the earliest log that would be generated does NOT exist
         # Go ahead and reset the latest_date to the earliest_date
         if allow_full_harvest and self.source_config.earliest_date and self.source_config.full_harvest:
-            if not self.source_config.harvest_jobs.filter(start_date=self.source_config.earliest_date).exists():
+            if not self.source_config.harvest_logs.filter(start_date=self.source_config.earliest_date).exists():
                 latest_date = self.source_config.earliest_date
 
         # If nothing sets latest_date, default to the soonest possible harvest
@@ -57,7 +57,7 @@ class HarvestScheduler:
             **kwargs: Forwarded to .date
 
         Returns:
-            A single Harvest job that *includes* today.
+            A single Harvest log that *includes* today.
 
         """
         return self.date(pendulum.today().date(), **kwargs)
@@ -70,7 +70,7 @@ class HarvestScheduler:
             **kwargs: Forwarded to .date
 
         Returns:
-            A single Harvest job that *includes* yesterday.
+            A single Harvest log that *includes* yesterday.
 
         """
         return self.date(pendulum.yesterday().date(), **kwargs)
@@ -82,7 +82,7 @@ class HarvestScheduler:
             **kwargs: Forwarded to .range
 
         Returns:
-            A single Harvest job that *includes* date.
+            A single Harvest log that *includes* date.
 
         """
         return self.range(date, date.add(days=1), **kwargs)[0]
@@ -93,15 +93,15 @@ class HarvestScheduler:
         Args:
             start (date):
             end (date):
-            save (bool, optional): If True, attempt to save the created HarvestJobs. Defaults to True.
+            save (bool, optional): If True, attempt to save the created HarvestLogs. Defaults to True.
 
         Returns:
-            A list of HarvestJobs within [start, end).
+            A list of HarvestLogs within [start, end).
 
         """
-        jobs = []
+        logs = []
 
-        job_kwargs = {
+        log_kwargs = {
             'source_config': self.source_config,
             'source_config_version': self.source_config.version,
             'harvester_version': self.source_config.get_harvester().VERSION,
@@ -111,9 +111,9 @@ class HarvestScheduler:
 
         while ed + self.source_config.harvest_interval <= end:
             sd, ed = ed, ed + self.source_config.harvest_interval
-            jobs.append(HarvestJob(start_date=sd, end_date=ed, **job_kwargs))
+            logs.append(HarvestLog(start_date=sd, end_date=ed, **log_kwargs))
 
-        if jobs and save:
-            return HarvestJob.objects.bulk_get_or_create(jobs)
+        if logs and save:
+            return HarvestLog.objects.bulk_get_or_create(logs)
 
-        return jobs
+        return logs

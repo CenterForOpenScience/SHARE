@@ -51,12 +51,12 @@ def update_harvester(context, label, version):
 @behave.when('{label} is harvested')
 @behave.when('{label} is harvested for {start} to {end}')
 def start_harvest(context, label, start=None, end=None):
-    job = HarvestScheduler(models.SourceConfig.objects.get(label=label)).range(
+    log = HarvestScheduler(models.SourceConfig.objects.get(label=label)).range(
         pendulum.parse(start),
         pendulum.parse(end),
     )[0]
 
-    tasks.harvest(job_id=job.id)
+    tasks.harvest(log_id=log.id)
 
 
 @behave.then('it\'s {field} will be {value}')

@@ -19,10 +19,9 @@ from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 from share.models import Person, NormalizedData, Change, ChangeSet, RawDatum
 from share.models import Article, Institution
 from share.models import ShareUser
-from share.models import SourceUniqueIdentifier
+from share.models import Harvester, Transformer, Source, SourceConfig, SourceUniqueIdentifier
 from share.change import ChangeGraph
 from bots.elasticsearch.bot import ElasticSearchBot
-from tests import factories
 
 
 def pytest_configure(config):
@@ -94,8 +93,37 @@ def share_user():
 
 
 @pytest.fixture
-def source_config():
-    return factories.SourceConfigFactory()
+def share_source(share_user):
+    source = Source(name='sauce', long_title='Saucy sauce', user=share_user)
+    source.save()
+    return source
+
+
+@pytest.fixture
+def harvester_model():
+    harvester = Harvester(key='testharvester')
+    harvester.save()
+    return harvester
+
+
+@pytest.fixture
+def transformer_model():
+    transformer = Transformer(key='testtransformer')
+    transformer.save()
+    return transformer
+
+
+@pytest.fixture
+def source_config(share_source, harvester_model, transformer_model):
+    config = SourceConfig(
+        label='sauce',
+        source=share_source,
+        base_url='http://example.com',
+        harvester=harvester_model,
+        transformer=transformer_model
+    )
+    config.save()
+    return config
 
 
 @pytest.fixture

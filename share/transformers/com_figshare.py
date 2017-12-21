@@ -80,7 +80,7 @@ class DataSet(Parser):
 class FigshareTransformer(ChainTransformer):
     VERSION = 1
 
-    def get_root_parser(self, unwrapped, **kwargs):
+    def get_root_parser(self, unwrapped):
         if 'files' in unwrapped:
             return DataSet
         return CreativeWork
