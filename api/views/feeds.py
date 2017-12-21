@@ -108,6 +108,23 @@ class CreativeWorksRSS(Feed):
         # Link to SHARE curate page
         return '{}{}/{}'.format(settings.SHARE_WEB_URL, item.get('type').replace(' ', ''), item.get('id'))
 
+    def item_author_name(self, item):
+        contributor_list = item.get('lists', []).get('contributors', [])
+        creators = [c for c in contributor_list if 'order_cited' in c]
+
+        authors = sorted(
+            creators,
+            key=lambda x: x['order_cited'],
+            reverse=False
+        ) if creators else contributor_list
+
+        if not authors:
+            return 'No authors provided.'
+        elif len(authors) > 1:
+            return prepare_string('{} et al.'.format(authors[0]['cited_as']))
+        else:
+            return prepare_string(authors[0]['cited_as'])
+
     def item_pubdate(self, item):
         return parse_date(item.get('date_published'))
 

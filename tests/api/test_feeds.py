@@ -4,7 +4,7 @@ import faker
 
 from lxml import etree
 
-from share.models import AbstractCreativeWork
+from share.models import AbstractCreativeWork, AbstractAgentWorkRelation
 from share.util import IDObfuscator
 
 from bots.elasticsearch import tasks
@@ -26,9 +26,18 @@ class TestFeed:
     def fake_items(self, settings, elastic):
         ids = []
         for i in range(11):
+            person_0 = factories.AbstractAgentFactory(type='share.person')
+            person_1 = factories.AbstractAgentFactory(type='share.person')
+
             work = factories.AbstractCreativeWorkFactory(
                 date_published=None if i % 3 == 0 else fake.date_time_this_decade(),
             )
+            if i % 3 == 1:
+                factories.CreatorWorkRelationFactory(creative_work=work, agent=person_0, order_cited=0)
+                factories.CreatorWorkRelationFactory(creative_work=work, agent=person_1, order_cited=1)
+            if i % 3 == 2:
+                factories.CreatorWorkRelationFactory(creative_work=work, agent=person_0)
+
             # Works without identifiers won't be surfaced in search
             factories.WorkIdentifierFactory(creative_work=work)
 
@@ -61,9 +70,22 @@ class TestFeed:
         assert len(feed.xpath('//atom:entry', namespaces=NAMESPACES)) == 11
 
         for creative_work, entry in zip(works, feed.xpath('//atom:entry', namespaces={'atom': 'http://www.w3.org/2005/Atom'})):
+            try:
+                contributors = list(AbstractAgentWorkRelation.objects.filter(creative_work_id=creative_work.id))
+                first_contributor = AbstractAgentWorkRelation.objects.get(creative_work_id=creative_work.id, order_cited=0)
+            except:
+                contributors = None
+
             assert entry.find('atom:title', namespaces=NAMESPACES).text == creative_work.title
             assert entry.find('atom:summary', namespaces=NAMESPACES).text == creative_work.description
             assert entry.find('atom:link', namespaces=NAMESPACES).attrib['href'].endswith(IDObfuscator.encode(creative_work))
+
+            if not contributors:
+                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == 'No authors provided.'
+            elif len(contributors) > 1:
+                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == '{} et al.'.format(first_contributor.cited_as)
+            else:
+                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == first_contributor.cited_as
 
             if getattr(creative_work, order):
                 assert entry.find('atom:updated', namespaces=NAMESPACES).text == getattr(creative_work, order).replace(microsecond=0).isoformat()
