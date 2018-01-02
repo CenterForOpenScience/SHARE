@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 class OSFHarvester(BaseHarvester):
     VERSION = 1
 
-    def build_url(self, start_date, end_date, path, query_params):
+    def build_url(self, start_date, end_date):
         # so prod SHARE doesn't get throttled
         if settings.OSF_BYPASS_THROTTLE_TOKEN:
             self.session.headers.update({'X-THROTTLE-TOKEN': settings.OSF_BYPASS_THROTTLE_TOKEN})
 
-        url = furl(settings.OSF_API_URL + path)
+        url = furl(settings.OSF_API_URL + self.kwargs['path'])
         url.args['page[size]'] = 100
         # url.args['filter[public]'] = 'true'
         # OSF turns dates into date @ midnight so we have to go ahead one more day
