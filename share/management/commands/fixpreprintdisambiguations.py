@@ -1,4 +1,5 @@
 from celery import states
+import pendulum
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -14,6 +15,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--dry', action='store_true', help='Should the script actually make changes? (In a transaction)')
         parser.add_argument('--commit', action='store_true', help='Should the script actually commit?')
+        parser.add_argument('--from', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider jobs since this date')
 
     def handle(self, *args, **options):
         qs = CeleryTaskResult.objects.filter(
@@ -21,6 +23,8 @@ class Command(BaseCommand):
             status__in=[states.FAILURE, states.RETRY],
             meta__source__in=settings.OSF_PREPRINT_PROVIDERS,
         )
+        if options.get('from'):
+            qs = qs.filter(date_modified__gte=options.get('from'))
 
         for task in qs:
             self.stdout.write('\n\nRunning {!r}'.format(task.task_id))
