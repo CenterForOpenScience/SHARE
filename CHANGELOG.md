@@ -1,5 +1,13 @@
 # Change Log
 
+# [2.13.1] - 2018-01-04
+## Fixed
+* Use request context to build URLs in the API instead of SHARE_API_URL setting
+    * Stop displaying `localhost:8000` links
+
+## Added
+* Add `--from` parameter to `fixpreprintdisambiguations` management command
+
 # [2.13.0] - 2017-12-18
 ## Added
 * Support for set blacklists for sources that follow OAI-PMH protocol
