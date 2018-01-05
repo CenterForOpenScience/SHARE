@@ -557,7 +557,7 @@ OSF_PREPRINT_PROVIDERS = [
     'LawArXiv',
     'MindRxiv',
     'NutriXiv',
-    'Open Science Framework',
+    'OSF',
     'PaleorXiv',
     'PsyArXiv',
     'SocArXiv',

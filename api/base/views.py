@@ -1,11 +1,12 @@
 import re
 
+from django.urls import reverse
+
 from rest_framework import views, viewsets
 from rest_framework.response import Response
 from rest_framework_json_api import serializers
 
 from share.util import IDObfuscator, InvalidID
-from api.util import absolute_reverse
 
 
 __all__ = ('ShareViewSet', 'RootView')
@@ -43,16 +44,17 @@ class ShareViewSet(viewsets.ViewSet):
 
 class RootView(views.APIView):
     def get(self, request):
-        ret = {
-            'site_banners': absolute_reverse('api:site_banners-list'),
-            'normalizeddata': absolute_reverse('api:normalizeddata-list'),
-            'rawdata': absolute_reverse('api:rawdatum-list'),
-            'sourceregistrations': absolute_reverse('api:sourceregistration-list'),
-            'sources': absolute_reverse('api:source-list'),
-            'users': absolute_reverse('api:user-list'),
-            'schema': absolute_reverse('api:schema'),
-            'status': absolute_reverse('api:status'),
-            'rss': absolute_reverse('api:rss'),
-            'atom': absolute_reverse('api:atom'),
+        links = {
+            'site_banners': 'api:site_banners-list',
+            'normalizeddata': 'api:normalizeddata-list',
+            'rawdata': 'api:rawdatum-list',
+            'sourceregistrations': 'api:sourceregistration-list',
+            'sources': 'api:source-list',
+            'users': 'api:user-list',
+            'schema': 'api:schema',
+            'status': 'api:status',
+            'rss': 'api:rss',
+            'atom': 'api:atom',
         }
+        ret = {k: request.build_absolute_uri(reverse(v)) for k, v in links.items()}
         return Response(ret)
