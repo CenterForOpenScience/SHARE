@@ -1,5 +1,9 @@
 # Change Log
 
+# [2.14.0] - Unreleased
+## Added
+* Allow reading/writing `Source.canonical` at `/api/v2/sources/`
+
 # [2.13.1] - 2018-01-04
 ## Fixed
 * Use request context to build URLs in the API instead of SHARE_API_URL setting
