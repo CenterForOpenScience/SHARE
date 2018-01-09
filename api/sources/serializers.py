@@ -47,7 +47,7 @@ class UpdateSourceSerializer(ShareSerializer):
 
     class Meta:
         model = models.Source
-        fields = ('name', 'home_page', 'long_title', 'icon', 'icon_url', 'user', 'source_configs', 'url', 'canonical')
+        fields = ('name', 'home_page', 'long_title', 'canonical', 'icon', 'icon_url', 'user', 'source_configs', 'url')
         read_only_fields = ('icon', 'user', 'source_configs', 'url')
         view_name = 'api:source-detail'
 
@@ -120,4 +120,7 @@ class CreateSourceSerializer(UpdateSourceSerializer):
 
         user_serializer.is_valid(raise_exception=True)
 
-        return user_serializer.save()
+        user = user_serializer.save()
+        user.set_unusable_password()
+        user.save()
+        return user

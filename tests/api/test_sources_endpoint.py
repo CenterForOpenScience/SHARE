@@ -340,6 +340,7 @@ class TestSourcesPost:
         assert resp.data[0]['detail'] == 'Could not download/process image.'
 
     def test_canonical_source(self, client, source_add_change_user, mock_icon_urls):
+        # add a canonical source
         test_data = get_post_body(canonical=True)
         resp = client.post(
             self.endpoint,
@@ -352,6 +353,7 @@ class TestSourcesPost:
 
         assert data_one['source']['canonical']
 
+        # update it to be noncanonical
         source_url = '{}{}/'.format(self.endpoint, data_one['source']['id'])
         test_two_data = get_post_body(id=data_one['source']['id'], canonical=False)
 
