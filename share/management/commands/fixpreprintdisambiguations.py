@@ -1,79 +1,98 @@
 from celery import states
 import pendulum
 
-from django.conf import settings
-from django.core.management.base import BaseCommand
-from django.db import transaction
-
 from share.disambiguation import MergeError
-from share.models import CeleryTaskResult
+from share.models import CeleryTaskResult, Source
 from share.tasks import disambiguate
+from share.management.commands import BaseShareCommand
 
 
-class Command(BaseCommand):
+class Command(BaseShareCommand):
+    MAX_RETRIES = 10
+    META_FIXED_KEY = '_fixed'
 
     def add_arguments(self, parser):
         parser.add_argument('--dry', action='store_true', help='Should the script actually make changes? (In a transaction)')
         parser.add_argument('--commit', action='store_true', help='Should the script actually commit?')
-        parser.add_argument('--from', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider jobs since this date')
+        parser.add_argument('--from', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider jobs on or after this date')
+        parser.add_argument('--until', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider jobs on or before this date')
 
     def handle(self, *args, **options):
+        dry_run = options.get('dry')
+
+        canonical_sources = list(Source.objects.filter(canonical=True).values_list('long_title', flat=True))
         qs = CeleryTaskResult.objects.filter(
             task_name='share.tasks.disambiguate',
             status__in=[states.FAILURE, states.RETRY],
-            meta__source__in=settings.OSF_PREPRINT_PROVIDERS,
+            meta__source__in=canonical_sources,
+        ).exclude(
+            meta__has_key=self.META_FIXED_KEY,
+            **{'meta__{}'.format(self.META_FIXED_KEY): True}
         )
         if options.get('from'):
             qs = qs.filter(date_modified__gte=options.get('from'))
+        if options.get('until'):
+            qs = qs.filter(date_modified__lte=options.get('until'))
 
         for task in qs:
-            self.stdout.write('\n\nRunning {!r}'.format(task.task_id))
+            with self.rollback_unless_commit(options.get('commit')):
+                self.stdout.write('\n\nTask {!r}'.format(task.task_id), style_func=self.style.HTTP_INFO)
+                self._try_task(task, dry_run)
+
+    def _try_task(self, task, dry_run):
+        normalized_data_id = task.meta['args'][0]
+        for i in range(self.MAX_RETRIES):
+            self.stdout.write('Attempt {} of {}:'.format(i + 1, self.MAX_RETRIES))
             try:
-                with transaction.atomic():
-                    try:
-                        disambiguate(task.meta['args'][0])
-                    except MergeError as e:
-                        (_, model, queries) = e.args
-                        data = {}
-                        for q in queries:
-                            for k, v in q.children:
-                                data.setdefault(k, []).append(v)
+                disambiguate(normalized_data_id)
+            except MergeError as e:
+                (_, model, queries) = e.args
 
-                        if len(data) > 1:
-                            self.stdout.write('MergeError from NormalizedData "{}" in task "{}" is too complex to be automatically fixed'.format(
-                                task.meta['args'][0],
-                                task.task_id,
-                            ), style_func=self.style.ERROR)
-                            continue
+                if not self._fix_merge_error(task, model, queries, dry_run):
+                    return
 
-                        self.stdout.write('Correcting merge error from "{!r}"'.format(task.meta['args'][0]), style_func=self.style.NOTICE)
+                if dry_run:
+                    return
+                continue
+            except Exception as e:
+                self.stdout.write('Failed in a way we cant fix:', style_func=self.style.ERROR)
+                self.stdout.write(str(e))
+                return
+            task.meta[self.META_FIXED_KEY] = True
+            task.save()
+            self.stdout.write('Success!', style_func=self.style.SUCCESS)
+            return
+        self.stdout.write('Failed to fix after {} tries'.format(self.MAX_RETRIES), style_func=self.style.ERROR)
 
-                        (field, ids), *_ = data.items()
-                        field_name, field = field.split('__')
-                        related_field = model._meta.get_field(field_name)
-                        qs = related_field.related_model.objects.filter(**{field + '__in': ids})
+    def _fix_merge_error(self, task, model, queries, dry_run):
+        data = {}
+        for q in queries:
+            for k, v in q.children:
+                data.setdefault(k, []).append(v)
 
-                        conflicts = {}
-                        for inst in qs:
-                            conflicts.setdefault(getattr(inst, related_field.remote_field.name), []).append(inst)
+        if len(data) > 1:
+            self.stdout.write('MergeError is too complex to be automatically fixed', style_func=self.style.ERROR)
+            return False
 
-                        (winner, _), *conflicts = sorted(conflicts.items(), key=lambda x: len(x[1]), reverse=True)
-                        self.stdout.write('\tMerging extranious {} into {!r}'.format(model._meta.verbose_name_plural, winner))
+        self.stdout.write('Trying to correct merge error...', style_func=self.style.NOTICE)
 
-                        for conflict, evidence in conflicts:
-                            for inst in evidence:
-                                self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, related_field.remote_field.name), winner))
-                                if not options.get('dry'):
-                                    inst.administrative_change(**{related_field.remote_field.name: winner})
+        (field, ids), *_ = data.items()
+        field_name, field = field.split('__')
+        related_field = model._meta.get_field(field_name)
+        qs = related_field.related_model.objects.filter(**{field + '__in': ids})
 
-                        self.stdout.write('Corrected merge error from {!r}'.format(task.meta['args'][0]), style_func=self.style.SUCCESS)
-                    except Exception as e:
-                        self.stdout.write('{!r} failed in a way we cant fix'.format(task.meta['args'][0]), style_func=self.style.ERROR)
+        conflicts = {}
+        for inst in qs:
+            conflicts.setdefault(getattr(inst, related_field.remote_field.name), []).append(inst)
 
-                    if not options.get('commit'):
-                        self.stdout.write('Rollback changes', style_func=self.style.NOTICE)
-                        raise AssertionError('ROLLBACK')
+        (winner, _), *conflicts = sorted(conflicts.items(), key=lambda x: len(x[1]), reverse=True)
+        self.stdout.write('\tMerging extraneous {} into {!r}'.format(model._meta.verbose_name_plural, winner))
 
-            except AssertionError as e:
-                if e.args != ('ROLLBACK', ):
-                    raise
+        for conflict, evidence in conflicts:
+            for inst in evidence:
+                self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, related_field.remote_field.name), winner))
+                if not dry_run:
+                    inst.administrative_change(**{related_field.remote_field.name: winner})
+
+        self.stdout.write('Corrected merge error!', style_func=self.style.SUCCESS)
+        return True
