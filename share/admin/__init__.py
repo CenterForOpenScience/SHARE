@@ -24,7 +24,7 @@ from share.models.celery import CeleryTaskResult
 from share.models.change import ChangeSet
 from share.models.core import NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
-from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer
+from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
 from share.models.logs import HarvestLog
 from share.models.meta import Subject, SubjectTaxonomy
 from share.models.registration import ProviderRegistration
@@ -77,6 +77,8 @@ class RawDatumAdmin(admin.ModelAdmin):
     show_full_result_count = False
     list_select_related = ('suid__source_config', )
     list_display = ('id', 'identifier', 'source_config_label', 'datestamp', 'date_created', 'date_modified', )
+    readonly_fields = ('datum', 'sha256')
+    raw_id_fields = ('suid', 'logs')
 
     def identifier(self, obj):
         return obj.suid.identifier
@@ -86,6 +88,7 @@ class RawDatumAdmin(admin.ModelAdmin):
 
 
 class AccessTokenAdmin(admin.ModelAdmin):
+    raw_id_fields = ('user',)
     list_display = ('token', 'user', 'scope')
 
 
@@ -192,7 +195,7 @@ class HarvestForm(forms.Form):
 class SourceConfigAdmin(admin.ModelAdmin):
     list_display = ('label', 'source_', 'version', 'enabled', 'source_config_actions')
     list_select_related = ('source',)
-    readonly_fields = ('source_config_actions',)
+    readonly_fields = ('source_config_actions', 'source',)
     search_fields = ['label', 'source__name', 'source__long_title']
 
     def source_(self, obj):
@@ -249,71 +252,9 @@ class SourceConfigAdmin(admin.ModelAdmin):
         return TemplateResponse(request, 'admin/harvest.html', context)
 
 
-class SourceAdminInline(admin.StackedInline):
-    model = Source
-
-
-class ShareUserAdmin(admin.ModelAdmin):
-    inlines = (SourceAdminInline,)
-
-
-class SourceAddForm(forms.ModelForm):
-
-    title = forms.CharField(min_length=3, max_length=255, help_text='What this source will be displayed as to the end user. Must be unique.')
-    url = forms.URLField(min_length=11, max_length=255, help_text='The home page or canonical URL for this source, make sure it is unique!.\nThe reverse DNS notation prepended with "sources." will be used to create a user for this source. IE share.osf.io -> sources.io.osf.share')
-
-    class Meta:
-        model = Source
-        exclude = ('access_token', )
-        fields = ('title', 'url', 'icon', )
-
-    def validate_unique(self):
-        # Forces validation checks on every field
-        try:
-            self.instance.validate_unique()
-        except forms.ValidationError as e:
-            # Translate field names because I'm a bad person
-            if 'long_title' in e.error_dict:
-                e.error_dict['title'] = e.error_dict.pop('long_title')
-            if 'name' in e.error_dict:
-                e.error_dict['url'] = e.error_dict.pop('name')
-            if 'home_page' in e.error_dict:
-                e.error_dict['url'] = e.error_dict.pop('home_page')
-            self._update_errors(e)
-
-    def _post_clean(self):
-        if not self._errors:
-            self.instance.home_page = self.cleaned_data['url'].lower().strip('/')
-            self.instance.long_title = self.cleaned_data.pop('title')
-            self.instance.name = '.'.join(reversed(self.instance.home_page.split('//')[1].split('.')))
-        return super()._post_clean()
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-
-        user = ShareUser.objects.create_user(username='sources.' + instance.name, save=commit)
-        user.set_unusable_password()
-        instance.user = user
-
-        if commit:
-            instance.save()
-
-        return instance
-
-
 class SourceAdmin(admin.ModelAdmin):
     search_fields = ('name', 'long_title')
-    readonly_fields = ('access_token', )
-
-    def add_view(self, *args, **kwargs):
-        self.form = SourceAddForm
-        return super().add_view(*args, **kwargs)
-
-    def save_model(self, request, obj, form, change):
-        if obj.user and not (obj.user_id or obj.user.id):
-            obj.user.save()
-            obj.user_id = obj.user.id  # Django is weird
-        obj.save()
+    readonly_fields = ('access_token', 'user')
 
     def access_token(self, obj):
         tokens = obj.user.accesstoken_set.all()
@@ -381,6 +322,10 @@ class SourceStatAdmin(admin.ModelAdmin):
         )
 
 
+class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
+    readonly_fields = ('identifier', 'source_config')
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
@@ -392,9 +337,10 @@ admin.site.register(RawDatum, RawDatumAdmin)
 admin.site.register(SiteBanner, SiteBannerAdmin)
 
 admin.site.register(Harvester)
-admin.site.register(ShareUser, ShareUserAdmin)
+admin.site.register(ShareUser)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
 admin.site.register(SubjectTaxonomy, SubjectTaxonomyAdmin)
 admin.site.register(SourceStat, SourceStatAdmin)
+admin.site.register(SourceUniqueIdentifier, SourceUniqueIdentifierAdmin)
 admin.site.register(Transformer)
