@@ -12,7 +12,20 @@ configs:
     approved_sets: null
     emitted_type: CreativeWork
     property_list: []
-    type_map: {}
+    type_map:
+      Abstracts (summaries): publication
+      Articles: article
+      Chapters (layout features): publication
+      Conference posters: poster
+      Data (information): dataset
+      Essays: publication
+      Exhibition catalogs: publication
+      Monographs: book
+      Performances (creative events): presentation
+      Presentations (Communicative Events): presentation
+      Reports: report
+      Reviews: publication
+      Theses: thesis
 home_page: http://academiccommons.columbia.edu/
 long_title: Columbia Academic Commons
 name: edu.columbia

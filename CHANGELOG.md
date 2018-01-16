@@ -1,5 +1,9 @@
 # Change Log
 
+# Unreleased
+## Added
+* Type map for Columbia Academic Commons (edu.columbia)
+
 # [2.14.0] - 2018-01-10
 ## Added
 * Allow reading/writing `Source.canonical` at `/api/v2/sources/`
@@ -23,7 +27,7 @@
 * Support for set blacklists for sources that follow OAI-PMH protocol
     * `enforce_set_lists` command to enforce set blacklist and whitelist
 * Set whitelist for UA Campus Repository
-* Support for encrypted json field and start using it in SourceConfig model 
+* Support for encrypted json field and start using it in SourceConfig model
 * Enable Coveralls
 * Include work lineage (based on IsPartOf relations) in the search index payload
 * Add `self` links to objects returned by the API
