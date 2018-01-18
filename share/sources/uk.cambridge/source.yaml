@@ -14,10 +14,10 @@ configs:
     emitted_type: CreativeWork
     property_list: []
     type_map:
-      Journal Article: article,
-      Book chapter: book,
-      Book or Book Chapter: book,
-      Conference Object: conferencepaper,
+      Journal Article: article
+      Book chapter: book
+      Book or Book Chapter: book
+      Conference Object: conferencepaper
 - base_url: https://www.repository.cam.ac.uk/oai/request
   disabled: true
   earliest_date: null
