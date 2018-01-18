@@ -3,6 +3,7 @@
 # Unreleased
 ## Added
 * Type map for Columbia Academic Commons (edu.columbia)
+* Type map for University of Cambridge (uk.cambridge)
 
 # [2.14.0] - 2018-01-10
 ## Added
