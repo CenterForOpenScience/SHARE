@@ -1,6 +1,6 @@
 # Change Log
 
-# Unreleased
+# [2.14.1] - 2018-01-18
 ## Added
 * Type map for Columbia Academic Commons (edu.columbia)
 * Type map for University of Cambridge (uk.cambridge)
