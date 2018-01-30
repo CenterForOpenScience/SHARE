@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'revproxy',
     'graphene_django',
+    'prettyjson',
 
     'allauth',
     'allauth.account',
@@ -394,6 +395,11 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'bots.elasticsearch.tasks.elasticsearch_janitor',
         'schedule': crontab(hour=23, minute=30),
     },
+    # Executes daily at 10:30 P.M
+    'IngestJob Janitor': {
+        'task': 'share.janitor.tasks.ingestjob_janitor',
+        'schedule': crontab(hour=22, minute=30),
+    },
 }
 
 if not DEBUG:
@@ -434,7 +440,6 @@ CELERY_TASK_ROUTES = {
     'bots.elasticsearch.*': {'priority': 50, 'queue': 'elasticsearch'},
     'share.tasks.harvest': {'priority': 0, 'queue': 'harvest'},
     'share.tasks.ingest': {'priority': 20, 'queue': 'ingest'},
-    'share.tasks.disambiguate': {'priority': 35, 'queue': 'disambiguate'},
 }
 
 CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}

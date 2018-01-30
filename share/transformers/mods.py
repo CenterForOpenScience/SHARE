@@ -4,6 +4,7 @@ import logging
 import xmltodict
 
 from share.transform.chain import ChainTransformer, ctx, links as tools
+from share.transform.chain.exceptions import InvalidIRI
 from share.transform.chain.links import GuessAgentTypeLink
 from share.transform.chain.parsers import Parser
 from share.transform.chain.utils import force_text
@@ -49,7 +50,7 @@ class MODSAgent(Parser):
     identifiers = tools.Map(
         tools.Delegate(MODSAgentIdentifier),
         tools.Unique(tools.Map(
-            tools.Try(tools.IRI(), exceptions=(ValueError, )),
+            tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
             tools.Map(
                 tools.RunPython(force_text),
                 tools.Filter(
@@ -209,7 +210,7 @@ class MODSCreativeWork(Parser):
     identifiers = tools.Map(
         tools.Delegate(MODSWorkIdentifier),
         tools.Unique(tools.Map(
-            tools.Try(tools.IRI(), exceptions=(ValueError, )),
+            tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
             tools.Map(
                 tools.RunPython(force_text),
                 tools.Filter(

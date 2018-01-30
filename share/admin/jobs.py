@@ -1,10 +1,12 @@
 from furl import furl
+from prettyjson import PrettyJSONWidget
 
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
 from share.admin.util import FuzzyPaginator
+from share.models.fields import DateTimeAwareJSONField
 from share.models.ingest import SourceConfig
 from share.models.jobs import AbstractBaseJob
 
@@ -45,7 +47,7 @@ class BaseJobAdmin(admin.ModelAdmin):
     list_filter = ('status', SourceConfigFilter, )
     list_select_related = ('source_config', )
     actions = ('restart_tasks', )
-    readonly_fields = ('task_id', 'context', 'completions', 'date_started', 'source_config_version', )
+    readonly_fields = ('task_id', 'error_type', 'error_message', 'error_context', 'completions', 'date_started', 'source_config_version', )
     show_full_result_count = False
     paginator = FuzzyPaginator
 
@@ -86,7 +88,23 @@ class HarvestJobAdmin(BaseJobAdmin):
 class IngestJobAdmin(BaseJobAdmin):
     list_display = ('id', 'source_config_', 'suid_', 'status_', 'date_started', 'share_version', )
     list_select_related = BaseJobAdmin.list_select_related + ('suid',)
-    readonly_fields = BaseJobAdmin.readonly_fields + ('suid', 'transformed_data', 'regulated_data', 'raw', 'transformer_version', 'regulator_version', )
+    readonly_fields = BaseJobAdmin.readonly_fields + ('suid', 'raw', 'transformer_version', 'regulator_version', )
+    fake_readonly_fields = ('transformed_data', 'regulated_data')
+    formfield_overrides = {
+        DateTimeAwareJSONField: {
+            'widget': PrettyJSONWidget(attrs={
+                'initial': 'parsed',
+                'cols': 120,
+                'rows': 20
+            })
+        }
+    }
+
+    def get_form(self, *args, **kwargs):
+        form = super().get_form(*args, **kwargs)
+        for field_name in self.fake_readonly_fields:
+            form.base_fields[field_name].disabled = True
+        return form
 
     def suid_(self, obj):
         return obj.suid.identifier

@@ -69,7 +69,7 @@ class TestJobConsumer:
         consumer.consume()
         job.refresh_from_db()
         assert job.status == job.STATUS.skipped
-        assert job.context == job.SkipReasons.obsolete.value
+        assert job.error_context == job.SkipReasons.obsolete.value
         assert job.task_id == consumer.task.request.id
         assert not consumer._consume_job.called
 

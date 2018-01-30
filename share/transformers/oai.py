@@ -2,6 +2,7 @@ import re
 import logging
 
 from share.transform.chain import ctx, ChainTransformer, links as tools
+from share.transform.chain.exceptions import InvalidIRI
 from share.transform.chain.parsers import Parser
 from share.transform.chain.utils import force_text, oai_allowed_by_sets
 
@@ -111,7 +112,7 @@ class OAICreativeWork(Parser):
     identifiers = tools.Map(
         tools.Delegate(OAIWorkIdentifier),
         tools.Unique(tools.Map(
-            tools.Try(tools.IRI(), exceptions=(ValueError, )),
+            tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
             tools.Filter(
                 not_citation,
                 tools.RunPython(
@@ -129,7 +130,7 @@ class OAICreativeWork(Parser):
         tools.Map(
             tools.Delegate(OAIWorkRelation),
             tools.Unique(tools.Map(
-                tools.Try(tools.IRI(), exceptions=(ValueError, )),
+                tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
                 tools.RunPython('get_relation', ctx)
             ))
         )

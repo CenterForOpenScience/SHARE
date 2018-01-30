@@ -9,4 +9,4 @@ class JSONLDValidatorStep(ValidationStep):
         try:
             JSONLDValidator()({'@graph': graph.to_jsonld(in_edges=False)})
         except ValidationError as e:
-            self.fail('Failed JSON-LD schema validation', exception=e)
+            self.reject('Failed JSON-LD schema validation', exception=e)

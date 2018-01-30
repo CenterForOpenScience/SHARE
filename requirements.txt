@@ -13,6 +13,7 @@ django-filter==1.0.2  # BSD
 django-include==0.2.1  # MIT
 django-model-utils==2.6.1  # BSD
 django-oauth-toolkit==0.12.0  # BSD
+django-prettyjson==0.3.0  # BSD 3 Clause
 django-revproxy==0.9.13  # MPL 2.0
 django-typed-models==0.6.0  # BSD 3 Clause
 django==1.11.4  # BSD 3 Clause

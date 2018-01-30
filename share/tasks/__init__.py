@@ -1,23 +1,13 @@
 import logging
-import random
 
 import celery
 
-from django.apps import apps
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db import transaction
 
-from share.change import ChangeGraph
 from share.harvest.scheduler import HarvestScheduler
-from share.models import AbstractCreativeWork
-from share.models import ChangeSet
 from share.models import HarvestJob
-from share.models import NormalizedData
-from share.models import Source
 from share.models import SourceConfig
-from share.search import SearchIndexer
 from share.tasks.jobs import HarvestJobConsumer
 from share.tasks.jobs import IngestJobConsumer
 from share.util.source_stat import SourceStatus
@@ -25,48 +15,6 @@ from share.util.source_stat import OAISourceStatus
 
 
 logger = logging.getLogger(__name__)
-
-
-@celery.shared_task(bind=True, max_retries=5)
-def disambiguate(self, normalized_id):
-    normalized = NormalizedData.objects.select_related('source__source').get(pk=normalized_id)
-
-    if self.request.id:
-        self.update_state(meta={
-            'source': normalized.source.source.long_title
-        })
-
-    updated = None
-
-    try:
-        # Load all relevant ContentTypes in a single query
-        ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
-
-        with transaction.atomic():
-            cg = ChangeGraph(normalized.data['@graph'], namespace=normalized.source.username)
-            cg.process()
-            cs = ChangeSet.objects.from_graph(cg, normalized.id)
-            if cs and (normalized.source.is_robot or normalized.source.is_trusted or Source.objects.filter(user=normalized.source).exists()):
-                # TODO: verify change set is not overwriting user created object
-                updated = cs.accept()
-    except Exception as e:
-        raise self.retry(
-            exc=e,
-            countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.request.retries, 60 * 15)
-        )
-
-    if not updated:
-        return
-    # Only index creativeworks on the fly, for the moment.
-    updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
-    existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
-    ids = list(updated_works | existing_works)
-
-    try:
-        SearchIndexer(self.app).index('creativework', *ids)
-    except Exception as e:
-        logger.exception('Could not add results from %r to elasticqueue', normalized)
-        raise
 
 
 @celery.shared_task(bind=True)

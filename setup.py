@@ -62,6 +62,7 @@ setup(
             'org.socarxiv = share.transformers.org_socarxiv:SocarxivTransformer',
             'org.swbiodiversity = share.transformers.org_swbiodiversity:SWTransformer',
             'v1_push = share.transformers.v1_push:V1Transformer',
+            'v2_push = share.transformers.v2_push:V2PushTransformer',
         ],
         'share.harvesters': [
             'ca.lwbin = share.harvesters.ca_lwbin:LWBINHarvester',

@@ -132,9 +132,11 @@ def schedule(args, argv):
         'ingest': not args.get('--no-ingest'),
     }.items() if v is not None}
 
+    claim_jobs = args['--run'] or args['--tasks']
+
     jobs = []
     for config in configs:
-        scheduler = HarvestScheduler(config)
+        scheduler = HarvestScheduler(config, claim_jobs=claim_jobs)
 
         if not (args['<date>'] or args['--start'] or args['--end']):
             jobs.append(scheduler.today())
@@ -142,6 +144,9 @@ def schedule(args, argv):
             jobs.append(scheduler.date(pendulum.parse(args['<date>'])))
         else:
             jobs.extend(scheduler.range(pendulum.parse(args['--start']), pendulum.parse(args['--end'])))
+
+    if not claim_jobs:
+        return
 
     for job in jobs:
         if args['--run']:

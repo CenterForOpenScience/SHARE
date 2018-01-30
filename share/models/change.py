@@ -10,9 +10,11 @@ from django.contrib.postgres.fields import JSONField
 from django.db import connection
 from django.db import models
 from django.db import transaction
+from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
+from share.exceptions import IngestConflict
 from share.models import NormalizedData
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.indexes import ConcurrentIndex
@@ -156,7 +158,12 @@ class Change(models.Model):
         # Little bit of blind faith here that all requirements have been accepted
         assert self.change_set.status == ChangeSet.STATUS.pending, 'Cannot accept a change with status {}'.format(self.change_set.status)
         logger.debug('Accepting change node ({}, {})'.format(ContentType.objects.get_for_id(self.model_type_id), self.node_id))
-        ret = self._accept(save)
+        try:
+            ret = self._accept(save)
+        except IntegrityError as e:
+            if e.args[0].startswith('duplicate key value violates unique constraint'):
+                raise IngestConflict
+            raise
 
         if save:
             # Psuedo hack, sources.add(...) tries to do some safety checks.

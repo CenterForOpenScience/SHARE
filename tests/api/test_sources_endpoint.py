@@ -74,6 +74,8 @@ def mock_icon_urls():
         TIMEOUT_URL,
         body=exceptionCallback
     )
+    yield
+    httpretty.disable()
 
 
 def get_post_body(icon=PROPER_ICON_URL, home_page=None, id=None):

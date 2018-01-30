@@ -1,16 +1,27 @@
 import logging
 import random
 
+from django.apps import apps
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
+from django.db.utils import OperationalError
 from django.utils import timezone
 
+from share import exceptions
+from share.change import ChangeGraph
 from share.harvest.exceptions import HarvesterConcurrencyError
-from share.models import CeleryTaskResult
-from share.models import HarvestJob
-from share.models import IngestJob
-from share.models import NormalizedData
-from share.models import RawDatum
+from share.models import (
+    AbstractCreativeWork,
+    ChangeSet,
+    HarvestJob,
+    IngestJob,
+    NormalizedData,
+    RawDatum,
+    Source,
+)
 from share.regulate import Regulator
+from share.search import SearchIndexer
 from share.util import chunked
 
 
@@ -45,14 +56,14 @@ class JobConsumer:
         Additional keyword arguments passed to _consume_job, along with superfluous and force
         """
         with self._locked_job(job_id, ignore_disabled) as job:
-            if job is None and job_id is None:
-                logger.info('No %ss are currently available', self.Job.__name__)
-                return False
-
-            if job is None and job_id is not None:
-                # If an id was given to us, we should have gotten a job
-                job = self.Job.objects.get(id=job_id)  # Force the failure
-                raise Exception('Failed to load {} but then found {!r}.'.format(job_id, job))  # Should never be reached
+            if job is None:
+                if job_id is None:
+                    logger.info('No %ss are currently available', self.Job.__name__)
+                    return
+                else:
+                    # If an id was given to us, we should have gotten a job
+                    job = self.Job.objects.get(id=job_id)  # Force the failure
+                    raise Exception('Failed to load {} but then found {!r}.'.format(job_id, job))  # Should never be reached
 
             if exhaust and job_id is None:
                 if force:
@@ -78,7 +89,7 @@ class JobConsumer:
             })
 
             job.task_id = self.task.request.id
-            self.Job.objects.filter(id=job.id).update(task_id=self.task.request.id)
+            job.save(update_fields=('task_id',))
 
         if job.completions > 0 and job.status == self.Job.STATUS.succeeded:
             if not superfluous:
@@ -95,7 +106,9 @@ class JobConsumer:
 
     def _filter_ready(self, qs):
         return qs.filter(
-            status__in=self.Job.READY_STATUSES
+            status__in=self.Job.READY_STATUSES,
+        ).exclude(
+            claimed=True
         )
 
     def _locked_job(self, job_id, ignore_disabled=False):
@@ -128,7 +141,7 @@ class HarvestJobConsumer(JobConsumer):
             source_config__harvest_after__lte=timezone.now().time(),
         )
 
-    def _consume_job(self, job, force, superfluous, limit=None, ingest=True, **kwargs):
+    def _consume_job(self, job, force, superfluous, limit=None, ingest=True):
         try:
             if ingest:
                 datum_gen = (datum for datum in self._harvest(job, force, limit) if datum.created or superfluous)
@@ -186,8 +199,10 @@ class IngestJobConsumer(JobConsumer):
     Job = IngestJob
     lock_field = 'suid'
 
+    MAX_RETRIES = 5
+
     def _prepare_job(self, job, *args, **kwargs):
-        # TODO think about getting rid of these triangles
+        # TODO think about getting rid of these triangles -- infer source config from suid?
         assert job.suid_id == job.raw.suid_id
         assert job.source_config_id == job.suid.source_config_id
 
@@ -197,10 +212,41 @@ class IngestJobConsumer(JobConsumer):
 
         return super()._prepare_job(job, *args, **kwargs)
 
-    def _consume_job(self, job, **kwargs):
+    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True):
+        datum = None
+
+        # Check whether we've already done transform/regulate
+        if not superfluous:
+            datum = job.ingested_normalized_data.order_by('-created_at').first()
+
+        if superfluous or datum is None:
+            graph = self._transform(job)
+            if not graph:
+                return
+            graph = self._regulate(job, graph)
+            if not graph:
+                return
+            if settings.SHARE_LEGACY_PIPELINE:
+                datum = NormalizedData.objects.create(
+                    data={'@graph': graph.to_jsonld()},
+                    source=job.suid.source_config.source.user,
+                    raw=job.raw,
+                    ingest_job=job,
+                )
+
+        if apply_changes and settings.SHARE_LEGACY_PIPELINE:
+            # TODO make this pipeline actually legacy by implementing a new one
+            updated_work_ids = self._apply_changes(job, datum)
+            if index and updated_work_ids:
+                self._update_index(updated_work_ids)
+
+    def _transform(self, job):
         transformer = job.suid.source_config.get_transformer()
-        graph = transformer.transform(job.raw)
-        job.log_graph('transformed_data', graph)
+        try:
+            graph = transformer.transform(job.raw)
+        except exceptions.TransformError as e:
+            job.fail(e)
+            return None
 
         if not graph:
             if not job.raw.normalizeddata_set.exists():
@@ -208,20 +254,51 @@ class IngestJobConsumer(JobConsumer):
                 RawDatum.objects.filter(id=job.raw_id).update(no_output=True)
             else:
                 logger.warning('Graph was empty for %s, but a normalized data already exists for it', job.raw)
+            return None
+
+        job.log_graph('transformed_data', graph)
+        return graph
+
+    def _regulate(self, job, graph):
+        try:
+            Regulator(job).regulate(graph)
+        except exceptions.RegulateError as e:
+            job.fail(e)
+            return None
+        job.log_graph('regulated_data', graph)
+        return graph
+
+    def _apply_changes(self, job, normalized_datum):
+        updated = None
+
+        try:
+            # Load all relevant ContentTypes in a single query
+            ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
+
+            with transaction.atomic():
+                cg = ChangeGraph(normalized_datum.data['@graph'], namespace=normalized_datum.source.username)
+                cg.process()
+                cs = ChangeSet.objects.from_graph(cg, normalized_datum.id)
+                if cs and (normalized_datum.source.is_robot or normalized_datum.source.is_trusted or Source.objects.filter(user=normalized_datum.source).exists()):
+                    updated = cs.accept()
+
+        # Retry if it was just the wrong place at the wrong time
+        except (exceptions.IngestConflict, OperationalError) as e:
+            job.retries = (job.retries or 0) + 1
+            if job.retries > self.MAX_RETRIES:
+                raise
+            job.reschedule()
             return
 
-        Regulator(job).regulate(graph)
-        job.log_graph('regulated_data', graph)
+        if not updated:
+            return  # Nothing to index
 
-        # TODO save as unmerged single-source graph
+        # Index works that were added or directly updated
+        updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
+        # and works that matched, even if they didn't change, in case any related objects did
+        existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
 
-        if settings.SHARE_LEGACY_PIPELINE:
-            from share.tasks import disambiguate
+        return list(updated_works | existing_works)
 
-            nd = NormalizedData.objects.create(
-                data={'@graph': job.regulated_data},
-                source=job.suid.source_config.source.user,
-                raw=job.raw,
-            )
-            nd.tasks.add(CeleryTaskResult.objects.get(task_id=self.task.request.id))
-            disambiguate.apply_async((nd.id,))
+    def _update_index(self, work_ids):
+        SearchIndexer(self.task.app).index('creativework', *work_ids)

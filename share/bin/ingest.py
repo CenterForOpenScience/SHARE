@@ -12,12 +12,27 @@ def transform(args, argv):
     """
     Usage: {0} transform <sourceconfig> FILE ...
            {0} transform <sourceconfig> --directory=DIR
+           {0} transform --ids <raw_data_ids>...
 
     Options:
         -d, --directory=DIR  Transform all JSON files in DIR
+        -i, --ids            Provide RawDatum IDs to transform
 
     Transform all given JSON files. Results will be printed to stdout.
     """
+    from ipdb import launch_ipdb_on_exception
+
+    ids = args['<raw_data_ids>']
+    if ids:
+        qs = RawDatum.objects.filter(id__in=ids)
+        for raw in qs.iterator():
+            transformer = raw.suid.source_config.get_transformer()
+            with launch_ipdb_on_exception():
+                print('Parsed raw data "{}" into'.format(raw.id))
+                pprint(transformer.transform(raw.datum))
+                print('\n')
+        return
+
     config = SourceConfig.objects.get(label=args['<sourceconfig>'])
     transformer = config.get_transformer()
 
@@ -29,7 +44,6 @@ def transform(args, argv):
     for name in files:
         with open(name) as fobj:
             data = fobj.read()
-        from ipdb import launch_ipdb_on_exception
         with launch_ipdb_on_exception():
             print('Parsed raw data "{}" into'.format(name))
             pprint(transformer.transform(data))
@@ -61,18 +75,19 @@ def ingest(args, argv):
         if not superfluous:
             qs = qs.filter(ingest_jobs=None)
 
+    claim_jobs = args['--run'] or args['--task']
+
     count = 0
     jobs = []
     for raw in qs.iterator():
         count += 1
-        jobs.append(IngestJob.schedule(raw, superfluous=superfluous))
+        jobs.append(IngestJob.schedule(raw, superfluous=superfluous, claim=claim_jobs))
     print('Scheduled {} IngestJobs'.format(count))
 
-    if not args['--run'] and not args['--task']:
+    if not claim_jobs:
         return
 
     kwargs = {
-        'exhaust': False,
         'ignore_disabled': False,
     }
     for job in jobs:

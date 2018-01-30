@@ -1,4 +1,5 @@
 import logging
+from pendulum import pendulum
 
 import celery
 
@@ -43,3 +44,18 @@ def rawdata_janitor(self, limit=500):
     if count:
         logger.warning('Found %d total unprocessed RawData', count)
     return count
+
+
+@celery.shared_task(bind=True)
+def ingestjob_janitor(self):
+    """Find IngestJobs that seem to have been abandoned, set them free
+    """
+
+    day_ago = pendulum.now().subtract(days=1)
+    qs = IngestJob.objects.filter(
+        claimed=True,
+        date_modified__lt=day_ago  # Last modified earlier than one day ago
+    ).exclude(
+        status=IngestJob.STATUS.started
+    )
+    qs.update(claimed=False)

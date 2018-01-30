@@ -13,7 +13,7 @@ Feature: Harvester Laziness
     When io.neat is harvested for <START_DATE> to <END_DATE>
     Then io.neat's latest harvest job's status will be skipped
     And it will be completed 2 times
-    And it's context will be <REASON>
+    And it's error_context will be <REASON>
 
     Examples:
       | START_DATE | END_DATE   | REASON                       |
