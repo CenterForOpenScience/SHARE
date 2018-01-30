@@ -73,7 +73,7 @@ class TestFeed:
             try:
                 contributors = list(AbstractAgentWorkRelation.objects.filter(creative_work_id=creative_work.id))
                 first_contributor = AbstractAgentWorkRelation.objects.get(creative_work_id=creative_work.id, order_cited=0)
-            except:
+            except Exception:
                 contributors = None
 
             assert entry.find('atom:title', namespaces=NAMESPACES).text == creative_work.title
@@ -83,9 +83,9 @@ class TestFeed:
             if not contributors:
                 assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == 'No authors provided.'
             elif len(contributors) > 1:
-                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == '{} et al.'.format(first_contributor.cited_as)
+                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == '{} et al.'.format(first_contributor.agent.name)
             else:
-                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == first_contributor.cited_as
+                assert entry.find('atom:author', namespaces=NAMESPACES)[0].text == first_contributor.agent.name
 
             if getattr(creative_work, order):
                 assert entry.find('atom:updated', namespaces=NAMESPACES).text == getattr(creative_work, order).replace(microsecond=0).isoformat()
