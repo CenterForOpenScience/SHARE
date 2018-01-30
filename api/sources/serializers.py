@@ -47,7 +47,7 @@ class UpdateSourceSerializer(ShareSerializer):
 
     class Meta:
         model = models.Source
-        fields = ('name', 'home_page', 'long_title', 'icon', 'icon_url', 'user', 'source_configs', 'url')
+        fields = ('name', 'home_page', 'long_title', 'canonical', 'icon', 'icon_url', 'user', 'source_configs', 'url')
         read_only_fields = ('icon', 'user', 'source_configs', 'url')
         view_name = 'api:source-detail'
 
@@ -87,19 +87,19 @@ class CreateSourceSerializer(UpdateSourceSerializer):
 
     def create(self, validated_data):
         icon_url = validated_data.pop('icon_url')
+        long_title = validated_data.pop('long_title')
+
         icon_file = self._fetch_icon_file(icon_url)
-        long_title = validated_data['long_title']
 
         label = long_title.replace(' ', '_').lower()
-
-        name = validated_data.get('name', label)
+        name = validated_data.pop('name', label)
 
         with transaction.atomic():
             source, created = models.Source.objects.get_or_create(
                 long_title=long_title,
                 defaults={
-                    'home_page': validated_data.get('home_page', None),
                     'name': name,
+                    **validated_data
                 }
             )
             if not created:
@@ -120,4 +120,7 @@ class CreateSourceSerializer(UpdateSourceSerializer):
 
         user_serializer.is_valid(raise_exception=True)
 
-        return user_serializer.save()
+        user = user_serializer.save()
+        user.set_unusable_password()
+        user.save()
+        return user

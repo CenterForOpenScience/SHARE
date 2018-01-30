@@ -1,11 +1,34 @@
 # Change Log
 
+# [2.14.1] - 2018-01-18
+## Added
+* Type map for Columbia Academic Commons (edu.columbia)
+* Type map for University of Cambridge (uk.cambridge)
+
+# [2.14.0] - 2018-01-10
+## Added
+* Allow reading/writing `Source.canonical` at `/api/v2/sources/`
+* Include `<author>` in atom feed at `/api/v2/atom/`
+* ScholarsArchive@OSU source config for their new API
+
+## Changed
+* Prevent OSF harvester from being throttled
+* Update NSFAwards harvester/transformer to include more fields
+
+# [2.13.1] - 2018-01-04
+## Fixed
+* Use request context to build URLs in the API instead of SHARE_API_URL setting
+    * Stop displaying `localhost:8000` links
+
+## Added
+* Add `--from` parameter to `fixpreprintdisambiguations` management command
+
 # [2.13.0] - 2017-12-18
 ## Added
 * Support for set blacklists for sources that follow OAI-PMH protocol
     * `enforce_set_lists` command to enforce set blacklist and whitelist
 * Set whitelist for UA Campus Repository
-* Support for encrypted json field and start using it in SourceConfig model 
+* Support for encrypted json field and start using it in SourceConfig model
 * Enable Coveralls
 * Include work lineage (based on IsPartOf relations) in the search index payload
 * Add `self` links to objects returned by the API

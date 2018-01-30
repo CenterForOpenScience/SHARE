@@ -7,11 +7,13 @@ from share.tasks import ingest
 
 
 class Command(BaseShareCommand):
+    MAX_RETRIES = 10
 
     def add_arguments(self, parser):
         parser.add_argument('--dry', action='store_true', help='Should the script actually make changes? (In a transaction)')
         parser.add_argument('--commit', action='store_true', help='Should the script actually commit?')
-        parser.add_argument('--from', type=pendulum.parse, help='Only consider jobs since this date')
+        parser.add_argument('--from', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider jobs on or after this date')
+        parser.add_argument('--until', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider jobs on or before this date')
 
     def handle(self, *args, **options):
         dry_run = options.get('dry')
@@ -21,50 +23,67 @@ class Command(BaseShareCommand):
             status=IngestJob.STATUS.failed,
             source_config__source__canonical=True
         )
-
         if options.get('from'):
             qs = qs.filter(date_modified__gte=options.get('from'))
+        if options.get('until'):
+            qs = qs.filter(date_modified__lte=options.get('until'))
 
-        for job in qs:
-            self.stdout.write('\n\nReingesting {!r}'.format(job))
-
+        for job in qs.select_related('suid', 'source_config'):
             with self.rollback_unless_commit(options.get('commit')):
-                try:
-                    ingest(job_id=job.id)
-                except MergeRequired as e:
-                    (_, model, queries) = e.args
-                    data = {}
-                    for q in queries:
-                        for k, v in q.children:
-                            data.setdefault(k, []).append(v)
+                self.stdout.write('\n\nTrying job {!r}'.format(job), style_func=self.style.HTTP_INFO)
+                self._try_job(job, dry_run)
 
-                    if len(data) > 1:
-                        self.stdout.write('Merge error from {!r} is too complex to be automatically fixed'.format(
-                            job,
-                        ), style_func=self.style.ERROR)
-                        continue
+    def _try_job(self, job, dry_run):
+        for i in range(self.MAX_RETRIES):
+            self.stdout.write('Attempt {} of {}:'.format(i + 1, self.MAX_RETRIES))
+            try:
+                ingest(job.id)
+            except MergeRequired as e:
+                (_, model, queries) = e.args
 
-                    self.stdout.write('Correcting merge error from "{!r}"'.format(job), style_func=self.style.NOTICE)
+                if not self._fix_merge_error(model, queries, dry_run):
+                    return
 
-                    (field, ids), *_ = data.items()
-                    field_name, field = field.split('__')
-                    related_field = model._meta.get_field(field_name)
-                    qs = related_field.related_model.objects.filter(**{field + '__in': ids})
+                if dry_run:
+                    return
+                continue
+            except Exception as e:
+                self.stdout.write('Failed in a way we cant fix:', style_func=self.style.ERROR)
+                self.stdout.write(str(e))
+                return
+            self.stdout.write('Success!', style_func=self.style.SUCCESS)
+            return
+        self.stdout.write('Failed to fix after {} tries'.format(self.MAX_RETRIES), style_func=self.style.ERROR)
 
-                    conflicts = {}
-                    for inst in qs:
-                        conflicts.setdefault(getattr(inst, related_field.remote_field.name), []).append(inst)
+    def _fix_merge_error(self, model, queries, dry_run):
+        data = {}
+        for q in queries:
+            for k, v in q.children:
+                data.setdefault(k, []).append(v)
 
-                    (winner, _), *conflicts = sorted(conflicts.items(), key=lambda x: len(x[1]), reverse=True)
-                    self.stdout.write('\tMerging extraneous {} into {!r}'.format(model._meta.verbose_name_plural, winner))
+        if len(data) > 1:
+            self.stdout.write('MergeError is too complex to be automatically fixed', style_func=self.style.ERROR)
+            return False
 
-                    for conflict, evidence in conflicts:
-                        for inst in evidence:
-                            self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, related_field.remote_field.name), winner))
-                            if not dry_run:
-                                inst.administrative_change(**{related_field.remote_field.name: winner})
+        self.stdout.write('Trying to correct merge error...', style_func=self.style.NOTICE)
 
-                    self.stdout.write('Corrected merge error from {!r}'.format(job), style_func=self.style.SUCCESS)
-                except Exception as e:
-                    self.stdout.write('{!r} failed in a way we cant fix:'.format(job), style_func=self.style.ERROR)
-                    self.stdout.write('    > {}'.format(e))
+        (field, ids), *_ = data.items()
+        field_name, field = field.split('__')
+        related_field = model._meta.get_field(field_name)
+        qs = related_field.related_model.objects.filter(**{field + '__in': ids})
+
+        conflicts = {}
+        for inst in qs:
+            conflicts.setdefault(getattr(inst, related_field.remote_field.name), []).append(inst)
+
+        (winner, _), *conflicts = sorted(conflicts.items(), key=lambda x: len(x[1]), reverse=True)
+        self.stdout.write('\tMerging extraneous {} into {!r}'.format(model._meta.verbose_name_plural, winner))
+
+        for conflict, evidence in conflicts:
+            for inst in evidence:
+                self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, related_field.remote_field.name), winner))
+                if not dry_run:
+                    inst.administrative_change(**{related_field.remote_field.name: winner})
+
+        self.stdout.write('Corrected merge error!', style_func=self.style.SUCCESS)
+        return True

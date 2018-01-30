@@ -16,6 +16,10 @@ class OSFHarvester(BaseHarvester):
     VERSION = 1
 
     def build_url(self, start_date, end_date, path, query_params):
+        # so prod SHARE doesn't get throttled
+        if settings.OSF_BYPASS_THROTTLE_TOKEN:
+            self.session.headers.update({'X-THROTTLE-TOKEN': settings.OSF_BYPASS_THROTTLE_TOKEN})
+
         url = furl(settings.OSF_API_URL + path)
         url.args['page[size]'] = 100
         # url.args['filter[public]'] = 'true'

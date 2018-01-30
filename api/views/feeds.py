@@ -120,10 +120,8 @@ class CreativeWorksRSS(Feed):
 
         if not authors:
             return 'No authors provided.'
-        elif len(authors) > 1:
-            return prepare_string('{} et al.'.format(authors[0]['cited_as']))
-        else:
-            return prepare_string(authors[0]['cited_as'])
+        author_name = authors[0]['name'] or authors[0]['cited_as']
+        return prepare_string('{}{}'.format(author_name, ' et al.' if len(authors) > 1 else ''))
 
     def item_pubdate(self, item):
         return parse_date(item.get('date_published'))

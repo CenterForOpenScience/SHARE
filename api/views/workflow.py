@@ -1,6 +1,7 @@
 import jsonschema
 
 from django.db import transaction
+from django.urls import reverse
 
 from rest_framework import views, status
 from rest_framework.exceptions import ParseError
@@ -15,7 +16,6 @@ from api import v1_schemas
 from api.authentication import APIV1TokenBackPortAuthentication
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
-from api.util import absolute_reverse
 
 
 __all__ = ('V1DataView', )
@@ -115,5 +115,5 @@ class V1DataView(views.APIView):
 
             return Response({
                 'task_id': ingester.async_task.id,
-                'ingest_job': absolute_reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)]),
+                'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
             }, status=status.HTTP_202_ACCEPTED)

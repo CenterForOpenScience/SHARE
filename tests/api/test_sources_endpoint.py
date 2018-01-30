@@ -78,14 +78,14 @@ def mock_icon_urls():
     httpretty.disable()
 
 
-def get_post_body(icon=PROPER_ICON_URL, home_page=None, id=None):
+def get_post_body(icon=PROPER_ICON_URL, id=None, **kwargs):
     body = {
         'data': {
             'type': 'Source',
             'attributes': {
                 'long_title': 'Test User',
                 'icon_url': icon,
-                'home_page': home_page
+                **kwargs
             }
         }
     }
@@ -221,6 +221,7 @@ class TestSourcesPost:
 
         assert data['source']['longTitle'] == test_data['data']['attributes']['long_title']
         assert data['source']['homePage'] == test_data['data']['attributes']['home_page']
+        assert not data['source']['canonical']
 
     def test_successful_repost_home_page(self, client, source_add_user, mock_icon_urls):
         test_data = get_post_body(home_page='http://test.homepage.net')
@@ -339,3 +340,32 @@ class TestSourcesPost:
         )
 
         assert resp.data[0]['detail'] == 'Could not download/process image.'
+
+    def test_canonical_source(self, client, source_add_change_user, mock_icon_urls):
+        # add a canonical source
+        test_data = get_post_body(canonical=True)
+        resp = client.post(
+            self.endpoint,
+            json.dumps(test_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+        assert resp.status_code == 201
+        data_one = flatten_write_response(resp)
+
+        assert data_one['source']['canonical']
+
+        # update it to be noncanonical
+        source_url = '{}{}/'.format(self.endpoint, data_one['source']['id'])
+        test_two_data = get_post_body(id=data_one['source']['id'], canonical=False)
+
+        resp_two = client.patch(
+            source_url,
+            json.dumps(test_two_data),
+            content_type='application/vnd.api+json',
+            HTTP_AUTHORIZATION=source_add_change_user.authorization(),
+        )
+        assert resp_two.status_code == 200
+        data_two = flatten_write_response(resp_two)
+
+        assert not data_two['source']['canonical']

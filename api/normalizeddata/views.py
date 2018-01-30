@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.urls import reverse
 
 from rest_framework import status
 from rest_framework import generics
@@ -14,7 +15,6 @@ from api.normalizeddata.serializers import BasicNormalizedDataSerializer
 from api.normalizeddata.serializers import FullNormalizedDataSerializer
 from api.pagination import CursorPagination
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
-from api.util import absolute_reverse
 
 
 class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.RetrieveAPIView):
@@ -82,6 +82,6 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
                 'type': 'NormalizedData',
                 'attributes': {
                     'task': async_result.id,
-                    'ingest_job': absolute_reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)]),
+                    'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
                 }
             }, status=status.HTTP_202_ACCEPTED)
