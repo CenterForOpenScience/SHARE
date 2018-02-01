@@ -454,6 +454,8 @@ class HarvestJob(AbstractBaseJob):
 
     class Meta:
         unique_together = ('source_config', 'start_date', 'end_date', 'harvester_version', 'source_config_version', )
+        # Used to be inaccurately named
+        db_table = 'share_harvestlog'
 
     def current_versions(self):
         return {
