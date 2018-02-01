@@ -20,6 +20,7 @@ from share.models import (
     RawDatum,
     Source,
 )
+from share.models.ingest import RawDatumJob
 from share.regulate import Regulator
 from share.search import SearchIndexer
 from share.util import chunked
@@ -176,7 +177,10 @@ class HarvestJobConsumer(JobConsumer):
             raise error
         finally:
             try:
-                job.raw_data.add(*datum_ids)
+                RawDatumJob.objects.bulk_create([
+                    RawDatumJob(job=job, datum_id=datum_id)
+                    for datum_id in datum_ids
+                ])
             except Exception as e:
                 logger.exception('Failed to connect %r to raw data', job)
                 # Avoid shadowing the original error

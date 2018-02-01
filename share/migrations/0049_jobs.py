@@ -138,4 +138,25 @@ class Migration(migrations.Migration):
             name='ingestjob',
             unique_together=set([('raw', 'source_config_version', 'transformer_version', 'regulator_version')]),
         ),
+
+        # Add a model for the existing auto-generated through table, to allow renaming model fields without
+        # renaming columns. Trust me, Django, it's fine.
+        migrations.SeparateDatabaseAndState(state_operations=[
+            migrations.CreateModel(
+                name='RawDatumJob',
+                fields=[
+                    ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                    ('datum', models.ForeignKey(db_column='rawdatum_id', on_delete=django.db.models.deletion.CASCADE, to='share.RawDatum')),
+                    ('job', models.ForeignKey(db_column='harvestlog_id', on_delete=django.db.models.deletion.CASCADE, to='share.HarvestJob')),
+                ],
+                options={
+                    'db_table': 'share_rawdatum_jobs',
+                },
+            ),
+            migrations.AlterField(
+                model_name='rawdatum',
+                name='jobs',
+                field=models.ManyToManyField(related_name='raw_data', through='share.RawDatumJob', to='share.HarvestJob'),
+            ),
+        ]),
     ]

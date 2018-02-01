@@ -402,6 +402,15 @@ class RawDatumManager(FuzzyCountManager):
         return rd
 
 
+# Explicit through table to match legacy names
+class RawDatumJob(models.Model):
+    datum = models.ForeignKey('RawDatum', db_column='rawdatum_id')
+    job = models.ForeignKey('HarvestJob', db_column='harvestlog_id')
+
+    class Meta:
+        db_table = 'share_rawdatum_jobs'
+
+
 class RawDatum(models.Model):
 
     datum = models.TextField()
@@ -427,7 +436,7 @@ class RawDatum(models.Model):
         'which would otherwise look like data that has not yet been processed.'
     ))
 
-    jobs = models.ManyToManyField('HarvestJob', related_name='raw_data')
+    jobs = models.ManyToManyField('HarvestJob', related_name='raw_data', through=RawDatumJob)
 
     objects = RawDatumManager()
 
