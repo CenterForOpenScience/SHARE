@@ -1,5 +1,6 @@
 import json
 import uuid
+import pendulum
 
 from share.models import IngestJob
 from share.models import RawDatum
@@ -31,8 +32,8 @@ class Ingester:
         else:
             raise TypeError('datum must be a string or a json-serializable dict or list')
 
-        self.datum_id = datum_id if datum_id else str(uuid.uuid4())
-        self.datestamp = datestamp
+        self.datum_id = datum_id or str(uuid.uuid4())
+        self.datestamp = datestamp or pendulum.now()
 
     def with_config(self, config):
         assert not self._config
