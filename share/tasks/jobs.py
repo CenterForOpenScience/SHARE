@@ -210,7 +210,11 @@ class IngestJobConsumer(JobConsumer):
         assert job.suid_id == job.raw.suid_id
         assert job.source_config_id == job.suid.source_config_id
 
-        if self.Job.objects.filter(status__in=job.READY_STATUSES, suid=job.suid, raw__datestamp__gt=job.raw.datestamp).exists():
+        if job.raw.datestamp and self.Job.objects.filter(
+                status__in=job.READY_STATUSES,
+                suid=job.suid,
+                raw__datestamp__gt=job.raw.datestamp
+        ).exists():
             job.skip(job.SkipReasons.pointless)
             return False
 
