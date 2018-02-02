@@ -1,7 +1,6 @@
 import contextlib
 import datetime
 import logging
-import pendulum
 
 from django.contrib.postgres.fields import JSONField
 from django.core import validators
@@ -403,6 +402,15 @@ class RawDatumManager(FuzzyCountManager):
         return rd
 
 
+# Explicit through table to match legacy names
+class RawDatumJob(models.Model):
+    datum = models.ForeignKey('RawDatum', db_column='rawdatum_id')
+    job = models.ForeignKey('HarvestJob', db_column='harvestlog_id')
+
+    class Meta:
+        db_table = 'share_rawdatum_jobs'
+
+
 class RawDatum(models.Model):
 
     datum = models.TextField()
@@ -412,7 +420,7 @@ class RawDatum(models.Model):
     # The sha256 of the datum
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
 
-    datestamp = models.DateTimeField(default=pendulum.now, help_text=(
+    datestamp = models.DateTimeField(null=True, help_text=(
         'The most relevant datetime that can be extracted from this RawDatum. '
         'This may be, but is not limited to, a deletion, modification, publication, or creation datestamp. '
         'Ideally, this datetime should be appropriate for determining the chronological order its data will be applied.'
@@ -428,7 +436,7 @@ class RawDatum(models.Model):
         'which would otherwise look like data that has not yet been processed.'
     ))
 
-    jobs = models.ManyToManyField('HarvestJob', related_name='raw_data')
+    jobs = models.ManyToManyField('HarvestJob', related_name='raw_data', through=RawDatumJob)
 
     objects = RawDatumManager()
 
