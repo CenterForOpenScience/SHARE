@@ -1,5 +1,6 @@
 import random
 import string
+import pendulum
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -7,8 +8,10 @@ from django.db import transaction
 
 from share.models import WorkIdentifier, Preprint, ShareUser
 
+from share.management.commands import BaseShareCommand
 
-class Command(BaseCommand):
+
+class Command(BaseShareCommand):
 
     LIMIT = 250
     OTHER_PROVIDERS = ['arXiv']
@@ -17,9 +20,12 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--commit', action='store_true', help='Should the script actually commit?')
         parser.add_argument('--dry', action='store_true', help='Should the script actually make changes? (In a transaction)')
+        parser.add_argument('--limit', type=int, default=self.LIMIT, help='Maximum number of works to fix')
+        parser.add_argument('--from', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider works modified on or after this date')
+        parser.add_argument('--until', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider works modified on or before this date')
 
     def handle(self, *args, **options):
-        with transaction.atomic():
+        with self.rollback_unless_commit(options.get('commit')):
             self.stdout.write(self.style.SUCCESS('Entered Transaction'))
 
             graveyard = WorkIdentifier.objects.get(uri='http://osf.io/8bg7d/').creative_work
@@ -32,14 +38,21 @@ class Command(BaseCommand):
 
             pps = Preprint.objects.filter(
                 sources__in=AGGREGATOR_USER_IDS,
-                date_modified__gte='2017-07-30',
                 id__in=Preprint.objects.filter(sources__in=OSF_PP_USER_IDS)
             )
+            if options.get('from'):
+                pps = pps.filter(date_modified__gte=options.get('from'))
+            else:
+                pps = pps.filter(date_modified__gte='2017-07-30')
 
+            if options.get('until'):
+                pps = pps.filter(date_modified__lte=options.get('until'))
+
+            limit = options.get('limit')
             i = 0
             for work in pps.iterator():
-                if i > self.LIMIT:
-                    self.stdout.write(self.style.SUCCESS('Fixed {} works, stopping...'.format(self.LIMIT)))
+                if i > limit:
+                    self.stdout.write(self.style.SUCCESS('Fixed {} works, but there are more. Stopping...'.format(limit)))
                     break
 
                 dupes = {}
@@ -98,6 +111,6 @@ class Command(BaseCommand):
                 if not options.get('dry'):
                     work.administrative_change(allow_empty=True)
                 self.stdout.write(self.style.SUCCESS('Successfully Processed Work "{}"\n'.format(work.id)))
-
-            if not options.get('commit'):
-                raise ValueError('not_dry not set, rolling backing')
+            else:
+                # Did not break
+                self.stdout.write(self.style.SUCCESS('Fixed {} works, and that\'s all!'.format(i)))
