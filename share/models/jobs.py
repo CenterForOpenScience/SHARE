@@ -1,5 +1,6 @@
 import re
 import signal
+import threading
 import enum
 import itertools
 import logging
@@ -309,10 +310,13 @@ class AbstractBaseJob(models.Model):
         # beyond here will be field specific
         self.save()
 
-        # Protect ourselves from SIGTERM
-        def on_sigterm(sig, frame):
-            self.cancel()
-        prev_handler = signal.signal(signal.SIGTERM, on_sigterm)
+        is_main_thread = threading.current_thread() == threading.main_thread()
+
+        if is_main_thread:
+            # Protect ourselves from SIGTERM
+            def on_sigterm(sig, frame):
+                self.cancel()
+            prev_handler = signal.signal(signal.SIGTERM, on_sigterm)
 
         self.start()
         try:
@@ -325,8 +329,9 @@ class AbstractBaseJob(models.Model):
             if self.status == self.STATUS.started:
                 self.succeed()
         finally:
-            # Detach from SIGTERM, resetting the previous handle
-            signal.signal(signal.SIGTERM, prev_handler)
+            if is_main_thread:
+                # Detach from SIGTERM, resetting the previous handle
+                signal.signal(signal.SIGTERM, prev_handler)
 
     def current_versions(self):
         raise NotImplementedError

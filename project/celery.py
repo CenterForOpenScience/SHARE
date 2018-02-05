@@ -22,6 +22,7 @@ class Celery(celery.Celery):
         register_signal(client)
         register_logger_signal(client)
 
+
 app = Celery('project')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')

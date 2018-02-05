@@ -6,6 +6,7 @@ from share.models import IngestJob
 from share.models import RawDatum
 from share.models import SourceConfig
 from share.tasks import ingest
+from share.tasks.jobs import IngestJobConsumer
 
 
 class Ingester:
@@ -53,7 +54,7 @@ class Ingester:
         # "Here comes the airplane!"
         assert 'job_id' not in kwargs
         self.setup_ingest(claim_job=True)
-        ingest(job_id=self.job.id, exhaust=False, **kwargs)
+        IngestJobConsumer().consume(job_id=self.job.id, exhaust=False, **kwargs)
         return self
 
     def ingest_async(self, start_task=True, **kwargs):

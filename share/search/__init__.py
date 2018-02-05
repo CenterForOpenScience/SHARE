@@ -13,8 +13,12 @@ class SearchIndexer:
         'max_retries': 30,    # give up after 30 tries.
     }
 
-    def __init__(self, celery_app):
-        self.app = celery_app
+    def __init__(self, celery_app=None):
+        if celery_app is None:
+            import celery
+            self.app = celery.current_app
+        else:
+            self.app = celery_app
 
     def index(self, model, *pks, index=None):
         name = settings.INDEXABLE_MODELS.get(model.lower())
