@@ -19,8 +19,13 @@ class Migration(migrations.Migration):
         # Operations that don't require database changes, but Django would make changes anyway.
         migrations.SeparateDatabaseAndState(state_operations=[
 
-            # Add a model for the existing auto-generated through table, to allow
-            # renaming model fields without renaming columns.
+            # Rename RawDatum.logs to RawDatum.jobs, without renaming anything in the database.
+            # Django would not allow adding a model for the auto-generated through table.
+            migrations.RenameField(
+                model_name='rawdatum',
+                old_name='logs',
+                new_name='jobs',
+            ),
             migrations.CreateModel(
                 name='RawDatumJob',
                 fields=[
@@ -34,28 +39,26 @@ class Migration(migrations.Migration):
             ),
             migrations.AlterField(
                 model_name='rawdatum',
-                name='logs',
+                name='jobs',
                 field=models.ManyToManyField(related_name='raw_data', through='share.RawDatumJob', to='share.HarvestLog'),
             ),
 
-            # Update related_name (Django would drop/add the FK index)
+            # Rename SourceConfig.harvest_logs to harvest_jobs.
+            # Django would drop/add the FK index.
             migrations.AlterField(
                 model_name='harvestlog',
                 name='source_config',
                 field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='harvest_jobs', to='share.SourceConfig'),
             ),
-        ]),
 
-        migrations.RenameField(
-            model_name='rawdatum',
-            old_name='logs',
-            new_name='jobs',
-        ),
-        migrations.AlterModelTable(
-            name='harvestlog',
-            table='share_harvestlog',
-        ),
-        migrations.RenameModel('HarvestLog', 'HarvestJob'),
+            # Rename model without renaming table.
+            # Django would drop/add RawDatumJob.job FK index.
+            migrations.AlterModelTable(
+                name='harvestlog',
+                table='share_harvestlog',
+            ),
+            migrations.RenameModel('HarvestLog', 'HarvestJob'),
+        ]),
 
         migrations.CreateModel(
             name='IngestJob',

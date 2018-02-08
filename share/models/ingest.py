@@ -408,7 +408,7 @@ class RawDatumJob(models.Model):
     job = models.ForeignKey('HarvestJob', db_column='harvestlog_id')
 
     class Meta:
-        db_table = 'share_rawdatum_jobs'
+        db_table = 'share_rawdatum_logs'
 
 
 class RawDatum(models.Model):
