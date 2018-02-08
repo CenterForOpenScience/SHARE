@@ -238,7 +238,7 @@ class AbstractBaseJob(models.Model):
             tb = traceback.TracebackException.from_exception(exception)
             self.error_context = '\n'.join(tb.format(chain=True))
         else:
-            self.error_type = ''
+            self.error_type = None
             self.error_context = ''
 
         self.status = self.STATUS.failed
@@ -248,8 +248,8 @@ class AbstractBaseJob(models.Model):
         return True
 
     def succeed(self):
-        self.error_type = ''
-        self.error_message = ''
+        self.error_type = None
+        self.error_message = None
         self.error_context = ''
         self.claimed = False
         self.completions += 1
@@ -275,7 +275,7 @@ class AbstractBaseJob(models.Model):
             tb = traceback.TracebackException.from_exception(exception)
             self.error_context = '\n'.join(tb.format(chain=True))
         else:
-            self.error_type = ''
+            self.error_type = None
             self.error_context = ''
 
         self.status = self.STATUS.forced

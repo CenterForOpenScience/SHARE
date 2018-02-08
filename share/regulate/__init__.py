@@ -9,7 +9,7 @@ class Regulator:
 
     def __init__(self, ingest_job=None):
         self.job = ingest_job
-        self.logs = []
+        self._logs = []
 
         self._node_steps = self._steps('share.regulate.steps.node', settings.SHARE_REGULATOR_NODE_STEPS)
         self._graph_steps = self._steps('share.regulate.steps.graph', settings.SHARE_REGULATOR_GRAPH_STEPS)
@@ -34,13 +34,13 @@ class Regulator:
                 step.validate_graph(graph)
 
         finally:
-            if self.job and self.logs:
-                self.job.regulator_logs.bulk_create(self.logs)
+            if self._logs:
+                RegulatorLog.objects.bulk_create(self._logs)
 
     def add_log(self, *args, **kwargs):
         log = RegulatorLog(*args, **kwargs)
         log.ingest_job = self.job
-        self.logs.append(log)
+        self._logs.append(log)
 
     def _iter_nodes(self, graph):
         """Iterate through the graph's nodes in no particular order, allowing nodes to be added/deleted while iterating
