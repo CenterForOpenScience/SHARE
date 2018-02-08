@@ -1,5 +1,10 @@
 # Change Log
 
+# [2.14.2] - 2018-02-01
+## Changed
+* Use normalized agent name in Atom feed, instead of `cited_as`
+* Update psycopg dependency
+
 # [2.14.1] - 2018-01-18
 ## Added
 * Type map for Columbia Academic Commons (edu.columbia)

@@ -1,14 +1,16 @@
 import random
 import string
+import pendulum
 
-from django.conf import settings
-from django.core.management.base import BaseCommand
-from django.db import transaction
+from django.db.models import Q
 
 from share.models import WorkIdentifier, Preprint, ShareUser
 
+from share.management.commands import BaseShareCommand
+from share.util import IDObfuscator
 
-class Command(BaseCommand):
+
+class Command(BaseShareCommand):
 
     LIMIT = 250
     OTHER_PROVIDERS = ['arXiv']
@@ -17,34 +19,48 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--commit', action='store_true', help='Should the script actually commit?')
         parser.add_argument('--dry', action='store_true', help='Should the script actually make changes? (In a transaction)')
+        parser.add_argument('--osf-only', action='store_true', help='Should the script limit to works from OSF sources?')
+        parser.add_argument('--limit', type=int, default=self.LIMIT, help='Maximum number of works to fix')
+        parser.add_argument('--from', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider works modified on or after this date')
+        parser.add_argument('--until', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider works modified on or before this date')
 
     def handle(self, *args, **options):
-        with transaction.atomic():
+        with self.rollback_unless_commit(options.get('commit')):
             self.stdout.write(self.style.SUCCESS('Entered Transaction'))
 
             graveyard = WorkIdentifier.objects.get(uri='http://osf.io/8bg7d/').creative_work
             self.stdout.write(self.style.SUCCESS('Found the Graveyard @ "{}"'.format(graveyard.id)))
 
-            provider_names = settings.OSF_PREPRINT_PROVIDERS + self.OTHER_PROVIDERS
+            source_query = Q(source__canonical=True)
+            if not options.get('osf_only'):
+                source_query |= Q(source__long_title__in=self.OTHER_PROVIDERS)
 
-            OSF_PP_USER_IDS = list(ShareUser.objects.filter(source__long_title__in=provider_names).values_list('id', flat=True))
-            AGGREGATOR_USER_IDS = ShareUser.objects.filter(source__long_title__in=self.AGGREGATORS).values_list('id', flat=True)
+            original_source_ids = set(ShareUser.objects.filter(source_query).values_list('id', flat=True))
+
+            aggregator_source_ids = ShareUser.objects.filter(source__long_title__in=self.AGGREGATORS).values_list('id', flat=True)
 
             pps = Preprint.objects.filter(
-                sources__in=AGGREGATOR_USER_IDS,
-                date_modified__gte='2017-07-30',
-                id__in=Preprint.objects.filter(sources__in=OSF_PP_USER_IDS)
+                sources__in=aggregator_source_ids,
+                id__in=Preprint.objects.filter(sources__in=original_source_ids)
             )
+            if options.get('from'):
+                pps = pps.filter(date_modified__gte=options.get('from'))
+            else:
+                pps = pps.filter(date_modified__gte='2017-07-30')
 
+            if options.get('until'):
+                pps = pps.filter(date_modified__lte=options.get('until'))
+
+            limit = options.get('limit')
             i = 0
             for work in pps.iterator():
-                if i > self.LIMIT:
-                    self.stdout.write(self.style.SUCCESS('Fixed {} works, stopping...'.format(self.LIMIT)))
+                if i >= limit:
+                    self.stdout.write(self.style.SUCCESS('Fixed {} works, but there might be more. Stopping...'.format(i)))
                     break
 
                 dupes = {}
 
-                for agent in work.related_agents.filter(type='share.person').include('identifiers', 'sources__source', 'work_relations'):
+                for agent in work.related_agents.filter(type='share.person').include('identifiers', 'sources', 'sources__source', 'work_relations'):
                     if not (agent.given_name and agent.family_name):
                         continue
                     dupes.setdefault((agent.given_name, agent.family_name), []).append(agent)
@@ -59,12 +75,16 @@ class Command(BaseCommand):
                     continue
 
                 i += 1
-                self.stdout.write('=== Processing Work "{}" Modified On {} ==='.format(work.id, work.date_modified))
+                self.stdout.write('=== Processing Work "{}" from {} Modified On {} ==='.format(
+                    IDObfuscator.encode(work),
+                    [u.source.long_title for u in work.sources.all()],
+                    work.date_modified
+                ))
 
                 for agents in dupes.values():
-                    # Order by # of identifiers and a preference towards OSF sources
+                    # Order by # of identifiers and a preference towards original sources
                     core_agent = list(sorted(agents, key=lambda x: (
-                        set(settings.OSF_PREPRINT_PROVIDERS).intersection({user.source.long_title for user in agent.sources.all()}),
+                        len(original_source_ids.intersection([s.id for s in x.sources.all()])),
                         len(x.identifiers.all()),
                         len(x.work_relations.all()),
                     ), reverse=True))[0]
@@ -89,15 +109,15 @@ class Command(BaseCommand):
                         for rel in agent.work_relations.all():
                             if rel.creative_work_id != work.id:
                                 continue
-                            self.stdout.write('\t\tReassigning {}: {} -> {}'.format(rel, rel.creative_work.id, graveyard.id))
+                            self.stdout.write('\t\tReassigning {}: {} -> {}'.format(rel, IDObfuscator.encode(rel.creative_work), IDObfuscator.encode(graveyard)))
                             if not options.get('dry'):
                                 rel.administrative_change(creative_work=graveyard, type=''.join(random.sample(string.ascii_letters, 5)))
 
-                    self.stdout.write(self.style.SUCCESS('\tSuccessfully Processed Agent "{}"'.format(agent.id)))
+                    self.stdout.write(self.style.SUCCESS('\tSuccessfully Processed Agent "{}"'.format(IDObfuscator.encode(agent))))
                 self.stdout.write('Bumping last_modified on work')
                 if not options.get('dry'):
                     work.administrative_change(allow_empty=True)
-                self.stdout.write(self.style.SUCCESS('Successfully Processed Work "{}"\n'.format(work.id)))
-
-            if not options.get('commit'):
-                raise ValueError('not_dry not set, rolling backing')
+                self.stdout.write(self.style.SUCCESS('Successfully Processed Work "{}"\n'.format(IDObfuscator.encode(work))))
+            else:
+                # Did not break
+                self.stdout.write(self.style.SUCCESS('Fixed {} works, and that\'s all!'.format(i)))
