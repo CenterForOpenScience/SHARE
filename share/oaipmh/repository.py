@@ -1,6 +1,6 @@
 import dateutil
 
-from share.models import AbstractCreativeWork, Source
+from share.models import AbstractCreativeWork, Source, ShareUser
 from share.oaipmh import errors as oai_errors, renderers
 from share.oaipmh.verbs import OAIVerb
 from share.oaipmh.renderers import OAIRenderer
@@ -135,7 +135,8 @@ class OAIRepository:
                     raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
         if 'set' in kwargs:
-            queryset = queryset.filter(sources__source__name=kwargs['set'])
+            source_users = ShareUser.objects.filter(source__name=kwargs['set'])
+            queryset = queryset.filter(sources__in=source_users)
 
         return queryset
 
