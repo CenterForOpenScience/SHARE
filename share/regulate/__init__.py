@@ -1,5 +1,6 @@
 from django.conf import settings
 
+from share.models import RegulatorLog
 from share.util.extensions import Extensions
 
 
@@ -34,7 +35,12 @@ class Regulator:
 
         finally:
             if self.job and self.logs:
-                self.job.regulator_logs.set(self.logs)
+                self.job.regulator_logs.bulk_create(self.logs)
+
+    def add_log(self, *args, **kwargs):
+        log = RegulatorLog(*args, **kwargs)
+        log.ingest_job = self.job
+        self.logs.append(log)
 
     def _iter_nodes(self, graph):
         """Iterate through the graph's nodes in no particular order, allowing nodes to be added/deleted while iterating

@@ -2,7 +2,7 @@ import pytest
 from unittest import mock
 
 from share.regulate import Regulator
-from share.regulate.graph import MutableGraph
+from share.util.graph import MutableGraph
 
 
 @pytest.mark.parametrize('num_node_steps', [0, 1, 5])

@@ -22,7 +22,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from share.util import chunked, BaseJSONAPIMeta
 from share.models.fields import DateTimeAwareJSONField
-from share.regulate import Regulator
 
 
 __all__ = ('HarvestJob', 'IngestJob', 'RegulatorLog')
@@ -495,6 +494,8 @@ class IngestJob(AbstractBaseJob):
 
     @classmethod
     def schedule(cls, raw, superfluous=False, claim=False):
+        # TODO does this belong here?
+        from share.regulate import Regulator
         job, _ = cls.objects.get_or_create(
             raw=raw,
             suid=raw.suid,
@@ -513,6 +514,8 @@ class IngestJob(AbstractBaseJob):
         unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
 
     def current_versions(self):
+        # TODO does this belong here?
+        from share.regulate import Regulator
         return {
             'source_config_version': self.source_config.version,
             'transformer_version': self.source_config.transformer.version,
