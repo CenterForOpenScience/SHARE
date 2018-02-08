@@ -218,13 +218,14 @@ class AbstractBaseJob(models.Model):
         abstract = True
         ordering = ('-date_modified', )
 
-    def start(self):
+    def start(self, claim=False):
         # TODO double check existing values to make sure everything lines up.
         stamp = timezone.now()
         logger.debug('Setting %r to started at %r', self, stamp)
         self.status = self.STATUS.started
+        self.claimed = claim
         self.date_started = stamp
-        self.save(update_fields=('status', 'date_started', 'date_modified'))
+        self.save(update_fields=('status', 'claimed', 'date_started', 'date_modified'))
 
         return True
 
