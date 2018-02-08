@@ -67,7 +67,7 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
         with transaction.atomic():
             # Hack for back-compat: Ingest halfway synchronously, then apply changes asynchronously
             ingester = Ingester(serializer.validated_data['data']).as_user(request.user).ingest(apply_changes=False)
-            ingester.job.start(claim=True)
+            ingester.job.reschedule(claim=True)
 
             nm_instance = models.NormalizedData.objects.filter(
                 raw=ingester.raw,
