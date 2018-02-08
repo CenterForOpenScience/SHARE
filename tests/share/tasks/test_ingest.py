@@ -9,9 +9,9 @@ from django.apps import apps
 from django.conf import settings
 
 from share.models import NormalizedData
-from share.regulate.graph import MutableGraph
 from share.tasks import ingest
-from share.util.ingester import Ingester
+from share.util.graph import MutableGraph
+from share.ingest import Ingester
 from tests import factories
 
 

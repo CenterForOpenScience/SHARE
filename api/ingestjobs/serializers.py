@@ -16,7 +16,8 @@ class IngestJobSerializer(ShareSerializer):
         model = models.IngestJob
         fields = (
             'status',
-            'message',
+            'error_message',
+            'error_type',
             'completions',
             'date_started',
             'date_created',

@@ -1,7 +1,7 @@
 import abc
 import uuid
 
-from share.regulate.graph import MutableGraph
+from share.util.graph import MutableGraph
 
 
 class BaseTransformer(metaclass=abc.ABCMeta):

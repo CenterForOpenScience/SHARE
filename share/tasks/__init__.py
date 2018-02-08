@@ -50,7 +50,7 @@ def harvest(self, **kwargs):
         ingest (bool, optional): Whether or not to start the full ingest process for harvested data. Defaults to True.
         limit (int, optional): Maximum number of data to harvest. Defaults to no limit.
     """
-    HarvestJobConsumer(self).consume(**kwargs)
+    HarvestJobConsumer(task=self).consume(**kwargs)
 
 
 @celery.shared_task(bind=True, max_retries=5)
@@ -59,7 +59,7 @@ def ingest(self, **kwargs):
 
     Keyword arguments from JobConsumer.consume
     """
-    IngestJobConsumer(self).consume(**kwargs)
+    IngestJobConsumer(task=self).consume(**kwargs)
 
 
 @celery.shared_task(bind=True)

@@ -33,7 +33,7 @@ class JobConsumer:
     Job = None
     lock_field = None
 
-    def __init__(self, task):
+    def __init__(self, task=None):
         if self.Job is None or self.lock_field is None:
             raise NotImplementedError
         self.task = task
@@ -66,6 +66,7 @@ class JobConsumer:
                     job = self.Job.objects.get(id=job_id)  # Force the failure
                     raise Exception('Failed to load {} but then found {!r}.'.format(job_id, job))  # Should never be reached
 
+            assert self.task or not exhaust, 'Cannot pass exhaust=True unless running in an async context'
             if exhaust and job_id is None:
                 if force:
                     logger.warning('propagating force=True until queue exhaustion')
@@ -80,7 +81,7 @@ class JobConsumer:
                     self._consume_job(job, **kwargs, superfluous=superfluous, force=force)
 
     def _prepare_job(self, job, superfluous):
-        if self.task.request.id:
+        if self.task and self.task.request.id:
             # Additional attributes for the celery backend
             # Allows for better analytics of currently running tasks
             self.task.update_state(meta={
@@ -152,6 +153,8 @@ class HarvestJobConsumer(JobConsumer):
                 for _ in self._harvest(job, force, limit):
                     pass
         except HarvesterConcurrencyError as e:
+            if not self.task:
+                raise
             # If job_id was specified there's a chance that the advisory lock was not, in fact, acquired.
             # If so, retry indefinitely to preserve existing functionality.
             # Use random to add jitter to help break up locking issues
@@ -309,4 +312,5 @@ class IngestJobConsumer(JobConsumer):
         return list(updated_works | existing_works)
 
     def _update_index(self, work_ids):
-        SearchIndexer(self.task.app).index('creativework', *work_ids)
+        indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()
+        indexer.index('creativework', *work_ids)

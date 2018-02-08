@@ -1,6 +1,6 @@
 import pytest
 
-from share.regulate.graph import MutableGraph
+from share.util.graph import MutableGraph
 
 
 work_id = '_:6203fec461bb4b3fa956772acbd9c50d'

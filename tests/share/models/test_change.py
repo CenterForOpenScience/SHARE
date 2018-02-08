@@ -9,7 +9,7 @@ from share.models import Tag
 from share.models.change import Change
 from share.models.change import ChangeSet
 from share.util import IDObfuscator
-from share.util.ingester import Ingester
+from share.ingest import Ingester
 
 from tests import factories
 

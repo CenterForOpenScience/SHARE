@@ -3,7 +3,7 @@ from pendulum import pendulum
 from share.exceptions import MergeRequired
 from share.management.commands import BaseShareCommand
 from share.models import IngestJob
-from share.tasks import ingest
+from share.tasks.jobs import IngestJobConsumer
 
 
 class Command(BaseShareCommand):
@@ -37,7 +37,7 @@ class Command(BaseShareCommand):
         for i in range(self.MAX_RETRIES):
             self.stdout.write('Attempt {} of {}:'.format(i + 1, self.MAX_RETRIES))
             try:
-                ingest(job.id)
+                IngestJobConsumer().consume(job_id=job.id)
             except MergeRequired as e:
                 (_, model, queries) = e.args
 

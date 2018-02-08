@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from share import models
 from share.tasks import ingest
 from share.util import IDObfuscator
-from share.util.ingester import Ingester
+from share.ingest import Ingester
 
 from api.base.views import ShareViewSet
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
@@ -67,14 +67,14 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
         with transaction.atomic():
             # Hack for back-compat: Ingest halfway synchronously, then apply changes asynchronously
             ingester = Ingester(serializer.validated_data['data']).as_user(request.user).ingest(apply_changes=False)
+            ingester.job.start(claim=True)
 
             nm_instance = models.NormalizedData.objects.filter(
                 raw=ingester.raw,
                 ingest_job=ingester.job
             ).order_by('-created_at').first()
 
-            ingester.job.reschedule(claim=True)
-            async_result = ingest.delay(job_id=ingester.job.id, exhaust=False)
+            async_result = ingest.delay(job_id=ingester.job.id)
 
             # TODO Use an actual serializer
             return Response({

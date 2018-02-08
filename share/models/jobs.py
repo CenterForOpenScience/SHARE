@@ -1,5 +1,6 @@
 import re
 import signal
+import threading
 import enum
 import itertools
 import logging
@@ -21,7 +22,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from share.util import chunked, BaseJSONAPIMeta
 from share.models.fields import DateTimeAwareJSONField
-from share.regulate import Regulator
 
 
 __all__ = ('HarvestJob', 'IngestJob', 'RegulatorLog')
@@ -218,13 +218,14 @@ class AbstractBaseJob(models.Model):
         abstract = True
         ordering = ('-date_modified', )
 
-    def start(self):
+    def start(self, claim=False):
         # TODO double check existing values to make sure everything lines up.
         stamp = timezone.now()
         logger.debug('Setting %r to started at %r', self, stamp)
         self.status = self.STATUS.started
+        self.claimed = claim
         self.date_started = stamp
-        self.save(update_fields=('status', 'date_started', 'date_modified'))
+        self.save(update_fields=('status', 'claimed', 'date_started', 'date_modified'))
 
         return True
 
@@ -237,7 +238,7 @@ class AbstractBaseJob(models.Model):
             tb = traceback.TracebackException.from_exception(exception)
             self.error_context = '\n'.join(tb.format(chain=True))
         else:
-            self.error_type = ''
+            self.error_type = None
             self.error_context = ''
 
         self.status = self.STATUS.failed
@@ -247,8 +248,8 @@ class AbstractBaseJob(models.Model):
         return True
 
     def succeed(self):
-        self.error_type = ''
-        self.error_message = ''
+        self.error_type = None
+        self.error_message = None
         self.error_context = ''
         self.claimed = False
         self.completions += 1
@@ -274,7 +275,7 @@ class AbstractBaseJob(models.Model):
             tb = traceback.TracebackException.from_exception(exception)
             self.error_context = '\n'.join(tb.format(chain=True))
         else:
-            self.error_type = ''
+            self.error_type = None
             self.error_context = ''
 
         self.status = self.STATUS.forced
@@ -309,10 +310,13 @@ class AbstractBaseJob(models.Model):
         # beyond here will be field specific
         self.save()
 
-        # Protect ourselves from SIGTERM
-        def on_sigterm(sig, frame):
-            self.cancel()
-        prev_handler = signal.signal(signal.SIGTERM, on_sigterm)
+        is_main_thread = threading.current_thread() == threading.main_thread()
+
+        if is_main_thread:
+            # Protect ourselves from SIGTERM
+            def on_sigterm(sig, frame):
+                self.cancel()
+            prev_handler = signal.signal(signal.SIGTERM, on_sigterm)
 
         self.start()
         try:
@@ -325,8 +329,9 @@ class AbstractBaseJob(models.Model):
             if self.status == self.STATUS.started:
                 self.succeed()
         finally:
-            # Detach from SIGTERM, resetting the previous handle
-            signal.signal(signal.SIGTERM, prev_handler)
+            if is_main_thread:
+                # Detach from SIGTERM, resetting the previous handle
+                signal.signal(signal.SIGTERM, prev_handler)
 
     def current_versions(self):
         raise NotImplementedError
@@ -490,6 +495,8 @@ class IngestJob(AbstractBaseJob):
 
     @classmethod
     def schedule(cls, raw, superfluous=False, claim=False):
+        # TODO does this belong here?
+        from share.regulate import Regulator
         job, _ = cls.objects.get_or_create(
             raw=raw,
             suid=raw.suid,
@@ -508,6 +515,8 @@ class IngestJob(AbstractBaseJob):
         unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
 
     def current_versions(self):
+        # TODO does this belong here?
+        from share.regulate import Regulator
         return {
             'source_config_version': self.source_config.version,
             'transformer_version': self.source_config.transformer.version,
