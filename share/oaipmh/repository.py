@@ -135,7 +135,7 @@ class OAIRepository:
                     raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
         if 'set' in kwargs:
-            source_users = ShareUser.objects.filter(source__name=kwargs['set'])
+            source_users = ShareUser.objects.filter(source__name=kwargs['set']).values_list('id', flat=True)
             queryset = queryset.filter(sources__in=source_users)
 
         return queryset
