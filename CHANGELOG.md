@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.14.6] - 2018-02-12
+* *Actually* speed up OAI feed
+
 # [2.14.5] - 2018-02-12
 * Speed up OAI feed when filtering by `set`
 * Delete merged works with no identifiers in `fixpreprintdisambiguations`
