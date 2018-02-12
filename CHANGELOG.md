@@ -1,5 +1,15 @@
 # Change Log
 
+# [2.14.5] - 2018-02-12
+* Speed up OAI feed when filtering by `set`
+* Delete merged works with no identifiers in `fixpreprintdisambiguations`
+
+# [2.14.4] - 2018-02-08
+* Allow omitting arXiv from `fix_datacite` script
+
+# [2.14.3] - 2018-02-05
+* Add parameters to `fix_datacite` script
+
 # [2.14.2] - 2018-02-01
 ## Changed
 * Use normalized agent name in Atom feed, instead of `cited_as`
