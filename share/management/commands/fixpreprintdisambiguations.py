@@ -2,7 +2,7 @@ from celery import states
 import pendulum
 
 from share.disambiguation import MergeError
-from share.models import CeleryTaskResult, Source
+from share.models import CeleryTaskResult, Source, AbstractCreativeWork
 from share.tasks import disambiguate
 from share.management.commands import BaseShareCommand
 
@@ -93,6 +93,10 @@ class Command(BaseShareCommand):
                 self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, related_field.remote_field.name), winner))
                 if not dry_run:
                     inst.administrative_change(**{related_field.remote_field.name: winner})
+            if isinstance(conflict, AbstractCreativeWork) and not conflict.identifiers.exists():
+                self.stdout.write('\t\tDeleting {!r}'.format(conflict))
+                if not dry_run:
+                    conflict.administrative_change(is_deleted=True)
 
         self.stdout.write('Corrected merge error!', style_func=self.style.SUCCESS)
         return True
