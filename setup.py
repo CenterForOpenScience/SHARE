@@ -1,12 +1,5 @@
-import subprocess
-
 from setuptools import setup, find_packages
-
-
-try:
-    __version__ = subprocess.check_output(['git', 'describe']).decode().strip().split('-')[0]
-except subprocess.CalledProcessError:
-    __version__ = '0.0.0'
+from share import __version__
 
 setup(
     name='share',
