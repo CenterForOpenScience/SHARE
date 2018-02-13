@@ -11,12 +11,13 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-import subprocess
 
 from django.utils.log import DEFAULT_LOGGING
 
 from celery.schedules import crontab
 import jwe
+
+from share import __version__
 
 
 def split(string, delim):
@@ -46,13 +47,7 @@ SENSITIVE_DATA_KEY = jwe.kdf(SECRET_KEY.encode('utf-8'), SALT.encode('utf-8'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
-if 'VERSION' not in os.environ and DEBUG:
-    try:
-        VERSION = subprocess.check_output(['git', 'describe']).decode().strip()
-    except subprocess.CalledProcessError:
-        VERSION = 'UNKNOWN'
-else:
-    VERSION = os.environ.get('VERSION') or 'UNKNOWN'
+VERSION = __version__
 
 ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(' ') if h]
 
