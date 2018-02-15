@@ -20,12 +20,12 @@ def chunk(iterable, size):
     iterable = iter(iterable)
     try:
         while True:
-            l = []
+            chunk = []
             for _ in range(size):
-                l.append(next(iterable))
-            yield l
+                chunk.append(next(iterable))
+            yield chunk
     except StopIteration:
-        yield l
+        yield chunk
 
 
 class ElasticSearchBot:

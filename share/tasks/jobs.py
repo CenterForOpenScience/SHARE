@@ -242,8 +242,8 @@ class IngestJobConsumer(JobConsumer):
                     data={'@graph': graph.to_jsonld()},
                     source=job.suid.source_config.source.user,
                     raw=job.raw,
-                    ingest_job=job,
                 )
+                job.ingested_normalized_data.add(datum)
 
         if apply_changes and settings.SHARE_LEGACY_PIPELINE:
             # TODO make this pipeline actually legacy by implementing a new one
@@ -267,7 +267,7 @@ class IngestJobConsumer(JobConsumer):
                 logger.warning('Graph was empty for %s, but a normalized data already exists for it', job.raw)
             return None
 
-        job.log_graph('transformed_data', graph)
+        job.log_graph('transformed_datum', graph)
         return graph
 
     def _regulate(self, job, graph):
@@ -276,7 +276,7 @@ class IngestJobConsumer(JobConsumer):
         except exceptions.RegulateError as e:
             job.fail(e)
             return None
-        job.log_graph('regulated_data', graph)
+        job.log_graph('regulated_datum', graph)
         return graph
 
     def _apply_changes(self, job, normalized_datum):

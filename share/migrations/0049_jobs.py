@@ -78,8 +78,8 @@ class Migration(migrations.Migration):
                 ('source_config_version', models.PositiveIntegerField()),
                 ('transformer_version', models.PositiveIntegerField()),
                 ('regulator_version', models.PositiveIntegerField()),
-                ('transformed_data', share.models.fields.DateTimeAwareJSONField(null=True)),
-                ('regulated_data', share.models.fields.DateTimeAwareJSONField(null=True)),
+                ('transformed_datum', share.models.fields.DateTimeAwareJSONField(null=True)),
+                ('regulated_datum', share.models.fields.DateTimeAwareJSONField(null=True)),
                 ('retries', models.IntegerField(null=True)),
             ],
         ),
@@ -158,9 +158,9 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='ingest_jobs', to='share.SourceUniqueIdentifier'),
         ),
         migrations.AddField(
-            model_name='normalizeddata',
-            name='ingest_job',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='ingested_normalized_data', to='share.IngestJob'),
+            model_name='ingestjob',
+            name='ingested_normalized_data',
+            field=models.ManyToManyField(related_name='ingest_jobs', to='share.NormalizedData'),
         ),
         migrations.AlterUniqueTogether(
             name='ingestjob',

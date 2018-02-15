@@ -15,4 +15,5 @@ class FuzzyCountQuerySet(QuerySet):
 
         return int(cursor.fetchone()[0])
 
+
 FuzzyCountManager = Manager.from_queryset(FuzzyCountQuerySet)

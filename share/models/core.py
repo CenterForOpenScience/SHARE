@@ -191,7 +191,6 @@ class NormalizedData(models.Model):
     data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryTaskResult')
-    ingest_job = models.ForeignKey('IngestJob', null=True, related_name='ingested_normalized_data', on_delete=models.CASCADE)
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass

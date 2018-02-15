@@ -10,6 +10,7 @@ def format_mendeley_address(ctx):
         country=ctx['country']
     )
 
+
 RELATION_MAP = {
     'related_to': 'WorkRelation',
     'derived_from': 'IsDerivedFrom',

@@ -386,6 +386,7 @@ def _params(seed=None, id=None, type=None, **kwargs):
         ret['seed'] = seed
     return ret
 
+
 for model in dir(models):
     if not hasattr(getattr(models, model), 'VersionModel'):
         continue
