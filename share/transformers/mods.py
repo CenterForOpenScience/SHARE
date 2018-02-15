@@ -18,6 +18,22 @@ def get_list(dct, key):
     return val if isinstance(val, list) else [val]
 
 
+#### Identifiers ####
+
+class MODSWorkIdentifier(Parser):
+    schema = 'WorkIdentifier'
+
+    uri = ctx
+
+
+class MODSAgentIdentifier(Parser):
+    schema = 'AgentIdentifier'
+
+    uri = ctx
+
+
+#### Agents ####
+
 class AffiliatedAgent(Parser):
     schema = tools.GuessAgentType(ctx, default='organization')
 
@@ -26,12 +42,6 @@ class AffiliatedAgent(Parser):
 
 class IsAffiliatedWith(Parser):
     related = tools.Delegate(AffiliatedAgent, ctx)
-
-
-class MODSAgentIdentifier(Parser):
-    schema = 'AgentIdentifier'
-
-    uri = ctx
 
 
 class MODSAgent(Parser):
@@ -100,11 +110,19 @@ class MODSPersonSplitName(MODSAgent):
         return ' '.join([force_text(n) for n in name_parts if n.get('@type') == type])
 
 
-class MODSWorkIdentifier(Parser):
-    schema = 'WorkIdentifier'
+class MODSSimpleAgent(Parser):
+    schema = tools.GuessAgentType(ctx, default='organization')
 
-    uri = ctx
+    name = ctx
 
+
+class MODSSimplePublisher(Parser):
+    schema = 'Publisher'
+
+    agent = tools.Delegate(MODSSimpleAgent, ctx)
+
+
+#### Tags/Subjects ####
 
 class MODSSubject(Parser):
     schema = 'Subject'
@@ -130,15 +148,54 @@ class MODSThroughTags(Parser):
     tag = tools.Delegate(MODSTag, ctx)
 
 
-def work_parser(_):
+#### Work Relations ####
+
+RELATION_MAP = {
+    # 'preceding':
+    # 'succeeding':
+    'original': 'IsDerivedFrom',
+    'host': 'IsPartOf',
+    'constituent': 'IsPartOf',
+    'series': 'IsPartOf',
+    # 'otherVersion':
+    # 'otherFormat':
+    'isReferencedBy': 'References',
+    'references': 'References',
+    'reviewOf': 'Reviews',
+}
+REVERSE_RELATIONS = {
+    'isReferencedBy'
+}
+
+
+# Finds the generated subclass of MODSCreativeWork
+def related_work_parser(_):
     return type(next(p for p in ctx.parsers if isinstance(p, MODSCreativeWork)))
 
 
+def map_relation_type(obj):
+    return RELATION_MAP.get(obj['@type'], 'WorkRelation')
+
+
+class MODSReverseWorkRelation(Parser):
+    schema = tools.RunPython(map_relation_type)
+
+    subject = tools.Delegate(related_work_parser, ctx)
+
+
 class MODSWorkRelation(Parser):
-    schema = 'WorkRelation'
+    schema = tools.RunPython(map_relation_type)
 
-    related = tools.Delegate(work_parser, ctx)
+    related = tools.Delegate(related_work_parser, ctx)
 
+
+def work_relation_parser(obj):
+    if obj['@type'] in REVERSE_RELATIONS:
+        return MODSReverseWorkRelation
+    return MODSWorkRelation
+
+
+#### Agent-work relations ####
 
 def agent_parser(name):
     name_parts = get_list(name, 'mods:namePart')
@@ -175,17 +232,7 @@ class MODSPublisher(MODSAgentWorkRelation):
     schema = 'Publisher'
 
 
-class MODSSimpleAgent(Parser):
-    schema = tools.GuessAgentType(ctx, default='organization')
-
-    name = ctx
-
-
-class MODSSimplePublisher(Parser):
-    schema = 'Publisher'
-
-    agent = tools.Delegate(MODSSimpleAgent, ctx)
-
+#### Works ####
 
 class MODSCreativeWork(Parser):
     default_type = 'CreativeWork'
