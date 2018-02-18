@@ -11,12 +11,13 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-import subprocess
 
 from django.utils.log import DEFAULT_LOGGING
 
 from celery.schedules import crontab
 import jwe
+
+from share import __version__
 
 
 def split(string, delim):
@@ -46,13 +47,7 @@ SENSITIVE_DATA_KEY = jwe.kdf(SECRET_KEY.encode('utf-8'), SALT.encode('utf-8'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
-if 'VERSION' not in os.environ and DEBUG:
-    try:
-        VERSION = subprocess.check_output(['git', 'describe']).decode().strip()
-    except subprocess.CalledProcessError:
-        VERSION = 'UNKNOWN'
-else:
-    VERSION = os.environ.get('VERSION') or 'UNKNOWN'
+VERSION = __version__
 
 ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(' ') if h]
 
@@ -370,7 +365,15 @@ CELERY_RETRY_BACKOFF_BASE = int(os.environ.get('CELERY_RETRY_BACKOFF_BASE', 2 if
 # Celery Settings
 
 CELERY_TIMEZONE = 'UTC'
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://'),
+
+# Default RabbitMQ broker
+RABBITMQ_USERNAME = os.environ.get('RABBITMQ_USERNAME', 'guest')
+RABBITMQ_PASSWORD = os.environ.get('RABBITMQ_PASSWORD', 'guest')
+RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'localhost')
+RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
+RABBITMQ_VHOST = os.environ.get('RABBITMQ_VHOST', '/')
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://{}:{}@{}:{}/{}'.format(RABBITMQ_USERNAME, RABBITMQ_PASSWORD, RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_VHOST))
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {

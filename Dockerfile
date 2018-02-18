@@ -1,4 +1,4 @@
-FROM python:3.5-slim
+FROM python:3.5-slim as app
 
 RUN apt-get update \
     && apt-get install -y \
@@ -40,7 +40,7 @@ RUN mkdir -p /code
 WORKDIR /code
 
 RUN pip install -U pip
-RUN pip install uwsgi==2.0.13
+RUN pip install uwsgi==2.0.16
 
 COPY ./requirements.txt /code/requirements.txt
 COPY ./constraints.txt /code/constraints.txt
@@ -61,3 +61,11 @@ ENV GIT_COMMIT ${GIT_COMMIT}
 RUN python setup.py develop
 
 CMD ["python", "manage.py", "--help"]
+
+### Dist
+FROM app AS dist
+
+### Dev
+FROM app AS dev
+
+RUN pip install --no-cache-dir -c /code/constraints.txt -r /code/dev-requirements.txt
