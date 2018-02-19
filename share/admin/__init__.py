@@ -1,4 +1,4 @@
-from furl import furl
+from prettyjson import PrettyJSONWidget
 
 from django import forms
 from django.conf.urls import url
@@ -15,17 +15,20 @@ from oauth2_provider.models import AccessToken
 
 from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
+from share.admin.jobs import HarvestJobAdmin
+from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.share_objects import CreativeWorkAdmin, SubjectAdmin
-from share.admin.util import FuzzyPaginator
 from share.harvest.scheduler import HarvestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
 from share.models.change import ChangeSet
 from share.models.core import NormalizedData, ShareUser
 from share.models.creative import AbstractCreativeWork
+from share.models.fields import DateTimeAwareJSONField
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
-from share.models.logs import HarvestLog
+from share.models.jobs import HarvestJob
+from share.models.jobs import IngestJob
 from share.models.meta import Subject, SubjectTaxonomy
 from share.models.registration import ProviderRegistration
 from share.models.sources import SourceStat
@@ -40,6 +43,15 @@ class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
     raw_id_fields = ('raw', 'tasks',)
+    formfield_overrides = {
+        DateTimeAwareJSONField: {
+            'widget': PrettyJSONWidget(attrs={
+                'initial': 'parsed',
+                'cols': 120,
+                'rows': 20
+            })
+        }
+    }
 
 
 class ChangeSetSubmittedByFilter(SimpleListFilter):
@@ -78,7 +90,7 @@ class RawDatumAdmin(admin.ModelAdmin):
     list_select_related = ('suid__source_config', )
     list_display = ('id', 'identifier', 'source_config_label', 'datestamp', 'date_created', 'date_modified', )
     readonly_fields = ('datum', 'sha256')
-    raw_id_fields = ('suid', 'logs')
+    raw_id_fields = ('suid', 'jobs')
 
     def identifier(self, obj):
         return obj.suid.identifier
@@ -112,73 +124,6 @@ class SiteBannerAdmin(admin.ModelAdmin):
             obj.created_by = request.user
         obj.last_modified_by = request.user
         super().save_model(request, obj, form, change)
-
-
-class SourceConfigFilter(admin.SimpleListFilter):
-    title = 'Source Config'
-    parameter_name = 'source_config'
-
-    def lookups(self, request, model_admin):
-        # TODO make this into a cool hierarchy deal
-        # return SourceConfig.objects.select_related('source').values_list('
-        return SourceConfig.objects.order_by('label').values_list('id', 'label')
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(source_config=self.value())
-
-
-class HarvestLogAdmin(admin.ModelAdmin):
-    list_display = ('id', 'source', 'label', 'share_version', 'status_', 'start_date_', 'end_date_', 'harvest_log_actions', )
-    list_filter = ('status', SourceConfigFilter, )
-    list_select_related = ('source_config__source', )
-    readonly_fields = ('harvest_log_actions',)
-    actions = ('restart_tasks', )
-    show_full_result_count = False
-    paginator = FuzzyPaginator
-
-    STATUS_COLORS = {
-        HarvestLog.STATUS.created: 'blue',
-        HarvestLog.STATUS.started: 'cyan',
-        HarvestLog.STATUS.failed: 'red',
-        HarvestLog.STATUS.succeeded: 'green',
-        HarvestLog.STATUS.rescheduled: 'goldenrod',
-        HarvestLog.STATUS.forced: 'maroon',
-        HarvestLog.STATUS.skipped: 'orange',
-        HarvestLog.STATUS.retried: 'darkseagreen',
-        HarvestLog.STATUS.cancelled: 'grey',
-    }
-
-    def source(self, obj):
-        return obj.source_config.source.long_title
-
-    def label(self, obj):
-        return obj.source_config.label
-
-    def start_date_(self, obj):
-        return obj.start_date.isoformat()
-
-    def end_date_(self, obj):
-        return obj.end_date.isoformat()
-
-    def status_(self, obj):
-        return format_html(
-            '<span style="font-weight: bold; color: {}">{}</span>',
-            self.STATUS_COLORS[obj.status],
-            HarvestLog.STATUS[obj.status].title(),
-        )
-
-    def restart_tasks(self, request, queryset):
-        queryset.update(status=HarvestLog.STATUS.created)
-    restart_tasks.short_description = 'Re-enqueue'
-
-    def harvest_log_actions(self, obj):
-        url = furl(reverse('admin:source-config-harvest', args=[obj.source_config_id]))
-        url.args['start'] = self.start_date_(obj)
-        url.args['end'] = self.end_date_(obj)
-        url.args['superfluous'] = True
-        return format_html('<a class="button" href="{}">Restart</a>', url.url)
-    harvest_log_actions.short_description = 'Actions'
 
 
 class HarvestForm(forms.Form):
@@ -231,11 +176,11 @@ class SourceConfigAdmin(admin.ModelAdmin):
         if request.method == 'POST':
             form = HarvestForm(request.POST)
             if form.is_valid():
-                for log in HarvestScheduler(config).range(form.cleaned_data['start'], form.cleaned_data['end']):
-                    tasks.harvest.apply_async((), {'log_id': log.id, 'superfluous': form.cleaned_data['superfluous']})
+                for job in HarvestScheduler(config, claim_jobs=True).range(form.cleaned_data['start'], form.cleaned_data['end']):
+                    tasks.harvest.apply_async((), {'job_id': job.id, 'superfluous': form.cleaned_data['superfluous']})
 
                 self.message_user(request, 'Started harvesting {}!'.format(config.label))
-                url = reverse('admin:share_harvestlog_changelist', current_app=self.admin_site.name)
+                url = reverse('admin:share_harvestjob_changelist', current_app=self.admin_site.name)
                 return HttpResponseRedirect(url)
         else:
             initial = {'start': config.earliest_date, 'end': timezone.now().date()}
@@ -330,7 +275,8 @@ admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
 admin.site.register(ChangeSet, ChangeSetAdmin)
-admin.site.register(HarvestLog, HarvestLogAdmin)
+admin.site.register(HarvestJob, HarvestJobAdmin)
+admin.site.register(IngestJob, IngestJobAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
 admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)
 admin.site.register(RawDatum, RawDatumAdmin)

@@ -21,21 +21,17 @@ def improvenance_subjects(apps, schema_editor):
     if not Subject.objects.exists():
         return
 
-    normalized_data = NormalizedData.objects.create(
-        source=user,
-        data={
-            '@graph': [
-                {
-                    '@id': '_:{}'.format(s.id),
-                    '@type': 'subject',
-                    'name': s.name,
-                    'parent': None if s.parent_id is None else {'@id': '_:{}'.format(s.parent_id), '@type': 'subject'}
-                } for s in Subject.objects.all()
-            ]
-        }
-    )
-    from share.tasks import disambiguate
-    disambiguate.apply((normalized_data.id,), throw=True)
+    subjects = [
+        {
+            '@id': '_:{}'.format(s.id),
+            '@type': 'subject',
+            'name': s.name,
+            'parent': None if s.parent_id is None else {'@id': '_:{}'.format(s.parent_id), '@type': 'subject'}
+        } for s in Subject.objects.all()
+    ]
+
+    from share.ingest import Ingester
+    Ingester(subjects).as_user(user).ingest()
 
 
 class Migration(migrations.Migration):

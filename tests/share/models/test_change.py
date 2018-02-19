@@ -1,16 +1,15 @@
 import pytest
 import pendulum
 
-from django.db import IntegrityError
-
+from share.exceptions import IngestConflict
 from share.models import AbstractCreativeWork
 from share.models import AgentWorkRelation
-from share.models import NormalizedData
 from share.models import Person
 from share.models import Tag
 from share.models.change import Change
 from share.models.change import ChangeSet
 from share.util import IDObfuscator
+from share.ingest import Ingester
 
 from tests import factories
 
@@ -143,7 +142,7 @@ class TestChangeGraph:
             }]
         }, disambiguate=False)
 
-        with pytest.raises(IntegrityError):
+        with pytest.raises(IngestConflict):
             change_set.accept()
 
     def test_date_updated_update(self, change_ids, change_factory, all_about_anteaters):
@@ -164,25 +163,22 @@ class TestChangeGraph:
 
         assert change_set is None
 
-    def test_add_multiple_sources(self, celery_app):
+    def test_add_multiple_sources(self):
         source1 = factories.SourceFactory()
         source2 = factories.SourceFactory()
 
         work = factories.AbstractCreativeWorkFactory(title='All about Canada')
-        data = {'@id': IDObfuscator.encode(work), '@type': 'creativework', 'title': 'All aboot Canada'}
-
-        nd1 = NormalizedData.objects.create(source=source1.user, data={'@graph': [data]})
-        nd2 = NormalizedData.objects.create(source=source2.user, data={'@graph': [data]})
+        data = [{'@id': IDObfuscator.encode(work), '@type': 'creativework', 'title': 'All aboot Canada'}]
 
         assert work.sources.count() == 0
 
-        celery_app.tasks['share.tasks.disambiguate'](nd1.id)
+        Ingester(data).as_user(source1.user).ingest(index=False)
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'
         assert work.sources.count() == 1
 
-        celery_app.tasks['share.tasks.disambiguate'](nd2.id)
+        Ingester(data).as_user(source2.user).ingest(index=False)
 
         work.refresh_from_db()
         assert work.title == 'All aboot Canada'

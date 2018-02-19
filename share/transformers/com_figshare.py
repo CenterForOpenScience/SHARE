@@ -52,7 +52,7 @@ class CreativeWork(Parser):
     description = ctx.description
     related_agents = Map(Delegate(Creator), ctx.authors)
     date_published = ParseDate(ctx.published_date)
-    identifiers = Map(Delegate(WorkIdentifier), Map(Try(IRI(), exceptions=(ValueError, )), ctx.url, ctx.DOI, ctx.links))
+    identifiers = Map(Delegate(WorkIdentifier), Map(Try(IRI(), exceptions=(InvalidIRI, )), ctx.url, ctx.DOI, ctx.links))
 
     class Extra:
         modified = ParseDate(ctx.modified_date)
@@ -80,7 +80,7 @@ class DataSet(Parser):
 class FigshareTransformer(ChainTransformer):
     VERSION = 1
 
-    def get_root_parser(self, unwrapped):
+    def get_root_parser(self, unwrapped, **kwargs):
         if 'files' in unwrapped:
             return DataSet
         return CreativeWork

@@ -56,6 +56,7 @@ class AbstractAgent(AbstractShareObject):
             offset = (offset or 0) + limit
         return self.outgoing_agent_relations.all()[offset:limit]
 
+
 for klass in models.Agent.get_type_classes():
     locals()[klass.__name__] = type(klass.__name__, (DjangoObjectType, ), {
         'id': graphene.String(),

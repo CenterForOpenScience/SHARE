@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'revproxy',
     'graphene_django',
+    'prettyjson',
 
     'allauth',
     'allauth.account',
@@ -387,10 +388,20 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'share.tasks.harvest',
         'schedule': 120,
     },
+    # Every 2 minutes
+    'Ingest Task': {
+        'task': 'share.tasks.ingest',
+        'schedule': 120,
+    },
     # Executes daily at 11:30 P.M
     'Elasticsearch Janitor': {
         'task': 'bots.elasticsearch.tasks.elasticsearch_janitor',
         'schedule': crontab(hour=23, minute=30),
+    },
+    # Executes daily at 10:30 P.M
+    'IngestJob Janitor': {
+        'task': 'share.janitor.tasks.ingestjob_janitor',
+        'schedule': crontab(hour=22, minute=30),
     },
 }
 
@@ -431,8 +442,7 @@ CELERY_TASK_DEFAULT_ROUTING_KEY = 'share_default'
 CELERY_TASK_ROUTES = {
     'bots.elasticsearch.*': {'priority': 50, 'queue': 'elasticsearch'},
     'share.tasks.harvest': {'priority': 0, 'queue': 'harvest'},
-    'share.tasks.transform': {'priority': 20, 'queue': 'transform'},
-    'share.tasks.disambiguate': {'priority': 35, 'queue': 'disambiguate'},
+    'share.tasks.ingest': {'priority': 20, 'queue': 'ingest'},
 }
 
 CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}
@@ -536,6 +546,17 @@ ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', '
 
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
 SUBJECTS_YAML = 'share/subjects.yaml'
+
+SHARE_LEGACY_PIPELINE = os.environ.get('SHARE_LEGACY_PIPELINE', True)
+
+# Regulator pipeline, names of setuptools entry points
+SHARE_REGULATOR_NODE_STEPS = [
+]
+SHARE_REGULATOR_GRAPH_STEPS = [
+]
+SHARE_REGULATOR_VALIDATION_STEPS = [
+    'jsonld_validator',
+]
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')

@@ -10,6 +10,7 @@ def format_mendeley_address(ctx):
         country=ctx['country']
     )
 
+
 RELATION_MAP = {
     'related_to': 'WorkRelation',
     'derived_from': 'IsDerivedFrom',
@@ -84,7 +85,7 @@ class RelatedWork(Parser):
         Delegate(WorkIdentifier),
         Try(
             IRI(ctx.href),
-            exceptions=(ValueError,)
+            exceptions=(InvalidIRI,)
         )
     )
 
@@ -106,7 +107,7 @@ class RelatedArticle(Parser):
         Delegate(WorkIdentifier),
         Try(
             IRI(ctx.doi),
-            exceptions=(ValueError,)
+            exceptions=(InvalidIRI,)
         )
     )
 
@@ -135,11 +136,11 @@ class AgentInstitution(Parser):
         Concat(
             Try(
                 IRI(ctx.urls),
-                exceptions=(ValueError,)
+                exceptions=(InvalidIRI,)
             ),
             Try(
                 IRI(ctx.profile_url),
-                exceptions=(ValueError,)
+                exceptions=(InvalidIRI,)
             )
         )
     )
@@ -220,11 +221,11 @@ class Person(Parser):
         Concat(
             Try(
                 IRI(ctx.full_profile.orcid_id),
-                exceptions=(ValueError,)
+                exceptions=(InvalidIRI,)
             ),
             Try(
                 IRI(ctx.full_profile.link),
-                exceptions=(ValueError,)
+                exceptions=(InvalidIRI,)
             )
         )
     )
@@ -391,7 +392,7 @@ class DataSet(Parser):
             RunPython(lambda mendeley_id: 'https://data.mendeley.com/datasets/{}'.format(mendeley_id) if mendeley_id else None, Try(ctx.id)),
             Try(
                 IRI(ctx.doi.id),
-                exceptions=(ValueError,)
+                exceptions=(InvalidIRI,)
             )
         )
     )

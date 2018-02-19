@@ -1,5 +1,6 @@
 from share.transform.chain import ctx, ChainTransformer
 from share.transform.chain import links as tools
+from share.transform.chain.exceptions import InvalidIRI
 from share.transform.chain.parsers import Parser
 from share.transform.chain.utils import format_address
 
@@ -118,7 +119,7 @@ class POContributorAgent(Parser):
         tools.Delegate(AgentIdentifier),
         tools.Try(
             tools.IRI(ctx.poEmail),
-            exceptions=(ValueError,)
+            exceptions=(InvalidIRI,)
         )
     )
 

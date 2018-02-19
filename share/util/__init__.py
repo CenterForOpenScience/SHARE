@@ -231,15 +231,15 @@ def chunked(iterable, size=25, fail_fast=False):
     iterable = iter(iterable)
     try:
         while True:
-            l = []
+            chunk = []
             for _ in range(size):
-                l.append(next(iterable))
-            yield l
+                chunk.append(next(iterable))
+            yield chunk
     except StopIteration:
-        yield l
+        yield chunk
     except Exception as e:
-        if not fail_fast and l:
-            yield l
+        if not fail_fast and chunk:
+            yield chunk
         raise e
 
 

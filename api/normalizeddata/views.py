@@ -1,10 +1,14 @@
+from django.db import transaction
+from django.urls import reverse
+
 from rest_framework import status
 from rest_framework import generics
 from rest_framework.response import Response
 
 from share import models
-from share.tasks import disambiguate
+from share.tasks import ingest
 from share.util import IDObfuscator
+from share.ingest import Ingester
 
 from api.base.views import ShareViewSet
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
@@ -59,12 +63,25 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=True):
-            nm_instance = serializer.save()
-            async_result = disambiguate.delay(nm_instance.id)
-            # TODO Fix Me
+        serializer.is_valid(raise_exception=True)
+        with transaction.atomic():
+            # Hack for back-compat: Ingest halfway synchronously, then apply changes asynchronously
+            ingester = Ingester(serializer.validated_data['data']).as_user(request.user).ingest(apply_changes=False)
+            ingester.job.reschedule(claim=True)
+
+            nd_id = models.NormalizedData.objects.filter(
+                raw=ingester.raw,
+                ingest_jobs=ingester.job
+            ).order_by('-created_at').values_list('id', flat=True).first()
+
+            async_result = ingest.delay(job_id=ingester.job.id)
+
+            # TODO Use an actual serializer
             return Response({
-                'id': IDObfuscator.encode(nm_instance),
+                'id': IDObfuscator.encode_id(nd_id, models.NormalizedData),
                 'type': 'NormalizedData',
-                'attributes': {'task': async_result.id}
+                'attributes': {
+                    'task': async_result.id,
+                    'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
+                }
             }, status=status.HTTP_202_ACCEPTED)

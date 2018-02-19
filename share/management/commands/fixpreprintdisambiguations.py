@@ -1,15 +1,14 @@
-from celery import states
-import pendulum
+from pendulum import pendulum
 
-from share.disambiguation import MergeError
-from share.models import CeleryTaskResult, Source, AbstractCreativeWork
-from share.tasks import disambiguate
+from share.exceptions import MergeRequired
+from share.models import AbstractCreativeWork
 from share.management.commands import BaseShareCommand
+from share.models import IngestJob
+from share.tasks.jobs import IngestJobConsumer
 
 
 class Command(BaseShareCommand):
     MAX_RETRIES = 10
-    META_FIXED_KEY = '_fixed'
 
     def add_arguments(self, parser):
         parser.add_argument('--dry', action='store_true', help='Should the script actually make changes? (In a transaction)')
@@ -20,35 +19,30 @@ class Command(BaseShareCommand):
     def handle(self, *args, **options):
         dry_run = options.get('dry')
 
-        canonical_sources = list(Source.objects.filter(canonical=True).values_list('long_title', flat=True))
-        qs = CeleryTaskResult.objects.filter(
-            task_name='share.tasks.disambiguate',
-            status__in=[states.FAILURE, states.RETRY],
-            meta__source__in=canonical_sources,
-        ).exclude(
-            meta__has_key=self.META_FIXED_KEY,
-            **{'meta__{}'.format(self.META_FIXED_KEY): True}
+        qs = IngestJob.objects.filter(
+            error_type='MergeRequired',
+            status=IngestJob.STATUS.failed,
+            source_config__source__canonical=True
         )
         if options.get('from'):
             qs = qs.filter(date_modified__gte=options.get('from'))
         if options.get('until'):
             qs = qs.filter(date_modified__lte=options.get('until'))
 
-        for task in qs:
+        for job in qs.select_related('suid', 'source_config'):
             with self.rollback_unless_commit(options.get('commit')):
-                self.stdout.write('\n\nTask {!r}'.format(task.task_id), style_func=self.style.HTTP_INFO)
-                self._try_task(task, dry_run)
+                self.stdout.write('\n\nTrying job {!r}'.format(job), style_func=self.style.HTTP_INFO)
+                self._try_job(job, dry_run)
 
-    def _try_task(self, task, dry_run):
-        normalized_data_id = task.meta['args'][0]
+    def _try_job(self, job, dry_run):
         for i in range(self.MAX_RETRIES):
             self.stdout.write('Attempt {} of {}:'.format(i + 1, self.MAX_RETRIES))
             try:
-                disambiguate(normalized_data_id)
-            except MergeError as e:
+                IngestJobConsumer().consume(job_id=job.id)
+            except MergeRequired as e:
                 (_, model, queries) = e.args
 
-                if not self._fix_merge_error(task, model, queries, dry_run):
+                if not self._fix_merge_error(model, queries, dry_run):
                     return
 
                 if dry_run:
@@ -58,20 +52,18 @@ class Command(BaseShareCommand):
                 self.stdout.write('Failed in a way we cant fix:', style_func=self.style.ERROR)
                 self.stdout.write(str(e))
                 return
-            task.meta[self.META_FIXED_KEY] = True
-            task.save()
             self.stdout.write('Success!', style_func=self.style.SUCCESS)
             return
         self.stdout.write('Failed to fix after {} tries'.format(self.MAX_RETRIES), style_func=self.style.ERROR)
 
-    def _fix_merge_error(self, task, model, queries, dry_run):
+    def _fix_merge_error(self, model, queries, dry_run):
         data = {}
         for q in queries:
             for k, v in q.children:
                 data.setdefault(k, []).append(v)
 
         if len(data) > 1:
-            self.stdout.write('MergeError is too complex to be automatically fixed', style_func=self.style.ERROR)
+            self.stdout.write('MergeRequired error is too complex to be automatically fixed', style_func=self.style.ERROR)
             return False
 
         self.stdout.write('Trying to correct merge error...', style_func=self.style.NOTICE)

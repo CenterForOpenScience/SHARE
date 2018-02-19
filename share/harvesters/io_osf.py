@@ -15,25 +15,25 @@ logger = logging.getLogger(__name__)
 class OSFHarvester(BaseHarvester):
     VERSION = 1
 
-    def build_url(self, start_date, end_date):
+    def build_url(self, start_date, end_date, path, query_params):
         # so prod SHARE doesn't get throttled
         if settings.OSF_BYPASS_THROTTLE_TOKEN:
             self.session.headers.update({'X-THROTTLE-TOKEN': settings.OSF_BYPASS_THROTTLE_TOKEN})
 
-        url = furl(settings.OSF_API_URL + self.kwargs['path'])
+        url = furl(settings.OSF_API_URL + path)
         url.args['page[size]'] = 100
         # url.args['filter[public]'] = 'true'
         # OSF turns dates into date @ midnight so we have to go ahead one more day
         url.args['filter[date_modified][gte]'] = start_date.date().isoformat()
         url.args['filter[date_modified][lte]'] = (end_date + datetime.timedelta(days=2)).date().isoformat()
-        for param, value in self.kwargs.get('query_params', {}).items():
+        for param, value in (query_params or {}).items():
             url.args[param] = value
         return url
 
-    def do_harvest(self, start_date, end_date):
-        return self.fetch_records(self.build_url(start_date, end_date))
+    def do_harvest(self, start_date, end_date, path, query_params=None, embed_attrs=None):
+        return self.fetch_records(self.build_url(start_date, end_date, path, query_params), embed_attrs)
 
-    def fetch_records(self, url):
+    def fetch_records(self, url, embed_attrs):
         while True:
             records, next_page = self.fetch_page(url)
 
@@ -41,7 +41,7 @@ class OSFHarvester(BaseHarvester):
                 if record['attributes'].get('tags') and QA_TAG in record['attributes']['tags']:
                     continue
 
-                record = self.populate_embeds(record)
+                record = self.populate_embeds(record, embed_attrs)
 
                 yield record['id'], record
 
@@ -63,8 +63,8 @@ class OSFHarvester(BaseHarvester):
 
         return records, next_page
 
-    def populate_embeds(self, record):
-        for attr, key in self.kwargs.get('embed_attrs', {}).items():
+    def populate_embeds(self, record, embed_attrs):
+        for attr, key in (embed_attrs or {}).items():
             embedded = record
             try:
                 for key in key.split('.'):

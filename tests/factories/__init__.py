@@ -19,6 +19,7 @@ from share import models
 from share.harvest import BaseHarvester
 from share.harvest.serialization import StringLikeSerializer
 from share.transform import BaseTransformer
+from share.util.extensions import Extensions
 
 from tests.factories.core import *  # noqa
 from tests.factories.changes import *  # noqa
@@ -67,7 +68,8 @@ class HarvesterFactory(DjangoModelFactory):
         mock_entry.module_name = self.key
         mock_entry.resolve.return_value = MockHarvester
 
-        stevedore.DriverManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)
+        stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)
+        Extensions._load_namespace('share.harvesters')
 
 
 class TransformerFactory(DjangoModelFactory):
@@ -84,7 +86,7 @@ class TransformerFactory(DjangoModelFactory):
             KEY = self.key
             VERSION = 1
 
-            def do_transform(self, data):
+            def do_transform(self, data, **kwargs):
                 return json.loads(data), None
 
         mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
@@ -92,7 +94,8 @@ class TransformerFactory(DjangoModelFactory):
         mock_entry.module_name = self.key
         mock_entry.resolve.return_value = MockTransformer
 
-        stevedore.DriverManager.ENTRY_POINT_CACHE['share.transformers'].append(mock_entry)
+        stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.transformers'].append(mock_entry)
+        Extensions._load_namespace('share.transformers')
 
 
 class SourceConfigFactory(DjangoModelFactory):
@@ -105,24 +108,6 @@ class SourceConfigFactory(DjangoModelFactory):
 
     class Meta:
         model = models.SourceConfig
-
-
-class HarvestLogFactory(DjangoModelFactory):
-    source_config = factory.SubFactory(SourceConfigFactory)
-    start_date = factory.Faker('date_time')
-
-    class Meta:
-        model = models.HarvestLog
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        attrs['source_config_version'] = attrs['source_config'].version
-        attrs['harvester_version'] = attrs['source_config'].harvester.version
-        if isinstance(attrs['start_date'], datetime.datetime):
-            attrs['start_date'] = attrs['start_date'].date()
-        if not attrs.get('end_date'):
-            attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
-        return super()._generate(create, attrs)
 
 
 class SourceUniqueIdentifierFactory(DjangoModelFactory):
@@ -146,6 +131,37 @@ class RawDatumFactory(DjangoModelFactory):
             attrs['sha256'] = hashlib.sha256(attrs.get('datum', '').encode()).hexdigest()
 
         return super()._generate(create, attrs)
+
+
+class HarvestJobFactory(DjangoModelFactory):
+    source_config = factory.SubFactory(SourceConfigFactory)
+    start_date = factory.Faker('date_time')
+
+    source_config_version = factory.SelfAttribute('source_config.version')
+    harvester_version = factory.SelfAttribute('source_config.harvester.version')
+
+    class Meta:
+        model = models.HarvestJob
+
+    @classmethod
+    def _generate(cls, create, attrs):
+        if isinstance(attrs['start_date'], datetime.datetime):
+            attrs['start_date'] = attrs['start_date'].date()
+        if not attrs.get('end_date'):
+            attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
+        return super()._generate(create, attrs)
+
+
+class IngestJobFactory(DjangoModelFactory):
+    source_config = factory.SelfAttribute('suid.source_config')
+    suid = factory.SelfAttribute('raw.suid')
+    raw = factory.SubFactory(RawDatumFactory)
+    source_config_version = factory.SelfAttribute('source_config.version')
+    transformer_version = factory.SelfAttribute('source_config.transformer.version')
+    regulator_version = 1
+
+    class Meta:
+        model = models.IngestJob
 
 
 class CeleryTaskResultFactory(DjangoModelFactory):

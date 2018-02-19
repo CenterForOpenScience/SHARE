@@ -1,15 +1,13 @@
 import logging
+from pendulum import pendulum
 
 import celery
 
 from django.db.models import Exists
 from django.db.models import OuterRef
 
-from raven.contrib.django.raven_compat.models import client
-
-from share import tasks
 from share.models import NormalizedData
-from share.models import RawDatum
+from share.models import RawDatum, IngestJob
 
 
 logger = logging.getLogger(__name__)
@@ -17,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @celery.shared_task(bind=True)
 def rawdata_janitor(self, limit=500):
-    """Find RawDatum that do not have a NormalizedData process them
+    """Find RawDatum that have neither NormalizedData nor IngestJob and schedule them for ingestion
     """
     count = 0
 
@@ -35,18 +33,29 @@ def rawdata_janitor(self, limit=500):
 
     qs = RawDatum.objects.select_related('suid__source_config').annotate(
         has_normalizedata=Exists(NormalizedData.objects.values('id').filter(raw=OuterRef('id'))),
-    ).exclude(no_output=True).exclude(has_normalizedata=True)
+        has_ingestjob=Exists(IngestJob.objects.values('id').filter(raw=OuterRef('id'))),
+    ).exclude(no_output=True).exclude(has_normalizedata=True).exclude(has_ingestjob=True)
 
     for rd in qs[:limit]:
         count += 1
         logger.debug('Found unprocessed %r from %r', rd, rd.suid.source_config)
-        try:
-            t = tasks.transform.apply((rd.id, ), throw=True, retries=tasks.transform.max_retries + 1)
-        except Exception as e:
-            client.captureException()
-            logger.exception('Failed to processed %r', rd)
-        else:
-            logger.info('Processed %r via %r', rd, t)
+        job = IngestJob.schedule(rd)
+        logger.info('Created job %s for %s', job, rd)
     if count:
         logger.warning('Found %d total unprocessed RawData', count)
     return count
+
+
+@celery.shared_task(bind=True)
+def ingestjob_janitor(self):
+    """Find IngestJobs that seem to have been abandoned, set them free
+    """
+
+    day_ago = pendulum.now().subtract(days=1)
+    qs = IngestJob.objects.filter(
+        claimed=True,
+        date_modified__lt=day_ago  # Last modified earlier than one day ago
+    ).exclude(
+        status=IngestJob.STATUS.started
+    )
+    qs.update(claimed=False)

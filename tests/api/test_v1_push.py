@@ -2,19 +2,15 @@ import json
 import pytest
 from unittest import mock
 
-from django.test import override_settings
-
-from share.models import ChangeSet
-
 
 @pytest.mark.django_db
 class TestV1PushProxy:
 
-    @pytest.fixture(autouse=True)
-    def mock_disambiguate(self):
-        with mock.patch('api.views.workflow.disambiguate') as mock_disambiguate:
-            mock_disambiguate.delay().id = '123'
-            yield mock_disambiguate
+    @pytest.fixture
+    def mock_ingest(self):
+        with mock.patch('share.ingest.ingest') as mock_ingest:
+            mock_ingest.delay.return_value.id = '123'
+            yield mock_ingest
 
     valid_data = {
         "jsonData": {
@@ -62,17 +58,16 @@ class TestV1PushProxy:
         "title": "Title"
     }
     ])
-    def test_invalid_data(self, client, trusted_user, data):
+    def test_invalid_data(self, client, trusted_user, data, mock_ingest):
         assert client.post(
             '/api/v1/share/data/',
             json.dumps(data),
             content_type='application/json',
             HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token
         ).status_code == 400
+        assert not mock_ingest.delay.called
 
-    @override_settings(CELERY_ALWAYS_EAGER=True)
-    def test_valid_data(self, client, trusted_user):
-
+    def test_valid_data(self, client, trusted_user, mock_ingest):
         assert client.post(
             '/api/v1/share/data/',
             json.dumps(self.valid_data),
@@ -80,31 +75,25 @@ class TestV1PushProxy:
             HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token
         ).status_code == 202
 
-        qs = ChangeSet.objects.filter(
-            normalized_data__source=trusted_user.id
-        )
+        assert mock_ingest.delay.called
 
-        qs_accepted = ChangeSet.objects.filter(
-            normalized_data__source=trusted_user.id,
-            status=ChangeSet.STATUS.accepted
-        )
-
-        assert len(qs) == len(qs_accepted)
-
-    def test_unauthorized(self, client):
+    def test_unauthorized(self, client, mock_ingest):
         assert client.post(
             '/api/v1/share/data/',
             json.dumps(self.valid_data),
             content_type='application/json'
         ).status_code == 401
+        assert not mock_ingest.delay.called
 
-    def test_get(self, client):
+    def test_get(self, client, mock_ingest):
         assert client.get('/api/v1/share/data/').status_code == 405
+        assert not mock_ingest.delay.called
 
-    def test_token_auth(self, client, trusted_user):
+    def test_token_auth(self, client, trusted_user, mock_ingest):
         assert client.post(
             '/api/v1/share/data/',
             json.dumps({}),
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + trusted_user.accesstoken_set.first().token
         ).status_code == 400
+        assert not mock_ingest.delay.called

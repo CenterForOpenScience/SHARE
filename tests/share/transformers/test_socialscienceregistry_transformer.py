@@ -55,9 +55,11 @@ data = r'''
 def test_AEA_transformer():
     config = SourceConfig.objects.get(label='org.socialscienceregistry')
     transformer = config.get_transformer()
-    result = transformer.transform(data)
-    assert result['@graph'][10]['@type'] == 'registration'
-    assert result['@graph'][10]['description'] == 'test description'
-    assert result['@graph'][10]['title'] == 'OpenTeQ - Opening the black box of Teacher Quality'
-    assert result['@graph'][10]['extra']['primary_investigator'] == {'email': 'dan@gmail.com', 'name': 'Daniel Adam'}
-    assert result['@graph'][10]['extra']['interventions'] == {'end-date': '2017-07-15', 'start-date': '2016-10-20'}
+    graph = transformer.transform(data)
+    registration = graph.filter_nodes(lambda n: n.type == 'registration')[0]
+
+    assert registration.type == 'registration'
+    assert registration['description'] == 'test description'
+    assert registration['title'] == 'OpenTeQ - Opening the black box of Teacher Quality'
+    assert registration['extra']['primary_investigator'] == {'email': 'dan@gmail.com', 'name': 'Daniel Adam'}
+    assert registration['extra']['interventions'] == {'end-date': '2017-07-15', 'start-date': '2016-10-20'}

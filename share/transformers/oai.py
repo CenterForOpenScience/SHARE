@@ -2,6 +2,7 @@ import re
 import logging
 
 from share.transform.chain import ctx, ChainTransformer, links as tools
+from share.transform.chain.exceptions import InvalidIRI
 from share.transform.chain.parsers import Parser
 from share.transform.chain.utils import force_text, oai_allowed_by_sets
 
@@ -111,7 +112,7 @@ class OAICreativeWork(Parser):
     identifiers = tools.Map(
         tools.Delegate(OAIWorkIdentifier),
         tools.Unique(tools.Map(
-            tools.Try(tools.IRI(), exceptions=(ValueError, )),
+            tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
             tools.Filter(
                 not_citation,
                 tools.RunPython(
@@ -129,7 +130,7 @@ class OAICreativeWork(Parser):
         tools.Map(
             tools.Delegate(OAIWorkRelation),
             tools.Unique(tools.Map(
-                tools.Try(tools.IRI(), exceptions=(ValueError, )),
+                tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
                 tools.RunPython('get_relation', ctx)
             ))
         )
@@ -298,15 +299,16 @@ class OAITransformer(ChainTransformer):
 
     VERSION = 1
 
-    def get_root_parser(self, _):
-        class RootParser(OAICreativeWork):
-            default_type = self.kwargs.get('emitted_type', 'creativework').lower()
-            type_map = {
-                **{r.lower(): r for r in self.allowed_roots},
-                **{t.lower(): v for t, v in self.kwargs.get('type_map', {}).items()}
-            }
+    def get_root_parser(self, unwrapped, emitted_type='creativework', type_map=None, property_list=None, **kwargs):
+        root_type_map = {
+            **{r.lower(): r for r in self.allowed_roots},
+            **{t.lower(): v for t, v in (type_map or {}).items()}
+        }
 
-        property_list = self.kwargs.get('property_list')
+        class RootParser(OAICreativeWork):
+            default_type = emitted_type.lower()
+            type_map = root_type_map
+
         if property_list:
             logger.debug('Attaching addition properties %s to transformer for %s'.format(property_list, self.config.label))
             for prop in property_list:
@@ -317,7 +319,7 @@ class OAITransformer(ChainTransformer):
 
         return RootParser
 
-    def do_transform(self, datum):
-        if not oai_allowed_by_sets(datum, self.kwargs.get('blocked_sets'), self.kwargs.get('approved_sets')):
+    def do_transform(self, datum, approved_sets=None, blocked_sets=None, **kwargs):
+        if not oai_allowed_by_sets(datum, blocked_sets, approved_sets):
             return (None, None)
-        return super().do_transform(datum)
+        return super().do_transform(datum, **kwargs)

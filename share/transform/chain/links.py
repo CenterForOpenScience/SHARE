@@ -9,16 +9,20 @@ import urllib
 import types
 
 import xmltodict
-
 import pendulum
-
 from lxml import etree
-
 from pycountry import languages
-
 from nameparser import HumanName
 
 from share.util import iris, DictHashingDict
+from share.transform.chain.exceptions import (
+    TransformError,
+    InvalidPath,
+    InvalidDate,
+    NoneOf,
+    InvalidIRI,
+)
+
 
 logger = logging.getLogger(__name__)
 
@@ -159,7 +163,7 @@ class AbstractLink:
 
     # Transformation logic goes here
     def execute(self, obj):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     # Add a link into an existing chain
     def __add__(self, step):
@@ -178,11 +182,10 @@ class AbstractLink:
             return self + IndexLink(name)
         if isinstance(name, str):
             return self + PathLink(name)
-        raise Exception(
+        raise TypeError(
             '__getitem__ only accepts integers and strings\n'
             'Found {}'.format(name)
         )
-        # raise Exception
 
     # Reserved for special cases
     # Any other use is an error
@@ -191,7 +194,7 @@ class AbstractLink:
             return self + IteratorLink()
         if name == 'index':
             return self + GetIndexLink()
-        raise Exception(
+        raise ValueError(
             '"{}" is not a action that __call__ can resolve\n'
             '__call__ is reserved for special actions\n'
             'If you are trying to access an element use dictionary notation'.format(name)
@@ -262,7 +265,7 @@ class Context(AnchorLink):
         return AnchorLink() + step
 
     def __radd__(self, other):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __setattr__(self, name, value):
         if not hasattr(Context.__CONTEXT, '_ctxdict'):
@@ -290,14 +293,18 @@ class DateParserLink(AbstractLink):
 
     def execute(self, obj):
         if obj:
-            date = dateutil.parser.parse(obj, default=self.DEFAULT)
-            repr(date)  # Forces tzoffset validation to run
+            try:
+                date = dateutil.parser.parse(obj, default=self.DEFAULT)
+                repr(date)  # Forces tzoffset validation to run
+            except ValueError as e:
+                raise InvalidDate(*e.args) from e
+
             if date < self.LOWER_BOUND:
-                raise ValueError('{} is before the lower bound {}.'.format(obj, self.LOWER_BOUND.isoformat()))
+                raise InvalidDate('{} is before the lower bound {}.'.format(obj, self.LOWER_BOUND.isoformat()))
             if date > self.UPPER_BOUND:
-                raise ValueError('{} is after the upper bound {}.'.format(obj, self.UPPER_BOUND.isoformat()))
+                raise InvalidDate('{} is after the upper bound {}.'.format(obj, self.UPPER_BOUND.isoformat()))
             return date.in_tz('UTC').isoformat()
-        raise ValueError('{} is not a valid date.'.format(obj))
+        raise InvalidDate('{} is not a valid date.'.format(obj))
 
 
 class LanguageParserLink(AbstractLink):
@@ -404,7 +411,7 @@ class TryLink(AbstractLink):
         self._chain = chain
         self._default = default
         self.__anchor = AnchorLink()
-        self._exceptions = (IndexError, KeyError) + (exceptions or ())
+        self._exceptions = (InvalidPath, ) + (exceptions or ())
 
     def __add__(self, step):
         # Attach all new links to the "subchain"
@@ -416,9 +423,6 @@ class TryLink(AbstractLink):
             val = self._chain.chain()[0].run(obj)
         except self._exceptions:
             return self._default
-        except TypeError as err:
-            logger.debug('TypeError: {}. When trying to access {}'.format(err, self._chain.chain()))
-            return self._default
         return self.__anchor.run(val)
 
 
@@ -428,7 +432,10 @@ class PathLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        return obj[self._segment]
+        try:
+            return obj[self._segment]
+        except (KeyError, TypeError) as e:
+            raise InvalidPath from e
 
     def __repr__(self):
         return '<{}({!r})>'.format(self.__class__.__name__, self._segment)
@@ -440,7 +447,12 @@ class IndexLink(AbstractLink):
         super().__init__()
 
     def execute(self, obj):
-        return obj[self._index]
+        if not isinstance(obj, list):
+            raise InvalidPath('Tried to find index "{}", got type {} instead of list'.format(self._index, type(obj)))
+        try:
+            return obj[self._index]
+        except IndexError as e:
+            raise InvalidPath from e
 
     def __repr__(self):
         return '<{}([{}])>'.format(self.__class__.__name__, self._index)
@@ -550,10 +562,10 @@ class OneOfLink(AbstractLink):
         for chain in self._chains:
             try:
                 return chain.chain()[0].run(obj)
-            except Exception as e:
+            except TransformError as e:
                 errors.append(e)
 
-        raise Exception('All chains failed {}'.format(errors))
+        raise NoneOf('All chains failed {}'.format(errors))
 
 
 class AbstractIRILink(AbstractLink):
@@ -565,11 +577,11 @@ class AbstractIRILink(AbstractLink):
     def hint(cls, obj):
         """A percentage expressed as a float of how likely a the given object can be parsed as this class
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def execute(self, obj):
         if not isinstance(obj, str):
-            raise TypeError('\'{}\' is not of type str.'.format(obj))
+            raise InvalidIRI('\'{}\' is not of type str.'.format(obj))
 
         parsed = self._parse(obj)
         parsed = self._process(**parsed)
@@ -620,12 +632,12 @@ class ISSNLink(AbstractIRILink):
         if actual == 10:
             actual = 'X'
         if checksum != str(actual):
-            raise ValueError('\'{}\' is not a valid ISSN; failed checksum.'.format(digits))
+            raise InvalidIRI('\'{}\' is not a valid ISSN; failed checksum.'.format(digits))
 
     def _parse(self, obj):
         match = re.search(self.ISSN_RE, obj.upper())
         if not match:
-            raise ValueError('\'{}\' cannot be expressed as an ISSN.'.format(obj))
+            raise InvalidIRI('\'{}\' cannot be expressed as an ISSN.'.format(obj))
         self.checksum(''.join(match.groups()))
 
         return {
@@ -651,7 +663,7 @@ class URNLink(AbstractIRILink):
     def _parse(self, obj):
         match = self.URN_RE.search(obj.lower()) or self.PARSED_URN_RE.search(obj.lower())
         if not match:
-            raise ValueError('\'{}\' is not a valid URN.'.format(obj))
+            raise InvalidIRI('\'{}\' is not a valid URN.'.format(obj))
 
         return {
             'scheme': match.group(1),
@@ -678,7 +690,7 @@ class ISNILink(AbstractIRILink):
     def hint(cls, obj):
         try:
             cls().execute(obj)
-        except ValueError:
+        except InvalidIRI:
             return 0
         return 1.0
 
@@ -692,16 +704,16 @@ class ISNILink(AbstractIRILink):
         if check == 10:
             check = 'X'
         if str(check) != checksum:
-            raise ValueError('\'{}\' is not a valid {}; failed checksum.'.format(digits, cls.FORMAT))
+            raise InvalidIRI('\'{}\' is not a valid {}; failed checksum.'.format(digits, cls.FORMAT))
         for lower, upper in cls.BOUNDS:
             if (not lower or lower < literal) and (not upper or upper > literal):
                 return
-        raise ValueError('\'{0}\' is outside reserved {1} range.'.format(digits, cls.FORMAT, lower, upper))
+        raise InvalidIRI('\'{0}\' is outside reserved {1} range.'.format(digits, cls.FORMAT, lower, upper))
 
     def _parse(self, obj):
         match = re.search(self.ISNI_RE, obj.upper())
         if not match:
-            raise ValueError('\'{}\' cannot be expressed as an {}.'.format(obj, self.FORMAT))
+            raise InvalidIRI('\'{}\' cannot be expressed as an {}.'.format(obj, self.FORMAT))
         self.checksum(''.join(match.groups()))
 
         return {
@@ -768,7 +780,7 @@ class DOILink(AbstractIRILink):
     def _parse(self, obj):
         match = self.DOI_RE.search(obj.upper())
         if not match:
-            raise ValueError('\'{}\' is not a valid DOI.'.format(obj))
+            raise InvalidIRI('\'{}\' is not a valid DOI.'.format(obj))
         return {
             'scheme': None,
             'authority': None,
@@ -808,7 +820,7 @@ class URLLink(AbstractIRILink):
     def _process_scheme(self, scheme):
         scheme = scheme.lower()
         if scheme not in self.SCHEMES:
-            raise ValueError('\'{}\' is not a valid scheme for URLs.'.format(scheme))
+            raise InvalidIRI('\'{}\' is not a valid scheme for URLs.'.format(scheme))
         return scheme.rstrip('s')  # Standardize on non-secure
 
     def _process_query(self, query):
@@ -835,13 +847,13 @@ class EmailLink(AbstractIRILink):
 
     def execute(self, obj):
         if not isinstance(obj, str):
-            raise TypeError('\'{}\' is not of type str.'.format(obj))
+            raise InvalidIRI('\'{}\' is not of type str.'.format(obj))
         # Handle unicode hyphens
         emails = self.EMAIL_RE.findall(obj.replace('\u2010', '-'))
         if len(emails) < 1:
-            raise ValueError('\'{}\'is not a valid email address.'.format(obj))
+            raise InvalidIRI('\'{}\'is not a valid email address.'.format(obj))
         if len(emails) > 1:
-            raise ValueError('Found many email addresses in \'{}\'.'.format(obj))
+            raise InvalidIRI('Found many email addresses in \'{}\'.'.format(obj))
         return {
             'scheme': 'mailto',
             'authority': emails[0][2],
@@ -866,7 +878,7 @@ class ArXivLink(AbstractIRILink):
     def _parse(self, obj):
         match = self.ARXIV_RE.search(obj)
         if not match:
-            raise ValueError('\'{}\' is not a valid ArXiv Identifier.'.format(obj))
+            raise InvalidIRI('\'{}\' is not a valid ArXiv Identifier.'.format(obj))
         return {
             'scheme': self.ARXIV_SCHEME,
             'authority': self.ARXIV_DOMAIN,
@@ -890,7 +902,7 @@ class ARKLink(AbstractIRILink):
     def _parse(self, obj):
         match = self.ARK_RE.search(obj)
         if not match:
-            raise ValueError('\'{}\' is not a valid ARK Identifier.'.format(obj))
+            raise InvalidIRI('\'{}\' is not a valid ARK Identifier.'.format(obj))
         return {
             'scheme': self.ARK_SCHEME,
             'authority': match.group(1),
@@ -915,7 +927,7 @@ class InfoURILink(AbstractIRILink):
     def _parse(self, obj):
         match = self.INFO_RE.search(obj)
         if not match:
-            raise ValueError('\'{}\' is not a valid Info URI.'.format(obj))
+            raise InvalidIRI('\'{}\' is not a valid Info URI.'.format(obj))
         return {
             'scheme': self.SCHEME,
             'authority': match.group(1),
@@ -939,21 +951,21 @@ class ISBNLink(AbstractIRILink):
         match = self.ISBN13_RE.match(obj.upper()) or self.ISBN10_RE.match(obj.upper())
 
         if not match or len(''.join(match.groups())) not in (13, 10):
-            raise ValueError('\'{}\' cannot be expressed as an ISBN.'.format(obj))
+            raise InvalidIRI('\'{}\' cannot be expressed as an ISBN.'.format(obj))
 
         if match.re == self.ISBN13_RE:
             digits = ''.join(match.groups())
             check = (10 - sum(int(x) * (i % 2 * 2 + 1) for i, x in enumerate(digits[:-1])) % 10) % 10
 
             if str(check) != digits[-1]:
-                raise ValueError('\'{}\' is not a valid ISBN; failed checksum.'.format(obj))
+                raise InvalidIRI('\'{}\' is not a valid ISBN; failed checksum.'.format(obj))
 
         if match.re == self.ISBN10_RE:
             digits = ''.join(match.groups())
             check = sum(10 if x == 'X' else int(x) * (10 - i) for i, x in enumerate(digits))
 
             if check % 11 != 0:
-                raise ValueError('\'{}\' is not a valid ISBN; failed checksum.'.format(obj))
+                raise InvalidIRI('\'{}\' is not a valid ISBN; failed checksum.'.format(obj))
 
             # Add prefix and compute new checksum
             digits = '978' + digits
@@ -985,7 +997,7 @@ class IRILink(AbstractLink):
 
     def execute(self, obj):
         if not isinstance(obj, str):
-            raise TypeError('\'{}\' is not of type str.'.format(obj))
+            raise InvalidIRI('\'{}\' is not of type str.'.format(obj))
 
         find_all = re.findall('|'.join(
             '({})'.format(attr.pattern)
@@ -995,7 +1007,7 @@ class IRILink(AbstractLink):
         ), obj)
 
         if len(find_all) > 1:
-            raise ValueError('\'{}\' contains multiple IRIs'.format(obj))
+            raise InvalidIRI('\'{}\' contains multiple IRIs'.format(obj))
 
         final = (None, 0.0)
         for link in self.iri_links():
@@ -1010,7 +1022,7 @@ class IRILink(AbstractLink):
                 urn = self.FALLBACK_FORMAT.format(source=Context()._config.label, id=urllib.parse.quote(obj))
                 return URNLink().execute(urn)
             else:
-                raise ValueError('\'{}\' could not be identified as an Identifier.'.format(obj))
+                raise InvalidIRI('\'{}\' could not be identified as an Identifier.'.format(obj))
         return final[0]().execute(obj)
 
 

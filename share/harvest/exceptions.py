@@ -1,10 +1,6 @@
-class HarvestError(Exception):
-    pass
+from share.exceptions import HarvestError
 
 
+# TODO replace with a more generic ConcurrencyError, or delete (SHARE-1026)
 class HarvesterConcurrencyError(HarvestError):
-    pass
-
-
-class HarvesterDisabledError(HarvestError):
     pass

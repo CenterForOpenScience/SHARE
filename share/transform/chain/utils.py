@@ -3,6 +3,8 @@ from lxml import etree
 
 import logging
 
+from share.transform.chain import exceptions
+
 logger = logging.getLogger(__name__)
 
 
@@ -69,7 +71,7 @@ def force_text(data, list_sep=None, first_str=False):
             elif isinstance(datum, str):
                 text_list.append(datum)
             else:
-                raise Exception(datum)
+                raise exceptions.InvalidText(datum)
 
             if first_str and text_list:
                 return text_list[0]
@@ -80,7 +82,7 @@ def force_text(data, list_sep=None, first_str=False):
     if data is None:
         return ''
 
-    raise TypeError(data)
+    raise exceptions.InvalidText(data)
 
 
 def contact_extract(input_string):

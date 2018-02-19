@@ -138,11 +138,13 @@ class ChangeGraph:
                 node.model.normalize(node, self)
 
     def process(self, normalize=True, prune=True, disambiguate=True):
+        # TODO move models' normalize methods to regulator steps (SHARE-1023)
         if normalize:
             self.normalize()
 
         gd = GraphDisambiguator()
 
+        # TODO move pruning to regulator step (SHARE-1024)
         if prune:
             gd.prune(self)
 

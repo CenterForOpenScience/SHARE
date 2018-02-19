@@ -31,5 +31,5 @@ New States
 5. Create `SourceUniqueIdentifier` model/table
 6. Populate `SourceUniqueIdentifier`s from `RawData` using `provider_doc_id` and `app_label`
 
-Migrated `RawData` will remain unascoiated with any `HarvestLogs`.
+Migrated `RawData` will remain unascoiated with any `HarvestJobs`.
 We'll rely on a combination of back-harvesting and Janitor tasks to slowly rediscover and log the `RawData`

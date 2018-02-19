@@ -7,4 +7,4 @@ class RawDatumSerializer(ShareSerializer):
 
     class Meta:
         model = models.RawDatum
-        fields = ('id', 'suid', 'datum', 'sha256', 'date_modified', 'date_created', 'logs')
+        fields = ('id', 'suid', 'datum', 'sha256', 'date_modified', 'date_created')

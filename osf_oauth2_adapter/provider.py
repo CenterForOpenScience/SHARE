@@ -46,4 +46,5 @@ class OSFProvider(OAuth2Provider):
     def get_default_scope(self):
         return OsfOauth2AdapterConfig.default_scopes
 
+
 provider_classes = [OSFProvider]

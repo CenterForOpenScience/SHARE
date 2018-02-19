@@ -111,10 +111,10 @@ def test_swbiodiversity_harvester():
                            body=collection_page, content_type='text/html', match_querystring=True)
     start = pendulum.utcnow() - timedelta(days=3)
     end = pendulum.utcnow()
-    result = harvester._do_fetch(start, end)
-    for data in result:
-        assert data[0] == collection.url
-        assert "".join(data[1].split()) == "".join('''
+    results = harvester.fetch_date_range(start, end)
+    for result in results:
+        assert result.identifier == collection.url
+        assert "".join(result.datum.split()) == "".join('''
             <div id="innertext">
             <h1>SEINet - Arizona Chapter Collections </h1>
             <div>
