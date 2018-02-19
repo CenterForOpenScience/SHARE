@@ -17,7 +17,7 @@ def source_icon_view(request, source_name):
     source = get_object_or_404(Source, name=source_name)
     if not source.icon:
         raise http.Http404('Favicon for source {} does not exist'.format(source_name))
-    response = http.FileResponse(source.icon)
+    response = http.HttpResponse(source.icon)
     response['Content-Type'] = 'image/x-icon'
     return response
 
