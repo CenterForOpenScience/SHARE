@@ -125,7 +125,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='harvestjob',
             name='error_type',
-            field=models.TextField(blank=True, db_index=True, null=True),
+            field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
             model_name='rawdatum',
