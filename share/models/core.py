@@ -196,4 +196,4 @@ class NormalizedData(models.Model):
         pass
 
     def __str__(self):
-        return '{} created at {}'.format(self.source.get_short_name(), self.created_at)
+        return '<{}({}, {}, {})>'.format(self.__class__.__name__, self.id, self.source.get_short_name(), self.created_at)
