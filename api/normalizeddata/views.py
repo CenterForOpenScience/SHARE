@@ -74,14 +74,14 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
                 ingest_jobs=ingester.job
             ).order_by('-created_at').values_list('id', flat=True).first()
 
-            async_result = ingest.delay(job_id=ingester.job.id)
+        async_result = ingest.delay(job_id=ingester.job.id)
 
-            # TODO Use an actual serializer
-            return Response({
-                'id': IDObfuscator.encode_id(nd_id, models.NormalizedData),
-                'type': 'NormalizedData',
-                'attributes': {
-                    'task': async_result.id,
-                    'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
-                }
-            }, status=status.HTTP_202_ACCEPTED)
+        # TODO Use an actual serializer
+        return Response({
+            'id': IDObfuscator.encode_id(nd_id, models.NormalizedData),
+            'type': 'NormalizedData',
+            'attributes': {
+                'task': async_result.id,
+                'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
+            }
+        }, status=status.HTTP_202_ACCEPTED)
