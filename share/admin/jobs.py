@@ -89,7 +89,7 @@ class IngestJobAdmin(BaseJobAdmin):
     list_display = ('id', 'source_config_', 'suid_', 'status_', 'date_started', 'share_version', )
     list_select_related = BaseJobAdmin.list_select_related + ('suid',)
     readonly_fields = BaseJobAdmin.readonly_fields + ('suid', 'raw', 'transformer_version', 'regulator_version', )
-    fake_readonly_fields = ('transformed_data', 'regulated_data')
+    fake_readonly_fields = ('transformed_datum', 'regulated_datum')
     formfield_overrides = {
         DateTimeAwareJSONField: {
             'widget': PrettyJSONWidget(attrs={

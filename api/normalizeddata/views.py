@@ -69,16 +69,16 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
             ingester = Ingester(serializer.validated_data['data']).as_user(request.user).ingest(apply_changes=False)
             ingester.job.reschedule(claim=True)
 
-            nm_instance = models.NormalizedData.objects.filter(
+            nd_id = models.NormalizedData.objects.filter(
                 raw=ingester.raw,
-                ingest_job=ingester.job
-            ).order_by('-created_at').first()
+                ingest_jobs=ingester.job
+            ).order_by('-created_at').values_list('id', flat=True).first()
 
             async_result = ingest.delay(job_id=ingester.job.id)
 
             # TODO Use an actual serializer
             return Response({
-                'id': IDObfuscator.encode(nm_instance),
+                'id': IDObfuscator.encode_id(nd_id, models.NormalizedData),
                 'type': 'NormalizedData',
                 'attributes': {
                     'task': async_result.id,

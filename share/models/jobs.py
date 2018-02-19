@@ -488,8 +488,10 @@ class IngestJob(AbstractBaseJob):
     transformer_version = models.PositiveIntegerField()
     regulator_version = models.PositiveIntegerField()
 
-    transformed_data = DateTimeAwareJSONField(null=True)
-    regulated_data = DateTimeAwareJSONField(null=True)
+    transformed_datum = DateTimeAwareJSONField(null=True)
+    regulated_datum = DateTimeAwareJSONField(null=True)
+
+    ingested_normalized_data = models.ManyToManyField('NormalizedData', related_name='ingest_jobs')
 
     retries = models.IntegerField(null=True)
 

@@ -91,6 +91,7 @@ class DateTimeAwareJSONField(JSONField):
                 params={'value': value},
             )
 
+
 DatetimeAwareJSONField = DateTimeAwareJSONField
 
 
