@@ -1,5 +1,5 @@
 import logging
-from pendulum import pendulum
+import pendulum
 
 import celery
 
