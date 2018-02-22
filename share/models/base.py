@@ -163,6 +163,9 @@ class ShareObject(models.Model, metaclass=ShareObjectMeta):
             ConcurrentIndex(fields=['date_created'])
         ]
 
+    def __repr__(self):
+        return '<{}({}) {}>'.format(self.__class__.__name__, self.id, self)
+
     def get_absolute_url(self):
         return '{}{}/{}'.format(settings.SHARE_WEB_URL, self._meta.model_name, util.IDObfuscator.encode(self))
 

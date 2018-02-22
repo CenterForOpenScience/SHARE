@@ -28,7 +28,7 @@ class Command(BaseShareCommand):
         ).exclude(
             meta__has_key=self.META_FIXED_KEY,
             **{'meta__{}'.format(self.META_FIXED_KEY): True}
-        )
+        ).order_by('date_created')
         if options.get('from'):
             qs = qs.filter(date_modified__gte=options.get('from'))
         if options.get('until'):
