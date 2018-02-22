@@ -182,7 +182,7 @@ class ElasticSearchBot:
         self.es_models = kwargs.pop('es_models', None)
         self.es_setup = bool(kwargs.pop('es_setup', False))
         self.es_url = kwargs.pop('es_url', None) or settings.ELASTICSEARCH_URL
-        self.to_daemon = kwargs.pop('to_daemon', False)
+        self.to_daemon = kwargs.pop('to_daemon', True)
 
         if self.es_models:
             self.es_models = [x.lower() for x in self.es_models]
@@ -227,14 +227,6 @@ class ElasticSearchBot:
                 if hasattr(model, 'subjects') and hasattr(model, 'subject_relations'):
                     q = q | Q(subjects__date_modified__gt=most_recent_result) | Q(subject_relations__date_modified__gt=most_recent_result)
                 qs = model.objects.filter(q).values_list('id', flat=True)
-
-            count = qs.count()
-
-            if count < 1:
-                logger.info('Found 0 qualifying %ss', model)
-                continue
-            else:
-                logger.info('Found %s %s that must be updated in ES', count, model)
 
             for batch in chunk(qs.iterator(), chunk_size):
                 if batch:

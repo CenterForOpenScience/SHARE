@@ -12,6 +12,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 
 from share.models import AbstractCreativeWork
+from share.models import CeleryTaskResult
 from share.models import WorkIdentifier
 from share.search import indexing
 
@@ -28,9 +29,19 @@ def safe_substr(value, length=32000):
 
 
 @celery.shared_task(bind=True)
-def update_elasticsearch(self, filter=None, index=None, models=None, setup=False, url=None, to_daemon=False):
+def update_elasticsearch(self, filter=None, index=None, models=None, setup=False, url=None, to_daemon=True, periodic=True):
     """
     """
+    if periodic:
+        dupe_task_qs = CeleryTaskResult.objects.filter(
+            task_name=self.name,
+            status=celery.states.STARTED
+        ).exclude(task_id=self.request.id)
+
+        if dupe_task_qs.exists():
+            logger.info('Another %s task is already running; let it work alone.', self.name)
+            return
+
     # TODO Refactor Elasitcsearch logic
     ElasticSearchBot(
         es_filter=filter,
@@ -173,7 +184,7 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_d
             return
 
         logger.debug('dry=False, reindexing missing works')
-        task = update_elasticsearch.apply_async((), {'to_daemon': to_daemon, 'filter': {'date_created__range': [min_date, max_date]}})
+        task = update_elasticsearch.apply_async((), {'periodic': False, 'to_daemon': to_daemon, 'filter': {'date_created__range': [min_date, max_date]}})
         logger.info('Spawned %r', task)
         return
 
