@@ -23,7 +23,7 @@ class Command(BaseShareCommand):
             error_type='MergeRequired',
             status=IngestJob.STATUS.failed,
             source_config__source__canonical=True
-        )
+        ).order_by('date_created')
         if options.get('from'):
             qs = qs.filter(date_modified__gte=options.get('from'))
         if options.get('until'):
