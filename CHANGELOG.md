@@ -1,5 +1,12 @@
 # Change Log
 
+# [2.14.8] - 2018-02-22
+* Add --delete-related and --superfluous flags to `enforce_set_lists`
+* Improve script output by including ids in ShareObject.__repr__
+
+# [2.14.7] - 2018-02-18
+* Devops updates for new environment
+
 # [2.14.6] - 2018-02-12
 * *Actually* speed up OAI feed
 
