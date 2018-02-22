@@ -1,5 +1,11 @@
 # Change Log
 
+# [2.14.9] - 2018-02-22
+* Speed up update_elasticsearch task:
+    * Don't count the works just for a log message
+    * Use the indexer daemon by default, instead of index_model tasks
+* Only run one update_elasticsearch task at a time
+
 # [2.14.8] - 2018-02-22
 * Add --delete-related and --superfluous flags to `enforce_set_lists`
 * Improve script output by including ids in ShareObject.__repr__

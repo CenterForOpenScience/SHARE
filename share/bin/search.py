@@ -42,6 +42,7 @@ def search(args, argv):
         args['--filter'] = {'id__isnull': False}
 
     kwargs = {
+        'periodic': False,
         'filter': args.get('--filter'),
         'index': args.get('--index'),
         'url': args.get('--url'),
