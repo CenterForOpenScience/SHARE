@@ -53,24 +53,6 @@ class ThroughSubjects(Parser):
     subject = Delegate(Subject, ctx)
 
 
-class DeptAgent(Parser):
-    schema = 'Department'
-
-    name = ctx.ORG_DEPT
-    location = RunPython(format_org_address, ctx)
-
-    class Extra:
-        awardee_organization_city = ctx.ORG_CITY
-        awardee_organization_state = ctx.ORG_STATE
-        awardee_organization_zipcode = ctx.ORG_ZIPCODE
-        awardee_organization_country = ctx.ORG_COUNTRY
-
-
-class DeptIsAffiliatedWith(Parser):
-    schema = 'IsAffiliatedWith'
-    related = tools.Delegate(DeptAgent, ctx)
-
-
 class AwardeeAgent(Parser):
     schema = GuessAgentType(
         ctx.ORG_NAME,
@@ -89,16 +71,6 @@ class AwardeeAgent(Parser):
         awardee_organization_state = ctx.ORG_STATE
         awardee_organization_zipcode = ctx.ORG_ZIPCODE
         awardee_organization_country = ctx.ORG_COUNTRY
-
-
-class FullAwardeeAgent(AwardeeAgent):
-
-    related_agents = tools.Map(tools.Delegate(DeptIsAffiliatedWith), RunPython('if_dept', ctx))
-
-    def if_dept(self, ctx):
-        if ctx['ORG_DEPT']:
-            return ctx
-        return None
 
 
 class AgentWorkRelation(Parser):
@@ -165,11 +137,6 @@ class IsAffiliatedWith(Parser):
     related = tools.Delegate(AwardeeAgent, ctx)
 
 
-class FullIsAffiliatedWith(Parser):
-    schema = 'IsAffiliatedWith'
-    related = tools.Delegate(FullAwardeeAgent, ctx)
-
-
 class POAgent(Parser):
     schema = 'Person'
 
@@ -191,14 +158,8 @@ class PIContactAgent(Parser):
 
     name = ctx.PI_NAME
     related_agents = tools.Concat(
-        tools.Map(tools.Delegate(FullIsAffiliatedWith), ctx['org_ctx']),
-        tools.Map(tools.Delegate(DeptIsAffiliatedWith), RunPython('if_dept', ctx))
+        tools.Map(tools.Delegate(IsAffiliatedWith), ctx['org_ctx']),
     )
-
-    def if_dept(self, ctx):
-        if ctx['org_ctx']['ORG_DEPT']:
-            return {**ctx['org_ctx'], 'hash_breaker': True}
-        return None
 
     class Extra:
         pi_id = RunPython(filter_nil, ctx.PI_ID)
@@ -259,7 +220,8 @@ class Project(Parser):
 
     tags = Map(
         Delegate(ThroughTags),
-        RunPython(filter_nil, Try(ctx.row.PROJECT_TERMSX.TERM))
+        RunPython(filter_nil, Try(ctx.row.PROJECT_TERMSX.TERM)),
+        RunPython(filter_nil, Try(ctx.row.ORG_DEPT))
     )
 
     class Extra:

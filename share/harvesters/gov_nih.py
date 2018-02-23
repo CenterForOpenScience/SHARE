@@ -77,9 +77,9 @@ class NIHHarvester(BaseHarvester):
     def parse_month_column(self, month_column, day_of_week):
         """
         Given a month column string, return the date of a day (Monday by default) of that week
-        An example of a month column string: September, 2015 - WEEK 1
+        An example of a month column string: September 2015, WEEK 1
         """
-        month_year, week = iter(map(lambda x: x.strip(), month_column.split('-')))
+        month_year, week = iter(map(lambda x: x.strip(), month_column.split(',')))
         first_day = parse('1 ' + month_year)
         first_day -= timedelta(days=(first_day.weekday() - day_of_week + 7 * (1 if first_day.weekday() - day_of_week <= 0 else 0)))
         week = int(re.search('.*([0-9]{1,2})', week).group(1))
@@ -100,9 +100,11 @@ class NIHHarvester(BaseHarvester):
 
         if month_column.lower() == u"all":
             return (None, fiscal_year, url)
-        elif re.match('[A-Za-z\s]*, [0-9]{4} - .*', month_column):
+        elif re.match('[A-Za-z\s]* [0-9]{4}, WEEK \d+', month_column):
             date = self.parse_month_column(month_column, day_of_week)
             return (date, fiscal_year, url)
+        else:
+            raise ValueError('Unrecognized month column format: "{}"'.format(month_column))
 
     def parse_rows(self, rows, day_of_week):
         """
