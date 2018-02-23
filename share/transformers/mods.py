@@ -165,7 +165,8 @@ RELATION_MAP = {
     'reviewOf': 'Reviews',
 }
 REVERSE_RELATIONS = {
-    'isReferencedBy'
+    'isReferencedBy',
+    'constituent',
 }
 
 
