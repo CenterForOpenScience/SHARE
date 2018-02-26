@@ -238,8 +238,9 @@ class ElasticSearchBot:
                         except ValueError:
                             logger.warning('Not sending model type %r to the SearchIndexer', model)
 
-        logger.info('Starting task to index sources')
-        tasks.index_sources.apply_async((), {'es_url': self.es_url, 'es_index': self.es_index})
+        if self.es_models and 'source' in self.es_models:
+            logger.info('Starting task to index sources')
+            tasks.index_sources.apply_async((), {'es_url': self.es_url, 'es_index': self.es_index})
 
     def setup(self):
         logger.debug('Ensuring Elasticsearch index %s', self.es_index)

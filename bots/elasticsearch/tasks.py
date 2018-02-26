@@ -184,7 +184,12 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_d
             return
 
         logger.debug('dry=False, reindexing missing works')
-        task = update_elasticsearch.apply_async((), {'periodic': False, 'to_daemon': to_daemon, 'filter': {'date_created__range': [min_date, max_date]}})
+        task = update_elasticsearch.apply_async((), {
+            'filter': {'date_created__range': [min_date, max_date]},
+            'to_daemon': to_daemon,
+            'models': ['creativework'],
+            'periodic': False,
+        })
         logger.info('Spawned %r', task)
         return
 
