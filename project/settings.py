@@ -440,7 +440,7 @@ CELERY_TASK_DEFAULT_EXCHANGE = 'share_default'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'share_default'
 
 CELERY_TASK_ROUTES = {
-    'bots.elasticsearch.*': {'priority': 50, 'queue': 'elasticsearch'},
+    'bots.elasticsearch.*': {'priority': 10, 'queue': 'elasticsearch'},
     'share.tasks.harvest': {'priority': 0, 'queue': 'harvest'},
     'share.tasks.ingest': {'priority': 20, 'queue': 'ingest'},
 }
