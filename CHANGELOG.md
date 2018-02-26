@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.14.11] - 2018-02-26
+* Update pendulum dependency to avoid infinite janitor loop
+
 # [2.14.10] - 2018-02-26
 * Fix elasticsearch_janitor task
     * Expect (and give) str arguments, avoiding error
