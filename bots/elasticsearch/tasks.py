@@ -153,8 +153,8 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_d
     MAX_DB_COUNT = 500
     MIN_MISSING_RATIO = 0.7
 
-    min_date = pendulum.instance(min_date)
-    max_date = pendulum.instance(max_date)
+    min_date = pendulum.parse(min_date)
+    max_date = pendulum.parse(max_date)
 
     logger.debug('Checking counts for %s to %s', min_date.format('%B %-d, %Y %I:%M:%S %p'), max_date.format('%B %-d, %Y %I:%M:%S %p'))
 
@@ -195,7 +195,7 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_d
     for (_min, _max) in [(min_date, median_date), (median_date, max_date)]:
         logger.info('Starting bisection of %s to %s', _min.format('%B %-d, %Y %I:%M:%S %p'), _max.format('%B %-d, %Y %I:%M:%S %p'))
 
-        targs, tkwargs = (es_url, es_index, _min, _max), {'dry': dry}
+        targs, tkwargs = (es_url, es_index, str(_min), str(_max)), {'dry': dry, 'to_daemon': to_daemon}
 
         if getattr(self.request, 'is_eager', False):
             logger.debug('Running in an eager context. Running child tasks synchronously.')
@@ -205,7 +205,7 @@ def pseudo_bisection(self, es_url, es_index, min_date, max_date, dry=False, to_d
 
 
 @celery.shared_task(bind=True)
-def elasticsearch_janitor(self, es_url=None, es_index=None, dry=False, to_daemon=False):
+def elasticsearch_janitor(self, es_url=None, es_index=None, dry=False, to_daemon=True):
     """
     Looks for discrepancies between postgres and elastic search numbers
     Re-indexes time periods that differ in count
@@ -222,4 +222,4 @@ def elasticsearch_janitor(self, es_url=None, es_index=None, dry=False, to_daemon
     max_date = pendulum.utcnow()
     min_date = pendulum.instance(min_date)
 
-    pseudo_bisection.apply((es_url, es_index, min_date, max_date), {'dry': dry, 'to_daemon': to_daemon}, throw=True)
+    pseudo_bisection.apply((es_url, es_index, str(min_date), str(max_date)), {'dry': dry, 'to_daemon': to_daemon}, throw=True)

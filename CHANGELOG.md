@@ -1,5 +1,10 @@
 # Change Log
 
+# [2.14.10] - 2018-02-26
+* Fix elasticsearch_janitor task
+    * Expect (and give) str arguments, avoiding error
+    * Use the indexer daemon by default
+
 # [2.14.9] - 2018-02-22
 * Speed up update_elasticsearch task:
     * Don't count the works just for a log message
