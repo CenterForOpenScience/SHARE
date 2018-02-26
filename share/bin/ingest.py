@@ -46,7 +46,7 @@ def transform(args, argv):
             data = fobj.read()
         with launch_ipdb_on_exception():
             print('Parsed raw data "{}" into'.format(name))
-            pprint(transformer.transform(data))
+            pprint(transformer.transform(data).to_jsonld(in_edges=False))
             print('\n')
 
 

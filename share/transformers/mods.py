@@ -275,7 +275,7 @@ class MODSCreativeWork(Parser):
 
     related_works = tools.Concat(
         tools.Map(
-            tools.Delegate(MODSWorkRelation),
+            tools.Delegate(work_relation_parser),
             tools.Try(ctx['mods:relatedItem'])
         )
     )
