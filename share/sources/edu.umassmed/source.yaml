@@ -1,6 +1,6 @@
 # Digital Commons/Bepress
 configs:
-- base_url: http://escholarship.umassmed.edu/do/oai/
+- base_url: https://escholarship.umassmed.edu/do/oai/
   disabled: false
   earliest_date: 2000-01-19T00:00:00Z
   harvester: oai
@@ -14,7 +14,7 @@ configs:
     emitted_type: CreativeWork
     property_list: []
     type_map: {}
-home_page: http://escholarship.umassmed.edu
+home_page: https://escholarship.umassmed.edu
 long_title: eScholarship@UMMS
 name: edu.umassmed
 user: providers.edu.umassmed
