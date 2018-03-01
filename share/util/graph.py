@@ -105,7 +105,7 @@ class MutableGraph(nx.DiGraph):
         id (hashable): Unique node ID
         cascade (boolean): Also remove nodes with edges which point to this node. Default True.
         """
-        to_remove = [from_id for from_id, _ in self.in_edges_iter(id)] if cascade else ()
+        to_remove = list(self.predecessors(id)) if cascade else []
         super().remove_node(id)
         for from_id in to_remove:
             self.remove_node(from_id, cascade)
@@ -131,9 +131,9 @@ class MutableGraph(nx.DiGraph):
         """
         assert all(
             data.get(self.FROM_NAME_ATTR) != from_name for _, _, data
-            in self.out_edges_iter(from_id, data=True)
+            in self.out_edges(from_id, data=True)
         ), 'Out-edge names must be unique on the node'
-        self.add_edge(from_id, to_id, {self.FROM_NAME_ATTR: from_name, self.TO_NAME_ATTR: to_name})
+        self.add_edge(from_id, to_id, **{self.FROM_NAME_ATTR: from_name, self.TO_NAME_ATTR: to_name})
 
     def remove_named_edge(self, from_id, from_name):
         """Remove a named edge.
@@ -144,7 +144,7 @@ class MutableGraph(nx.DiGraph):
         try:
             to_id = next(
                 to_id for _, to_id, data
-                in self.out_edges_iter(from_id, data=True)
+                in self.out_edges(from_id, data=True)
                 if data.get(self.FROM_NAME_ATTR) == from_name
             )
             self.remove_edge(from_id, to_id)
@@ -162,7 +162,7 @@ class MutableGraph(nx.DiGraph):
         try:
             return next(
                 MutableNode(self, to_id) for _, to_id, data
-                in self.out_edges_iter(from_id, data=True)
+                in self.out_edges(from_id, data=True)
                 if data.get(self.FROM_NAME_ATTR) == from_name
             )
         except StopIteration:
@@ -178,7 +178,7 @@ class MutableGraph(nx.DiGraph):
         """
         return [
             MutableNode(self, from_id) for from_id, _, data
-            in self.in_edges_iter(to_id, data=True)
+            in self.in_edges(to_id, data=True)
             if data.get(self.TO_NAME_ATTR) == to_name
         ]
 
@@ -193,7 +193,7 @@ class MutableGraph(nx.DiGraph):
         """
         return {
             data[self.FROM_NAME_ATTR]: MutableNode(self, to_id) for _, to_id, data
-            in self.out_edges_iter(from_id, data=True)
+            in self.out_edges(from_id, data=True)
             if data.get(self.FROM_NAME_ATTR) is not None
         }
 
@@ -207,7 +207,7 @@ class MutableGraph(nx.DiGraph):
             values: list of MutableNode wrappers for the nodes each edge comes from
         """
         in_edges = {}
-        for from_id, _, data in self.in_edges_iter(to_id, data=True):
+        for from_id, _, data in self.in_edges(to_id, data=True):
             to_name = data.get(self.TO_NAME_ATTR)
             if to_name is not None:
                 in_edges.setdefault(to_name, []).append(MutableNode(self, from_id))
@@ -243,7 +243,7 @@ class MutableNode:
 
     @property
     def attrs(self):
-        return self.graph.node[self.id]
+        return self.graph.nodes[self.id]
 
     @property
     def type(self):

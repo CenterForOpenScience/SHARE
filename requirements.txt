@@ -29,7 +29,7 @@ jsonschema==2.5.1  # MIT
 lxml==3.6.0  # BSD
 markdown==2.6.8  # BSD
 nameparser==0.4.0  # LGPL
-networkx==1.11  # BSD
+networkx==2.1  # BSD
 newrelic==2.86.3.70  # newrelic APM agent, Custom License
 pendulum==1.2.5  # MIT
 pillow==4.0.0  # PIL Software License:
