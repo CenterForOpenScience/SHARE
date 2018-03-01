@@ -28,6 +28,14 @@ configs:
     emitted_type: CreativeWork
     property_list: []
     type_map: {}
+  regulator_steps:
+    - namespace: share.regulate.steps.node
+      name: block_extra_values
+      options:
+        node_types:
+          - WorkIdentifer
+        blocked_values:
+          identifier_type: srbnumber
 - base_url: http://repository.si.edu/oai/request
   disabled: true
   earliest_date: null
