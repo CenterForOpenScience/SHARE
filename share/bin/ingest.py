@@ -5,16 +5,18 @@ from pprint import pprint
 from share import tasks
 from share.bin.util import command
 from share.models import SourceConfig, RawDatum, IngestJob
+from share.regulate import Regulator
 
 
 @command('Run a SourceConfig\'s transformer')
 def transform(args, argv):
     """
-    Usage: {0} transform <sourceconfig> FILE ...
-           {0} transform <sourceconfig> --directory=DIR
-           {0} transform --ids <raw_data_ids>...
+    Usage: {0} transform [--regulate] <sourceconfig> FILE ...
+           {0} transform [--regulate] <sourceconfig> --directory=DIR
+           {0} transform [--regulate] --ids <raw_data_ids>...
 
     Options:
+        -r, --regulate       Run the Regulator on the transformed graph
         -d, --directory=DIR  Transform all JSON files in DIR
         -i, --ids            Provide RawDatum IDs to transform
 
@@ -45,8 +47,11 @@ def transform(args, argv):
         with open(name) as fobj:
             data = fobj.read()
         with launch_ipdb_on_exception():
+            graph = transformer.transform(data)
+            if args.get('--regulate'):
+                Regulator(source_config=config).regulate(graph)
             print('Parsed raw data "{}" into'.format(name))
-            pprint(transformer.transform(data).to_jsonld(in_edges=False))
+            pprint(graph.to_jsonld(in_edges=False))
             print('\n')
 
 

@@ -2,45 +2,51 @@ from django.conf import settings
 
 from share.models import RegulatorLog
 from share.util.extensions import Extensions
+from share.regulate.steps import NodeStep, GraphStep, ValidationStep
 
 
 class Regulator:
     VERSION = 1
 
-    def __init__(self, ingest_job=None):
+    def __init__(self, ingest_job=None, source_config=None):
+        assert not ingest_job or not source_config, 'Provider ingest_job or source_config, not both'
+
         self.job = ingest_job
         self._logs = []
 
-        self._node_steps = self._steps('share.regulate.steps.node', settings.SHARE_REGULATOR_NODE_STEPS)
-        self._graph_steps = self._steps('share.regulate.steps.graph', settings.SHARE_REGULATOR_GRAPH_STEPS)
-        self._validation_steps = self._steps('share.regulate.steps.validate', settings.SHARE_REGULATOR_VALIDATION_STEPS)
+        self._default_steps = self._get_steps(settings.SHARE_REGULATOR_STEPS)
+        self._custom_steps = []
+
+        if ingest_job and not source_config:
+            source_config = ingest_job.suid.source_config
+
+        if source_config:
+            self._custom_steps = self._get_steps(source_config.regulator_steps)
 
     def regulate(self, graph):
         try:
-            # TODO get source-specific steps (and options) from self.job.suid.source_config, run them first
-
-            # Node phase
-            for node in self._iter_nodes(graph):
-                for step in self._node_steps:
-                    if step.should_regulate(node):
-                        step.regulate_node(node)
-
-            # Graph phase
-            for step in self._graph_steps:
-                step.regulate_graph(graph)
-
-            # Validation phase
-            for step in self._validation_steps:
-                step.validate_graph(graph)
-
+            for step in self._custom_steps:
+                self._run_step(step, graph)
+            for step in self._default_steps:
+                self._run_step(step, graph)
         finally:
-            if self._logs:
+            if self.job and self._logs:
                 RegulatorLog.objects.bulk_create(self._logs)
 
     def add_log(self, *args, **kwargs):
         log = RegulatorLog(*args, **kwargs)
         log.ingest_job = self.job
         self._logs.append(log)
+
+    def _run_step(self, step, graph):
+        if isinstance(step, NodeStep):
+            for node in self._iter_nodes(graph):
+                if step.valid_target(node):
+                    step.regulate_node(node)
+        elif isinstance(step, GraphStep):
+            step.regulate_graph(graph)
+        elif isinstance(step, ValidationStep):
+            step.validate_graph(graph)
 
     def _iter_nodes(self, graph):
         """Iterate through the graph's nodes in no particular order, allowing nodes to be added/deleted while iterating
@@ -54,5 +60,17 @@ class Regulator:
                     visited.add(n)
             nodes = set(graph) - visited
 
-    def _steps(self, namespace, names):
-        return [Extensions.get(namespace, name)(self) for name in names]
+    def _get_steps(self, step_configs):
+        if not step_configs:
+            return []
+        return [self._get_step(**config) for config in step_configs]
+
+    def _get_step(self, namespace, name, options=None):
+        """Instantiate and return a regulator step for the given config.
+
+        Params:
+            namespace: Name of the step's entry point group in setup.py
+            name: Name of the step's entry point in setup.py
+            [options]: Optional dictionary, passed as keyword arguments when initializing the step
+        """
+        return Extensions.get(namespace, name)(self, **(options or {}))
