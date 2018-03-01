@@ -159,7 +159,7 @@ class TestJanitorTask:
         helper1.assert_not_indexed()
         helper2.assert_not_indexed()
 
-        tasks.elasticsearch_janitor()
+        tasks.elasticsearch_janitor(to_daemon=False)
 
         helper1.assert_indexed()
         helper2.assert_indexed()
@@ -181,7 +181,7 @@ class TestJanitorTask:
         for helper in real:
             helper.assert_not_indexed()
 
-        tasks.elasticsearch_janitor()
+        tasks.elasticsearch_janitor(to_daemon=False)
 
         for helper in real:
             helper.assert_indexed()
