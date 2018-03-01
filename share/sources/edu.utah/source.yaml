@@ -9,7 +9,15 @@ configs:
   rate_limit_period: 2
   transformer: oai_dc
   transformer_kwargs:
-    approved_sets: [ir_uspace]
+    approved_sets: 
+      - ir_uspace
+      - ir_computersa
+      - ir_etd
+      - ir_mfafp
+      - ir_su
+      - ir_kcg
+      - ir_htoa
+      - ir_eua
     emitted_type: CreativeWork
     property_list: []
     type_map: {}
