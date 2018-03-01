@@ -2,9 +2,8 @@ from share.exceptions import RegulateError
 
 
 class BaseStep:
-    def __init__(self, regulator, **options):
+    def __init__(self, regulator):
         self.regulator = regulator
-        self.options = options
 
     def info(self, description, node_id=None):
         """Log information about a change made to the graph.
@@ -19,12 +18,27 @@ class BaseStep:
 
 
 class NodeStep(BaseStep):
+    def __init__(self, *args, node_types=None, **kwargs):
+        """Initialize a NodeStep.
+
+        Params:
+            regulator: Regulator instance
+            [node_types]: List of node types this step will be run on. e.g. ['WorkIdentifier']
+        """
+        super().__init__(*args, **kwargs)
+
+        if node_types:
+            node_types = [t.lower() for t in node_types]
+        self.node_types = node_types
+
     def valid_target(self, node):
         """Return True if `node` is a valid target for this regulator step.
 
         Override to filter the nodes this step will run on.
         """
-        return True
+        if self.node_types is None:
+            return True
+        return node.type.lower() in self.node_types
 
     def regulate_node(self, node):
         raise NotImplementedError()

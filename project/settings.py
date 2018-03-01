@@ -550,12 +550,24 @@ SUBJECTS_YAML = 'share/subjects.yaml'
 SHARE_LEGACY_PIPELINE = os.environ.get('SHARE_LEGACY_PIPELINE', True)
 
 # Regulator pipeline, names of setuptools entry points
-SHARE_REGULATOR_NODE_STEPS = [
-]
-SHARE_REGULATOR_GRAPH_STEPS = [
-]
-SHARE_REGULATOR_VALIDATION_STEPS = [
-    'jsonld_validator',
+SHARE_REGULATOR_STEPS = [
+    {
+        'namespace': 'share.regulate.steps.node',
+        'name': 'normalize_iris',
+        'options': {
+            'node_types': ['workidentifier'],
+            'blocked_schemes': ['mailto'],
+            'blocked_authorities': ['issn', 'orcid.org'],
+        },
+    },
+    {
+        'namespace': 'share.regulate.steps.node',
+        'name': 'normalize_iris',
+        'options': {
+            'node_types': ['agentidentifier'],
+        },
+    },
+    {'namespace': 'share.regulate.steps.validate', 'name': 'jsonld_validator'},
 ]
 
 # API KEYS
