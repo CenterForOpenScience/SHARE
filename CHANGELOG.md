@@ -1,5 +1,22 @@
 # Change Log
 
+# [2.15.0] - 2018-03-05
+## Ingest architecture
+* Add IngestJob, used to keep track of a RawDatum's ingestion status
+    * Exposed in API at `/api/v2/ingestjobs/`
+    * In the response to pushed data, include a link to the IngestJob
+* Rename HarvestLog to HarvestJob
+* Combine `transform` and `disambiguate` tasks into `ingest` task
+* Catch all errors caused by bad input data, store them on the IngestJob
+* Add Regulator, a place to put logic/transforms/validation that should
+  run on all data, regardless of source
+* Fix: Prevent indexer daemon threads from exiting when elasticsearch times out
+
+## Existing sources
+* Map work relation types in MODS transformer
+* Update edu.utah source config to include more approved sets
+* Update edu.umassmed source config to use HTTPS
+
 # [2.14.11] - 2018-02-26
 * Update pendulum dependency to avoid infinite janitor loop
 
