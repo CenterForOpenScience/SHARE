@@ -32,12 +32,12 @@ class NormalizeIRIs(NodeStep):
                 self.info('Normalized IRI "{}" into "{}"'.format(old_iri, new_iri), node.id)
 
             if self.blocked_schemes and ret['scheme'] in self.blocked_schemes:
-                node.delete()
                 self.info('Discarding identifier based on invalid scheme "{}"'.format(ret['scheme']), node.id)
-            elif self.blocked_authorities and ret['authority'] in self.blocked_authorities:
                 node.delete()
+            elif self.blocked_authorities and ret['authority'] in self.blocked_authorities:
                 self.info('Discarding identifier based on invalid authority "{}"'.format(ret['authority']), node.id)
+                node.delete()
 
         except InvalidIRI as e:
+            self.info('Discarding identifier based on unrecognized IRI "{}"'.format(old_iri), node.id)
             node.delete()
-            self.info('Discarding identifier based on unrecognized IRI "{}"'.format(old_iri))

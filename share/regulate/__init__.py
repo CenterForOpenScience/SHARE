@@ -8,13 +8,14 @@ from share.regulate.steps import NodeStep, GraphStep, ValidationStep
 class Regulator:
     VERSION = 1
 
-    def __init__(self, ingest_job=None, source_config=None):
+    def __init__(self, ingest_job=None, source_config=None, steps_config=None):
         assert not ingest_job or not source_config, 'Provider ingest_job or source_config, not both'
 
         self.job = ingest_job
         self._logs = []
 
-        self._default_steps = self._get_steps(settings.SHARE_REGULATOR_STEPS)
+        config = settings.SHARE_REGULATOR_STEPS if steps_config is None else steps_config
+        self._default_steps = self._get_steps(config)
         self._custom_steps = []
 
         if ingest_job and not source_config:
@@ -31,22 +32,23 @@ class Regulator:
                 self._run_step(step, graph)
         finally:
             if self.job and self._logs:
+                for log in self._logs:
+                    log.ingest_job = self.job
                 RegulatorLog.objects.bulk_create(self._logs)
 
-    def add_log(self, *args, **kwargs):
-        log = RegulatorLog(*args, **kwargs)
-        log.ingest_job = self.job
-        self._logs.append(log)
-
     def _run_step(self, step, graph):
-        if isinstance(step, NodeStep):
-            for node in self._iter_nodes(graph):
-                if step.valid_target(node):
-                    step.regulate_node(node)
-        elif isinstance(step, GraphStep):
-            step.regulate_graph(graph)
-        elif isinstance(step, ValidationStep):
-            step.validate_graph(graph)
+        try:
+            if isinstance(step, NodeStep):
+                for node in self._iter_nodes(graph):
+                    if step.valid_target(node):
+                        step.regulate_node(node)
+            elif isinstance(step, GraphStep):
+                step.regulate_graph(graph)
+            elif isinstance(step, ValidationStep):
+                step.validate_graph(graph)
+        finally:
+            if step.logs:
+                self._logs.extend(step.logs)
 
     def _iter_nodes(self, graph):
         """Iterate through the graph's nodes in no particular order, allowing nodes to be added/deleted while iterating
@@ -73,4 +75,4 @@ class Regulator:
             name: Name of the step's entry point in setup.py
             [options]: Optional dictionary, passed as keyword arguments when initializing the step
         """
-        return Extensions.get(namespace, name)(self, **(options or {}))
+        return Extensions.get(namespace, name)(**(options or {}))

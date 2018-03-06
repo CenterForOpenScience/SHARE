@@ -121,6 +121,10 @@ class MutableGraph(nx.DiGraph):
         # TODO figure out common sorts of filters, make kwargs for them and optimize
         return [node for node in self if filter(node)]
 
+    def filter_type(self, type_name):
+        # TODO make a sort of index dict, mapping type to nodes
+        return self.filter_nodes(lambda n: n.type == type_name)
+
     def add_named_edge(self, from_id, to_id, from_name, to_name):
         """Add a named edge.
 
