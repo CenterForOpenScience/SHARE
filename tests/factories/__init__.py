@@ -101,6 +101,7 @@ class TransformerFactory(DjangoModelFactory):
 class SourceConfigFactory(DjangoModelFactory):
     label = factory.Faker('sentence')
     base_url = factory.Faker('url')
+    harvest_after = '00:00'
     source = factory.SubFactory(SourceFactory)
 
     harvester = factory.SubFactory(HarvesterFactory)
