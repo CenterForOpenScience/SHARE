@@ -1788,7 +1788,6 @@
         "Applied Mechanics"
     ],
     "philosophy of science": [
-        "Philosophy of Science",
         "Philosophy of Science"
     ],
     "o33": [
@@ -2130,7 +2129,6 @@
         "Legal"
     ],
     "molecular biology": [
-        "Molecular Biology",
         "Molecular Biology"
     ],
     "other physics": [
@@ -2391,7 +2389,6 @@
         "Other Philosophy"
     ],
     "psychology": [
-        "Psychology",
         "Psychology"
     ],
     "r11": [
@@ -4940,8 +4937,7 @@
         "Economics"
     ],
     "economics": [
-        "Economics",
-        "Other Business"
+        "Economics"
     ],
     "e1": [
         "Macroeconomics"
@@ -5453,9 +5449,6 @@
     "liberal studies": [
         "Liberal Studies"
     ],
-    "archives": [
-        "Other Business"
-    ],
     "q27": [
         "Agricultural and Resource Economics"
     ],
@@ -5960,9 +5953,6 @@
     ],
     "educational methods": [
         "Educational Methods"
-    ],
-    "peer review": [
-        "Other Business"
     ],
     "other physical sciences and mathematics": [
         "Other Physical Sciences and Mathematics"
@@ -6740,9 +6730,6 @@
     ],
     "hepatology": [
         "Hepatology"
-    ],
-    "electronic publishing": [
-        "Other Business"
     ],
     "h79": [
         "Public Economics"
