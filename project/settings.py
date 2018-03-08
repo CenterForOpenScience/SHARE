@@ -554,7 +554,7 @@ SHARE_REGULATOR_STEPS = [
     {
         'namespace': 'share.regulate.steps.node',
         'name': 'normalize_iris',
-        'options': {
+        'settings': {
             'node_types': ['workidentifier'],
             'blocked_schemes': ['mailto'],
             'blocked_authorities': ['issn', 'orcid.org'],
@@ -563,7 +563,7 @@ SHARE_REGULATOR_STEPS = [
     {
         'namespace': 'share.regulate.steps.node',
         'name': 'normalize_iris',
-        'options': {
+        'settings': {
             'node_types': ['agentidentifier'],
         },
     },

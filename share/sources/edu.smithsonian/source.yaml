@@ -31,7 +31,7 @@ configs:
   regulator_steps:
     - namespace: share.regulate.steps.node
       name: block_extra_values
-      options:
+      settings:
         node_types:
           - WorkIdentifer
         blocked_values:

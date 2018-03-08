@@ -67,12 +67,12 @@ class Regulator:
             return []
         return [self._get_step(**config) for config in step_configs]
 
-    def _get_step(self, namespace, name, options=None):
+    def _get_step(self, namespace, name, settings=None):
         """Instantiate and return a regulator step for the given config.
 
         Params:
             namespace: Name of the step's entry point group in setup.py
             name: Name of the step's entry point in setup.py
-            [options]: Optional dictionary, passed as keyword arguments when initializing the step
+            [settings]: Optional dictionary, passed as keyword arguments when initializing the step
         """
-        return Extensions.get(namespace, name)(**(options or {}))
+        return Extensions.get(namespace, name)(**(settings or {}))

@@ -2,9 +2,31 @@ from share.regulate.steps import NodeStep
 
 
 class BlockExtraValues(NodeStep):
+    """Discard nodes based on key/value pairs in their `extra` dict
+
+    Settings:
+        blocked_values: Non-empty dict. If all its key/value pairs exist in a
+            node's `extra`, discard that node.
+        [node_types]: Optional list of node types (inherited from NodeStep).
+            If given, filter the list of nodes this step will consider.
+
+    Example config (YAML):
+        Discard work identifiers with {'identifier_type': 'srbnumber'}
+
+        ```yaml
+        - namespace: share.regulate.steps.node
+          name: block_extra_values
+          settings:
+            node_types:
+              - WorkIdentifer
+            blocked_values:
+              identifier_type: srbnumber
+        ```
+    """
     def __init__(self, *args, blocked_values, **kwargs):
         super().__init__(*args, **kwargs)
-        assert blocked_values and isinstance(blocked_values, dict), 'blocked_values option must be a non-empty dict'
+        if not blocked_values or not isinstance(blocked_values, dict):
+            raise TypeError('blocked_values setting must be a non-empty dict')
         self.blocked_values = blocked_values
 
     def regulate_node(self, node):
