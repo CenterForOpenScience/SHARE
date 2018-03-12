@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.15.1] - 2018-03-12
+* Fix some time-sensitive tests
+
 # [2.15.0] - 2018-03-05
 ## Ingest architecture
 * Add IngestJob, used to keep track of a RawDatum's ingestion status
