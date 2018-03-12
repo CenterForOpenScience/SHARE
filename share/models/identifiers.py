@@ -42,8 +42,8 @@ class WorkIdentifier(ShareObject):
     Unique identifier (in IRI form) for a creative work.
     """
     uri = ShareURLField(unique=True)
-    host = models.TextField()
-    scheme = models.TextField(help_text=_('A prefix to URI indicating how the following data should be interpreted.'))
+    host = models.TextField(blank=True)
+    scheme = models.TextField(blank=True, help_text=_('A prefix to URI indicating how the following data should be interpreted.'))
     creative_work = ShareForeignKey('AbstractCreativeWork', related_name='identifiers')
 
     # objects = FilteredEmailsManager()
@@ -59,8 +59,8 @@ class WorkIdentifier(ShareObject):
 class AgentIdentifier(ShareObject):
     """Unique identifier (in IRI form) for an agent."""
     uri = ShareURLField(unique=True)
-    host = models.TextField()
-    scheme = models.TextField()
+    host = models.TextField(blank=True)
+    scheme = models.TextField(blank=True)
     agent = ShareForeignKey('AbstractAgent', related_name='identifiers')
 
     # objects = FilteredEmailsManager()

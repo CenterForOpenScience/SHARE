@@ -14,9 +14,9 @@ class TestRegulator:
 
     @pytest.fixture
     def steps(self, monkeypatch, num_node_steps, num_graph_steps, num_validation_steps):
-        node_steps = [mock.Mock(NodeStep) for _ in range(num_node_steps)]
-        graph_steps = [mock.Mock(GraphStep) for _ in range(num_graph_steps)]
-        validation_steps = [mock.Mock(ValidationStep) for _ in range(num_validation_steps)]
+        node_steps = [mock.Mock(NodeStep, logs=[]) for _ in range(num_node_steps)]
+        graph_steps = [mock.Mock(GraphStep, logs=[]) for _ in range(num_graph_steps)]
+        validation_steps = [mock.Mock(ValidationStep, logs=[]) for _ in range(num_validation_steps)]
 
         def patched_steps(cls, _):
             return [

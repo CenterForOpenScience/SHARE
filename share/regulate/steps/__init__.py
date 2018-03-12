@@ -3,6 +3,8 @@ from share.models import RegulatorLog
 
 
 class BaseStep:
+    logs = None
+
     def __init__(self):
         self.logs = []
 

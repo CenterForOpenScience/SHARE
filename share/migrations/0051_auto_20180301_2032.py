@@ -21,41 +21,41 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='agentidentifier',
             name='host',
-            field=models.TextField(),
+            field=models.TextField(blank=True),
         ),
         migrations.AlterField(
             model_name='agentidentifier',
             name='scheme',
-            field=models.TextField(),
+            field=models.TextField(blank=True),
         ),
         migrations.AlterField(
             model_name='agentidentifierversion',
             name='host',
-            field=models.TextField(),
+            field=models.TextField(blank=True),
         ),
         migrations.AlterField(
             model_name='agentidentifierversion',
             name='scheme',
-            field=models.TextField(),
+            field=models.TextField(blank=True),
         ),
         migrations.AlterField(
             model_name='workidentifier',
             name='host',
-            field=models.TextField(),
+            field=models.TextField(blank=True),
         ),
         migrations.AlterField(
             model_name='workidentifier',
             name='scheme',
-            field=models.TextField(help_text='A prefix to URI indicating how the following data should be interpreted.'),
+            field=models.TextField(blank=True, help_text='A prefix to URI indicating how the following data should be interpreted.'),
         ),
         migrations.AlterField(
             model_name='workidentifierversion',
             name='host',
-            field=models.TextField(),
+            field=models.TextField(blank=True),
         ),
         migrations.AlterField(
             model_name='workidentifierversion',
             name='scheme',
-            field=models.TextField(help_text='A prefix to URI indicating how the following data should be interpreted.'),
+            field=models.TextField(blank=True, help_text='A prefix to URI indicating how the following data should be interpreted.'),
         ),
     ]

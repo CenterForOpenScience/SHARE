@@ -25,7 +25,7 @@ UPPER_BOUND = pendulum.today().add(years=100).isoformat()
     ('20010101', '2001-01-01T00:00:00+00:00'),
     ('2013', '2013-01-01T00:00:00+00:00'),
     ('03:04, 19 Nov, 2014', '2014-11-19T03:04:00+00:00'),
-    ('invalid date', exceptions.InvalidDate('Unknown string format')),
+    ('invalid date', exceptions.InvalidDate('Unknown string format:', 'invalid date')),
     ('2001-1-01', '2001-01-01T00:00:00+00:00'),
     ('2001-2-30', exceptions.InvalidDate('day is out of range for month')),
     ('14/2001', exceptions.InvalidDate(14)),
