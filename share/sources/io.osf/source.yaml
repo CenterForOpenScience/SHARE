@@ -9,6 +9,7 @@ configs:
           children: relationships.children.links.related.href
           contributors: relationships.contributors.links.related.href
           institutions: relationships.affiliated_institutions.links.related.href
+          identifiers: relationships.identifiers.links.related.href
   label: io.osf
   rate_limit_allowance: 1
   rate_limit_period: 2
@@ -39,6 +40,7 @@ configs:
           children: relationships.children.links.related.href
           contributors: relationships.contributors.links.related.href
           institutions: relationships.affiliated_institutions.links.related.href
+          identifiers: relationships.identifiers.links.related.href
   label: io.osf.registrations
   rate_limit_allowance: 1
   rate_limit_period: 2
