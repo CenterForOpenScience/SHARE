@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.15.2] - 2018-03-12
+* Fix a broken test
+
 # [2.15.1] - 2018-03-12
 * Fix some time-sensitive tests
 
