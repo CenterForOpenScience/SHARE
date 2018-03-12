@@ -97,7 +97,7 @@ class OAIHarvester(BaseHarvester):
 
         return records, token
 
-    def fetch_by_id(self, identifier, metadata_prefix, **kwargs):
+    def _do_fetch_by_id(self, identifier, metadata_prefix, **kwargs):
         url = furl(self.config.base_url)
         url.args['verb'] = 'GetRecord'
         url.args['metadataPrefix'] = metadata_prefix

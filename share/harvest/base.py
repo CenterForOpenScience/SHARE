@@ -82,6 +82,10 @@ class BaseHarvester(metaclass=abc.ABCMeta):
         self.network_connect_timeout = (network_connect_timeout or self.network_connect_timeout)
 
     def fetch_by_id(self, identifier, **kwargs):
+        datum = self._do_fetch_by_id(identifier, **self._get_kwargs(**kwargs))
+        return FetchResult(identifier, self.serializer.serialize(datum))
+
+    def _do_fetch_by_id(self, identifier, **kwargs):
         """Fetch a document by provider ID.
 
         Optional to implement, intended for dev and manual testing.
@@ -184,7 +188,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             RawDatum
 
         """
-        datum = self.fetch_by_id(identifier, **self._get_kwargs(**kwargs))
+        datum = self.fetch_by_id(identifier, **kwargs)
         return RawDatum.objects.store_data(self.config, datum)
 
     def harvest(self, **kwargs):
