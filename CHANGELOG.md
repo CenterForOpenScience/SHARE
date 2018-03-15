@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.15.5] - 2018-03-15
+* Prevent infinite task loop for certain types of errors
+
 # [2.15.4] - 2018-03-15
 * Update raw data janitor to skip over datums from disabled/deleted sources
 
