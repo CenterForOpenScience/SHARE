@@ -6,6 +6,7 @@ import celery
 from django.db.models import Exists
 from django.db.models import OuterRef
 
+from share.ingest.scheduler import IngestScheduler
 from share.models import NormalizedData
 from share.models import RawDatum, IngestJob
 
@@ -39,7 +40,7 @@ def rawdata_janitor(self, limit=500):
     for rd in qs[:limit]:
         count += 1
         logger.debug('Found unprocessed %r from %r', rd, rd.suid.source_config)
-        job = IngestJob.schedule(rd)
+        job = IngestScheduler().schedule(rd)
         logger.info('Created job %s for %s', job, rd)
     if count:
         logger.warning('Found %d total unprocessed RawData', count)
@@ -54,7 +55,7 @@ def ingestjob_janitor(self):
     day_ago = pendulum.now().subtract(days=1)
     qs = IngestJob.objects.filter(
         claimed=True,
-        date_modified__lt=day_ago  # Last modified earlier than one day ago
+        date_modified__lt=day_ago  # Have not been modified in the past day
     ).exclude(
         status=IngestJob.STATUS.started
     )

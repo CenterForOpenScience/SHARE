@@ -4,7 +4,8 @@ from pprint import pprint
 
 from share import tasks
 from share.bin.util import command
-from share.models import SourceConfig, RawDatum, IngestJob
+from share.ingest.scheduler import IngestScheduler
+from share.models import SourceConfig, RawDatum
 
 
 @command('Run a SourceConfig\'s transformer')
@@ -81,7 +82,7 @@ def ingest(args, argv):
     jobs = []
     for raw in qs.iterator():
         count += 1
-        jobs.append(IngestJob.schedule(raw, superfluous=superfluous, claim=claim_jobs))
+        jobs.append(IngestScheduler().schedule(raw, superfluous=superfluous, claim=claim_jobs))
     print('Scheduled {} IngestJobs'.format(count))
 
     if not claim_jobs:

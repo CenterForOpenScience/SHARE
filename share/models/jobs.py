@@ -495,24 +495,6 @@ class IngestJob(AbstractBaseJob):
 
     retries = models.IntegerField(null=True)
 
-    @classmethod
-    def schedule(cls, raw, superfluous=False, claim=False):
-        # TODO does this belong here?
-        from share.regulate import Regulator
-        job, _ = cls.objects.get_or_create(
-            raw=raw,
-            suid=raw.suid,
-            source_config=raw.suid.source_config,
-            source_config_version=raw.suid.source_config.version,
-            transformer_version=raw.suid.source_config.transformer.version,
-            regulator_version=Regulator.VERSION,
-            claimed=claim,
-        )
-        if superfluous and job.status not in cls.READY_STATUSES:
-            job.status = cls.STATUS.created
-            job.save()
-        return job
-
     class Meta:
         unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
 
