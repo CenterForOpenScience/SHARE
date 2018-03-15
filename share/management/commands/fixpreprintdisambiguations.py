@@ -1,4 +1,4 @@
-from pendulum import pendulum
+import pendulum
 
 from share.exceptions import MergeRequired
 from share.models import AbstractCreativeWork
@@ -38,7 +38,7 @@ class Command(BaseShareCommand):
         for i in range(self.MAX_RETRIES):
             self.stdout.write('Attempt {} of {}:'.format(i + 1, self.MAX_RETRIES))
             try:
-                IngestJobConsumer().consume(job_id=job.id)
+                IngestJobConsumer().consume(job_id=job.id, exhaust=False)
             except MergeRequired as e:
                 (_, model, queries) = e.args
 

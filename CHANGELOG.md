@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.15.3] - 2018-03-15
+* Fix bug in fixpreprintdisambiguations command
+
 # [2.15.2] - 2018-03-12
 * Fix a broken test
 
