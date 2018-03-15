@@ -112,12 +112,13 @@ class SourceConfigManager(NaturalKeyManager):
                     'long_title': user.username,
                 }
             )
-            config = SourceConfig(
+            config, _ = SourceConfig.objects.get_or_create(
                 label=config_label,
-                source=source,
-                transformer=Transformer.objects.get(key=transformer_key),
+                defaults={
+                    'source': source,
+                    'transformer': Transformer.objects.get(key=transformer_key),
+                }
             )
-            config.save()
             return config
 
 
