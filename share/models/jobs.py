@@ -2,16 +2,13 @@ import re
 import signal
 import threading
 import enum
-import itertools
 import logging
 import traceback
-import types
 from contextlib import contextmanager
 
 from model_utils import Choices
 
 from django.conf import settings
-from django.db import connection
 from django.db import connections
 from django.db import models
 from django.db import transaction
@@ -32,83 +29,59 @@ def get_share_version():
 
 
 class AbstractJobManager(models.Manager):
-    _bulk_tmpl = '''
-        INSERT INTO "{table}"
-            ({insert})
-        VALUES
-            {{values}}
-        ON CONFLICT
-            ({constraint})
-        DO UPDATE SET
-            id = "{table}".id
-        RETURNING {fields}
-    '''
-
-    _bulk_tmpl_nothing = '''
-        INSERT INTO "{table}"
-            ({insert})
-        VALUES
-            {{values}}
-        ON CONFLICT ({constraint})
-        DO NOTHING
-        RETURNING {fields}
-    '''
-
     def get_queryset(self):
         return LockableQuerySet(self.model, using=self._db)
 
-    def bulk_create_or_nothing(self, fields, data, db_alias='default'):
-        default_fields, default_values = self._build_defaults(fields)
-
-        query = self._bulk_tmpl_nothing.format(
-            table=self.model._meta.db_table,
-            fields=', '.join('"{}"'.format(field.column) for field in self.model._meta.concrete_fields),
-            insert=', '.join('"{}"'.format(self.model._meta.get_field(field).column) for field in itertools.chain(fields + default_fields)),
-            constraint=', '.join('"{}"'.format(self.model._meta.get_field(field).column) for field in self.model._meta.unique_together[0]),
-        )
-
-        return self._bulk_query(query, default_values, data, db_alias)
-
-    def bulk_create_or_get(self, fields, data, db_alias='default'):
-        default_fields, default_values = self._build_defaults(fields)
-
-        query = self._bulk_tmpl.format(
-            table=self.model._meta.db_table,
-            fields=', '.join('"{}"'.format(field.column) for field in self.model._meta.concrete_fields),
-            insert=', '.join('"{}"'.format(self.model._meta.get_field(field).column) for field in itertools.chain(fields + default_fields)),
-            constraint=', '.join('"{}"'.format(self.model._meta.get_field(field).column) for field in self.model._meta.unique_together[0]),
-        )
-
-        return self._bulk_query(query, default_values, data, db_alias)
-
-    def bulk_get_or_create(self, objs, defaults=None, using='default'):
+    def bulk_get_or_create(self,
+                           objs,
+                           defaults=None,
+                           using='default',
+                           update_fields=None,
+                           defer_fields=None,
+                           chunk_size=500,
+                           ):
         if len(self.model._meta.unique_together) != 1:
             raise ValueError('Cannot determine the constraint to use for ON CONFLICT')
 
-        if not objs:
-            return []
+        def col(field_name):
+            return self.model._meta.get_field(field_name).column
 
         columns = []
+        field_names = []
         defaults = defaults or {}
 
         for field in self.model._meta.concrete_fields:
             if field is not self.model._meta.pk:
                 columns.append(field.column)
+                field_names.append(field.attname)
             if field in defaults:
                 continue
             if field.default is not models.NOT_PROVIDED or field.null:
-                defaults[field] = field._get_default()
+                defaults[field.attname] = field._get_default()
             elif isinstance(field, models.DateField) and (field.auto_now or field.auto_now_add):
-                defaults[field] = timezone.now()
+                defaults[field.attname] = timezone.now()
 
-        if any(obj.pk for obj in objs):
-            raise ValueError('Cannot bulk_get_or_create objects with primary keys')
+        constraint = ', '.join(
+            '"{}"'.format(col(f))
+            for f in self.model._meta.unique_together[0]
+        )
 
-        constraint = ', '.join('"{1.column}"'.format(self.model, self.model._meta.get_field(field)) for field in self.model._meta.unique_together[0])
+        if update_fields:
+            update = [
+                '"{0}" = EXCLUDED."{0}"'.format(col(f))
+                for f in update_fields
+            ]
+        else:
+            update = ['id = "{}".id'.format(self.model._meta.db_table)]
+
+        returning = '*'
+        if defer_fields:
+            defer_columns = {col(f) for f in defer_fields}
+            returning = ', '.join(['id'] + [c for c in columns if c not in defer_columns])
 
         loaded = []
         with transaction.atomic(using):
-            for chunk in chunked(objs, 500):
+            for chunk in chunked(objs, chunk_size):
                 if not chunk:
                     break
                 loaded.extend(self.raw('''
@@ -119,48 +92,21 @@ class AbstractJobManager(models.Manager):
                     ON CONFLICT
                         ({constraint})
                     DO UPDATE SET
-                        id = "{model._meta.db_table}".id
-                    RETURNING *
+                        {update}
+                    RETURNING
+                        {returning}
                 '''.format(
                     model=self.model,
                     columns=', '.join(columns),
                     constraint=constraint,
                     values=', '.join(['%s'] * len(chunk)),
+                    update=', '.join(update),
+                    returning=returning,
                 ), [
-                    tuple(getattr(obj, field.attname, None) or defaults[field] for field in self.model._meta.concrete_fields[1:])
+                    tuple(getattr(obj, f, None) or defaults[f] for f in field_names)
                     for obj in chunk
                 ]))
         return loaded
-
-    def _bulk_query(self, query, default_values, data, db_alias):
-        fields = [field.name for field in self.model._meta.concrete_fields]
-
-        with connection.cursor() as cursor:
-            for chunk in chunked(data, 500):
-                if not chunk:
-                    break
-                cursor.execute(query.format(
-                    values=', '.join('%s' for _ in range(len(chunk))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
-                ), [c + default_values for c in chunk])
-
-                for row in cursor.fetchall():
-                    yield self.model.from_db(db_alias, fields, row)
-
-    def _build_defaults(self, fields):
-        default_fields, default_values = (), ()
-        for field in self.model._meta.concrete_fields:
-            if field.name in fields:
-                continue
-            if not field.null and field.default is not models.NOT_PROVIDED:
-                default_fields += (field.name, )
-                if isinstance(field.default, types.FunctionType):
-                    default_values += (field.default(), )
-                else:
-                    default_values += (field.default, )
-            if isinstance(field, models.DateTimeField) and (field.auto_now or field.auto_now_add):
-                default_fields += (field.name, )
-                default_values += (timezone.now(), )
-        return default_fields, default_values
 
 
 class AbstractBaseJob(models.Model):
