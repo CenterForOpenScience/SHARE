@@ -15,7 +15,6 @@ from django.db import connection
 from django.db import connections
 from django.db import models
 from django.db import transaction
-from django.db import IntegrityError
 from django.db.models.expressions import RawSQL
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -333,34 +332,6 @@ class AbstractBaseJob(models.Model):
                 # Detach from SIGTERM, resetting the previous handle
                 signal.signal(signal.SIGTERM, prev_handler)
 
-    def current_versions(self):
-        raise NotImplementedError
-
-    def update_versions(self):
-        """Update version fields to the values from self.current_versions
-
-        Return True if successful, else False.
-        """
-        current_versions = self.current_versions()
-        if all(getattr(self, f) == v for f, v in current_versions.items()):
-            # No updates required
-            return True
-
-        if self.completions > 0:
-            logger.warning('%r is outdated but has previously completed, skipping...', self)
-            return False
-
-        try:
-            with transaction.atomic():
-                for f, v in current_versions.items():
-                    setattr(self, f, v)
-                self.save()
-            logger.warning('%r has been updated to the versions: %s', self, current_versions)
-            return True
-        except IntegrityError:
-            logger.warning('A newer version of %r already exists, skipping...', self)
-            return False
-
     def __repr__(self):
         return '<{} {} ({})>'.format(self.__class__.__name__, self.id, self.STATUS[self.status])
 
@@ -462,12 +433,6 @@ class HarvestJob(AbstractBaseJob):
         # Used to be inaccurately named
         db_table = 'share_harvestlog'
 
-    def current_versions(self):
-        return {
-            'source_config_version': self.source_config.version,
-            'harvester_version': self.source_config.harvester.version,
-        }
-
     def __repr__(self):
         return '<{type}({id}, {status}, {source}, {start_date}, {end_date})>'.format(
             type=type(self).__name__,
@@ -497,15 +462,6 @@ class IngestJob(AbstractBaseJob):
 
     class Meta:
         unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
-
-    def current_versions(self):
-        # TODO does this belong here?
-        from share.regulate import Regulator
-        return {
-            'source_config_version': self.source_config.version,
-            'transformer_version': self.source_config.transformer.version,
-            'regulator_version': Regulator.VERSION,
-        }
 
     def log_graph(self, field_name, graph):
         setattr(self, field_name, graph.to_jsonld())

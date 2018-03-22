@@ -4,7 +4,7 @@ import random
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.utils import OperationalError
 from django.utils import timezone
 
@@ -39,6 +39,13 @@ class JobConsumer:
         self.task = task
 
     def _consume_job(self, job, **kwargs):
+        raise NotImplementedError
+
+    def _current_versions(self, job):
+        """Get up-to-date values for the job's `*_version` fields
+
+        Dict from field name to version number
+        """
         raise NotImplementedError
 
     def consume(self, job_id=None, exhaust=True, ignore_disabled=False, superfluous=False, force=False, **kwargs):
@@ -100,7 +107,7 @@ class JobConsumer:
                 return False
             logger.info('%r has already been consumed. Re-running superfluously', job)
 
-        if not job.update_versions():
+        if not self._update_versions(job):
             job.skip(job.SkipReasons.obsolete)
             return False
 
@@ -131,6 +138,31 @@ class JobConsumer:
 
         return qs.lock_first(self.lock_field)
 
+    def _update_versions(self, job):
+        """Update version fields to the values from self.current_versions
+
+        Return True if successful, else False.
+        """
+        current_versions = self._current_versions(job)
+        if all(getattr(job, f) == v for f, v in current_versions.items()):
+            # No updates required
+            return True
+
+        if job.completions > 0:
+            logger.warning('%r is outdated but has previously completed, skipping...', job)
+            return False
+
+        try:
+            with transaction.atomic():
+                for f, v in current_versions.items():
+                    setattr(job, f, v)
+                job.save()
+            logger.warning('%r has been updated to the versions: %s', job, current_versions)
+            return True
+        except IntegrityError:
+            logger.warning('A newer version of %r already exists, skipping...', job)
+            return False
+
 
 class HarvestJobConsumer(JobConsumer):
     Job = HarvestJob
@@ -142,6 +174,12 @@ class HarvestJobConsumer(JobConsumer):
             end_date__lte=timezone.now().date(),
             source_config__harvest_after__lte=timezone.now().time(),
         )
+
+    def _current_versions(self, job):
+        return {
+            'source_config_version': job.source_config.version,
+            'harvester_version': job.source_config.harvester.version,
+        }
 
     def _consume_job(self, job, force, superfluous, limit=None, ingest=True):
         try:
@@ -207,6 +245,13 @@ class IngestJobConsumer(JobConsumer):
     lock_field = 'suid'
 
     MAX_RETRIES = 5
+
+    def _current_versions(self, job):
+        return {
+            'source_config_version': job.source_config.version,
+            'transformer_version': job.source_config.transformer.version,
+            'regulator_version': Regulator.VERSION,
+        }
 
     def _prepare_job(self, job, *args, **kwargs):
         # TODO think about getting rid of these triangles -- infer source config from suid?

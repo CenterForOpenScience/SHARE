@@ -202,8 +202,7 @@ class SourceConfig(models.Model):
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.label)
 
-    def __str__(self):
-        return '{}: {}'.format(self.source.long_title, self.label)
+    __str__ = __repr__
 
 
 class Harvester(models.Model):
@@ -261,11 +260,10 @@ class SourceUniqueIdentifier(models.Model):
     class Meta:
         unique_together = ('identifier', 'source_config')
 
-    def __str__(self):
-        return '{} {}'.format(self.source_config_id, self.identifier)
-
     def __repr__(self):
-        return '<{}({}, {!r})>'.format(self.__class__.__name__, self.source_config_id, self.identifier)
+        return '<{}({}, {}, {!r})>'.format('Suid', self.id, self.source_config.label, self.identifier)
+
+    __str__ = __repr__
 
 
 class RawDatumManager(FuzzyCountManager):
@@ -415,7 +413,7 @@ class RawDatum(models.Model):
 
     datum = models.TextField()
 
-    suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=models.CASCADE)
+    suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=models.CASCADE, related_name='raw_data')
 
     # The sha256 of the datum
     sha256 = models.TextField(validators=[validators.MaxLengthValidator(64)])
