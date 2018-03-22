@@ -27,6 +27,30 @@ Elasticsearch can be used to search the following fields in the normalized data:
     'funders'
     'publishers'
 
+Date Fields
+***********
+There are five date fields, and each has a different meaning. Two are given to SHARE by the data source:
+
+``date_published``
+    When the work was first published, issued, or made publicly available in any form.
+    Not all sources provide this, so some works in SHARE have no ``date_published``.
+``date_updated``
+    When the work was last updated by the source. For example, an OAI-PMH record's ``<datestamp>``.
+    Most works have a ``date_updated``, but some sources do not provide this.
+
+Three date fields are populated by SHARE itself:
+
+``date_created``
+    When SHARE first ingested the work and added it to the SHARE dataset. Every work has a ``date_created``.
+``date_modified``
+    When SHARE last ingested the work and modified the work's record in the SHARE dataset. Every work
+    has a ``date_modified``.
+``date``
+    Because many works may not have ``date_published`` or ``date_updated`` values, sorting and filtering works
+    by date can be confusing. The ``date`` field is intended to help. It contains the most useful available
+    date. If the work has a ``date_published``, ``date`` contains the value of ``date_published``. If the work
+    has no ``date_published`` but does have ``date_updated``, ``date`` is set to ``date_updated``. If the work
+    has neither ``date_published`` nor ``date_updated``, ``date`` is set to ``date_created``.
 
 Accessing the Search API
 ########################
