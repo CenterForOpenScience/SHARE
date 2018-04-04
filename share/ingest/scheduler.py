@@ -25,7 +25,7 @@ class IngestScheduler:
             raw_id = self._last_raw_qs(suid).first()
 
         job, created = IngestJob.objects.get_or_create(
-            raw=raw_id,
+            raw_id=raw_id,
             source_config_version=suid.source_config.version,
             transformer_version=suid.source_config.transformer.version,
             regulator_version=Regulator.VERSION,
@@ -69,7 +69,6 @@ class IngestScheduler:
                 suid=suid,
                 source_config=suid.source_config,
                 claimed=True,
-
                 source_config_version=suid.source_config.version,
                 transformer_version=suid.source_config.transformer.version,
                 regulator_version=Regulator.VERSION,
@@ -84,6 +83,8 @@ class IngestScheduler:
         )
         for job in jobs:
             ingest.delay(**self._ingest_kwargs(job))
+
+        return jobs
 
     def _ingest_kwargs(self, job):
         return {

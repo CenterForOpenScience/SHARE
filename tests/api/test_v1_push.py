@@ -8,7 +8,7 @@ class TestV1PushProxy:
 
     @pytest.fixture
     def mock_ingest(self):
-        with mock.patch('share.ingest.ingest') as mock_ingest:
+        with mock.patch('share.ingest.ingester.ingest') as mock_ingest:
             mock_ingest.delay.return_value.id = '123'
             yield mock_ingest
 
