@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.15.6] - 2018-04-04
+* Fix PeerJ transformer error
+
 # [2.15.5] - 2018-03-15
 * Prevent infinite task loop for certain types of errors
 
