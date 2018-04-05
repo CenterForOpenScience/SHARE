@@ -42,51 +42,61 @@ class IngestScheduler:
             job.save(update_fields=('status', 'claimed'))
         return job
 
+    def bulk_schedule(self, suid_qs, superfluous=False, claim=False):
+        qs = suid_qs.annotate(
+            last_raw_id=Subquery(self._last_raw_qs(OuterRef('id')))
+        ).select_related('source_config', 'source_config__transformer')
+
+        def job_kwargs(suid):
+            kwargs = {
+                'raw_id': suid.last_raw_id,
+                'suid': suid,
+                'source_config': suid.source_config,
+                'claimed': claim,
+                'source_config_version': suid.source_config.version,
+                'transformer_version': suid.source_config.transformer.version,
+                'regulator_version': Regulator.VERSION,
+            }
+            if superfluous:
+                kwargs['status'] = IngestJob.STATUS.created
+            return kwargs
+
+        job_gen = (
+            IngestJob(**job_kwargs(suid))
+            for suid in qs.iterator()
+        )
+
+        return IngestJob.objects.bulk_get_or_create(
+            job_gen,
+            update_fields=['claimed', 'status'] if superfluous else ['claimed'],
+            defer_fields=['transformed_datum', 'regulated_datum'],
+        )
+
     def reingest(self, suid):
         """Synchronously reingest the given suid.
         """
         job = self.schedule(suid, superfluous=True, claim=True)
-        IngestJobConsumer().consume(**self._ingest_kwargs(job))
+        IngestJobConsumer().consume(**self._reingest_kwargs(job))
         return job
 
     def reingest_async(self, suid):
         """Create an IngestJob for the given suid, and an `ingest` task assigned to it.
         """
         job = self.schedule(suid, superfluous=True, claim=True)
-        ingest.delay(**self._ingest_kwargs(job))
+        ingest.delay(**self._reingest_kwargs(job))
         return job
 
     def bulk_reingest(self, suid_qs):
         """Create IngestJobs and `ingest` tasks for all suids in the given queryset
         """
-        qs = suid_qs.annotate(
-            last_raw_id=Subquery(self._last_raw_qs(OuterRef('id')))
-        ).select_related('source_config', 'source_config__transformer')
+        jobs = self.bulk_schedule(suid_qs, superfluous=True, claim=True)
 
-        job_gen = (
-            IngestJob(
-                raw_id=suid.last_raw_id,
-                suid=suid,
-                source_config=suid.source_config,
-                claimed=True,
-                source_config_version=suid.source_config.version,
-                transformer_version=suid.source_config.transformer.version,
-                regulator_version=Regulator.VERSION,
-            )
-            for suid in qs.iterator()
-        )
-
-        jobs = IngestJob.objects.bulk_get_or_create(
-            job_gen,
-            update_fields=['claimed'],
-            defer_fields=['transformed_datum', 'regulated_datum'],
-        )
         for job in jobs:
-            ingest.delay(**self._ingest_kwargs(job))
+            ingest.delay(**self._reingest_kwargs(job))
 
         return jobs
 
-    def _ingest_kwargs(self, job):
+    def _reingest_kwargs(self, job):
         return {
             'job_id': job.id,
             'exhaust': False,

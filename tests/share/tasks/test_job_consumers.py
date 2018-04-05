@@ -64,7 +64,7 @@ class TestJobConsumer:
         assert not consumer._consume_job.called
 
     def test_obsolete(self, consumer, JobFactory, monkeypatch):
-        monkeypatch.setattr(consumer.Job, 'update_versions', mock.Mock(return_value=False))
+        monkeypatch.setattr(consumer, '_update_versions', mock.Mock(return_value=False))
         job = JobFactory()
         consumer.consume()
         job.refresh_from_db()
