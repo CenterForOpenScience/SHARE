@@ -11,7 +11,7 @@ class BaseStep:
     def info(self, description, node_id=None):
         """Log information about a change made to the graph.
         """
-        log = RegulatorLog(description=description, node_id=node_id)
+        log = RegulatorLog(description=description, rejected=False, node_id=node_id)
         self.logs.append(log)
 
     def error(self, description, node_id=None, exception=None):
