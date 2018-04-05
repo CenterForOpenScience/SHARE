@@ -24,7 +24,10 @@ def get_list(dct, key):
 class MODSWorkIdentifier(Parser):
     schema = 'WorkIdentifier'
 
-    uri = ctx
+    uri = tools.RunPython(force_text, ctx)
+
+    class Extra:
+        identifier_type = tools.Try(ctx['@type'])
 
 
 class MODSAgentIdentifier(Parser):
@@ -257,20 +260,14 @@ class MODSCreativeWork(Parser):
 
     identifiers = tools.Map(
         tools.Delegate(MODSWorkIdentifier),
-        tools.Unique(tools.Map(
-            tools.Try(tools.IRI(), exceptions=(InvalidIRI, )),
-            tools.Map(
-                tools.RunPython(force_text),
-                tools.Filter(
-                    lambda obj: 'invalid' not in obj,
-                    tools.Concat(
-                        tools.Try(ctx['mods:identifier']),
-                        tools.Try(ctx.header['identifier']),
-                        tools.Try(ctx['mods:location']['mods:url']),
-                    )
-                )
+        tools.Filter(
+            lambda obj: 'invalid' not in obj,
+            tools.Concat(
+                tools.Try(ctx['mods:identifier']),
+                tools.Try(ctx.header['identifier']),
+                tools.Try(ctx['mods:location']['mods:url']),
             )
-        ))
+        )
     )
 
     related_works = tools.Concat(

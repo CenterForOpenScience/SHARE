@@ -91,6 +91,8 @@ setup(
             'org.swbiodiversity = share.harvesters.org_swbiodiversity:SWHarvester',
         ],
         'share.regulate.steps.node': [
+            'normalize_iris = share.regulate.steps.normalize_iris:NormalizeIRIs',
+            'block_extra_values = share.regulate.steps.block_extra_values:BlockExtraValues',
         ],
         'share.regulate.steps.graph': [
         ],

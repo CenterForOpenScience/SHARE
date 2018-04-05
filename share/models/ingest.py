@@ -150,6 +150,8 @@ class SourceConfig(models.Model):
     transformer = models.ForeignKey('Transformer', null=True, on_delete=models.CASCADE)
     transformer_kwargs = JSONField(null=True, blank=True)
 
+    regulator_steps = JSONField(null=True, blank=True)
+
     disabled = models.BooleanField(default=False)
 
     private_harvester_kwargs = EncryptedJSONField(blank=True, null=True)

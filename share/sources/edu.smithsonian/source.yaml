@@ -11,10 +11,31 @@ configs:
   transformer: mods
   transformer_kwargs:
     approved_sets: null
-    blocked_sets: [col_10088_539]
+    blocked_sets:
+      - col_10088_539    # STRI News
+      - com_10088_24078  # CONTENT STAGING
+      - com_10088_9716   # Digitization Program Office
+      - com_10088_9645   # Office of Human Resources
+      - col_10088_17186  # Office of Policy & Analysis Research Reports
+      - com_10088_2801   # Office of Public Affairs
+      - com_10088_17318  # Smithsonian Administrative History
+      - col_10088_26087  # STAGING - BAE BULLETIN
+      - col_10088_30358  # STAGING – Bulletin of the USNM
+      - col_10088_26933  # STAGING - Contributions from the United States National Herbarium
+      - col_10088_30357  # STAGING – Proceedings of the USNM
+      - col_10088_23045  # STAGING - SMITHSONIAN MISCELLANEOUS COLLECTIONS
+      - col_10088_29562  # STAGING-USNM Staff Publications
     emitted_type: CreativeWork
     property_list: []
     type_map: {}
+  regulator_steps:
+    - namespace: share.regulate.steps.node
+      name: block_extra_values
+      settings:
+        node_types:
+          - WorkIdentifer
+        blocked_values:
+          identifier_type: srbnumber
 - base_url: http://repository.si.edu/oai/request
   disabled: true
   earliest_date: null
