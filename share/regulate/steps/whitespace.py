@@ -21,7 +21,7 @@ class StripWhitespace(NodeStep):
     NULL_RE = re.compile(r'^(?:\s*(none|null|empty)\s*)?$', re.I)
 
     def regulate_node(self, node):
-        for k, v in node.attrs:
+        for k, v in node.attrs().items():
             if isinstance(v, str):
                 v = strip_whitespace(v)
                 if self.NULL_RE.match(v):

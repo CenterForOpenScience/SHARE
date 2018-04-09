@@ -11,7 +11,7 @@ from django.conf import settings
 from share.models import NormalizedData
 from share.tasks import ingest
 from share.util.graph import MutableGraph
-from share.ingest import Ingester
+from share.ingest.ingester import Ingester
 from tests import factories
 
 

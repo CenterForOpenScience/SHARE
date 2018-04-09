@@ -13,15 +13,16 @@ class TokenizeTags(NodeStep):
       name: tokenize
     ```
     """
+    node_types = ('tag',)
 
     def regulate_node(self, node):
-        tags = map(
+        tags = list(map(
             lambda t: t.lower(),
-            filter(
+            filter(None, (
                 strip_whitespace(part)
                 for part in re.split(',|;', node['name'])
-            )
-        )
+            ))
+        ))
 
         if not tags:
             self.info('Discarding nameless tag', node.id)

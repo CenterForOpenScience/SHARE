@@ -25,63 +25,10 @@ __all__ = ('Change', 'ChangeSet', )
 logger = logging.getLogger(__name__)
 
 
-class ChangeSetManager(FuzzyCountManager):
-
-    def from_graph(self, graph, normalized_data_id):
-        if all(n.is_skippable for n in graph.nodes):
-            logger.debug('No changes detected in {!r}, skipping.'.format(graph))
-            return None
-
-        cs = ChangeSet(normalized_data_id=normalized_data_id)
-        cs.save()
-
-        Change.objects.bulk_create(filter(None, [Change.objects.from_node(node, cs, save=False) for node in graph.nodes]))
-
-        return cs
-
-
-class ChangeManager(FuzzyCountManager):
-
-    def from_node(self, node, change_set, save=True):
-        if node.is_skippable:
-            logger.debug('No changes detected in {!r}, skipping.'.format(node))
-            return None
-        if not hasattr(node.model, 'VersionModel'):
-            # Non-ShareObjects (e.g. SubjectTaxonomy) cannot be changed.
-            # Shouldn't reach this point...
-            logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(node, node.model))
-            return None
-
-        attrs = {
-            'node_id': node.id,
-            'change': node.change,
-            'change_set': change_set,
-            'model_type': ContentType.objects.get_for_model(node.model, for_concrete_model=False),
-            'target_type': ContentType.objects.get_for_model(node.model, for_concrete_model=True),
-            'target_version_type': ContentType.objects.get_for_model(node.model.VersionModel, for_concrete_model=True),
-        }
-
-        if node.is_merge:
-            attrs['type'] = Change.TYPE.merge
-        elif not node.instance:
-            attrs['type'] = Change.TYPE.create
-        else:
-            attrs['type'] = Change.TYPE.update
-            attrs['target_id'] = node.instance.pk
-            attrs['target_version_id'] = node.instance.version_id
-
-        change = Change(**attrs)
-
-        if save:
-            change.save()
-
-        return change
-
-
 class ChangeSet(models.Model):
     STATUS = Choices((0, 'pending', _('pending')), (1, 'accepted', _('accepted')), (2, 'rejected', _('rejected')))
 
-    objects = ChangeSetManager()
+    objects = FuzzyCountManager()
 
     status = models.IntegerField(choices=STATUS, default=STATUS.pending)
     submitted_at = models.DateTimeField(auto_now_add=True)
@@ -126,7 +73,7 @@ class ChangeSet(models.Model):
 class Change(models.Model):
     TYPE = Choices((0, 'create', _('create')), (1, 'merge', _('merge')), (2, 'update', _('update')))
 
-    objects = ChangeManager()
+    objects = FuzzyCountManager()
 
     change = JSONField()
     node_id = models.TextField()

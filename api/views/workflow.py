@@ -10,7 +10,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from share.util import IDObfuscator
-from share.ingest import Ingester
+from share.ingest.ingester import Ingester
 
 from api import v1_schemas
 from api.authentication import APIV1TokenBackPortAuthentication

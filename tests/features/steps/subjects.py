@@ -2,18 +2,22 @@ import behave
 from django.conf import settings
 
 from share import models
-from share.change import ChangeGraph
-from share.models import ChangeSet
+from share.disambiguation import GraphDisambiguator
+from share.ingest.differ import NodeDiffer
+from share.regulate import Regulator
+from share.util.graph import MutableGraph
 
 from tests.factories import NormalizedDataFactory, ShareUserFactory
 
 
 def accept_changes(context, nodes, username):
     user = models.ShareUser.objects.get(username=username)
-    cg = ChangeGraph(nodes, namespace=user.username)
-    cg.process()
+    graph = MutableGraph.from_jsonld(nodes)
+    Regulator().regulate(graph)
+    instance_map = GraphDisambiguator(user.source).find_instances(graph)
     nd = NormalizedDataFactory(source=user)
-    return ChangeSet.objects.from_graph(cg, nd.id).accept()
+    change_set = NodeDiffer.build_change_set(graph, nd, instance_map)
+    return change_set.accept() if change_set else None
 
 
 def make_subjects(table, work_id=None):

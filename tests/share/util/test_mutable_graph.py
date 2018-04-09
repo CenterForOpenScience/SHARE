@@ -81,7 +81,7 @@ class TestMutableGraph:
         else:
             del work['title']
         assert work['title'] is None
-        assert 'title' not in work.attrs
+        assert 'title' not in work.attrs()
 
         identifier = mutable_graph.get_node(identifier_id)
         assert identifier['creative_work'] == work

@@ -9,16 +9,15 @@ from django.db.utils import OperationalError
 from django.utils import timezone
 
 from share import exceptions
-from share.change import ChangeGraph
+from share.disambiguation import GraphDisambiguator
 from share.harvest.exceptions import HarvesterConcurrencyError
+from share.ingest.differ import NodeDiffer
 from share.models import (
     AbstractCreativeWork,
-    ChangeSet,
     HarvestJob,
     IngestJob,
     NormalizedData,
     RawDatum,
-    Source,
 )
 from share.models.ingest import RawDatumJob
 from share.regulate import Regulator
@@ -287,17 +286,15 @@ class IngestJobConsumer(JobConsumer):
             graph = self._regulate(job, graph)
             if not graph:
                 return
-            if settings.SHARE_LEGACY_PIPELINE:
-                datum = NormalizedData.objects.create(
-                    data={'@graph': graph.to_jsonld()},
-                    source=job.suid.source_config.source.user,
-                    raw=job.raw,
-                )
-                job.ingested_normalized_data.add(datum)
+            datum = NormalizedData.objects.create(
+                data={'@graph': graph.to_jsonld()},
+                source=job.suid.source_config.source.user,
+                raw=job.raw,
+            )
+            job.ingested_normalized_data.add(datum)
 
-        if apply_changes and settings.SHARE_LEGACY_PIPELINE:
-            # TODO make this pipeline actually legacy by implementing a new one
-            updated_work_ids = self._apply_changes(job, datum)
+        if apply_changes:
+            updated_work_ids = self._apply_changes(job, graph, datum)
             if index and updated_work_ids:
                 self._update_index(updated_work_ids, urgent)
 
@@ -327,19 +324,22 @@ class IngestJobConsumer(JobConsumer):
             job.fail(e)
             return None
 
-    def _apply_changes(self, job, normalized_datum):
+    def _apply_changes(self, job, graph, normalized_datum):
         updated = None
+        instance_map = None
 
         try:
             # Load all relevant ContentTypes in a single query
             ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
             with transaction.atomic():
-                cg = ChangeGraph(normalized_datum.data['@graph'], namespace=normalized_datum.source.username)
-                cg.process()
-                cs = ChangeSet.objects.from_graph(cg, normalized_datum.id)
-                if cs and (normalized_datum.source.is_robot or normalized_datum.source.is_trusted or Source.objects.filter(user=normalized_datum.source).exists()):
-                    updated = cs.accept()
+                user = normalized_datum.source  # "source" here is a user...
+                source = user.source
+                instance_map = GraphDisambiguator(source).find_instances(graph)
+                change_set = NodeDiffer.build_change_set(graph, normalized_datum, instance_map)
+
+                if change_set and (source or user.is_robot or user.is_trusted):
+                    updated = change_set.accept()
 
         # Retry if it was just the wrong place at the wrong time
         except (exceptions.IngestConflict, OperationalError) as e:
@@ -354,9 +354,17 @@ class IngestJobConsumer(JobConsumer):
             return  # Nothing to index
 
         # Index works that were added or directly updated
-        updated_works = set(x.id for x in updated if isinstance(x, AbstractCreativeWork))
+        updated_works = set(
+            x.id
+            for x in updated
+            if isinstance(x, AbstractCreativeWork)
+        )
         # and works that matched, even if they didn't change, in case any related objects did
-        existing_works = set(n.instance.id for n in cg.nodes if isinstance(n.instance, AbstractCreativeWork))
+        existing_works = set(
+            x.id
+            for x in (instance_map or {}).values()
+            if isinstance(x, AbstractCreativeWork)
+        )
 
         return list(updated_works | existing_works)
 

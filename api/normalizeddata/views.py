@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from share import models
 from share.tasks import ingest
 from share.util import IDObfuscator
-from share.ingest import Ingester
+from share.ingest.ingester import Ingester
 
 from api.base.views import ShareViewSet
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
