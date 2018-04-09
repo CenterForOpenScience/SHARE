@@ -1,12 +1,9 @@
-import logging
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 
-logger = logging.getLogger('share.normalize')
 __all__ = ('WorkIdentifier', 'AgentIdentifier', 'WorkIdentifierVersion', 'AgentIdentifierVersion')  # noqa
 
 

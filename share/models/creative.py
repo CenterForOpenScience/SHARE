@@ -10,7 +10,7 @@ from share.models.meta import Tag, Subject
 from share.models.change import Change
 from share.models.fields import ShareManyToManyField, ShareURLField
 
-from share.util import strip_whitespace, ModelGenerator
+from share.util import ModelGenerator
 
 
 logger = logging.getLogger(__name__)
@@ -33,14 +33,6 @@ class AbstractCreativeWork(ShareObject, metaclass=TypedShareObjectMeta):
 
     related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentWorkRelation')
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractWorkRelation', through_fields=('subject', 'related'), symmetrical=False)
-
-    @classmethod
-    def normalize(self, node, graph):
-        for k, v in tuple(node.attrs.items()):
-            if isinstance(v, str):
-                node.attrs[k] = strip_whitespace(v)
-                if node.attrs[k] == 'null':
-                    node.attrs[k] = ''
 
     class Disambiguation:
         any = ('identifiers',)
