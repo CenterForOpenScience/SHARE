@@ -1,6 +1,7 @@
 import pytest
 
-from share.change import ChangeGraph
+from share.utils.graph import MutableGraph
+from share.regulate import Regulator
 
 from tests.share.normalize.factories import Tag, CreativeWork, Person, Agent, \
     Institution, Organization, AgentIdentifier, Creator, Contributor, Funder, Publisher, Host
@@ -39,11 +40,11 @@ class TestModelNormalization:
             Tag(name='Crash ,Bandicoot           '),
         ], [Tag(name='bandicoot'), Tag(name='crash')]),
     ] for i in input])
-    def test_normalize_tag(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(tags=[input])))
-        graph.process(disambiguate=False)
+    def test_normalize_tag(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(CreativeWork(tags=[input])))
+        Regulator().regulate(graph)
 
-        assert graph.serialize() == Graph(CreativeWork(tags=output))
+        assert graph.to_jsonld(in_edges=False) == JsonLD(CreativeWork(tags=output))
 
     # test tags with the same name are merged on a work
     @pytest.mark.parametrize('input, output', [
@@ -76,11 +77,10 @@ class TestModelNormalization:
             Tag(name='Crash ,Bandicoot           '),
         ], [Tag(name='bandicoot'), Tag(name='crash')]),
     ])
-    def test_normalize_tags_on_work(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(tags=input)))
-        graph.normalize()
-        graph.prune()
-        assert [n.serialize() for n in sorted(graph.nodes, key=lambda x: x.type + str(x.id))] == Graph(CreativeWork(tags=output))
+    def test_normalize_tags_on_work(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(CreativeWork(tags=input)))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == JsonLD(CreativeWork(tags=output))
 
     @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
         ([
@@ -106,10 +106,10 @@ class TestModelNormalization:
             Person(name='     None      '),
         ], None)
     ] for i in input])
-    def test_normalize_person(self, input, output, Graph):
-        graph = ChangeGraph(Graph(input))
-        graph.process(disambiguate=False)
-        assert graph.serialize() == (Graph(output) if output else [])
+    def test_normalize_person(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(input))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == (JsonLD(output) if output else [])
 
     # test two people with the same identifier are merged
     # sort by length and then alphabetize name field
@@ -158,10 +158,10 @@ class TestModelNormalization:
             Person(name='B. D. Dylan', identifiers=[AgentIdentifier(1)])
         ], [Person(name='Barb D. Dylan', parse=True, identifiers=[AgentIdentifier(1)])]),
     ])
-    def test_normalize_person_relation(self, input, output, Graph):
-        graph = ChangeGraph(Graph(*input))
-        graph.process(disambiguate=False)
-        assert graph.serialize() == Graph(*output)
+    def test_normalize_person_relation(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(*input))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == JsonLD(*output)
 
     @pytest.mark.parametrize('input, output', [
         (Agent(name='none'), None),
@@ -184,10 +184,10 @@ class TestModelNormalization:
         (Agent(name='    PeerJ    Inc.    '), Organization(name='PeerJ Inc.')),
         (Agent(name=' Clinton   Foundation\n   '), Organization(name='Clinton Foundation')),
     ])
-    def test_normalize_agent(self, input, output, Graph):
-        graph = ChangeGraph(Graph(input))
-        graph.process(disambiguate=False)
-        assert graph.serialize() == (Graph(output) if output else [])
+    def test_normalize_agent(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(input))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == (JsonLD(output) if output else [])
 
     # test two organizations/institutions with the same name are merged
     # sort by length and then alphabetize name field
@@ -236,10 +236,10 @@ class TestModelNormalization:
             Institution(name='Cook Institute', identifiers=[AgentIdentifier(1)])
         ], [Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])]),
     ])
-    def test_normalize_organization_institution_name(self, input, output, Graph):
-        graph = ChangeGraph(Graph(*input))
-        graph.process(disambiguate=False)
-        assert graph.serialize() == Graph(*output)
+    def test_normalize_organization_institution_name(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(*input))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == JsonLD(*output)
 
     # test different types of agent work relations
     # Funder, Publisher, Host
@@ -305,10 +305,10 @@ class TestModelNormalization:
             Host(cited_as='Cook Institute', agent=Institution(id=3))
         ]),
     ])
-    def test_normalize_mixed_agent_relation(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(agent_relations=input)))
-        graph.process(disambiguate=False)
-        assert graph.serialize() == Graph(CreativeWork(agent_relations=output))
+    def test_normalize_mixed_agent_relation(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(CreativeWork(agent_relations=input)))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == JsonLD(CreativeWork(agent_relations=output))
 
     # test different types of agent work relations
     # Contributor, Creator
@@ -380,10 +380,10 @@ class TestModelNormalization:
         ], [
         ])
     ])
-    def test_normalize_contributor_creator_relation(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(agent_relations=input)))
-        graph.process(disambiguate=False)
-        assert graph.serialize() == Graph(CreativeWork(agent_relations=output))
+    def test_normalize_contributor_creator_relation(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(CreativeWork(agent_relations=input)))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == JsonLD(CreativeWork(agent_relations=output))
 
     # test work with related work
     @pytest.mark.parametrize('input, output', [
@@ -394,10 +394,10 @@ class TestModelNormalization:
         # same and different identifiers
         (CreativeWork(1, id=1, related_works=[CreativeWork(2, id=2), CreativeWork(1, id=1)]), CreativeWork(1, id=1, related_works=[CreativeWork(2, id=2)]))
     ])
-    def test_normalize_related_work(self, input, output, Graph):
-        graph = ChangeGraph(Graph(input))
-        graph.process(disambiguate=False)
-        assert graph.serialize() == Graph(output)
+    def test_normalize_related_work(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(input))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == JsonLD(output)
 
     @pytest.mark.parametrize('input, output', [
         ({'title': '', 'description': ''}, {'title': '', 'description': ''}),
@@ -406,10 +406,10 @@ class TestModelNormalization:
         ({'description': 'Line\nAfter\nLine\nAfter\nLine'}, {'description': 'Line After Line After Line'}),
         ({'description': 'null'}, {'description': ''}),
     ])
-    def test_normalize_creativework(self, input, output, Graph):
-        graph = ChangeGraph(Graph(CreativeWork(**input)))
-        graph.process(disambiguate=False)
-        assert graph.serialize() == Graph(CreativeWork(**output))
+    def test_normalize_creativework(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(CreativeWork(**input)))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == JsonLD(CreativeWork(**output))
 
     @pytest.mark.parametrize('input, output', [
         (input, Creator(cited_as='James Bond', agent=Person(name='James Bond', family_name='Bond', given_name='James')),)
@@ -426,7 +426,7 @@ class TestModelNormalization:
             Contributor(cited_as='', agent=Person(name='James  Bond')),
         ]
     ])
-    def test_normalize_agentworkrelation(self, input, output, Graph):
-        graph = ChangeGraph(Graph(input))
-        graph.process(disambiguate=False)
-        assert graph.serialize() == Graph(output)
+    def test_normalize_agentworkrelation(self, input, output, JsonLD):
+        graph = MutableGraph.from_jsonld(JsonLD(input))
+        Regulator().regulate(graph)
+        assert graph.to_jsonld(in_edges=False) == JsonLD(output)

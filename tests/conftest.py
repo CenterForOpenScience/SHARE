@@ -16,11 +16,12 @@ from oauth2_provider.models import AccessToken, Application
 from urllib3.connection import ConnectionError
 from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 
+from share.ingest.differ import NodeDiffer
 from share.models import Person, NormalizedData, Change, ChangeSet, RawDatum
 from share.models import Article, Institution
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
-from share.change import ChangeGraph
+from share.utils.graph import MutableGraph
 from bots.elasticsearch.bot import ElasticSearchBot
 from tests import factories
 
@@ -136,7 +137,7 @@ def change_set(normalized_data_id):
 
 @pytest.fixture
 def change_node():
-    return ChangeGraph([{
+    return MutableGraph.from_jsonld([{
         '@id': '_:1234',
         '@type': 'person',
         'given_name': 'No',
@@ -150,7 +151,6 @@ def change_factory(share_user, change_set, change_node):
         def from_graph(self, graph, disambiguate=False):
             nd = NormalizedData.objects.create(data=graph, source=share_user)
             cg = ChangeGraph(graph['@graph'])
-            cg.process(disambiguate=disambiguate)
             return ChangeSet.objects.from_graph(cg, nd.pk)
 
         def get(self):

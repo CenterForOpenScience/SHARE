@@ -22,7 +22,7 @@ from share.change import ChangeGraph
 from share.transform.chain.links import IRILink
 
 
-__all__ = ('Graph', )
+__all__ = ('JsonLD', )
 logger = logging.getLogger(__name__)
 
 
@@ -187,7 +187,7 @@ class GraphContructor:
 
 
 @pytest.fixture
-def Graph(monkeypatch):
+def JsonLD(monkeypatch):
     c = GraphContructor()
     ShareObjectFactory._meta.declarations['id'].function = lambda: '_:' + c.get_id()
     monkeypatch.setattr('share.change.uuid.uuid4', c.get_id)

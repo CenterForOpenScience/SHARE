@@ -1,8 +1,24 @@
-# TODO replace asserts with actual Errors
+from enum import Enum, auto
 
 import networkx as nx
+import pendulum
+import uuid
 
 from django.apps import apps
+from django.db.models import DateTimeField
+
+from share.util import TopologicalSorter
+
+# TODO replace asserts with actual Errors
+
+
+class PrivateNodeAttrs(Enum):
+    TYPE = auto()
+
+
+class EdgeAttrs(Enum):
+    FROM_NAME = auto()
+    TO_NAME = auto()
 
 
 # TODO get SHARE schema in a non-model form
@@ -36,8 +52,6 @@ class MutableGraph(nx.DiGraph):
             graph.remove_node(orphan.id)
         ```
     """
-    FROM_NAME_ATTR = '__from_name'
-    TO_NAME_ATTR = '__to_name'
 
     @classmethod
     def from_jsonld(cls, nodes):
@@ -53,7 +67,6 @@ class MutableGraph(nx.DiGraph):
                 if k == '@id':
                     id = v
                 elif k == '@type':
-                    type = v
                     type = v
                 elif isinstance(v, dict) and k != 'extra':
                     graph.add_node(v['@id'], v['@type'])
@@ -73,19 +86,21 @@ class MutableGraph(nx.DiGraph):
         """
         return [node.to_jsonld(in_edges=in_edges) for node in self]
 
-    def add_node(self, id, type, **attr):
+    def add_node(self, id, type, **attrs):
         """Create a node in the graph.
 
-        id (hashable): Unique node ID
+        id (hashable): Unique node ID. If None, generate a random ID.
         type (str): Name of the node's model
         keyword args: Named attributes or relations corresponding to fields on the node's model
 
         Returns a MutableNode wrapper for the new node.
         """
+        if id is None:
+            id = '_:{}'.format(uuid.uuid4())
         super().add_node(id)
         node = MutableNode(self, id)
         node.type = type
-        node.update(attr)
+        node.update(attrs)
         return node
 
     def get_node(self, id):
@@ -134,10 +149,12 @@ class MutableGraph(nx.DiGraph):
         to_name (str): Name of the edge on its 'to' node
         """
         assert all(
-            data.get(self.FROM_NAME_ATTR) != from_name for _, _, data
+            data.get(EdgeAttrs.FROM_NAME) != from_name for _, _, data
             in self.out_edges(from_id, data=True)
         ), 'Out-edge names must be unique on the node'
-        self.add_edge(from_id, to_id, **{self.FROM_NAME_ATTR: from_name, self.TO_NAME_ATTR: to_name})
+        self.add_edge(from_id, to_id)
+        self.edges[from_id, to_id][EdgeAttrs.FROM_NAME] = from_name
+        self.edges[from_id, to_id][EdgeAttrs.TO_NAME] = to_name
 
     def remove_named_edge(self, from_id, from_name):
         """Remove a named edge.
@@ -149,7 +166,7 @@ class MutableGraph(nx.DiGraph):
             to_id = next(
                 to_id for _, to_id, data
                 in self.out_edges(from_id, data=True)
-                if data.get(self.FROM_NAME_ATTR) == from_name
+                if data.get(EdgeAttrs.FROM_NAME) == from_name
             )
             self.remove_edge(from_id, to_id)
         except StopIteration:
@@ -167,7 +184,7 @@ class MutableGraph(nx.DiGraph):
             return next(
                 MutableNode(self, to_id) for _, to_id, data
                 in self.out_edges(from_id, data=True)
-                if data.get(self.FROM_NAME_ATTR) == from_name
+                if data.get(EdgeAttrs.FROM_NAME) == from_name
             )
         except StopIteration:
             return None
@@ -183,7 +200,7 @@ class MutableGraph(nx.DiGraph):
         return [
             MutableNode(self, from_id) for from_id, _, data
             in self.in_edges(to_id, data=True)
-            if data.get(self.TO_NAME_ATTR) == to_name
+            if data.get(EdgeAttrs.TO_NAME) == to_name
         ]
 
     def named_out_edges(self, from_id):
@@ -196,9 +213,9 @@ class MutableGraph(nx.DiGraph):
             values: MutableNode wrapper for the node each edge points to
         """
         return {
-            data[self.FROM_NAME_ATTR]: MutableNode(self, to_id) for _, to_id, data
+            data[EdgeAttrs.FROM_NAME]: MutableNode(self, to_id) for _, to_id, data
             in self.out_edges(from_id, data=True)
-            if data.get(self.FROM_NAME_ATTR) is not None
+            if data.get(EdgeAttrs.FROM_NAME) is not None
         }
 
     def named_in_edges(self, to_id):
@@ -212,10 +229,54 @@ class MutableGraph(nx.DiGraph):
         """
         in_edges = {}
         for from_id, _, data in self.in_edges(to_id, data=True):
-            to_name = data.get(self.TO_NAME_ATTR)
+            to_name = data.get(EdgeAttrs.TO_NAME)
             if to_name is not None:
                 in_edges.setdefault(to_name, []).append(MutableNode(self, from_id))
         return in_edges
+
+    def merge_nodes(self, from_node, into_node):
+        """Merge a nodes attrs and edges into another node.
+        """
+        self._merge_node_attrs(from_node, into_node)
+        self._merge_in_edges(from_node, into_node)
+        self._merge_out_edges(from_node, into_node)
+        from_node.delete(cascade=False)
+
+    def _merge_node_attrs(self, from_node, into_node):
+        into_attrs = into_node.attrs()
+        for k, new_val in from_node.attrs().items():
+            if k in into_attrs:
+                old_val = into_attrs[k]
+                if new_val == old_val:
+                    continue
+
+                # TODO make this more general; don't use Django stuff
+                field = into_node.model._meta.get_field(k)
+                if isinstance(field, DateTimeField):
+                    new_val = max(pendulum.parse(new_val), pendulum.parse(old_val)).isoformat()
+                else:
+                    # use the longer value, or the first alphabetically if they're the same length
+                    new_val = sorted([new_val, old_val], key=lambda x: (-len(str(x)), x))[0]
+            into_node[k] = new_val
+
+    def _merge_in_edges(self, from_node, into_node):
+        for edge_name, source_nodes in self.named_in_edges(from_node.id).items():
+            for source_node in source_nodes:
+                source_node[edge_name] = into_node
+
+    def _merge_out_edges(self, from_node, into_node):
+        into_edges = self.named_out_edges(into_node.id)
+        for edge_name, from_target in self.named_out_edges(from_node.id).items():
+            into_target = into_edges.get(edge_name)
+            if from_target != into_target:
+                self.merge_nodes(from_target, into_target)
+
+    def topologically_sorted(self):
+        return TopologicalSorter(
+            self,
+            dependencies=lambda n: self.successors(n.id),
+            key=lambda n: n.id,
+        ).sorted()
 
     def __iter__(self):
         return (MutableNode(self, id) for id in super().__iter__())
@@ -238,6 +299,10 @@ class MutableNode:
         self.__id = id
 
     @property
+    def __attrs(self):
+        return self.graph.nodes[self.id]
+
+    @property
     def id(self):
         return self.__id
 
@@ -246,21 +311,32 @@ class MutableNode:
         return self.__graph
 
     @property
-    def attrs(self):
-        return self.graph.nodes[self.id]
-
-    @property
     def type(self):
-        # TODO something else
-        return self.attrs['@type']
+        return self.__attrs[PrivateNodeAttrs.TYPE]
 
     @type.setter
     def type(self, value):
-        self.attrs['@type'] = value
+        self.__attrs[PrivateNodeAttrs.TYPE] = value
 
     @property
     def model(self):
         return resolve_model(self.type)
+
+    def attrs(self):
+        return {
+            k: v for k, v in self.__attrs.items()
+            if k not in PrivateNodeAttrs
+        }
+
+    def relations(self, in_edges=True, jsonld=False):
+        relations = {}
+        for from_name, node in self.graph.named_out_edges(self.id).items():
+            relations[from_name] = node.to_jsonld(ref=True) if jsonld else node
+        if in_edges:
+            for to_name, nodes in self.graph.named_in_edges(self.id).items():
+                sorted_nodes = sorted(nodes, key=lambda n: n.id)
+                relations[to_name] = [n.to_jsonld(ref=True) for n in sorted_nodes] if jsonld else sorted_nodes
+        return relations
 
     def __getitem__(self, key):
         """Get an attribute value or related node(s).
@@ -279,7 +355,7 @@ class MutableNode:
                 return self.graph.resolve_named_out_edge(self.id, field.name)
             if field.one_to_many:
                 return self.graph.resolve_named_in_edges(self.id, field.name)
-        return self.attrs.get(key)
+        return self.__attrs.get(key)
 
     def __setitem__(self, key, value):
         """Set an attribute value or add an outgoing named edge.
@@ -304,7 +380,7 @@ class MutableNode:
             self.graph.remove_named_edge(self.id, field.name)
             self.graph.add_named_edge(self.id, to_id, field.name, field.remote_field.name)
         else:
-            self.attrs[key] = value
+            self.__attrs[key] = value
 
     def __delitem__(self, key):
         """Delete an attribute value or outgoing named edge.
@@ -319,11 +395,11 @@ class MutableNode:
         if field.is_relation and key != 'extra':
             assert field.many_to_one
             self.graph.remove_named_edge(self.id, field.name)
-        else:
-            del self.attrs[key]
+        elif key in self.__attrs:
+            del self.__attrs[key]
 
-    def update(self, dict):
-        for k, v in dict.items():
+    def update(self, attrs):
+        for k, v in attrs.items():
             self[k] = v
 
     def delete(self, cascade=True):
@@ -340,12 +416,8 @@ class MutableNode:
             '@type': self.type,
         }
         if not ref:
-            ld_node.update(self.attrs)
-            for from_name, node in self.graph.named_out_edges(self.id).items():
-                ld_node[from_name] = node.to_jsonld(ref=True)
-            if in_edges:
-                for to_name, nodes in self.graph.named_in_edges(self.id).items():
-                    ld_node[to_name] = [n.to_jsonld(ref=True) for n in sorted(nodes, key=lambda n: n.id)]
+            ld_node.update(self.relations(in_edges=False, jsonld=True))
+            ld_node.update(self.attrs())
         return ld_node
 
     def __eq__(self, other):
@@ -353,3 +425,7 @@ class MutableNode:
 
     def __hash__(self):
         return hash(self.id)
+
+    def __str__(self):
+        return '<{} id({}) type({})>'.format(self.__class__.__name__, self.id, self.type)
+    __repr__ = __str__

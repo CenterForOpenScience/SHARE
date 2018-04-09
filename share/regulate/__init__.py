@@ -5,7 +5,7 @@ from share.models import RegulatorLog
 from share.util.extensions import Extensions
 
 
-class RegulatorConfigError(exceptions.ShareError):
+class RegulatorConfigError(exceptions.ShareException):
     pass
 
 

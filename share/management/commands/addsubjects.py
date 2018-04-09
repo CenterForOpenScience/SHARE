@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db import transaction
 
 from share.models import ShareUser, SubjectTaxonomy
-from share.ingest import Ingester
+from share.ingest.ingester import Ingester
 
 
 class Command(BaseCommand):
