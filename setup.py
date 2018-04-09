@@ -91,10 +91,16 @@ setup(
             'org.swbiodiversity = share.harvesters.org_swbiodiversity:SWHarvester',
         ],
         'share.regulate.steps.node': [
-            'normalize_iris = share.regulate.steps.normalize_iris:NormalizeIRIs',
+            'cited_as = share.regulate.steps.cited_as:CitedAs',
+            'trim_cycles = share.regulate.steps.trim_cycles:TrimCycles',
             'block_extra_values = share.regulate.steps.block_extra_values:BlockExtraValues',
+            'normalize_agent_names = share.regulate.steps.normalize_agent_names:NormalizeAgentNames',
+            'normalize_iris = share.regulate.steps.normalize_iris:NormalizeIRIs',
+            'tokenize_tags = share.regulate.steps.tokenize_tags:TokenizeTags',
+            'whitespace = share.regulate.steps.whitespace:StripWhitespace',
         ],
         'share.regulate.steps.graph': [
+            'deduplicate = share.regulate.steps.deduplicate:Deduplicate',
         ],
         'share.regulate.steps.validate': [
             'jsonld_validator = share.regulate.steps.validate:JSONLDValidatorStep',

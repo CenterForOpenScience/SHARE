@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from share.models.base import ShareObject, ShareObjectVersion, TypedShareObjectMeta
 from share.models.fields import ShareForeignKey, ShareURLField, ShareManyToManyField
 
-from share.util import strip_whitespace, ModelGenerator
+from share.util import ModelGenerator
 
 
 class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
@@ -13,12 +13,6 @@ class AbstractAgentWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
     agent = ShareForeignKey('AbstractAgent', related_name='work_relations')
 
     cited_as = models.TextField(blank=True)
-
-    @classmethod
-    def normalize(self, node, graph):
-        for k, v in tuple(node.attrs.items()):
-            if isinstance(v, str):
-                node.attrs[k] = strip_whitespace(v)
 
     class Disambiguation:
         all = ('creative_work',)
@@ -60,12 +54,6 @@ class Award(ShareObject):
     award_amount = models.PositiveIntegerField(blank=True, null=True)
     uri = ShareURLField(unique=True, blank=True, null=True)
 
-    @classmethod
-    def normalize(self, node, graph):
-        for k, v in tuple(node.attrs.items()):
-            if isinstance(v, str):
-                node.attrs[k] = strip_whitespace(v)
-
     def __str__(self):
         return self.description
 
@@ -90,14 +78,6 @@ generator = ModelGenerator(field_types={
     'positive_int': models.PositiveIntegerField
 })
 globals().update(generator.subclasses_from_yaml(__file__, AbstractAgentWorkRelation))
-
-
-def normalize_contributor(cls, node, graph):
-    if not node.attrs.get('cited_as'):
-        node.attrs['cited_as'] = node.related('agent').related.attrs['name']
-    node.attrs['cited_as'] = strip_whitespace(node.attrs['cited_as'])
-
-Contributor.normalize = classmethod(normalize_contributor)  # noqa
 
 # TODO
 # class CreatorDisambiguation(AbstractAgentWorkRelation.Disambiguation):

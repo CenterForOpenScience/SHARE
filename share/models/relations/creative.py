@@ -1,12 +1,7 @@
-import logging
-
 from share.models.base import ShareObject, TypedShareObjectMeta
 from share.models.fields import ShareForeignKey
 
 from share.util import ModelGenerator
-
-
-logger = logging.getLogger('share.normalize')
 
 
 class AbstractWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
@@ -20,12 +15,6 @@ class AbstractWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
     class Meta(ShareObject.Meta):
         db_table = 'share_workrelation'
         unique_together = ('subject', 'related', 'type')
-
-    @classmethod
-    def normalize(self, node, graph):
-        if len(node.related()) < 2:
-            logger.warning('Removing incomplete or circular relation %s, %s', node, node.related())
-            graph.remove(node)
 
 
 generator = ModelGenerator()

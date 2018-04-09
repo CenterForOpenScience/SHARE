@@ -23,6 +23,8 @@ class BaseStep:
 
 
 class NodeStep(BaseStep):
+    node_types = None
+
     def __init__(self, *args, node_types=None, **kwargs):
         """Initialize a NodeStep.
 
@@ -33,8 +35,7 @@ class NodeStep(BaseStep):
         super().__init__(*args, **kwargs)
 
         if node_types:
-            node_types = [t.lower() for t in node_types]
-        self.node_types = node_types
+            self.node_types = [t.lower() for t in node_types]
 
     def valid_target(self, node):
         """Return True if `node` is a valid target for this regulator step.

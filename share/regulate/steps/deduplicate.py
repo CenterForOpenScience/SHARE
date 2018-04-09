@@ -1,5 +1,15 @@
+
+from share import exceptions
 from share.regulate.steps import GraphStep
 from share.util import DictHashingDict
+
+
+class DupesNotMatchedError(exceptions.ShareException):
+    pass
+
+
+class MergingIncompatibleNodesError(exceptions.ShareException):
+    pass
 
 
 class Deduplicate(GraphStep):
@@ -12,18 +22,41 @@ class Deduplicate(GraphStep):
         ```
     """
     def regulate_graph(self, graph):
-        index = NodeIndex()
+        index = DupeNodeIndex()
         changed = True
         while changed:
+            changed = False
             index.clear()
             for node in graph:
-                dupes = index.get_matches(node)
-                if not dupes:
-                    continue
-                assert len(dupes) == 1
+                dupe = index.get_match(node)
+                if dupe:
+                    self._merge_nodes(graph, node, dupe)
+                    changed = True
+                    break
+                index.add(node)
+
+    def _merge_nodes(self, graph, node_a, node_b):
+        model_a, model_b = node_a.model, node_b.model
+        if model_a._meta.concrete_model is not model_b._meta.concrete_model:
+            raise MergingIncompatibleNodesError('Must have same concrete model', node_a, node_b)
+
+        # Remove the node with the less specific class
+        if issubclass(model_a, model_b):
+            graph.merge_nodes(node_b, node_a)
+        elif issubclass(model_b, model_a):
+            graph.merge_nodes(node_a, node_b)
+        else:
+            # TODO handle this case
+            raise MergingIncompatibleNodesError('Models must be related', node_a, node_b)
+
+        # TODO
+        #from share.models import Person
+        #if replacement.model == Person:
+        #    replacement.attrs['name'] = ''
+        #    Person.normalize(replacement, replacement.graph)
 
 
-class NodeIndex:
+class DupeNodeIndex:
     def __init__(self):
         self._index = {}
         self._node_cache = {}
@@ -66,9 +99,9 @@ class NodeIndex:
         matches = self.get_matches()
         if not matches:
             return None
-        if len(matches) == 1:
-            return matches[0]
-        raise 
+        if len(matches) != 1:
+            raise DupesNotMatchedError
+        return matches[0]
 
     def get_matches(self, node):
         indexable_node = self.get_indexable_node(node)
