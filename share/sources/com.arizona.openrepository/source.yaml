@@ -32,7 +32,14 @@ configs:
     ]
     emitted_type: CreativeWork
     property_list: []
-    type_map: {}
+    type_map:
+      "Book Section": Book
+      "Electronic Thesis": Thesis
+      "Thesis-Reproduction (electronic)": Thesis
+      "Electronic Report": Thesis
+      "Report-Reproduction (electronic)": Thesis
+      "Electronic Dissertation": Dissertation
+      "Dissertation-Reproduction (electronic)": Dissertation
 - base_url: http://arizona.openrepository.com/arizona/oai/request
   disabled: true
   earliest_date: null
