@@ -524,6 +524,7 @@ LOGGING = {
 # shell_plus convenience utilities
 SHELL_PLUS_POST_IMPORTS = (
     ('share.shell_util', '*'),
+    ('share.ingest.scheduler', 'IngestScheduler'),
 )
 
 

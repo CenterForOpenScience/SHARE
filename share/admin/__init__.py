@@ -19,7 +19,9 @@ from share.admin.jobs import HarvestJobAdmin
 from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.share_objects import CreativeWorkAdmin, SubjectAdmin
+from share.admin.util import FuzzyPaginator, linked_fk, SourceConfigFilter
 from share.harvest.scheduler import HarvestScheduler
+from share.ingest.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
 from share.models.change import ChangeSet
@@ -39,10 +41,13 @@ admin.site.register(Subject, SubjectAdmin)
 admin.site.register(CeleryTaskResult, CeleryTaskResultAdmin)
 
 
+@linked_fk('raw')
+@linked_fk('source')
 class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
-    raw_id_fields = ('raw', 'tasks',)
+    raw_id_fields = ('tasks',)
+    paginator = FuzzyPaginator
     formfield_overrides = {
         DateTimeAwareJSONField: {
             'widget': PrettyJSONWidget(attrs={
@@ -72,6 +77,7 @@ class ChangeSetAdmin(admin.ModelAdmin):
     actions = ['accept_changes']
     list_filter = ['status', ChangeSetSubmittedByFilter]
     raw_id_fields = ('normalized_data',)
+    paginator = FuzzyPaginator
 
     def submitted_by(self, obj):
         return obj.normalized_data.source
@@ -85,12 +91,14 @@ class ChangeSetAdmin(admin.ModelAdmin):
         return ChangeSet.STATUS[obj.status].title()
 
 
+@linked_fk('suid')
 class RawDatumAdmin(admin.ModelAdmin):
     show_full_result_count = False
     list_select_related = ('suid__source_config', )
     list_display = ('id', 'identifier', 'source_config_label', 'datestamp', 'date_created', 'date_modified', )
     readonly_fields = ('datum', 'sha256')
-    raw_id_fields = ('suid', 'jobs')
+    raw_id_fields = ('jobs',)
+    paginator = FuzzyPaginator
 
     def identifier(self, obj):
         return obj.suid.identifier
@@ -137,10 +145,11 @@ class HarvestForm(forms.Form):
             raise forms.ValidationError('Start date cannot be after end date.')
 
 
+@linked_fk('source')
 class SourceConfigAdmin(admin.ModelAdmin):
     list_display = ('label', 'source_', 'version', 'enabled', 'source_config_actions')
     list_select_related = ('source',)
-    readonly_fields = ('source_config_actions', 'source',)
+    readonly_fields = ('source_config_actions',)
     search_fields = ['label', 'source__name', 'source__long_title']
 
     def source_(self, obj):
@@ -197,9 +206,10 @@ class SourceConfigAdmin(admin.ModelAdmin):
         return TemplateResponse(request, 'admin/harvest.html', context)
 
 
+@linked_fk('user')
 class SourceAdmin(admin.ModelAdmin):
     search_fields = ('name', 'long_title')
-    readonly_fields = ('access_token', 'user')
+    readonly_fields = ('access_token',)
 
     def access_token(self, obj):
         tokens = obj.user.accesstoken_set.all()
@@ -267,8 +277,16 @@ class SourceStatAdmin(admin.ModelAdmin):
         )
 
 
+@linked_fk('source_config')
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
-    readonly_fields = ('identifier', 'source_config')
+    readonly_fields = ('identifier',)
+    paginator = FuzzyPaginator
+    actions = ('reingest',)
+    list_filter = (SourceConfigFilter,)
+    search_fields = ('identifier',)
+
+    def reingest(self, request, queryset):
+        IngestScheduler().bulk_reingest(queryset)
 
 
 admin.site.unregister(AccessToken)

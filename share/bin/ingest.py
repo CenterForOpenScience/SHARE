@@ -2,9 +2,9 @@ import os
 
 from pprint import pprint
 
-from share import tasks
 from share.bin.util import command
-from share.models import SourceConfig, RawDatum, IngestJob
+from share.ingest.scheduler import IngestScheduler
+from share.models import SourceConfig, RawDatum, SourceUniqueIdentifier
 from share.regulate import Regulator
 
 
@@ -55,45 +55,35 @@ def transform(args, argv):
 @command('Create IngestJobs for the specified RawDatum(s)')
 def ingest(args, argv):
     """
-    Usage: {0} ingest (<source_configs>... | --all) [--superfluous] [--task | --run]
-           {0} ingest --ids <raw_data_ids>... [--task | --run]
+    Usage: {0} ingest <source_configs>... [--superfluous] [--now]
+           {0} ingest --suids <suid_ids>... [--now]
 
     Options:
-        -i, --ids           Provide RawDatum IDs to ingest specifically
-        -s, --superfluous   Reingest RawDatums that already have an IngestJob
-        -t, --task          Spawn an ingest task after creating IngestJobs
-        -r, --run           Run ingest tasks synchronously for each IngestJob
+        -i, --suids         Provide Suid IDs to ingest specifically
+        -s, --superfluous   Don't skip RawDatums that already have an IngestJob
+        -n, --now           Run ingest tasks synchronously for each IngestJob
     """
-    ids = args['<raw_data_ids>']
+    suid_ids = args['<suid_ids>']
     source_configs = args['<source_configs>']
     superfluous = args.get('<superfluous>')
+    run_now = args['--now']
 
-    qs = RawDatum.objects.all()
-    if ids:
-        qs = qs.filter(id__in=ids)
+    qs = SourceUniqueIdentifier.objects.all()
+    if suid_ids:
+        qs = qs.filter(id__in=suid_ids)
+    elif source_configs:
+        qs = qs.filter(source_config__label__in=source_configs)
     else:
-        if source_configs:
-            qs = qs.filter(suid__source_config__label__in=source_configs)
-        if not superfluous:
-            qs = qs.filter(ingest_jobs=None)
+        raise ValueError('Need raw ids, suid ids, or source configs')
 
-    claim_jobs = args['--run'] or args['--task']
+    if not superfluous:
+        qs = qs.filter(ingest_jobs=None)
 
-    count = 0
-    jobs = []
-    for raw in qs.iterator():
-        count += 1
-        jobs.append(IngestJob.schedule(raw, superfluous=superfluous, claim=claim_jobs))
-    print('Scheduled {} IngestJobs'.format(count))
-
-    if not claim_jobs:
-        return
-
-    kwargs = {
-        'ignore_disabled': False,
-    }
-    for job in jobs:
-        if args['--run']:
-            tasks.ingest.apply((), {'job_id': job.id, **kwargs}, throw=True)
-        elif args['--task']:
-            tasks.ingest.apply_async((), {'job_id': job.id, **kwargs})
+    scheduler = IngestScheduler()
+    if run_now:
+        for suid in qs:
+            print('Ingesting {!r}...'.format(suid))
+            scheduler.reingest(suid)
+    else:
+        jobs = scheduler.bulk_reingest(qs)
+        print('Scheduled {} IngestJobs'.format(len(jobs)))
