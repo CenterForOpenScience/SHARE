@@ -23,7 +23,9 @@ def get_sourceconfig(name):
 @command('Fetch data to disk or stdout, using the specified SourceConfig')
 def fetch(args, argv):
     """
-    Usage: {0} fetch <sourceconfig> [<date> | --start=YYYY-MM-DD --end=YYYY-MM-DD] [--limit=LIMIT] [--print | --out=DIR] [--set-spec=SET]
+    Usage:
+        {0} fetch <sourceconfig> [<date> | --start=YYYY-MM-DD --end=YYYY-MM-DD] [--limit=LIMIT] [--print | --out=DIR] [--set-spec=SET]
+        {0} fetch <sourceconfig> --ids <ids>... [--print | --out=DIR]
 
     Options:
         -l, --limit=NUMBER      Limit the harvester to NUMBER of documents
@@ -32,6 +34,7 @@ def fetch(args, argv):
         -s, --start=YYYY-MM-DD  The date at which to start fetching data.
         -e, --end=YYYY-MM-DD    The date at which to stop fetching data.
         --set-spec=SET          The OAI setSpec to limit harvesting to.
+        --ids                   IDs of specific records to fetch.
     """
     config = get_sourceconfig(args['<sourceconfig>'])
     if not config:
@@ -39,17 +42,21 @@ def fetch(args, argv):
 
     harvester = config.get_harvester(pretty=True)
 
-    kwargs = {k: v for k, v in {
-        'limit': int(args['--limit']) if args.get('--limit') else None,
-        'set_spec': args.get('--set-spec'),
-    }.items() if v is not None}
-
-    if not args['<date>'] and not (args['--start'] and args['--end']):
-        gen = harvester.fetch(**kwargs)
-    elif args['<date>']:
-        gen = harvester.fetch_date(pendulum.parse(args['<date>']), **kwargs)
+    ids = args['<ids>']
+    if ids:
+        gen = (harvester.fetch_by_id(id) for id in ids)
     else:
-        gen = harvester.fetch_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), **kwargs)
+        kwargs = {k: v for k, v in {
+            'limit': int(args['--limit']) if args.get('--limit') else None,
+            'set_spec': args.get('--set-spec'),
+        }.items() if v is not None}
+
+        if not args['<date>'] and not (args['--start'] and args['--end']):
+            gen = harvester.fetch(**kwargs)
+        elif args['<date>']:
+            gen = harvester.fetch_date(pendulum.parse(args['<date>']), **kwargs)
+        else:
+            gen = harvester.fetch_date_range(pendulum.parse(args['--start']), pendulum.parse(args['--end']), **kwargs)
 
     if not args['--print']:
         args['--out'] = args['--out'] or os.path.join(os.curdir, 'fetched', config.label)

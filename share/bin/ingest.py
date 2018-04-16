@@ -24,35 +24,32 @@ def transform(args, argv):
     """
     from ipdb import launch_ipdb_on_exception
 
+    def run_transformer(config, id, datum):
+        transformer = config.get_transformer()
+        with launch_ipdb_on_exception():
+            graph = transformer.transform(datum)
+            if args.get('--regulate'):
+                Regulator(source_config=config).regulate(graph)
+            print('Parsed raw data "{}" into'.format(id))
+            pprint(graph.to_jsonld(in_edges=False))
+            print('\n')
+
     ids = args['<raw_data_ids>']
     if ids:
         qs = RawDatum.objects.filter(id__in=ids)
         for raw in qs.iterator():
-            transformer = raw.suid.source_config.get_transformer()
-            with launch_ipdb_on_exception():
-                print('Parsed raw data "{}" into'.format(raw.id))
-                pprint(transformer.transform(raw.datum))
-                print('\n')
+            run_transformer(raw.suid.source_config, raw.id, raw.datum)
         return
-
-    config = SourceConfig.objects.get(label=args['<sourceconfig>'])
-    transformer = config.get_transformer()
 
     if args['FILE']:
         files = args['FILE']
     else:
         files = [os.path.join(args['--directory'], x) for x in os.listdir(args['--directory']) if not x.startswith('.')]
-
+    config = SourceConfig.objects.get(label=args['<sourceconfig>'])
     for name in files:
         with open(name) as fobj:
             data = fobj.read()
-        with launch_ipdb_on_exception():
-            graph = transformer.transform(data)
-            if args.get('--regulate'):
-                Regulator(source_config=config).regulate(graph)
-            print('Parsed raw data "{}" into'.format(name))
-            pprint(graph.to_jsonld(in_edges=False))
-            print('\n')
+        run_transformer(config, name, data)
 
 
 @command('Create IngestJobs for the specified RawDatum(s)')

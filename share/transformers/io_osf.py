@@ -3,8 +3,17 @@ from share.transform.chain import links as tools
 from share.transform.chain.parsers import Parser
 
 
-class WorkIdentifier(Parser):
+class SimpleWorkIdentifier(Parser):
+    schema = 'WorkIdentifier'
+
     uri = tools.IRI(ctx)
+
+
+class WorkIdentifier(Parser):
+    uri = ctx.attributes.value
+
+    class Extra:
+        identifier_type = tools.Try(ctx.attributes.category)
 
 
 class AgentIdentifier(Parser):
@@ -91,7 +100,10 @@ class CreativeWork(Parser):
     # rights = tools.Try(ctx.attributes.node_license)  Doesn't seem to have an useful information
     # language =
 
-    identifiers = tools.Map(tools.Delegate(WorkIdentifier), ctx.links.html, ctx.links.self)
+    identifiers = tools.Concat(
+        tools.Map(tools.Delegate(SimpleWorkIdentifier), ctx.links.html, ctx.links.self),
+        tools.Map(tools.Delegate(WorkIdentifier), tools.Try(ctx.identifiers))
+    )
 
     tags = tools.Map(tools.Delegate(ThroughTags), ctx.attributes.category, ctx.attributes.tags)
 
