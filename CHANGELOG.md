@@ -1,5 +1,14 @@
 # Change Log
 
+# [2.15.6] - 2018-04-04
+* Fix PeerJ transformer error
+
+# [2.15.5] - 2018-03-15
+* Prevent infinite task loop for certain types of errors
+
+# [2.15.4] - 2018-03-15
+* Update raw data janitor to skip over datums from disabled/deleted sources
+
 # [2.15.3] - 2018-03-15
 * Fix bug in fixpreprintdisambiguations command
 

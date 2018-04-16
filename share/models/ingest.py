@@ -112,12 +112,13 @@ class SourceConfigManager(NaturalKeyManager):
                     'long_title': user.username,
                 }
             )
-            config = SourceConfig(
+            config, _ = SourceConfig.objects.get_or_create(
                 label=config_label,
-                source=source,
-                transformer=Transformer.objects.get(key=transformer_key),
+                defaults={
+                    'source': source,
+                    'transformer': Transformer.objects.get(key=transformer_key),
+                }
             )
-            config.save()
             return config
 
 
@@ -148,6 +149,8 @@ class SourceConfig(models.Model):
     # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
     transformer = models.ForeignKey('Transformer', null=True, on_delete=models.CASCADE)
     transformer_kwargs = JSONField(null=True, blank=True)
+
+    regulator_steps = JSONField(null=True, blank=True)
 
     disabled = models.BooleanField(default=False)
 

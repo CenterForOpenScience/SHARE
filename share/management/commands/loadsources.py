@@ -92,6 +92,11 @@ class Command(BaseCommand):
             'source': source,
             **self.process_defaults(SourceConfig, serialized)
         }
+
+        # Shouldn't reenable a disabled source config
+        if config_defaults.get('disabled') is False:
+            config_defaults.pop('disabled')
+
         if overwrite:
             source_config, created = SourceConfig.objects.update_or_create(label=label, defaults=config_defaults)
         else:

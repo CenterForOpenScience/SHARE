@@ -341,6 +341,7 @@ class IngestJobConsumer(JobConsumer):
         # Retry if it was just the wrong place at the wrong time
         except (exceptions.IngestConflict, OperationalError) as e:
             job.retries = (job.retries or 0) + 1
+            job.save(update_fields=('retries',))
             if job.retries > self.MAX_RETRIES:
                 raise
             job.reschedule()

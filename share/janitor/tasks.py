@@ -35,7 +35,14 @@ def rawdata_janitor(self, limit=500):
     qs = RawDatum.objects.select_related('suid__source_config').annotate(
         has_normalizedata=Exists(NormalizedData.objects.values('id').filter(raw=OuterRef('id'))),
         has_ingestjob=Exists(IngestJob.objects.values('id').filter(raw=OuterRef('id'))),
-    ).exclude(no_output=True).exclude(has_normalizedata=True).exclude(has_ingestjob=True)
+    ).exclude(
+        no_output=True
+    ).filter(
+        has_normalizedata=False,
+        has_ingestjob=False,
+        suid__source_config__disabled=False,
+        suid__source_config__source__is_deleted=False,
+    )
 
     for rd in qs[:limit]:
         count += 1

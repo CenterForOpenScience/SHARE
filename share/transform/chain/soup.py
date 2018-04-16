@@ -67,5 +67,5 @@ def Soup(chain, *args, **kwargs):
 class SoupXMLTransformer(ChainTransformer):
     REMOVE_EMPTY = False
 
-    def unwrap_data(self, data):
+    def unwrap_data(self, data, **kwargs):
         return SoupXMLDict(data)
