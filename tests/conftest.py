@@ -193,13 +193,13 @@ def university_of_whales(change_ids):
 
 @pytest.fixture
 def elastic(settings):
-    settings.ELASTICSEARCH_TIMEOUT = 5
-    settings.ELASTICSEARCH_INDEX = 'test_' + settings.ELASTICSEARCH_INDEX
+    settings.ELASTICSEARCH['TIMEOUT'] = 5
+    settings.ELASTICSEARCH['INDEX'] = 'test_' + settings.ELASTICSEARCH['INDEX']
 
     bot = ElasticSearchBot(es_setup=False)
 
     try:
-        bot.es_client.indices.delete(index=settings.ELASTICSEARCH_INDEX, ignore=[400, 404])
+        bot.es_client.indices.delete(index=settings.ELASTICSEARCH['INDEX'], ignore=[400, 404])
 
         bot.setup()
     except (ConnectionError, ElasticConnectionError):
@@ -207,7 +207,7 @@ def elastic(settings):
 
     yield bot
 
-    bot.es_client.indices.delete(index=settings.ELASTICSEARCH_INDEX, ignore=[400, 404])
+    bot.es_client.indices.delete(index=settings.ELASTICSEARCH['INDEX'], ignore=[400, 404])
 
 
 @pytest.fixture

@@ -111,7 +111,7 @@ class V1DataView(views.APIView):
             except KeyError:
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
-            ingester = Ingester(prelim_data, doc_id).as_user(request.user, 'v1_push').ingest_async()
+            ingester = Ingester(prelim_data, doc_id).as_user(request.user, 'v1_push').ingest_async(urgent=True)
 
             return Response({
                 'task_id': ingester.async_task.id,

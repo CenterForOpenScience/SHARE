@@ -56,8 +56,8 @@ def update_elasticsearch(self, filter=None, index=None, models=None, setup=False
 @celery.shared_task(bind=True)
 def index_model(self, model_name, ids, es_url=None, es_index=None):
     # TODO This method should not have to exist anymore
-    es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
-    action_gen = indexing.ElasticsearchActionGenerator([settings.ELASTICSEARCH_INDEX], [indexing.FakeMessage(model_name, ids)])
+    es_client = Elasticsearch(es_url or settings.ELASTICSEARCH['URL'], retry_on_timeout=True, timeout=settings.ELASTICSEARCH['TIMEOUT'])
+    action_gen = indexing.ElasticsearchActionGenerator([settings.ELASTICSEARCH['INDEX']], [indexing.FakeMessage(model_name, ids)])
     stream = helpers.streaming_bulk(es_client, (x for x in action_gen if x), max_chunk_bytes=10 * 1024 ** 2, raise_on_error=False)
 
     for ok, resp in stream:
@@ -68,9 +68,9 @@ def index_model(self, model_name, ids, es_url=None, es_index=None):
 @celery.shared_task(bind=True)
 def index_sources(self, es_index=None, es_url=None, timeout=None):
     errors = []
-    es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
+    es_client = Elasticsearch(es_url or settings.ELASTICSEARCH['URL'], retry_on_timeout=True, timeout=settings.ELASTICSEARCH['TIMEOUT'])
 
-    for ok, resp in helpers.streaming_bulk(es_client, SourceBulkStreamHelper(es_index or settings.ELASTICSEARCH_INDEX), raise_on_error=False):
+    for ok, resp in helpers.streaming_bulk(es_client, SourceBulkStreamHelper(es_index or settings.ELASTICSEARCH['INDEX']), raise_on_error=False):
         if not ok:
             logger.warning(resp)
         else:
@@ -109,10 +109,10 @@ class SourceBulkStreamHelper:
 
 
 def count_es(es_url, es_index, min_date, max_date):
-    es_client = Elasticsearch(es_url or settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=settings.ELASTICSEARCH_TIMEOUT)
+    es_client = Elasticsearch(es_url or settings.ELASTICSEARCH['URL'], retry_on_timeout=True, timeout=settings.ELASTICSEARCH['TIMEOUT'])
 
     return es_client.count(
-        index=(es_index or settings.ELASTICSEARCH_INDEX),
+        index=(es_index or settings.ELASTICSEARCH['INDEX']),
         doc_type='creativeworks',
         body={
             'query': {

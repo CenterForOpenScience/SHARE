@@ -45,13 +45,13 @@ class ElasticSearchGetOnlyView(views.APIView):
         params = request.query_params.copy()
 
         v = params.pop('v', None)
-        index = settings.ELASTICSEARCH_INDEX
+        index = settings.ELASTICSEARCH['INDEX']
         if v:
             v = 'v{}'.format(v[0])
-            if v not in settings.ELASTICSEARCH_INDEX_VERSIONS:
+            if v not in settings.ELASTICSEARCH['INDEX_VERSIONS']:
                 return http.HttpResponseBadRequest('Invalid search index version')
             index = '{}_{}'.format(index, v)
-        es_url = furl(settings.ELASTICSEARCH_URL).add(path=index, query_params=params).add(path=url_bits.split('/'))
+        es_url = furl(settings.ELASTICSEARCH['URL']).add(path=index, query_params=params).add(path=url_bits.split('/'))
 
         if request.method == 'GET':
             resp = requests.get(es_url)
@@ -75,13 +75,13 @@ class ElasticSearchPostOnlyView(views.APIView):
         params = request.query_params.copy()
 
         v = params.pop('v', None)
-        index = settings.ELASTICSEARCH_INDEX
+        index = settings.ELASTICSEARCH['INDEX']
         if v:
             v = 'v{}'.format(v[0])
-            if v not in settings.ELASTICSEARCH_INDEX_VERSIONS:
+            if v not in settings.ELASTICSEARCH['INDEX_VERSIONS']:
                 return http.HttpResponseBadRequest('Invalid search index version')
             index = '{}_{}'.format(index, v)
-        es_url = furl(settings.ELASTICSEARCH_URL).add(path=index, query_params=params).add(path=url_bits.split('/'))
+        es_url = furl(settings.ELASTICSEARCH['URL']).add(path=index, query_params=params).add(path=url_bits.split('/'))
 
         if request.method == 'POST':
             resp = requests.post(es_url, json=request.data)
@@ -117,13 +117,13 @@ class ElasticSearchView(views.APIView):
             return http.HttpResponseForbidden(reason='Scroll is not supported.')
 
         v = params.pop('v', None)
-        index = settings.ELASTICSEARCH_INDEX
+        index = settings.ELASTICSEARCH['INDEX']
         if v:
             v = 'v{}'.format(v[0])
-            if v not in settings.ELASTICSEARCH_INDEX_VERSIONS:
+            if v not in settings.ELASTICSEARCH['INDEX_VERSIONS']:
                 return http.HttpResponseBadRequest('Invalid search index version')
             index = '{}_{}'.format(index, v)
-        es_url = furl(settings.ELASTICSEARCH_URL).add(path=index, query_params=params).add(path=url_bits.split('/'))
+        es_url = furl(settings.ELASTICSEARCH['URL']).add(path=index, query_params=params).add(path=url_bits.split('/'))
 
         if request.method == 'GET':
             resp = requests.get(es_url)

@@ -74,7 +74,9 @@ class TestIngestJobConsumer:
         }).as_user(user).setup_ingest(claim_job=True)
 
         with celery_app.pool.acquire(block=True) as connection:
-            with connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS) as queue:
+            index = settings.ELASTICSEARCH['ACTIVE_INDEXES'][0]
+            queue_name = settings.ELASTICSEARCH['INDEXES'][index]['DEFAULT_QUEUE']
+            with connection.SimpleQueue(queue_name, **settings.ELASTICSEARCH['QUEUE_SETTINGS']) as queue:
                 queue.clear()
 
                 celery_app.tasks['share.tasks.ingest'](job_id=ingester.job.id)
@@ -94,7 +96,9 @@ class TestIngestJobConsumer:
         }).as_user(user).setup_ingest(claim_job=True)
 
         with celery_app.pool.acquire(block=True) as connection:
-            with connection.SimpleQueue(settings.ELASTIC_QUEUE, **settings.ELASTIC_QUEUE_SETTINGS) as queue:
+            index = settings.ELASTICSEARCH['ACTIVE_INDEXES'][0]
+            queue_name = settings.ELASTICSEARCH['INDEXES'][index]['DEFAULT_QUEUE']
+            with connection.SimpleQueue(queue_name, **settings.ELASTICSEARCH['QUEUE_SETTINGS']) as queue:
                 queue.clear()
 
                 celery_app.tasks['share.tasks.ingest'](job_id=ingester.job.id)

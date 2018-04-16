@@ -74,7 +74,7 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
                 ingest_jobs=ingester.job
             ).order_by('-created_at').values_list('id', flat=True).first()
 
-        async_result = ingest.delay(job_id=ingester.job.id)
+        async_result = ingest.delay(job_id=ingester.job.id, urgent=True)
 
         # TODO Use an actual serializer
         return Response({

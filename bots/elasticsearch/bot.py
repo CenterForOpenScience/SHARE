@@ -178,10 +178,10 @@ class ElasticSearchBot:
 
     def __init__(self, **kwargs):
         self.es_filter = kwargs.pop('es_filter', None)
-        self.es_index = kwargs.pop('es_index', None) or settings.ELASTICSEARCH_INDEX
+        self.es_index = kwargs.pop('es_index', None) or settings.ELASTICSEARCH['INDEX']
         self.es_models = kwargs.pop('es_models', None)
         self.es_setup = bool(kwargs.pop('es_setup', False))
-        self.es_url = kwargs.pop('es_url', None) or settings.ELASTICSEARCH_URL
+        self.es_url = kwargs.pop('es_url', None) or settings.ELASTICSEARCH['URL']
         self.to_daemon = kwargs.pop('to_daemon', True)
 
         if self.es_models:
@@ -194,7 +194,7 @@ class ElasticSearchBot:
 
     def get_most_recently_modified(self):
         resp = self.es_client.search(
-            index=(self.es_index or settings.ELASTICSEARCH_INDEX),
+            index=(self.es_index or settings.ELASTICSEARCH['INDEX']),
             doc_type='creativeworks',
             body='{"sort": {"date_modified": "desc"}, "size": 1}'
         )
@@ -234,7 +234,7 @@ class ElasticSearchBot:
                         tasks.index_model.apply_async((model.__name__, batch,), {'es_url': self.es_url, 'es_index': self.es_index})
                     else:
                         try:
-                            SearchIndexer(celery.current_app).index(model.__name__, *batch, index=self.es_index if self.es_index != settings.ELASTICSEARCH_INDEX else None)
+                            SearchIndexer(celery.current_app).index(model.__name__, *batch, index=self.es_index if self.es_index != settings.ELASTICSEARCH['INDEX'] else None)
                         except ValueError:
                             logger.warning('Not sending model type %r to the SearchIndexer', model)
 

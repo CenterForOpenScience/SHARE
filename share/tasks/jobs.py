@@ -268,7 +268,7 @@ class IngestJobConsumer(JobConsumer):
 
         return super()._prepare_job(job, *args, **kwargs)
 
-    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True):
+    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False):
         datum = None
 
         # Check whether we've already done transform/regulate
@@ -294,7 +294,7 @@ class IngestJobConsumer(JobConsumer):
             # TODO make this pipeline actually legacy by implementing a new one
             updated_work_ids = self._apply_changes(job, datum)
             if index and updated_work_ids:
-                self._update_index(updated_work_ids)
+                self._update_index(updated_work_ids, urgent)
 
     def _transform(self, job):
         transformer = job.suid.source_config.get_transformer()
@@ -357,6 +357,6 @@ class IngestJobConsumer(JobConsumer):
 
         return list(updated_works | existing_works)
 
-    def _update_index(self, work_ids):
+    def _update_index(self, work_ids, urgent):
         indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()
-        indexer.index('creativework', *work_ids)
+        indexer.index('creativework', *work_ids, urgent=urgent)

@@ -413,7 +413,7 @@ class TestESIndexer:
             self.message_factory(ids=[x.id for x in factories.AbstractCreativeWorkFactory.create_batch(8)]),
         ]
 
-        indexer = indexing.ESIndexer(elastic.es_client, settings.ELASTICSEARCH_INDEX, *messages)
+        indexer = indexing.ESIndexer(elastic.es_client, settings.ELASTICSEARCH['INDEX'], *messages)
 
         indexer.index()
 
@@ -426,7 +426,7 @@ class TestESIndexer:
         ) == set(util.IDObfuscator.encode(work) for work in models.AbstractCreativeWork.objects.all())
 
     def test_retries(self, sleep, es_client):
-        indexer = indexing.ESIndexer(es_client, settings.ELASTICSEARCH_INDEX)
+        indexer = indexing.ESIndexer(es_client, settings.ELASTICSEARCH['INDEX'])
         indexer._index = mock.Mock()
         indexer._index.side_effect = Exception('Testing')
 
@@ -437,14 +437,14 @@ class TestESIndexer:
         assert sleep.call_args_list == [mock.call(2 ** (i + 1)) for i in range(indexer.MAX_RETRIES - 1)]
 
     def test_checks_health(self, es_client):
-        indexer = indexing.ESIndexer(es_client, settings.ELASTICSEARCH_INDEX)
+        indexer = indexing.ESIndexer(es_client, settings.ELASTICSEARCH['INDEX'])
         indexer.index()
 
         assert es_client.cluster.health.called is True
 
     def test_red_fails(self, es_client):
         es_client.cluster.health.return_value = {'status': 'red'}
-        indexer = indexing.ESIndexer(es_client, settings.ELASTICSEARCH_INDEX)
+        indexer = indexing.ESIndexer(es_client, settings.ELASTICSEARCH['INDEX'])
 
         with pytest.raises(ValueError) as e:
             indexer._index()
@@ -453,7 +453,7 @@ class TestESIndexer:
 
     def test_gentle_mode(self, es_client):
         es_client.cluster.health.return_value = {'status': 'yellow'}
-        indexer = indexing.ESIndexer(es_client, settings.ELASTICSEARCH_INDEX, self.message_factory())
+        indexer = indexing.ESIndexer(es_client, settings.ELASTICSEARCH['INDEX'], self.message_factory())
         indexer.bulk_stream = mock.MagicMock()
         indexer._index()
 
@@ -467,7 +467,7 @@ class TestESIndexer:
             self.message_factory(ids=[x.id for x in factories.AbstractCreativeWorkFactory.create_batch(8)]),
         ]
 
-        indexer = indexing.ESIndexer(elastic.es_client, settings.ELASTICSEARCH_INDEX, *messages)
+        indexer = indexing.ESIndexer(elastic.es_client, settings.ELASTICSEARCH['INDEX'], *messages)
         indexer.index()
 
         for message in messages:
