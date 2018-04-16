@@ -12,7 +12,11 @@ configs:
     approved_sets: null
     emitted_type: CreativeWork
     property_list: []
-    type_map: {}
+    type_map:
+      Monograph: WorkingPaper
+      "Thesis (Masters)": Thesis
+      "Thesis (Doctoral)": Dissertation
+      "Conference or Workshop Item": Presentation
 home_page: http://openknowledge.nau.edu
 long_title: OpenKnowledge@NAU
 name: edu.nau.openknowledge

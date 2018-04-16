@@ -13,7 +13,19 @@ configs:
     approved_sets: [research]
     emitted_type: CreativeWork
     property_list: []
-    type_map: {}
+    type_map:
+      'Masters Thesis': Thesis
+      'Doctoral Dissertation': Dissertation
+      Text: Publication
+      Image: Presentation
+      'Mixed Material': Presentation
+      Sound: Presentation
+      'Moving Image': Presentation
+      'Book Review': Publication
+      Dataset: DataSet
+      'Exhibition Review': Publication
+      Software: Presentation
+      'Slide Deck': Presentation
 - base_url: http://repository.asu.edu/oai-pmh
   disabled: true
   earliest_date: null
