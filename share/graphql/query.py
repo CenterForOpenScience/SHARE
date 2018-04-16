@@ -29,7 +29,7 @@ class Query(graphene.ObjectType):
     me = graphene.Field(User)
     sources = graphene.List(Source, limit=graphene.Int(), offset=graphene.Int())
 
-    client = Elasticsearch(settings.ELASTICSEARCH_URL, retry_on_timeout=True, timeout=30)
+    client = Elasticsearch(settings.ELASTICSEARCH['URL'], retry_on_timeout=True, timeout=30)
 
     agent = graphene.Field(AbstractAgent, id=graphene.String(), resolver=IDObfuscator.resolver)
     creative_work = graphene.Field(AbstractCreativeWork, id=graphene.String(), resolver=IDObfuscator.resolver)
@@ -46,7 +46,7 @@ class Query(graphene.ObjectType):
         args.setdefault('from', 0)
         args.setdefault('size', 10)
 
-        resp = Query.client.search(index=settings.ELASTICSEARCH_INDEX, doc_type=args.pop('type'), body=args)
+        resp = Query.client.search(index=settings.ELASTICSEARCH['INDEX'], doc_type=args.pop('type'), body=args)
 
         del resp['_shards']  # No need to expose server information
 

@@ -34,14 +34,14 @@ class SearchIndexer(ConsumerMixin):
         self._pool = ThreadPoolExecutor(max_workers=len(settings.INDEXABLE_MODELS) + 1)
         self._queue = queue.Queue(maxsize=max_size)
         self.connection = connection
-        self.es_url = url or settings.ELASTICSEARCH_URL
+        self.es_url = url or settings.ELASTICSEARCH['URL']
         self.index = index
         self.prefetch_count = prefetch_count
 
         self.es_client = Elasticsearch(
             self.es_url,
             retry_on_timeout=True,
-            timeout=settings.ELASTICSEARCH_TIMEOUT,
+            timeout=settings.ELASTICSEARCH['TIMEOUT'],
             # sniff before doing anything
             sniff_on_start=settings.ELASTICSEARCH['SNIFF'],
             # refresh nodes after a node fails to respond
@@ -69,10 +69,18 @@ class SearchIndexer(ConsumerMixin):
         self._pool.shutdown()
 
     def get_consumers(self, Consumer, channel):
-        # TODO Combine multiple queues into one
-        queue_settings = settings.ELASTICSEARCH['INDEXES'][self.index]['QUEUE']
+        queue_settings = settings.ELASTICSEARCH['QUEUE_SETTINGS']
+        queue_names = settings.ELASTICSEARCH['INDEXES'][self.index]
         return [
-            Consumer([Queue(queue_settings.pop('name'), **queue_settings)], callbacks=[self.on_message], accept=['json'], prefetch_count=self.prefetch_count)
+            Consumer(
+                [
+                    Queue(queue_names['URGENT_QUEUE'], **queue_settings),
+                    Queue(queue_names['DEFAULT_QUEUE'], **queue_settings),
+                ],
+                callbacks=[self.on_message],
+                accept=['json'],
+                prefetch_count=self.prefetch_count,
+            )
         ]
 
     def on_message(self, body, message):

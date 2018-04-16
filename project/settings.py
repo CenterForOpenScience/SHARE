@@ -299,7 +299,6 @@ ELASTICSEARCH = {
     'INDEX': os.environ.get('ELASTIC_SEARCH_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
-    'DEFAULT_QUEUE': 'es-index',
     'DEFAULT_FETCHERS': {
         'agent': 'share.search.fetchers.AgentFetcher',
         'creativework': 'share.search.fetchers.CreativeWorkFetcher',
@@ -311,47 +310,19 @@ ELASTICSEARCH = {
         'compression': 'zlib',
         'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
     },
-    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_v3, share_customtax_1'), ','),
-    # TODO Make this configurable
-    # Due to time constraints this is being hard coded
     # NOTE: mappings will have to be created BEFORE the daemon starts
+    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_v3, share_customtax_1'), ','),
     'INDEXES': {
         'share_v3': {
-            'QUEUE': {
-                'name': 'es-index',
-                'serializer': 'json',
-                'compression': 'zlib',
-                'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
-                'consumer_arguments': {
-                    'x-priority': 100
-                }
-            }
+            'DEFAULT_QUEUE': 'es-triton-share',
+            'URGENT_QUEUE': 'es-triton-share.urgent',
         },
         'share_customtax_1': {
-            'FETCHERS': {
-                'creativework': 'share.search.fetchers.CreativeWorkFetcher',
-            },
-            'QUEUE': {
-                'name': 'es-index-firehose',
-                'serializer': 'json',
-                'compression': 'zlib',
-                'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
-                'consumer_arguments': {
-                    'x-priority': 100
-                }
-            }
+            'DEFAULT_QUEUE': 'es-share',
+            'URGENT_QUEUE': 'es-share.urgent',
         }
     },
 }
-
-# Backwards compat stuff.
-# TODO Delete me soon
-ELASTICSEARCH_URL = ELASTICSEARCH['URL']
-ELASTICSEARCH_INDEX = ELASTICSEARCH['INDEX']
-ELASTICSEARCH_TIMEOUT = ELASTICSEARCH['TIMEOUT']
-ELASTICSEARCH_INDEX_VERSIONS = ELASTICSEARCH['INDEX_VERSIONS']
-ELASTIC_QUEUE = ELASTICSEARCH['DEFAULT_QUEUE']
-ELASTIC_QUEUE_SETTINGS = ELASTICSEARCH['QUEUE_SETTINGS']
 
 INDEXABLE_MODELS = {
     'agent': 'Agent',
@@ -439,14 +410,35 @@ CELERY_TASK_DEFAULT_QUEUE = 'share_default'
 CELERY_TASK_DEFAULT_EXCHANGE = 'share_default'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'share_default'
 
-CELERY_TASK_ROUTES = {
-    'bots.elasticsearch.*': {'priority': 10, 'queue': 'elasticsearch'},
-    'share.tasks.harvest': {'priority': 0, 'queue': 'harvest'},
-    'share.tasks.ingest': {'priority': 20, 'queue': 'ingest'},
+URGENT_TASK_QUEUES = {
+    'share.tasks.ingest': 'ingest.urgent',
 }
 
-CELERY_TASK_QUEUES = {q['queue']: {} for q in CELERY_TASK_ROUTES.values()}
-CELERY_TASK_QUEUES[CELERY_TASK_DEFAULT_QUEUE] = {}
+
+def route_urgent_task(name, args, kwargs, options, task=None, **kw):
+    """Allow routing urgent tasks to a special queue, according to URGENT_TASK_QUEUES
+
+    e.g. task.apply_async(args, kwargs, urgent=True)
+    """
+    if name in URGENT_TASK_QUEUES and kwargs.get('urgent'):
+        return {'queue': URGENT_TASK_QUEUES[name]}
+
+
+CELERY_TASK_ROUTES = [
+    route_urgent_task,
+    {
+        'bots.elasticsearch.*': {'queue': 'elasticsearch'},
+        'share.tasks.harvest': {'queue': 'harvest'},
+        'share.tasks.ingest': {'queue': 'ingest'},
+    },
+]
+CELERY_TASK_QUEUES = {
+    'share_default': {},
+    'elasticsearch': {},
+    'harvest': {},
+    'ingest': {},
+    'ingest.urgent': {},
+}
 
 
 # Logging
