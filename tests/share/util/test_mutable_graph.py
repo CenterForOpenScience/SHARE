@@ -64,16 +64,31 @@ class TestMutableGraph:
 
     @pytest.mark.parametrize('node_id, key, value', [
         (work_id, 'title', 'title title'),
-        (work_id, 'description', None),
+        (work_id, 'description', 'woo'),
         (identifier_id, 'creative_work', None),
     ])
-    def test_attrs(self, mutable_graph, node_id, key, value):
+    def test_set_attrs(self, mutable_graph, node_id, key, value):
         n = mutable_graph.get_node(node_id)
-        if value is None:
-            del n[key]
-        else:
-            n[key] = value
+        n[key] = value
         assert n[key] == value
+
+    @pytest.mark.parametrize('set_none', [True, False])
+    def test_del_attrs(self, mutable_graph, set_none):
+        work = mutable_graph.get_node(work_id)
+        assert work['title']
+        if set_none:
+            work['title'] = None
+        else:
+            del work['title']
+        assert work['title'] is None
+        assert 'title' not in work.attrs
+
+        identifier = mutable_graph.get_node(identifier_id)
+        assert identifier['creative_work'] == work
+        if set_none:
+            identifier['creative_work'] = None
+        else:
+            del identifier['creative_work']
 
     @pytest.mark.parametrize('node_id, reverse_edge_name, count', [
         (work_id, 'agent_relations', 5),

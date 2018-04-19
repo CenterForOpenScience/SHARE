@@ -289,7 +289,13 @@ class MutableNode:
         If key is the name of a plain attribute in the SHARE schema, set that attribute's value.
         If key is the name of an outgoing edge, expect `value` to be a node ID or a MutableNode. Add an edge from this node to that one.
         If key is the name of incoming edges, raise an error.
+
+        If value is None, same as `del node[key]`
         """
+        if value is None:
+            del self[key]
+            return
+
         # TODO exclude fields not in the SHARE schema
         field = self.model._meta.get_field(key)
         if field.is_relation and key != 'extra':
