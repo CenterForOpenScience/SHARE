@@ -61,12 +61,11 @@ class SearchIndexer(ConsumerMixin):
             return super().run()
         finally:
             logger.warning('%r: Shutting down', self)
-            self.should_stop = True
-            self._pool.shutdown()
+            self.stop()
 
     def stop(self):
         self.should_stop = True
-        self._pool.shutdown()
+        self._pool.shutdown(wait=False)
 
     def get_consumers(self, Consumer, channel):
         queue_settings = settings.ELASTICSEARCH['QUEUE_SETTINGS']
@@ -115,8 +114,7 @@ class SearchIndexer(ConsumerMixin):
         except Exception as e:
             client.captureException()
             logger.exception('%r: _action_loop encountered an unexpected error', self)
-            self.should_stop = True
-            raise SystemExit(1)
+            self.stop()
 
     def _actions(self, size, msgs, timeout=5):
         for _ in range(size):
@@ -169,8 +167,7 @@ class SearchIndexer(ConsumerMixin):
         except Exception as e:
             client.captureException()
             logger.exception('%r: _index_loop encountered an unexpected error', self)
-            self.should_stop = True
-            raise SystemExit(1)
+            self.stop()
 
     def __repr__(self):
         return '<{}({})>'.format(self.__class__.__name__, self.index)
