@@ -17,7 +17,6 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from share.util import chunked, BaseJSONAPIMeta
-from share.models.fields import DateTimeAwareJSONField
 
 
 __all__ = ('HarvestJob', 'IngestJob', 'RegulatorLog')
@@ -398,9 +397,6 @@ class IngestJob(AbstractBaseJob):
     source_config_version = models.PositiveIntegerField()
     transformer_version = models.PositiveIntegerField()
     regulator_version = models.PositiveIntegerField()
-
-    transformed_datum = DateTimeAwareJSONField(null=True)
-    regulated_datum = DateTimeAwareJSONField(null=True)
 
     ingested_normalized_data = models.ManyToManyField('NormalizedData', related_name='ingest_jobs')
 

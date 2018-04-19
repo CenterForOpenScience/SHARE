@@ -118,9 +118,7 @@ Job entries to track the status of an ingest task
 | `source_config_version` |    int    |         |          |     |                 | Version of the SUID's `SourceConfig` on the last attempted run                                                |
 | `transformer_version`   |    int    |         |          |     |                 | Version of the Transformer    |
 | `regulator_version`     |    int    |         |          |     |                 | Version of the Regulator      |
-| `transformed_datum`     |   text    |         |    ✓     |     |                 | Serialized output from the Transformer                                                                        |
 | `regulator_logs`        |    o2m    |         |          |     |                 | List of RegulatorLogs for this ingestion run                                                                  |
-| `regulated_datum`       |   text    |         |    ✓     |     |                 | Serialized output from the Regulator                                                                          |
 
 #### Other indices
 * `suid_id`, `latest_raw_id`, `source_config_version`, `transformer_version`, `regulator_version` (unique)

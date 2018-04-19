@@ -19,7 +19,7 @@ from share.admin.jobs import HarvestJobAdmin
 from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.share_objects import CreativeWorkAdmin, SubjectAdmin
-from share.admin.util import FuzzyPaginator, linked_fk, SourceConfigFilter
+from share.admin.util import FuzzyPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.harvest.scheduler import HarvestScheduler
 from share.ingest.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
@@ -43,6 +43,10 @@ admin.site.register(CeleryTaskResult, CeleryTaskResultAdmin)
 
 @linked_fk('raw')
 @linked_fk('source')
+@linked_many(
+    'ingest_jobs',
+    order_by=['-date_created'],
+)
 class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
