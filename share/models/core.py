@@ -197,3 +197,5 @@ class NormalizedData(models.Model):
 
     def __str__(self):
         return '<{}({}, {}, {})>'.format(self.__class__.__name__, self.id, self.source.get_short_name(), self.created_at)
+
+    __repr__ = __str__

@@ -1,12 +1,10 @@
 from furl import furl
-from prettyjson import PrettyJSONWidget
 
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from share.admin.util import FuzzyPaginator, linked_fk, SourceConfigFilter
-from share.models.fields import DateTimeAwareJSONField
+from share.admin.util import FuzzyPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.models.jobs import AbstractBaseJob
 
 
@@ -70,23 +68,12 @@ class HarvestJobAdmin(BaseJobAdmin):
 
 @linked_fk('suid')
 @linked_fk('raw')
+@linked_many(
+    'ingested_normalized_data',
+    order_by=['-created_at'],
+    select_related=['source'],
+)
 class IngestJobAdmin(BaseJobAdmin):
     list_display = ('id', 'source_config', 'suid', 'status_', 'date_started', 'share_version', )
     list_select_related = BaseJobAdmin.list_select_related + ('suid',)
-    readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'ingested_normalized_data', 'retries')
-    fake_readonly_fields = ('transformed_datum', 'regulated_datum')
-    formfield_overrides = {
-        DateTimeAwareJSONField: {
-            'widget': PrettyJSONWidget(attrs={
-                'initial': 'parsed',
-                'cols': 120,
-                'rows': 20
-            })
-        }
-    }
-
-    def get_form(self, *args, **kwargs):
-        form = super().get_form(*args, **kwargs)
-        for field_name in self.fake_readonly_fields:
-            form.base_fields[field_name].disabled = True
-        return form
+    readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'retries')

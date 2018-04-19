@@ -33,20 +33,18 @@
   * Load the Transformer from the SUID's SourceConfig.
   * Update `IngestJob.transformer_version`.
   * Use the Transformer to transform the raw data into a [MutableGraph](../ingest/Graph.md).
-  * Serialize the MutableGraph to `IngestJob.transformed_datum`.
 * [Regulate](../ingest/Regulator.md)
   * Load the Regulator.
   * Update `IngestJob.regulator_version`.
   * Use the Regulator to clean the MutableGraph.
     * Save list of modifications with reasons to `IngestJob.regulator_logs`.
-  * Serialize the cleaned MutableGraph to `IngestJob.regulated_datum`.
+  * Save the cleaned MutableGraph as a `NormalizedData`
   * Use the Regulator to validate the cleaned MutableGraph.
 * NOT IMPLEMENTED: [Consolidate](../ingest/Consolidator.md)
   * Load the Consolidator.
   * Update `IngestJob.consolidator_version`.
   * Use Consolidator to update the given SUID's States to match the validated MutableGraph.
 * Legacy pipeline (Until Consolidator is implemented)
-  * Serialize MutableGraph to JSON-LD and save as NormalizedData.
   * Spawn `disambiguate` task for the created NormalizedData.
 
 

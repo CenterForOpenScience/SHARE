@@ -312,17 +312,15 @@ class IngestJobConsumer(JobConsumer):
                 logger.warning('Graph was empty for %s, but a normalized data already exists for it', job.raw)
             return None
 
-        job.log_graph('transformed_datum', graph)
         return graph
 
     def _regulate(self, job, graph):
         try:
             Regulator(job).regulate(graph)
+            return graph
         except exceptions.RegulateError as e:
             job.fail(e)
             return None
-        job.log_graph('regulated_datum', graph)
-        return graph
 
     def _apply_changes(self, job, normalized_datum):
         updated = None

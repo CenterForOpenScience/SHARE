@@ -28,20 +28,24 @@ def append_to_cls_property(cls, property_name, value):
     setattr(cls, property_name, tuple([*old_values, value]))
 
 
+def admin_link(linked_obj):
+    url = reverse(
+        'admin:{}_{}_change'.format(
+            linked_obj._meta.app_label,
+            linked_obj._meta.model_name,
+        ),
+        args=[linked_obj.id]
+    )
+    return format_html('<a href="{}">{}</a>', url, repr(linked_obj))
+
+
 def linked_fk(field_name):
     """Decorator that adds a link for a foreign key field
     """
     def add_link(cls):
         def link(self, instance):
             linked_obj = getattr(instance, field_name)
-            url = reverse(
-                'admin:{}_{}_change'.format(
-                    linked_obj._meta.app_label,
-                    linked_obj._meta.model_name,
-                ),
-                args=[linked_obj.id]
-            )
-            return format_html('<a href="{}">{}</a>', url, repr(linked_obj))
+            return admin_link(linked_obj)
         link_field = '{}_link'.format(field_name)
         link.short_description = field_name.replace('_', ' ')
         setattr(cls, link_field, link)
@@ -49,6 +53,32 @@ def linked_fk(field_name):
         append_to_cls_property(cls, 'exclude', field_name)
         return cls
     return add_link
+
+
+def linked_many(field_name, order_by=None, select_related=None):
+    """Decorator that adds links for a *-to-many field
+    """
+    def add_links(cls):
+        def links(self, instance):
+            linked_qs = getattr(instance, field_name).all()
+            if select_related:
+                linked_qs = linked_qs.select_related(*select_related)
+            if order_by:
+                linked_qs = linked_qs.order_by(*order_by)
+            return format_html(
+                '<ol>{}</ol>',
+                format_html(''.join(
+                    '<li>{}</li>'.format(admin_link(obj))
+                    for obj in linked_qs
+                ))
+            )
+        links_field = '{}_links'.format(field_name)
+        links.short_description = field_name.replace('_', ' ')
+        setattr(cls, links_field, links)
+        append_to_cls_property(cls, 'readonly_fields', links_field)
+        append_to_cls_property(cls, 'exclude', field_name)
+        return cls
+    return add_links
 
 
 class SourceConfigFilter(SimpleListFilter):

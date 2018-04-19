@@ -69,7 +69,6 @@ class IngestScheduler:
         return IngestJob.objects.bulk_get_or_create(
             job_gen,
             update_fields=['claimed', 'status'] if superfluous else ['claimed'],
-            defer_fields=['transformed_datum', 'regulated_datum'],
         )
 
     def reingest(self, suid):
