@@ -1,5 +1,13 @@
 # Change Log
 
+# [2.16.0] - 2018-04-26
+* Bulk reingestion with `IngestScheduler.bulk_reingest()` and `sharectl ingest`
+* Admin interface updates
+* More stable and reliable indexer daemon
+* "Urgent" queues for ingestion and indexing, allowing pushed data to jump
+  ahead of harvested data
+* Various source config updates
+
 # [2.15.6] - 2018-04-04
 * Fix PeerJ transformer error
 
