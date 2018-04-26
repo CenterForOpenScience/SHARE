@@ -10,7 +10,6 @@ from kombu.mixins import ConsumerMixin
 
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
-from elasticsearch.exceptions import ConnectionTimeout
 
 from raven.contrib.django.raven_compat.models import client
 
@@ -26,10 +25,7 @@ class SearchIndexer(ConsumerMixin):
 
     MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
 
-    TIMEOUT_INTERVAL = 10  # seconds
-    TIMEOUT_RETRIES = 10
-
-    def __init__(self, connection, index, url=None, max_size=5000, prefetch_count=7500):
+    def __init__(self, connection, index, url=None, max_size=5000, prefetch_count=7500, stop_event=None):
         self._model_queues = {}
         self._pool = ThreadPoolExecutor(max_workers=len(settings.INDEXABLE_MODELS) + 1)
         self._queue = queue.Queue(maxsize=max_size)
@@ -37,6 +33,7 @@ class SearchIndexer(ConsumerMixin):
         self.es_url = url or settings.ELASTICSEARCH['URL']
         self.index = index
         self.prefetch_count = prefetch_count
+        self.stop_event = stop_event
 
         self.es_client = Elasticsearch(
             self.es_url,
@@ -60,12 +57,15 @@ class SearchIndexer(ConsumerMixin):
             logger.debug('%r: Delegating to Kombu.run', self)
             return super().run()
         finally:
-            logger.warning('%r: Shutting down', self)
             self.stop()
 
     def stop(self):
+        if not self.should_stop:
+            logger.warning('%r: Shutting down', self)
         self.should_stop = True
         self._pool.shutdown(wait=False)
+        if self.stop_event:
+            self.stop_event.set()
 
     def get_consumers(self, Consumer, channel):
         queue_settings = settings.ELASTICSEARCH['QUEUE_SETTINGS']
@@ -133,37 +133,26 @@ class SearchIndexer(ConsumerMixin):
             while not self.should_stop:
                 msgs = []
                 actions = self._actions(250, msgs)
-                tries = 0
 
-                while not self.should_stop:
-                    stream = helpers.streaming_bulk(
-                        self.es_client,
-                        actions,
-                        max_chunk_bytes=self.MAX_CHUNK_BYTES,
-                        raise_on_error=False,
-                    )
+                stream = helpers.streaming_bulk(
+                    self.es_client,
+                    actions,
+                    max_chunk_bytes=self.MAX_CHUNK_BYTES,
+                    raise_on_error=False,
+                )
 
-                    start = time.time()
-                    try:
-                        for (ok, resp), msg in zip(stream, msgs):
-                            if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
-                                raise ValueError(ok, resp, msg)
-                            assert len(resp.values()) == 1
-                            _id = list(resp.values())[0]['_id']
-                            assert msg.payload['ids'] == [util.IDObfuscator.decode_id(_id)], '{} {}'.format(msg.payload, util.IDObfuscator.decode_id(_id))
-                            msg.ack()
-                        if len(msgs):
-                            logger.info('%r: Indexed %d documents in %.02fs', self, len(msgs), time.time() - start)
-                        else:
-                            logger.debug('%r: Recieved no messages for %.02fs', self, time.time() - start)
-                        break
-                    except ConnectionTimeout:
-                        if tries >= self.TIMEOUT_RETRIES:
-                            raise
-                        tries += 1
-                        logger.warning('Connection to elasticsearch timed out. Trying again after %s sec...', self.TIMEOUT_INTERVAL)
-                        time.sleep(self.TIMEOUT_INTERVAL)
-                        continue
+                start = time.time()
+                for (ok, resp), msg in zip(stream, msgs):
+                    if not ok and not (resp.get('delete') and resp['delete']['status'] == 404):
+                        raise ValueError(ok, resp, msg)
+                    assert len(resp.values()) == 1
+                    _id = list(resp.values())[0]['_id']
+                    assert msg.payload['ids'] == [util.IDObfuscator.decode_id(_id)], '{} {}'.format(msg.payload, util.IDObfuscator.decode_id(_id))
+                    msg.ack()
+                if len(msgs):
+                    logger.info('%r: Indexed %d documents in %.02fs', self, len(msgs), time.time() - start)
+                else:
+                    logger.debug('%r: Recieved no messages for %.02fs', self, time.time() - start)
         except Exception as e:
             client.captureException()
             logger.exception('%r: _index_loop encountered an unexpected error', self)
