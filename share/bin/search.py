@@ -113,18 +113,24 @@ def daemon(args, argv):
     logging.getLogger('share.search.daemon').setLevel(args['--log-level'])
     logging.getLogger('share.search.indexing').setLevel(args['--log-level'])
 
+    stop_event = threading.Event()
     indexers = []
     for index in settings.ELASTICSEARCH['INDEXES'].keys():
-        indexers.append(SearchIndexer(app.pool.acquire(block=True), index))
+        indexers.append(SearchIndexer(app.pool.acquire(block=True), index, stop_event=stop_event))
 
     threads = []
     for indexer in indexers:
         threads.append(threading.Thread(target=indexer.run))
         threads[-1].start()
 
-    try:
-        for thread in threads:
-            thread.join()
-    except KeyboardInterrupt:
+    def stop_indexers():
         for indexer in indexers:
             indexer.stop()
+
+    try:
+        stop_event.wait()
+    except KeyboardInterrupt:
+        stop_indexers()
+    except Exception:
+        stop_indexers()
+        raise
