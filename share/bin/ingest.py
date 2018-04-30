@@ -65,7 +65,7 @@ def ingest(args, argv):
     """
     suid_ids = args['<suid_ids>']
     source_configs = args['<source_configs>']
-    superfluous = args.get('<superfluous>')
+    superfluous = args.get('--superfluous')
     run_now = args['--now']
 
     qs = SourceUniqueIdentifier.objects.all()
