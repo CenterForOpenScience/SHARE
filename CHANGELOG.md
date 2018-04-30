@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.16.1] - 2018-04-30
+* Fix date range filtering in com.figshare.v2 harvester
+
 # [2.16.0] - 2018-04-26
 * Bulk reingestion with `IngestScheduler.bulk_reingest()` and `sharectl ingest`
 * Admin interface updates
