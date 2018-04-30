@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.16.2] - 2018-04-30
+* Fix typo in `sharectl ingest` that prevented bulk reingestion
+
 # [2.16.1] - 2018-04-30
 * Fix date range filtering in com.figshare.v2 harvester
 
