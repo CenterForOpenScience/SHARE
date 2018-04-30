@@ -10,36 +10,36 @@ class FigshareHarvester(BaseHarvester):
 
     page_size = 50
 
-    def do_harvest(self, start_date, end_date):
-        return self.fetch_records(furl(self.config.base_url).set(query_params={
+    def _do_fetch(self, start_date, end_date):
+        url = furl(self.config.base_url).set(query_params={
             'order_direction': 'asc',
             'order': 'modified_date',
             'page_size': self.page_size,
-            'modified_date': start_date.date().isoformat(),
-        }).url, end_date.date())
+            'modified_since': start_date.date().isoformat(),
+        })
+        return self.fetch_records(url, end_date.date())
 
     def fetch_records(self, url, end_day):
-        page, detail = 0, None
+        page = 1
+        last_seen_day = None
 
         while True:
             page += 1
-            resp = self.requests.get(furl(url).add(query_params={
-                'page': page,
-            }).url)
+            url.args['page'] = page
+            resp = self.requests.get(url.url)
 
-            if resp.status_code == 422:
+            if last_seen_day and resp.status_code == 422:
                 # We've asked for too much. Time to readjust date range
-                # Thanks for leaking variables python
-                page, url = 0, furl(url).add(query_params={
-                    'modified_date': pendulum.parse(detail['modified_date']).date().isoformat()
-                })
+                url.args['modified_since'] = last_seen_day.isoformat()
+                page = 0
                 continue
 
             for item in resp.json():
                 resp = self.requests.get(item['url'])
                 detail = resp.json()
+                last_seen_day = pendulum.parse(detail['modified_date']).date()
 
-                if pendulum.parse(detail['modified_date']).date() > end_day:
+                if last_seen_day > end_day:
                     return
 
                 yield item['url'], detail
