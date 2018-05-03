@@ -1,8 +1,10 @@
+import abc
+
 from share.exceptions import RegulateError
 from share.models import RegulatorLog
 
 
-class BaseStep:
+class BaseStep(abc.ABC):
     logs = None
 
     def __init__(self):
@@ -20,6 +22,10 @@ class BaseStep:
         log = RegulatorLog(description=description, rejected=True, node_id=node_id)
         self.logs.append(log)
         raise RegulateError('Regulation failed: {}'.format(description)) from exception
+
+    @abc.abstractmethod
+    def run(self, graph):
+        pass
 
 
 class NodeStep(BaseStep):
@@ -46,23 +52,53 @@ class NodeStep(BaseStep):
             return True
         return node.type.lower() in self.node_types
 
+    @abc.abstractmethod
     def regulate_node(self, node):
-        raise NotImplementedError()
+        pass
+
+    def run(self, graph):
+        self.logs.clear()
+        for node in self._iter_nodes(graph):
+            if self.valid_target(node):
+                self.regulate_node(node)
+
+    def _iter_nodes(self, graph):
+        """Iterate through the graph's nodes in no particular order, allowing nodes to be added/deleted while iterating
+        """
+        visited = set()
+        nodes = list(graph)
+        while nodes:
+            for n in nodes:
+                if n in graph:
+                    yield n
+                    visited.add(n)
+            nodes = set(graph) - visited
 
 
 class GraphStep(BaseStep):
+    def run(self, graph):
+        self.logs.clear()
+        self.regulate_graph(graph)
+
+    @abc.abstractmethod
     def regulate_graph(self, graph):
-        raise NotImplementedError()
+        pass
 
 
 class ValidationStep(BaseStep):
+    def run(self, graph):
+        self.logs.clear()
+        # TODO: convert to read-only graph?
+        self.validate_graph(graph)
+
+    @abc.abstractmethod
     def validate_graph(self, graph):
         """Validate the graph.
 
         Call `self.reject` or `self.fail` if the graph is invalid.
         Must not modify the graph in any way.
         """
-        raise NotImplementedError()
+        pass
 
     def reject(self, description, node_id=None, exception=None):
         """Indicate a regulated graph failed validation and will not be merged into the SHARE dataset.
