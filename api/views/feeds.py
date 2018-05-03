@@ -65,7 +65,7 @@ class CreativeWorksRSS(Feed):
         self._order = request.GET.get('order')
         elastic_query = request.GET.get('elasticQuery')
 
-        if self._order not in {'date_modified', 'date_updated'}:
+        if self._order not in {'date_modified', 'date_updated', 'date_created', 'date_published'}:
             self._order = 'date_modified'
 
         elastic_data = {
