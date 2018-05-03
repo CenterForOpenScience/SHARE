@@ -543,53 +543,37 @@ SUBJECTS_YAML = 'share/subjects.yaml'
 SHARE_LEGACY_PIPELINE = os.environ.get('SHARE_LEGACY_PIPELINE', True)
 
 # Regulator pipeline, names of setuptools entry points
-SHARE_REGULATOR_STEPS = [
-    # Node steps
-    {'namespace': 'share.regulate.steps.node', 'name': 'tokenize_tags'},
-    {'namespace': 'share.regulate.steps.node', 'name': 'whitespace'},
-    {'namespace': 'share.regulate.steps.node', 'name': 'normalize_agent_names'},
-    {'namespace': 'share.regulate.steps.node', 'name': 'cited_as'},
-    {
-        'name': 'normalize_iris',
-        'namespace': 'share.regulate.steps.node',
-        'settings': {
+SHARE_REGULATOR_CONFIG = {
+    'NODE_STEPS': [
+        'tokenize_tags',
+        'whitespace',
+        'normalize_agent_names',
+        'cited_as',
+        ('normalize_iris', {
             'node_types': ['workidentifier'],
             'blocked_schemes': ['mailto'],
             'blocked_authorities': ['issn', 'orcid.org'],
-        },
-    },
-    {
-        'name': 'normalize_iris',
-        'namespace': 'share.regulate.steps.node',
-        'settings': {
+        }),
+        ('normalize_iris', {
             'node_types': ['agentidentifier'],
-        },
-    },
-
-    {
-        'name': 'trim_cycles',
-        'namespace': 'share.regulate.steps.node',
-        'settings': {
+        }),
+        ('trim_cycles', {
             'node_types': ['workrelation', 'agentrelation'],
             'relation_fields': ['subject', 'related'],
-        },
-    },
-    {
-        'name': 'trim_cycles',
-        'namespace': 'share.regulate.steps.node',
-        'settings': {
+        }),
+        ('trim_cycles', {
             'node_types': ['subject'],
             'relation_fields': ['central_synonym'],
             'delete_node': False,
-        },
-    },
-
-    # Graph steps
-    {'namespace': 'share.regulate.steps.graph', 'name': 'deduplicate'},
-
-    # Validation steps
-    {'namespace': 'share.regulate.steps.validate', 'name': 'jsonld_validator'},
-]
+        }),
+    ],
+    'GRAPH_STEPS': [
+        'deduplicate',
+    ],
+    'VALIDATE_STEPS': [
+        'jsonld_validator',
+    ],
+}
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')

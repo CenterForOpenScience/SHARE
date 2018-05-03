@@ -29,13 +29,12 @@ configs:
     property_list: []
     type_map: {}
   regulator_steps:
-    - namespace: share.regulate.steps.node
-      name: block_extra_values
-      settings:
-        node_types:
-          - WorkIdentifer
-        blocked_values:
-          identifier_type: srbnumber
+    NODE_STEPS:
+      - - block_extra_values
+        - node_types:
+            - WorkIdentifer
+          blocked_values:
+            identifier_type: srbnumber
 - base_url: http://repository.si.edu/oai/request
   disabled: true
   earliest_date: null
