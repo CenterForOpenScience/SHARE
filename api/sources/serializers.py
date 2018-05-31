@@ -14,7 +14,6 @@ from api.base import exceptions
 from api.fields import ShareIdentityField
 from api.users.serializers import ShareUserSerializer
 from api.users.serializers import ShareUserWithTokenSerializer
-from api.source_configs.serializers import SourceConfigSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -35,7 +34,6 @@ class UpdateSourceSerializer(ShareSerializer):
     VALID_ICON_TYPES = ('image/png', 'image/jpeg')
 
     included_serializers = {
-        'source_configs': SourceConfigSerializer,
         'user': ShareUserWithTokenSerializer,
     }
 
@@ -47,12 +45,12 @@ class UpdateSourceSerializer(ShareSerializer):
 
     class Meta:
         model = models.Source
-        fields = ('name', 'home_page', 'long_title', 'canonical', 'icon', 'icon_url', 'user', 'source_configs', 'url')
-        read_only_fields = ('icon', 'user', 'source_configs', 'url')
+        fields = ('name', 'home_page', 'long_title', 'canonical', 'icon', 'icon_url', 'user', 'url')
+        read_only_fields = ('icon', 'user', 'url')
         view_name = 'api:source-detail'
 
     class JSONAPIMeta:
-        included_resources = ['user', 'source_configs']
+        included_resources = ['user']
 
     def update(self, instance, validated_data):
         # TODO: when long_title is changed, reindex works accordingly
@@ -91,8 +89,8 @@ class CreateSourceSerializer(UpdateSourceSerializer):
 
         icon_file = self._fetch_icon_file(icon_url)
 
-        label = long_title.replace(' ', '_').lower()
-        name = validated_data.pop('name', label)
+        username = long_title.replace(' ', '_').lower()
+        name = validated_data.pop('name', username)
 
         with transaction.atomic():
             source, created = models.Source.objects.get_or_create(
@@ -105,10 +103,9 @@ class CreateSourceSerializer(UpdateSourceSerializer):
             if not created:
                 raise exceptions.AlreadyExistsError(source)
 
-            user = self._create_trusted_user(username=label)
+            user = self._create_trusted_user(username=username)
             source.user_id = user.id
             source.icon.save(name, content=icon_file)
-            models.SourceConfig.objects.create(source_id=source.id, label=label)
 
             return source
 
