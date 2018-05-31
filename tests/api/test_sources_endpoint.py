@@ -104,11 +104,6 @@ def flatten_write_response(resp):
     }
     included = json.get('included')
     if included:
-        source_config = next(d for d in included if d['type'] == 'SourceConfig')
-        flattened['sourceConfig'] = {
-            'id': source_config['id'],
-            **source_config['attributes']
-        }
         user = next(d for d in included if d['type'] == 'ShareUser')
         flattened['user'] = {
             'id': user['id'],
@@ -206,7 +201,6 @@ class TestSourcesPost:
         assert data['user']['username'] == created_label
         assert data['user']['token'] == created_user.accesstoken_set.first().token
         assert created_user.is_trusted is True
-        assert data['sourceConfig']['label'] == created_label
 
     def test_successful_post_home_page(self, client, source_add_user, mock_icon_urls):
         test_data = get_post_body(home_page='http://test.homepage.net')
