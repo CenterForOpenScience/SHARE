@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.16.3] - 2018-06-04
+* Fix bug in indexer daemon, stop all threads when one dies
+
 # [2.16.2] - 2018-04-30
 * Fix typo in `sharectl ingest` that prevented bulk reingestion
 
