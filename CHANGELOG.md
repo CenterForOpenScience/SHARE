@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.16.5] - 2018-06-04
+* Pin kombu to 4.1.0
+
 # [2.16.4] - 2018-06-04
 * Harvest all set specs from CSIC
 * Allow sorting Atom feed by `date_created` and `date_published`
