@@ -63,9 +63,9 @@ class SearchIndexer(ConsumerMixin):
         if not self.should_stop:
             logger.warning('%r: Shutting down', self)
         self.should_stop = True
-        self._pool.shutdown(wait=False)
         if self.stop_event:
             self.stop_event.set()
+        self._pool.shutdown(wait=False)
 
     def get_consumers(self, Consumer, channel):
         queue_settings = settings.ELASTICSEARCH['QUEUE_SETTINGS']
