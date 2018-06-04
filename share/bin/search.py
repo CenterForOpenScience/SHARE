@@ -123,14 +123,10 @@ def daemon(args, argv):
         threads.append(threading.Thread(target=indexer.run))
         threads[-1].start()
 
-    def stop_indexers():
-        for indexer in indexers:
-            indexer.stop()
-
     try:
         stop_event.wait()
     except KeyboardInterrupt:
-        stop_indexers()
-    except Exception:
-        stop_indexers()
-        raise
+        pass
+    finally:
+        for indexer in indexers:
+            indexer.stop()
