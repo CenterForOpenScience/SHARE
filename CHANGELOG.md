@@ -1,5 +1,11 @@
 # Change Log
 
+# [2.16.4] - 2018-06-04
+* Harvest all set specs from CSIC
+* Allow sorting Atom feed by `date_created` and `date_published`
+* Don't create unnecessary source configs for each new source
+* Update pytest-django dependency to avoid version conflict
+
 # [2.16.3] - 2018-06-04
 * Fix bug in indexer daemon, stop all threads when one dies
 
