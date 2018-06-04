@@ -27,6 +27,7 @@ graphene==1.4  # MIT
 graphql-core==1.1  # MIT
 jsonschema==2.5.1  # MIT
 lxml==3.6.0  # BSD
+kombu==4.1.0  # BSD 3 Clause
 markdown==2.6.8  # BSD
 nameparser==0.4.0  # LGPL
 networkx==2.1  # BSD
