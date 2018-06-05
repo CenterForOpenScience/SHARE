@@ -1,4 +1,4 @@
-FROM python:3.5-slim as app
+FROM python:3.6-slim-jessie as app
 
 RUN apt-get update \
     && apt-get install -y \
