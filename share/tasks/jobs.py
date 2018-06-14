@@ -197,7 +197,6 @@ class HarvestJobConsumer(JobConsumer):
             # If so, retry indefinitely to preserve existing functionality.
             # Use random to add jitter to help break up locking issues
             # Kinda hacky, allow a stupidly large number of retries as there is no options for infinite
-            job.reschedule(claim=True)
             raise self.task.retry(
                 exc=e,
                 max_retries=99999,

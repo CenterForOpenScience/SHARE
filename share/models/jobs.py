@@ -6,6 +6,7 @@ import logging
 import traceback
 from contextlib import contextmanager
 
+from celery.exceptions import Retry
 from model_utils import Choices
 
 from django.conf import settings
@@ -265,6 +266,9 @@ class AbstractBaseJob(models.Model):
         self.start()
         try:
             yield
+        except Retry as e:
+            self.fail(e)
+            self.reschedule(claim=True)
         except Exception as e:
             self.fail(e)
             raise
