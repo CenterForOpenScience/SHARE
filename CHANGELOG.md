@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.16.6] - 2018-06-14
+* Handle OSF harvest errors gracefully
+
 # [2.16.5] - 2018-06-04
 * Pin kombu to 4.1.0
 
