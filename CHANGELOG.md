@@ -1,5 +1,9 @@
 # Change Log
 
+# [2.16.7] - 2018-06-14
+* Harvest jobs that are retried when the same source is already being
+  harvested should be marked "rescheduled" rather than "failed"
+
 # [2.16.6] - 2018-06-14
 * Handle OSF harvest errors gracefully
 
