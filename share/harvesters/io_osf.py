@@ -5,11 +5,18 @@ from django.conf import settings
 
 from furl import furl
 
+from share.exceptions import HarvestError
 from share.harvest import BaseHarvester
 
 
 QA_TAG = 'qatest'
 logger = logging.getLogger(__name__)
+
+
+class NodeSuddenlyUnavailable(HarvestError):
+    # A node was deleted or made private after it was seen at /v2/nodes,
+    # but before we could fetch its embeds
+    pass
 
 
 class OSFHarvester(BaseHarvester):
@@ -67,7 +74,10 @@ class OSFHarvester(BaseHarvester):
                 if record['attributes'].get('tags') and QA_TAG in record['attributes']['tags']:
                     continue
 
-                record = self._populate_embeds(record, embed_attrs)
+                try:
+                    record = self._populate_embeds(record, embed_attrs)
+                except NodeSuddenlyUnavailable:
+                    continue
 
                 yield record['id'], record
 
@@ -79,6 +89,8 @@ class OSFHarvester(BaseHarvester):
 
         records = self.requests.get(url.url)
 
+        if records.status_code in (401, 410):
+            raise NodeSuddenlyUnavailable('Node unharvestable ({}) at {}. Got {}'.format(records. url.url, records.content))
         if records.status_code // 100 != 2:
             raise ValueError('Malformed response ({}) from {}. Got {}'.format(records, url.url, records.content))
 
