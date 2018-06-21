@@ -88,6 +88,11 @@ class JobConsumer:
                     self._consume_job(job, **kwargs, superfluous=superfluous, force=force)
 
     def _prepare_job(self, job, superfluous):
+        if job.status == self.Job.STATUS.skipped:
+            # Need some way to short-circuit a superfluous retry loop
+            logger.warning('%r has been marked skipped. Change its status to allow re-running it', job)
+            return False
+
         if self.task and self.task.request.id:
             # Additional attributes for the celery backend
             # Allows for better analytics of currently running tasks
