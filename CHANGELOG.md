@@ -1,5 +1,8 @@
 # Change Log
 
+# [2.16.9] - 2018-06-21
+* When a job is marked "skipped", not even `superfluous` will re-run it
+
 # [2.16.8] - 2018-06-14
 * All retried jobs should be marked "rescheduled"
 
