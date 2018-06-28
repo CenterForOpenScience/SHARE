@@ -11,6 +11,8 @@ from share.harvest import BaseHarvester
 logger = logging.getLogger(__name__)
 
 
+PAGE_SIZE = 25
+
 NSF_FIELDS = [
     'id',
     'agency',
@@ -65,25 +67,34 @@ NSF_FIELDS = [
 class NSFAwardsHarvester(BaseHarvester):
     VERSION = 2
 
-    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
+    def shift_range(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> Tuple[pendulum.Pendulum, pendulum.Pendulum]:
+        # HACK: Records are made available one business day *after* their "date".
+        # Accounting for holidays, they might be delayed over a 4-day weekend.
+        # When harvesting yesterday's data, actually reach back farther...
+        if end_date.is_today():
+            start_date = start_date.subtract(days=5)
+        return start_date, end_date
+
+    def _do_fetch(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         url = furl(self.config.base_url)
 
         url.args['dateStart'] = start_date.date().strftime('%m/%d/%Y')
         url.args['dateEnd'] = end_date.date().strftime('%m/%d/%Y')
         url.args['offset'] = 0
         url.args['printFields'] = ','.join(NSF_FIELDS)
+        url.args['rpp'] = PAGE_SIZE
 
         return self.fetch_records(url)
 
-    def fetch_records(self, url: furl) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
+    def fetch_records(self, url: furl) -> Iterator[Tuple[str, Union[str, dict, bytes], pendulum.Pendulum]]:
         while True:
             logger.info('Fetching %s', url.url)
             records = self.requests.get(url.url).json()['response'].get('award', [])
 
             for record in records:
-                yield (record['id'], record)
+                yield (record['id'], record, pendulum.from_format(record['date'], '%m/%d/%Y'))
 
-            if len(records) < 25:
+            if len(records) < PAGE_SIZE:
                 break
 
-            url.args['offset'] += 25
+            url.args['offset'] += PAGE_SIZE
