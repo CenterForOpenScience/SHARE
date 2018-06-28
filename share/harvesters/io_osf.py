@@ -90,7 +90,7 @@ class OSFHarvester(BaseHarvester):
         records = self.requests.get(url.url)
 
         if records.status_code in (401, 410):
-            raise NodeSuddenlyUnavailable('Node unharvestable ({}) at {}. Got {}'.format(records. url.url, records.content))
+            raise NodeSuddenlyUnavailable('Node unharvestable ({}) at {}. Got {}'.format(records, url.url, records.content))
         if records.status_code // 100 != 2:
             raise ValueError('Malformed response ({}) from {}. Got {}'.format(records, url.url, records.content))
 
