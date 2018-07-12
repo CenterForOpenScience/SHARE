@@ -9,9 +9,8 @@ from django.db.utils import OperationalError
 from django.utils import timezone
 
 from share import exceptions
-from share.disambiguation import GraphDisambiguator
 from share.harvest.exceptions import HarvesterConcurrencyError
-from share.ingest.differ import NodeDiffer
+from share.ingest.change_builder import ChangeBuilder
 from share.models import (
     AbstractCreativeWork,
     HarvestJob,
@@ -333,11 +332,10 @@ class IngestJobConsumer(JobConsumer):
             ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
             with transaction.atomic():
+                change_set = ChangeBuilder.build_change_set(graph, normalized_datum, disambiguate=True)
+
                 user = normalized_datum.source  # "source" here is a user...
                 source = user.source
-                instance_map = GraphDisambiguator(source).find_instances(graph)
-                change_set = NodeDiffer.build_change_set(graph, normalized_datum, instance_map)
-
                 if change_set and (source or user.is_robot or user.is_trusted):
                     updated = change_set.accept()
 

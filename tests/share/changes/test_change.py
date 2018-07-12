@@ -3,13 +3,14 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 
 from share import models
-from share.change import ChangeGraph
+from share.ingest.change_builder import ChangeBuilder
 from share.util import IDObfuscator
+from share.util.graph import MutableGraph
 
 
 @pytest.fixture
 def create_graph():
-    return ChangeGraph([{
+    return MutableGraph.from_jsonld([{
         '@id': '_:1234',
         '@type': 'person',
         'given_name': 'Jane',
@@ -18,8 +19,13 @@ def create_graph():
 
 
 @pytest.fixture
+def create_graph_node(create_graph):
+    return next(n for n in create_graph)
+
+
+@pytest.fixture
 def create_graph_dependencies():
-    return ChangeGraph([{
+    return MutableGraph.from_jsonld([{
         '@id': '_:123',
         '@type': 'person',
         'given_name': 'Jane',
@@ -39,16 +45,21 @@ def create_graph_dependencies():
 
 @pytest.fixture
 def update_graph(jane_doe):
-    return ChangeGraph([{
+    return MutableGraph.from_jsonld([{
         '@id': IDObfuscator.encode(jane_doe),
         '@type': 'person',
         'family_name': 'Dough',
     }])
 
 
+@pytest.fixture
+def update_graph_node(update_graph):
+    return next(n for n in update_graph)
+
+
 # @pytest.fixture
 # def merge_graph(jane_doe, john_doe):
-#     return ChangeGraph.from_jsonld({
+#     return MutableGraph.from_jsonld.from_jsonld({
 #         '@graph': [{
 #             '@id': '_:1234',
 #             '@type': 'MergeAction',
@@ -61,8 +72,8 @@ def update_graph(jane_doe):
 class TestChange:
 
     @pytest.mark.django_db
-    def test_create(self, create_graph, change_set):
-        change = models.Change.objects.from_node(create_graph.nodes[0], change_set)
+    def test_create(self, create_graph_node, change_set):
+        change = ChangeBuilder(create_graph_node).build_change(change_set)
 
         assert change.type == models.Change.TYPE.create
 
@@ -77,8 +88,8 @@ class TestChange:
         assert change.change == {'given_name': 'Jane', 'family_name': 'Doe'}
 
     @pytest.mark.django_db
-    def test_create_accept(self, create_graph, change_set):
-        change = models.Change.objects.from_node(create_graph.nodes[0], change_set)
+    def test_create_accept(self, create_graph_node, change_set):
+        change = ChangeBuilder(create_graph_node).build_change(change_set)
         person = change.accept()
 
         assert person.pk is not None
@@ -90,15 +101,18 @@ class TestChange:
         assert change.affected_abstractagent == person
 
     @pytest.mark.django_db
-    def test_create_accept_no_save(self, create_graph, change_set):
-        change = models.Change.objects.from_node(create_graph.nodes[0], change_set)
+    def test_create_accept_no_save(self, create_graph_node, change_set):
+        change = ChangeBuilder(create_graph_node).build_change(change_set)
         person = change.accept(save=False)
 
         assert person.pk is None
 
     @pytest.mark.django_db
-    def test_update_accept(self, jane_doe, update_graph, change_set):
-        change = models.Change.objects.from_node(update_graph.nodes[0], change_set)
+    def test_update_accept(self, jane_doe, update_graph_node, change_set):
+        change = ChangeBuilder(
+            update_graph_node,
+            instance_map={update_graph_node: jane_doe},
+        ).build_change(change_set)
 
         assert jane_doe.family_name == 'Doe'
 
@@ -110,8 +124,11 @@ class TestChange:
         assert len(jane_doe.versions.all()) == 2
 
     @pytest.mark.django_db
-    def test_update_accept_no_save(self, jane_doe, update_graph, change_set):
-        change = models.Change.objects.from_node(update_graph.nodes[0], change_set)
+    def test_update_accept_no_save(self, jane_doe, update_graph_node, change_set):
+        change = ChangeBuilder(
+            update_graph_node,
+            instance_map={update_graph_node: jane_doe},
+        ).build_change(change_set)
 
         person = change.accept(save=False)
 
@@ -127,8 +144,8 @@ class TestChange:
 class TestChangeSet:
 
     @pytest.mark.django_db
-    def test_create_dependencies_accept(self, normalized_data_id, create_graph_dependencies):
-        change_set = models.ChangeSet.objects.from_graph(create_graph_dependencies, normalized_data_id)
+    def test_create_dependencies_accept(self, normalized_data, create_graph_dependencies):
+        change_set = ChangeBuilder.build_change_set(create_graph_dependencies, normalized_data)
 
         assert change_set.changes.count() == 3
         assert change_set.changes.all()[0].node_id == '_:123'
@@ -151,15 +168,16 @@ class TestChangeSet:
         assert None not in [c.pk for c in changed]
 
     @pytest.mark.django_db
-    def test_update_dependencies_accept(self, john_doe, normalized_data_id):
-        graph = ChangeGraph([{
-            '@id': IDObfuscator.encode(john_doe),
+    def test_update_dependencies_accept(self, john_doe, normalized_data):
+        john_doe_id = IDObfuscator.encode(john_doe)
+        graph = MutableGraph.from_jsonld([{
+            '@id': john_doe_id,
             '@type': 'person',
             'given_name': 'Jane',
         }, {
             '@id': '_:456',
             '@type': 'Creator',
-            'agent': {'@id': IDObfuscator.encode(john_doe), '@type': 'person'},
+            'agent': {'@id': john_doe_id, '@type': 'person'},
             'creative_work': {'@id': '_:789', '@type': 'preprint'},
         }, {
             '@id': '_:789',
@@ -167,7 +185,9 @@ class TestChangeSet:
             'title': 'All About Cats',
         }])
 
-        change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
+        change_set = ChangeBuilder.build_change_set(graph, normalized_data, instance_map={
+            john_doe_id: john_doe,
+        })
 
         change_set.accept()
 
@@ -178,8 +198,8 @@ class TestChangeSet:
         assert models.Preprint.objects.filter(agent_relations__agent=john_doe).first().title == 'All About Cats'
 
     @pytest.mark.django_db
-    def test_can_delete_work(self, john_doe, normalized_data_id):
-        graph = ChangeGraph([{
+    def test_can_delete_work(self, john_doe, normalized_data):
+        graph = MutableGraph.from_jsonld([{
             '@id': '_:abc',
             '@type': 'workidentifier',
             'uri': 'http://osf.io/faq',
@@ -190,14 +210,13 @@ class TestChangeSet:
             'title': 'All About Cats',
         }])
 
-        graph.process()
-        change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
+        change_set = ChangeBuilder.build_change_set(graph, normalized_data, disambiguate=True)
 
         preprint, identifier = change_set.accept()
 
         assert preprint.is_deleted is False
 
-        graph = ChangeGraph([{
+        graph = MutableGraph.from_jsonld([{
             '@id': '_:abc',
             '@type': 'workidentifier',
             'uri': 'http://osf.io/faq',
@@ -207,17 +226,16 @@ class TestChangeSet:
             'is_deleted': True,
             '@type': 'preprint',
         }])
-        graph.process()
 
-        models.ChangeSet.objects.from_graph(graph, normalized_data_id).accept()
+        ChangeBuilder.build_change_set(graph, normalized_data, disambiguate=True).accept()
 
         preprint.refresh_from_db()
         assert preprint.is_deleted is True
 
     # @pytest.mark.django_db
-    # def test_merge_accept(self, normalized_data_id, merge_graph, john_doe, jane_doe):
-    #     change_set = ChangeSet.objects.from_graph(merge_graph, normalized_data_id)
-    #     ChangeSet.objects.from_graph(ChangeGraph.from_jsonld({
+    # def test_merge_accept(self, normalized_data, merge_graph, john_doe, jane_doe):
+    #     change_set = ChangeSet.objects.from_graph(merge_graph, normalized_data)
+    #     ChangeSet.objects.from_graph(MutableGraph.from_jsonld({
     #         '@graph': [{
     #             '@id': '_:123',
     #             '@type': 'preprint',
@@ -228,7 +246,7 @@ class TestChangeSet:
     #             'person': {'@id': john_doe.pk, '@type': 'person'},
     #             'creative_work': {'@id': '_:123', '@type': 'preprint'},
     #         }]
-    #     }), normalized_data_id).accept()
+    #     }), normalized_data).accept()
 
     #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
     #     assert Preprint.objects.filter(contributor__person=john_doe).count() == 1
@@ -272,7 +290,7 @@ class TestChangeSet:
     #     assert Contributor.objects.get(person=jane_doe).change.change_set == change_set
 
     @pytest.mark.django_db
-    def test_change_work_type(self, normalized_data_id):
+    def test_change_work_type(self, normalized_data):
         '''
         A CreativeWork with an Identifier exists. Accept a new changeset
         with a Preprint with the same Identifier. The preprint should
@@ -282,7 +300,7 @@ class TestChangeSet:
         title = 'Ambiguous Earthquakes'
         uri = 'http://osf.io/special-snowflake'
 
-        cg = ChangeGraph([{
+        cg = MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'project',
             'title': title,
@@ -294,9 +312,7 @@ class TestChangeSet:
             'creative_work': {'@id': '_:1234', '@type': 'project'}
         }])
 
-        cg.process()
-
-        original_change_set = models.ChangeSet.objects.from_graph(cg, normalized_data_id)
+        original_change_set = ChangeBuilder.build_change_set(cg, normalized_data, disambiguate=True)
 
         work, identifier = original_change_set.accept()
         id = work.id
@@ -307,7 +323,7 @@ class TestChangeSet:
         assert models.CreativeWork.objects.count() == 1
         assert models.Project.objects.all()[0].changes.count() == 1
 
-        cg = ChangeGraph([{
+        cg = MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'preprint',
             'identifiers': [{'@id': '_:2345', '@type': 'workidentifier'}]
@@ -318,8 +334,7 @@ class TestChangeSet:
             'creative_work': {'@id': '_:1234', '@type': 'preprint'}
         }])
 
-        cg.process()
-        change_set = models.ChangeSet.objects.from_graph(cg, normalized_data_id)
+        change_set = ChangeBuilder.build_change_set(cg, normalized_data, disambiguate=True)
 
         change_set.accept()
 
@@ -330,7 +345,7 @@ class TestChangeSet:
         assert models.Preprint.objects.all()[0].changes.count() == 2
 
     @pytest.mark.django_db
-    def test_generic_creative_work(self, normalized_data_id):
+    def test_generic_creative_work(self, normalized_data):
         '''
         A Preprint with an Identifier exists. Accept a changeset with a
         CreativeWork with the same Identifier and a different title.
@@ -340,7 +355,7 @@ class TestChangeSet:
         old_title = 'Ambiguous Earthquakes'
         uri = 'http://osf.io/special-snowflake'
 
-        original_change_set = models.ChangeSet.objects.from_graph(ChangeGraph([{
+        original_change_set = ChangeBuilder.build_change_set(MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'preprint',
             'title': old_title,
@@ -350,7 +365,7 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:1234', '@type': 'preprint'}
-        }]), normalized_data_id)
+        }]), normalized_data)
 
         preprint, identifier = original_change_set.accept()
         id = preprint.id
@@ -362,7 +377,7 @@ class TestChangeSet:
 
         new_title = 'Ambidextrous Earthquakes'
 
-        graph = ChangeGraph([{
+        graph = MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'creativework',
             'title': new_title,
@@ -374,8 +389,7 @@ class TestChangeSet:
             'creative_work': {'@id': '_:1234', '@type': 'creativework'}
         }])
 
-        graph.process()
-        change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
+        change_set = ChangeBuilder.build_change_set(graph, normalized_data, disambiguate=True)
         change_set.accept()
 
         assert models.Preprint.objects.count() == 1
@@ -383,13 +397,13 @@ class TestChangeSet:
         assert models.Preprint.objects.get(id=id).title == new_title
 
     @pytest.mark.django_db
-    def test_related_works(self, normalized_data_id):
+    def test_related_works(self, normalized_data):
         '''
         Create two works with a relation between them.
         '''
         uri = 'http://osf.io/special-snowflake'
 
-        change_set = models.ChangeSet.objects.from_graph(ChangeGraph([{
+        change_set = ChangeBuilder.build_change_set(MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'preprint',
             'title': 'Dogs are okay too',
@@ -409,7 +423,7 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:2345', '@type': 'creativework'}
-        }]), normalized_data_id)
+        }]), normalized_data)
         change_set.accept()
 
         assert models.Preprint.objects.count() == 1
@@ -428,7 +442,7 @@ class TestChangeSet:
         assert c.incoming_creative_work_relations.first().subject == p
 
     @pytest.mark.django_db
-    def test_add_relation_related(self, normalized_data_id):
+    def test_add_relation_related(self, normalized_data):
         '''
         A work exists. Add a second work with a relation to the first work.
         The first work should have the appropriate inverse relation to the
@@ -436,7 +450,7 @@ class TestChangeSet:
         '''
 
         uri = 'http://osf.io/special-snowflake'
-        models.ChangeSet.objects.from_graph(ChangeGraph([{
+        ChangeBuilder.build_change_set(MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'article',
             'title': 'All About Cats',
@@ -446,11 +460,11 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:1234', '@type': 'article'}
-        }]), normalized_data_id).accept()
+        }]), normalized_data).accept()
 
         assert models.Article.objects.count() == 1
 
-        graph = ChangeGraph([{
+        graph = MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'preprint',
             'title': 'Dogs are okay too',
@@ -470,8 +484,7 @@ class TestChangeSet:
             'uri': uri,
             'creative_work': {'@id': '_:2345', '@type': 'creativework'}
         }])
-        graph.process()
-        change_set = models.ChangeSet.objects.from_graph(graph, normalized_data_id)
+        change_set = ChangeBuilder.build_change_set(graph, normalized_data, disambiguate=True)
         change_set.accept()
 
         assert models.Article.objects.count() == 1
@@ -489,7 +502,7 @@ class TestChangeSet:
         assert cat.incoming_creative_work_relations.first().subject == dog
 
     @pytest.mark.django_db
-    def test_add_work_with_existing_relation(self, normalized_data_id):
+    def test_add_work_with_existing_relation(self, normalized_data):
         '''
         Harvest a work that has a relation to some work identified by a DOI.
         The related work should be a CreativeWork with no information except
@@ -500,7 +513,7 @@ class TestChangeSet:
 
         uri = 'http://osf.io/special-snowflake'
 
-        models.ChangeSet.objects.from_graph(ChangeGraph([{
+        ChangeBuilder.build_change_set(MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'preprint',
             'title': 'Dogs are okay',
@@ -519,13 +532,13 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:2345', '@type': 'creativework'}
-        }]), normalized_data_id).accept()
+        }]), normalized_data).accept()
 
         assert models.CreativeWork.objects.filter(type='share.creativework').count() == 1
         assert models.Preprint.objects.count() == 1
         assert models.Article.objects.count() == 0
 
-        change = ChangeGraph([{
+        change = MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'article',
             'title': 'All About Cats',
@@ -536,9 +549,8 @@ class TestChangeSet:
             'uri': uri,
             'creative_work': {'@id': '_:1234', '@type': 'article'}
         }])
-        change.process()
 
-        models.ChangeSet.objects.from_graph(change, normalized_data_id).accept()
+        ChangeBuilder.build_change_set(change, normalized_data, disambiguate=True).accept()
 
         assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
         assert models.Article.objects.count() == 1

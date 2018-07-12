@@ -10,7 +10,7 @@ class CitedAs(NodeStep):
       name: cited_as
     ```
     """
-    node_types = ['contributor']
+    node_types = ['abstractagentworkrelation']
 
     def regulate_node(self, node):
         if not node['cited_as']:

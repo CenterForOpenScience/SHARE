@@ -25,6 +25,6 @@ class StripWhitespace(NodeStep):
             if isinstance(v, str):
                 v = strip_whitespace(v)
                 if self.NULL_RE.match(v):
-                    del node[k]
+                    node[k] = ''
                 else:
                     node[k] = v

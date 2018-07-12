@@ -117,7 +117,7 @@ class TestMutableGraph:
         node_count = mutable_graph.number_of_nodes()
         assert len(person['identifiers']) == 0
 
-        mutable_graph.add_node(identifier_id, type='AgentIdentifier', uri=uri, agent=person)
+        mutable_graph.add_node(identifier_id, 'AgentIdentifier', {'uri': uri, 'agent': person})
 
         assert mutable_graph.number_of_nodes() == node_count + 1
         identifier_node = mutable_graph.get_node(identifier_id)

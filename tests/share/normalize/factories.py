@@ -1,6 +1,6 @@
 import contextlib
 import functools
-import inspect
+import json
 import pytest
 import random
 import re
@@ -18,235 +18,263 @@ from typedmodels.models import TypedModel
 from django.apps import apps
 
 from share import models
-from share.change import ChangeGraph
 from share.transform.chain.links import IRILink
+from share.util.graph import MutableGraph, MutableNode
 
 
-__all__ = ('JsonLD', )
+__all__ = ('Graph', 'ExpectedGraph')
 logger = logging.getLogger(__name__)
 
 
 used_ids = set()
 _Faker = faker.Faker()
-_remove = ChangeGraph.remove  # Intercepted method, save the original
 
 
-class GraphContructor:
+def format_id(model, id):
+    id_namespace = model._meta.concrete_model._meta.model_name.lower().replace('abstract', '')
+    return '_:{}--{}'.format(id_namespace, id)
 
-    def __init__(self):
-        self._seed = random.random()
+
+class FactoryGraph(MutableGraph):
+    def __init__(self, random_states, discarded_ids):
+        super().__init__()
+        self.__random_states = random_states
+        self.discarded_ids = discarded_ids
+
+    # Override
+    def remove_node(self, id, *args, **kwargs):
+        self.discarded_ids.add(id)
+        return super().remove_node(id, *args, **kwargs)
+
+    # Override
+    def _generate_id(self, type, attrs):
+        model = apps.get_model('share', type)
+        concrete_model_name = model._meta.concrete_model._meta.model_name
+        key = '{} ids'.format(concrete_model_name)
+        with self.__random_states.seed(name=key, seed=key):
+            while True:
+                id = format_id(model, _Faker.ipv6())
+                if id not in self.discarded_ids:
+                    break
+        return id
+
+    # Within tests, `graph1 == graph2` compares their contents
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return self.to_jsonld(in_edges=False) == other.to_jsonld(in_edges=False)
+
+    # More readable test output
+    def __repr__(self):
+        return '{}({})'.format(
+            self.__class__.__name__,
+            json.dumps(self.to_jsonld(in_edges=False), indent=4, sort_keys=True),
+        )
+
+
+class FactoryNode(MutableNode):
+
+    # Take attributes from kwargs
+    def __new__(cls, graph, id, type=None, **attrs):
+        return super().__new__(cls, graph, id, type, attrs)
+
+    def __init__(self, graph, id, type, **attrs):
+        super().__init__(graph, id, type, attrs)
+
+
+class RandomStateManager:
+    def __init__(self, randoms, seed=None):
+        self._randoms = randoms
+        self._seed = seed or random.random()
         self._states = {}
-        self.discarded_ids = set()
 
-    def __call__(self, *nodes):
-        self.reseed(self._seed)
+    def get_states(self):
+        return tuple(r.getstate() for r in self._randoms)
 
-        # Traverse all nodes to build proper graph
-        seen, to_see = set(), [self.build_node({**n}) for n in nodes]
-        while to_see:
-            node = to_see.pop(0)
-            if node is None:
-                continue
-            seen.add(node)
+    def set_states(self, states):
+        for r, state in zip(self._randoms, states):
+            r.setstate(state)
 
-            for rel in list(node.related.values()) + node._related:
-                if not isinstance(rel, list):
-                    rel = [rel]
-                for n in rel:
-                    if n in seen:
-                        continue
-                    to_see.append(n)
+    def reseed(self, seed=None):
+        self._seed = seed or random.random()
 
-        # Sort by type + id to get consitent ordering between two graphs
-        return [n.serialize() for n in sorted(seen, key=lambda x: x.type + str(x.id))]
+        for r in self._randoms:
+            r.seed(self._seed)
+        # factory.fuzzy.reseed_random(self._seed)
+        self._states = {}
 
     @contextlib.contextmanager
     def seed(self, name=None, seed=None):
-        old_state = (random.getstate(), _Faker.random.getstate())
+        old_states = self.get_states()
 
-        if name not in self._states:
-            logger.warning('No state for %s. Seeding with %s', name, seed or self._seed)
-            random.seed(seed or self._seed)
-            _Faker.random.seed(seed or self._seed)
-            self._states[name] = (random.getstate(), _Faker.random.getstate())
+        new_states = self._states.get(name) if name else None
 
-        random.setstate(self._states[name][0])
-        _Faker.random.setstate(self._states[name][1])
+        if new_states is None:
+            initial_seed = seed or self._seed
+            for r in self._randoms:
+                r.seed(initial_seed)
+            new_states = self.get_states()
+            if name:
+                self._states[name] = new_states
 
-        yield hash(self._states[name])
+        self.set_states(new_states)
+
+        yield hash(new_states)
 
         # Save the new state if it was advanced/used
-        self._states[name] = (random.getstate(), _Faker.random.getstate())
-        if not name:
-            del self._states[name]
-        else:
-            logger.info('Saving state %s for %s.', hash(self._states[name]), name)
+        if name:
+            self._states[name] = self.get_states()
 
-        # Leave random(s) untouched upon exitting
-        random.setstate(old_state[0])
-        _Faker.random.setstate(old_state[1])
+        # Leave random(s) untouched upon exiting
+        self.set_states(old_states)
 
-    def get_id(self):
-        # Crazy bad hack
-        # Reach up the stack until we find the type of object
-        # that is requesting an ID
-        # This way order only matters for an individual object.
-        try:
-            name = inspect.stack(3)[2].frame.f_locals['obj'].type
-        except KeyError:
-            name = inspect.stack(2)[1].frame.f_locals['type']
 
-        name = apps.get_model('share', name)._meta.concrete_model._meta.model_name
+class GraphBuilder:
 
-        with self.seed(name + ' ids', seed=name + ' ids'):
-            while True:
-                id = _Faker.ipv6()
-                if id not in self.discarded_ids:
-                    break
+    def __init__(self):
+        self.discarded_ids = set()
+        self.random_states = RandomStateManager([random, _Faker.random])
 
-        return id
+    def __call__(self, *args, **kwargs):
+        return self.build(*args, **kwargs)
 
-    def patched_remove_id(self):
-        def _remove_id(this, node, cascade=True):
-            self.discarded_ids.add(node._id.replace('_:', '', 1))
-            return _remove(this, node, cascade=cascade)
-        return _remove_id
+    def reseed(self):
+        self.random_states.reseed()
 
-    def reseed(self, seed=None):
+    def build(self, *nodes, normalize_fields=False):
         # Reset all seeds at the being of each graph generation
-        # Ensures that graphs will be compairable
-        self._seed = seed or random.random()
+        # Ensures that graphs will be comparable
+        self.random_states.reseed(self.random_states._seed)
 
-        # random.seed(self._seed)
-        # _Faker.random.seed(self._seed)
-        factory.fuzzy.reseed_random(self._seed)
-        self._states = {}
+        graph = FactoryGraph(self.random_states, self.discarded_ids)
+        NodeBuilder(graph, self.random_states, normalize_fields).build_nodes(nodes)
+        return graph
+
+
+class NodeBuilder:
+    def __init__(self, graph, random_states, normalize_fields=False):
+        self.graph = graph
+        self.random_states = random_states
+        self.normalize_fields = normalize_fields
 
     def get_factory(self, model):
-        return globals()[model.__name__ + 'Factory']
+        return globals()[model._meta.concrete_model.__name__ + 'Factory']
 
-    def build_node(self, node):
-        model = apps.get_model('share', node['type'])
-        logger.debug('Building %s for node %s', model, node)
+    def build_nodes(self, nodes):
+        for n in nodes:
+            if isinstance(n, list):
+                self.build_nodes(n)
+            else:
+                self.build(n)
+
+    def build(self, attrs):
+        assert 'type' in attrs, 'Must provide "type" when constructing a node'
+
+        attrs = {**attrs}  # make a copy to avoid mutating the arg
+        node_type = attrs.pop('type')
+        sparse = attrs.pop('sparse', False)
+        seed = attrs.pop('seed', None)
+
+        if 'id' in attrs and attrs['id'] in self.graph:
+            id = attrs.pop('id')
+            assert not attrs, 'Cannot reference a previously defined node by id and set attrs'
+            return self.graph.get_node(id)
+
+        if self.normalize_fields:
+            attrs['parse'] = True
+
+        model = apps.get_model('share', node_type)
 
         relations = {}
-        for key in tuple(node.keys()):
-            if isinstance(node[key], (dict, list)):
-                relations[key] = node.pop(key)
+        for key in tuple(attrs.keys()):
+            if isinstance(attrs[key], (dict, list)):
+                relations[key] = attrs.pop(key)
 
+        # Extract/generate required relations.
+        # e.g. WorkIdentifier requires a work, Creator requires work and agent
         for f in model._meta.fields:
-            if not (f.is_relation and not f.null and f.editable and f.concrete) or f.name in node:
-                continue
-            if f.name not in relations:
-                logger.warning('Found missing required field %s. Inserting default', f)
-                relations[f.name] = {'type': f.remote_field.model._meta.concrete_model._meta.model_name}
-            node[f.name] = self.build_node({**relations.pop(f.name)})
+            if f.name not in attrs and f.is_relation and not f.null and f.editable and f.concrete:
+                try:
+                    relation = relations.pop(f.name)
+                except KeyError:
+                    # Value missing for required relation; generate a fake one
+                    relation = {'type': f.remote_field.model._meta.concrete_model._meta.model_name}
+                attrs[f.name] = self.build(relation)
 
-        kwargs = {}
-        if node.get('seed'):
-            kwargs['seed'] = str(node.get('seed')) + model._meta.concrete_model._meta.model_name
+        if sparse:
+            # Don't generate fake data for missing fields
+            node = FactoryNode(self.graph, type=node_type, **attrs)
         else:
-            kwargs['name'] = model._meta.concrete_model
+            # If it's a specific type, pass it along, otherwise let the factory choose a subtype
+            concrete_model_name = model._meta.concrete_model._meta.model_name
+            if node_type != concrete_model_name:
+                attrs['type'] = node_type
 
-        if node.pop('sparse', False):
-            obj = GraphNode(**node)
-        else:
-            _node = {**node}
-            _node.pop('seed', None)
-            if node['type'] == model._meta.concrete_model._meta.model_name:
-                _node.pop('type', None)
+            if seed:
+                seed_ctx = self.random_states.seed(seed=str(seed) + concrete_model_name)
+            else:
+                seed_ctx = self.random_states.seed(name=concrete_model_name)
 
-            with self.seed(**kwargs):
-                obj = self.get_factory(model._meta.concrete_model)(**_node)
+            with seed_ctx:
+                node = self.get_factory(model)(graph=self.graph, **attrs)
 
-        logger.debug('Built %s, %s, %s for node %s', obj.id, obj.type, obj.attrs, node)
-
+        # Build specified *-to-many relations
         for key, value in sorted(relations.items(), key=lambda x: x[0]):
             field = model._meta.get_field(key)
-            reverse_name = field.remote_field.name
 
             if isinstance(value, list):
                 if field.many_to_many:
-                    related = [self.build_node({**v}) for v in value]
+                    related = [self.build(v) for v in value]
                     for rel in related:
-                        obj._related.append(self.build_node({
+                        self.build({
                             'type': field.remote_field.through._meta.model_name,
-                            field.m2m_field_name(): obj,
+                            field.m2m_field_name(): node,
                             field.m2m_reverse_field_name(): rel,
-                        }))
+                        })
                 else:
-                    obj._related.append([self.build_node({**v, reverse_name: obj}) for v in value])
+                    reverse_name = field.remote_field.name
+                    for v in value:
+                        v[reverse_name] = node
+                        self.build(v)
             else:
-                args = {**value}
-                if not field.concrete:
-                    args[field.remote_field.name] = obj
+                node[key] = self.build(value)
 
-                obj.related[key] = self.build_node(args)
-
-        return obj
+        return node
 
 
 @pytest.fixture
-def JsonLD(monkeypatch):
-    c = GraphContructor()
-    ShareObjectFactory._meta.declarations['id'].function = lambda: '_:' + c.get_id()
-    monkeypatch.setattr('share.change.uuid.uuid4', c.get_id)
-    monkeypatch.setattr('share.change.ChangeGraph.remove', c.patched_remove_id())
-    return c
+def Graph():
+    return GraphBuilder()
 
 
-class GraphNode:
-
-    @property
-    def ref(self):
-        return {'@id': self.id, '@type': self.type}
-
-    def __init__(self, **kwargs):
-        self.id = kwargs.pop('id')
-        self.type = kwargs.pop('type')
-        self.attrs = kwargs
-        self.related = {}
-        self._related = []
-        self._serialized = None
-
-        for key in tuple(self.attrs.keys()):
-            if isinstance(self.attrs[key], (GraphNode, list)):
-                self.related[key] = self.attrs.pop(key)
-
-    def serialize(self):
-        if self._serialized:
-            return self._serialized
-
-        self._serialized = {
-            k: v for k, v in {
-                **self.ref,
-                **self.attrs,
-                **{k: [n.ref for n in v] if isinstance(v, list) else v.ref for k, v in self.related.items()}
-            }.items() if v not in (None, [])
-        }
-        return self._serialized
-
-    def __eq__(self, other):
-        return hash(self) == hash(other)
-
-    def __hash__(self):
-        return hash((self.id, self.type))
+@pytest.fixture
+def ExpectedGraph(Graph):
+    def expected_graph(*args, **kwargs):
+        return Graph(*args, **kwargs, normalize_fields=True)
+    return expected_graph
 
 
-class ShareObjectFactory(factory.Factory):
+class GraphNodeFactory(factory.Factory):
 
-    id = factory.LazyFunction(lambda: '_:' + _Faker.ipv6())
+    id = None  # Let the graph generate an ID
+    graph = factory.SelfAttribute('..graph')  # Subfactories use the parent's graph
 
     class Meta:
         abstract = True
-        model = GraphNode
+        model = FactoryNode
+        inline_args = ('graph',)
 
     @factory.lazy_attribute
     def type(stub):
         return re.sub('Factory$', '', stub._LazyStub__model_class.__name__).lower()
 
+    @factory.post_generation
+    def parse(self, _, parse, **kwargs):
+        # Override this to parse fields like the regulator is expected to
+        pass
 
-class TypedShareObjectFactory(ShareObjectFactory):
+
+class TypedGraphNodeFactory(GraphNodeFactory):
 
     @factory.lazy_attribute
     def type(stub):
@@ -257,8 +285,7 @@ class TypedShareObjectFactory(ShareObjectFactory):
         return model._meta.model_name.lower()
 
 
-class AbstractAgentFactory(TypedShareObjectFactory):
-    parse = False
+class AbstractAgentFactory(TypedGraphNodeFactory):
 
     @factory.lazy_attribute
     def name(self):
@@ -269,50 +296,55 @@ class AbstractAgentFactory(TypedShareObjectFactory):
         return _Faker.company()
 
     class Meta:
-        model = GraphNode
+        model = FactoryNode
 
     @factory.post_generation
-    def _parse(self, *args, **kwargs):
-        if not self.attrs.pop('parse') or self.type != 'person':
+    def parse(self, _, parse, **kwargs):
+        if not parse or self.type != 'person':
             return
-        if not self.attrs.get('name'):
-            self.attrs['name'] = ' '.join(self.attrs[k] for k in ['given_name', 'additional_name', 'family_name', 'suffix'] if self.attrs.get(k))
+
+        name = self['name']
+        if not name:
+            self['name'] = ' '.join(filter(None, (
+                self[k]
+                for k in ['given_name', 'additional_name', 'family_name', 'suffix']
+            )))
         else:
-            human = nameparser.HumanName(self.attrs['name'])
+            human = nameparser.HumanName(name)
             for hk, sk in [('first', 'given_name'), ('middle', 'additional_name'), ('last', 'family_name'), ('suffix', 'suffix')]:
                 if human[hk]:
-                    self.attrs[sk] = human[hk]
+                    self[sk] = human[hk]
 
 
-class TagFactory(ShareObjectFactory):
+class TagFactory(GraphNodeFactory):
     name = factory.Faker('word')
 
 
-class SubjectFactory(ShareObjectFactory):
+class SubjectFactory(GraphNodeFactory):
     name = factory.Faker('word')
 
 
-class AbstractCreativeWorkFactory(TypedShareObjectFactory):
+class AbstractCreativeWorkFactory(TypedGraphNodeFactory):
     title = factory.Faker('sentence')
     description = factory.Faker('paragraph')
     language = factory.Faker('language_code')
 
     # related_agents = factory.SubFactory(AgentWorkRelationFactory)
 
-    # identifiers = factory.SubFactory(WorkIdentifierFactory)
+    # identifiers = factory.SubFactory('tests.share.normalize.factories.WorkIdentifierFactory')
     # related_works = factory.SubFactory(RelatedWorkFactory)
     date_updated = factory.Faker('date', pattern='%Y-%m-%dT%H:%M:%SZ')
     date_published = factory.Faker('date', pattern='%Y-%m-%dT%H:%M:%SZ')
     rights = factory.Faker('paragraph')
-    free_to_read_type = factory.Faker('sentence')
+    free_to_read_type = factory.Faker('url')
     free_to_read_date = factory.Faker('date', pattern='%Y-%m-%dT%H:%M:%SZ')
     is_deleted = False
 
     class Meta:
-        model = GraphNode
+        model = FactoryNode
 
 
-class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
+class AbstractAgentWorkRelationFactory(TypedGraphNodeFactory):
     # lazy attr
     # agent = factory.SubFactory(AbstractAgentFactory)
     # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
@@ -320,75 +352,73 @@ class AbstractAgentWorkRelationFactory(TypedShareObjectFactory):
 
     @factory.lazy_attribute
     def cited_as(self):
-        return self.agent.attrs['name']
+        return self.agent['name']
 
     # lazy attr base on type
     # award = factory.SubFactory(AwardFactory)
 
     class Meta:
-        model = GraphNode
+        model = FactoryNode
 
 
-class AbstractWorkRelationFactory(TypedShareObjectFactory):
+class AbstractWorkRelationFactory(TypedGraphNodeFactory):
     # related = factory.SubFactory(AbstractCreativeWorkFactory)
     # subject = factory.SubFactory(AbstractCreativeWorkFactory)
 
     class Meta:
-        model = GraphNode
+        model = FactoryNode
 
 
-class ThroughTagsFactory(ShareObjectFactory):
+class ThroughTagsFactory(GraphNodeFactory):
     pass
     # tag = factory.SubFactory(TagFactory)
     # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
 
-class ThroughSubjectsFactory(ShareObjectFactory):
+class ThroughSubjectsFactory(GraphNodeFactory):
     pass
     # subject = factory.SubFactory(SubjectFactory)
     # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
 
-class WorkIdentifierFactory(ShareObjectFactory):
-    parse = False
+class WorkIdentifierFactory(GraphNodeFactory):
     uri = factory.Faker('url')
     # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
 
     @factory.post_generation
-    def _parse(self, *args, **kwargs):
-        if self.attrs.pop('parse'):
-            parsed = IRILink().execute(self.attrs['uri'])
-            self.attrs['uri'] = parsed['IRI']
-            self.attrs['scheme'] = parsed['scheme']
-            self.attrs['host'] = parsed['authority']
+    def parse(self, _, parse, **kwargs):
+        if parse:
+            parsed = IRILink().execute(self['uri'])
+            self['uri'] = parsed['IRI']
+            self['scheme'] = parsed['scheme']
+            self['host'] = parsed['authority']
 
 
-class AgentIdentifierFactory(ShareObjectFactory):
-    parse = False
+class AgentIdentifierFactory(GraphNodeFactory):
     uri = factory.Faker('url')
     # agent = factory.SubFactory(AbstractAgentFactory)
 
     @factory.post_generation
-    def _parse(self, *args, **kwargs):
-        if self.attrs.pop('parse'):
-            parsed = IRILink().execute(self.attrs['uri'])
-            self.attrs['uri'] = parsed['IRI']
-            self.attrs['scheme'] = parsed['scheme']
-            self.attrs['host'] = parsed['authority']
+    def parse(self, _, parse, **kwargs):
+        if parse:
+            parsed = IRILink().execute(self['uri'])
+            self['uri'] = parsed['IRI']
+            self['scheme'] = parsed['scheme']
+            self['host'] = parsed['authority']
 
 
-def _params(seed=None, id=None, type=None, **kwargs):
-    string_id = '_:_' + str(id)
-    ret = {'id': string_id, 'type': type, **kwargs}
-    if id is None:
-        ret.pop('id')
+def _params(seed=None, id=None, type=None, model=None, **kwargs):
+    ret = {'type': type, **kwargs}
+    if id is not None:
+        ret['id'] = format_id(model, id)
     if seed is not None:
         ret['seed'] = seed
     return ret
 
 
-for model in dir(models):
-    if not hasattr(getattr(models, model), 'VersionModel'):
+for model_name in dir(models):
+    model = getattr(models, model_name)
+    if not hasattr(model, 'VersionModel'):
         continue
-    __all__ += (model, )
-    locals()[model] = functools.partial(_params, type=model.lower())
+    __all__ += (model_name, )
+    locals()[model_name] = functools.partial(_params, type=model_name.lower(), model=model)

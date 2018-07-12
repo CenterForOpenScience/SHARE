@@ -558,7 +558,7 @@ SHARE_REGULATOR_CONFIG = {
             'node_types': ['agentidentifier'],
         }),
         ('trim_cycles', {
-            'node_types': ['workrelation', 'agentrelation'],
+            'node_types': ['abstractworkrelation', 'abstractagentrelation'],
             'relation_fields': ['subject', 'related'],
         }),
         ('trim_cycles', {

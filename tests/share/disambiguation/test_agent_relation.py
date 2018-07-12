@@ -1,10 +1,7 @@
 import pytest
 
 from share import models
-from share.change import ChangeGraph
-from share.models import ChangeSet
 
-from tests.share.models.factories import NormalizedDataFactory
 from tests.share.normalize.factories import *
 
 
@@ -47,6 +44,10 @@ initial = [
 
 @pytest.mark.django_db
 class TestAgentRelationDisambiguation:
+
+    @pytest.fixture
+    def ingest_initial(self, Graph, ingest):
+        ingest(Graph(initial))
 
     @pytest.mark.parametrize('input, model_delta', [
         # different name, same cited as, no work, person doesn't match
@@ -150,31 +151,18 @@ class TestAgentRelationDisambiguation:
             {models.Organization: 0, models.Creator: 1, models.AgentWorkRelation: -1}
         ),
     ])
-    def test_disambiguate(self, input, model_delta, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process(disambiguate=False)
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-
+    def test_disambiguate(self, input, ingest_initial, ingest, model_delta, Graph):
         Graph.reseed()
         before_count = {}
         for model in model_delta.keys():
             before_count[model] = model.objects.filter(type=model._meta.label_lower).count()
 
-        cg = ChangeGraph(Graph(*input))
-        cg.process()
-        cs = ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id)
-        if cs is not None:
-            cs.accept()
+        ingest(Graph(input))
 
         for model in model_delta.keys():
             assert model.objects.filter(type=model._meta.label_lower).count() - before_count[model] == model_delta[model]
 
-    def test_no_changes(self, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process()
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-
+    def test_no_changes(self, ingest_initial, ingest, Graph):
         Graph.discarded_ids.clear()
-        cg = ChangeGraph(Graph(*initial))
-        cg.process()
-        assert ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id) is None
+        cs = ingest(Graph(initial))
+        assert cs is None

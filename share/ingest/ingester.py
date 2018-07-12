@@ -1,6 +1,7 @@
 import json
 import uuid
 import pendulum
+from typing import Union
 
 from share.ingest.scheduler import IngestScheduler
 from share.models import RawDatum
@@ -25,7 +26,7 @@ class Ingester:
 
     _config = None
 
-    def __init__(self, datum, datum_id=None, datestamp=None):
+    def __init__(self, datum: Union[str, list, dict], datum_id: str = None, datestamp=None):
         if isinstance(datum, str):
             self.datum = datum
         elif isinstance(datum, (list, dict)):

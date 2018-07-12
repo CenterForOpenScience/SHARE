@@ -1,4 +1,5 @@
 import pytest
+from datetime import timezone
 
 import faker
 
@@ -30,7 +31,7 @@ class TestFeed:
             person_1 = factories.AbstractAgentFactory(type='share.person')
 
             work = factories.AbstractCreativeWorkFactory(
-                date_published=None if i % 3 == 0 else fake.date_time_this_decade(),
+                date_published=None if i % 3 == 0 else fake.date_time_this_decade(tzinfo=timezone.utc),
             )
             if i % 3 == 1:
                 factories.CreatorWorkRelationFactory(creative_work=work, agent=person_0, order_cited=0)

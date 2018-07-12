@@ -16,12 +16,13 @@ from oauth2_provider.models import AccessToken, Application
 from urllib3.connection import ConnectionError
 from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 
-from share.ingest.differ import NodeDiffer
-from share.models import Person, NormalizedData, Change, ChangeSet, RawDatum
+from share.ingest.change_builder import ChangeBuilder
+from share.models import Person, NormalizedData, ChangeSet, RawDatum
 from share.models import Article, Institution
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
-from share.utils.graph import MutableGraph
+from share.regulate import Regulator
+from share.util.graph import MutableGraph
 from bots.elasticsearch.bot import ElasticSearchBot
 from tests import factories
 
@@ -89,9 +90,19 @@ def robot_user():
 
 @pytest.fixture
 def share_user():
-    user = ShareUser(username='tester')
+    user = ShareUser(
+        username='tester',
+    )
     user.save()
+
+    # add source
+    factories.SourceFactory(user=user),
     return user
+
+
+@pytest.fixture
+def source(share_user):
+    return share_user.source
 
 
 @pytest.fixture
@@ -137,24 +148,37 @@ def change_set(normalized_data_id):
 
 @pytest.fixture
 def change_node():
-    return MutableGraph.from_jsonld([{
+    return next(n for n in MutableGraph.from_jsonld([{
         '@id': '_:1234',
         '@type': 'person',
         'given_name': 'No',
         'family_name': 'Matter',
-    }]).nodes[0]
+    }]))
 
 
 @pytest.fixture
-def change_factory(share_user, change_set, change_node):
+def ingest(normalized_data):
+    def _ingest(graph, disambiguate=True, user=None, save=True):
+        Regulator().regulate(graph)
+
+        nd = factories.NormalizedDataFactory(source=user) if user else normalized_data
+        cs = ChangeBuilder.build_change_set(graph, nd, disambiguate=disambiguate)
+        if save and cs is not None:
+            cs.accept()
+        return cs
+    return _ingest
+
+
+@pytest.fixture
+def change_factory(share_user, source, change_set, change_node):
     class ChangeFactory:
-        def from_graph(self, graph, disambiguate=False):
-            nd = NormalizedData.objects.create(data=graph, source=share_user)
-            cg = ChangeGraph(graph['@graph'])
-            return ChangeSet.objects.from_graph(cg, nd.pk)
+        def from_graph(self, jsonld, disambiguate=False):
+            nd = NormalizedData.objects.create(data=jsonld, source=share_user)
+            graph = MutableGraph.from_jsonld(jsonld)
+            return ChangeBuilder.build_change_set(graph, nd, disambiguate=disambiguate)
 
         def get(self):
-            return Change.objects.from_node(change_node, change_set)
+            return ChangeBuilder(change_node, source).build_change(change_set)
 
     return ChangeFactory()
 
@@ -182,8 +206,10 @@ def jane_doe(change_ids):
 
 
 @pytest.fixture
-def all_about_anteaters(change_ids):
-    return Article.objects.create(title='All about Anteaters', change_id=change_ids.get())
+def all_about_anteaters(change_ids, share_user):
+    article = Article.objects.create(title='All about Anteaters', change_id=change_ids.get())
+    article.sources.add(share_user)
+    return article
 
 
 @pytest.fixture

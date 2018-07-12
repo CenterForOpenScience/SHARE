@@ -1,10 +1,7 @@
 import pytest
 
 from share import models
-from share.change import ChangeGraph
-from share.models import ChangeSet
 
-from tests.share.models.factories import NormalizedDataFactory
 from tests.share.normalize.factories import *
 
 
@@ -53,6 +50,10 @@ initial = [
 @pytest.mark.django_db
 class TestDisambiguation:
 
+    @pytest.fixture
+    def ingest_initial(self, Graph, ingest):
+        ingest(Graph(initial))
+
     @pytest.mark.parametrize('input, model, delta', [
         ([Tag(name='Science')], models.Tag, 0),
         ([Tag(name='Science; Things')], models.Tag, 1),
@@ -62,20 +63,12 @@ class TestDisambiguation:
         ([Organization(name='Aperture Science')], models.Organization, 0),
         ([Organization(name='Aperture science')], models.Organization, 0),
     ])
-    def test_disambiguate(self, input, model, delta, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process(disambiguate=False)
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-
+    def test_disambiguate(self, input, model, delta, Graph, ingest_initial, ingest):
         Graph.reseed()
         # Nasty hack to avoid progres' fuzzy counting
         before = model.objects.exclude(change=None).count()
 
-        cg = ChangeGraph(Graph(*input))
-        cg.process()
-        cs = ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id)
-        if cs is not None:
-            cs.accept()
+        ingest(Graph(input))
 
         assert (model.objects.exclude(change=None).count() - before) == delta
 
@@ -87,30 +80,16 @@ class TestDisambiguation:
         [Publication(identifiers=[WorkIdentifier()])],
         [Preprint(identifiers=[WorkIdentifier()], related_agents=[Person(), Consortium()], agent_relations=[Funder(), Publisher()])]
     ])
-    def test_reaccept(self, input, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process()
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-
+    def test_reaccept(self, input, Graph, ingest_initial, ingest):
         Graph.reseed()  # Force new values to be generated
 
-        first_cg = ChangeGraph(Graph(*input))
-        first_cg.process()
-        first_cs = ChangeSet.objects.from_graph(first_cg, NormalizedDataFactory().id)
+        first_cs = ingest(Graph(input))
         assert first_cs is not None
-        first_cs.accept()
 
-        second_cg = ChangeGraph(Graph(*input))
-        second_cg.process()
-        second_cs = ChangeSet.objects.from_graph(second_cg, NormalizedDataFactory().id)
+        second_cs = ingest(Graph(input))
         assert second_cs is None
 
-    def test_no_changes(self, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process()
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-
+    def test_no_changes(self, Graph, ingest_initial, ingest):
         Graph.discarded_ids.clear()
-        cg = ChangeGraph(Graph(*initial))
-        cg.process()
-        assert ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id) is None
+        cs = ingest(Graph(initial))
+        assert cs is None

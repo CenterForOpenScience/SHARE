@@ -35,10 +35,13 @@ class TokenizeTags(NodeStep):
 
         through_tags = node['work_relations']
         for tag in sorted(tags):
-            new_tag = node.graph.add_node(None, 'tag', name=tag)
+            new_tag = node.graph.add_node(None, 'tag', {'name': tag})
             self.info('Added tokenized tag', new_tag.id)
             for through_tag in through_tags:
-                node.graph.add_node(None, 'throughtags', tag=new_tag, creative_work=through_tag['creative_work'])
+                node.graph.add_node(None, 'throughtags', {
+                    'tag': new_tag,
+                    'creative_work': through_tag['creative_work']
+                })
 
         self.info('Discarded tag with multiple names', node.id)
         node.delete()

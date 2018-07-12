@@ -2,12 +2,11 @@ import pytest
 import json
 import re
 
-from share.change import ChangeGraph
-from share.models import ChangeSet
+from share.disambiguation import GraphDisambiguator
+from share.regulate import Regulator
 from share.util import IDObfuscator
 
 from tests import factories
-from tests.share.models.factories import NormalizedDataFactory
 from tests.share.normalize.factories import *
 
 
@@ -30,7 +29,7 @@ initial = [
     ),
     CreativeWork(
         id=2,
-        identifiers=[WorkIdentifier(id=2)],
+        identifiers=[WorkIdentifier(2, id=2)],
         agent_relations=[
             Creator(agent=Person(1, identifiers=[AgentIdentifier(14)])),
             Funder(agent=Institution(id=5, name='NIH')),
@@ -43,7 +42,7 @@ initial = [
                 agent_relations=[
                     Contributor(id=12, agent=Institution(id=7, name="Test University"))
                 ],
-                identifiers=[WorkIdentifier(id=3)]
+                identifiers=[WorkIdentifier(3, id=3)]
             )
         ]
     )
@@ -58,41 +57,41 @@ class TestGeneratedEndpoints:
         ([Organization(2, id=2)], 'organization', 'organizations', ['name']),
         ([CreativeWork(
             id=2,
-            identifiers=[WorkIdentifier(id=2)],
+            identifiers=[WorkIdentifier(2, id=2)],
             agent_relations=[Funder(agent=Institution(id=5, name='NIH'))]
         )], 'funder', 'funders', ['citedAs']),
         ([CreativeWork(
             id=2,
-            identifiers=[WorkIdentifier(id=2)],
+            identifiers=[WorkIdentifier(2, id=2)],
             related_works=[
-                Publication(11, id=11, identifiers=[WorkIdentifier(id=3)])
+                Publication(11, id=11, identifiers=[WorkIdentifier(3, id=3)])
             ]
         )], 'publication', 'publications', ['title', 'description']),
         ([CreativeWork(
             id=2,
-            identifiers=[WorkIdentifier(id=2)],
+            identifiers=[WorkIdentifier(2, id=2)],
             agent_relations=[Creator(agent=Person(1, identifiers=[AgentIdentifier(14)]))]
         )], 'person', 'people', ['name']),
     ])
-    def test_get_data(self, generator, model, route, controlled_values, client, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process(disambiguate=False)
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
+    def test_get_data(self, generator, model, route, controlled_values, client, Graph, ingest):
+        ingest(Graph(initial))
 
-        cg = ChangeGraph(Graph(*generator))
-        cg.process()
+        graph = Graph(*generator)
+        Regulator().regulate(graph)
+        instance_map = GraphDisambiguator().find_instances(graph)
 
-        for obj in cg.serialize():
-            if obj['@type'] == model:
-                expected_id = obj['@id']
-                expected = obj
+        for node in graph:
+            if node.type == model:
+                expected = node
+                expected_id = IDObfuscator.encode(instance_map[node])
+                break
         response = client.get('/api/v2/{}/{}/'.format(route, expected_id))
 
         actual = json.loads(response.content.decode(encoding='UTF-8'))
 
         assert response.status_code == 200
         assert actual['data']['id'] == expected_id
-        assert actual['data']['attributes']['type'] == expected['@type']
+        assert actual['data']['attributes']['type'] == expected.type
         for value in controlled_values:
             assert actual['data']['attributes'][value] == expected[camelCase_to_underscore(value)]
 

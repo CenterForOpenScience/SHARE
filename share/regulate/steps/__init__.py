@@ -50,7 +50,8 @@ class NodeStep(BaseStep):
         """
         if self.node_types is None:
             return True
-        return node.type.lower() in self.node_types
+        return (node.type.lower() in self.node_types
+                or node.model._meta.concrete_model._meta.model_name.lower() in self.node_types)
 
     @abc.abstractmethod
     def regulate_node(self, node):
