@@ -1,5 +1,4 @@
 import json
-from unittest import mock
 
 import pendulum
 import pytest
@@ -8,9 +7,7 @@ from queue import Empty
 from django.apps import apps
 from django.conf import settings
 
-from share.models import NormalizedData
 from share.tasks import ingest
-from share.util.graph import MutableGraph
 from share.ingest.ingester import Ingester
 from tests import factories
 
@@ -41,28 +38,6 @@ class TestIngestJobConsumer:
 
         assert raw.no_output
 
-    @pytest.mark.parametrize('legacy', [True, False])
-    def test_legacy_pipeline(self, legacy, monkeypatch):
-        mock_apply_changes = mock.Mock(return_value=[])
-        monkeypatch.setattr('share.tasks.jobs.IngestJobConsumer._apply_changes', mock_apply_changes)
-        monkeypatch.setattr('django.conf.settings.SHARE_LEGACY_PIPELINE', legacy)
-
-        g = MutableGraph()
-        g.add_node('_:id', 'creativework', title='This is a title')
-
-        job = factories.IngestJobFactory(raw__datum=json.dumps({
-            '@graph': g.to_jsonld(in_edges=False)
-        }))
-
-        ingest.apply(kwargs={'job_id': job.id}, throw=True)
-
-        if legacy:
-            assert NormalizedData.objects.count() == 1
-            assert mock_apply_changes.call_count == 1
-        else:
-            assert NormalizedData.objects.count() == 0
-            assert not mock_apply_changes.called
-
     def test_elastic_queue(self, celery_app):
         user = factories.ShareUserFactory(is_trusted=True)
         ingester = Ingester({
@@ -71,7 +46,7 @@ class TestIngestJobConsumer:
                 '@type': 'creativework',
                 'title': 'All About Tamanduas',
             }]
-        }).as_user(user).setup_ingest(claim_job=True)
+        }).as_user(user).ingest_async(start_task=False)
 
         with celery_app.pool.acquire(block=True) as connection:
             index = settings.ELASTICSEARCH['ACTIVE_INDEXES'][0]
@@ -93,7 +68,7 @@ class TestIngestJobConsumer:
                 'given_name': 'Jane',
                 'family_name': 'Doe',
             }]
-        }).as_user(user).setup_ingest(claim_job=True)
+        }).as_user(user).ingest_async(start_task=False)
 
         with celery_app.pool.acquire(block=True) as connection:
             index = settings.ELASTICSEARCH['ACTIVE_INDEXES'][0]

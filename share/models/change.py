@@ -156,7 +156,7 @@ class Change(models.Model):
 
         new_type = self.change.pop('@type', None)
         if new_type:
-            self.target.recast('share.{}'.format(new_type))
+            self.target.recast(new_type)
 
         for k, v in self._resolve_change().items():
             setattr(self.target, k, v)

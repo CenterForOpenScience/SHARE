@@ -1,6 +1,5 @@
-# flake8: noqa
-from share import models
 from tests.share.normalize.factories import *
+from tests.share.normalize.factories import FactoryGraph
 
 
 class TestShortHand:
@@ -12,10 +11,10 @@ class TestShortHand:
         assert Institution(0) == {'seed': 0, 'type': 'institution'}
 
     def test_id(self):
-        assert Agent(id=0) == {'id': '_:_0', 'type': 'agent'}
-        assert Person(id=0) == {'id': '_:_0', 'type': 'person'}
-        assert Organization(id=0) == {'id': '_:_0', 'type': 'organization'}
-        assert Institution(id=0) == {'id': '_:_0', 'type': 'institution'}
+        assert Agent(id=0) == {'id': '_:agent--0', 'type': 'agent'}
+        assert Person(id=0) == {'id': '_:agent--0', 'type': 'person'}
+        assert Organization(id=0) == {'id': '_:agent--0', 'type': 'organization'}
+        assert Institution(id=0) == {'id': '_:agent--0', 'type': 'institution'}
 
     def test_anon(self):
         assert CreativeWork() == {'type': 'creativework'}
@@ -36,12 +35,13 @@ class TestShortHand:
             related_works=[Preprint(identifiers=[WorkIdentifier(id=0)])]
         ) == {
             'type': 'creativework',
-            'identifiers': [{'id': '_:_0', 'type': 'workidentifier'}, {'id': '_:_1', 'type': 'workidentifier'}],
+            'identifiers': [{'id': '_:workidentifier--0', 'type': 'workidentifier'}, {'id': '_:workidentifier--1', 'type': 'workidentifier'}],
             'related_works': [{
                 'type': 'preprint',
-                'identifiers': [{'id': '_:_0', 'type': 'workidentifier'}]
+                'identifiers': [{'id': '_:workidentifier--0', 'type': 'workidentifier'}]
             }]
         }
+
 
 class TestMakeGraph:
 
@@ -49,11 +49,12 @@ class TestMakeGraph:
         graph = Graph(
             CreativeWork(name='Foo')
         )
-        assert isinstance(graph, list)
+        assert isinstance(graph, FactoryGraph)
         assert len(graph) == 1
-        assert graph[0]['name'] == 'Foo'
-        assert graph[0]['@type'] == 'creativework'
-        assert graph[0]['@id'].startswith('_:')
+        node = list(graph)[0]
+        assert node['name'] == 'Foo'
+        assert node.type == 'creativework'
+        assert node.id.startswith('_:')
 
     def test_multiple_nodes(self, Graph):
         graph = Graph(
@@ -63,45 +64,46 @@ class TestMakeGraph:
 
         assert len(graph) == 2
 
-        tag = next(x for x in graph if x['@type'] == 'tag')
-        work = next(x for x in graph if x['@type'] == 'creativework')
+        tag = next(x for x in graph if x.type == 'tag')
+        work = next(x for x in graph if x.type == 'creativework')
 
         assert work['name'] == 'Foo'
-        assert work['@type'] == 'creativework'
-        assert work['@id'].startswith('_:')
+        assert work.type == 'creativework'
+        assert work.id.startswith('_:')
         assert tag['name'] == 'Bar'
-        assert tag['@type'] == 'tag'
-        assert tag['@id'].startswith('_:')
+        assert tag.type == 'tag'
+        assert tag.id.startswith('_:')
 
-    def test_cross_graph_identity(self, Graph):
-        assert Graph(CreativeWork(0))[0] == Graph(CreativeWork(0))[0]
+    def test_cross_graph_identity(self, Graph, ExpectedGraph):
+        assert Graph(CreativeWork(0)) == ExpectedGraph(CreativeWork(0))
 
     def test_nested(self, Graph):
         graph = Graph(CreativeWork(identifiers=[WorkIdentifier()]))
 
-        work = next(x for x in graph if x['@type'] == 'creativework')
-        identifier = next(x for x in graph if x['@type'] == 'workidentifier')
+        work = next(x for x in graph if x.type == 'creativework')
+        identifier = next(x for x in graph if x.type == 'workidentifier')
 
         assert len(graph) == 2
-        assert identifier['creative_work']['@id'] == work['@id']
-        assert identifier['creative_work']['@type'] == work['@type']
-        assert 'identifiers' not in work
+        assert identifier['creative_work'].id == work.id
+        assert identifier['creative_work'].type == work.type
+        assert len(work['identifiers']) == 1
+        assert work['identifiers'][0] == identifier
 
     def test_many_to_many(self, Graph):
-        graph = Graph(CreativeWork(tags=[Tag()]))
+        graph = list(Graph(CreativeWork(tags=[Tag()])))
 
         assert len(graph) == 3
-        assert graph[0]['@type'] == 'creativework'
-        assert graph[1]['@type'] == 'tag'
-        assert graph[2]['@type'] == 'throughtags'
+        assert graph[0].type == 'creativework'
+        assert graph[1].type == 'tag'
+        assert graph[2].type == 'throughtags'
 
     def test_many_to_many_related(self, Graph):
-        graph = Graph(CreativeWork(tag_relations=[ThroughTags()]))
+        graph = list(Graph(CreativeWork(tag_relations=[ThroughTags()])))
 
         assert len(graph) == 3
-        assert graph[0]['@type'] == 'creativework'
-        assert graph[1]['@type'] == 'tag'
-        assert graph[2]['@type'] == 'throughtags'
+        assert graph[0].type == 'creativework'
+        assert graph[1].type == 'tag'
+        assert graph[2].type == 'throughtags'
 
     def test_reseeds(self, Graph):
         assert Graph(CreativeWork()) == Graph(CreativeWork())
@@ -132,16 +134,17 @@ class TestMakeGraph:
             Person(2, name='Barb Dylan', identifiers=[AgentIdentifier(seed=1)])
         )
 
-        Graph.discarded_ids.add(next(x['@id'] for x in data if x['@type'] == 'agentidentifier'))
+        Graph.discarded_ids.add(next(x.id for x in data if x.type == 'agentidentifier'))
 
-        assert Graph(Person(0, name='Barb Dylan', identifiers=[AgentIdentifier(seed=1)]))[0] in data
+        nodes = list(Graph(Person(0, name='Barb Dylan', identifiers=[AgentIdentifier(seed=1)])))
+        assert nodes[0] in data
+        assert nodes[1] in data
 
-        assert Graph(Person(0, name='Barb Dylan', identifiers=[AgentIdentifier(seed=1)]))[1] in data
-
-        identifiers = list(x for x in data if x['@type'] == 'agentidentifier')
+        identifiers = list(x for x in data if x.type == 'agentidentifier')
         assert len(identifiers) == 3
-        assert len(set(i['@id'] for i in identifiers)) == 3
+        assert len(set(i.id for i in identifiers)) == 3
 
+        identifiers = list(n.to_jsonld() for n in identifiers)
         for i in identifiers:
             i = {**i}
             i.pop('@id')
@@ -151,4 +154,3 @@ class TestMakeGraph:
                 j.pop('@id')
                 j['agent'].pop('@id', None)
                 assert i == j
-

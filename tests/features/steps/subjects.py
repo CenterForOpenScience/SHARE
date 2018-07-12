@@ -3,7 +3,7 @@ from django.conf import settings
 
 from share import models
 from share.disambiguation import GraphDisambiguator
-from share.ingest.differ import NodeDiffer
+from share.ingest.change_builder import ChangeBuilder
 from share.regulate import Regulator
 from share.util.graph import MutableGraph
 
@@ -16,7 +16,7 @@ def accept_changes(context, nodes, username):
     Regulator().regulate(graph)
     instance_map = GraphDisambiguator(user.source).find_instances(graph)
     nd = NormalizedDataFactory(source=user)
-    change_set = NodeDiffer.build_change_set(graph, nd, instance_map)
+    change_set = ChangeBuilder.build_change_set(graph, nd, instance_map)
     return change_set.accept() if change_set else None
 
 

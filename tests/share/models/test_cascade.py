@@ -3,8 +3,6 @@ import pytest
 from django.apps import apps
 
 from share import models
-from share.change import ChangeGraph
-from share.models import ChangeSet
 from share.harvest.base import FetchResult
 
 from tests.share.models import factories
@@ -292,10 +290,8 @@ class TestDeleteCascade:
             }
         )
     ])
-    def test_delete_cascade(self, queryset, deltas, Graph):
-        initial_cg = ChangeGraph(Graph(*self.initial))
-        initial_cg.process(disambiguate=False)
-        ChangeSet.objects.from_graph(initial_cg, factories.NormalizedDataFactory().id).accept()
+    def test_delete_cascade(self, queryset, deltas, Graph, ingest):
+        ingest(Graph(self.initial))
 
         before = {model: model.objects.count() for model in deltas.keys()}
 

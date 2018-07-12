@@ -1,12 +1,9 @@
 import pytest
 
 from share import models
-from share.change import ChangeGraph
 from share.exceptions import MergeRequired
-from share.models import ChangeSet
 
 from tests import factories
-from tests.share.models.factories import NormalizedDataFactory
 from tests.share.normalize.factories import *
 
 
@@ -54,6 +51,9 @@ initial = [
 
 @pytest.mark.django_db
 class TestWorkDisambiguation:
+    @pytest.fixture
+    def ingest_initial(self, ingest, Graph):
+        ingest(Graph(initial))
 
     @pytest.mark.parametrize('input, model, delta', [
         # creativework with different identifier as creativework
@@ -80,20 +80,12 @@ class TestWorkDisambiguation:
         ([Software(identifiers=[WorkIdentifier(4)])], models.Software, 1),
         ([Software(identifiers=[WorkIdentifier(4)])], models.DataSet, -1),
     ])
-    def test_disambiguate(self, input, model, delta, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process(disambiguate=False)
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-
+    def test_disambiguate(self, input, model, delta, Graph, ingest, ingest_initial):
         Graph.reseed()
         # Nasty hack to avoid progres' fuzzy counting
         before = model.objects.exclude(change=None).count()
 
-        cg = ChangeGraph(Graph(*input))
-        cg.process()
-        cs = ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id)
-        if cs is not None:
-            cs.accept()
+        ingest(Graph(input))
 
         assert (model.objects.exclude(change=None).count() - before) == delta
 
@@ -105,46 +97,28 @@ class TestWorkDisambiguation:
         [Thesis(identifiers=[WorkIdentifier()])],
         [Preprint(identifiers=[WorkIdentifier()], related_agents=[Person(), Consortium()], agent_relations=[Funder(), Publisher()])]
     ])
-    def test_reaccept(self, input, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process()
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-
+    def test_reaccept(self, input, Graph, ingest_initial, ingest):
         # Graph.reseed()  # Force new values to be generated
 
-        first_cg = ChangeGraph(Graph(*input))
-        first_cg.process()
-        first_cs = ChangeSet.objects.from_graph(first_cg, NormalizedDataFactory().id)
+        first_cs = ingest(Graph(input))
         assert first_cs is not None
-        first_cs.accept()
 
-        second_cg = ChangeGraph(Graph(*input))
-        second_cg.process()
-        second_cs = ChangeSet.objects.from_graph(second_cg, NormalizedDataFactory().id)
+        second_cs = ingest(Graph(*input))
         assert second_cs is None
 
-    def test_no_changes(self, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process()
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-
+    def test_no_changes(self, Graph, ingest_initial, ingest):
         Graph.discarded_ids.clear()
-        cg = ChangeGraph(Graph(*initial))
-        cg.process()
-        assert ChangeSet.objects.from_graph(cg, NormalizedDataFactory().id) is None
+        cs = ingest(Graph(initial))
+        assert cs is None
 
-    def test_split_brain(self, Graph):
-        initial_cg = ChangeGraph(Graph(*initial))
-        initial_cg.process()
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
-
+    def test_split_brain(self, Graph, ingest_initial, ingest):
         # Multiple matches found for a thing should break
-        cg = ChangeGraph(Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)])))
+        graph = Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)]))
         with pytest.raises(MergeRequired) as e:
-            cg.process()
+            ingest(graph)
         assert e.value.args[0] == "Multiple <class 'share.models.creative.Preprint'>s found"
 
-    def test_no_merge_on_blank_value(self, Graph):
+    def test_no_merge_on_blank_value(self, Graph, ingest):
         blank_cited_as = [
             Publication(
                 identifiers=[WorkIdentifier(1)],
@@ -153,9 +127,8 @@ class TestWorkDisambiguation:
                 ]
             )
         ]
-        initial_cg = ChangeGraph(Graph(*blank_cited_as))
-        initial_cg.process()
-        ChangeSet.objects.from_graph(initial_cg, NormalizedDataFactory().id).accept()
+        ingest(Graph(blank_cited_as))
+
         assert models.Publication.objects.count() == 1
         assert models.Publisher.objects.count() == 1
         assert models.Organization.objects.count() == 1
@@ -169,44 +142,40 @@ class TestWorkDisambiguation:
                 ]
             )
         ]
+        ingest(Graph(additional_pub))
 
-        next_cg = ChangeGraph(Graph(*additional_pub))
-        next_cg.process()
-        ChangeSet.objects.from_graph(next_cg, NormalizedDataFactory().id).accept()
         assert models.Publication.objects.count() == 1
         assert models.Publisher.objects.count() == 2
         assert models.Organization.objects.count() == 2
 
-    def test_no_timetraveling(self, Graph):
-        newer_graph = ChangeGraph(Graph(
+    def test_no_timetraveling(self, Graph, ingest):
+        newer_graph = Graph(
             Publication(
                 id=1,
                 sparse=True,
                 identifiers=[WorkIdentifier(1)],
-                date_updated='2017-02-03T18:07:53.385000',
+                date_updated='2017-02-03T18:07:53.385000Z',
                 is_deleted=False,
             )
-        ))
+        )
+        ingest(newer_graph)
 
-        newer_graph.process()
-        ChangeSet.objects.from_graph(newer_graph, NormalizedDataFactory().id).accept()
-
-        older_graph = ChangeGraph(Graph(
+        older_graph = Graph(
             Publication(
                 id=1,
                 sparse=True,
                 identifiers=[WorkIdentifier(1)],
-                date_updated='2017-02-03T18:07:50.000000',
+                date_updated='2017-02-03T18:07:50.000000Z',
                 is_deleted=True,
                 title='Not Previously Changed'
             )
-        ))
+        )
+        cs = ingest(older_graph)
+        c = cs.changes.first()
+        assert c.change == {'title': 'Not Previously Changed'}
 
-        older_graph.process()
-        assert older_graph.nodes[0].change == {'title': 'Not Previously Changed'}
-
-    def test_no_timetraveling_many(self, Graph):
-        oldest_graph = ChangeGraph(Graph(
+    def test_no_timetraveling_many(self, Graph, ingest):
+        oldest_graph = Graph(
             Publication(
                 id=1,
                 sparse=True,
@@ -214,40 +183,34 @@ class TestWorkDisambiguation:
                 title='The first title',
                 description='The first description',
                 identifiers=[WorkIdentifier(1)],
-                date_updated='2016-02-03T18:07:50.000000',
+                date_updated='2016-02-03T18:07:50.000000Z',
             )
-        ))
+        )
+        ingest(oldest_graph)
 
-        oldest_graph.process()
-        ChangeSet.objects.from_graph(oldest_graph, NormalizedDataFactory().id).accept()
-
-        newer_graph = ChangeGraph(Graph(
+        newer_graph = Graph(
             Publication(
                 id=1,
                 sparse=True,
                 is_deleted=False,
                 identifiers=[WorkIdentifier(1)],
-                date_updated='2017-02-03T18:07:50.000000',
+                date_updated='2017-02-03T18:07:50.000000Z',
             )
-        ))
+        )
+        ingest(newer_graph)
 
-        newer_graph.process()
-        ChangeSet.objects.from_graph(newer_graph, NormalizedDataFactory().id).accept()
-
-        newest_graph = ChangeGraph(Graph(
+        newest_graph = Graph(
             Publication(
                 id=1,
                 sparse=True,
                 title='The final title',
                 identifiers=[WorkIdentifier(1)],
-                date_updated='2017-02-03T18:07:53.385000',
+                date_updated='2017-02-03T18:07:53.385000Z',
             )
-        ))
+        )
+        ingest(newest_graph)
 
-        newest_graph.process()
-        ChangeSet.objects.from_graph(newest_graph, NormalizedDataFactory().id).accept()
-
-        older_graph = ChangeGraph(Graph(
+        older_graph = Graph(
             Publication(
                 id=1,
                 sparse=True,
@@ -255,12 +218,12 @@ class TestWorkDisambiguation:
                 title='The second title',
                 description='The final description',
                 identifiers=[WorkIdentifier(1)],
-                date_updated='2017-01-01T18:00:00.000000',
+                date_updated='2017-01-01T18:00:00.000000Z',
             )
-        ))
-
-        older_graph.process()
-        assert older_graph.nodes[0].change == {'description': 'The final description'}
+        )
+        cs = ingest(older_graph)
+        c = cs.changes.first()
+        assert c.change == {'description': 'The final description'}
 
     @pytest.mark.parametrize('first_canonical, second_canonical, change', [
         (True, False, {}),
@@ -268,37 +231,33 @@ class TestWorkDisambiguation:
         (False, True, {'type': 'share.article', 'title': 'The Second Title'}),
         (False, False, {'type': 'share.article', 'title': 'The Second Title'}),
     ])
-    def test_canonical(self, Graph, first_canonical, second_canonical, change):
+    def test_canonical(self, Graph, ingest, first_canonical, second_canonical, change):
         first_source = factories.SourceFactory(canonical=first_canonical)
         second_source = factories.SourceFactory(canonical=second_canonical)
 
-        first_graph = ChangeGraph(Graph(
+        first_graph = Graph(
             Preprint(
                 id=1,
                 title='The first title',
                 identifiers=[WorkIdentifier(1)],
             )
-        ), namespace=first_source.user.username)
+        )
+        cs = ingest(first_graph, user=first_source.user)
+        cw = cs.changes.first().target
 
-        second_graph = ChangeGraph(Graph(
+        assert cw.type == 'share.preprint'
+        assert cw.title == 'The first title'
+
+        second_graph = Graph(
             Article(
                 id=1,
                 title='The Second Title',
                 identifiers=[WorkIdentifier(1)],
             )
-        ), namespace=second_source.user.username)
-
-        first_graph.process()
-        (cw, _) = ChangeSet.objects.from_graph(first_graph, NormalizedDataFactory(source=first_source.user).id).accept()
-
-        assert cw.type == 'share.preprint'
-        assert cw.title == 'The first title'
-
-        second_graph.process()
-        ChangeSet.objects.from_graph(second_graph, NormalizedDataFactory(source=second_source.user).id).accept()
+        )
+        ingest(second_graph, user=second_source.user)
 
         cw = models.AbstractCreativeWork.objects.get(id=cw.id)
 
-        assert second_graph.nodes[0].change == change
         assert cw.type == change.get('type', 'share.preprint')
         assert cw.title == change.get('title', 'The first title')

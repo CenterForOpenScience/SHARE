@@ -6,6 +6,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
+from share.disambiguation import GraphDisambiguator
 from share.models import Change, ChangeSet
 from share.util import IDObfuscator
 
@@ -13,17 +14,21 @@ from share.util import IDObfuscator
 logger = logging.getLogger(__name__)
 
 
-class NodeDiffer:
+class ChangeBuilder:
 
-    @staticmethod
-    def build_change_set(graph, normalized_datum, instance_map=None):
-        if instance_map is None:
-            instance_map = {}
+    @classmethod
+    def build_change_set(cls, graph, normalized_datum, instance_map=None, disambiguate=False):
+        assert not (instance_map and disambiguate), 'Either provide instance_map or disambiguate=True, not both'
 
         user = normalized_datum.source  # "source" here is a ShareUser
         source = user.source
 
-        differs = [NodeDiffer(n, source, instance_map) for n in graph.topologically_sorted()]
+        if disambiguate:
+            instance_map = GraphDisambiguator(source).find_instances(graph)
+        elif instance_map is None:
+            instance_map = {}
+
+        differs = [cls(n, source, instance_map) for n in graph.topologically_sorted()]
 
         if all(d.diff is None for d in differs):
             logger.debug('No changes detected in {!r}, skipping.'.format(graph))
@@ -41,12 +46,12 @@ class NodeDiffer:
 
         return change_set
 
-    def __init__(self, node, source, instance_map=None):
+    def __init__(self, node, source=None, instance_map=None):
         self.node = node
         self.source = source
         self.instance_map = instance_map or {}
 
-        self.instance = instance_map.get(node)
+        self.instance = self._get_instance(node)
         self.diff = self.get_diff() if not self.should_skip() else None
 
     def build_change(self, change_set, save=True):
@@ -89,7 +94,7 @@ class NodeDiffer:
         if self.instance:
             if (self.node.type == 'subject'
                     and self.instance.central_synonym is None
-                    and self.source.user.username != settings.APPLICATION_USERNAME):
+                    and (not self.source or self.source.user.username != settings.APPLICATION_USERNAME)):
                 return True
 
         return False
@@ -134,8 +139,18 @@ class NodeDiffer:
 
         ignore_attrs = self._get_ignore_attrs(attrs)
 
-        if 'type' not in ignore_attrs and type(self.instance) is not self.node.model:
-            attrs_diff['type'] = self.node.model._meta.label_lower
+        new_model = self.node.model
+        old_model = type(self.instance)
+        if '@type' not in ignore_attrs and old_model is not new_model:
+            if (
+                    len(new_model.__mro__) >= len(old_model.__mro__)
+
+                    # Special case to allow creators to be downgraded to contributors
+                    # This allows OSF users to mark project contributors as bibiliographic or non-bibiliographic
+                    # and have that be reflected in SHARE
+                    or issubclass(new_model, apps.get_model('share', 'contributor'))
+            ):
+                attrs_diff['@type'] = new_model._meta.label_lower
 
         for k, v in attrs.items():
             if k in ignore_attrs:
@@ -148,10 +163,10 @@ class NodeDiffer:
                 attrs_diff[k] = v.isoformat() if isinstance(v, datetime.datetime) else v
 
         # TODO Add relationships in for non-subjects. Somehow got omitted first time around
-        if self.node.model is apps.get_model('share', 'subject'):
+        if new_model is apps.get_model('share', 'subject'):
             for k, v in relations.items():
                 old_value = getattr(self.instance, k)
-                if old_value != self.instance_map.get(v):
+                if old_value != self._get_instance(v):
                     relations_diff[k] = v
 
         diff = {
@@ -169,11 +184,14 @@ class NodeDiffer:
                 return None
         return diff
 
+    def _get_instance(self, node):
+        return self.instance_map.get(node) or self.instance_map.get(node.id)
+
     def _relations_to_jsonld(self, relations):
         def refs(n):
             if isinstance(n, list):
                 return [refs(node) for node in n]
-            instance = self.instance_map.get(n)
+            instance = self._get_instance(n)
             return {
                 '@id': IDObfuscator.encode(instance) if instance else n.id,
                 '@type': n.type,
@@ -232,6 +250,6 @@ class NodeDiffer:
 
                 # Appears that type doesn't get added to changes or at least the first change
                 # Safe to assume the type was set by the canonical source
-                ignore_attrs.add('type')
+                ignore_attrs.add('@type')
 
         return ignore_attrs

@@ -41,9 +41,9 @@ class TrimCycles(NodeStep):
             if related and related == node:
                 self._trim(node)
         else:
-            related_nodes = set(filter(
-                node[f] for f in self.related_fields
-            ))
+            related_nodes = set(filter(None, (
+                node[f] for f in self.relation_fields
+            )))
             if len(related_nodes) != len(self.relation_fields):
                 self._trim(node)
 

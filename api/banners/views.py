@@ -13,4 +13,4 @@ class SiteBannerViewSet(ShareViewSet, viewsets.ReadOnlyModelViewSet):
     ordering = ('id', )
 
     def get_queryset(self):
-        return SiteBanner.objects.filter(active=True)
+        return SiteBanner.objects.filter(active=True).order_by(*self.ordering)

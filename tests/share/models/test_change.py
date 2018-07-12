@@ -138,7 +138,7 @@ class TestChangeGraph:
             '@graph': [{
                 '@type': 'Tag',
                 '@id': '_:1234',
-                'name': 'MyCoolTag'
+                'name': 'mycooltag'
             }]
         }, disambiguate=False)
 

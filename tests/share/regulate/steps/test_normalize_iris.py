@@ -27,7 +27,7 @@ class TestNormalizeIRIsStep:
         graph = MutableGraph()
 
         for uri, scheme, authority in identifiers:
-            node = graph.add_node('id_{}'.format(authority), 'workidentifier', uri=uri)
+            node = graph.add_node('id_{}'.format(authority), 'workidentifier', {'uri': uri})
             assert node['scheme'] is None
             assert node['host'] is None
 
@@ -52,7 +52,7 @@ class TestNormalizeIRIsStep:
     ])
     def test_normalize_agentidentifier(self, input, output):
         graph = MutableGraph()
-        node = graph.add_node('1', 'agentidentifier', uri=input)
+        node = graph.add_node('1', 'agentidentifier', {'uri': input})
         NormalizeIRIs().regulate_node(node)
         if output:
             assert node['uri'] == output
@@ -77,7 +77,7 @@ class TestNormalizeIRIsStep:
     ])
     def test_normalize_workidentifier(self, input, output):
         graph = MutableGraph()
-        node = graph.add_node('1', 'workidentifier', uri=input)
+        node = graph.add_node('1', 'workidentifier', {'uri': input})
         step = NormalizeIRIs(blocked_schemes=['mailto'], blocked_authorities=['issn', 'orcid.org'])
         step.regulate_node(node)
         if output:

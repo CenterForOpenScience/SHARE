@@ -8,15 +8,21 @@ class TestBlockExtraValuesStep:
     @pytest.fixture
     def graph(self):
         g = MutableGraph()
-        g.add_node(1, 'creativework', title='A work!', extra={
-            'foo': 'flooby',
-            'bah': 'hab',
+        g.add_node(1, 'creativework', {
+            'title': 'A work!',
+            'extra': {
+                'foo': 'flooby',
+                'bah': 'hab',
+            },
         })
-        g.add_node(2, 'creativework', title='Another work!', extra={
-            'extra': 'extra',
-            'bah': 'hab',
+        g.add_node(2, 'creativework', {
+            'title': 'Another work!',
+            'extra': {
+                'extra': 'extra',
+                'bah': 'hab',
+            },
         })
-        g.add_node(3, 'creativework', title='No extra :(')
+        g.add_node(3, 'creativework', {'title': 'No extra :('})
         return g
 
     @pytest.mark.parametrize('blocked_values, expected_nodes', [

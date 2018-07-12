@@ -3,6 +3,7 @@ import logging
 from django.db.models import Q
 
 from share.exceptions import MergeRequired
+from share.util import IDObfuscator, InvalidID
 from share.util.graph import MutableNode
 
 __all__ = ('GraphDisambiguator', )
@@ -54,6 +55,12 @@ class GraphDisambiguator:
     def _instance_for_node(self, node, instance_map):
         model = node.model
         concrete_model = model._meta.concrete_model
+
+        if not node.id.startswith('_:'):
+            try:
+                return IDObfuscator.resolve(node.id)
+            except (InvalidID, model.DoesNotExist):
+                pass
 
         if concrete_model.__name__ == 'Subject':
             return self._instance_for_subject(node)

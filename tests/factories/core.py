@@ -30,8 +30,8 @@ class NormalizedDataFactory(DjangoModelFactory):
 
 
 class SourceFactory(DjangoModelFactory):
-    name = factory.Faker('sentence')
-    long_title = factory.Faker('sentence')
+    name = factory.Sequence(lambda x: '{}{}'.format(faker.name(), x))
+    long_title = factory.Sequence(lambda x: '{}{}'.format(faker.sentence(), x))
     icon = factory.SelfAttribute('name')
 
     user = factory.SubFactory(ShareUserFactory, source=None)

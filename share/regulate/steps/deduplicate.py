@@ -1,7 +1,6 @@
 from share import exceptions
 from share.disambiguation import DisambiguationInfo
 from share.regulate.steps import GraphStep
-from share.regulate.steps.normalize_agent_names import NormalizeAgentNames
 from share.util import DictHashingDict
 
 
@@ -31,34 +30,10 @@ class Deduplicate(GraphStep):
             for node in graph:
                 dupe = index.get_match(node)
                 if dupe:
-                    self._merge_nodes(graph, node, dupe)
+                    graph.merge_nodes(node, dupe)
                     changed = True
                     break
                 index.add(node)
-
-    def _merge_nodes(self, graph, node_a, node_b):
-        model_a, model_b = node_a.model, node_b.model
-        if model_a._meta.concrete_model is not model_b._meta.concrete_model:
-            raise MergingIncompatibleNodesError('Must have same concrete model', node_a, node_b)
-
-        from_node, into_node = None, None
-        # Remove the node with the less specific class
-        if issubclass(model_a, model_b):
-            from_node = node_b
-            into_node = node_a
-        elif issubclass(model_b, model_a):
-            from_node = node_a
-            into_node = node_b
-        else:
-            # TODO handle this case
-            raise MergingIncompatibleNodesError('Models must be related', node_a, node_b)
-
-        graph.merge_nodes(from_node, into_node)
-
-        # TODO: run all node steps on `into_node`?
-        normalize_name = NormalizeAgentNames()
-        if normalize_name.valid_target(into_node):
-            normalize_name.regulate_node(into_node)
 
 
 class DupeNodeIndex:
