@@ -1,5 +1,6 @@
 from django.db import models
 
+from share.disambiguation.criteria import MatchByAttrs, MatchByOneToMany
 from share.models.base import ShareObject
 from share.models.base import TypedShareObjectMeta
 from share.models.fields import ShareManyToManyField
@@ -18,8 +19,7 @@ class AbstractAgent(ShareObject, metaclass=TypedShareObjectMeta):
     related_agents = ShareManyToManyField('AbstractAgent', through='AbstractAgentRelation', through_fields=('subject', 'related'), symmetrical=False)
     related_works = ShareManyToManyField('AbstractCreativeWork', through='AbstractAgentWorkRelation')
 
-    class Disambiguation:
-        any = ('identifiers', 'work_relations')
+    matching_criteria = MatchByOneToMany('identifiers')
 
     class Meta(ShareObject.Meta):
         db_table = 'share_agent'
@@ -37,10 +37,14 @@ generator = ModelGenerator(field_types={
 globals().update(generator.subclasses_from_yaml(__file__, AbstractAgent))
 
 
-class UniqueNameDisambiguation:
-    any = AbstractAgent.Disambiguation.any + ('name',)
+def add_unique_name_criteria(*model_classes):
+    match_by_identifiers_or_name = [
+        AbstractAgent.matching_criteria,
+        MatchByAttrs('name', allowed_models=model_classes),
+    ]
+    for model_class in model_classes:
+        model_class.matching_criteria = match_by_identifiers_or_name
 
-Institution.Disambiguation = UniqueNameDisambiguation # noqa
-Organization.Disambiguation = UniqueNameDisambiguation # noqa
-Consortium.Disambiguation = UniqueNameDisambiguation # noqa
-Department.Disambiguation = AbstractAgent.Disambiguation # noqa
+add_unique_name_criteria(Institution, Organization, Consortium) # noqa
+
+Department.matching_criteria = AbstractAgent.matching_criteria # noqa

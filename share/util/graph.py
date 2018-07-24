@@ -15,6 +15,9 @@ from share.util import TopologicalSorter
 
 class PrivateNodeAttrs(Enum):
     TYPE = auto()
+    MODEL = auto()
+    CONCRETE_TYPE = auto()
+    CONCRETE_MODEL = auto()
 
 
 class EdgeAttrs(Enum):
@@ -159,6 +162,10 @@ class MutableGraph(nx.DiGraph):
         # TODO make a sort of index dict, mapping type to nodes
         return self.filter_nodes(lambda n: n.type == type_name)
 
+    def filter_by_concrete_model(self, model):
+        # TODO make a sort of index dict, mapping model to nodes
+        return self.filter_nodes(lambda n: n.concrete_model == model)
+
     def add_named_edge(self, from_id, to_id, from_name, to_name):
         """Add a named edge.
 
@@ -261,14 +268,11 @@ class MutableGraph(nx.DiGraph):
 
         `from_node` will be deleted.
         """
+        assert from_node.concrete_model is into_node.concrete_model, 'Cannot merge nodes of different types'
+
         self.changed = True
 
-        from_model = from_node.model
-        into_model = into_node.model
-
-        assert from_model._meta.concrete_model is into_model._meta.concrete_model, 'Cannot merge nodes of different types'
-
-        if choose_winner and len(from_model.__mro__) >= len(into_model.__mro__):
+        if choose_winner and len(from_node.model.__mro__) >= len(into_node.model.__mro__):
             from_node, into_node = into_node, from_node
 
         self._merge_node_attrs(from_node, into_node)
@@ -371,11 +375,25 @@ class MutableNode:
     def type(self, value):
         self.graph.changed = True
 
-        self.__attrs[PrivateNodeAttrs.TYPE] = value
+        model = resolve_model(value)
+        self.__attrs.update({
+            PrivateNodeAttrs.TYPE: value,
+            PrivateNodeAttrs.MODEL: model,
+            PrivateNodeAttrs.CONCRETE_TYPE: model._meta.concrete_model._meta.model_name,
+            PrivateNodeAttrs.CONCRETE_MODEL: model._meta.concrete_model,
+        })
 
     @property
     def model(self):
-        return resolve_model(self.type)
+        return self.__attrs[PrivateNodeAttrs.MODEL]
+
+    @property
+    def concrete_type(self):
+        return self.__attrs[PrivateNodeAttrs.CONCRETE_TYPE]
+
+    @property
+    def concrete_model(self):
+        return self.__attrs[PrivateNodeAttrs.CONCRETE_MODEL]
 
     def attrs(self):
         return {

@@ -10,6 +10,7 @@ initial = [
         identifiers=[WorkIdentifier(1)],
         agent_relations=[
             Contributor(cited_as='B. Dylan', agent=Person(1, identifiers=[AgentIdentifier(1)], name='Bob Dylan')),
+            Creator(cited_as='Cat Stevens', agent=Person(1, identifiers=[AgentIdentifier(1)], name='Cat Stevens')),
             Contributor(cited_as='AHA', agent=Organization(1, identifiers=[AgentIdentifier(2)], name='American Heart Association')),
             Creator(cited_as='COS', agent=Organization(2, identifiers=[AgentIdentifier(3)], name='COS')),
             AgentWorkRelation(cited_as='Science Guy', agent=Organization(4, identifiers=[AgentIdentifier(4)], name='Science Guy')),
@@ -80,6 +81,28 @@ class TestAgentRelationDisambiguation:
             [CreativeWork(agent_relations=[Funder(cited_as='NIH', agent=Institution(name='NIH'))])],
             {models.Institution: 1}
         ),
+        # same work, same person, same relation, same first initial and last name in various formats
+        (
+            [Publication(identifiers=[WorkIdentifier(3)], agent_relations=[Creator(cited_as='Georgy Washington', agent=Person(5, name='George Washington'))])],
+            {models.Person: 0, models.Creator: 0}
+        ),
+        (
+            [Publication(identifiers=[WorkIdentifier(3)], agent_relations=[Creator(cited_as='Washington, G', agent=Person(5, name='Washington, G'))])],
+            {models.Person: 0, models.Creator: 0}
+        ),
+        (
+            [Preprint(identifiers=[WorkIdentifier(1)], agent_relations=[Creator(cited_as='C. Stevens', agent=Person(5, name='C. Stevens'))])],
+            {models.Person: 0, models.Creator: 0}
+        ),
+        (
+            [Preprint(identifiers=[WorkIdentifier(1)], agent_relations=[Creator(cited_as='Stevens, Cat', agent=Person(5, name='Stevens, Cat'))])],
+            {models.Person: 0, models.Creator: 0}
+        ),
+        (
+            [Preprint(identifiers=[WorkIdentifier(1)], agent_relations=[Creator(cited_as='Stevens, C. X.', agent=Person(5, name='Stevens, C. X.'))])],
+            {models.Person: 0, models.Creator: 0}
+        ),
+        # same work, same person, different relation (still creator), no identifiers, same first initial and last name
         # longer cited as or alphabetical, same work, same person, same relation, different cited_as
         (
             [Publication(identifiers=[WorkIdentifier(3)], agent_relations=[Creator(cited_as='George Washington', agent=Person(5, identifiers=[AgentIdentifier(8)], name='George Washington'))])],

@@ -1,3 +1,4 @@
+from share.disambiguation.criteria import MatchByManyToOne
 from share.models.base import ShareObject, TypedShareObjectMeta
 from share.models.fields import ShareForeignKey
 
@@ -8,9 +9,7 @@ class AbstractWorkRelation(ShareObject, metaclass=TypedShareObjectMeta):
     subject = ShareForeignKey('AbstractCreativeWork', related_name='outgoing_creative_work_relations')
     related = ShareForeignKey('AbstractCreativeWork', related_name='incoming_creative_work_relations')
 
-    class Disambiguation:
-        all = ('subject', 'related')
-        constrain_types = True
+    matching_criteria = MatchByManyToOne('subject', 'related', constrain_types=True)
 
     class Meta(ShareObject.Meta):
         db_table = 'share_workrelation'

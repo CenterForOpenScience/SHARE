@@ -1,5 +1,6 @@
 from django.db import models
 
+from share.disambiguation.criteria import MatchByAttrs, MatchByManyToOne, MatchSubjects
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 
@@ -16,11 +17,10 @@ class CyclicalTaxonomyError(Exception):
 class Tag(ShareObject):
     name = models.TextField(unique=True)
 
+    matching_criteria = MatchByAttrs('name')
+
     def __str__(self):
         return self.name
-
-    class Disambiguation:
-        all = ('name',)
 
 
 class SubjectTaxonomy(models.Model):
@@ -44,6 +44,8 @@ class Subject(ShareObject):
     taxonomy = models.ForeignKey(SubjectTaxonomy, editable=False, on_delete=models.CASCADE)
     parent = ShareForeignKey('Subject', blank=True, null=True, related_name='children')
     central_synonym = ShareForeignKey('Subject', blank=True, null=True, related_name='custom_synonyms')
+
+    matching_criteria = MatchSubjects()
 
     def save(self, *args, **kwargs):
         if self.id is not None and self.parent is not None:
@@ -74,9 +76,6 @@ class Subject(ShareObject):
     class Meta:
         unique_together = (('name', 'taxonomy'), ('uri', 'taxonomy'))
 
-    class Disambiguation:
-        all = ('name', 'central_synonym')
-
 
 # Through Tables for all the things
 
@@ -88,8 +87,7 @@ class ThroughTags(ShareObject):
         unique_together = ('tag', 'creative_work')
         verbose_name_plural = 'through tags'
 
-    class Disambiguation:
-        all = ('tag', 'creative_work')
+    matching_criteria = MatchByManyToOne('tag', 'creative_work')
 
 
 class ThroughSubjects(ShareObject):
@@ -101,5 +99,4 @@ class ThroughSubjects(ShareObject):
         unique_together = ('subject', 'creative_work')
         verbose_name_plural = 'through subjects'
 
-    class Disambiguation:
-        all = ('subject', 'creative_work')
+    matching_criteria = MatchByManyToOne('subject', 'creative_work')

@@ -16,7 +16,7 @@ from oauth2_provider.models import AccessToken, Application
 from urllib3.connection import ConnectionError
 from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 
-from share.ingest.change_builder import ChangeBuilder
+from share.ingest.change_builder import ChangeBuilder, ChangeSetBuilder
 from share.models import Person, NormalizedData, ChangeSet, RawDatum
 from share.models import Article, Institution
 from share.models import ShareUser
@@ -162,7 +162,7 @@ def ingest(normalized_data):
         Regulator().regulate(graph)
 
         nd = factories.NormalizedDataFactory(source=user) if user else normalized_data
-        cs = ChangeBuilder.build_change_set(graph, nd, disambiguate=disambiguate)
+        cs = ChangeSetBuilder(graph, nd, disambiguate=disambiguate).build_change_set()
         if save and cs is not None:
             cs.accept()
         return cs
@@ -175,7 +175,7 @@ def change_factory(share_user, source, change_set, change_node):
         def from_graph(self, jsonld, disambiguate=False):
             nd = NormalizedData.objects.create(data=jsonld, source=share_user)
             graph = MutableGraph.from_jsonld(jsonld)
-            return ChangeBuilder.build_change_set(graph, nd, disambiguate=disambiguate)
+            return ChangeSetBuilder(graph, nd, disambiguate=disambiguate).build_change_set()
 
         def get(self):
             return ChangeBuilder(change_node, source).build_change(change_set)

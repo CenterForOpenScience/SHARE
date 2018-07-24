@@ -1,3 +1,4 @@
+from share.disambiguation.criteria import MatchByManyToOne
 from share.models.base import ShareObject, TypedShareObjectMeta
 from share.models.fields import ShareForeignKey
 
@@ -8,9 +9,7 @@ class AbstractAgentRelation(ShareObject, metaclass=TypedShareObjectMeta):
     subject = ShareForeignKey('AbstractAgent', related_name='outgoing_agent_relations')
     related = ShareForeignKey('AbstractAgent', related_name='incoming_agent_relations')
 
-    class Disambiguation:
-        all = ('subject', 'related')
-        constrain_types = True
+    matching_criteria = MatchByManyToOne('subject', 'related', constrain_types=True)
 
     class Meta(ShareObject.Meta):
         db_table = 'share_agentrelation'
