@@ -21,6 +21,12 @@ def sort_dict_by_key(hierarchy):
     return types
 
 
+def ensure_iterable(maybe_iterable):
+    if isinstance(maybe_iterable, (list, tuple, set)):
+        return maybe_iterable
+    return [maybe_iterable]
+
+
 class InvalidID(Exception):
     def __init__(self, value, message='Invalid ID'):
         super().__init__(value, message)
@@ -103,11 +109,16 @@ class CyclicalDependency(Exception):
 
 
 class TopologicalSorter:
-    """Sort a list of nodes topologically, so a node is always preceded by its dependencies"""
+    """Sort a list of nodes topologically, so a node is always preceded by its dependencies.
 
-    # `nodes`: Iterable of objects
-    # `dependencies`: Callable that takes a single argument (a node) and returns an iterable of its dependent nodes (or keys, if `key` is given)
-    # `key`: Callable that takes a single argument (a node) and returns a unique key. If omitted, nodes will be compared for equality directly.
+    Params:
+    - `nodes`: Iterable of objects
+    - `dependencies`: Callable that takes a single argument (a node) and returns an iterable
+        of nodes that should precede it (or keys, if `key` is given)
+    - `key`: Callable that takes a single argument (a node) and returns a unique key.
+        If omitted, nodes will be compared for equality directly.
+    """
+
     def __init__(self, nodes, dependencies, key=None):
         self.__sorted = []
         self.__nodes = list(nodes)

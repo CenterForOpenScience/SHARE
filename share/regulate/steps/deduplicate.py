@@ -1,15 +1,6 @@
-from share import exceptions
-from share.disambiguation import DisambiguationInfo
+from share.disambiguation.matcher import Matcher
+from share.disambiguation.strategies import GraphStrategy
 from share.regulate.steps import GraphStep
-from share.util import DictHashingDict
-
-
-class DupesNotMatchedError(exceptions.ShareException):
-    pass
-
-
-class MergingIncompatibleNodesError(exceptions.ShareException):
-    pass
 
 
 class Deduplicate(GraphStep):
@@ -22,81 +13,16 @@ class Deduplicate(GraphStep):
         ```
     """
     def regulate_graph(self, graph):
-        index = DupeNodeIndex()
         changed = True
         while changed:
             changed = False
-            index.clear()
-            for node in graph:
-                dupe = index.get_match(node)
-                if dupe:
-                    graph.merge_nodes(node, dupe)
-                    changed = True
+            matcher = Matcher(GraphStrategy(graph))
+            for matches in matcher.chunk_matches(graph):
+                for node, dupes in matches.items():
+                    if dupes:
+                        changed = True
+                    for dupe in dupes:
+                        if dupe in graph and node in graph:
+                            graph.merge_nodes(dupe, node)
+                if changed:
                     break
-                index.add(node)
-
-
-class DupeNodeIndex:
-    def __init__(self):
-        self._index = {}
-        self._node_cache = {}
-
-    def clear(self):
-        self._index.clear()
-        self._node_cache.clear()
-
-    def get_node_info(self, node):
-        try:
-            return self._node_cache[node]
-        except KeyError:
-            node_info = DisambiguationInfo(node)
-            self._node_cache[node] = node_info
-            return node_info
-
-    def add(self, node):
-        node_info = self.get_node_info(node)
-        by_model = self._index.setdefault(node.model._meta.concrete_model, DictHashingDict())
-        if node_info.any:
-            all_cache = by_model.setdefault(node_info.all, DictHashingDict())
-            for item in node_info.any:
-                all_cache.setdefault(item, []).append(node)
-        elif node_info.all:
-            by_model.setdefault(node_info.all, []).append(node)
-
-    def remove(self, node):
-        node_info = self.get_node_info(node)
-        try:
-            all_cache = self._index[node.model._meta.concrete_model][node_info.all]
-            if node_info.any:
-                for item in node_info.any:
-                    all_cache[item].remove(node)
-            else:
-                all_cache.remove(node)
-        except (KeyError, ValueError) as ex:
-            raise ValueError('Could not remove node from cache: Node {} not found!'.format(node)) from ex
-
-    def get_match(self, node):
-        matches = self.get_matches(node)
-        if not matches:
-            return None
-        if len(matches) != 1:
-            raise DupesNotMatchedError
-        return matches[0]
-
-    def get_matches(self, node):
-        node_info = self.get_node_info(node)
-        matches = set()
-        try:
-            matches_all = self._index[node.model._meta.concrete_model][node_info.all]
-            if node_info.any:
-                for item in node_info.any:
-                    matches.update(matches_all.get(item, []))
-            elif node_info.all:
-                matches.update(matches_all)
-            # TODO use `node_info.tie_breaker` when there are multiple matches
-            if node_info.matching_types:
-                return [m for m in matches if m != node and m.model._meta.label_lower in node_info.matching_types]
-            else:
-                return [m for m in matches if m != node]
-        except KeyError:
-            return []

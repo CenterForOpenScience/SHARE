@@ -6,7 +6,8 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
-from share.disambiguation import GraphDisambiguator
+from share.disambiguation.matcher import Matcher
+from share.disambiguation.strategies import DatabaseStrategy
 from share.models import Change, ChangeSet
 from share.util import IDObfuscator
 
@@ -14,44 +15,46 @@ from share.util import IDObfuscator
 logger = logging.getLogger(__name__)
 
 
-class ChangeBuilder:
+class ChangeSetBuilder:
+    def __init__(self, graph, normalized_datum, matches=None, disambiguate=False):
+        assert not (matches and disambiguate), 'Either provide matches or disambiguate=True, not both'
 
-    @classmethod
-    def build_change_set(cls, graph, normalized_datum, instance_map=None, disambiguate=False):
-        assert not (instance_map and disambiguate), 'Either provide instance_map or disambiguate=True, not both'
+        self.graph = graph
+        self.normalized_datum = normalized_datum
+        self.user = normalized_datum.source  # "source" here is a ShareUser
+        self.source = self.user.source
+        self.matches = matches or {}
+        self.disambiguate = disambiguate
 
-        user = normalized_datum.source  # "source" here is a ShareUser
-        source = user.source
+    def build_change_set(self):
+        if self.disambiguate:
+            self.matches = Matcher(DatabaseStrategy(self.source)).find_all_matches(self.graph)
 
-        if disambiguate:
-            instance_map = GraphDisambiguator(source).find_instances(graph)
-        elif instance_map is None:
-            instance_map = {}
-
-        differs = [cls(n, source, instance_map) for n in graph.topologically_sorted()]
-
-        if all(d.diff is None for d in differs):
-            logger.debug('No changes detected in {!r}, skipping.'.format(graph))
+        change_builders = [ChangeBuilder(n, self.source, self.matches) for n in self.graph.topologically_sorted()]
+        if all(cb.diff is None for cb in change_builders):
+            logger.debug('No changes detected in {!r}, skipping.'.format(self.graph))
             return None
 
-        change_set = ChangeSet(normalized_data_id=normalized_datum.id)
+        change_set = ChangeSet(normalized_data_id=self.normalized_datum.id)
         change_set.save()
 
         Change.objects.bulk_create(
             filter(None, [
-                d.build_change(change_set, save=False)
-                for d in differs
+                cb.build_change(change_set, save=False)
+                for cb in change_builders
             ])
         )
 
         return change_set
 
-    def __init__(self, node, source=None, instance_map=None):
+
+class ChangeBuilder:
+    def __init__(self, node, source=None, matches=None):
         self.node = node
         self.source = source
-        self.instance_map = instance_map or {}
+        self.matches = matches or {}
 
-        self.instance = self._get_instance(node)
+        self.instance = self._get_match(node)
         self.diff = self.get_diff() if not self.should_skip() else None
 
     def build_change(self, change_set, save=True):
@@ -166,7 +169,7 @@ class ChangeBuilder:
         if new_model is apps.get_model('share', 'subject'):
             for k, v in relations.items():
                 old_value = getattr(self.instance, k)
-                if old_value != self._get_instance(v):
+                if old_value != self._get_match(v):
                     relations_diff[k] = v
 
         diff = {
@@ -180,18 +183,19 @@ class ChangeBuilder:
                 and hasattr(self.instance, 'sources')
                 and not self.instance.sources.filter(source=self.source).exists()
             )
+
             if not new_source:
                 return None
         return diff
 
-    def _get_instance(self, node):
-        return self.instance_map.get(node) or self.instance_map.get(node.id)
+    def _get_match(self, node):
+        return self.matches.get(node) or self.matches.get(node.id)
 
     def _relations_to_jsonld(self, relations):
         def refs(n):
             if isinstance(n, list):
                 return [refs(node) for node in n]
-            instance = self._get_instance(n)
+            instance = self._get_match(n)
             return {
                 '@id': IDObfuscator.encode(instance) if instance else n.id,
                 '@type': n.type,

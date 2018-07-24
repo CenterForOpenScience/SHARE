@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from share.disambiguation.criteria import MatchByAttrs
 from share.models.base import ShareObject
 from share.models.fields import ShareForeignKey, ShareURLField
 
@@ -49,8 +50,7 @@ class WorkIdentifier(ShareObject):
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.creative_work_id)
 
-    class Disambiguation:
-        all = ('uri',)
+    matching_criteria = MatchByAttrs('uri')
 
 
 class AgentIdentifier(ShareObject):
@@ -66,5 +66,4 @@ class AgentIdentifier(ShareObject):
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.uri, self.agent_id)
 
-    class Disambiguation:
-        all = ('uri',)
+    matching_criteria = MatchByAttrs('uri')

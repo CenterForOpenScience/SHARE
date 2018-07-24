@@ -2,7 +2,8 @@ import pytest
 import json
 import re
 
-from share.disambiguation import GraphDisambiguator
+from share.disambiguation.matcher import Matcher
+from share.disambiguation.strategies import DatabaseStrategy
 from share.regulate import Regulator
 from share.util import IDObfuscator
 
@@ -78,12 +79,12 @@ class TestGeneratedEndpoints:
 
         graph = Graph(*generator)
         Regulator().regulate(graph)
-        instance_map = GraphDisambiguator().find_instances(graph)
+        matches = Matcher(DatabaseStrategy()).find_all_matches(graph)
 
         for node in graph:
             if node.type == model:
                 expected = node
-                expected_id = IDObfuscator.encode(instance_map[node])
+                expected_id = IDObfuscator.encode(matches[node])
                 break
         response = client.get('/api/v2/{}/{}/'.format(route, expected_id))
 

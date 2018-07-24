@@ -3,7 +3,7 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 
 from share import models
-from share.ingest.change_builder import ChangeBuilder
+from share.ingest.change_builder import ChangeBuilder, ChangeSetBuilder
 from share.util import IDObfuscator
 from share.util.graph import MutableGraph
 
@@ -111,7 +111,7 @@ class TestChange:
     def test_update_accept(self, jane_doe, update_graph_node, change_set):
         change = ChangeBuilder(
             update_graph_node,
-            instance_map={update_graph_node: jane_doe},
+            matches={update_graph_node: jane_doe},
         ).build_change(change_set)
 
         assert jane_doe.family_name == 'Doe'
@@ -127,7 +127,7 @@ class TestChange:
     def test_update_accept_no_save(self, jane_doe, update_graph_node, change_set):
         change = ChangeBuilder(
             update_graph_node,
-            instance_map={update_graph_node: jane_doe},
+            matches={update_graph_node: jane_doe},
         ).build_change(change_set)
 
         person = change.accept(save=False)
@@ -145,7 +145,7 @@ class TestChangeSet:
 
     @pytest.mark.django_db
     def test_create_dependencies_accept(self, normalized_data, create_graph_dependencies):
-        change_set = ChangeBuilder.build_change_set(create_graph_dependencies, normalized_data)
+        change_set = ChangeSetBuilder(create_graph_dependencies, normalized_data).build_change_set()
 
         assert change_set.changes.count() == 3
         assert change_set.changes.all()[0].node_id == '_:123'
@@ -185,9 +185,9 @@ class TestChangeSet:
             'title': 'All About Cats',
         }])
 
-        change_set = ChangeBuilder.build_change_set(graph, normalized_data, instance_map={
+        change_set = ChangeSetBuilder(graph, normalized_data, matches={
             john_doe_id: john_doe,
-        })
+        }).build_change_set()
 
         change_set.accept()
 
@@ -210,7 +210,7 @@ class TestChangeSet:
             'title': 'All About Cats',
         }])
 
-        change_set = ChangeBuilder.build_change_set(graph, normalized_data, disambiguate=True)
+        change_set = ChangeSetBuilder(graph, normalized_data, disambiguate=True).build_change_set()
 
         preprint, identifier = change_set.accept()
 
@@ -227,7 +227,7 @@ class TestChangeSet:
             '@type': 'preprint',
         }])
 
-        ChangeBuilder.build_change_set(graph, normalized_data, disambiguate=True).accept()
+        ChangeSetBuilder(graph, normalized_data, disambiguate=True).build_change_set().accept()
 
         preprint.refresh_from_db()
         assert preprint.is_deleted is True
@@ -312,7 +312,7 @@ class TestChangeSet:
             'creative_work': {'@id': '_:1234', '@type': 'project'}
         }])
 
-        original_change_set = ChangeBuilder.build_change_set(cg, normalized_data, disambiguate=True)
+        original_change_set = ChangeSetBuilder(cg, normalized_data, disambiguate=True).build_change_set()
 
         work, identifier = original_change_set.accept()
         id = work.id
@@ -334,7 +334,7 @@ class TestChangeSet:
             'creative_work': {'@id': '_:1234', '@type': 'preprint'}
         }])
 
-        change_set = ChangeBuilder.build_change_set(cg, normalized_data, disambiguate=True)
+        change_set = ChangeSetBuilder(cg, normalized_data, disambiguate=True).build_change_set()
 
         change_set.accept()
 
@@ -355,7 +355,7 @@ class TestChangeSet:
         old_title = 'Ambiguous Earthquakes'
         uri = 'http://osf.io/special-snowflake'
 
-        original_change_set = ChangeBuilder.build_change_set(MutableGraph.from_jsonld([{
+        original_change_set = ChangeSetBuilder(MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'preprint',
             'title': old_title,
@@ -365,7 +365,7 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:1234', '@type': 'preprint'}
-        }]), normalized_data)
+        }]), normalized_data).build_change_set()
 
         preprint, identifier = original_change_set.accept()
         id = preprint.id
@@ -389,7 +389,7 @@ class TestChangeSet:
             'creative_work': {'@id': '_:1234', '@type': 'creativework'}
         }])
 
-        change_set = ChangeBuilder.build_change_set(graph, normalized_data, disambiguate=True)
+        change_set = ChangeSetBuilder(graph, normalized_data, disambiguate=True).build_change_set()
         change_set.accept()
 
         assert models.Preprint.objects.count() == 1
@@ -403,7 +403,7 @@ class TestChangeSet:
         '''
         uri = 'http://osf.io/special-snowflake'
 
-        change_set = ChangeBuilder.build_change_set(MutableGraph.from_jsonld([{
+        change_set = ChangeSetBuilder(MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'preprint',
             'title': 'Dogs are okay too',
@@ -423,7 +423,7 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:2345', '@type': 'creativework'}
-        }]), normalized_data)
+        }]), normalized_data).build_change_set()
         change_set.accept()
 
         assert models.Preprint.objects.count() == 1
@@ -450,7 +450,7 @@ class TestChangeSet:
         '''
 
         uri = 'http://osf.io/special-snowflake'
-        ChangeBuilder.build_change_set(MutableGraph.from_jsonld([{
+        ChangeSetBuilder(MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'article',
             'title': 'All About Cats',
@@ -460,7 +460,7 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:1234', '@type': 'article'}
-        }]), normalized_data).accept()
+        }]), normalized_data).build_change_set().accept()
 
         assert models.Article.objects.count() == 1
 
@@ -484,7 +484,7 @@ class TestChangeSet:
             'uri': uri,
             'creative_work': {'@id': '_:2345', '@type': 'creativework'}
         }])
-        change_set = ChangeBuilder.build_change_set(graph, normalized_data, disambiguate=True)
+        change_set = ChangeSetBuilder(graph, normalized_data, disambiguate=True).build_change_set()
         change_set.accept()
 
         assert models.Article.objects.count() == 1
@@ -513,7 +513,7 @@ class TestChangeSet:
 
         uri = 'http://osf.io/special-snowflake'
 
-        ChangeBuilder.build_change_set(MutableGraph.from_jsonld([{
+        ChangeSetBuilder(MutableGraph.from_jsonld([{
             '@id': '_:1234',
             '@type': 'preprint',
             'title': 'Dogs are okay',
@@ -532,7 +532,7 @@ class TestChangeSet:
             '@type': 'workidentifier',
             'uri': uri,
             'creative_work': {'@id': '_:2345', '@type': 'creativework'}
-        }]), normalized_data).accept()
+        }]), normalized_data).build_change_set().accept()
 
         assert models.CreativeWork.objects.filter(type='share.creativework').count() == 1
         assert models.Preprint.objects.count() == 1
@@ -550,7 +550,7 @@ class TestChangeSet:
             'creative_work': {'@id': '_:1234', '@type': 'article'}
         }])
 
-        ChangeBuilder.build_change_set(change, normalized_data, disambiguate=True).accept()
+        ChangeSetBuilder(change, normalized_data, disambiguate=True).build_change_set().accept()
 
         assert models.CreativeWork.objects.filter(type='share.creativework').count() == 0
         assert models.Article.objects.count() == 1

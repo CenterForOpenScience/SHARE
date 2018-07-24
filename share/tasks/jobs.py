@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from share import exceptions
 from share.harvest.exceptions import HarvesterConcurrencyError
-from share.ingest.change_builder import ChangeBuilder
+from share.ingest.change_builder import ChangeSetBuilder
 from share.models import (
     AbstractCreativeWork,
     HarvestJob,
@@ -325,19 +325,21 @@ class IngestJobConsumer(JobConsumer):
 
     def _apply_changes(self, job, graph, normalized_datum):
         updated = None
-        instance_map = None
+        matches = None
 
         try:
             # Load all relevant ContentTypes in a single query
             ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
 
             with transaction.atomic():
-                change_set = ChangeBuilder.build_change_set(graph, normalized_datum, disambiguate=True)
+                change_set_builder = ChangeSetBuilder(graph, normalized_datum, disambiguate=True)
+                change_set = change_set_builder.build_change_set()
 
                 user = normalized_datum.source  # "source" here is a user...
                 source = user.source
                 if change_set and (source or user.is_robot or user.is_trusted):
                     updated = change_set.accept()
+                    matches = change_set_builder.matches
 
         # Retry if it was just the wrong place at the wrong time
         except (exceptions.IngestConflict, OperationalError) as e:
@@ -349,18 +351,14 @@ class IngestJobConsumer(JobConsumer):
             return
 
         if not updated:
-            return  # Nothing to index
+            return
 
-        # Index works that were added or directly updated
         updated_works = set(
-            x.id
-            for x in updated
+            x.id for x in (updated or [])
             if isinstance(x, AbstractCreativeWork)
         )
-        # and works that matched, even if they didn't change, in case any related objects did
         existing_works = set(
-            x.id
-            for x in (instance_map or {}).values()
+            x.id for x in (matches or {}).values()
             if isinstance(x, AbstractCreativeWork)
         )
 

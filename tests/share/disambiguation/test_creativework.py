@@ -103,7 +103,7 @@ class TestWorkDisambiguation:
         first_cs = ingest(Graph(input))
         assert first_cs is not None
 
-        second_cs = ingest(Graph(*input))
+        second_cs = ingest(Graph(input))
         assert second_cs is None
 
     def test_no_changes(self, Graph, ingest_initial, ingest):
