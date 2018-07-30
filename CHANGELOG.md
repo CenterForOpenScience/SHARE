@@ -1,5 +1,10 @@
 # Change Log
 
+# [2.16.10] - 2018-07-30
+* Update NSF harvester to look farther into the past
+* Fix a bug in the OSF project harvester
+* Fix --osf-only flag in fix_datacite command
+
 # [2.16.9] - 2018-06-21
 * When a job is marked "skipped", not even `superfluous` will re-run it
 
