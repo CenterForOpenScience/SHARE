@@ -31,17 +31,19 @@ class Command(BaseShareCommand):
             graveyard = WorkIdentifier.objects.get(uri='http://osf.io/8bg7d/').creative_work
             self.stdout.write(self.style.SUCCESS('Found the Graveyard @ "{}"'.format(graveyard.id)))
 
-            source_query = Q(source__canonical=True)
-            if not options.get('osf_only'):
-                source_query |= Q(source__long_title__in=self.OTHER_PROVIDERS)
+            user_query = Q(source__canonical=True)
+            if options.get('osf_only'):
+                user_query &= ~Q(source__long_title__in=self.OTHER_PROVIDERS)
+            else:
+                user_query |= Q(source__long_title__in=self.OTHER_PROVIDERS)
 
-            original_source_ids = set(ShareUser.objects.filter(source_query).values_list('id', flat=True))
+            original_user_ids = set(ShareUser.objects.filter(user_query).values_list('id', flat=True))
 
-            aggregator_source_ids = ShareUser.objects.filter(source__long_title__in=self.AGGREGATORS).values_list('id', flat=True)
+            aggregator_user_ids = ShareUser.objects.filter(source__long_title__in=self.AGGREGATORS).values_list('id', flat=True)
 
             pps = Preprint.objects.filter(
-                sources__in=aggregator_source_ids,
-                id__in=Preprint.objects.filter(sources__in=original_source_ids)
+                sources__in=aggregator_user_ids,
+                id__in=Preprint.objects.filter(sources__in=original_user_ids)
             )
             if options.get('from'):
                 pps = pps.filter(date_modified__gte=options.get('from'))
@@ -84,7 +86,7 @@ class Command(BaseShareCommand):
                 for agents in dupes.values():
                     # Order by # of identifiers and a preference towards original sources
                     core_agent = list(sorted(agents, key=lambda x: (
-                        len(original_source_ids.intersection([s.id for s in x.sources.all()])),
+                        len(original_user_ids.intersection([s.id for s in x.sources.all()])),
                         len(x.identifiers.all()),
                         len(x.work_relations.all()),
                     ), reverse=True))[0]
