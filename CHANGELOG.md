@@ -1,5 +1,9 @@
 # Change Log
 
+# [2.16.11] - 2018-08-16
+* Improve error message for transformer errors
+* Fix OSF registration transformer
+
 # [2.16.10] - 2018-07-30
 * Update NSF harvester to look farther into the past
 * Fix a bug in the OSF project harvester
