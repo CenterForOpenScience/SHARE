@@ -1,14 +1,19 @@
 from share.transform.chain import exceptions
 from share.transform.chain import ctx, ChainTransformer
 from share.transform.chain.links import Delegate, Map, Maybe, Try, ParseDate
+from share.transform.chain.parsers import Parser
 
 from . import io_osf as osf
+
+
+class WorkIdentifier(Parser):
+    uri = ctx
 
 
 class Registration(osf.Project):
     date_published = ParseDate(ctx.attributes.date_created)
     free_to_read_date = Try(ParseDate(ctx.attributes.embargo_end_date), exceptions=(exceptions.InvalidDate, ))
-    identifiers = Map(Delegate(osf.WorkIdentifier), ctx.links.html, ctx.links.self)
+    identifiers = Map(Delegate(WorkIdentifier), ctx.links.html, ctx.links.self)
 
     class Extra:
         registration_schema = Maybe(ctx.relationships, 'registration_schema').links.related.href
