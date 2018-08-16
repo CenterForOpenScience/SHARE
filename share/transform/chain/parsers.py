@@ -6,6 +6,7 @@ from functools import reduce
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 
+from share.transform.chain.exceptions import ChainError
 from share.transform.chain.links import Context
 from share.transform.chain.links import AbstractLink
 
@@ -73,6 +74,9 @@ class Parser(metaclass=ParserMeta):
         Context().parsers.append(self)
         try:
             return self._do_parse()
+        except ChainError as e:
+            e.push(repr(self.__class__))
+            raise e
         finally:
             Context().parsers.pop(-1)
 
@@ -93,7 +97,11 @@ class Parser(metaclass=ParserMeta):
             except FieldDoesNotExist:
                 raise Exception('Tried to parse value {} which does not exist on {}'.format(key, model))
 
-            value = chain.run(self.context)
+            try:
+                value = chain.run(self.context)
+            except ChainError as e:
+                e.push('{}.{}'.format(self.__class__.__name__, key))
+                raise e
 
             if value and field.is_relation and (field.one_to_many or field.remote_field.many_to_many):
                 field_name = field.field.name if field.one_to_many else field.m2m_field_name()

@@ -21,6 +21,7 @@ from share.transform.chain.exceptions import (
     InvalidDate,
     NoneOf,
     InvalidIRI,
+    ChainError,
 )
 
 
@@ -219,6 +220,10 @@ class AbstractLink:
         Context().frames.append({'link': self, 'context': obj, 'parser': Context().parser})
         try:
             return self.execute(obj)
+        except ChainError as e:
+            if self.__class__ not in (AbstractLink, AnchorLink):
+                e.push(repr(self))
+            raise e
         finally:
             Context().frames.pop(-1)
 
