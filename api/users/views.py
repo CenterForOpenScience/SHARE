@@ -15,7 +15,7 @@ class ShareUserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ShareUserSerializer
 
     def get_queryset(self):
-        return models.ShareUser.objects.filter(pk=self.request.user.pk)
+        return models.ShareUser.objects.filter(pk=self.request.user.pk).order_by('-id')
 
 
 # TODO Remove this when refactoring users endpoints (SHARE-586)

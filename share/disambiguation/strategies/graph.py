@@ -3,6 +3,10 @@ from .base import MatchingStrategy
 from share import models
 
 
+def equal_not_none(lhs, rhs):
+    return None not in (lhs, rhs) and lhs == rhs
+
+
 class GraphStrategy(MatchingStrategy):
     def __init__(self, graph, **kwargs):
         super().__init__(**kwargs)
@@ -17,7 +21,7 @@ class GraphStrategy(MatchingStrategy):
         for node in nodes:
             matches = [
                 n for n in graph_nodes
-                if n != node and all(n[a] == node[a] for a in attr_names)
+                if n != node and all(equal_not_none(n[a], node[a]) for a in attr_names)
             ]
             self.add_matches(node, matches)
 
@@ -29,8 +33,16 @@ class GraphStrategy(MatchingStrategy):
         pass
 
     def match_subjects(self, nodes):
-        self.match_by_attrs(nodes, models.Subject, ('central_synonym', 'uri'), None)
-        self.match_by_attrs(nodes, models.Subject, ('central_synonym', 'name'), None)
+        graph_nodes = self._graph_nodes(models.Subject)
+
+        for node in nodes:
+            matches = [
+                n for n in graph_nodes
+                if n != node
+                and n['central_synonym'] == node['central_synonym']
+                and (equal_not_none(n['uri'], node['uri']) or equal_not_none(n['name'], node['name']))
+            ]
+            self.add_matches(node, matches)
 
     def match_agent_work_relations(self, nodes):
         # no special case when looking within a graph

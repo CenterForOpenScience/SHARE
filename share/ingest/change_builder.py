@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 class ChangeSetBuilder:
     def __init__(self, graph, normalized_datum, matches=None, disambiguate=False):
-        assert not (matches and disambiguate), 'Either provide matches or disambiguate=True, not both'
+        if matches and disambiguate:
+            raise ValueError('ChangeSetBuilder: Either provide matches or disambiguate=True, not both')
 
         self.graph = graph
         self.normalized_datum = normalized_datum
@@ -137,7 +138,9 @@ class ChangeBuilder:
         }
 
     def _diff_for_update(self, attrs, relations):
-        assert self.instance, 'Do not call _diff_for_update without self.instance set'
+        if not self.instance:
+            raise ValueError('ChangeBuilder: Do not call _diff_for_update without self.instance set')
+
         attrs_diff, relations_diff = {}, {}
 
         ignore_attrs = self._get_ignore_attrs(attrs)
