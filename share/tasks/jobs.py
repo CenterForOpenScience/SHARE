@@ -22,6 +22,7 @@ from share.models.ingest import RawDatumJob
 from share.regulate import Regulator
 from share.search import SearchIndexer
 from share.util import chunked
+from share.util.graph import MutableGraph
 
 
 logger = logging.getLogger(__name__)
@@ -291,6 +292,8 @@ class IngestJobConsumer(JobConsumer):
                 raw=job.raw,
             )
             job.ingested_normalized_data.add(datum)
+        else:
+            graph = MutableGraph.from_jsonld(datum.data)
 
         if apply_changes:
             updated_work_ids = self._apply_changes(job, graph, datum)

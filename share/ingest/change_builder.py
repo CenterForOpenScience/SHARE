@@ -147,6 +147,8 @@ class ChangeBuilder:
 
         new_model = self.node.model
         old_model = type(self.instance)
+        is_subject = new_model is apps.get_model('share', 'subject')
+
         if '@type' not in ignore_attrs and old_model is not new_model:
             if (
                     len(new_model.__mro__) >= len(old_model.__mro__)
@@ -169,7 +171,7 @@ class ChangeBuilder:
                 attrs_diff[k] = v.isoformat() if isinstance(v, datetime.datetime) else v
 
         # TODO Add relationships in for non-subjects. Somehow got omitted first time around
-        if new_model is apps.get_model('share', 'subject'):
+        if is_subject:
             for k, v in relations.items():
                 old_value = getattr(self.instance, k)
                 if old_value != self._get_match(v):
@@ -183,6 +185,7 @@ class ChangeBuilder:
         if not diff:
             new_source = (
                 self.source
+                and not is_subject
                 and hasattr(self.instance, 'sources')
                 and not self.instance.sources.filter(source=self.source).exists()
             )
