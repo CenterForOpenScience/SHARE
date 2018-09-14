@@ -9,9 +9,12 @@ from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import DateTimeField
 
+from share.exceptions import ShareException
 from share.util import TopologicalSorter
 
-# TODO replace asserts with actual Errors
+
+class MutableGraphError(ShareException):
+    pass
 
 
 class PrivateNodeAttrs(Enum):
@@ -88,7 +91,8 @@ class MutableGraph(nx.DiGraph):
                     pass  # Don't bother with incoming edges, let the other node point here
                 else:
                     attrs[k] = v
-            assert id and type
+            if not id or not type:
+                raise MutableGraphError('Nodes must have id and type')
             graph.add_node(id, type, attrs)
         return graph
 
@@ -115,7 +119,8 @@ class MutableGraph(nx.DiGraph):
 
         Returns a MutableNode wrapper for the new node.
         """
-        assert type is not None, 'Must provide `type` to MutableGraph.add_node'
+        if type is None:
+            raise MutableGraphError('Must provide `type` to MutableGraph.add_node')
         self.changed = True
 
         if id is None:
@@ -175,10 +180,10 @@ class MutableGraph(nx.DiGraph):
         from_name (str): Name of the edge on its 'from' node (must be unique on the node)
         to_name (str): Name of the edge on its 'to' node
         """
-        assert all(
-            data.get(EdgeAttrs.FROM_NAME) != from_name for _, _, data
-            in self.out_edges(from_id, data=True)
-        ), 'Out-edge names must be unique on the node'
+        if any(data.get(EdgeAttrs.FROM_NAME) == from_name
+               for _, _, data in self.out_edges(from_id, data=True)):
+            raise MutableGraphError('Out-edge names must be unique on the node')
+
         self.changed = True
 
         self.add_edge(from_id, to_id)
@@ -264,16 +269,16 @@ class MutableGraph(nx.DiGraph):
                 in_edges.setdefault(to_name, []).append(MutableNode(self, from_id))
         return in_edges
 
-    def merge_nodes(self, from_node, into_node, choose_winner=True):
+    def merge_nodes(self, from_node, into_node):
         """Merge a nodes attrs and edges into another node.
-
-        `from_node` will be deleted.
         """
-        assert from_node.concrete_model is into_node.concrete_model, 'Cannot merge nodes of different types'
+        if from_node.concrete_model is not into_node.concrete_model:
+            raise MutableGraphError('Cannot merge nodes of different types')
 
         self.changed = True
 
-        if choose_winner and len(from_node.model.__mro__) >= len(into_node.model.__mro__):
+        # Merged node will have the more specific typ
+        if len(from_node.model.__mro__) >= len(into_node.model.__mro__):
             from_node, into_node = into_node, from_node
 
         self._merge_node_attrs(from_node, into_node)
@@ -417,11 +422,11 @@ class MutableNode:
         """
         field = resolve_field(self.model, key)
         if field and field.is_relation and key != 'extra':
-            assert field.many_to_one or field.one_to_many
             if field.many_to_one:
                 return self.graph.resolve_named_out_edge(self.id, field.name)
             if field.one_to_many:
                 return self.graph.resolve_named_in_edges(self.id, field.name)
+            raise MutableGraphError('Only many-to-one and one-to-many relations allowed')
         return self.__attrs.get(key)
 
     def __setitem__(self, key, value):
@@ -444,7 +449,8 @@ class MutableNode:
         # TODO allow keys that don't line up with fields (will fail validation)
         field = resolve_field(self.model, key)
         if field and field.is_relation and key != 'extra':
-            assert field.many_to_one
+            if not field.many_to_one:
+                raise MutableGraphError('Can set only many-to-one relations')
             to_id = value.id if hasattr(value, 'id') else value
             self.graph.remove_named_edge(self.id, field.name)
             self.graph.add_named_edge(self.id, to_id, field.name, field.remote_field.name)
@@ -463,7 +469,8 @@ class MutableNode:
         self.graph.changed = True
         field = resolve_field(self.model, key)
         if field and field.is_relation and key != 'extra':
-            assert field.many_to_one
+            if not field.many_to_one:
+                raise MutableGraphError('Can delete only many-to-one relations')
             self.graph.remove_named_edge(self.id, field.name)
         elif key in self.__attrs:
             del self.__attrs[key]

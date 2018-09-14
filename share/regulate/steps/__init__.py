@@ -25,7 +25,7 @@ class BaseStep(abc.ABC):
 
     @abc.abstractmethod
     def run(self, graph):
-        pass
+        raise NotImplementedError
 
 
 class NodeStep(BaseStep):
@@ -55,7 +55,7 @@ class NodeStep(BaseStep):
 
     @abc.abstractmethod
     def regulate_node(self, node):
-        pass
+        raise NotImplementedError
 
     def run(self, graph):
         self.logs.clear()
@@ -83,7 +83,7 @@ class GraphStep(BaseStep):
 
     @abc.abstractmethod
     def regulate_graph(self, graph):
-        pass
+        raise NotImplementedError
 
 
 class ValidationStep(BaseStep):
@@ -99,7 +99,7 @@ class ValidationStep(BaseStep):
         Call `self.reject` or `self.fail` if the graph is invalid.
         Must not modify the graph in any way.
         """
-        pass
+        raise NotImplementedError
 
     def reject(self, description, node_id=None, exception=None):
         """Indicate a regulated graph failed validation and will not be merged into the SHARE dataset.

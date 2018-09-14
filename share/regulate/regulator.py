@@ -23,7 +23,8 @@ class Regulator:
             regulator_config=None,
             validate=True,
     ):
-        assert not ingest_job or not source_config, 'Provider ingest_job or source_config, not both'
+        if ingest_job and source_config:
+            raise ValueError('Regulator: Provide ingest_job or source_config, not both')
 
         self.job = ingest_job
         self._logs = []
@@ -62,6 +63,7 @@ class Steps:
 
     def __init__(self, regulator, regulator_config, node=True, graph=True, validate=True):
         self.regulator = regulator
+        self.regulator_config = regulator_config
         if not regulator_config:
             return
         if node:
@@ -83,7 +85,7 @@ class Steps:
 
             runs += 1
             if runs >= self.MAX_RUNS:
-                raise InfiniteRegulationError
+                raise InfiniteRegulationError('Regulator config: {}'.format(self.regulator_config))
         self._run_steps(graph, self.validate_steps)
 
     def _run_steps(self, graph, steps):
