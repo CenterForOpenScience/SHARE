@@ -5,6 +5,7 @@ import pytest
 import random
 import re
 import logging
+from operator import attrgetter
 
 import faker
 
@@ -19,6 +20,7 @@ from django.apps import apps
 
 from share import models
 from share.transform.chain.links import IRILink
+from share.util import TopologicalSorter
 from share.util.graph import MutableGraph, MutableNode
 
 
@@ -36,33 +38,50 @@ def format_id(model, id):
 
 
 class FactoryGraph(MutableGraph):
-    def __init__(self, random_states, discarded_ids):
-        super().__init__()
-        self.__random_states = random_states
-        self.discarded_ids = discarded_ids
+    # Override to ignore IDs
+    def topologically_sorted(self):
+        def sort_key(node):
+            return (
+                node.type,
+                *(node.attrs().items())
+            )
 
-    # Override
-    def remove_node(self, id, *args, **kwargs):
-        self.discarded_ids.add(id)
-        return super().remove_node(id, *args, **kwargs)
-
-    # Override
-    def _generate_id(self, type, attrs):
-        model = apps.get_model('share', type)
-        concrete_model_name = model._meta.concrete_model._meta.model_name
-        key = '{} ids'.format(concrete_model_name)
-        with self.__random_states.seed(name=key, seed=key):
-            while True:
-                id = format_id(model, _Faker.ipv6())
-                if id not in self.discarded_ids:
-                    break
-        return id
+        return TopologicalSorter(
+            sorted(self, key=sort_key),
+            dependencies=lambda n: sorted(
+                self.successors(n.id),
+                key=lambda id: sort_key(self.get_node(id)),
+            ),
+            key=attrgetter('id'),
+        ).sorted()
 
     # Within tests, `graph1 == graph2` compares their contents
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return False
         return self.to_jsonld(in_edges=False) == other.to_jsonld(in_edges=False)
+
+    # Normalize IDs to ease comparison
+    def to_jsonld(self, *args, **kwargs):
+        jsonld = super().to_jsonld(*args, **kwargs)
+        id_map = {
+            node['@id']: '_:__{}'.format(i)
+            for i, node in enumerate(jsonld)
+        }
+
+        def map_id(value):
+            if isinstance(value, dict):
+                value['@id'] = id_map[value['@id']]
+            elif isinstance(value, list):
+                for v in value:
+                    map_id(v)
+
+        for node in jsonld:
+            for v in node.values():
+                map_id(v)
+            map_id(node)
+
+        return jsonld
 
     # More readable test output
     def __repr__(self):
@@ -74,7 +93,6 @@ class FactoryGraph(MutableGraph):
 
 class FactoryNode(MutableNode):
 
-    # Take attributes from kwargs
     def __new__(cls, graph, id, type=None, **attrs):
         return super().__new__(cls, graph, id, type, attrs)
 
@@ -132,11 +150,7 @@ class RandomStateManager:
 class GraphBuilder:
 
     def __init__(self):
-        self.discarded_ids = set()
         self.random_states = RandomStateManager([random, _Faker.random])
-
-    def __call__(self, *args, **kwargs):
-        return self.build(*args, **kwargs)
 
     def reseed(self):
         self.random_states.reseed()
@@ -146,9 +160,12 @@ class GraphBuilder:
         # Ensures that graphs will be comparable
         self.random_states.reseed(self.random_states._seed)
 
-        graph = FactoryGraph(self.random_states, self.discarded_ids)
+        graph = FactoryGraph()
         NodeBuilder(graph, self.random_states, normalize_fields).build_nodes(nodes)
         return graph
+
+    def __call__(self, *args, **kwargs):
+        return self.build(*args, **kwargs)
 
 
 class NodeBuilder:

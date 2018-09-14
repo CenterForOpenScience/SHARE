@@ -186,6 +186,5 @@ class TestAgentRelationDisambiguation:
             assert model.objects.filter(type=model._meta.label_lower).count() - before_count[model] == model_delta[model]
 
     def test_no_changes(self, ingest_initial, ingest, Graph):
-        Graph.discarded_ids.clear()
         cs = ingest(Graph(initial))
         assert cs is None
