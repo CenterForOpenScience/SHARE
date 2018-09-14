@@ -108,6 +108,5 @@ class TestAgentDisambiguation:
         assert second_cs is None
 
     def test_no_changes(self, ingest, ingest_initial, normalized_data, Graph):
-        Graph.discarded_ids.clear()
         cs = ingest(Graph(initial))
         assert cs is None

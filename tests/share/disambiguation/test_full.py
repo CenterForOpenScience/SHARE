@@ -90,6 +90,5 @@ class TestDisambiguation:
         assert second_cs is None
 
     def test_no_changes(self, Graph, ingest_initial, ingest):
-        Graph.discarded_ids.clear()
         cs = ingest(Graph(initial))
         assert cs is None

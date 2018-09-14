@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from operator import attrgetter
 
 import networkx as nx
 import pendulum
@@ -118,7 +119,7 @@ class MutableGraph(nx.DiGraph):
         self.changed = True
 
         if id is None:
-            id = self._generate_id(type, attrs)
+            id = '_:{}'.format(uuid.uuid4())
 
         super().add_node(id)
         return MutableNode(self, id, type, attrs)
@@ -282,12 +283,10 @@ class MutableGraph(nx.DiGraph):
         from_node.delete(cascade=False)
 
     def topologically_sorted(self):
-        def get_id(n):
-            return n.id
         return TopologicalSorter(
-            sorted(self, key=get_id),
+            sorted(self, key=attrgetter('id')),
             dependencies=lambda n: sorted(self.successors(n.id)),
-            key=get_id,
+            key=attrgetter('id'),
         ).sorted()
 
     def __iter__(self):
@@ -300,10 +299,6 @@ class MutableGraph(nx.DiGraph):
 
     def __bool__(self):
         return bool(len(self))
-
-    def _generate_id(self, type, attrs):
-        # Pass type and attrs in case we want more context-aware IDs (like in tests)
-        return '_:{}'.format(uuid.uuid4())
 
     def _merge_node_attrs(self, from_node, into_node):
         into_attrs = into_node.attrs()

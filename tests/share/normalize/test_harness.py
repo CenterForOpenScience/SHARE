@@ -116,6 +116,8 @@ class TestMakeGraph:
 
     def test_ids_dont_effect(self, Graph):
         assert Graph(Tag(), Tag(1, id=1), Tag()) == Graph(Tag(), Tag(), Tag(1, id=1))
+        assert Graph(Tag(), Tag(1, id=2), Tag()) == Graph(Tag(), Tag(), Tag(1, id=1))
+        assert Graph(Tag(id=7), Tag(1, id=2), Tag()) == Graph(Tag(), Tag(id=23), Tag(1, id=1))
 
     def test_cases(self, Graph):
         assert Graph(AgentIdentifier(1), AgentIdentifier(1), AgentIdentifier(1)) == Graph(AgentIdentifier(1), AgentIdentifier(1), AgentIdentifier(1))
@@ -133,12 +135,6 @@ class TestMakeGraph:
             Person(1, name='Barb Dylan', identifiers=[AgentIdentifier(seed=1)]),
             Person(2, name='Barb Dylan', identifiers=[AgentIdentifier(seed=1)])
         )
-
-        Graph.discarded_ids.add(next(x.id for x in data if x.type == 'agentidentifier'))
-
-        nodes = list(Graph(Person(0, name='Barb Dylan', identifiers=[AgentIdentifier(seed=1)])))
-        assert nodes[0] in data
-        assert nodes[1] in data
 
         identifiers = list(x for x in data if x.type == 'agentidentifier')
         assert len(identifiers) == 3
