@@ -377,7 +377,7 @@ class MutableNode:
 
         model = resolve_model(value)
         self.__attrs.update({
-            PrivateNodeAttrs.TYPE: value,
+            PrivateNodeAttrs.TYPE: model._meta.model_name,
             PrivateNodeAttrs.MODEL: model,
             PrivateNodeAttrs.CONCRETE_TYPE: model._meta.concrete_model._meta.model_name,
             PrivateNodeAttrs.CONCRETE_MODEL: model._meta.concrete_model,
