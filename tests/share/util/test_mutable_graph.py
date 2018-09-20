@@ -129,7 +129,7 @@ class TestMutableGraph:
         assert identifier_node == next(iter(identifiers))
 
     @pytest.mark.parametrize('count, filter', [
-        (5, lambda n, g: n.type == 'Person'),
+        (5, lambda n, g: n.type == 'person'),
         (0, lambda n, g: not g.degree(n.id)),
         (1, lambda n, g: len(g.out_edges(n.id)) == 1),
     ])
@@ -138,9 +138,13 @@ class TestMutableGraph:
         assert len(filtered) == count
 
     def test_jsonld(self, mutable_graph_nodes, mutable_graph):
-        def clean_jsonld(nodes):
-            return [
-                {k: v for k, v in n.items() if not isinstance(v, list)}
-                for n in sorted(nodes, key=lambda n: n['@id'])
-            ]
+        def clean_jsonld(value):
+            if isinstance(value, list):
+                return [clean_jsonld(n) for n in sorted(value, key=lambda n: n['@id'])]
+            if isinstance(value, dict):
+                return {
+                    k: v.lower() if k == '@type' else clean_jsonld(v)
+                    for k, v in value.items() if not isinstance(v, list)
+                }
+            return value
         assert clean_jsonld(mutable_graph_nodes) == clean_jsonld(mutable_graph.to_jsonld(in_edges=False))

@@ -1,7 +1,6 @@
 import contextlib
 import functools
 import json
-import pytest
 import random
 import re
 import logging
@@ -24,7 +23,6 @@ from share.util import TopologicalSorter
 from share.util.graph import MutableGraph, MutableNode
 
 
-__all__ = ('Graph', 'ExpectedGraph')
 logger = logging.getLogger(__name__)
 
 
@@ -259,18 +257,6 @@ class NodeBuilder:
         return node
 
 
-@pytest.fixture
-def Graph():
-    return GraphBuilder()
-
-
-@pytest.fixture
-def ExpectedGraph(Graph):
-    def expected_graph(*args, **kwargs):
-        return Graph(*args, **kwargs, normalize_fields=True)
-    return expected_graph
-
-
 class GraphNodeFactory(factory.Factory):
 
     id = None  # Let the graph generate an ID
@@ -433,6 +419,7 @@ def _params(seed=None, id=None, type=None, model=None, **kwargs):
     return ret
 
 
+__all__ = ()
 for model_name in dir(models):
     model = getattr(models, model_name)
     if not hasattr(model, 'VersionModel'):

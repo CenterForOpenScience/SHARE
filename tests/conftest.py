@@ -25,6 +25,7 @@ from share.regulate import Regulator
 from share.util.graph import MutableGraph
 from bots.elasticsearch.bot import ElasticSearchBot
 from tests import factories
+from tests.share.normalize.factories import GraphBuilder
 
 
 def pytest_configure(config):
@@ -86,6 +87,11 @@ def robot_user():
         token=client_secret
     )
     return user
+
+
+@pytest.fixture
+def system_user():
+    return ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
 
 
 @pytest.fixture
@@ -157,9 +163,22 @@ def change_node():
 
 
 @pytest.fixture
+def Graph():
+    return GraphBuilder()
+
+
+@pytest.fixture
+def ExpectedGraph(Graph):
+    def expected_graph(*args, **kwargs):
+        return Graph(*args, **kwargs, normalize_fields=True)
+    return expected_graph
+
+
+@pytest.fixture
 def ingest(normalized_data):
-    def _ingest(graph, disambiguate=True, user=None, save=True):
-        Regulator().regulate(graph)
+    def _ingest(graph, disambiguate=True, regulate=True, user=None, save=True):
+        if regulate:
+            Regulator().regulate(graph)
 
         nd = factories.NormalizedDataFactory(source=user) if user else normalized_data
         cs = ChangeSetBuilder(graph, nd, disambiguate=disambiguate).build_change_set()
