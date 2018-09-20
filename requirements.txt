@@ -4,7 +4,6 @@ bleach==1.4.3  # Apache 2.0
 boto3==1.4.4  # Apache 2.0
 celery==4.1.0  # BSD 3 Clause
 colorlog==2.7.0  # MIT
-cryptography==1.9 # BSD or Apache 2.0
 dateparser==0.4.0  # BSD
 django-allauth==0.31.0  # MIT
 django-cors-headers==2.0.2  # MIT
