@@ -166,7 +166,7 @@ class MutableGraph(nx.DiGraph):
 
     def filter_type(self, type_name):
         # TODO make a sort of index dict, mapping type to nodes
-        return self.filter_nodes(lambda n: n.type == type_name)
+        return self.filter_nodes(lambda n: n.type == type_name.lower())
 
     def filter_by_concrete_model(self, model):
         # TODO make a sort of index dict, mapping model to nodes

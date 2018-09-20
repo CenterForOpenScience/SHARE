@@ -538,7 +538,10 @@ DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
 ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 'ul']
 
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
+
+# TODO why are these in different locations and formats??
 SUBJECTS_YAML = 'share/subjects.yaml'
+SUBJECT_SYNONYMS_JSON = 'share/models/synonyms.json'
 
 SHARE_LEGACY_PIPELINE = os.environ.get('SHARE_LEGACY_PIPELINE', True)
 

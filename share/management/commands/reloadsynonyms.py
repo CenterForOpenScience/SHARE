@@ -1,6 +1,7 @@
 import glob
 import json
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 
@@ -12,7 +13,7 @@ class Command(BaseCommand):
         count = 0
 
         synonyms = {}
-        with open('share/models/subjects.json') as fobj:
+        with open(settings.SUBJECT_SYNONYMS_JSON) as fobj:
             for subject in json.load(fobj):
                 synonyms[subject['name'].lower().strip()] = [subject['name']]
 

@@ -56,7 +56,7 @@ def transform(args, argv):
 def ingest(args, argv):
     """
     Usage: {0} ingest <source_configs>... [--superfluous] [--now]
-           {0} ingest --suids <suid_ids>... [--now]
+           {0} ingest --suids <suid_ids>... [--superfluous] [--now]
 
     Options:
         -i, --suids         Provide Suid IDs to ingest specifically

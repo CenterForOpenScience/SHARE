@@ -14,6 +14,8 @@ from lxml import etree
 from pycountry import languages
 from nameparser import HumanName
 
+from django.conf import settings
+
 from share.util import iris, DictHashingDict
 from share.transform.chain.exceptions import (
     TransformError,
@@ -536,7 +538,7 @@ class StaticLink(AbstractLink):
 
 class MapSubjectLink(AbstractLink):
 
-    with open('./share/models/synonyms.json') as fobj:
+    with open(settings.SUBJECT_SYNONYMS_JSON) as fobj:
         MAPPING = json.load(fobj)
 
     def execute(self, obj):
