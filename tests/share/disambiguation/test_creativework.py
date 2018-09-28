@@ -115,7 +115,7 @@ class TestWorkDisambiguation:
         graph = Graph(Preprint(identifiers=[WorkIdentifier(1), WorkIdentifier(2)]))
         with pytest.raises(MergeRequired) as e:
             ingest(graph)
-        assert e.value.args[0] == "Apparently duplicate <class 'share.models.creative.Preprint'>s found"
+        assert e.value.args[0].startswith('Multiple matches for node')
 
     def test_no_merge_on_blank_value(self, Graph, ingest):
         blank_cited_as = [
