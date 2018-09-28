@@ -64,7 +64,7 @@ class Command(BaseShareCommand):
         for dupes in dupe_sets:
             if len(dupes) < 2:
                 continue
-            model = dupes[0]._meta.concrete_model
+            model = list(dupes)[0]._meta.concrete_model
             if any(d._meta.concrete_model is not model for d in dupes):
                 raise ValueError('Cannot merge across tables: {}'.format(dupes))
 
