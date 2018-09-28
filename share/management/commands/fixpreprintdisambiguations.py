@@ -1,5 +1,8 @@
 import pendulum
 
+from django.db import transaction
+from django.db.utils import IntegrityError
+
 from share.disambiguation.criteria import MatchByOneToMany
 from share.exceptions import MergeRequired
 from share.models import AbstractCreativeWork, AbstractAgent
@@ -118,7 +121,7 @@ class Command(BaseShareCommand):
         for conflict, evidence in conflicts:
             if not dry_run:
                 for inst in evidence:
-                    inst.administrative_change(**{fk_field.name: winner})
+                    self._repoint_fk(inst, fk_field, winner)
             if isinstance(conflict, AbstractCreativeWork) and not conflict.identifiers.exists():
                 self.stdout.write('\t\tDeleting {!r}'.format(conflict))
                 if not dry_run:
@@ -126,3 +129,10 @@ class Command(BaseShareCommand):
 
         self.stdout.write('Corrected merge error!', style_func=self.style.SUCCESS)
         return True
+
+    def _repoint_fk(self, obj, fk_field, target):
+        try:
+            with transaction.atomic():
+                obj.administrative_change(**{fk_field.name: target})
+        except IntegrityError:
+            pass
