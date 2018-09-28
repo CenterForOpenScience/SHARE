@@ -44,7 +44,7 @@ class DatabaseStrategy(MatchingStrategy):
                 node_values[node] = [matches[0].id for matches in related_matches]
             if any(len(matches) > 1 for matches in related_matches):
                 raise exceptions.MergeRequired(
-                    'Apparently duplicate {0}s found'.format(node.model),
+                    'Multiple matches for node {}'.format(node.id),
                     *[matches for matches in related_matches if len(matches) > 1]
                 )
 

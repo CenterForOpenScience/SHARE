@@ -86,17 +86,17 @@ class Command(BaseShareCommand):
             return False
 
         field_name = criteria[0].relation_name
-        ret = self._repoint_fks(model._meta.get_field(field_name).remote_field, dupes, dry_run, interactive)
+        winner = self._repoint_fks(model._meta.get_field(field_name).remote_field, dupes, dry_run, interactive)
 
-        if not ret:
-            return ret
+        if not winner:
+            return False
 
         # special case...
         if model is AbstractAgent:
-            return self._repoint_fks(model._meta.get_field('work_relations').remote_field, dupes, dry_run, interactive)
+            return bool(self._repoint_fks(model._meta.get_field('work_relations').remote_field, dupes, dry_run, interactive, winner))
         return True
 
-    def _repoint_fks(self, fk_field, targets, dry_run, interactive):
+    def _repoint_fks(self, fk_field, targets, dry_run, interactive, winner=None):
         ids = [d.id for d in targets]
         qs = fk_field.model.objects.filter(**{fk_field.name + '__in': ids})
 
@@ -104,10 +104,14 @@ class Command(BaseShareCommand):
         for inst in qs:
             conflicts.setdefault(getattr(inst, fk_field.name), []).append(inst)
 
-        (winner, _), *conflicts = sorted(conflicts.items(), key=lambda x: len(x[1]), reverse=True)
+        if winner:
+            conflicts.pop(winner)
+            conflicts = list(conflicts.items())
+        else:
+            (winner, _), *conflicts = sorted(conflicts.items(), key=lambda x: len(x[1]), reverse=True)
 
         if not conflicts:
-            return True
+            return winner
 
         self.stdout.write('\tMerging extras into {!r}'.format(winner))
         for conflict, evidence in conflicts:
@@ -121,14 +125,14 @@ class Command(BaseShareCommand):
         for conflict, evidence in conflicts:
             if not dry_run:
                 for inst in evidence:
-                    self._repoint_fk(inst, fk_field, winner)
+                    inst.administrative_change(**{fk_field.name: winner})
             if isinstance(conflict, AbstractCreativeWork) and not conflict.identifiers.exists():
                 self.stdout.write('\t\tDeleting {!r}'.format(conflict))
                 if not dry_run:
                     conflict.administrative_change(is_deleted=True)
 
         self.stdout.write('Corrected merge error!', style_func=self.style.SUCCESS)
-        return True
+        return winner
 
     def _repoint_fk(self, obj, fk_field, target):
         try:
