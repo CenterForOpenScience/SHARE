@@ -2,7 +2,7 @@ import pendulum
 
 from share.disambiguation.criteria import MatchByOneToMany
 from share.exceptions import MergeRequired
-from share.models import AbstractCreativeWork
+from share.models import AbstractCreativeWork, AbstractAgent
 from share.management.commands import BaseShareCommand
 from share.models import IngestJob
 from share.tasks.jobs import IngestJobConsumer
@@ -78,26 +78,38 @@ class Command(BaseShareCommand):
             if isinstance(c, MatchByOneToMany)
         ]
 
-        if len(criteria) != 1:
+        if not criteria:
             self.stdout.write('Cannot automatically fix errors on {}, need a MatchByOneToMany criterion'.format(model), style_func=self.style.ERROR)
             return False
 
-        ids = [d.id for d in dupes]
         field_name = criteria[0].relation_name
-        relation_field = model._meta.get_field(field_name)
-        remote_field = relation_field.remote_field
-        qs = relation_field.related_model.objects.filter(**{remote_field.name + '__in': ids})
+        ret = self._repoint_fks(model._meta.get_field(field_name).remote_field, dupes, dry_run, interactive)
+
+        if not ret:
+            return ret
+
+        # special case...
+        if model is AbstractAgent:
+            return self._repoint_fks(model._meta.get_field('work_relations').remote_field, dupes, dry_run, interactive)
+        return True
+
+    def _repoint_fks(self, fk_field, targets, dry_run, interactive):
+        ids = [d.id for d in targets]
+        qs = fk_field.model.objects.filter(**{fk_field.name + '__in': ids})
 
         conflicts = {}
         for inst in qs:
-            conflicts.setdefault(getattr(inst, remote_field.name), []).append(inst)
+            conflicts.setdefault(getattr(inst, fk_field.name), []).append(inst)
 
         (winner, _), *conflicts = sorted(conflicts.items(), key=lambda x: len(x[1]), reverse=True)
 
-        self.stdout.write('\tMerging extra {} into {!r}'.format(model._meta.verbose_name_plural, winner))
+        if not conflicts:
+            return True
+
+        self.stdout.write('\tMerging extras into {!r}'.format(winner))
         for conflict, evidence in conflicts:
             for inst in evidence:
-                self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, remote_field.name), winner))
+                self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, fk_field.name), winner))
 
         if interactive and not self.input_confirm('OK? (y/n) '):
             self.stdout.write('Skipping...', style_func=self.style.WARNING)
@@ -106,7 +118,7 @@ class Command(BaseShareCommand):
         for conflict, evidence in conflicts:
             if not dry_run:
                 for inst in evidence:
-                    inst.administrative_change(**{remote_field.name: winner})
+                    inst.administrative_change(**{fk_field.name: winner})
             if isinstance(conflict, AbstractCreativeWork) and not conflict.identifiers.exists():
                 self.stdout.write('\t\tDeleting {!r}'.format(conflict))
                 if not dry_run:
