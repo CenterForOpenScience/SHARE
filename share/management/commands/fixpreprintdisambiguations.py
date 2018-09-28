@@ -1,10 +1,12 @@
 import pendulum
 
+from share.disambiguation.criteria import MatchByOneToMany
 from share.exceptions import MergeRequired
 from share.models import AbstractCreativeWork
 from share.management.commands import BaseShareCommand
 from share.models import IngestJob
 from share.tasks.jobs import IngestJobConsumer
+from share.util import ensure_iterable
 
 
 class Command(BaseShareCommand):
@@ -13,11 +15,13 @@ class Command(BaseShareCommand):
     def add_arguments(self, parser):
         parser.add_argument('--dry', action='store_true', help='Should the script actually make changes? (In a transaction)')
         parser.add_argument('--commit', action='store_true', help='Should the script actually commit?')
+        parser.add_argument('--noninteractive', action='store_true', help='Should the script merge objects without asking?')
         parser.add_argument('--from', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider jobs on or after this date')
         parser.add_argument('--until', type=lambda d: pendulum.from_format(d, '%Y-%m-%d'), help='Only consider jobs on or before this date')
 
     def handle(self, *args, **options):
         dry_run = options.get('dry')
+        interactive = not options.get('noninteractive')
 
         qs = IngestJob.objects.filter(
             error_type='MergeRequired',
@@ -32,17 +36,17 @@ class Command(BaseShareCommand):
         for job in qs.select_related('suid', 'source_config'):
             with self.rollback_unless_commit(options.get('commit')):
                 self.stdout.write('\n\nTrying job {!r}'.format(job), style_func=self.style.HTTP_INFO)
-                self._try_job(job, dry_run)
+                self._try_job(job, dry_run, interactive)
 
-    def _try_job(self, job, dry_run):
+    def _try_job(self, job, dry_run, interactive):
         for i in range(self.MAX_RETRIES):
             self.stdout.write('Attempt {} of {}:'.format(i + 1, self.MAX_RETRIES))
             try:
                 IngestJobConsumer().consume(job_id=job.id, exhaust=False)
             except MergeRequired as e:
-                (_, model, queries) = e.args
+                (_, *dupe_sets) = e.args
 
-                if not self._fix_merge_error(model, queries, dry_run):
+                if not self._fix_merge_error(dupe_sets, dry_run, interactive):
                     return
 
                 if dry_run:
@@ -56,35 +60,53 @@ class Command(BaseShareCommand):
             return
         self.stdout.write('Failed to fix after {} tries'.format(self.MAX_RETRIES), style_func=self.style.ERROR)
 
-    def _fix_merge_error(self, model, queries, dry_run):
-        data = {}
-        for q in queries:
-            for k, v in q.children:
-                data.setdefault(k, []).append(v)
+    def _fix_merge_error(self, dupe_sets, dry_run, interactive):
+        for dupes in dupe_sets:
+            if len(dupes) < 2:
+                continue
+            model = dupes[0]._meta.concrete_model
+            if any(d._meta.concrete_model is not model for d in dupes):
+                raise ValueError('Cannot merge across tables: {}'.format(dupes))
 
-        if len(data) > 1:
-            self.stdout.write('MergeRequired error is too complex to be automatically fixed', style_func=self.style.ERROR)
+            if not self._merge_together(model, dupes, dry_run, interactive):
+                return False
+        return True
+
+    def _merge_together(self, model, dupes, dry_run, interactive):
+        criteria = [
+            c for c in ensure_iterable(model.matching_criteria)
+            if isinstance(c, MatchByOneToMany)
+        ]
+
+        if len(criteria) != 1:
+            self.stdout.write('Cannot automatically fix errors on {}, need a MatchByOneToMany criterion'.format(model), style_func=self.style.ERROR)
             return False
 
-        self.stdout.write('Trying to correct merge error...', style_func=self.style.NOTICE)
-
-        (field, ids), *_ = data.items()
-        field_name, field = field.split('__')
-        related_field = model._meta.get_field(field_name)
-        qs = related_field.related_model.objects.filter(**{field + '__in': ids})
+        ids = [d.id for d in dupes]
+        field_name = criteria[0].relation_name
+        relation_field = model._meta.get_field(field_name)
+        remote_field = relation_field.remote_field
+        qs = relation_field.related_model.objects.filter(**{remote_field.name + '__in': ids})
 
         conflicts = {}
         for inst in qs:
-            conflicts.setdefault(getattr(inst, related_field.remote_field.name), []).append(inst)
+            conflicts.setdefault(getattr(inst, remote_field.name), []).append(inst)
 
         (winner, _), *conflicts = sorted(conflicts.items(), key=lambda x: len(x[1]), reverse=True)
-        self.stdout.write('\tMerging extraneous {} into {!r}'.format(model._meta.verbose_name_plural, winner))
 
+        self.stdout.write('\tMerging extra {} into {!r}'.format(model._meta.verbose_name_plural, winner))
         for conflict, evidence in conflicts:
             for inst in evidence:
-                self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, related_field.remote_field.name), winner))
-                if not dry_run:
-                    inst.administrative_change(**{related_field.remote_field.name: winner})
+                self.stdout.write('\t\t{!r}: {!r} -> {!r}'.format(inst, getattr(inst, remote_field.name), winner))
+
+        if interactive and not self.input_confirm('OK? (y/n) '):
+            self.stdout.write('Skipping...', style_func=self.style.WARNING)
+            return False
+
+        for conflict, evidence in conflicts:
+            if not dry_run:
+                for inst in evidence:
+                    inst.administrative_change(**{remote_field.name: winner})
             if isinstance(conflict, AbstractCreativeWork) and not conflict.identifiers.exists():
                 self.stdout.write('\t\tDeleting {!r}'.format(conflict))
                 if not dry_run:

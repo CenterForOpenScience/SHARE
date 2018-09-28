@@ -22,7 +22,7 @@ class Matcher:
             if not matches:
                 continue
             if len(matches) > 1:
-                raise MergeRequired('Multiple {0}s found'.format(node.model), node.to_jsonld())
+                raise MergeRequired('Apparently duplicate {0}s found'.format(node.model), matches)
             single_matches[node] = list(matches)[0]
 
         return single_matches

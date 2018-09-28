@@ -22,3 +22,11 @@ class BaseShareCommand(BaseCommand):
                     raise Rollback
         except Rollback:
             pass
+
+    def input_confirm(self, prompt, default=None):
+        result = input(prompt)
+        if not result and default is not None:
+            return default
+        while len(result) < 1 or result[0].lower() not in 'yn':
+            result = input('Please answer yes or no: ')
+        return result[0].lower() == 'y'
