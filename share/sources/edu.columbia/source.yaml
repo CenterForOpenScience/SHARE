@@ -1,5 +1,5 @@
 configs:
-- base_url: http://academiccommons.columbia.edu/catalog/oai
+- base_url: http://academiccommons.columbia.edu/oai
   disabled: false
   earliest_date: null
   harvester: oai
