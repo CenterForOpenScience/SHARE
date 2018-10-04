@@ -60,9 +60,13 @@ class Command(BaseShareCommand):
                 try:
                     for dupes in dupe_sets:
                         hacky_merger.merge(dupes)
-                except Exception as e:
+                except RejectMerge:
+                    self.stdout.write('Skipping...', style_func=self.style.WARNING)
+                    return
+                except CannotMerge as e:
                     self.stdout.write('Failed to merge:', style_func=self.style.ERROR)
                     self.stdout.write(str(e))
+                    return
 
                 if hacky_merger.dry_run:
                     return
@@ -80,6 +84,10 @@ class CannotMerge(ShareException):
     pass
 
 
+class RejectMerge(ShareException):
+    pass
+
+
 class HackyMerger:
     def __init__(self, dry_run, interactive, graveyard, command):
         self.dry_run = dry_run
@@ -93,7 +101,7 @@ class HackyMerger:
 
         model = list(dupes)[0]._meta.concrete_model
         if any(d._meta.concrete_model is not model for d in dupes):
-            raise ValueError('Things in different tables are not dupes: {}'.format(dupes))
+            raise CannotMerge('Things in different tables are not dupes: {}'.format(dupes))
 
         if model is AbstractAgent:
             return self.merge_agents(dupes)
@@ -120,7 +128,7 @@ class HackyMerger:
 
         self.describe_smash(winner, losers)
         if self.interactive and not self.command.input_confirm('OK? (y/n) '):
-            return
+            raise RejectMerge
 
         for loser in losers:
             for identifier in loser.identifiers.all():
