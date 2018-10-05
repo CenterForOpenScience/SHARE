@@ -39,14 +39,17 @@ class DatabaseStrategy(MatchingStrategy):
     def match_by_many_to_one(self, nodes, model, relation_names, allowed_models):
         node_values = {}
         for node in nodes:
-            related_matches = [list(self.get_matches(node[r])) for r in relation_names]
-            if all(len(matches) == 1 for matches in related_matches):
-                node_values[node] = [matches[0].id for matches in related_matches]
-            if any(len(matches) > 1 for matches in related_matches):
-                raise exceptions.MergeRequired(
-                    'Multiple matches for node {}'.format(node.id),
-                    *[matches for matches in related_matches if len(matches) > 1]
-                )
+            related_matches = {r: list(self.get_matches(node[r])) for r in relation_names}
+
+            if all(len(matches) == 1 for matches in related_matches.values()):
+                node_values[node] = [related_matches[r][0].id for r in relation_names]
+            else:
+                for relation_name, matches in related_matches.items():
+                    if len(matches) > 1:
+                        raise exceptions.MergeRequired(
+                            'Multiple matches for node {}'.format(node[relation_name].id),
+                            matches,
+                        )
 
         self._match_query(
             node_values.keys(),
