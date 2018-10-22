@@ -40,6 +40,13 @@ initial = [
             )
         ]
     ),
+    Retraction(
+        identifiers=[WorkIdentifier(5)],
+        agent_relations=[
+            Creator(cited_as='Same Name', agent=Person(9)),
+            Creator(cited_as='Same Name', agent=Person(10)),
+        ],
+    ),
 ]
 
 
@@ -173,6 +180,18 @@ class TestAgentRelationDisambiguation:
             [Preprint(identifiers=[WorkIdentifier(1)], agent_relations=[Creator(cited_as='Science Guy', agent=Organization(4, identifiers=[AgentIdentifier(4)], name='Science Guy'))])],
             {models.Organization: 0, models.Creator: 1, models.AgentWorkRelation: -1}
         ),
+
+        # Same cited as, no changes
+        (
+            Retraction(
+                identifiers=[WorkIdentifier(5)],
+                agent_relations=[
+                    Creator(cited_as='Same Name', agent=Person(9)),
+                    Creator(cited_as='Same Name', agent=Person(10)),
+                ],
+            ),
+            {models.Retraction: 0, models.Creator: 0, models.Person: 0},
+        )
     ])
     def test_disambiguate(self, input, ingest_initial, ingest, model_delta, Graph):
         Graph.reseed()

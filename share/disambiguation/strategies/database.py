@@ -141,27 +141,36 @@ class DatabaseStrategy(MatchingStrategy):
 class ComparableAgentWorkRelation:
     def __init__(self, relation_instance, target_relation_node):
         self.relation = relation_instance
-        parsed = HumanName(relation_instance.cited_as)
-        target = HumanName(target_relation_node['cited_as'])
-
-        # initial or None
-        def i(name_part):
-            return name_part[0] if name_part else None
 
         # bit vector used to sort names by how close they are to the target name
-        self._name_key = (
-            parsed.full_name == target.full_name,
-            (parsed.first, parsed.last) == (target.first, target.last),
-            (i(parsed.first), parsed.last) == (i(target.first), target.last),
+        self._name_key = self._get_name_key(
+            HumanName(relation_instance.cited_as),
+            HumanName(target_relation_node['cited_as']),
         )
+
         self.sort_key = (
             *self._name_key,
+            *self._get_name_key(
+                HumanName(relation_instance.agent.name),
+                HumanName(target_relation_node['agent']['name']),
+            ),
             self.relation._meta.model_name == target_relation_node.type,
         )
 
     @property
     def valid_match(self):
         return any(c for c in self._name_key)
+
+    def _get_name_key(self, parsed_name, parsed_target):
+        # initial or None
+        def i(name_part):
+            return name_part[0] if name_part else None
+
+        return (
+            parsed_name.full_name == parsed_target.full_name,
+            (parsed_name.first, parsed_name.last) == (parsed_target.first, parsed_target.last),
+            (i(parsed_name.first), parsed_name.last) == (i(parsed_target.first), parsed_target.last),
+        )
 
 
 class QueryBuilder:
