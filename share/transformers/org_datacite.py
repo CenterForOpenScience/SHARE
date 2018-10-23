@@ -1,5 +1,6 @@
 import logging
 
+from share.exceptions import TransformError
 from share.transform.chain import ctx, links as tools, ChainTransformer
 from share.transform.chain.exceptions import InvalidIRI
 from share.transform.chain.parsers import Parser
@@ -65,16 +66,16 @@ def get_agent_type(agent, person=False):
     is_not_person = try_contributor_type(agent, NOT_PEOPLE_TYPES)
     is_person = try_contributor_type(agent, PEOPLE_TYPES)
     try:
-        agent_name = agent.creatorName
+        agent_name = agent['creatorName']
     except KeyError:
-        agent_name = agent.contributorName
+        agent_name = agent['contributorName']
 
     if person and is_person:
         return agent_name
     elif not person and is_not_person:
         return agent_name
     # break OneOf option
-    raise KeyError()
+    raise TransformError
 
 
 RELATION_MAP = {
@@ -564,7 +565,7 @@ class CreativeWork(Parser):
         ),
         tools.Map(
             tools.Delegate(WorkIdentifier, tools.RunPython(force_text, ctx.alternateIdentifier)),
-            ctx.record.metadata['oai_datacite'].payload.resource.alternateIdentifiers
+            tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.alternateIdentifiers),
         ),
     )
 

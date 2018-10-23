@@ -30,6 +30,7 @@ configs:
           'http://datacite.org/schema/kernel-4': null
           'http://www.openarchives.org/OAI/2.0/': null
           'http://schema.datacite.org/oai/oai-1.0/': null
+          'http://schema.datacite.org/oai/oai-1.1/': null
           'http://www.openarchives.org/OAI/2.0/oai_dc/': null
           'http://datacite.org/schema/kernel-2.2': null
 home_page: http://oai.datacite.org/
