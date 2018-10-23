@@ -1,5 +1,8 @@
 # Change Log
 
+# [18.0.2] - 2018-10-23
+- Update nameparser dependency
+
 # [18.0.1] - 2018-10-23
 - Add datacite oai-1.1 schema namespace
 - Fix common datacite transform errors
