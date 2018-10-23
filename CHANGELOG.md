@@ -1,5 +1,12 @@
 # Change Log
 
+# [18.0.0] - 2018-10-23
+- Update django to 1.11.16
+- Clean up disambiguation logic to make extending it less painful
+- Extend disambiguation to match contributors with different name formats
+- Rename `fixpreprintdisambiguations` command to `forceingest`
+    - Handle more complex merges
+
 # [2.16.11] - 2018-08-16
 * Improve error message for transformer errors
 * Fix OSF registration transformer
