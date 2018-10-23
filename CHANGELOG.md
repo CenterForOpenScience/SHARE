@@ -1,5 +1,9 @@
 # Change Log
 
+# [18.0.1] - 2018-10-23
+- Add datacite oai-1.1 schema namespace
+- Fix common datacite transform errors
+
 # [18.0.0] - 2018-10-23
 - Update django to 1.11.16
 - Clean up disambiguation logic to make extending it less painful
