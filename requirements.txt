@@ -28,7 +28,7 @@ jsonschema==2.5.1  # MIT
 lxml==3.6.0  # BSD
 kombu==4.1.0  # BSD 3 Clause
 markdown==2.6.8  # BSD
-nameparser==0.4.0  # LGPL
+nameparser==1.0.1  # LGPL
 networkx==2.1  # BSD
 newrelic==2.86.3.70  # newrelic APM agent, Custom License
 pendulum==1.2.5  # MIT

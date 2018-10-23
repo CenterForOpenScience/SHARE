@@ -12,11 +12,11 @@ import xmltodict
 import pendulum
 from lxml import etree
 from pycountry import languages
-from nameparser import HumanName
 
 from django.conf import settings
 
 from share.util import iris, DictHashingDict
+from share.util.nameparser import HumanName
 from share.transform.chain.exceptions import (
     TransformError,
     InvalidPath,

@@ -1,11 +1,11 @@
 import logging
 from operator import attrgetter
 
-from nameparser import HumanName
-
 from share import exceptions
 from share import models
 from share.util import IDObfuscator, InvalidID
+from share.util.nameparser import HumanName
+
 
 from .base import MatchingStrategy
 

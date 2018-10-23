@@ -11,14 +11,13 @@ import faker
 import factory
 import factory.fuzzy
 
-import nameparser
-
 from typedmodels.models import TypedModel
 
 from django.apps import apps
 
 from share import models
 from share.transform.chain.links import IRILink
+from share.util import nameparser
 from share.util import TopologicalSorter
 from share.util.graph import MutableGraph, MutableNode
 

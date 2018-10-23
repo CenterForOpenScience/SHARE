@@ -1,6 +1,5 @@
 import re
 import collections
-import nameparser
 
 from django.apps import apps
 
@@ -8,6 +7,7 @@ from share.models import AbstractAgent, Person
 from share.regulate.steps import NodeStep
 from share.transform.chain.links import GuessAgentTypeLink
 from share.util import strip_whitespace
+from share.util import nameparser
 
 
 class NormalizeAgentNames(NodeStep):
