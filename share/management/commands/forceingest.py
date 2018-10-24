@@ -9,6 +9,7 @@ from share.models import AbstractCreativeWork, AbstractAgent
 from share.management.commands import BaseShareCommand
 from share.models import IngestJob
 from share.tasks.jobs import IngestJobConsumer
+from share.util.osf import osf_sources
 
 
 MAX_RETRIES = 10
@@ -34,15 +35,14 @@ class Command(BaseShareCommand):
         qs = IngestJob.objects.filter(
             error_type='MergeRequired',
             status=IngestJob.STATUS.failed,
-            source_config__source__canonical=True
+            source_config__source__in=osf_sources()
         ).order_by('date_created')
         if options.get('from'):
             qs = qs.filter(date_modified__gte=options.get('from'))
         if options.get('until'):
             qs = qs.filter(date_modified__lte=options.get('until'))
 
-        graveyard = AbstractCreativeWork.objects.get(identifiers__uri__in=GRAVEYARD_IDENTIFIERS)
-        hacky_merger = HackyMerger(dry_run, interactive, graveyard, self)
+        hacky_merger = HackyMerger(dry_run, interactive, self)
 
         for job in qs.select_related('suid', 'source_config'):
             with self.rollback_unless_commit(options.get('commit')):
@@ -61,11 +61,11 @@ class Command(BaseShareCommand):
                     for dupes in dupe_sets:
                         hacky_merger.merge(dupes)
                 except RejectMerge:
-                    self.stdout.write('Skipping...', style_func=self.style.WARNING)
+                    self.stdout.write('Skipping job...', style_func=self.style.WARNING)
                     return
                 except CannotMerge as e:
                     self.stdout.write('Failed to merge:', style_func=self.style.ERROR)
-                    self.stdout.write(str(e))
+                    self.stdout.write('\t{!r}'.format(e))
                     return
 
                 if hacky_merger.dry_run:
@@ -89,11 +89,12 @@ class RejectMerge(ShareException):
 
 
 class HackyMerger:
-    def __init__(self, dry_run, interactive, graveyard, command):
+    def __init__(self, dry_run, interactive, command):
         self.dry_run = dry_run
         self.interactive = interactive
-        self.graveyard = graveyard
         self.command = command
+
+        self.graveyard = AbstractCreativeWork.objects.get(identifiers__uri__in=GRAVEYARD_IDENTIFIERS)
 
     def merge(self, dupes):
         if len(dupes) < 2:
@@ -130,21 +131,22 @@ class HackyMerger:
         if self.interactive and not self.command.input_confirm('OK? (y/n) '):
             raise RejectMerge
 
+        if self.dry_run:
+            return
+
         for loser in losers:
             for identifier in loser.identifiers.all():
-                if not self.dry_run:
-                    identifier.administrative_change(agent=winner)
+                identifier.administrative_change(agent=winner)
 
             for rel in loser.work_relations.all():
-                if not self.dry_run:
-                    try:
-                        rel.administrative_change(agent=winner)
-                    except IntegrityError:
-                        # OK, to the graveyard instead
-                        rel.administrative_change(
-                            creative_work=self.graveyard,
-                            type=''.join(random.sample(string.ascii_letters, 5))
-                        )
+                try:
+                    rel.administrative_change(agent=winner)
+                except IntegrityError:
+                    # OK, to the graveyard instead
+                    rel.administrative_change(
+                        creative_work=self.graveyard,
+                        type=''.join(random.sample(string.ascii_letters, 5))
+                    )
 
     def merge_works(self, dupes):
         works = AbstractCreativeWork.objects.filter(

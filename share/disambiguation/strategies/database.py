@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class DatabaseStrategy(MatchingStrategy):
-    MAX_IDENTIFIERS = 100
+    MAX_AGENT_RELATIONS = 300
 
     def __init__(self, source=None, **kwargs):
         super().__init__(**kwargs)
@@ -100,9 +100,13 @@ class DatabaseStrategy(MatchingStrategy):
         work_nodes = set(n['creative_work'] for n in nodes)
         for work_node in work_nodes:
             for work in self.get_matches(work_node):
+                agent_relations = models.AbstractAgentWorkRelation.objects.filter(
+                    creative_work=work,
+                )
+
                 # Skip parsing all the names on Frankenwork's monster
                 # TODO: work on defrankenization
-                if work.identifiers.count() > self.MAX_IDENTIFIERS:
+                if agent_relations.count() > self.MAX_AGENT_RELATIONS:
                     continue
 
                 relation_nodes = [
@@ -114,9 +118,7 @@ class DatabaseStrategy(MatchingStrategy):
 
                 relation_names = [
                     ParsedRelationNames(r, HumanName(r.cited_as), HumanName(r.agent.name))
-                    for r in models.AbstractAgentWorkRelation.objects.filter(
-                        creative_work=work,
-                    ).select_related('agent')
+                    for r in agent_relations.select_related('agent')
                 ]
 
                 for node in relation_nodes:

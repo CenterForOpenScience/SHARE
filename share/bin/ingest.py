@@ -6,6 +6,7 @@ from share.bin.util import command
 from share.ingest.scheduler import IngestScheduler
 from share.models import SourceConfig, RawDatum, SourceUniqueIdentifier
 from share.regulate import Regulator
+from share.util.osf import osf_sources
 
 
 @command('Run a SourceConfig\'s transformer')
@@ -57,9 +58,11 @@ def ingest(args, argv):
     """
     Usage: {0} ingest <source_configs>... [--superfluous] [--now]
            {0} ingest --suids <suid_ids>... [--superfluous] [--now]
+           {0} ingest --osf [--superfluous] [--now]
 
     Options:
         -i, --suids         Provide Suid IDs to ingest specifically
+        --osf               Shorthand for all source configs belonging to OSF sources
         -s, --superfluous   Don't skip RawDatums that already have an IngestJob
         -n, --now           Run ingest tasks synchronously for each IngestJob
     """
@@ -67,12 +70,15 @@ def ingest(args, argv):
     source_configs = args['<source_configs>']
     superfluous = args.get('--superfluous')
     run_now = args['--now']
+    osf = args['--osf']
 
     qs = SourceUniqueIdentifier.objects.all()
     if suid_ids:
         qs = qs.filter(id__in=suid_ids)
     elif source_configs:
         qs = qs.filter(source_config__label__in=source_configs)
+    elif osf:
+        qs = qs.filter(source_config__source__in=osf_sources())
     else:
         raise ValueError('Need raw ids, suid ids, or source configs')
 
