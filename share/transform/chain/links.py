@@ -25,6 +25,7 @@ from share.transform.chain.exceptions import (
     InvalidIRI,
     ChainError,
 )
+from share.transform.chain.utils import force_text
 
 
 logger = logging.getLogger(__name__)
@@ -1067,9 +1068,10 @@ class GuessAgentTypeLink(AbstractLink):
 
     def execute(self, obj):
         # TODO smarter guessing
-        if self.INSTITUTION_RE.search(obj):
+        obj_text = force_text(obj)
+        if self.INSTITUTION_RE.search(obj_text):
             return 'institution'
-        if self.ORGANIZATION_RE.search(obj):
+        if self.ORGANIZATION_RE.search(obj_text):
             return 'organization'
         return (self._default or 'person').lower()
 

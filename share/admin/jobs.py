@@ -42,13 +42,16 @@ class BaseJobAdmin(admin.ModelAdmin):
             AbstractBaseJob.STATUS[obj.status].title(),
         )
 
+    def source_config_(self, obj):
+        return obj.source_config.label
+
     def restart_tasks(self, request, queryset):
         queryset.update(status=AbstractBaseJob.STATUS.created)
     restart_tasks.short_description = 'Re-enqueue'
 
 
 class HarvestJobAdmin(BaseJobAdmin):
-    list_display = ('id', 'source_config', 'status_', 'start_date_', 'end_date_', 'share_version', 'harvest_job_actions', )
+    list_display = ('id', 'source_config_', 'status_', 'start_date_', 'end_date_', 'error_type', 'share_version', 'harvest_job_actions', )
     readonly_fields = BaseJobAdmin.readonly_fields + ('harvester_version', 'start_date', 'end_date', 'harvest_job_actions',)
 
     def start_date_(self, obj):
@@ -74,6 +77,9 @@ class HarvestJobAdmin(BaseJobAdmin):
     select_related=['source'],
 )
 class IngestJobAdmin(BaseJobAdmin):
-    list_display = ('id', 'source_config', 'suid', 'status_', 'date_started', 'share_version', )
+    list_display = ('id', 'source_config_', 'suid_', 'status_', 'date_started', 'error_type', 'share_version', )
     list_select_related = BaseJobAdmin.list_select_related + ('suid',)
     readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'retries')
+
+    def suid_(self, obj):
+        return obj.suid.identifier

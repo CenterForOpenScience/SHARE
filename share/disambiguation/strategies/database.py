@@ -1,4 +1,5 @@
 import logging
+from collections import namedtuple
 from operator import attrgetter
 
 from share import exceptions
@@ -13,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class DatabaseStrategy(MatchingStrategy):
+    MAX_IDENTIFIERS = 100
+
     def __init__(self, source=None, **kwargs):
         super().__init__(**kwargs)
         self.source = source
@@ -97,6 +100,11 @@ class DatabaseStrategy(MatchingStrategy):
         work_nodes = set(n['creative_work'] for n in nodes)
         for work_node in work_nodes:
             for work in self.get_matches(work_node):
+                # Skip parsing all the names on Frankenwork's monster
+                # TODO: work on defrankenization
+                if work.identifiers.count() > self.MAX_IDENTIFIERS:
+                    continue
+
                 relation_nodes = [
                     n for n in work_node['agent_relations']
                     if not self.has_matches(n)
@@ -104,15 +112,19 @@ class DatabaseStrategy(MatchingStrategy):
                 if not relation_nodes:
                     continue
 
-                relations = list(models.AbstractAgentWorkRelation.objects.filter(
-                    creative_work=work,
-                ).select_related('agent'))
+                relation_names = [
+                    ParsedRelationNames(r, HumanName(r.cited_as), HumanName(r.agent.name))
+                    for r in models.AbstractAgentWorkRelation.objects.filter(
+                        creative_work=work,
+                    ).select_related('agent')
+                ]
 
                 for node in relation_nodes:
+                    node_names = ParsedRelationNames(node, HumanName(node['cited_as']), HumanName(node['agent']['name']))
                     top_matches = sorted(
                         filter(
                             attrgetter('valid_match'),
-                            (ComparableAgentWorkRelation(r, node) for r in relations),
+                            (ComparableAgentWorkRelation(node_names, r) for r in relation_names),
                         ),
                         key=attrgetter('sort_key'),
                         reverse=True,
@@ -138,23 +150,28 @@ class DatabaseStrategy(MatchingStrategy):
             self.add_match(node_map[match.node_id], match)
 
 
+ParsedRelationNames = namedtuple('ParsedRelationNames', ['obj', 'cited_as', 'agent_name'])
+
+
 class ComparableAgentWorkRelation:
-    def __init__(self, relation_instance, target_relation_node):
-        self.relation = relation_instance
+    def __init__(self, node_names, instance_names):
+        self.relation = instance_names.obj
+        self.node = node_names.obj
 
         # bit vector used to sort names by how close they are to the target name
         self._name_key = self._get_name_key(
-            HumanName(relation_instance.cited_as),
-            HumanName(target_relation_node['cited_as']),
+            instance_names.cited_as,
+            node_names.cited_as,
         )
 
         self.sort_key = (
             *self._name_key,
             *self._get_name_key(
-                HumanName(relation_instance.agent.name),
-                HumanName(target_relation_node['agent']['name']),
+                instance_names.agent_name,
+                node_names.agent_name,
             ),
-            self.relation._meta.model_name == target_relation_node.type,
+            self.relation.order_cited == self.node['order_cited'],
+            self.relation._meta.model_name == self.node.type,
         )
 
     @property

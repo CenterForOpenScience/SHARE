@@ -72,8 +72,8 @@ class Command(BaseShareCommand):
                     return
                 continue
             except Exception as e:
-                self.stdout.write('Failed in a way we cant fix:', style_func=self.style.ERROR)
-                self.stdout.write(str(e))
+                self.stdout.write('Failed in a way we cannot fix:', style_func=self.style.ERROR)
+                self.stdout.write('\t{!r}'.format(e))
                 return
             self.stdout.write('Success!', style_func=self.style.SUCCESS)
             return

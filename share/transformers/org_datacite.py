@@ -2,7 +2,7 @@ import logging
 
 from share.exceptions import TransformError
 from share.transform.chain import ctx, links as tools, ChainTransformer
-from share.transform.chain.exceptions import InvalidIRI
+from share.transform.chain.exceptions import InvalidIRI, InvalidPath
 from share.transform.chain.parsers import Parser
 from share.transform.chain.utils import force_text
 
@@ -169,7 +169,7 @@ class AgentIdentifier(Parser):
 class AffiliatedAgent(Parser):
     schema = tools.GuessAgentType(ctx, default='organization')
 
-    name = ctx
+    name = tools.RunPython(force_text, ctx)
 
 
 class IsAffiliatedWith(Parser):
@@ -194,7 +194,7 @@ class ContributorAgent(Parser):
         )
     )
 
-    name = tools.OneOf(ctx.creatorName, ctx.contributorName)
+    name = tools.RunPython(force_text, tools.OneOf(ctx.creatorName, ctx.contributorName))
     identifiers = tools.Map(
         tools.Delegate(AgentIdentifier),
         tools.Try(
@@ -238,7 +238,7 @@ class FunderAgent(Parser):
         default='organization'
     )
 
-    name = tools.OneOf(ctx.funderName, ctx.contributorName)
+    name = tools.RunPython(force_text, tools.OneOf(ctx.funderName, ctx.contributorName))
 
     identifiers = tools.Map(
         tools.Delegate(AgentIdentifier),
@@ -271,7 +271,7 @@ class FunderAgent(Parser):
 class HostAgent(Parser):
     schema = tools.GuessAgentType(ctx.contributorName, default='organization')
 
-    name = tools.Try(ctx.contributorName)
+    name = tools.RunPython(force_text, tools.Try(ctx.contributorName))
 
     identifiers = tools.Map(
         tools.Delegate(AgentIdentifier),
@@ -297,14 +297,14 @@ class HostAgent(Parser):
 class PublisherAgent(Parser):
     schema = tools.GuessAgentType(ctx, default='organization')
 
-    name = ctx
+    name = tools.RunPython(force_text, ctx)
 
 
 class ContributorRelation(Parser):
     schema = 'Contributor'
 
     agent = tools.Delegate(ContributorAgent, ctx)
-    cited_as = tools.OneOf(ctx.creatorName, ctx.contributorName)
+    cited_as = tools.RunPython(force_text, tools.OneOf(ctx.creatorName, ctx.contributorName))
 
 
 class CreatorRelation(ContributorRelation):
@@ -541,7 +541,7 @@ class CreativeWork(Parser):
         tools.RunPython(
             force_text,
             tools.Concat(
-                tools.Maybe(tools.Maybe(ctx.record, 'metadata')['oai_datacite'], 'type'),
+                tools.Try(ctx.record.metadata['oai_datacite'].type),
                 tools.RunPython(
                     force_text,
                     (tools.Concat(tools.Try(ctx.record.metadata['oai_datacite'].payload.resource.subjects.subject)))
@@ -670,8 +670,8 @@ class CreativeWork(Parser):
                 date = obj['#text']
         if date and date != '0000':
             return date
-        # raise KeyError to break TryLink
-        raise KeyError()
+        # raise to break TryLink
+        raise InvalidPath
 
 
 class DataciteTransformer(ChainTransformer):
