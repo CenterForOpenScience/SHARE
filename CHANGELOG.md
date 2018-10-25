@@ -1,5 +1,8 @@
 # Change Log
 
+# [18.0.4] - 2018-10-25
+- Make it easier to reingest all OSF data
+
 # [18.0.3] - 2018-10-24
 - Fix worker out of memory errors
 
