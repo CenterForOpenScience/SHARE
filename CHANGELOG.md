@@ -1,5 +1,8 @@
 # Change Log
 
+# [18.0.5] - 2018-10-30
+- Update `requests` dependency
+
 # [18.0.4] - 2018-10-25
 - Make it easier to reingest all OSF data
 
