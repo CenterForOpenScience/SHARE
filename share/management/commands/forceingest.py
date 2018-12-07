@@ -12,7 +12,7 @@ from share.tasks.jobs import IngestJobConsumer
 from share.util.osf import osf_sources
 
 
-MAX_RETRIES = 10
+MAX_RETRIES = 128
 GRAVEYARD_IDENTIFIERS = [
     'http://osf.io/8bg7d/',  # prod
     'http://staging.osf.io/8hym9/',  # staging
