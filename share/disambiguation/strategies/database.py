@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class DatabaseStrategy(MatchingStrategy):
     MAX_AGENT_RELATIONS = 300
+    MAX_NAME_LENGTH = 200
 
     def __init__(self, source=None, **kwargs):
         super().__init__(**kwargs)
@@ -119,10 +120,15 @@ class DatabaseStrategy(MatchingStrategy):
                 relation_names = [
                     ParsedRelationNames(r, HumanName(r.cited_as), HumanName(r.agent.name))
                     for r in agent_relations.select_related('agent')
+                    if len(r.cited_as) <= self.MAX_NAME_LENGTH and len(r.agent.name) <= self.MAX_NAME_LENGTH
                 ]
 
                 for node in relation_nodes:
+                    if len(node['cited_as']) > self.MAX_NAME_LENGTH or len(node['agent']['name']) > self.MAX_NAME_LENGTH:
+                        continue
+
                     node_names = ParsedRelationNames(node, HumanName(node['cited_as']), HumanName(node['agent']['name']))
+
                     top_matches = sorted(
                         filter(
                             attrgetter('valid_match'),
