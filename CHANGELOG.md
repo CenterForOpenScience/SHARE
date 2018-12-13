@@ -1,5 +1,8 @@
 # Change Log
 
+# [18.0.6] - 2018-12-13
+- Ingestion perf improvements
+
 # [18.0.5] - 2018-10-30
 - Update `requests` dependency
 
