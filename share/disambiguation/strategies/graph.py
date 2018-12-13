@@ -7,6 +7,26 @@ def equal_not_none(lhs, rhs):
     return None not in (lhs, rhs) and lhs == rhs
 
 
+class IndexByAttrs:
+    def __init__(self, attr_names):
+        self.attr_names = attr_names
+        self._index = {}
+
+    def node_key(self, node):
+        return tuple(node[a] for a in self.attr_names)
+
+    def add_nodes(self, nodes):
+        for node in nodes:
+            key = self.node_key(node)
+            if None not in key:
+                self._index.setdefault(key, set()).add(node)
+
+    def get_matches(self, node):
+        key = self.node_key(node)
+        matches = self._index.get(key, set())
+        return matches.difference([node])
+
+
 class GraphStrategy(MatchingStrategy):
     def __init__(self, graph, **kwargs):
         super().__init__(**kwargs)
@@ -18,12 +38,13 @@ class GraphStrategy(MatchingStrategy):
     def match_by_attrs(self, nodes, model, attr_names, allowed_models):
         graph_nodes = self._graph_nodes(model, allowed_models)
 
+        attr_index = IndexByAttrs(attr_names)
+        attr_index.add_nodes(graph_nodes)
+
         for node in nodes:
-            matches = [
-                n for n in graph_nodes
-                if n != node and all(equal_not_none(n[a], node[a]) for a in attr_names)
-            ]
-            self.add_matches(node, matches)
+            matches = attr_index.get_matches(node)
+            if matches:
+                self.add_matches(node, matches)
 
     def match_by_many_to_one(self, nodes, model, relation_names, allowed_models):
         self.match_by_attrs(nodes, model, relation_names, allowed_models)
