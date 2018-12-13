@@ -17,6 +17,9 @@ class MatchingStrategy(abc.ABC):
     def has_matches(self, node):
         return bool(self._matches.get(node))
 
+    def clear_matches(self):
+        self._matches = {}
+
     @abc.abstractmethod
     def initial_pass(self, nodes):
         raise NotImplementedError

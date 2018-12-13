@@ -30,11 +30,13 @@ class Matcher:
     def chunk_matches(self, graph):
         self.strategy.initial_pass(graph)
         yield self.strategy._matches
+        self.strategy.clear_matches()
 
         for model, nodes in self._group_nodes_by_model(graph):
             for criteria in self._get_model_criteria(model):
                 criteria.match(self.strategy, nodes, model)
             yield self.strategy._matches
+            self.strategy.clear_matches()
 
     def _group_nodes_by_model(self, graph):
         nodes_by_model = {}
