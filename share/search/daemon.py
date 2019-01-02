@@ -115,8 +115,14 @@ class SearchIndexer(ConsumerMixin):
                 logger.debug('%r: Preparing %d %ss to be indexed', self, len(msgs), model_name)
 
                 for msg, action in zip(msgs, ElasticsearchActionGenerator([self.index], msgs)):
-                    self._queue.put((msg, action))
-                logger.info('%r: Prepared %d %ss to be indexed in %.02fs', self, len(msgs), model, time.time() - start)
+                    # Keep blocking on put() until there's space in the queue or it's time to stop
+                    while not self.should_stop:
+                        try:
+                            self._queue.put((msg, action), timeout=timeout)
+                            break
+                        except queue.Full:
+                            continue
+                logger.info('%r: Prepared %d %ss to be indexed in %.02fs', self, len(msgs), model_name, time.time() - start)
         except Exception as e:
             client.captureException()
             logger.exception('%r: _action_loop(%s) encountered an unexpected error', self, model_name)
