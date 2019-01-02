@@ -1,5 +1,8 @@
 # Change Log
 
+# [19.0.1] - 2019-01-02
+- Fix indexer deadlock
+
 # [19.0.0] - 2019-01-02
 - Allow turning off ingestion (but not harvest) for non-canonical sources
 - Ingestion perf improvements (faster attr access in MutableGraph)
