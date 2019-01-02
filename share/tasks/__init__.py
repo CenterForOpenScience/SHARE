@@ -2,6 +2,7 @@ import logging
 
 import celery
 
+from django.conf import settings
 from django.db import models
 from django.db import transaction
 
@@ -54,12 +55,14 @@ def harvest(self, **kwargs):
 
 
 @celery.shared_task(bind=True, max_retries=5)
-def ingest(self, **kwargs):
+def ingest(self, only_canonical=None, **kwargs):
     """Ingest the data of the given IngestJob or the next available IngestJob.
 
     Keyword arguments from JobConsumer.consume
     """
-    IngestJobConsumer(task=self).consume(**kwargs)
+    if only_canonical is None:
+        only_canonical = settings.INGEST_ONLY_CANONICAL_DEFAULT
+    IngestJobConsumer(task=self, only_canonical=only_canonical).consume(**kwargs)
 
 
 @celery.shared_task(bind=True)

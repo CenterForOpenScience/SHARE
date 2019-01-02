@@ -530,6 +530,10 @@ SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip(
 SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', SHARE_API_URL + EMBER_SHARE_PREFIX).rstrip('/') + '/'
 SHARE_USER_AGENT = os.environ.get('SHARE_USER_AGENT', 'SHAREbot/{} (+{})'.format(VERSION, SHARE_WEB_URL))
 
+# Default value for IngestJobConsumer's only_canonical param.
+# Allows turning off ingestion for all non-canonical sources.
+INGEST_ONLY_CANONICAL_DEFAULT = True
+
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://api.osf.io').rstrip('/') + '/'
 OSF_BYPASS_THROTTLE_TOKEN = os.environ.get('BYPASS_THROTTLE_TOKEN', None)
 
@@ -592,25 +596,6 @@ AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 CELERY_TASK_BUCKET_NAME = os.environ.get('CELERY_TASK_BUCKET_NAME')
 CELERY_TASK_FOLDER_NAME = os.environ.get('CELERY_TASK_FOLDER_NAME')  # top level folder (e.g. prod, staging)
-
-
-# TODO replace me with a field on Source
-OSF_PREPRINT_PROVIDERS = [
-    'AgriXiv',
-    'BITSS',
-    'INA-Rxiv',
-    'LIS Scholarship Archive',
-    'LawArXiv',
-    'MindRxiv',
-    'NutriXiv',
-    'OSF',
-    'PaleorXiv',
-    'PsyArXiv',
-    'SocArXiv',
-    'SportRxiv',
-    'Thesis Commons',
-    'engrXiv',
-]
 
 
 if DEBUG and os.environ.get('TOOLBAR', False):

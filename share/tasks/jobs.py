@@ -250,12 +250,24 @@ class IngestJobConsumer(JobConsumer):
 
     MAX_RETRIES = 5
 
+    def __init__(self, *args, only_canonical=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.only_canonical = only_canonical
+
     def _current_versions(self, job):
         return {
             'source_config_version': job.source_config.version,
             'transformer_version': job.source_config.transformer.version,
             'regulator_version': Regulator.VERSION,
         }
+
+    def _filter_ready(self, qs):
+        qs = super()._filter_ready(qs)
+        if self.only_canonical:
+            qs = qs.filter(
+                source_config__source__canonical=True,
+            )
+        return qs
 
     def _prepare_job(self, job, *args, **kwargs):
         # TODO think about getting rid of these triangles -- infer source config from suid?
