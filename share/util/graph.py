@@ -350,14 +350,11 @@ class MutableNode:
     def __init__(self, graph, id, type=None, attrs=None):
         self.__graph = graph
         self.__id = id
+        self.__attrs = graph.nodes[id]
         if type:
             self.type = type
         if attrs:
             self.update(attrs)
-
-    @property
-    def __attrs(self):
-        return self.graph.nodes[self.id]
 
     @property
     def id(self):
