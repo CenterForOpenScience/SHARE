@@ -1,5 +1,10 @@
 # Change Log
 
+# [19.0.0] - 2019-01-02
+- Allow turning off ingestion (but not harvest) for non-canonical sources
+- Ingestion perf improvements (faster attr access in MutableGraph)
+- Handle indexer errors better
+
 # [18.0.6] - 2018-12-13
 - Ingestion perf improvements
 
