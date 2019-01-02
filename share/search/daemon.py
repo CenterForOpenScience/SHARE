@@ -112,9 +112,9 @@ class SearchIndexer(ConsumerMixin):
                     self._queue.put((msg, action))
                 logger.info('%r: Prepared %d %ss to be indexed in %.02fs', self, len(msgs), model, time.time() - start)
         except Exception as e:
-            client.captureException()
-            logger.exception('%r: _action_loop encountered an unexpected error', self)
             self.stop()
+            logger.exception('%r: _action_loop encountered an unexpected error', self)
+            client.captureException()
 
     def _actions(self, size, msgs, timeout=5):
         for _ in range(size):
@@ -154,9 +154,9 @@ class SearchIndexer(ConsumerMixin):
                 else:
                     logger.debug('%r: Recieved no messages for %.02fs', self, time.time() - start)
         except Exception as e:
-            client.captureException()
-            logger.exception('%r: _index_loop encountered an unexpected error', self)
             self.stop()
+            logger.exception('%r: _index_loop encountered an unexpected error', self)
+            client.captureException()
 
     def __repr__(self):
         return '<{}({})>'.format(self.__class__.__name__, self.index)
