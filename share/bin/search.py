@@ -118,10 +118,8 @@ def daemon(args, argv):
     for index in settings.ELASTICSEARCH['INDEXES'].keys():
         indexers.append(SearchIndexer(app.pool.acquire(block=True), index, stop_event=stop_event))
 
-    threads = []
     for indexer in indexers:
-        threads.append(threading.Thread(target=indexer.run))
-        threads[-1].start()
+        threading.Thread(target=indexer.run).start()
 
     try:
         stop_event.wait()
@@ -129,4 +127,5 @@ def daemon(args, argv):
         pass
     finally:
         for indexer in indexers:
-            indexer.stop()
+            if not indexer.should_stop:
+                indexer.stop()

@@ -62,10 +62,11 @@ class SearchIndexer(ConsumerMixin):
     def stop(self):
         if not self.should_stop:
             logger.warning('%r: Shutting down', self)
-        self.should_stop = True
+            self.should_stop = True
+            self._pool.shutdown(wait=False)
+
         if self.stop_event:
             self.stop_event.set()
-        self._pool.shutdown(wait=False)
 
     def get_consumers(self, Consumer, channel):
         queue_settings = settings.ELASTICSEARCH['QUEUE_SETTINGS']
@@ -84,21 +85,25 @@ class SearchIndexer(ConsumerMixin):
 
     def on_message(self, body, message):
         msg = IndexableMessage.wrap(message)
+        model_name = msg.model._meta.model_name
+        model_queue = self._model_queues.get(model_name)
 
-        if msg.model not in self._model_queues:
-            self._model_queues[msg.model] = queue.Queue()
-            self._pool.submit(self._action_loop, msg.model, self._model_queues[msg.model])
+        if model_queue is None:
+            model_queue = queue.Queue()
+            self._model_queues[model_name] = model_queue
+            self._pool.submit(self._action_loop, model_name)
 
-        self._model_queues[msg.model].put(message)
+        model_queue.put(message)
 
-    def _action_loop(self, model, q, chunk_size=250, timeout=5):
+    def _action_loop(self, model_name, chunk_size=250, timeout=5):
+        model_queue = self._model_queues[model_name]
         try:
             while not self.should_stop:
                 msgs = []
                 while len(msgs) < chunk_size:
                     try:
                         # If we have any messages queued up, push them through ASAP
-                        msgs.append(q.get(timeout=.1 if msgs else timeout))
+                        msgs.append(model_queue.get(timeout=.1 if msgs else timeout))
                     except queue.Empty:
                         break
 
@@ -107,14 +112,15 @@ class SearchIndexer(ConsumerMixin):
                     continue
 
                 start = time.time()
-                logger.debug('%r: Preparing %d %ss to be indexed', self, len(msgs), model)
+                logger.debug('%r: Preparing %d %ss to be indexed', self, len(msgs), model_name)
+
                 for msg, action in zip(msgs, ElasticsearchActionGenerator([self.index], msgs)):
                     self._queue.put((msg, action))
                 logger.info('%r: Prepared %d %ss to be indexed in %.02fs', self, len(msgs), model, time.time() - start)
         except Exception as e:
-            self.stop()
-            logger.exception('%r: _action_loop encountered an unexpected error', self)
             client.captureException()
+            logger.exception('%r: _action_loop(%s) encountered an unexpected error', self, model_name)
+            self.stop()
 
     def _actions(self, size, msgs, timeout=5):
         for _ in range(size):
@@ -154,9 +160,9 @@ class SearchIndexer(ConsumerMixin):
                 else:
                     logger.debug('%r: Recieved no messages for %.02fs', self, time.time() - start)
         except Exception as e:
-            self.stop()
-            logger.exception('%r: _index_loop encountered an unexpected error', self)
             client.captureException()
+            logger.exception('%r: _index_loop encountered an unexpected error', self)
+            self.stop()
 
     def __repr__(self):
         return '<{}({})>'.format(self.__class__.__name__, self.index)
