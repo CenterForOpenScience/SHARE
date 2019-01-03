@@ -1,5 +1,8 @@
 # Change Log
 
+# [19.0.2] - 2019-01-03
+- Make the indexer more configurable by environment variables
+
 # [19.0.1] - 2019-01-02
 - Fix indexer deadlock
 
