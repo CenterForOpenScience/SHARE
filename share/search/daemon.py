@@ -21,7 +21,7 @@ from share.search.indexing import IndexableMessage
 logger = logging.getLogger(__name__)
 
 
-class SearchIndexer(ConsumerMixin):
+class SearchIndexerDaemon(ConsumerMixin):
 
     MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
 
@@ -34,6 +34,7 @@ class SearchIndexer(ConsumerMixin):
         self.index = index
         self.prefetch_count = prefetch_count
         self.stop_event = stop_event
+        self.chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
 
         self.es_client = Elasticsearch(
             self.es_url,
@@ -95,12 +96,12 @@ class SearchIndexer(ConsumerMixin):
 
         model_queue.put(message)
 
-    def _action_loop(self, model_name, chunk_size=250, timeout=5):
+    def _action_loop(self, model_name, timeout=5):
         model_queue = self._model_queues[model_name]
         try:
             while not self.should_stop:
                 msgs = []
-                while len(msgs) < chunk_size:
+                while len(msgs) < self.chunk_size:
                     try:
                         # If we have any messages queued up, push them through ASAP
                         msgs.append(model_queue.get(timeout=.1 if msgs else timeout))
@@ -128,8 +129,8 @@ class SearchIndexer(ConsumerMixin):
             logger.exception('%r: _action_loop(%s) encountered an unexpected error', self, model_name)
             self.stop()
 
-    def _actions(self, size, msgs, timeout=5):
-        for _ in range(size):
+    def _actions(self, msgs, timeout=5):
+        for _ in range(self.chunk_size):
             try:
                 msg, action = self._queue.get(timeout=timeout)
                 if action is None:
@@ -144,7 +145,7 @@ class SearchIndexer(ConsumerMixin):
         try:
             while not self.should_stop:
                 msgs = []
-                actions = self._actions(250, msgs)
+                actions = self._actions(msgs)
 
                 stream = helpers.streaming_bulk(
                     self.es_client,

@@ -299,6 +299,7 @@ ELASTICSEARCH = {
     'INDEX': os.environ.get('ELASTIC_SEARCH_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
+    'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 25)),
     'DEFAULT_FETCHERS': {
         'agent': 'share.search.fetchers.AgentFetcher',
         'creativework': 'share.search.fetchers.CreativeWorkFetcher',
@@ -311,7 +312,7 @@ ELASTICSEARCH = {
         'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
     },
     # NOTE: mappings will have to be created BEFORE the daemon starts
-    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_v3, share_customtax_1'), ','),
+    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_customtax_1'), ','),
     'INDEXES': {
         'share_v3': {
             'DEFAULT_QUEUE': 'es-triton-share',

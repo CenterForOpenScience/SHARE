@@ -145,12 +145,12 @@ class V1Message(IndexableMessage):
 # TODO Better Name
 class ChunkedFlattener:
 
-    def __init__(self, index, model, messages, counter, size=500):
+    def __init__(self, index, model, messages, counter):
         self._counter = counter
         self._index = index
         self._messages = messages
         self._model = model
-        self._size = 500
+        self._size = settings.ELASTICSEARCH['CHUNK_SIZE']
 
         if index not in settings.ELASTICSEARCH['INDEXES']:
             overrides = None
@@ -161,7 +161,7 @@ class ChunkedFlattener:
 
     def __iter__(self):
         opts = {'_index': self._index, '_type': self._model._meta.verbose_name_plural.replace(' ', '')}
-        for chunk in util.chunked(self._flatten(), size=250):
+        for chunk in util.chunked(self._flatten(), size=self._size):
             for result in self._fetcher(chunk):
                 if result is None:
                     yield None

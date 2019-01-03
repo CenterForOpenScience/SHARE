@@ -7,7 +7,7 @@ from project.celery import app
 from django.conf import settings
 
 from share.bin.util import command
-from share.search.daemon import SearchIndexer
+from share.search.daemon import SearchIndexerDaemon
 
 from bots.elasticsearch import tasks
 from bots.elasticsearch.bot import ElasticSearchBot
@@ -115,8 +115,8 @@ def daemon(args, argv):
 
     stop_event = threading.Event()
     indexers = []
-    for index in settings.ELASTICSEARCH['INDEXES'].keys():
-        indexers.append(SearchIndexer(app.pool.acquire(block=True), index, stop_event=stop_event))
+    for index in settings.ELASTICSEARCH['ACTIVE_INDEXES']:
+        indexers.append(SearchIndexerDaemon(app.pool.acquire(block=True), index, stop_event=stop_event))
 
     for indexer in indexers:
         threading.Thread(target=indexer.run).start()
