@@ -2,6 +2,8 @@ import logging
 from collections import namedtuple
 from operator import attrgetter
 
+from django.conf import settings
+
 from share import exceptions
 from share import models
 from share.util import IDObfuscator, InvalidID
@@ -14,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 class DatabaseStrategy(MatchingStrategy):
-    MAX_AGENT_RELATIONS = 300
     MAX_NAME_LENGTH = 200
 
     def __init__(self, source=None, **kwargs):
@@ -107,7 +108,7 @@ class DatabaseStrategy(MatchingStrategy):
 
                 # Skip parsing all the names on Frankenwork's monster
                 # TODO: work on defrankenization
-                if agent_relations.count() > self.MAX_AGENT_RELATIONS:
+                if agent_relations.count() > settings.SHARE_LIMITS['MAX_AGENT_RELATIONS']:
                     continue
 
                 relation_nodes = [

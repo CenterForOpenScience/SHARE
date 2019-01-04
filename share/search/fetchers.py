@@ -106,6 +106,7 @@ class CreativeWorkFetcher(Fetcher):
     PARENT_RELATION = 'share.ispartof'
     WORK_ANCESTORS_DEPTH = 3
     MAX_IDENTIFIERS = 50
+    MAX_AGENT_RELATIONS = 300
 
     QUERY_TEMPLATE = '''
     WITH pks AS (SELECT * FROM UNNEST(%(ids)s::int[]) WITH ORDINALITY t(id, ord)),
@@ -209,7 +210,7 @@ class CreativeWorkFetcher(Fetcher):
         '''
 
         # Gather all the works we want, so postgres doesn't get confused by the huge query below
-        # Exclude works with empty titles or too many identifiers
+        # Exclude works with empty titles, too many identifiers, or too many agent relations
         '''
         all_creative_works AS (
             SELECT *
@@ -223,6 +224,13 @@ class CreativeWorkFetcher(Fetcher):
                     LIMIT %(max_identifiers)s + 1
                 ) AS identifiers
             ) <= %(max_identifiers)s
+            AND (
+                SELECT COUNT(*) FROM (
+                    SELECT * FROM share_agentworkrelation
+                    WHERE share_agentworkrelation.creative_work_id = all_creative_works.id
+                    LIMIT %(max_agent_relations)s + 1
+                ) AS agent_relations
+            ) <= %(max_agent_relations)s
         ),
         '''
 
@@ -385,7 +393,8 @@ class CreativeWorkFetcher(Fetcher):
             'retraction_relation': self.RETRACTION_RELATION,
             'parent_relation': self.PARENT_RELATION,
             'work_ancestors_depth': self.WORK_ANCESTORS_DEPTH,
-            'max_identifiers': self.MAX_IDENTIFIERS,
+            'max_identifiers': settings.SHARE_LIMITS['MAX_IDENTIFIERS'],
+            'max_agent_relations': settings.SHARE_LIMITS['MAX_AGENT_RELATIONS'],
         }
 
     def post_process(self, data):

@@ -535,6 +535,12 @@ SHARE_USER_AGENT = os.environ.get('SHARE_USER_AGENT', 'SHAREbot/{} (+{})'.format
 # Allows turning off ingestion for all non-canonical sources.
 INGEST_ONLY_CANONICAL_DEFAULT = True
 
+# Skip some of the more intensive operations on works that surpass these limits
+SHARE_LIMITS = {
+    'MAX_IDENTIFIERS': 50,
+    'MAX_AGENT_RELATIONS': 500,
+}
+
 OSF_API_URL = os.environ.get('OSF_API_URL', 'https://api.osf.io').rstrip('/') + '/'
 OSF_BYPASS_THROTTLE_TOKEN = os.environ.get('BYPASS_THROTTLE_TOKEN', None)
 
