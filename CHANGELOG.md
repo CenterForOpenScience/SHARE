@@ -1,5 +1,8 @@
 # Change Log
 
+# [19.0.4] - 2019-02-25
+- Possibly fix a rare forceingest error
+
 # [19.0.3] - 2019-01-04
 - Skip indexing works with too many agent relations
 
