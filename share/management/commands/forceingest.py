@@ -135,15 +135,16 @@ class HackyMerger:
             return
 
         for loser in losers:
-            for identifier in loser.identifiers.all():
+            for identifier in list(loser.identifiers.all()):
                 identifier.administrative_change(agent=winner)
 
-            for rel in loser.work_relations.all():
+            for rel in list(loser.work_relations.all()):
                 try:
                     rel.administrative_change(agent=winner)
                 except IntegrityError:
                     # OK, to the graveyard instead
                     rel.administrative_change(
+                        agent=loser,
                         creative_work=self.graveyard,
                         type=''.join(random.sample(string.ascii_letters, 5))
                     )
