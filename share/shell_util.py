@@ -2,7 +2,20 @@ from django.contrib.contenttypes.models import ContentType
 
 from share import tasks  # noqa
 from share.models import RawDatum
+from share.search import SearchIndexer
 from share.util import IDObfuscator
+
+
+def reindex_works(works, index=None, urgent=True):
+    if not isinstance(works, list):
+        works = [works]
+    work_ids = [work.id for work in works]
+    if (work_ids):
+        print('Indexing {} works'.format(len(work_ids)))
+        indexer = SearchIndexer()
+        indexer.index('creativework', *work_ids, index=index, urgent=urgent)
+    else:
+        print('No works to index')
 
 
 def get_raws(obj):
