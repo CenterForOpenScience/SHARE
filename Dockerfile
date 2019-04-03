@@ -14,24 +14,35 @@ RUN apt-get update \
         # psycopg2
         python-dev \
         libpq-dev \
+        zlib1g-dev \
     && apt-get clean \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
-# grab gosu for easy step-down from root
-ENV GOSU_VERSION 1.9
+# gosu
+ENV GOSU_VERSION 1.10 \
 RUN apt-get update \
     && apt-get install -y \
         curl \
-    && gpg --keyserver pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+        gnupg2 \
+    && mkdir ~/.gnupg && chmod 600 ~/.gnupg && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
+    && for server in hkp://ipv4.pool.sks-keyservers.net:80 \
+                     kp://ha.pool.sks-keyservers.net:80 \
+                     hkp://pgp.mit.edu:80 \
+                     hkp://keyserver.pgp.com:80 \
+    ; do \
+        gpg --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || echo "Trying new server..." \
+    ; done \
     && curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
-    && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
-    && gpg --verify /usr/local/bin/gosu.asc \
-    && rm /usr/local/bin/gosu.asc \
-    && chmod +x /usr/local/bin/gosu \
+        && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
+        && gpg --verify /usr/local/bin/gosu.asc \
+        && rm /usr/local/bin/gosu.asc \
+        && chmod +x /usr/local/bin/gosu \
+    # /gosu
     && apt-get clean \
     && apt-get autoremove -y \
         curl \
+        gnupg2 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN update-ca-certificates
@@ -47,7 +58,9 @@ COPY ./constraints.txt /code/constraints.txt
 
 RUN pip install --no-cache-dir -c /code/constraints.txt -r /code/requirements.txt
 
-RUN apt-get remove -y gcc
+RUN apt-get remove -y \
+    gcc \
+    zlib1g-dev
 
 COPY ./ /code/
 
