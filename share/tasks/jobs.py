@@ -260,6 +260,8 @@ class IngestJobConsumer(JobConsumer):
         # and the urgent ingest queue is backing up.  All urgent tasks have a job_id,
         # so we can skip those without a job_id and catch up in the task queue without
         # negatively affecting OSF.
+        # REMINDER: when you remove this, also un-skip tests in
+        # tests/share/tasks/test_job_consumers
         if job_id is None:
             task = self.task
             logger.warn('Skipping ingest task with job_id=None (task_id: %s)', task.request.id if task else None)
