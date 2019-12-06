@@ -47,6 +47,7 @@ class TestJobConsumer:
             consumer.consume(job_id=17)
         assert not consumer._consume_job.called
 
+    @pytest.mark.skip(reason='consume() with no job_id is temporarily a noop')
     def test_job_locked(self, consumer, JobFactory):
         job = JobFactory()
         with consumer.Job.objects.all().lock_first(consumer.lock_field):
@@ -63,6 +64,7 @@ class TestJobConsumer:
         assert job.task_id == consumer.task.request.id
         assert not consumer._consume_job.called
 
+    @pytest.mark.skip(reason='consume() with no job_id is temporarily a noop')
     def test_obsolete(self, consumer, JobFactory, monkeypatch):
         monkeypatch.setattr(consumer, '_update_versions', mock.Mock(return_value=False))
         job = JobFactory()
@@ -73,6 +75,7 @@ class TestJobConsumer:
         assert job.task_id == consumer.task.request.id
         assert not consumer._consume_job.called
 
+    @pytest.mark.skip(reason='consume() with no job_id is temporarily a noop')
     @pytest.mark.parametrize('exhaust', [True, False])
     def test_consume(self, consumer, JobFactory, exhaust):
         job = JobFactory()
