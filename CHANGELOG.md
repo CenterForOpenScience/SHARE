@@ -1,5 +1,8 @@
 # Change Log
 
+# [19.0.5] - 2019-12-06
+- Temporary fix to avoid slow IngestJob queries
+
 # [19.0.4] - 2019-02-25
 - Possibly fix a rare forceingest error
 

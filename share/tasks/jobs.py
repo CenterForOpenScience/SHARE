@@ -254,6 +254,18 @@ class IngestJobConsumer(JobConsumer):
         super().__init__(*args, **kwargs)
         self.only_canonical = only_canonical
 
+    def consume(self, job_id=None, **kwargs):
+        # TEMPORARY HACK: The query to find an unclaimed job (when job_id isn't given)
+        # is crazy-slow to the point that workers are barely getting anything else done
+        # and the urgent ingest queue is backing up.  All urgent tasks have a job_id,
+        # so we can skip those without a job_id and catch up in the task queue without
+        # negatively affecting OSF.
+        if job_id is None:
+            task = self.task
+            logger.warn('Skipping ingest task with job_id=None (task_id: %s)', task.request.id if task else None)
+            return
+        return super().consume(job_id=job_id, **kwargs)
+
     def _current_versions(self, job):
         return {
             'source_config_version': job.source_config.version,
