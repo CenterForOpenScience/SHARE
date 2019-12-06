@@ -1,5 +1,9 @@
 # Change Log
 
+# [19.0.6] - 2019-12-06
+- Pin python-dateutil to a version that doesn't break tests (2.8.0)
+- Temporarily (i hope) skip tests broken by 19.0.5
+
 # [19.0.5] - 2019-12-06
 - Temporary fix to avoid slow IngestJob queries
 
