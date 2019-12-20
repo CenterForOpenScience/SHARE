@@ -92,22 +92,32 @@ class OAIRepository:
     def _load_page(self, kwargs):
         if 'resumptionToken' in kwargs:
             try:
-                queryset, kwargs = self._resume(kwargs['resumptionToken'])
+                ids_queryset, kwargs = self._resume(kwargs['resumptionToken'])
                 metadataRenderer = self._get_metadata_renderer(kwargs['metadataPrefix'], catch=False)
             except (ValueError, KeyError):
                 self.errors.append(oai_errors.BadResumptionToken(kwargs['resumptionToken']))
         else:
-            queryset = self._record_queryset(kwargs)
+            ids_queryset = self._record_ids_queryset(kwargs)
             metadataRenderer = self._get_metadata_renderer(kwargs['metadataPrefix'])
         if self.errors:
             return [], None, None
-        if not queryset.exists():
+
+        works_queryset = AbstractCreativeWork.objects.filter(
+            id__in=ids_queryset.order_by('id')[:self.PAGE_SIZE + 1],
+        ).include(
+            'identifiers',
+            'subjects',
+            'sources__source',
+            'incoming_creative_work_relations',
+            'agent_relations__agent',
+        ).order_by('id')
+
+        works = list(works_queryset)
+
+        if not len(works):
             self.errors.append(oai_errors.NoResults())
             return [], None, None
 
-        queryset = queryset.include('identifiers', 'subjects', 'sources__source', 'incoming_creative_work_relations', 'agent_relations__agent')
-
-        works = list(queryset[:self.PAGE_SIZE + 1])
         if len(works) <= self.PAGE_SIZE:
             # Last page
             next_token = None
@@ -116,8 +126,8 @@ class OAIRepository:
             next_token = self._get_resumption_token(kwargs, works[-1].id)
         return works, next_token, metadataRenderer
 
-    def _record_queryset(self, kwargs, catch=True):
-        queryset = AbstractCreativeWork.objects.filter(is_deleted=False, same_as_id__isnull=True).order_by('id')
+    def _record_ids_queryset(self, kwargs, catch=True):
+        queryset = AbstractCreativeWork.objects.filter(is_deleted=False, same_as_id__isnull=True)
         if 'from' in kwargs:
             try:
                 from_ = dateutil.parser.parse(kwargs['from'])
@@ -138,7 +148,7 @@ class OAIRepository:
             source_users = ShareUser.objects.filter(source__name=kwargs['set']).values_list('id', flat=True)
             queryset = queryset.filter(sources__in=source_users)
 
-        return queryset
+        return queryset.values('id')
 
     def _resume(self, token):
         from_, until, set_spec, prefix, last_id = token.split('|')
@@ -150,8 +160,8 @@ class OAIRepository:
         if set_spec:
             kwargs['set'] = set_spec
         kwargs['metadataPrefix'] = prefix
-        queryset = self._record_queryset(kwargs, catch=False).filter(id__gt=int(last_id))
-        return queryset, kwargs
+        ids_queryset = self._record_ids_queryset(kwargs, catch=False).filter(id__gt=int(last_id))
+        return ids_queryset, kwargs
 
     def _get_resumption_token(self, kwargs, last_id):
         from_ = None
