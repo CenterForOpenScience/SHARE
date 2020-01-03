@@ -1,5 +1,8 @@
 # Change Log
 
+# [20.0.1] - 2020-01-03
+- Pin `graphql-relay` to a compatible version
+
 # [20.0.0] - 2020-01-03
 - Dockerfile fixes & improvements
 - Optimize oai-pmh endpoint to avoid timeouts
