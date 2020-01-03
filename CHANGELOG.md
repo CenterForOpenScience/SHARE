@@ -1,5 +1,10 @@
 # Change Log
 
+# [20.0.0] - 2020-01-03
+- Dockerfile fixes & improvements
+- Optimize oai-pmh endpoint to avoid timeouts
+- Add `reindex_works` shell util
+
 # [19.0.6] - 2019-12-06
 - Pin python-dateutil to a version that doesn't break tests (2.8.0)
 - Temporarily (i hope) skip tests broken by 19.0.5
