@@ -1,5 +1,8 @@
 # Change Log
 
+# [20.0.2] - 2020-01-06
+- Reduce oai-pmh page size
+
 # [20.0.1] - 2020-01-03
 - Pin `graphql-relay` to a compatible version
 
