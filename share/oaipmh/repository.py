@@ -17,7 +17,7 @@ class OAIRepository:
     FORMATS = {
         'oai_dc': renderers.DublinCoreRenderer,
     }
-    PAGE_SIZE = 100
+    PAGE_SIZE = 20
 
     def handle_request(self, request, kwargs):
         renderer = OAIRenderer(self, request)
