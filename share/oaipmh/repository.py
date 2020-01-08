@@ -1,5 +1,8 @@
 import dateutil
 
+from django.conf import settings
+from django.db import connection
+
 from share.models import AbstractCreativeWork, Source, ShareUser
 from share.oaipmh import errors as oai_errors, renderers
 from share.oaipmh.verbs import OAIVerb
@@ -18,6 +21,28 @@ class OAIRepository:
         'oai_dc': renderers.DublinCoreRenderer,
     }
     PAGE_SIZE = 20
+
+    # extracted from share/search/fetchers.py
+    VALID_IDS_QUERY = '''
+        SELECT id
+        FROM share_creativework
+        WHERE id IN %(ids)s
+        AND title != ''
+        AND (
+            SELECT COUNT(*) FROM (
+                SELECT * FROM share_workidentifier
+                WHERE share_workidentifier.creative_work_id = share_creativework.id
+                LIMIT %(max_identifiers)s + 1
+            ) AS identifiers
+        ) <= %(max_identifiers)s
+        AND (
+            SELECT COUNT(*) FROM (
+                SELECT * FROM share_agentworkrelation
+                WHERE share_agentworkrelation.creative_work_id = share_creativework.id
+                LIMIT %(max_agent_relations)s + 1
+            ) AS agent_relations
+        ) <= %(max_agent_relations)s
+    '''
 
     def handle_request(self, request, kwargs):
         renderer = OAIRenderer(self, request)
@@ -92,18 +117,18 @@ class OAIRepository:
     def _load_page(self, kwargs):
         if 'resumptionToken' in kwargs:
             try:
-                ids_queryset, kwargs = self._resume(kwargs['resumptionToken'])
+                work_ids, kwargs = self._resume(kwargs['resumptionToken'])
                 metadataRenderer = self._get_metadata_renderer(kwargs['metadataPrefix'], catch=False)
             except (ValueError, KeyError):
                 self.errors.append(oai_errors.BadResumptionToken(kwargs['resumptionToken']))
         else:
-            ids_queryset = self._record_ids_queryset(kwargs)
+            work_ids = self._get_record_ids(kwargs)
             metadataRenderer = self._get_metadata_renderer(kwargs['metadataPrefix'])
         if self.errors:
             return [], None, None
 
         works_queryset = AbstractCreativeWork.objects.filter(
-            id__in=ids_queryset.order_by('id')[:self.PAGE_SIZE + 1],
+            id__in=work_ids,
         ).include(
             'identifiers',
             'subjects',
@@ -126,8 +151,15 @@ class OAIRepository:
             next_token = self._get_resumption_token(kwargs, works[-1].id)
         return works, next_token, metadataRenderer
 
-    def _record_ids_queryset(self, kwargs, catch=True):
-        queryset = AbstractCreativeWork.objects.filter(is_deleted=False, same_as_id__isnull=True)
+    def _get_record_ids(self, kwargs, catch=True, last_id=None, page_size=None):
+        if page_size is None:
+            page_size = self.PAGE_SIZE
+
+        queryset = AbstractCreativeWork.objects.filter(
+            is_deleted=False,
+            same_as_id__isnull=True,
+        )
+
         if 'from' in kwargs:
             try:
                 from_ = dateutil.parser.parse(kwargs['from'])
@@ -148,7 +180,40 @@ class OAIRepository:
             source_users = ShareUser.objects.filter(source__name=kwargs['set']).values_list('id', flat=True)
             queryset = queryset.filter(sources__in=source_users)
 
-        return queryset.values('id')
+        if last_id is not None:
+            queryset = queryset.filter(id__gt=last_id)
+
+        queryset = queryset.order_by('id').values_list('id', flat=True)
+
+        ids = tuple(queryset[:page_size + 1])
+
+        if not ids:
+            return []
+
+        # exclude untitled and franken works
+        # doing this in a separate query to avoid bad query plans with too much counting
+        with connection.cursor() as cursor:
+            cursor.execute(
+                self.VALID_IDS_QUERY,
+                {
+                    'ids': ids,
+                    'max_identifiers': settings.SHARE_LIMITS['MAX_IDENTIFIERS'],
+                    'max_agent_relations': settings.SHARE_LIMITS['MAX_AGENT_RELATIONS'],
+                },
+            )
+            valid_ids = [row[0] for row in cursor.fetchall()]
+
+        # if there were invalid ids, get more to fill out the page
+        if len(ids) > page_size and len(valid_ids) <= page_size:
+            extra_ids = self._get_record_ids(
+                kwargs,
+                catch=catch,
+                last_id=ids[-1],
+                page_size=page_size - len(valid_ids)
+            )
+            valid_ids.extend(extra_ids)
+
+        return valid_ids[:page_size + 1]
 
     def _resume(self, token):
         from_, until, set_spec, prefix, last_id = token.split('|')
@@ -160,8 +225,8 @@ class OAIRepository:
         if set_spec:
             kwargs['set'] = set_spec
         kwargs['metadataPrefix'] = prefix
-        ids_queryset = self._record_ids_queryset(kwargs, catch=False).filter(id__gt=int(last_id))
-        return ids_queryset, kwargs
+        work_ids = self._get_record_ids(kwargs, catch=False, last_id=int(last_id))
+        return work_ids, kwargs
 
     def _get_resumption_token(self, kwargs, last_id):
         from_ = None
