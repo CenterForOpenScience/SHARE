@@ -42,6 +42,7 @@ class OAIRepository:
                 LIMIT %(max_agent_relations)s + 1
             ) AS agent_relations
         ) <= %(max_agent_relations)s
+        ORDER BY id
     '''
 
     def handle_request(self, request, kwargs):
@@ -185,7 +186,8 @@ class OAIRepository:
 
         queryset = queryset.order_by('id').values_list('id', flat=True)
 
-        ids = tuple(queryset[:page_size + 1])
+        # get some extra, in case some are invalid
+        ids = tuple(queryset[:page_size + 10])
 
         if not ids:
             return []
