@@ -1,5 +1,8 @@
 # Change Log
 
+# [20.0.3] - 2020-01-09
+- Exclude frankenworks from oai-pmh
+
 # [20.0.2] - 2020-01-06
 - Reduce oai-pmh page size
 
