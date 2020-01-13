@@ -1,5 +1,8 @@
 # Change Log
 
+# [20.0.4] - 2020-01-13
+- Ensure order in oai-pmh
+
 # [20.0.3] - 2020-01-09
 - Exclude frankenworks from oai-pmh
 
