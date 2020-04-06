@@ -233,15 +233,21 @@ class HarvestJobConsumer(JobConsumer):
                     raise e
 
     def _bulk_schedule_ingest(self, job, datums):
+        # HACK to allow scheduling ingest tasks without cyclical imports
+        from share.tasks import ingest
+
         job_kwargs = {
             'source_config': job.source_config,
             'source_config_version': job.source_config.version,
             'transformer_version': job.source_config.transformer.version,
             'regulator_version': Regulator.VERSION,
         }
-        IngestJob.objects.bulk_get_or_create(
+        created_jobs = IngestJob.objects.bulk_get_or_create(
             [IngestJob(raw_id=datum.id, suid_id=datum.suid_id, **job_kwargs) for datum in datums]
         )
+        if not settings.INGEST_ONLY_CANONICAL_DEFAULT or job.source_config.source.canonical:
+            for job in created_jobs:
+                ingest.delay(job_id=job.id)
 
 
 class IngestJobConsumer(JobConsumer):
