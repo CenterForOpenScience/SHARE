@@ -6,6 +6,7 @@ from django.utils.html import format_html
 
 from share.admin.util import FuzzyPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.models.jobs import AbstractBaseJob
+from share.tasks import ingest
 
 
 STATUS_COLORS = {
@@ -47,6 +48,8 @@ class BaseJobAdmin(admin.ModelAdmin):
 
     def restart_tasks(self, request, queryset):
         queryset.update(status=AbstractBaseJob.STATUS.created)
+        for job_id in queryset.values_list('id', flat=True):
+            ingest.delay(job_id=job_id)
     restart_tasks.short_description = 'Re-enqueue'
 
 
