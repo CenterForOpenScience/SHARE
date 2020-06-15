@@ -11,7 +11,7 @@ class WorkIdentifier(Parser):
 
 
 class Registration(osf.Project):
-    date_published = ParseDate(ctx.attributes.date_created)
+    date_published = ParseDate(ctx.attributes.date_registered)
     free_to_read_date = Try(ParseDate(ctx.attributes.embargo_end_date), exceptions=(exceptions.InvalidDate, ))
     identifiers = Map(Delegate(WorkIdentifier), ctx.links.html, ctx.links.self)
 
