@@ -1,5 +1,12 @@
 # Change Log
 
+# [20.1.0] - 2020-06-16
+- Automatically schedule `ingest` tasks after harvesting
+- Schedule `ingest` tasks in admin `reenqueue` action
+- Pin `faker` to 4.0.3
+- Update `.travis.yml`
+- Fix bug in `io.osf.registrations` transformer
+
 # [20.0.4] - 2020-01-13
 - Ensure order in oai-pmh
 
