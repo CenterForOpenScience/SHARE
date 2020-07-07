@@ -2,6 +2,8 @@
 
 SHARE is creating a free, open dataset of research (meta)data.
 
+> **Note**: SHARE’s open API tools and services help bring together scholarship distributed across research ecosystems for the purpose of greater discoverability. However, SHARE does not guarantee a complete aggregation of searched outputs. For this reason, SHARE results should not be used for methodological analyses, such as systematic reviews.
+
 [![Coverage Status](https://coveralls.io/repos/github/CenterForOpenScience/SHARE/badge.svg?branch=develop)](https://coveralls.io/github/CenterForOpenScience/SHARE?branch=develop)
 [![Gitter](https://badges.gitter.im/CenterForOpenScience/SHARE.svg)](https://gitter.im/CenterForOpenScience/SHARE)
 
