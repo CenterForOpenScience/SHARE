@@ -9,6 +9,8 @@ from share import models
 from share.util import sort_dict_by_key
 from share.models.validators import JSONLDValidator
 
+from api.deprecation import deprecate
+
 __all__ = ('SchemaView', 'ModelSchemaView', 'ModelTypesView')
 
 
@@ -97,6 +99,7 @@ Each node in the submitted `@graph` is validated by a model schema determined by
 )
 
 
+@deprecate(pls_hide=False)
 class ModelSchemaView(views.APIView):
     """
     Schema used to validate submitted changes with `@type='{}'`. See [`/api/schema`](/api/schema)
