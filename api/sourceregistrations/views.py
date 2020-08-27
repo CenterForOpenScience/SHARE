@@ -4,9 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 from share.models import ProviderRegistration
 
 from api.base.views import ShareViewSet
+from api.deprecation import deprecate
 from api.sourceregistrations.serializers import ProviderRegistrationSerializer
 
 
+@deprecate(pls_hide=True)
 class ProviderRegistrationViewSet(ShareViewSet, generics.ListCreateAPIView, generics.RetrieveAPIView):
     """View showing all registration data in the SHARE Dataset.
 

@@ -14,6 +14,7 @@ from share.ingest.ingester import Ingester
 
 from api import v1_schemas
 from api.authentication import APIV1TokenBackPortAuthentication
+from api.deprecation import deprecate
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
 
@@ -21,6 +22,7 @@ from api.normalizeddata.serializers import BasicNormalizedDataSerializer
 __all__ = ('V1DataView', )
 
 
+@deprecate(pls_hide=False)
 class V1DataView(views.APIView):
     """View allowing sources to post SHARE v1 formatted metadata directly to the SHARE Dataset.
 

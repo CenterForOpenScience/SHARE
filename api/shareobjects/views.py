@@ -1,10 +1,12 @@
 from rest_framework import viewsets
 
 from api.base.views import ShareViewSet
+from api.deprecation import deprecate
 from api.pagination import CursorPagination
 from api.permissions import IsDeletedPremissions
 
 
+@deprecate(pls_hide=True)
 class ShareObjectViewSet(ShareViewSet, viewsets.ReadOnlyModelViewSet):
     pagination_class = CursorPagination
     permission_classes = (IsDeletedPremissions, )
