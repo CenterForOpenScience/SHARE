@@ -3,6 +3,11 @@ import cProfile
 import pstats
 
 from django.conf import settings
+from django.http import HttpResponse
+
+from raven.contrib.django.raven_compat.models import client as sentry_client
+
+from api.deprecation import get_view_func_deprecation_level, DeprecationLevel
 
 
 # Adapted from http://www.djangosnippets.org/snippets/186/
@@ -43,3 +48,32 @@ class ProfileMiddleware:
         response.content = s.getvalue()
 
         return response
+
+
+class DeprecationMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        deprecation_level = get_view_func_deprecation_level(view_func)
+
+        if deprecation_level in (DeprecationLevel.LOGGED, DeprecationLevel.HIDDEN):
+            sentry_client.captureMessage('Deprecated view usage', data={
+                'request': {
+                    'path': request.path,
+                    'method': request.method,
+                },
+                'deprecation_level': deprecation_level,
+                'HIDE_DEPRECATED_VIEWS': settings.HIDE_DEPRECATED_VIEWS,
+            })
+
+        if settings.HIDE_DEPRECATED_VIEWS and deprecation_level == DeprecationLevel.HIDDEN:
+            return HttpResponse(
+                f'This path ({request.path}) has been removed. If you have built something that relies on it, please email us at share-support@osf.io',
+                status=410,
+            )
+
+        return None  # continue processing as normal

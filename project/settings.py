@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+from distutils.util import strtobool
 
 from django.utils.log import DEFAULT_LOGGING
 
@@ -171,6 +172,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.middleware.DeprecationMiddleware',
 ]
 
 INTERNAL_IPS = ['127.0.0.1']
@@ -555,6 +557,8 @@ SUBJECTS_YAML = 'share/subjects.yaml'
 SUBJECT_SYNONYMS_JSON = 'share/models/synonyms.json'
 
 SHARE_LEGACY_PIPELINE = os.environ.get('SHARE_LEGACY_PIPELINE', True)
+
+HIDE_DEPRECATED_VIEWS = strtobool(os.environ.get('HIDE_DEPRECATED_VIEWS', 'False'))
 
 # Regulator pipeline, names of setuptools entry points
 SHARE_REGULATOR_CONFIG = {
