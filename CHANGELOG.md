@@ -1,5 +1,10 @@
 # Change Log
 
+# [20.2.0] - 2020-09-03
+- Add a decorator for marking views deprecated
+- Mark some views deprecated
+- Sources added via API default to canonical
+
 # [20.1.0] - 2020-06-16
 - Automatically schedule `ingest` tasks after harvesting
 - Schedule `ingest` tasks in admin `reenqueue` action
