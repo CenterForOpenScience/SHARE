@@ -128,8 +128,14 @@ class HackyMerger:
         ), reverse=True))
 
         self.describe_smash(winner, losers)
-        if self.interactive and not self.command.input_confirm('OK? (y/n) '):
-            raise RejectMerge
+        if self.interactive:
+            safe_to_assume_yes = all(
+                loser.name == winner.name and
+                len(loser.identifiers.all()) == 0
+                for loser in losers
+            )
+            if not (safe_to_assume_yes or self.command.input_confirm('OK? (y/n) ')):
+                raise RejectMerge
 
         if self.dry_run:
             return
