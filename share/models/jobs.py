@@ -409,6 +409,14 @@ class IngestJob(AbstractBaseJob):
     class Meta:
         unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
 
+    def reschedule(self, claim=False):
+        result = super().reschedule(claim)
+        if not claim:
+            # HACK so calling reschedule re-runs the task
+            from share.tasks import ingest
+            ingest.delay(job_id=self.id)
+        return result
+
     def log_graph(self, field_name, graph):
         setattr(self, field_name, graph.to_jsonld())
         self.save(update_fields=(field_name, 'date_modified'))
