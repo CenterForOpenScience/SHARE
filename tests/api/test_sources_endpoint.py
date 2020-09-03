@@ -215,7 +215,7 @@ class TestSourcesPost:
 
         assert data['source']['longTitle'] == test_data['data']['attributes']['long_title']
         assert data['source']['homePage'] == test_data['data']['attributes']['home_page']
-        assert not data['source']['canonical']
+        assert data['source']['canonical']
 
     def test_successful_repost_home_page(self, client, source_add_user, mock_icon_urls):
         test_data = get_post_body(home_page='http://test.homepage.net')

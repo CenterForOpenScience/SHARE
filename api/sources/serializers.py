@@ -97,6 +97,7 @@ class CreateSourceSerializer(UpdateSourceSerializer):
                 long_title=long_title,
                 defaults={
                     'name': name,
+                    'canonical': True,
                     **validated_data
                 }
             )
