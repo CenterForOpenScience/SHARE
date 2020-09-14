@@ -1,6 +1,7 @@
 import yaml
 from typing import Set, Union
 
+from share.schema.exceptions import SchemaKeyError
 from share.schema.loader import SchemaLoader
 from share.schema.shapes import (
     ShareV2SchemaType,
@@ -34,12 +35,18 @@ class ShareV2Schema:
         return ShareV2Schema._schema_fields
 
     def get_type(self, type_name) -> ShareV2SchemaType:
-        return self.schema_types[type_name.lower()]
+        try:
+            return self.schema_types[type_name.lower()]
+        except KeyError:
+            raise SchemaKeyError(f'type "{type_name}" not found in SHARE schema')
 
     def get_field(self, type_name, field_name) -> Union[ShareV2SchemaAttribute, ShareV2SchemaRelation]:
         concrete_type = self.get_type(type_name).concrete_type
         key = (concrete_type, field_name.lower())
-        return self.schema_fields[key]
+        try:
+            return self.schema_fields[key]
+        except KeyError:
+            raise SchemaKeyError(f'field "{type_name}.{field_name}" not found in SHARE schema')
 
     def get_type_names(self, concrete_type) -> Set[str]:
         lower_concrete_type = concrete_type.lower()
