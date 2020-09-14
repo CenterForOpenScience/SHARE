@@ -1,11 +1,9 @@
 import re
 import collections
 
-from django.apps import apps
-
-from share.models import AbstractAgent, Person
 from share.regulate.steps import NodeStep
 from share.transform.chain.links import GuessAgentTypeLink
+from share.schema import ShareV2Schema
 from share.util import strip_whitespace
 from share.util import nameparser
 
@@ -28,10 +26,10 @@ class NormalizeAgentNames(NodeStep):
     ])
 
     def valid_target(self, node):
-        return node.model._meta.concrete_model is AbstractAgent
+        return node.concrete_type == 'abstractagent'
 
     def regulate_node(self, node):
-        if issubclass(node.model, Person):
+        if node.type == 'person':
             self._normalize_person(node)
         else:
             self._normalize_non_person(node)
@@ -76,10 +74,11 @@ class NormalizeAgentNames(NodeStep):
         # Slightly more intelligent title casing
         name = re.sub(r'(?!for|and|the)\b[a-z]\w{2,}', lambda x: x.group().title(), name)
 
-        maybe_type = GuessAgentTypeLink(default=node.type).execute(name)
-        # If the new type is MORE specific, IE encompasses FEWER types, upgrade. Otherwise ignore
-        if len(apps.get_model('share', maybe_type).get_types()) < len(node.model.get_types()):
-            node.type = maybe_type
+        maybe_type_name = GuessAgentTypeLink(default=node.type).execute(name)
+        maybe_type = ShareV2Schema().get_type(maybe_type_name)
+        # If the new type is MORE specific, upgrade. Otherwise ignore
+        if maybe_type.distance_from_concrete_type > node.schema_type.distance_from_concrete_type:
+            node.type = maybe_type.name
 
         match = re.match(r'^(.*(?:Departa?ment|Institute).+?);(?: (.+?); )?([^;]+)$', name, re.I)
         if match:
