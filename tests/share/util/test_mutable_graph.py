@@ -66,6 +66,7 @@ class TestMutableGraph:
         (work_id, 'title', 'title title'),
         (work_id, 'description', 'woo'),
         (identifier_id, 'creative_work', None),
+        (identifier_id, 'foo', 'bar'),
     ])
     def test_set_attrs(self, mutable_graph, node_id, key, value):
         n = mutable_graph.get_node(node_id)

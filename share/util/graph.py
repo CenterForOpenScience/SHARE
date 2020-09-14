@@ -5,11 +5,10 @@ import networkx as nx
 import pendulum
 import uuid
 
-from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist
-from django.db.models import DateTimeField
-
 from share.exceptions import ShareException
+from share.schema import ShareV2Schema
+from share.schema.exceptions import SchemaKeyError
+from share.schema.shapes import AttributeDataType, RelationShape
 from share.util import TopologicalSorter
 
 
@@ -19,9 +18,6 @@ class MutableGraphError(ShareException):
 
 class PrivateNodeAttrs(Enum):
     TYPE = auto()
-    MODEL = auto()
-    CONCRETE_TYPE = auto()
-    CONCRETE_MODEL = auto()
 
 
 class EdgeAttrs(Enum):
@@ -29,16 +25,10 @@ class EdgeAttrs(Enum):
     TO_NAME = auto()
 
 
-# TODO get SHARE schema in a non-model form
-def resolve_model(type):
-    return apps.get_model('share', type)
-
-
-def resolve_field(model, key):
-    # TODO make this util more general; don't use Django stuff
+def resolve_field(type_name, field_name):
     try:
-        return model._meta.get_field(key)
-    except FieldDoesNotExist:
+        return ShareV2Schema().get_field(type_name, field_name)
+    except SchemaKeyError:
         return None
 
 
@@ -77,13 +67,13 @@ class MutableGraph(nx.DiGraph):
             nodes = nodes['@graph']
         graph = cls()
         for n in nodes:
-            id, type = None, None
+            node_id, node_type = None, None
             attrs = {}
             for k, v in n.items():
                 if k == '@id':
-                    id = v
+                    node_id = v
                 elif k == '@type':
-                    type = v
+                    node_type = v
                 elif isinstance(v, dict) and k != 'extra':
                     graph.add_node(v['@id'], v['@type'])
                     attrs[k] = v['@id']
@@ -91,9 +81,9 @@ class MutableGraph(nx.DiGraph):
                     pass  # Don't bother with incoming edges, let the other node point here
                 else:
                     attrs[k] = v
-            if not id or not type:
+            if not node_id or not node_type:
                 raise MutableGraphError('Nodes must have id and type')
-            graph.add_node(id, type, attrs)
+            graph.add_node(node_id, node_type, attrs)
         return graph
 
     def __init__(self):
@@ -110,46 +100,46 @@ class MutableGraph(nx.DiGraph):
             for node in self.topologically_sorted()
         ]
 
-    def add_node(self, id, type, attrs=None):
+    def add_node(self, node_id, node_type, attrs=None):
         """Create a node in the graph.
 
-        id (hashable): Unique node ID. If None, generate a random ID.
-        type (str): Name of the node's model
+        node_id (hashable): Unique node ID. If None, generate a random ID.
+        node_type (str): The node's @type value
         keyword args: Named attributes or relations corresponding to fields on the node's model
 
         Returns a MutableNode wrapper for the new node.
         """
-        if type is None:
-            raise MutableGraphError('Must provide `type` to MutableGraph.add_node')
+        if node_type is None:
+            raise MutableGraphError('Must provide `node_type` to MutableGraph.add_node')
         self.changed = True
 
-        if id is None:
-            id = '_:{}'.format(uuid.uuid4())
+        if node_id is None:
+            node_id = '_:{}'.format(uuid.uuid4())
 
-        super().add_node(id)
-        return MutableNode(self, id, type, attrs)
+        super().add_node(node_id)
+        return MutableNode(self, node_id, node_type, attrs)
 
-    def get_node(self, id):
+    def get_node(self, node_id):
         """Get a node by ID.
 
-        id (hashable): Unique node ID
+        node_id (hashable): Unique node ID
 
         Returns a MutableNode wrapper for the node, or None.
         """
-        if id in self:
-            return MutableNode(self, id)
+        if node_id in self:
+            return MutableNode(self, node_id)
         return None
 
-    def remove_node(self, id, cascade=True):
+    def remove_node(self, node_id, cascade=True):
         """Remove a node and its incoming/outgoing edges.
 
-        id (hashable): Unique node ID
+        node_id (hashable): Unique node ID
         cascade (boolean): Also remove nodes with edges which point to this node. Default True.
         """
         self.changed = True
 
-        to_remove = list(self.predecessors(id)) if cascade else []
-        super().remove_node(id)
+        to_remove = list(self.predecessors(node_id)) if cascade else []
+        super().remove_node(node_id)
         for from_id in to_remove:
             self.remove_node(from_id, cascade)
 
@@ -164,13 +154,14 @@ class MutableGraph(nx.DiGraph):
         # TODO figure out common sorts of filters, make kwargs for them and optimize
         return [node for node in self if filter(node)]
 
-    def filter_type(self, type_name):
+    def filter_type(self, node_type):
         # TODO make a sort of index dict, mapping type to nodes
-        return self.filter_nodes(lambda n: n.type == type_name.lower())
+        return self.filter_nodes(lambda n: n.type == node_type.lower())
 
-    def filter_by_concrete_model(self, model):
-        # TODO make a sort of index dict, mapping model to nodes
-        return self.filter_nodes(lambda n: n.concrete_model == model)
+    def filter_by_concrete_type(self, concrete_type):
+        # TODO make a sort of index dict, mapping concrete_type to nodes
+        lower_concrete_type = concrete_type.lower()
+        return self.filter_nodes(lambda n: n.concrete_type == lower_concrete_type)
 
     def add_named_edge(self, from_id, to_id, from_name, to_name):
         """Add a named edge.
@@ -272,13 +263,13 @@ class MutableGraph(nx.DiGraph):
     def merge_nodes(self, from_node, into_node):
         """Merge a nodes attrs and edges into another node.
         """
-        if from_node.concrete_model is not into_node.concrete_model:
+        if from_node.concrete_type != into_node.concrete_type:
             raise MutableGraphError('Cannot merge nodes of different types')
 
         self.changed = True
 
-        # Merged node will have the more specific typ
-        if len(from_node.model.__mro__) >= len(into_node.model.__mro__):
+        # into_node will have the more specific typ
+        if from_node.schema_type.distance_from_concrete_type > into_node.schema_type.distance_from_concrete_type:
             from_node, into_node = into_node, from_node
 
         self._merge_node_attrs(from_node, into_node)
@@ -295,7 +286,7 @@ class MutableGraph(nx.DiGraph):
         ).sorted()
 
     def __iter__(self):
-        return (MutableNode(self, id) for id in super().__iter__())
+        return (MutableNode(self, node_id) for node_id in super().__iter__())
 
     def __contains__(self, n):
         if isinstance(n, MutableNode):
@@ -313,8 +304,8 @@ class MutableGraph(nx.DiGraph):
                 if new_val == old_val:
                     continue
 
-                field = resolve_field(into_node.model, k)
-                if isinstance(field, DateTimeField):
+                field = resolve_field(into_node.type, k)
+                if getattr(field, 'data_type', None) == AttributeDataType.DATETIME:
                     new_val = max(pendulum.parse(new_val), pendulum.parse(old_val)).isoformat()
                 else:
                     new_val = self._merge_value(new_val, old_val)
@@ -326,9 +317,9 @@ class MutableGraph(nx.DiGraph):
 
     def _merge_in_edges(self, from_node, into_node):
         for in_edge_name, source_nodes in self.named_in_edges(from_node.id).items():
-            source_field = resolve_field(from_node.model, in_edge_name).remote_field
+            inverse_relation = resolve_field(from_node.type, in_edge_name).inverse_relation
             for source_node in source_nodes:
-                source_node[source_field.name] = into_node
+                source_node[inverse_relation] = into_node
 
     def _merge_out_edges(self, from_node, into_node):
         into_edges = self.named_out_edges(into_node.id)
@@ -342,17 +333,17 @@ class MutableNode:
     """Convenience wrapper around a node in a MutableGraph.
     """
 
-    def __new__(cls, graph, id, *args, **kwargs):
-        if id not in graph:
-            return graph.add_node(id, *args, **kwargs)
+    def __new__(cls, graph, node_id, *args, **kwargs):
+        if node_id not in graph:
+            return graph.add_node(node_id, *args, **kwargs)
         return super().__new__(cls)
 
-    def __init__(self, graph, id, type=None, attrs=None):
+    def __init__(self, graph, node_id, type_name=None, attrs=None):
         self.__graph = graph
-        self.__id = id
-        self.__attrs = graph.nodes[id]
-        if type:
-            self.type = type
+        self.__id = node_id
+        self.__attrs = graph.nodes[node_id]
+        if type_name:
+            self.type = type_name
         if attrs:
             self.update(attrs)
 
@@ -372,25 +363,18 @@ class MutableNode:
     def type(self, value):
         self.graph.changed = True
 
-        model = resolve_model(value)
+        schema_type = ShareV2Schema().get_type(value)
         self.__attrs.update({
-            PrivateNodeAttrs.TYPE: model._meta.model_name,
-            PrivateNodeAttrs.MODEL: model,
-            PrivateNodeAttrs.CONCRETE_TYPE: model._meta.concrete_model._meta.model_name,
-            PrivateNodeAttrs.CONCRETE_MODEL: model._meta.concrete_model,
+            PrivateNodeAttrs.TYPE: schema_type.name.lower(),
         })
 
     @property
-    def model(self):
-        return self.__attrs[PrivateNodeAttrs.MODEL]
-
-    @property
     def concrete_type(self):
-        return self.__attrs[PrivateNodeAttrs.CONCRETE_TYPE]
+        return self.schema_type.concrete_type.lower()
 
     @property
-    def concrete_model(self):
-        return self.__attrs[PrivateNodeAttrs.CONCRETE_MODEL]
+    def schema_type(self):
+        return ShareV2Schema().get_type(self.type)
 
     def attrs(self):
         return {
@@ -417,14 +401,14 @@ class MutableNode:
         If key is the name of an outgoing edge, return a MutableNode that edge points to
         If key is the name of incoming edges, return a list of MutableNodes those edges come from
         """
-        field = resolve_field(self.model, key)
-        if field and field.is_relation and key != 'extra':
-            if field.many_to_one:
+        field = resolve_field(self.type, key)
+        if field and field.is_relation and field.name != 'extra':
+            if field.relation_shape == RelationShape.MANY_TO_ONE:
                 return self.graph.resolve_named_out_edge(self.id, field.name)
-            if field.one_to_many:
+            if field.relation_shape == RelationShape.ONE_TO_MANY:
                 return self.graph.resolve_named_in_edges(self.id, field.name)
             raise MutableGraphError('Only many-to-one and one-to-many relations allowed')
-        return self.__attrs.get(key)
+        return self.__attrs.get(field.name if field else key)
 
     def __setitem__(self, key, value):
         """Set an attribute value or add an outgoing named edge.
@@ -439,20 +423,21 @@ class MutableNode:
         """
         self.graph.changed = True
 
+        field = resolve_field(self.type, key)
+        field_name = field.name if field else key
+
         if value is None:
-            del self[key]
+            del self[field_name]
             return
 
-        # TODO allow keys that don't line up with fields (will fail validation)
-        field = resolve_field(self.model, key)
-        if field and field.is_relation and key != 'extra':
-            if not field.many_to_one:
+        if field and field.is_relation:
+            if field.relation_shape != RelationShape.MANY_TO_ONE:
                 raise MutableGraphError('Can set only many-to-one relations')
             to_id = value.id if hasattr(value, 'id') else value
-            self.graph.remove_named_edge(self.id, field.name)
-            self.graph.add_named_edge(self.id, to_id, field.name, field.remote_field.name)
+            self.graph.remove_named_edge(self.id, field_name)
+            self.graph.add_named_edge(self.id, to_id, field_name, field.inverse_relation)
         else:
-            self.__attrs[key] = value
+            self.__attrs[field_name] = value
 
     def __delitem__(self, key):
         """Delete an attribute value or outgoing named edge.
@@ -464,13 +449,16 @@ class MutableNode:
         If key is the name of incoming edges, raise an error.
         """
         self.graph.changed = True
-        field = resolve_field(self.model, key)
-        if field and field.is_relation and key != 'extra':
-            if not field.many_to_one:
+
+        field = resolve_field(self.type, key)
+        field_name = field.name if field else key
+
+        if field and field.is_relation:
+            if field.relation_shape != RelationShape.MANY_TO_ONE:
                 raise MutableGraphError('Can delete only many-to-one relations')
-            self.graph.remove_named_edge(self.id, field.name)
-        elif key in self.__attrs:
-            del self.__attrs[key]
+            self.graph.remove_named_edge(self.id, field_name)
+        elif field_name in self.__attrs:
+            del self.__attrs[field_name]
 
     def update(self, attrs):
         for k, v in attrs.items():
