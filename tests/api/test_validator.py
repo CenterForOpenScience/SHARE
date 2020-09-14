@@ -294,18 +294,11 @@ class TestValidator:
     }, {
         'out': Response(400, json={
             'errors': [{
-                'detail': "Additional properties are not allowed ('family_name' was unexpected) at /@graph/0",
+                'detail': "Additional properties are not allowed ('publishers' was unexpected) at /@graph/2",
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'
             }]
         }),
-        'in': requests.Request('POST', json=valid_work_invalid_agent_field)
-    }, {
-        'out': Response(400, json={'errors': [{
-            'detail': "Additional properties are not allowed ('family_name' was unexpected) at /@graph/0",
-            'source': {'pointer': '/data/attributes/data'},
-            'status': '400'
-        }]}),
         'in': requests.Request('POST', json=valid_work_invalid_agent_field)
     }, {
         # does not break because the raw information is not processed
