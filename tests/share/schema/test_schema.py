@@ -1,6 +1,7 @@
 import pytest
 
 from share.schema import ShareV2Schema
+from share.schema.exceptions import SchemaKeyError
 from share.schema.shapes import AttributeDataType, AttributeDataFormat, RelationShape
 from share.schema.shapes import ShareV2SchemaType, ShareV2SchemaAttribute, ShareV2SchemaRelation
 
@@ -221,7 +222,7 @@ class TestStaticSchema:
         ('bad_type', 'bad_field'),
     ))
     def test_get_invalid_field(self, schema, type_name, field_name):
-        with pytest.raises(KeyError):
+        with pytest.raises(SchemaKeyError):
             schema.get_field(type_name, field_name)
 
     @pytest.mark.parametrize('type_name', (
@@ -230,5 +231,5 @@ class TestStaticSchema:
         'abstractagent',
     ))
     def test_get_invalid_type(self, type_name, schema):
-        with pytest.raises(KeyError):
+        with pytest.raises(SchemaKeyError):
             schema.get_type('bad')
