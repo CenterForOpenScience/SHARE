@@ -1,3 +1,5 @@
+from django.apps import apps
+
 from share.exceptions import MergeRequired
 from share.util import TopologicalSorter, ensure_iterable
 
@@ -41,7 +43,8 @@ class Matcher:
     def _group_nodes_by_model(self, graph):
         nodes_by_model = {}
         for node in graph:
-            nodes_by_model.setdefault(node.model, []).append(node)
+            model = apps.get_model('share', node.type)
+            nodes_by_model.setdefault(model, []).append(node)
 
         models = list(nodes_by_model.keys())
 
