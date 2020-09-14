@@ -6,25 +6,25 @@ from share.schema.shapes import AttributeDataType, AttributeDataFormat, Relation
 from share.schema.shapes import ShareV2SchemaType, ShareV2SchemaAttribute, ShareV2SchemaRelation
 
 WORK_TYPES = {
-    'creativework',
-    'dataset',
-    'patent',
-    'poster',
-    'publication',
-    'article',
-    'book',
-    'conferencepaper',
-    'dissertation',
-    'preprint',
-    'project',
-    'registration',
-    'report',
-    'thesis',
-    'workingpaper',
-    'presentation',
-    'repository',
-    'retraction',
-    'software',
+    'CreativeWork',
+    'DataSet',
+    'Patent',
+    'Poster',
+    'Publication',
+    'Article',
+    'Book',
+    'ConferencePaper',
+    'Dissertation',
+    'Preprint',
+    'Project',
+    'Registration',
+    'Report',
+    'Thesis',
+    'WorkingPaper',
+    'Presentation',
+    'Repository',
+    'Retraction',
+    'Software',
 }
 
 EXPLICIT_WORK_FIELDS = {
@@ -45,16 +45,15 @@ EXPLICIT_WORK_FIELDS = {
     'tags',
     'related_agents',
     'related_works',
-    'identifiers',
 }
 
 AGENT_TYPES = {
-    'agent',
-    'organization',
-    'consortium',
-    'department',
-    'institution',
-    'person',
+    'Agent',
+    'Organization',
+    'Consortium',
+    'Department',
+    'Institution',
+    'Person',
 }
 
 EXPLICIT_AGENT_FIELDS = {
@@ -66,7 +65,6 @@ EXPLICIT_AGENT_FIELDS = {
     'suffix',
     'extra',
     'related_agents',
-    'identifiers',
     'related_works',
 }
 
@@ -78,38 +76,38 @@ class TestStaticSchema:
 
     @pytest.mark.parametrize('type_name, expected', [
         ('registration', ShareV2SchemaType(
-            'registration',
-            'abstractcreativework',
+            'Registration',
+            'AbstractCreativeWork',
             EXPLICIT_WORK_FIELDS,
             3,
         )),
         ('publication', ShareV2SchemaType(
-            'publication',
-            'abstractcreativework',
+            'Publication',
+            'AbstractCreativeWork',
             EXPLICIT_WORK_FIELDS,
             2,
         )),
         ('creativework', ShareV2SchemaType(
-            'creativework',
-            'abstractcreativework',
+            'CreativeWork',
+            'AbstractCreativeWork',
             EXPLICIT_WORK_FIELDS,
             1,
         )),
         ('consortium', ShareV2SchemaType(
-            'consortium',
-            'abstractagent',
+            'Consortium',
+            'AbstractAgent',
             EXPLICIT_AGENT_FIELDS,
             3,
         )),
         ('person', ShareV2SchemaType(
-            'person',
-            'abstractagent',
+            'Person',
+            'AbstractAgent',
             EXPLICIT_AGENT_FIELDS,
             2,
         )),
         ('agent', ShareV2SchemaType(
-            'agent',
-            'abstractagent',
+            'Agent',
+            'AbstractAgent',
             EXPLICIT_AGENT_FIELDS,
             1,
         )),
@@ -141,7 +139,8 @@ class TestStaticSchema:
         ('tags', ShareV2SchemaRelation(
             'tags',
             relation_shape=RelationShape.MANY_TO_MANY,
-            related_concrete_type='tag',
+            related_concrete_type='Tag',
+            through_concrete_type='ThroughTags',
             inverse_relation='creative_works',
             is_required=False,
             is_implicit=False,
@@ -149,7 +148,7 @@ class TestStaticSchema:
         ('agent_relations', ShareV2SchemaRelation(
             'agent_relations',
             relation_shape=RelationShape.ONE_TO_MANY,
-            related_concrete_type='abstractagentworkrelation',
+            related_concrete_type='AbstractAgentWorkRelation',
             inverse_relation='creative_work',
             is_required=False,
             is_implicit=True,
@@ -176,15 +175,16 @@ class TestStaticSchema:
         ('identifiers', ShareV2SchemaRelation(
             'identifiers',
             relation_shape=RelationShape.ONE_TO_MANY,
-            related_concrete_type='agentidentifier',
+            related_concrete_type='AgentIdentifier',
             inverse_relation='agent',
             is_required=False,
-            is_implicit=False,
+            is_implicit=True,
         )),
         ('related_works', ShareV2SchemaRelation(
             'related_works',
             relation_shape=RelationShape.MANY_TO_MANY,
-            related_concrete_type='abstractcreativework',
+            related_concrete_type='AbstractCreativeWork',
+            through_concrete_type='AbstractAgentWorkRelation',
             inverse_relation='related_agents',
             is_required=False,
             is_implicit=False,
@@ -192,7 +192,7 @@ class TestStaticSchema:
         ('work_relations', ShareV2SchemaRelation(
             'work_relations',
             relation_shape=RelationShape.ONE_TO_MANY,
-            related_concrete_type='abstractagentworkrelation',
+            related_concrete_type='AbstractAgentWorkRelation',
             inverse_relation='agent',
             is_required=False,
             is_implicit=True,
@@ -204,14 +204,15 @@ class TestStaticSchema:
 
     @pytest.mark.parametrize('concrete_type, expected_type_names', (
         ('abstractcreativework', WORK_TYPES),
+        ('ABSTRACTCREATIVEWORK', WORK_TYPES),
         ('abstractagent', AGENT_TYPES),
-        ('tag', {'tag'}),
-        ('award', {'award'}),
-        ('throughtags', {'throughtags'}),
-        ('subject', {'subject'}),
-        ('throughsubjects', {'throughsubjects'}),
-        ('throughawards', {'throughawards'}),
-        ('award', {'award'}),
+        ('tag', {'Tag'}),
+        ('award', {'Award'}),
+        ('throughtags', {'ThroughTags'}),
+        ('Subject', {'Subject'}),
+        ('throughsubjects', {'ThroughSubjects'}),
+        ('throuGHAWards', {'ThroughAwards'}),
+        ('award', {'Award'}),
     ))
     def test_get_type_names(self, schema, concrete_type, expected_type_names):
         type_names = schema.get_type_names(concrete_type)
@@ -227,6 +228,7 @@ class TestStaticSchema:
 
     @pytest.mark.parametrize('type_name', (
         'abstractcreativework',
+        'AbstractCreativeWork',
         'bad',
         'abstractagent',
     ))

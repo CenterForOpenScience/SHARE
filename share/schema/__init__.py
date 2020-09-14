@@ -11,8 +11,10 @@ from share.schema.shapes import (
 
 
 class ShareV2Schema:
-    _schema_types = None  # singleton
-    _schema_fields = None  # singleton
+    # will be loaded only once
+    _schema_types = None
+    _schema_type_names = None
+    _schema_fields = None
 
     @classmethod
     def load_schema(cls):
@@ -21,6 +23,15 @@ class ShareV2Schema:
         loader = SchemaLoader(type_spec_list)
         cls._schema_types = loader.schema_types
         cls._schema_fields = loader.schema_fields
+
+        cls._schema_type_names = {
+            concrete_type.lower(): {
+                schema_type.name
+                for schema_type in loader.schema_types.values()
+                if schema_type.concrete_type == concrete_type
+            }
+            for concrete_type in loader.concrete_types
+        }
 
     @property
     def schema_types(self):
@@ -34,6 +45,12 @@ class ShareV2Schema:
             ShareV2Schema.load_schema()
         return ShareV2Schema._schema_fields
 
+    @property
+    def schema_type_names(self):
+        if ShareV2Schema._schema_type_names is None:
+            ShareV2Schema.load_schema()
+        return ShareV2Schema._schema_type_names
+
     def get_type(self, type_name) -> ShareV2SchemaType:
         try:
             return self.schema_types[type_name.lower()]
@@ -42,16 +59,14 @@ class ShareV2Schema:
 
     def get_field(self, type_name, field_name) -> Union[ShareV2SchemaAttribute, ShareV2SchemaRelation]:
         concrete_type = self.get_type(type_name).concrete_type
-        key = (concrete_type, field_name.lower())
+        key = (concrete_type.lower(), field_name.lower())
         try:
             return self.schema_fields[key]
         except KeyError:
             raise SchemaKeyError(f'field "{type_name}.{field_name}" not found in SHARE schema')
 
     def get_type_names(self, concrete_type) -> Set[str]:
-        lower_concrete_type = concrete_type.lower()
-        return {
-            schema_type.name
-            for schema_type in self.schema_types.values()
-            if schema_type.concrete_type == lower_concrete_type
-        }
+        try:
+            return self.schema_type_names[concrete_type.lower()]
+        except KeyError:
+            raise SchemaKeyError(f'concrete type "{concrete_type}" not found in SHARE schema')
