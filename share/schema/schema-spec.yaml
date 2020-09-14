@@ -1,0 +1,292 @@
+- concrete_type: abstractcreativework
+  type_tree:
+    creativework:
+      dataset:
+      patent:
+      poster:
+      publication:
+        article:
+        book:
+        conferencepaper:
+        dissertation:
+        preprint:
+        project:
+        registration:
+        report:
+        thesis:
+        workingpaper:
+      presentation:
+      repository:
+      retraction:
+      software:
+  attributes:
+    - name: title
+      data_type: string
+    - name: description
+      data_type: string
+    - name: is_deleted
+      data_type: boolean
+    - name: date_published
+      data_type: datetime
+    - name: date_updated
+      data_type: datetime
+    - name: free_to_read_type
+      data_type: string
+      data_format: uri
+    - name: free_to_read_date
+      data_type: datetime
+    - name: rights
+      data_type: string
+    - name: language
+      data_type: string
+    - name: registration_type
+      data_type: string
+    - name: withdrawn
+      data_type: boolean
+    - name: justification
+      data_type: string
+    - name: extra
+      data_type: object
+  relations:
+    - name: subjects
+      relation_shape: many_to_many
+      related_concrete_type: Subject
+      inverse_relation: creative_works
+    - name: tags
+      relation_shape: many_to_many
+      related_concrete_type: Tag
+      inverse_relation: creative_works
+    - name: related_agents
+      relation_shape: many_to_many
+      related_concrete_type: AbstractAgent
+      inverse_relation: related_works
+    - name: related_works
+      relation_shape: many_to_many
+      related_concrete_type: AbstractCreativeWork
+      inverse_relation: related_works
+    - name: identifiers
+      relation_shape: one_to_many
+      related_concrete_type: WorkIdentifier
+      inverse_relation: creative_work
+
+- concrete_type: abstractagent
+  type_tree:
+    agent:
+      organization:
+        consortium:
+        department:
+        institution:
+      person:
+  attributes:
+    - name: name
+      data_type: string
+    - name: location
+      data_type: string
+    - name: family_name
+      data_type: string
+    - name: given_name
+      data_type: string
+    - name: additional_name
+      data_type: string
+    - name: suffix
+      data_type: string
+    - name: extra
+      data_type: object
+  relations:
+    - name: related_agents
+      relation_shape: many_to_many
+      related_concrete_type: AbstractAgent
+      inverse_relation: related_agents
+    - name: identifiers
+      relation_shape: one_to_many
+      related_concrete_type: AgentIdentifier
+      inverse_relation: agent
+    - name: related_works
+      relation_shape: many_to_many
+      related_concrete_type: AbstractCreativeWork
+      inverse_relation: related_agents
+
+- concrete_type: abstractagentworkrelation
+  type_tree:
+    agentworkrelation:
+      contributor:
+        creator:
+          principalinvestigator:
+          principalinvestigatorcontact:
+      funder:
+      host:
+      publisher:
+  attributes:
+    - name: cited_as
+      data_type: string
+    - name: order_cited
+      data_type: integer
+    - name: extra
+      data_type: object
+  relations:
+    - name: creative_work
+      relation_shape: many_to_one
+      related_concrete_type: AbstractCreativeWork
+      inverse_relation: agent_relations
+    - name: agent
+      relation_shape: many_to_one
+      related_concrete_type: AbstractAgent
+      inverse_relation: work_relations
+    - name: awards
+      relation_shape: many_to_many
+      related_concrete_type: Award
+
+- concrete_type: abstractagentrelation
+  type_tree:
+    agentrelation:
+      isaffiliatedwith:
+      isemployedby:
+      ismemberof:
+  attributes:
+    - name: extra
+      data_type: object
+  relations:
+    - name: subject
+      relation_shape: many_to_one
+      related_concrete_type: AbstractAgent
+      inverse_relation: outgoing_agent_relations
+    - name: related
+      relation_shape: many_to_one
+      related_concrete_type: AbstractAgent
+      inverse_relation: incoming_agent_relations
+
+- concrete_type: abstractworkrelation
+  type_tree:
+    workrelation:
+      cites:
+      compiles:
+      corrects:
+      discusses:
+      disputes:
+      documents:
+      extends:
+      isderivedfrom:
+      ispartof:
+      issupplementto:
+      references:
+      repliesto:
+      retracts:
+      reviews:
+      usesdatafrom:
+  attributes:
+    - name: extra
+      data_type: object
+  relations:
+    - name: subject
+      relation_shape: many_to_one
+      related_concrete_type: AbstractCreativeWork
+      inverse_relation: outgoing_creative_work_relations
+    - name: related
+      relation_shape: many_to_one
+      related_concrete_type: AbstractCreativeWork
+      inverse_relation: incoming_creative_work_relations
+
+- concrete_type: workidentifier
+  attributes:
+    - name: uri
+      data_type: string
+      data_format: uri
+      is_required: true
+    - name: host
+      data_type: string
+    - name: scheme
+      data_type: string
+    - name: extra
+      data_type: object
+
+- concrete_type: agentidentifier
+  attributes:
+    - name: uri
+      data_type: string
+      data_format: uri
+      is_required: true
+    - name: host
+      data_type: string
+    - name: scheme
+      data_type: string
+    - name: extra
+      data_type: object
+
+- concrete_type: subject
+  attributes:
+    - name: name
+      data_type: string
+      is_required: true
+    - name: is_deleted
+      data_type: boolean
+    - name: uri
+      data_type: string
+      data_format: uri
+    - name: extra
+      data_type: object
+  relations:
+    - name: parent
+      relation_shape: many_to_one
+      related_concrete_type: Subject
+      inverse_relation: children
+    - name: central_synonym
+      relation_shape: many_to_one
+      related_concrete_type: Subject
+
+- concrete_type: throughsubjects
+  attributes:
+    - name: is_deleted
+      data_type: boolean
+  relations:
+    - name: subject
+      relation_shape: many_to_one
+      related_concrete_type: Subject
+      inverse_relation: work_relations
+    - name: creative_work
+      relation_shape: many_to_one
+      related_concrete_type: AbstractCreativeWork
+      inverse_relation: subject_relations
+
+- concrete_type: tag
+  attributes:
+    - name: name
+      data_type: string
+      is_required: true
+    - name: extra
+      data_type: object
+
+- concrete_type: throughtags
+  relations:
+    - name: tag
+      relation_shape: many_to_one
+      related_concrete_type: Tag
+      inverse_relation: work_relations
+    - name: creative_work
+      relation_shape: many_to_one
+      related_concrete_type: AbstractCreativeWork
+      inverse_relation: tag_relations
+
+- concrete_type: award
+  attributes:
+    - name: name
+      data_type: string
+    - name: description
+      data_type: string
+    - name: date
+      data_type: datetime
+    - name: award_amount
+      data_type: integer
+    - name: uri
+      data_type: string
+      data_format: uri
+
+- concrete_type: throughawards
+  relations:
+    - name: funder
+      relation_shape: many_to_one
+      related_concrete_type: AbstractAgentWorkRelation
+      inverse_relation: null
+    - name: award
+      relation_shape: many_to_one
+      related_concrete_type: Award
+      inverse_relation: null
