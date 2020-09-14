@@ -17,7 +17,7 @@ class SchemaLoader:
 
         try:
             self.concrete_types = set(
-                type_spec['concrete_type'].lower()
+                type_spec['concrete_type']
                 for type_spec in type_spec_list
             )
             self._load_all_attrs_and_relations(type_spec_list)
@@ -65,15 +65,15 @@ class SchemaLoader:
             name=relation.inverse_relation,
             relation_shape=inverse_relation_shape,
             related_concrete_type=concrete_type,
+            through_concrete_type=relation.through_concrete_type,
             inverse_relation=relation.name,
             is_implicit=True,
         )
         self._add_relation(relation.related_concrete_type, inverse_relation)
 
     def _add_type(self, concrete_type, type_name, distance_from_concrete_type=0):
-        lower_name = type_name.lower()
-        self.schema_types[lower_name] = ShareV2SchemaType(
-            name=lower_name,
+        self.schema_types[type_name.lower()] = ShareV2SchemaType(
+            name=type_name,
             concrete_type=concrete_type,
             distance_from_concrete_type=distance_from_concrete_type,
             explicit_fields=set(self.explicit_field_names.get(concrete_type, [])),
@@ -86,7 +86,7 @@ class SchemaLoader:
                 self._add_type_tree(concrete_type, subtree, depth + 1)
 
     def _add_relation(self, concrete_type, relation):
-        key = (concrete_type, relation.name)
+        key = (concrete_type.lower(), relation.name.lower())
         existing_relation = self.schema_fields.get(key, None)
         if existing_relation:
             is_existing_relation_compatible = (
@@ -94,6 +94,7 @@ class SchemaLoader:
                 and relation.name == existing_relation.name
                 and relation.relation_shape == existing_relation.relation_shape
                 and relation.related_concrete_type == existing_relation.related_concrete_type
+                and relation.through_concrete_type == existing_relation.through_concrete_type
                 and relation.inverse_relation == existing_relation.inverse_relation
             )
             if not is_existing_relation_compatible:
@@ -112,13 +113,12 @@ class SchemaLoader:
     def _add_field(self, concrete_type, attr_or_relation):
         if concrete_type not in self.concrete_types:
             raise SchemaLoadError(f'invalid concrete_type ({concrete_type}) on field {attr_or_relation}')
-        name = attr_or_relation.name.lower()
-        key = (concrete_type, name)
+        key = (concrete_type.lower(), attr_or_relation.name.lower())
         if key in self.schema_fields:
             raise SchemaLoadError(f'field defined twice: {key}')
         self.schema_fields[key] = attr_or_relation
         if not getattr(attr_or_relation, 'is_implicit', False):
-            self.explicit_field_names.setdefault(concrete_type, []).append(name)
+            self.explicit_field_names.setdefault(concrete_type, []).append(attr_or_relation.name)
 
     def _build_attribute(self, attr_dict):
         return ShareV2SchemaAttribute(
@@ -132,17 +132,23 @@ class SchemaLoader:
         )
 
     def _build_relation(self, relation_dict):
-        inverse_relation = relation_dict.get('inverse_relation', None)
         new_relation = ShareV2SchemaRelation(
             # required
-            name=relation_dict['name'].lower(),
+            name=relation_dict['name'],
             relation_shape=RelationShape[relation_dict['relation_shape'].upper()],
-            related_concrete_type=relation_dict['related_concrete_type'].lower(),
+            related_concrete_type=relation_dict['related_concrete_type'],
 
             # optional
-            inverse_relation=inverse_relation.lower() if inverse_relation else None,
+            through_concrete_type=relation_dict.get('through_concrete_type', None),
+            inverse_relation=relation_dict.get('inverse_relation', None),
             is_required=relation_dict.get('is_required', False),
         )
         if new_relation.related_concrete_type not in self.concrete_types:
             raise SchemaLoadError(f'invalid related_concrete_type on relation {new_relation}')
+        if new_relation.through_concrete_type and new_relation.through_concrete_type not in self.concrete_types:
+            raise SchemaLoadError(f'invalid through_concrete_type on relation {new_relation}')
+        if new_relation.through_concrete_type and new_relation.relation_shape != RelationShape.MANY_TO_MANY:
+            raise SchemaLoadError(f'through_concrete_type set on non-m2m relation {new_relation}')
+        if new_relation.relation_shape == RelationShape.MANY_TO_MANY and not new_relation.through_concrete_type:
+            raise SchemaLoadError(f'm2m relation {new_relation} missing through_concrete_type')
         return new_relation

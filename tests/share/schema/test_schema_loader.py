@@ -51,7 +51,7 @@ conflictly_type_spec_list = [{
         {'name': 'foo', 'data_type': 'string'},
     ],
     'relations': [
-        {'name': 'foo', 'relation_shape': 'many_to_many', 'related_concrete_type': 'cement', 'inverse_relation': 'bar'},
+        {'name': 'foo', 'relation_shape': 'one_to_many', 'related_concrete_type': 'cement', 'inverse_relation': 'bar'},
     ]
 }]
 
@@ -65,43 +65,45 @@ class TestGoodSchema:
     @pytest.fixture(scope='class')
     def loader(self):
         return SchemaLoader([{
-            'concrete_type': 'cement',
+            'concrete_type': 'Cement',
             'attributes': [
                 {'name': 'ash', 'data_type': 'string'},
             ],
             'relations': [
-                {'name': 'foo', 'relation_shape': 'many_to_many', 'related_concrete_type': 'cement', 'inverse_relation': 'bar'},
-                {'name': 'bar', 'relation_shape': 'many_to_many', 'related_concrete_type': 'cement', 'inverse_relation': 'foo'},
+                {'name': 'foo', 'relation_shape': 'many_to_many', 'related_concrete_type': 'Cement', 'through_concrete_type': 'FooBar', 'inverse_relation': 'bar'},
+                {'name': 'bar', 'relation_shape': 'many_to_many', 'related_concrete_type': 'Cement', 'through_concrete_type': 'FooBar', 'inverse_relation': 'foo'},
             ],
         }, {
-            'concrete_type': 'asphalt',
+            'concrete_type': 'Asphalt',
             'type_tree': {
-                'bitumen': {
-                    'dilbit': {},
+                'Bitumen': {
+                    'Dilbit': {},
                 },
-                'tarmac': None,
+                'Tarmac': None,
             },
             'attributes': [
                 {'name': 'gravel', 'data_type': 'integer'},
             ],
             'relations': [
-                {'name': 'cement', 'relation_shape': 'many_to_one', 'related_concrete_type': 'cement', 'inverse_relation': 'implicit_asphalts'},
-                {'name': 'cements', 'relation_shape': 'one_to_many', 'related_concrete_type': 'cement', 'inverse_relation': 'implicit_asphalt'},
+                {'name': 'cement', 'relation_shape': 'many_to_one', 'related_concrete_type': 'Cement', 'inverse_relation': 'implicit_asphalts'},
+                {'name': 'cements', 'relation_shape': 'one_to_many', 'related_concrete_type': 'Cement', 'inverse_relation': 'implicit_asphalt'},
             ],
+        }, {
+            'concrete_type': 'FooBar',
         }])
 
     def test_type_names(self, loader):
-        assert loader.concrete_types == {'cement', 'asphalt'}
+        assert loader.concrete_types == {'Cement', 'Asphalt', 'FooBar'}
 
         # concrete type 'asphalt' has subtypes, so shouldn't be in schema_types
-        actual_type_names = set(loader.schema_types.keys())
-        assert actual_type_names == {'cement', 'bitumen', 'dilbit', 'tarmac'}
+        actual_type_names = set(st.name for st in loader.schema_types.values())
+        assert actual_type_names == {'Cement', 'Bitumen', 'Dilbit', 'Tarmac', 'FooBar'}
 
     @pytest.mark.parametrize('type_name, expected', [
-        ('cement', ShareV2SchemaType('cement', 'cement', {'ash', 'foo', 'bar'})),
-        ('bitumen', ShareV2SchemaType('bitumen', 'asphalt', {'gravel', 'cement', 'cements'}, 1)),
-        ('dilbit', ShareV2SchemaType('dilbit', 'asphalt', {'gravel', 'cement', 'cements'}, 2)),
-        ('tarmac', ShareV2SchemaType('tarmac', 'asphalt', {'gravel', 'cement', 'cements'}, 1)),
+        ('cement', ShareV2SchemaType('Cement', 'Cement', {'ash', 'foo', 'bar'})),
+        ('bitumen', ShareV2SchemaType('Bitumen', 'Asphalt', {'gravel', 'cement', 'cements'}, 1)),
+        ('dilbit', ShareV2SchemaType('Dilbit', 'Asphalt', {'gravel', 'cement', 'cements'}, 2)),
+        ('tarmac', ShareV2SchemaType('Tarmac', 'Asphalt', {'gravel', 'cement', 'cements'}, 1)),
     ])
     def test_schema_types(self, loader, type_name, expected):
         actual = loader.schema_types[type_name]
@@ -117,26 +119,28 @@ class TestGoodSchema:
         ('cement', 'foo', ShareV2SchemaRelation(
             'foo',
             relation_shape=RelationShape.MANY_TO_MANY,
-            related_concrete_type='cement',
+            related_concrete_type='Cement',
+            through_concrete_type='FooBar',
             inverse_relation='bar',
         )),
         ('cement', 'bar', ShareV2SchemaRelation(
             'bar',
             relation_shape=RelationShape.MANY_TO_MANY,
-            related_concrete_type='cement',
+            related_concrete_type='Cement',
+            through_concrete_type='FooBar',
             inverse_relation='foo',
         )),
         ('cement', 'implicit_asphalt', ShareV2SchemaRelation(
             'implicit_asphalt',
             relation_shape=RelationShape.MANY_TO_ONE,
-            related_concrete_type='asphalt',
+            related_concrete_type='Asphalt',
             inverse_relation='cements',
             is_implicit=True,
         )),
         ('cement', 'implicit_asphalts', ShareV2SchemaRelation(
             'implicit_asphalts',
             relation_shape=RelationShape.ONE_TO_MANY,
-            related_concrete_type='asphalt',
+            related_concrete_type='Asphalt',
             inverse_relation='cement',
             is_implicit=True,
         )),
@@ -149,13 +153,13 @@ class TestGoodSchema:
         ('asphalt', 'cement', ShareV2SchemaRelation(
             'cement',
             relation_shape=RelationShape.MANY_TO_ONE,
-            related_concrete_type='cement',
+            related_concrete_type='Cement',
             inverse_relation='implicit_asphalts',
         )),
         ('asphalt', 'cements', ShareV2SchemaRelation(
             'cements',
             relation_shape=RelationShape.ONE_TO_MANY,
-            related_concrete_type='cement',
+            related_concrete_type='Cement',
             inverse_relation='implicit_asphalt',
         )),
     ])
