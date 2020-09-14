@@ -54,7 +54,7 @@ install:
     - ./elasticsearch-${ES_VERSION}/bin/elasticsearch &
     - cd $PROJECT_DIR
     - travis_retry pip install --upgrade pip
-    - travis_retry pip install flake8==3.0.4 --force-reinstall --upgrade
+    - travis_retry pip install flake8==3.8.3 --force-reinstall --upgrade
     - travis_retry pip install -r dev-requirements.txt
     - travis_retry pip install .
 
