@@ -377,7 +377,7 @@ class IngestJobConsumer(JobConsumer):
                     matches = change_set_builder.matches
 
         # Retry if it was just the wrong place at the wrong time
-        except (exceptions.IngestConflict, OperationalError) as e:
+        except (exceptions.IngestConflict, OperationalError):
             job.retries = (job.retries or 0) + 1
             job.save(update_fields=('retries',))
             if job.retries > self.MAX_RETRIES:

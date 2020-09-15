@@ -153,7 +153,7 @@ class TestJSONLDValidator:
             }]
         }
     }, {
-        'out': "1 is not of type 'string' at /@graph/0",
+        'out': "1 is not of type 'string' at /@graph/0/name",
         'in': {
             '@graph': [{
                 '@id': '_:123',
@@ -185,7 +185,7 @@ class TestJSONLDValidator:
             }]
         }
     }, {
-        'out': "'throughtugs' is not one of ['THROUGHTAGS', 'ThroughTags', 'throughtags'] at /@graph/0",
+        'out': "'throughtugs' is not one of ['THROUGHTAGS', 'ThroughTags', 'throughtags'] at /@graph/0/tags/0/@type",
         'in': {
             '@graph': [{
                 '@id': '_:123',
@@ -208,7 +208,7 @@ class TestJSONLDValidator:
             }]
         }
     }, {
-        'out': "'giraffe' is not a 'uri' at /@graph/0",
+        'out': "'giraffe' is not a 'uri' at /@graph/0/uri",
         'in': {
             '@graph': [{
                 '@id': '_:123',

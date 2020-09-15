@@ -56,7 +56,7 @@ class JSONLDValidator:
                 self.validate_node(node, refs, nodes)
             except exceptions.ValidationError as e:
                 e.path.appendleft(i)  # Hack to add in a leading slash
-                raise ValidationError('{} at /@graph/{}'.format(e.message, i, '/'.join(str(x) for x in e.path)))
+                raise ValidationError('{} at /@graph/{}'.format(e.message, '/'.join(str(x) for x in e.path)))
 
         if refs['blank'] - nodes['blank']:
             raise ValidationError('Unresolved references {}'.format(json.dumps([

@@ -39,7 +39,7 @@ class CreativeWork(Parser):
     def parse_names(self, authors):
         if not authors:
             return []
-        return re.split(',\s|\sand\s', authors)
+        return re.split(r',\s|\sand\s', authors)
 
 
 class NeurovaultTransformer(ChainTransformer):

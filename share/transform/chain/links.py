@@ -716,7 +716,7 @@ class ISNILink(AbstractIRILink):
         for lower, upper in cls.BOUNDS:
             if (not lower or lower < literal) and (not upper or upper > literal):
                 return
-        raise InvalidIRI('\'{0}\' is outside reserved {1} range.'.format(digits, cls.FORMAT, lower, upper))
+        raise InvalidIRI('\'{0}\' is outside reserved {1} range.'.format(digits, cls.FORMAT))
 
     def _parse(self, obj):
         match = re.search(self.ISNI_RE, obj.upper())
@@ -924,7 +924,7 @@ class InfoURILink(AbstractIRILink):
     # https://tools.ietf.org/html/rfc4452
 
     SCHEME = 'info'
-    INFO_RE = re.compile('^\s*info:([\w-]+)(/\S+)\s*$')
+    INFO_RE = re.compile(r'^\s*info:([\w-]+)(/\S+)\s*$')
 
     @classmethod
     def hint(cls, obj):
@@ -946,8 +946,8 @@ class InfoURILink(AbstractIRILink):
 class ISBNLink(AbstractIRILink):
     SCHEME = 'urn'
     AUTHORITY = 'isbn'
-    ISBN10_RE = re.compile('^(?:urn:\/\/isbn\/|ISBN:? ?)?(\d\d?)-(\d{3,7})-(\d{1,6})-(\d|x)$', re.I)
-    ISBN13_RE = re.compile('^(?:urn://isbn/|ISBN:? ?)?(978|979)-(\d\d?)-(\d{3,5})-(\d{2,5})-(\d)$', re.I)
+    ISBN10_RE = re.compile(r'^(?:urn:\/\/isbn\/|ISBN:? ?)?(\d\d?)-(\d{3,7})-(\d{1,6})-(\d|x)$', re.I)
+    ISBN13_RE = re.compile(r'^(?:urn://isbn/|ISBN:? ?)?(978|979)-(\d\d?)-(\d{3,5})-(\d{2,5})-(\d)$', re.I)
 
     @classmethod
     def hint(cls, obj):

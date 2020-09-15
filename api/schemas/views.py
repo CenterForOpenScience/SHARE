@@ -31,7 +31,7 @@ def format_link(model):
     schema_models.add(model)
     link = '- [{0}](/api/schema/{0})'.format(model.__name__)
     if model.__doc__ and not re.fullmatch(DEFAULT_DOC.format(model.__name__), model.__doc__):
-        link += ': ' + next(l for l in model.__doc__.splitlines() if l)
+        link += ': ' + next(line for line in model.__doc__.splitlines() if line)
     return link
 
 
@@ -40,7 +40,7 @@ def subclass_links(base_model, include_base=True):
     for model in sorted(base_model.__subclasses__(), key=lambda m: m.__name__):
         subclasses = subclass_links(model)
         if include_base:
-            subclasses = [INDENT + l for l in subclasses]
+            subclasses = [INDENT + link for link in subclasses]
         links.extend(subclasses)
     return links
 

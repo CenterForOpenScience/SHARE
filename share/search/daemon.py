@@ -126,7 +126,7 @@ class SearchIndexerDaemon(ConsumerMixin):
                 logger.info('%r: Prepared %d %ss to be indexed in %.02fs', self, len(msgs), model_name, time.time() - start)
         except Exception as e:
             client.captureException()
-            logger.exception('%r: _action_loop(%s) encountered an unexpected error', self, model_name)
+            logger.exception('%r: _action_loop(%s) encountered an unexpected error (%s)', self, model_name, e)
             self.stop()
 
     def _actions(self, msgs, timeout=5):
@@ -168,7 +168,7 @@ class SearchIndexerDaemon(ConsumerMixin):
                     logger.debug('%r: Recieved no messages for %.02fs', self, time.time() - start)
         except Exception as e:
             client.captureException()
-            logger.exception('%r: _index_loop encountered an unexpected error', self)
+            logger.exception('%r: _index_loop encountered an unexpected error (%s)', self, e)
             self.stop()
 
     def __repr__(self):

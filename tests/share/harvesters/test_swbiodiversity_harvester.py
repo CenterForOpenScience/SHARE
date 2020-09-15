@@ -107,7 +107,7 @@ def test_swbiodiversity_harvester():
                            body=main_page, content_type='text/html', match_querystring=True)
     collection = furl(url)
     collection.args['collid'] = 223
-    httpretty.register_uri(httpretty.GET, url + ';collid=(\d+)',
+    httpretty.register_uri(httpretty.GET, url + r';collid=(\d+)',
                            body=collection_page, content_type='text/html', match_querystring=True)
     start = pendulum.utcnow() - timedelta(days=3)
     end = pendulum.utcnow()

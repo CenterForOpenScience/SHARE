@@ -68,7 +68,7 @@ class OAIHarvester(BaseHarvester):
             if not token or not records:
                 break
 
-    def fetch_page(self, url: furl, token: str=None) -> (list, str):
+    def fetch_page(self, url: furl, token: str = None) -> (list, str):
         if token:
             url.args = {'resumptionToken': token, 'verb': 'ListRecords'}
 

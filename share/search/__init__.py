@@ -58,13 +58,11 @@ class SearchIndexer:
                 Q(
                     outgoing_creative_work_relations__type=parent_relation,
                     outgoing_creative_work_relations__related_id__in=pks
-                ) |
-                Q(
+                ) | Q(
                     outgoing_creative_work_relations__type=parent_relation,
                     outgoing_creative_work_relations__related__outgoing_creative_work_relations__type=parent_relation,
                     outgoing_creative_work_relations__related__outgoing_creative_work_relations__related_id__in=pks
-                ) |
-                Q(
+                ) | Q(
                     outgoing_creative_work_relations__type=parent_relation,
                     outgoing_creative_work_relations__related__outgoing_creative_work_relations__type=parent_relation,
                     outgoing_creative_work_relations__related__outgoing_creative_work_relations__related__outgoing_creative_work_relations__type=parent_relation,

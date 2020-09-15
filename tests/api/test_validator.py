@@ -264,7 +264,7 @@ class TestValidator:
                           "'INSTITUTION', 'Institution', 'ORGANIZATION', "
                           "'Organization', 'PERSON', 'Person', 'agent', "
                           "'consortium', 'department', 'institution', 'organization', 'person'"
-                          "] at /@graph/1",
+                          "] at /@graph/1/agent/@type",
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'
             }]

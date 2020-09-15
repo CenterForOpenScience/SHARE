@@ -18,8 +18,8 @@ TIMEOUT_URL = 'http://www.timeouturl.com'
 
 
 def exceptionCallback(request, uri, headers):
-        time.sleep(6)
-        return (400, headers, uri)
+    time.sleep(6)
+    return (400, headers, uri)
 
 
 @pytest.fixture

@@ -74,6 +74,6 @@ class NormalizeIRIs(NodeStep):
                 self.info('Discarding identifier based on invalid authority "{}"'.format(ret['authority']), node.id)
                 node.delete()
 
-        except InvalidIRI as e:
+        except InvalidIRI:
             self.info('Discarding identifier based on unrecognized IRI "{}"'.format(old_iri), node.id)
             node.delete()

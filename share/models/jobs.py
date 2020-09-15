@@ -302,7 +302,7 @@ class PGLock(models.Model):
 
 
 class LockableQuerySet(models.QuerySet):
-    LOCK_ACQUIRED = re.sub('\s\s+', ' ', '''
+    LOCK_ACQUIRED = re.sub(r'\s\s+', ' ', '''
         pg_try_advisory_lock(%s::REGCLASS::INTEGER, "{0.model._meta.db_table}"."{0.column}")
     ''').strip()
 
