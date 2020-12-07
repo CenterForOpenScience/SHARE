@@ -107,7 +107,7 @@ services:
       - share_requirements_vol:/python3.6
 
   frontend:
-    image: quay.io/centerforopenscience/ember-share:develop-staging
+    image: quay.io/centerforopenscience/share-web:develop-local
     command: yarn start
     ports:
       - 4204:4200
@@ -117,22 +117,18 @@ services:
 
   worker:
     image: quay.io/centerforopenscience/share:develop
-    command: /usr/local/bin/celery worker -l DEBUG
+    command: /usr/local/bin/celery worker -l INFO --app project --uid daemon
     depends_on:
       - postgres
       - rabbitmq
       - web
       - elasticsearch
+      - indexer
     volumes:
       - ./:/code:cached
       - share_requirements_vol:/usr/local/lib/python3.6
     env_file:
       - .docker-compose.env
-    environment:
-      DATABASE_HOST: postgres
-      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672
-      SHARE_API_URL: http://web:8000/
-      ELASTICSEARCH_URL: http://elasticsearch:9200/
     stdin_open: true
 
   web:
@@ -150,10 +146,19 @@ services:
       - share_requirements_vol:/usr/local/lib/python3.6
     env_file:
       - .docker-compose.env
-    environment:
-      DATABASE_HOST: postgres
-      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672
-      ELASTICSEARCH_URL: http://elasticsearch:9200/
-      EMBER_SHARE_URL: http://frontend:4200
+    stdin_open: true
+
+  indexer:
+    image: quay.io/centerforopenscience/share:develop
+    command: sharectl search daemon
+    depends_on:
+      - postgres
+      - rabbitmq
+      - elasticsearch
+    volumes:
+      - ./:/code:cached
+      - share_requirements_vol:/usr/local/lib/python3.6
+    env_file:
+      - .docker-compose.env
     stdin_open: true
 
