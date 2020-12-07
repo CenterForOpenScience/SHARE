@@ -111,8 +111,8 @@ class AbstractJobManager(models.Manager):
 
 class AbstractBaseJob(models.Model):
     STATUS = Choices(
-        (0, 'created', _('Enqueued')),
-        (1, 'started', _('In Progress')),
+        (0, 'created', _('Created')),
+        (1, 'started', _('Started')),
         (2, 'failed', _('Failed')),
         (3, 'succeeded', _('Succeeded')),
         (4, 'rescheduled', _('Rescheduled')),
