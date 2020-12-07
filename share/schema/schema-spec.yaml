@@ -52,22 +52,29 @@
       relation_shape: many_to_many
       related_concrete_type: Subject
       through_concrete_type: ThroughSubjects
+      incoming_through_relation: creative_work
+      outgoing_through_relation: subject
       inverse_relation: creative_works
     - name: tags
       relation_shape: many_to_many
       related_concrete_type: Tag
       through_concrete_type: ThroughTags
+      incoming_through_relation: creative_work
+      outgoing_through_relation: tag
       inverse_relation: creative_works
     - name: related_agents
       relation_shape: many_to_many
       related_concrete_type: AbstractAgent
       through_concrete_type: AbstractAgentWorkRelation
+      incoming_through_relation: creative_work
+      outgoing_through_relation: agent
       inverse_relation: related_works
     - name: related_works
       relation_shape: many_to_many
       related_concrete_type: AbstractCreativeWork
       through_concrete_type: AbstractWorkRelation
-      inverse_relation: related_works
+      incoming_through_relation: subject
+      outgoing_through_relation: related
 
 - concrete_type: AbstractAgent
   type_tree:
@@ -97,11 +104,14 @@
       relation_shape: many_to_many
       related_concrete_type: AbstractAgent
       through_concrete_type: AbstractAgentRelation
-      inverse_relation: related_agents
+      incoming_through_relation: subject
+      outgoing_through_relation: related
     - name: related_works
       relation_shape: many_to_many
       related_concrete_type: AbstractCreativeWork
       through_concrete_type: AbstractAgentWorkRelation
+      incoming_through_relation: agent
+      outgoing_through_relation: creative_work
       inverse_relation: related_agents
 
 - concrete_type: AbstractAgentWorkRelation
@@ -136,6 +146,8 @@
       relation_shape: many_to_many
       related_concrete_type: Award
       through_concrete_type: ThroughAwards
+      incoming_through_relation: funder
+      outgoing_through_relation: award
 
 - concrete_type: AbstractAgentRelation
   type_tree:
