@@ -3,11 +3,14 @@ from django.urls import reverse
 
 from rest_framework import status
 from rest_framework import generics
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from share import models
 from share.tasks import ingest
 from share.util import IDObfuscator
+from share.util.graph import MutableGraph
+from share.util.osf import guess_osf_guid
 from share.ingest.ingester import Ingester
 
 from api.base.views import ShareViewSet
@@ -64,9 +67,18 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
+
+        data = serializer.validated_data['data']
+        suid = serializer.validated_data.get('suid', None)
+        if not suid:
+            # HACK: try for an osf guid -- may still be None tho
+            suid = guess_osf_guid(MutableGraph.from_jsonld(data))
+            if not suid:
+                raise ValidationError("'suid' is a required attribute")
+
         with transaction.atomic():
             # Hack for back-compat: Ingest halfway synchronously, then apply changes asynchronously
-            ingester = Ingester(serializer.validated_data['data']).as_user(request.user).ingest(apply_changes=False)
+            ingester = Ingester(data, suid).as_user(request.user).ingest(apply_changes=False)
             ingester.job.reschedule(claim=True)
 
             nd_id = models.NormalizedData.objects.filter(
