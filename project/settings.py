@@ -321,11 +321,11 @@ ELASTICSEARCH = {
             'URGENT_QUEUE': 'es-share.urgent',
             'INDEX_SETUP': 'share_classic',
         },
-        # 'share_postrend_backcompat': {
-        #     'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
-        #     'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
-        #     'INDEX_SETUP': 'postrend_backcompat',
-        # },
+        'share_postrend_backcompat': {
+            'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
+            'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
+            'INDEX_SETUP': 'postrend_backcompat',
+        },
         # 'trove_v0': {
         #     'DEFAULT_QUEUE': 'es-trove-v0',
         #     'URGENT_QUEUE': 'es-trove-v0.urgent',
