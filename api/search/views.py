@@ -45,7 +45,7 @@ class ElasticSearchGetOnlyView(views.APIView):
         params = request.query_params.copy()
 
         v = params.pop('v', None)
-        index = settings.ELASTICSEARCH['INDEX']
+        index = settings.ELASTICSEARCH['PRIMARY_INDEX']
         if v:
             v = 'v{}'.format(v[0])
             if v not in settings.ELASTICSEARCH['INDEX_VERSIONS']:
@@ -75,7 +75,7 @@ class ElasticSearchPostOnlyView(views.APIView):
         params = request.query_params.copy()
 
         v = params.pop('v', None)
-        index = settings.ELASTICSEARCH['INDEX']
+        index = settings.ELASTICSEARCH['PRIMARY_INDEX']
         if v:
             v = 'v{}'.format(v[0])
             if v not in settings.ELASTICSEARCH['INDEX_VERSIONS']:
@@ -117,7 +117,7 @@ class ElasticSearchView(views.APIView):
             return http.HttpResponseForbidden(reason='Scroll is not supported.')
 
         v = params.pop('v', None)
-        index = settings.ELASTICSEARCH['INDEX']
+        index = settings.ELASTICSEARCH['PRIMARY_INDEX']
         if v:
             v = 'v{}'.format(v[0])
             if v not in settings.ELASTICSEARCH['INDEX_VERSIONS']:

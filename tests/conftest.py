@@ -5,12 +5,7 @@ import string
 
 import pytest
 
-from django.apps import apps
 from django.utils import timezone
-from django.db import connections
-from django.db import transaction
-from django.conf import settings
-from django.db.models.signals import post_save
 
 from oauth2_provider.models import AccessToken, Application
 from urllib3.connection import ConnectionError
@@ -22,8 +17,10 @@ from share.models import Article, Institution
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
 from share.regulate import Regulator
+from share.search import MessageType, SearchIndexer
+from share.search.elastic_manager import ElasticManager
 from share.util.graph import MutableGraph
-from bots.elasticsearch.bot import ElasticSearchBot
+
 from tests import factories
 from tests.share.normalize.factories import GraphBuilder
 
@@ -35,13 +32,6 @@ def pytest_configure(config):
     # If we create a queryset here, all of typedmodels cached properties
     # will be filled in while recursion detection isn't active
     Article.objects.all()
-    if config.option.usepdb:
-        try:
-            import IPython.core.debugger  # noqa
-        except ImportError:
-            return
-        else:
-            config.option.usepdb_cls = 'IPython.core.debugger:Pdb'
 
 
 @pytest.fixture
@@ -73,7 +63,7 @@ def trusted_user():
 
 
 @pytest.fixture
-def robot_user():
+def robot_user(settings):
     username = 'robot_tester'
     user = ShareUser.objects.create_robot_user(username=username, robot='Tester')
     application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
@@ -90,7 +80,7 @@ def robot_user():
 
 
 @pytest.fixture
-def system_user():
+def system_user(settings):
     return ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
 
 
@@ -237,86 +227,45 @@ def university_of_whales(change_ids):
 
 
 @pytest.fixture
-def elastic(settings):
-    settings.ELASTICSEARCH['TIMEOUT'] = 5
-    settings.ELASTICSEARCH['INDEX'] = 'test_' + settings.ELASTICSEARCH['INDEX']
+def elastic_test_index_name():
+    return 'test_share'
 
-    bot = ElasticSearchBot(es_setup=False)
 
+@pytest.fixture
+def elastic_test_manager(settings, elastic_test_index_name):
+    # ideally these settings changes would be encapsulated by ElasticManager, but there's
+    # still code that uses the settings directly, so using the pytest-django fixture for now
+    settings.ELASTICSEARCH = {
+        **settings.ELASTICSEARCH,
+        'TIMEOUT': 5,
+        'PRIMARY_INDEX': elastic_test_index_name,
+        'ACTIVE_INDEXES': [elastic_test_index_name],
+        'INDEXES': {
+            elastic_test_index_name: {
+                'DEFAULT_QUEUE': f'{elastic_test_index_name}_queue',
+                'URGENT_QUEUE': f'{elastic_test_index_name}_queue.urgent',
+                'INDEX_SETUP': 'share_classic',
+            },
+        },
+    }
+    elastic_manager = ElasticManager()
     try:
-        bot.es_client.indices.delete(index=settings.ELASTICSEARCH['INDEX'], ignore=[400, 404])
+        elastic_manager.delete_index(elastic_test_index_name)
+        elastic_manager.create_index(elastic_test_index_name)
 
-        bot.setup()
+        yield elastic_manager
+
     except (ConnectionError, ElasticConnectionError):
         raise pytest.skip('Elasticsearch unavailable')
-
-    yield bot
-
-    bot.es_client.indices.delete(index=settings.ELASTICSEARCH['INDEX'], ignore=[400, 404])
+    finally:
+        elastic_manager.delete_index(elastic_test_index_name)
 
 
 @pytest.fixture
-def transactional_db(django_db_blocker, request):
-    # Django's/Pytest Django's handling of this is garbage
-    # The database is wipe of initial data and never repopulated so we have to do
-    # all of it ourselves
-    django_db_blocker.unblock()
-    request.addfinalizer(django_db_blocker.restore)
+def index_creativeworks(elastic_test_manager):
 
-    from django.test import TransactionTestCase
-    test_case = TransactionTestCase(methodName='__init__')
-    test_case._pre_setup()
+    def _index_creativeworks(ids):
+        indexer = SearchIndexer(elastic_manager=elastic_test_manager)
+        indexer.handle_messages_sync(MessageType.INDEX_CREATIVEWORK, ids)
 
-    # Dump all initial data into a string :+1:
-    for connection in connections.all():
-        if connection.settings_dict['TEST']['MIRROR']:
-            continue
-        connection._test_serialized_contents = connection.creation.serialize_db_to_string()
-
-    yield None
-
-    test_case.serialized_rollback = True
-    test_case._post_teardown()
-
-    # Disconnect post save listeners because they screw up deserialization
-    receivers, post_save.receivers = post_save.receivers, []
-
-    if test_case.available_apps is not None:
-        apps.unset_available_apps()
-
-    for connection in connections.all():
-        if connection.settings_dict['TEST']['MIRROR']:
-            connection.close()
-            continue
-        # Everything has to be in a single transaction to avoid violating key constraints
-        # It also makes it run significantly faster
-        with transaction.atomic():
-            connection.creation.deserialize_db_from_string(connection._test_serialized_contents)
-
-    if test_case.available_apps is not None:
-        apps.set_available_apps(test_case.available_apps)
-
-    post_save.receivers = receivers
-
-
-@pytest.fixture
-def celery_app(celery_app):
-    """Probably won't want to use this.
-    The worker that is spawned will not have access to the test transaction.
-    Leaving this here, just in case. Making it work properly takes some effort.
-    """
-    from celery import signals
-    from project.celery import app
-    # There's a Django fix up closes the django connection on most events.
-    # The actual celery app causes it to be registered so we have to manually disable it here
-    signals.worker_init.disconnect(app._fixups[0].on_worker_init)
-    # Finally, when the test celery app runs the fixup we allow it have 1 resuable connection.
-    celery_app.conf.CELERY_DB_REUSE_MAX = 1
-    celery_app.autodiscover_tasks(['share'])
-    return celery_app
-
-
-@pytest.fixture
-def no_celery():
-    from project.celery import app
-    app.conf.task_always_eager = True
+    return _index_creativeworks

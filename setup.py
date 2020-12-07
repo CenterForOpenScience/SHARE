@@ -105,5 +105,10 @@ setup(
         'share.regulate.steps.validate': [
             'jsonld_validator = share.regulate.steps.validate:JSONLDValidatorStep',
         ],
+        'share.search.index_setup': [
+            'share_classic = share.search.index_setup:ShareClassicIndexSetup',
+            # 'postrend_backcompat = share.search.index_setup:PostRendBackcompatIndexSetup',
+            # 'trove_v0 = share.search.index_setup:TroveV0IndexSetup',
+        ],
     }
 )

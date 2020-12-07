@@ -46,7 +46,7 @@ class Query(graphene.ObjectType):
         args.setdefault('from', 0)
         args.setdefault('size', 10)
 
-        resp = Query.client.search(index=settings.ELASTICSEARCH['INDEX'], doc_type=args.pop('type'), body=args)
+        resp = Query.client.search(index=settings.ELASTICSEARCH['PRIMARY_INDEX'], doc_type=args.pop('type'), body=args)
 
         del resp['_shards']  # No need to expose server information
 
