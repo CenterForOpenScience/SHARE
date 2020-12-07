@@ -9,6 +9,7 @@ invalid_work = {
     'data': {
         'type': 'NormalizedData',
         'attributes': {
+            'suid': 'whatever',
             'data': {
                 '@graph': [
                     {
@@ -26,6 +27,7 @@ invalid_proxy_work = {
     'data': {
         'type': 'NormalizedData',
         'attributes': {
+            'suid': 'whatever',
             'data': {
                 '@graph': [
                     {
@@ -43,6 +45,7 @@ valid_work_valid_agent = {
     'data': {
         'type': 'NormalizedData',
         'attributes': {
+            'suid': 'whatever',
             'data': {
                 '@graph': [
                     {
@@ -81,6 +84,7 @@ valid_work_invalid_agent = {
     'data': {
         'type': 'NormalizedData',
         'attributes': {
+            'suid': 'whatever',
             'data': {
                 '@graph': [
                     {
@@ -119,6 +123,7 @@ valid_work_invalid_agent_field = {
     'data': {
         'type': 'NormalizedData',
         'attributes': {
+            'suid': 'whatever',
             'data': {
                 '@graph': [
                     {
@@ -224,6 +229,7 @@ class TestValidator:
             'data': {
                 'type': 'NormalizedData',
                 'attributes': {
+                    'suid': 'jim',
                     'data': {
                         '@graph': [{
                             '@id': '_:100',
@@ -246,6 +252,7 @@ class TestValidator:
             'data': {
                 'type': 'NormalizedData',
                 'attributes': {
+                    'suid': 'jim',
                     'data': {
                         '@graph': [{
                             '@type': 'Person',
@@ -308,6 +315,7 @@ class TestValidator:
                 'type': 'NormalizedData',
                 'attributes': {
                     'raw': {'type': 'RawData', 'id': 'invalid_id'},
+                    'suid': 'whatever',
                     'data': valid_work_valid_agent['data']['attributes']['data']
                 }
             }
@@ -320,6 +328,7 @@ class TestValidator:
                 'type': 'NormalizedData',
                 'attributes': {
                     'tasks': ['invalid_task'],
+                    'suid': 'whatever',
                     'data': valid_work_valid_agent['data']['attributes']['data']
                 }
             }
@@ -354,6 +363,7 @@ class TestValidator:
                 'attributes': {
                     'tasks': [normalizer_task.id],
                     'raw': {'type': 'RawData', 'id': raw_data_id},
+                    'suid': 'whatever',
                     'data': valid_work_valid_agent['data']['attributes']['data']
                 }
             }
