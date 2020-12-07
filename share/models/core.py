@@ -3,6 +3,8 @@ import logging
 import random
 import string
 
+from model_utils import Choices
+
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
@@ -20,6 +22,7 @@ from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
 from share.models.validators import JSONLDValidator
 from share.util import BaseJSONAPIMeta
+from share.util.extensions import Extensions
 
 logger = logging.getLogger(__name__)
 __all__ = ('ShareUser', 'NormalizedData',)
@@ -199,3 +202,53 @@ class NormalizedData(models.Model):
         return '<{}({}, {}, {})>'.format(self.__class__.__name__, self.id, self.source.get_short_name(), self.created_at)
 
     __repr__ = __str__
+
+
+class FormattedMetadataRecordManager(models.Manager):
+    def update_or_create_all_metadata_formats(self, suid, normalized_datum=None):
+        if normalized_datum is None:
+            normalized_datum = NormalizedData.objects.filter(raw__suid=suid).order_by('-created_at').first()
+
+        for format_name in Extensions.get_names('share.metadata_formats'):
+            self.update_or_create_formatted_metadata_record(suid, format_name, normalized_datum)
+
+    def update_or_create_formatted_metadata_record(self, suid, record_format, normalized_datum):
+        formatter = Extensions.get('share.metadata_formats', record_format)()
+
+        formatted_metadata = formatter.format(normalized_datum)
+        if formatted_metadata:
+            record, _ = self.update_or_create(
+                suid=suid,
+                record_format=record_format,
+                defaults={
+                    'formatted_metadata': formatted_metadata,
+                },
+            )
+        else:
+            record = None
+        return record
+
+    def get_or_create_formatted_metadata_record(self, suid, record_format):
+        try:
+            formatted_record = self.get(suid=suid, record_format=record_format)
+        except self.model.DoesNotExist:
+            formatted_record = self.create_or_update_formatted_metadata_record(suid, record_format)
+        return formatted_record
+
+
+class FormattedMetadataRecord(models.Model):
+    RECORD_FORMAT = Choices(*Extensions.get_names('share.metadata_formats'))
+
+    objects = FormattedMetadataRecordManager()
+
+    id = models.AutoField(primary_key=True)
+    suid = models.ForeignKey('SourceUniqueIdentifier', on_delete=models.CASCADE)
+    record_format = models.TextField(choices=RECORD_FORMAT)
+    date_modified = models.DateTimeField(auto_now=True)
+    formatted_metadata = models.TextField()  # could be JSON, XML, or whatever
+
+    class Meta:
+        unique_together = ('suid', 'record_format')
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}({self.id}, {self.suid_id}, {self.record_format})>'

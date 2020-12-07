@@ -18,9 +18,11 @@ from share.models import (
     NormalizedData,
     RawDatum,
 )
+from share.models.core import FormattedMetadataRecord
 from share.models.ingest import RawDatumJob
 from share.regulate import Regulator
 from share.search import SearchIndexer
+from share.search.messages import MessageType
 from share.util import chunked
 from share.util.graph import MutableGraph
 
@@ -328,6 +330,12 @@ class IngestJobConsumer(JobConsumer):
             graph = MutableGraph.from_jsonld(datum.data)
 
         if apply_changes:
+            # new Suid-based process
+            self._save_formatted_metadata(job.suid, datum)
+            if index:
+                self._queue_for_indexing(job.suid, urgent)
+
+            # soon-to-be-rended ShareObject-based process:
             updated_work_ids = self._apply_changes(job, graph, datum)
             if index and updated_work_ids:
                 self._update_index(updated_work_ids, urgent)
@@ -357,6 +365,13 @@ class IngestJobConsumer(JobConsumer):
         except exceptions.RegulateError as e:
             job.fail(e)
             return None
+
+    def _save_formatted_metadata(self, suid, normalized_datum):
+        FormattedMetadataRecord.objects.update_or_create_all_metadata_formats(suid, normalized_datum)
+
+    def _queue_for_indexing(self, suid, urgent):
+        indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()
+        indexer.send_messages(MessageType.INDEX_SUID, [suid.id], urgent=urgent)
 
     def _apply_changes(self, job, graph, normalized_datum):
         updated = None

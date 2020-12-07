@@ -105,6 +105,10 @@ setup(
         'share.regulate.steps.validate': [
             'jsonld_validator = share.regulate.steps.validate:JSONLDValidatorStep',
         ],
+        'share.metadata_formats': [
+            'sharev2_elastic = share.metadata_formats.sharev2_elastic:ShareV2ElasticFormatter',
+            # 'oai_dc = share.metadata_formats.oai_dc:OaiDcFormatter',
+        ],
         'share.search.index_setup': [
             'share_classic = share.search.index_setup:ShareClassicIndexSetup',
             # 'postrend_backcompat = share.search.index_setup:PostRendBackcompatIndexSetup',
