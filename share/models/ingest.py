@@ -301,7 +301,7 @@ class RawDatumManager(FuzzyCountManager):
 
         Args:
             source_config (SourceConfig):
-            data Generator[(str, str)]: (identifier, datum)
+            data Generator[FetchResult]:
 
         Returns:
             Generator[RawDatum]

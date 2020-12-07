@@ -32,6 +32,8 @@ def resolve_field(type_name, field_name):
         return None
 
 
+# TODO: ImmutableGraph (don't allow mutation and error on non-existent attr/relation)
+
 class MutableGraph(nx.DiGraph):
     """NetworkX DiGraph with some SHARE-specific features.
 

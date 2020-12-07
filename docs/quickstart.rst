@@ -9,7 +9,7 @@ starting.
 
 If prompted, install docker from https://docs.docker.com/docker-for-mac/.
 
-This requires Python 3.5; If necessary, follow the steps below:
+This requires Python 3.6; If necessary, follow the steps below:
 
 From scratch::
 
@@ -18,7 +18,7 @@ From scratch::
 
 Create virtualenv 'share'::
 
-    mkvirtualenv share --python=python3.5
+    mkvirtualenv share --python=python3.6
 
 Switch into the share environment for the first time::
 
