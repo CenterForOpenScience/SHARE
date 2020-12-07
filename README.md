@@ -24,7 +24,7 @@ We'll be expanding this section in the near future, but, beyond using our API fo
 ## Setup for testing
 It is useful to set up a [virtual environment](http://virtualenvwrapper.readthedocs.io/en/latest/install.html) to ensure [python3](https://www.python.org/downloads/) is your designated version of python and make the python requirements specific to this project.
 
-    mkvirtualenv share -p `which python3.5`
+    mkvirtualenv share -p `which python3.6`
     workon share
 
 Once in the `share` virtual environment, install the necessary requirements, then setup SHARE.
