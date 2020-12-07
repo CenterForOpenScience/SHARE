@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Set, NamedTuple, Optional
+from typing import Set, NamedTuple, Optional, Tuple
 
 
 RelationShape = Enum('RelationShape', ['MANY_TO_MANY', 'MANY_TO_ONE', 'ONE_TO_MANY'])
@@ -11,7 +11,11 @@ class ShareV2SchemaType(NamedTuple):
     name: str
     concrete_type: str
     explicit_fields: Set[str]
-    distance_from_concrete_type: int = 0
+    type_lineage: Tuple[str] = ()
+
+    @property
+    def distance_from_concrete_type(self):
+        return len(self.type_lineage)
 
 
 class ShareV2SchemaAttribute(NamedTuple):
@@ -28,6 +32,8 @@ class ShareV2SchemaRelation(NamedTuple):
     related_concrete_type: str
     inverse_relation: str
     through_concrete_type: Optional[str] = None
+    incoming_through_relation: Optional[str] = None
+    outgoing_through_relation: Optional[str] = None
     is_required: bool = False
     is_implicit: bool = False
     is_relation: bool = True
