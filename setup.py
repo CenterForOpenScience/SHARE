@@ -111,7 +111,7 @@ setup(
         ],
         'share.search.index_setup': [
             'share_classic = share.search.index_setup:ShareClassicIndexSetup',
-            # 'postrend_backcompat = share.search.index_setup:PostRendBackcompatIndexSetup',
+            'postrend_backcompat = share.search.index_setup:PostRendBackcompatIndexSetup',
             # 'trove_v0 = share.search.index_setup:TroveV0IndexSetup',
         ],
     }
