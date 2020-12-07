@@ -1,56 +1,9 @@
-import os
-
-from pprint import pprint
-
 from share.bin.util import command
 from share.ingest.scheduler import IngestScheduler
-from share.models import SourceConfig, RawDatum, SourceUniqueIdentifier
-from share.regulate import Regulator
+from share.models import SourceUniqueIdentifier
+from share.models.jobs import IngestJob
+from share.tasks import ingest as ingest_task
 from share.util.osf import osf_sources
-
-
-@command('Run a SourceConfig\'s transformer')
-def transform(args, argv):
-    """
-    Usage: {0} transform [--regulate] <sourceconfig> FILE ...
-           {0} transform [--regulate] <sourceconfig> --directory=DIR
-           {0} transform [--regulate] --ids <raw_data_ids>...
-
-    Options:
-        -r, --regulate       Run the Regulator on the transformed graph
-        -d, --directory=DIR  Transform all JSON files in DIR
-        -i, --ids            Provide RawDatum IDs to transform
-
-    Transform all given JSON files. Results will be printed to stdout.
-    """
-    from ipdb import launch_ipdb_on_exception
-
-    def run_transformer(config, id, datum):
-        transformer = config.get_transformer()
-        with launch_ipdb_on_exception():
-            graph = transformer.transform(datum)
-            if args.get('--regulate'):
-                Regulator(source_config=config).regulate(graph)
-            print('Parsed raw data "{}" into'.format(id))
-            pprint(graph.to_jsonld(in_edges=False))
-            print('\n')
-
-    ids = args['<raw_data_ids>']
-    if ids:
-        qs = RawDatum.objects.filter(id__in=ids)
-        for raw in qs.iterator():
-            run_transformer(raw.suid.source_config, raw.id, raw.datum)
-        return
-
-    if args['FILE']:
-        files = args['FILE']
-    else:
-        files = [os.path.join(args['--directory'], x) for x in os.listdir(args['--directory']) if not x.startswith('.')]
-    config = SourceConfig.objects.get(label=args['<sourceconfig>'])
-    for name in files:
-        with open(name) as fobj:
-            data = fobj.read()
-        run_transformer(config, name, data)
 
 
 @command('Create IngestJobs for the specified RawDatum(s)')
@@ -93,3 +46,33 @@ def ingest(args, argv):
     else:
         jobs = scheduler.bulk_reingest(qs)
         print('Scheduled {} IngestJobs'.format(len(jobs)))
+
+
+@command('Put IngestJobs back in the worker queue')
+def enqueue_ingest(args, argv):
+    """
+    Usage: {0} enqueue_ingest <job_ids>...
+           {0} enqueue_ingest --all-of-status <job_statuses>...
+
+    Options:
+        -s, --all-of-status   Enqueue and start tasks for all jobs of the given statuses (e.g. created, failed)
+    """
+    job_ids = args.get('<job_ids>')
+
+    if not job_ids:
+        job_statuses = args.get('<job_statuses>')
+        if not job_statuses:
+            return
+        status_values = [
+            getattr(IngestJob.STATUS, status_key)
+            for status_key in job_statuses
+        ]
+        job_ids = list(
+            IngestJob.objects.filter(status__in=status_values).values_list('id', flat=True)
+        )
+
+    print(f're-enqueuing {len(job_ids)} jobs...')
+    job_qs = IngestJob.objects.filter(id__in=job_ids)
+    job_qs.update(status=IngestJob.STATUS.created)
+    for job_id in job_ids:
+        ingest_task.delay(job_id=job_id)

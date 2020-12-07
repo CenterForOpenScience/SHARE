@@ -298,40 +298,40 @@ STATICFILES_FINDERS = (
 ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
     'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
-    'INDEX': os.environ.get('ELASTIC_SEARCH_INDEX', 'share'),
+    'PRIMARY_INDEX': os.environ.get('ELASTICSEARCH_PRIMARY_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
     'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 25)),
-    'DEFAULT_FETCHERS': {
-        'agent': 'share.search.fetchers.AgentFetcher',
-        'creativework': 'share.search.fetchers.CreativeWorkFetcher',
-        'subject': 'share.search.fetchers.SubjectFetcher',
-        'tag': 'share.search.fetchers.TagFetcher',
-    },
-    'QUEUE_SETTINGS': {
+    'KOMBU_QUEUE_SETTINGS': {
         'serializer': 'json',
         'compression': 'zlib',
         'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
     },
-    # NOTE: mappings will have to be created BEFORE the daemon starts
+    # NOTE: "active" indexes will receive new records from the indexer daemon -- be sure they're set up first
     'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_customtax_1'), ','),
+    # NOTE: indexes here won't be created automatically -- run `sharectl search setup <index_name>` BEFORE the daemon starts
     'INDEXES': {
         'share_v3': {
             'DEFAULT_QUEUE': 'es-triton-share',
             'URGENT_QUEUE': 'es-triton-share.urgent',
+            'INDEX_SETUP': 'share_classic',
         },
         'share_customtax_1': {
             'DEFAULT_QUEUE': 'es-share',
             'URGENT_QUEUE': 'es-share.urgent',
-        }
+            'INDEX_SETUP': 'share_classic',
+        },
+        # 'share_postrend_backcompat': {
+        #     'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
+        #     'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
+        #     'INDEX_SETUP': 'postrend_backcompat',
+        # },
+        # 'trove_v0': {
+        #     'DEFAULT_QUEUE': 'es-trove-v0',
+        #     'URGENT_QUEUE': 'es-trove-v0.urgent',
+        #     'INDEX_SETUP': 'trove_v0',
+        # },
     },
-}
-
-INDEXABLE_MODELS = {
-    'agent': 'Agent',
-    'creativework': 'CreativeWork',
-    'subject': 'Subject',
-    'tag': 'Tag',
 }
 
 # Seconds, not an actual celery settings
@@ -489,11 +489,6 @@ LOGGING = {
             'level': LOG_LEVEL,
             'propagate': False
         },
-        'share.search.daemon': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],
@@ -543,7 +538,7 @@ SHARE_LIMITS = {
     'MAX_AGENT_RELATIONS': 500,
 }
 
-OSF_API_URL = os.environ.get('OSF_API_URL', 'https://api.osf.io').rstrip('/') + '/'
+OSF_API_URL = os.environ.get('OSF_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_BYPASS_THROTTLE_TOKEN = os.environ.get('BYPASS_THROTTLE_TOKEN', None)
 
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')

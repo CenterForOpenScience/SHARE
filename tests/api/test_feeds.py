@@ -8,8 +8,6 @@ from lxml import etree
 from share.models import AbstractCreativeWork, AbstractAgentWorkRelation
 from share.util import IDObfuscator
 
-from bots.elasticsearch import tasks
-
 from tests import factories
 
 
@@ -23,8 +21,8 @@ NAMESPACES = {'atom': 'http://www.w3.org/2005/Atom'}
 @pytest.mark.django_db
 class TestFeed:
 
-    @pytest.fixture(autouse=True)  # noqa
-    def fake_items(self, settings, elastic):
+    @pytest.fixture
+    def fake_items(self, settings, index_creativeworks):
         ids = []
         for i in range(11):
             person_0 = factories.AbstractAgentFactory(type='share.person')
@@ -44,10 +42,9 @@ class TestFeed:
 
             ids.append(work.id)
 
-        tasks.index_model('creativework', ids)
-        elastic.es_client.indices.refresh()
+        index_creativeworks(ids)
 
-    def test_get_feed(self, client):
+    def test_get_feed(self, client, fake_items):
         resp = client.get('/api/v2/atom')
         assert resp.status_code == 200
 
@@ -61,7 +58,7 @@ class TestFeed:
         'date_updated',
         'date_modified',
     ])
-    def test_order(self, client, order):
+    def test_order(self, client, order, fake_items):
         resp = client.get('/api/v2/atom', {'order': order})
         assert resp.status_code == 200
 
