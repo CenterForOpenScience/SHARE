@@ -7,7 +7,6 @@ from share.bin.util import execute_cmd
 
 
 MODULES = (
-    'debug',
     'harvest',
     'info',
     'ingest',
