@@ -142,8 +142,11 @@ class MutableGraph(nx.DiGraph):
         if guess and self.central_node_id is None:
             work_nodes = self.filter_by_concrete_type('abstractcreativework')
             if work_nodes:
-                # get the work node with the most attrs
-                work_nodes.sort(key=lambda n: len(n.attrs()), reverse=True)
+                # get the work node with the most attrs+relations
+                work_nodes.sort(
+                    key=lambda n: len(n.attrs()) + len(n.relations()),
+                    reverse=True
+                )
                 central_node = work_nodes[0]
                 self.central_node_id = central_node.id
 
