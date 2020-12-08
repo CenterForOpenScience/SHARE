@@ -352,11 +352,6 @@ CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://{}:{}@{}:{}/{}'.
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
-    # Once a minute
-    'Update Search': {
-        'task': 'bots.elasticsearch.tasks.update_elasticsearch',
-        'schedule': 60,
-    },
     # Every 2 minutes
     'Harvest Task': {
         'task': 'share.tasks.harvest',
@@ -366,11 +361,6 @@ CELERY_BEAT_SCHEDULE = {
     'Ingest Task': {
         'task': 'share.tasks.ingest',
         'schedule': 120,
-    },
-    # Executes daily at 11:30 P.M
-    'Elasticsearch Janitor': {
-        'task': 'bots.elasticsearch.tasks.elasticsearch_janitor',
-        'schedule': crontab(hour=23, minute=30),
     },
     # Executes daily at 10:30 P.M
     'IngestJob Janitor': {

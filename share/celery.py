@@ -132,14 +132,11 @@ class TaskResultCleaner:
     TaskModel = CeleryTaskResult
 
     TASK_TTLS = {
-        'bots.elasticsearch.tasks.index_model': datetime.timedelta(minutes=30),
         'bots.elasticsearch.tasks.index_sources': datetime.timedelta(minutes=10),
-        'bots.elasticsearch.tasks.update_elasticsearch': datetime.timedelta(minutes=30),
     }
 
     NO_ARCHIVE = {
         'bots.elasticsearch.tasks.index_sources',
-        'bots.elasticsearch.tasks.update_elasticsearch',
     }
 
     def __init__(self, expires, bucket=None, delete=True, chunk_size=5000):
