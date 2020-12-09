@@ -149,7 +149,7 @@ class TestMutableGraph:
                 }
             return value
         expected_nodes = clean_jsonld(example_graph_nodes)
-        actual = example_graph.to_jsonld(in_edges=False)['@graph']
+        actual = example_graph.to_jsonld(in_edges=False)
         actual_nodes = clean_jsonld(actual['@graph'])
         assert expected_nodes == actual_nodes
         assert actual['central_node_id'] is None
