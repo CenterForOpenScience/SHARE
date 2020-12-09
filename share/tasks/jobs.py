@@ -60,7 +60,9 @@ class JobConsumer:
                 Used to prevent a backlog. If we have a valid job, spin off another task to eat through
                 the rest of the queue.
             ignore_disabled (bool, optional): Consume jobs from disabled source configs and/or deleted sources. Defaults to False.
-            superfluous (bool, optional): Re-ingest Rawdata that we've already collected. Defaults to False.
+            superfluous (bool, optional): Consuming a job should be idempotent, and subsequent runs may
+                skip doing work that has already been done. If superfluous=True, however, will do all
+                work whether or not it's already been done. Default False.
             force (bool, optional):
         Additional keyword arguments passed to _consume_job, along with superfluous and force
         """
