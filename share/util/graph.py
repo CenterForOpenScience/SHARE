@@ -99,15 +99,18 @@ class MutableGraph(nx.DiGraph):
         self.central_node_id = None
 
     def to_jsonld(self, in_edges=True):
-        """Return a list of JSON-LD-style dicts.
+        """Return a dictionary with '@graph' and 'central_node_id' keys that will serialize
+        to json-ld conforming with the SHARE schema
 
         in_edges (boolean): Include lists of incoming edges. Default True.
         """
-        # TODO include central_node_id -- would change return type :(
-        return [
-            node.to_jsonld(in_edges=in_edges)
-            for node in self.topologically_sorted()
-        ]
+        return {
+            'central_node_id': self.central_node_id,
+            '@graph': [
+                node.to_jsonld(in_edges=in_edges)
+                for node in self.topologically_sorted()
+            ],
+        }
 
     def add_node(self, node_id, node_type, attrs=None):
         """Create a node in the graph.

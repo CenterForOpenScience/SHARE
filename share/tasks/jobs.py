@@ -321,7 +321,7 @@ class IngestJobConsumer(JobConsumer):
             if not graph:
                 return
             datum = NormalizedData.objects.create(
-                data={'@graph': graph.to_jsonld()},
+                data=graph.to_jsonld(),
                 source=job.suid.source_config.source.user,
                 raw=job.raw,
             )

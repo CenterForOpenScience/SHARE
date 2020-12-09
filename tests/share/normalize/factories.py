@@ -63,7 +63,7 @@ class FactoryGraph(MutableGraph):
         jsonld = super().to_jsonld(*args, **kwargs)
         id_map = {
             node['@id']: '_:__{}'.format(i)
-            for i, node in enumerate(jsonld)
+            for i, node in enumerate(jsonld['@graph'])
         }
 
         def map_id(value):
@@ -73,7 +73,7 @@ class FactoryGraph(MutableGraph):
                 for v in value:
                     map_id(v)
 
-        for node in jsonld:
+        for node in jsonld['@graph']:
             for v in node.values():
                 map_id(v)
             map_id(node)

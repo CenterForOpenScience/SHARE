@@ -148,7 +148,11 @@ class TestMutableGraph:
                     for k, v in value.items() if not isinstance(v, list)
                 }
             return value
-        assert clean_jsonld(example_graph_nodes) == clean_jsonld(example_graph.to_jsonld(in_edges=False))
+        expected_nodes = clean_jsonld(example_graph_nodes)
+        actual = example_graph.to_jsonld(in_edges=False)['@graph']
+        actual_nodes = clean_jsonld(actual['@graph'])
+        assert expected_nodes == actual_nodes
+        assert actual['central_node_id'] is None
 
 
 class TestCentralWork:

@@ -417,10 +417,6 @@ class IngestJob(AbstractBaseJob):
             ingest.delay(job_id=self.id)
         return result
 
-    def log_graph(self, field_name, graph):
-        setattr(self, field_name, graph.to_jsonld())
-        self.save(update_fields=(field_name, 'date_modified'))
-
     def __repr__(self):
         return '<{type}({id}, {status}, {source}, {suid})>'.format(
             type=type(self).__name__,
