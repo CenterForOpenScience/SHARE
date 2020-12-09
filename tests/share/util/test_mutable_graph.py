@@ -1,6 +1,6 @@
 import pytest
 
-from share.util.graph import MutableGraph
+from share.util.graph import MutableGraph, MutableGraphError
 
 
 work_id = '_:6203fec461bb4b3fa956772acbd9c50d'
@@ -149,3 +149,64 @@ class TestMutableGraph:
                 }
             return value
         assert clean_jsonld(example_graph_nodes) == clean_jsonld(example_graph.to_jsonld(in_edges=False))
+
+
+class TestCentralWork:
+    def test_obvious_example(self, example_graph):
+        assert example_graph.central_node_id is None
+        assert example_graph.get_central_node() is None
+
+        guessed = example_graph.get_central_node(guess=True)
+        assert guessed.id == work_id
+        # side-effect: now the graph knows its central node
+        assert example_graph.central_node_id == work_id
+        assert example_graph.get_central_node() == guessed
+
+    def test_no_central_node(self):
+        graph = MutableGraph()
+        agent = graph.add_node(None, 'agent')
+        graph.add_node(None, 'agentidentifier', {'agent': agent})
+
+        assert graph.get_central_node() is None
+        assert graph.get_central_node(guess=True) is None
+        assert graph.central_node_id is None
+
+    def test_explicit_central_node(self):
+        central_id = '_:center'
+
+        graph = MutableGraph.from_jsonld({
+            'central_node_id': central_id,
+            '@graph': [
+                {'@id': central_id, '@type': 'creativework'},
+                {'@id': '_:other', '@type': 'creativework', 'title': 'looks like the center'},
+            ],
+        })
+        assert graph.central_node_id == central_id
+        assert graph.get_central_node().id == central_id
+        assert graph.get_central_node(guess=True).id == central_id
+
+    def test_ambiguous_central_node(self):
+        graph = MutableGraph.from_jsonld({
+            '@graph': [
+                {'@id': '_:thing1', '@type': 'creativework', 'title': 'looks like the center'},
+                {'@id': '_:thing2', '@type': 'creativework', 'title': 'also looks like the center'},
+            ],
+        })
+        with pytest.raises(MutableGraphError):
+            graph.get_central_node(guess=True)
+
+    def test_edges_matter(self):
+        graph = MutableGraph.from_jsonld({
+            '@graph': [
+                {'@id': '_:thing1', '@type': 'creativework', 'title': 'looks like the center'},
+                {'@id': '_:thing2', '@type': 'creativework', 'title': 'also looks like the center'},
+                {
+                    '@id': '_:tiebreaker',
+                    '@type': 'workidentifier',
+                    'uri': 'http://example.com/woo',
+                    'creative_work': {'@id': '_:thing2', '@type': 'creativework'},
+                },
+            ],
+        })
+        guessed = graph.get_central_node(guess=True)
+        assert guessed.id == '_:thing2'

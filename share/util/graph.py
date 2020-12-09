@@ -103,6 +103,7 @@ class MutableGraph(nx.DiGraph):
 
         in_edges (boolean): Include lists of incoming edges. Default True.
         """
+        # TODO include central_node_id -- would change return type :(
         return [
             node.to_jsonld(in_edges=in_edges)
             for node in self.topologically_sorted()
@@ -113,7 +114,7 @@ class MutableGraph(nx.DiGraph):
 
         node_id (hashable): Unique node ID. If None, generate a random ID.
         node_type (str): The node's @type value
-        keyword args: Named attributes or relations corresponding to fields on the node's model
+        attrs: Dictionary of attributes or relations corresponding to fields on the node's model
 
         Returns a MutableNode wrapper for the new node.
         """
@@ -144,9 +145,14 @@ class MutableGraph(nx.DiGraph):
             if work_nodes:
                 # get the work node with the most attrs+relations
                 work_nodes.sort(
-                    key=lambda n: len(n.attrs()) + len(n.relations()),
+                    key=lambda n: n._attrs_and_edges_count,
                     reverse=True
                 )
+                if (
+                    len(work_nodes) > 1
+                    and work_nodes[0]._attrs_and_edges_count == work_nodes[1]._attrs_and_edges_count
+                ):
+                    raise MutableGraphError(f'cannot guess central node -- multiple candidates ({work_nodes[0].id}, {work_nodes[1].id})')
                 central_node = work_nodes[0]
                 self.central_node_id = central_node.id
 
@@ -397,6 +403,15 @@ class MutableNode:
     @property
     def schema_type(self):
         return ShareV2Schema().get_type(self.type)
+
+    @property
+    def _attrs_and_edges_count(self):
+        # used to guess the "central" node, when it's not already specified
+        return (
+            len(self.__attrs)
+            + len(self.graph.in_edges(self.id))
+            + len(self.graph.out_edges(self.id))
+        )
 
     def attrs(self):
         return {

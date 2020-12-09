@@ -26,22 +26,6 @@ def test_get_guid_from_uri(uri, expected):
     assert actual == expected
 
 
-@pytest.mark.parametrize('graph_input, expected_node_id', [
-    (f.CreativeWork(id='a'), '_:creativework--a'),
-    ([
-        f.CreativeWork(id='a', sparse=True),
-        f.CreativeWork(id='b', sparse=True, title='this one'),
-    ], '_:creativework--b'),
-    (f.Agent(id='a'), None),
-])
-def test_get_central_work(ExpectedGraph, graph_input, expected_node_id):
-    actual = ExpectedGraph(graph_input).get_central_node(guess=True)
-    if expected_node_id is None:
-        assert actual is None
-    else:
-        assert actual.id == expected_node_id
-
-
 @pytest.mark.parametrize('graph_input, expected', [
     (f.CreativeWork(), None),
     (f.CreativeWork(
