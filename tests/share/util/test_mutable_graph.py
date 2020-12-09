@@ -11,7 +11,7 @@ identifier_id = '_:a27f2810e536459ca02d99bf707400be'
 
 
 @pytest.fixture
-def mutable_graph_nodes():
+def example_graph_nodes():
     return [
         {'@id': org_id, '@type': 'Organization', 'name': 'Department of Physics'},
 
@@ -42,25 +42,25 @@ def mutable_graph_nodes():
 
 
 @pytest.fixture
-def mutable_graph(mutable_graph_nodes):
-    return MutableGraph.from_jsonld(mutable_graph_nodes)
+def example_graph(example_graph_nodes):
+    return MutableGraph.from_jsonld(example_graph_nodes)
 
 
 class TestMutableGraph:
-    def test_graph(self, mutable_graph):
-        assert mutable_graph.number_of_nodes() == 19
+    def test_graph(self, example_graph):
+        assert example_graph.number_of_nodes() == 19
 
     @pytest.mark.parametrize('node_id', [work_id, org_id, person_id, creator_id])
-    def test_get_node(self, mutable_graph, node_id):
-        assert mutable_graph.get_node(node_id).id == node_id
+    def test_get_node(self, example_graph, node_id):
+        assert example_graph.get_node(node_id).id == node_id
 
-    def test_get_nonexistent_node(self, mutable_graph):
-        assert mutable_graph.get_node('not_an_id') is None
+    def test_get_nonexistent_node(self, example_graph):
+        assert example_graph.get_node('not_an_id') is None
 
-    def test_edge(self, mutable_graph):
-        creator_node = mutable_graph.get_node(creator_id)
-        assert creator_node['creative_work'] == mutable_graph.get_node(work_id)
-        assert creator_node['agent'] == mutable_graph.get_node(person_id)
+    def test_edge(self, example_graph):
+        creator_node = example_graph.get_node(creator_id)
+        assert creator_node['creative_work'] == example_graph.get_node(work_id)
+        assert creator_node['agent'] == example_graph.get_node(person_id)
 
     @pytest.mark.parametrize('node_id, key, value', [
         (work_id, 'title', 'title title'),
@@ -68,14 +68,14 @@ class TestMutableGraph:
         (identifier_id, 'creative_work', None),
         (identifier_id, 'foo', 'bar'),
     ])
-    def test_set_attrs(self, mutable_graph, node_id, key, value):
-        n = mutable_graph.get_node(node_id)
+    def test_set_attrs(self, example_graph, node_id, key, value):
+        n = example_graph.get_node(node_id)
         n[key] = value
         assert n[key] == value
 
     @pytest.mark.parametrize('set_none', [True, False])
-    def test_del_attrs(self, mutable_graph, set_none):
-        work = mutable_graph.get_node(work_id)
+    def test_del_attrs(self, example_graph, set_none):
+        work = example_graph.get_node(work_id)
         assert work['title']
         if set_none:
             work['title'] = None
@@ -84,7 +84,7 @@ class TestMutableGraph:
         assert work['title'] is None
         assert 'title' not in work.attrs()
 
-        identifier = mutable_graph.get_node(identifier_id)
+        identifier = example_graph.get_node(identifier_id)
         assert identifier['creative_work'] == work
         if set_none:
             identifier['creative_work'] = None
@@ -97,8 +97,8 @@ class TestMutableGraph:
         (work_id, 'identifiers', 1),
         (org_id, 'incoming_agent_relations', 3),
     ])
-    def test_reverse_edge(self, mutable_graph, node_id, reverse_edge_name, count):
-        node = mutable_graph.get_node(node_id)
+    def test_reverse_edge(self, example_graph, node_id, reverse_edge_name, count):
+        node = example_graph.get_node(node_id)
         assert len(node[reverse_edge_name]) == count
 
     @pytest.mark.parametrize('node_id, count', [
@@ -107,21 +107,21 @@ class TestMutableGraph:
         (person_id, 16),
         (creator_id, 18),
     ])
-    def test_remove_node_cascades(self, mutable_graph, node_id, count):
-        mutable_graph.remove_node(node_id)
-        assert mutable_graph.number_of_nodes() == count
+    def test_remove_node_cascades(self, example_graph, node_id, count):
+        example_graph.remove_node(node_id)
+        assert example_graph.number_of_nodes() == count
 
-    def test_add_node(self, mutable_graph):
+    def test_add_node(self, example_graph):
         identifier_id = '_:foo'
         uri = 'mailto:person@example.com'
-        person = mutable_graph.get_node(person_id)
-        node_count = mutable_graph.number_of_nodes()
+        person = example_graph.get_node(person_id)
+        node_count = example_graph.number_of_nodes()
         assert len(person['identifiers']) == 0
 
-        mutable_graph.add_node(identifier_id, 'AgentIdentifier', {'uri': uri, 'agent': person})
+        example_graph.add_node(identifier_id, 'AgentIdentifier', {'uri': uri, 'agent': person})
 
-        assert mutable_graph.number_of_nodes() == node_count + 1
-        identifier_node = mutable_graph.get_node(identifier_id)
+        assert example_graph.number_of_nodes() == node_count + 1
+        identifier_node = example_graph.get_node(identifier_id)
         assert identifier_node['uri'] == uri
         assert identifier_node['agent'] == person
 
@@ -134,11 +134,11 @@ class TestMutableGraph:
         (0, lambda n, g: not g.degree(n.id)),
         (1, lambda n, g: len(g.out_edges(n.id)) == 1),
     ])
-    def test_filter_nodes(self, mutable_graph, filter, count):
-        filtered = list(mutable_graph.filter_nodes(lambda n: filter(n, mutable_graph)))
+    def test_filter_nodes(self, example_graph, filter, count):
+        filtered = list(example_graph.filter_nodes(lambda n: filter(n, example_graph)))
         assert len(filtered) == count
 
-    def test_jsonld(self, mutable_graph_nodes, mutable_graph):
+    def test_jsonld(self, example_graph_nodes, example_graph):
         def clean_jsonld(value):
             if isinstance(value, list):
                 return [clean_jsonld(n) for n in sorted(value, key=lambda n: n['@id'])]
@@ -148,4 +148,4 @@ class TestMutableGraph:
                     for k, v in value.items() if not isinstance(v, list)
                 }
             return value
-        assert clean_jsonld(mutable_graph_nodes) == clean_jsonld(mutable_graph.to_jsonld(in_edges=False))
+        assert clean_jsonld(example_graph_nodes) == clean_jsonld(example_graph.to_jsonld(in_edges=False))
