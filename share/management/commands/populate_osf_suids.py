@@ -25,7 +25,7 @@ def update_suid(normalized_datum, new_suid_identifier):
 
     if duplicate_raw:
         if duplicate_raw == raw_datum:
-            raise Exception(f'wtf the duplicate is the same one ({raw_datum}, {duplicate_raw})')
+            raise Exception(f'wtf the duplicate is the same one (rawd:{raw_datum}, normd:{normalized_datum}, old_suid:{existing_suid}, new_suid:{new_suid})')
         print(f'normd {normalized_datum.id}: handle dupe raw ({raw_datum.id} => {duplicate_raw.id})')
         normalized_datum.raw = duplicate_raw
         normalized_datum.save()
