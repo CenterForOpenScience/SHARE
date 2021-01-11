@@ -339,7 +339,7 @@ class FunderRelation(Parser):
     schema = 'Funder'
 
     agent = tools.Delegate(FunderAgent, ctx)
-    awards = tools.Map(tools.Delegate(ThroughAwards), tools.Try(tools.RunPython('get_award', ctx)))
+    awards = tools.Map(tools.Delegate(ThroughAwards), tools.Try(tools.RunPython('get_award', ctx), exceptions=(KeyError,)))
 
     def get_award(self, obj):
         obj['awardURI']

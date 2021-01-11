@@ -276,7 +276,7 @@ class Article(Parser):
         )
 
     def get_article_type(self, article_type):
-        return {
+        article_type_map = {
             # 'abstract'
             # 'addendum'
             # 'announcement'
@@ -306,7 +306,11 @@ class Article(Parser):
             'retraction': 'retraction',
             'review-article': 'article',
             # 'systematic-review'
-        }[article_type]
+        }
+        try:
+            return article_type_map[article_type]
+        except KeyError:
+            raise TransformError
 
     def guess_type_from_related(self, related):
         if not isinstance(related, list):
